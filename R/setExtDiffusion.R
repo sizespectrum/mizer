@@ -40,6 +40,7 @@ setExtDiffusion <- function(params, ext_diffusion = NULL, reset = FALSE, ...) {
     UseMethod("setExtDiffusion")
 }
 #' @rdname setExtDiffusion
+#' @usage NULL
 #' @export
 setExtDiffusion.MizerParams <- function(params, ext_diffusion = NULL,
                                         reset = FALSE, ...) {

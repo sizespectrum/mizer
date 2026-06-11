@@ -32,13 +32,47 @@ returned array.}
 }}
 }
 \value{
-An array of dimensions species x size holding the diffusion rates.
+\itemize{
+\item \code{MizerParams}: An \code{ArraySpeciesBySize} object (predator species x predator
+size) with the diffusion rates.
+\item \code{MizerSim}: An \code{ArrayTimeBySpeciesBySize} object (time step x predator
+species x predator size) with the diffusion rates at every time step.
+If \code{drop = TRUE} then dimensions of length 1 will be removed.
+}
 }
 \description{
 Calculates the diffusion rate \eqn{D_i(w)} (grams^2/year) for each species.
-This is the rate at which the abundance density is diffused along the
-size axis due to the variability in prey sizes. This is the diffusion
-term from the jump-growth equation.
+This diffusion rate has two components:
+\enumerate{
+\item The diffusion due due to the variability in prey sizes. This is the
+diffusion term from the jump-growth equation.
+\item Any externally specified diffusion, which is added via \code{\link[=setExtDiffusion]{setExtDiffusion()}}
+}
+}
+\details{
+The diffusion due due to the variability in prey sizes
+is determined by summing over all prey
+species and the resource spectrum and then integrating over all prey sizes
+\eqn{w_p}, weighted by predation kernel \eqn{\phi(w,w_p)}:
+\deqn{
+d_i(w) = (1-f_i(w))(\alpha_i(1-\psi_i(w)))^2\gamma_i(w) \int
+\left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right)
+\phi_i(w,w_p) w_p^2 \, dw_p.
+}{(1-f_i(w))(\alpha_i(1-\psi_i(w)))^2\gamma_i(w) \int
+( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) )
+\phi_i(w,w_p) w_p^2 dw_p.}
+Here \eqn{N_j(w)} is the abundance density of species \eqn{j} and
+\eqn{N_R(w)} is the abundance density of resource.
+The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
+predator. It could be interpreted as a search volume and is set with the
+\code{\link[=setSearchVolume]{setSearchVolume()}} function. The predation kernel
+\eqn{\phi(w,w_p)} is set with the \code{\link[=setPredKernel]{setPredKernel()}} function. The
+species interaction matrix \eqn{\theta_{ij}} is set with \code{\link[=setInteraction]{setInteraction()}}
+and the resource interaction vector \eqn{\theta_{ip}} is taken from the
+\code{interaction_resource} column in \code{\link[=species_params]{species_params()}}.
+\eqn{f(w)} is the feeding level calculated with
+\code{\link[=getFeedingLevel]{getFeedingLevel()}}. \eqn{\psi(w)} is the proportion of the available energy
+that is invested in reproduction instead of growth, obtained with \code{\link[=psi]{psi()}}.
 }
 \references{
 Datta, S., Delius, G. W. and Law, R. (2010). A jump-growth model for

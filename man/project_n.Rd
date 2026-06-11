@@ -5,7 +5,21 @@
 \alias{project_n_no_diffusion}
 \title{Project values for first time step of Euler method}
 \usage{
-project_n(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref, no_sp, no_w)
+project_n(
+  params,
+  r,
+  n,
+  dt,
+  a,
+  b,
+  c,
+  S,
+  idx,
+  w_min_idx_array_ref,
+  no_sp,
+  no_w,
+  flux_limiter = "none"
+)
 
 project_n_no_diffusion(
   params,
@@ -45,6 +59,10 @@ project_n_no_diffusion(
 \item{no_sp}{Number of species.}
 
 \item{no_w}{Number of size bins.}
+
+\item{flux_limiter}{Name of the flux limiter used for a deferred high-order
+correction of the upwind advective flux, or \code{"none"} for plain first-order
+upwind. See \code{\link[=project]{project()}}.}
 }
 \value{
 The updated abundance density matrix \code{n}.

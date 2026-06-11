@@ -1,14 +1,20 @@
 #' Determine reproduction rate needed for initial egg abundance
 #'
 #' @param params A MizerParams object
+#' @param ... Unused.
 #' @return A vector of reproduction rates for all species
 #' @export
-getRequiredRDD <- function(params) {
+getRequiredRDD <- function(params, ...) {
     UseMethod("getRequiredRDD")
 }
 
 #' @export
-getRequiredRDD.MizerParams <- function(params) {
+getRequiredRDD.MizerParams <- function(params, ...) {
+    # The advective-flux scheme is read from the model's second_order_w slot, so
+    # that the egg-cell balance uses the same flux as project() will. The
+    # flux-limited correction changes the flux leaving the egg size class and
+    # hence the reproduction required to hold the egg density steady.
+    flux_limiter <- flux_limiter_scheme(params)
     # Calculate required rdd
     no_sp <- nrow(params@species_params)
 
@@ -30,7 +36,8 @@ getRequiredRDD.MizerParams <- function(params) {
                                  g = r$e_growth,
                                  mu = r$mort, dt,
                                  recruitment_flux = numeric(no_sp),
-                                 d = r$diffusion)
+                                 d = r$diffusion,
+                                 flux_limiter = flux_limiter)
 
     reproduction <- params@species_params$erepro # vector of correct length
     names(reproduction) <- params@species_params$species
@@ -68,5 +75,9 @@ getRequiredRDD.MizerParams <- function(params) {
         total_rate <- a * n_prev + (b - 1) * n_current + c * n_next
         reproduction[i] <- total_rate * params@dw[w_min_idx] / dt
     }
+    # The flux limiter is folded into the coefficients a, b, c above, so the
+    # egg-cell balance already accounts for the high-order flux leaving the egg
+    # size class. This keeps getRequiredRDD() consistent with a project() call
+    # on the same params.
     reproduction
 }

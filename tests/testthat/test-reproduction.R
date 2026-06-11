@@ -97,6 +97,39 @@ test_that("mizerRDI integrates reproductive energy with erepro and egg size", {
                  expected)
 })
 
+test_that("mizerRDI default path is unchanged (first-order left-edge sum)", {
+    # With second_order_w off (the default) the reproduction integral must be
+    # the plain left-edge Riemann sum, byte-for-byte with previous mizer.
+    e_repro <- getERepro(params)
+    expected <- 0.5 * drop((e_repro * params@initial_n) %*% params@dw) *
+        params@species_params$erepro / params@w[params@w_min_idx]
+    expect_identical(
+        mizerRDI(params, n = params@initial_n, n_pp = params@initial_n_pp,
+                 n_other = params@initial_n_other, t = 0,
+                 e_growth = getEGrowth(params), mort = getMort(params),
+                 e_repro = e_repro),
+        expected)
+})
+
+test_that("mizerRDI bin-averages the investment when second_order_w is on", {
+    p2 <- params
+    second_order_w(p2) <- c(bin_average = TRUE)
+    e_repro <- getERepro(p2)
+    # Expected: trapezoidal bin-average of e_repro against the cell-average n.
+    e_bar <- bin_average_weight(e_repro)
+    expected <- 0.5 * drop((e_bar * p2@initial_n) %*% p2@dw) *
+        p2@species_params$erepro / p2@w[p2@w_min_idx]
+    got <- mizerRDI(p2, n = p2@initial_n, n_pp = p2@initial_n_pp,
+                    n_other = p2@initial_n_other, t = 0,
+                    e_growth = getEGrowth(p2), mort = getMort(p2),
+                    e_repro = e_repro)
+    expect_equal(got, expected)
+    # And it must differ from the left-edge sum (the smooth weight varies).
+    left_edge <- 0.5 * drop((e_repro * p2@initial_n) %*% p2@dw) *
+        p2@species_params$erepro / p2@w[p2@w_min_idx]
+    expect_false(isTRUE(all.equal(got, left_edge)))
+})
+
 test_that("BevertonHoltRDD works", {
     rdd <- BevertonHoltRDD(rdi, sp)
     expect_identical(rdd, rdi / (1 + rdi/sp$R_max))

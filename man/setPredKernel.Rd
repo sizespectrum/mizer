@@ -99,6 +99,23 @@ supply a named array then the function will check the order and warn if it is
 different.
 }
 
+\section{Higher-order quadrature}{
+
+When the predation kernel depends only on the predator/prey mass ratio, the
+encounter and predation rates are evaluated as convolutions using the fast
+Fourier transform. By default mizer point-samples the kernel at the grid
+nodes, which is a first-order (rectangle-rule) quadrature. When the
+\code{bin_average} entry of the \code{second_order_w} slot is \code{TRUE}, the kernel is
+instead integrated over each logarithmic size bin when building the
+Fourier-transformed kernels. This finite-volume consistent quadrature lifts
+the encounter and predation rates towards second order at no extra runtime
+cost, because the integration is performed once here and the rate functions
+themselves are unchanged. The default remains the first-order scheme so that
+existing models are unaffected. Enable it with \code{second_order_w(params) <- TRUE} (see \code{\link[=second_order_w]{second_order_w()}}), which also turns on the other bin-averaged
+rate quadratures so the whole model stays consistent. See the
+\code{vignette("fft")} for the mathematical details.
+}
+
 \examples{
 ## Set up a MizerParams object
 params <-  NS_params

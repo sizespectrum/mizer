@@ -4,6 +4,90 @@
   actually used during the simulation rather than the model's `initial_effort`.
   Gears whose effort varied over time show the mean effort, flagged with a note
   giving the min-max range.
+  
+- When the `flux_limiter` entry of the `second_order_w` slot is `TRUE`, the
+  growth (advection) term uses a flux-limited (van Leer, TVD) high-order flux
+  instead of the first-order upwind flux, removing most of the upwind numerical
+  diffusion (which scales like `g * w * log(beta)`) while keeping the density
+  update a tridiagonal solve and keeping abundances non-negative. It is most
+  useful on coarse logarithmic grids and pairs naturally with the second-order
+  time methods. The steady-state tools use the same scheme, so a model is set up
+  at the steady state of its own discretisation. The default keeps the
+  first-order upwind flux; enable it with `second_order_w(params) <- TRUE`. See
+  the "Numerical Details" vignette.
+
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`, the
+  FFT-based encounter and predation rates use a higher-order,
+  finite-volume-consistent quadrature: the predation kernel is integrated over
+  each logarithmic size bin instead of being point-sampled, lifting these rates
+  towards second order at no extra runtime cost. The first-order scheme remains
+  the default; enable the new scheme with `second_order_w(params) <- TRUE`. See
+  the "Fast Fourier Transform for Rates" vignette for the derivation.
+
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`,
+  `setExtMort()` now replaces the point-sampled power-law external mortality
+  \eqn{z_{ext} w^d} by its exact bin average over each bin, making the external
+  mortality sink consistent with the finite-volume scheme. The default
+  (point sampling) is unchanged.
+
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`, the
+  reproduction integral in `mizerRDI()` now trapezoidally bin-averages the
+  per-capita reproductive investment \eqn{\psi(w) E_r(w)} against the
+  cell-average abundance instead of taking its left-bin-edge value, making the
+  density-independent reproduction rate second order in the bin size. The full
+  per-capita investment is averaged together (not `psi` alone) to capture the
+  variation of both factors across the bin. The default (left-edge) behaviour
+  is unchanged.
+  
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`,
+  `setResource()` now builds the auto-calculated resource rate
+  \eqn{r_p w^{n-1}} and carrying capacity \eqn{\kappa w^{-\lambda}} from their
+  exact bin averages over each size bin instead of point-sampling at the left
+  bin edge, with the bin straddling `w_pp_cutoff` getting the partial average.
+  This makes the unpredated semichemostat equilibrium equal to the cell-average
+  of the background spectrum that the bin-integrated encounter convolution (#374)
+  consumes. Only auto-calculated (scalar) rates and capacities are affected;
+  user-supplied full vectors are left untouched, and the default
+  (point-sampled) behaviour is unchanged. Note that enabling this shifts the
+  resource spectrum by `O(Δw)` (more on coarse grids), so calibrated models may
+  need recalibrating.
+
+- `project()` gains a new time-stepping option `method = "tr_bdf2"`. This is an
+  L-stable, second-order TR-BDF2 scheme that retains the second-order accuracy
+  of `method = "predictor_corrector"` while damping the oscillations that the
+  Crank-Nicolson corrector can show at large time steps. Like the other methods
+  it only requires tridiagonal solves. See the "Numerical Details" vignette.
+  
+- Under the second-order methods (`"predictor_corrector"` and `"tr_bdf2"`) the
+  resource is now advanced with midpoint resource mortality rather than the
+  start-of-step value, so the resource spectrum is also second order in time.
+  The `"euler"` method and the steady states are unchanged.
+
+- `MizerParams` gains a `second_order_w` slot — a named logical vector with
+  entries `flux_limiter` and `bin_average` (both default `FALSE`). When `TRUE`,
+  these enable a second-order advective flux and second-order bin-averaged rate
+  quadratures respectively. Both need to be `TRUE` for a fully second-order
+  scheme. Use the new `second_order_w()` / `second_order_w<-()` accessors to
+  get and set the flags. The setter accepts a single logical (sets both entries)
+  or a named vector for individual control. It re-runs `setParams()` to rebuild
+  precomputed arrays.
+
+- When the `bin_average` entry of `second_order_w` is `TRUE`, the summary
+  integrals (`getBiomass()`, `getSSB()`, `getYield()`, `getYieldGear()`,
+  `getDiet()`, `getTrophicLevel()`) now use the trapezoidal bin-average of the
+  size weight rather than its left-bin-edge value, making these diagnostics
+  second order in the bin size. `getN()` is unchanged (its weight is already
+  exact). With the default `bin_average = FALSE` the outputs are unchanged.
+  Note that enabling bin-averaging shifts reported biomass/yield/SSB by
+  `O(Δw)`, so calibrated models may need recalibrating.
+  
+- When `second_order_w()[["bin_average"]]` is `TRUE`, `calc_selectivity()` now
+  stores the bin average of the selectivity over each size bin instead of its
+  value at the left bin edge, making the fishing mortality second order in the
+  bin size. A knife-edge gear then gets the exact fraction of the straddling bin
+  that lies above the knife edge. The default (point-sampled) behaviour is
+  unchanged.
+
 
 # mizer 3.0.0
 

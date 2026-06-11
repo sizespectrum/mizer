@@ -294,3 +294,79 @@ test_that("Can get and set initial_effort slot", {
     expect_identical(initial_effort(params), new)
     expect_identical(getInitialEffort(params), new)
 })
+
+# Bin-averaged (second-order) selectivity ----
+test_that("Default path leaves selectivity point-sampled", {
+    params <- NS_params_small
+    # The default flag is off, so calc_selectivity must reproduce a direct
+    # point evaluation of the selectivity functions at params@w.
+    expect_false(isTRUE(second_order_w(params)[["bin_average"]]))
+    sel <- calc_selectivity(params)
+    expect_identical(sel, params@selectivity[])
+})
+
+test_that("Bin-averaging changes selectivity and persists through setParams", {
+    params <- NS_params_small
+    sel_point <- calc_selectivity(params)
+    second_order_w(params) <- c(bin_average = TRUE)
+    # The flag is recorded
+    expect_true(second_order_w(params)[["bin_average"]])
+    sel_avg <- calc_selectivity(params)
+    expect_equal(dim(sel_avg), dim(sel_point))
+    # It really differs from the point-sampled version
+    expect_gt(max(abs(sel_avg - sel_point)), 1e-3)
+    # The setParams pipeline (re-run by the setter) stored the bin average
+    expect_equal(params@selectivity[], sel_avg)
+    # Still a valid selectivity (in [0, 1])
+    expect_true(all(sel_avg >= 0 & sel_avg <= 1))
+})
+
+test_that("Knife-edge bin average is the analytic partial-bin fraction", {
+    params <- NS_params_small
+    w <- params@w
+    dw <- params@dw
+    j <- 8
+    # Knife edge strictly inside bin j
+    edge <- w[j] + 0.37 * dw[j]
+    gp <- gear_params(params)
+    gp$sel_func <- "knife_edge"
+    gp$knife_edge_size <- edge
+    gear_params(params) <- gp
+    second_order_w(params) <- c(bin_average = TRUE)
+    sel <- calc_selectivity(params)["Pelagic", "Herring", ]
+    # Zero below the straddling bin, one above it
+    expect_true(all(sel[seq_len(j - 1)] == 0))
+    expect_true(all(abs(sel[(j + 1):length(sel)] - 1) < 1e-12))
+    # In the straddling bin: fraction of the (linear-w) bin above the edge
+    wjp1 <- w[j] + dw[j]
+    frac <- (wjp1 - edge) / (wjp1 - w[j])
+    # Composite-midpoint rule converges to the analytic fraction
+    expect_equal(sel[j], frac, tolerance = 1e-2, ignore_attr = TRUE)
+})
+
+test_that("Smooth selectivity bin average matches a fine reference", {
+    params <- NS_params_small
+    gp <- gear_params(params)
+    gp$sel_func <- "sigmoid_weight"
+    gp$sigmoidal_weight <- 50
+    gp$sigmoidal_sigma <- 3
+    gear_params(params) <- gp
+    second_order_w(params) <- c(bin_average = TRUE)
+    sel <- calc_selectivity(params)["Pelagic", "Herring", ]
+    w <- params@w
+    dw <- params@dw
+    ref <- vapply(seq_along(w), function(jj) {
+        wjp1 <- w[jj] + dw[jj]
+        ww <- seq(w[jj], wjp1, length.out = 4000)
+        Sv <- sigmoid_weight(ww, sigmoidal_weight = 50, sigmoidal_sigma = 3)
+        mean((Sv[-1] + Sv[-length(Sv)]) / 2)
+    }, numeric(1))
+    expect_equal(sel, ref, tolerance = 1e-4, ignore_attr = TRUE)
+})
+
+test_that("Projection with bin-averaged selectivity runs finite", {
+    params <- NS_params_small
+    second_order_w(params) <- c(bin_average = TRUE)
+    sim <- project(params, t_max = 2)
+    expect_true(all(is.finite(sim@n)))
+})
