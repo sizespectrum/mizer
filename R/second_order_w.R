@@ -39,7 +39,7 @@ second_order_w <- function(params) {
 #' @export
 `second_order_w<-` <- function(params, value) {
     old_bin_average <- params@second_order_w[["bin_average"]]
-    if (is.logical(value) && length(value) == 1 && !is.na(value)) {
+    if (is.logical(value) && length(value) == 1 && !is.na(value) && is.null(names(value))) {
         params@second_order_w[] <- value
     } else if (is.logical(value) && !is.null(names(value))) {
         valid_names <- c("flux_limiter", "bin_average")
