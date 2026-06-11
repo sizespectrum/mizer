@@ -21,6 +21,23 @@ zero. For each listed combination the function named in \code{sel_func} is calle
 with \code{w = params@w}, the corresponding species parameters, and the
 selectivity parameters from the matching row in \code{gear_params(params)}.
 }
+\section{Bin-averaged selectivity}{
+
+By default the selectivity is point-sampled at the grid nodes \code{params@w},
+i.e. at the left edge of each size bin. This is only first-order accurate in
+the bin size when the selectivity is used in the finite-volume update of the
+size spectrum. When the \code{bin_average} entry of the \code{\link[=second_order_w]{second_order_w()}} slot is
+\code{TRUE}, each selectivity function is instead integrated over its size bin,
+so that \code{selectivity[g, i, j]} holds the bin average
+\deqn{\bar S_{g,i,j} = \frac{1}{\Delta w_j} \int_{w_j}^{w_{j+1}} S_{g,i}(w)\, dw.}
+The integral is evaluated with a composite-midpoint rule on a log-spaced
+sub-grid of each bin, mirroring the bin-integrated predation kernel. This
+lifts the fishing mortality towards second order at no extra runtime cost
+(the integration happens once here, the rate functions are unchanged). A
+welcome side effect is that a knife-edge gear then gets the exact fraction of
+the straddling bin that lies above the knife edge, removing a grid artefact.
+}
+
 \examples{
 params <- NS_params
 str(calc_selectivity(params))
