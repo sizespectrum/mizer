@@ -989,6 +989,8 @@ summary.MizerSim <- function(object, ...) {
     cat("\tOutput stored every ",
         as.numeric(dimnames(object@n)$time)[2] -
             as.numeric(dimnames(object@n)$time)[1], " years\n", sep = "")
+    cat("\tTime step ", object@sim_params$dt, sep = "")
+    cat("\tMethod: ", object@sim_params$method, sep = "")
     invisible(object)
 }
 
