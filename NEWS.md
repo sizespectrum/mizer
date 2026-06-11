@@ -8,6 +8,12 @@
   scheme with `setPredKernel(params, high_order = TRUE)`. See the
   "Fast Fourier Transform for Rates" vignette for the derivation.
 
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`,
+  `setExtMort()` now replaces the point-sampled power-law external mortality
+  \eqn{z_{ext} w^d} by its exact bin average over each bin, making the external
+  mortality sink consistent with the finite-volume scheme. The default
+  (point sampling) is unchanged.
+
 - `project()` gains a new time-stepping option `method = "tr_bdf2"`. This is an
   L-stable, second-order TR-BDF2 scheme that retains the second-order accuracy
   of `method = "predictor_corrector"` while damping the oscillations that the
@@ -27,6 +33,22 @@
   get and set the flags. The setter accepts a single logical (sets both entries)
   or a named vector for individual control. It re-runs `setParams()` to rebuild
   precomputed arrays.
+
+- When the `bin_average` entry of `second_order_w` is `TRUE`, the summary
+  integrals (`getBiomass()`, `getSSB()`, `getYield()`, `getYieldGear()`,
+  `getDiet()`, `getTrophicLevel()`) now use the trapezoidal bin-average of the
+  size weight rather than its left-bin-edge value, making these diagnostics
+  second order in the bin size. `getN()` is unchanged (its weight is already
+  exact). With the default `bin_average = FALSE` the outputs are unchanged.
+  Note that enabling bin-averaging shifts reported biomass/yield/SSB by
+  `O(Δw)`, so calibrated models may need recalibrating.
+  
+- When `second_order_w()[["bin_average"]]` is `TRUE`, `calc_selectivity()` now
+  stores the bin average of the selectivity over each size bin instead of its
+  value at the left bin edge, making the fishing mortality second order in the
+  bin size. A knife-edge gear then gets the exact fraction of the straddling bin
+  that lies above the knife edge. The default (point-sampled) behaviour is
+  unchanged.
 
 
 # mizer 3.0.0

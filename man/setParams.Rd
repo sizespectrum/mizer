@@ -353,6 +353,18 @@ Otherwise it is calculated as
 \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
 Missing values of \code{z_ext} are set to 0 and missing values of \code{d} are set to
 \code{n - 1}.
+
+By default the power law is evaluated at the left bin edges \eqn{w_j}
+(point sampling). If the \code{bin_average} entry of the \code{second_order_w} slot is
+\code{TRUE} (see \code{\link[=second_order_w]{second_order_w()}}), then the \eqn{z_{ext} w^d} term is instead
+replaced by its exact average over each bin \eqn{[w_j, w_{j+1}]},
+\deqn{\frac{z_{ext}}{\Delta w_j}\int_{w_j}^{w_{j+1}} w^d\, dw
+  = z_{ext}\,\frac{w_{j+1}^{d+1} - w_j^{d+1}}{(d+1)\,\Delta w_j},}
+(with the limiting form \eqn{z_{ext}\ln(w_{j+1}/w_j)/\Delta w_j} when
+\eqn{d = -1}). This is the consistent choice in the finite-volume scheme,
+where the external mortality multiplies the bin-averaged abundance. The
+bin-averaging is applied only to the auto-calculated power-law default; a
+user-supplied \code{ext_mort} array is left untouched.
 }
 
 \section{Setting external encounter rate}{
