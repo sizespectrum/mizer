@@ -207,6 +207,7 @@ test_that("bin-integrated box kernel matches the analytic weights", {
     # Invert the FFT of the first species to recover the kernel weights
     phi_e <- Re(fft(p_hi@ft_pred_kernel_e[1, ], inverse = TRUE)) / no_w_full
     phi_p <- Re(fft(p_hi@ft_pred_kernel_p[1, ], inverse = TRUE)) / no_w_full
+    phi_d <- Re(fft(p_hi@ft_pred_kernel_d[1, ], inverse = TRUE)) / no_w_full
     # Offset m = 0 (own bin) carries no encounter; a mid-range offset lies fully
     # inside the box support
     expect_equal(unname(phi_e[1]), 0, tolerance = 1e-8)
@@ -214,4 +215,22 @@ test_that("bin-integrated box kernel matches the analytic weights", {
     # The predation weight for a fully-covered bin is exactly 1. phi_p is the
     # reversed kernel, so offset m = 1 sits in the last entry.
     expect_equal(unname(phi_p[no_w_full]), 1, tolerance = 1e-4)
+    # The diffusion integrand carries one more power of prey size than the
+    # encounter (w_p^2 dw_p), so a fully-covered bin gets the bin average of
+    # (w_p/w_k)^2, which is (beta^3 - 1)/(3(beta - 1)) = (beta^2 + beta + 1)/3,
+    # the diffusion analogue of the encounter's (beta + 1)/2.
+    expect_equal(unname(phi_d[5]),
+                 (beta_grid^2 + beta_grid + 1) / 3, tolerance = 1e-4)
+})
+
+test_that("ft_pred_kernel_d equals ft_pred_kernel_e in the first-order scheme", {
+    # With bin_average off the diffusion kernel mirrors the encounter kernel, so
+    # the predation-diffusion integral is byte-identical to previous mizer.
+    p <- setPredKernel(NS_params_small)
+    expect_identical(p@ft_pred_kernel_d, p@ft_pred_kernel_e)
+    # And it differs once bin-averaging is on (the extra power of prey size).
+    p_hi <- NS_params_small
+    p_hi@second_order_w[["bin_average"]] <- TRUE
+    p_hi <- setPredKernel(p_hi)
+    expect_false(isTRUE(all.equal(p_hi@ft_pred_kernel_d, p_hi@ft_pred_kernel_e)))
 })

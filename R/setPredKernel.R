@@ -177,13 +177,17 @@ setPredKernel.MizerParams <- function(params,
         array(NA, dim = c(no_sp, no_w_full),
               dimnames = list(sp = species_params$species, k = 1:no_w_full))
     ft_pred_kernel_p <- ft_pred_kernel_e
-    # The kernel weights phi_e[i, ] and phi_p[i, ] give, for each offset
-    # m = 0, ..., no_w_full - 1 between the predator and prey bins, the value
-    # that enters the encounter and predation convolutions respectively. With
-    # the default first-order scheme both are the kernel point-sampled at the
-    # grid node, tilde_phi(beta^m). With the higher-order scheme they are the
-    # kernel integrated over the prey bin (encounter) and predator bin
-    # (predation); see below and the vignette("fft").
+    ft_pred_kernel_d <- ft_pred_kernel_e
+    # The kernel weights phi_e[i, ], phi_p[i, ] and phi_d[i, ] give, for each
+    # offset m = 0, ..., no_w_full - 1 between the predator and prey bins, the
+    # value that enters the encounter, predation and predation-diffusion
+    # convolutions respectively. With the default first-order scheme all three
+    # are the kernel point-sampled at the grid node, tilde_phi(beta^m). With the
+    # higher-order scheme they are the kernel integrated over the prey bin
+    # (encounter and diffusion) and predator bin (predation); see below and the
+    # vignette("fft"). The diffusion integrand carries one more power of prey
+    # size than the encounter (w_p^2 dw_p vs w_p dw_p), so it uses the same
+    # prey-bin ratios but the e^{3t} Jacobian instead of e^{2t}.
     if (!high_order) {
         # First-order (rectangle-rule) quadrature: point-sample the kernel.
         # The smallest predator/prey mass ratio is 1.
@@ -192,6 +196,9 @@ setPredKernel.MizerParams <- function(params,
         # Do not allow feeding at own size
         phi_e[, 1] <- 0
         phi_p <- phi_e
+        # The diffusion convolution reuses the point-sampled kernel; the extra
+        # power of prey size lives entirely in the prey vector in this scheme.
+        phi_d <- phi_e
     } else {
         # Higher-order (bin-integrated) quadrature. The grid is geometric, so
         # the bin ratio beta = w_full[k+1] / w_full[k] is constant; Delta is the
@@ -217,19 +224,28 @@ setPredKernel.MizerParams <- function(params,
         # cancels the factor w * dw = (beta - 1) w^2 that mizerEncounter() and
         # mizerPredRate() already fold into the prey and predator vectors, so
         # those rate functions need no change.
+        # The diffusion integrand is the encounter integrand with one more power
+        # of prey size (w_p^2 dw_p instead of w_p dw_p), so it integrates over
+        # the same prey bin (ppmr_e ratios) but with the e^{3t} Jacobian.
         weight_e <- exp(2 * tt) * Delta / Q / (beta_grid - 1)
         weight_p <- exp(tt)     * Delta / Q / (beta_grid - 1)
+        weight_d <- exp(3 * tt) * Delta / Q / (beta_grid - 1)
         phi_e <- matrix(0, nrow = no_sp, ncol = no_w_full)
         phi_p <- phi_e
+        phi_d <- phi_e
         for (i in 1:no_sp) {
             phi_e[i, ] <- matrix(kernel_e[i, ], nrow = no_w_full) %*% weight_e
             phi_p[i, ] <- matrix(kernel_p[i, ], nrow = no_w_full) %*% weight_p
+            phi_d[i, ] <- matrix(kernel_e[i, ], nrow = no_w_full) %*% weight_d
         }
     }
 
     for (i in 1:no_sp) {
         # Fourier transform of feeding kernel for evaluating available energy
         ft_pred_kernel_e[i, ] <- fft(phi_e[i, ])
+        # Fourier transform of feeding kernel for evaluating the predation
+        # diffusion integral (same convolution as encounter, extra power of w_p)
+        ft_pred_kernel_d[i, ] <- fft(phi_d[i, ])
         # Fourier transform of feeding kernel for evaluating predation rate
         ri <- min(max(which(phi_p[i, ] > 0)), no_w_full - 1)  # index of largest ppmr
         phi_p_rev <- rep(0, no_w_full)
@@ -241,7 +257,8 @@ setPredKernel.MizerParams <- function(params,
     if (!is.null(comment(params@pred_kernel))) {
         # Issue warning but only if a change was actually requested
         if (different(ft_pred_kernel_e, params@ft_pred_kernel_e) ||
-            different(ft_pred_kernel_p, params@ft_pred_kernel_p)) {
+            different(ft_pred_kernel_p, params@ft_pred_kernel_p) ||
+            different(ft_pred_kernel_d, params@ft_pred_kernel_d)) {
             message("You have set a custom predation kernel and so it ",
                     "will not be recalculated from the species parameters ",
                     "unless you set `reset = TRUE`.")
@@ -250,6 +267,7 @@ setPredKernel.MizerParams <- function(params,
     }
     params@ft_pred_kernel_e[] <- ft_pred_kernel_e
     params@ft_pred_kernel_p[] <- ft_pred_kernel_p
+    params@ft_pred_kernel_d[] <- ft_pred_kernel_d
 
     params@time_modified <- lubridate::now()
     return(params)

@@ -17,7 +17,7 @@ needs_upgrading <- function(object) {
         stop("The object you supplied is neither a MizerParams nor a MizerSim object.")
     }
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "3.0.0.9001"
+        params@mizer_version < "3.0.0.9002"
 }
 
 #' Upgrade MizerParams object from earlier mizer versions
@@ -403,6 +403,16 @@ upgradeParams <- function(params) {
         old_val <- params@second_order_w
         params@second_order_w <- c(flux_limiter = old_val,
                                    bin_average = old_val)
+    }
+
+    # Add ft_pred_kernel_d slot if missing (added in 3.0.0.9002). It mirrors
+    # ft_pred_kernel_e except under second_order_w bin-averaging; objects from
+    # earlier versions are first order, so the diffusion kernel equals the
+    # encounter kernel. (A later setParams() rebuilds it correctly if needed.)
+    if (!.hasSlot(params, "ft_pred_kernel_d") ||
+        !identical(dim(params@ft_pred_kernel_d),
+                   dim(params@ft_pred_kernel_e))) {
+        params@ft_pred_kernel_d <- params@ft_pred_kernel_e
     }
 
     params@mizer_version <- packageVersion("mizer")

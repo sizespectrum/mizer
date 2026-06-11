@@ -341,6 +341,13 @@ validMizerParams <- function(object) {
 #'   appropriate for evaluating the predation mortality integral. If this is NA
 #'   then the `pred_kernel` will be used to calculate the integral.
 #'   Changed with [setPredKernel()].
+#' @slot ft_pred_kernel_d An array (species x log of predator/prey size ratio)
+#'   that holds the Fourier transform of the feeding kernel in a form
+#'   appropriate for evaluating the predation-diffusion integral (used when
+#'   `use_predation_diffusion` is `TRUE`). It differs from `ft_pred_kernel_e`
+#'   only when `second_order_w[["bin_average"]]` is `TRUE`, where it carries the
+#'   extra power of prey size that the diffusion integrand needs; otherwise it
+#'   equals `ft_pred_kernel_e`. Changed with [setPredKernel()].
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
 #'   growth rate of the resource spectrum.
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
@@ -433,6 +440,7 @@ setClass(
         pred_kernel = "array",
         ft_pred_kernel_e = "array",
         ft_pred_kernel_p = "array",
+        ft_pred_kernel_d = "array",
         mu_b = "array",
         ext_encounter = "array",
         ext_diffusion = "array",
@@ -718,6 +726,7 @@ emptyParams <- function(species_params,
         ext_diffusion = mat1,
         ft_pred_kernel_e = ft_pred_kernel,
         ft_pred_kernel_p = ft_pred_kernel,
+        ft_pred_kernel_d = ft_pred_kernel,
         pred_kernel = array(),
         gear_params = gear_params,
         selectivity = selectivity,
