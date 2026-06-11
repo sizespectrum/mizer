@@ -5,10 +5,21 @@
   of `method = "predictor_corrector"` while damping the oscillations that the
   Crank-Nicolson corrector can show at large time steps. Like the other methods
   it only requires tridiagonal solves. See the "Numerical Details" vignette.
+  
 - Under the second-order methods (`"predictor_corrector"` and `"tr_bdf2"`) the
   resource is now advanced with midpoint resource mortality rather than the
   start-of-step value, so the resource spectrum is also second order in time.
   The `"euler"` method and the steady states are unchanged.
+
+- `MizerParams` gains a `second_order_w` slot — a named logical vector with
+  entries `flux_limiter` and `bin_average` (both default `FALSE`). When `TRUE`,
+  these enable a second-order advective flux and second-order bin-averaged rate
+  quadratures respectively. Both need to be `TRUE` for a fully second-order
+  scheme. Use the new `second_order_w()` / `second_order_w<-()` accessors to
+  get and set the flags. The setter accepts a single logical (sets both entries)
+  or a named vector for individual control. It re-runs `setParams()` to rebuild
+  precomputed arrays.
+
 
 # mizer 3.0.0
 
