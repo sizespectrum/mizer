@@ -393,10 +393,10 @@ upgradeParams <- function(params) {
         params@use_predation_diffusion <- FALSE
     }
 
-    # Add high_order slot if missing (added in 3.0.x)
+    # Add second_order_w slot if missing (added in 3.0.x)
     # Default to FALSE to preserve behaviour of previous mizer versions.
-    if (!.hasSlot(params, "high_order")) {
-        params@high_order <- FALSE
+    if (!.hasSlot(params, "second_order_w")) {
+        params@second_order_w <- FALSE
     }
 
     params@mizer_version <- packageVersion("mizer")

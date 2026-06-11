@@ -116,7 +116,7 @@ reference:
   - markBackground
   - removeBackgroundSpecies
   - use_predation_diffusion
-  - high_order
+  - second_order_w
 - title: Steady state tuning
   description: The first task after creating a multi-species model is to tune
     the model parameters so that in its steady state the model reproduces

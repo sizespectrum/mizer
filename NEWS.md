@@ -1,9 +1,9 @@
 # mizer (development version)
 
-- `MizerParams` gains a `high_order` slot (logical, default `FALSE`).
+- `MizerParams` gains a `second_order_w` slot (logical, default `FALSE`).
   When `TRUE`, mizer uses second-order bin-averaged rate quadratures
-  instead of point-sampled (left-edge) rates. Use the new `high_order()` /
-  `high_order<-()` accessors to get and set this flag. The setter re-runs
+  instead of point-sampled (left-edge) rates. Use the new `second_order_w()` /
+  `second_order_w<-()` accessors to get and set this flag. The setter re-runs
   `setParams()` to rebuild precomputed arrays. The default stays `FALSE` so
   existing models are byte-identical.
 

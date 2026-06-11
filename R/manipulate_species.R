@@ -101,7 +101,7 @@ copyPreservedParamsSlots <- function(params, old_params) {
     params@other_params <- old_params@other_params
     params@rates_funcs <- old_params@rates_funcs
     params@use_predation_diffusion <- old_params@use_predation_diffusion
-    params@high_order <- old_params@high_order
+    params@second_order_w <- old_params@second_order_w
 
     params@metadata <- old_params@metadata
     params@time_created <- old_params@time_created

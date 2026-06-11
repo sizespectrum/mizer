@@ -232,9 +232,9 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
 
-    # high_order must be a single logical value
-    if (!is.logical(params@high_order) || length(params@high_order) != 1) {
-        msg <- "high_order must be a single logical value (TRUE or FALSE)"
+    # second_order_w must be a single logical value
+    if (!is.logical(params@second_order_w) || length(params@second_order_w) != 1) {
+        msg <- "second_order_w must be a single logical value (TRUE or FALSE)"
         errors <- c(errors, msg)
     }
 
@@ -396,7 +396,7 @@ validMizerParams <- function(object) {
 #'   diffusion is included when calculating rates with [mizerDiffusion()].
 #'   Defaults to `FALSE` to preserve the behaviour of previous mizer versions.
 #'   Set to `TRUE` to enable the diffusion term from the jump-growth equation.
-#' @slot high_order A logical flag controlling whether second-order
+#' @slot second_order_w A logical flag controlling whether second-order
 #'   bin-averaged rate quadratures are used. Defaults to `FALSE` to preserve
 #'   the behaviour of previous mizer versions. Set to `TRUE` to enable
 #'   bin-integrated quantities consistent with the finite-volume representation.
@@ -455,7 +455,7 @@ setClass(
         linetype = "character",
         ft_mask = "array",
         use_predation_diffusion = "logical",
-        high_order = "logical"
+        second_order_w = "logical"
     ),
 )
 
@@ -751,7 +751,7 @@ emptyParams <- function(species_params,
         linetype = linetype,
         ft_mask = ft_mask,
         use_predation_diffusion = FALSE,
-        high_order = FALSE
+        second_order_w = FALSE
     )
 
     return(params)
