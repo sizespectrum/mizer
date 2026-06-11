@@ -34,6 +34,15 @@
   the default; enable the new scheme with `second_order_w(params) <- TRUE`. See
   the "Fast Fourier Transform for Rates" vignette for the derivation.
 
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`, the
+  predation-rate kernel `ft_pred_kernel_p` is now also averaged over the
+  **prey** bin (a trapezoid fold of the kernel), completing the predator-bin
+  integral above. Predation mortality is a sink integrated against the prey
+  density over the prey bin, so the prey-bin average is the form it needs to be
+  second order; `getPredMort()` and `getResourceMort()` (and `getPredRate()`)
+  pick this up automatically with no change to the rate functions and no extra
+  runtime cost. The default (point-sampled) behaviour is unchanged.
+
 - When the `bin_average` entry of the `second_order_w` slot is `TRUE`,
   `setExtMort()` now replaces the point-sampled power-law external mortality
   \eqn{z_{ext} w^d} by its exact bin average over each bin, making the external

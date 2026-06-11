@@ -175,6 +175,29 @@ which replaces $\tilde\phi_i(\beta^{m})$ in the reversed-kernel construction of
 `ft_pred_kernel_p`. Again `mizerPredRate()` is unchanged because the predator
 vector already carries $dw = (\beta-1)\,w_n$.
 
+There is a second integral hidden in the predation rate. Its convolution output
+sits at the **prey** node $w_p$, but predation mortality enters the
+finite-volume update as a sink integrated against the prey density over the
+prey bin, $\tfrac{1}{\Delta w_p}\int_{\text{bin}}\mu_{\mathrm{pred}}(w_p)\,
+N(w_p)\,dw_p$. So, exactly as for external mortality and fishing, the rate that
+enters the mortality wants the **prey-bin average** of $P_j(w_p)$, not its value
+at the prey node. Bin-averaging the convolution output over the prey bin is a
+trapezoid fold of the (reversed) kernel over adjacent offsets,
+$$
+\bar\Phi^{P}_i[m] = \tfrac12\bigl(\Phi^{P}_i[m] + \Phi^{P}_i[m-1]\bigr),
+$$
+because $\tfrac12\bigl(P_j[w_{p}] + P_j[\beta w_{p}]\bigr)
+= \sum_n \tfrac12\bigl(\Phi^P_i[n-j] + \Phi^P_i[n-j-1]\bigr)\,Q_i[n]$. Storing
+$\mathrm{fft}(\bar\Phi^{P})$ as `ft_pred_kernel_p` makes `getPredRate()` come out
+already prey-bin-averaged, so both `mizerPredMort()` and `mizerResourceMort()`
+(the only consumers, both sinks) get the second-order mortality at no runtime
+cost and with no change to the rate functions. With this the two convolutions
+are fully bin-consistent: encounter integrates the prey bins, and predation
+integrates **both** the predator bins and the prey bins. (Encounter is *not*
+prey-bin-averaged on its output, because it feeds the growth flux — a
+point/face quantity — and is bin-averaged only at the reproduction integral; see
+`vignette("numerical_details")`.)
+
 ### Why this is the right weighting
 
 Take the box kernel $\tilde\phi = 1$ over a bin that lies fully inside the
