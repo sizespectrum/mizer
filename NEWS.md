@@ -1,5 +1,16 @@
 # mizer (development version)
 
+- `project()` gains a new time-stepping option `method = "tr_bdf2"`. This is an
+  L-stable, second-order TR-BDF2 scheme that retains the second-order accuracy
+  of `method = "predictor_corrector"` while damping the oscillations that the
+  Crank-Nicolson corrector can show at large time steps. Like the other methods
+  it only requires tridiagonal solves. See the "Numerical Details" vignette.
+  
+- Under the second-order methods (`"predictor_corrector"` and `"tr_bdf2"`) the
+  resource is now advanced with midpoint resource mortality rather than the
+  start-of-step value, so the resource spectrum is also second order in time.
+  The `"euler"` method and the steady states are unchanged.
+
 - `MizerParams` gains a `second_order_w` slot — a named logical vector with
   entries `flux_limiter` and `bin_average` (both default `FALSE`). When `TRUE`,
   these enable second-order bin-averaged rate quadratures instead of
@@ -7,6 +18,7 @@
   `second_order_w<-()` accessors to get and set the flags. The setter accepts
   a single logical (sets both entries) or a named vector for individual control.
   It re-runs `setParams()` to rebuild precomputed arrays.
+
 
 # mizer 3.0.0
 

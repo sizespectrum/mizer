@@ -46,12 +46,15 @@ NULL
 #'   bar should be shown in the console, or a shiny Progress object to implement
 #'   a progress bar in a shiny app.
 #' @param method The numerical method to use for the consumer density update.
-#'   Currently `"euler"` uses the existing semi-implicit Euler update, while
+#'   `"euler"` uses the first-order semi-implicit Euler update.
 #'   `"predictor_corrector"` uses a predictor-corrector Crank-Nicolson update
-#'   with midpoint rates. `"predictor-corrector"` is accepted as an alias.
-#'   When `object` is a `MizerSim`, defaults to the value used to produce that
-#'   simulation. A warning is issued if `append = TRUE` and the supplied value
-#'   differs from the stored one.
+#'   with midpoint rates, which is second order in time but can oscillate at
+#'   large time steps. `"tr_bdf2"` uses the L-stable, second-order TR-BDF2
+#'   method, which retains second-order accuracy while damping those
+#'   oscillations. `"predictor-corrector"` is accepted as an alias for
+#'   `"predictor_corrector"`. When `object` is a `MizerSim`, defaults to the
+#'   value used to produce that simulation. A warning is issued if
+#'   `append = TRUE` and the supplied value differs from the stored one.
 #' @param ... Other arguments will be passed to rate functions.
 #'
 #' @note The `effort` argument specifies the level of fishing effort during the
@@ -143,7 +146,7 @@ project <- function(object, effort,
                     initial_n, initial_n_pp,
                     append = TRUE,
                     progress_bar = TRUE,
-                    method = c("euler", "predictor_corrector"), ...) {
+                    method = c("euler", "predictor_corrector", "tr_bdf2"), ...) {
     UseMethod("project")
 }
 
@@ -152,7 +155,7 @@ normalise_project_method <- function(method) {
         method <- method[[1]]
     }
     method <- match.arg(method, c("euler", "predictor_corrector",
-                                  "predictor-corrector"))
+                                  "predictor-corrector", "tr_bdf2"))
     if (method == "predictor-corrector") {
         method <- "predictor_corrector"
     }
@@ -166,7 +169,7 @@ project.MizerParams <- function(object, effort,
                                 initial_n, initial_n_pp,
                                 append = TRUE,
                                 progress_bar = TRUE,
-                                method = c("euler", "predictor_corrector"),
+                                method = c("euler", "predictor_corrector", "tr_bdf2"),
                                 ...) {
     params <- validParams(object)
     method <- normalise_project_method(method)
@@ -378,7 +381,7 @@ project.MizerSim <- function(object, effort,
                              initial_n, initial_n_pp,
                              append = TRUE,
                              progress_bar = TRUE,
-                             method = c("euler", "predictor_corrector"),
+                             method = c("euler", "predictor_corrector", "tr_bdf2"),
                              ...) {
     validObject(object)
     stored <- object@sim_params
@@ -499,7 +502,7 @@ project.MizerSim <- function(object, effort,
 project_simple <- function(params, n, n_pp, n_other, effort, t, dt, steps,
                            resource_dynamics_fn, other_dynamics_fns,
                            rates_fns,
-                           method = c("euler", "predictor_corrector"), ...) {
+                           method = c("euler", "predictor_corrector", "tr_bdf2"), ...) {
     UseMethod("project_simple")
 }
 
@@ -514,7 +517,7 @@ project_simple.MizerParams <-
              resource_dynamics_fn = get(params@resource_dynamics),
              other_dynamics_fns = lapply(params@other_dynamics, get),
              rates_fns = projectRateFunctions(params),
-             method = c("euler", "predictor_corrector"), ...) {
+             method = c("euler", "predictor_corrector", "tr_bdf2"), ...) {
         method <- normalise_project_method(method)
         # Handy things ----
         no_sp <- nrow(params@species_params) # number of species
@@ -557,30 +560,65 @@ project_simple.MizerParams <-
                     )
             }
 
-            # * Update resource ----
-            n_pp <- resource_dynamics_fn(params,
-                n = n, n_pp = n_pp,
-                n_other = n_other, rates = r,
-                t = t, dt = dt,
-                resource_rate = params@rr_pp,
-                resource_capacity = params@cc_pp, ...
-            )
+            # * Update resource and species ----
+            if (method == "predictor_corrector" || method == "tr_bdf2") {
+                # Second-order methods: compute midpoint rates once and use them
+                # for both the resource and the consumer update.
+                # Predictor: advance resource and consumer with start-of-step
+                # rates r.
+                n_pp_hat <- resource_dynamics_fn(params,
+                    n = n, n_pp = n_pp,
+                    n_other = n_other, rates = r,
+                    t = t, dt = dt,
+                    resource_rate = params@rr_pp,
+                    resource_capacity = params@cc_pp, ...
+                )
+                n_hat <- project_n(params, r, n, dt, a, b, c, S, idx,
+                                   w_min_idx_array_ref, no_sp, no_w)
+                # End-of-step rates from the prediction, then midpoint rates
+                r_hat <- rates_fns$Rates(
+                    params,
+                    n = n_hat, n_pp = n_pp_hat, n_other = n_other_new,
+                    t = t + dt, effort = effort, rates_fns = rates_fns, ...
+                )
+                r_mid <- average_rates(r, r_hat)
 
-            # * Update species ----
-            if (method == "predictor_corrector") {
-                n <- project_n_2(params, r, n, dt, a, b, c, S, idx,
-                                 w_min_idx_array_ref, no_sp, no_w,
-                                 rates_fns = rates_fns,
-                                 n_pp = n_pp,
-                                 n_other = n_other_new,
-                                 t = t,
-                                 effort = effort, ...)
-            } else if (any(r$diffusion > 0)) {
-                n <- project_n(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
-                               no_sp, no_w)
+                # Corrector: resource with midpoint resource mortality
+                n_pp <- resource_dynamics_fn(params,
+                    n = n, n_pp = n_pp,
+                    n_other = n_other, rates = r_mid,
+                    t = t, dt = dt,
+                    resource_rate = params@rr_pp,
+                    resource_capacity = params@cc_pp, ...
+                )
+                # Corrector: consumer with the same midpoint rates. Supplying
+                # r_mid makes the stepper skip its internal predictor.
+                if (method == "predictor_corrector") {
+                    n <- project_n_2(params, r, n, dt, a, b, c, S, idx,
+                                     w_min_idx_array_ref, no_sp, no_w,
+                                     r_mid = r_mid)
+                } else {
+                    n <- project_n_tr_bdf2(params, r, n, dt, a, b, c, S, idx,
+                                           w_min_idx_array_ref, no_sp, no_w,
+                                           r_mid = r_mid)
+                }
             } else {
-                n <- project_n_no_diffusion(params, r, n, dt, a, b, S, idx, w_min_idx_array_ref,
-                                            no_sp, no_w)
+                # First-order Euler method.
+                n_pp <- resource_dynamics_fn(params,
+                    n = n, n_pp = n_pp,
+                    n_other = n_other, rates = r,
+                    t = t, dt = dt,
+                    resource_rate = params@rr_pp,
+                    resource_capacity = params@cc_pp, ...
+                )
+                if (any(r$diffusion > 0)) {
+                    n <- project_n(params, r, n, dt, a, b, c, S, idx,
+                                   w_min_idx_array_ref, no_sp, no_w)
+                } else {
+                    n <- project_n_no_diffusion(params, r, n, dt, a, b, S, idx,
+                                                w_min_idx_array_ref, no_sp,
+                                                no_w)
+                }
             }
 
             # * Update time ----

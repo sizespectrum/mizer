@@ -262,26 +262,69 @@ or $O(\Delta t^2 + \log\beta)$ on the logarithmic grid.
 
 There are two practical cautions. First, this doubles the number of rate evaluations per time step. Second, Crank-Nicolson-type methods are less damping than backward Euler, so for large time steps they can show oscillations even when they are formally stable. Positivity and robustness would therefore need to be checked carefully before using this as the default time stepper.
 
+## TR-BDF2 Time Stepping
+
+The oscillations of the Crank-Nicolson corrector are a consequence of its stability function. For the scalar test problem $N' = \lambda N$ the corrector multiplies the solution by
+$$
+R_{CN}(z) = \frac{1 + z/2}{1 - z/2}, \qquad z = \lambda\,\Delta t,
+$$ {#eq-cn-amplification}
+and for a strongly damped mode ($\lambda$ real and very negative) $R_{CN}(z) \to -1$ as $z \to -\infty$. Such modes are therefore barely damped and flip sign every step. This is the ringing seen at large $\Delta t$, and it is driven most strongly by the non-smooth recruitment boundary at $w_{min}$. Crank-Nicolson is *A-stable* but not *L-stable*: it does not satisfy $R(z) \to 0$ as $z \to -\infty$.
+
+The **TR-BDF2** method, selected with `method = "tr_bdf2"`, keeps second-order accuracy but is *L-stable*, so the stiff modes are damped rather than ringing. It is a one-step, two-stage method. Writing the frozen-rate spatial operator and recruitment source as $L$ and $q$ (as above), and using a stage fraction $\gamma$, one step from $N^t$ to $N^{t+1}$ is
+
+1.  **Trapezoidal (TR) stage** over $[t, t+\gamma\Delta t]$:
+    $$
+    \frac{N^{t+\gamma} - N^t}{\gamma\Delta t}
+    = \tfrac{1}{2}\left(L N^t + L N^{t+\gamma}\right) + q.
+    $$ {#eq-trbdf2-tr}
+2.  **Backward-differentiation (BDF2) stage** over the whole step, using $N^t$, $N^{t+\gamma}$ and $N^{t+1}$:
+    $$
+    N^{t+1} = \frac{1}{\gamma(2-\gamma)}N^{t+\gamma}
+    - \frac{(1-\gamma)^2}{\gamma(2-\gamma)}N^t
+    + \frac{1-\gamma}{2-\gamma}\,\Delta t\left(L N^{t+1} + q\right).
+    $$ {#eq-trbdf2-bdf2}
+
+The standard choice is
+$$
+\gamma = 2 - \sqrt{2},
+$$ {#eq-trbdf2-gamma}
+which makes the method L-stable and, crucially for the implementation, makes the two stages share the **same** implicit coefficient. The TR stage implicitly multiplies $L$ by $\gamma\Delta t/2$ and the BDF2 stage by $(1-\gamma)/(2-\gamma)\,\Delta t$, and for $\gamma = 2-\sqrt 2$ both equal
+$$
+\alpha\,\Delta t, \qquad \alpha = \frac{\gamma}{2} = 1 - \frac{1}{\sqrt 2}.
+$$ {#eq-trbdf2-alpha}
+Each stage is therefore a solve against the same matrix $I - \alpha\Delta t\,L$, which is exactly the tridiagonal operator $\tt{get\_transport\_coefs()}$ builds at time step $\alpha\Delta t$. The matrix is assembled once and the BDF2 stage reuses it; only the right-hand sides differ. Writing $c_1 = (\sqrt 2 + 1)/2$ and $c_0 = (\sqrt 2 - 1)/2$ (with $c_1 - c_0 = 1$), the right-hand sides are
+$$
+\begin{aligned}
+S^{TR} &= 2N^t - (I - \alpha\Delta t\,L)\,N^t + \gamma\Delta t\, q, \\
+S^{BDF2} &= c_1 N^{t+\gamma} - c_0 N^t + \alpha\Delta t\, q.
+\end{aligned}
+$$ {#eq-trbdf2-rhs}
+The first of these is the Crank-Nicolson right-hand side over the sub-step $\gamma\Delta t$, so the TR stage reuses the existing corrector assembly.
+
+The nonlinear rates are treated exactly as in the predictor-corrector method: a provisional Euler predictor gives end-of-step rates, these are averaged with the start-of-step rates to obtain second-order midpoint rates, and the frozen operator $L$ uses those midpoint rates. The result is second order in $\Delta t$ for the full nonlinear dynamics while remaining L-stable, at the cost of one predictor solve, two stage solves and one rate recalculation per step.
+
+At a steady state the argument of the previous section applies unchanged: with $N^t = N^{t+\gamma} = N^{t+1} = N^*$ both stages reduce to $L N^* + q = 0$. TR-BDF2 therefore has the same fixed point as the Euler and predictor-corrector methods and only changes the transient path.
+
 ## Accuracy comparison
 
 This vignette compares the first-order consumer density update,
-selected with `method = "euler"`, with the predictor-corrector update selected
-with `method = "predictor_corrector"`, on the North Sea example model
-`NS_params`.
+selected with `method = "euler"`, with the two second-order updates selected
+with `method = "predictor_corrector"` and `method = "tr_bdf2"`, on the North Sea
+example model `NS_params`.
 
 The comparison is intentionally modest. It is meant as a reproducible smoke
 test for speed and time-step sensitivity, not as a comprehensive benchmark.
 
 We compare final consumer spectra against a smaller-time-step reference
-solution from the predictor-corrector method. Because both methods use the same
-spatial discretisation, this test is only about the time discretisation error
-on the fixed `NS_params` weight grid.
+solution from the TR-BDF2 method. Because all methods use the same spatial
+discretisation, this test is only about the time discretisation error on the
+fixed `NS_params` weight grid.
 
 ```{r accuracy}
 #| code-fold: true
 #| output: true
 t_max <- 8
-dt_values <- c(0.4, 0.2, 0.1, 0.05, 0.025)
+dt_values <- c(1.6, 0.8,0.4, 0.2, 0.1, 0.05, 0.025)
 reference_dt <- 0.4 / 2^6
 
 params <- NS_params
@@ -297,7 +340,7 @@ reference <- project(
     params,
     dt = reference_dt,
     t_max = t_max,
-    method = "predictor_corrector"
+    method = "tr_bdf2"
 )
 
 accuracy <- do.call(rbind, lapply(dt_values, function(dt) {
@@ -305,11 +348,14 @@ accuracy <- do.call(rbind, lapply(dt_values, function(dt) {
                      method = "euler")
     pc <- project(params, dt = dt, t_max = t_max, t_save = t_max,
                   method = "predictor_corrector")
+    trbdf2 <- project(params, dt = dt, t_max = t_max, t_save = t_max,
+                      method = "tr_bdf2")
 
     data.frame(
         dt = dt,
         euler_error = relative_l2_error(euler, reference),
-        predictor_corrector_error = relative_l2_error(pc, reference)
+        predictor_corrector_error = relative_l2_error(pc, reference),
+        tr_bdf2_error = relative_l2_error(trbdf2, reference)
     )
 }))
 
@@ -328,7 +374,8 @@ plot(
     pch = 16,
     xlab = expression(Delta * t),
     ylab = "relative error in final consumer spectrum",
-    ylim = range(accuracy$euler_error, accuracy$predictor_corrector_error)
+    ylim = range(accuracy$euler_error, accuracy$predictor_corrector_error,
+                 accuracy$tr_bdf2_error)
 )
 lines(
     predictor_corrector_error ~ dt,
@@ -337,11 +384,19 @@ lines(
     pch = 17,
     col = 2
 )
+lines(
+    tr_bdf2_error ~ dt,
+    data = accuracy,
+    type = "b",
+    pch = 15,
+    col = 4
+)
 legend(
     "bottomright",
-    legend = c('method = "euler"', 'method = "predictor_corrector"'),
-    pch = c(16, 17),
-    col = c(1, 2),
+    legend = c('method = "euler"', 'method = "predictor_corrector"',
+               'method = "tr_bdf2"'),
+    pch = c(16, 17, 15),
+    col = c(1, 2, 4),
     lty = 1,
     bty = "n"
 )
@@ -349,16 +404,38 @@ legend(
 
 ### Speed
 
-The second-order method does roughly twice the work per time step. In the full
-predictor-corrector form it performs one predictor solve and then recalculates
-the rates before doing the corrector solve.
+The second-order methods do roughly twice the work per time step. The
+predictor-corrector method performs one predictor solve and then recalculates
+the rates before doing the corrector solve. TR-BDF2 performs the same predictor
+solve and rate recalculation, and then two stage solves against the shared
+operator, so it is marginally more expensive than the predictor-corrector
+method per step.
+
+### The resource update
+
+Under the second-order methods the resource is also advanced to second order.
+The resource mortality $\mu_R$ depends on the consumer densities, so evaluating
+it only at the start of the step would make the resource update first order and
+cap the overall accuracy. Instead, the predictor step is used to form the same
+midpoint rates $r^{t+1/2}$ that drive the consumer corrector, and the resource
+is then advanced with the midpoint resource mortality
+$$
+\mu_R^{t+1/2} = \tfrac{1}{2}\left(\mu_R^t + \hat\mu_R^{t+1}\right).
+$$ {#eq-midpoint-resource-mort}
+At a steady state $r^t = \hat r^{t+1} = r^{t+1/2}$, so the resource corrector
+reproduces the predictor and the steady state is unchanged. With the default
+semi-chemostat resource dynamics, which already use the analytic solution for
+fixed mortality, the remaining resource error is small, but the midpoint
+mortality removes the first-order time-stepping component. The `euler` method
+keeps the first-order resource update.
 
 ### Interpretation
 
-On short runs the predictor-corrector method may not always show a clean
+On short runs the second-order methods may not always show a clean
 second-order convergence slope because the comparison is affected by the fixed
-spatial grid, the first-order resource update, nonlinear rate feedbacks and
-ordinary timing noise.
+spatial grid, nonlinear rate feedbacks and ordinary timing noise. TR-BDF2
+typically shows the cleanest slope of the three because, being L-stable, it does
+not ring at the larger time steps.
 
 Because the predictor-corrector method is more expensive per time step, the
 relevant comparison is between the Euler method at a given `dt` and the
