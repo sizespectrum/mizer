@@ -875,7 +875,7 @@ plotlyBiomass <- function(object,
 #' }
 #' @rdname plotYield
 #' @export
-plotYield <- function(object, sim2, species = NULL, total = FALSE,
+plotYield <- function(object, sim2 = NULL, species = NULL, total = FALSE,
                       log_x = FALSE, log_y = TRUE, log = NULL,
                       ylim = c(NA, NA), tlim = c(NA, NA), highlight = NULL,
                       return_data = FALSE, ...) {
@@ -885,7 +885,7 @@ plotYield <- function(object, sim2, species = NULL, total = FALSE,
 #' @rdname plotYield
 #' @usage NULL
 #' @export
-plotYield.MizerSim <- function(object, sim2,
+plotYield.MizerSim <- function(object, sim2 = NULL,
                       species = NULL,
                       total = FALSE,
                       log_x = FALSE, log_y = TRUE, log = NULL,
@@ -900,7 +900,7 @@ plotYield.MizerSim <- function(object, sim2,
                 is.flag(return_data))
     params <- object@params
     species <- valid_species_arg(object, species, error_on_empty = TRUE)
-    if (missing(sim2)) {
+    if (is.null(sim2)) {
         y <- getYield(object, ...)
         times <- as.numeric(rownames(y))
         if (!is.na(tlim[1])) {
