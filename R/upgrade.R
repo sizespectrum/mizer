@@ -396,7 +396,13 @@ upgradeParams <- function(params) {
     # Add second_order_w slot if missing (added in 3.0.x)
     # Default to FALSE to preserve behaviour of previous mizer versions.
     if (!.hasSlot(params, "second_order_w")) {
-        params@second_order_w <- FALSE
+        params@second_order_w <- c(flux_limiter = FALSE, bin_average = FALSE)
+    } else if (is.logical(params@second_order_w) &&
+               length(params@second_order_w) == 1) {
+        # Upgrade from earlier single-logical version of this slot
+        old_val <- params@second_order_w
+        params@second_order_w <- c(flux_limiter = old_val,
+                                   bin_average = old_val)
     }
 
     params@mizer_version <- packageVersion("mizer")

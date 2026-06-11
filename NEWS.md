@@ -1,11 +1,12 @@
 # mizer (development version)
 
-- `MizerParams` gains a `second_order_w` slot (logical, default `FALSE`).
-  When `TRUE`, mizer uses second-order bin-averaged rate quadratures
-  instead of point-sampled (left-edge) rates. Use the new `second_order_w()` /
-  `second_order_w<-()` accessors to get and set this flag. The setter re-runs
-  `setParams()` to rebuild precomputed arrays. The default stays `FALSE` so
-  existing models are byte-identical.
+- `MizerParams` gains a `second_order_w` slot — a named logical vector with
+  entries `flux_limiter` and `bin_average` (both default `FALSE`). When `TRUE`,
+  these enable second-order bin-averaged rate quadratures instead of
+  point-sampled (left-edge) rates. Use the new `second_order_w()` /
+  `second_order_w<-()` accessors to get and set the flags. The setter accepts
+  a single logical (sets both entries) or a named vector for individual control.
+  It re-runs `setParams()` to rebuild precomputed arrays.
 
 # mizer 3.0.0
 

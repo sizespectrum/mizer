@@ -232,9 +232,14 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
 
-    # second_order_w must be a single logical value
-    if (!is.logical(params@second_order_w) || length(params@second_order_w) != 1) {
-        msg <- "second_order_w must be a single logical value (TRUE or FALSE)"
+    # second_order_w must be a named logical vector with entries
+    # flux_limiter and bin_average
+    sow <- params@second_order_w
+    if (!is.logical(sow) || length(sow) != 2 ||
+        !identical(sort(names(sow)), c("bin_average", "flux_limiter")) ||
+        any(is.na(sow))) {
+        msg <- paste0("second_order_w must be a named logical vector with ",
+                      "entries 'flux_limiter' and 'bin_average'")
         errors <- c(errors, msg)
     }
 
@@ -396,10 +401,11 @@ validMizerParams <- function(object) {
 #'   diffusion is included when calculating rates with [mizerDiffusion()].
 #'   Defaults to `FALSE` to preserve the behaviour of previous mizer versions.
 #'   Set to `TRUE` to enable the diffusion term from the jump-growth equation.
-#' @slot second_order_w A logical flag controlling whether second-order
-#'   bin-averaged rate quadratures are used. Defaults to `FALSE` to preserve
-#'   the behaviour of previous mizer versions. Set to `TRUE` to enable
-#'   bin-integrated quantities consistent with the finite-volume representation.
+#' @slot second_order_w A named logical vector with entries `flux_limiter` and
+#'   `bin_average`, controlling whether second-order bin-averaged rate
+#'   quadratures are used. Both default to `FALSE` to preserve the behaviour of
+#'   previous mizer versions. Set to `TRUE` to enable bin-integrated quantities
+#'   consistent with the finite-volume representation.
 #'
 #' @seealso [project()] [MizerSim()]
 #'   [emptyParams()] [newMultispeciesParams()]
@@ -751,7 +757,7 @@ emptyParams <- function(species_params,
         linetype = linetype,
         ft_mask = ft_mask,
         use_predation_diffusion = FALSE,
-        second_order_w = FALSE
+        second_order_w = c(flux_limiter = FALSE, bin_average = FALSE)
     )
 
     return(params)
