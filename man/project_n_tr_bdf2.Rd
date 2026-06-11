@@ -24,6 +24,8 @@ project_n_tr_bdf2(
   effort = NULL,
   r_hat = NULL,
   r_mid = NULL,
+  n_hat = NULL,
+  flux_limiter = "none",
   ...
 )
 }
@@ -70,6 +72,14 @@ used instead of recalculating them.}
 
 \item{r_mid}{Optional midpoint rates. If supplied, these are used directly to
 build the TR-BDF2 operator.}
+
+\item{n_hat}{Optional provisional end-of-step densities. When supplied with a
+flux limiter, the limiter is frozen at the midpoint field \code{(n + n_hat) / 2};
+otherwise it falls back to the start-of-step \code{n}.}
+
+\item{flux_limiter}{Name of the flux limiter used for a deferred high-order
+correction of the upwind advective flux, or \code{"none"} for plain first-order
+upwind. See \code{\link[=project]{project()}}.}
 
 \item{...}{Further arguments passed to the rate functions.}
 }

@@ -4,10 +4,12 @@
 \alias{getRequiredRDD}
 \title{Determine reproduction rate needed for initial egg abundance}
 \usage{
-getRequiredRDD(params)
+getRequiredRDD(params, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
+
+\item{...}{Unused.}
 }
 \value{
 A vector of reproduction rates for all species

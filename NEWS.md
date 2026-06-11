@@ -1,5 +1,16 @@
 # mizer (development version)
 
+- When the `flux_limiter` entry of the `second_order_w` slot is `TRUE`, the
+  growth (advection) term uses a flux-limited (van Leer, TVD) high-order flux
+  instead of the first-order upwind flux, removing most of the upwind numerical
+  diffusion (which scales like `g * w * log(beta)`) while keeping the density
+  update a tridiagonal solve and keeping abundances non-negative. It is most
+  useful on coarse logarithmic grids and pairs naturally with the second-order
+  time methods. The steady-state tools use the same scheme, so a model is set up
+  at the steady state of its own discretisation. The default keeps the
+  first-order upwind flux; enable it with `second_order_w(params) <- TRUE`. See
+  the "Numerical Details" vignette.
+
 - When the `bin_average` entry of the `second_order_w` slot is `TRUE`, the
   FFT-based encounter and predation rates use a higher-order,
   finite-volume-consistent quadrature: the predation kernel is integrated over

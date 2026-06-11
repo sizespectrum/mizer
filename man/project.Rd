@@ -166,6 +166,22 @@ values for the simulation are taken from the final values in the
 \code{MizerSim} object and the corresponding arguments to this function will
 be ignored.
 }
+\section{Advective flux scheme}{
+
+The spatial discretisation of the growth (advection) term is controlled by
+the \code{flux_limiter} entry of the \code{second_order_w} slot of the params object,
+not by an argument to \code{project()}. With the default (\code{FALSE}) the first-order
+upwind flux is used. Setting it to \code{TRUE} (for example with
+\code{second_order_w(params) <- TRUE}) switches on a flux-limited (van Leer, TVD)
+deferred correction that removes the leading numerical diffusion
+\eqn{\approx g\,w\,\log\beta} of the upwind flux while keeping the density
+update a tridiagonal solve and preserving positivity. The correction is most
+useful on coarse logarithmic grids and pairs naturally with the second-order
+time methods. Because it changes the discrete steady state, the choice lives
+in the params object alongside the steady state rather than being a per-run
+argument. See \code{\link[=second_order_w]{second_order_w()}}.
+}
+
 \examples{
 \donttest{
 params <- NS_params
