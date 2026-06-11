@@ -1,15 +1,24 @@
 #' Get or set the second_order_w flags
 #'
-#' Controls whether second-order bin-averaged rate quadratures are used when
-#' calculating size-dependent rates. The slot is a named logical vector with
-#' entries `flux_limiter` and `bin_average`. When both are `FALSE` (the
-#' default), mizer uses point-sampled (left-edge) rates, preserving the
-#' behaviour of previous mizer versions.
+#' Controls whether second-order numerical methods are used when calculating
+#' size-dependent rates. The slot is a named logical vector with entries:
+#'
+#' \describe{
+#'   \item{`flux_limiter`}{Controls whether a second-order advective flux
+#'     (with flux limiter) is used for the growth term. When `FALSE`, a
+#'     first-order upwind scheme is used.}
+#'   \item{`bin_average`}{Controls whether bin-averaging is used for rates
+#'     (predation kernel, selectivity, etc.). When `FALSE`, rates are
+#'     point-sampled at the left bin edge.}
+#' }
+#'
+#' When both are `FALSE` (the default), mizer preserves the behaviour of
+#' previous mizer versions. Setting both to `TRUE` gives a consistently
+#' second-order model.
 #'
 #' The setter accepts either a single logical value (which sets both entries)
-#' or a named logical vector to set individual entries. Setting both to `TRUE`
-#' gives a consistently second-order model. The setter re-runs [setParams()]
-#' to rebuild precomputed arrays.
+#' or a named logical vector to set individual entries. The setter re-runs
+#' [setParams()] to rebuild precomputed arrays.
 #'
 #' @param params A MizerParams object.
 #' @return `second_order_w()`: A named logical vector with entries

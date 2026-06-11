@@ -401,11 +401,10 @@ validMizerParams <- function(object) {
 #'   diffusion is included when calculating rates with [mizerDiffusion()].
 #'   Defaults to `FALSE` to preserve the behaviour of previous mizer versions.
 #'   Set to `TRUE` to enable the diffusion term from the jump-growth equation.
-#' @slot second_order_w A named logical vector with entries `flux_limiter` and
-#'   `bin_average`, controlling whether second-order bin-averaged rate
-#'   quadratures are used. Both default to `FALSE` to preserve the behaviour of
-#'   previous mizer versions. Set to `TRUE` to enable bin-integrated quantities
-#'   consistent with the finite-volume representation.
+#' @slot second_order_w A named logical vector with entries `flux_limiter`
+#'   (controls whether a second-order advective flux is used for growth) and
+#'   `bin_average` (controls whether bin-averaging is used for rates). Both
+#'   default to `FALSE` to preserve the behaviour of previous mizer versions.
 #'
 #' @seealso [project()] [MizerSim()]
 #'   [emptyParams()] [newMultispeciesParams()]
