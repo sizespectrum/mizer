@@ -16,6 +16,42 @@ different <- function(a, b) {
                       tolerance = 10 * .Machine$double.eps))
 }
 
+#' Bin average of a power law over geometric bins
+#'
+#' Computes the exact average of the power law \eqn{w^d} over each bin
+#' \eqn{[w_j, w_{j+1}]}, i.e.
+#' \deqn{\overline{w^d}_j = \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} w^d\, dw.}
+#'
+#' The integral has a closed form, so the result is exact (not merely second
+#' order):
+#' \deqn{\overline{w^d}_j = \frac{w_{j+1}^{d+1} - w_j^{d+1}}{(d+1)\,\Delta w_j},
+#'   \quad d \neq -1,}
+#' \deqn{\overline{w^d}_j = \frac{\ln(w_{j+1}/w_j)}{\Delta w_j},
+#'   \quad d = -1.}
+#'
+#' This is used by the bin-averaged (second-order) code paths that need the
+#' average of a power-law rate over each bin, for example [setExtMort()] and
+#' the resource semichemostat. The grid does not need to be geometric; only the
+#' left bin edges `w` and the bin widths `dw` are used, with
+#' \eqn{w_{j+1} = w_j + \Delta w_j}.
+#'
+#' @param w Numeric vector of left bin edges \eqn{w_j}.
+#' @param dw Numeric vector of bin widths \eqn{\Delta w_j} (same length as `w`).
+#' @param d Single numeric exponent of the power law.
+#'
+#' @return A numeric vector (same length as `w`) of bin averages of
+#'   \eqn{w^d}.
+#' @concept helper
+#' @keywords internal
+power_law_bin_average <- function(w, dw, d) {
+    w_next <- w + dw
+    if (d == -1) {
+        log(w_next / w) / dw
+    } else {
+        (w_next^(d + 1) - w^(d + 1)) / ((d + 1) * dw)
+    }
+}
+
 #' Length-weight conversion
 #'
 #' For each species, convert between length and weight using the relationship

@@ -21,7 +21,7 @@ directly."><meta property="og:image" content="https://sizespectrum.org/mizer/ref
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -361,6 +361,13 @@ wrap-around errors in Fourier transform calculations.</p></dd>
 diffusion is included when calculating rates with <code><a href="mizerDiffusion.html">mizerDiffusion()</a></code>.
 Defaults to <code>FALSE</code> to preserve the behaviour of previous mizer versions.
 Set to <code>TRUE</code> to enable the diffusion term from the jump-growth equation.</p></dd>
+
+
+<dt><code>second_order_w</code></dt>
+<dd><p>A named logical vector with entries <code>flux_limiter</code>
+(controls whether a second-order advective flux is used for growth) and
+<code>bin_average</code> (controls whether bin-averaging is used for rates). Both
+default to <code>FALSE</code> to preserve the behaviour of previous mizer versions.</p></dd>
 
 
 </dl></div>

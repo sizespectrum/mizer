@@ -625,8 +625,8 @@ exact solution is evaluated with <span class="math display">\[K_\mathrm{eff} = K
 <span><span class="co">#   &lt; 0.5% abundance error, </span></span>
 <span><span class="co">#   &lt; 5% location shift, </span></span>
 <span><span class="co">#   &lt; 4% height difference (diffusive flattening)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="va">rel_err_total_pc</span> <span class="op">&lt;</span> <span class="fl">0.001</span> <span class="op">&amp;&amp;</span> </span>
-<span>    <span class="va">rel_err_peak_loc_pc</span> <span class="op">&lt;</span> <span class="fl">1e-6</span> <span class="op">&amp;&amp;</span> </span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="va">rel_err_total_pc</span> <span class="op">&lt;</span> <span class="fl">0.001</span> <span class="op">&amp;&amp;</span></span>
+<span>    <span class="va">rel_err_peak_loc_pc</span> <span class="op">&lt;</span> <span class="fl">1e-6</span> <span class="op">&amp;&amp;</span></span>
 <span>    <span class="va">rel_err_peak_val_pc</span> <span class="op">&lt;</span> <span class="fl">0.03</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="st">"Numerical diffusion test passed."</span><span class="op">)</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
@@ -634,6 +634,121 @@ exact solution is evaluated with <span class="math display">\[K_\mathrm{eff} = K
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; [1] "Numerical diffusion test passed."</span></span></code></pre></div>
 </div>
+</div>
+<div class="section level2">
+<h2 id="order-of-convergence-in-time">Order of convergence in time<a class="anchor" aria-label="anchor" href="#order-of-convergence-in-time"></a>
+</h2>
+<p><code><a href="../reference/project.html">project()</a></code> offers three time-stepping schemes (the
+<code>method</code> argument): the first-order <code>"euler"</code>
+scheme and the two second-order schemes
+<code>"predictor_corrector"</code> (a Crank-Nicolson corrector) and
+<code>"tr_bdf2"</code> (an L-stable TR-BDF2 scheme). The time-dependent
+solution above lets us verify these orders directly.</p>
+<p>We cannot read the temporal order off a comparison with the analytic
+solution, because that error is dominated by the
+<strong>spatial</strong> numerical diffusion of the first-order upwind
+scheme (see the previous section), which is independent of the time step
+and so does not vanish as <span class="math inline">\(\Delta t \to
+0\)</span>. To isolate the <strong>temporal</strong> error we instead
+measure self-convergence: for each method we compare the solution
+obtained with time step <span class="math inline">\(\Delta t\)</span>
+against a reference solution of the <em>same</em> method computed with a
+very small time step. The fixed spatial discretisation error cancels in
+this difference, leaving only the time-discretisation error, whose decay
+reveals the order of the scheme.</p>
+<p>We project over a longer horizon than above, so that even the largest
+steps we probe take several steps, and we sweep the step size over more
+than two decades, from <span class="math inline">\(\Delta t =
+1.6\)</span> down to <span class="math inline">\(\Delta t =
+0.025\)</span>. The travelling pulse stays well within the grid over
+this horizon, so the error norm, restricted to its bulk, is free of
+boundary effects.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">elapsed</span> <span class="op">&lt;-</span> <span class="fl">12.8</span>            <span class="co"># length of the run (the pulse stays on the grid)</span></span>
+<span><span class="va">dt_ref</span>  <span class="op">&lt;-</span> <span class="fl">0.025</span> <span class="op">/</span> <span class="fl">8</span>       <span class="co"># reference step, much finer than any tested step</span></span>
+<span><span class="va">dts</span>     <span class="op">&lt;-</span> <span class="fl">1.6</span> <span class="op">/</span> <span class="fl">2</span><span class="op">^</span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span>   <span class="co"># tested steps: 1.6, 0.8, ..., 0.025</span></span>
+<span><span class="va">methods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"euler"</span>, <span class="st">"predictor_corrector"</span>, <span class="st">"tr_bdf2"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">wv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
+<span><span class="va">dwv</span> <span class="op">&lt;-</span> <span class="va">params</span><span class="op">@</span><span class="va">dw</span></span>
+<span></span>
+<span><span class="va">run_to_end</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">method</span>, <span class="va">dt</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="va">elapsed</span>, dt <span class="op">=</span> <span class="va">dt</span>, t_save <span class="op">=</span> <span class="va">elapsed</span>,</span>
+<span>                   method <span class="op">=</span> <span class="va">method</span>, progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Restrict the error norm to the bulk of the travelling pulse, away from the</span></span>
+<span><span class="co"># boundaries.</span></span>
+<span><span class="va">n_ana_end</span> <span class="op">&lt;-</span> <span class="fu">N_analytic</span><span class="op">(</span><span class="va">wv</span>, <span class="va">t_start</span> <span class="op">+</span> <span class="va">elapsed</span>, <span class="va">w0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">mask</span> <span class="op">&lt;-</span> <span class="va">n_ana_end</span> <span class="op">&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">n_ana_end</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1e-4</span></span>
+<span><span class="va">rel_L2</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">num</span>, <span class="va">ref</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">num</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span> <span class="op">-</span> <span class="va">ref</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">*</span> <span class="va">dwv</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span></span>
+<span>         <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">ref</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span> <span class="op">*</span> <span class="va">dwv</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">err</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dts</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">methods</span><span class="op">)</span>,</span>
+<span>              dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="cn">NULL</span>, <span class="va">methods</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="va">methods</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">ref</span> <span class="op">&lt;-</span> <span class="fu">run_to_end</span><span class="op">(</span><span class="va">m</span>, <span class="va">dt_ref</span><span class="op">)</span></span>
+<span>    <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">dts</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="va">err</span><span class="op">[</span><span class="va">i</span>, <span class="va">m</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">rel_L2</span><span class="op">(</span><span class="fu">run_to_end</span><span class="op">(</span><span class="va">m</span>, <span class="va">dts</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="va">ref</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Fitted order over the asymptotic range (the coarsest step is outside it).</span></span>
+<span><span class="va">order_of</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">keep</span> <span class="op">&lt;-</span> <span class="va">dts</span> <span class="op">&lt;=</span> <span class="fl">0.1</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">err</span><span class="op">[</span><span class="va">keep</span>, <span class="va">m</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">dts</span><span class="op">[</span><span class="va">keep</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">ord</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">methods</span>, <span class="va">order_of</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ord</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;               euler predictor_corrector             tr_bdf2 </span></span>
+<span><span class="co">#&gt;                0.99                2.01                2.01</span></span></code></pre></div>
+<p>The fitted slopes confirm the expected behaviour:
+<code>"euler"</code> is first order while both
+<code>"predictor_corrector"</code> and <code>"tr_bdf2"</code> are second
+order.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>euler <span class="op">=</span> <span class="st">"#E69F00"</span>, predictor_corrector <span class="op">=</span> <span class="st">"#009E73"</span>,</span>
+<span>          tr_bdf2 <span class="op">=</span> <span class="st">"#0072B2"</span><span class="op">)</span></span>
+<span><span class="va">pchs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>euler <span class="op">=</span> <span class="fl">16</span>, predictor_corrector <span class="op">=</span> <span class="fl">17</span>, tr_bdf2 <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="cn">NA</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">dts</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">err</span><span class="op">)</span>, log <span class="op">=</span> <span class="st">"xy"</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">Delta</span> <span class="op">*</span> <span class="va">t</span><span class="op">)</span>,</span>
+<span>     ylab <span class="op">=</span> <span class="st">"relative L2 self-convergence error"</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"Temporal order of convergence"</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="va">methods</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">dts</span>, <span class="va">err</span><span class="op">[</span>, <span class="va">m</span><span class="op">]</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="va">m</span><span class="op">]</span>, pch <span class="op">=</span> <span class="va">pchs</span><span class="op">[</span><span class="va">m</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"b"</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Slope-1 and slope-2 guide lines, anchored at the finest step.</span></span>
+<span><span class="va">i0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dts</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">dts</span>, <span class="va">err</span><span class="op">[</span><span class="va">i0</span>, <span class="st">"euler"</span><span class="op">]</span>   <span class="op">*</span> <span class="op">(</span><span class="va">dts</span> <span class="op">/</span> <span class="va">dts</span><span class="op">[</span><span class="va">i0</span><span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">3</span>, col <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">dts</span>, <span class="va">err</span><span class="op">[</span><span class="va">i0</span>, <span class="st">"tr_bdf2"</span><span class="op">]</span> <span class="op">*</span> <span class="op">(</span><span class="va">dts</span> <span class="op">/</span> <span class="va">dts</span><span class="op">[</span><span class="va">i0</span><span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"bottomright"</span>, bty <span class="op">=</span> <span class="st">"n"</span>,</span>
+<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"euler (order %.2f)"</span>, <span class="va">ord</span><span class="op">[</span><span class="st">"euler"</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>                  <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"predictor_corrector (order %.2f)"</span>,</span>
+<span>                          <span class="va">ord</span><span class="op">[</span><span class="st">"predictor_corrector"</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>                  <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"tr_bdf2 (order %.2f)"</span>, <span class="va">ord</span><span class="op">[</span><span class="st">"tr_bdf2"</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>                  <span class="st">"slope 1"</span>, <span class="st">"slope 2"</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">cols</span>, <span class="st">"grey50"</span>, <span class="st">"grey50"</span><span class="op">)</span>,</span>
+<span>       pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">pchs</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="analytic_test_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="700"></p>
+<p>In the asymptotic range (small <span class="math inline">\(\Delta
+t\)</span>) the two second-order curves run parallel to the slope-2
+guide line, four times more accurate for each halving of the time step,
+whereas the <code>"euler"</code> curve follows the slope-1 line. At the
+large steps the picture diverges sharply: the
+<code>"predictor_corrector"</code> curve bends well above the slope-2
+line and at <span class="math inline">\(\Delta t = 1.6\)</span> its
+error exceeds one, because the Crank-Nicolson corrector overshoots
+(rings) for large steps. The L-stable <code>"tr_bdf2"</code> curve
+instead stays close to the slope-2 trend and remains an order of
+magnitude more accurate there. This is the large-step robustness
+discussed in the <a href="numerical_details.html">Numerical details</a>
+vignette.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

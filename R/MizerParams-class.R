@@ -232,6 +232,17 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
 
+    # second_order_w must be a named logical vector with entries
+    # flux_limiter and bin_average
+    sow <- params@second_order_w
+    if (!is.logical(sow) || length(sow) != 2 ||
+        !identical(sort(names(sow)), c("bin_average", "flux_limiter")) ||
+        any(is.na(sow))) {
+        msg <- paste0("second_order_w must be a named logical vector with ",
+                      "entries 'flux_limiter' and 'bin_average'")
+        errors <- c(errors, msg)
+    }
+
     # Should not have legacy r_max column (has been renamed to R_max)
     if ("r_max" %in% names(params@species_params)) {
         msg <- "The 'r_max' column in species_params should be called 'R_max'. You can use 'validParams()' to upgrade your params object."
@@ -390,6 +401,10 @@ validMizerParams <- function(object) {
 #'   diffusion is included when calculating rates with [mizerDiffusion()].
 #'   Defaults to `FALSE` to preserve the behaviour of previous mizer versions.
 #'   Set to `TRUE` to enable the diffusion term from the jump-growth equation.
+#' @slot second_order_w A named logical vector with entries `flux_limiter`
+#'   (controls whether a second-order advective flux is used for growth) and
+#'   `bin_average` (controls whether bin-averaging is used for rates). Both
+#'   default to `FALSE` to preserve the behaviour of previous mizer versions.
 #'
 #' @seealso [project()] [MizerSim()]
 #'   [emptyParams()] [newMultispeciesParams()]
@@ -444,7 +459,8 @@ setClass(
         linecolour = "character",
         linetype = "character",
         ft_mask = "array",
-        use_predation_diffusion = "logical"
+        use_predation_diffusion = "logical",
+        second_order_w = "logical"
     ),
 )
 
@@ -739,7 +755,8 @@ emptyParams <- function(species_params,
         linecolour = linecolour,
         linetype = linetype,
         ft_mask = ft_mask,
-        use_predation_diffusion = FALSE
+        use_predation_diffusion = FALSE,
+        second_order_w = c(flux_limiter = FALSE, bin_average = FALSE)
     )
 
     return(params)

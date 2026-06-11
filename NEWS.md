@@ -1,25 +1,66 @@
 # mizer (development version)
 
-- `project()` gains a `flux_limiter` argument that controls the spatial
-  discretisation of the growth (advection) term, independently of `method`.
-  The default `"none"` keeps the first-order upwind flux (unchanged results);
-  `"van_leer"` adds a flux-limited (TVD) high-order flux that removes most of
-  the upwind numerical diffusion (which scales like `g * w * log(beta)`) while
-  keeping the density update a tridiagonal solve and keeping abundances
-  non-negative. It is most useful on coarse logarithmic grids and pairs
-  naturally with the second-order time methods. `getRequiredRDD()` and
-  `steadySingleSpecies()` gain a matching `flux_limiter` argument so a model can
-  be set up at the steady state of the same scheme. See the "Numerical Details"
-  vignette.
+- When the `flux_limiter` entry of the `second_order_w` slot is `TRUE`, the
+  growth (advection) term uses a flux-limited (van Leer, TVD) high-order flux
+  instead of the first-order upwind flux, removing most of the upwind numerical
+  diffusion (which scales like `g * w * log(beta)`) while keeping the density
+  update a tridiagonal solve and keeping abundances non-negative. It is most
+  useful on coarse logarithmic grids and pairs naturally with the second-order
+  time methods. The steady-state tools use the same scheme, so a model is set up
+  at the steady state of its own discretisation. The default keeps the
+  first-order upwind flux; enable it with `second_order_w(params) <- TRUE`. See
+  the "Numerical Details" vignette.
+
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`, the
+  FFT-based encounter and predation rates use a higher-order,
+  finite-volume-consistent quadrature: the predation kernel is integrated over
+  each logarithmic size bin instead of being point-sampled, lifting these rates
+  towards second order at no extra runtime cost. The first-order scheme remains
+  the default; enable the new scheme with `second_order_w(params) <- TRUE`. See
+  the "Fast Fourier Transform for Rates" vignette for the derivation.
+
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`,
+  `setExtMort()` now replaces the point-sampled power-law external mortality
+  \eqn{z_{ext} w^d} by its exact bin average over each bin, making the external
+  mortality sink consistent with the finite-volume scheme. The default
+  (point sampling) is unchanged.
+
 - `project()` gains a new time-stepping option `method = "tr_bdf2"`. This is an
   L-stable, second-order TR-BDF2 scheme that retains the second-order accuracy
   of `method = "predictor_corrector"` while damping the oscillations that the
   Crank-Nicolson corrector can show at large time steps. Like the other methods
   it only requires tridiagonal solves. See the "Numerical Details" vignette.
+  
 - Under the second-order methods (`"predictor_corrector"` and `"tr_bdf2"`) the
   resource is now advanced with midpoint resource mortality rather than the
   start-of-step value, so the resource spectrum is also second order in time.
   The `"euler"` method and the steady states are unchanged.
+
+- `MizerParams` gains a `second_order_w` slot — a named logical vector with
+  entries `flux_limiter` and `bin_average` (both default `FALSE`). When `TRUE`,
+  these enable a second-order advective flux and second-order bin-averaged rate
+  quadratures respectively. Both need to be `TRUE` for a fully second-order
+  scheme. Use the new `second_order_w()` / `second_order_w<-()` accessors to
+  get and set the flags. The setter accepts a single logical (sets both entries)
+  or a named vector for individual control. It re-runs `setParams()` to rebuild
+  precomputed arrays.
+
+- When the `bin_average` entry of `second_order_w` is `TRUE`, the summary
+  integrals (`getBiomass()`, `getSSB()`, `getYield()`, `getYieldGear()`,
+  `getDiet()`, `getTrophicLevel()`) now use the trapezoidal bin-average of the
+  size weight rather than its left-bin-edge value, making these diagnostics
+  second order in the bin size. `getN()` is unchanged (its weight is already
+  exact). With the default `bin_average = FALSE` the outputs are unchanged.
+  Note that enabling bin-averaging shifts reported biomass/yield/SSB by
+  `O(Δw)`, so calibrated models may need recalibrating.
+  
+- When `second_order_w()[["bin_average"]]` is `TRUE`, `calc_selectivity()` now
+  stores the bin average of the selectivity over each size bin instead of its
+  value at the left bin edge, making the fishing mortality second order in the
+  bin size. A knife-edge gear then gets the exact fraction of the straddling bin
+  that lies above the knife edge. The default (point-sampled) behaviour is
+  unchanged.
+
 
 # mizer 3.0.0
 
