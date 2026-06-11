@@ -6,6 +6,9 @@
   
 - `getRDI()`, `getRDD()`, and `getFlux()` on a `MizerSim` object now correctly
   use the simulated time-varying effort instead of the initial effort. (#370)
+  
+- Added a new vignette explaining the calculation of default parameter values
+  (#189).
 
 - `summary()` of a `MizerSim` object now reports the fishing effort that was
   actually used during the simulation rather than the model's `initial_effort`.
