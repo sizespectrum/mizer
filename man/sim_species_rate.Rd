@@ -4,7 +4,16 @@
 \alias{sim_species_rate}
 \title{Build a \code{MizerSim} rate getter that resolves the rate functions once}
 \usage{
-sim_species_rate(sim, time_range, target, slot, value_name, units = NULL, ...)
+sim_species_rate(
+  sim,
+  time_range,
+  target,
+  slot,
+  value_name,
+  units = NULL,
+  use_sim_effort = FALSE,
+  ...
+)
 }
 \arguments{
 \item{sim}{A \code{MizerSim} object.}
@@ -18,6 +27,10 @@ result (e.g. \code{"e_growth"} for the \code{EGrowth} rate).}
 
 \item{value_name, units}{Metadata for the returned array.}
 
+\item{use_sim_effort}{If \code{TRUE}, the saved effort at each time step is used;
+otherwise the initial effort is used (matching the behaviour of the
+corresponding \code{MizerParams} getter).}
+
 \item{...}{Passed on to the rate functions.}
 }
 \value{
@@ -26,6 +39,6 @@ An \code{ArrayTimeBySpecies} object.
 \description{
 Like \code{\link[=sim_size_rate]{sim_size_rate()}} but for getters that return one value per species at
 each time step (a time-by-species array), such as \code{\link[=getRDI]{getRDI()}} and \code{\link[=getRDD]{getRDD()}}.
-These use the initial effort, matching their \code{MizerParams} counterparts.
+By default these use the initial effort, matching their \code{MizerParams} counterparts.
 }
 \keyword{internal}
