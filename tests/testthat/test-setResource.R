@@ -172,3 +172,79 @@ test_that("w_pp_cutoff can be changed when providing carrying_capacity", {
     w_full <- params_new@w_full
     expect_true(all(params_new@cc_pp[w_full >= new_cutoff] == 0))
 })
+
+test_that("second_order_w bin-averages the resource rate and capacity", {
+    rr <- 12
+    cc <- 13
+    lambda <- 2.05
+    n <- 0.68
+    w_pp_cutoff <- 0.5
+
+    base <- setResource(NS_params_small, resource_rate = rr,
+                        resource_capacity = cc, lambda = lambda, n = n,
+                        w_pp_cutoff = w_pp_cutoff, balance = FALSE)
+    p2 <- base
+    second_order_w(p2) <- c(bin_average = TRUE)
+    p2 <- setResource(p2, resource_rate = rr, resource_capacity = cc,
+                      lambda = lambda, n = n, w_pp_cutoff = w_pp_cutoff,
+                      balance = FALSE)
+
+    w <- p2@w_full
+    dw <- p2@dw_full
+
+    # Rate: exact bin average of rr * w^(n-1).
+    rate_expected <- rr * power_law_bin_average(w, dw, n - 1)
+    expect_equal(unname(p2@rr_pp), rate_expected)
+    # Capacity: exact bin average of cc * w^(-lambda), cut at w_pp_cutoff.
+    cap_expected <- cc * power_law_bin_average(w, dw, -lambda,
+                                               w_max = w_pp_cutoff)
+    expect_equal(unname(p2@cc_pp), cap_expected)
+
+    # The bin averages differ from the left-edge point values (the power law
+    # varies across the bin).
+    expect_false(isTRUE(all.equal(unname(p2@rr_pp), unname(base@rr_pp))))
+    expect_false(isTRUE(all.equal(unname(p2@cc_pp), unname(base@cc_pp))))
+})
+
+test_that("second_order_w capacity straddling-bin gets the partial average", {
+    cc <- 13
+    lambda <- 2.05
+    w_pp_cutoff <- 0.5
+    p2 <- NS_params_small
+    second_order_w(p2) <- c(bin_average = TRUE)
+    p2 <- setResource(p2, resource_capacity = cc, lambda = lambda,
+                      w_pp_cutoff = w_pp_cutoff, balance = FALSE)
+    w <- p2@w_full
+    dw <- p2@dw_full
+
+    # Bins entirely above the cutoff are zero.
+    expect_true(all(p2@cc_pp[w >= w_pp_cutoff] == 0))
+    # The straddling bin (cutoff strictly inside) gets the partial power-law
+    # average over the part below the cutoff, not the full-bin average.
+    straddle <- which(w < w_pp_cutoff & (w + dw) > w_pp_cutoff)
+    if (length(straddle) == 1) {
+        partial <- cc * (w_pp_cutoff^(1 - lambda) - w[straddle]^(1 - lambda)) /
+            ((1 - lambda) * dw[straddle])
+        expect_equal(unname(p2@cc_pp[straddle]), partial)
+        full <- cc * power_law_bin_average(w[straddle], dw[straddle], -lambda)
+        expect_lt(unname(p2@cc_pp[straddle]), full)
+    }
+})
+
+test_that("default resource construction is byte-identical (first order)", {
+    # With second_order_w off (default) the rate and capacity are the plain
+    # left-edge power laws, unchanged from previous mizer.
+    rr <- 12
+    cc <- 13
+    lambda <- 2.05
+    n <- 0.68
+    w_pp_cutoff <- 0.5
+    p <- setResource(NS_params_small, resource_rate = rr,
+                     resource_capacity = cc, lambda = lambda, n = n,
+                     w_pp_cutoff = w_pp_cutoff, balance = FALSE)
+    w <- p@w_full
+    expect_equal(unname(p@rr_pp), rr * w^(n - 1))
+    cap <- cc * w^(-lambda)
+    cap[w >= w_pp_cutoff] <- 0
+    expect_equal(unname(p@cc_pp), cap)
+})

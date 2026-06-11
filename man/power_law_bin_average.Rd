@@ -4,7 +4,7 @@
 \alias{power_law_bin_average}
 \title{Bin average of a power law over geometric bins}
 \usage{
-power_law_bin_average(w, dw, d)
+power_law_bin_average(w, dw, d, w_max = Inf)
 }
 \arguments{
 \item{w}{Numeric vector of left bin edges \eqn{w_j}.}
@@ -12,10 +12,15 @@ power_law_bin_average(w, dw, d)
 \item{dw}{Numeric vector of bin widths \eqn{\Delta w_j} (same length as \code{w}).}
 
 \item{d}{Single numeric exponent of the power law.}
+
+\item{w_max}{Optional upper cutoff. The power law is taken to be zero above
+\code{w_max}, with the straddling bin getting the partial average. Defaults to
+\code{Inf} (no cutoff), in which case the result is identical to the uncut
+formula.}
 }
 \value{
 A numeric vector (same length as \code{w}) of bin averages of
-\eqn{w^d}.
+\eqn{w^d} (truncated at \code{w_max} when supplied).
 }
 \description{
 Computes the exact average of the power law \eqn{w^d} over each bin
@@ -32,9 +37,16 @@ order):
 
 This is used by the bin-averaged (second-order) code paths that need the
 average of a power-law rate over each bin, for example \code{\link[=setExtMort]{setExtMort()}} and
-the resource semichemostat. The grid does not need to be geometric; only the
-left bin edges \code{w} and the bin widths \code{dw} are used, with
-\eqn{w_{j+1} = w_j + \Delta w_j}.
+the resource capacity and rate in \code{\link[=setResource]{setResource()}}. The grid does not need to
+be geometric; only the left bin edges \code{w} and the bin widths \code{dw} are used,
+with \eqn{w_{j+1} = w_j + \Delta w_j}.
+
+An optional upper cutoff \code{w_max} handles a knife-edge truncation of the power
+law (for example the resource carrying capacity, which is \eqn{\kappa
+w^{-\lambda}} below \code{w_pp_cutoff} and zero above it). The bin straddling the
+cutoff then receives the \emph{partial} bin-average — the power-law average over
+the part of the bin below \code{w_max}, divided by the full bin width — and bins
+entirely above the cutoff get zero.
 }
 \concept{helper}
 \keyword{internal}

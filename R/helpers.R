@@ -31,20 +31,34 @@ different <- function(a, b) {
 #'
 #' This is used by the bin-averaged (second-order) code paths that need the
 #' average of a power-law rate over each bin, for example [setExtMort()] and
-#' the resource semichemostat. The grid does not need to be geometric; only the
-#' left bin edges `w` and the bin widths `dw` are used, with
-#' \eqn{w_{j+1} = w_j + \Delta w_j}.
+#' the resource capacity and rate in [setResource()]. The grid does not need to
+#' be geometric; only the left bin edges `w` and the bin widths `dw` are used,
+#' with \eqn{w_{j+1} = w_j + \Delta w_j}.
+#'
+#' An optional upper cutoff `w_max` handles a knife-edge truncation of the power
+#' law (for example the resource carrying capacity, which is \eqn{\kappa
+#' w^{-\lambda}} below `w_pp_cutoff` and zero above it). The bin straddling the
+#' cutoff then receives the *partial* bin-average — the power-law average over
+#' the part of the bin below `w_max`, divided by the full bin width — and bins
+#' entirely above the cutoff get zero.
 #'
 #' @param w Numeric vector of left bin edges \eqn{w_j}.
 #' @param dw Numeric vector of bin widths \eqn{\Delta w_j} (same length as `w`).
 #' @param d Single numeric exponent of the power law.
+#' @param w_max Optional upper cutoff. The power law is taken to be zero above
+#'   `w_max`, with the straddling bin getting the partial average. Defaults to
+#'   `Inf` (no cutoff), in which case the result is identical to the uncut
+#'   formula.
 #'
 #' @return A numeric vector (same length as `w`) of bin averages of
-#'   \eqn{w^d}.
+#'   \eqn{w^d} (truncated at `w_max` when supplied).
 #' @concept helper
 #' @keywords internal
-power_law_bin_average <- function(w, dw, d) {
-    w_next <- w + dw
+power_law_bin_average <- function(w, dw, d, w_max = Inf) {
+    # Upper integration edge of each bin, clipped at the cutoff. The pmax keeps
+    # bins lying entirely above the cutoff from contributing a negative (they
+    # collapse to a zero-width interval and so average to zero).
+    w_next <- pmax(pmin(w + dw, w_max), w)
     if (d == -1) {
         log(w_next / w) / dw
     } else {
