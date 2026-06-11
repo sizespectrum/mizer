@@ -20,6 +20,13 @@
   or a named vector for individual control. It re-runs `setParams()` to rebuild
   precomputed arrays.
 
+- When `second_order_w()[["bin_average"]]` is `TRUE`, `calc_selectivity()` now
+  stores the bin average of the selectivity over each size bin instead of its
+  value at the left bin edge, making the fishing mortality second order in the
+  bin size. A knife-edge gear then gets the exact fraction of the straddling bin
+  that lies above the knife edge. The default (point-sampled) behaviour is
+  unchanged.
+
 
 # mizer 3.0.0
 
