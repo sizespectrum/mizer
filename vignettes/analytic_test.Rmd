@@ -515,11 +515,118 @@ if (rel_err_total_pc < rel_err_total &&
 #   < 0.5% abundance error, 
 #   < 5% location shift, 
 #   < 4% height difference (diffusive flattening)
-if (rel_err_total_pc < 0.001 && 
-    rel_err_peak_loc_pc < 1e-6 && 
+if (rel_err_total_pc < 0.001 &&
+    rel_err_peak_loc_pc < 1e-6 &&
     rel_err_peak_val_pc < 0.03) {
   print("Numerical diffusion test passed.")
 } else {
   print("Numerical diffusion test failed.")
 }
 ```
+
+## Order of convergence in time
+
+`project()` offers three time-stepping schemes (the `method` argument): the
+first-order `"euler"` scheme and the two second-order schemes
+`"predictor_corrector"` (a Crank-Nicolson corrector) and `"tr_bdf2"` (an
+L-stable TR-BDF2 scheme). The time-dependent solution above lets us verify these
+orders directly.
+
+We cannot read the temporal order off a comparison with the analytic solution,
+because that error is dominated by the **spatial** numerical diffusion of the
+first-order upwind scheme (see the previous section), which is independent of
+the time step and so does not vanish as $\Delta t \to 0$. To isolate the
+**temporal** error we instead measure self-convergence: for each method we
+compare the solution obtained with time step $\Delta t$ against a reference
+solution of the *same* method computed with a very small time step. The fixed
+spatial discretisation error cancels in this difference, leaving only the
+time-discretisation error, whose decay reveals the order of the scheme.
+
+We project over a longer horizon than above, so that even the largest steps we
+probe take several steps, and we sweep the step size over more than two decades,
+from $\Delta t = 1.6$ down to $\Delta t = 0.025$. The travelling pulse stays
+well within the grid over this horizon, so the error norm, restricted to its
+bulk, is free of boundary effects.
+
+```{r}
+elapsed <- 12.8            # length of the run (the pulse stays on the grid)
+dt_ref  <- 0.025 / 8       # reference step, much finer than any tested step
+dts     <- 1.6 / 2^(0:6)   # tested steps: 1.6, 0.8, ..., 0.025
+methods <- c("euler", "predictor_corrector", "tr_bdf2")
+
+wv <- w(params)
+dwv <- params@dw
+
+run_to_end <- function(method, dt) {
+    sim <- project(params, t_max = elapsed, dt = dt, t_save = elapsed,
+                   method = method, progress_bar = FALSE)
+    finalN(sim)[1, ]
+}
+
+# Restrict the error norm to the bulk of the travelling pulse, away from the
+# boundaries.
+n_ana_end <- N_analytic(wv, t_start + elapsed, w0, 0)
+mask <- n_ana_end > max(n_ana_end) * 1e-4
+rel_L2 <- function(num, ref) {
+    sqrt(sum((num[mask] - ref[mask])^2 * dwv[mask]) /
+         sum(ref[mask]^2 * dwv[mask]))
+}
+
+err <- matrix(NA, length(dts), length(methods),
+              dimnames = list(NULL, methods))
+for (m in methods) {
+    ref <- run_to_end(m, dt_ref)
+    for (i in seq_along(dts)) {
+        err[i, m] <- rel_L2(run_to_end(m, dts[i]), ref)
+    }
+}
+
+# Fitted order over the asymptotic range (the coarsest step is outside it).
+order_of <- function(m) {
+    keep <- dts <= 0.1
+    unname(coef(lm(log(err[keep, m]) ~ log(dts[keep])))[2])
+}
+ord <- sapply(methods, order_of)
+print(round(ord, 2))
+```
+
+The fitted slopes confirm the expected behaviour: `"euler"` is first order while
+both `"predictor_corrector"` and `"tr_bdf2"` are second order.
+
+```{r}
+cols <- c(euler = "#E69F00", predictor_corrector = "#009E73",
+          tr_bdf2 = "#0072B2")
+pchs <- c(euler = 16, predictor_corrector = 17, tr_bdf2 = 15)
+
+plot(NA, xlim = range(dts), ylim = range(err), log = "xy",
+     xlab = expression(Delta * t),
+     ylab = "relative L2 self-convergence error",
+     main = "Temporal order of convergence")
+for (m in methods) {
+    lines(dts, err[, m], col = cols[m], pch = pchs[m], type = "b", lwd = 2)
+}
+
+# Slope-1 and slope-2 guide lines, anchored at the finest step.
+i0 <- length(dts)
+lines(dts, err[i0, "euler"]   * (dts / dts[i0])^1, lty = 3, col = "grey50")
+lines(dts, err[i0, "tr_bdf2"] * (dts / dts[i0])^2, lty = 2, col = "grey50")
+
+legend("bottomright", bty = "n",
+       legend = c(sprintf("euler (order %.2f)", ord["euler"]),
+                  sprintf("predictor_corrector (order %.2f)",
+                          ord["predictor_corrector"]),
+                  sprintf("tr_bdf2 (order %.2f)", ord["tr_bdf2"]),
+                  "slope 1", "slope 2"),
+       col = c(cols, "grey50", "grey50"),
+       pch = c(pchs, NA, NA), lty = c(1, 1, 1, 3, 2), lwd = 2)
+```
+
+In the asymptotic range (small $\Delta t$) the two second-order curves run
+parallel to the slope-2 guide line, four times more accurate for each halving of
+the time step, whereas the `"euler"` curve follows the slope-1 line. At the
+large steps the picture diverges sharply: the `"predictor_corrector"` curve
+bends well above the slope-2 line and at $\Delta t = 1.6$ its error exceeds one,
+because the Crank-Nicolson corrector overshoots (rings) for large steps. The
+L-stable `"tr_bdf2"` curve instead stays close to the slope-2 trend and remains
+an order of magnitude more accurate there. This is the large-step robustness
+discussed in the [Numerical details](numerical_details.html) vignette.
