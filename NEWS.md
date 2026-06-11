@@ -26,6 +26,15 @@
   or a named vector for individual control. It re-runs `setParams()` to rebuild
   precomputed arrays.
 
+- When the `bin_average` entry of `second_order_w` is `TRUE`, the summary
+  integrals (`getBiomass()`, `getSSB()`, `getYield()`, `getYieldGear()`,
+  `getDiet()`, `getTrophicLevel()`) now use the trapezoidal bin-average of the
+  size weight rather than its left-bin-edge value, making these diagnostics
+  second order in the bin size. `getN()` is unchanged (its weight is already
+  exact). With the default `bin_average = FALSE` the outputs are unchanged.
+  Note that enabling bin-averaging shifts reported biomass/yield/SSB by
+  `O(Δw)`, so calibrated models may need recalibrating.
+  
 - When `second_order_w()[["bin_average"]]` is `TRUE`, `calc_selectivity()` now
   stores the bin average of the selectivity over each size bin instead of its
   value at the left bin edge, making the fishing mortality second order in the

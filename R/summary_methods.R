@@ -118,6 +118,18 @@ getDiet.MizerParams <- function(params,
     # object@w_full[idx_sp] = object@w
     idx_sp <- (no_w_full - no_w + 1):no_w_full
 
+    # Prey-biomass weight factor K = w. On the default path `w_eff` and
+    # `w_full_eff` are just the grid weights `w` and `w_full`, so the
+    # quadratures below are byte-identical to previous mizer versions. When
+    # second-order is enabled they become the trapezoidal bin-averages of `w`.
+    if (isTRUE(params@second_order_w[["bin_average"]])) {
+        w_eff <- bin_average_weight(params@w)
+        w_full_eff <- bin_average_weight(params@w_full)
+    } else {
+        w_eff <- params@w
+        w_full_eff <- params@w_full
+    }
+
     # If the user has set a custom kernel we can not use fft.
     if (!is.null(comment(params@pred_kernel))) {
         # pred_kernel is predator species x predator size x prey size
@@ -126,16 +138,16 @@ getDiet.MizerParams <- function(params,
         # multiplication for this. Then we multiply 1st and 3rd
         ae <- matrix(params@pred_kernel[, , idx_sp, drop = FALSE],
                      ncol = no_w) %*%
-            t(sweep(n, 2, params@w * params@dw, "*"))
+            t(sweep(n, 2, w_eff * params@dw, "*"))
         diet[, , 1:no_sp] <- ae
         # Eating the resource
         diet[, , no_sp + 1] <- rowSums(sweep(
-            params@pred_kernel, 3, params@dw_full * params@w_full * n_pp, "*"),
+            params@pred_kernel, 3, params@dw_full * w_full_eff * n_pp, "*"),
             dims = 2)
     } else {
         prey <- matrix(0, nrow = no_sp + 1, ncol = no_w_full)
-        prey[1:no_sp, idx_sp] <- sweep(n, 2, params@w * params@dw, "*")
-        prey[no_sp + 1, ] <- n_pp * params@w_full * params@dw_full
+        prey[1:no_sp, idx_sp] <- sweep(n, 2, w_eff * params@dw, "*")
+        prey[no_sp + 1, ] <- n_pp * w_full_eff * params@dw_full
         ft <- array(rep(params@ft_pred_kernel_e, times = no_sp + 1) *
                         rep(mvfft(t(prey)), each = no_sp),
                     dim = c(no_sp, no_w_full, no_sp + 1))
@@ -279,9 +291,13 @@ getTrophicLevel.MizerParams <- function(params,
     # getPredKernel() computes it from species parameters if not explicitly stored.
     pred_kernel <- getPredKernel(params)
 
+    # Prey-biomass weight K = w. When second-order, replace the left-edge
+    # value w_j by its trapezoidal bin-average.
+    w_ba <- bin_average_summary_weight(params@w, params)
+
     # prey_mass_tl[j, p] = N_j(w_p) * T_j(w_p) * w_p * dw_p
     # Initialised with T_j = 1 everywhere; updated as trophic levels are computed
-    prey_mass_tl <- sweep(n, 2, params@w * params@dw, "*")  # no_sp x no_w
+    prey_mass_tl <- sweep(n, 2, w_ba * params@dw, "*")  # no_sp x no_w
 
     # Cumulative numerator A_i and denominator B_i (integrals weighted by 1/g dw)
     cumA <- numeric(no_sp)
@@ -319,7 +335,7 @@ getTrophicLevel.MizerParams <- function(params,
         tl_k <- tl[, k]
         tl_k[is.na(tl_k)] <- 1
         prey_mass_tl[active_k, k] <-
-            n[active_k, k] * tl_k[active_k] * params@w[k] * params@dw[k]
+            n[active_k, k] * tl_k[active_k] * w_ba[k] * params@dw[k]
     }
 
     return(ArraySpeciesBySize(tl, value_name = "Trophic level", params = params))
@@ -404,14 +420,28 @@ getSSB <- function(object) {
 #' @export
 getSSB.MizerSim <- function(object) {
     sim <- object
-    result <- apply(sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3,
-                          sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
+    if (isTRUE(sim@params@second_order_w[["bin_average"]])) {
+        # Bin-average the full composite weight K = maturity * w, then * dw.
+        weight <- sweep(
+            bin_average_weight(sweep(sim@params@maturity, 2, sim@params@w, "*")),
+            2, sim@params@dw, "*")
+        result <- apply(sweep(sim@n, c(2, 3), weight, "*"), c(1, 2), sum)
+    } else {
+        result <- apply(sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3,
+                              sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
+    }
     ArrayTimeBySpecies(result, value_name = "Spawning stock biomass",
                        units = "g", params = sim@params)
 }
 #' @export
 getSSB.MizerParams <- function(object) {
     params <- object
+    if (isTRUE(params@second_order_w[["bin_average"]])) {
+        weight <- sweep(
+            bin_average_weight(sweep(params@maturity, 2, params@w, "*")),
+            2, params@dw, "*")
+        return(rowSums(params@initial_n * weight))
+    }
     return(((params@initial_n * params@maturity) %*%
                 (params@w * params@dw))[, , drop = TRUE])
 }
@@ -476,8 +506,17 @@ getBiomass.MizerSim <- function(object, use_cutoff = FALSE, ...) {
         } else {
             size_range <- get_size_range_array(sim@params, ...)
         }
-    result <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
-                          sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
+    if (isTRUE(sim@params@second_order_w[["bin_average"]])) {
+        # Composite weight K[sp, w] = size_range * w. Bin-averaging the whole
+        # weight (including the window mask) makes the straddling bin partial.
+        weight <- sweep(
+            bin_average_weight(sweep(size_range, 2, sim@params@w, "*")),
+            2, sim@params@dw, "*")
+        result <- apply(sweep(sim@n, c(2, 3), weight, "*"), c(1, 2), sum)
+    } else {
+        result <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
+                              sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
+    }
     ArrayTimeBySpecies(result, value_name = "Biomass", units = "g",
                        params = sim@params)
 }
@@ -493,6 +532,12 @@ getBiomass.MizerParams <- function(object, use_cutoff = FALSE, ...) {
             size_range <- get_size_range_array(params, min_w = biomass_cutoff)
         } else {
             size_range <- get_size_range_array(params, ...)
+        }
+        if (isTRUE(params@second_order_w[["bin_average"]])) {
+            weight <- sweep(
+                bin_average_weight(sweep(size_range, 2, params@w, "*")),
+                2, params@dw, "*")
+            return(rowSums(params@initial_n * weight))
         }
         return(((params@initial_n * size_range) %*%
                     (params@w * params@dw))[, , drop = TRUE])
@@ -571,15 +616,29 @@ getYieldGear <- function(object) {
 #' @export
 getYieldGear.MizerSim <- function(object) {
     sim <- object
+    f_gear <- getFMortGear(sim)  # time x gear x sp x w
+    if (isTRUE(sim@params@second_order_w[["bin_average"]])) {
+        # Full weight is F * w; bin-average the whole product over the size axis.
+        weight <- sweep(
+            bin_average_weight(sweep(f_gear, 4, sim@params@w, "*")),
+            4, sim@params@dw, "*")
+        return(apply(sweep(weight, c(1, 3, 4), sim@n, "*"), c(1, 2, 3), sum))
+    }
     biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
-    f_gear <- getFMortGear(sim)
     return(apply(sweep(f_gear, c(1, 3, 4), biomass, "*"), c(1, 2, 3), sum))
 }
 #' @export
 getYieldGear.MizerParams <- function(object) {
     params <- object
+    f_gear <- getFMortGear(params)  # gear x sp x w
+    if (isTRUE(params@second_order_w[["bin_average"]])) {
+        weight <- sweep(
+            bin_average_weight(sweep(f_gear, 3, params@w, "*")),
+            3, params@dw, "*")
+        return(apply(sweep(weight, c(2, 3), params@initial_n, "*"),
+                     c(1, 2), sum))
+    }
     biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
-    f_gear <- getFMortGear(params)
     return(apply(sweep(f_gear, c(2, 3), biomass, "*"), c(1, 2), sum))
 }
 
@@ -637,17 +696,32 @@ getYield <- function(object) {
 #' @export
 getYield.MizerSim <- function(object) {
     sim <- object
-    biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
-    f <- getFMort(sim, drop = FALSE)
-    result <- apply(f * biomass, c(1, 2), sum)
+    f <- getFMort(sim, drop = FALSE)  # time x sp x w
+    if (isTRUE(sim@params@second_order_w[["bin_average"]])) {
+        # Full weight is F * w; bin-average the whole product over the
+        # size axis.
+        weight <- sweep(
+            bin_average_weight(sweep(f, 3, sim@params@w, "*")),
+            3, sim@params@dw, "*")
+        result <- apply(weight * sim@n, c(1, 2), sum)
+    } else {
+        biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
+        result <- apply(f * biomass, c(1, 2), sum)
+    }
     ArrayTimeBySpecies(result, value_name = "Yield rate", units = "g/year",
                        params = sim@params)
 }
 #' @export
 getYield.MizerParams <- function(object) {
     params <- object
+    f <- getFMort(params, drop = FALSE)  # sp x w
+    if (isTRUE(params@second_order_w[["bin_average"]])) {
+        weight <- sweep(
+            bin_average_weight(sweep(f, 2, params@w, "*")),
+            2, params@dw, "*")
+        return(rowSums(weight * params@initial_n))
+    }
     biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
-    f <- getFMort(params, drop = FALSE)
     return(apply(f * biomass, 1, sum))
 }
 
