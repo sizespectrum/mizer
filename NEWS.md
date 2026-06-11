@@ -1,6 +1,11 @@
 # mizer (development version)
 
-- `getRDI()`, `getRDD()`, and `getFlux()` on a `MizerSim` object now correctly use the simulated time-varying effort instead of the initial effort. (#370)
+- `plotYield()` now uses `sim2 = NULL` instead of `missing(sim2)` to detect
+  the optional second simulation argument. This is backward-compatible and
+  makes the function work correctly with `do.call()`.
+  
+- `getRDI()`, `getRDD()`, and `getFlux()` on a `MizerSim` object now correctly
+  use the simulated time-varying effort instead of the initial effort. (#370)
 
 - `summary()` of a `MizerSim` object now reports the fishing effort that was
   actually used during the simulation rather than the model's `initial_effort`.
