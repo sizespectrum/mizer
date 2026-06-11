@@ -186,7 +186,17 @@ setResource.MizerParams <- function(params,
         assert_that(is.numeric(resource_rate))
         if (length(resource_rate) == 1) {
             co <- comment(resource_rate)
-            resource_rate <- resource_rate * w_full ^ (n - 1)
+            if (isTRUE(params@second_order_w[["bin_average"]])) {
+                # Exact bin average of the power law r_pp * w^(n-1) over each
+                # bin, so the relaxation rate is consistent with the
+                # finite-volume cell-average resource density. See the
+                # "Point values and bin averages" section of the
+                # numerical-details vignette.
+                resource_rate <- resource_rate *
+                    power_law_bin_average(w_full, params@dw_full, n - 1)
+            } else {
+                resource_rate <- resource_rate * w_full ^ (n - 1)
+            }
             comment(resource_rate) <- co
         } else if (length(resource_rate) != no_w_full) {
             stop("The 'resource_rate' should have length 1 or length ",
@@ -202,8 +212,22 @@ setResource.MizerParams <- function(params,
         assert_that(is.numeric(resource_capacity))
         if (length(resource_capacity) == 1) {
             co <- comment(resource_capacity)
-            resource_capacity <- resource_capacity * w_full ^ (-lambda)
-            resource_capacity[w_full >= params@resource_params$w_pp_cutoff] <- 0
+            if (isTRUE(params@second_order_w[["bin_average"]])) {
+                # Exact bin average of kappa * w^(-lambda), truncated at the
+                # cutoff. The unpredated semichemostat equilibrium is N_R* = c_p,
+                # so the stored capacity must be the cell average of the
+                # background spectrum for it to match the bin-averaged resource
+                # consumed by the (bin-integrated) encounter convolution. The bin
+                # straddling w_pp_cutoff gets the partial average; bins above it
+                # are zero.
+                resource_capacity <- resource_capacity *
+                    power_law_bin_average(
+                        w_full, params@dw_full, -lambda,
+                        w_max = params@resource_params$w_pp_cutoff)
+            } else {
+                resource_capacity <- resource_capacity * w_full ^ (-lambda)
+                resource_capacity[w_full >= params@resource_params$w_pp_cutoff] <- 0
+            }
             comment(resource_capacity) <- co
         } else if (length(resource_capacity) != no_w_full) {
             stop("The 'resource_rate' should have length 1 or length ",
