@@ -1,5 +1,11 @@
 # mizer (development version)
 
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`,
+  `setExtMort()` now replaces the point-sampled power-law external mortality
+  \eqn{z_{ext} w^d} by its exact bin average over each bin, making the external
+  mortality sink consistent with the finite-volume scheme. The default
+  (point sampling) is unchanged.
+
 - `project()` gains a new time-stepping option `method = "tr_bdf2"`. This is an
   L-stable, second-order TR-BDF2 scheme that retains the second-order accuracy
   of `method = "predictor_corrector"` while damping the oscillations that the
