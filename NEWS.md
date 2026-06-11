@@ -1,5 +1,16 @@
 # mizer (development version)
 
+- Under second-order bin-averaging (`second_order_w[["bin_average"]]`), the
+  spectrum plots `plotSpectra()`, `plotlySpectra()`, `plotSpectraRelative()` and
+  `animate()`/`animateSpectra()` now evaluate the `w^power` weight *and* the
+  marker location at the geometric bin centre `w* = w sqrt(beta)`, so each marker
+  is a point `(w*, N_j (w*)^power)` on the continuous `N w^power` curve rather
+  than being doubly mis-placed at the bin edge (the location error grows with
+  `power`, worst for the common `power = 2` Sheldon plot). `plotCDF()` /
+  `plotlyCDF()`, being cumulative integrals, keep their increments
+  bin-averaged but plot the cumulative on the bin **edges**, not the centres.
+  The default (first-order) behaviour is unchanged. (#383)
+
 - Size-resolved diagnostics that are finite-volume bin averages (the
   mortalities `getPredMort()`, `getFMort()`, `getMort()`, `getExtMort()`, and
   the reproductive investment `getERepro()`) are now drawn at the geometric bin

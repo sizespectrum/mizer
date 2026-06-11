@@ -190,6 +190,14 @@ animate.MizerSim <- function(x, species = NULL,
     } else {
         y_label <- paste0("Number density * w^", power)
     }
+    # The animated spectrum is a density, so under second-order bin-averaging
+    # we evaluate both the w^power weight and the plotted location at the
+    # geometric bin centre w* = w sqrt(beta) (issue #383), matching
+    # plotSpectra(). Default plots are unchanged.
+    if (isTRUE(sim@params@second_order_w[["bin_average"]])) {
+        beta <- sim@params@w_full[2] / sim@params@w_full[1]
+        nf$w <- nf$w * sqrt(beta)
+    }
     nf <- mutate(nf, value = value * w^power)
 
     animate_plotly(nf, sim@params, log_x, log_y, y_label, wlim, llim,

@@ -677,3 +677,73 @@ test_that("plotDiet works with MizerSim", {
     p <- plotDiet(sim, species = 2, time_range = 1:2)
     expect_true(is(p, "ggplot"))
 })
+
+# Second-order power weighting in plotSpectra / plotCDF (#383) --------------
+
+test_that("plotSpectra draws the spectrum at bin centres with the w^power weight there", {
+    p0 <- params
+    p1 <- params
+    second_order_w(p1) <- c(bin_average = TRUE)
+    beta <- p0@w_full[2] / p0@w_full[1]
+    for (pw in c(0, 1, 2)) {
+        d0 <- plotSpectra(p0, power = pw, return_data = TRUE)
+        d1 <- plotSpectra(p1, power = pw, return_data = TRUE)
+        d0 <- d0[order(d0$Species, d0$w), ]
+        d1 <- d1[order(d1$Species, d1$w), ]
+        expect_equal(nrow(d0), nrow(d1))
+        # x moves to the geometric bin centre (a uniform sqrt(beta) shift) ...
+        expect_equal(unname(d1$w / d0$w), rep(sqrt(beta), nrow(d1)))
+        # ... and the w^power weight is evaluated there, scaling the value
+        # (column 2, named by the y-label) by (w*/w)^power = beta^(power/2).
+        expect_equal(unname(d1[[2]] / d0[[2]]),
+                     rep(beta^(pw / 2), nrow(d1)))
+    }
+})
+
+test_that("plotSpectra default (first order) is unchanged", {
+    expect_identical(plotSpectra(params, power = 2, return_data = TRUE),
+                     plotSpectra(params, power = 2, return_data = TRUE))
+    # The default model never shifts: x stays on the model grid nodes.
+    d <- plotSpectra(params, power = 2, resource = FALSE, total = FALSE,
+                     background = FALSE, return_data = TRUE)
+    expect_true(all(d$w %in% params@w))
+})
+
+test_that("plotCDF keeps the cumulative on bin edges under second_order_w", {
+    p1 <- params
+    second_order_w(p1) <- c(bin_average = TRUE)
+    cdf <- plotCDF(p1, power = 2, return_data = TRUE)
+    nodes <- round(c(p1@w, p1@w_full), 6)
+    centres <- round(c(bin_midpoints(p1), bin_midpoints(p1, w_full = TRUE)), 6)
+    # The CDF x-values stay on the node (bin-edge) grid, never on the centres.
+    expect_true(all(round(cdf$w, 6) %in% nodes))
+    expect_false(any(round(cdf$w, 6) %in% setdiff(centres, nodes)))
+    # Cumulative is monotonic increasing and ends at 1 (normalised).
+    sp1 <- cdf[cdf$Species == p1@species_params$species[1], ]
+    sp1 <- sp1[order(sp1$w), ]
+    expect_true(all(diff(sp1[[2]]) >= -1e-12))
+})
+
+test_that("plotSpectraRelative shifts x to centres but cancels the power weight", {
+    p1a <- params
+    p1b <- params
+    p1b@initial_n <- p1b@initial_n * 1.5
+    second_order_w(p1a) <- c(bin_average = TRUE)
+    second_order_w(p1b) <- c(bin_average = TRUE)
+    beta <- params@w_full[2] / params@w_full[1]
+    # power cancels in 2(N2-N1)/(N1+N2), so the relative value is independent of
+    # power; only the x-location picks up the centre shift.
+    p_p1 <- plotSpectraRelative(p1a, p1b, species = species, resource = FALSE,
+                                power = 1)
+    p_p2 <- plotSpectraRelative(p1a, p1b, species = species, resource = FALSE,
+                                power = 2)
+    d_p1 <- p_p1$data[order(p_p1$data$Species, p_p1$data$w), ]
+    d_p2 <- p_p2$data[order(p_p2$data$Species, p_p2$data$w), ]
+    expect_equal(d_p1$w, d_p2$w)
+    expect_equal(d_p1$rel_diff, d_p2$rel_diff)
+    # The x-location is the geometric bin centre, not the node.
+    p_node <- plotSpectraRelative(params, params, species = species,
+                                  resource = FALSE)
+    expect_true(all(p_node$data$w %in% params@w))
+    expect_false(all(d_p1$w %in% params@w))
+})
