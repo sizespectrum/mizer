@@ -1,12 +1,12 @@
 # mizer (development version)
 
-- `setPredKernel()` gains a `high_order` argument that selects a higher-order,
-  finite-volume-consistent quadrature for the FFT-based encounter and predation
-  rates. The kernel is integrated over each logarithmic size bin instead of
-  being point-sampled, lifting these rates towards second order at no extra
-  runtime cost. The first-order scheme remains the default; enable the new
-  scheme with `setPredKernel(params, high_order = TRUE)`. See the
-  "Fast Fourier Transform for Rates" vignette for the derivation.
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`, the
+  FFT-based encounter and predation rates use a higher-order,
+  finite-volume-consistent quadrature: the predation kernel is integrated over
+  each logarithmic size bin instead of being point-sampled, lifting these rates
+  towards second order at no extra runtime cost. The first-order scheme remains
+  the default; enable the new scheme with `second_order_w(params) <- TRUE`. See
+  the "Fast Fourier Transform for Rates" vignette for the derivation.
 
 - When the `bin_average` entry of the `second_order_w` slot is `TRUE`,
   `setExtMort()` now replaces the point-sampled power-law external mortality

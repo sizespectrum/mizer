@@ -24,14 +24,6 @@ Higher levels lead to more messages.}
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
 predation kernel".}
-    \item{\code{high_order}}{Whether to use the higher-order (bin-integrated) quadrature when building
-the Fourier-transformed predation kernels for a ratio-dependent kernel.
-See the section "Higher-order quadrature" below. If \code{NULL} (default) the
-\code{bin_average} entry of the \code{second_order_w} slot of \code{params} is used,
-defaulting to \code{FALSE} (the original first-order scheme). Passing \code{TRUE} or
-\code{FALSE} explicitly selects the scheme and records the choice in
-\code{second_order_w["bin_average"]} so that it persists through later
-recalculations. See \code{\link[=second_order_w]{second_order_w()}}.}
     \item{\code{value}}{pred_kernel}
     \item{\code{search_vol}}{Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in

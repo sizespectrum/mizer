@@ -150,25 +150,21 @@ test_that("default_pred_kernel_params leaves manually set full kernels unchanged
 ## Higher-order (bin-integrated) quadrature ----
 test_that("default scheme is first-order and leaves the slot untouched", {
     params <- NS_params_small
-    # The default leaves the Fourier kernels and second_order_w slot untouched
+    # The default (bin_average = FALSE) leaves the Fourier kernels and the
+    # second_order_w slot untouched
     expect_unchanged(setPredKernel(params), params)
     expect_false(setPredKernel(params)@second_order_w[["bin_average"]])
-    # Explicitly asking for first order matches the default kernels but records
-    # the choice
-    p_lo <- setPredKernel(params, high_order = FALSE)
-    expect_equal(p_lo@ft_pred_kernel_e, params@ft_pred_kernel_e)
-    expect_equal(p_lo@ft_pred_kernel_p, params@ft_pred_kernel_p)
-    expect_false(p_lo@second_order_w[["bin_average"]])
 })
 
-test_that("high_order = TRUE changes the kernels and records the choice", {
+test_that("bin_average = TRUE changes the kernels", {
     params <- NS_params_small
-    p_hi <- setPredKernel(params, high_order = TRUE)
-    expect_true(p_hi@second_order_w[["bin_average"]])
+    # setPredKernel() reads the bin_average flag from the slot
+    params@second_order_w[["bin_average"]] <- TRUE
+    p_hi <- setPredKernel(params)
     expect_false(isTRUE(all.equal(p_hi@ft_pred_kernel_e,
-                                  params@ft_pred_kernel_e)))
+                                  NS_params_small@ft_pred_kernel_e)))
     expect_false(isTRUE(all.equal(p_hi@ft_pred_kernel_p,
-                                  params@ft_pred_kernel_p)))
+                                  NS_params_small@ft_pred_kernel_p)))
     # The rates remain finite and a projection runs
     expect_true(all(is.finite(getEncounter(p_hi))))
     expect_true(all(is.finite(getPredRate(p_hi))))
@@ -176,11 +172,14 @@ test_that("high_order = TRUE changes the kernels and records the choice", {
     expect_true(all(is.finite(sim@n)))
 })
 
-test_that("the high-order choice persists through recalculation", {
-    params <- setPredKernel(NS_params_small, high_order = TRUE)
-    # A bare recalculation keeps the high-order kernels
-    expect_equal(setPredKernel(params)@ft_pred_kernel_e,
-                 params@ft_pred_kernel_e)
+test_that("the high-order kernels persist through recalculation", {
+    params <- NS_params_small
+    # Enabling via the slot setter re-runs setParams() and builds the
+    # high-order kernels
+    second_order_w(params) <- c(bin_average = TRUE)
+    hi_e <- params@ft_pred_kernel_e
+    # A bare setPredKernel() recalculation keeps the high-order kernels
+    expect_equal(setPredKernel(params)@ft_pred_kernel_e, hi_e)
     # Changing a kernel parameter re-runs setPredKernel() via the setParams
     # pipeline; the high-order scheme must be retained
     p2 <- params
@@ -190,8 +189,8 @@ test_that("the high-order choice persists through recalculation", {
     species_params(p2_lo)$beta <- species_params(p2_lo)$beta * 1.1
     expect_false(isTRUE(all.equal(p2@ft_pred_kernel_e, p2_lo@ft_pred_kernel_e)))
     # Switching back to first order also persists
-    p3 <- setPredKernel(params, high_order = FALSE)
-    expect_equal(p3@ft_pred_kernel_e, NS_params_small@ft_pred_kernel_e)
+    second_order_w(p2) <- c(bin_average = FALSE)
+    expect_equal(p2@ft_pred_kernel_e, p2_lo@ft_pred_kernel_e)
 })
 
 test_that("bin-integrated box kernel matches the analytic weights", {
@@ -201,7 +200,8 @@ test_that("bin-integrated box kernel matches the analytic weights", {
     params@species_params$pred_kernel_type <- "box"
     params@species_params$ppmr_min <- 1
     params@species_params$ppmr_max <- 1e8  # wide support: whole bins lie inside
-    p_hi <- setPredKernel(params, high_order = TRUE)
+    params@second_order_w[["bin_average"]] <- TRUE
+    p_hi <- setPredKernel(params)
     no_w_full <- length(params@w_full)
     beta_grid <- params@w_full[2] / params@w_full[1]
     # Invert the FFT of the first species to recover the kernel weights

@@ -238,19 +238,18 @@ before.
 
 The higher-order quadrature is **opt-in**: the first-order scheme described in
 the earlier sections remains the default so that existing models reproduce
-exactly. To build the bin-integrated kernels, pass `high_order = TRUE` to
-[setPredKernel()],
+exactly. To build the bin-integrated kernels, set the `bin_average` entry of the
+`second_order_w` slot,
 ```r
-params <- setPredKernel(params, high_order = TRUE)
+second_order_w(params) <- TRUE
 ```
-or supply the same argument when creating a model with
-[newMultispeciesParams()]. The choice is recorded in the `bin_average` entry of
-the `second_order_w` slot of the `MizerParams` object
-(`second_order_w(params)["bin_average"]`), so it is preserved when the kernels
-are later recalculated — for example after you change a predation-kernel
-parameter such as `beta` or `sigma`. Set `high_order = FALSE` to switch back to
-the first-order scheme, or use the [second_order_w()] accessor to toggle it
-alongside the other second-order schemes.
+which re-runs [setParams()] and rebuilds the Fourier-transformed kernels (along
+with the other bin-averaged rate quadratures, so the whole model stays
+consistent). Because the choice lives in the slot it is preserved when the
+kernels are later recalculated — for example after you change a predation-kernel
+parameter such as `beta` or `sigma`. Set `second_order_w(params) <- FALSE` to
+switch back to the first-order scheme. See [second_order_w()] for finer control
+over the individual second-order schemes.
 
 (The predation-diffusion rate, when enabled, reuses `ft_pred_kernel_e` and so
 inherits the bin-integrated encounter kernel. Its integrand carries an extra

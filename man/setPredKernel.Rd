@@ -7,13 +7,7 @@
 \alias{pred_kernel<-}
 \title{Set predation kernel}
 \usage{
-setPredKernel(
-  params,
-  pred_kernel = NULL,
-  reset = FALSE,
-  high_order = NULL,
-  ...
-)
+setPredKernel(params, pred_kernel = NULL, reset = FALSE, ...)
 
 getPredKernel(params)
 
@@ -34,15 +28,6 @@ value calculated from the species parameters, even if it was previously
 overwritten with a custom value. If set to FALSE (default) then a
 recalculation from the species parameters will take place only if no custom
 value has been set.}
-
-\item{high_order}{Whether to use the higher-order (bin-integrated) quadrature when building
-the Fourier-transformed predation kernels for a ratio-dependent kernel.
-See the section "Higher-order quadrature" below. If \code{NULL} (default) the
-\code{bin_average} entry of the \code{second_order_w} slot of \code{params} is used,
-defaulting to \code{FALSE} (the original first-order scheme). Passing \code{TRUE} or
-\code{FALSE} explicitly selects the scheme and records the choice in
-\code{second_order_w["bin_average"]} so that it persists through later
-recalculations. See \code{\link[=second_order_w]{second_order_w()}}.}
 
 \item{...}{Unused}
 
@@ -119,13 +104,15 @@ different.
 When the predation kernel depends only on the predator/prey mass ratio, the
 encounter and predation rates are evaluated as convolutions using the fast
 Fourier transform. By default mizer point-samples the kernel at the grid
-nodes, which is a first-order (rectangle-rule) quadrature. Setting
-\code{high_order = TRUE} instead integrates the kernel over each logarithmic size
-bin when building the Fourier-transformed kernels. This finite-volume
-consistent quadrature lifts the encounter and predation rates towards second
-order at no extra runtime cost, because the integration is performed once
-here and the rate functions themselves are unchanged. The default remains the
-first-order scheme so that existing models are unaffected. See the
+nodes, which is a first-order (rectangle-rule) quadrature. When the
+\code{bin_average} entry of the \code{second_order_w} slot is \code{TRUE}, the kernel is
+instead integrated over each logarithmic size bin when building the
+Fourier-transformed kernels. This finite-volume consistent quadrature lifts
+the encounter and predation rates towards second order at no extra runtime
+cost, because the integration is performed once here and the rate functions
+themselves are unchanged. The default remains the first-order scheme so that
+existing models are unaffected. Enable it with \code{second_order_w(params) <- TRUE} (see \code{\link[=second_order_w]{second_order_w()}}), which also turns on the other bin-averaged
+rate quadratures so the whole model stays consistent. See the
 \code{vignette("fft")} for the mathematical details.
 }
 

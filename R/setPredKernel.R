@@ -61,13 +61,16 @@
 #' When the predation kernel depends only on the predator/prey mass ratio, the
 #' encounter and predation rates are evaluated as convolutions using the fast
 #' Fourier transform. By default mizer point-samples the kernel at the grid
-#' nodes, which is a first-order (rectangle-rule) quadrature. Setting
-#' `high_order = TRUE` instead integrates the kernel over each logarithmic size
-#' bin when building the Fourier-transformed kernels. This finite-volume
-#' consistent quadrature lifts the encounter and predation rates towards second
-#' order at no extra runtime cost, because the integration is performed once
-#' here and the rate functions themselves are unchanged. The default remains the
-#' first-order scheme so that existing models are unaffected. See the
+#' nodes, which is a first-order (rectangle-rule) quadrature. When the
+#' `bin_average` entry of the `second_order_w` slot is `TRUE`, the kernel is
+#' instead integrated over each logarithmic size bin when building the
+#' Fourier-transformed kernels. This finite-volume consistent quadrature lifts
+#' the encounter and predation rates towards second order at no extra runtime
+#' cost, because the integration is performed once here and the rate functions
+#' themselves are unchanged. The default remains the first-order scheme so that
+#' existing models are unaffected. Enable it with `second_order_w(params) <-
+#' TRUE` (see [second_order_w()]), which also turns on the other bin-averaged
+#' rate quadratures so the whole model stays consistent. See the
 #' `vignette("fft")` for the mathematical details.
 #'
 #' @param params A MizerParams object
@@ -81,15 +84,6 @@
 #'   overwritten with a custom value. If set to FALSE (default) then a
 #'   recalculation from the species parameters will take place only if no custom
 #'   value has been set.
-#' @param high_order
-#'   Whether to use the higher-order (bin-integrated) quadrature when building
-#'   the Fourier-transformed predation kernels for a ratio-dependent kernel.
-#'   See the section "Higher-order quadrature" below. If `NULL` (default) the
-#'   `bin_average` entry of the `second_order_w` slot of `params` is used,
-#'   defaulting to `FALSE` (the original first-order scheme). Passing `TRUE` or
-#'   `FALSE` explicitly selects the scheme and records the choice in
-#'   `second_order_w["bin_average"]` so that it persists through later
-#'   recalculations. See [second_order_w()].
 #' @param ... Unused
 #'
 #' @return `setPredKernel()`: A MizerParams object with updated predation kernel.
@@ -115,26 +109,21 @@
 #' pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2,
 #'                                     params@w_full, "*")
 #' params<- setPredKernel(params, pred_kernel = pred_kernel)
-setPredKernel <- function(params, pred_kernel = NULL, reset = FALSE,
-                          high_order = NULL, ...) {
+setPredKernel <- function(params, pred_kernel = NULL, reset = FALSE, ...) {
     UseMethod("setPredKernel")
 }
 #' @export
 setPredKernel.MizerParams <- function(params,
                           pred_kernel = NULL,
-                          reset = FALSE, high_order = NULL, ...) {
+                          reset = FALSE, ...) {
     assert_that(is.flag(reset))
 
-    # Resolve which quadrature to use for the Fourier-transformed kernels. The
-    # choice is held in the `bin_average` entry of the `second_order_w` slot so
-    # that it persists through the recalculations triggered by the setParams()
-    # pipeline and stays consistent with the other bin-averaged rate quadratures.
-    if (is.null(high_order)) {
-        high_order <- isTRUE(params@second_order_w[["bin_average"]])
-    } else {
-        assert_that(is.flag(high_order))
-        params@second_order_w[["bin_average"]] <- high_order
-    }
+    # Which quadrature to use for the Fourier-transformed kernels is controlled
+    # by the `bin_average` entry of the `second_order_w` slot, the single switch
+    # for all the bin-averaged rate quadratures. Enable it with
+    # `second_order_w(params) <- TRUE`, which re-runs setParams() so that the
+    # kernels and the other bin-averaged quantities stay mutually consistent.
+    high_order <- isTRUE(params@second_order_w[["bin_average"]])
 
     if (reset) {
         if (!is.null(pred_kernel)) {
