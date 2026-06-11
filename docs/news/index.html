@@ -76,6 +76,12 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="mizer-development-version">mizer (development version)<a class="anchor" aria-label="anchor" href="#mizer-development-version"></a></h2>
+<ul><li>
+<code><a href="../reference/project.html">project()</a></code> gains a new time-stepping option <code>method = "tr_bdf2"</code>. This is an L-stable, second-order TR-BDF2 scheme that retains the second-order accuracy of <code>method = "predictor_corrector"</code> while damping the oscillations that the Crank-Nicolson corrector can show at large time steps. Like the other methods it only requires tridiagonal solves. See the “Numerical Details” vignette.</li>
+<li>Under the second-order methods (<code>"predictor_corrector"</code> and <code>"tr_bdf2"</code>) the resource is now advanced with midpoint resource mortality rather than the start-of-step value, so the resource spectrum is also second order in time. The <code>"euler"</code> method and the steady states are unchanged.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="3.0.0" id="mizer-300">mizer 3.0.0<a class="anchor" aria-label="anchor" href="#mizer-300"></a></h2><p class="text-muted">CRAN release: 2026-06-08</p>
 <p>This release brings new biological realism, improved numerics, a richer interactive analysis experience, and a composable extension framework. For an overview see the <a href="https://blog.mizer.sizespectrum.org/posts/2026-05-13-mizer-3-0-announcement/" class="external-link">blog post</a> pre-announcing the release.</p>
 <div class="section level3">
