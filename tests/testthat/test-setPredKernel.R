@@ -212,6 +212,54 @@ test_that("bin-integrated box kernel matches the analytic weights", {
     expect_equal(unname(phi_e[1]), 0, tolerance = 1e-8)
     expect_equal(unname(phi_e[5]), (beta_grid + 1) / 2, tolerance = 1e-4)
     # The predation weight for a fully-covered bin is exactly 1. phi_p is the
-    # reversed kernel, so offset m = 1 sits in the last entry.
+    # reversed kernel, so offset m = 1 sits in the last entry. The prey-bin fold
+    # (issue #381) averages two fully-covered offsets, 1/2 (1 + 1) = 1, so this
+    # value is unchanged.
     expect_equal(unname(phi_p[no_w_full]), 1, tolerance = 1e-4)
+})
+
+test_that("the predation kernel is prey-bin averaged under second_order_w", {
+    # A box kernel whose upper edge ppmr_max lands exactly on a grid point
+    # gives a covered -> uncovered transition between adjacent offsets: the
+    # predator-bin-integrated weight is 1 just below the edge and 0 just above.
+    # The prey-bin trapezoid fold (issue #381) turns the first uncovered offset
+    # into 1/2 (0 + 1) = 1/2 -- a value that appears *only* if the prey-bin
+    # average is applied, and in the correct place.
+    params <- NS_params_small
+    beta_grid <- params@w_full[2] / params@w_full[1]
+    M <- 5L
+    params@species_params$pred_kernel_type <- "box"
+    params@species_params$ppmr_min <- 1
+    params@species_params$ppmr_max <- beta_grid^M  # exactly on a grid point
+    params@second_order_w[["bin_average"]] <- TRUE
+    p_hi <- setPredKernel(params)
+    no_w_full <- length(params@w_full)
+    phi_p <- Re(fft(p_hi@ft_pred_kernel_p[1, ], inverse = TRUE)) / no_w_full
+    # Reversed layout: offset m sits at index no_w_full - m + 1.
+    idx <- function(m) no_w_full - m + 1L
+    # Offsets below the edge are fully covered -> fold of two ones stays 1.
+    expect_equal(unname(phi_p[idx(M - 1L)]), 1, tolerance = 1e-4)
+    # The edge offset M: covered weight 0, previous offset 1 -> fold gives 1/2.
+    expect_equal(unname(phi_p[idx(M)]), 0.5, tolerance = 1e-3)
+    # Beyond the edge both offsets are uncovered -> fold stays 0.
+    expect_equal(unname(phi_p[idx(M + 1L)]), 0, tolerance = 1e-4)
+})
+
+test_that("second_order_w prey-bin average leaves the default path unchanged", {
+    # With the flag off the predation kernel is the previous point-sampled one.
+    expect_equal(setPredKernel(NS_params_small)@ft_pred_kernel_p,
+                 NS_params_small@ft_pred_kernel_p)
+})
+
+test_that("prey-bin-averaged predation mortality stays finite for all consumers", {
+    params <- NS_params_small
+    second_order_w(params) <- c(bin_average = TRUE)
+    # Both the consumer mortality and the resource mortality read the same
+    # (now prey-bin-averaged) predation rate.
+    expect_true(all(is.finite(getPredMort(params))))
+    expect_true(all(is.finite(getResourceMort(params))))
+    # The prey-bin average shifts predation mortality away from the first-order
+    # point-sampled values.
+    expect_false(isTRUE(all.equal(getPredMort(params),
+                                  getPredMort(NS_params_small))))
 })
