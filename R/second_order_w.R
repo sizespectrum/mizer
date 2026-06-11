@@ -18,8 +18,7 @@
 #'
 #' The setter accepts either a single logical value (which sets both entries)
 #' or a named logical vector to set individual entries. The setter re-runs
-#' [setParams()] to rebuild precomputed arrays when `bin_average` is changed
-#' from `FALSE` to `TRUE`.
+#' [setParams()] to rebuild precomputed arrays when `bin_average` is changed.
 #'
 #' @param params A MizerParams object.
 #' @return `second_order_w()`: A named logical vector with entries
@@ -35,8 +34,8 @@ second_order_w <- function(params) {
 #'   entries, or a named logical vector with entries `flux_limiter` and/or
 #'   `bin_average`.
 #' @return `second_order_w<-`: A MizerParams object with the `second_order_w`
-#'   flags updated and, when `bin_average` is switched from `FALSE` to `TRUE`,
-#'   all model parameters recalculated via [setParams()].
+#'   flags updated and, when `bin_average` is changed, all model parameters
+#'   recalculated via [setParams()].
 #' @export
 `second_order_w<-` <- function(params, value) {
     old_bin_average <- params@second_order_w[["bin_average"]]
@@ -59,7 +58,7 @@ second_order_w <- function(params) {
              "logical vector with entries 'flux_limiter' and/or 'bin_average'")
     }
     new_bin_average <- params@second_order_w[["bin_average"]]
-    if (!old_bin_average && new_bin_average) {
+    if (old_bin_average != new_bin_average) {
         params <- setParams(params)
     }
     params
