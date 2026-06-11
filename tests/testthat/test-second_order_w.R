@@ -53,6 +53,23 @@ test_that("second_order_w setter re-runs setParams", {
     expect_s4_class(params, "MizerParams")
 })
 
+test_that("setting bin_average rebuilds the higher-order predation kernels", {
+    params <- NS_params_small
+    p_hi <- params
+    second_order_w(p_hi) <- c(bin_average = TRUE)
+    # The bin-averaged quadrature gives different Fourier kernels
+    expect_false(isTRUE(all.equal(p_hi@ft_pred_kernel_e,
+                                  params@ft_pred_kernel_e)))
+    # It agrees with building the kernel from the slot directly
+    p_direct <- params
+    p_direct@second_order_w[["bin_average"]] <- TRUE
+    expect_equal(p_hi@ft_pred_kernel_e,
+                 setPredKernel(p_direct)@ft_pred_kernel_e)
+    # Toggling back restores the first-order kernels
+    second_order_w(p_hi) <- c(bin_average = FALSE)
+    expect_equal(p_hi@ft_pred_kernel_e, params@ft_pred_kernel_e)
+})
+
 test_that("second_order_w slot is preserved by upgradeParams", {
     params <- NS_params_small
     params2 <- upgradeParams(params)

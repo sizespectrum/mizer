@@ -1,5 +1,13 @@
 # mizer (development version)
 
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`, the
+  FFT-based encounter and predation rates use a higher-order,
+  finite-volume-consistent quadrature: the predation kernel is integrated over
+  each logarithmic size bin instead of being point-sampled, lifting these rates
+  towards second order at no extra runtime cost. The first-order scheme remains
+  the default; enable the new scheme with `second_order_w(params) <- TRUE`. See
+  the "Fast Fourier Transform for Rates" vignette for the derivation.
+
 - When the `bin_average` entry of the `second_order_w` slot is `TRUE`,
   `setExtMort()` now replaces the point-sampled power-law external mortality
   \eqn{z_{ext} w^d} by its exact bin average over each bin, making the external
