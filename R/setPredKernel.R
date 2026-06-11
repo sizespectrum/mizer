@@ -85,10 +85,11 @@
 #'   Whether to use the higher-order (bin-integrated) quadrature when building
 #'   the Fourier-transformed predation kernels for a ratio-dependent kernel.
 #'   See the section "Higher-order quadrature" below. If `NULL` (default) the
-#'   choice recorded in the metadata of `params` is used, defaulting to `FALSE`
-#'   (the original first-order scheme) for objects where it has never been set.
-#'   Passing `TRUE` or `FALSE` explicitly selects the scheme and records the
-#'   choice in the metadata so that it persists through later recalculations.
+#'   `bin_average` entry of the `second_order_w` slot of `params` is used,
+#'   defaulting to `FALSE` (the original first-order scheme). Passing `TRUE` or
+#'   `FALSE` explicitly selects the scheme and records the choice in
+#'   `second_order_w["bin_average"]` so that it persists through later
+#'   recalculations. See [second_order_w()].
 #' @param ... Unused
 #'
 #' @return `setPredKernel()`: A MizerParams object with updated predation kernel.
@@ -124,14 +125,15 @@ setPredKernel.MizerParams <- function(params,
                           reset = FALSE, high_order = NULL, ...) {
     assert_that(is.flag(reset))
 
-    # Resolve which quadrature to use for the Fourier-transformed kernels and
-    # record an explicit choice in the metadata so that it persists through the
-    # recalculations triggered by the setParams() pipeline.
+    # Resolve which quadrature to use for the Fourier-transformed kernels. The
+    # choice is held in the `bin_average` entry of the `second_order_w` slot so
+    # that it persists through the recalculations triggered by the setParams()
+    # pipeline and stays consistent with the other bin-averaged rate quadratures.
     if (is.null(high_order)) {
-        high_order <- isTRUE(params@metadata[["high_order_kernel"]])
+        high_order <- isTRUE(params@second_order_w[["bin_average"]])
     } else {
         assert_that(is.flag(high_order))
-        params@metadata[["high_order_kernel"]] <- high_order
+        params@second_order_w[["bin_average"]] <- high_order
     }
 
     if (reset) {

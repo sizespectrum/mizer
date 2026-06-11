@@ -148,23 +148,23 @@ test_that("default_pred_kernel_params leaves manually set full kernels unchanged
 })
 
 ## Higher-order (bin-integrated) quadrature ----
-test_that("default scheme is first-order and writes no metadata", {
+test_that("default scheme is first-order and leaves the slot untouched", {
     params <- NS_params_small
-    # The default leaves the Fourier kernels and metadata untouched
+    # The default leaves the Fourier kernels and second_order_w slot untouched
     expect_unchanged(setPredKernel(params), params)
-    expect_null(setPredKernel(params)@metadata[["high_order_kernel"]])
+    expect_false(setPredKernel(params)@second_order_w[["bin_average"]])
     # Explicitly asking for first order matches the default kernels but records
     # the choice
     p_lo <- setPredKernel(params, high_order = FALSE)
     expect_equal(p_lo@ft_pred_kernel_e, params@ft_pred_kernel_e)
     expect_equal(p_lo@ft_pred_kernel_p, params@ft_pred_kernel_p)
-    expect_false(p_lo@metadata[["high_order_kernel"]])
+    expect_false(p_lo@second_order_w[["bin_average"]])
 })
 
 test_that("high_order = TRUE changes the kernels and records the choice", {
     params <- NS_params_small
     p_hi <- setPredKernel(params, high_order = TRUE)
-    expect_true(p_hi@metadata[["high_order_kernel"]])
+    expect_true(p_hi@second_order_w[["bin_average"]])
     expect_false(isTRUE(all.equal(p_hi@ft_pred_kernel_e,
                                   params@ft_pred_kernel_e)))
     expect_false(isTRUE(all.equal(p_hi@ft_pred_kernel_p,
@@ -185,7 +185,7 @@ test_that("the high-order choice persists through recalculation", {
     # pipeline; the high-order scheme must be retained
     p2 <- params
     species_params(p2)$beta <- species_params(p2)$beta * 1.1
-    expect_true(p2@metadata[["high_order_kernel"]])
+    expect_true(p2@second_order_w[["bin_average"]])
     p2_lo <- NS_params_small
     species_params(p2_lo)$beta <- species_params(p2_lo)$beta * 1.1
     expect_false(isTRUE(all.equal(p2@ft_pred_kernel_e, p2_lo@ft_pred_kernel_e)))
