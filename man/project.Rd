@@ -17,7 +17,7 @@ project(
   initial_n_pp,
   append = TRUE,
   progress_bar = TRUE,
-  method = c("euler", "predictor_corrector"),
+  method = c("euler", "predictor_corrector", "tr_bdf2"),
   ...
 )
 
@@ -32,7 +32,7 @@ project(
   initial_n_pp,
   append = TRUE,
   progress_bar = TRUE,
-  method = c("euler", "predictor_corrector"),
+  method = c("euler", "predictor_corrector", "tr_bdf2"),
   ...
 )
 
@@ -47,7 +47,7 @@ project(
   initial_n_pp,
   append = TRUE,
   progress_bar = TRUE,
-  method = c("euler", "predictor_corrector"),
+  method = c("euler", "predictor_corrector", "tr_bdf2"),
   ...
 )
 }
@@ -90,12 +90,15 @@ bar should be shown in the console, or a shiny Progress object to implement
 a progress bar in a shiny app.}
 
 \item{method}{The numerical method to use for the consumer density update.
-Currently \code{"euler"} uses the existing semi-implicit Euler update, while
+\code{"euler"} uses the first-order semi-implicit Euler update.
 \code{"predictor_corrector"} uses a predictor-corrector Crank-Nicolson update
-with midpoint rates. \code{"predictor-corrector"} is accepted as an alias.
-When \code{object} is a \code{MizerSim}, defaults to the value used to produce that
-simulation. A warning is issued if \code{append = TRUE} and the supplied value
-differs from the stored one.}
+with midpoint rates, which is second order in time but can oscillate at
+large time steps. \code{"tr_bdf2"} uses the L-stable, second-order TR-BDF2
+method, which retains second-order accuracy while damping those
+oscillations. \code{"predictor-corrector"} is accepted as an alias for
+\code{"predictor_corrector"}. When \code{object} is a \code{MizerSim}, defaults to the
+value used to produce that simulation. A warning is issued if
+\code{append = TRUE} and the supplied value differs from the stored one.}
 
 \item{...}{Other arguments will be passed to rate functions.}
 }

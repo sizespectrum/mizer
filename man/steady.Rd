@@ -14,7 +14,7 @@ steady(
   preserve = c("reproduction_level", "erepro", "R_max"),
   progress_bar = TRUE,
   info_level = 3,
-  method = c("euler", "predictor_corrector")
+  method = c("euler", "predictor_corrector", "tr_bdf2")
 )
 }
 \arguments{
