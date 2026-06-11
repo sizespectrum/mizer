@@ -1,15 +1,16 @@
 #' Get or set the second_order_w flags
 #'
-#' Controls whether second-order numerical methods are used when calculating
-#' size-dependent rates. The slot is a named logical vector with entries:
+#' Controls whether second-order numerical methods are use.
+#'
+#' The slot is a named logical vector with entries:
 #'
 #' \describe{
 #'   \item{`flux_limiter`}{Controls whether a second-order advective flux
-#'     (with flux limiter) is used for the growth term. When `FALSE`, a
+#'     (with flux limiter) is used in the numerical solver. When `FALSE`, a
 #'     first-order upwind scheme is used.}
-#'   \item{`bin_average`}{Controls whether bin-averaging is used for rates
-#'     (predation kernel, selectivity, etc.). When `FALSE`, rates are
-#'     point-sampled at the left bin edge.}
+#'   \item{`bin_average`}{Controls whether bin-averaging is used for quantities
+#'     that need it in order to be second-order precise in bin size.
+#'     When `FALSE`, point-sampling at the left bin edge is used.}
 #' }
 #'
 #' When both are `FALSE` (the default), mizer preserves the behaviour of
@@ -24,7 +25,6 @@
 #' @return `second_order_w()`: A named logical vector with entries
 #'   `flux_limiter` and `bin_average`.
 #' @export
-#' @family functions for setting parameters
 second_order_w <- function(params) {
     params@second_order_w
 }
