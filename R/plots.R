@@ -2539,7 +2539,8 @@ plotPredMort.MizerSim <- function(object, species = NULL,
     pred_mort <- ArraySpeciesBySize(pred_mort,
                                     value_name = "Predation mortality",
                                     units = "1/year",
-                                    params = object@params)
+                                    params = object@params,
+                                    representation = "average")
     plot(pred_mort, species = species, all.sizes = all.sizes,
          highlight = highlight, wlim = wlim, llim = llim,
          log_x = log_x, log_y = log_y, log = log,
@@ -2674,7 +2675,8 @@ plotFMort.MizerSim <- function(object, species = NULL,
         f <- apply(f, c(2, 3), mean)
     }
     f <- ArraySpeciesBySize(f, value_name = "Fishing mortality",
-                            units = "1/year", params = object@params)
+                            units = "1/year", params = object@params,
+                            representation = "average")
     plot(f, species = species, all.sizes = all.sizes,
          highlight = highlight, wlim = wlim, llim = llim,
          log_x = log_x, log_y = log_y, log = log,

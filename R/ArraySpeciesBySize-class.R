@@ -23,6 +23,11 @@
 #' @param units A string giving the units (e.g. "g/year", "1/year").
 #' @param params A `MizerParams` object. Used for species colours, linetypes,
 #'   and size ranges in the `plot()` method.
+#' @param representation Either `"point"` (the default) for a quantity sampled
+#'   at the grid nodes, or `"average"` for a finite-volume bin average. A
+#'   bin-averaged quantity is drawn at the geometric bin centre rather than the
+#'   left bin edge, but only when the model uses second-order bin-averaging
+#'   (`second_order_w[["bin_average"]]`), so default plots are unchanged.
 #'
 #' @return An `ArraySpeciesBySize` object (inherits from `matrix` and `array`).
 #' @seealso [print()], [summary()], [as.data.frame()], [plot()]
@@ -34,10 +39,12 @@
 #' summary(enc)
 #' }
 ArraySpeciesBySize <- function(x, value_name = NULL, units = NULL,
-                               params = NULL) {
+                               params = NULL,
+                               representation = c("point", "average")) {
     if (!is.matrix(x)) {
         stop("`x` must be a matrix.")
     }
+    representation <- match.arg(representation)
     if (!is.null(params) && identical(dim(x), dim(params@metab))) {
         dimnames(x) <- dimnames(params@metab)
     }
@@ -45,7 +52,8 @@ ArraySpeciesBySize <- function(x, value_name = NULL, units = NULL,
         class = c("ArraySpeciesBySize", "matrix", "array"),
         value_name = value_name,
         units = units,
-        params = params
+        params = params,
+        representation = representation
     )
 }
 
@@ -860,7 +868,13 @@ as.data.frame.ArraySpeciesBySize <- function(x, row.names = NULL,
 #'
 #' @param x An `ArraySpeciesBySize` object.
 #'
-#' @return A numeric vector giving the size represented by each column.
+#' @return A numeric vector giving the size represented by each column. When the
+#'   array is tagged as a bin average (`representation = "average"`) *and* the
+#'   model uses second-order bin-averaging (`second_order_w[["bin_average"]]`),
+#'   the geometric bin centres are returned instead of the left bin edges, so
+#'   that bin-averaged quantities are drawn at the size where they actually live
+#'   (see [bin_midpoints()]). Point-valued quantities and first-order models are
+#'   unaffected, keeping default plots unchanged.
 #' @keywords internal
 get_ArraySpeciesBySize_w <- function(x) {
     params <- attr(x, "params")
@@ -871,11 +885,13 @@ get_ArraySpeciesBySize_w <- function(x) {
         }
         return(w)
     }
+    average <- identical(attr(x, "representation"), "average") &&
+        isTRUE(params@second_order_w[["bin_average"]])
     if (ncol(x) == length(params@w)) {
-        return(params@w)
+        return(if (average) bin_midpoints(params) else params@w)
     }
     if (ncol(x) == length(params@w_full)) {
-        return(params@w_full)
+        return(if (average) bin_midpoints(params, w_full = TRUE) else params@w_full)
     }
     stop("Can not determine the size grid for this ArraySpeciesBySize object. ",
          "The number of columns is ", ncol(x), ", but the params object has ",
@@ -891,6 +907,7 @@ get_ArraySpeciesBySize_w <- function(x) {
         attr(result, "value_name") <- attr(x, "value_name")
         attr(result, "units") <- attr(x, "units")
         attr(result, "params") <- attr(x, "params")
+        attr(result, "representation") <- attr(x, "representation")
         class(result) <- c("ArraySpeciesBySize", "matrix", "array")
     }
     result

@@ -252,3 +252,60 @@ test_that("ArraySpeciesBySize value_name attribute", {
     mort <- getMort(NS_params_small)
     expect_identical(attr(mort, "value_name"), "Total mortality")
 })
+
+# Second-order plotting placement (#382) -----------------------------------
+
+test_that("producers tag the representation honestly", {
+    # Bin-averaged sinks are tagged "average"; flux/point quantities "point".
+    expect_identical(attr(getPredMort(NS_params_small), "representation"),
+                     "average")
+    expect_identical(attr(getMort(NS_params_small), "representation"),
+                     "average")
+    expect_identical(attr(getFMort(NS_params_small), "representation"),
+                     "average")
+    expect_identical(attr(getExtMort(NS_params_small), "representation"),
+                     "average")
+    expect_identical(attr(getEncounter(NS_params_small), "representation"),
+                     "point")
+    expect_identical(attr(getEGrowth(NS_params_small), "representation"),
+                     "point")
+})
+
+test_that("bin_midpoints are the geometric bin centres", {
+    p <- NS_params_small
+    beta <- p@w_full[2] / p@w_full[1]
+    expect_equal(bin_midpoints(p), p@w * sqrt(beta))
+    expect_equal(bin_midpoints(p, w_full = TRUE), p@w_full * sqrt(beta))
+})
+
+test_that("the size axis honours representation only under second_order_w", {
+    p <- NS_params_small
+    # Default first-order model: averaged quantities still plot at the nodes,
+    # so existing plots are unchanged.
+    expect_equal(get_ArraySpeciesBySize_w(getPredMort(p)), p@w)
+    expect_equal(get_ArraySpeciesBySize_w(getEncounter(p)), p@w)
+
+    second_order_w(p) <- c(bin_average = TRUE)
+    # Now averaged quantities move to the geometric bin centres ...
+    expect_equal(get_ArraySpeciesBySize_w(getPredMort(p)), bin_midpoints(p))
+    # ... while point-valued quantities stay on the nodes.
+    expect_equal(get_ArraySpeciesBySize_w(getEncounter(p)), p@w)
+})
+
+test_that("as.data.frame x-values follow the representation tag", {
+    p <- NS_params_small
+    second_order_w(p) <- c(bin_average = TRUE)
+    df_avg <- as.data.frame(getPredMort(p))
+    df_pt  <- as.data.frame(getEncounter(p))
+    expect_equal(sort(unique(df_avg$w)), sort(unname(bin_midpoints(p))))
+    expect_equal(sort(unique(df_pt$w)),  sort(unname(p@w)))
+})
+
+test_that("subsetting preserves the representation tag", {
+    p <- NS_params_small
+    second_order_w(p) <- c(bin_average = TRUE)
+    mort <- getPredMort(p)
+    sub <- mort[1:2, ]
+    expect_identical(attr(sub, "representation"), "average")
+    expect_equal(get_ArraySpeciesBySize_w(sub), bin_midpoints(p))
+})

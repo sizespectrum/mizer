@@ -66,6 +66,33 @@ power_law_bin_average <- function(w, dw, d, w_max = Inf) {
     }
 }
 
+#' Geometric bin centres of the size grid
+#'
+#' Internal helper for the second-order plotting code. A finite-volume cell
+#' average \eqn{N_j = (1/\Delta w_j)\int_{w_j}^{w_{j+1}} N\,dw} does not live at
+#' the left bin edge \eqn{w_j} but at the geometric bin centre
+#' \deqn{w^*_j = \sqrt{w_j\,w_{j+1}} = w_j\sqrt{\beta},}
+#' where \eqn{\beta = w_{j+1}/w_j} is the (constant) bin ratio of the
+#' logarithmic grid. This is the log-symmetric, second-order-correct location at
+#' which to plot a bin-averaged quantity (it is exact for the community spectrum
+#' \eqn{N\propto w^{-2}}). It is a uniform half-bin shift to the right on the log
+#' axis, the same for the consumer grid `w` and the full prey/resource grid
+#' `w_full`.
+#'
+#' @param params A MizerParams object.
+#' @param w_full If `TRUE`, return the centres of the full (resource) grid
+#'   `params@w_full`; otherwise the consumer grid `params@w`.
+#' @return A numeric vector of geometric bin centres, one per grid node.
+#' @concept helper
+#' @keywords internal
+bin_midpoints <- function(params, w_full = FALSE) {
+    # The grid is geometric, so the bin ratio beta is constant across the whole
+    # (consumer and resource) grid.
+    beta <- params@w_full[2] / params@w_full[1]
+    w <- if (w_full) params@w_full else params@w
+    w * sqrt(beta)
+}
+
 #' Length-weight conversion
 #'
 #' For each species, convert between length and weight using the relationship

@@ -250,3 +250,34 @@ test_that("animateSpectra is a backward-compatible alias for animate", {
     expect_s3_class(animateSpectra(fmort_small), "plotly")
     expect_s3_class(animateSpectra(NS_sim_small), "plotly")
 })
+
+# Second-order plotting placement (#382) -----------------------------------
+
+test_that("the time-series size axis honours representation under second_order_w", {
+    # getFMort.MizerSim tags its result "average".
+    expect_identical(attr(fmort_small, "representation"), "average")
+    p <- NS_sim_small@params
+    # Default first-order: size axis stays on the nodes (df unchanged). The
+    # stored dimnames are rounded to 3 sig figs, so compare with tolerance.
+    df_off <- as.data.frame(fmort_small)
+    expect_equal(sort(unique(df_off$w)), sort(unname(p@w)),
+                 tolerance = 1e-2)
+
+    # Switch the model to second order and recompute on the sim.
+    sim2 <- NS_sim_small
+    second_order_w(sim2@params) <- c(bin_average = TRUE)
+    fmort2 <- getFMort(sim2)
+    expect_equal(get_ArrayTimeBySpeciesBySize_w(fmort2), bin_midpoints(p))
+    df_on <- as.data.frame(fmort2)
+    expect_equal(sort(unique(df_on$w)), sort(unname(bin_midpoints(p))))
+})
+
+test_that("a time slice keeps the representation tag", {
+    sim2 <- NS_sim_small
+    second_order_w(sim2@params) <- c(bin_average = TRUE)
+    fmort2 <- getFMort(sim2)
+    slice <- ArrayTimeBySpeciesBySize_slice(fmort2)
+    expect_s3_class(slice, "ArraySpeciesBySize")
+    expect_identical(attr(slice, "representation"), "average")
+    expect_equal(get_ArraySpeciesBySize_w(slice), bin_midpoints(sim2@params))
+})

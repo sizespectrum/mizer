@@ -4,7 +4,13 @@
 \alias{ArraySpeciesBySize}
 \title{S3 class for species x size rate arrays}
 \usage{
-ArraySpeciesBySize(x, value_name = NULL, units = NULL, params = NULL)
+ArraySpeciesBySize(
+  x,
+  value_name = NULL,
+  units = NULL,
+  params = NULL,
+  representation = c("point", "average")
+)
 }
 \arguments{
 \item{x}{A matrix (species x size).}
@@ -15,6 +21,12 @@ ArraySpeciesBySize(x, value_name = NULL, units = NULL, params = NULL)
 
 \item{params}{A \code{MizerParams} object. Used for species colours, linetypes,
 and size ranges in the \code{plot()} method.}
+
+\item{representation}{Either \code{"point"} (the default) for a quantity sampled
+at the grid nodes, or \code{"average"} for a finite-volume bin average. A
+bin-averaged quantity is drawn at the geometric bin centre rather than the
+left bin edge, but only when the model uses second-order bin-averaging
+(\code{second_order_w[["bin_average"]]}), so default plots are unchanged.}
 }
 \value{
 An \code{ArraySpeciesBySize} object (inherits from \code{matrix} and \code{array}).

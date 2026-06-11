@@ -10,7 +10,8 @@ get_species_size_rate_from_sim(
   drop,
   rate_fun,
   value_name,
-  units = NULL
+  units = NULL,
+  representation = "point"
 )
 }
 \arguments{

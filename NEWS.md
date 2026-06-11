@@ -1,5 +1,15 @@
 # mizer (development version)
 
+- Size-resolved diagnostics that are finite-volume bin averages (the
+  mortalities `getPredMort()`, `getFMort()`, `getMort()`, `getExtMort()`, and
+  the reproductive investment `getERepro()`) are now drawn at the geometric bin
+  centre `sqrt(w_j w_{j+1})` rather than the left bin edge, the location where a
+  bin average actually lives. The `ArraySpeciesBySize`/`ArrayTimeBySpeciesBySize`
+  classes carry a `representation` tag (`"point"`/`"average"`) recording this,
+  and the shift is applied only when the model uses second-order bin-averaging
+  (`second_order_w[["bin_average"]]`), so default plots are unchanged.
+  Point-valued quantities (encounter, growth) stay on the grid nodes. (#382)
+
 - `plotYield()` now uses `sim2 = NULL` instead of `missing(sim2)` to detect
   the optional second simulation argument. This is backward-compatible and
   makes the function work correctly with `do.call()`.

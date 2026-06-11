@@ -200,7 +200,8 @@ get_sim_rate_slice <- function(sim, time_idx) {
 #' @keywords internal
 get_species_size_rate_from_sim <- function(sim, time_range, drop,
                                            rate_fun, value_name,
-                                           units = NULL) {
+                                           units = NULL,
+                                           representation = "point") {
     time_elements <- get_sim_rate_time_elements(sim, time_range)
 
     # Apply the one-time rate calculation to each selected saved time. The
@@ -220,11 +221,13 @@ get_species_size_rate_from_sim <- function(sim, time_range, drop,
         result <- ArrayTimeBySpeciesBySize(result,
                                           value_name = value_name,
                                           units = units,
-                                          params = sim@params)
+                                          params = sim@params,
+                                          representation = representation)
     } else if (is.matrix(result) &&
                names(dimnames(result))[[1]] == "sp") {
         result <- ArraySpeciesBySize(result, value_name = value_name,
-                                     units = units, params = sim@params)
+                                     units = units, params = sim@params,
+                                     representation = representation)
     }
     result
 }
@@ -409,7 +412,8 @@ mizer_rates_subset <- function(params, n, n_pp, n_other, t, effort,
 #' @keywords internal
 sim_size_rate <- function(sim, time_range, drop, target, slot,
                           value_name, units = NULL,
-                          use_sim_effort = FALSE, ...) {
+                          use_sim_effort = FALSE,
+                          representation = "point", ...) {
     params <- validParams(sim@params)
     rates_fns <- projectRateFunctions(params)
     effort <- params@initial_effort
@@ -435,7 +439,8 @@ sim_size_rate <- function(sim, time_range, drop, target, slot,
             }
             m
         },
-        value_name = value_name, units = units)
+        value_name = value_name, units = units,
+        representation = representation)
 }
 
 #' Build a `MizerSim` rate getter that resolves the rate functions once
@@ -758,8 +763,11 @@ getPredMort.MizerParams <- function(object, n, n_pp, n_other,
         pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                        pred_rate = pred_rate)
     }
+    # Predation mortality is a sink integrated against the prey density over the
+    # prey bin, so under second-order bin-averaging it is a bin average and is
+    # plotted at the geometric bin centre (see get_ArraySpeciesBySize_w()).
     ArraySpeciesBySize(pred_mort, value_name = "Predation mortality",
-             units = "1/year", params = params)
+             units = "1/year", params = params, representation = "average")
 }
 
 #' @export
@@ -768,7 +776,7 @@ getPredMort.MizerSim <- function(object, n, n_pp, n_other,
     sim <- object
     sim_size_rate(sim, time_range, drop, target = "PredMort",
                   slot = "pred_mort", value_name = "Predation mortality",
-                  units = "1/year", ...)
+                  units = "1/year", representation = "average", ...)
 }
 
 #' Alias for `getPredMort()`
@@ -1119,7 +1127,8 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE,
                                     n_other = n_other, time_range = t))
         fmort <- do.call(f, c(args, list(...)))
         fmort <- ArraySpeciesBySize(fmort, value_name = "Fishing mortality",
-                           units = "1/year", params = params)
+                           units = "1/year", params = params,
+                           representation = "average")
         return(fmort)
     } else if (length(effort) == no_gears) {
         args <- list(
@@ -1131,7 +1140,8 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE,
                                     n_other = n_other, time_range = t))
         fmort <- do.call(f, c(args, list(...)))
         fmort <- ArraySpeciesBySize(fmort, value_name = "Fishing mortality",
-                           units = "1/year", params = params)
+                           units = "1/year", params = params,
+                           representation = "average")
         return(fmort)
     } else {
         stop("Invalid effort argument")
@@ -1144,7 +1154,7 @@ getFMort.MizerSim <- function(object, effort, time_range, drop = TRUE,
     sim <- object
     sim_size_rate(sim, time_range, drop, target = "FMort", slot = "f_mort",
                   value_name = "Fishing mortality", units = "1/year",
-                  use_sim_effort = TRUE, ...)
+                  use_sim_effort = TRUE, representation = "average", ...)
 }
 
 
@@ -1218,7 +1228,8 @@ getMort.MizerParams <- function(object,
                              t = t, effort = effort,
                              rates_fns = rates_fns, targets = "Mort", ...)
     return(ArraySpeciesBySize(r$mort, value_name = "Total mortality",
-                     units = "1/year", params = params))
+                     units = "1/year", params = params,
+                     representation = "average"))
 }
 
 #' @export
@@ -1228,7 +1239,7 @@ getMort.MizerSim <- function(object, n, n_pp, n_other, effort, t, ...,
     if (missing(time_range) && !missing(t)) time_range <- t
     sim_size_rate(sim, time_range, drop, target = "Mort", slot = "mort",
                   value_name = "Total mortality", units = "1/year",
-                  use_sim_effort = TRUE, ...)
+                  use_sim_effort = TRUE, representation = "average", ...)
 }
 
 #' Alias for `getMort()`
@@ -1292,8 +1303,11 @@ getERepro.MizerParams <- function(object, n = initialN(object),
         erepro <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                     e = e)
     }
+    # The per-capita reproductive investment is the integrand of the
+    # reproduction integral, where (under second-order bin-averaging) it enters
+    # as a bin average, so it is plotted at the geometric bin centre.
     ArraySpeciesBySize(erepro, value_name = "Energy for reproduction",
-             units = "g/year", params = params)
+             units = "g/year", params = params, representation = "average")
 }
 
 #' @export
@@ -1302,7 +1316,8 @@ getERepro.MizerSim <- function(object, n, n_pp, n_other, t, ...,
     sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
     sim_size_rate(sim, time_range, drop, target = "ERepro", slot = "e_repro",
-                  value_name = "Energy for reproduction", units = "g/year", ...)
+                  value_name = "Energy for reproduction", units = "g/year",
+                  representation = "average", ...)
 }
 
 #' Alias for `getERepro()`
