@@ -1,5 +1,10 @@
 # mizer (development version)
 
+- `summary()` of a `MizerSim` object now reports the fishing effort that was
+  actually used during the simulation rather than the model's `initial_effort`.
+  Gears whose effort varied over time show the mean effort, flagged with a note
+  giving the min-max range.
+  
 - When the `flux_limiter` entry of the `second_order_w` slot is `TRUE`, the
   growth (advection) term uses a flux-limited (van Leer, TVD) high-order flux
   instead of the first-order upwind flux, removing most of the upwind numerical

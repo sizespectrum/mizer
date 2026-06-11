@@ -378,6 +378,27 @@ test_that("summary works", {
                   'An object of class "MizerSim"')
 })
 
+test_that("summary of MizerSim reports the effort actually used", {
+    # `params` has initial_effort = 1, so the params summary shows 1.00 but a
+    # simulation run with a different effort must report that effort instead.
+    sim <- project(params, effort = 2, t_max = 2, dt = 1, t_save = 1)
+    out <- capture.output(summary(sim))
+    gear_line <- grep("^Industrial", out, value = TRUE)
+    expect_match(gear_line, "2\\.00")
+    expect_no_match(gear_line, "1\\.00")
+})
+
+test_that("summary flags effort that varied over time", {
+    gears <- dimnames(NS_params_small@catchability)$gear
+    effort <- matrix(1, nrow = 3, ncol = length(gears),
+                     dimnames = list(time = 0:2, gear = gears))
+    effort[, "Pelagic"] <- c(1, 1, 2)
+    sim <- project(NS_params_small, effort = effort, dt = 1, t_save = 1)
+    out <- capture.output(summary(sim))
+    expect_match(out, "effort varied over time", all = FALSE)
+    expect_match(out, "Pelagic \\(1\\.00 to 2\\.00\\)", all = FALSE)
+})
+
 test_that("str works", {
     expect_output(str(params), "Formal class 'MizerParams' \\[package \"mizer\"\\] with [0-9]+ slots")
     expect_output(str(params, max.level = 0), "Formal class 'MizerParams' \\[package \"mizer\"\\] with [0-9]+ slots")
