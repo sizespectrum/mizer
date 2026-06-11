@@ -1,5 +1,7 @@
 # mizer (development version)
 
+- `getRDI()`, `getRDD()`, and `getFlux()` on a `MizerSim` object now correctly use the simulated time-varying effort instead of the initial effort. (#370)
+
 - `summary()` of a `MizerSim` object now reports the fishing effort that was
   actually used during the simulation rather than the model's `initial_effort`.
   Gears whose effort varied over time show the mean effort, flagged with a note

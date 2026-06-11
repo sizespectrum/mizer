@@ -442,13 +442,14 @@ sim_size_rate <- function(sim, time_range, drop, target, slot,
 #'
 #' Like [sim_size_rate()] but for getters that return one value per species at
 #' each time step (a time-by-species array), such as [getRDI()] and [getRDD()].
-#' These use the initial effort, matching their `MizerParams` counterparts.
+#' By default these use the initial effort, matching their `MizerParams` counterparts.
 #'
 #' @inheritParams sim_size_rate
 #' @return An `ArrayTimeBySpecies` object.
 #' @keywords internal
 sim_species_rate <- function(sim, time_range, target, slot,
-                             value_name, units = NULL, ...) {
+                             value_name, units = NULL,
+                             use_sim_effort = FALSE, ...) {
     params <- validParams(sim@params)
     rates_fns <- projectRateFunctions(params)
     effort <- params@initial_effort
@@ -457,7 +458,8 @@ sim_species_rate <- function(sim, time_range, target, slot,
         function(slice) {
             r <- mizer_rates_subset(
                 params, n = slice$n, n_pp = slice$n_pp,
-                n_other = slice$n_other, t = slice$t, effort = effort,
+                n_other = slice$n_other, t = slice$t,
+                effort = if (use_sim_effort) slice$effort else effort,
                 rates_fns = rates_fns, targets = target, ...)
             r[[slot]]
         },
@@ -1435,7 +1437,7 @@ getRDI.MizerSim <- function(object, n, n_pp, n_other, t = 0,
     sim <- object
     sim_species_rate(sim, time_range, target = "RDI", slot = "rdi",
                      value_name = "Density-independent reproduction rate",
-                     units = "1/year", ...)
+                     units = "1/year", use_sim_effort = TRUE, ...)
 }
 
 
@@ -1522,7 +1524,7 @@ getRDD.MizerSim <- function(object, n, n_pp, n_other, t = 0,
     sim <- object
     sim_species_rate(sim, time_range, target = "RDD", slot = "rdd",
                      value_name = "Density-dependent reproduction rate",
-                     units = "1/year", ...)
+                     units = "1/year", use_sim_effort = TRUE, ...)
 }
 
 #' Get flux into size bins
@@ -1675,14 +1677,13 @@ getFlux.MizerSim <- function(object, n, n_pp, n_other, t, power = 0, ...,
     # those depend on), which `mizer_rates_subset()` calculates selectively.
     params <- validParams(sim@params)
     rates_fns <- projectRateFunctions(params)
-    effort <- params@initial_effort
 
     get_species_size_rate_from_sim(
         sim, time_range, drop,
         function(slice) {
             r <- mizer_rates_subset(
                 params, n = slice$n, n_pp = slice$n_pp,
-                n_other = slice$n_other, t = slice$t, effort = effort,
+                n_other = slice$n_other, t = slice$t, effort = slice$effort,
                 rates_fns = rates_fns,
                 targets = c("EGrowth", "Diffusion", "RDD"), ...)
             flux_from_rates(params, n = slice$n,
