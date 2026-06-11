@@ -57,6 +57,12 @@ projectRDI <- function(params, n, n_pp, n_other, t = 0,
 projectRDI.MizerParams <- function(params, n, n_pp, n_other, t = 0,
                                    e_growth, mort, e_repro,
                                    diffusion = NULL, ...) {
+    # The reproduction integral \eqn{\int N(w) e_repro(w) dw} is discretised as
+    # \eqn{\sum_j N_j \bar e_repro,j \Delta w_j}. To be second order in the bin
+    # width the per-capita investment is bin-averaged (trapezoidally) when the
+    # `bin_average` entry of `second_order_w` is set; otherwise the left-edge
+    # point value is used, reproducing the previous behaviour byte-for-byte.
+    e_repro <- bin_average_summary_weight(e_repro, params)
     # Calculate total energy from per capita energy
     e_repro_pop <- drop((e_repro * n) %*% params@dw)
     # Assume sex_ratio = 0.5

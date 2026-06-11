@@ -25,6 +25,15 @@
   mortality sink consistent with the finite-volume scheme. The default
   (point sampling) is unchanged.
 
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`, the
+  reproduction integral in `mizerRDI()` now trapezoidally bin-averages the
+  per-capita reproductive investment \eqn{\psi(w) E_r(w)} against the
+  cell-average abundance instead of taking its left-bin-edge value, making the
+  density-independent reproduction rate second order in the bin size. The full
+  per-capita investment is averaged together (not `psi` alone) to capture the
+  variation of both factors across the bin. The default (left-edge) behaviour
+  is unchanged.
+
 - `project()` gains a new time-stepping option `method = "tr_bdf2"`. This is an
   L-stable, second-order TR-BDF2 scheme that retains the second-order accuracy
   of `method = "predictor_corrector"` while damping the oscillations that the
