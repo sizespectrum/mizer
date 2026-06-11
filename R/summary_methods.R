@@ -1049,6 +1049,3 @@ str.MizerSim <- function(object, max.level = NA, ...) {
     }
     invisible(NULL)
 }
-
-# Indicator functions ####
-
