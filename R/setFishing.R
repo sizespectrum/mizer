@@ -717,6 +717,21 @@ validEffortVector <- function(effort, params) {
 #' with `w = params@w`, the corresponding species parameters, and the
 #' selectivity parameters from the matching row in `gear_params(params)`.
 #'
+#' @section Bin-averaged selectivity:
+#' By default the selectivity is point-sampled at the grid nodes `params@w`,
+#' i.e. at the left edge of each size bin. This is only first-order accurate in
+#' the bin size when the selectivity is used in the finite-volume update of the
+#' size spectrum. When the `bin_average` entry of the [second_order_w()] slot is
+#' `TRUE`, each selectivity function is instead integrated over its size bin,
+#' so that `selectivity[g, i, j]` holds the bin average
+#' \deqn{\bar S_{g,i,j} = \frac{1}{\Delta w_j} \int_{w_j}^{w_{j+1}} S_{g,i}(w)\, dw.}
+#' The integral is evaluated with a composite-midpoint rule on a log-spaced
+#' sub-grid of each bin, mirroring the bin-integrated predation kernel. This
+#' lifts the fishing mortality towards second order at no extra runtime cost
+#' (the integration happens once here, the rate functions are unchanged). A
+#' welcome side effect is that a knife-edge gear then gets the exact fraction of
+#' the straddling bin that lies above the knife edge, removing a grid artefact.
+#'
 #' @param params A MizerParams object
 #' @return An array (gear x species x size) with the selectivity values
 #' @concept helper
@@ -737,6 +752,19 @@ calc_selectivity <- function(params) {
     gear_names <- unique(gear_params$gear)
     no_gears <- length(gear_names)
 
+    bin_average <- isTRUE(params@second_order_w[["bin_average"]])
+    if (bin_average) {
+        # Log-spaced sub-grid for the composite-midpoint bin average. For bin j
+        # spanning [w_j, w_{j+1}] the ratio is beta_j = w_{j+1}/w_j = 1 + dw_j/w_j
+        # (constant on a geometric grid). Sub-cell q sits at
+        # w_{j,q} = w_j * beta_j^{(q-1/2)/Q}. The weight w_{j,q} is the linear-w
+        # Jacobian, so the weighted mean is (1/Delta w_j) integral S dw.
+        Q <- 100L
+        q_frac <- (seq_len(Q) - 0.5) / Q
+        beta_j <- 1 + params@dw / params@w
+        # w_sub[j, q] = w_j * beta_j^{(q-1/2)/Q}; matrix no_w x Q
+        w_sub <- params@w * outer(beta_j, q_frac, `^`)
+    }
     selectivity <-
         array(0, dim = c(no_gears, no_sp, no_w),
               dimnames = list(gear = gear_names,
@@ -761,10 +789,24 @@ calc_selectivity <- function(params) {
             stop("Some selectivity parameters are NA.")
         }
         # Call selectivity function with selectivity parameters
-        par <- c(list(w = params@w,
-                      species_params = as.list(species_params[species, ])),
-                 as.list(gear_params[g, arg]))
-        sel <- do.call(sel_func, args = par)
+        if (bin_average) {
+            # Evaluate the selectivity on the refined sub-grid and take the
+            # linear-w (finite-volume) bin average over each bin. Because the
+            # sub-cells are log-uniformly spaced, the linear-w integral picks up
+            # the Jacobian factor w_{j,q}, so we weight S by w_sub:
+            #   S_bar_j = sum_q S(w_{j,q}) w_{j,q} / sum_q w_{j,q}.
+            par <- c(list(w = as.vector(w_sub),
+                          species_params = as.list(species_params[species, ])),
+                     as.list(gear_params[g, arg]))
+            sel_sub <- matrix(do.call(sel_func, args = par),
+                              nrow = no_w, ncol = ncol(w_sub))
+            sel <- rowSums(sel_sub * w_sub) / rowSums(w_sub)
+        } else {
+            par <- c(list(w = params@w,
+                          species_params = as.list(species_params[species, ])),
+                     as.list(gear_params[g, arg]))
+            sel <- do.call(sel_func, args = par)
+        }
         selectivity[gear, species, ] <- sel
     }
     return(selectivity)
