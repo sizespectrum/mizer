@@ -17,7 +17,6 @@ project_simple(
   other_dynamics_fns,
   rates_fns,
   method = c("euler", "predictor_corrector", "tr_bdf2"),
-  flux_limiter = c("none", "van_leer"),
   ...
 )
 }
@@ -53,9 +52,6 @@ the rates. See Details.}
 
 \item{method}{The numerical method to use for the consumer density update.
 See \code{\link[=project]{project()}}.}
-
-\item{flux_limiter}{Spatial discretisation of the advective flux, \code{"none"}
-or \code{"van_leer"}. See \code{\link[=project]{project()}}.}
 
 \item{...}{Other arguments that are passed on to the rate functions.}
 }

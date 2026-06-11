@@ -10,7 +10,6 @@ get_steady_state_n(
   mu,
   D,
   N0,
-  flux_limiter = "none",
   max_iterations = 500,
   tol = 1e-10,
   relax = 0.3
@@ -27,17 +26,6 @@ get_steady_state_n(
 
 \item{N0}{A vector with the abundance at the smallest size for each species}
 
-\item{flux_limiter}{The spatial discretisation of the advective flux,
-\code{"none"} (first-order upwind) or \code{"van_leer"}. With a flux limiter the
-steady state must match the one that \code{\link[=project]{project()}} converges to with the same
-\code{flux_limiter}. Because the limiter depends on the solution, the steady
-state is then found by an under-relaxed Picard iteration: the limiter is
-frozen at the current iterate, the resulting tridiagonal system is solved,
-and the iterate is updated towards that solution, repeating until it
-converges. (At \code{dt = 1} the limited operator is not diagonally dominant, so
-the plain fixed-point map only stalls; under-relaxation makes it converge.)
-See \code{\link[=project]{project()}}.}
-
 \item{max_iterations}{Maximum number of Picard iterations used when a flux
 limiter is active.}
 
@@ -53,5 +41,16 @@ A matrix with the steady state abundance
 This function calculates the steady state abundance by solving the
 transport equation with given growth and mortality rates. It sets up a
 tri-diagonal system and solves it.
+}
+\details{
+The spatial discretisation of the advective flux is read from the
+\code{flux_limiter} entry of the \code{second_order_w} slot of \code{params}. With the flux
+limiter active the steady state must match the one that \code{\link[=project]{project()}} converges
+to. Because the limiter depends on the solution, the steady state is then
+found by an under-relaxed Picard iteration: the limiter is frozen at the
+current iterate, the resulting tridiagonal system is solved, and the iterate
+is updated towards that solution, repeating until it converges. (At \code{dt = 1}
+the limited operator is not diagonally dominant, so the plain fixed-point map
+only stalls; under-relaxation makes it converge.)
 }
 \concept{helper}

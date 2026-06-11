@@ -55,16 +55,21 @@ NULL
 #'   `"predictor_corrector"`. When `object` is a `MizerSim`, defaults to the
 #'   value used to produce that simulation. A warning is issued if
 #'   `append = TRUE` and the supplied value differs from the stored one.
-#' @param flux_limiter Controls the spatial discretisation of the advective
-#'   (growth) flux, independently of `method`. `"none"` (default) uses the
-#'   first-order upwind flux. `"van_leer"` adds a flux-limited (TVD) deferred
-#'   correction that removes the leading numerical diffusion
-#'   \eqn{\approx g\,w\,\log\beta} of the upwind flux while keeping the density
-#'   update a tridiagonal solve and preserving positivity. The correction is
-#'   most useful on coarse logarithmic grids and pairs naturally with the
-#'   second-order time methods. When `object` is a `MizerSim`, defaults to the
-#'   value used to produce that simulation.
 #' @param ... Other arguments will be passed to rate functions.
+#'
+#' @section Advective flux scheme:
+#' The spatial discretisation of the growth (advection) term is controlled by
+#' the `flux_limiter` entry of the `second_order_w` slot of the params object,
+#' not by an argument to `project()`. With the default (`FALSE`) the first-order
+#' upwind flux is used. Setting it to `TRUE` (for example with
+#' `second_order_w(params) <- TRUE`) switches on a flux-limited (van Leer, TVD)
+#' deferred correction that removes the leading numerical diffusion
+#' \eqn{\approx g\,w\,\log\beta} of the upwind flux while keeping the density
+#' update a tridiagonal solve and preserving positivity. The correction is most
+#' useful on coarse logarithmic grids and pairs naturally with the second-order
+#' time methods. Because it changes the discrete steady state, the choice lives
+#' in the params object alongside the steady state rather than being a per-run
+#' argument. See [second_order_w()].
 #'
 #' @note The `effort` argument specifies the level of fishing effort during the
 #'   simulation. If it is not supplied, the initial effort stored in the params
@@ -156,7 +161,7 @@ project <- function(object, effort,
                     append = TRUE,
                     progress_bar = TRUE,
                     method = c("euler", "predictor_corrector", "tr_bdf2"),
-                    flux_limiter = c("none", "van_leer"), ...) {
+                    ...) {
     UseMethod("project")
 }
 
@@ -180,11 +185,12 @@ project.MizerParams <- function(object, effort,
                                 append = TRUE,
                                 progress_bar = TRUE,
                                 method = c("euler", "predictor_corrector", "tr_bdf2"),
-                                flux_limiter = c("none", "van_leer"),
                                 ...) {
     params <- validParams(object)
     method <- normalise_project_method(method)
-    flux_limiter <- match.arg(flux_limiter)
+    # The advective-flux scheme is a property of the model, held in the
+    # second_order_w slot, not a per-run choice.
+    flux_limiter <- flux_limiter_scheme(params)
     # Set and check initial values ----
     assert_that(t_max > 0)
     if (!missing(initial_n)) params@initial_n[] <- initial_n
@@ -395,26 +401,21 @@ project.MizerSim <- function(object, effort,
                              append = TRUE,
                              progress_bar = TRUE,
                              method = c("euler", "predictor_corrector", "tr_bdf2"),
-                             flux_limiter = c("none", "van_leer"),
                              ...) {
     validObject(object)
     stored <- object@sim_params
     dt_provided <- !missing(dt)
     method_provided <- !missing(method)
-    flux_limiter_provided <- !missing(flux_limiter)
-    # Default dt, method and flux_limiter to values used in the existing
-    # simulation
+    # Default dt and method to values used in the existing simulation. The
+    # advective-flux scheme is a property of the params, so it is carried over
+    # automatically.
     if (!dt_provided && !is.null(stored$dt)) {
         dt <- stored$dt
     }
     if (!method_provided && !is.null(stored$method)) {
         method <- stored$method
     }
-    if (!flux_limiter_provided && !is.null(stored$flux_limiter)) {
-        flux_limiter <- stored$flux_limiter
-    }
     method <- normalise_project_method(method)
-    flux_limiter <- match.arg(flux_limiter)
     # Warn when appending with different numerical parameters
     if (append && length(stored) > 0) {
         if (!is.null(stored$dt) && !isTRUE(all.equal(dt, stored$dt))) {
@@ -426,12 +427,6 @@ project.MizerSim <- function(object, effort,
             warning("Appending a simulation run with method = '", method,
                     "' to one that used method = '", stored$method, "'.")
         }
-        if (!is.null(stored$flux_limiter) &&
-                flux_limiter != stored$flux_limiter) {
-            warning("Appending a simulation run with flux_limiter = '",
-                    flux_limiter, "' to one that used flux_limiter = '",
-                    stored$flux_limiter, "'.")
-        }
     }
     params <- finalParams(object)
     t_start <- getTimes(object)[idxFinalT(object)]
@@ -441,7 +436,7 @@ project.MizerSim <- function(object, effort,
         t_save = t_save, t_start = t_start,
         initial_n = initial_n, initial_n_pp = initial_n_pp,
         progress_bar = progress_bar,
-        method = method, flux_limiter = flux_limiter, ...
+        method = method, ...
     )
 
     if (append) {
@@ -519,8 +514,6 @@ project.MizerSim <- function(object, effort,
 #'   the rates. See Details.
 #' @param method The numerical method to use for the consumer density update.
 #'   See [project()].
-#' @param flux_limiter Spatial discretisation of the advective flux, `"none"`
-#'   or `"van_leer"`. See [project()].
 #' @param ... Other arguments that are passed on to the rate functions.
 #' @return List with the final values of `n`, `n_pp`, and `n_other`, together
 #'   with `rates`, the rates calculated at the start of the final update step.
@@ -531,7 +524,7 @@ project_simple <- function(params, n, n_pp, n_other, effort, t, dt, steps,
                            resource_dynamics_fn, other_dynamics_fns,
                            rates_fns,
                            method = c("euler", "predictor_corrector", "tr_bdf2"),
-                           flux_limiter = c("none", "van_leer"), ...) {
+                           ...) {
     UseMethod("project_simple")
 }
 
@@ -546,10 +539,10 @@ project_simple.MizerParams <-
              resource_dynamics_fn = get(params@resource_dynamics),
              other_dynamics_fns = lapply(params@other_dynamics, get),
              rates_fns = projectRateFunctions(params),
-             method = c("euler", "predictor_corrector", "tr_bdf2"),
-             flux_limiter = c("none", "van_leer"), ...) {
+             method = c("euler", "predictor_corrector", "tr_bdf2"), ...) {
         method <- normalise_project_method(method)
-        flux_limiter <- match.arg(flux_limiter)
+        # Advective-flux scheme is read from the model's second_order_w slot.
+        flux_limiter <- flux_limiter_scheme(params)
         # Handy things ----
         no_sp <- nrow(params@species_params) # number of species
         no_w <- length(params@w) # number of fish size bins

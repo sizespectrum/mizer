@@ -18,7 +18,6 @@ project(
   append = TRUE,
   progress_bar = TRUE,
   method = c("euler", "predictor_corrector", "tr_bdf2"),
-  flux_limiter = c("none", "van_leer"),
   ...
 )
 
@@ -34,7 +33,6 @@ project(
   append = TRUE,
   progress_bar = TRUE,
   method = c("euler", "predictor_corrector", "tr_bdf2"),
-  flux_limiter = c("none", "van_leer"),
   ...
 )
 
@@ -50,7 +48,6 @@ project(
   append = TRUE,
   progress_bar = TRUE,
   method = c("euler", "predictor_corrector", "tr_bdf2"),
-  flux_limiter = c("none", "van_leer"),
   ...
 )
 }
@@ -102,16 +99,6 @@ oscillations. \code{"predictor-corrector"} is accepted as an alias for
 \code{"predictor_corrector"}. When \code{object} is a \code{MizerSim}, defaults to the
 value used to produce that simulation. A warning is issued if
 \code{append = TRUE} and the supplied value differs from the stored one.}
-
-\item{flux_limiter}{Controls the spatial discretisation of the advective
-(growth) flux, independently of \code{method}. \code{"none"} (default) uses the
-first-order upwind flux. \code{"van_leer"} adds a flux-limited (TVD) deferred
-correction that removes the leading numerical diffusion
-\eqn{\approx g\,w\,\log\beta} of the upwind flux while keeping the density
-update a tridiagonal solve and preserving positivity. The correction is
-most useful on coarse logarithmic grids and pairs naturally with the
-second-order time methods. When \code{object} is a \code{MizerSim}, defaults to the
-value used to produce that simulation.}
 
 \item{...}{Other arguments will be passed to rate functions.}
 }
@@ -179,6 +166,22 @@ values for the simulation are taken from the final values in the
 \code{MizerSim} object and the corresponding arguments to this function will
 be ignored.
 }
+\section{Advective flux scheme}{
+
+The spatial discretisation of the growth (advection) term is controlled by
+the \code{flux_limiter} entry of the \code{second_order_w} slot of the params object,
+not by an argument to \code{project()}. With the default (\code{FALSE}) the first-order
+upwind flux is used. Setting it to \code{TRUE} (for example with
+\code{second_order_w(params) <- TRUE}) switches on a flux-limited (van Leer, TVD)
+deferred correction that removes the leading numerical diffusion
+\eqn{\approx g\,w\,\log\beta} of the upwind flux while keeping the density
+update a tridiagonal solve and preserving positivity. The correction is most
+useful on coarse logarithmic grids and pairs naturally with the second-order
+time methods. Because it changes the discrete steady state, the choice lives
+in the params object alongside the steady state rather than being a per-run
+argument. See \code{\link[=second_order_w]{second_order_w()}}.
+}
+
 \examples{
 \donttest{
 params <- NS_params

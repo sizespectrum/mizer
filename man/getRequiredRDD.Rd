@@ -10,13 +10,6 @@ getRequiredRDD(params, ...)
 \item{params}{A MizerParams object}
 
 \item{...}{Unused.}
-
-\item{flux_limiter}{The spatial discretisation of the advective flux that the
-simulation will use, either \code{"none"} (first-order upwind) or \code{"van_leer"}.
-This must match the \code{flux_limiter} passed to \code{\link[=project]{project()}}, because the
-flux-limited correction changes the flux leaving the egg size class and
-hence the reproduction required to hold the egg density steady. See
-\code{\link[=project]{project()}}.}
 }
 \value{
 A vector of reproduction rates for all species

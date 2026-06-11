@@ -530,7 +530,7 @@ the predictor-corrector method removes the leading artificial diffusion proporti
 
 ## Reducing the Spatial Error: Flux Limiting
 
-The spatial upwind diffusion $d_{num}\approx g(w)\,w\log\beta$ is the error that the second-order time methods *cannot* remove, and on a coarse logarithmic grid (a few hundred bins over many decades) it is not small. The `flux_limiter` argument of `project()` reduces it. The default `flux_limiter = "none"` is the first-order upwind flux described above; `flux_limiter = "van_leer"` replaces it with a flux-limited high-order flux.
+The spatial upwind diffusion $d_{num}\approx g(w)\,w\log\beta$ is the error that the second-order time methods *cannot* remove, and on a coarse logarithmic grid (a few hundred bins over many decades) it is not small. The `flux_limiter` entry of the `second_order_w` slot reduces it. With the default (`FALSE`) the first-order upwind flux described above is used; setting it to `TRUE` (for example with `second_order_w(params) <- TRUE`) replaces it with a flux-limited high-order flux. Because the choice changes the discrete steady state it lives in the params object rather than being a `project()` argument.
 
 ### The limited flux
 
@@ -563,7 +563,7 @@ The price is that the new $+\tfrac12\psi_{j+1}g_{j+1}$ term in $C_j$ can be posi
 
 ### Steady state and reproduction
 
-Because the limiter lives in the coefficients $A,B,C$, the steady-state machinery stays consistent automatically: `getRequiredRDD()` reads the (now limited) boundary coefficients, and `get_steady_state_n()` solves the same limited system. The one complication is that the limiter depends on the solution, so the steady state is found by iterating — freezing $\psi$ at the current iterate, solving the tridiagonal system, and repeating. At $\Delta t=1$ the limited steady operator is not diagonally dominant, so this fixed-point iteration is *under-relaxed* to make it converge. Both `getRequiredRDD()` and `steadySingleSpecies()` take a `flux_limiter` argument so that a model can be set up at the steady state of exactly the scheme that `project()` will use. For the second-order methods the provisional predictor step also uses the limiter, so that the frozen midpoint limiter is consistent at steady state and the steady state is preserved exactly.
+Because the limiter lives in the coefficients $A,B,C$, the steady-state machinery stays consistent automatically: `getRequiredRDD()` reads the (now limited) boundary coefficients, and `get_steady_state_n()` solves the same limited system. The one complication is that the limiter depends on the solution, so the steady state is found by iterating — freezing $\psi$ at the current iterate, solving the tridiagonal system, and repeating. At $\Delta t=1$ the limited steady operator is not diagonally dominant, so this fixed-point iteration is *under-relaxed* to make it converge. Both `getRequiredRDD()` and `steadySingleSpecies()` read the same `second_order_w` slot, so a model is automatically set up at the steady state of exactly the scheme that `project()` will use. For the second-order methods the provisional predictor step also uses the limiter, so that the frozen midpoint limiter is consistent at steady state and the steady state is preserved exactly.
 
 ## Steady-State Solution
 

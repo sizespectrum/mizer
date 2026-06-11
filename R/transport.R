@@ -1,3 +1,18 @@
+#' Translate the second_order_w flux_limiter flag into a scheme name
+#'
+#' The advective-flux scheme is controlled by the `flux_limiter` entry of the
+#' `second_order_w` slot. The internal transport routines take the scheme as a
+#' string, so this helper converts the logical flag into the `"van_leer"` /
+#' `"none"` name used throughout the time stepper and the steady-state tools.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @return `"van_leer"` when `second_order_w[["flux_limiter"]]` is `TRUE`,
+#'   otherwise `"none"`.
+#' @noRd
+flux_limiter_scheme <- function(params) {
+    if (isTRUE(params@second_order_w[["flux_limiter"]])) "van_leer" else "none"
+}
+
 #' Helper function to calculate the transport coefficients for the upwind-difference scheme
 #'
 #' @param params A \linkS4class{MizerParams} object.
