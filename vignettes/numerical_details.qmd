@@ -44,7 +44,11 @@ Note that $\Delta w_j$ increases with $w_j$, which is appropriate for a logarith
 
 In the finite-volume scheme used by mizer, the discrete value $N_j$ represents the **average** of the number density $N(w)$ over the $j$-th bin,
 $$ N_j = \frac{1}{\Delta w_j} \int_{w_j}^{w_{j+1}} N(w)\, dw, $$ {#eq-bin-average}
-so that the number of individuals in the $j$-th bin is exactly $N_j \Delta w_j$. Note that $N_j$ is the bin average, not the point value of the density at the bin boundary $w_j$.
+so that the number of individuals in the $j$-th bin is exactly $N_j \Delta w_j$. Note that $N_j$ is the bin average, **not** the point value of the density at the bin boundary $w_j$. For a smooth density the bin average equals the value at the **bin centre**
+$$ w_j^c = \sqrt{w_j\,w_{j+1}} $$ {#eq-bin-centre}
+to second order in the bin width; $w_j^c$ is the midpoint of the bin on the logarithmic axis. We will need this when we discretise the diffusion.
+
+(In the finite-volume literature the bins are usually called *cells* and the bin boundaries *cell faces*; we keep the size-spectrum terminology "bin" and "bin boundary" throughout.)
 
 ## The Transport Equation
 
@@ -54,8 +58,16 @@ $$
 $$ {#eq-transport}
 where $g(w)$ is the somatic growth rate, $d(w)$ is the diffusion coefficient and $\mu(w)$ is the total mortality rate.
 
-We discretise this equation using a finite volume scheme.
-On the grid we write $g_j = g(w_j)$, $d_j = d(w_j)$, and $\mu_j = \mu(w_j)$.
+We discretise this equation using a finite-volume scheme. The three rates enter
+the equation in two structurally different ways, and this dictates how we
+represent them on the grid (the [Point values and bin averages](#sec-point-values)
+section explains why):
+
+* the growth rate $g$ is a **velocity at the bin boundaries**, so we use its
+  point value there, $g_j = g(w_j)$;
+* the diffusion coefficient $d$ and the mortality rate $\mu$ are properties of a
+  whole bin, so we use their **bin averages** $d_j$ and $\mu_j$ (each equal to
+  the value at the bin centre $w_j^c$ to second order).
 
 ## Discretisation of the Fluxes
 
@@ -67,44 +79,44 @@ Approximating the integral and dividing by $\Delta w_j$:
 $$ \frac{\partial N_j}{\partial t}+ \frac{J_{j+1} - J_j}{\Delta w_j} = -\mu_j N_j $$ {#eq-discretised-conservation}
 where $J_j$ represents the flux at the boundary $w_j$.
 
-### Advective Flux
-For the advective part of the flux $g N$, we use an **upwind** approximation. Since fish grow from smaller to larger sizes ($g > 0$), the flux at boundary $w_j$ is determined by the density in the bin below ($j-1$):
-$$ J_j^{adv} = g_{j-1} N_{j-1} $$ {#eq-advective-flux}
-(Note: for $j=j_{min}$, this boundary flux is the recruitment $R_{dd}$).
+### Advective flux
+The advective flux $gN$ at the bin boundary $w_j$ is the growth velocity there, $g_j$, times the density there. The density at the boundary must be reconstructed from the bin averages $N_{j-1}$ and $N_j$ of the two adjacent bins. The simplest reconstruction is **upwind**: because fish grow towards larger sizes ($g > 0$), take the value from the bin below,
+$$ J_j^{adv} = g_j\, N_{j-1}. $$ {#eq-advective-flux}
+This is only first-order accurate, because it uses a bin-centre value ($N_{j-1}$, the average of bin $j-1$) at the boundary, which is half a bin away; the second-order reconstruction is the subject of @sec-reducing-spatial-error. (For $j=j_{min}$ this boundary flux is the recruitment $R_{dd}$.)
 
-### Diffusive Flux
-For the diffusive part of the flux $-\frac{1}{2}\frac{\partial(d N)}{\partial w}$, we use a **central difference** approximation at the boundary $w_j$. We approximate the gradient using the densities in the adjacent bins $j-1$ and $j$:
-$$ J_j^{diff} \approx -\frac{1}{2} \frac{(d N)_j - (d N)_{j-1}}{w_j - w_{j-1}} = -\frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w_{j-1}} $$ {#eq-diffusive-flux}
-Note the use of $N_j$ (density in bin $j$) and $N_{j-1}$ (density in bin $j-1$) to estimate the value at the interface $w_j$.
+### Diffusive flux
+The diffusive flux $-\frac{1}{2}\frac{\partial(d N)}{\partial w}$ at the boundary $w_j$ is the derivative of the **product** $dN$. We evaluate that product at the two adjacent bin centres — where the bin averages $d_{j-1}N_{j-1}$ and $d_j N_j$ live — and take a central difference across the boundary:
+$$ J_j^{diff} = -\frac{1}{2}\,\frac{d_j N_j - d_{j-1} N_{j-1}}{w_j^c - w_{j-1}^c}. $$ {#eq-diffusive-flux}
+Because the boundary $w_j$ is the midpoint (on the logarithmic axis) of the two bin centres $w_{j-1}^c$ and $w_j^c$, this central difference is a genuinely second-order approximation of the derivative at $w_j$. Note that the diffusion coefficient enters only *inside* the product $dN$: it is sampled at the bin centres, co-located with $N_j$, and never separately at the boundary. This is why $d_j$ is a bin average, not a bin-boundary point value like $g_j$.
 
-The total flux at boundary $w_j$ is:
-$$ J_j = g_{j-1} N_{j-1} - \frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w_{j-1}} $$ {#eq-total-flux-j}
-And similarly at boundary $w_{j+1}$:
-$$ J_{j+1} = g_j N_j - \frac{1}{2} \frac{d_{j+1} N_{j+1} - d_j N_j}{\Delta w_j} $$ {#eq-total-flux-jp1}
+The total flux at boundary $w_j$ is therefore
+$$ J_j = g_j N_{j-1} - \frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{w_j^c - w_{j-1}^c}, $$ {#eq-total-flux-j}
+and similarly at boundary $w_{j+1}$,
+$$ J_{j+1} = g_{j+1} N_j - \frac{1}{2} \frac{d_{j+1} N_{j+1} - d_j N_j}{w_{j+1}^c - w_j^c}. $$ {#eq-total-flux-jp1}
 
-## Point values and bin averages
+## Point values and bin averages {#sec-point-values}
 
-The scheme uses two structurally different kinds of size-dependent rate quantity, and they require two different discrete representations. Keeping them apart is important, because the right representation of a given rate depends on *how it enters the equations*, not just on the rate itself.
+A size-dependent rate is represented on the grid as either a **bin-boundary point value** or a **bin average**, and which one is correct depends on *how the rate enters the equations*, not on the rate itself. Almost every rate is a bin average; the growth velocity is the one exception.
 
-**Flux coefficients live at cell faces and are point values.** The growth rate $g(w)$ and the diffusion coefficient $d(w)$ enter the scheme only through the fluxes $J_j$ at the cell faces $w_j$ (the flux equations above). A flux coefficient multiplies the density *at a face*, so what is needed is its **point value at $w_j$**, not its average over a bin. Accordingly we set $g_j = g(w_j)$ and $d_j = d(w_j)$. (The upwind advective flux even uses $g$ at the upwind node $w_{j-1}$; that is still a point value, just evaluated one node away from the face.)
+**The growth velocity is a bin-boundary point value.** Growth is an advection of mass through size, and the advective flux $J_j^{adv}=g_j\,N(w_j)$ is the velocity *at the boundary* $w_j$ times the density carried through it. The factor that belongs to the boundary is the velocity, so $g_j = g(w_j)$ is the point value there. (The density at the boundary is a separate matter — it is reconstructed from the neighbouring bin averages, @eq-advective-flux.)
 
-**Rates that are integrated against the density over a bin are bin averages.** The mortality term is, exactly,
+**The diffusion coefficient is a bin average.** It is tempting to treat $d$ like $g$, but $d$ does not multiply a density at the boundary. It appears only *inside* the differentiated product $dN$ (@eq-diffusive-flux), which we sample where the density lives — at the bin centres — and then difference across the boundary. So $d_j$ is co-located with $N_j$ and is a **bin average**, the value at the bin centre $w_j^c$. It is needed inside the bin, not on the boundary.
+
+**Rates integrated against the density over a bin are bin averages.** The mortality term is, exactly,
 $$ \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} \mu(w)\,N(w)\,dw. $$ {#eq-mortality-integral}
-Because $N_j$ is the bin average, the consistent way to factor this is $\bar\mu_j\,N_j$ with the **bin-averaged** mortality
-$$ \bar\mu_j = \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} \mu(w)\,dw, $$ {#eq-bin-averaged-mortality}
-since $\int_{w_j}^{w_{j+1}}(N-N_j)\,dw = 0$ makes the leading error cancel and leaves an $O(\Delta w_j^2)$ remainder. Using the point value $\mu(w_j)$ instead, as written in the discretised conservation equation above, is the lower-order choice. The same distinction applies to every rate that appears inside an integral weighted by the abundance: the fishing-mortality contribution $\int Q\,S(w)\,\text{effort}\,N\,dw$, the reproductive investment $\int \psi(w)\,E_r(w)\,N\,dw$, and the predation and encounter convolutions integrated against $N$ (see the [FFT vignette](fft.html)). For these, the size-dependent factor should be replaced by its bin average.
+Because $N_j$ is the bin average, the consistent way to factor this is $\mu_j\,N_j$ with the **bin-averaged** mortality
+$$ \mu_j = \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} \mu(w)\,dw, $$ {#eq-bin-averaged-mortality}
+since $\int_{w_j}^{w_{j+1}}(N-N_j)\,dw = 0$ makes the leading error cancel and leaves an $O(\Delta w_j^2)$ remainder. Using the point value $\mu(w_j)$ at the left bin boundary instead is the lower-order choice. The same applies to every rate that enters inside an integral weighted by the abundance: the fishing-mortality contribution $\int Q\,S(w)\,\text{effort}\,N\,dw$, the reproductive investment $\int \psi(w)\,E_r(w)\,N\,dw$, and the predation and encounter convolutions integrated against $N$ (see the [FFT vignette](fft.html)). Each size-dependent factor is replaced by its bin average.
 
-**The energy income $e(w)$ feeds both roles.** It is the one quantity that sits on both sides of this distinction, which is why care is needed. Through the somatic growth rate $g = e - e_r$ it is a **flux coefficient**, wanted as a point value at the face $w_j$. Through the reproduction integral $\int \psi\,e\,N\,dw$ it is an **integrand**, wanted as a bin average (of the product $\psi e$). The same pointwise $e(w)$ is therefore used as a point value for growth and bin-averaged only at its reproduction use-site; it must **not** be pre-averaged, or the growth flux velocity would be evaluated in the wrong place.
+**The energy income $e(w)$ feeds both roles.** It is the one quantity that sits on both sides of the distinction. Through the somatic growth rate $g = e - e_r$ it supplies the growth **velocity**, wanted as a point value at the boundary $w_j$. Through the reproduction integral $\int \psi\,e\,N\,dw$ it is an **integrand**, wanted as a bin average (of the product $\psi e$). The same pointwise $e(w)$ is therefore used as a point value for growth and bin-averaged only at its reproduction use-site; it must **not** be pre-averaged, or the growth velocity would be evaluated in the wrong place.
 
 In summary:
 
 | Quantity | How it enters | Discrete representation |
 |---|---|---|
-| $g$, $d$ | flux coefficients at the faces $w_j$ | point value at $w_j$ |
-| $\mu$; fishing/reproductive investments; predation and encounter integrands | rates integrated against $N$ over a bin | bin average over $[w_j, w_{j+1}]$ |
-| $e$ (energy income) | both: growth flux *and* reproduction integrand | point value for growth; bin-averaged product $\psi e$ for reproduction |
-
-The default scheme uses point values throughout, which is consistent. Replacing the bin-integrated quantities by their bin averages raises the order of those source and sink terms; the spatial order of the overall transport step is separately set by the upwind advective flux, as discussed in the Order of Accuracy section below.
+| $g$ | growth velocity at the bin boundary | point value at $w_j$ |
+| $d$, $\mu$; fishing/reproductive investments; predation and encounter integrands | bin properties (a coefficient inside $\partial(dN)/\partial w$, or a rate integrated against $N$ over a bin) | bin average over $[w_j, w_{j+1}]$ |
+| $e$ (energy income) | both: growth velocity *and* reproduction integrand | point value for growth; bin-averaged product $\psi e$ for reproduction |
 
 ## Semi-Implicit Time Discretisation
 
@@ -113,11 +125,11 @@ Thus, the discretised equation becomes:
 $$
 \frac{N_j^{t+1} - N_j^t}{\Delta t} + \frac{1}{\Delta w_j} \left( J_{j+1}^{t+1} - J_j^{t+1} \right) = -\mu_j N_j^{t+1}
 $$ {#eq-semi-implicit}
-where the fluxes $J_j^{t+1}$ are calculated using the densities at time $t+1$ but the rates at time $t$. To simplify the notation we will drop the explicit time indices on the rates, but it is important to remember that they are evaluated at time $t$. The fluxes at time $t+1$ are:
+where the fluxes $J_j^{t+1}$ are calculated using the densities at time $t+1$ but the rates at time $t$. To simplify the notation we will drop the explicit time indices on the rates, but it is important to remember that they are evaluated at time $t$. Writing $\Delta w_j^c = w_{j+1}^c - w_j^c$ for the spacing between adjacent bin centres, the fluxes at time $t+1$ are:
 $$
 \begin{aligned}
-J_{j+1}^{t+1} &= g_j N_j^{t+1} - \frac{1}{2} \frac{d_{j+1} N_{j+1}^{t+1} - d_j N_j^{t+1}}{\Delta w_j} \\
-J_j^{t+1} &= g_{j-1} N_{j-1}^{t+1} - \frac{1}{2} \frac{d_j N_j^{t+1} - d_{j-1} N_{j-1}^{t+1}}{\Delta w_{j-1}}.
+J_{j+1}^{t+1} &= g_{j+1} N_j^{t+1} - \frac{1}{2} \frac{d_{j+1} N_{j+1}^{t+1} - d_j N_j^{t+1}}{\Delta w_j^c} \\
+J_j^{t+1} &= g_j N_{j-1}^{t+1} - \frac{1}{2} \frac{d_j N_j^{t+1} - d_{j-1} N_{j-1}^{t+1}}{\Delta w_{j-1}^c}.
 \end{aligned}
 $$ {#eq-fluxes-tp1}
 This leads to a linear system of the form:
@@ -130,11 +142,12 @@ This is a **tridiagonal system** for each species, which can be solved efficient
 The coefficients are:
 $$
 \begin{aligned}
-A_j &= -\frac{\Delta t}{\Delta w_j} \left( g_{j-1} + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}} \right) \\
-C_j &= -\frac{\Delta t}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j} \right) \\
-B_j &= 1 + \Delta t \mu_j + \frac{\Delta t}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_j}{\Delta w_j} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}} \right)
+A_j &= -\frac{\Delta t}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}^c} \right) \\
+C_j &= -\frac{\Delta t}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j^c} \right) \\
+B_j &= 1 + \Delta t \mu_j + \frac{\Delta t}{\Delta w_j} \left( g_{j+1} + \frac{1}{2} \frac{d_j}{\Delta w_j^c} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}^c} \right)
 \end{aligned}
 $$ {#eq-coefficients}
+The advective velocity is taken at each bin boundary ($g_j$ at the lower boundary of bin $j$, $g_{j+1}$ at the upper one), and the diffusion differences the bin-averaged products $d_jN_j$ between bin centres — exactly @eq-fluxes-tp1.
 
 ## Boundary Conditions
 
@@ -148,8 +161,8 @@ This involves $N_{j_{min}}^{t+1}$ and $N_{j_{min}+1}^{t+1}$.
 Comparing this to the general discretised equation translates to modifying the first row ($j=j_{min}$) of our tri-diagonal matrices:
 
 *   The $j_{min}-1$ term does not exist, so $A_{j_{min}} = 0$.
-*   The upward diffusion term from below the boundary is omitted, so $B_{j_{min}}$ does not have the $\frac{1}{2} \frac{d_{j_{min}}}{\Delta w_{j_{min}-1}}$ component:
-    $$ B_{j_{min}} = 1 + \Delta t \mu_{j_{min}} + \frac{\Delta t}{\Delta w_{j_{min}}} \left( g_{j_{min}} + \frac{1}{2} \frac{d_{j_{min}}}{\Delta w_{j_{min}}} \right) $$ {#eq-lower-bc-B}
+*   The upward diffusion term from below the boundary is omitted, so $B_{j_{min}}$ does not have the $\frac{1}{2} \frac{d_{j_{min}}}{\Delta w_{j_{min}-1}^c}$ component:
+    $$ B_{j_{min}} = 1 + \Delta t \mu_{j_{min}} + \frac{\Delta t}{\Delta w_{j_{min}}} \left( g_{j_{min}+1} + \frac{1}{2} \frac{d_{j_{min}}}{\Delta w_{j_{min}}^c} \right) $$ {#eq-lower-bc-B}
 *   The coefficient $C_{j_{min}}$ remains unchanged from the general formula.
 *   The recruitment flux enters as a source term, so it is added to the right-hand side $S_{j_{min}}$:
     $$ S_{j_{min}} = N_{j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd} $$ {#eq-lower-bc-S}
@@ -159,7 +172,7 @@ Comparing this to the general discretised equation translates to modifying the f
 **At the largest size ($j=j_{max}$):**
 We typically assume that densities drop to zero beyond the maximum size, $N_{j_{max}+1} = 0$.
 The flux leaving the grid is:
-$$ J_{j_{max}+1}^{t+1} = g_{j_{max}} N_{j_{max}}^{t+1} - \frac{1}{2} \frac{0 - d_{j_{max}} N_{j_{max}}^{t+1}}{\Delta w_{j_{max}}} $$ {#eq-upper-bc-flux}
+$$ J_{j_{max}+1}^{t+1} = g_{j_{max}} N_{j_{max}}^{t+1} - \frac{1}{2} \frac{0 - d_{j_{max}} N_{j_{max}}^{t+1}}{\Delta w_{j_{max}}^c} $$ {#eq-upper-bc-flux}
 This means the term $C_{j_{max}}$ multiplying $N_{j_{max}+1}^{t+1}$ is not needed, so $C_{j_{max}} = 0$. The coefficients $A_{j_{max}}$ and $B_{j_{max}}$ use the standard formulas.
 
 ## Numerical Diffusion
@@ -197,7 +210,7 @@ $$
 - \frac{\Delta w_{j-1}}{2}\frac{\partial^2(gN)}{\partial w^2}(w_j)
 + O(\Delta w_{j-1}^2),
 $$ {#eq-space-truncation}
-so the advective part has an $O(\Delta w_j)$ spatial truncation error. The diffusive part uses a centred difference for the flux and is of higher order on a locally uniform grid, but the overall spatial order is still set by the upwind advective term.
+so the upwind advective reconstruction has an $O(\Delta w_j)$ spatial truncation error. The diffusive flux, being a central difference of the bin-averaged products between bin centres (@eq-diffusive-flux), is second order, and the bin-averaged sinks are second order too; so on the default scheme the spatial order is set entirely by the upwind advective reconstruction. Replacing it by a higher-order reconstruction (@sec-reducing-spatial-error) removes this last $O(\Delta w_j)$ error.
 
 On the logarithmic grid, writing $\beta = w_{j+1}/w_j$, we have
 $$
@@ -263,11 +276,11 @@ $$ {#eq-cn-flux-form}
 where all fluxes use the midpoint rates. For example,
 $$
 J_j^{t+1}
-= g_{j-1}^{t+1/2} N_{j-1}^{t+1}
+= g_j^{t+1/2} N_{j-1}^{t+1}
 - \frac{1}{2}\frac{
 d_j^{t+1/2} N_j^{t+1}
 - d_{j-1}^{t+1/2} N_{j-1}^{t+1}
-}{\Delta w_{j-1}},
+}{\Delta w_{j-1}^c},
 $$ {#eq-cn-flux}
 and $J_j^t$ is the same expression with $N^t$ instead of $N^{t+1}$. The lower boundary uses
 $$
@@ -528,42 +541,42 @@ d_{num}^{Euler}(w) \approx g(w)\Delta w + g(w)^2\Delta t,
 $$ {#eq-d-num-euler-compare}
 the predictor-corrector method removes the leading artificial diffusion proportional to $\Delta t$. The remaining numerical diffusion is the spatial upwind diffusion, proportional to $\Delta w$ or equivalently to $\log\beta$ on the logarithmic grid. This is why decreasing $\Delta t$ eventually stops improving the error much: once the time-stepping error is small, the spatial upwind error and other fixed discretisation errors dominate.
 
-## Reducing the Spatial Error: Flux Limiting
+## Reducing the Spatial Error: a Higher-Order Reconstruction {#sec-reducing-spatial-error}
 
-The spatial upwind diffusion $d_{num}\approx g(w)\,w\log\beta$ is the error that the second-order time methods *cannot* remove, and on a coarse logarithmic grid (a few hundred bins over many decades) it is not small. The `flux_limiter` entry of the `second_order_w` slot reduces it. With the default (`FALSE`) the first-order upwind flux described above is used; setting it to `TRUE` (for example with `second_order_w(params) <- TRUE`) replaces it with a flux-limited high-order flux. Because the choice changes the discrete steady state it lives in the params object rather than being a `project()` argument.
+In the scheme above only one ingredient is first order: the **upwind reconstruction** of the boundary density in the advective flux (@eq-advective-flux). Using the bin-below average $N_{j-1}$ as the density at the boundary $w_j$ introduces the numerical diffusion $d_{num}\approx g(w)\,w\log\beta$ derived earlier, and on a coarse logarithmic grid (a few hundred bins over many decades) it is not small. It is the one spatial error the second-order time methods *cannot* remove. The `flux` entry of the `second_order_w` slot replaces the upwind reconstruction by a higher-order one. Because the choice changes the discrete steady state it lives in the params object rather than being a `project()` argument.
 
-### The limited flux
+### The reconstruction
 
-The first-order upwind advective flux at the interface $w_j$ is $g_{j-1}N_{j-1}$. Its leading error is exactly the numerical diffusion above. The second-order *centred* flux $\tfrac12(g_{j-1}N_{j-1}+g_jN_j)$ has no such diffusion but is oscillatory at sharp features (and at the recruitment boundary). A **flux limiter** blends the two,
+The boundary $w_j$ is the midpoint, on the logarithmic axis, of the two bin centres $w_{j-1}^c$ and $w_j^c$, so a second-order estimate of the density there is the average of the two bin averages. We write the general reconstruction with a weight $\psi_j$,
+$$ N(w_j) \approx N_{j-1} + \tfrac12\,\psi_j\,(N_j - N_{j-1}), $$ {#eq-face-reconstruction}
+which is pure upwind ($N_{j-1}$) when $\psi_j = 0$ and the centred value $\tfrac12(N_{j-1}+N_j)$ when $\psi_j = 1$. The advective flux becomes
+$$ J_j^{adv} = g_j\bigl[N_{j-1} + \tfrac12\,\psi_j(N_j - N_{j-1})\bigr]. $$ {#eq-so-face-flux}
+With $\psi_j = 1$ the upwind numerical diffusion is gone and the advective flux is second order. The remaining requirement for a fully second-order model is that the bin-average rates — the diffusion coefficient $d_j$ in the diffusive flux (@eq-diffusive-flux) and the mortality $\mu_j$ in the sink (@eq-bin-averaged-mortality) — actually be bin-averaged rather than point-sampled. That is the job of the `bin_average` entry of the slot, which gates exactly that point-versus-bin-average choice for $d$ and $\mu$ alike.
+
+### Choosing the weight: van Leer or centred
+
+With $\psi\equiv1$ the reconstruction is the pure **centred** one, which is genuinely second order everywhere, including at smooth extrema, but is not monotonicity-preserving: it can produce small over/undershoots, and at a steady state with no physical diffusion it admits an undamped odd-even mode. With the **van Leer** weight
 $$
-J_j^{adv} = g_{j-1}N_{j-1}
-+ \tfrac12\,\psi(r_j)\,\bigl(g_jN_j - g_{j-1}N_{j-1}\bigr),
-\qquad
-r_j = \frac{(gN)_{j-1}-(gN)_{j-2}}{(gN)_j-(gN)_{j-1}},
-$$ {#eq-limited-flux}
-using the smoothness ratio $r_j$ of the advected quantity $gN$. Mizer uses the van Leer limiter
-$$
-\psi(r) = \frac{r+|r|}{1+|r|},
+\psi_j=\psi(r_j),\qquad
+\psi(r)=\frac{r+|r|}{1+|r|},\qquad
+r_j=\frac{N_{j-1}-N_{j-2}}{N_j-N_{j-1}},
 $$ {#eq-van-leer}
-which is the centred flux ($\psi\to1$) where the solution is smooth and switches to pure upwind ($\psi=0$) at extrema and at the non-smooth recruitment boundary. This is a *total-variation-diminishing* (TVD) reconstruction, so it does not manufacture new oscillations.
+the scheme is *total-variation diminishing* (TVD): $\psi\to1$ where the solution is smooth, and $\psi\to0$ (pure upwind) at extrema and at the non-smooth recruitment boundary. This keeps abundances non-negative and manufactures no new oscillations, at the price — a corollary of Godunov's theorem — of dropping to first order at smooth extrema. The two are selected with
+```r
+second_order_w(params)$flux <- "van_leer") # TVD, the default for TRUE
+second_order_w(params)$flux <- "centred"   # unlimited, true 2nd order
+```
+The default (`TRUE`) is van Leer, the safe choice for production runs; the centred reconstruction is most useful for smooth problems that carry some physical diffusion.
 
-### Implicit treatment with a frozen limiter
+### Implicit treatment with a frozen weight
 
-The limiter $\psi(r_j)$ is evaluated from the densities at the start of the step (for the second-order methods, from the midpoint field), so it is a fixed number during the solve. With $\psi$ *frozen*, the limited flux @eq-limited-flux is still linear in the unknown densities $N^{t+1}$ and still couples only $N_{j-1},N_j,N_{j+1}$. It can therefore be folded directly into the tridiagonal operator $\tt{get\_transport\_coefs()}$ builds, simply by modifying the advective parts of the coefficients,
-$$
-\begin{aligned}
-A_j&:\quad g_{j-1}\;\to\;g_{j-1}\bigl(1-\tfrac12\psi_j\bigr),\\
-B_j&:\quad g_{j}\;\to\;g_{j}\bigl(1-\tfrac12\psi_j-\tfrac12\psi_{j+1}\bigr),\\
-C_j&:\quad \text{gains } +\tfrac{\Delta t}{\Delta w_j}\,\tfrac12\psi_{j+1}g_{j+1},
-\end{aligned}
-$$ {#eq-limited-coefs}
-with the diffusion and mortality terms unchanged. Keeping the high-order flux *implicit* in this way is important: treating the extra (anti-diffusive) part explicitly on the right-hand side is only conditionally stable and breaks down for the lightly damped second-order time steppers, whereas the implicit form is stable for backward Euler and TR-BDF2 even with no physical diffusion.
+The weight $\psi_j$ is evaluated from the densities at the start of the step (for the second-order methods, from the midpoint field), so it is a fixed number during the solve. With $\psi$ *frozen*, the flux @eq-so-face-flux is linear in the unknown densities $N^{t+1}$ and still couples only $N_{j-1},N_j,N_{j+1}$, so it folds directly into the same tridiagonal operator $\tt{get\_transport\_coefs()}$ builds — only the advective coefficients gain the $\psi$ terms. Keeping the high-order term *implicit* in this way is important: treating the extra (anti-diffusive) part explicitly on the right-hand side is only conditionally stable and breaks down for the lightly damped second-order time steppers, whereas the implicit form is stable for backward Euler and TR-BDF2 even with no physical diffusion.
 
-The price is that the new $+\tfrac12\psi_{j+1}g_{j+1}$ term in $C_j$ can be positive, so the operator is no longer an M-matrix and non-negativity is no longer guaranteed by construction. In practice the van Leer limiter keeps any undershoot at the level of rounding at sharp features, and the consumer update floors it to zero to preserve $N\ge 0$.
+The price is that the high-order term can make the off-diagonal coefficient $C_j$ positive, so the operator is no longer an M-matrix and non-negativity is no longer guaranteed by construction. The van Leer reconstruction keeps any undershoot at the level of rounding, and the consumer update floors it to zero to preserve $N\ge 0$; the unlimited centred reconstruction gives up this guarantee in exchange for the extra order.
 
 ### Steady state and reproduction
 
-Because the limiter lives in the coefficients $A,B,C$, the steady-state machinery stays consistent automatically: `getRequiredRDD()` reads the (now limited) boundary coefficients, and `get_steady_state_n()` solves the same limited system. The one complication is that the limiter depends on the solution, so the steady state is found by iterating — freezing $\psi$ at the current iterate, solving the tridiagonal system, and repeating. At $\Delta t=1$ the limited steady operator is not diagonally dominant, so this fixed-point iteration is *under-relaxed* to make it converge. Both `getRequiredRDD()` and `steadySingleSpecies()` read the same `second_order_w` slot, so a model is automatically set up at the steady state of exactly the scheme that `project()` will use. For the second-order methods the provisional predictor step also uses the limiter, so that the frozen midpoint limiter is consistent at steady state and the steady state is preserved exactly.
+Because the reconstruction lives entirely in the coefficients $A,B,C$, the steady-state machinery stays consistent automatically: `getRequiredRDD()` reads the same boundary coefficients and `get_steady_state_n()` solves the same system. With the van Leer reconstruction the weight depends on the solution, so the steady state is found by an *under-relaxed* fixed-point iteration (freezing $\psi$ at the current iterate, solving, repeating), because at $\Delta t=1$ the operator is not diagonally dominant. Both `getRequiredRDD()` and `steadySingleSpecies()` read the same `second_order_w` slot, so a model is automatically set up at the steady state of exactly the scheme that `project()` will use, and that state is preserved to machine precision by all three time-stepping methods.
 
 ## Steady-State Solution
 
@@ -585,9 +598,9 @@ $$ {#eq-ss-tridiagonal}
 To eliminate the explicit dependence on the time step $\Delta t$, we can divide the equation by $\Delta t$. The modified coefficients $\tilde{A}, \tilde{B}, \tilde{C}$ defining the new tri-diagonal system are:
 $$
 \begin{aligned}
-\tilde{A}_j &= \frac{A_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( g_{j-1} + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}} \right) \\
-\tilde{C}_j &= \frac{C_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j} \right) \\
-\tilde{B}_j &= \frac{B_j - 1}{\Delta t} = \mu_j + \frac{1}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_j}{\Delta w_j} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}} \right)
+\tilde{A}_j &= \frac{A_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}^c} \right) \\
+\tilde{C}_j &= \frac{C_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j^c} \right) \\
+\tilde{B}_j &= \frac{B_j - 1}{\Delta t} = \mu_j + \frac{1}{\Delta w_j} \left( g_{j+1} + \frac{1}{2} \frac{d_j}{\Delta w_j^c} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}^c} \right)
 \end{aligned}
 $$ {#eq-ss-coefficients}
 Notice that $\tilde{A}_j$ and $\tilde{C}_j$ are exactly the expressions for $A_j$ and $C_j$ evaluated at $\Delta t = 1$. Similarly, $\tilde{B}_j$ is exactly the expression for $B_j - 1$ evaluated at $\Delta t = 1$.

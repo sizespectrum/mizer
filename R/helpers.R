@@ -155,8 +155,8 @@ w2l <- function(w, species_params) {
 #'
 #' @details
 #' The spatial discretisation of the advective flux is read from the
-#' `flux_limiter` entry of the `second_order_w` slot of `params`. With the flux
-#' limiter active the steady state must match the one that [project()] converges
+#' `flux` entry of the `second_order_w` slot of `params`. With a second-order
+#' flux scheme active the steady state must match the one that [project()] converges
 #' to. Because the limiter depends on the solution, the steady state is then
 #' found by an under-relaxed Picard iteration: the limiter is frozen at the
 #' current iterate, the resulting tridiagonal system is solved, and the iterate

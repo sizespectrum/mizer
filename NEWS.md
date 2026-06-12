@@ -15,27 +15,19 @@
   Gears whose effort varied over time show the mean effort, flagged with a note
   giving the min-max range.
   
-- When the `flux_limiter` entry of the `second_order_w` slot is `TRUE`, the
-  growth (advection) term uses a flux-limited (van Leer, TVD) high-order flux
-  instead of the first-order upwind flux, removing most of the upwind numerical
-  diffusion (which scales like `g * w * log(beta)`) while keeping the density
-  update a tridiagonal solve and keeping abundances non-negative. It is most
-  useful on coarse logarithmic grids and pairs naturally with the second-order
-  time methods. The steady-state tools use the same scheme, so a model is set up
-  at the steady state of its own discretisation. The default keeps the
-  first-order upwind flux; enable it with `second_order_w(params) <- TRUE`. See
-  the "Numerical Details" vignette.
+- The `second_order_w` slot is now a named list with a character entry `flux`
+  (`"upwind"`, `"van_leer"`, or `"centred"`) and a logical entry `bin_average`.
+  Setting `second_order_w(params) <- TRUE` enables both second-order features:
+  `flux = "van_leer"` (TVD advective reconstruction, keeps abundances
+  non-negative) and `bin_average = TRUE` (bin-averaged sinks and quadratures).
+  The `"centred"` flux (unlimited, genuinely second order at extrema) can be
+  selected with `second_order_w(params) <- c(flux = "centred")`. Old objects
+  with the previous logical `second_order_w` slot are upgraded automatically.
+  The default first-order upwind scheme is unchanged. See [second_order_w()]
+  and the "Numerical Details" vignette.
 
 - When the `bin_average` entry of the `second_order_w` slot is `TRUE`, the
-  FFT-based encounter and predation rates use a higher-order,
-  finite-volume-consistent quadrature: the predation kernel is integrated over
-  each logarithmic size bin instead of being point-sampled, lifting these rates
-  towards second order at no extra runtime cost. The first-order scheme remains
-  the default; enable the new scheme with `second_order_w(params) <- TRUE`. See
-  the "Fast Fourier Transform for Rates" vignette for the derivation.
-
-- When the `bin_average` entry of the `second_order_w` slot is `TRUE`, the
-  predation-rate kernel `ft_pred_kernel_p` is now also averaged over the
+  predation-rate kernel `ft_pred_kernel_p` is averaged over the
   **prey** bin (a trapezoid fold of the kernel), completing the predator-bin
   integral above. Predation mortality is a sink integrated against the prey
   density over the prey bin, so the prey-bin average is the form it needs to be
@@ -47,6 +39,18 @@
   `setExtMort()` now replaces the point-sampled power-law external mortality
   \eqn{z_{ext} w^d} by its exact bin average over each bin, making the external
   mortality sink consistent with the finite-volume scheme. The default
+  (point sampling) is unchanged.
+
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`,
+  `setExtDiffusion()` likewise replaces the point-sampled power-law external
+  diffusion \eqn{D_{ext} w^{n+1}} by its exact bin average, exactly as
+  `setExtMort()` does for mortality. The diffusion coefficient is a rate
+  represented as a bin average, so whether it is point-sampled or bin-averaged
+  is now governed by `bin_average` (the predation-diffusion contribution already
+  follows the bin-averaged predation kernel); `flux_limiter` only governs the
+  advective reconstruction. A fully second-order transport step therefore needs
+  both flags, and the second-order transport routine consumes the diffusion from
+  `getDiffusion()` directly rather than averaging it itself. The default
   (point sampling) is unchanged.
 
 - When the `bin_average` entry of the `second_order_w` slot is `TRUE`, the

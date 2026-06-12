@@ -232,14 +232,16 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
 
-    # second_order_w must be a named logical vector with entries
-    # flux_limiter and bin_average
+    # second_order_w must be a named list with entries flux and bin_average
     sow <- params@second_order_w
-    if (!is.logical(sow) || length(sow) != 2 ||
-        !identical(sort(names(sow)), c("bin_average", "flux_limiter")) ||
-        any(is.na(sow))) {
-        msg <- paste0("second_order_w must be a named logical vector with ",
-                      "entries 'flux_limiter' and 'bin_average'")
+    if (!is.list(sow) || length(sow) != 2 ||
+        !identical(sort(names(sow)), c("bin_average", "flux")) ||
+        !(sow[["flux"]] %in% c("upwind", "van_leer", "centred")) ||
+        !is.logical(sow[["bin_average"]]) || length(sow[["bin_average"]]) != 1 ||
+        is.na(sow[["bin_average"]])) {
+        msg <- paste0("second_order_w must be a named list with ",
+                      "entry 'flux' (\"upwind\", \"van_leer\" or \"centred\") ",
+                      "and logical entry 'bin_average'")
         errors <- c(errors, msg)
     }
 
@@ -401,10 +403,11 @@ validMizerParams <- function(object) {
 #'   diffusion is included when calculating rates with [mizerDiffusion()].
 #'   Defaults to `FALSE` to preserve the behaviour of previous mizer versions.
 #'   Set to `TRUE` to enable the diffusion term from the jump-growth equation.
-#' @slot second_order_w A named logical vector with entries `flux_limiter`
-#'   (controls whether a second-order advective flux is used for growth) and
-#'   `bin_average` (controls whether bin-averaging is used for rates). Both
-#'   default to `FALSE` to preserve the behaviour of previous mizer versions.
+#' @slot second_order_w A named list with entry `flux`
+#'   (the advective flux scheme: `"upwind"`, `"van_leer"`, or `"centred"`) and
+#'   logical entry `bin_average` (controls whether bin-averaging is used for
+#'   rates). Both default to the first-order setting to preserve the behaviour
+#'   of previous mizer versions.
 #'
 #' @seealso [project()] [MizerSim()]
 #'   [emptyParams()] [newMultispeciesParams()]
@@ -460,7 +463,7 @@ setClass(
         linetype = "character",
         ft_mask = "array",
         use_predation_diffusion = "logical",
-        second_order_w = "logical"
+        second_order_w = "list"
     ),
 )
 
@@ -756,7 +759,7 @@ emptyParams <- function(species_params,
         linetype = linetype,
         ft_mask = ft_mask,
         use_predation_diffusion = FALSE,
-        second_order_w = c(flux_limiter = FALSE, bin_average = FALSE)
+        second_order_w = list(flux = "upwind", bin_average = FALSE)
     )
 
     return(params)
