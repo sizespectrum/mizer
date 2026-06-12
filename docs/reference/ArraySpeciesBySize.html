@@ -19,7 +19,7 @@ print(), summary(), plot(), and as.data.frame() methods."><meta property="og:ima
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,6 +50,7 @@ print(), summary(), plot(), and as.data.frame() methods."><meta property="og:ima
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -135,6 +136,10 @@ arithmetic operations and subsetting. It carries two lightweight attributes:</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">enc</span> <span class="op">&lt;-</span> <span class="fu"><a href="getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params &lt;- validParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params &lt;- validParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params &lt;- validParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params &lt;- validParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.</span>
 <span class="r-in"><span><span class="fu"><a href="is.ArraySpeciesBySize.html">is.ArraySpeciesBySize</a></span><span class="op">(</span><span class="va">enc</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span><span class="fu"><a href="summary.html">summary</a></span><span class="op">(</span><span class="va">enc</span><span class="op">)</span></span></span>
