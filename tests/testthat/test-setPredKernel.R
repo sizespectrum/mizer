@@ -264,6 +264,30 @@ test_that("the predation kernel is prey-bin averaged under second_order_w", {
     expect_equal(unname(phi_p[idx(M + 1L)]), 0, tolerance = 1e-4)
 })
 
+test_that("the diffusion kernel is predator-bin averaged under second_order_w", {
+    # Similar to predation kernel test, but for unreversed layout.
+    params <- NS_params_small
+    beta_grid <- params@w_full[2] / params@w_full[1]
+    M <- 5L
+    params@species_params$pred_kernel_type <- "box"
+    params@species_params$ppmr_min <- 1
+    params@species_params$ppmr_max <- beta_grid^M  # exactly on a grid point
+    params@second_order_w[["bin_average"]] <- TRUE
+    p_hi <- setPredKernel(params)
+    no_w_full <- length(params@w_full)
+    phi_d <- Re(fft(p_hi@ft_pred_kernel_d[1, ], inverse = TRUE)) / no_w_full
+    # Layout is non-reversed: offset m sits at index m + 1.
+    # The edge offset M is at index M+1.
+    # Offsets below the edge (offsets <= M-1, R indices <= M) are fully covered.
+    val_covered <- (beta_grid^2 + beta_grid + 1) / 3
+    # Index M is fully covered (offset M-1): fold of two covered values remains val_covered.
+    expect_equal(unname(phi_d[M]), val_covered, tolerance = 1e-3)
+    # Index M+1 is the edge (offset M): covered value and uncovered 0 -> fold gives val_covered / 2.
+    expect_equal(unname(phi_d[M + 1L]), val_covered / 2, tolerance = 1e-3)
+    # Index M+2 is beyond the edge (offset M+1): fold of two zeros remains 0.
+    expect_equal(unname(phi_d[M + 2L]), 0, tolerance = 1e-4)
+})
+
 test_that("second_order_w prey-bin average leaves the default path unchanged", {
     # With the flag off the predation kernel is the previous point-sampled one.
     expect_equal(setPredKernel(NS_params_small)@ft_pred_kernel_p,

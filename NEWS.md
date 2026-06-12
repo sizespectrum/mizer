@@ -8,6 +8,10 @@
   instead of reusing the encounter kernel's `β^{2s}`, so the predation-diffusion
   rate is now also second order. In the default first-order scheme it equals
   `ft_pred_kernel_e`, so existing models are byte-identical. (#384)
+  Additionally, when `second_order_w[["bin_average"]]` is `TRUE`, this kernel is
+  now correctly predator-bin averaged (via a trapezoid fold over adjacent
+  offsets), matching the second-order requirements of the diffusion transport step.
+
 
 - `plotYield()` now uses `sim2 = NULL` instead of `missing(sim2)` to detect
   the optional second simulation argument. This is backward-compatible and

@@ -258,6 +258,17 @@ setPredKernel.MizerParams <- function(params,
         # quantity, and is bin-averaged only at the reproduction integral.
         phi_p[, -1] <- 0.5 * (phi_p[, -1, drop = FALSE] +
                                   phi_p[, -no_w_full, drop = FALSE])
+        # Predator-bin average of the diffusion kernel. The diffusion
+        # convolution outputs at the predator node, and the transport solver
+        # needs the cell-averaged diffusion coefficient over the predator bin,
+        # so it wants the predator-bin average. Bin-averaging the output over
+        # the predator bin is a trapezoid fold of the kernel over adjacent offsets:
+        # with diffusion at predator node j using kernel offset m = j - (prey index),
+        # the cell average 1/2 (integral_d[j] + integral_d[j+1]) replaces the
+        # offset-m weight by 1/2 (phi_d(beta^m) + phi_d(beta^{m+1})). The largest
+        # offset is one-sided.
+        phi_d[, -no_w_full] <- 0.5 * (phi_d[, -no_w_full, drop = FALSE] +
+                                          phi_d[, -1, drop = FALSE])
     }
 
     for (i in 1:no_sp) {
