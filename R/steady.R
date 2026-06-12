@@ -26,7 +26,9 @@ distanceMaxRelRDI.MizerParams <- function(params, current, previous) {
                           n_other = current$n_other)
     previous_rdi <- getRDI(params, n = previous$n, n_pp = previous$n_pp,
                            n_other = previous$n_other)
-    max(abs((current_rdi - previous_rdi) / previous_rdi))
+    d <- max(abs((current_rdi - previous_rdi) / previous_rdi))
+    d[is.nan(d)] <- Inf
+    d
 }
 
 #' Measure distance between current and previous state in terms of fish abundances
@@ -84,7 +86,7 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' @param method The numerical method to use for the consumer density update.
 #'   See [project()].
 #' @param ... Further arguments will be passed on to your distance function.
-#' 
+#'
 #' @return If `return_sim = FALSE`, a `MizerParams` object with the initial
 #'   state replaced by the final state found by the steady-state search. If
 #'   `return_sim = TRUE`, a `MizerSim` object containing the intermediate states
@@ -126,13 +128,13 @@ projectToSteady.MizerParams <- function(params,
         stop("t_per must be a positive multiple of dt")
     }
     t_dimnames <-  seq(0, t_max, by = t_per)
-    
+
     if (is(progress_bar, "Progress")) {
         # We have been passed a shiny progress object
         progress_bar$set(message = "Finding steady state", value = 0)
         proginc <- 1 / ceiling(t_max/t_per)
     }
-    
+
     if (return_sim) {
         # create MizerSim object
         sim <- MizerSim(params, t_dimnames =  t_dimnames)
@@ -142,7 +144,7 @@ projectToSteady.MizerParams <- function(params,
         sim@n_other[1, ] <- params@initial_n_other
         sim@effort[1, ] <- params@initial_effort
     }
-    
+
     # get functions
     resource_dynamics_fn <- get(params@resource_dynamics)
     other_dynamics_fns <- lapply(params@other_dynamics, get)
@@ -151,14 +153,14 @@ projectToSteady.MizerParams <- function(params,
         params, n = params@initial_n,
         n_pp = params@initial_n_pp,
         n_other = params@initial_n_other,
-        t = 0, 
+        t = 0,
         effort = effort, rates_fns = rates_fns, ...)
-    
+
     previous <- list(n = params@initial_n,
                      n_pp = params@initial_n_pp,
                      n_other = params@initial_n_other,
                      rates = r)
-    
+
     for (i in 2:length(t_dimnames)) {
         # advance shiny progress bar
         if (is(progress_bar, "Progress")) {
@@ -179,7 +181,7 @@ projectToSteady.MizerParams <- function(params,
             sim@n_other[i, ] <- unserialize(serialize(current$n_other, NULL))
             sim@effort[i, ] <- params@initial_effort
         }
-        
+
         # Species with no reproduction are going extinct, so stop.
         extinct <- is.na(current$rates$rdd) | current$rates$rdd <= 1e-20
         if (any(extinct)) {
@@ -189,7 +191,7 @@ projectToSteady.MizerParams <- function(params,
             distance <- NA
             break
         }
-        
+
         distance <- distance_func(params,
                                   current = current,
                                   previous = previous, ...)
@@ -211,11 +213,11 @@ projectToSteady.MizerParams <- function(params,
             message("Convergence was achieved in ", (i - 1) * t_per, " years.")
         }
     }
-    
+
     params@initial_n[] <- current$n
     params@initial_n_pp[] <- current$n_pp
     params@initial_n_other[] <- current$n_other
-    
+
     if (return_sim) {
         sim@params <- params
         sel <- 1:i
@@ -235,12 +237,12 @@ projectToSteady.MizerParams <- function(params,
 #' The steady state is found by running the dynamics while keeping reproduction,
 #' resource and other components constant until the size spectra no longer
 #' change much (or until time `t_max` is reached, if earlier).
-#' 
+#'
 #' If the model use Beverton-Holt reproduction then the reproduction parameters
 #' are set to values that give the level of reproduction observed in that
-#' steady state. The `preserve` argument can be used to specify which of the 
+#' steady state. The `preserve` argument can be used to specify which of the
 #' reproduction parameters should be preserved.
-#' 
+#'
 #' @param params A \linkS4class{MizerParams} object
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
 #' @param t_per The simulation is broken up into shorter runs of `t_per` years,
@@ -292,29 +294,29 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    info_level = 3,
                    method = c("euler", "predictor_corrector", "tr_bdf2")) {
     method <- normalise_project_method(method)
-    
+
     if (params@rates_funcs$RDD == "BevertonHoltRDD") {
         preserve <- match.arg(preserve)
         old_reproduction_level <- getReproductionLevel(params)
         old_R_max <- params@species_params$R_max
         old_erepro <- params@species_params$erepro
     }
-    
+
     # Force the reproduction to stay at the current level
     params@species_params$constant_reproduction <- getRDD(params)
     old_rdd_fun <- params@rates_funcs$RDD
     params@rates_funcs$RDD <- "constantRDD"
-    
+
     # Force resource to stay at current level
     old_resource_dynamics <- params@resource_dynamics
     params@resource_dynamics <- "resource_constant"
-    
+
     # Force other components to stay at current level
     old_other_dynamics <- params@other_dynamics
     for (res in names(params@other_dynamics)) {
         params@other_dynamics[[res]] <- "constant_other"
     }
-    
+
     object <- projectToSteady(params,
                               distance_func = distanceMaxRelRDI,
                               t_per = t_per,
@@ -334,22 +336,22 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     params@rates_funcs$RDD <- old_rdd_fun
     params@other_dynamics <- old_other_dynamics
     params@species_params$constant_reproduction <- NULL
-    
+
     # Set resource dynamics
     params <- setResource(params, resource_dynamics = old_resource_dynamics)
-    
+
     if (params@rates_funcs$RDD == "BevertonHoltRDD") {
         if (preserve == "reproduction_level") {
-            params <- setBevertonHolt(params, 
+            params <- setBevertonHolt(params,
                                       reproduction_level = old_reproduction_level)
         } else if (preserve == "R_max") {
-            params <- setBevertonHolt(params, 
+            params <- setBevertonHolt(params,
                                       R_max = old_R_max)
         } else {
             params <- setBevertonHolt(params, erepro = old_erepro)
         }
     }
-    
+
     if (return_sim) {
         object@params <- params
         return(object)
@@ -361,7 +363,7 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
 
 
 #' Helper function to keep other components constant
-#' 
+#'
 #' @param params MizerParams object
 #' @param n_other Abundances of other components
 #' @param component Name of the component that is being updated
@@ -374,21 +376,21 @@ constant_other <- function(params, n_other, component, ...) {
 }
 
 #' Helper function to assure validity of species argument
-#' 
+#'
 #' If the species argument contains invalid species, then these are
 #' ignored but a warning is issued.
-#' 
+#'
 #' @param object A MizerSim or MizerParams object from which the species
 #'   should be selected.
 #' @param species The species to be selected. Optional. By default all target
 #'   species are selected. A vector of species names, or a
 #'   numeric vector with the species indices, or a logical vector indicating for
-#'   each species whether it is to be selected (TRUE) or not. 
+#'   each species whether it is to be selected (TRUE) or not.
 #' @param return.logical Whether the return value should be a logical vector.
 #'   Default FALSE.
 #' @param error_on_empty Whether to throw an error if there are zero valid
 #'   species. Default FALSE.
-#'   
+#'
 #' @return A vector of species names, in the same order as specified in the
 #'   'species' argument. If 'return.logical = TRUE' then a logical vector is
 #'   returned instead, with length equal to the number of species, with
@@ -450,7 +452,7 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE,
     }
     invalid <- setdiff(species, all_species)
     if (length(invalid) > 0) {
-        warning("The following species do not exist: ", 
+        warning("The following species do not exist: ",
                 toString(invalid), ".")
     }
     species <- intersect(species, all_species)
@@ -464,17 +466,17 @@ valid_species_arg <- function(object, species = NULL, return.logical = FALSE,
 }
 
 #' Helper function to assure validity of gears argument
-#' 
+#'
 #' If the gears argument contains invalid gears, then these are
 #' ignored but a warning is issued.
-#' 
+#'
 #' @param object A MizerSim or MizerParams object from which the gears
 #'   should be selected.
 #' @param gears The gears to be selected. Optional. By default all gears
 #'   are selected. A vector of gear names.
 #' @param error_on_empty Whether to throw an error if there are zero valid
 #'   gears. Default FALSE.
-#'   
+#'
 #' @return A vector of gear names in the same order as supplied in `gears`,
 #'   with invalid names removed. If `gears` is `NULL`, all gears are returned
 #'   in the order stored in the model.
@@ -498,7 +500,7 @@ valid_gears_arg <- function(object, gears = NULL,
     }
     invalid <- setdiff(gears, all_gears)
     if (length(invalid) > 0) {
-        warning("The following gears do not exist: ", 
+        warning("The following gears do not exist: ",
                 toString(invalid), ".")
     }
     gears <- intersect(gears, all_gears)
