@@ -1,0 +1,152 @@
+---
+title: "Analytic Stability Analysis of the Size-Spectrum Steady State"
+author: "Antigravity AI"
+format: html
+---
+
+This document presents a rigorous analytical stability analysis of the analytic steady-state solution derived in the `analytic_test` vignette. Since the underlying transport equation is linear, we can analyze its linear stability unconditionally by examining the spectrum of its differential operator.
+
+## 1. The Governing Equation and Perturbation
+
+The time evolution of the size spectrum $N(w, t)$ is governed by the McKendrick-von Foerster equation with advection, diffusion, and mortality:
+
+$$
+\frac{\partial N}{\partial t} + \frac{\partial}{\partial w} \left( g N - \frac{1}{2}\frac{\partial(D N)}{\partial w} \right) = -\mu N
+$$
+
+where the growth, mortality, and diffusion rates are power laws of the form:
+
+$$
+\begin{align}
+g(w) &= A w^p, \\
+\mu(w) &= B w^{p-1}, \\
+D(w) &= K w^{p+1}.
+\end{align}
+$$
+
+Let $N_0(w) = C w^{-\lambda}$ be the steady-state solution. Since the PDE is linear, any perturbation $\delta N(w, t) = N(w, t) - N_0(w)$ satisfies the exact same governing equation:
+
+$$
+\frac{\partial \delta N}{\partial t} + \frac{\partial}{\partial w} \left( g \delta N - \frac{1}{2}\frac{\partial(D \delta N)}{\partial w} \right) = -\mu \delta N
+$$
+
+## 2. Transformation to $x$-space
+
+To facilitate the mathematical analysis, we transform the size variable $w$ to a new variable $x$:
+
+$$
+x = \frac{w^{1-p}}{1-p}
+$$
+
+assuming $p \neq 1$. The density in $x$-space, $\delta \tilde{N}(x, t) = \delta N(w, t) w^p$, satisfies:
+
+$$
+\frac{\partial \delta \tilde{N}}{\partial t} = \mathcal{L} \delta \tilde{N}
+$$
+
+where the differential operator $\mathcal{L}$ is:
+
+$$
+\mathcal{L} = V x \frac{\partial^2}{\partial x^2} + (V - U) \frac{\partial}{\partial x} - \frac{b}{x}
+$$
+
+and the transformed parameters are:
+$$
+\begin{align}
+U &= A - \frac{1}{2} K, \\
+V &= \frac{1}{2} K (1-p) > 0, \\
+b &= \frac{B}{1-p} > 0.
+\end{align}
+$$
+
+## 3. Boundary Conditions
+
+The domain is $x \in [x_{\min}, x_{\max}]$.
+1. **Left Boundary ($x_{\min}$)**: The reproduction rate is held constant, meaning no perturbation enters from the left:
+   $$
+   \delta \tilde{N}(x_{\min}, t) = 0
+   $$
+2. **Right Boundary ($x_{\max}$)**: We have a zero-flux boundary condition for the perturbation. In $x$-space, the flux is $\tilde{J} = U \delta \tilde{N} - V x \frac{\partial \delta \tilde{N}}{\partial x}$, leading to:
+   $$
+   U \delta \tilde{N}(x_{\max}, t) - V x_{\max} \frac{\partial \delta \tilde{N}}{\partial x}(x_{\max}, t) = 0
+   $$
+
+## 4. Eigenvalue Problem
+
+We seek eigenvalues $\sigma$ and eigenfunctions $\psi(x)$ satisfying $\mathcal{L} \psi = \sigma \psi$:
+
+$$
+V x \psi''(x) + (V - U) \psi'(x) - \frac{b}{x} \psi(x) = \sigma \psi(x)
+$$
+
+To simplify the operator, we introduce the weighted function $\phi(x) = x^{-U/(2V)} \psi(x)$ (i.e., $\psi(x) = x^{U/(2V)} \phi(x)$). Substituting this into the eigenvalue equation and dividing by $V x^{U/(2V)}$ simplifies the ODE to:
+
+$$
+x \phi''(x) + \phi'(x) - \frac{M}{x} \phi(x) = \frac{\sigma}{V} \phi(x)
+$$
+
+where $M = \frac{U^2 + 4Vb}{4V^2} > 0$ is a positive constant. Putting this into Sturm-Liouville form:
+
+$$
+(x \phi')' - \frac{M}{x} \phi = \frac{\sigma}{V} \phi
+$$
+
+The boundary conditions for $\phi(x)$ become:
+1. **At $x_{\min}$**: $\phi(x_{\min}) = 0$.
+2. **At $x_{\max}$**: $\phi'(x_{\max}) = \frac{U}{2V x_{\max}} \phi(x_{\max})$.
+
+## 5. Stability Proof
+
+We multiply the Sturm-Liouville equation by the complex conjugate $\phi^*(x)$, integrate over the domain $[x_{\min}, x_{\max}]$, and integrate the first term by parts:
+
+$$
+\frac{\sigma}{V} \int_{x_{\min}}^{x_{\max}} |\phi(x)|^2 dx = \left[ x \phi^*(x) \phi'(x) \right]_{x_{\min}}^{x_{\max}} - \int_{x_{\min}}^{x_{\max}} x |\phi'(x)|^2 dx - \int_{x_{\min}}^{x_{\max}} \frac{M}{x} |\phi(x)|^2 dx
+$$
+
+Plugging in the boundary conditions at $x_{\min}$ and $x_{\max}$, the boundary term evaluates to:
+
+$$
+\left[ x \phi^*(x) \phi'(x) \right]_{x_{\min}}^{x_{\max}} = \frac{U}{2V} |\phi(x_{\max})|^2
+$$
+
+Thus, we define the quadratic form $Q(\phi)$ associated with the operator:
+
+$$
+Q(\phi) = \int_{x_{\min}}^{x_{\max}} x |\phi'(x)|^2 dx + \int_{x_{\min}}^{x_{\max}} \frac{M}{x} |\phi(x)|^2 dx - \frac{U}{2V} |\phi(x_{\max})|^2
+$$
+
+so that:
+
+$$
+\frac{\sigma}{V} \int_{x_{\min}}^{x_{\max}} |\phi(x)|^2 dx = - Q(\phi)
+$$
+
+To show that $Q(\phi) > 0$, we substitute $\phi(x) = x^k \chi(x)$ with $k = \frac{U}{2V}$ (implying $\chi(x_{\min}) = 0$). Expanding $x |\phi'(x)|^2$ and integrating the cross-term by parts yields:
+
+$$
+\int_{x_{\min}}^{x_{\max}} x |\phi'(x)|^2 dx = \int_{x_{\min}}^{x_{\max}} x^{2k+1} |\chi'(x)|^2 dx + \frac{U}{2V} |\phi(x_{\max})|^2 - \frac{U^2}{4V^2} \int_{x_{\min}}^{x_{\max}} \frac{|\phi(x)|^2}{x} dx
+$$
+
+Substituting this back into the expression for $Q(\phi)$ causes the boundary terms at $x_{\max}$ to cancel out exactly:
+
+$$
+Q(\phi) = \int_{x_{\min}}^{x_{\max}} x^{2k+1} |\chi'(x)|^2 dx + \int_{x_{\min}}^{x_{\max}} \frac{M - k^2}{x} |\phi(x)|^2 dx
+$$
+
+Since $M - k^2 = \frac{U^2 + 4Vb}{4V^2} - \frac{U^2}{4V^2} = \frac{b}{V}$, we obtain:
+
+$$
+Q(\phi) = \int_{x_{\min}}^{x_{\max}} x^{2k+1} |\chi'(x)|^2 dx + \frac{b}{V} \int_{x_{\min}}^{x_{\max}} \frac{|\phi(x)|^2}{x} dx
+$$
+
+Since $b > 0$, $V > 0$, and $x > 0$ on the domain:
+- $\int_{x_{\min}}^{x_{\max}} x^{2k+1} |\chi'(x)|^2 dx \ge 0$
+- $\frac{b}{V} \int_{x_{\min}}^{x_{\max}} \frac{|\phi(x)|^2}{x} dx > 0$ (for any non-trivial perturbation $\phi \not\equiv 0$)
+
+Therefore, $Q(\phi)$ is strictly positive for all non-trivial perturbations, which mathematically guarantees:
+
+$$
+\text{Re}(\sigma) < 0
+$$
+
+for every eigenvalue of the differential operator. All perturbation modes decay exponentially in time, proving the analytical steady-state solution is **unconditionally stable**.

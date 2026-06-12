@@ -1,0 +1,217 @@
+---
+title: "Analytical Stability of the Numerical Size-Spectrum Steady State"
+author: "Antigravity AI"
+format: html
+---
+
+This document presents a rigorous mathematical proof of the stability of the numerical steady-state solution in `mizer`. Since the system is linear once the rate functions are fixed, the stability of the numerical scheme depends on the eigenvalues of the discretized spatial operator and the iteration matrices of the time-stepping schemes.
+
+## 1. Discretized Equations
+
+From the finite-volume formulation described in the numerical scheme documentation, the discretized transport equation for bin average densities $N_j$ is:
+
+$$
+\frac{d N_j}{dt} + \frac{J_{j+1} - J_j}{\Delta w_j} = -\mu_j N_j
+$$
+
+where the boundary fluxes are:
+
+$$
+\begin{align}
+J_{j+1} &= g_j N_j - \frac{1}{2} \frac{d_{j+1} N_{j+1} - d_j N_j}{\Delta w_j} \\
+J_j &= g_{j-1} N_{j-1} - \frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w_{j-1}}
+\end{align}
+$$
+
+Substitute these fluxes back into the ODE for $N_j$:
+
+$$
+\frac{d N_j}{dt} = \frac{1}{\Delta w_j} \left( g_{j-1} N_{j-1} + \frac{1}{2}\frac{d_{j-1}}{\Delta w_{j-1}} N_{j-1} \right) - \left[ \mu_j + \frac{1}{\Delta w_j} \left( g_j + \frac{1}{2}\frac{d_j}{\Delta w_j} + \frac{1}{2}\frac{d_j}{\Delta w_{j-1}} \right) \right] N_j + \frac{1}{\Delta w_j} \left( \frac{1}{2}\frac{d_{j+1}}{\Delta w_j} \right) N_{j+1}
+$$
+
+This can be written in matrix-vector form:
+
+$$
+\frac{d \mathbf{N}}{dt} = \mathbf{L} \mathbf{N} + \mathbf{q}
+$$
+
+where:
+- $\mathbf{L}$ is a tridiagonal matrix representing the discretized spatial transport and mortality.
+- $\mathbf{q}$ is the vector representing the constant recruitment boundary terms (non-zero only at $j_{\min}$).
+
+For any perturbation $\delta \mathbf{N}(t) = \mathbf{N}(t) - \mathbf{N}_0$ around the numerical steady state $\mathbf{N}_0$, it satisfies the homogeneous system:
+
+$$
+\frac{d \delta \mathbf{N}}{dt} = \mathbf{L} \delta \mathbf{N}
+$$
+
+## 2. Eigenvalues of the Spatial Operator $\mathbf{L}$
+
+Let the elements of the tridiagonal matrix $\mathbf{L}$ be:
+- $L_{j, j-1} = \frac{1}{\Delta w_j} g_{j-1} + \frac{1}{2 \Delta w_j \Delta w_{j-1}} d_{j-1} > 0$
+- $L_{j, j+1} = \frac{1}{2 \Delta w_j^2} d_{j+1} > 0$
+- $L_{j, j} = - \mu_j - \frac{1}{\Delta w_j} g_j - \frac{1}{2 \Delta w_j^2} d_j - \frac{1}{2 \Delta w_j \Delta w_{j-1}} d_j < 0$
+
+We define the diagonal matrix of bin widths $\mathbf{W} = \text{diag}(\Delta w_j)$ and perform a similarity transformation on $\mathbf{L}$ using $\mathbf{W}$:
+
+$$
+\mathbf{A} = \mathbf{W} \mathbf{L} \mathbf{W}^{-1}
+$$
+
+Since similarity transformations preserve eigenvalues, $\mathbf{A}$ has the exact same eigenvalues as $\mathbf{L}$. The elements of $\mathbf{A}$ are:
+- $A_{j, j} = L_{j, j}$ (diagonal entries remain unchanged)
+- $A_{j, k} = \frac{\Delta w_j}{\Delta w_k} L_{j, k}$ (for off-diagonal entries)
+
+Let's compute the sum of the absolute values of the off-diagonal entries in the $k$-th column of $\mathbf{A}$:
+
+$$
+\sum_{j \neq k} |A_{j, k}| = \sum_{j \neq k} \frac{\Delta w_j}{\Delta w_k} L_{j, k} = \frac{1}{\Delta w_k} \sum_{j \neq k} \Delta w_j L_{j, k}
+$$
+
+Since $L_{j, k} \ge 0$ for all $j \neq k$ (the advection and diffusion coefficients are positive), we have:
+
+$$
+\sum_j \Delta w_j L_{j, k} = \Delta w_k L_{k, k} + \sum_{j \neq k} \Delta w_j L_{j, k}
+$$
+
+By summing the weighted columns of $\mathbf{L}$, we find the total rate of change of individuals in the system. Summing the discretized conservation equations yields:
+
+$$
+\sum_j \Delta w_j L_{j, k} = - \Delta w_k \mu_k - \text{boundary terms}_k
+$$
+
+where the boundary terms (specifically outflow at $w_{\max}$) are non-negative. This implies:
+
+$$
+\sum_{j \neq k} \Delta w_j L_{j, k} = - \Delta w_k L_{k, k} - \Delta w_k \mu_k - \text{boundary terms}_k
+$$
+
+Dividing by $\Delta w_k$ gives:
+
+$$
+\sum_{j \neq k} |A_{j, k}| = |L_{k, k}| - \mu_k - \frac{\text{boundary terms}_k}{\Delta w_k} < |L_{k, k}|
+$$
+
+This inequality proves that the matrix $\mathbf{L}$ is **strictly column-diagonally dominant** under the weight matrix $\mathbf{W}$, because:
+
+$$
+|A_{k, k}| > \sum_{j \neq k} |A_{j, k}|
+$$
+
+for all columns $k$.
+
+According to **Gershgorin's Circle Theorem** (applied to the columns of $\mathbf{A}$), all eigenvalues $\lambda$ of $\mathbf{L}$ must lie in the union of the Gershgorin discs:
+
+$$
+|z - L_{k, k}| \le \sum_{j \neq k} |A_{j, k}|
+$$
+
+Since $L_{k, k} < 0$, the maximum possible real part of any eigenvalue in the $k$-th disc is:
+
+$$
+\text{Re}(\lambda) \le L_{k, k} + \sum_{j \neq k} |A_{j, k}| = - \mu_k - \frac{\text{boundary terms}_k}{\Delta w_k} < 0
+$$
+
+Since $\mu_k > 0$ for all size classes, every eigenvalue $\lambda$ of the spatial discretization matrix $\mathbf{L}$ has a **strictly negative real part**:
+
+$$
+\text{Re}(\lambda) < 0
+$$
+
+---
+
+## 3. Stability of Time-Stepping Schemes
+
+We now analyze the stability of the three time-stepping methods offered in `mizer`.
+
+### A. Semi-Implicit Euler Method
+The semi-implicit Euler update for the perturbation is:
+
+$$
+\delta \mathbf{N}^{t+1} = (\mathbf{I} - \Delta t \mathbf{L})^{-1} \delta \mathbf{N}^t
+$$
+
+If $\lambda$ is an eigenvalue of $\mathbf{L}$, the corresponding eigenvalue of the iteration matrix $\mathbf{H}_E = (\mathbf{I} - \Delta t \mathbf{L})^{-1}$ is:
+
+$$
+\eta_E = \frac{1}{1 - \Delta t \lambda}
+$$
+
+Since $\text{Re}(\lambda) < 0$ and $\Delta t > 0$:
+
+$$
+|1 - \Delta t \lambda| = \sqrt{(1 - \Delta t \text{Re}(\lambda))^2 + (\Delta t \text{Im}(\lambda))^2} > 1
+$$
+
+Thus, the spectral radius of the iteration matrix satisfies:
+
+$$
+\rho(\mathbf{H}_E) < 1
+$$
+
+establishing **unconditional stability** for any time step $\Delta t > 0$.
+
+### B. Predictor-Corrector Method (Crank-Nicolson)
+The Crank-Nicolson update for the perturbation is:
+
+$$
+\delta \mathbf{N}^{t+1} = \left( \mathbf{I} - \frac{\Delta t}{2} \mathbf{L} \right)^{-1} \left( \mathbf{I} + \frac{\Delta t}{2} \mathbf{L} \right) \delta \mathbf{N}^t
+$$
+
+The corresponding eigenvalue of the iteration matrix $\mathbf{H}_{CN}$ is:
+
+$$
+\eta_{CN} = \frac{1 + \frac{\Delta t}{2} \lambda}{1 - \frac{\Delta t}{2} \lambda}
+$$
+
+Let $\lambda = \lambda_R + i \lambda_I$ with $\lambda_R < 0$. The squared magnitude of the eigenvalue is:
+
+$$
+|\eta_{CN}|^2 = \frac{\left(1 + \frac{\Delta t}{2} \lambda_R\right)^2 + \left(\frac{\Delta t}{2} \lambda_I\right)^2}{\left(1 - \frac{\Delta t}{2} \lambda_R\right)^2 + \left(\frac{\Delta t}{2} \lambda_I\right)^2}
+$$
+
+Since $\lambda_R < 0$ and $\Delta t > 0$, we have $\left(1 + \frac{\Delta t}{2} \lambda_R\right)^2 < \left(1 - \frac{\Delta t}{2} \lambda_R\right)^2$, which directly implies:
+
+$$
+|\eta_{CN}| < 1
+$$
+
+establishing **unconditional stability** for Crank-Nicolson.
+
+### C. TR-BDF2 Method
+The TR-BDF2 scheme is a composite one-step method combining the Trapezoidal Rule and a Backward Differentiation Formula of order 2. It is **L-stable**, which means its stability region covers the entire left half-plane ($Re(z) < 0$) and its amplification factor approaches zero as $z \to -\infty$. 
+
+Since all eigenvalues of $\mathbf{L}$ lie strictly in the left half-plane ($\text{Re}(\lambda) < 0$), TR-BDF2 is also **unconditionally stable** and robust against large time steps (damping high-frequency oscillations or "ringing" that can occasionally affect Crank-Nicolson).
+
+## 4. The Role of Size Discretization in Stability
+
+The unconditional stability of the spatial operator $\mathbf{L}$ is not a generic property of any discretization, but rather a direct consequence of the specific choices made in `mizer` for the size direction:
+
+1. **Upwind Advection**: Somatic growth is discretized using a first-order upwind scheme. Because growth is positive ($g(w) > 0$), advection is strictly one-way (from bin $j-1$ to $j$). This ensures that:
+   - There is no advective term in $L_{j, j+1}$ (which would carry a negative sign and could violate diagonal dominance).
+   - The advective coefficients in $L_{j, j-1}$ are strictly positive.
+2. **Central Difference Diffusion**: Diffusion is discretized using a central difference scheme at the cell faces. Since $d(w) > 0$, this adds positive terms to the off-diagonals $L_{j, j-1}$ and $L_{j, j+1}$.
+3. **M-Matrix Property**: Together, these choices guarantee that $\mathbf{L}$ is a Metzler matrix (all off-diagonal entries are non-negative, $L_{j, k} \ge 0$ for $j \neq k$). Combined with the strict column-diagonal dominance proved above, this ensures that $-\mathbf{L}$ is a **strictly diagonally dominant M-matrix**. This mathematical structure guarantees both stability and **positivity preservation** (numerical densities cannot become negative).
+
+### Contrast with Central Differences for Advection
+
+If a central difference scheme had been used for the advection term, the entry $L_{j, j+1}$ would become:
+$$
+L_{j, j+1} = \frac{1}{\Delta w_j} \left( -\frac{1}{2} g_{j+1} + \frac{1}{2}\frac{d_{j+1}}{\Delta w_j} \right)
+$$
+In the limit of small physical diffusion ($d \to 0$), this term becomes negative:
+$$
+L_{j, j+1} \approx - \frac{g_{j+1}}{2 \Delta w_j} < 0
+$$
+which violates the Metzler/M-matrix properties. Under this condition, the scheme would suffer from numerical oscillations (ringing) and potential instability unless the grid spacing satisfies the cell Peclet number limit ($\Delta w < 2d/g$). By using the upwind scheme, `mizer` avoids this constraint entirely.
+
+### Grid Spacing Independence
+
+Notably, the proof of eigenvalue stability holds for **any** positive grid spacing $\Delta w_j > 0$. The grid does not need to be uniform or logarithmically spaced; the stability of the numerical scheme is completely independent of the choice of grid size parameters (like $\beta$). The discretization in the size direction only affects the *accuracy* (via numerical diffusion $D_{\text{num}} \approx g \Delta w$) but never compromises the *stability* of the steady state.
+
+---
+
+## 5. Conclusion
+
+Both the continuous spatial discretization operator $\mathbf{L}$ and the discrete time-stepping operators $\mathbf{H}$ are analytically proven to be unconditionally stable. Any numerical perturbation decays monotonically in the weighted $L^1$ norm, causing the system to converge back to the numerical steady-state solution.
+

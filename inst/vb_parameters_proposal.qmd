@@ -1,0 +1,96 @@
+---
+title: "A Proposal for Better Use of von Bertalanffy Parameters in mizer"
+author: "Antigravity AI"
+format: html
+---
+
+## Introduction
+
+In `mizer`, species parameters like the maximum intake rate $h$ are crucial for determining growth. When the age at maturity ($age_{\text{mat}}$) is not explicitly provided, `mizer` currently falls back to using the von Bertalanffy (VB) growth parameters ($k_{\text{vb}}$ and $w_{\text{inf}}$) to calculate an implied maturity age and estimate $h$ from it.
+
+This proposal describes a more direct, mathematically elegant, and biologically realistic way to calibrate $h$ from von Bertalanffy parameters.
+
+## Current Implementation
+
+Currently, `mizer` estimates $h$ through a two-step process:
+
+1. **Calculate implied age at maturity:**
+   Assuming the von Bertalanffy growth curve holds:
+   $$age_{\text{mat}} = -\frac{\ln\left(1 - \left(\frac{w_{\text{mat}}}{w_{\text{inf}}}\right)^{1/b}\right)}{k_{\text{vb}}} + t_0$$
+   where $b$ is the length-weight exponent (default $b = 3$).
+
+2. **Estimate $h$ from $age_{\text{mat}}$:**
+   Assuming a constant growth scaling model for immature fish ($dw/dt = A w^n$, where $n = 1 - 1/b$):
+   $$h_{\text{current}} = \frac{w_{\text{mat}}^{1-n} - w_{\text{min}}^{1-n}}{age_{\text{mat}} \cdot (1-n) \cdot \alpha \cdot (f_0 - f_c)}$$
+   Neglecting $w_{\text{min}}$ and setting $1-n = 1/b$:
+   $$h_{\text{current}} \approx \frac{b \cdot w_{\text{mat}}^{1/b}}{age_{\text{mat}} \cdot \alpha \cdot (f_0 - f_c)}$$
+
+### The Downside of the Current Approach
+
+This method forces the *average* growth rate of juveniles in `mizer` to match the average growth rate under VB. 
+
+However, in the VB model, the growth rate is continuously reduced by a $-3Kw$ term (often interpreted as metabolic or reproductive losses) even before maturity. In `mizer`, immature fish do not invest in reproduction ($\psi(w) = 0$), so they grow at the maximum possible rate. 
+
+To force the age at maturity to match VB, `mizer` must scale down the entire growth coefficient (and thus $h$) by a factor of:
+$$\frac{h_{\text{current}}}{h_{\text{proposed}}} = \frac{z}{-\ln(1-z)} \approx 0.63 \quad \left(\text{for } \frac{w_{\text{mat}}}{w_{\text{max}}} = 0.25\right)$$
+where $z = (w_{\text{mat}}/w_{\text{inf}})^{1/b}$. 
+
+As a result:
+* **Adults grow too slowly:** After maturity, the growth rate remains scaled down by $\approx 37\%$, causing mature individuals to grow much slower than the VB curve.
+* **Juveniles grow too slowly:** The overall growth rate is unnecessarily depressed.
+
+---
+
+## Proposed Implementation
+
+Instead of matching the age at maturity, we can calibrate $h$ so that the growth rate of small (immature) fish in `mizer` matches the initial growth rate of small fish in the VB model.
+
+For small fish ($w \ll w_{\text{inf}}$), the von Bertalanffy growth rate in weight is:
+$$\frac{dw}{dt} \approx b \cdot k_{\text{vb}} \cdot w_{\text{inf}}^{1/b} \cdot w^{1 - 1/b}$$
+
+Equating this to the `mizer` growth rate for immature fish ($dw/dt = \alpha h (f_0 - f_c) w^n$ with $n = 1 - 1/b$):
+$$h_{\text{proposed}} = \frac{b \cdot k_{\text{vb}} \cdot w_{\text{inf}}^{1/b}}{\alpha \cdot (f_0 - f_c)}$$
+
+---
+
+## Advantages of the Proposal
+
+1. **Perfect alignment for adults (with $m = 1$):**
+   Once maturity is reached ($\psi(w) = 1$), the growth rate in `mizer` becomes:
+   $$\frac{dw}{dt} = \alpha h (f_0 - f_c) w^n \left(1 - \left(\frac{w}{w_{\text{inf}}}\right)^{1-n}\right) = b \cdot k_{\text{vb}} \cdot w_{\text{inf}}^{1/b} \cdot w^{1-1/b} \left(1 - \left(\frac{w}{w_{\text{inf}}}\right)^{1/b}\right)$$
+   This matches the von Bertalanffy growth rate in weight **exactly**.
+
+2. **Biologically realistic juvenile growth:**
+   For immature fish, the growth rate is $b \cdot k_{\text{vb}} \cdot w_{\text{inf}}^{1/b} \cdot w^{1-1/b}$, which is faster than VB because they do not experience reproductive slowdown yet. This is biologically sound and matches observations that juveniles often grow faster than adult-fitted VB curves suggest.
+
+3. **Mathematical Simplicity:**
+   It avoids the intermediate calculation of $age_{\text{mat}}$ and the logarithm, making default parameter derivation cleaner, more direct, and less prone to numerical issues when $w_{\text{mat}} \approx w_{\text{inf}}$.
+
+---
+
+## Demonstration in R
+
+Here is a short R script illustrating how the current and proposed $h$ values differ for a typical North Sea species (e.g., Cod):
+
+```r
+# Typical parameters for Cod
+w_mat <- 1606
+w_inf <- 40000
+k_vb <- 0.2
+alpha <- 0.6
+f0 <- 0.6
+fc <- 0.2
+b <- 3
+n <- 2/3
+
+# Current mizer calculation
+age_mat <- -log(1 - (w_mat / w_inf)^(1 / b)) / k_vb
+h_current <- w_mat^(1 - n) / age_mat / (1 - n) / alpha / (f0 - fc)
+
+# Proposed calculation
+h_proposed <- b * k_vb * w_inf^(1/b) / (alpha * (f0 - fc))
+
+cat(sprintf("Current default h:  %.2f\n", h_current))
+cat(sprintf("Proposed default h: %.2f\n", h_proposed))
+cat(sprintf("Ratio (current/proposed): %.3f\n", h_current / h_proposed))
+```
