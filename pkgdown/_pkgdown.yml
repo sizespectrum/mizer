@@ -80,6 +80,7 @@ articles:
   contents:
   - cohort_dynamics_and_diffusion
   - numerical_details
+  - default_parameters
   - fft
   - analytic_test
 - title: internal

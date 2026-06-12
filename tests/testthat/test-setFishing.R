@@ -300,7 +300,7 @@ test_that("Default path leaves selectivity point-sampled", {
     params <- NS_params_small
     # The default flag is off, so calc_selectivity must reproduce a direct
     # point evaluation of the selectivity functions at params@w.
-    expect_false(isTRUE(second_order_w(params)[["bin_average"]]))
+    expect_false(second_order_w(params)[["bin_average"]])
     sel <- calc_selectivity(params)
     expect_identical(sel, params@selectivity[])
 })

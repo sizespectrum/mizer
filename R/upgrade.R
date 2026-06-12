@@ -393,16 +393,10 @@ upgradeParams <- function(params) {
         params@use_predation_diffusion <- FALSE
     }
 
-    # Add second_order_w slot if missing (added in 3.0.x)
-    # Default to FALSE to preserve behaviour of previous mizer versions.
+    # Add/upgrade second_order_w slot (added in 3.0.x, changed to list in 3.0.x)
+    # Default to first-order settings to preserve behaviour of previous mizer versions.
     if (!.hasSlot(params, "second_order_w")) {
-        params@second_order_w <- c(flux_limiter = FALSE, bin_average = FALSE)
-    } else if (is.logical(params@second_order_w) &&
-               length(params@second_order_w) == 1) {
-        # Upgrade from earlier single-logical version of this slot
-        old_val <- params@second_order_w
-        params@second_order_w <- c(flux_limiter = old_val,
-                                   bin_average = old_val)
+        params@second_order_w <- list(flux = "upwind", bin_average = FALSE)
     }
 
     # Add ft_pred_kernel_d slot if missing (added in 3.0.0.9002). It mirrors

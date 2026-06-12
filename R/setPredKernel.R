@@ -67,7 +67,10 @@
 #' Fourier-transformed kernels. This finite-volume consistent quadrature lifts
 #' the encounter and predation rates towards second order at no extra runtime
 #' cost, because the integration is performed once here and the rate functions
-#' themselves are unchanged. The default remains the first-order scheme so that
+#' themselves are unchanged. The predation kernel is additionally averaged over
+#' the prey bin (a trapezoid fold), so that the predation rate returned by
+#' [getPredRate()] is the prey-bin average that the predation-mortality sink
+#' needs to be second order. The default remains the first-order scheme so that
 #' existing models are unaffected. Enable it with `second_order_w(params) <-
 #' TRUE` (see [second_order_w()]), which also turns on the other bin-averaged
 #' rate quadratures so the whole model stays consistent. See the
@@ -238,6 +241,23 @@ setPredKernel.MizerParams <- function(params,
             phi_p[i, ] <- matrix(kernel_p[i, ], nrow = no_w_full) %*% weight_p
             phi_d[i, ] <- matrix(kernel_e[i, ], nrow = no_w_full) %*% weight_d
         }
+        # Prey-bin average of the predation kernel (issue #381). The predation
+        # convolution outputs at the prey node, but the predation-mortality sink
+        # integrates that rate against the prey density over the prey bin, so it
+        # wants the prey-bin average (1/Delta w_p) int pred_rate(w_p) dw_p, not a
+        # point value. Bin-averaging the output over the prey bin is a trapezoid
+        # fold of the kernel over adjacent offsets: with pred_rate at prey node j
+        # using kernel offset m = (predator index) - j, the cell average
+        # 1/2 (pred_rate[j] + pred_rate[j+1]) replaces the offset-m weight by
+        # 1/2 (phi_p(beta^m) + phi_p(beta^{m-1})). This costs nothing at runtime
+        # and completes #374's predator-bin integral with the prey-bin integral,
+        # so the encounter integrates the prey bins and the predation integrates
+        # both predator and prey bins. The lowest offset is one-sided (the
+        # own-size term is dropped from the convolution anyway). Encounter
+        # (phi_e) is left untouched: it feeds the growth flux, a point/face
+        # quantity, and is bin-averaged only at the reproduction integral.
+        phi_p[, -1] <- 0.5 * (phi_p[, -1, drop = FALSE] +
+                                  phi_p[, -no_w_full, drop = FALSE])
     }
 
     for (i in 1:no_sp) {

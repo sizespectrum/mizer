@@ -630,3 +630,141 @@ because the Crank-Nicolson corrector overshoots (rings) for large steps. The
 L-stable `"tr_bdf2"` curve instead stays close to the slope-2 trend and remains
 an order of magnitude more accurate there. This is the large-step robustness
 discussed in the [Numerical details](numerical_details.html) vignette.
+
+## Order of convergence in size
+
+The previous section isolated the error in the time step. Here we isolate the
+error in the **size** step and verify that `second_order_w <- TRUE` turns the
+transport step from first to second order in the grid spacing. With the default
+(`FALSE`) mizer uses the first-order upwind advective flux, whose numerical
+diffusion scales like $g(w)\,w\log\beta$. Setting `second_order_w <- TRUE` selects
+the second-order finite-volume scheme (the `flux_limiter` flag) *and* the
+bin-averaged sinks (the `bin_average` flag); both are needed, because the
+second-order fluxes would otherwise be held back by a point-sampled mortality
+(see the [Numerical details](numerical_details.html) vignette).
+
+One thing changes in how we measure the error. In the second-order scheme the
+finite-volume cells are the bins, so $N_j$ is the **cell average** over
+$[w_j, w_{j+1}]$, which equals the analytic value at the cell centre
+$w_j^c=\sqrt{w_j w_{j+1}}$ to second order — not the value at the node $w_j$. We
+therefore set the initial condition and compare against the analytic solution
+sampled at the cell centres; for the first-order scheme, whose $N_j$ is a node
+value, we use the nodes. (Using node values for the second-order field would
+re-introduce an $O(\Delta w)$ node-versus-centre offset and mask the order.) We
+supply the power-law mortality through the `z_ext` species parameter so that it
+is bin-averaged when `bin_average` is on.
+
+We refine the grid by increasing `no_w` and, as in the time-dependent test
+above, project the analytic pulse from $t_{start}$ to $t_{end}$ and measure the
+relative $L^2$ error against `N_analytic`, restricted to the bulk of the pulse.
+The time step is kept small and fixed with the second-order `tr_bdf2` method so
+that the temporal error is negligible and the slope reflects the spatial order
+alone.
+
+```{r}
+build_sp <- function(no_w, second_order) {
+    sp <- data.frame(species = "Test", w_max = 1000, w_mat = 100,
+                     n = p, z0 = 0, z_ext = B, d = p - 1, D_ext = K)
+    pr <- newMultispeciesParams(sp, no_w = no_w, min_w = 1e-3, info_level = 0)
+    second_order_w(pr) <- second_order
+    pr <- setRateFunction(pr, "EGrowth", "start_growth")
+    pr@interaction[] <- 0           # no predation: total mortality is B w^(p-1)
+    pr <- setExtMort(pr)
+    pr@species_params$constant_reproduction <- 0
+    setRateFunction(pr, "RDD", "constantRDD")
+}
+
+# Cell average (= cell-centre value) for the second-order scheme, node value for
+# the first-order scheme.
+ref_w <- function(pr, second_order) {
+    wv <- w(pr)
+    if (second_order) wv * sqrt(wv[2] / wv[1]) else wv
+}
+
+pulse_err <- function(no_w, second_order, dt = 0.0025) {
+    pr <- build_sp(no_w, second_order)
+    rw <- ref_w(pr, second_order)
+    initialN(pr) <- matrix(N_analytic(rw, t_start, w0, 0), nrow = 1)
+    sim <- project(pr, t_max = t_end - t_start, dt = dt,
+                   t_save = t_end - t_start, method = "tr_bdf2",
+                   progress_bar = FALSE)
+    num <- finalN(sim)[1, ]
+    ana <- N_analytic(rw, t_end, w0, 0)
+    mask <- ana > max(ana) * 1e-3        # bulk of the pulse, away from boundaries
+    sqrt(sum((num[mask] - ana[mask])^2 * pr@dw[mask]) /
+         sum(ana[mask]^2 * pr@dw[mask]))
+}
+
+no_ws <- 250 * 2^(0:3)                    # 250, 500, 1000, 2000 bins
+dx <- log(1000 / 1e-3) / no_ws            # log-size grid spacing
+err_first  <- sapply(no_ws, pulse_err, second_order = FALSE)
+err_second <- sapply(no_ws, pulse_err, second_order = TRUE)
+
+sp_order <- function(e) unname(coef(lm(log(e) ~ log(dx)))[2])
+round(c(first_order = sp_order(err_first),
+        second_order = sp_order(err_second)), 2)
+```
+
+The fitted slopes confirm that the default scheme is first order in the size step
+while `second_order_w <- TRUE` is, indeed, second order.
+
+```{r}
+plot(dx, err_first, log = "xy", type = "b", pch = 16, lwd = 2,
+     col = "#E69F00", xlab = expression(Delta * x == log * beta),
+     ylab = "relative L2 error", ylim = range(err_first, err_second),
+     main = "Spatial order of convergence")
+lines(dx, err_second, type = "b", pch = 17, lwd = 2, col = "#0072B2")
+
+# slope-1 and slope-2 guide lines, anchored at the finest grid
+i0 <- length(dx)
+lines(dx, err_first[i0]  * (dx / dx[i0])^1, lty = 3, col = "grey50")
+lines(dx, err_second[i0] * (dx / dx[i0])^2, lty = 2, col = "grey50")
+
+legend("bottomright", bty = "n",
+       legend = c(sprintf("first order (%.2f)", sp_order(err_first)),
+                  sprintf("second order (%.2f)", sp_order(err_second)),
+                  "slope 1", "slope 2"),
+       col = c("#E69F00", "#0072B2", "grey50", "grey50"),
+       pch = c(16, 17, NA, NA), lty = c(1, 1, 3, 2), lwd = 2)
+```
+
+The first-order curve runs parallel to the slope-1 guide line — halving the grid
+spacing only halves the error — while the second-order curve follows the slope-2
+line, four times more accurate for each halving of $\Delta x$, and is already an
+order of magnitude more accurate at these resolutions. (The travelling pulse has
+a peak, where the van Leer limiter falls back to first order; over the resolutions
+shown that single-cell contribution stays below the smooth $O(\Delta x^2)$ error
+of the bulk. The `"centred"` reconstruction, which keeps second order even at the
+peak, gives an almost identical slope here.)
+
+For the **steady-state** power law we set each model up at the steady state of
+its own discretisation with [steadySingleSpecies()] and compare to the exact
+power law sampled at the same reference sizes.
+
+```{r}
+steady_err <- function(no_w, second_order) {
+    pr <- build_sp(no_w, second_order)
+    rw <- ref_w(pr, second_order)
+    initialN(pr) <- matrix(rw^(-lambda), nrow = 1)
+    pr@species_params$constant_reproduction <- getRequiredRDD(pr)
+    pr <- setRateFunction(pr, "RDD", "constantRDD")
+    pr <- steadySingleSpecies(pr, keep = "egg")
+    num <- initialN(pr)[1, ]
+    ana <- rw^(-lambda)
+    no <- length(num)
+    mask <- seq_len(no) > 0.05 * no & seq_len(no) < 0.85 * no
+    sqrt(sum((num[mask] - ana[mask])^2 * pr@dw[mask]) /
+         sum(ana[mask]^2 * pr@dw[mask]))
+}
+
+err_ss_first  <- sapply(no_ws, steady_err, second_order = FALSE)
+err_ss_second <- sapply(no_ws, steady_err, second_order = TRUE)
+round(c(first_order = sp_order(err_ss_first),
+        second_order = sp_order(err_ss_second)), 2)
+```
+
+Again the first-order steady state converges at first order and the second-order
+scheme faster; the second-order slope approaches 2 as the grid is refined, the
+small shortfall coming from the first-order upwind treatment that both schemes
+keep at the non-smooth recruitment boundary, which the steady state feels through
+the reproduction influx there.
