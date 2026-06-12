@@ -16,15 +16,29 @@
   giving the min-max range.
   
 - When the `flux_limiter` entry of the `second_order_w` slot is `TRUE`, the
-  growth (advection) term uses a flux-limited (van Leer, TVD) high-order flux
-  instead of the first-order upwind flux, removing most of the upwind numerical
-  diffusion (which scales like `g * w * log(beta)`) while keeping the density
-  update a tridiagonal solve and keeping abundances non-negative. It is most
-  useful on coarse logarithmic grids and pairs naturally with the second-order
-  time methods. The steady-state tools use the same scheme, so a model is set up
-  at the steady state of its own discretisation. The default keeps the
-  first-order upwind flux; enable it with `second_order_w(params) <- TRUE`. See
-  the "Numerical Details" vignette.
+  transport step now uses a genuinely **second-order** finite-volume scheme
+  instead of the first-order upwind flux. The finite-volume cells remain the
+  size bins, so the scheme keeps the `dw` divisor and the node-located faces of
+  the original scheme; second order comes from placing each quantity where the
+  update needs it: the growth velocity is the point value at the face, the
+  density at the face is reconstructed from the two flanking cell averages, and
+  the diffusion coefficient is taken at the cell centres. Combined with the
+  bin-averaged sinks of `bin_average`, `second_order_w <- TRUE` is a fully
+  second-order model (the two flags are needed together: with only
+  `flux_limiter` the point-sampled mortality holds the model at first order).
+  The density update stays a tridiagonal solve. The advective reconstruction is
+  selectable: `"van_leer"` (the value of `TRUE`) is the total-variation-
+  diminishing limiter that keeps abundances non-negative, while `"centred"` is
+  the unlimited flux that is second order even at extrema (set it with
+  `second_order_w(params) <- c(flux_limiter = "centred")`; the choice is stored
+  in `params@metadata$flux_reconstruction`). The steady-state tools use the same
+  scheme, so a model is set up at the steady state of its own discretisation, and
+  that state is now preserved to machine precision by all three time-stepping
+  methods. Because the cells are the bins, the second-order `N_j` is the cell
+  average over `[w_j, w_{j+1}]` (the value at the cell centre `sqrt(w_j w_{j+1})`
+  to second order); analytic initial conditions and comparisons should be
+  sampled there rather than at the nodes. The default keeps the first-order
+  upwind flux. See the "Numerical Details" and "Analytic Test" vignettes.
 
 - When the `bin_average` entry of the `second_order_w` slot is `TRUE`, the
   FFT-based encounter and predation rates use a higher-order,

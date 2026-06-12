@@ -53,6 +53,40 @@ test_that("second_order_w setter re-runs setParams", {
     expect_s4_class(params, "MizerParams")
 })
 
+test_that("flux_limiter can be set to a reconstruction scheme name", {
+    params <- NS_params_small
+    # TRUE / van_leer / centred all switch the flag on; only the name persisted
+    # in metadata distinguishes the reconstruction.
+    second_order_w(params) <- c(flux_limiter = TRUE)
+    expect_identical(mizer:::flux_limiter_scheme(params), "van_leer")
+
+    second_order_w(params) <- c(flux_limiter = "centred")
+    expect_true(second_order_w(params)[["flux_limiter"]])
+    expect_identical(mizer:::flux_limiter_scheme(params), "centred")
+    expect_identical(params@metadata$flux_reconstruction, "centred")
+
+    # A bare scheme name sets only the flux_limiter entry.
+    p2 <- NS_params_small
+    second_order_w(p2) <- "centred"
+    expect_identical(mizer:::flux_limiter_scheme(p2), "centred")
+    expect_false(second_order_w(p2)[["bin_average"]])
+
+    # Switching off clears the stored reconstruction.
+    second_order_w(params) <- c(flux_limiter = "none")
+    expect_false(second_order_w(params)[["flux_limiter"]])
+    expect_identical(mizer:::flux_limiter_scheme(params), "none")
+    expect_null(params@metadata$flux_reconstruction)
+
+    expect_error(second_order_w(params) <- c(flux_limiter = "bogus"))
+})
+
+test_that("flux_reconstruction persists when bin_average rebuilds the model", {
+    params <- NS_params_small
+    second_order_w(params) <- c(flux_limiter = "centred", bin_average = TRUE)
+    expect_identical(mizer:::flux_limiter_scheme(params), "centred")
+    expect_true(second_order_w(params)[["bin_average"]])
+})
+
 test_that("setting bin_average rebuilds the higher-order predation kernels", {
     params <- NS_params_small
     p_hi <- params

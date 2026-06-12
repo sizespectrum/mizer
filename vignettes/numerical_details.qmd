@@ -528,42 +528,67 @@ d_{num}^{Euler}(w) \approx g(w)\Delta w + g(w)^2\Delta t,
 $$ {#eq-d-num-euler-compare}
 the predictor-corrector method removes the leading artificial diffusion proportional to $\Delta t$. The remaining numerical diffusion is the spatial upwind diffusion, proportional to $\Delta w$ or equivalently to $\log\beta$ on the logarithmic grid. This is why decreasing $\Delta t$ eventually stops improving the error much: once the time-stepping error is small, the spatial upwind error and other fixed discretisation errors dominate.
 
-## Reducing the Spatial Error: Flux Limiting
+## Reducing the Spatial Error: The Second-Order Scheme
 
-The spatial upwind diffusion $d_{num}\approx g(w)\,w\log\beta$ is the error that the second-order time methods *cannot* remove, and on a coarse logarithmic grid (a few hundred bins over many decades) it is not small. The `flux_limiter` entry of the `second_order_w` slot reduces it. With the default (`FALSE`) the first-order upwind flux described above is used; setting it to `TRUE` (for example with `second_order_w(params) <- TRUE`) replaces it with a flux-limited high-order flux. Because the choice changes the discrete steady state it lives in the params object rather than being a `project()` argument.
+The spatial upwind diffusion $d_{num}\approx g(w)\,w\log\beta$ is the error that the second-order time methods *cannot* remove, and on a coarse logarithmic grid (a few hundred bins over many decades) it is not small. The `flux_limiter` entry of the `second_order_w` slot replaces the first-order upwind transport step by a second-order finite-volume scheme. With the default (`FALSE`) the first-order upwind flux described above is used; setting it to `TRUE` (for example with `second_order_w(params) <- TRUE`) selects the second-order scheme. Because the choice changes the discrete steady state it lives in the params object rather than being a `project()` argument.
 
-### The limited flux
+### Finite-volume cells, faces and centres
 
-The first-order upwind advective flux at the interface $w_j$ is $g_{j-1}N_{j-1}$. Its leading error is exactly the numerical diffusion above. The second-order *centred* flux $\tfrac12(g_{j-1}N_{j-1}+g_jN_j)$ has no such diffusion but is oscillatory at sharp features (and at the recruitment boundary). A **flux limiter** blends the two,
+We keep the finite-volume cells of @eq-discretised-conservation: cell $j$ is the bin $[w_j,w_{j+1}]$, the conserved unknown $N_j$ is its **cell average**, and the cell faces are the nodes $w_j$ and $w_{j+1}$, so the flux divergence keeps the bin width $\Delta w_j$ as its divisor. The grid is geometric, so in $x=\log w$ each cell has the same width $h=\log\beta$ and its **centre** is the geometric mean $w_j^c=\sqrt{w_jw_{j+1}}=w_j\sqrt\beta$. The cell average is the value at that centre to second order,
 $$
-J_j^{adv} = g_{j-1}N_{j-1}
-+ \tfrac12\,\psi(r_j)\,\bigl(g_jN_j - g_{j-1}N_{j-1}\bigr),
-\qquad
-r_j = \frac{(gN)_{j-1}-(gN)_{j-2}}{(gN)_j-(gN)_{j-1}},
-$$ {#eq-limited-flux}
-using the smoothness ratio $r_j$ of the advected quantity $gN$. Mizer uses the van Leer limiter
+N_j = \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} N\,dw = N(w_j^c) + O(\Delta w^2).
+$$ {#eq-cell-average-centre}
+This is the same finite-volume reading of $N_j$ that the source-integral and `bin_average` discussion above uses; the second-order scheme just takes it seriously. (One practical consequence: an analytic profile must be sampled at the cell centres $w_j^c$, not at the nodes $w_j$, to give the right cell averages — the two differ by $O(\Delta w)$.)
+
+### Why the first-order scheme loses an order
+
+The first-order scheme makes three lower-order choices, each costing one order:
+
+1. **Advective flux.** It takes the upwind value $g_{j-1}N_{j-1}$ at the face $w_j$, whose leading error is exactly the numerical diffusion above — an $O(\Delta w)$ error.
+2. **Growth velocity.** The growth rate is a *flux coefficient*, wanted as the point value at the face $w_j$, i.e. $g(w_j)=g_j$; the upwind flux instead uses $g_{j-1}$, one node away.
+3. **Mortality.** The sink $\mu_j N_j$ uses the point value $\mu(w_j)$ at the left edge of the cell, whereas the finite-volume balance needs the bin average $\bar\mu_j\approx\mu(w_j^c)$ — again half a cell, $O(\Delta w)$, away.
+
+### The second-order face flux
+
+Each of these is fixed by evaluating the quantity where the finite-volume update needs it. The density at the face $w_j$ is reconstructed from the two cell averages that straddle it. The face $w_j$ is the exact midpoint, *in $x$*, of the centres $w_{j-1}^c$ and $w_j^c$ (which sit at $x_j-h/2$ and $x_j+h/2$), so
 $$
-\psi(r) = \frac{r+|r|}{1+|r|},
+N(w_j) \approx N_{j-1} + \tfrac12\,\psi_j\,(N_j-N_{j-1}),
+$$ {#eq-face-reconstruction}
+which is the centred value $\tfrac12(N_{j-1}+N_j)$ when $\psi_j=1$ and pure upwind ($N_{j-1}$) when $\psi_j=0$. Multiplying by the point-value velocity $g_j$ and adding a centred diffusive flux gives the face flux
+$$
+J_j = g_j\Bigl[N_{j-1} + \tfrac12\,\psi_j(N_j-N_{j-1})\Bigr]
+      - \frac{1}{2w_j}\,\frac{d^c_jN_j - d^c_{j-1}N_{j-1}}{h},
+$$ {#eq-so-face-flux}
+where $d^c_k=\tfrac12(d_k+d_{k+1})$ is the diffusion coefficient at the cell centre, so the diffusive difference is a centred derivative of $dN$ about the face. The update is then the same conservation law as before,
+$$
+\frac{dN_j}{dt} + \frac{J_{j+1}-J_j}{\Delta w_j} = -\bar\mu_j N_j,
+$$ {#eq-so-update}
+now with $\bar\mu_j$ the bin-averaged mortality. Each piece is a second-order approximation at the place it is used, so the whole spatial step is second order. The bin average of the sink is exactly the job of the `bin_average` flag (see "Point values and bin averages" above), so a fully second-order model sets *both* entries of `second_order_w`; with only `flux_limiter` the fluxes are second order but the point-sampled sink holds the model at first order.
+
+### Advective reconstruction: van Leer or centred
+
+The weight $\psi_j$ chooses the advective reconstruction at each face. With $\psi\equiv1$ it is the pure **centred** flux, which is genuinely second order everywhere, including at smooth extrema, but is not monotonicity-preserving: it can produce small over/undershoots, and at a steady state with no physical diffusion the centred flux admits an undamped odd-even mode. With the **van Leer** weight
+$$
+\psi_j=\psi(r_j),\qquad
+\psi(r)=\frac{r+|r|}{1+|r|},\qquad
+r_j=\frac{N_{j-1}-N_{j-2}}{N_j-N_{j-1}},
 $$ {#eq-van-leer}
-which is the centred flux ($\psi\to1$) where the solution is smooth and switches to pure upwind ($\psi=0$) at extrema and at the non-smooth recruitment boundary. This is a *total-variation-diminishing* (TVD) reconstruction, so it does not manufacture new oscillations.
+the scheme is *total-variation diminishing* (TVD): $\psi\to1$ where the solution is smooth, and $\psi\to0$ (pure upwind) at extrema and at the non-smooth recruitment boundary. This keeps abundances non-negative and manufactures no new oscillations, at the price — a corollary of Godunov's theorem — of dropping to first order at smooth extrema. The two are selected with
+```r
+second_order_w(params) <- c(flux_limiter = "van_leer")  # TVD, the default for TRUE
+second_order_w(params) <- c(flux_limiter = "centred")   # unlimited, true 2nd order
+```
+and the choice is stored in `params@metadata$flux_reconstruction`. The default (`TRUE`) is van Leer, which is the safe choice for production runs; the centred flux is most useful for smooth problems that carry some physical diffusion.
 
-### Implicit treatment with a frozen limiter
+### Implicit treatment with a frozen weight
 
-The limiter $\psi(r_j)$ is evaluated from the densities at the start of the step (for the second-order methods, from the midpoint field), so it is a fixed number during the solve. With $\psi$ *frozen*, the limited flux @eq-limited-flux is still linear in the unknown densities $N^{t+1}$ and still couples only $N_{j-1},N_j,N_{j+1}$. It can therefore be folded directly into the tridiagonal operator $\tt{get\_transport\_coefs()}$ builds, simply by modifying the advective parts of the coefficients,
-$$
-\begin{aligned}
-A_j&:\quad g_{j-1}\;\to\;g_{j-1}\bigl(1-\tfrac12\psi_j\bigr),\\
-B_j&:\quad g_{j}\;\to\;g_{j}\bigl(1-\tfrac12\psi_j-\tfrac12\psi_{j+1}\bigr),\\
-C_j&:\quad \text{gains } +\tfrac{\Delta t}{\Delta w_j}\,\tfrac12\psi_{j+1}g_{j+1},
-\end{aligned}
-$$ {#eq-limited-coefs}
-with the diffusion and mortality terms unchanged. Keeping the high-order flux *implicit* in this way is important: treating the extra (anti-diffusive) part explicitly on the right-hand side is only conditionally stable and breaks down for the lightly damped second-order time steppers, whereas the implicit form is stable for backward Euler and TR-BDF2 even with no physical diffusion.
+The weight $\psi_j$ is evaluated from the densities at the start of the step (for the second-order methods, from the midpoint field), so it is a fixed number during the solve. With $\psi$ *frozen*, the face flux @eq-so-face-flux is linear in the unknown densities $N^{t+1}$ and still couples only $N_{j-1},N_j,N_{j+1}$, so it folds directly into the tridiagonal operator that `get_transport_coefs()` builds, keeping the $\Delta w_j$ divisor of the first-order scheme. Keeping the high-order flux *implicit* in this way is important: treating the extra (anti-diffusive) part explicitly on the right-hand side is only conditionally stable and breaks down for the lightly damped second-order time steppers, whereas the implicit form is stable for backward Euler and TR-BDF2 even with no physical diffusion.
 
-The price is that the new $+\tfrac12\psi_{j+1}g_{j+1}$ term in $C_j$ can be positive, so the operator is no longer an M-matrix and non-negativity is no longer guaranteed by construction. In practice the van Leer limiter keeps any undershoot at the level of rounding at sharp features, and the consumer update floors it to zero to preserve $N\ge 0$.
+The price is that the high-order term can make the off-diagonal coefficient $C_j$ positive, so the operator is no longer an M-matrix and non-negativity is no longer guaranteed by construction. The van Leer reconstruction keeps any undershoot at the level of rounding, and the consumer update floors it to zero to preserve $N\ge 0$; the unlimited centred reconstruction gives up this guarantee in exchange for the extra order.
 
 ### Steady state and reproduction
 
-Because the limiter lives in the coefficients $A,B,C$, the steady-state machinery stays consistent automatically: `getRequiredRDD()` reads the (now limited) boundary coefficients, and `get_steady_state_n()` solves the same limited system. The one complication is that the limiter depends on the solution, so the steady state is found by iterating — freezing $\psi$ at the current iterate, solving the tridiagonal system, and repeating. At $\Delta t=1$ the limited steady operator is not diagonally dominant, so this fixed-point iteration is *under-relaxed* to make it converge. Both `getRequiredRDD()` and `steadySingleSpecies()` read the same `second_order_w` slot, so a model is automatically set up at the steady state of exactly the scheme that `project()` will use. For the second-order methods the provisional predictor step also uses the limiter, so that the frozen midpoint limiter is consistent at steady state and the steady state is preserved exactly.
+Because the scheme lives entirely in the coefficients $A,B,C$, the steady-state machinery stays consistent automatically: `getRequiredRDD()` reads the same boundary coefficients and `get_steady_state_n()` solves the same system, both keeping the $\Delta w$ egg-cell width of the first-order scheme. With the van Leer reconstruction the weight depends on the solution, so the steady state is found by an *under-relaxed* fixed-point iteration (freezing $\psi$ at the current iterate, solving, repeating), because at $\Delta t=1$ the limited steady operator is not diagonally dominant. Both `getRequiredRDD()` and `steadySingleSpecies()` read the same `second_order_w` slot, so a model is automatically set up at the steady state of exactly the scheme that `project()` will use, and that state is preserved to machine precision by all three time-stepping methods.
 
 ## Steady-State Solution
 
