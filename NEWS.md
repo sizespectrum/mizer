@@ -1,5 +1,18 @@
 # mizer (development version)
 
+- `MizerParams` gains an `ft_pred_kernel_d` slot holding a third Fourier-space
+  predation kernel, used by the predation-diffusion integral (when
+  `use_predation_diffusion` is `TRUE`). When the `bin_average` entry of
+  `second_order_w` is `TRUE`, this kernel carries the extra power of prey size
+  that the diffusion integrand needs (`w_p^2 dw_p`, the `β^{3s}` Jacobian)
+  instead of reusing the encounter kernel's `β^{2s}`, so the predation-diffusion
+  rate is now also second order. In the default first-order scheme it equals
+  `ft_pred_kernel_e`, so existing models are byte-identical. (#384)
+  Additionally, when `second_order_w[["bin_average"]]` is `TRUE`, this kernel is
+  now correctly predator-bin averaged (via a trapezoid fold over adjacent
+  offsets), matching the second-order requirements of the diffusion transport step.
+
+
 - `plotYield()` now uses `sim2 = NULL` instead of `missing(sim2)` to detect
   the optional second simulation argument. This is backward-compatible and
   makes the function work correctly with `do.call()`.
