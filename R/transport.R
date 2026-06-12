@@ -77,9 +77,9 @@ get_transport_coefs <- function(params, n, g, mu, dt, recruitment_flux, d,
 #'     averages, \eqn{N_{j-1} + \tfrac12\psi_j(N_j - N_{j-1})}, which is the
 #'     centred value \eqn{\tfrac12(N_{j-1}+N_j)} when \eqn{\psi_j = 1} and pure
 #'     upwind when \eqn{\psi_j = 0};
-#'   \item the diffusion coefficient is the **bin average** \eqn{d_j} (the
-#'     vignette's notation), formed here as \eqn{\tfrac12(d_k + d_{k+1})} from the
-#'     nodal values supplied in `d`, so the diffusive flux differences the
+#'   \item the diffusion coefficient is the **bin average** \eqn{d_j} supplied in
+#'     `d` ([getDiffusion()] returns the bin average when `bin_average` is on,
+#'     gated just like the mortality), so the diffusive flux differences the
 #'     bin-averaged products \eqn{d_jN_j} between bin centres.
 #' }
 #' The advective flux is therefore
@@ -97,13 +97,13 @@ get_transport_coefs_logfv <- function(params, n, g, mu, dt, recruitment_flux,
     beta <- w[2] / w[1]
     M <- function(v) matrix(v, nrow = no_sp, ncol = no_w, byrow = TRUE)
 
-    # Bin-averaged diffusion d_j (the vignette's notation): the trapezoidal
-    # average of the nodal diffusion supplied in `d`. This is the value the
-    # second-order diffusive flux needs, co-located with the bin average N_j.
-    d_bar <- d
-    d_bar[, -no_w] <- 0.5 * (d[, -no_w] + d[, -1])
-    d_barR <- cbind(d_bar[, -1, drop = FALSE], d_bar[, no_w, drop = FALSE])  # d_{j+1}
-    d_barL <- cbind(d_bar[, 1, drop = FALSE], d_bar[, -no_w, drop = FALSE])  # d_{j-1}
+    # `d` is the diffusion coefficient d_j as supplied by getDiffusion(): the
+    # bin average when bin_average is on (the value the second-order diffusive
+    # flux needs, co-located with the bin average N_j) and the point value
+    # otherwise. The point-vs-average choice is made there, gated on
+    # bin_average, exactly as for the mortality `mu`.
+    dR <- cbind(d[, -1, drop = FALSE], d[, no_w, drop = FALSE])  # d_{j+1}
+    dL <- cbind(d[, 1, drop = FALSE], d[, -no_w, drop = FALSE])  # d_{j-1}
 
     # Growth velocity at the faces: g_j at the lower face, g_{j+1} at the upper
     # face (clamped at the outflow top, where the limiter is off anyway).
@@ -122,10 +122,10 @@ get_transport_coefs_logfv <- function(params, n, g, mu, dt, recruitment_flux,
     over_dw <- M(dt / params@dw)
 
     # Interior coefficients (faces at the nodes, divisor Delta w_j).
-    a <- -over_dw * (g * (1 - 0.5 * psi) + d_barL * f_lo)
+    a <- -over_dw * (g * (1 - 0.5 * psi) + dL * f_lo)
     b <- 1 + dt * mu +
-        over_dw * (gR * (1 - 0.5 * psiR) - 0.5 * psi * g + d_bar * (f_lo + f_hi))
-    c <- over_dw * (0.5 * psiR * gR - d_barR * f_hi)
+        over_dw * (gR * (1 - 0.5 * psiR) - 0.5 * psi * g + d * (f_lo + f_hi))
+    c <- over_dw * (0.5 * psiR * gR - dR * f_hi)
     dimnames(a) <- dimnames(b) <- dimnames(c) <-
         list(params@species_params$species, NULL)
     c[, no_w] <- 0                  # no cell above the top: pure outflow
@@ -140,7 +140,7 @@ get_transport_coefs_logfv <- function(params, n, g, mu, dt, recruitment_flux,
     idxs <- cbind(seq_len(no_sp), j_start)
     b[idxs] <- 1 + dt * mu[idxs] + (dt / params@dw[j_start]) *
         (gR[idxs] * (1 - 0.5 * psiR[idxs]) +
-             d_bar[idxs] / (2 * h * wR[j_start]))
+             d[idxs] / (2 * h * wR[j_start]))
     a[idxs] <- 0
     S[idxs] <- S[idxs] + recruitment_flux * dt / params@dw[j_start]
 

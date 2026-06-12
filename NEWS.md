@@ -63,6 +63,18 @@
   mortality sink consistent with the finite-volume scheme. The default
   (point sampling) is unchanged.
 
+- When the `bin_average` entry of the `second_order_w` slot is `TRUE`,
+  `setExtDiffusion()` likewise replaces the point-sampled power-law external
+  diffusion \eqn{D_{ext} w^{n+1}} by its exact bin average, exactly as
+  `setExtMort()` does for mortality. The diffusion coefficient is a rate
+  represented as a bin average, so whether it is point-sampled or bin-averaged
+  is now governed by `bin_average` (the predation-diffusion contribution already
+  follows the bin-averaged predation kernel); `flux_limiter` only governs the
+  advective reconstruction. A fully second-order transport step therefore needs
+  both flags, and the second-order transport routine consumes the diffusion from
+  `getDiffusion()` directly rather than averaging it itself. The default
+  (point sampling) is unchanged.
+
 - When the `bin_average` entry of the `second_order_w` slot is `TRUE`, the
   reproduction integral in `mizerRDI()` now trapezoidally bin-averages the
   per-capita reproductive investment \eqn{\psi(w) E_r(w)} against the

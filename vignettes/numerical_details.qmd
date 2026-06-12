@@ -551,7 +551,7 @@ The boundary $w_j$ is the midpoint, on the logarithmic axis, of the two bin cent
 $$ N(w_j) \approx N_{j-1} + \tfrac12\,\psi_j\,(N_j - N_{j-1}), $$ {#eq-face-reconstruction}
 which is pure upwind ($N_{j-1}$) when $\psi_j = 0$ and the centred value $\tfrac12(N_{j-1}+N_j)$ when $\psi_j = 1$. The advective flux becomes
 $$ J_j^{adv} = g_j\bigl[N_{j-1} + \tfrac12\,\psi_j(N_j - N_{j-1})\bigr]. $$ {#eq-so-face-flux}
-With $\psi_j = 1$ the upwind numerical diffusion is gone and the advective flux is second order, matching the already-second-order diffusive flux (@eq-diffusive-flux). The remaining requirement for a fully second-order model is that the sinks be bin-averaged (@eq-bin-averaged-mortality), which is the job of the `bin_average` entry of the slot; so a fully second-order model sets *both* entries of `second_order_w`, and with only `flux_limiter` the point-sampled sinks hold the model at first order.
+With $\psi_j = 1$ the upwind numerical diffusion is gone and the advective flux is second order. The remaining requirement for a fully second-order model is that the bin-average rates — the diffusion coefficient $d_j$ in the diffusive flux (@eq-diffusive-flux) and the mortality $\mu_j$ in the sink (@eq-bin-averaged-mortality) — actually be bin-averaged rather than point-sampled. That is the job of the `bin_average` entry of the slot, which gates exactly that point-versus-bin-average choice for $d$ and $\mu$ alike; the `flux_limiter` entry governs only the advective reconstruction. So a fully second-order model sets *both* entries of `second_order_w`, and with only `flux_limiter` the point-sampled diffusion and sinks hold the model at first order.
 
 ### Choosing the weight: van Leer or centred
 

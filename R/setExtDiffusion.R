@@ -77,9 +77,24 @@ setExtDiffusion.MizerParams <- function(params, ext_diffusion = NULL,
     # Else recalculate from species params
     params <- set_species_param_default(params, "D_ext", 0)
 
-    ext_diffusion <- sweep(outer(params@species_params[["n"]],
-                                 params@w, function(x, y) y^(x + 1)),
-                           1, params@species_params[["D_ext"]], "*")
+    n_exp <- params@species_params[["n"]] + 1
+    if (isTRUE(params@second_order_w[["bin_average"]])) {
+        # Use the exact bin average of the power law D_ext * w^(n+1) over each
+        # bin instead of point-sampling at the left bin boundary, exactly as
+        # setExtMort() does for the external mortality. This makes the diffusion
+        # coefficient the bin average d_j that the second-order transport flux
+        # needs. The point-vs-average choice is gated on bin_average, like the
+        # other rates; flux_limiter only governs the advective reconstruction.
+        ext_diffusion <- matrix(0, nrow = nrow(params@species_params),
+                                ncol = length(params@w))
+        for (i in seq_len(nrow(params@species_params))) {
+            ext_diffusion[i, ] <- params@species_params[["D_ext"]][i] *
+                power_law_bin_average(params@w, params@dw, n_exp[i])
+        }
+    } else {
+        ext_diffusion <- sweep(outer(n_exp, params@w, function(x, y) y^x),
+                               1, params@species_params[["D_ext"]], "*")
+    }
 
     # Prevent overwriting slot if it has been commented
     if (!is.null(comment(params@ext_diffusion))) {
