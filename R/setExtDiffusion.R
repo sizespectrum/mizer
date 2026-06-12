@@ -84,7 +84,7 @@ setExtDiffusion.MizerParams <- function(params, ext_diffusion = NULL,
         # setExtMort() does for the external mortality. This makes the diffusion
         # coefficient the bin average d_j that the second-order transport flux
         # needs. The point-vs-average choice is gated on bin_average, like the
-        # other rates; flux_limiter only governs the advective reconstruction.
+        # other rates; flux only governs the advective reconstruction.
         ext_diffusion <- matrix(0, nrow = nrow(params@species_params),
                                 ncol = length(params@w))
         for (i in seq_len(nrow(params@species_params))) {

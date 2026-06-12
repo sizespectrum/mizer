@@ -6,7 +6,7 @@
 test_that("flux_limiter_scheme reads the second_order_w slot", {
     expect_identical(flux_limiter_scheme(NS_params_small), "none")
     p <- NS_params_small
-    second_order_w(p) <- c(flux_limiter = TRUE)
+    second_order_w(p) <- c(flux = TRUE)
     expect_identical(flux_limiter_scheme(p), "van_leer")
 })
 
@@ -14,7 +14,7 @@ test_that("the flux limiter changes the projection when switched on", {
     sim_none <- project(NS_params_small, t_max = 1, dt = 0.1,
                         progress_bar = FALSE)
     p_vl <- NS_params_small
-    second_order_w(p_vl) <- c(flux_limiter = TRUE)
+    second_order_w(p_vl) <- c(flux = TRUE)
     sim_vl <- project(p_vl, t_max = 1, dt = 0.1, progress_bar = FALSE)
     # With the limiter off the result is the plain upwind projection; switching
     # it on must change the spectrum.
@@ -23,7 +23,7 @@ test_that("the flux limiter changes the projection when switched on", {
 
 test_that("the flux limiter scheme is recorded and carried over on append", {
     p_vl <- NS_params_small
-    second_order_w(p_vl) <- c(flux_limiter = TRUE)
+    second_order_w(p_vl) <- c(flux = TRUE)
     sim <- project(p_vl, t_max = 1, progress_bar = FALSE)
     expect_identical(sim@sim_params$flux_limiter, "van_leer")
     # The scheme is a property of the params, so appending carries it over.
@@ -33,7 +33,7 @@ test_that("the flux limiter scheme is recorded and carried over on append", {
 
 test_that("flux limiter keeps abundances non-negative", {
     p_vl <- NS_params_small
-    second_order_w(p_vl) <- c(flux_limiter = TRUE)
+    second_order_w(p_vl) <- c(flux = TRUE)
     for (m in c("euler", "predictor_corrector", "tr_bdf2")) {
         sim <- project(p_vl, t_max = 2, dt = 0.1, method = m,
                        progress_bar = FALSE)
@@ -47,7 +47,7 @@ test_that("flux limiter steady state is preserved by all methods", {
     # steady. This mirrors the predictor-corrector test in
     # test-getRequiredRDD.R, but with the flux limiter switched on everywhere.
     params <- single_sp_params
-    second_order_w(params) <- c(flux_limiter = TRUE)
+    second_order_w(params) <- c(flux = TRUE)
     species <- params@species_params$species[1]
     n <- params@species_params[species, "n"]
     ext_diffusion(params)[species, ] <- 0.1 * params@w^(n + 1)
@@ -127,7 +127,7 @@ test_that("the second-order scheme is second order in the size step", {
 test_that("steadySingleSpecies honours the slot", {
     # Switching the limiter on via the slot changes the interior steady state.
     p_vl <- single_sp_params
-    second_order_w(p_vl) <- c(flux_limiter = TRUE)
+    second_order_w(p_vl) <- c(flux = TRUE)
 
     a <- steadySingleSpecies(single_sp_params)
     b <- steadySingleSpecies(p_vl)

@@ -1,23 +1,16 @@
-#' Translate the second_order_w flux_limiter flag into a scheme name
+#' Translate the second_order_w flux entry into the internal scheme name
 #'
-#' The advective-flux scheme is controlled by the `flux_limiter` entry of the
-#' `second_order_w` slot. When that flag is `FALSE` the first-order upwind scheme
-#' is used (`"none"`). When it is `TRUE` the second-order log-size finite-volume
-#' scheme is used, with the advective reconstruction selected by the
-#' `flux_reconstruction` entry of the model metadata: the total-variation
-#' diminishing van Leer limiter (`"van_leer"`, the default) or the unlimited
-#' centred high-order flux (`"centred"`). The internal transport routines take
-#' the scheme as a string.
+#' The advective-flux scheme is stored directly in the `flux` entry of the
+#' `second_order_w` slot as `"upwind"`, `"van_leer"`, or `"centred"`. The
+#' internal transport routines use `"none"` for the first-order upwind scheme,
+#' so this helper maps `"upwind"` to `"none"`.
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @return `"none"`, `"van_leer"` or `"centred"`.
 #' @noRd
 flux_limiter_scheme <- function(params) {
-    if (!isTRUE(params@second_order_w[["flux_limiter"]])) {
-        return("none")
-    }
-    recon <- params@metadata[["flux_reconstruction"]]
-    if (is.null(recon)) "van_leer" else recon
+    flux <- params@second_order_w[["flux"]]
+    if (flux == "upwind") "none" else flux
 }
 
 #' Uniform log-size grid spacing
