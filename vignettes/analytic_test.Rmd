@@ -695,7 +695,7 @@ pulse_err <- function(no_w, second_order, dt = 0.0025) {
          sum(ana[mask]^2 * pr@dw[mask]))
 }
 
-no_ws <- 250 * 2^(0:3)                    # 250, 500, 1000, 2000 bins
+no_ws <- c(50, 100, 200, 400, 800)
 dx <- log(1000 / 1e-3) / no_ws            # log-size grid spacing
 err_first  <- sapply(no_ws, pulse_err, second_order = FALSE)
 err_second <- sapply(no_ws, pulse_err, second_order = TRUE)
