@@ -17,18 +17,6 @@ library(mizer)
 
 In this vignette we explain the numerical scheme used in mizer. We will not go into the details of the model itself, which is described in the [model description vignette](model_description.html). We will focus on how the model is discretised and how the resulting difference equations are solved.
 
-## Summary of simulation algorithm
-
-In each time step $\Delta t$, the `project()` function performs the following steps:
-
-1.  **Calculate Rates**: Calculate the biological rates (growth $g$, mortality $\mu$, recruitment $R_{dd}$) and diffusion coefficients $d$ based on the current population densities $N^t$.
-2.  **Resource Update**: Update the resource density $N_R^{t+1}$ using the explicit rates and implicit density.
-3.  **Consumer Update**: Update the consumer densities $N^{t+1}$ by solving the tridiagonal system for each species.
-    -   Combine the recruitment flux $R_{dd}$ with the boundary conditions.
-    -   Use a tridiagonal solver (e.g., Thomas algorithm).
-4.  **Advance Time**: $t \leftarrow t + \Delta t$.
-
-This split between calculating rates explicitly and solving densities implicitly is what makes the scheme "semi-implicit".
 
 ## The weight grid
 
@@ -561,9 +549,15 @@ $$
 \psi(r)=\frac{r+|r|}{1+|r|},\qquad
 r_j=\frac{N_{j-1}-N_{j-2}}{N_j-N_{j-1}},
 $$ {#eq-van-leer}
-the scheme is *total-variation diminishing* (TVD): $\psi\to1$ where the solution is smooth, and $\psi\to0$ (pure upwind) at extrema and at the non-smooth recruitment boundary. This keeps abundances non-negative and manufactures no new oscillations, at the price — a corollary of Godunov's theorem — of dropping to first order at smooth extrema. The two are selected with
+the scheme is *total-variation diminishing* (TVD): $\psi\to1$ where the solution is smooth, and $\psi\to0$ (pure upwind) at extrema and at the non-smooth recruitment boundary. This keeps abundances non-negative and manufactures no new oscillations, at the price — a corollary of Godunov's theorem — of dropping to first order at smooth extrema.
+
+At the left boundary of the grid where $N_{j-2}$ does not exist, the weight is handled as follows:
+
+- At and below the first two faces above the recruitment boundary ($j \le j_{min} + 2$), the weight $\psi_j$ is forced to 0. This keeps the advective flux leaving the recruitment boundary first-order upwind and avoids referencing the non-smooth recruitment boundary cell $N_{j_{min}}$ (and the inactive region below it) when calculating the smoothness ratio, preventing ragged or oscillating solutions near the boundary.
+
+The two types are selected with
 ```r
-second_order_w(params)$flux <- "van_leer") # TVD, the default for TRUE
+second_order_w(params)$flux <- "van_leer" # TVD, the default for TRUE
 second_order_w(params)$flux <- "centred"   # unlimited, true 2nd order
 ```
 The default (`TRUE`) is van Leer, the safe choice for production runs; the centred reconstruction is most useful for smooth problems that carry some physical diffusion.
@@ -574,9 +568,14 @@ The weight $\psi_j$ is evaluated from the densities at the start of the step (fo
 
 The price is that the high-order term can make the off-diagonal coefficient $C_j$ positive, so the operator is no longer an M-matrix and non-negativity is no longer guaranteed by construction. The van Leer reconstruction keeps any undershoot at the level of rounding, and the consumer update floors it to zero to preserve $N\ge 0$; the unlimited centred reconstruction gives up this guarantee in exchange for the extra order.
 
+Because the reconstruction weight is frozen at the beginning (or midpoint) of the step, the flux limiter is only conditionally *total-variation diminishing* (TVD). In simulations with highly dynamic, sharp features (such as pulsed reproduction starting from a zero initial abundance), the time step $\Delta t$ must satisfy the Courant-Friedrichs-Lewy (CFL) condition, which requires that the log-size Courant number
+$$ C = \frac{g(w) \Delta t}{w \log\beta} $$
+be at most $1$ across the grid. If the Courant number exceeds 1, the lagged limiter can no longer guarantee the TVD property, resulting in spurious oscillations (wiggles) and negative densities (which the update floors to zero, leading to a ragged/zero-interleaved distribution). To avoid wiggles in such cases, users should either reduce `dt` so that $C \le 1$, or use the first-order upwind scheme (by setting `second_order_w(params) <- FALSE` and using the L-stable `method = "tr_bdf2"`) which remains positive and monotonic for any `dt`.
+
 ### Steady state and reproduction
 
 Because the reconstruction lives entirely in the coefficients $A,B,C$, the steady-state machinery stays consistent automatically: `getRequiredRDD()` reads the same boundary coefficients and `get_steady_state_n()` solves the same system. With the van Leer reconstruction the weight depends on the solution, so the steady state is found by an *under-relaxed* fixed-point iteration (freezing $\psi$ at the current iterate, solving, repeating), because at $\Delta t=1$ the operator is not diagonally dominant. Both `getRequiredRDD()` and `steadySingleSpecies()` read the same `second_order_w` slot, so a model is automatically set up at the steady state of exactly the scheme that `project()` will use, and that state is preserved to machine precision by all three time-stepping methods.
+
 
 ## Steady-State Solution
 
