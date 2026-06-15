@@ -266,9 +266,11 @@ flux_limiter_psi <- function(params, n, g, flux_limiter) {
         psi[, jint] <- limiter(r)
     }
 
-    # First-order upwind at and below the recruitment boundary.
+    # First-order upwind at and below the recruitment boundary, and at the first
+    # two faces above it where the smoothness ratio would otherwise reference
+    # the inactive region below the boundary or the non-smooth recruitment boundary cell.
     j_start <- params@w_min_idx
     w_idx_mat <- matrix(1:no_w, nrow = no_sp, ncol = no_w, byrow = TRUE)
-    psi[w_idx_mat <= j_start] <- 0
+    psi[w_idx_mat <= j_start + 2] <- 0
     psi
 }
