@@ -875,16 +875,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
 
 
 #### summary for MizerParams ####
-#' Summarize MizerParams object
-#'
-#' Outputs a general summary of the structure and content of the object
-#' @param object A `MizerParams` object.
-#' @param ... Other arguments (currently not used).
-#' @return The MizerParams object, invisibly
 #' @export
-#' @concept summary_function
-#' @examples
-#' summary(NS_params)
 summary.MizerParams <- function(object, ...) {
     params <- validParams(object)
     cat("An object of class \"", as.character(class(params)), "\" \n", sep = "")
@@ -947,16 +938,7 @@ summary.MizerParams <- function(object, ...) {
 
 
 #### summary for MizerSim ####
-#' Summarize MizerSim object
-#'
-#' Outputs a general summary of the structure and content of the object
-#' @param object A `MizerSim` object.
-#' @param ... Other arguments (currently not used).
-#' @return The MizerSim object, invisibly
 #' @export
-#' @concept summary_function
-#' @examples
-#' summary(NS_sim)
 summary.MizerSim <- function(object, ...) {
     cat("An object of class \"", as.character(class(object)), "\" \n", sep = "")
     cat("Parameters:\n")
@@ -994,13 +976,7 @@ summary.MizerSim <- function(object, ...) {
     invisible(object)
 }
 
-#' Display structure of MizerParams object
-#'
-#' Prints a clean, compact summary of the slots in a `MizerParams` object.
-#' @param object A `MizerParams` object.
-#' @param max.level Maximum level of nesting to print. Defaults to `NA` (no limit).
-#' @param ... Other arguments passed to [utils::str()].
-#' @return `NULL`, invisibly.
+
 #' @export
 str.MizerParams <- function(object, max.level = NA, ...) {
     cat("Formal class 'MizerParams' [package \"mizer\"] with ",
@@ -1022,13 +998,7 @@ str.MizerParams <- function(object, max.level = NA, ...) {
     invisible(NULL)
 }
 
-#' Display structure of MizerSim object
-#'
-#' Prints a clean, compact summary of the slots in a `MizerSim` object.
-#' @param object A `MizerSim` object.
-#' @param max.level Maximum level of nesting to print. Defaults to `NA` (no limit).
-#' @param ... Other arguments passed to [utils::str()].
-#' @return `NULL`, invisibly.
+
 #' @export
 str.MizerSim <- function(object, max.level = NA, ...) {
     cat("Formal class 'MizerSim' [package \"mizer\"] with ",
