@@ -1731,8 +1731,13 @@ getFlux.MizerSim <- function(object, n, n_pp, n_other, t, power = 0, ...,
 #' \eqn{N_{K+1} = 0}.
 #'
 #' @template param_object_dots
-#' @return An `ArraySpeciesBySize` object (species x size) giving the flux
-#'   divergence in each size bin, in units of \eqn{g^{-1} \, \text{year}^{-1}}.
+#' @return
+#' * `MizerParams`: An `ArraySpeciesBySize` object (species x size) giving the
+#'   flux divergence in each size bin, in units of
+#'   \eqn{g^{-1} \, \text{year}^{-1}}.
+#' * `MizerSim`: An `ArrayTimeBySpeciesBySize` object (time step x species x
+#'   size) with the flux divergence at every saved time step. If `drop = TRUE`
+#'   then dimensions of length 1 will be removed.
 #' @export
 #' @seealso [getFlux()], [second_order_w()]
 #' @family rate functions
@@ -1740,6 +1745,8 @@ getFlux.MizerSim <- function(object, n, n_pp, n_other, t, power = 0, ...,
 #' \donttest{
 #' params <- NS_params
 #' fg <- getFluxGradient(params)
+#' sim <- project(params, t_max = 5)
+#' fg_sim <- getFluxGradient(sim)
 #' }
 getFluxGradient <- function(object, ...) {
     UseMethod("getFluxGradient")
@@ -1789,6 +1796,51 @@ getFluxGradient.MizerParams <- function(object,
 
     ArraySpeciesBySize(gradient, value_name = "Flux gradient",
                        units = "g^-1/year", params = params)
+}
+
+#' @rdname getFluxGradient
+#' @usage NULL
+#' @export
+getFluxGradient.MizerSim <- function(object, n, n_pp, n_other, t, ...,
+                                      time_range, drop = FALSE) {
+    sim <- object
+    if (missing(time_range) && !missing(t)) time_range <- t
+
+    params <- validParams(sim@params)
+    rates_fns <- projectRateFunctions(params)
+    flux_lim <- flux_limiter_scheme(params)
+
+    no_w <- length(params@w)
+    dw <- params@dw
+
+    get_species_size_rate_from_sim(
+        sim, time_range, drop,
+        function(slice) {
+            r <- mizer_rates_subset(
+                params, n = slice$n, n_pp = slice$n_pp,
+                n_other = slice$n_other, t = slice$t, effort = slice$effort,
+                rates_fns = rates_fns,
+                targets = c("EGrowth", "Diffusion", "RDD"), ...)
+            no_sp <- nrow(slice$n)
+            flux <- flux_from_rates(params, n = slice$n,
+                                    g = r$e_growth, d = r$diffusion,
+                                    rdd = r$rdd, flux_limiter = flux_lim)
+            if (flux_lim == "none") {
+                flux_upper <- r$e_growth[, no_w] * slice$n[, no_w] +
+                    0.5 * r$diffusion[, no_w] * slice$n[, no_w] / dw[no_w]
+            } else {
+                h <- log_dx(params)
+                w_Kp1 <- params@w[no_w] * params@w[2] / params@w[1]
+                flux_upper <- r$e_growth[, no_w] * slice$n[, no_w] +
+                    0.5 * r$diffusion[, no_w] * slice$n[, no_w] / (h * w_Kp1)
+            }
+            flux_shifted <- cbind(flux[, 2:no_w, drop = FALSE], flux_upper)
+            gradient <- (flux_shifted - flux) /
+                matrix(dw, nrow = no_sp, ncol = no_w, byrow = TRUE)
+            dimnames(gradient) <- dimnames(params@metab)
+            gradient
+        },
+        value_name = "Flux gradient", units = "g^-1/year")
 }
 
 #' Get array indices for a time range in a MizerSim object

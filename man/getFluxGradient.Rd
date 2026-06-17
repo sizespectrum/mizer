@@ -3,6 +3,7 @@
 \name{getFluxGradient}
 \alias{getFluxGradient}
 \alias{getFluxGradient.MizerParams}
+\alias{getFluxGradient.MizerSim}
 \title{Get flux gradient}
 \usage{
 getFluxGradient(object, ...)
@@ -33,8 +34,14 @@ returned array.}
 }}
 }
 \value{
-An \code{ArraySpeciesBySize} object (species x size) giving the flux
-divergence in each size bin, in units of \eqn{g^{-1} \, \text{year}^{-1}}.
+\itemize{
+\item \code{MizerParams}: An \code{ArraySpeciesBySize} object (species x size) giving the
+flux divergence in each size bin, in units of
+\eqn{g^{-1} \, \text{year}^{-1}}.
+\item \code{MizerSim}: An \code{ArrayTimeBySpeciesBySize} object (time step x species x
+size) with the flux divergence at every saved time step. If \code{drop = TRUE}
+then dimensions of length 1 will be removed.
+}
 }
 \description{
 Calculates the flux divergence \eqn{(J_{j+1} - J_j)/\Delta w_j} that
@@ -53,6 +60,8 @@ evaluated with the same scheme using the boundary condition
 \donttest{
 params <- NS_params
 fg <- getFluxGradient(params)
+sim <- project(params, t_max = 5)
+fg_sim <- getFluxGradient(sim)
 }
 }
 \seealso{
