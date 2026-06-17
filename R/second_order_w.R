@@ -1,6 +1,7 @@
 #' Get or set the second_order_w flags
 #'
-#' Controls whether second-order numerical methods are use.
+#' Controls whether mizer uses numerical methods that are precise to second
+#' order in \eqn{\Delta w}.
 #'
 #' The slot is a named list with entries:
 #'

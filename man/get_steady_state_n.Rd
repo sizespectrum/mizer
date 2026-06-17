@@ -44,8 +44,8 @@ tri-diagonal system and solves it.
 }
 \details{
 The spatial discretisation of the advective flux is read from the
-\code{flux_limiter} entry of the \code{second_order_w} slot of \code{params}. With the flux
-limiter active the steady state must match the one that \code{\link[=project]{project()}} converges
+\code{flux} entry of the \code{second_order_w} slot of \code{params}. With a second-order
+flux scheme active the steady state must match the one that \code{\link[=project]{project()}} converges
 to. Because the limiter depends on the solution, the steady state is then
 found by an under-relaxed Picard iteration: the limiter is frozen at the
 current iterate, the resulting tridiagonal system is solved, and the iterate

@@ -8,7 +8,7 @@
 \usage{
 plotYield(
   object,
-  sim2,
+  sim2 = NULL,
   species = NULL,
   total = FALSE,
   log_x = FALSE,

@@ -178,6 +178,7 @@ normalise_project_method <- function(method) {
 }
 
 #' @rdname project
+#' @usage NULL
 #' @export
 project.MizerParams <- function(object, effort,
                                 t_max = 100, dt = 0.1, t_save = 1, t_start = 0,
@@ -394,6 +395,7 @@ project.MizerParams <- function(object, effort,
 }
 
 #' @rdname project
+#' @usage NULL
 #' @export
 project.MizerSim <- function(object, effort,
                              t_max = 100, dt = 0.1, t_save = 1, t_start = 0,

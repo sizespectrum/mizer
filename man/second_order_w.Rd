@@ -13,52 +13,45 @@ second_order_w(params) <- value
 \item{params}{A MizerParams object.}
 
 \item{value}{A single logical value (\code{TRUE} or \code{FALSE}) which sets both
-entries, a single flux-limiter scheme name (\code{"none"}, \code{"van_leer"} or
-\code{"centred"}) which sets only \code{flux_limiter}, or a named vector with entries
-\code{flux_limiter} (logical or scheme name) and/or \code{bin_average} (logical).}
+entries, a single flux scheme name (\code{"upwind"}, \code{"van_leer"} or
+\code{"centred"}) which sets only \code{flux}, or a named vector with entries
+\code{flux} (logical or scheme name) and/or \code{bin_average} (logical).}
 }
 \value{
-\code{second_order_w()}: A named logical vector with entries
-\code{flux_limiter} and \code{bin_average}.
+\code{second_order_w()}: A named list with entries \code{flux} (character) and
+\code{bin_average} (logical).
 
 \verb{second_order_w<-}: A MizerParams object with the \code{second_order_w}
 flags updated and, when \code{bin_average} is changed, all model parameters
 recalculated via \code{\link[=setParams]{setParams()}}.
 }
 \description{
-Controls whether second-order numerical methods are use.
+Controls whether mizer uses numerical methods that are precise to second
+order in \eqn{\Delta w}.
 }
 \details{
-The slot is a named logical vector with entries:
+The slot is a named list with entries:
 
 \describe{
-\item{\code{flux_limiter}}{Controls whether the second-order log-size
-finite-volume advective flux is used in the numerical solver. When
-\code{FALSE}, the first-order upwind scheme is used. When \code{TRUE}, the
-advective reconstruction is selected by the \code{flux_reconstruction} entry
-of the model metadata (see below).}
-\item{\code{bin_average}}{Controls whether bin-averaging is used for quantities
-that need it in order to be second-order precise in bin size.
+\item{\code{flux}}{The advective-flux reconstruction scheme used in the
+numerical solver. \code{"upwind"} is the first-order upwind scheme.
+\code{"van_leer"} is the second-order scheme with the total-variation-
+diminishing van Leer limiter, which keeps abundances non-negative.
+\code{"centred"} is the second-order scheme with the unlimited centred flux,
+which is genuinely second order even at extrema but is not
+monotonicity-preserving (it can produce small over/undershoots and is
+best used with some physical diffusion).}
+\item{\code{bin_average}}{Logical. Controls whether bin-averaging is used for
+quantities that need it in order to be second-order precise in bin size.
 When \code{FALSE}, point-sampling at the left bin edge is used.}
 }
 
-When both are \code{FALSE} (the default), mizer preserves the behaviour of
-previous mizer versions. Setting both to \code{TRUE} gives a consistently
-second-order model.
-
-The \code{flux_limiter} entry can also be set to one of the scheme names
-\code{"none"}, \code{"van_leer"} or \code{"centred"}. \code{"none"} is the first-order upwind
-scheme (equivalent to \code{FALSE}); \code{"van_leer"} (equivalent to \code{TRUE}) is the
-second-order scheme with the total-variation-diminishing van Leer limiter,
-which keeps abundances non-negative; \code{"centred"} is the second-order scheme
-with the unlimited centred flux, which is genuinely second order even at
-extrema but is not monotonicity-preserving (it can produce small
-over/undershoots and is best used with some physical diffusion). The chosen
-reconstruction is stored in \code{params@metadata$flux_reconstruction} and so
-persists. See the "Numerical Details" vignette.
+When \code{flux} is \code{"upwind"} and \code{bin_average} is \code{FALSE} (the defaults),
+mizer preserves the behaviour of previous mizer versions. Setting both to
+their second-order values gives a consistently second-order model.
 
 The setter accepts a single logical value (which sets both entries), a single
-scheme name (which sets only \code{flux_limiter}), or a named vector to set
-individual entries. The setter re-runs \code{\link[=setParams]{setParams()}} to rebuild precomputed
-arrays when \code{bin_average} is changed.
+scheme name (which sets only \code{flux}), or a named vector to set individual
+entries. The setter re-runs \code{\link[=setParams]{setParams()}} to rebuild precomputed arrays when
+\code{bin_average} is changed.
 }

@@ -196,10 +196,11 @@ diffusion is included when calculating rates with \code{\link[=mizerDiffusion]{m
 Defaults to \code{FALSE} to preserve the behaviour of previous mizer versions.
 Set to \code{TRUE} to enable the diffusion term from the jump-growth equation.}
 
-\item{\code{second_order_w}}{A named logical vector with entries \code{flux_limiter}
-(controls whether a second-order advective flux is used for growth) and
-\code{bin_average} (controls whether bin-averaging is used for rates). Both
-default to \code{FALSE} to preserve the behaviour of previous mizer versions.}
+\item{\code{second_order_w}}{A named list with entry \code{flux}
+(the advective flux scheme: \code{"upwind"}, \code{"van_leer"}, or \code{"centred"}) and
+logical entry \code{bin_average} (controls whether bin-averaging is used for
+rates). Both default to the first-order setting to preserve the behaviour
+of previous mizer versions.}
 }}
 
 \seealso{

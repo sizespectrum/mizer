@@ -52,6 +52,6 @@ head(as.data.frame(biomass))
 }
 }
 \seealso{
-\code{\link[=print]{print()}}, \code{\link[=summary]{summary()}}, \code{\link[=plot]{plot()}}, \code{\link[=ArraySpeciesBySize]{ArraySpeciesBySize()}},
+\code{\link[=print]{print()}}, \code{\link[=summary]{summary()}}, \code{\link[=str]{str()}}, \code{\link[=plot]{plot()}}, \code{\link[=ArraySpeciesBySize]{ArraySpeciesBySize()}},
 \code{\link[=ArrayTimeBySpecies]{ArrayTimeBySpecies()}}, \code{\link[=ArrayTimeBySpeciesBySize]{ArrayTimeBySpeciesBySize()}}
 }
