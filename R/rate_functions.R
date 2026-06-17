@@ -1755,15 +1755,11 @@ getFluxGradient.MizerParams <- function(object,
                                          t = 0, ...) {
     params <- validParams(object)
 
+    flux <- getFlux(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
     g <- getEGrowth(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
     d <- getDiffusion(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
-    rdd <- getRDD(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
 
     flux_lim <- flux_limiter_scheme(params)
-
-    # Flux at bin boundaries j = 1..K via the same scheme used by project_n()
-    flux <- flux_from_rates(params, n = n, g = g, d = d, rdd = rdd,
-                             flux_limiter = flux_lim)
 
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
