@@ -29,11 +29,16 @@ abundances or harvest effort through time. These are held in
 \item{\code{mizer_version}}{The package version of mizer (as returned by
 \code{packageVersion("mizer")}) that created or upgraded the model.}
 
-\item{\code{extensions}}{A named vector of strings describing the extension chain
-needed to run the model. The names are extension identifiers and S4 marker
-class names. The order is the S3 dispatch order, from outermost to
-innermost extension. The values are version strings, installation
-specifications, or \code{NA_character_}. Extension subclasses are marker
+\item{\code{extensions}}{Describes the extension chain needed to run the model. The
+entries are named by extension identifier (also the S4 marker class name)
+and ordered in S3 dispatch order, from outermost to innermost extension.
+It is either a named character vector whose values are requirement strings
+(version strings, installation specifications, or \code{NA_character_}), or a
+named list whose entries are length-2 character vectors
+\code{c(requirement = ..., version = ...)}. The \code{version} records the version of
+the extension package that last upgraded the object (\code{NA} if unknown) and
+is used by \code{\link[=needs_upgrading]{needs_upgrading()}}. Use \code{\link[=recordExtension]{recordExtension()}} to write entries
+rather than modifying the slot directly. Extension subclasses are marker
 classes only and must not add slots.}
 
 \item{\code{time_created}}{A POSIXct date-time object with the creation time.}

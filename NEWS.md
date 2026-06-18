@@ -1,5 +1,17 @@
 # mizer (development version)
 
+- Extension packages can now upgrade their own data in saved model objects
+  independently of the mizer version. The `@extensions` slot can record, for
+  each extension, the version of the extension package that the object conforms
+  to (write entries with the new `recordExtension()`). `needs_upgrading()` flags
+  an object when an extension's recorded version is missing or older than the
+  installed package version, and `validParams()` then calls the extension's own
+  `upgrade()` method (an S3 method on `utils::upgrade()`, registered with
+  `@exportS3Method utils::upgrade`). The core mizer upgrade is now itself the
+  `upgrade.MizerParams()` / `upgrade.MizerSim()` method. See the "Upgrading
+  objects across versions of your extension" section of
+  `vignette("creating-extension-packages")`.
+
 - Resource functions now return classed objects that support the same
   convenient `print()`, `summary()`, `plot()`, and `as.data.frame()` methods
   as the consumer rate functions. `getResourceMort()`, `initialNResource()`,
