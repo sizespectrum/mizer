@@ -651,11 +651,18 @@ project_simple.MizerParams <-
                 }
             }
 
+            # * Carry the updated other components into the next step ----
+            # They were computed into `n_other_new` so that the resource and
+            # consumer updates above still saw the start-of-step value. Now that
+            # those updates are done, advance `n_other` so that the next time
+            # step (and the returned value) uses the new abundances.
+            n_other <- n_other_new
+
             # * Update time ----
             t <- t + dt
         }
 
-        return(list(n = n, n_pp = n_pp, n_other = n_other_new, rates = r))
+        return(list(n = n, n_pp = n_pp, n_other = n_other, rates = r))
     }
 
 validEffortArray <- function(effort, params) {

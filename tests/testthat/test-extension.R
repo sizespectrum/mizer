@@ -305,3 +305,22 @@ test_that("getFMort.MizerSim preserves n_other component names with time_range",
     sim <- project(p, t_max = 3, dt = 1, t_save = 1)
     expect_no_error(getFMort(sim, time_range = 2:3))
 })
+
+test_that("Other components are advanced once per time step, not per save step", {
+    # A component whose dynamics add `dt` at every time step. After projecting
+    # for one year it must equal 1 regardless of how often results are saved.
+    e$ticker_dyn <- function(params, n_other, component, dt, ...) {
+        n_other[[component]] + dt
+    }
+    p <- setComponent(NS_params_small, "ticker", initial_value = 0,
+                      dynamics_fun = "ticker_dyn")
+
+    sim <- project(p, t_max = 2, t_save = 1, dt = 0.1, progress_bar = FALSE)
+    expect_equal(sim@n_other[[2, "ticker"]], 1)
+    expect_equal(sim@n_other[[3, "ticker"]], 2)
+
+    # The result at a given time must not depend on the save frequency.
+    sim_fine <- project(p, t_max = 1, t_save = 0.1, dt = 0.1,
+                        progress_bar = FALSE)
+    expect_equal(sim_fine@n_other[[11, "ticker"]], 1)
+})
