@@ -452,10 +452,126 @@ When building a dispatching extension package, verify the following:
   calling `setRateFunction()`. See [Replacing `setRateFunction()` with method dispatch].
 - [ ] Store all extension-specific state in `other_params(params)` or in
   new components created with `setComponent()`, never in new S4 slots.
+- [ ] Run mizer's own test suite against an object of your subclass to check
+  that your overrides do not break core behaviour. See
+  [Running mizer's test suite against your subclass].
 
 For metadata-only packages, only the second and third items apply (and
 `coerceToExtensionClass()` is not needed — just record
 `params@extensions <- getRegisteredExtensions()`).
+
+# Running mizer's test suite against your subclass
+
+A dispatching extension overrides mizer generics, so it is easy to
+accidentally break some core mizer behaviour that you did not mean to change. A
+powerful way to catch this is to run **mizer's own test suite** with the shared
+test fixture replaced by an object of your subclass. If your overrides are
+faithful extensions of the base behaviour, the great majority of mizer's tests
+should still pass; the failures that remain pinpoint exactly where your class
+diverges from a plain `MizerParams` object (and are often legitimate — e.g. a
+test that hard-codes the single-resource object structure).
+
+Most of mizer's tests build on a small shared fixture, `NS_params_small` (and a
+simulation `NS_sim_small` derived from it), defined in
+`tests/testthat/helper.R`. The idea is to turn that fixture into an object of
+your subclass and then run the suite.
+
+## Step 1: Get the mizer source
+
+The test files are not part of the installed package, so clone the mizer source
+and check out the tag or commit that matches your installed version:
+
+```r
+packageVersion("mizer")   # note this, then `git checkout` the matching tag
+```
+
+## Step 2: Convert the shared fixture to your subclass
+
+Edit `tests/testthat/helper.R` and, immediately **after** `NS_params_small` has
+been fully built (just before `NS_sim_small` is created), insert code that
+replaces it with an object of your class. Because `devtools::load_all()` sources
+the helper inside mizer's own namespace, attached packages are not on the lookup
+path there, so:
+
+- call `library(yourPackage)` (this also fires your `.onLoad` and registers the
+  extension), and
+- qualify your own functions with `yourPackage::`.
+
+For example, [mizerMR](https://github.com/sizespectrum/mizerMR) (which adds
+multiple resources) converts the single resource into two resources like this:
+
+```r
+suppressMessages(library(mizerMR))
+local({
+    p1 <- NS_params_small
+    rp <- data.frame(resource = c("Res A", "Res B"),
+                     kappa = p1@resource_params$kappa / 2,
+                     lambda = p1@resource_params$lambda, r_pp = 4,
+                     n = p1@resource_params$n, w_min = min(p1@w_full),
+                     w_max = p1@resource_params$w_pp_cutoff)
+    strip <- function(m) { dimnames(m) <- NULL; m }
+    ir <- p1@species_params$interaction_resource
+    NS_params_small <<- suppressMessages(mizerMR::setMultipleResources(
+        p1, resource_params = rp,
+        resource_interaction = strip(cbind(ir, ir)),
+        resource_capacity = strip(rbind(p1@cc_pp / 2, p1@cc_pp / 2)),
+        resource_rate = strip(rbind(p1@rr_pp, p1@rr_pp)),
+        initial_resource = strip(rbind(p1@initial_n_pp / 2, p1@initial_n_pp / 2))))
+})
+```
+
+For your own extension, replace this block with a call to your constructor or
+conversion function, so that `NS_params_small` becomes an object of your S4
+class. `NS_sim_small` is built from it on the next line and will then be of your
+`...Sim` class automatically.
+
+## Step 3: Skip the tests that manipulate the extension chain {#skip-chain-tests}
+
+A few of mizer's test files deliberately test the extension-chain machinery
+itself by calling `clearExtensionChain()` and `registerExtensions()`. The
+registered chain is **global session state**, and because testthat runs all
+files in one R session, once those tests clear or replace the chain the shared
+fixture is left orphaned: every later test that touches it then fails in
+`validParams()` with *"This object uses mizer extensions but no compatible
+extension chain is registered"*. This is an artefact of the shared session, not
+a problem with your extension, so exclude those files before running:
+
+```r
+chain_tests <- c("test-extension-dispatch.R",
+                 "test-registerExtensions.R",
+                 "test-io.R")
+file.remove(file.path("tests/testthat", chain_tests))
+```
+
+(You will restore them in step 5.)
+
+## Step 4: Run the suite
+
+Run the tests from the root of the mizer source tree. Use `devtools::test()`
+rather than `testthat::test_dir()`: it calls `load_all()`, which is required
+because some mizer tests use mizer's internal (unexported) functions.
+
+```r
+devtools::test()
+```
+
+## Step 5: Restore the source
+
+The edits above are only for this experiment. Undo them with:
+
+```r
+# from the mizer source root
+system("git checkout tests/testthat")
+```
+
+## Interpreting the results
+
+With the chain tests excluded, the only failures left are genuine differences
+between your subclass and a plain `MizerParams` object. Typical, expected ones
+include tests that assert the exact structure of a single-resource object, or
+that index a resource array as if it were one-dimensional. Any *other* failure —
+especially in a generic you override — is worth investigating, as it usually
+means your method does not faithfully extend the base behaviour.
 
 # See also
 
