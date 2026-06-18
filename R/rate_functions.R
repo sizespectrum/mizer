@@ -827,7 +827,8 @@ getResourceMort.MizerParams <- function(params, n = initialN(params),
                   t = t, pred_rate = pred_rate)
     }
     names(mort) <- names(params@initial_n_pp)
-    mort
+    ArrayResourceBySize(mort, value_name = "Resource mortality",
+                        units = "1/year", params = params)
 }
 
 #' Alias for `getResourceMort()`

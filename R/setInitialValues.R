@@ -198,11 +198,14 @@ initialNResource <- function(object) {
 #' @export
 initialNResource.MizerParams <- function(object) {
     params <- validParams(object)
-    return(params@initial_n_pp)
+    ArrayResourceBySize(params@initial_n_pp, value_name = "Number density",
+                        units = "1/g", params = params)
 }
 #' @rdname initialNResource-set
 #' @usage NULL
 #' @export
 initialNResource.MizerSim <- function(object) {
-    return(object@params@initial_n_pp)
+    ArrayResourceBySize(object@params@initial_n_pp,
+                        value_name = "Number density", units = "1/g",
+                        params = object@params)
 }

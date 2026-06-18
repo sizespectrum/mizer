@@ -310,6 +310,10 @@ reference:
   - is.ArrayTimeBySpecies
   - ArrayTimeBySpeciesBySize
   - is.ArrayTimeBySpeciesBySize
+  - ArrayResourceBySize
+  - is.ArrayResourceBySize
+  - ArrayTimeByResourceBySize
+  - is.ArrayTimeByResourceBySize
 - title: Example parameter sets
   desc: More example parameter sets are available via
     <https://sizespectrum.org/mizerExamples>
