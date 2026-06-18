@@ -324,3 +324,32 @@ test_that("Other components are advanced once per time step, not per save step",
                         progress_bar = FALSE)
     expect_equal(sim_fine@n_other[[11, "ticker"]], 1)
 })
+
+test_that("Other components get a corrector step under second-order methods", {
+    # A component that integrates a time-varying, rate-derived signal. Because
+    # its dynamics read `rates`, the corrector (midpoint rates) differs from
+    # the predictor (start-of-step rates), so the second-order methods must be
+    # more accurate than Euler. This guards against the other components being
+    # left at first-order accuracy while the resource and consumers are
+    # advanced to second order.
+    e$accum_dyn <- function(params, n_other, component, rates, dt, ...) {
+        n_other[[component]] + dt * sum(rates$mort)
+    }
+    make_p <- function() {
+        p <- NS_params_small
+        p@initial_n[] <- p@initial_n * 1.5   # perturb to create a transient
+        setComponent(p, "accum", initial_value = 0, dynamics_fun = "accum_dyn")
+    }
+    accum <- function(method, dt) {
+        project(make_p(), t_max = 2, t_save = 2, dt = dt, method = method,
+                progress_bar = FALSE)@n_other[[2, "accum"]]
+    }
+    ref <- accum("euler", 0.0005)            # fine-step reference
+
+    euler_err <- abs(accum("euler", 0.1) - ref)
+    for (method in c("predictor_corrector", "tr_bdf2")) {
+        # Generous margin: in practice the second-order error is several times
+        # smaller, but we only need to confirm the corrector is taking effect.
+        expect_lt(abs(accum(method, 0.1) - ref), euler_err / 2)
+    }
+})
