@@ -14,10 +14,11 @@ test_that("We can set and get initial values from sim object", {
     initialN(params) <- params@metab
     expect_equal(initialN(params), params@metab, ignore_attr = TRUE)
     initialNResource(params) <- params@cc_pp
-    expect_identical(initialNResource(params), params@cc_pp)
+    expect_equal(initialNResource(params), params@cc_pp, ignore_attr = TRUE)
     params <- suppressWarnings(setInitialValues(params, sim))
     expect_equal(finalN(sim), initialN(params), ignore_attr = TRUE)
-    expect_identical(finalNResource(sim), initialNResource(params))
+    expect_equal(finalNResource(sim), initialNResource(params),
+                 ignore_attr = TRUE)
     expect_identical(sim@effort[no_t, ], params@initial_effort)
     expect_named(params@initial_effort, gear_names)
     names(params@initial_effort) <- NULL
@@ -39,7 +40,8 @@ test_that("initialN and initialNResource setters validate dimnames and values", 
     new_n_pp <- initialNResource(params)
     names(new_n_pp)[1] <- "wrong"
     initialNResource(params) <- new_n_pp
-    expect_identical(initialNResource(params), NS_params_small@initial_n_pp)
+    expect_equal(initialNResource(params), NS_params_small@initial_n_pp,
+                 ignore_attr = TRUE)
 
     expect_error(initialN(params) <- (-1) * initialN(params))
     expect_error(initialNResource(params) <- (-1) * initialNResource(params))

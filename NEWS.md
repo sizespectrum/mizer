@@ -1,5 +1,17 @@
 # mizer (development version)
 
+- Resource functions now return classed objects that support the same
+  convenient `print()`, `summary()`, `plot()`, and `as.data.frame()` methods
+  as the consumer rate functions. `getResourceMort()`, `initialNResource()`,
+  `finalNResource()`, `resource_rate()`, `resource_capacity()`, and
+  `resource_level()` return an `ArrayResourceBySize` object, and `NResource()`
+  returns an `ArrayTimeByResourceBySize` object. So you can now do e.g.
+  `plot(getResourceMort(NS_params))` or `plot(NResource(NS_sim))`.
+  Extensions that return a resource-by-size matrix from `getResourceMort()`
+  (such as mizerMR) now have that result passed through unwrapped so they can
+  wrap it in their own class. The internal plotting helpers `parsePlotLog()`
+  and `apply_wlim()` are now exported for reuse by such extensions.
+  
 - Fixed a bug in `project()` where the abundances of other components (set via
   `setComponent()`) were advanced only once per saved time step instead of once
   per `dt` time step. Their dynamics are now integrated with the same time step

@@ -62,6 +62,7 @@ Collate:
     'ArraySpeciesBySize-class.R'
     'ArrayTimeBySpecies-class.R'
     'ArrayTimeBySpeciesBySize-class.R'
+    'ArrayResourceBySize-class.R'
     'generic_methods.R'
     'background.R'
     'reproduction.R'

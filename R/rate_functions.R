@@ -826,7 +826,14 @@ getResourceMort.MizerParams <- function(params, n = initialN(params),
         mort <- f(params, n = n, n_pp = n_pp, n_other = n_other,
                   t = t, pred_rate = pred_rate)
     }
-    names(mort) <- names(params@initial_n_pp)
+    # Extensions such as mizerMR return a resource x size matrix here. Leave
+    # such non-vector results unwrapped so the extension can wrap them in its
+    # own class; only wrap the plain single-resource vector.
+    if (is.null(dim(mort))) {
+        names(mort) <- names(params@initial_n_pp)
+        mort <- ArrayResourceBySize(mort, value_name = "Resource mortality",
+                                    units = "1/year", params = params)
+    }
     mort
 }
 

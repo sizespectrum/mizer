@@ -347,8 +347,8 @@ test_that("getResourceMort", {
     expect_length(m2, no_w_full)
     # Check number in final prey size group
     m22 <- colSums(getPredRate(params, n, n_full))
-    expect_equal(m22, m2, ignore_attr = FALSE)
-    m2b1 <- getResourceMort(params, n, n_full)
+    expect_equal(m22, m2, ignore_attr = TRUE)
+    m2b1 <- c(getResourceMort(params, n, n_full))
     # test value
     # expect_known_value(m2b1, "values/getResourceMort")
     # expect_snapshot(m2b1)
@@ -358,13 +358,14 @@ test_that("getResourceMort", {
 test_that("getResourceMort is independent of volume", {
     pm <- getResourceMort(params)
     pm_r <- getResourceMort(params_r)
-    expect_equal(pm, pm_r)
+    expect_equal(pm, pm_r, ignore_attr = TRUE)
 })
 
 test_that("getResourceMort and getZ aliases delegate exactly", {
     expect_equal(
         getResourceMort(params, n, n_full),
-        colSums(getPredRate(params, n, n_full))
+        colSums(getPredRate(params, n, n_full)),
+        ignore_attr = TRUE
     )
     expect_identical(
         getZ(params, n = n, n_pp = n_full, effort = 0.2),
