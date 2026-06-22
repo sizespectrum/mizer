@@ -1373,11 +1373,24 @@ plot_spectra <- function(params, n, n_pp,
                          highlight, log_x, log_y, size_axis, return_data) {
     params <- validParams(params)
     size_axis <- plot_size_axis(size_axis)
+    # The spectrum is a density: each plotted value N_j w^power is a point on the
+    # continuous N(w) w^power curve, which (for the cell-average N_j) it touches
+    # at the geometric bin centre. Under second-order bin-averaging we therefore
+    # evaluate *both* the w^power weight and the plotted location at the bin
+    # centre w* = w sqrt(beta) (issue #383). The default keeps the grid nodes, so
+    # existing spectrum plots are unchanged.
+    second_order <- isTRUE(params@second_order_w[["bin_average"]])
+    w_grid      <- if (second_order) bin_midpoints(params) else params@w
+    w_full_grid <- if (second_order) bin_midpoints(params, w_full = TRUE) else
+        params@w_full
+    # Default size limits follow the plotted grid (the bin centres under
+    # second order) so the centre shift does not clip the top/bottom bins. With
+    # the default (first-order) nodes these reduce to the previous limits.
     if (is.na(wlim[1])) {
-        wlim[1] <- if (resource) min(params@w) / 100 else min(params@w)
+        wlim[1] <- if (resource) min(w_grid) / 100 else min(w_grid)
     }
     if (is.na(wlim[2])) {
-        wlim[2] <- max(params@w_full)
+        wlim[2] <- max(w_full_grid)
     }
 
     if (total) {
@@ -1385,16 +1398,16 @@ plot_spectra <- function(params, n, n_pp,
         fish_idx <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
         total_n <- n_pp
         total_n[fish_idx] <- total_n[fish_idx] + colSums(n)
-        total_n <- total_n * params@w_full^power
+        total_n <- total_n * w_full_grid^power
     }
     species <- valid_species_arg(params, species)
     # Deal with power argument
     y_label <- spectra_y_label(power)
-    n <- sweep(n, 2, params@w^power, "*")
+    n <- sweep(n, 2, w_grid^power, "*")
     # Select only the desired species
     spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
     # Make data.frame for plot
-    plot_dat <- data.frame(w = rep(params@w,
+    plot_dat <- data.frame(w = rep(w_grid,
                                    each = dim(spec_n)[[1]]),
                            value = c(spec_n),
                            Species = dimnames(spec_n)[[1]],
@@ -1404,7 +1417,7 @@ plot_spectra <- function(params, n, n_pp,
                         (params@w_full <= wlim[2])
         # Do we have any resource to plot?
         if (sum(resource_sel) > 0) {
-            w_resource <- params@w_full[resource_sel]
+            w_resource <- w_full_grid[resource_sel]
             plank_n <- n_pp[resource_sel] * w_resource^power
             plot_dat <- rbind(plot_dat,
                               data.frame(w = w_resource,
@@ -1416,7 +1429,7 @@ plot_spectra <- function(params, n, n_pp,
     }
     if (total) {
         plot_dat <- rbind(plot_dat,
-                          data.frame(w = params@w_full,
+                          data.frame(w = w_full_grid,
                                      value = c(total_n),
                                      Species = "Total",
                                      Legend = "Total")
@@ -1426,7 +1439,7 @@ plot_spectra <- function(params, n, n_pp,
         back_n <- n[params@species_params$is_background, , drop = FALSE]
         plot_dat <-
             rbind(plot_dat,
-                  data.frame(w = rep(params@w,
+                  data.frame(w = rep(w_grid,
                                      each = dim(back_n)[[1]]),
                              value = c(back_n),
                              Species = as.factor(dimnames(back_n)[[1]]),
@@ -1660,6 +1673,21 @@ plotCDF.MizerParams <- function(object, species = NULL,
 plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim, llim,
                      ylim, highlight, size_axis, return_data) {
     size_axis <- plot_size_axis(size_axis)
+    # A CDF value is cumulative *up to a size* — a boundary quantity — so it
+    # belongs on the bin edges, not the bin centres. Under second-order
+    # bin-averaging `plot_spectra()` returns its density on the geometric bin
+    # centres (issue #383). Here we map those back to the grid nodes
+    # (w = w* / sqrt(beta)) so that `prepare_spectra_cdf_data()` can look up the
+    # bin widths and form the bin integrals; that helper then places the
+    # cumulative on the *upper* bin edges (see its comments for the inclusive
+    # convention). The density *values* are kept centre-weighted, so each
+    # increment value * dw_k = N_k (w*_k)^power dw_k is the second-order bin
+    # integral of N w^power. (See get_ArraySpeciesBySize_w() and the
+    # FFT/numerical-details vignettes.)
+    if (isTRUE(params@second_order_w[["bin_average"]])) {
+        beta <- params@w_full[2] / params@w_full[1]
+        plot_dat$w <- plot_dat$w / sqrt(beta)
+    }
     if (identical(size_axis, "l")) {
         plot_dat_l <- convert_plot_size_axis(plot_dat, params, size_axis,
                                              drop_w = FALSE)
@@ -1701,13 +1729,26 @@ prepare_spectra_cdf_data <- function(plot_dat, params, normalise = TRUE) {
     params <- validParams(params)
     y_var <- names(plot_dat)[2]
     plot_dat <- plot_dat[order(plot_dat$Species, plot_dat$w), ]
-    plot_dat[[y_var]] <- plot_dat[[y_var]] * spectra_bin_width(plot_dat$w, params)
+    # Each bin contributes its integral, value * dw_k, which under second-order
+    # bin-averaging is N_k (w*_k)^power dw_k, the second-order bin integral of
+    # N w^power.
+    widths <- spectra_bin_width(plot_dat$w, params)
+    plot_dat[[y_var]] <- plot_dat[[y_var]] * widths
+    # The cumulative sum is *inclusive*: the sum through bin k integrates
+    # N w^power over all bins up to and including bin k, so it equals the CDF at
+    # that bin's *upper* edge w_k + dw_k, not at its left edge w_k.
     plot_dat[[y_var]] <- stats::ave(plot_dat[[y_var]], plot_dat$Species,
                                     FUN = cumsum)
     if (normalise) {
         totals <- stats::ave(plot_dat[[y_var]], plot_dat$Species, FUN = max)
         plot_dat[[y_var]] <- plot_dat[[y_var]] / totals
     }
+    # Make the inclusive convention explicit by placing each cumulative value at
+    # its bin's upper edge w_k + dw_k, the size up to which it accumulates. This
+    # corrects the historical one-bin (O(dx)) location offset (the inclusive sum
+    # was previously plotted at the left edge) and applies in both the default
+    # and the second-order schemes.
+    plot_dat$w <- plot_dat$w + widths
     plot_dat
 }
 
