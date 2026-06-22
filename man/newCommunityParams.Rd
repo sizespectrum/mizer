@@ -22,6 +22,7 @@ newCommunityParams(
   r_pp = 10,
   knife_edge_size = 1000,
   reproduction,
+  second_order_w = FALSE,
   info_level = 2
 )
 }
@@ -71,6 +72,19 @@ function.}
 \item{reproduction}{The constant reproduction in the smallest size class of
 the community spectrum. By default this is set to the rate required to
 maintain the constructed initial egg abundance.}
+
+\item{second_order_w}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Selects the
+second-order numerical scheme for the new model. Accepts the same values as
+the \code{\link[=second_order_w]{second_order_w()}} setter: a single logical (\code{TRUE} switches on both
+second-order flux and bin-averaging), a single flux scheme name
+(\code{"upwind"}, \code{"van_leer"} or \code{"centred"}), or a named vector with entries
+\code{flux} and/or \code{bin_average}. The \code{bin_average} choice is applied \emph{before}
+the resource and abundance power laws are constructed, so they are built
+bin-averaged from the start (unlike setting \code{\link[=second_order_w]{second_order_w()}} on an
+existing object). The \code{flux} scheme governs time projection only, so the
+robust first-order upwind scheme is used for the construction-time
+steady-state solve and the chosen scheme is then activated for the returned
+model. Defaults to \code{FALSE} (the first-order behaviour of previous mizer).}
 
 \item{info_level}{Controls the amount of information messages that are shown
 when the function sets default values for parameters. Higher levels lead

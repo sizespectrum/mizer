@@ -48,7 +48,32 @@ second_order_w <- function(params) {
 #' @export
 `second_order_w<-` <- function(params, value) {
     old_bin_average <- params@second_order_w[["bin_average"]]
+    params@second_order_w <-
+        validate_second_order_w(params@second_order_w, value)
+    new_bin_average <- params@second_order_w[["bin_average"]]
+    if (!identical(old_bin_average, new_bin_average)) {
+        params <- setParams(params)
+    }
+    params
+}
 
+#' Apply a `second_order_w` value to the current slot list
+#'
+#' Internal helper that validates a `second_order_w` `value` (a single logical,
+#' a single flux scheme name, or a named vector with entries `flux` and/or
+#' `bin_average`) and returns the updated named list. Shared by the
+#' [`second_order_w<-`] setter and by the model constructors (e.g.
+#' [newMultispeciesParams()]), which set the slot directly before the rest of
+#' the parameters are computed so that the bin-averaged constructions pick up
+#' the flag, without the setter's extra [setParams()] call.
+#'
+#' @param current The current `second_order_w` slot list (with entries `flux`
+#'   and `bin_average`).
+#' @param value The value to apply, as described above.
+#' @return The updated `second_order_w` list.
+#' @concept helper
+#' @keywords internal
+validate_second_order_w <- function(current, value) {
     # Translate a flux value (logical or scheme name) into a scheme string.
     flux_scheme <- function(v) {
         if (is.logical(v)) {
@@ -69,11 +94,10 @@ second_order_w <- function(params) {
     }
 
     if (is.null(names(value)) && length(value) == 1) {
-        scheme <- flux_scheme(value)
-        params@second_order_w[["flux"]] <- scheme
+        current[["flux"]] <- flux_scheme(value)
         # A single logical also sets bin_average; a single scheme name does not.
         if (is.logical(value)) {
-            params@second_order_w[["bin_average"]] <- as.logical(value)
+            current[["bin_average"]] <- as.logical(value)
         }
     } else if (!is.null(names(value))) {
         unknown <- setdiff(names(value), c("flux", "bin_average"))
@@ -83,10 +107,10 @@ second_order_w <- function(params) {
                  ". Valid entries are: flux, bin_average")
         }
         if ("flux" %in% names(value)) {
-            params@second_order_w[["flux"]] <- flux_scheme(value[["flux"]])
+            current[["flux"]] <- flux_scheme(value[["flux"]])
         }
         if ("bin_average" %in% names(value)) {
-            params@second_order_w[["bin_average"]] <-
+            current[["bin_average"]] <-
                 as_flag(value[["bin_average"]], "bin_average")
         }
     } else {
@@ -94,12 +118,22 @@ second_order_w <- function(params) {
              "scheme name, or a named vector with entries 'flux' ",
              "and/or 'bin_average'")
     }
+    current
+}
 
-    new_bin_average <- params@second_order_w[["bin_average"]]
-    if (!identical(old_bin_average, new_bin_average)) {
-        params <- setParams(params)
-    }
-    params
+#' Resolve a `second_order_w` value against the default scheme
+#'
+#' Internal helper that validates a `second_order_w` `value` against the default
+#' first-order slot (`flux = "upwind"`, `bin_average = FALSE`) and returns the
+#' resulting named list. Used by the model constructors to work out the target
+#' `flux` and `bin_average` entries before the rest of the model is built.
+#'
+#' @param value The value to resolve, as accepted by [`second_order_w<-`].
+#' @return The resolved `second_order_w` list.
+#' @concept helper
+#' @keywords internal
+resolve_second_order_w <- function(value) {
+    validate_second_order_w(list(flux = "upwind", bin_average = FALSE), value)
 }
 
 #' Trapezoidal bin-average of a per-bin weight

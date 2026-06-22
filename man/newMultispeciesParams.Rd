@@ -34,6 +34,7 @@ newMultispeciesParams(
   selectivity = NULL,
   catchability = NULL,
   initial_effort = NULL,
+  second_order_w = FALSE,
   info_level = 3,
   z0 = deprecated(),
   r_pp = deprecated()
@@ -151,6 +152,19 @@ each species by each gear, \eqn{Q_{g,i}}.}
 \item{initial_effort}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
+
+\item{second_order_w}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Selects the
+second-order numerical scheme for the new model. Accepts the same values as
+the \code{\link[=second_order_w]{second_order_w()}} setter: a single logical (\code{TRUE} switches on both
+second-order flux and bin-averaging), a single flux scheme name
+(\code{"upwind"}, \code{"van_leer"} or \code{"centred"}), or a named vector with entries
+\code{flux} and/or \code{bin_average}. The \code{bin_average} choice is applied \emph{before}
+the resource and abundance power laws are constructed, so they are built
+bin-averaged from the start (unlike setting \code{\link[=second_order_w]{second_order_w()}} on an
+existing object). The \code{flux} scheme governs time projection only, so the
+robust first-order upwind scheme is used for the construction-time
+steady-state solve and the chosen scheme is then activated for the returned
+model. Defaults to \code{FALSE} (the first-order behaviour of previous mizer).}
 
 \item{info_level}{Controls the amount of information messages that are shown
 when the function sets default values for parameters. Higher levels lead
