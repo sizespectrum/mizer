@@ -1,5 +1,11 @@
 # mizer (development version)
 
+- `getTrophicLevel()` and `getTrophicLevelBySpecies()` now assign the resource a
+  size-dependent trophic level
+  `T_R(w) = max(1, 1 + log(w / w_R) / log(beta_R))` instead of treating it as
+  trophic level 0. The new `w_R` (average primary-producer size) and `beta_R`
+  (average resource predator/prey mass ratio) arguments control this.
+
 - Resource functions now return classed objects that support the same
   convenient `print()`, `summary()`, `plot()`, and `as.data.frame()` methods
   as the consumer rate functions. `getResourceMort()`, `initialNResource()`,
