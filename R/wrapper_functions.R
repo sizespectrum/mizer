@@ -90,6 +90,7 @@ newCommunityParams <- function(max_w = 1e6,
                                r_pp = 10,
                                knife_edge_size = 1000,
                                reproduction,
+                               second_order_w = FALSE,
                                info_level = 2) {
     # Define a signal handler that collects the information signals
     # into the `infos` list.
@@ -125,6 +126,9 @@ newCommunityParams <- function(max_w = 1e6,
         knife_edge_size = knife_edge_size,
         stringsAsFactors = FALSE
     )
+    # Build with the requested bin-averaging but the robust upwind flux; the
+    # chosen flux scheme governs projection only and is activated at the end.
+    target_sow <- resolve_second_order_w(second_order_w)
     params <-
         newMultispeciesParams(species_params, no_w = no_w, min_w_pp = min_w_pp,
                               p = p, n = n, lambda = lambda, min_w = min_w,
@@ -132,6 +136,8 @@ newCommunityParams <- function(max_w = 1e6,
                               resource_capacity = kappa,
                               resource_rate = r_pp,
                               w_pp_cutoff = w_pp_cutoff,
+                              second_order_w =
+                                  c(bin_average = target_sow[["bin_average"]]),
                               info_level = 0)
 
     initial_n <- array(kappa * params@w ^ (-lambda),
@@ -150,6 +156,8 @@ newCommunityParams <- function(max_w = 1e6,
                           # due to slope still not 0
     comment(params@psi) <- "No investment into reproduction in community model."
     })
+    # Activate the chosen advective-flux scheme now construction is done.
+    params@second_order_w[["flux"]] <- target_sow[["flux"]]
     if (length(infos) > 0) {
         message(paste(infos, collapse = "\n"))
     }
@@ -276,6 +284,12 @@ newCommunityParams <- function(max_w = 1e6,
 #'   If TRUE then parameters are set so that the community
 #'   abundance, growth before reproduction and death are perfect power laws. In
 #'   particular all other scaling corrections are turned on.
+#' @param second_order_w `r lifecycle::badge("experimental")` Selects the
+#'   second-order numerical scheme for the new model, applied before the
+#'   resource and abundance power laws are constructed so that they are built
+#'   bin-averaged from the start. Accepts the same values as the
+#'   [second_order_w()] setter. Defaults to `FALSE`. See
+#'   [newMultispeciesParams()].
 #' @param min_w_inf `r lifecycle::badge("deprecated")` The argument has been
 #'   renamed to `min_w_max` to make it clearer that it refers to the maximum
 #'   size of a species not the von Bertalanffy asymptotic size parameter.
@@ -322,6 +336,7 @@ newTraitParams <- function(no_sp = 11,
                            egg_size_scaling = FALSE,
                            resource_scaling = FALSE,
                            perfect_scaling = FALSE,
+                           second_order_w = FALSE,
                            min_w_inf = deprecated(),
                            max_w_inf = deprecated(),
                            info_level = 2) {
@@ -491,6 +506,10 @@ newTraitParams <- function(no_sp = 11,
         catchability = 1,
         stringsAsFactors = FALSE
     )
+    # Build with the requested bin-averaging but the robust upwind flux; the
+    # chosen flux scheme is for projection only and is activated at the end,
+    # after the construction-time steady-state solve below.
+    target_sow <- resolve_second_order_w(second_order_w)
     params <-
         newMultispeciesParams(
             species_params,
@@ -505,6 +524,7 @@ newTraitParams <- function(no_sp = 11,
             p = p,
             min_w_pp = min_w_pp,
             resource_rate = r_pp,
+            second_order_w = c(bin_average = target_sow[["bin_average"]]),
             info_level = 0
         )
 
@@ -627,6 +647,8 @@ newTraitParams <- function(no_sp = 11,
         getRequiredRDD(params) / getRDI(params)
     params <- setBevertonHolt(params, reproduction_level = reproduction_level)
     })
+    # Activate the chosen advective-flux scheme now construction is done.
+    params@second_order_w[["flux"]] <- target_sow[["flux"]]
     if (length(infos) > 0) {
         message(paste(infos, collapse = "\n"))
     }

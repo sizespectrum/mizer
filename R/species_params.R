@@ -418,8 +418,9 @@ get_gamma_default <- function(params) {
             # See issue #238
             params@species_params$interaction_resource <- 1
         }
-        params@initial_n_pp[] <- params@resource_params$kappa *
-            params@w_full^(-params@resource_params$lambda)
+        params@initial_n_pp[] <- resource_power_law(
+            params, params@resource_params$kappa,
+            params@resource_params$lambda)
         avail_energy <- getEncounter(params)[, length(params@w)] /
             params@w[length(params@w)] ^
             (2 + params@species_params[["q"]] - params@resource_params$lambda)
@@ -471,8 +472,9 @@ get_f0_default <- function(params) {
         # Calculate available energy by setting a power-law prey spectrum
         params@initial_n[] <- 0
         params@species_params$interaction_resource <- 1
-        params@initial_n_pp[] <- params@resource_params$kappa *
-            params@w_full^(-params@resource_params$lambda)
+        params@initial_n_pp[] <- resource_power_law(
+            params, params@resource_params$kappa,
+            params@resource_params$lambda)
         avail_energy <- getEncounter(params)[, length(params@w)] /
             params@w[length(params@w)] ^
             (2 + params@species_params[["q"]] - params@resource_params$lambda)

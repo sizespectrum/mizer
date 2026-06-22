@@ -25,6 +25,7 @@ newSingleSpeciesParams(
   gamma = NA,
   ext_mort_prop = 0,
   reproduction_level = 0,
+  second_order_w = FALSE,
   R_factor = deprecated(),
   w_inf = deprecated(),
   k_vb = deprecated()
@@ -85,6 +86,13 @@ the interval [0, 1).}
 
 \item{reproduction_level}{A number between 0 and 1 that determines the
 level of density dependence in reproduction, see \code{\link[=setBevertonHolt]{setBevertonHolt()}}.}
+
+\item{second_order_w}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Selects the
+second-order numerical scheme for the new model, applied before the
+resource and abundance power laws are constructed so that they are built
+bin-averaged from the start. Accepts the same values as the
+\code{\link[=second_order_w]{second_order_w()}} setter. Defaults to \code{FALSE}. See
+\code{\link[=newMultispeciesParams]{newMultispeciesParams()}}.}
 
 \item{R_factor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
 \code{reproduction_level = 1 / R_factor} instead.}

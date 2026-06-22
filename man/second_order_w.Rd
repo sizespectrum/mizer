@@ -26,6 +26,7 @@ flags updated and, when \code{bin_average} is changed, all model parameters
 recalculated via \code{\link[=setParams]{setParams()}}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Controls whether mizer uses numerical methods that are precise to second
 order in \eqn{\Delta w}.
 }

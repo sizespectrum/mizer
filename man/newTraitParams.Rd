@@ -36,6 +36,7 @@ newTraitParams(
   egg_size_scaling = FALSE,
   resource_scaling = FALSE,
   perfect_scaling = FALSE,
+  second_order_w = FALSE,
   min_w_inf = deprecated(),
   max_w_inf = deprecated(),
   info_level = 2
@@ -139,6 +140,13 @@ present in the same size range.}
 If TRUE then parameters are set so that the community
 abundance, growth before reproduction and death are perfect power laws. In
 particular all other scaling corrections are turned on.}
+
+\item{second_order_w}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Selects the
+second-order numerical scheme for the new model, applied before the
+resource and abundance power laws are constructed so that they are built
+bin-averaged from the start. Accepts the same values as the
+\code{\link[=second_order_w]{second_order_w()}} setter. Defaults to \code{FALSE}. See
+\code{\link[=newMultispeciesParams]{newMultispeciesParams()}}.}
 
 \item{min_w_inf}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The argument has been
 renamed to \code{min_w_max} to make it clearer that it refers to the maximum

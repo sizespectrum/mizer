@@ -52,8 +52,8 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
 
     p <- params
     p@initial_n[] <- 0
-    p@initial_n_pp <- p@resource_params$kappa *
-        p@w_full ^ (-p@resource_params$lambda)
+    p@initial_n_pp[] <- resource_power_law(p, p@resource_params$kappa,
+                                           p@resource_params$lambda)
     p@interaction[] <- 0
     income <- getEReproAndGrowth(p) + p@metab
     mort <- getFMort(p)
