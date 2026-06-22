@@ -94,6 +94,7 @@ Other rate functions:
 \code{\link[=getFMort]{getFMort()}},
 \code{\link[=getFeedingLevel]{getFeedingLevel()}},
 \code{\link[=getFlux]{getFlux()}},
+\code{\link[=getFluxGradient]{getFluxGradient()}},
 \code{\link[=getMort]{getMort()}},
 \code{\link[=getPredMort]{getPredMort()}},
 \code{\link[=getPredRate]{getPredRate()}},
