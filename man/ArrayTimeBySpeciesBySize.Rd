@@ -4,7 +4,13 @@
 \alias{ArrayTimeBySpeciesBySize}
 \title{S3 class for time x species x size arrays}
 \usage{
-ArrayTimeBySpeciesBySize(x, value_name = NULL, units = NULL, params = NULL)
+ArrayTimeBySpeciesBySize(
+  x,
+  value_name = NULL,
+  units = NULL,
+  params = NULL,
+  representation = c("point", "average")
+)
 }
 \arguments{
 \item{x}{A 3D array (time x species x size).}
@@ -15,6 +21,12 @@ ArrayTimeBySpeciesBySize(x, value_name = NULL, units = NULL, params = NULL)
 
 \item{params}{A \code{MizerParams} object. Used for species colours, linetypes,
 and size ranges in the \code{plot()} and \code{animateSpectra()} methods.}
+
+\item{representation}{Either \code{"point"} (the default) for a quantity sampled
+at the grid nodes, or \code{"average"} for a finite-volume bin average, which is
+then drawn at the geometric bin centre when the model uses second-order
+bin-averaging (\code{second_order_w[["bin_average"]]}). See
+\code{\link[=ArraySpeciesBySize]{ArraySpeciesBySize()}}.}
 }
 \value{
 An \code{ArrayTimeBySpeciesBySize} object (inherits from \code{array}).

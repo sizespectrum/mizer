@@ -106,6 +106,8 @@ In summary:
 | $d$, $\mu$; fishing/reproductive investments; predation and encounter integrands | bin properties (a coefficient inside $\partial(dN)/\partial w$, or a rate integrated against $N$ over a bin) | bin average over $[w_j, w_{j+1}]$ |
 | $e$ (energy income) | both: growth velocity *and* reproduction integrand | point value for growth; bin-averaged product $\psi e$ for reproduction |
 
+**Plotting follows the same distinction.** A bin average $N_j$ does not live at the bin boundary $w_j$ but at the geometric bin centre $w^*_j=\sqrt{w_j\,w_{j+1}}=w_j\sqrt\beta$ (the log-midpoint, exact for the community spectrum $N\propto w^{-2}$). So under second-order bin-averaging mizer draws bin-averaged quantities (the abundance and the mortality/reproduction sinks) at $w^*_j$ — a uniform half-bin shift to the right on the log axis — while point-valued quantities (the encounter and growth-type rates) stay on the nodes $w_j$. The size-resolved array classes carry a `representation` tag recording which a quantity is, and the shift is applied only when `second_order_w[["bin_average"]]` is set, so default plots are unchanged.
+
 ## Semi-Implicit Time Discretisation
 
 With the diffusion term, an explicit time discretisation would require a very small time step for stability ($\Delta t \sim \Delta w^2$). Therefore, we use a semi-implicit scheme where the densities $N$ are evaluated at time $t+1$, but the rates ($g$, $\mu$, $d$) are evaluated at time $t$. Using a fully implicit scheme would require solving a nonlinear system at each time step, which is more computationally expensive.

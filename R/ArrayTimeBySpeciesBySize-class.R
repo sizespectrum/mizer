@@ -25,6 +25,11 @@
 #' @param units A string giving the units (e.g. "1/year").
 #' @param params A `MizerParams` object. Used for species colours, linetypes,
 #'   and size ranges in the `plot()` and `animateSpectra()` methods.
+#' @param representation Either `"point"` (the default) for a quantity sampled
+#'   at the grid nodes, or `"average"` for a finite-volume bin average, which is
+#'   then drawn at the geometric bin centre when the model uses second-order
+#'   bin-averaging (`second_order_w[["bin_average"]]`). See
+#'   [ArraySpeciesBySize()].
 #'
 #' @return An `ArrayTimeBySpeciesBySize` object (inherits from `array`).
 #' @seealso [print()], [summary()], [as.data.frame()], [plot()],
@@ -38,16 +43,44 @@
 #' plot(fmort, time = 2007)
 #' }
 ArrayTimeBySpeciesBySize <- function(x, value_name = NULL, units = NULL,
-                                     params = NULL) {
+                                     params = NULL,
+                                     representation = c("point", "average")) {
     if (!is.array(x) || length(dim(x)) != 3) {
         stop("`x` must be a 3D array.")
     }
+    representation <- match.arg(representation)
     structure(x,
         class = c("ArrayTimeBySpeciesBySize", "array"),
         value_name = value_name,
         units = units,
-        params = params
+        params = params,
+        representation = representation
     )
+}
+
+#' Get the size grid for an ArrayTimeBySpeciesBySize object
+#'
+#' Internal helper, the three-dimensional analogue of
+#' [get_ArraySpeciesBySize_w()]. Returns the geometric bin centres (see
+#' [bin_midpoints()]) when the array is tagged as a bin average and the model
+#' uses second-order bin-averaging, otherwise the grid nodes read from the size
+#' dimension names. Falls back to the dimension names when no `params` is
+#' attached.
+#'
+#' @param x An `ArrayTimeBySpeciesBySize` object.
+#' @return A numeric vector giving the size represented by each size slice.
+#' @keywords internal
+get_ArrayTimeBySpeciesBySize_w <- function(x) {
+    w <- as.numeric(dimnames(x)[[3]])
+    if (any(is.na(w))) w <- seq_len(dim(x)[3])
+    params <- attr(x, "params")
+    average <- !is.null(params) &&
+        identical(attr(x, "representation"), "average") &&
+        isTRUE(params@second_order_w[["bin_average"]])
+    if (!average) return(w)
+    if (dim(x)[3] == length(params@w)) return(bin_midpoints(params))
+    if (dim(x)[3] == length(params@w_full)) return(bin_midpoints(params, w_full = TRUE))
+    w
 }
 
 #' Test if an object is an ArrayTimeBySpeciesBySize
@@ -230,6 +263,7 @@ ArrayTimeBySpeciesBySize_slice <- function(x, time = NULL) {
     params <- attr(x, "params")
     value_name <- attr(x, "value_name")
     units <- attr(x, "units")
+    representation <- attr(x, "representation") %||% "point"
 
     times <- as.numeric(dimnames(x)[[1]])
     if (is.null(time)) {
@@ -243,7 +277,8 @@ ArrayTimeBySpeciesBySize_slice <- function(x, time = NULL) {
                     nrow = dim(arr)[2],
                     dimnames = dimnames(arr)[2:3])
     ArraySpeciesBySize(slice, value_name = value_name,
-                       units = units, params = params)
+                       units = units, params = params,
+                       representation = representation)
 }
 
 #' @rdname plotHover
@@ -316,7 +351,7 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
         times <- times[times <= tlim[2]]
     }
 
-    w <- as.numeric(dimnames(arr)[[3]])
+    w <- get_ArrayTimeBySpeciesBySize_w(x)
     sub <- arr[, species, , drop = FALSE]
 
     # Build long-format data frame; time varies fastest to match c(sub)
@@ -366,8 +401,7 @@ as.data.frame.ArrayTimeBySpeciesBySize <- function(x, row.names = NULL,
     times <- as.numeric(dimnames(x)[[1]])
     if (any(is.na(times))) times <- seq_len(dim(x)[1])
     sp_names <- dimnames(x)[[2]]
-    w <- as.numeric(dimnames(x)[[3]])
-    if (any(is.na(w))) w <- seq_len(dim(x)[3])
+    w <- get_ArrayTimeBySpeciesBySize_w(x)
 
     data.frame(
         expand.grid(time = times, Species = sp_names, w = w,
@@ -385,17 +419,20 @@ as.data.frame.ArrayTimeBySpeciesBySize <- function(x, row.names = NULL,
         attr(result, "value_name") <- attr(x, "value_name")
         attr(result, "units") <- attr(x, "units")
         attr(result, "params") <- attr(x, "params")
+        attr(result, "representation") <- attr(x, "representation")
         class(result) <- c("ArrayTimeBySpeciesBySize", "array")
     } else if (is.matrix(result)) {
         dim_names <- names(dimnames(result))
         attrs <- list(value_name = attr(x, "value_name"),
                       units = attr(x, "units"),
-                      params = attr(x, "params"))
+                      params = attr(x, "params"),
+                      representation = attr(x, "representation") %||% "point")
         if (identical(dim_names, c("sp", "w"))) {
             result <- ArraySpeciesBySize(result,
                                          value_name = attrs$value_name,
                                          units = attrs$units,
-                                         params = attrs$params)
+                                         params = attrs$params,
+                                         representation = attrs$representation)
         } else if (identical(dim_names, c("time", "sp"))) {
             result <- ArrayTimeBySpecies(result,
                                          value_name = attrs$value_name,

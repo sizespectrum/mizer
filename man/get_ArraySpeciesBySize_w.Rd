@@ -10,7 +10,13 @@ get_ArraySpeciesBySize_w(x)
 \item{x}{An \code{ArraySpeciesBySize} object.}
 }
 \value{
-A numeric vector giving the size represented by each column.
+A numeric vector giving the size represented by each column. When the
+array is tagged as a bin average (\code{representation = "average"}) \emph{and} the
+model uses second-order bin-averaging (\code{second_order_w[["bin_average"]]}),
+the geometric bin centres are returned instead of the left bin edges, so
+that bin-averaged quantities are drawn at the size where they actually live
+(see \code{\link[=bin_midpoints]{bin_midpoints()}}). Point-valued quantities and first-order models are
+unaffected, keeping default plots unchanged.
 }
 \description{
 Internal helper that returns the consumer size grid \code{params@w} or the full

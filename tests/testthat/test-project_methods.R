@@ -213,7 +213,8 @@ test_that("species-size rate getters work for MizerSim", {
 test_that("getCriticalFeedingLevel matches metab over intake_max times alpha", {
     expected <- params@metab / params@intake_max / params@species_params$alpha
     expect_equal(getCriticalFeedingLevel(params), expected,
-                 ignore_attr = c("value_name", "units", "class", "params"))
+                 ignore_attr = c("value_name", "units", "class", "params",
+                                 "representation"))
 })
 
 # getPredRate -------------------------------------------------------------

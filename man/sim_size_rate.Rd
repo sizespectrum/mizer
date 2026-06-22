@@ -13,6 +13,7 @@ sim_size_rate(
   value_name,
   units = NULL,
   use_sim_effort = FALSE,
+  representation = "point",
   ...
 )
 }

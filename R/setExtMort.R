@@ -178,10 +178,14 @@ getExtMort <- function(params) {
 }
 #' @export
 getExtMort.MizerParams <- function(params) {
+    # External mortality is a sink integrated against the abundance over the
+    # bin; under second-order bin-averaging mu_b is the exact bin average
+    # (see setExtMort()), so it is plotted at the geometric bin centre.
     ArraySpeciesBySize(params@mu_b,
                        value_name = "External mortality",
                        units = "1/year",
-                       params = params)
+                       params = params,
+                       representation = "average")
 }
 
 #' @rdname setExtMort
