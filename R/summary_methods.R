@@ -200,7 +200,7 @@ getDiet.MizerParams <- function(params,
 #' assuming the system is in a steady state. The trophic level of an individual
 #' is defined as 1 more than the consumption-rate-weighted average trophic level
 #' of all the prey it has consumed during its lifetime up to the current size.
-#' The trophic level of the primary resource is set to 0.
+#' The resource is given a size-dependent trophic level (see below).
 #'
 #'
 #' @details
@@ -232,10 +232,19 @@ getDiet.MizerParams <- function(params,
 #' r_{ij}(w, w_p) = \theta_{ij}\,\gamma_i(w)\,(1 - f_i(w))\,\phi_i(w/w_p)\,
 #'   N_j(w_p)\,w_p.
 #' }
-#' The sum over \eqn{j} runs over all species. The resource is excluded from
-#' the numerator because its trophic level is 0, but is included in the
-#' denominator (which equals the total biomass consumed over the predator's
-#' lifetime from egg size to current weight \eqn{w}).
+#' The sum over \eqn{j} runs over all species and the resource. The resource is
+#' assigned a size-dependent trophic level
+#' \deqn{
+#'   T_R(w) = \max\left(1,\; 1 + \frac{\log(w / w_R)}{\log(\beta_R)}\right),
+#' }
+#' where \eqn{w_R} is an average size of primary producers (which therefore have
+#' trophic level 1) and \eqn{\beta_R} is an average predator/prey mass ratio for
+#' the resource (for example zooplankton). This adds one trophic level for each
+#' factor of \eqn{\beta_R} increase in resource size, with a floor at 1 so that
+#' the resource trophic level never drops below the primary-producer level.
+#' Both the numerator and the denominator (which equals the total biomass
+#' consumed over the predator's lifetime from egg size to current weight
+#' \eqn{w}) therefore include the resource.
 #'
 #' This equation can be viewed as a linear system
 #' \eqn{(I - D)\,\mathbf{T} = \mathbf{1}} in which the entries of
@@ -247,6 +256,12 @@ getDiet.MizerParams <- function(params,
 #' \eqn{T_i(w)}.
 #'
 #' @inheritParams getDiet
+#' @param w_R An average size (in grams) of primary producers in the resource
+#'   spectrum, used to set the size-dependent resource trophic level. Defaults
+#'   to `1e-10`.
+#' @param beta_R An average predator/prey mass ratio for the resource spectrum,
+#'   used to set the size-dependent resource trophic level. Must be greater than
+#'   `1`. Defaults to `1000`.
 #' @param ... Unused
 #'
 #' @return An `ArraySpeciesBySize` object (species x size) with the trophic
@@ -264,6 +279,8 @@ getTrophicLevel <- function(params,
                             n = initialN(params),
                             n_pp = initialNResource(params),
                             n_other = initialNOther(params),
+                            w_R = 1e-10,
+                            beta_R = 1000,
                             ...) {
     UseMethod("getTrophicLevel")
 }
@@ -273,8 +290,12 @@ getTrophicLevel.MizerParams <- function(params,
                                         n = initialN(params),
                                         n_pp = initialNResource(params),
                                         n_other = initialNOther(params),
+                                        w_R = 1e-10,
+                                        beta_R = 1000,
                                         ...) {
     params <- validParams(params)
+    assert_that(is.number(w_R), w_R > 0,
+                is.number(beta_R), beta_R > 1)
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
@@ -299,6 +320,26 @@ getTrophicLevel.MizerParams <- function(params,
     # Initialised with T_j = 1 everywhere; updated as trophic levels are computed
     prey_mass_tl <- sweep(n, 2, w_ba * params@dw, "*")  # no_sp x no_w
 
+    # Size-dependent trophic level of the resource:
+    #   T_R(w) = max(1, 1 + log(w / w_R) / log(beta_R))
+    # where w_R is an average primary-producer size and beta_R an average
+    # predator/prey mass ratio for the resource. Unlike the species trophic
+    # levels, this is fixed by the formula, so the resource's whole contribution
+    # to the numerator can be precomputed before the size loop. This mirrors the
+    # `phi_prey_background` term in mizerEncounter().
+    tl_R <- pmax(1, 1 + log(params@w_full / w_R) / log(beta_R))  # no_w_full
+    # Full-grid summary weight, consistent with the species weight w_ba and with
+    # the resource weighting in mizerEncounter() (plain w_full on the default
+    # path; trapezoidal bin-average when second_order_w is on).
+    w_full_ba <- bin_average_summary_weight(params@w_full, params)
+    # TL-weighted resource biomass per bin.
+    resource_mass_tl <- tl_R * n_pp * w_full_ba * params@dw_full  # no_w_full
+    # Resource contribution to the TL-weighted encounter for every predator/size:
+    #   ae_R[i, k] = sum_p kernel[i, k, p] * resource_mass_tl[p]
+    ae_R <- rowSums(sweep(pred_kernel, 3, resource_mass_tl, "*"), dims = 2)
+    E_tl_resource <- params@search_vol *
+        (params@species_params$interaction_resource * ae_R)  # no_sp x no_w
+
     # Cumulative numerator A_i and denominator B_i (integrals weighted by 1/g dw)
     cumA <- numeric(no_sp)
     cumB <- numeric(no_sp)
@@ -314,6 +355,9 @@ getTrophicLevel.MizerParams <- function(params,
         pred_kernel_k <- matrix(pred_kernel[, k, idx_sp], nrow = no_sp)
         ae_k <- pred_kernel_k %*% t(prey_mass_tl)  # no_sp x no_sp
         E_tl <- params@search_vol[, k] * rowSums(params@interaction * ae_k)
+        # Add the TL-weighted resource contribution (resource trophic level is
+        # given by the formula, so this term is precomputed).
+        E_tl <- E_tl + E_tl_resource[, k]
 
         # Update trophic level for each species active at this size
         for (i in seq_len(no_sp)) {
@@ -354,7 +398,8 @@ getTrophicLevel.MizerParams <- function(params,
 #' where \eqn{r_i(w) = (1 - f_i(w))\,E_i(w)} is the consumption rate of an
 #' individual of species \eqn{i} at weight \eqn{w}, \eqn{N_i(w)} is the
 #' abundance density, and \eqn{T_i(w)} is the size-resolved trophic level
-#' from [getTrophicLevel()].
+#' from [getTrophicLevel()]. As in [getTrophicLevel()], the resource is given a
+#' size-dependent trophic level controlled by the `w_R` and `beta_R` arguments.
 #'
 #' @inheritParams getTrophicLevel
 #'
@@ -370,6 +415,8 @@ getTrophicLevelBySpecies <- function(params,
                                      n = initialN(params),
                                      n_pp = initialNResource(params),
                                      n_other = initialNOther(params),
+                                     w_R = 1e-10,
+                                     beta_R = 1000,
                                      ...) {
     UseMethod("getTrophicLevelBySpecies")
 }
@@ -379,9 +426,12 @@ getTrophicLevelBySpecies.MizerParams <- function(params,
                                                   n = initialN(params),
                                                   n_pp = initialNResource(params),
                                                   n_other = initialNOther(params),
+                                                  w_R = 1e-10,
+                                                  beta_R = 1000,
                                                   ...) {
     params <- validParams(params)
-    tl <- getTrophicLevel(params, n = n, n_pp = n_pp, n_other = n_other)
+    tl <- getTrophicLevel(params, n = n, n_pp = n_pp, n_other = n_other,
+                          w_R = w_R, beta_R = beta_R)
     tl[is.na(tl)] <- 0
     encounter <- getEncounter(params, n, n_pp, n_other)
     feeding_level <- getFeedingLevel(params, n, n_pp, n_other)

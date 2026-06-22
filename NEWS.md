@@ -11,6 +11,12 @@
   `upgrade.MizerParams()` / `upgrade.MizerSim()` method. See the "Upgrading
   objects across versions of your extension" section of
   `vignette("creating-extension-packages")`.
+  
+- `getTrophicLevel()` and `getTrophicLevelBySpecies()` now assign the resource a
+  size-dependent trophic level
+  `T_R(w) = max(1, 1 + log(w / w_R) / log(beta_R))` instead of treating it as
+  trophic level 0. The new `w_R` (average primary-producer size) and `beta_R`
+  (average resource predator/prey mass ratio) arguments control this.
 
 - Resource functions now return classed objects that support the same
   convenient `print()`, `summary()`, `plot()`, and `as.data.frame()` methods
@@ -19,10 +25,6 @@
   `resource_level()` return an `ArrayResourceBySize` object, and `NResource()`
   returns an `ArrayTimeByResourceBySize` object. So you can now do e.g.
   `plot(getResourceMort(NS_params))` or `plot(NResource(NS_sim))`.
-  Extensions that return a resource-by-size matrix from `getResourceMort()`
-  (such as mizerMR) now have that result passed through unwrapped so they can
-  wrap it in their own class. The internal plotting helpers `parsePlotLog()`
-  and `apply_wlim()` are now exported for reuse by such extensions.
   
 - Fixed a bug in `project()` where the abundances of other components (set via
   `setComponent()`) were advanced only once per saved time step instead of once
