@@ -235,6 +235,30 @@ test_that("getTrophicLevel increases along body size for apex predators", {
     expect_true(cod_tl[length(cod_tl)] >= cod_tl[1])
 })
 
+test_that("non-zero resource trophic level lifts trophic levels above 1", {
+    # With the resource carrying a trophic level >= 1, fish that feed should
+    # have trophic levels strictly above 1.
+    tl <- getTrophicLevel(NS_params_small)
+    expect_true(all(tl > 1, na.rm = TRUE))
+    expect_true(all(is.finite(tl[!is.na(tl)])))
+})
+
+test_that("getTrophicLevel responds monotonically to beta_R", {
+    # A smaller beta_R packs more trophic steps into the resource spectrum and
+    # so should give resource (and hence fish) higher trophic levels.
+    tl_low <- getTrophicLevel(NS_params_small, beta_R = 100)
+    tl_high <- getTrophicLevel(NS_params_small, beta_R = 1e6)
+    finite <- !is.na(tl_low) & !is.na(tl_high)
+    expect_true(all(tl_low[finite] >= tl_high[finite] - 1e-10))
+    expect_false(isTRUE(all.equal(tl_low[finite], tl_high[finite])))
+})
+
+test_that("getTrophicLevelBySpecies forwards w_R and beta_R", {
+    tl_default <- getTrophicLevelBySpecies(NS_params_small)
+    tl_low <- getTrophicLevelBySpecies(NS_params_small, beta_R = 100)
+    expect_false(isTRUE(all.equal(tl_default, tl_low)))
+})
+
 # getTrophicLevelBySpecies ----
 test_that("getTrophicLevelBySpecies returns named vector", {
     tl_sp <- getTrophicLevelBySpecies(params, n, n_pp)

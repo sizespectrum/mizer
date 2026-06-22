@@ -9,6 +9,8 @@ getTrophicLevel(
   n = initialN(params),
   n_pp = initialNResource(params),
   n_other = initialNOther(params),
+  w_R = 1e-10,
+  beta_R = 1000,
   ...
 )
 }
@@ -24,6 +26,14 @@ initial resource abundance stored in \code{params}.}
 \item{n_other}{A named list of the abundances of other dynamical
 components. Defaults to the initial values stored in \code{params}.}
 
+\item{w_R}{An average size (in grams) of primary producers in the resource
+spectrum, used to set the size-dependent resource trophic level. Defaults
+to \code{1e-10}.}
+
+\item{beta_R}{An average predator/prey mass ratio for the resource spectrum,
+used to set the size-dependent resource trophic level. Must be greater than
+\code{1}. Defaults to \code{1000}.}
+
 \item{...}{Unused}
 }
 \value{
@@ -37,7 +47,7 @@ Calculates the trophic level of individuals of each species at each size,
 assuming the system is in a steady state. The trophic level of an individual
 is defined as 1 more than the consumption-rate-weighted average trophic level
 of all the prey it has consumed during its lifetime up to the current size.
-The trophic level of the primary resource is set to 0.
+The resource is given a size-dependent trophic level (see below).
 }
 \details{
 In the traditional non-size-resolved approach, all individuals of a species
@@ -68,10 +78,19 @@ prey species \eqn{j} at weight \eqn{w_p}:
 r_{ij}(w, w_p) = \theta_{ij}\,\gamma_i(w)\,(1 - f_i(w))\,\phi_i(w/w_p)\,
   N_j(w_p)\,w_p.
 }
-The sum over \eqn{j} runs over all species. The resource is excluded from
-the numerator because its trophic level is 0, but is included in the
-denominator (which equals the total biomass consumed over the predator's
-lifetime from egg size to current weight \eqn{w}).
+The sum over \eqn{j} runs over all species and the resource. The resource is
+assigned a size-dependent trophic level
+\deqn{
+  T_R(w) = \max\left(1,\; 1 + \frac{\log(w / w_R)}{\log(\beta_R)}\right),
+}
+where \eqn{w_R} is an average size of primary producers (which therefore have
+trophic level 1) and \eqn{\beta_R} is an average predator/prey mass ratio for
+the resource (for example zooplankton). This adds one trophic level for each
+factor of \eqn{\beta_R} increase in resource size, with a floor at 1 so that
+the resource trophic level never drops below the primary-producer level.
+Both the numerator and the denominator (which equals the total biomass
+consumed over the predator's lifetime from egg size to current weight
+\eqn{w}) therefore include the resource.
 
 This equation can be viewed as a linear system
 \eqn{(I - D)\,\mathbf{T} = \mathbf{1}} in which the entries of

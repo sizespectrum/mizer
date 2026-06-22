@@ -4,7 +4,7 @@
 \alias{flux_from_rates}
 \title{Assemble the flux matrix from growth, diffusion and recruitment rates}
 \usage{
-flux_from_rates(params, n, g, d, rdd, power = 0)
+flux_from_rates(params, n, g, d, rdd, power = 0, flux_limiter = "none")
 }
 \arguments{
 \item{params}{A valid \code{MizerParams} object.}
@@ -20,6 +20,10 @@ from \code{\link[=getRDD]{getRDD()}}.}
 
 \item{power}{The flux at weight \eqn{w} is multiplied by \eqn{w} raised to
 \code{power}. The default \code{power = 0} leaves the flux of individuals unchanged.}
+
+\item{flux_limiter}{Advective-flux scheme: \code{"none"} (first-order upwind),
+\code{"van_leer"} or \code{"centred"} (second-order log-size scheme).  Defaults to
+\code{"none"}.}
 }
 \value{
 A plain species x size matrix of fluxes (no mizer array class).

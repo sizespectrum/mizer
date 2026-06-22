@@ -3,6 +3,7 @@
 # Copyright 2026 Gustav Delius.
 # Distributed under the GPL 3 or later.
 
+# print ----
 #' Print mizer objects
 #'
 #' Mizer supplies `print()` methods for the array-like objects returned by many
@@ -36,6 +37,7 @@
 #' @name print
 NULL
 
+# summary ----
 #' Summarise mizer objects
 #'
 #' Mizer provides `summary()` methods for model objects and for the specialised
@@ -61,8 +63,8 @@ NULL
 #' For array objects, a list of class `summary.ArraySpeciesBySize`,
 #' `summary.ArrayTimeBySpecies` or `summary.ArrayTimeBySpeciesBySize`.
 #'
-#' @aliases summary.ArraySpeciesBySize summary.ArrayTimeBySpecies summary.ArrayTimeBySpeciesBySize
-#' @seealso [print()], [as.data.frame()], [MizerParams()], [MizerSim()],
+#' @aliases summary.ArraySpeciesBySize summary.ArrayTimeBySpecies summary.ArrayTimeBySpeciesBySize summary.MizerSim summary.MizerParams
+#' @seealso [print()], [as.data.frame()], [str()], [MizerParams()], [MizerSim()],
 #'   [ArraySpeciesBySize()], [ArrayTimeBySpecies()],
 #'   [ArrayTimeBySpeciesBySize()]
 #'
@@ -76,6 +78,7 @@ NULL
 #' @name summary
 NULL
 
+# as.data.frame ----
 #' Convert mizer arrays to data frames
 #'
 #' The `as.data.frame()` methods for mizer array classes turn matrix- and
@@ -108,7 +111,7 @@ NULL
 #' @return A data frame in long format.
 #'
 #' @aliases as.data.frame.ArraySpeciesBySize as.data.frame.ArrayTimeBySpecies as.data.frame.ArrayTimeBySpeciesBySize
-#' @seealso [print()], [summary()], [plot()], [ArraySpeciesBySize()],
+#' @seealso [print()], [summary()], [str()], [plot()], [ArraySpeciesBySize()],
 #'   [ArrayTimeBySpecies()], [ArrayTimeBySpeciesBySize()]
 #'
 #' @examples
@@ -122,6 +125,7 @@ NULL
 #' @name as.data.frame
 NULL
 
+# str ----
 #' Display the structure of mizer objects
 #'
 #' Mizer provides `str()` methods for [MizerParams()] and [MizerSim()] objects,
@@ -130,12 +134,13 @@ NULL
 #' without polluting the console with large amounts of internal data.
 #'
 #' @param object The object to display the structure of.
+#' @param max.level Maximum level of nesting to print. Defaults to `NA` (no limit).
 #' @param ... Further arguments. They are passed to the default `str()` method.
 #'
 #' @return `NULL`, invisibly.
 #'
-#' @aliases str.ArraySpeciesBySize str.ArrayTimeBySpecies str.ArrayTimeBySpeciesBySize
-#' @seealso [MizerParams()], [MizerSim()], [ArraySpeciesBySize()],
+#' @aliases str.ArraySpeciesBySize str.ArrayTimeBySpecies str.ArrayTimeBySpeciesBySize str.MizerSim str.MizerParams
+#' @seealso [print()], [as.data.frame()], [summary()], [plot()], [MizerParams()], [MizerSim()], [ArraySpeciesBySize()],
 #'   [ArrayTimeBySpecies()], [ArrayTimeBySpeciesBySize()]
 #'
 #' @examples

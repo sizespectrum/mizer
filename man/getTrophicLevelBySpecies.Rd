@@ -9,6 +9,8 @@ getTrophicLevelBySpecies(
   n = initialN(params),
   n_pp = initialNResource(params),
   n_other = initialNOther(params),
+  w_R = 1e-10,
+  beta_R = 1000,
   ...
 )
 }
@@ -23,6 +25,14 @@ initial resource abundance stored in \code{params}.}
 
 \item{n_other}{A named list of the abundances of other dynamical
 components. Defaults to the initial values stored in \code{params}.}
+
+\item{w_R}{An average size (in grams) of primary producers in the resource
+spectrum, used to set the size-dependent resource trophic level. Defaults
+to \code{1e-10}.}
+
+\item{beta_R}{An average predator/prey mass ratio for the resource spectrum,
+used to set the size-dependent resource trophic level. Must be greater than
+\code{1}. Defaults to \code{1000}.}
 
 \item{...}{Unused}
 }
@@ -40,7 +50,8 @@ defined as
 where \eqn{r_i(w) = (1 - f_i(w))\,E_i(w)} is the consumption rate of an
 individual of species \eqn{i} at weight \eqn{w}, \eqn{N_i(w)} is the
 abundance density, and \eqn{T_i(w)} is the size-resolved trophic level
-from \code{\link[=getTrophicLevel]{getTrophicLevel()}}.
+from \code{\link[=getTrophicLevel]{getTrophicLevel()}}. As in \code{\link[=getTrophicLevel]{getTrophicLevel()}}, the resource is given a
+size-dependent trophic level controlled by the \code{w_R} and \code{beta_R} arguments.
 }
 \examples{
 getTrophicLevelBySpecies(NS_params)

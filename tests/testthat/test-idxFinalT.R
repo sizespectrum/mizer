@@ -15,7 +15,7 @@ test_that("N, NResource and getTimes expose stored arrays and times", {
     sim <- project(NS_params_small, t_max = 1, t_save = 0.5, progress_bar = FALSE)
 
     expect_equal(unclass(N(sim)), sim@n, ignore_attr = TRUE)
-    expect_identical(NResource(sim), sim@n_pp)
+    expect_equal(NResource(sim), sim@n_pp, ignore_attr = TRUE)
     expect_identical(getTimes(sim), c(0, 0.5, 1))
 })
 

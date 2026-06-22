@@ -232,14 +232,16 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
 
-    # second_order_w must be a named logical vector with entries
-    # flux_limiter and bin_average
+    # second_order_w must be a named list with entries flux and bin_average
     sow <- params@second_order_w
-    if (!is.logical(sow) || length(sow) != 2 ||
-        !identical(sort(names(sow)), c("bin_average", "flux_limiter")) ||
-        any(is.na(sow))) {
-        msg <- paste0("second_order_w must be a named logical vector with ",
-                      "entries 'flux_limiter' and 'bin_average'")
+    if (!is.list(sow) || length(sow) != 2 ||
+        !identical(sort(names(sow)), c("bin_average", "flux")) ||
+        !(sow[["flux"]] %in% c("upwind", "van_leer", "centred")) ||
+        !is.logical(sow[["bin_average"]]) || length(sow[["bin_average"]]) != 1 ||
+        is.na(sow[["bin_average"]])) {
+        msg <- paste0("second_order_w must be a named list with ",
+                      "entry 'flux' (\"upwind\", \"van_leer\" or \"centred\") ",
+                      "and logical entry 'bin_average'")
         errors <- c(errors, msg)
     }
 
@@ -286,11 +288,16 @@ validMizerParams <- function(object) {
 #' @slot metadata A list with metadata information. See [setMetadata()].
 #' @slot mizer_version The package version of mizer (as returned by
 #'   `packageVersion("mizer")`) that created or upgraded the model.
-#' @slot extensions A named vector of strings describing the extension chain
-#'   needed to run the model. The names are extension identifiers and S4 marker
-#'   class names. The order is the S3 dispatch order, from outermost to
-#'   innermost extension. The values are version strings, installation
-#'   specifications, or `NA_character_`. Extension subclasses are marker
+#' @slot extensions Describes the extension chain needed to run the model. The
+#'   entries are named by extension identifier (also the S4 marker class name)
+#'   and ordered in S3 dispatch order, from outermost to innermost extension.
+#'   It is either a named character vector whose values are requirement strings
+#'   (version strings, installation specifications, or `NA_character_`), or a
+#'   named list whose entries are length-2 character vectors
+#'   `c(requirement = ..., version = ...)`. The `version` records the version of
+#'   the extension package that last upgraded the object (`NA` if unknown) and
+#'   is used by [needs_upgrading()]. Use [recordExtension()] to write entries
+#'   rather than modifying the slot directly. Extension subclasses are marker
 #'   classes only and must not add slots.
 #' @slot time_created A POSIXct date-time object with the creation time.
 #' @slot time_modified A POSIXct date-time object with the last modified time.
@@ -341,6 +348,13 @@ validMizerParams <- function(object) {
 #'   appropriate for evaluating the predation mortality integral. If this is NA
 #'   then the `pred_kernel` will be used to calculate the integral.
 #'   Changed with [setPredKernel()].
+#' @slot ft_pred_kernel_d An array (species x log of predator/prey size ratio)
+#'   that holds the Fourier transform of the feeding kernel in a form
+#'   appropriate for evaluating the predation-diffusion integral (used when
+#'   `use_predation_diffusion` is `TRUE`). It differs from `ft_pred_kernel_e`
+#'   only when `second_order_w[["bin_average"]]` is `TRUE`, where it carries the
+#'   extra power of prey size that the diffusion integrand needs; otherwise it
+#'   equals `ft_pred_kernel_e`. Changed with [setPredKernel()].
 #' @slot rr_pp A vector the same length as the w_full slot. The size specific
 #'   growth rate of the resource spectrum.
 #' @slot cc_pp A vector the same length as the w_full slot. The size specific
@@ -401,10 +415,11 @@ validMizerParams <- function(object) {
 #'   diffusion is included when calculating rates with [mizerDiffusion()].
 #'   Defaults to `FALSE` to preserve the behaviour of previous mizer versions.
 #'   Set to `TRUE` to enable the diffusion term from the jump-growth equation.
-#' @slot second_order_w A named logical vector with entries `flux_limiter`
-#'   (controls whether a second-order advective flux is used for growth) and
-#'   `bin_average` (controls whether bin-averaging is used for rates). Both
-#'   default to `FALSE` to preserve the behaviour of previous mizer versions.
+#' @slot second_order_w A named list with entry `flux`
+#'   (the advective flux scheme: `"upwind"`, `"van_leer"`, or `"centred"`) and
+#'   logical entry `bin_average` (controls whether bin-averaging is used for
+#'   rates). Both default to the first-order setting to preserve the behaviour
+#'   of previous mizer versions.
 #'
 #' @seealso [project()] [MizerSim()]
 #'   [emptyParams()] [newMultispeciesParams()]
@@ -416,7 +431,7 @@ setClass(
     slots = c(
         metadata = "list",
         mizer_version = "ANY",
-        extensions = "character",
+        extensions = "ANY",
         time_created = "POSIXct",
         time_modified = "POSIXct",
         w = "numeric",
@@ -433,6 +448,7 @@ setClass(
         pred_kernel = "array",
         ft_pred_kernel_e = "array",
         ft_pred_kernel_p = "array",
+        ft_pred_kernel_d = "array",
         mu_b = "array",
         ext_encounter = "array",
         ext_diffusion = "array",
@@ -460,7 +476,7 @@ setClass(
         linetype = "character",
         ft_mask = "array",
         use_predation_diffusion = "logical",
-        second_order_w = "logical"
+        second_order_w = "list"
     ),
 )
 
@@ -718,6 +734,7 @@ emptyParams <- function(species_params,
         ext_diffusion = mat1,
         ft_pred_kernel_e = ft_pred_kernel,
         ft_pred_kernel_p = ft_pred_kernel,
+        ft_pred_kernel_d = ft_pred_kernel,
         pred_kernel = array(),
         gear_params = gear_params,
         selectivity = selectivity,
@@ -756,7 +773,7 @@ emptyParams <- function(species_params,
         linetype = linetype,
         ft_mask = ft_mask,
         use_predation_diffusion = FALSE,
-        second_order_w = c(flux_limiter = FALSE, bin_average = FALSE)
+        second_order_w = list(flux = "upwind", bin_average = FALSE)
     )
 
     return(params)
@@ -906,11 +923,14 @@ validParams <- function(params, info_level = 3) {
 #' @export
 validParams.MizerParams <- function(params, info_level = 3) {
 
-    if (needs_upgrading(params)) {
-        params <- suppressWarnings(upgradeParams(params))
+    if (mizer_needs_upgrading(params)) {
+        params <- suppressWarnings(upgrade.MizerParams(params))
         if (info_level > 0) {
             warning("Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params <- validParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.")
         }
+    }
+    if (extension_needs_upgrading(params)) {
+        params <- suppressWarnings(runExtensionUpgrades(params))
     }
 
     params@given_species_params <-

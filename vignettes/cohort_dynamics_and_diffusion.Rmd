@@ -44,7 +44,7 @@ library(plotly)
 We start by creating a single-species model using
 `newSingleSpeciesParams()`. This sets up a species embedded in a
 power-law background community, so that the encounter rate scales as $w^{3/4}$
-and the mortality rate scales as $w^{-1/4}.
+and the mortality rate scales as $w^{-1/4}$.
 
 ```{r}
 params <- newSingleSpeciesParams(h = 10, no_w = 400)
@@ -54,15 +54,10 @@ params <- newSingleSpeciesParams(h = 10, no_w = 400)
 
 To create distinct yearly cohorts, we need reproduction to happen in
 short bursts rather than continuously. We achieve this by writing a
-custom density-dependent reproduction rate function (RDD function) that
-only allows reproduction during a brief window at the start of each
-year.
-
+custom reproduction rate function (RDD function).
 The RDD function receives the current time `t` as an argument. We use
-this to turn reproduction on only during a short window at the start of
-each year and off at all other times. To maintain the same total annual
-egg production, we scale up the rate during the pulse to compensate for
-its short duration.
+this to turn reproduction on (smoothly) only during a short window at the start of
+each year and off at all other times.
 
 ```{r}
 # Custom RDD function: pulsed reproduction using a fixed rate
@@ -95,9 +90,11 @@ reproduction create cohorts from scratch.
 ```{r}
 initialN(params)[] <- 0
 
-sim_no_diff <- project(params, t_max = 5, dt = 0.01,
+second_order_w(params) <- TRUE
+
+sim_no_diff <- project(params, t_max = 5, dt = 0.005,
                        t_save = 0.05, progress_bar = FALSE,
-                       method = "predictor-corrector")
+                       method = "tr_bdf2")
 
 animate(sim_no_diff, log_x = TRUE, log_y = FALSE, power = 2, resource = FALSE,
         transition_duration = 0, frame_duration = 200)
@@ -122,7 +119,7 @@ params_pred_diff <- params
 use_predation_diffusion(params_pred_diff) <- TRUE
 sim_pred_diff <- project(params_pred_diff, t_max = 5, dt = 0.01,
                          t_save = 0.05, progress_bar = FALSE,
-                         method = "predictor-corrector")
+                         method = "tr_bdf2")
 
 animate(sim_pred_diff, log_x = TRUE, log_y = FALSE, power = 2, resource = FALSE,
         transition_duration = 0, frame_duration = 200)
@@ -159,12 +156,12 @@ compare the effects.
 species_params(params)$D_ext <- 0.1
 sim_medium_diff <- project(params, t_max = 5, dt = 0.01,
                       t_save = 0.05, progress_bar = FALSE,
-                      method = "predictor-corrector")
+                      method = "tr_bdf2")
 
 species_params(params)$D_ext <- 0.5
 sim_high_diff <- project(params, t_max = 5, dt = 0.01,
                      t_save = 0.05, progress_bar = FALSE,
-                     method = "predictor-corrector")
+                     method = "tr_bdf2")
 ```
 
 Let's compare simulations with no diffusion, only predation diffusion, a medium level of diffusion and a level of diffusion at time $t=5$:

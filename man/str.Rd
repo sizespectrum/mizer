@@ -5,9 +5,13 @@
 \alias{str.ArraySpeciesBySize}
 \alias{str.ArrayTimeBySpecies}
 \alias{str.ArrayTimeBySpeciesBySize}
+\alias{str.MizerSim}
+\alias{str.MizerParams}
 \title{Display the structure of mizer objects}
 \arguments{
 \item{object}{The object to display the structure of.}
+
+\item{max.level}{Maximum level of nesting to print. Defaults to \code{NA} (no limit).}
 
 \item{...}{Further arguments. They are passed to the default \code{str()} method.}
 }
@@ -28,6 +32,6 @@ str(getEncounter(NS_params))
 }
 }
 \seealso{
-\code{\link[=MizerParams]{MizerParams()}}, \code{\link[=MizerSim]{MizerSim()}}, \code{\link[=ArraySpeciesBySize]{ArraySpeciesBySize()}},
+\code{\link[=print]{print()}}, \code{\link[=as.data.frame]{as.data.frame()}}, \code{\link[=summary]{summary()}}, \code{\link[=plot]{plot()}}, \code{\link[=MizerParams]{MizerParams()}}, \code{\link[=MizerSim]{MizerSim()}}, \code{\link[=ArraySpeciesBySize]{ArraySpeciesBySize()}},
 \code{\link[=ArrayTimeBySpecies]{ArrayTimeBySpecies()}}, \code{\link[=ArrayTimeBySpeciesBySize]{ArrayTimeBySpeciesBySize()}}
 }

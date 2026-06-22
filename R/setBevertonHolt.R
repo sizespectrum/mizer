@@ -38,7 +38,7 @@
 #' The following plot illustrates the Beverton-Holt density dependence in the
 #' reproduction rate for two different choices of parameters.
 #'
-#' ```{r Beverton-Holt-plot, echo = FALSE, fig.height = 2.5, fig.width = 5}
+#' ```{r Beverton-Holt-plot, echo = FALSE, fig.height = 4.5, fig.width = 9}
 #' erepro <- 4
 #' R_max <- 1
 #' E_R <- seq(0, 2, by = 0.05)
