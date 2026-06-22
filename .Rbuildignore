@@ -40,6 +40,7 @@
 ^vignettes/mizer_vignette.pdf$
 ^vignettes/cheatsheet-analysis-and-plotting\.Rmd$
 ^vignettes/numerical_details\.qmd$
+^vignettes/default_parameters\.qmd$
 ^vignettes/\.quarto$
 ^vignettes/images$
 ^vignettes/Lysekil$

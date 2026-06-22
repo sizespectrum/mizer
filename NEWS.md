@@ -33,7 +33,7 @@
   `animate()`/`animateSpectra()` now evaluate the `w^power` weight *and* the
   marker location at the geometric bin centre `w* = w sqrt(beta)`, so each marker
   is a point `(w*, N_j (w*)^power)` on the continuous `N w^power` curve rather
-  than being doubly mis-placed at the bin edge (the location error grows with
+  than being doubly misplaced at the bin edge (the location error grows with
   `power`, worst for the common `power = 2` Sheldon plot). These
   spectrum-density changes apply only under second-order bin-averaging, so
   default spectrum plots are unchanged. (#383)
