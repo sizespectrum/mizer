@@ -29,11 +29,16 @@ abundances or harvest effort through time. These are held in
 \item{\code{mizer_version}}{The package version of mizer (as returned by
 \code{packageVersion("mizer")}) that created or upgraded the model.}
 
-\item{\code{extensions}}{A named vector of strings describing the extension chain
-needed to run the model. The names are extension identifiers and S4 marker
-class names. The order is the S3 dispatch order, from outermost to
-innermost extension. The values are version strings, installation
-specifications, or \code{NA_character_}. Extension subclasses are marker
+\item{\code{extensions}}{Describes the extension chain needed to run the model. The
+entries are named by extension identifier (also the S4 marker class name)
+and ordered in S3 dispatch order, from outermost to innermost extension.
+It is either a named character vector whose values are requirement strings
+(version strings, installation specifications, or \code{NA_character_}), or a
+named list whose entries are length-2 character vectors
+\code{c(requirement = ..., version = ...)}. The \code{version} records the version of
+the extension package that last upgraded the object (\code{NA} if unknown) and
+is used by \code{\link[=needs_upgrading]{needs_upgrading()}}. Use \code{\link[=recordExtension]{recordExtension()}} to write entries
+rather than modifying the slot directly. Extension subclasses are marker
 classes only and must not add slots.}
 
 \item{\code{time_created}}{A POSIXct date-time object with the creation time.}
@@ -102,6 +107,14 @@ that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the predation mortality integral. If this is NA
 then the \code{pred_kernel} will be used to calculate the integral.
 Changed with \code{\link[=setPredKernel]{setPredKernel()}}.}
+
+\item{\code{ft_pred_kernel_d}}{An array (species x log of predator/prey size ratio)
+that holds the Fourier transform of the feeding kernel in a form
+appropriate for evaluating the predation-diffusion integral (used when
+\code{use_predation_diffusion} is \code{TRUE}). It differs from \code{ft_pred_kernel_e}
+only when \code{second_order_w[["bin_average"]]} is \code{TRUE}, where it carries the
+extra power of prey size that the diffusion integrand needs; otherwise it
+equals \code{ft_pred_kernel_e}. Changed with \code{\link[=setPredKernel]{setPredKernel()}}.}
 
 \item{\code{rr_pp}}{A vector the same length as the w_full slot. The size specific
 growth rate of the resource spectrum.}
@@ -188,10 +201,11 @@ diffusion is included when calculating rates with \code{\link[=mizerDiffusion]{m
 Defaults to \code{FALSE} to preserve the behaviour of previous mizer versions.
 Set to \code{TRUE} to enable the diffusion term from the jump-growth equation.}
 
-\item{\code{second_order_w}}{A named logical vector with entries \code{flux_limiter}
-(controls whether a second-order advective flux is used for growth) and
-\code{bin_average} (controls whether bin-averaging is used for rates). Both
-default to \code{FALSE} to preserve the behaviour of previous mizer versions.}
+\item{\code{second_order_w}}{A named list with entry \code{flux}
+(the advective flux scheme: \code{"upwind"}, \code{"van_leer"}, or \code{"centred"}) and
+logical entry \code{bin_average} (controls whether bin-averaging is used for
+rates). Both default to the first-order setting to preserve the behaviour
+of previous mizer versions.}
 }}
 
 \seealso{

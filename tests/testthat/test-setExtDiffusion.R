@@ -99,3 +99,30 @@ test_that("Can get and set ext_diffusion slot", {
     expect_equal(ext_diffusion(params), new, ignore_attr = TRUE)
     expect_identical(comment(params@ext_diffusion), "test")
 })
+
+test_that("setExtDiffusion bin_average path matches the analytic bin average", {
+    params <- NS_params_small
+    params@species_params$D_ext <- seq_len(nrow(params@species_params)) / 10
+    params@species_params$n <- seq(0.6, by = 0.1,
+                                   length.out = nrow(params@species_params))
+
+    params@second_order_w[["bin_average"]] <- TRUE
+    p2 <- setExtDiffusion(params)
+
+    # Expected: D_ext times the exact bin average of w^(n+1) over each bin
+    w <- params@w
+    w_next <- params@w + params@dw
+    dw <- params@dw
+    expected <- matrix(0, nrow = nrow(params@species_params), ncol = length(w))
+    for (i in seq_len(nrow(params@species_params))) {
+        e <- params@species_params$n[i] + 1            # exponent of w
+        avg <- (w_next^(e + 1) - w^(e + 1)) / ((e + 1) * dw)
+        expected[i, ] <- params@species_params$D_ext[i] * avg
+    }
+    expect_equal(p2@ext_diffusion, expected, ignore_attr = TRUE)
+
+    # Differs from the point-sampled default
+    params@second_order_w[["bin_average"]] <- FALSE
+    p1 <- setExtDiffusion(params)
+    expect_false(isTRUE(all.equal(p1@ext_diffusion, p2@ext_diffusion)))
+})

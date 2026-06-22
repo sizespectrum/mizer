@@ -2,22 +2,19 @@
 % Please edit documentation in R/upgrade.R
 \name{upgradeParams}
 \alias{upgradeParams}
-\title{Upgrade MizerParams object from earlier mizer versions}
+\title{Back-compatible wrapper for the core MizerParams upgrade}
 \usage{
 upgradeParams(params)
 }
 \arguments{
-\item{params}{An old MizerParams object to be upgraded}
+\item{params}{An old MizerParams object.}
 }
 \value{
-The upgraded MizerParams object
+The upgraded MizerParams object.
 }
 \description{
-This function is called from \code{\link[=validParams]{validParams()}}. You should never need to call
-it directly.
+Retained because it was an (unexported) internal entry point. New code should
+rely on \code{validParams()} / \code{readParams()}, which orchestrate the core upgrade
+together with any extension upgrades.
 }
-\seealso{
-\code{\link[=validParams]{validParams()}}
-}
-\concept{helper}
 \keyword{internal}

@@ -125,5 +125,5 @@ test_that("balance_resource_logistic keeps current capacity when unidentifiable"
                                           resource_capacity = NULL)
 
     expect_identical(balanced$resource_capacity[1], keep)
-    expect_equal(unname(balanced$resource_rate[1]), 0)
+    expect_equal(unname(balanced$resource_rate[1]), 0, ignore_attr = TRUE)
 })

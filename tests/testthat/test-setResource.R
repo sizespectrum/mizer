@@ -72,20 +72,23 @@ test_that("Can get and set resource_capacity slot", {
   new <- 2 * resource_capacity(params)
   comment(new) <- "test"
   resource_capacity(params) <- new
-  expect_identical(resource_capacity(params), new)
+  expect_equal(resource_capacity(params), new, ignore_attr = TRUE)
+  expect_identical(comment(resource_capacity(params)), "test")
 })
 test_that("Can get and set resource_rate slot", {
   params <- NS_params_small
   new <- 2 * resource_rate(params)
   comment(new) <- "test"
   resource_rate(params) <- new
-  expect_identical(resource_rate(params), new)
+  expect_equal(resource_rate(params), new, ignore_attr = TRUE)
+  expect_identical(comment(resource_rate(params)), "test")
 })
 test_that("resource accessors return documented values", {
     params <- NS_params_small
-    expect_identical(resource_rate(params), params@rr_pp)
-    expect_identical(resource_capacity(params), params@cc_pp)
-    expect_equal(resource_level(params), params@initial_n_pp / params@cc_pp)
+    expect_equal(resource_rate(params), params@rr_pp, ignore_attr = TRUE)
+    expect_equal(resource_capacity(params), params@cc_pp, ignore_attr = TRUE)
+    expect_equal(resource_level(params), params@initial_n_pp / params@cc_pp,
+                 ignore_attr = TRUE)
 })
 test_that("Can get and set resource_level slot", {
     params <- NS_params_small

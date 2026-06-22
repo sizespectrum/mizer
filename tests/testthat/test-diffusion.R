@@ -103,3 +103,32 @@ test_that("mizerDiffusion increases when fish prey are present", {
     # At least one species should have larger diffusion with fish present
     expect_true(any(d_with_fish > d_no_fish))
 })
+
+test_that("predation diffusion uses its own bin-integrated kernel (#384)", {
+    params <- single_sp_params
+    params@use_predation_diffusion <- TRUE
+    n <- initialN(params)
+    n_pp <- initialNResource(params)
+    d_lo <- getDiffusion(params, n, n_pp)
+
+    p_hi <- params
+    second_order_w(p_hi) <- c(bin_average = TRUE)
+    d_hi <- getDiffusion(p_hi, n, n_pp)
+
+    # The dedicated diffusion kernel (beta^{3s} Jacobian) shifts the
+    # predation-diffusion rate away from the first-order point-sampled value.
+    expect_true(all(is.finite(d_hi)))
+    expect_true(all(d_hi >= 0))
+    expect_false(isTRUE(all.equal(unname(d_hi), unname(d_lo))))
+})
+
+test_that("predation diffusion default path mirrors the encounter kernel (#384)", {
+    # With bin_average off, ft_pred_kernel_d == ft_pred_kernel_e, so the
+    # diffusion integral is unchanged from previous mizer.
+    params <- single_sp_params
+    params@use_predation_diffusion <- TRUE
+    expect_identical(params@ft_pred_kernel_d, params@ft_pred_kernel_e)
+    n <- initialN(params)
+    n_pp <- initialNResource(params)
+    expect_true(all(is.finite(getDiffusion(params, n, n_pp))))
+})

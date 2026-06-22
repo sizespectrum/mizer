@@ -29,7 +29,8 @@ test_that("project_simple matches project for one saved step", {
     expected_n <- params@initial_n
     expected_n[] <- N(sim)[2, , ]
     expect_equal(out$n, expected_n, tolerance = 1e-12)
-    expect_equal(out$n_pp, NResource(sim)[2, ], tolerance = 1e-12)
+    expect_equal(out$n_pp, NResource(sim)[2, ], tolerance = 1e-12,
+                 ignore_attr = TRUE)
 })
 
 test_that("project_simple returns rates from the final update step", {

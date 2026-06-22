@@ -5,6 +5,8 @@
 \alias{summary.ArraySpeciesBySize}
 \alias{summary.ArrayTimeBySpecies}
 \alias{summary.ArrayTimeBySpeciesBySize}
+\alias{summary.MizerSim}
+\alias{summary.MizerParams}
 \title{Summarise mizer objects}
 \arguments{
 \item{object}{The object to summarise.}
@@ -42,7 +44,7 @@ summary(getFMort(NS_sim))
 }
 }
 \seealso{
-\code{\link[=print]{print()}}, \code{\link[=as.data.frame]{as.data.frame()}}, \code{\link[=MizerParams]{MizerParams()}}, \code{\link[=MizerSim]{MizerSim()}},
+\code{\link[=print]{print()}}, \code{\link[=as.data.frame]{as.data.frame()}}, \code{\link[=str]{str()}}, \code{\link[=MizerParams]{MizerParams()}}, \code{\link[=MizerSim]{MizerSim()}},
 \code{\link[=ArraySpeciesBySize]{ArraySpeciesBySize()}}, \code{\link[=ArrayTimeBySpecies]{ArrayTimeBySpecies()}},
 \code{\link[=ArrayTimeBySpeciesBySize]{ArrayTimeBySpeciesBySize()}}
 }

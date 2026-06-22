@@ -175,6 +175,29 @@ which replaces $\tilde\phi_i(\beta^{m})$ in the reversed-kernel construction of
 `ft_pred_kernel_p`. Again `mizerPredRate()` is unchanged because the predator
 vector already carries $dw = (\beta-1)\,w_n$.
 
+There is a second integral hidden in the predation rate. Its convolution output
+sits at the **prey** node $w_p$, but predation mortality enters the
+finite-volume update as a sink integrated against the prey density over the
+prey bin, $\tfrac{1}{\Delta w_p}\int_{\text{bin}}\mu_{\mathrm{pred}}(w_p)\,
+N(w_p)\,dw_p$. So, exactly as for external mortality and fishing, the rate that
+enters the mortality wants the **prey-bin average** of $P_j(w_p)$, not its value
+at the prey node. Bin-averaging the convolution output over the prey bin is a
+trapezoid fold of the (reversed) kernel over adjacent offsets,
+$$
+\bar\Phi^{P}_i[m] = \tfrac12\bigl(\Phi^{P}_i[m] + \Phi^{P}_i[m-1]\bigr),
+$$
+because $\tfrac12\bigl(P_j[w_{p}] + P_j[\beta w_{p}]\bigr)
+= \sum_n \tfrac12\bigl(\Phi^P_i[n-j] + \Phi^P_i[n-j-1]\bigr)\,Q_i[n]$. Storing
+$\mathrm{fft}(\bar\Phi^{P})$ as `ft_pred_kernel_p` makes `getPredRate()` come out
+already prey-bin-averaged, so both `mizerPredMort()` and `mizerResourceMort()`
+(the only consumers, both sinks) get the second-order mortality at no runtime
+cost and with no change to the rate functions. With this the two convolutions
+are fully bin-consistent: encounter integrates the prey bins, and predation
+integrates **both** the predator bins and the prey bins. (Encounter is *not*
+prey-bin-averaged on its output, because it feeds the growth flux — a
+point/face quantity — and is bin-averaged only at the reproduction integral; see
+`vignette("numerical_details")`.)
+
 ### Why this is the right weighting
 
 Take the box kernel $\tilde\phi = 1$ over a bin that lies fully inside the
@@ -251,10 +274,21 @@ parameter such as `beta` or `sigma`. Set `second_order_w(params) <- FALSE` to
 switch back to the first-order scheme. See [second_order_w()] for finer control
 over the individual second-order schemes.
 
-(The predation-diffusion rate, when enabled, reuses `ft_pred_kernel_e` and so
-inherits the bin-integrated encounter kernel. Its integrand carries an extra
-power of $w_p$, so a fully consistent diffusion kernel would use the weight
-$\beta^{3s}$ in place of $\beta^{2s}$; this refinement is left for future work.)
+The predation-diffusion rate (used when `use_predation_diffusion` is `TRUE`) is
+the same prey-bin convolution as the encounter, but its integrand carries one
+more power of prey size, $w_p^2\,dw_p$ instead of $w_p\,dw_p$. Under
+`second_order_w` it therefore needs its own bin-integrated kernel with the
+$\beta^{3s}$ Jacobian in place of the encounter's $\beta^{2s}$,
+$$
+\Phi^{D}_i[m] = \frac{\ln\beta}{\beta-1}\int_0^1 \tilde\phi_i(\beta^{\,m-s})\,\beta^{3s}\,ds ,
+$$
+which `setPredKernel()` precomputes and stores as `ft_pred_kernel_d`. For a box
+kernel over a fully-covered bin this evaluates to
+$(\beta^3-1)/(3(\beta-1)) = (\beta^2+\beta+1)/3$, the bin average of
+$(w_p/w_k)^2$ — the diffusion analogue of the encounter's $(\beta+1)/2$.
+`projectDiffusion()` convolves with `ft_pred_kernel_d`, which in the default
+first-order scheme equals `ft_pred_kernel_e`, so the default behaviour is
+unchanged.
 
 ## The Wrap-around Hack (`ft_mask`)
 

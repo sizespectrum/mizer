@@ -16,23 +16,69 @@ needs_upgrading <- function(object) {
     } else {
         stop("The object you supplied is neither a MizerParams nor a MizerSim object.")
     }
-    !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "3.0.0.9001"
+    mizer_needs_upgrading(params) || extension_needs_upgrading(params)
 }
 
-#' Upgrade MizerParams object from earlier mizer versions
+#' Whether the core mizer slots of an object need upgrading
 #'
-#' This function is called from [validParams()]. You should never need to call
-#' it directly.
+#' @param params A MizerParams object.
+#' @return TRUE or FALSE.
+#' @keywords internal
+mizer_needs_upgrading <- function(params) {
+    !.hasSlot(params, "mizer_version") ||
+        params@mizer_version < "3.0.0.9002"
+}
+
+#' Whether any extension recorded on an object needs upgrading
 #'
-#' @param params An old MizerParams object to be upgraded
+#' Returns TRUE if, for any extension recorded in the object's `@extensions`
+#' slot whose package is installed, the recorded version stamp is missing (`NA`)
+#' or older than the installed version of that package. A missing stamp counts
+#' as needing an upgrade so that objects created before extension-version
+#' tracking are brought up to date (and stamped) on first use; this is safe
+#' because [runExtensionUpgrades()] only calls an upgrade method if one is registered and
+#' such methods are written to be idempotent.
+#'
+#' @param params A MizerParams object.
+#' @return TRUE or FALSE.
+#' @keywords internal
+extension_needs_upgrading <- function(params) {
+    if (!.hasSlot(params, "extensions")) return(FALSE)
+    reqs <- extensionRequirements(params@extensions)
+    if (length(reqs) == 0) return(FALSE)
+    vers <- extensionVersions(params@extensions)
+    for (name in names(reqs)) {
+        installed <- tryCatch(utils::packageVersion(name),
+                              error = function(e) NULL)
+        if (is.null(installed)) next  # extension package not installed
+        stamp <- vers[[name]]
+        if (is.na(stamp) || package_version(stamp) < installed) {
+            return(TRUE)
+        }
+    }
+    FALSE
+}
+
+#' Upgrade the core slots of a MizerParams object
+#'
+#' This is the `MizerParams` method of the [upgrade()] generic and performs the
+#' *core mizer* upgrade only. It is called from the orchestrator
+#' [runExtensionUpgrades()], which also invokes any registered extension upgrade
+#' methods.
+#' You should never need to call it directly; use `validParams()` (or
+#' `readParams()`) instead.
+#'
+#' @param object An old MizerParams object to be upgraded
+#' @param ... Unused.
 #'
 #' @return The upgraded MizerParams object
 #' @concept helper
 #' @keywords internal
+#' @exportS3Method utils::upgrade
 #' @seealso [validParams()]
-upgradeParams <- function(params) {
-    if (!needs_upgrading(params)) return(params)
+upgrade.MizerParams <- function(object, ...) {
+    params <- object
+    if (!mizer_needs_upgrading(params)) return(params)
     original_params <- params
 
     # Preserve time_created
@@ -393,16 +439,20 @@ upgradeParams <- function(params) {
         params@use_predation_diffusion <- FALSE
     }
 
-    # Add second_order_w slot if missing (added in 3.0.x)
-    # Default to FALSE to preserve behaviour of previous mizer versions.
+    # Add/upgrade second_order_w slot (added in 3.0.x, changed to list in 3.0.x)
+    # Default to first-order settings to preserve behaviour of previous mizer versions.
     if (!.hasSlot(params, "second_order_w")) {
-        params@second_order_w <- c(flux_limiter = FALSE, bin_average = FALSE)
-    } else if (is.logical(params@second_order_w) &&
-               length(params@second_order_w) == 1) {
-        # Upgrade from earlier single-logical version of this slot
-        old_val <- params@second_order_w
-        params@second_order_w <- c(flux_limiter = old_val,
-                                   bin_average = old_val)
+        params@second_order_w <- list(flux = "upwind", bin_average = FALSE)
+    }
+
+    # Add ft_pred_kernel_d slot if missing (added in 3.0.0.9002). It mirrors
+    # ft_pred_kernel_e except under second_order_w bin-averaging; objects from
+    # earlier versions are first order, so the diffusion kernel equals the
+    # encounter kernel. (A later setParams() rebuilds it correctly if needed.)
+    if (!.hasSlot(params, "ft_pred_kernel_d") ||
+        !identical(dim(params@ft_pred_kernel_d),
+                   dim(params@ft_pred_kernel_e))) {
+        params@ft_pred_kernel_d <- params@ft_pred_kernel_e
     }
 
     params@mizer_version <- packageVersion("mizer")
@@ -410,6 +460,55 @@ upgradeParams <- function(params) {
     params@time_modified <- lubridate::now()
     params@time_created <- time_created
     reinstateParamsClass(params, original_params)
+}
+
+#' Back-compatible wrapper for the core MizerParams upgrade
+#'
+#' Retained because it was an (unexported) internal entry point. New code should
+#' rely on `validParams()` / `readParams()`, which orchestrate the core upgrade
+#' together with any extension upgrades.
+#'
+#' @param params An old MizerParams object.
+#' @return The upgraded MizerParams object.
+#' @keywords internal
+upgradeParams <- function(params) {
+    upgrade.MizerParams(params)
+}
+
+#' Run the registered extension upgrade methods on an object
+#'
+#' For each extension recorded in the object's `@extensions` slot (processed
+#' innermost-first) whose installed package version is newer than the recorded
+#' stamp (or whose stamp is missing), calls the extension's `upgrade` method if
+#' one is registered, then records the installed version as the new stamp. The
+#' core mizer upgrade is *not* run here; see [upgrade.MizerParams()].
+#'
+#' Extension upgrade methods are looked up with
+#' `getS3method("upgrade", name, optional = TRUE)`, must perform only their own
+#' migration, must be idempotent, and must not call `NextMethod()`.
+#'
+#' @param params A MizerParams object.
+#' @return The object with extension migrations applied and stamps refreshed.
+#' @keywords internal
+runExtensionUpgrades <- function(params) {
+    reqs <- extensionRequirements(params@extensions)
+    if (length(reqs) == 0) return(params)
+    vers <- extensionVersions(params@extensions)
+    # innermost extension first (the chain is stored outermost-first)
+    for (name in rev(names(reqs))) {
+        installed <- tryCatch(utils::packageVersion(name),
+                              error = function(e) NULL)
+        if (is.null(installed)) next  # extension package not installed
+        stamp <- vers[[name]]
+        if (!(is.na(stamp) || package_version(stamp) < installed)) next
+        method <- getS3method("upgrade", name, optional = TRUE)
+        if (!is.null(method)) {
+            params <- method(params)
+        }
+        params <- recordExtension(params, name,
+                                  version = as.character(installed))
+    }
+    params
 }
 
 reinstateParamsClass <- function(params, original_params) {
@@ -429,14 +528,22 @@ reinstateParamsClass <- function(params, original_params) {
     params
 }
 
-#' Upgrade MizerSim object from earlier mizer versions
+#' Upgrade a MizerSim object from earlier versions
 #'
-#' @param sim An old MizerSim object to be upgraded
+#' This is the `MizerSim` method of the [upgrade()] generic. It rebuilds the
+#' simulation around an upgraded params object; the params upgrade (core mizer
+#' and any extensions) is performed by the `validParams()` call below. You
+#' should never need to call it directly; use `validSim()` (or `readSim()`).
+#'
+#' @param object An old MizerSim object to be upgraded
+#' @param ... Unused.
 #'
 #' @return The upgraded MizerSim object
 #' @concept helper
 #' @keywords internal
-upgradeSim <- function(sim) {
+#' @exportS3Method utils::upgrade
+upgrade.MizerSim <- function(object, ...) {
+    sim <- object
     assert_that(is(sim, "MizerSim"))
     if (!needs_upgrading(sim)) return(sim)
 
@@ -464,4 +571,16 @@ upgradeSim <- function(sim) {
     comment(new_sim@effort) <- comment(sim@effort)
     validObject(new_sim)
     new_sim
+}
+
+#' Back-compatible wrapper for the MizerSim upgrade
+#'
+#' Retained because it was an (unexported) internal entry point. New code should
+#' rely on `validSim()` / `readSim()`.
+#'
+#' @param sim An old MizerSim object.
+#' @return The upgraded MizerSim object.
+#' @keywords internal
+upgradeSim <- function(sim) {
+    upgrade.MizerSim(sim)
 }

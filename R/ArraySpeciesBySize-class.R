@@ -268,6 +268,21 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
                   legend_var = "Legend")
 }
 
+#' Parse the log-axis arguments of a mizer plot function
+#'
+#' Internal helper that resolves the various ways of specifying which axes
+#' should use a logarithmic scale into a consistent pair of logical flags. It
+#' is exported so that extension packages (such as mizerMR) can reuse it in
+#' their own array `plot()` methods.
+#'
+#' @param log Either `NULL`, a single logical (legacy form, toggling only the
+#'   y-axis), or a character string containing only the letters `"x"` and/or
+#'   `"y"` to indicate which axes should be logarithmic.
+#' @param log_x,log_y Default logical flags used when `log` is `NULL`.
+#'
+#' @return A list with logical components `log_x` and `log_y`.
+#' @keywords internal
+#' @export
 parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
     if (is.null(log)) {
         return(list(log_x = log_x, log_y = log_y))
@@ -750,6 +765,19 @@ label_units <- function(label) {
     NULL
 }
 
+#' Restrict plot data to a range of weights
+#'
+#' Internal helper that filters a plot data frame to the weight range given by
+#' `wlim`. It is exported so that extension packages (such as mizerMR) can reuse
+#' it in their own array `plot()` methods.
+#'
+#' @param data A data frame with a numeric `w` column.
+#' @param wlim A length-2 numeric vector giving the lower and upper weight
+#'   limits. Either entry may be `NA` to leave that side unrestricted.
+#'
+#' @return The subset of `data` with `w` inside `wlim`.
+#' @keywords internal
+#' @export
 apply_wlim <- function(data, wlim) {
     if (!is.na(wlim[1])) data <- data[data$w >= wlim[1], ]
     if (!is.na(wlim[2])) data <- data[data$w <= wlim[2], ]

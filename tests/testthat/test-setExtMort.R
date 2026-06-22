@@ -149,7 +149,7 @@ test_that("setExtMort bin_average persists through setParams and projects", {
     params <- NS_params_small
     params@species_params$z_ext <- seq_len(nrow(params@species_params)) / 10
     second_order_w(params) <- c(bin_average = TRUE)
-    expect_true(isTRUE(params@second_order_w[["bin_average"]]))
+    expect_true(params@second_order_w[["bin_average"]])
 
     # mu_b is the bin-averaged version after the setParams pipeline
     p_ref <- params

@@ -1,29 +1,36 @@
 #' Get or set the second_order_w flags
 #'
-#' Controls whether second-order numerical methods are use.
+#' Controls whether mizer uses numerical methods that are precise to second
+#' order in \eqn{\Delta w}.
 #'
-#' The slot is a named logical vector with entries:
+#' The slot is a named list with entries:
 #'
 #' \describe{
-#'   \item{`flux_limiter`}{Controls whether a second-order advective flux
-#'     (with flux limiter) is used in the numerical solver. When `FALSE`, a
-#'     first-order upwind scheme is used.}
-#'   \item{`bin_average`}{Controls whether bin-averaging is used for quantities
-#'     that need it in order to be second-order precise in bin size.
+#'   \item{`flux`}{The advective-flux reconstruction scheme used in the
+#'     numerical solver. `"upwind"` is the first-order upwind scheme.
+#'     `"van_leer"` is the second-order scheme with the total-variation-
+#'     diminishing van Leer limiter, which keeps abundances non-negative.
+#'     `"centred"` is the second-order scheme with the unlimited centred flux,
+#'     which is genuinely second order even at extrema but is not
+#'     monotonicity-preserving (it can produce small over/undershoots and is
+#'     best used with some physical diffusion).}
+#'   \item{`bin_average`}{Logical. Controls whether bin-averaging is used for
+#'     quantities that need it in order to be second-order precise in bin size.
 #'     When `FALSE`, point-sampling at the left bin edge is used.}
 #' }
 #'
-#' When both are `FALSE` (the default), mizer preserves the behaviour of
-#' previous mizer versions. Setting both to `TRUE` gives a consistently
-#' second-order model.
+#' When `flux` is `"upwind"` and `bin_average` is `FALSE` (the defaults),
+#' mizer preserves the behaviour of previous mizer versions. Setting both to
+#' their second-order values gives a consistently second-order model.
 #'
-#' The setter accepts either a single logical value (which sets both entries)
-#' or a named logical vector to set individual entries. The setter re-runs
-#' [setParams()] to rebuild precomputed arrays when `bin_average` is changed.
+#' The setter accepts a single logical value (which sets both entries), a single
+#' scheme name (which sets only `flux`), or a named vector to set individual
+#' entries. The setter re-runs [setParams()] to rebuild precomputed arrays when
+#' `bin_average` is changed.
 #'
 #' @param params A MizerParams object.
-#' @return `second_order_w()`: A named logical vector with entries
-#'   `flux_limiter` and `bin_average`.
+#' @return `second_order_w()`: A named list with entries `flux` (character) and
+#'   `bin_average` (logical).
 #' @export
 second_order_w <- function(params) {
     params@second_order_w
@@ -31,34 +38,64 @@ second_order_w <- function(params) {
 
 #' @rdname second_order_w
 #' @param value A single logical value (`TRUE` or `FALSE`) which sets both
-#'   entries, or a named logical vector with entries `flux_limiter` and/or
-#'   `bin_average`.
+#'   entries, a single flux scheme name (`"upwind"`, `"van_leer"` or
+#'   `"centred"`) which sets only `flux`, or a named vector with entries
+#'   `flux` (logical or scheme name) and/or `bin_average` (logical).
 #' @return `second_order_w<-`: A MizerParams object with the `second_order_w`
 #'   flags updated and, when `bin_average` is changed, all model parameters
 #'   recalculated via [setParams()].
 #' @export
 `second_order_w<-` <- function(params, value) {
     old_bin_average <- params@second_order_w[["bin_average"]]
-    if (is.logical(value) && length(value) == 1 && !is.na(value) && is.null(names(value))) {
-        params@second_order_w[] <- value
-    } else if (is.logical(value) && !is.null(names(value))) {
-        valid_names <- c("flux_limiter", "bin_average")
-        unknown <- setdiff(names(value), valid_names)
+
+    # Translate a flux value (logical or scheme name) into a scheme string.
+    flux_scheme <- function(v) {
+        if (is.logical(v)) {
+            if (length(v) != 1 || is.na(v)) {
+                stop("second_order_w flux entry must not be NA")
+            }
+            if (v) "van_leer" else "upwind"
+        } else {
+            match.arg(as.character(v), c("upwind", "van_leer", "centred"))
+        }
+    }
+    as_flag <- function(v, what) {
+        v <- as.logical(v)
+        if (length(v) != 1 || is.na(v)) {
+            stop("second_order_w ", what, " entry must be TRUE or FALSE")
+        }
+        v
+    }
+
+    if (is.null(names(value)) && length(value) == 1) {
+        scheme <- flux_scheme(value)
+        params@second_order_w[["flux"]] <- scheme
+        # A single logical also sets bin_average; a single scheme name does not.
+        if (is.logical(value)) {
+            params@second_order_w[["bin_average"]] <- as.logical(value)
+        }
+    } else if (!is.null(names(value))) {
+        unknown <- setdiff(names(value), c("flux", "bin_average"))
         if (length(unknown) > 0) {
             stop("Unknown second_order_w entries: ",
                  paste(unknown, collapse = ", "),
-                 ". Valid entries are: flux_limiter, bin_average")
+                 ". Valid entries are: flux, bin_average")
         }
-        if (any(is.na(value))) {
-            stop("second_order_w entries must not be NA")
+        if ("flux" %in% names(value)) {
+            params@second_order_w[["flux"]] <- flux_scheme(value[["flux"]])
         }
-        params@second_order_w[names(value)] <- value
+        if ("bin_average" %in% names(value)) {
+            params@second_order_w[["bin_average"]] <-
+                as_flag(value[["bin_average"]], "bin_average")
+        }
     } else {
-        stop("second_order_w must be a single logical value or a named ",
-             "logical vector with entries 'flux_limiter' and/or 'bin_average'")
+        stop("second_order_w must be a single logical value, a single flux ",
+             "scheme name, or a named vector with entries 'flux' ",
+             "and/or 'bin_average'")
     }
+
     new_bin_average <- params@second_order_w[["bin_average"]]
-    if (old_bin_average != new_bin_average) {
+    if (!identical(old_bin_average, new_bin_average)) {
         params <- setParams(params)
     }
     params

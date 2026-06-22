@@ -52,6 +52,7 @@ Other extension tools:
 \code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
 \code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
+\code{\link[=recordExtension]{recordExtension()}},
 \code{\link[=registerExtension]{registerExtension()}},
 \code{\link[=setComponent]{setComponent()}},
 \code{\link[=setRateFunction]{setRateFunction()}}

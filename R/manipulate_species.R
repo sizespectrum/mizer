@@ -416,6 +416,9 @@ removeSpecies.MizerParams <- function(params, species, ...) {
     if (length(dim(params@ft_pred_kernel_p)) == 2) {
         p@ft_pred_kernel_p <- params@ft_pred_kernel_p[keep, , drop = FALSE]
     }
+    if (length(dim(params@ft_pred_kernel_d)) == 2) {
+        p@ft_pred_kernel_d <- params@ft_pred_kernel_d[keep, , drop = FALSE]
+    }
     if (length(dim(params@pred_kernel)) == 3) {
         p@pred_kernel <- params@pred_kernel[keep, , , drop = FALSE]
     }
@@ -524,6 +527,7 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
     if (length(dim(params@ft_pred_kernel_e)) == 2) {
         dimnames(params@ft_pred_kernel_e)$sp <- species
         dimnames(params@ft_pred_kernel_p)$sp <- species
+        dimnames(params@ft_pred_kernel_d)$sp <- species
     } else {
         dimnames(params@pred_kernel)$sp <- species
     }

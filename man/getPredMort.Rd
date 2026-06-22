@@ -89,6 +89,7 @@ Other rate functions:
 \code{\link[=getFMortGear]{getFMortGear()}},
 \code{\link[=getFeedingLevel]{getFeedingLevel()}},
 \code{\link[=getFlux]{getFlux()}},
+\code{\link[=getFluxGradient]{getFluxGradient()}},
 \code{\link[=getMort]{getMort()}},
 \code{\link[=getPredRate]{getPredRate()}},
 \code{\link[=getRDD]{getRDD()}},

@@ -104,6 +104,7 @@ Other extension tools:
 \code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
 \code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
+\code{\link[=recordExtension]{recordExtension()}},
 \code{\link[=registerExtension]{registerExtension()}},
 \code{\link[=registerExtensions]{registerExtensions()}},
 \code{\link[=setComponent]{setComponent()}}

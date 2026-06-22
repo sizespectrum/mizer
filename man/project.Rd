@@ -20,36 +20,6 @@ project(
   method = c("euler", "predictor_corrector", "tr_bdf2"),
   ...
 )
-
-\method{project}{MizerParams}(
-  object,
-  effort,
-  t_max = 100,
-  dt = 0.1,
-  t_save = 1,
-  t_start = 0,
-  initial_n,
-  initial_n_pp,
-  append = TRUE,
-  progress_bar = TRUE,
-  method = c("euler", "predictor_corrector", "tr_bdf2"),
-  ...
-)
-
-\method{project}{MizerSim}(
-  object,
-  effort,
-  t_max = 100,
-  dt = 0.1,
-  t_save = 1,
-  t_start = 0,
-  initial_n,
-  initial_n_pp,
-  append = TRUE,
-  progress_bar = TRUE,
-  method = c("euler", "predictor_corrector", "tr_bdf2"),
-  ...
-)
 }
 \arguments{
 \item{object}{Either a \linkS4class{MizerParams} object or a
@@ -169,9 +139,9 @@ be ignored.
 \section{Advective flux scheme}{
 
 The spatial discretisation of the growth (advection) term is controlled by
-the \code{flux_limiter} entry of the \code{second_order_w} slot of the params object,
-not by an argument to \code{project()}. With the default (\code{FALSE}) the first-order
-upwind flux is used. Setting it to \code{TRUE} (for example with
+the \code{flux} entry of the \code{second_order_w} slot of the params object, not by
+an argument to \code{project()}. With the default (\code{"upwind"}) the first-order
+upwind flux is used. Setting it to \code{"van_leer"} (for example with
 \code{second_order_w(params) <- TRUE}) switches on a flux-limited (van Leer, TVD)
 deferred correction that removes the leading numerical diffusion
 \eqn{\approx g\,w\,\log\beta} of the upwind flux while keeping the density
