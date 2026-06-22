@@ -6,6 +6,27 @@
   `setPredKernel(params, pred_kernel = ...)`) the diffusion integral is
   evaluated by direct summation over the full predation kernel instead of via
   the FFT method, which assumes a ratio-only kernel. (#373)
+  
+- `newMultispeciesParams()`, `newTraitParams()`, `newCommunityParams()` and
+  `newSingleSpeciesParams()` gain a `second_order_w` argument that selects the
+  second-order numerical scheme for the new model (accepting the same values as
+  the `second_order_w()` setter). The `bin_average` choice is applied before the
+  resource and abundance power laws are constructed, so they are built
+  bin-averaged from the start; the `flux` scheme governs projection only, so the
+  robust upwind scheme is used for the construction-time steady-state solve and
+  the chosen scheme is activated for the returned model. Defaults to `FALSE`.
+  (#379)
+
+- Under second-order bin-averaging (`second_order_w[["bin_average"]]`), the
+  initial resource abundance `kappa * w^(-lambda)` is now built from its exact
+  bin average over each size bin (with the bin straddling `w_pp_cutoff` getting
+  the partial average) instead of being point-sampled at the left bin edge. This
+  applies to the initial spectrum in `newMultispeciesParams()` and to the
+  temporary prey spectra used to compute the default `gamma`/`f0` and consumer
+  initial abundances, so the resource starts as a finite-volume cell average
+  consistent with the bin-averaged capacity and the bin-integrated encounter
+  convolution. The default (first-order) path is byte-identical to previous
+  mizer. (#379)
 
 - Under second-order bin-averaging (`second_order_w[["bin_average"]]`), the
   spectrum plots `plotSpectra()`, `plotlySpectra()`, `plotSpectraRelative()` and

@@ -77,6 +77,7 @@ newSingleSpeciesParams <-
              gamma = NA,
              ext_mort_prop = 0,
              reproduction_level = 0,
+             second_order_w = FALSE,
              R_factor = deprecated(),
              w_inf = deprecated(),
              k_vb = deprecated()) {
@@ -168,6 +169,10 @@ newSingleSpeciesParams <-
         erepro = erepro,
         stringsAsFactors = FALSE
     )
+    # Build with the requested bin-averaging but the robust upwind flux; the
+    # chosen flux scheme is for projection only and is activated at the end,
+    # after the construction-time steady-state solve below.
+    target_sow <- resolve_second_order_w(second_order_w)
     params <-
         suppressMessages(newMultispeciesParams(
             species_params,
@@ -179,7 +184,8 @@ newSingleSpeciesParams <-
             kappa = kappa,
             n = n,
             p = p,
-            resource_dynamics = "resource_constant"
+            resource_dynamics = "resource_constant",
+            second_order_w = c(bin_average = target_sow[["bin_average"]])
         ))
     # No cannibalism
     params@interaction[] <- 0
@@ -246,6 +252,9 @@ newSingleSpeciesParams <-
     params@given_species_params$erepro <- params@species_params$erepro
 
     params <- setBevertonHolt(params, reproduction_level = reproduction_level)
+
+    # Activate the chosen advective-flux scheme now construction is done.
+    params@second_order_w[["flux"]] <- target_sow[["flux"]]
 
     return(params)
 }
