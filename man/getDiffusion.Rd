@@ -73,6 +73,13 @@ and the resource interaction vector \eqn{\theta_{ip}} is taken from the
 \eqn{f(w)} is the feeding level calculated with
 \code{\link[=getFeedingLevel]{getFeedingLevel()}}. \eqn{\psi(w)} is the proportion of the available energy
 that is invested in reproduction instead of growth, obtained with \code{\link[=psi]{psi()}}.
+
+The diffusion integral is normally evaluated efficiently with a fast Fourier
+transform, which assumes that the predation kernel depends only on the ratio
+of predator to prey size. If a custom predation kernel that depends on
+predator and prey size separately has been set with \code{\link[=setPredKernel]{setPredKernel()}}, the
+integral is instead evaluated by direct summation over the full predation
+kernel, as in \code{\link[=getEncounter]{getEncounter()}}.
 }
 \references{
 Datta, S., Delius, G. W. and Law, R. (2010). A jump-growth model for
