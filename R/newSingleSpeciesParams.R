@@ -211,16 +211,16 @@ newSingleSpeciesParams <-
 
     initial_n <- params@psi  # get array with correct dimensions and names
     initial_n[, ] <- 0
-    mumu <- mu0 * w^(n - 1)  # Death rate
-    params@mu_b[] <- mumu
-    comment(params@mu_b) <- "power-law"
+    params@species_params$z_ext <- mu0
+    params@given_species_params$z_ext <- mu0
+    params <- setExtMort(params)
     i_inf <- sum(params@w <= w_max)  # index of maximum size
     idx <- 1:(i_inf - 1)
     idxs <- 1:i_inf
     gg <- hbar * w^n * (1 - params@psi[1, ])  # Growth rate
     # Steady state solution of the upwind-difference scheme used in project
     growth_matrix <- matrix(gg, nrow = 1)
-    mort_matrix <- matrix(mumu, nrow = 1)
+    mort_matrix <- params@mu_b
     diffusion_matrix <- growth_matrix
     diffusion_matrix[] <- 0
     n_exact <- get_steady_state_n(params, growth_matrix, mort_matrix,
