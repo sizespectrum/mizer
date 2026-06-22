@@ -1,5 +1,6 @@
 #' Get or set the second_order_w flags
 #'
+#' `r lifecycle::badge("experimental")`
 #' Controls whether mizer uses numerical methods that are precise to second
 #' order in \eqn{\Delta w}.
 #'
