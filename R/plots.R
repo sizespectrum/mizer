@@ -1676,12 +1676,14 @@ plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim, lli
     # A CDF value is cumulative *up to a size* — a boundary quantity — so it
     # belongs on the bin edges, not the bin centres. Under second-order
     # bin-averaging `plot_spectra()` returns its density on the geometric bin
-    # centres (issue #383); for the CDF we map those back to the bin edges
-    # (w = w* / sqrt(beta)) so the cumulative stays on the grid nodes. The
-    # density *values* are kept centre-weighted, so each increment
-    # value * dw_k = N_k (w*_k)^power dw_k is still the second-order bin integral
-    # of N w^power. (See get_ArraySpeciesBySize_w() and the FFT/numerical-details
-    # vignettes.)
+    # centres (issue #383). Here we map those back to the grid nodes
+    # (w = w* / sqrt(beta)) so that `prepare_spectra_cdf_data()` can look up the
+    # bin widths and form the bin integrals; that helper then places the
+    # cumulative on the *upper* bin edges (see its comments for the inclusive
+    # convention). The density *values* are kept centre-weighted, so each
+    # increment value * dw_k = N_k (w*_k)^power dw_k is the second-order bin
+    # integral of N w^power. (See get_ArraySpeciesBySize_w() and the
+    # FFT/numerical-details vignettes.)
     if (isTRUE(params@second_order_w[["bin_average"]])) {
         beta <- params@w_full[2] / params@w_full[1]
         plot_dat$w <- plot_dat$w / sqrt(beta)
@@ -1727,13 +1729,26 @@ prepare_spectra_cdf_data <- function(plot_dat, params, normalise = TRUE) {
     params <- validParams(params)
     y_var <- names(plot_dat)[2]
     plot_dat <- plot_dat[order(plot_dat$Species, plot_dat$w), ]
-    plot_dat[[y_var]] <- plot_dat[[y_var]] * spectra_bin_width(plot_dat$w, params)
+    # Each bin contributes its integral, value * dw_k, which under second-order
+    # bin-averaging is N_k (w*_k)^power dw_k, the second-order bin integral of
+    # N w^power.
+    widths <- spectra_bin_width(plot_dat$w, params)
+    plot_dat[[y_var]] <- plot_dat[[y_var]] * widths
+    # The cumulative sum is *inclusive*: the sum through bin k integrates
+    # N w^power over all bins up to and including bin k, so it equals the CDF at
+    # that bin's *upper* edge w_k + dw_k, not at its left edge w_k.
     plot_dat[[y_var]] <- stats::ave(plot_dat[[y_var]], plot_dat$Species,
                                     FUN = cumsum)
     if (normalise) {
         totals <- stats::ave(plot_dat[[y_var]], plot_dat$Species, FUN = max)
         plot_dat[[y_var]] <- plot_dat[[y_var]] / totals
     }
+    # Make the inclusive convention explicit by placing each cumulative value at
+    # its bin's upper edge w_k + dw_k, the size up to which it accumulates. This
+    # corrects the historical one-bin (O(dx)) location offset (the inclusive sum
+    # was previously plotted at the left edge) and applies in both the default
+    # and the second-order schemes.
+    plot_dat$w <- plot_dat$w + widths
     plot_dat
 }
 

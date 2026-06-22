@@ -6,10 +6,17 @@
   marker location at the geometric bin centre `w* = w sqrt(beta)`, so each marker
   is a point `(w*, N_j (w*)^power)` on the continuous `N w^power` curve rather
   than being doubly mis-placed at the bin edge (the location error grows with
-  `power`, worst for the common `power = 2` Sheldon plot). `plotCDF()` /
-  `plotlyCDF()`, being cumulative integrals, keep their increments
-  bin-averaged but plot the cumulative on the bin **edges**, not the centres.
-  The default (first-order) behaviour is unchanged. (#383)
+  `power`, worst for the common `power = 2` Sheldon plot). These
+  spectrum-density changes apply only under second-order bin-averaging, so
+  default spectrum plots are unchanged. (#383)
+
+- `plotCDF()` / `plotlyCDF()` now plot each cumulative value on its bin's
+  **upper** edge `w_k + dw_k`, following the inclusive cumulative-sum
+  convention (the sum through bin `k` is the integral up to that bin's upper
+  edge). This corrects a long-standing one-bin location offset and applies in
+  both the default and the second-order schemes; under second-order
+  bin-averaging the CDF is then second-order accurate in its placement as well
+  as its increments. (#383)
 
 - Size-resolved diagnostics that are finite-volume bin averages (the
   mortalities `getPredMort()`, `getFMort()`, `getMort()`, `getExtMort()`, and
