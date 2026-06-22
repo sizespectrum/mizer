@@ -53,7 +53,8 @@ readParams <- function(file, install_extensions = FALSE) {
     }
 
     if (length(params@extensions) > 0) {
-        registerExtensions(params@extensions, install = install_extensions)
+        registerExtensions(extensionRequirements(params@extensions),
+                           install = install_extensions)
     }
 
     params <- coerceToExtensionClass(params)
@@ -117,7 +118,8 @@ readSim <- function(file, install_extensions = FALSE) {
     }
 
     if (length(sim@params@extensions) > 0) {
-        registerExtensions(sim@params@extensions, install = install_extensions)
+        registerExtensions(extensionRequirements(sim@params@extensions),
+                           install = install_extensions)
     }
 
     sim@params <- coerceToExtensionClass(sim@params)
@@ -178,7 +180,8 @@ checkCustomFunctions <- function(params) {
 }
 
 requiredExtensionPackages <- function(params) {
-    c("mizer", names(params@extensions)[!is.na(params@extensions)])
+    reqs <- extensionRequirements(params@extensions)
+    c("mizer", names(reqs)[!is.na(reqs)])
 }
 
 is_custom <- function(name, packages) {

@@ -288,11 +288,16 @@ validMizerParams <- function(object) {
 #' @slot metadata A list with metadata information. See [setMetadata()].
 #' @slot mizer_version The package version of mizer (as returned by
 #'   `packageVersion("mizer")`) that created or upgraded the model.
-#' @slot extensions A named vector of strings describing the extension chain
-#'   needed to run the model. The names are extension identifiers and S4 marker
-#'   class names. The order is the S3 dispatch order, from outermost to
-#'   innermost extension. The values are version strings, installation
-#'   specifications, or `NA_character_`. Extension subclasses are marker
+#' @slot extensions Describes the extension chain needed to run the model. The
+#'   entries are named by extension identifier (also the S4 marker class name)
+#'   and ordered in S3 dispatch order, from outermost to innermost extension.
+#'   It is either a named character vector whose values are requirement strings
+#'   (version strings, installation specifications, or `NA_character_`), or a
+#'   named list whose entries are length-2 character vectors
+#'   `c(requirement = ..., version = ...)`. The `version` records the version of
+#'   the extension package that last upgraded the object (`NA` if unknown) and
+#'   is used by [needs_upgrading()]. Use [recordExtension()] to write entries
+#'   rather than modifying the slot directly. Extension subclasses are marker
 #'   classes only and must not add slots.
 #' @slot time_created A POSIXct date-time object with the creation time.
 #' @slot time_modified A POSIXct date-time object with the last modified time.
@@ -426,7 +431,7 @@ setClass(
     slots = c(
         metadata = "list",
         mizer_version = "ANY",
-        extensions = "character",
+        extensions = "ANY",
         time_created = "POSIXct",
         time_modified = "POSIXct",
         w = "numeric",
@@ -918,11 +923,14 @@ validParams <- function(params, info_level = 3) {
 #' @export
 validParams.MizerParams <- function(params, info_level = 3) {
 
-    if (needs_upgrading(params)) {
-        params <- suppressWarnings(upgradeParams(params))
+    if (mizer_needs_upgrading(params)) {
+        params <- suppressWarnings(upgrade.MizerParams(params))
         if (info_level > 0) {
             warning("Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params <- validParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.")
         }
+    }
+    if (extension_needs_upgrading(params)) {
+        params <- suppressWarnings(runExtensionUpgrades(params))
     }
 
     params@given_species_params <-

@@ -2,18 +2,18 @@
 % Please edit documentation in R/upgrade.R
 \name{upgradeSim}
 \alias{upgradeSim}
-\title{Upgrade MizerSim object from earlier mizer versions}
+\title{Back-compatible wrapper for the MizerSim upgrade}
 \usage{
 upgradeSim(sim)
 }
 \arguments{
-\item{sim}{An old MizerSim object to be upgraded}
+\item{sim}{An old MizerSim object.}
 }
 \value{
-The upgraded MizerSim object
+The upgraded MizerSim object.
 }
 \description{
-Upgrade MizerSim object from earlier mizer versions
+Retained because it was an (unexported) internal entry point. New code should
+rely on \code{validSim()} / \code{readSim()}.
 }
-\concept{helper}
 \keyword{internal}
