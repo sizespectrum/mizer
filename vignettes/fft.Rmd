@@ -312,3 +312,53 @@ where it shouldn't exist due to the periodic nature of the DFT.
 `ft_mask` is a logical array (0 or 1) that is 1 strictly for sizes smaller than
 the maximum size of the species, preventing the "tail" of the convolution from
 wrapping around to the small sizes.
+
+### Wrap-around in the encounter and diffusion convolutions
+
+It is worth being clear about what `ft_mask` does *not* cover. It is applied in
+exactly one place, `mizerPredRate()`. The encounter convolution in
+`mizerEncounter()` and the predation-diffusion convolution in
+`projectDiffusion()` carry no mask at all, so the same circular wrap-around is
+present there too. The difference is in the geometry and in how visible the
+artifact is.
+
+`mizerPredRate()` outputs a rate indexed by **prey** size, and predation on prey
+larger than a species' maximum size $w_{\max}$ is genuinely impossible, so a
+single per-species threshold $w_p < w_{\max}$ (exactly what `ft_mask` encodes)
+removes the spurious tail. The encounter and diffusion convolutions instead
+output a rate indexed by **predator** size, and there the wrap-around feeds
+*small* predators a spurious contribution from *large* prey. That is a
+per-predator-size truncation of the kernel ("for a predator at $w$, prey above
+$w$ is unphysical"), which a single threshold on the output axis cannot express
+and which the FFT — using one shared kernel $\tilde\phi[m]$ for all predator
+sizes — cannot represent. So `ft_mask` is the wrong shape of cut for these two
+rates and is not applied to them.
+
+In practice this is harmless for the encounter rate and almost always harmless
+for the diffusion rate. The aliased weight is small, and the prey it
+misattributes to small predators is either resource (whose spectrum is cut off
+at large sizes, so the contribution is multiplied by zero) or large fish.
+Weighted by the encounter integrand's $w_p\,dw_p$, the residual fish
+contribution is negligible, so `mizerEncounter()` agrees with the exact direct
+summation (used for custom kernels, see below) to roughly one part in $10^{7}$.
+
+The diffusion integrand carries an extra power of prey size, $w_p^2\,dw_p$,
+which amplifies precisely the large-prey contribution that the wrap-around
+misplaces. The artifact therefore becomes *relatively* large in the
+small-predator tail — but only where the diffusion itself is vanishingly small.
+On a standard grid the **absolute** error is about $10^{-5}\%$ of the peak
+diffusion, and over the bins that carry any appreciable diffusion the relative
+error is $\sim10^{-5}$, far below mizer's other discretization errors and with no
+effect on the dynamics. (The error does *not* shrink with grid resolution: it is
+set by the kernel's lower tail not having decayed before the periodic boundary
+folds, not by $\Delta x$.) For this reason mizer leaves the FFT path unmasked
+for diffusion rather than paying for a full zero-padded convolution.
+
+If an exact diffusion (or encounter) integral is needed, the way to get it is to
+supply a custom predation kernel with [setPredKernel()]. When a custom kernel is
+present, `mizerEncounter()` and `projectDiffusion()` fall back to direct
+summation over the full predation kernel returned by [getPredKernel()], which
+explicitly zeroes prey larger than the predator and so has no wrap-around at all.
+This direct path is what makes [getDiffusion()] correct for a general predation
+kernel that depends on predator and prey size separately rather than only on
+their ratio.

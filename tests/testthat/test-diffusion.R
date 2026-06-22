@@ -122,6 +122,46 @@ test_that("predation diffusion uses its own bin-integrated kernel (#384)", {
     expect_false(isTRUE(all.equal(unname(d_hi), unname(d_lo))))
 })
 
+test_that("getDiffusion works with a custom predation kernel (#373)", {
+    # When the user has set a custom pred_kernel (with a comment) that does not
+    # depend only on the predator/prey size ratio, the FFT method cannot be
+    # used. getDiffusion should then use the same direct summation over the
+    # full predation kernel as projectEncounter. We check the result against a
+    # brute-force evaluation of the diffusion integral.
+    params <- newMultispeciesParams(NS_species_params_gears_small, inter_small,
+                                    no_w = 30, info_level = 0)
+    params@use_predation_diffusion <- TRUE
+    # Make the kernel genuinely depend on predator size (not just the ratio) by
+    # scaling each predator species' kernel, then store it as a custom kernel.
+    pk <- getPredKernel(params)
+    pk["Herring", , ] <- pk["Herring", , ] * 1.5
+    params <- setPredKernel(params, pred_kernel = pk)
+    expect_false(is.null(comment(params@pred_kernel)))
+
+    n <- initialN(params)
+    n_pp <- initialNResource(params)
+    d <- getDiffusion(params, n, n_pp)
+
+    # Brute-force diffusion integral I_d(w) = int phi(w, w_p) N(w_p) w_p^2 dw_p
+    idx_sp <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
+    no_sp <- nrow(n)
+    integral_d <- matrix(0, nrow = no_sp, ncol = length(params@w))
+    for (i in seq_len(no_sp)) {
+        prey <- params@species_params$interaction_resource[i] * n_pp *
+            params@w_full^2 * params@dw_full
+        prey[idx_sp] <- prey[idx_sp] +
+            (params@interaction[i, ] %*% n) * params@w^2 * params@dw
+        for (k in seq_along(params@w)) {
+            integral_d[i, k] <- sum(params@pred_kernel[i, k, ] * prey)
+        }
+    }
+    fl <- getFeedingLevel(params, n = n, n_pp = n_pp)
+    expected <- (1 - fl) * params@search_vol *
+        params@species_params$alpha^2 * integral_d + params@ext_diffusion
+
+    expect_equal(d, expected, ignore_attr = TRUE)
+})
+
 test_that("predation diffusion default path mirrors the encounter kernel (#384)", {
     # With bin_average off, ft_pred_kernel_d == ft_pred_kernel_e, so the
     # diffusion integral is unchanged from previous mizer.

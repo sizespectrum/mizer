@@ -1,5 +1,12 @@
 # mizer (development version)
 
+- `getDiffusion()` now works with a custom predation kernel that depends on
+  predator and prey size separately rather than only on their ratio. As for
+  `getEncounter()`, when such a kernel has been set (with
+  `setPredKernel(params, pred_kernel = ...)`) the diffusion integral is
+  evaluated by direct summation over the full predation kernel instead of via
+  the FFT method, which assumes a ratio-only kernel. (#373)
+  
 - `newMultispeciesParams()`, `newTraitParams()`, `newCommunityParams()` and
   `newSingleSpeciesParams()` gain a `second_order_w` argument that selects the
   second-order numerical scheme for the new model (accepting the same values as
