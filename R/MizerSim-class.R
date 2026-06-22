@@ -358,7 +358,8 @@ NResource <- function(sim) {
 #' @export
 NResource.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
-    sim@n_pp
+    ArrayTimeByResourceBySize(sim@n_pp, value_name = "Number density",
+                              units = "1/g", params = sim@params)
 }
 
 
@@ -399,7 +400,9 @@ finalNResource <- function(sim) {
 #' @export
 finalNResource.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
-    sim@n_pp[dim(sim@n_pp)[[1]], ]
+    ArrayResourceBySize(sim@n_pp[dim(sim@n_pp)[[1]], ],
+                        value_name = "Number density", units = "1/g",
+                        params = sim@params)
 }
 
 #' @rdname finalN

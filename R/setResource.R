@@ -302,7 +302,8 @@ setResource.MizerParams <- function(params,
 #' @return A vector with the intrinsic resource birth rate for each size class.
 #' @export
 resource_rate <- function(params) {
-    params@rr_pp
+    ArrayResourceBySize(params@rr_pp, value_name = "Resource birth rate",
+                        units = "1/year", params = params)
 }
 
 #' @rdname setResource
@@ -316,7 +317,8 @@ resource_rate <- function(params) {
 #' @return A vector with the intrinsic resource capacity for each size class.
 #' @export
 resource_capacity <- function(params) {
-    params@cc_pp
+    ArrayResourceBySize(params@cc_pp, value_name = "Resource capacity",
+                        units = "1/g", params = params)
 }
 
 #' @rdname setResource
@@ -331,7 +333,9 @@ resource_capacity <- function(params) {
 #'   and the resource capacity for each size class.
 #' @export
 resource_level <- function(params) {
-    params@initial_n_pp / params@cc_pp
+    ArrayResourceBySize(params@initial_n_pp / params@cc_pp,
+                        value_name = "Resource level", units = "",
+                        params = params)
 }
 
 #' @rdname setResource

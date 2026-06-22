@@ -1,5 +1,13 @@
 # mizer (development version)
 
+- Resource functions now return classed objects that support the same
+  convenient `print()`, `summary()`, `plot()`, and `as.data.frame()` methods
+  as the consumer rate functions. `getResourceMort()`, `initialNResource()`,
+  `finalNResource()`, `resource_rate()`, `resource_capacity()`, and
+  `resource_level()` return an `ArrayResourceBySize` object, and `NResource()`
+  returns an `ArrayTimeByResourceBySize` object. So you can now do e.g.
+  `plot(getResourceMort(NS_params))` or `plot(NResource(NS_sim))`.
+
 - `MizerParams` gains an `ft_pred_kernel_d` slot holding a third Fourier-space
   predation kernel, used by the predation-diffusion integral (when
   `use_predation_diffusion` is `TRUE`). When the `bin_average` entry of
