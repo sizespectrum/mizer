@@ -7,6 +7,15 @@
   `resource_level()` return an `ArrayResourceBySize` object, and `NResource()`
   returns an `ArrayTimeByResourceBySize` object. So you can now do e.g.
   `plot(getResourceMort(NS_params))` or `plot(NResource(NS_sim))`.
+  
+- Fixed a bug in `project()` where the abundances of other components (set via
+  `setComponent()`) were advanced only once per saved time step instead of once
+  per `dt` time step. Their dynamics are now integrated with the same time step
+  as the consumer and resource spectra, so results no longer depend on `t_save`.
+  Under the second-order time-stepping methods (`"predictor_corrector"` and
+  `"tr_bdf2"`) the other components now also receive a corrector step with the
+  midpoint rates, so they are integrated to the same second-order accuracy as
+  the resource and consumer spectra instead of being left at first order.
 
 - `MizerParams` gains an `ft_pred_kernel_d` slot holding a third Fourier-space
   predation kernel, used by the predation-diffusion integral (when

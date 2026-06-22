@@ -88,8 +88,8 @@ So we need the negative root:
 
 $$
 \begin{split}
-\lambda &= p + \frac{(2A - K) - \sqrt{(2A - K)^2 + 8KB}}{2K}\\
-&=p - \frac{4B}{(2A - K) + \sqrt{(2A - K)^2 + 8KB}}.
+\lambda &= p - \frac{(2A - K) - \sqrt{(2A - K)^2 + 8KB}}{2K}\\
+&=p + \frac{4B}{(2A - K) + \sqrt{(2A - K)^2 + 8KB}}.
 \end{split}
 $$
 The second expression above is better for numerical evaluation because it avoids the subtraction of two similarly sized numbers.

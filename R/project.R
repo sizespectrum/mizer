@@ -560,6 +560,26 @@ project_simple.MizerParams <-
         c <- matrix(0, nrow = no_sp, ncol = no_w)
         S <- matrix(0, nrow = no_sp, ncol = no_w)
 
+        # Advance the other components by one Euler step from the start-of-step
+        # state (`n`, `n_pp`, `n_other`) using the supplied rates. Used for the
+        # predictor (with the start-of-step rates `r`) and, for the
+        # second-order methods, the corrector (with the midpoint rates
+        # `r_mid`), so that the other components are integrated to the same
+        # order of accuracy as the resource and consumer spectra.
+        step_other_components <- function(rates) {
+            out <- list()
+            for (component in names(params@other_dynamics)) {
+                out[[component]] <-
+                    other_dynamics_fns[[component]](
+                        params,
+                        n = n, n_pp = n_pp, n_other = n_other,
+                        rates = rates, t = t, dt = dt,
+                        component = component, ...
+                    )
+            }
+            out
+        }
+
         # Loop over time steps ----
         for (i_time in 1:steps) {
             r <- rates_fns$Rates(
@@ -568,23 +588,14 @@ project_simple.MizerParams <-
                 t = t, effort = effort, rates_fns = rates_fns, ...
             )
 
-            # * Update other components ----
-            n_other_new <- list() # So that the resource dynamics can still
-            # use the current value
-            for (component in names(params@other_dynamics)) {
-                n_other_new[[component]] <-
-                    other_dynamics_fns[[component]](
-                        params,
-                        n = n,
-                        n_pp = n_pp,
-                        n_other = n_other,
-                        rates = r,
-                        t = t,
-                        dt = dt,
-                        component = component,
-                        ...
-                    )
-            }
+            # * Update other components (predictor) ----
+            # First-order Euler update using the start-of-step rates `r`. For
+            # the Euler method this is the final value for the step. The
+            # second-order methods use `n_other_hat` in the end-of-step rates
+            # (like the resource's `n_pp_hat`) and then overwrite `n_other_new`
+            # with a corrector below.
+            n_other_hat <- step_other_components(r)
+            n_other_new <- n_other_hat
 
             # * Update resource and species ----
             if (method == "predictor_corrector" || method == "tr_bdf2") {
@@ -605,10 +616,16 @@ project_simple.MizerParams <-
                 # End-of-step rates from the prediction, then midpoint rates
                 r_hat <- rates_fns$Rates(
                     params,
-                    n = n_hat, n_pp = n_pp_hat, n_other = n_other_new,
+                    n = n_hat, n_pp = n_pp_hat, n_other = n_other_hat,
                     t = t + dt, effort = effort, rates_fns = rates_fns, ...
                 )
                 r_mid <- average_rates(r, r_hat)
+
+                # Corrector: other components with the midpoint rates, so they
+                # reach the same second-order accuracy as the resource and
+                # consumer. Computed from the start-of-step state before the
+                # resource corrector below overwrites `n_pp`.
+                n_other_new <- step_other_components(r_mid)
 
                 # Corrector: resource with midpoint resource mortality
                 n_pp <- resource_dynamics_fn(params,
@@ -651,11 +668,18 @@ project_simple.MizerParams <-
                 }
             }
 
+            # * Carry the updated other components into the next step ----
+            # They were computed into `n_other_new` so that the resource and
+            # consumer updates above still saw the start-of-step value. Now that
+            # those updates are done, advance `n_other` so that the next time
+            # step (and the returned value) uses the new abundances.
+            n_other <- n_other_new
+
             # * Update time ----
             t <- t + dt
         }
 
-        return(list(n = n, n_pp = n_pp, n_other = n_other_new, rates = r))
+        return(list(n = n, n_pp = n_pp, n_other = n_other, rates = r))
     }
 
 validEffortArray <- function(effort, params) {
