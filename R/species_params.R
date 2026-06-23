@@ -91,6 +91,9 @@
 #'   `ks` of the metabolic rate, see [get_ks_default()].
 #' * `age_mat` is the age at maturity and is used to get a default value for
 #'   the coefficient `h` of the maximum intake rate, see [get_h_default()].
+#' * If `age_mat` is not supplied, mizer used the von Bertalanffy parameters
+#'   `k_vb`, `w_inf` and `t0` as well as the weight-length exponent `b` to
+#'   determine it. This is unreliable and is therefore not recommended.
 #'
 #' Changing these parameters with `species_params<-()` updates the stored
 #' species parameter table and triggers a recalculation via [setParams()].
@@ -98,10 +101,6 @@
 #' parameters are recalculated rather than kept at explicitly supplied values.
 #' In typical workflows these quantities should therefore be changed via
 #' `given_species_params<-()`.
-#'
-#' In the past, mizer also used the von Bertalanffy parameters `k_vb`, `w_inf`
-#' and `t0` to determine a default for `h`. This is unreliable and is therefore
-#' now deprecated.
 #'
 #' There are other species parameters that are used in tuning the model to
 #' observations:
