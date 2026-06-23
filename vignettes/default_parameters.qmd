@@ -65,13 +65,27 @@ Here is a minimal model set up from nothing but a name and a maximum size:
 params <- newMultispeciesParams(
     data.frame(species = "Cod", w_max = 5000)
 )
-# Only these columns were supplied (n and p come from arguments of
-# newMultispeciesParams() and so count as "given"):
+# The columns that count as "given":
 names(given_species_params(params))
 # Everything else was calculated, for example:
 intersect(c("w_mat", "w_min", "h", "gamma", "ks"),
           names(calculated_species_params(params)))
 ```
+
+Notice that `n` and `p` appear among the *given* parameters even though we did
+not put them in the data frame. This is deliberate: some species parameters can
+also be set through arguments to the constructor functions (here the `n` and `p`
+arguments of `newMultispeciesParams()`), and any species parameter set from such
+an argument is recorded as given — **even when the argument was left at its
+default value in the function signature**. In other words, "given" means "fixed
+by the way you called the constructor", not only "typed into the species
+parameter data frame". The practical consequence is that these values count as
+explicit input and so are not silently changed by later recalculations.
+
+(Constructor arguments that do *not* directly correspond to a species parameter
+behave differently. For example `z0pre` and `z0exp` are used to *compute* the
+external mortality parameter `z0`, which therefore appears among the calculated
+parameters rather than the given ones.)
 
 ### Changing parameters: `given_species_params<-()` vs. `species_params<-()`
 
