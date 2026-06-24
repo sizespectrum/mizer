@@ -10,7 +10,8 @@
 #' `validGivenSpeciesParams()` checks the validity of the given species
 #' parameters. It throws an error if
 #' * the `species` column does not exist or contains duplicates
-#' * the maximum size is not specified for all species
+#' * the asymptotic size `w_inf` is not specified for all species (but see the
+#'   backwards-compatibility note below)
 #' 
 #' If a weight-based parameter is missing but the corresponding length-based
 #' parameter is given, as well as the `a` and `b` parameters for length-weight
@@ -18,15 +19,18 @@
 #' weight are given, then weight is used and an `info_about_default` condition
 #' is signalled if the two are inconsistent.
 #' 
-#' If a `w_inf` column is given but no `w_max` then the value from `w_inf` is
-#' used. This is for backwards compatibility. But note that the von Bertalanffy
-#' parameter `w_inf` is not the maximum size of the largest individual, but the
-#' asymptotic size of an average individual.
-#' 
+#' The required maximum-size parameter is `w_inf`, the von Bertalanffy
+#' asymptotic size of an average individual. For backwards compatibility, if no
+#' `w_inf` column is given, its values are taken from the `w_repro_max` column
+#' if that is present, or otherwise from the `w_max` column, and an
+#' informational message is issued. (`w_repro_max` is preferred over `w_max`
+#' because in earlier versions of mizer it was the size at which growth stopped
+#' and is therefore the closest analogue to the asymptotic size.)
+#'
 #' Some inconsistencies in the size parameters are resolved as follows:
-#' * Any `w_mat` that is not smaller than `w_max` is set to `w_max / 4`.
+#' * Any `w_mat` that is not smaller than `w_inf` is set to `w_inf / 4`.
 #' * Any `w_mat25` that is not smaller than `w_mat` is set to NA.
-#' * Any `w_min` that is not smaller than `w_mat` is set to `0.001` or 
+#' * Any `w_min` that is not smaller than `w_mat` is set to `0.001` or
 #'   `w_mat /10`, whichever is smaller.
 #' * Any `w_repro_max` that is not larger than `w_mat` is set to `4 * w_mat`.
 #' 
@@ -42,8 +46,9 @@
 #' goes further by adding default values for species parameters that were not
 #' provided. The function sets default values if any of the following species
 #' parameters are missing or NA:
-#' * `w_repro_max` is set to `w_max`
-#' * `w_mat` is set to `w_max/4`
+#' * `w_max` is set to `1.5 * w_inf` (it is only a computational boundary)
+#' * `w_repro_max` is set to `w_inf`
+#' * `w_mat` is set to `w_inf/4`
 #' * `w_min` is set to `0.001`
 #' * `alpha` is set to `0.6`
 #' * `interaction_resource` is set to `1`
@@ -68,8 +73,9 @@
 #' @export
 validSpeciesParams <- function(species_params) {
     sp <- validGivenSpeciesParams(species_params)
-    sp <- set_species_param_default(sp, "w_repro_max", sp$w_max)
-    sp <- set_species_param_default(sp, "w_mat", sp$w_max / 4)
+    sp <- set_species_param_default(sp, "w_max", 1.5 * sp$w_inf)
+    sp <- set_species_param_default(sp, "w_repro_max", sp$w_inf)
+    sp <- set_species_param_default(sp, "w_mat", sp$w_inf / 4)
     sp <- set_species_param_default(sp, "w_min", 0.001)
     sp <- set_species_param_default(sp, "alpha", 0.6)
     sp <- set_species_param_default(sp, "interaction_resource", 1)
@@ -130,37 +136,47 @@ validGivenSpeciesParams <- function(species_params) {
             set_species_param_from_length("w_mat", "l_mat") %>%
             set_species_param_from_length("w_mat25", "l_mat25") %>%
             set_species_param_from_length("w_repro_max", "l_repro_max") %>%
+            set_species_param_from_length("w_inf", "l_inf") %>%
             set_species_param_from_length("w_max", "l_max") %>%
             set_species_param_from_length("w_min", "l_min")
     }
     
-    # check w_max ----
-    if (!("w_max" %in% names(sp))) {
-        # If old name `w_inf` is used, then copy over to `w_max`
-        if ("w_inf" %in% names(sp)) {
-            sp$w_max <- sp$w_inf
-            warning("The species parameter data frame is missing a `w_max` column. I am copying over the values from the `w_inf` column. But note that `w_max` should be the maximum size of the largest individual, not the asymptotic size of an average indivdidual.")
+    # check w_inf ----
+    # `w_inf`, the von Bertalanffy asymptotic size, is the required maximum-size
+    # parameter. For backwards compatibility we derive it from `w_repro_max` or
+    # `w_max` if only those are given, preferring `w_repro_max` because in
+    # earlier versions of mizer that was the size at which growth stopped and is
+    # therefore the closest analogue to the asymptotic size.
+    if (!("w_inf" %in% names(sp))) {
+        if ("w_repro_max" %in% names(sp)) {
+            sp$w_inf <- sp$w_repro_max
+            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_repro_max` column instead. Note that `w_inf`, the von Bertalanffy asymptotic size, is now the preferred parameter for specifying the maximum size.",
+                   class = "info_about_default", var = "w_inf", level = 1)
+        } else if ("w_max" %in% names(sp)) {
+            sp$w_inf <- sp$w_max
+            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_max` column instead. Note that `w_inf`, the von Bertalanffy asymptotic size, is now the preferred parameter for specifying the maximum size, whereas `w_max` is only a computational boundary.",
+                   class = "info_about_default", var = "w_inf", level = 1)
         } else {
-            sp$w_max <- rep(NA, no_sp)
+            stop("You need to specify the asymptotic size `w_inf` for all species.")
         }
     }
-    missing <- is.na(sp$w_max)
+    missing <- is.na(sp$w_inf)
     if (any(missing)) {
-        stop("You need to specify maximum sizes for all species.")
+        stop("You need to specify the asymptotic size `w_inf` for all species.")
     }
-    if (!is.numeric(sp$w_max)) {
-        stop("`w_max` contains non-numeric values.")
+    if (!is.numeric(sp$w_inf)) {
+        stop("`w_inf` contains non-numeric values.")
     }
     
     # check w_mat ----
     if ("w_mat" %in% names(sp)) {
-        wrong <- !is.na(sp$w_mat) & sp$w_mat >= sp$w_max
+        wrong <- !is.na(sp$w_mat) & sp$w_mat >= sp$w_inf
         if (any(wrong)) {
-            warning("For the species ", 
+            warning("For the species ",
                     paste(sp$species[wrong], collapse = ", "),
-                    " the value for `w_mat` is not smaller than that of `w_max`.",
-                    " I have corrected that by setting it to 25% of `w_max.")
-            sp$w_mat[wrong] <- sp$w_max[wrong] / 4
+                    " the value for `w_mat` is not smaller than that of `w_inf`.",
+                    " I have corrected that by setting it to 25% of `w_inf`.")
+            sp$w_mat[wrong] <- sp$w_inf[wrong] / 4
         }
         
         # check w_mat25 ----

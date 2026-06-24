@@ -111,6 +111,7 @@ newCommunityParams <- function(max_w = 1e6,
     # Make the species data.frame
     species_params <- data.frame(
         species = "Community",
+        w_inf = w_max,
         w_max = w_max,
         f0 = f0,
         h = h, # max food intake
@@ -483,6 +484,7 @@ newTraitParams <- function(no_sp = 11,
     species_params <- data.frame(
         species = as.factor(1:no_sp),
         w_min = w_min,
+        w_inf = w_max,
         w_max = w_max,
         w_mat = w_mat,
         w_min_idx = w_min_idx,

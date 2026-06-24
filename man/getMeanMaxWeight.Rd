@@ -39,7 +39,7 @@ at each saved time step (or a single value for \code{MizerParams}).
 }
 \description{
 Calculates the mean maximum weight of the community. This can be calculated
-by numbers or biomass. The calculation is the sum of the w_max * abundance
+by numbers or biomass. The calculation is the sum of the \code{w_inf} * abundance
 of each species, divided by the total abundance community, where abundance is
 either in biomass or numbers. You can specify minimum and maximum weight or
 length range for the species. Lengths take precedence over weights (i.e. if

@@ -13,6 +13,28 @@ test_that("upgradeParams preserves comments", {
     expect_identical(upgradeParams(params), params)
 })
 
+test_that("upgradeParams derives w_inf for objects that predate it", {
+    params <- NS_params_small
+    # Simulate an object from before w_inf became the required parameter
+    params@mizer_version <- "3.0.0.9002"
+    w_repro_max <- params@species_params$w_repro_max
+    params@species_params$w_inf <- NULL
+    params@given_species_params$w_inf <- NULL
+    expect_false("w_inf" %in% names(params@species_params))
+
+    up <- suppressWarnings(upgradeParams(params))
+    # w_repro_max is present, so w_inf is derived from it (preferred over w_max)
+    expect_true("w_inf" %in% names(up@species_params))
+    expect_equal(up@species_params$w_inf, w_repro_max)
+
+    # When w_repro_max is also absent, w_inf falls back to w_max
+    params2 <- params
+    params2@species_params$w_repro_max <- NULL
+    params2@given_species_params$w_repro_max <- NULL
+    up2 <- suppressWarnings(upgradeParams(params2))
+    expect_equal(up2@species_params$w_inf, up2@species_params$w_max)
+})
+
 test_that("upgradeParams from pre-2.4 preserves all slot values", {
     params <- NS_params_small
     # Version "2.4.0" triggers the full newMultispeciesParams() rebuild path

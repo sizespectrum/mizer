@@ -1,5 +1,17 @@
 # mizer (development version)
 
+- Clarified the maximum-size species parameters (#325). The von Bertalanffy
+  asymptotic size `w_inf` is now the required maximum-size parameter and is used
+  as the default for `w_repro_max` (previously `w_max`) and `w_mat`. `w_max` is
+  now purely a computational boundary (size grid and plot range) and defaults to
+  `1.5 * w_inf`. `w_repro_max` is documented as the size at which a typical
+  mature individual invests all its energy into reproduction, not as a hard
+  ceiling on size. For backwards compatibility, if `w_inf` is not supplied it is
+  taken from `w_repro_max` or `w_max` instead, so existing models and scripts
+  are unaffected. The default value of the external mortality parameter `z0` is
+  now calculated from `w_inf` rather than `w_max`, so that the purely
+  computational boundary `w_max` no longer influences any model parameter.
+
 - `getDiffusion()` now works with a custom predation kernel that depends on
   predator and prey size separately rather than only on their ratio. As for
   `getEncounter()`, when such a kernel has been set (with

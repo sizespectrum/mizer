@@ -31,11 +31,11 @@ mortality rate.  If not supplied, a default is set as described in the
 section "Setting external mortality rate".}
 
 \item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_max ^ z0exp.
+in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is 0.6.}
 
 \item{z0exp}{If \code{z0}, the mortality from other sources, is not a column in
-the species data frame, it is calculated as \code{z0pre * w_max ^ z0exp}.
+the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
 Default value is \code{n-1}.}
 
 \item{reset}{If set to TRUE, then the external mortality rate will be reset

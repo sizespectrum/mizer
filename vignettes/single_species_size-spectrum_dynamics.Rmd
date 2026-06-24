@@ -608,8 +608,10 @@ We look at three species parameters that are involved:
 
 -   the maturity size `w_mat` at which 50% of the individuals are
     mature.
--   the maximum size `w_max` at which the population invests 100% of its
-    income into reproduction and thus growth is zero.
+-   the size `w_repro_max` at which a typical mature individual invests
+    100% of its income into reproduction. (This is not a hard upper size
+    limit: not all individuals are mature at `w_repro_max`, and diffusion in
+    the growth process allows some to grow beyond it.)
 -   an exponent `m` that determines how the proportion that an
     individual invests into reproduction scales with its size.
 
@@ -625,7 +627,7 @@ which we will talk about later. For now let's just select the three
 parameters we are interested in.
 
 ```{r}
-select(species_params(params), w_mat, w_max, m)
+select(species_params(params), w_mat, w_repro_max, m)
 ```
 
 ## Effect of change in maturity curve
