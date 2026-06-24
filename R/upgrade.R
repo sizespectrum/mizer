@@ -26,7 +26,7 @@ needs_upgrading <- function(object) {
 #' @keywords internal
 mizer_needs_upgrading <- function(params) {
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "3.0.0.9002"
+        params@mizer_version < "3.0.0.9003"
 }
 
 #' Whether any extension recorded on an object needs upgrading
@@ -99,6 +99,17 @@ upgrade.MizerParams <- function(object, ...) {
 
     # Before version 2.3 ----
     if (version < "2.4.1.9001") {
+
+        # In these old versions `w_inf` was the maximum-size parameter and the
+        # weight grid was built up to it. `w_inf` is now only the von Bertalanffy
+        # asymptotic size and `w_max` (defaulting to `1.5 * w_inf`) is the
+        # computational boundary. To preserve the original grid we copy `w_inf`
+        # into `w_max` before the object is rebuilt below, so that the boundary
+        # stays at the old value rather than being extended to `1.5 * w_inf`.
+        if (!("w_max" %in% names(params@species_params)) &&
+            "w_inf" %in% names(params@species_params)) {
+            params@species_params$w_max <- params@species_params$w_inf
+        }
 
         if ("interaction_p" %in% names(params@species_params)) {
             params@species_params$interaction_resource <-
@@ -421,6 +432,20 @@ upgrade.MizerParams <- function(object, ...) {
     if (!("w_mat25" %in% names(params@species_params))) {
         params <- set_species_param_default(params, "w_mat25",
             params@species_params$w_mat / (3 ^ (1 / 10)))
+    }
+
+    # Add w_inf if missing (added in 3.0.0.9003). `w_inf`, the von Bertalanffy
+    # asymptotic size, is now the required maximum-size parameter and is used to
+    # set defaults for `w_repro_max`, `w_mat` and `z0`. For objects that predate
+    # this change we derive it from `w_repro_max` (which played the role of the
+    # growth-stopping size in earlier versions) or otherwise from `w_max`. The
+    # stored `w_max` is left untouched so that the size grid is preserved.
+    if (!("w_inf" %in% names(params@species_params))) {
+        if ("w_repro_max" %in% names(params@species_params)) {
+            params@species_params$w_inf <- params@species_params$w_repro_max
+        } else {
+            params@species_params$w_inf <- params@species_params$w_max
+        }
     }
 
     # Derive is_background from the old @A slot if not already present

@@ -71,7 +71,12 @@ test_that("validGivenSpeciesParams checks documented error cases and signals inc
     )
     expect_error(
         validGivenSpeciesParams(data.frame(species = c("a", "b"), w_max = c(1, NA))),
-        "specify maximum sizes for all species"
+        "specify the asymptotic size .w_inf. for all species"
+    )
+    # No maximum-size parameter at all is an error
+    expect_error(
+        validGivenSpeciesParams(data.frame(species = c("a", "b"))),
+        "specify the asymptotic size .w_inf. for all species"
     )
 
     sp <- data.frame(species = c("a", "b"),
@@ -105,6 +110,37 @@ test_that("validSpeciesParams sets the documented defaults", {
     expect_equal(sp2$interaction_resource, c(1, 2))
     expect_equal(sp2$n, c(3/4, 0.8))
     expect_equal(sp2$p, c(3/4, 0.7))
+})
+
+test_that("w_inf is the first-class maximum-size parameter", {
+    # When w_inf is given, w_max, w_repro_max and w_mat are derived from it
+    sp <- validSpeciesParams(data.frame(species = "a", w_inf = 100))
+    expect_equal(sp$w_max, 150)         # 1.5 * w_inf
+    expect_equal(sp$w_repro_max, 100)   # w_inf
+    expect_equal(sp$w_mat, 25)          # w_inf / 4
+    # An explicitly given w_max is not overwritten
+    sp <- validSpeciesParams(data.frame(species = "a", w_inf = 100, w_max = 300))
+    expect_equal(sp$w_max, 300)
+})
+
+test_that("w_inf is derived from w_repro_max or w_max for backwards compatibility", {
+    # Prefer w_repro_max over w_max
+    expect_condition(
+        sp <- validGivenSpeciesParams(
+            data.frame(species = "a", w_max = 150, w_repro_max = 100)),
+        "missing a .w_inf. column",
+        class = "info_about_default"
+    )
+    expect_equal(sp$w_inf, 100)         # from w_repro_max, not w_max
+    expect_equal(sp$w_max, 150)         # kept as given
+
+    # Fall back to w_max when w_repro_max is absent
+    expect_condition(
+        sp <- validGivenSpeciesParams(data.frame(species = "a", w_max = 100)),
+        "missing a .w_inf. column",
+        class = "info_about_default"
+    )
+    expect_equal(sp$w_inf, 100)
 })
 
 test_that("completeSpeciesParams is a deprecated alias for validSpeciesParams", {

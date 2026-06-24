@@ -196,7 +196,7 @@ getMeanWeight.MizerParams <- function(object, species = NULL, ...) {
 #' Calculate the mean maximum weight of the community
 #'
 #' Calculates the mean maximum weight of the community. This can be calculated
-#' by numbers or biomass. The calculation is the sum of the w_max * abundance
+#' by numbers or biomass. The calculation is the sum of the `w_inf` * abundance
 #' of each species, divided by the total abundance community, where abundance is
 #' either in biomass or numbers. You can specify minimum and maximum weight or
 #' length range for the species. Lengths take precedence over weights (i.e. if
@@ -239,13 +239,13 @@ getMeanMaxWeight.MizerSim <- function(object, species = NULL,
     n_species <- getN(sim, ...)
     biomass_species <- getBiomass(sim, ...)
     n_winf <- apply(
-        sweep(n_species, 2, sim@params@species_params$w_max, "*")[,
+        sweep(n_species, 2, sim@params@species_params$w_inf, "*")[,
             species, drop = FALSE
         ],
         1, sum
     )
     biomass_winf <- apply(
-        sweep(biomass_species, 2, sim@params@species_params$w_max, "*")[,
+        sweep(biomass_species, 2, sim@params@species_params$w_inf, "*")[,
             species, drop = FALSE
         ],
         1, sum
@@ -271,11 +271,11 @@ getMeanMaxWeight.MizerParams <- function(object, species = NULL,
     species <- valid_species_arg(params, species)
     n_species <- getN(params, ...)[species]
     biomass_species <- getBiomass(params, ...)[species]
-    w_max <- params@species_params$w_max[
+    w_inf <- params@species_params$w_inf[
         match(species, params@species_params$species)
     ]
-    n_winf <- sum(n_species * w_max)
-    biomass_winf <- sum(biomass_species * w_max)
+    n_winf <- sum(n_species * w_inf)
+    biomass_winf <- sum(biomass_species * w_inf)
     mmw_numbers <- n_winf / sum(n_species)
     mmw_biomass <- biomass_winf / sum(biomass_species)
     if (measure == "numbers") {

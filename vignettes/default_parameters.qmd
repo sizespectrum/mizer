@@ -19,7 +19,7 @@ library(mizer)
 
 A key design feature of the `mizer` package is that a multi-species size-spectrum model can be set up using only a small amount of information. This is possible because `mizer` uses **allometric scaling relations** and **size-based feeding rules** to choose sensible default values for parameters that are not explicitly provided by the user.
 
-For example, to set up a model using the `newMultispeciesParams()` function, the user only *needs* to provide the maximum sizes ($w_{\text{max}}$) for the species in the community. Almost all other physiological, ecological, and mortality parameters can be automatically filled in using defaults.
+For example, to set up a model using the `newMultispeciesParams()` function, the user only *needs* to provide the von Bertalanffy asymptotic sizes ($w_{\infty}$) for the species in the community. Almost all other physiological, ecological, and mortality parameters can be automatically filled in using defaults. (See the section on [maximum-size parameters](#maximum-size-parameters) below for the distinction between $w_{\infty}$, $w_{\text{repro\_max}}$ and $w_{\text{max}}$.)
 
 This vignette details the philosophy, the relationships, and the mathematical derivations behind the default parameter values calculated by `mizer`. For a description of the model equations themselves, see the [vignette on the model description](model_description.html).
 
@@ -59,11 +59,11 @@ species_params(params)             # the complete table (given + calculated)
 blanked out, so the given and calculated frames together reconstruct the full
 table.
 
-Here is a minimal model set up from nothing but a name and a maximum size:
+Here is a minimal model set up from nothing but a name and an asymptotic size:
 
 ```{r message=FALSE, warning=FALSE}
 params <- newMultispeciesParams(
-    data.frame(species = "Cod", w_max = 5000)
+    data.frame(species = "Cod", w_inf = 5000)
 )
 # The columns that count as "given":
 names(given_species_params(params))
@@ -110,7 +110,7 @@ through the given parameters then propagates to `h` (and onward to `gamma` and
 
 ```{r message=FALSE, warning=FALSE}
 growing <- newMultispeciesParams(
-    data.frame(species = "Cod", w_max = 5000, age_mat = 5)
+    data.frame(species = "Cod", w_inf = 5000, age_mat = 5)
 )
 species_params(growing)$h
 given_species_params(growing)$w_mat <- 1000
@@ -190,6 +190,53 @@ In summary:
 
 ---
 
+## Maximum-size parameters {#maximum-size-parameters}
+
+`mizer` has three species parameters that all describe a "maximum size" but
+play distinct roles. Keeping them separate avoids a lot of confusion.
+
+* **`w_inf`** is the von Bertalanffy asymptotic size of an *average* individual.
+  It is the **required** maximum-size parameter and the one from which the other
+  two are derived by default. It is used to constrain the growth rate and to
+  calculate the age at maturity.
+* **`w_repro_max`** is the size at which a *typical mature* individual invests
+  all of its available energy into reproduction (see [setReproduction()]). It is
+  **not** a hard ceiling on size: not all individuals are mature at
+  `w_repro_max`, and diffusion in the growth process lets some individuals grow
+  beyond it. It defaults to `w_inf` but you can set it independently — there is
+  no expectation that it is larger or smaller than `w_inf`, because estimates of
+  the von Bertalanffy parameters are often unreliable.
+* **`w_max`** is purely a *computational* boundary. It sets the upper end of the
+  size grid and the range of the plots; it does not by itself stop growth. It
+  defaults to `1.5 * w_inf`.
+
+A typical (but not enforced) ordering is therefore
+$w_{\text{mat}} < w_{\infty} \approx w_{\text{repro\_max}} \le w_{\text{max}}$.
+
+For backwards compatibility, if you supply `w_max` (or `w_repro_max`) but not
+`w_inf`, then `w_inf` is taken from those columns and an informational message is
+issued, so models and scripts written for earlier versions of `mizer` continue
+to work unchanged.
+
+These parameters have been handled differently over the history of `mizer`:
+
+* In **mizer 1**, `w_inf` was the only maximum-size parameter. It was both the
+  size at which all growth stopped and the size beyond which no fish existed,
+  and was set to the von Bertalanffy asymptotic size.
+* In **mizer 2**, `w_max` was introduced to acknowledge that real fish can be
+  larger than the von Bertalanffy `w_inf`. Existing models were upgraded by
+  renaming `w_inf` to `w_max`, and the use of von Bertalanffy curves was
+  discouraged. Later in the mizer 2 series, `w_repro_max` was added (the size at
+  which mature fish invest all energy into reproduction) once diffusion made it
+  possible for fish to exceed the size at which the growth rate reaches zero, and
+  `w_max` became just a computational boundary.
+* In **mizer 3**, with diffusion fully integrated, von Bertalanffy growth is
+  again the standard way to constrain growth, and `w_inf` is once more the
+  first-class maximum-size parameter. Fish are allowed to exist beyond the von
+  Bertalanffy asymptotic size because diffusion can take them there.
+
+---
+
 ## Species Parameter Defaults Reference Table
 
 When creating a `MizerParams` object, `validSpeciesParams()` (and subsequent setup functions like `setSearchVolume()`, `setMaxIntakeRate()`, `setMetabolicRate()`, `setExtMort()`, and `setReproduction()`) check the species parameter data frame and fill in missing parameters.
@@ -198,8 +245,9 @@ Below is a reference of the default values and the functions responsible for cal
 
 | Parameter | Description | Default Value / Formula | Function |
 | :--- | :--- | :--- | :--- |
-| `w_repro_max` | Size at which reproduction stops | `w_max` | `validSpeciesParams()` |
-| `w_mat` | Size at maturity | `w_max / 4` | `validSpeciesParams()` |
+| `w_max` | Computational upper size boundary | `1.5 * w_inf` | `validSpeciesParams()` |
+| `w_repro_max` | Size at which a typical mature fish invests all energy in reproduction | `w_inf` | `validSpeciesParams()` |
+| `w_mat` | Size at maturity | `w_inf / 4` | `validSpeciesParams()` |
 | `w_min` | Egg size / birth size | `0.001` g | `validSpeciesParams()` |
 | `alpha` | Assimilation efficiency | `0.6` | `validSpeciesParams()` |
 | `interaction_resource` | Species interaction strength with resource | `1` | `validSpeciesParams()` |
@@ -216,7 +264,7 @@ Below is a reference of the default values and the functions responsible for cal
 | `fc` | Critical feeding level | `0.2` | `set_species_param_default()` |
 | `ks` | Standard metabolic rate coefficient | Derived from critical feeding level $f_c$ | `get_ks_default()` |
 | `k` | Activity/movement cost coefficient | `0` | `setMetabolicRate()` |
-| `z0` | Constant external mortality rate | `z0pre * w_max^z0exp` | `setExtMort()` |
+| `z0` | Constant external mortality rate | `z0pre * w_inf^z0exp` | `setExtMort()` |
 | `erepro` | Reproduction efficiency | `1` | `setReproduction()` |
 | `beta` | Preferred predator/prey mass ratio | `30` | `default_pred_kernel_params()` |
 | `sigma` | Width of predation kernel | `2` | `default_pred_kernel_params()` |
@@ -362,8 +410,8 @@ $$f_{0,i} = \frac{1}{h_i / \text{avail_energy}_i + 1}$$
 
 ## Other Defaults
 
-* **External Mortality ($z_0$)**: Background mortality that is not due to predation or fishing. If not specified, it scales allometrically with maximum size:
-  $$z_{0, i} = z_{0\text{pre}} w_{\text{max}, i}^{z_{0\text{exp}}}$$
+* **External Mortality ($z_0$)**: Background mortality that is not due to predation or fishing. If not specified, it scales allometrically with the asymptotic size:
+  $$z_{0, i} = z_{0\text{pre}} w_{\infty, i}^{z_{0\text{exp}}}$$
   where $z_{0\text{pre}}$ defaults to $0.6$ and $z_{0\text{exp}}$ defaults to $n - 1$ (typically $-1/4$).
 * **Predation Kernel**: By default, `mizer` uses a lognormal predation kernel $\phi_i(w, w_p)$ with preferred predator-prey mass ratio $\beta = 30$ and width $\sigma = 2$.
 * **Maturity Ogive**: The proportion of individuals mature at size $w$ is a sigmoidal function:
@@ -382,13 +430,13 @@ Sometimes improved methods for choosing defaults are added to `mizer`. To preven
 
 ## Worked Example
 
-The following code illustrates how `mizer` automatically calculates defaults when setting up a new model with only the species name and maximum weight:
+The following code illustrates how `mizer` automatically calculates defaults when setting up a new model with only the species name and asymptotic size:
 
 ```{r}
-# Create species parameter data frame with only w_max specified
+# Create species parameter data frame with only w_inf specified
 simple_species <- data.frame(
   species = c("Species A", "Species B"),
-  w_max = c(1000, 8000)
+  w_inf = c(1000, 8000)
 )
 
 # Initialize parameters

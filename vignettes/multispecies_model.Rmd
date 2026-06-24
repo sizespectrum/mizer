@@ -98,9 +98,10 @@ values, such as the selectivity function parameters, and some that are
 calculated internally using default relationships if not explicitly provided.
 These defaults are used if the parameters are not found in the data.frame.
 
-The essential columns of the species parameters data.frame that have no default 
-values are: `species`, the names of the species in the community and `w_max`, 
-the maximum mass of the species.
+The essential columns of the species parameters data.frame that have no default
+values are: `species`, the names of the species in the community and `w_inf`,
+the von Bertalanffy asymptotic mass of the species. (The computational upper
+size boundary `w_max` is not essential and defaults to `1.5 * w_inf`.)
 
 
 ## The gear parameters {#sec:fishing_gear}
@@ -172,15 +173,15 @@ Let's have a look at the data frame:
 species_params
 ```
 
-You can see that there are $`r nrow(species_params)`$ species and 
+You can see that there are $`r nrow(species_params)`$ species and
 $`r ncol(species_params)`$ columns of parameters: `species`,
-`w_max`,`w_mat`,`beta`,`sigma`,`R_max` and `k_vb`.
+`w_inf`,`w_mat`,`beta`,`sigma`,`R_max` and `k_vb`.
 
-Of these parameters, `species` and `w_max` are essential and have no default
-values (as described in 
-[the section on species parameters](multispecies_model.html#sec:species_parameters_dataframe)). 
-`w_max`
-is the maximum size of the species, `w_mat` is its maturity size, and `beta`
+Of these parameters, `species` and `w_inf` are essential and have no default
+values (as described in
+[the section on species parameters](multispecies_model.html#sec:species_parameters_dataframe)).
+`w_inf`
+is the von Bertalanffy asymptotic size of the species, `w_mat` is its maturity size, and `beta`
 and `sigma` are parameters of the predation kernel (by default mizer uses a
 log-normal predation kernel). `R_max` is a parameter introducing additional
 density dependence into reproduction parameter using a Beverton-Holt type
@@ -226,7 +227,7 @@ that we provided. We can look at it with `species_params()`:
 species_params(params)
 ```
 
-We can see that this returns the original species data.frame (with `w_max` and
+We can see that this returns the original species data.frame (with `w_inf` and
 so on), plus any default values that may not have been included in the original
 data.frame. For example, we can see that there are now columns for `alpha` and
 `h` and `gamma` etc.

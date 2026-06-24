@@ -6,9 +6,22 @@
 #'
 #' There are a lot of species parameters and we will list them all below, but
 #' most of them have sensible default values. The only required columns are
-#' `species` for the species name and `w_max` for its maximum size. However
-#' if you have information about the values of other parameters then you should
-#' provide them.
+#' `species` for the species name and `w_inf` for its von Bertalanffy
+#' asymptotic size. However if you have information about the values of other
+#' parameters then you should provide them.
+#'
+#' Three species parameters describe maximum sizes and play distinct roles:
+#'
+#' * `w_inf` is the von Bertalanffy asymptotic size of an average individual.
+#'   It is the required maximum-size parameter and is used to set default values
+#'   for `w_max`, `w_repro_max` and `w_mat`.
+#' * `w_repro_max` is the size at which a typical mature individual invests all
+#'   of its available energy into reproduction, see [setReproduction()]. It is
+#'   not a hard ceiling on size and defaults to `w_inf`.
+#' * `w_max` is purely a computational boundary: it sets the upper end of the
+#'   size grid and the range of plots. It defaults to `1.5 * w_inf`. For
+#'   backwards compatibility, if `w_inf` is not supplied it is taken from
+#'   `w_repro_max` or `w_max` instead.
 #'
 #' Mizer distinguishes between the species parameters that you have given
 #' explicitly and the species parameters that have been calculated by mizer or
@@ -77,9 +90,9 @@
 #'   relationship \eqn{w = a l ^ b}.
 #'
 #' If you have supplied the `a` and `b` parameters, then you can replace weight
-#' parameters like `w_max`, `w_mat`, `w_mat25`, `w_repro_max` and `w_min` by
-#' their corresponding length parameters `l_max`, `l_mat`, `l_mat25`,
-#' `l_repro_max` and `l_min`.
+#' parameters like `w_inf`, `w_max`, `w_mat`, `w_mat25`, `w_repro_max` and
+#' `w_min` by their corresponding length parameters `l_inf`, `l_max`, `l_mat`,
+#' `l_mat25`, `l_repro_max` and `l_min`.
 #'
 #' The parameters that are only used to calculate default values for other
 #' parameters are:
