@@ -3098,7 +3098,12 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #' @param log Character string specifying which axes should use log10 scales,
 #'   in the same form as the base [plot()] argument. For example, `"x"`,
 #'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
-#' @param ... Unused.
+#' @param ... Further arguments used by only some of the methods:
+#'
+#'   **For `MizerSim` methods:**
+#'   * `time_range`: The time range (either a vector of values, a vector
+#'     of min and max time, or a single value) over which to average the diet
+#'     and abundances. Default is the final time step.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'Predator', 'w' (or 'l' if
@@ -3131,12 +3136,30 @@ plotDiet.MizerSim <- function(object, species = NULL,
                               wlim = c(NA, NA), llim = c(NA, NA),
                               size_axis = c("w", "l"),
                               return_data = FALSE,
-                              log_x = TRUE, log_y = FALSE, log = NULL, ...) {
+                              log_x = TRUE, log_y = FALSE, log = NULL,
+                              time_range, ...) {
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     size_axis <- plot_size_axis(size_axis)
-    plotDiet(object@params, species = species, wlim = wlim, llim = llim,
-             log_x = log_x, log_y = log_y, log = log,
-             size_axis = size_axis,
-             return_data = return_data, ...)
+    assert_that(is.flag(return_data),
+                length(wlim) == 2,
+                length(llim) == 2)
+    if (missing(time_range)) {
+        time_range <- max(as.numeric(dimnames(object@n)$time))
+    }
+    params <- validParams(object@params)
+    diet <- getDiet(object, time_range = time_range, drop = FALSE)
+    # If a time range was returned, average the diet over it
+    if (length(dim(diet)) == 4) {
+        diet <- apply(diet, c(2, 3, 4), mean)
+    }
+    # Use the abundance averaged over the same time range to restrict the plot
+    # to each predator's meaningful size range.
+    time_elements <- get_time_elements(object, time_range)
+    n <- apply(object@n[time_elements, , , drop = FALSE], c(2, 3), mean)
+    plot_diet(params, n = n, diet = diet, species = species,
+              log_x = log_axes$log_x, log_y = log_axes$log_y,
+              wlim = wlim, llim = llim, size_axis = size_axis,
+              return_data = return_data)
 }
 
 #' @rdname plotDiet

@@ -683,6 +683,25 @@ test_that("plotDiet works with MizerSim", {
     expect_true(is(p, "ggplot"))
 })
 
+test_that("plotDiet.MizerSim uses the simulated abundance, not the initial", {
+    # sim is projected with fishing effort = 1, so its diet at later times
+    # differs from the diet computed from the initial (params) abundances.
+    times <- as.numeric(dimnames(sim@n)$time)
+    diet_params <- getDiet(sim@params)
+    diet_final <- getDiet(sim, time_range = max(times), drop = TRUE)
+    expect_false(isTRUE(all.equal(diet_params, diet_final,
+                                  check.attributes = FALSE)))
+    # By default the MizerSim plot uses the final time step, so its data matches
+    # the MizerParams plot built from the diet and abundance at that time step.
+    last <- dim(sim@n)[1]
+    n_last <- apply(sim@n[last, , , drop = FALSE], c(2, 3), mean)
+    expect_equal(
+        plotDiet(sim, species = 2, return_data = TRUE),
+        plot_diet(sim@params, n = n_last, diet = diet_final, species = 2,
+                  log_x = TRUE, log_y = FALSE, wlim = c(NA, NA),
+                  llim = c(NA, NA), size_axis = "w", return_data = TRUE))
+})
+
 # Second-order power weighting in plotSpectra / plotCDF (#383) --------------
 
 test_that("plotSpectra draws the spectrum at bin centres with the w^power weight there", {

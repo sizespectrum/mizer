@@ -1,5 +1,12 @@
 # mizer (development version)
 
+- `getDiet()` gains a `MizerSim` method and `plotDiet()` for a `MizerSim` now
+  accepts a `time_range` argument, computing the diet from the simulated
+  abundances at the requested times rather than always using the initial
+  abundances. As for the other `MizerSim` plotting functions, `time_range`
+  defaults to the final saved time step and the diet is averaged over the
+  requested range. (#357)
+
 - `getDiffusion()` now works with a custom predation kernel that depends on
   predator and prey size separately rather than only on their ratio. As for
   `getEncounter()`, when such a kernel has been set (with

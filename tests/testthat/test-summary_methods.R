@@ -204,6 +204,39 @@ test_that("getDiet works with additional components", {
     expect_identical(diet2[1, 1, no_prey + 1], 111)
 })
 
+test_that("getDiet works on a MizerSim", {
+    diet_p <- getDiet(params)
+    # All saved times by default
+    diet_all <- getDiet(sim)
+    times <- dimnames(sim@n)$time
+    expect_equal(length(dim(diet_all)), 4)
+    expect_equal(dim(diet_all),
+                 c(length(times), dim(diet_p)))
+    expect_identical(names(dimnames(diet_all))[[1]], "time")
+    expect_identical(dimnames(diet_all)$time, times)
+    # The diet at t = 0 is computed from the initial abundances and so equals
+    # the MizerParams diet
+    expect_equal(diet_all["0", , , ], diet_p, ignore_attr = TRUE)
+
+    # Selecting a single time and dropping gives the MizerParams-shaped array
+    diet_last <- getDiet(sim, time_range = max(as.numeric(times)), drop = TRUE)
+    expect_equal(dim(diet_last), dim(diet_p))
+    # and matches getDiet computed directly from that time step's state
+    last <- length(times)
+    n_last <- array(sim@n[last, , ], dim = dim(sim@n)[2:3],
+                    dimnames = dimnames(sim@n)[2:3])
+    n_other_last <- sim@n_other[last, ]
+    names(n_other_last) <- dimnames(sim@n_other)$component
+    diet_direct <- getDiet(sim@params, n = n_last, n_pp = sim@n_pp[last, ],
+                           n_other = n_other_last)
+    expect_equal(diet_last, diet_direct, ignore_attr = TRUE)
+
+    # proportion = FALSE is passed through
+    diet_rate <- getDiet(sim, proportion = FALSE)
+    expect_equal(length(dim(diet_rate)), 4)
+    expect_false(isTRUE(all.equal(diet_rate, diet_all)))
+})
+
 
 # getTrophicLevel ----
 test_that("getTrophicLevel returns matrix with correct structure", {

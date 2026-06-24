@@ -4,34 +4,45 @@
 \alias{getDiet}
 \title{Get diet of predator at size, resolved by prey species}
 \usage{
-getDiet(
-  params,
-  n = initialN(params),
-  n_pp = initialNResource(params),
-  n_other = initialNOther(params),
-  proportion = TRUE
-)
+getDiet(object, ...)
 }
 \arguments{
-\item{params}{A \linkS4class{MizerParams} object.}
+\item{object}{A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.}
 
-\item{n}{A matrix of species abundances (species x size). Defaults to
-the initial abundances stored in \code{params}.}
+\item{...}{Additional arguments that depend on the class of \code{object}.
 
-\item{n_pp}{A vector of the resource abundance by size. Defaults to the
-initial resource abundance stored in \code{params}.}
+\strong{For a \linkS4class{MizerParams} object:}
+\describe{
+\item{\code{n}}{A matrix of species abundances (species x size). Defaults to
+the initial abundances stored in \code{object}.}
+\item{\code{n_pp}}{A vector of the resource abundance by size. Defaults to the
+initial resource abundance stored in \code{object}.}
+\item{\code{n_other}}{A named list of the abundances of other dynamical
+components. Defaults to the initial values stored in \code{object}.}
+}
 
-\item{n_other}{A named list of the abundances of other dynamical
-components. Defaults to the initial values stored in \code{params}.}
+\strong{For a \linkS4class{MizerSim} object:}
+\describe{
+\item{\code{time_range}}{The time range over which to return the diet. Either
+a vector of values, a vector of min and max time, or a single value.
+Defaults to the whole time range of the simulation.}
+\item{\code{drop}}{If \code{TRUE} then any dimension of length 1 is removed from
+the returned array.}
+}}
 
 \item{proportion}{If TRUE (default) the function returns the diet as a
 proportion of the total consumption rate. If FALSE it returns the
 consumption rate in grams per year.}
 }
 \value{
-An array (predator species  x predator size x
-(prey species + resource + other components). Dimnames are "prey", "w",
-and "predator".
+\itemize{
+\item \code{MizerParams}: An array (predator species x predator size x
+(prey species + resource + other components)). Dimnames are "predator",
+"w", and "prey".
+\item \code{MizerSim}: A four-dimensional array (time x predator species x predator
+size x prey) with the diet at each selected saved time step. If
+\code{drop = TRUE} then dimensions of length 1 are removed.
+}
 }
 \description{
 Calculates the rate at which a predator of a particular species and size
@@ -65,6 +76,13 @@ sizes for a predator species the returned rate is zero.
 \examples{
 diet <- getDiet(NS_params)
 str(diet)
+\donttest{
+# For a MizerSim the diet is returned at each saved time step
+sim <- project(NS_params, t_max = 20, effort = 0.5)
+# Diet at the saved time steps over years 15 - 20
+diet <- getDiet(sim, time_range = c(15, 20))
+str(diet)
+}
 }
 \seealso{
 \code{\link[=plotDiet]{plotDiet()}}
