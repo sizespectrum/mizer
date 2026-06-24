@@ -63,20 +63,38 @@ NULL
 #' consumed biomass rather than the available biomass. Outside the range of
 #' sizes for a predator species the returned rate is zero.
 #'
-#' @param params A \linkS4class{MizerParams} object.
-#' @param n A matrix of species abundances (species x size). Defaults to
-#'   the initial abundances stored in `params`.
-#' @param n_pp A vector of the resource abundance by size. Defaults to the
-#'   initial resource abundance stored in `params`.
-#' @param n_other A named list of the abundances of other dynamical
-#'   components. Defaults to the initial values stored in `params`.
+#' @param object A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.
 #' @param proportion If TRUE (default) the function returns the diet as a
 #'   proportion of the total consumption rate. If FALSE it returns the
 #'   consumption rate in grams per year.
+#' @param ... Additional arguments that depend on the class of `object`.
 #'
-#' @return An array (predator species  x predator size x
-#'   (prey species + resource + other components). Dimnames are "prey", "w",
-#'   and "predator".
+#'   **For a \linkS4class{MizerParams} object:**
+#'   \describe{
+#'     \item{`n`}{A matrix of species abundances (species x size). Defaults to
+#'       the initial abundances stored in `object`.}
+#'     \item{`n_pp`}{A vector of the resource abundance by size. Defaults to the
+#'       initial resource abundance stored in `object`.}
+#'     \item{`n_other`}{A named list of the abundances of other dynamical
+#'       components. Defaults to the initial values stored in `object`.}
+#'   }
+#'
+#'   **For a \linkS4class{MizerSim} object:**
+#'   \describe{
+#'     \item{`time_range`}{The time range over which to return the diet. Either
+#'       a vector of values, a vector of min and max time, or a single value.
+#'       Defaults to the whole time range of the simulation.}
+#'     \item{`drop`}{If `TRUE` then any dimension of length 1 is removed from
+#'       the returned array.}
+#'   }
+#'
+#' @return
+#' * `MizerParams`: An array (predator species x predator size x
+#'   (prey species + resource + other components)). Dimnames are "predator",
+#'   "w", and "prey".
+#' * `MizerSim`: A four-dimensional array (time x predator species x predator
+#'   size x prey) with the diet at each selected saved time step. If
+#'   `drop = TRUE` then dimensions of length 1 are removed.
 #'
 #' @export
 #' @family summary functions
@@ -85,21 +103,24 @@ NULL
 #' @examples
 #' diet <- getDiet(NS_params)
 #' str(diet)
-getDiet <- function(params,
-                    n = initialN(params),
-                    n_pp = initialNResource(params),
-                    n_other = initialNOther(params),
-                    proportion = TRUE) {
+#' \donttest{
+#' # For a MizerSim the diet is returned at each saved time step
+#' sim <- project(NS_params, t_max = 20, effort = 0.5)
+#' # Diet at the saved time steps over years 15 - 20
+#' diet <- getDiet(sim, time_range = c(15, 20))
+#' str(diet)
+#' }
+getDiet <- function(object, ...) {
     UseMethod("getDiet")
 }
 #' @export
-getDiet.MizerParams <- function(params,
-                    n = initialN(params),
-                    n_pp = initialNResource(params),
-                    n_other = initialNOther(params),
-                    proportion = TRUE) {
+getDiet.MizerParams <- function(object,
+                    n = initialN(object),
+                    n_pp = initialNResource(object),
+                    n_other = initialNOther(object),
+                    proportion = TRUE, ...) {
     # The code is based on that for getEncounter()
-    params <- validParams(params)
+    params <- validParams(object)
     species <- params@species_params$species
     no_sp <- length(species)
     no_w <- length(params@w)
@@ -192,6 +213,27 @@ getDiet.MizerParams <- function(params,
     return(diet)
 }
 
+#' @export
+getDiet.MizerSim <- function(object, proportion = TRUE,
+                             time_range, drop = FALSE, ...) {
+    sim <- object
+    time_elements <- get_sim_rate_time_elements(sim, time_range)
+
+    # Compute the diet at each selected saved time step from that step's
+    # abundances and stack the results into a time x predator x size x prey
+    # array. This mirrors the other `MizerSim` rate getters, which evaluate the
+    # quantity per saved step (see `get_species_size_rate_from_sim()`); the
+    # plotting functions then average the computed quantity over a time range.
+    diet_time <- plyr::aaply(which(time_elements), 1, function(time_idx) {
+        slice <- get_sim_rate_slice(sim, time_idx)
+        getDiet(sim@params, n = slice$n, n_pp = slice$n_pp,
+                n_other = slice$n_other, proportion = proportion, ...)
+    }, .drop = FALSE)
+    names(dimnames(diet_time))[[1]] <- "time"
+
+    diet_time[, , , , drop = drop]
+}
+
 
 #' Get trophic level of individuals at size
 #'
@@ -255,7 +297,13 @@ getDiet.MizerParams <- function(params,
 #' trophic levels of all relevant prey sizes are already known when computing
 #' \eqn{T_i(w)}.
 #'
-#' @inheritParams getDiet
+#' @param params A \linkS4class{MizerParams} object.
+#' @param n A matrix of species abundances (species x size). Defaults to
+#'   the initial abundances stored in `params`.
+#' @param n_pp A vector of the resource abundance by size. Defaults to the
+#'   initial resource abundance stored in `params`.
+#' @param n_other A named list of the abundances of other dynamical
+#'   components. Defaults to the initial values stored in `params`.
 #' @param w_R An average size (in grams) of primary producers in the resource
 #'   spectrum, used to set the size-dependent resource trophic level. Defaults
 #'   to `1e-10`.

@@ -50,7 +50,15 @@ used for the plot is returned instead of the plot itself. Default is FALSE.}
 in the same form as the base \code{\link[=plot]{plot()}} argument. For example, \code{"x"},
 \code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x} and \code{log_y}.}
 
-\item{...}{Unused.}
+\item{...}{Further arguments used by only some of the methods:
+
+\strong{For \code{MizerSim} methods:}
+\itemize{
+\item \code{time_range}: The time range (either a vector of values, a vector
+of min and max time, or a single value) over which to average the diet.
+The consumption rates are averaged over this range and then normalised
+to proportions. Default is the final time step.
+}}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data

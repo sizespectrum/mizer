@@ -1,5 +1,14 @@
 # mizer (development version)
 
+- `getDiet()` gains a `MizerSim` method and `plotDiet()` for a `MizerSim` now
+  accepts a `time_range` argument, computing the diet from the simulated
+  abundances at the requested times rather than always using the initial
+  abundances. As for the other `MizerSim` plotting functions, `time_range`
+  defaults to the final saved time step. When a range spanning several saved
+  time steps is given, the consumption rates are averaged over the range and
+  then normalised to proportions (rather than averaging the per-step
+  proportions, which are normalised independently). (#357)
+  
 - Clarified the maximum-size species parameters (#325). The von Bertalanffy
   asymptotic size `w_inf` is now the required maximum-size parameter and is used
   as the default for `w_repro_max` (previously `w_max`) and `w_mat`. `w_max` is

@@ -683,6 +683,48 @@ test_that("plotDiet works with MizerSim", {
     expect_true(is(p, "ggplot"))
 })
 
+test_that("plotDiet.MizerSim uses the simulated abundance, not the initial", {
+    # sim is projected with fishing effort = 1, so its diet at later times
+    # differs from the diet computed from the initial (params) abundances.
+    times <- as.numeric(dimnames(sim@n)$time)
+    diet_params <- getDiet(sim@params)
+    diet_final <- getDiet(sim, time_range = max(times), drop = TRUE)
+    expect_false(isTRUE(all.equal(diet_params, diet_final,
+                                  check.attributes = FALSE)))
+    # By default the MizerSim plot uses the final time step, so its data matches
+    # the MizerParams plot built from the diet and abundance at that time step.
+    last <- dim(sim@n)[1]
+    n_last <- apply(sim@n[last, , , drop = FALSE], c(2, 3), mean)
+    expect_equal(
+        plotDiet(sim, species = 2, return_data = TRUE),
+        plot_diet(sim@params, n = n_last, diet = diet_final, species = 2,
+                  log_x = TRUE, log_y = FALSE, wlim = c(NA, NA),
+                  llim = c(NA, NA), size_axis = "w", return_data = TRUE))
+})
+
+test_that("plotDiet.MizerSim averages rates, not proportions, over a range", {
+    tr <- range(as.numeric(dimnames(sim@n)$time))
+    # Correct aggregation: average the consumption rates then normalise
+    rates <- getDiet(sim, time_range = tr, drop = FALSE, proportion = FALSE)
+    rates_mean <- apply(rates, c(2, 3, 4), mean)
+    total <- rowSums(rates_mean, dims = 2)
+    diet_expected <- sweep(rates_mean, c(1, 2), total, "/")
+    diet_expected[is.nan(diet_expected)] <- 0
+    # Naive (wrong) aggregation: average the per-step proportions
+    props <- getDiet(sim, time_range = tr, drop = FALSE, proportion = TRUE)
+    diet_naive <- apply(props, c(2, 3, 4), mean)
+    # The two genuinely differ for this projection
+    expect_false(isTRUE(all.equal(diet_expected, diet_naive)))
+    # plotDiet uses the correct (rate-averaged) proportions
+    time_elements <- get_time_elements(sim, tr)
+    n_avg <- apply(sim@n[time_elements, , , drop = FALSE], c(2, 3), mean)
+    expect_equal(
+        plotDiet(sim, species = 2, time_range = tr, return_data = TRUE),
+        plot_diet(sim@params, n = n_avg, diet = diet_expected, species = 2,
+                  log_x = TRUE, log_y = FALSE, wlim = c(NA, NA),
+                  llim = c(NA, NA), size_axis = "w", return_data = TRUE))
+})
+
 # Second-order power weighting in plotSpectra / plotCDF (#383) --------------
 
 test_that("plotSpectra draws the spectrum at bin centres with the w^power weight there", {
