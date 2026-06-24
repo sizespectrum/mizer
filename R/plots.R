@@ -3102,8 +3102,9 @@ plotlyGrowthCurves <- function(object, species = NULL,
 #'
 #'   **For `MizerSim` methods:**
 #'   * `time_range`: The time range (either a vector of values, a vector
-#'     of min and max time, or a single value) over which to average the diet
-#'     and abundances. Default is the final time step.
+#'     of min and max time, or a single value) over which to average the diet.
+#'     The consumption rates are averaged over this range and then normalised
+#'     to proportions. Default is the final time step.
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the four variables 'Predator', 'w' (or 'l' if
@@ -3147,11 +3148,20 @@ plotDiet.MizerSim <- function(object, species = NULL,
         time_range <- max(as.numeric(dimnames(object@n)$time))
     }
     params <- validParams(object@params)
-    diet <- getDiet(object, time_range = time_range, drop = FALSE)
-    # If a time range was returned, average the diet over it
+    # Work with the consumption rates (proportion = FALSE) so that the diet
+    # averaged over a time range is the mean rate at which biomass of each prey
+    # is consumed. Only afterwards do we normalise to proportions. Averaging the
+    # per-time-step proportions directly would be wrong, since each step's
+    # proportions are normalised independently.
+    diet <- getDiet(object, time_range = time_range, drop = FALSE,
+                    proportion = FALSE)
     if (length(dim(diet)) == 4) {
         diet <- apply(diet, c(2, 3, 4), mean)
     }
+    # Normalise the time-averaged rates to proportions, as getDiet() does.
+    total <- rowSums(diet, dims = 2)
+    diet <- sweep(diet, c(1, 2), total, "/")
+    diet[is.nan(diet)] <- 0
     # Use the abundance averaged over the same time range to restrict the plot
     # to each predator's meaningful size range.
     time_elements <- get_time_elements(object, time_range)

@@ -55,8 +55,9 @@ in the same form as the base \code{\link[=plot]{plot()}} argument. For example, 
 \strong{For \code{MizerSim} methods:}
 \itemize{
 \item \code{time_range}: The time range (either a vector of values, a vector
-of min and max time, or a single value) over which to average the diet
-and abundances. Default is the final time step.
+of min and max time, or a single value) over which to average the diet.
+The consumption rates are averaged over this range and then normalised
+to proportions. Default is the final time step.
 }}
 }
 \value{
