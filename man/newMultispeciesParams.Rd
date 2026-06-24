@@ -85,11 +85,11 @@ mortality rate.  If not supplied, a default is set as described in the
 section "Setting external mortality rate".}
 
 \item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_max ^ z0exp.
+in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is 0.6.}
 
 \item{z0exp}{If \code{z0}, the mortality from other sources, is not a column in
-the species data frame, it is calculated as \code{z0pre * w_max ^ z0exp}.
+the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
 Default value is \code{n-1}.}
 
 \item{ext_encounter}{Optional. An array (species x size) holding the external
@@ -197,9 +197,12 @@ parameters for one of the species in the model.
 There are two essential columns that must be included in the species
 parameter data.frame and that do not have default values: the
 \code{species} column that should hold strings with the names of the
-species and the \code{w_max} column with the maximum sizes of the species
-in grams. (You could alternatively specify the maximum length in cm in an
-\code{l_max} column.)
+species and the \code{w_inf} column with the von Bertalanffy asymptotic sizes of
+the species in grams. (You could alternatively specify the corresponding
+length in cm in an \code{l_inf} column.) The computational upper size boundary
+\code{w_max} is not essential; if it is missing it defaults to \code{1.5 * w_inf}. For
+backwards compatibility, if \code{w_inf} is missing it is taken from the
+\code{w_repro_max} or \code{w_max} column instead.
 
 The \verb{species_params dataframe} also needs to contain the parameters needed
 by any predation kernel function (size selectivity function). This will
@@ -532,11 +535,13 @@ available energy
 that is invested into reproduction is the product of two factors: the
 proportion \code{maturity} of individuals that are mature and the proportion
 \code{repro_prop} of the energy available to a mature individual that is
-invested into reproduction. There is a size \code{w_repro_max} at which all the
-energy is invested into reproduction and therefore all growth stops. There
-can be no fish larger than \code{w_repro_max}. If you have not specified the
-\code{w_repro_max} column in the species parameter data frame, then the maximum size
-\code{w_max} is used instead.
+invested into reproduction. There is a size \code{w_repro_max} at which a typical
+mature individual invests all of its available energy into reproduction.
+This is \strong{not} a hard ceiling on size: not all individuals are mature at
+\code{w_repro_max}, and diffusion in the growth process allows some individuals to
+grow beyond it, so fish larger than \code{w_repro_max} can exist. If you have not
+specified the \code{w_repro_max} column in the species parameter data frame, then
+the von Bertalanffy asymptotic size \code{w_inf} is used instead.
 
 \subsection{Maturity ogive}{
 If the the proportion of individuals that are mature is not supplied via
@@ -548,7 +553,7 @@ maturity ogive that changes from 0 to 1 at around the maturity size:
 although each species has its own maturity ogive.)
 The maturity weights are taken from the \code{w_mat} column of the
 species_params data frame. Any missing maturity weights are set to 1/4 of the
-maximum weight in the \code{w_max} column.
+asymptotic size in the \code{w_inf} column.
 
 The exponent \eqn{U} determines the steepness of the maturity ogive. By
 default it is chosen as \eqn{U = 10}, however this can be overridden by
@@ -574,9 +579,9 @@ the exponent \eqn{m} determines the scaling of the investment into
 reproduction for mature individuals. By default it is chosen to be
 \eqn{m = 1} so that the rate at which energy is invested into reproduction
 scales linearly with the size. This default can be overridden by including a
-column \code{m} in the species parameter dataframe. The maximum sizes are taken
-from the \code{w_repro_max} column in the species parameter data frame, if it
-exists, or otherwise from the \code{w_max} column.
+column \code{m} in the species parameter dataframe. The sizes \eqn{w_{repro\_max}}
+are taken from the \code{w_repro_max} column in the species parameter data frame,
+if it exists, or otherwise from the \code{w_inf} column.
 
 The total proportion of energy invested into reproduction of an individual
 of size \eqn{w} is then

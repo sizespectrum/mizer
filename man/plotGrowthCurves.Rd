@@ -81,13 +81,12 @@ need to remember that the growth curves should only represent the average
 age at each size. So a scatter in the x-direction around the curve is to be
 expected.
 
-For legacy reasons, if the species parameters contain the variables \code{a} and
-\code{b} for length to weight conversion and the von Bertalanffy parameter \code{k_vb},
-\code{w_inf} (and optionally \code{t0}), then the von Bertalanffy growth curve is
-superimposed in black. This was implemented before we understood that the von
-Bertalanffy curves (which approximates the average length at each age) should
-not be compared to the mizer growth curves (which approximate the average age
-at each length).
+If the species parameters contain the variables \code{a} and \code{b} for length to
+weight conversion and the von Bertalanffy parameter \code{k_vb}, \code{w_inf} (and
+optionally \code{t0}), then the von Bertalanffy growth curve is superimposed in
+black. Note that the von Bertalanffy curve (which approximates the average
+length at each age) should not be compared directly to the mizer growth
+curves (which approximate the average age at each length).
 }
 \examples{
 \donttest{

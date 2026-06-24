@@ -32,7 +32,8 @@ for species parameters that were not provided.
 parameters. It throws an error if
 \itemize{
 \item the \code{species} column does not exist or contains duplicates
-\item the maximum size is not specified for all species
+\item the asymptotic size \code{w_inf} is not specified for all species (but see the
+backwards-compatibility note below)
 }
 
 If a weight-based parameter is missing but the corresponding length-based
@@ -41,14 +42,17 @@ conversion, then the weight-based parameters are added. If both length and
 weight are given, then weight is used and an \code{info_about_default} condition
 is signalled if the two are inconsistent.
 
-If a \code{w_inf} column is given but no \code{w_max} then the value from \code{w_inf} is
-used. This is for backwards compatibility. But note that the von Bertalanffy
-parameter \code{w_inf} is not the maximum size of the largest individual, but the
-asymptotic size of an average individual.
+The required maximum-size parameter is \code{w_inf}, the von Bertalanffy
+asymptotic size of an average individual. For backwards compatibility, if no
+\code{w_inf} column is given, its values are taken from the \code{w_repro_max} column
+if that is present, or otherwise from the \code{w_max} column, and an
+informational message is issued. (\code{w_repro_max} is preferred over \code{w_max}
+because in earlier versions of mizer it was the size at which growth stopped
+and is therefore the closest analogue to the asymptotic size.)
 
 Some inconsistencies in the size parameters are resolved as follows:
 \itemize{
-\item Any \code{w_mat} that is not smaller than \code{w_max} is set to \code{w_max / 4}.
+\item Any \code{w_mat} that is not smaller than \code{w_inf} is set to \code{w_inf / 4}.
 \item Any \code{w_mat25} that is not smaller than \code{w_mat} is set to NA.
 \item Any \code{w_min} that is not smaller than \code{w_mat} is set to \code{0.001} or
 \code{w_mat /10}, whichever is smaller.
@@ -68,8 +72,9 @@ goes further by adding default values for species parameters that were not
 provided. The function sets default values if any of the following species
 parameters are missing or NA:
 \itemize{
-\item \code{w_repro_max} is set to \code{w_max}
-\item \code{w_mat} is set to \code{w_max/4}
+\item \code{w_max} is set to \code{1.5 * w_inf} (it is only a computational boundary)
+\item \code{w_repro_max} is set to \code{w_inf}
+\item \code{w_mat} is set to \code{w_inf/4}
 \item \code{w_min} is set to \code{0.001}
 \item \code{alpha} is set to \code{0.6}
 \item \code{interaction_resource} is set to \code{1}

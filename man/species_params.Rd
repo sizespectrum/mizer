@@ -50,9 +50,23 @@ stored in a MizerParams object.
 \details{
 There are a lot of species parameters and we will list them all below, but
 most of them have sensible default values. The only required columns are
-\code{species} for the species name and \code{w_max} for its maximum size. However
-if you have information about the values of other parameters then you should
-provide them.
+\code{species} for the species name and \code{w_inf} for its von Bertalanffy
+asymptotic size. However if you have information about the values of other
+parameters then you should provide them.
+
+Three species parameters describe maximum sizes and play distinct roles:
+\itemize{
+\item \code{w_inf} is the von Bertalanffy asymptotic size of an average individual.
+It is the required maximum-size parameter and is used to set default values
+for \code{w_max}, \code{w_repro_max} and \code{w_mat}.
+\item \code{w_repro_max} is the size at which a typical mature individual invests all
+of its available energy into reproduction, see \code{\link[=setReproduction]{setReproduction()}}. It is
+not a hard ceiling on size and defaults to \code{w_inf}.
+\item \code{w_max} is purely a computational boundary: it sets the upper end of the
+size grid and the range of plots. It defaults to \code{1.5 * w_inf}. For
+backwards compatibility, if \code{w_inf} is not supplied it is taken from
+\code{w_repro_max} or \code{w_max} instead.
+}
 
 Mizer distinguishes between the species parameters that you have given
 explicitly and the species parameters that have been calculated by mizer or
@@ -124,9 +138,9 @@ relationship \eqn{w = a l ^ b}.
 }
 
 If you have supplied the \code{a} and \code{b} parameters, then you can replace weight
-parameters like \code{w_max}, \code{w_mat}, \code{w_mat25}, \code{w_repro_max} and \code{w_min} by
-their corresponding length parameters \code{l_max}, \code{l_mat}, \code{l_mat25},
-\code{l_repro_max} and \code{l_min}.
+parameters like \code{w_inf}, \code{w_max}, \code{w_mat}, \code{w_mat25}, \code{w_repro_max} and
+\code{w_min} by their corresponding length parameters \code{l_inf}, \code{l_max}, \code{l_mat},
+\code{l_mat25}, \code{l_repro_max} and \code{l_min}.
 
 The parameters that are only used to calculate default values for other
 parameters are:
@@ -138,6 +152,9 @@ maintain itself. This is used to get a default value for the coefficient
 \code{ks} of the metabolic rate, see \code{\link[=get_ks_default]{get_ks_default()}}.
 \item \code{age_mat} is the age at maturity and is used to get a default value for
 the coefficient \code{h} of the maximum intake rate, see \code{\link[=get_h_default]{get_h_default()}}.
+\item If \code{age_mat} is not supplied, mizer used the von Bertalanffy parameters
+\code{k_vb}, \code{w_inf} and \code{t0} as well as the weight-length exponent \code{b} to
+determine it. This is unreliable and is therefore not recommended.
 }
 
 Changing these parameters with \verb{species_params<-()} updates the stored
@@ -146,10 +163,6 @@ However they only affect model behaviour if the corresponding downstream
 parameters are recalculated rather than kept at explicitly supplied values.
 In typical workflows these quantities should therefore be changed via
 \verb{given_species_params<-()}.
-
-In the past, mizer also used the von Bertalanffy parameters \code{k_vb}, \code{w_inf}
-and \code{t0} to determine a default for \code{h}. This is unreliable and is therefore
-now deprecated.
 
 There are other species parameters that are used in tuning the model to
 observations:

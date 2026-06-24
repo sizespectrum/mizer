@@ -154,6 +154,7 @@ newSingleSpeciesParams <-
     species_params <- data.frame(
         species = species_name,
         w_min = w_min,
+        w_inf = w_max,
         w_max = w_max,
         w_mat = w_mat,
         w_min_idx = 1,

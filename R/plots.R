@@ -2777,13 +2777,12 @@ plotlyFMort <- function(object, species = NULL,
 #' age at each size. So a scatter in the x-direction around the curve is to be
 #' expected.
 #'
-#' For legacy reasons, if the species parameters contain the variables `a` and
-#' `b` for length to weight conversion and the von Bertalanffy parameter `k_vb`,
-#' `w_inf` (and optionally `t0`), then the von Bertalanffy growth curve is
-#' superimposed in black. This was implemented before we understood that the von
-#' Bertalanffy curves (which approximates the average length at each age) should
-#' not be compared to the mizer growth curves (which approximate the average age
-#' at each length).
+#' If the species parameters contain the variables `a` and `b` for length to
+#' weight conversion and the von Bertalanffy parameter `k_vb`, `w_inf` (and
+#' optionally `t0`), then the von Bertalanffy growth curve is superimposed in
+#' black. Note that the von Bertalanffy curve (which approximates the average
+#' length at each age) should not be compared directly to the mizer growth
+#' curves (which approximate the average age at each length).
 #'
 #' @param object An object of class \linkS4class{MizerSim} or
 #'   \linkS4class{MizerParams}.

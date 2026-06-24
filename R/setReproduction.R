@@ -11,11 +11,13 @@
 #' that is invested into reproduction is the product of two factors: the
 #' proportion `maturity` of individuals that are mature and the proportion
 #' `repro_prop` of the energy available to a mature individual that is
-#' invested into reproduction. There is a size `w_repro_max` at which all the
-#' energy is invested into reproduction and therefore all growth stops. There
-#' can be no fish larger than `w_repro_max`. If you have not specified the
-#' `w_repro_max` column in the species parameter data frame, then the maximum size
-#' `w_max` is used instead.
+#' invested into reproduction. There is a size `w_repro_max` at which a typical
+#' mature individual invests all of its available energy into reproduction.
+#' This is **not** a hard ceiling on size: not all individuals are mature at
+#' `w_repro_max`, and diffusion in the growth process allows some individuals to
+#' grow beyond it, so fish larger than `w_repro_max` can exist. If you have not
+#' specified the `w_repro_max` column in the species parameter data frame, then
+#' the von Bertalanffy asymptotic size `w_inf` is used instead.
 #'
 #' \subsection{Maturity ogive}{
 #' If the the proportion of individuals that are mature is not supplied via
@@ -27,7 +29,7 @@
 #' although each species has its own maturity ogive.)
 #' The maturity weights are taken from the `w_mat` column of the
 #' species_params data frame. Any missing maturity weights are set to 1/4 of the
-#' maximum weight in the `w_max` column.
+#' asymptotic size in the `w_inf` column.
 #'
 #' The exponent \eqn{U} determines the steepness of the maturity ogive. By
 #' default it is chosen as \eqn{U = 10}, however this can be overridden by
@@ -53,9 +55,9 @@
 #' reproduction for mature individuals. By default it is chosen to be
 #' \eqn{m = 1} so that the rate at which energy is invested into reproduction
 #' scales linearly with the size. This default can be overridden by including a
-#' column `m` in the species parameter dataframe. The maximum sizes are taken
-#' from the `w_repro_max` column in the species parameter data frame, if it
-#' exists, or otherwise from the `w_max` column.
+#' column `m` in the species parameter dataframe. The sizes \eqn{w_{repro\_max}}
+#' are taken from the `w_repro_max` column in the species parameter data frame,
+#' if it exists, or otherwise from the `w_inf` column.
 #'
 #' The total proportion of energy invested into reproduction of an individual
 #' of size \eqn{w} is then
@@ -218,8 +220,8 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
             message("Note: The following species were missing data for ",
                     "their maturity size w_mat: ",
                     toString(species_params$species[missing]),
-                    ". These have been set to 1/4 w_max.")
-            species_params$w_mat[missing] <- species_params$w_max[missing] / 4
+                    ". These have been set to 1/4 w_inf.")
+            species_params$w_mat[missing] <- species_params$w_inf[missing] / 4
         }
         assert_that(all(species_params$w_mat > species_params$w_min))
         assert_that(all(species_params$w_mat < species_params$w_max))
@@ -293,10 +295,9 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
         if (any(species_params$m < species_params[["n"]])) {
             stop("The exponent `m` must not be smaller than the exponent `n`.")
         }
-        # Set defaults for w_repro_max
-        species_params <- set_species_param_default(species_params, "w_repro_max",
-                                                    params@species_params$w_max)
-
+        # `w_repro_max` is guaranteed to be present and non-NA because the
+        # species parameters were passed through `validSpeciesParams()` at
+        # construction time, where it defaults to `w_inf`.
         repro_prop <- array(
             unlist(
                 tapply(params@w, seq_along(params@w),

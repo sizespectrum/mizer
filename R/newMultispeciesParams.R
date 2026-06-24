@@ -52,9 +52,12 @@
 #' There are two essential columns that must be included in the species
 #' parameter data.frame and that do not have default values: the
 #' `species` column that should hold strings with the names of the
-#' species and the `w_max` column with the maximum sizes of the species
-#' in grams. (You could alternatively specify the maximum length in cm in an
-#' `l_max` column.)
+#' species and the `w_inf` column with the von Bertalanffy asymptotic sizes of
+#' the species in grams. (You could alternatively specify the corresponding
+#' length in cm in an `l_inf` column.) The computational upper size boundary
+#' `w_max` is not essential; if it is missing it defaults to `1.5 * w_inf`. For
+#' backwards compatibility, if `w_inf` is missing it is taken from the
+#' `w_repro_max` or `w_max` column instead.
 #'
 #' The `species_params dataframe` also needs to contain the parameters needed
 #' by any predation kernel function (size selectivity function). This will

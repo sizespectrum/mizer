@@ -9,13 +9,14 @@
 #' @format A data frame with 12 rows and 7 columns. Each row is a species.
 #' \describe{
 #' \item{species}{Name of the species}
-#' \item{w_max}{Maximum size.}
+#' \item{w_max}{Computational upper size boundary, defaulting to `1.5 * w_inf`.}
 #' \item{w_mat}{Size at maturity}
 #' \item{beta}{Size preference ratio}
 #' \item{sigma}{Width of the size-preference}
 #' \item{R_max}{Maximum reproduction rate}
 #' \item{k_vb}{The von Bertalanffy k parameter}
-#' \item{w_inf}{The von Bertalanffy asymptotic size}
+#' \item{w_inf}{The von Bertalanffy asymptotic size. This is the required
+#'   maximum-size parameter.}
 #' }
 #' @source{Blanchard et al.}
 #' @docType data
@@ -34,13 +35,14 @@
 #' @format A data frame with 12 rows and 8 columns. Each row is a species.
 #' \describe{
 #' \item{species}{Name of the species}
-#' \item{w_max}{Maximum size.}
+#' \item{w_max}{Computational upper size boundary, defaulting to `1.5 * w_inf`.}
 #' \item{w_mat}{Size at maturity}
 #' \item{beta}{Size preference ratio}
 #' \item{sigma}{Width of the size-preference}
 #' \item{R_max}{Maximum reproduction rate}
 #' \item{k_vb}{The von Bertalanffy k parameter}
-#' \item{w_inf}{The von Bertalanffy asymptotic size}
+#' \item{w_inf}{The von Bertalanffy asymptotic size. This is the required
+#'   maximum-size parameter.}
 #' \item{gear}{Name of the fishing gear}
 #' }
 #' @source{Blanchard et al.}
