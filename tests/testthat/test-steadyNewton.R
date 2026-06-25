@@ -63,6 +63,46 @@ test_that("steadyNewton errors for unsupported resource dynamics", {
     expect_error(steadyNewton(p_log), "semichemostat")
 })
 
+test_that("steadyNewton works with the second-order (van Leer) scheme", {
+    p <- NS_params_small
+    sow <- second_order_w(p)
+    sow$flux <- "van_leer"
+    sow$bin_average <- TRUE
+    second_order_w(p) <- sow
+    ps <- steady(p, t_max = 100, progress_bar = FALSE)
+
+    pn <- steadyNewton(ps)
+    expect_s4_class(pn, "MizerParams")
+    # The returned state must still be a fixed point of the (second-order)
+    # dynamics. The van Leer limiter is only Lipschitz, so the Newton residual
+    # cannot be driven to machine precision, but the projected drift is the
+    # honest test and stays small.
+    sim <- project(pn, t_max = 1, dt = 0.25, t_save = 1)
+    n0 <- pn@initial_n
+    n1 <- finalN(sim)
+    support <- n0 > 0
+    drift <- max((abs(n1 - n0) / n0)[support])
+    expect_lt(drift, 1e-3)
+})
+
+test_that("support_top_idx drops the pile-up bin for the second-order scheme", {
+    # First-order upwind feeds a class from the growth of the class below, so the
+    # support reaches one bin past w_max; the second-order scheme feeds a class
+    # from the growth at its own lower face, so it stops at w_max.
+    p1 <- NS_params_small
+    p2 <- NS_params_small
+    sow <- second_order_w(p2)
+    sow$flux <- "van_leer"
+    second_order_w(p2) <- sow
+
+    w_max_idx <- sapply(seq_len(nrow(p1@species_params)), function(i) {
+        sum(p1@w <= p1@species_params$w_max[i])
+    })
+    no_w <- length(p1@w)
+    expect_equal(mizer:::support_top_idx(p1), pmin(w_max_idx + 1L, no_w))
+    expect_equal(mizer:::support_top_idx(p2), pmin(w_max_idx, no_w))
+})
+
 test_that("support_top_idx is the first class above w_max", {
     p <- NS_params_small
     g <- getEGrowth(p)

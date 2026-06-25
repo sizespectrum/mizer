@@ -69,15 +69,24 @@ does.
 The consumer densities are solved for in log space, which both keeps them
 positive and conditions the otherwise badly-scaled system. The unknowns are
 the densities in the size classes that carry non-zero density in the steady
-state, namely from the egg size up to the size at which somatic growth ceases;
-densities outside that range are structurally zero and held there. The
-nonlinear system is solved with a globalised Newton iteration from the
-\code{nleqslv} package, starting from the current \code{initial_n}. Newton's method
-converges from any starting point in the \emph{root's} basin of attraction (which
-is unrelated to the dynamic stability of the steady state), so a reasonable
-initial guess should be supplied in \code{initialN(params)} — for example the
-spectra from a nearby stable parameterisation, or the (diverging) output of
-\code{\link[=steady]{steady()}}.
+state, namely from the egg size up to the size grid's maximum size \code{w_max};
+densities above \code{w_max} are held at zero by the upper boundary condition. The
+nonlinear system is
+solved with a globalised Newton iteration from the \code{nleqslv} package, starting
+from the current \code{initial_n}. Newton's method converges from any starting
+point in the \emph{root's} basin of attraction (which is unrelated to the dynamic
+stability of the steady state), so a reasonable initial guess should be
+supplied in \code{initialN(params)} — for example the spectra from a nearby stable
+parameterisation, or the (diverging) output of \code{\link[=steady]{steady()}}.
+
+The solver respects the active transport scheme: if the experimental
+second-order scheme is enabled (see \code{\link[=second_order_w]{second_order_w()}}) it solves the
+steady-state equation of that scheme. With the van Leer reconstruction the
+residual is only Lipschitz, so the iteration converges to a fixed point of the
+dynamics but not to machine precision. The unlimited \code{"centred"}
+reconstruction admits an undamped odd-even mode at a steady state with no
+physical diffusion, giving an ill-conditioned steady-state Jacobian for which
+the solver is not expected to converge.
 
 Only the default semichemostat resource dynamics
 (\code{resource_dynamics = "resource_semichemostat"}) are currently supported,

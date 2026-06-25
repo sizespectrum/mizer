@@ -164,10 +164,52 @@ Comparing this to the general discretised equation translates to modifying the f
 (Additionally, for any size classes below the recruitment size $j < j_{min}$, we set all coefficients in the matrices $A$, $B$, $C$ and vector $S$ to $0$ to avoid any dynamics in that range).
 
 **At the largest size ($j=j_{max}$):**
-We typically assume that densities drop to zero beyond the maximum size, $N_{j_{max}+1} = 0$.
-The flux leaving the grid is:
-$$ J_{j_{max}+1}^{t+1} = g_{j_{max}} N_{j_{max}}^{t+1} - \frac{1}{2} \frac{0 - d_{j_{max}} N_{j_{max}}^{t+1}}{\Delta w_{j_{max}}^c} $$ {#eq-upper-bc-flux}
-This means the term $C_{j_{max}}$ multiplying $N_{j_{max}+1}^{t+1}$ is not needed, so $C_{j_{max}} = 0$. The coefficients $A_{j_{max}}$ and $B_{j_{max}}$ use the standard formulas.
+The size grid is truncated at each species' maximum size $w_{max}$, and we hold
+the density at zero above it,
+$$ N_{j}^{t+1} = 0 \quad\text{for } j > j_{max}. $$ {#eq-upper-bc-zero}
+This is a property of the computational grid, not of the rates. Here $w_{max}$ is
+purely the top of the size grid (and the plot range); it is a *different*
+parameter from $w_{repro\_max}$, the size at which a typical mature individual
+diverts all of its available energy into reproduction. Somatic growth slows down
+around $w_{repro\_max}$, not at $w_{max}$, so whether the growth rate has actually
+reached zero near $w_{max}$ depends entirely on how large the user chose $w_{max}$
+relative to $w_{repro\_max}$ — and even at $w_{repro\_max}$ growth need not vanish
+for every individual, since the maturity ogive is gradual and diffusion lets some
+fish grow beyond it. The truncation @eq-upper-bc-zero therefore makes **no
+assumption** that the rates are zero at $w_{max}$; it is simply a cut-off of the
+finite grid, appropriate when $w_{max}$ is chosen large enough that the density
+(and the flux leaving the grid through the boundary $w_{j_{max}+1}$) is negligible
+there. Choosing $w_{max}$ that large is the modeller's responsibility.
+
+The top retained class $j_{max}$ depends on the scheme, because the two schemes
+place the advective inflow differently. With $w_{max\_idx} = \max\{j : w_j \le
+w_{max}\}$:
+
+* the default first-order upwind scheme feeds class $j$ from the growth of the
+  class below, $g(w_{j-1})$, so the class just above the one containing $w_{max}$
+  can still carry advected density; here $j_{max} = w_{max\_idx} + 1$. This
+  reproduces the long-standing mizer behaviour exactly;
+* the second-order scheme reconstructs the flux at a class's own lower face,
+  $g(w_j)$, so its support ends one class lower, $j_{max} = w_{max\_idx}$.
+
+To impose @eq-upper-bc-zero, the term $C_{j_{max}}$ multiplying
+$N_{j_{max}+1}^{t+1}$ is dropped ($C_{j_{max}} = 0$), exactly as at the lower
+boundary. This sets the back-substitution coefficient at $j_{max}$ to zero, so
+the retained spectrum up to $j_{max}$ is solved independently of the classes
+above it; those classes are then set to zero after the tridiagonal solve. The
+coefficients $A_{j_{max}}$ and $B_{j_{max}}$ use the standard formulas; in
+particular $B_{j_{max}}$ keeps its advective outflow term, which carries whatever
+(possibly non-zero) growth flux leaves the grid at the truncation boundary.
+
+Without diffusion the truncation reproduces the untruncated mizer behaviour: the
+classes above $j_{max}$ receive no advective inflow once $w_{max}$ is past the
+size where growth has died away, so they are already zero and imposing
+@eq-upper-bc-zero changes nothing. With diffusion, density would otherwise leak
+to sizes above $w_{max}$; the boundary condition holds it at zero there instead.
+Because the location of $j_{max}$ is fixed by $w_{max}$ and the scheme — not by
+the densities — it is the same at every time step and at the steady state, so the
+steady-state solver ([steadyNewton()]) solves on exactly this support and its
+solution is a fixed point of the dynamics.
 
 ## Numerical Diffusion
 
@@ -582,6 +624,8 @@ be at most $1$ across the grid. If the Courant number exceeds 1, the lagged limi
 
 Because the reconstruction lives entirely in the coefficients $A,B,C$, the steady-state machinery stays consistent automatically: `getRequiredRDD()` reads the same boundary coefficients and `get_steady_state_n()` solves the same system. With the van Leer reconstruction the weight depends on the solution, so the steady state is found by an *under-relaxed* fixed-point iteration (freezing $\psi$ at the current iterate, solving, repeating), because at $\Delta t=1$ the operator is not diagonally dominant. Both `getRequiredRDD()` and `steadySingleSpecies()` read the same `second_order_w` slot, so a model is automatically set up at the steady state of exactly the scheme that `project()` will use, and that state is preserved to machine precision by all three time-stepping methods.
 
+As noted in the upper-boundary section, the retained support top $j_{max}$ sits one bin lower under the second-order scheme ($w_{max\_idx}$ rather than $w_{max\_idx}+1$), because the second-order reconstruction draws the inflow from a class's own lower face. The direct solver [steadyNewton()] picks up this scheme-dependent support automatically. With the van Leer limiter the residual is only Lipschitz, so the Newton iteration converges to a fixed point of the dynamics but not to machine precision; the unlimited centred reconstruction — which admits an undamped odd-even mode at a steady state with no physical diffusion — gives an ill-conditioned steady-state Jacobian for which the direct solver is not expected to converge.
+
 
 ## Steady-State Solution
 
@@ -622,7 +666,7 @@ $$
 $$ {#eq-ss-lower-bc-Stilde}
 For all other $j > j_{min}$, $\tilde{S}_j = 0$.
 
-The boundary condition modifications at the edges of the grid remain the same conceptually: $\tilde{A}_{j_{min}} = 0$, the upward diffusion term is omitted from $\tilde{B}_{j_{min}}$, and $\tilde{C}_{j_{max}} = 0$. For any $j < j_{min}$, all matrix entries remain zero.
+The boundary condition modifications at the edges of the grid remain the same conceptually: $\tilde{A}_{j_{min}} = 0$, the upward diffusion term is omitted from $\tilde{B}_{j_{min}}$, and $\tilde{C}_{j_{max}} = 0$, where $j_{max}$ is the support top of the previous section (the first class above $w_{max}$). The density is held at zero for any $j < j_{min}$ or $j > j_{max}$.
 
 In code, this means that the steady-state coefficients for the matrix multiplication ($\tilde{A}, \tilde{B}, \tilde{C}$) and the constant vector ($\tilde{S}$) can be calculated by calling the standard coefficient function but simply setting $\Delta t = 1$, and dropping the $+1$ and $+N_j^t$ from the resulting $B$ and $S$ variables respectively.
 

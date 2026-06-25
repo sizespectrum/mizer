@@ -150,7 +150,7 @@ project_n_2 <- function(params, r, n, dt, a, b, c, S, idx,
     if (flux_limiter != "none") {
         n_new[n_new < 0] <- 0
     }
-    # Hold abundance at zero above the growth-chain top (see project_n()).
+    # Hold abundance at zero above w_max (the upper boundary; see project_n()).
     zero_above_support(n_new, support_top_idx(params))
 }
 
@@ -276,7 +276,7 @@ project_n_tr_bdf2 <- function(params, r, n, dt, a, b, c, S, idx,
     if (flux_limiter != "none") {
         n_new[n_new < 0] <- 0
     }
-    # Hold abundance at zero above the growth-chain top (see project_n()).
+    # Hold abundance at zero above w_max (the upper boundary; see project_n()).
     zero_above_support(n_new, support_top_idx(params))
 }
 

@@ -31,15 +31,24 @@
 #' The consumer densities are solved for in log space, which both keeps them
 #' positive and conditions the otherwise badly-scaled system. The unknowns are
 #' the densities in the size classes that carry non-zero density in the steady
-#' state, namely from the egg size up to the size at which somatic growth ceases;
-#' densities outside that range are structurally zero and held there. The
-#' nonlinear system is solved with a globalised Newton iteration from the
-#' `nleqslv` package, starting from the current `initial_n`. Newton's method
-#' converges from any starting point in the *root's* basin of attraction (which
-#' is unrelated to the dynamic stability of the steady state), so a reasonable
-#' initial guess should be supplied in `initialN(params)` — for example the
-#' spectra from a nearby stable parameterisation, or the (diverging) output of
-#' [steady()].
+#' state, namely from the egg size up to the size grid's maximum size `w_max`;
+#' densities above `w_max` are held at zero by the upper boundary condition. The
+#' nonlinear system is
+#' solved with a globalised Newton iteration from the `nleqslv` package, starting
+#' from the current `initial_n`. Newton's method converges from any starting
+#' point in the *root's* basin of attraction (which is unrelated to the dynamic
+#' stability of the steady state), so a reasonable initial guess should be
+#' supplied in `initialN(params)` — for example the spectra from a nearby stable
+#' parameterisation, or the (diverging) output of [steady()].
+#'
+#' The solver respects the active transport scheme: if the experimental
+#' second-order scheme is enabled (see [second_order_w()]) it solves the
+#' steady-state equation of that scheme. With the van Leer reconstruction the
+#' residual is only Lipschitz, so the iteration converges to a fixed point of the
+#' dynamics but not to machine precision. The unlimited `"centred"`
+#' reconstruction admits an undamped odd-even mode at a steady state with no
+#' physical diffusion, giving an ill-conditioned steady-state Jacobian for which
+#' the solver is not expected to converge.
 #'
 #' Only the default semichemostat resource dynamics
 #' (`resource_dynamics = "resource_semichemostat"`) are currently supported,
@@ -116,7 +125,13 @@ steadyNewton.MizerParams <- function(params,
     residual_fn <- steady_state_residual(params, rdd_const, n_other, effort,
                                          active)
 
-    x0 <- log(pmax(params@initial_n[active$mask], .Machine$double.xmin))
+    # The log-space solve needs a strictly positive, well-scaled start. The
+    # second-order schemes can leave isolated zeros inside the support (a
+    # negativity-floor artefact), which would make the 1/N-scaled residual
+    # overflow. Fill those by log-interpolation from the nonzero neighbours.
+    N0 <- positive_initial_guess(params@initial_n, active$mask,
+                                 params@w_min_idx, support_top_idx(params))
+    x0 <- log(N0[active$mask])
     sol <- nleqslv::nleqslv(x0, residual_fn, method = method,
                             global = global,
                             control = list(maxit = maxit, ftol = tol,
@@ -154,20 +169,11 @@ steadyNewton.MizerParams <- function(params,
 #'
 #' Builds the logical mask of the (species x size) density matrix that the
 #' direct solver treats as unknowns. For each species the unknowns run from the
-#' egg size `w_min_idx` up to and including the first size class in which the
-#' somatic growth rate vanishes. This is exactly the set of classes that carry
-#' non-zero density in the steady state of the advective scheme: a class is fed
-#' only by growth out of the class below it, so the first zero-growth class still
-#' receives an inflow (and is non-zero), but the class above it receives none and
-#' is structurally zero. Including that structural tail would put `log(0)`
-#' unknowns into the system and make the Jacobian singular, while truncating at
-#' `w_max` would drop the (small but non-zero) inflow class just above it; the
-#' growth chain captures precisely the support that [project()] maintains.
-#'
-#' The growth rate is evaluated at the current `initial_n`. The location at which
-#' growth vanishes is set by the maturity ogive (energy is fully diverted to
-#' reproduction), which is independent of the densities, so the support is stable
-#' across the iteration.
+#' egg size `w_min_idx` up to the support top returned by [support_top_idx()].
+#' This is exactly the set of classes that carry non-zero density in the steady
+#' state of the active transport scheme, so the solution is an exact fixed point
+#' of [project()]. Including the structurally-zero classes above the support
+#' would put `log(0)` unknowns into the system and make the Jacobian singular.
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @return A list with the logical matrix `mask` and a function `unpack(x)` that
@@ -195,6 +201,39 @@ steady_active_set <- function(params) {
         N
     }
     list(mask = mask, unpack = unpack)
+}
+
+#' Strictly positive starting guess for the log-space solve
+#'
+#' The Newton solve uses log-densities as unknowns and scales the residual by
+#' `1/N`, so it needs a starting guess that is strictly positive and reasonably
+#' scaled on every active size class. The second-order schemes can leave isolated
+#' zeros inside the support (a negativity-floor artefact at a reconstructed
+#' over/undershoot); a plain `log()` of such a guess is `-Inf`, and flooring it
+#' to a tiny constant instead makes the `1/N`-scaled residual overflow. We repair
+#' the guess by interpolating `log(N)` linearly across the gaps from the nonzero
+#' neighbours (geometric interpolation on the logarithmic size grid), which is
+#' both strictly positive and well scaled. Edges with no nonzero neighbour on one
+#' side are extrapolated flat.
+#'
+#' @param N The current density matrix (species x size).
+#' @param mask The active-set logical matrix from [steady_active_set()].
+#' @param w_min_idx Per-species egg-size index.
+#' @param w_top Per-species support top from [support_top_idx()].
+#' @return A density matrix that is strictly positive on `mask`.
+#' @noRd
+positive_initial_guess <- function(N, mask, w_min_idx, w_top) {
+    for (i in seq_len(nrow(N))) {
+        rng <- w_min_idx[i]:w_top[i]
+        v <- N[i, rng]
+        pos <- v > 0
+        if (all(pos) || !any(pos)) next
+        idx <- seq_along(v)
+        v[!pos] <- exp(stats::approx(idx[pos], log(v[pos]),
+                                     xout = idx[!pos], rule = 2)$y)
+        N[i, rng] <- v
+    }
+    N
 }
 
 #' Analytic semichemostat resource steady state

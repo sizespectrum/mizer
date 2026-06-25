@@ -26,23 +26,32 @@ log_dx <- function(params) {
     log(params@w[2] / params@w[1])
 }
 
-#' Highest size class that can carry density (the support top)
+#' Highest size class retained at the upper boundary (the support top)
 #'
-#' For each species the density support runs from the egg size `w_min_idx` up to
-#' and including the first size class above the species' maximum size `w_max`.
-#' In the dynamics the maturity ogive diverts all energy to reproduction at
-#' `w_max`, so somatic growth vanishes there: the advective scheme feeds a class
-#' only from growth out of the class below it, hence the class just above `w_max`
-#' still receives an inflow (the "pile-up" bin, non-zero) but the class above
-#' that receives none and is structurally zero. The location is therefore
-#' `w_max_idx + 1`, where `w_max_idx = sum(w <= w_max)`, capped at the top of the
-#' grid.
+#' The size grid is truncated at each species' maximum size `w_max`, and the
+#' density is held at zero above it. `w_max` is purely a computational boundary
+#' (the top of the size grid); it is **not** the size at which somatic growth
+#' stops. Growth slows around the separate parameter `w_repro_max` (where a
+#' typical mature individual invests all energy in reproduction), so whether the
+#' growth rate is actually zero near `w_max` depends entirely on how large the
+#' user chose `w_max`. This cut-off therefore makes no assumption about the rates;
+#' it is appropriate when `w_max` is chosen large enough that the density there is
+#' negligible.
 #'
-#' This is deliberately a property of the species' `w_max` rather than of the
-#' instantaneous growth field, so it is well defined even when a frozen, food-
-#' limited or otherwise degenerate growth field vanishes below `w_max`. For a
-#' standard model `w_max_idx + 1` coincides exactly with the first zero-growth
-#' class.
+#' The top retained class depends on the scheme, because the two schemes place the
+#' advective inflow differently. With `w_max_idx = sum(w <= w_max)`:
+#'
+#' * the first-order upwind scheme feeds class `j` from the growth of the class
+#'   below, `g(w_{j-1})`, so the class just above the one containing `w_max` can
+#'   still carry advected density; the support top is `w_max_idx + 1`. This
+#'   reproduces the long-standing (untruncated) mizer behaviour exactly;
+#' * the second-order scheme reconstructs the inflow at a class's own lower face,
+#'   `g(w_j)`, so its support ends one class lower, at `w_max_idx`.
+#'
+#' The result is capped at the top of the grid. Because it is fixed by `w_max` and
+#' the scheme rather than by the instantaneous growth field, it is well defined
+#' even when a frozen, food-limited or otherwise degenerate growth field is
+#' supplied (e.g. in the second-order time-steppers' frozen-rate solves).
 #'
 #' The dynamics impose this as the upper boundary condition (see
 #' [get_transport_coefs()]) so that abundance is held at zero above `w_max` even
@@ -50,14 +59,19 @@ log_dx <- function(params) {
 #' solves on exactly this support.
 #'
 #' @param params A \linkS4class{MizerParams} object.
-#' @return A per-species integer vector of the top active size-class index.
+#' @return A per-species integer vector of the top retained size-class index.
 #' @noRd
 support_top_idx <- function(params) {
     w <- params@w
     no_w <- length(w)
     w_max <- params@species_params$w_max
     w_max_idx <- vapply(w_max, function(wm) sum(w <= wm), integer(1))
-    pmin(w_max_idx + 1L, no_w)
+    # The grid is truncated at w_max. First-order upwind feeds a class from the
+    # growth of the class below, so its support reaches one bin past w_max (this
+    # matches untruncated mizer); the second-order scheme feeds a class from the
+    # growth at its own lower face, so it stops at w_max.
+    offset <- if (flux_limiter_scheme(params) == "none") 1L else 0L
+    pmin(w_max_idx + offset, no_w)
 }
 
 #' Sever the coupling to the size classes above the support top
