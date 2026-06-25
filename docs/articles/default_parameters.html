@@ -24,7 +24,7 @@
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="default_parameters_files/libs/quarto-html/popper.min.js"></script><script src="default_parameters_files/libs/quarto-html/tippy.umd.min.js"></script><link href="default_parameters_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="default_parameters_files/libs/quarto-html/light-border.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Calculation of Default Parameter Values">
+<script src="../extra.js"></script><meta property="og:title" content="Calculation of Default Parameter Values">
 <meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png">
 <meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R">
 <meta name="twitter:card" content="summary">
@@ -155,11 +155,11 @@
 <span><span class="co"># The columns that count as "given":</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "species" "w_inf"   "n"       "p"       "w_max"  </code></pre>
+<pre><code>[1] "species" "w_inf"   "n"       "p"      </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Everything else was calculated, for example:</span></span>
-<span><span class="fu"><a href="https://generics.r-lib.org/reference/setops.html" class="external-link">intersect</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"w_mat"</span>, <span class="st">"w_min"</span>, <span class="st">"h"</span>, <span class="st">"gamma"</span>, <span class="st">"ks"</span><span class="op">)</span>,</span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">intersect</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"w_mat"</span>, <span class="st">"w_min"</span>, <span class="st">"h"</span>, <span class="st">"gamma"</span>, <span class="st">"ks"</span><span class="op">)</span>,</span>
 <span>          <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/species_params.html">calculated_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "w_mat" "w_min" "h"     "gamma" "ks"   </code></pre>
@@ -522,30 +522,20 @@
 <span><span class="co"># Initialize parameters</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">simple_species</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning in validGivenSpeciesParams(species_params): The species parameter data
-frame is missing a `w_max` column. I am copying over the values from the
-`w_inf` column. But note that `w_max` should be the maximum size of the largest
-individual, not the asymptotic size of an average indivdidual.
-Warning in validGivenSpeciesParams(species_params): The species parameter data
-frame is missing a `w_max` column. I am copying over the values from the
-`w_inf` column. But note that `w_max` should be the maximum size of the largest
-individual, not the asymptotic size of an average indivdidual.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
 <pre><code>For species where no growth information is available the parameter h has been set to h = 30.
 Because the age at maturity is not known, I need to fall back to using
 von Bertalanffy parameters, where available, and this is not reliable.
 No ks column so calculating from critical feeding level.
-Using z0 = z0pre * w_max ^ z0exp for missing z0 values.
+Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.
 Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Inspect the automatically filled species parameters</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"species"</span>, <span class="st">"w_mat"</span>, <span class="st">"w_min"</span>, <span class="st">"h"</span>, <span class="st">"gamma"</span>, <span class="st">"ks"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>            species w_mat w_min  h        gamma       ks
-Species A Species A   250 0.001 30 7.228824e-11 2.994823
-Species B Species B  2000 0.001 30 7.228824e-11 2.794269</code></pre>
+Species A Species A   250 0.001 30 7.214272e-11 2.994823
+Species B Species B  2000 0.001 30 7.214272e-11 2.794269</code></pre>
 </div>
 </div>
 </section><script id="quarto-html-after-body" type="application/javascript">
