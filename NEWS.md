@@ -1,9 +1,11 @@
-# mizer (development version)
+# mizer 3.1.0
 
 Version 3.1.0 builds on 3.0.0 with an experimental second-order accurate
 numerical scheme in size, additional higher-order time-stepping options, and a
 range of smaller improvements and bug fixes. Unless you opt in to the
 experimental scheme, results are unchanged from 3.0.0.
+
+For an overview see the [release announcement](https://blog.mizer.sizespectrum.org/posts/2026-06-26-mizer-3-1-announcement/) on the mizer blog.
 
 ## Experimental second-order in w accuracy
 
@@ -131,6 +133,15 @@ calibrated models may need recalibrating. See `?second_order_w` and the
   then normalised to proportions (rather than averaging the per-step
   proportions, which are normalised independently). (#357)
 
+- New `getFluxGradient()` function returns the flux divergence
+  \eqn{(J_{j+1} - J_j)/\Delta w_j} that appears as the transport term in the
+  discretised size-spectrum equation. The bin-boundary fluxes are obtained from
+  `getFlux()`, so the advective-flux scheme stored in the `flux` entry of the
+  `second_order_w` slot is used, with the largest size class closed by the
+  boundary condition \eqn{N_{K+1} = 0}. Like `getFlux()`, it has both
+  `MizerParams` and `MizerSim` methods, returning an `ArraySpeciesBySize` or
+  `ArrayTimeBySpeciesBySize` object respectively.
+
 - `getDiffusion()` now works with a custom predation kernel that depends on
   predator and prey size separately rather than only on their ratio. As for
   `getEncounter()`, when such a kernel has been set (with
@@ -196,6 +207,10 @@ calibrated models may need recalibrating. See `?second_order_w` and the
 - `plotYield()` now uses `sim2 = NULL` instead of `missing(sim2)` to detect the
   optional second simulation argument, so it works correctly with `do.call()`.
   This is backward-compatible.
+
+- `distanceMaxRelRDI()` now returns `Inf` instead of `NaN` when a previous RDI
+  is zero, so `projectToSteady()` no longer mistakes a `NaN` distance for
+  convergence.
 
 # mizer 3.0.0
 
