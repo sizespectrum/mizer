@@ -26,6 +26,84 @@ log_dx <- function(params) {
     log(params@w[2] / params@w[1])
 }
 
+#' Highest size class that can carry density (the support top)
+#'
+#' For each species the density support runs from the egg size `w_min_idx` up to
+#' and including the first size class above the species' maximum size `w_max`.
+#' In the dynamics the maturity ogive diverts all energy to reproduction at
+#' `w_max`, so somatic growth vanishes there: the advective scheme feeds a class
+#' only from growth out of the class below it, hence the class just above `w_max`
+#' still receives an inflow (the "pile-up" bin, non-zero) but the class above
+#' that receives none and is structurally zero. The location is therefore
+#' `w_max_idx + 1`, where `w_max_idx = sum(w <= w_max)`, capped at the top of the
+#' grid.
+#'
+#' This is deliberately a property of the species' `w_max` rather than of the
+#' instantaneous growth field, so it is well defined even when a frozen, food-
+#' limited or otherwise degenerate growth field vanishes below `w_max`. For a
+#' standard model `w_max_idx + 1` coincides exactly with the first zero-growth
+#' class.
+#'
+#' The dynamics impose this as the upper boundary condition (see
+#' [get_transport_coefs()]) so that abundance is held at zero above `w_max` even
+#' when diffusion would otherwise carry density past it, and [steadyNewton()]
+#' solves on exactly this support.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @return A per-species integer vector of the top active size-class index.
+#' @noRd
+support_top_idx <- function(params) {
+    w <- params@w
+    no_w <- length(w)
+    w_max <- params@species_params$w_max
+    w_max_idx <- vapply(w_max, function(wm) sum(w <= wm), integer(1))
+    pmin(w_max_idx + 1L, no_w)
+}
+
+#' Sever the coupling to the size classes above the support top
+#'
+#' Sets `c = 0` at the support-top class `w_top` (see [support_top_idx()]), which
+#' decouples the active spectrum from the (held-at-zero) classes above it in the
+#' tridiagonal solve. Cutting `c_{top}` zeroes the back-substitution coefficient
+#' there, so the active solution up to `w_top` never reads the inactive tail. The
+#' tail itself is held at zero after the solve by [zero_above_support()].
+#'
+#' For the default no-diffusion scheme this is a no-op, because `c` already
+#' vanishes at the top class (nothing diffuses or grows into the class above);
+#' with diffusion it stops the diffusive flux above `w_max` from re-entering the
+#' active spectrum.
+#'
+#' @param coefs The list of tridiagonal coefficients `a`, `b`, `c`, `S`.
+#' @param w_top Per-species support-top index from [support_top_idx()].
+#' @return The coefficient list with the upper boundary condition applied.
+#' @noRd
+apply_upper_cutoff <- function(coefs, w_top) {
+    top_idx <- cbind(seq_len(nrow(coefs$c)), w_top)
+    coefs$c[top_idx] <- 0
+    coefs
+}
+
+#' Hold abundance at zero above the support top
+#'
+#' Zeros every size class above the support top `w_top` (see [support_top_idx()])
+#' after a density update. This is the partner of [apply_upper_cutoff()]: the
+#' coefficient surgery decouples the active spectrum from these classes during the
+#' solve, and this enforces the upper boundary condition `N = 0` above `w_max` on
+#' the result. For the default no-diffusion scheme these classes are already zero
+#' (nothing flows into them), so this is a no-op; with diffusion it removes the
+#' density that would otherwise leak above `w_max`.
+#'
+#' @param n The updated density matrix (species x size).
+#' @param w_top Per-species support-top index from [support_top_idx()].
+#' @return `n` with all classes above the support top set to zero.
+#' @noRd
+zero_above_support <- function(n, w_top) {
+    no_w <- ncol(n)
+    w_idx_mat <- matrix(seq_len(no_w), nrow = nrow(n), ncol = no_w, byrow = TRUE)
+    n[w_idx_mat > w_top] <- 0
+    n
+}
+
 #' Helper function to calculate the transport coefficients
 #'
 #' @param params A \linkS4class{MizerParams} object.
@@ -46,12 +124,14 @@ log_dx <- function(params) {
 #' @noRd
 get_transport_coefs <- function(params, n, g, mu, dt, recruitment_flux, d,
                                 flux_limiter = "none") {
-    if (flux_limiter == "none") {
-        return(get_transport_coefs_upwind(params, n, g, mu, dt,
-                                          recruitment_flux, d))
+    coefs <- if (flux_limiter == "none") {
+        get_transport_coefs_upwind(params, n, g, mu, dt, recruitment_flux, d)
+    } else {
+        get_transport_coefs_logfv(params, n, g, mu, dt, recruitment_flux, d,
+                                  flux_limiter)
     }
-    get_transport_coefs_logfv(params, n, g, mu, dt, recruitment_flux, d,
-                              flux_limiter)
+    # Upper boundary: hold abundance at zero above the maximum size w_max.
+    apply_upper_cutoff(coefs, support_top_idx(params))
 }
 
 #' Second-order finite-volume transport coefficients

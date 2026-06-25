@@ -112,6 +112,18 @@ calibrated models may need recalibrating. See `?second_order_w` and the
 
 ## Other improvements
 
+- New experimental `steadyNewton()` finds a steady state by solving the
+  steady-state equation directly with a Newton-type root finder (using the
+  `nleqslv` package) instead of running the dynamics to convergence. Unlike
+  `steady()` it converges even when the steady state is dynamically unstable.
+  Currently supports the default semichemostat resource dynamics.
+
+- The upper boundary condition of the size-spectrum solver now holds the
+  abundance at zero above each species' maximum size `w_max`. Without diffusion
+  this is automatic and results are unchanged, but with predation diffusion
+  switched on it stops a small amount of density leaking to sizes above `w_max`.
+  See the "Numerical Details" vignette.
+
 - Extension packages can now upgrade their own data in saved model objects
   independently of the mizer version. The `@extensions` slot can record, for
   each extension, the version of the extension package that the object conforms
