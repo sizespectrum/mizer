@@ -279,7 +279,7 @@ test_that("removeSpecies works", {
     expect_equal(nrow(p1@species_params), nrow(params@species_params) - length(remove))
     p2 <- reduced_ns_manipulate_params_36
     p2@linecolour[2] = "#8da600" # update line colour
-    expect_equal(p1, p2, ignore_attr = TRUE)
+    expect_unchanged(p1, p2)
     sim1 <- project(p1, t_max = 0.4, t_save = 0.4)
     sim2 <- project(p2, t_max = 0.4, t_save = 0.4)
     expect_identical(sim1@n[2, 2, ], sim2@n[2, 2, ])
