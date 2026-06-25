@@ -877,8 +877,14 @@ getGrowthCurves.MizerParams <- function(object,
     g <- getEGrowth(params)
     for (j in seq_along(species)) {
         i <- idx[j]
-        g_fn <- stats::approxfun(c(params@w, params@species_params$w_max[[i]]),
-                                 c(g[i, ], 0))
+        w_max <- params@species_params$w_max[[i]]
+        # Build the interpolation points, appending a point at `w_max` where
+        # growth is zero. Drop any grid points at or above `w_max` first to
+        # avoid duplicate x values, which would trigger a warning from
+        # approxfun().
+        keep <- params@w < w_max
+        g_fn <- stats::approxfun(c(params@w[keep], w_max),
+                                 c(g[i, keep], 0))
         myodefun <- function(t, state, parameters) {
             return(list(g_fn(state)))
         }
