@@ -5,7 +5,11 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="Get or set the second_order_w flags — second_order_w"><meta name="description" content="Controls whether second-order numerical methods are use."><meta property="og:description" content="Controls whether second-order numerical methods are use."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="Get or set the second_order_w flags — second_order_w"><meta name="description" content="
+Controls whether mizer uses numerical methods that are precise to second
+order in \(\Delta w\)."><meta property="og:description" content="
+Controls whether mizer uses numerical methods that are precise to second
+order in \(\Delta w\)."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -13,7 +17,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +48,7 @@
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -77,7 +82,9 @@
     </div>
 
     <div class="ref-description section level2">
-    <p>Controls whether second-order numerical methods are use.</p>
+    <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a>
+Controls whether mizer uses numerical methods that are precise to second
+order in \(\Delta w\).</p>
     </div>
 
     <div class="section level2">
@@ -97,38 +104,45 @@
 
 <dt id="arg-value">value<a class="anchor" aria-label="anchor" href="#arg-value"></a></dt>
 <dd><p>A single logical value (<code>TRUE</code> or <code>FALSE</code>) which sets both
-entries, or a named logical vector with entries <code>flux_limiter</code> and/or
-<code>bin_average</code>.</p></dd>
+entries, a single flux scheme name (<code>"upwind"</code>, <code>"van_leer"</code> or
+<code>"centred"</code>) which sets only <code>flux</code>, or a named vector with entries
+<code>flux</code> (logical or scheme name) and/or <code>bin_average</code> (logical).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>second_order_w()</code>: A named logical vector with entries
-<code>flux_limiter</code> and <code>bin_average</code>.</p>
+    <p><code>second_order_w()</code>: A named list with entries <code>flux</code> (character) and
+<code>bin_average</code> (logical).</p>
 <p><code>second_order_w&lt;-</code>: A MizerParams object with the <code>second_order_w</code>
 flags updated and, when <code>bin_average</code> is changed, all model parameters
 recalculated via <code><a href="setParams.html">setParams()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The slot is a named logical vector with entries:</p>
-<dl><dt><code>flux_limiter</code></dt>
-<dd><p>Controls whether a second-order advective flux
-(with flux limiter) is used in the numerical solver. When <code>FALSE</code>, a
-first-order upwind scheme is used.</p></dd>
+    <p>The slot is a named list with entries:</p>
+<dl><dt><code>flux</code></dt>
+<dd><p>The advective-flux reconstruction scheme used in the
+numerical solver. <code>"upwind"</code> is the first-order upwind scheme.
+<code>"van_leer"</code> is the second-order scheme with the total-variation-
+diminishing van Leer limiter, which keeps abundances non-negative.
+<code>"centred"</code> is the second-order scheme with the unlimited centred flux,
+which is genuinely second order even at extrema but is not
+monotonicity-preserving (it can produce small over/undershoots and is
+best used with some physical diffusion).</p></dd>
 
 <dt><code>bin_average</code></dt>
-<dd><p>Controls whether bin-averaging is used for quantities
-that need it in order to be second-order precise in bin size.
+<dd><p>Logical. Controls whether bin-averaging is used for
+quantities that need it in order to be second-order precise in bin size.
 When <code>FALSE</code>, point-sampling at the left bin edge is used.</p></dd>
 
 
-</dl><p>When both are <code>FALSE</code> (the default), mizer preserves the behaviour of
-previous mizer versions. Setting both to <code>TRUE</code> gives a consistently
-second-order model.</p>
-<p>The setter accepts either a single logical value (which sets both entries)
-or a named logical vector to set individual entries. The setter re-runs
-<code><a href="setParams.html">setParams()</a></code> to rebuild precomputed arrays when <code>bin_average</code> is changed.</p>
+</dl><p>When <code>flux</code> is <code>"upwind"</code> and <code>bin_average</code> is <code>FALSE</code> (the defaults),
+mizer preserves the behaviour of previous mizer versions. Setting both to
+their second-order values gives a consistently second-order model.</p>
+<p>The setter accepts a single logical value (which sets both entries), a single
+scheme name (which sets only <code>flux</code>), or a named vector to set individual
+entries. The setter re-runs <code><a href="setParams.html">setParams()</a></code> to rebuild precomputed arrays when
+<code>bin_average</code> is changed.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -19,7 +19,7 @@ operates on each species."><meta property="og:image" content="https://sizespectr
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,6 +50,7 @@ operates on each species."><meta property="og:image" content="https://sizespectr
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -100,7 +101,7 @@ operates on each species.</p>
 <dd><p>Name of the species</p></dd>
 
 <dt>w_max</dt>
-<dd><p>Maximum size.</p></dd>
+<dd><p>Computational upper size boundary, defaulting to <code>1.5 * w_inf</code>.</p></dd>
 
 <dt>w_mat</dt>
 <dd><p>Size at maturity</p></dd>
@@ -118,7 +119,8 @@ operates on each species.</p>
 <dd><p>The von Bertalanffy k parameter</p></dd>
 
 <dt>w_inf</dt>
-<dd><p>The von Bertalanffy asymptotic size</p></dd>
+<dd><p>The von Bertalanffy asymptotic size. This is the required
+maximum-size parameter.</p></dd>
 
 <dt>gear</dt>
 <dd><p>Name of the fishing gear</p></dd>
@@ -133,13 +135,15 @@ operates on each species.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="MizerParams.html">MizerParams</a></span><span class="op">(</span><span class="va">NS_species_params_gears</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`set_multispecies_model()` was deprecated in mizer 2.0.0.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use `newMultispeciesParams()` instead.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: No sel_func column in species data frame. Setting selectivity to be 'knife_edge' for all species.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: No knife_edge_size column in species data frame. Setting knife edge selectivity equal to w_mat.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: No h column in species data frame so using f0 and k_vb to calculate it.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: No gamma column in species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: No ks column in species data frame so using ks = h * 0.2.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: No m column in species data frame so using m = 1.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using z0 = z0pre * w_max ^ z0exp for missing z0 values.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

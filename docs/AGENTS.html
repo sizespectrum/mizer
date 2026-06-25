@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,7 @@
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -118,7 +119,23 @@
 <li>Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> after adding or changing exports</li>
 <li>Run <code><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">devtools::load_all()</a></code> before running tests</li>
 <li>After modifying the <code>MizerParams</code> or <code>MizerSim</code> class (new/removed slots, changes to <code>@rates_funcs</code>, etc.), follow the steps in <code>.claude/skills/upgrade-mizer-data.md</code>. Claude Code users can invoke this as <code>/upgrade-mizer-data</code>.</li>
-</ul></div>
+<li>When snapshot tests fail because values legitimately changed, run <code><a href="https://testthat.r-lib.org/reference/snapshot_accept.html" class="external-link">testthat::snapshot_accept()</a></code> to promote the <code>.new.md</code> files into the canonical <code>.md</code> snapshots.</li>
+</ul><div class="section level3">
+<h3 id="test-helper-objects">Test helper objects<a class="anchor" aria-label="anchor" href="#test-helper-objects"></a></h3>
+<p><code>helper.R</code> defines small objects used across all test files. All are named with the <code>_small</code> suffix to avoid shadowing the built-in package datasets:</p>
+<ul><li>
+<strong><code>NS_params_small</code></strong>: 3 species (Sprat=1, Herring=2, Cod=3), 20 size bins, 3 gears (Industrial effort=0, Pelagic effort=1, Otter effort=0.5). Sprat is always unfished (Industrial gear, zero effort).</li>
+<li>
+<strong><code>NS_sim_small</code></strong>: <code>project(NS_params_small, t_max=3, t_save=1)</code> — 4 time steps at t=0,1,2,3.</li>
+<li>
+<strong><code>NS_species_params_small</code></strong>, <strong><code>NS_species_params_gears_small</code></strong>, <strong><code>inter_small</code></strong>: 3-species subsets of the full package datasets (rows 1, 4, 11 = Sprat, Herring, Cod).</li>
+</ul><p>Tests that hardcode species indices (e.g. <code>[12, ]</code>) or time indices (e.g. <code>times[10]</code>) must use values valid for 3 species and 4 time steps.</p>
+</div>
+<div class="section level3">
+<h3 id="global-environment-and-data-in-test-files">Global environment and <code>data()</code> in test files<a class="anchor" aria-label="anchor" href="#global-environment-and-data-in-test-files"></a></h3>
+<p>In testthat 3.x all test files share the same global environment. A top-level <code><a href="https://rdrr.io/r/utils/data.html" class="external-link">data()</a></code> call in one file writes to <code>.GlobalEnv</code> and therefore affects all alphabetically-later files. <code>test-backwards_compatibility.R</code> deliberately loads the full 12-species <code>NS_species_params_gears</code> and <code>inter</code> datasets at the top for its own snapshot tests — those names are intentionally <strong>not</strong> renamed to <code>_small</code> in that file. No restore block is needed at the bottom because the <code>_small</code> test fixtures have distinct names and are not overwritten.</p>
+</div>
+</div>
 <div class="section level2">
 <h2 id="before-submitting">Before Submitting<a class="anchor" aria-label="anchor" href="#before-submitting"></a></h2>
 <ul><li>After adding a new file under <code>R/</code>, add it to the <code>Collate:</code> field in <code>DESCRIPTION</code> (roxygen2 does not manage this automatically in this package).</li>

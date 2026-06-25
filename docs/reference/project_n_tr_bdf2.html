@@ -19,7 +19,7 @@ differentiation (BDF2) stage over the remainder."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,6 +50,7 @@ differentiation (BDF2) stage over the remainder."><meta property="og:image" cont
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -111,6 +112,8 @@ differentiation (BDF2) stage over the remainder.</p>
 <span>  effort <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  r_hat <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  r_mid <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_hat <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  flux_limiter <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -198,6 +201,18 @@ used instead of recalculating them.</p></dd>
 <dt id="arg-r-mid">r_mid<a class="anchor" aria-label="anchor" href="#arg-r-mid"></a></dt>
 <dd><p>Optional midpoint rates. If supplied, these are used directly to
 build the TR-BDF2 operator.</p></dd>
+
+
+<dt id="arg-n-hat">n_hat<a class="anchor" aria-label="anchor" href="#arg-n-hat"></a></dt>
+<dd><p>Optional provisional end-of-step densities. When supplied with a
+flux limiter, the limiter is frozen at the midpoint field <code>(n + n_hat) / 2</code>;
+otherwise it falls back to the start-of-step <code>n</code>.</p></dd>
+
+
+<dt id="arg-flux-limiter">flux_limiter<a class="anchor" aria-label="anchor" href="#arg-flux-limiter"></a></dt>
+<dd><p>Name of the flux limiter used for a deferred high-order
+correction of the upwind advective flux, or <code>"none"</code> for plain first-order
+upwind. See <code><a href="project.html">project()</a></code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

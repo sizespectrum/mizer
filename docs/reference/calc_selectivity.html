@@ -25,7 +25,7 @@ selectivity parameters from the matching row in gear_params(params)."><meta prop
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,6 +56,7 @@ selectivity parameters from the matching row in gear_params(params)."><meta prop
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -114,6 +115,24 @@ selectivity parameters from the matching row in <code>gear_params(params)</code>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An array (gear x species x size) with the selectivity values</p>
+    </div>
+    <div class="section level2">
+    <h2 id="bin-averaged-selectivity">Bin-averaged selectivity<a class="anchor" aria-label="anchor" href="#bin-averaged-selectivity"></a></h2>
+
+
+<p>By default the selectivity is point-sampled at the grid nodes <code>params@w</code>,
+i.e. at the left edge of each size bin. This is only first-order accurate in
+the bin size when the selectivity is used in the finite-volume update of the
+size spectrum. When the <code>bin_average</code> entry of the <code><a href="second_order_w.html">second_order_w()</a></code> slot is
+<code>TRUE</code>, each selectivity function is instead integrated over its size bin,
+so that <code>selectivity[g, i, j]</code> holds the bin average
+$$\bar S_{g,i,j} = \frac{1}{\Delta w_j} \int_{w_j}^{w_{j+1}} S_{g,i}(w)\, dw.$$
+The integral is evaluated with a composite-midpoint rule on a log-spaced
+sub-grid of each bin, mirroring the bin-integrated predation kernel. This
+lifts the fishing mortality towards second order at no extra runtime cost
+(the integration happens once here, the rate functions are unchanged). A
+welcome side effect is that a knife-edge gear then gets the exact fraction of
+the straddling bin that lies above the knife edge, removing a grid artefact.</p>
     </div>
 
     <div class="section level2">

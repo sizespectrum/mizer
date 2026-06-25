@@ -7,9 +7,9 @@
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="Build a MizerSim rate getter that resolves the rate functions once — sim_species_rate"><meta name="description" content="Like sim_size_rate() but for getters that return one value per species at
 each time step (a time-by-species array), such as getRDI() and getRDD().
-These use the initial effort, matching their MizerParams counterparts."><meta property="og:description" content="Like sim_size_rate() but for getters that return one value per species at
+By default these use the initial effort, matching their MizerParams counterparts."><meta property="og:description" content="Like sim_size_rate() but for getters that return one value per species at
 each time step (a time-by-species array), such as getRDI() and getRDD().
-These use the initial effort, matching their MizerParams counterparts."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+By default these use the initial effort, matching their MizerParams counterparts."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +17,7 @@ These use the initial effort, matching their MizerParams counterparts."><meta pr
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,7 @@ These use the initial effort, matching their MizerParams counterparts."><meta pr
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -83,12 +84,21 @@ These use the initial effort, matching their MizerParams counterparts."><meta pr
     <div class="ref-description section level2">
     <p>Like <code><a href="sim_size_rate.html">sim_size_rate()</a></code> but for getters that return one value per species at
 each time step (a time-by-species array), such as <code><a href="getRDI.html">getRDI()</a></code> and <code><a href="getRDD.html">getRDD()</a></code>.
-These use the initial effort, matching their <code>MizerParams</code> counterparts.</p>
+By default these use the initial effort, matching their <code>MizerParams</code> counterparts.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sim_species_rate</span><span class="op">(</span><span class="va">sim</span>, <span class="va">time_range</span>, <span class="va">target</span>, <span class="va">slot</span>, <span class="va">value_name</span>, units <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sim_species_rate</span><span class="op">(</span></span>
+<span>  <span class="va">sim</span>,</span>
+<span>  <span class="va">time_range</span>,</span>
+<span>  <span class="va">target</span>,</span>
+<span>  <span class="va">slot</span>,</span>
+<span>  <span class="va">value_name</span>,</span>
+<span>  units <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  use_sim_effort <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -114,6 +124,12 @@ result (e.g. <code>"e_growth"</code> for the <code>EGrowth</code> rate).</p></dd
 
 <dt id="arg-value-name-units">value_name, units<a class="anchor" aria-label="anchor" href="#arg-value-name-units"></a></dt>
 <dd><p>Metadata for the returned array.</p></dd>
+
+
+<dt id="arg-use-sim-effort">use_sim_effort<a class="anchor" aria-label="anchor" href="#arg-use-sim-effort"></a></dt>
+<dd><p>If <code>TRUE</code>, the saved effort at each time step is used;
+otherwise the initial effort is used (matching the behaviour of the
+corresponding <code>MizerParams</code> getter).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

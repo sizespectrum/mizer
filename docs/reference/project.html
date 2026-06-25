@@ -21,7 +21,7 @@ plotting_functions."><meta property="og:image" content="https://sizespectrum.org
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,6 +52,7 @@ plotting_functions."><meta property="og:image" content="https://sizespectrum.org
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -95,38 +96,6 @@ The function returns an object of type
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">project</span><span class="op">(</span></span>
-<span>  <span class="va">object</span>,</span>
-<span>  <span class="va">effort</span>,</span>
-<span>  t_max <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  dt <span class="op">=</span> <span class="fl">0.1</span>,</span>
-<span>  t_save <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  t_start <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  <span class="va">initial_n</span>,</span>
-<span>  <span class="va">initial_n_pp</span>,</span>
-<span>  append <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  progress_bar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"euler"</span>, <span class="st">"predictor_corrector"</span>, <span class="st">"tr_bdf2"</span><span class="op">)</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># S3 method for class 'MizerParams'</span></span>
-<span><span class="fu">project</span><span class="op">(</span></span>
-<span>  <span class="va">object</span>,</span>
-<span>  <span class="va">effort</span>,</span>
-<span>  t_max <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  dt <span class="op">=</span> <span class="fl">0.1</span>,</span>
-<span>  t_save <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  t_start <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  <span class="va">initial_n</span>,</span>
-<span>  <span class="va">initial_n_pp</span>,</span>
-<span>  append <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  progress_bar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"euler"</span>, <span class="st">"predictor_corrector"</span>, <span class="st">"tr_bdf2"</span><span class="op">)</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># S3 method for class 'MizerSim'</span></span>
-<span><span class="fu">project</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
 <span>  <span class="va">effort</span>,</span>
 <span>  t_max <span class="op">=</span> <span class="fl">100</span>,</span>
@@ -271,6 +240,23 @@ new grid points will be calculated via interpolation.</p>
 values for the simulation are taken from the final values in the
 <code>MizerSim</code> object and the corresponding arguments to this function will
 be ignored.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="advective-flux-scheme">Advective flux scheme<a class="anchor" aria-label="anchor" href="#advective-flux-scheme"></a></h2>
+
+
+<p>The spatial discretisation of the growth (advection) term is controlled by
+the <code>flux</code> entry of the <code>second_order_w</code> slot of the params object, not by
+an argument to <code>project()</code>. With the default (<code>"upwind"</code>) the first-order
+upwind flux is used. Setting it to <code>"van_leer"</code> (for example with
+<code>second_order_w(params) &lt;- TRUE</code>) switches on a flux-limited (van Leer, TVD)
+deferred correction that removes the leading numerical diffusion
+\(\approx g\,w\,\log\beta\) of the upwind flux while keeping the density
+update a tridiagonal solve and preserving positivity. The correction is most
+useful on coarse logarithmic grids and pairs naturally with the second-order
+time methods. Because it changes the discrete steady state, the choice lives
+in the params object alongside the steady state rather than being a per-run
+argument. See <code><a href="second_order_w.html">second_order_w()</a></code>.</p>
     </div>
 
     <div class="section level2">

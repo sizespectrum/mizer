@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,7 @@
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -121,83 +122,112 @@
 
 
     <p>In this vignette we explain the numerical scheme used in mizer. We will not go into the details of the model itself, which is described in the <a href="model_description.html">model description vignette</a>. We will focus on how the model is discretised and how the resulting difference equations are solved.</p>
-<section class="level2"><h2 id="summary-of-simulation-algorithm">Summary of simulation algorithm<a class="anchor" aria-label="anchor" href="#summary-of-simulation-algorithm"></a>
-</h2>
-<p>In each time step <span class="math inline">\(\Delta t\)</span>, the <code><a href="../reference/project.html">project()</a></code> function performs the following steps:</p>
-<ol type="1">
-<li>
-<strong>Calculate Rates</strong>: Calculate the biological rates (growth <span class="math inline">\(g\)</span>, mortality <span class="math inline">\(\mu\)</span>, recruitment <span class="math inline">\(R_{dd}\)</span>) and diffusion coefficients <span class="math inline">\(d\)</span> based on the current population densities <span class="math inline">\(N^t\)</span>.</li>
-<li>
-<strong>Resource Update</strong>: Update the resource density <span class="math inline">\(N_R^{t+1}\)</span> using the explicit rates and implicit density.</li>
-<li>
-<strong>Consumer Update</strong>: Update the consumer densities <span class="math inline">\(N^{t+1}\)</span> by solving the tridiagonal system for each species.
-<ul>
-<li>Combine the recruitment flux <span class="math inline">\(R_{dd}\)</span> with the boundary conditions.</li>
-<li>Use a tridiagonal solver (e.g., Thomas algorithm).</li>
-</ul>
-</li>
-<li>
-<strong>Advance Time</strong>: <span class="math inline">\(t \leftarrow t + \Delta t\)</span>.</li>
-</ol>
-<p>This split between calculating rates explicitly and solving densities implicitly is what makes the scheme “semi-implicit”.</p>
-</section><section class="level2"><h2 id="the-weight-grid">The weight grid<a class="anchor" aria-label="anchor" href="#the-weight-grid"></a>
+<section class="level2"><h2 id="the-weight-grid">The weight grid<a class="anchor" aria-label="anchor" href="#the-weight-grid"></a>
 </h2>
 <p>The model dynamics are described by partial differential equations (PDEs) for the consumer number density <span class="math inline">\(N(w)\)</span> of each species and the resource number density <span class="math inline">\(N_R(w)\)</span>. These depend on the individual weight <span class="math inline">\(w\)</span>. To solve these equations numerically, we discretise the weight axis. In this vignette we suppress the species index and write the equations for one species; the same scheme is applied to each species.</p>
 <p>We choose a grid of weights <span class="math inline">\(w_1, w_2, \ldots, w_K\)</span>. The grid is logarithmically spaced, meaning that the ratio of consecutive weights is constant: <span id="eq-log-spacing"><span class="math display">\[ w_{j+1} / w_j = 10^{\Delta x} = \text{const}.  \tag{1}\]</span></span> The logarithmic spacing is chosen because the weights of fish span many orders of magnitude, from milligrams to megagrams.</p>
 <p>This grid defines a set of bins. The <span class="math inline">\(j\)</span>-th bin is the interval <span class="math inline">\([w_j, w_{j+1})\)</span>. The width of the <span class="math inline">\(j\)</span>-th bin is <span id="eq-bin-width"><span class="math display">\[ \Delta w_j = w_{j+1} - w_j = w_j (10^{\Delta x} - 1).  \tag{2}\]</span></span> Note that <span class="math inline">\(\Delta w_j\)</span> increases with <span class="math inline">\(w_j\)</span>, which is appropriate for a logarithmic grid.</p>
-<p>The number density <span class="math inline">\(N(w)\)</span> is approximated by a constant value <span class="math inline">\(N_j\)</span> within each bin. Thus <span class="math inline">\(N_j\)</span> represents the density at the start of the bin <span class="math inline">\(w_j\)</span>. The number of individuals in the <span class="math inline">\(j\)</span>-th bin is <span class="math inline">\(N_j \Delta w_j\)</span>.</p>
+<p>In the finite-volume scheme used by mizer, the discrete value <span class="math inline">\(N_j\)</span> represents the <strong>average</strong> of the number density <span class="math inline">\(N(w)\)</span> over the <span class="math inline">\(j\)</span>-th bin, <span id="eq-bin-average"><span class="math display">\[ N_j = \frac{1}{\Delta w_j} \int_{w_j}^{w_{j+1}} N(w)\, dw,  \tag{3}\]</span></span> so that the number of individuals in the <span class="math inline">\(j\)</span>-th bin is exactly <span class="math inline">\(N_j \Delta w_j\)</span>. Note that <span class="math inline">\(N_j\)</span> is the bin average, <strong>not</strong> the point value of the density at the bin boundary <span class="math inline">\(w_j\)</span>. For a smooth density the bin average equals the value at the <strong>bin centre</strong> <span id="eq-bin-centre"><span class="math display">\[ w_j^c = \sqrt{w_j\,w_{j+1}}  \tag{4}\]</span></span> to second order in the bin width; <span class="math inline">\(w_j^c\)</span> is the midpoint of the bin on the logarithmic axis. We will need this when we discretise the diffusion.</p>
+<p>(In the finite-volume literature the bins are usually called <em>cells</em> and the bin boundaries <em>cell faces</em>; we keep the size-spectrum terminology “bin” and “bin boundary” throughout.)</p>
 </section><section class="level2"><h2 id="the-transport-equation">The Transport Equation<a class="anchor" aria-label="anchor" href="#the-transport-equation"></a>
 </h2>
 <p>The time evolution of the number density <span class="math inline">\(N(w)\)</span> is described by the McKendrick-von Foerster equation with an added diffusion term: <span id="eq-transport"><span class="math display">\[
 \frac{\partial N}{\partial t} + \frac{\partial}{\partial w} \left( g N - \frac{1}{2}\frac{\partial(d N)}{\partial w} \right) = -\mu N
-\tag{3}\]</span></span> where <span class="math inline">\(g(w)\)</span> is the somatic growth rate, <span class="math inline">\(d(w)\)</span> is the diffusion coefficient and <span class="math inline">\(\mu(w)\)</span> is the total mortality rate.</p>
-<p>We discretise this equation using a finite volume scheme. On the grid we write <span class="math inline">\(g_j = g(w_j)\)</span>, <span class="math inline">\(d_j = d(w_j)\)</span>, and <span class="math inline">\(\mu_j = \mu(w_j)\)</span>.</p>
-</section><section class="level2"><h2 id="discretisation-of-the-fluxes">Discretisation of the Fluxes<a class="anchor" aria-label="anchor" href="#discretisation-of-the-fluxes"></a>
+\tag{5}\]</span></span> where <span class="math inline">\(g(w)\)</span> is the somatic growth rate, <span class="math inline">\(d(w)\)</span> is the diffusion coefficient and <span class="math inline">\(\mu(w)\)</span> is the total mortality rate.</p>
+<p>We discretise this equation using a finite-volume scheme. The three rates enter the equation in two structurally different ways, and this dictates how we represent them on the grid (the <a href="#sec-point-values">Point values and bin averages</a> section explains why):</p>
+<ul>
+<li>the growth rate <span class="math inline">\(g\)</span> is a <strong>velocity at the bin boundaries</strong>, so we use its point value there, <span class="math inline">\(g_j = g(w_j)\)</span>;</li>
+<li>the diffusion coefficient <span class="math inline">\(d\)</span> and the mortality rate <span class="math inline">\(\mu\)</span> are properties of a whole bin, so we use their <strong>bin averages</strong> <span class="math inline">\(d_j\)</span> and <span class="math inline">\(\mu_j\)</span> (each equal to the value at the bin centre <span class="math inline">\(w_j^c\)</span> to second order).</li>
+</ul></section><section class="level2"><h2 id="discretisation-of-the-fluxes">Discretisation of the Fluxes<a class="anchor" aria-label="anchor" href="#discretisation-of-the-fluxes"></a>
 </h2>
-<p>The term inside the derivative with respect to <span class="math inline">\(w\)</span> is the flux <span class="math inline">\(J(w)\)</span>: <span id="eq-flux"><span class="math display">\[ J(w) = g(w) N(w) - \frac{1}{2}\frac{\partial(d(w) N(w))}{\partial w}  \tag{4}\]</span></span> We consider the <span class="math inline">\(j\)</span>-th size bin <span class="math inline">\([w_j, w_{j+1}]\)</span>. Integrating the conservation equation over this bin gives: <span id="eq-integrated-conservation"><span class="math display">\[ \int_{w_j}^{w_{j+1}} \frac{\partial N_j}{\partial t}dw + J(w_{j+1}) - J(w_j) = -\int_{w_j}^{w_{j+1}} \mu(w) N(w) dw  \tag{5}\]</span></span> Approximating the integral and dividing by <span class="math inline">\(\Delta w_j\)</span>: <span id="eq-discretised-conservation"><span class="math display">\[ \frac{\partial N_j}{\partial t}+ \frac{J_{j+1} - J_j}{\Delta w_j} = -\mu_j N_j  \tag{6}\]</span></span> where <span class="math inline">\(J_j\)</span> represents the flux at the boundary <span class="math inline">\(w_j\)</span>.</p>
-<section class="level3"><h3 id="advective-flux">Advective Flux<a class="anchor" aria-label="anchor" href="#advective-flux"></a>
+<p>The term inside the derivative with respect to <span class="math inline">\(w\)</span> is the flux <span class="math inline">\(J(w)\)</span>: <span id="eq-flux"><span class="math display">\[ J(w) = g(w) N(w) - \frac{1}{2}\frac{\partial(d(w) N(w))}{\partial w}  \tag{6}\]</span></span> We consider the <span class="math inline">\(j\)</span>-th size bin <span class="math inline">\([w_j, w_{j+1}]\)</span>. Integrating the conservation equation over this bin gives: <span id="eq-integrated-conservation"><span class="math display">\[ \int_{w_j}^{w_{j+1}} \frac{\partial N_j}{\partial t}dw + J(w_{j+1}) - J(w_j) = -\int_{w_j}^{w_{j+1}} \mu(w) N(w) dw  \tag{7}\]</span></span> Approximating the integral and dividing by <span class="math inline">\(\Delta w_j\)</span>: <span id="eq-discretised-conservation"><span class="math display">\[ \frac{\partial N_j}{\partial t}+ \frac{J_{j+1} - J_j}{\Delta w_j} = -\mu_j N_j  \tag{8}\]</span></span> where <span class="math inline">\(J_j\)</span> represents the flux at the boundary <span class="math inline">\(w_j\)</span>.</p>
+<section class="level3"><h3 id="advective-flux">Advective flux<a class="anchor" aria-label="anchor" href="#advective-flux"></a>
 </h3>
-<p>For the advective part of the flux <span class="math inline">\(g N\)</span>, we use an <strong>upwind</strong> approximation. Since fish grow from smaller to larger sizes (<span class="math inline">\(g &gt; 0\)</span>), the flux at boundary <span class="math inline">\(w_j\)</span> is determined by the density in the bin below (<span class="math inline">\(j-1\)</span>): <span id="eq-advective-flux"><span class="math display">\[ J_j^{adv} = g_{j-1} N_{j-1}  \tag{7}\]</span></span> (Note: for <span class="math inline">\(j=j_{min}\)</span>, this boundary flux is the recruitment <span class="math inline">\(R_{dd}\)</span>).</p>
-</section><section class="level3"><h3 id="diffusive-flux">Diffusive Flux<a class="anchor" aria-label="anchor" href="#diffusive-flux"></a>
+<p>The advective flux <span class="math inline">\(gN\)</span> at the bin boundary <span class="math inline">\(w_j\)</span> is the growth velocity there, <span class="math inline">\(g_j\)</span>, times the density there. The density at the boundary must be reconstructed from the bin averages <span class="math inline">\(N_{j-1}\)</span> and <span class="math inline">\(N_j\)</span> of the two adjacent bins. The simplest reconstruction is <strong>upwind</strong>: because fish grow towards larger sizes (<span class="math inline">\(g &gt; 0\)</span>), take the value from the bin below, <span id="eq-advective-flux"><span class="math display">\[ J_j^{adv} = g_j\, N_{j-1}.  \tag{9}\]</span></span> This is only first-order accurate, because it uses a bin-centre value (<span class="math inline">\(N_{j-1}\)</span>, the average of bin <span class="math inline">\(j-1\)</span>) at the boundary, which is half a bin away; the second-order reconstruction is the subject of <a href="#sec-reducing-spatial-error" class="quarto-xref">Section 13</a>. (For <span class="math inline">\(j=j_{min}\)</span> this boundary flux is the recruitment <span class="math inline">\(R_{dd}\)</span>.)</p>
+</section><section class="level3"><h3 id="diffusive-flux">Diffusive flux<a class="anchor" aria-label="anchor" href="#diffusive-flux"></a>
 </h3>
-<p>For the diffusive part of the flux <span class="math inline">\(-\frac{1}{2}\frac{\partial(d N)}{\partial w}\)</span>, we use a <strong>central difference</strong> approximation at the boundary <span class="math inline">\(w_j\)</span>. We approximate the gradient using the densities in the adjacent bins <span class="math inline">\(j-1\)</span> and <span class="math inline">\(j\)</span>: <span id="eq-diffusive-flux"><span class="math display">\[ J_j^{diff} \approx -\frac{1}{2} \frac{(d N)_j - (d N)_{j-1}}{w_j - w_{j-1}} = -\frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w_{j-1}}  \tag{8}\]</span></span> Note the use of <span class="math inline">\(N_j\)</span> (density in bin <span class="math inline">\(j\)</span>) and <span class="math inline">\(N_{j-1}\)</span> (density in bin <span class="math inline">\(j-1\)</span>) to estimate the value at the interface <span class="math inline">\(w_j\)</span>.</p>
-<p>The total flux at boundary <span class="math inline">\(w_j\)</span> is: <span id="eq-total-flux-j"><span class="math display">\[ J_j = g_{j-1} N_{j-1} - \frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{\Delta w_{j-1}}  \tag{9}\]</span></span> And similarly at boundary <span class="math inline">\(w_{j+1}\)</span>: <span id="eq-total-flux-jp1"><span class="math display">\[ J_{j+1} = g_j N_j - \frac{1}{2} \frac{d_{j+1} N_{j+1} - d_j N_j}{\Delta w_j}  \tag{10}\]</span></span></p>
-</section></section><section class="level2"><h2 id="semi-implicit-time-discretisation">Semi-Implicit Time Discretisation<a class="anchor" aria-label="anchor" href="#semi-implicit-time-discretisation"></a>
+<p>The diffusive flux <span class="math inline">\(-\frac{1}{2}\frac{\partial(d N)}{\partial w}\)</span> at the boundary <span class="math inline">\(w_j\)</span> is the derivative of the <strong>product</strong> <span class="math inline">\(dN\)</span>. We evaluate that product at the two adjacent bin centres — where the bin averages <span class="math inline">\(d_{j-1}N_{j-1}\)</span> and <span class="math inline">\(d_j N_j\)</span> live — and take a central difference across the boundary: <span id="eq-diffusive-flux"><span class="math display">\[ J_j^{diff} = -\frac{1}{2}\,\frac{d_j N_j - d_{j-1} N_{j-1}}{w_j^c - w_{j-1}^c}.  \tag{10}\]</span></span> Because the boundary <span class="math inline">\(w_j\)</span> is the midpoint (on the logarithmic axis) of the two bin centres <span class="math inline">\(w_{j-1}^c\)</span> and <span class="math inline">\(w_j^c\)</span>, this central difference is a genuinely second-order approximation of the derivative at <span class="math inline">\(w_j\)</span>. Note that the diffusion coefficient enters only <em>inside</em> the product <span class="math inline">\(dN\)</span>: it is sampled at the bin centres, co-located with <span class="math inline">\(N_j\)</span>, and never separately at the boundary. This is why <span class="math inline">\(d_j\)</span> is a bin average, not a bin-boundary point value like <span class="math inline">\(g_j\)</span>.</p>
+<p>The total flux at boundary <span class="math inline">\(w_j\)</span> is therefore <span id="eq-total-flux-j"><span class="math display">\[ J_j = g_j N_{j-1} - \frac{1}{2} \frac{d_j N_j - d_{j-1} N_{j-1}}{w_j^c - w_{j-1}^c},  \tag{11}\]</span></span> and similarly at boundary <span class="math inline">\(w_{j+1}\)</span>, <span id="eq-total-flux-jp1"><span class="math display">\[ J_{j+1} = g_{j+1} N_j - \frac{1}{2} \frac{d_{j+1} N_{j+1} - d_j N_j}{w_{j+1}^c - w_j^c}.  \tag{12}\]</span></span></p>
+</section></section><section class="level2"><h2 id="sec-point-values">Point values and bin averages<a class="anchor" aria-label="anchor" href="#sec-point-values"></a>
+</h2>
+<p>A size-dependent rate is represented on the grid as either a <strong>bin-boundary point value</strong> or a <strong>bin average</strong>, and which one is correct depends on <em>how the rate enters the equations</em>, not on the rate itself. Almost every rate is a bin average; the growth velocity is the one exception.</p>
+<p><strong>The growth velocity is a bin-boundary point value.</strong> Growth is an advection of mass through size, and the advective flux <span class="math inline">\(J_j^{adv}=g_j\,N(w_j)\)</span> is the velocity <em>at the boundary</em> <span class="math inline">\(w_j\)</span> times the density carried through it. The factor that belongs to the boundary is the velocity, so <span class="math inline">\(g_j = g(w_j)\)</span> is the point value there. (The density at the boundary is a separate matter — it is reconstructed from the neighbouring bin averages, <a href="#eq-advective-flux" class="quarto-xref">Equation 9</a>.)</p>
+<p><strong>The diffusion coefficient is a bin average.</strong> It is tempting to treat <span class="math inline">\(d\)</span> like <span class="math inline">\(g\)</span>, but <span class="math inline">\(d\)</span> does not multiply a density at the boundary. It appears only <em>inside</em> the differentiated product <span class="math inline">\(dN\)</span> (<a href="#eq-diffusive-flux" class="quarto-xref">Equation 10</a>), which we sample where the density lives — at the bin centres — and then difference across the boundary. So <span class="math inline">\(d_j\)</span> is co-located with <span class="math inline">\(N_j\)</span> and is a <strong>bin average</strong>, the value at the bin centre <span class="math inline">\(w_j^c\)</span>. It is needed inside the bin, not on the boundary.</p>
+<p><strong>Rates integrated against the density over a bin are bin averages.</strong> The mortality term is, exactly, <span id="eq-mortality-integral"><span class="math display">\[ \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} \mu(w)\,N(w)\,dw.  \tag{13}\]</span></span> Because <span class="math inline">\(N_j\)</span> is the bin average, the consistent way to factor this is <span class="math inline">\(\mu_j\,N_j\)</span> with the <strong>bin-averaged</strong> mortality <span id="eq-bin-averaged-mortality"><span class="math display">\[ \mu_j = \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} \mu(w)\,dw,  \tag{14}\]</span></span> since <span class="math inline">\(\int_{w_j}^{w_{j+1}}(N-N_j)\,dw = 0\)</span> makes the leading error cancel and leaves an <span class="math inline">\(O(\Delta w_j^2)\)</span> remainder. Using the point value <span class="math inline">\(\mu(w_j)\)</span> at the left bin boundary instead is the lower-order choice. The same applies to every rate that enters inside an integral weighted by the abundance: the fishing-mortality contribution <span class="math inline">\(\int Q\,S(w)\,\text{effort}\,N\,dw\)</span>, the reproductive investment <span class="math inline">\(\int \psi(w)\,E_r(w)\,N\,dw\)</span>, and the predation and encounter convolutions integrated against <span class="math inline">\(N\)</span> (see the <a href="fft.html">FFT vignette</a>). Each size-dependent factor is replaced by its bin average.</p>
+<p><strong>The energy income <span class="math inline">\(e(w)\)</span> feeds both roles.</strong> It is the one quantity that sits on both sides of the distinction. Through the somatic growth rate <span class="math inline">\(g = e - e_r\)</span> it supplies the growth <strong>velocity</strong>, wanted as a point value at the boundary <span class="math inline">\(w_j\)</span>. Through the reproduction integral <span class="math inline">\(\int \psi\,e\,N\,dw\)</span> it is an <strong>integrand</strong>, wanted as a bin average (of the product <span class="math inline">\(\psi e\)</span>). The same pointwise <span class="math inline">\(e(w)\)</span> is therefore used as a point value for growth and bin-averaged only at its reproduction use-site; it must <strong>not</strong> be pre-averaged, or the growth velocity would be evaluated in the wrong place.</p>
+<p>In summary:</p>
+<table class="table caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead><tr class="header">
+<th>Quantity</th>
+<th>How it enters</th>
+<th>Discrete representation</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(g\)</span></td>
+<td>growth velocity at the bin boundary</td>
+<td>point value at <span class="math inline">\(w_j\)</span>
+</td>
+</tr>
+<tr class="even">
+<td>
+<span class="math inline">\(d\)</span>, <span class="math inline">\(\mu\)</span>; fishing/reproductive investments; predation and encounter integrands</td>
+<td>bin properties (a coefficient inside <span class="math inline">\(\partial(dN)/\partial w\)</span>, or a rate integrated against <span class="math inline">\(N\)</span> over a bin)</td>
+<td>bin average over <span class="math inline">\([w_j, w_{j+1}]\)</span>
+</td>
+</tr>
+<tr class="odd">
+<td>
+<span class="math inline">\(e\)</span> (energy income)</td>
+<td>both: growth velocity <em>and</em> reproduction integrand</td>
+<td>point value for growth; bin-averaged product <span class="math inline">\(\psi e\)</span> for reproduction</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Plotting follows the same distinction.</strong> A bin average <span class="math inline">\(N_j\)</span> does not live at the bin boundary <span class="math inline">\(w_j\)</span> but at the geometric bin centre <span class="math inline">\(w^*_j=\sqrt{w_j\,w_{j+1}}=w_j\sqrt\beta\)</span> (the log-midpoint, exact for the community spectrum <span class="math inline">\(N\propto w^{-2}\)</span>). So under second-order bin-averaging mizer draws bin-averaged quantities (the abundance and the mortality/reproduction sinks) at <span class="math inline">\(w^*_j\)</span> — a uniform half-bin shift to the right on the log axis — while point-valued quantities (the encounter and growth-type rates) stay on the nodes <span class="math inline">\(w_j\)</span>. The size-resolved array classes carry a <code>representation</code> tag recording which a quantity is, and the shift is applied only when <code>second_order_w[["bin_average"]]</code> is set, so default plots are unchanged.</p>
+<p><strong>Plotting follows the same distinction.</strong> A bin average <span class="math inline">\(N_j\)</span> does not live at the bin boundary <span class="math inline">\(w_j\)</span> but at the geometric bin centre <span class="math inline">\(w^*_j=\sqrt{w_j\,w_{j+1}}=w_j\sqrt\beta\)</span> (the log-midpoint, exact for the community spectrum <span class="math inline">\(N\propto w^{-2}\)</span>). So under second-order bin-averaging mizer draws bin-averaged quantities (the abundance and the mortality/reproduction sinks) at <span class="math inline">\(w^*_j\)</span> — a uniform half-bin shift to the right on the log axis — while point-valued quantities (the encounter and growth-type rates) stay on the nodes <span class="math inline">\(w_j\)</span>. The size-resolved array classes carry a <code>representation</code> tag recording which a quantity is, and the shift is applied only when <code>second_order_w[["bin_average"]]</code> is set, so default plots are unchanged.</p>
+<p>For the <code>power</code>-weighted spectrum plots (<code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> and friends) the <span class="math inline">\(w^{\text{power}}\)</span> factor must be evaluated where the density value lives, so it too is taken at the bin centre: each marker is the point <span class="math inline">\(\bigl(w^*_j,\,N_j\,(w^*_j)^{\text{power}}\bigr)\)</span> on the continuous <span class="math inline">\(N(w)\,w^{\text{power}}\)</span> curve. (Sampling the weight at the edge would mis-scale it by a factor <span class="math inline">\(\beta^{\text{power}/2}\)</span>, largest for the common <span class="math inline">\(\text{power}=2\)</span> Sheldon plot.) A cumulative plot (<code><a href="../reference/plotCDF.html">plotCDF()</a></code>) is the opposite case: a CDF value is cumulative <em>up to a size</em>, a boundary quantity, so its increments use the bin-averaged (centre-weighted) density but the cumulative is plotted on the bin <strong>edges</strong>, not the centres. Because the cumulative sum is inclusive — the sum through bin <span class="math inline">\(k\)</span> is the integral over all bins up to and including bin <span class="math inline">\(k\)</span> — each cumulative value is placed on that bin’s <em>upper</em> edge <span class="math inline">\(w_k+\Delta w_k\)</span> (in both the default and second-order schemes). This makes the inclusive convention explicit and removes a one-bin offset that would otherwise leave the CDF only first-order accurate in its placement.</p>
+</section><section class="level2"><h2 id="semi-implicit-time-discretisation">Semi-Implicit Time Discretisation<a class="anchor" aria-label="anchor" href="#semi-implicit-time-discretisation"></a>
 </h2>
 <p>With the diffusion term, an explicit time discretisation would require a very small time step for stability (<span class="math inline">\(\Delta t \sim \Delta w^2\)</span>). Therefore, we use a semi-implicit scheme where the densities <span class="math inline">\(N\)</span> are evaluated at time <span class="math inline">\(t+1\)</span>, but the rates (<span class="math inline">\(g\)</span>, <span class="math inline">\(\mu\)</span>, <span class="math inline">\(d\)</span>) are evaluated at time <span class="math inline">\(t\)</span>. Using a fully implicit scheme would require solving a nonlinear system at each time step, which is more computationally expensive. Thus, the discretised equation becomes: <span id="eq-semi-implicit"><span class="math display">\[
 \frac{N_j^{t+1} - N_j^t}{\Delta t} + \frac{1}{\Delta w_j} \left( J_{j+1}^{t+1} - J_j^{t+1} \right) = -\mu_j N_j^{t+1}
-\tag{11}\]</span></span> where the fluxes <span class="math inline">\(J_j^{t+1}\)</span> are calculated using the densities at time <span class="math inline">\(t+1\)</span> but the rates at time <span class="math inline">\(t\)</span>. To simplify the notation we will drop the explicit time indices on the rates, but it is important to remember that they are evaluated at time <span class="math inline">\(t\)</span>. The fluxes at time <span class="math inline">\(t+1\)</span> are: <span id="eq-fluxes-tp1"><span class="math display">\[
+\tag{15}\]</span></span> where the fluxes <span class="math inline">\(J_j^{t+1}\)</span> are calculated using the densities at time <span class="math inline">\(t+1\)</span> but the rates at time <span class="math inline">\(t\)</span>. To simplify the notation we will drop the explicit time indices on the rates, but it is important to remember that they are evaluated at time <span class="math inline">\(t\)</span>. Writing <span class="math inline">\(\Delta w_j^c = w_{j+1}^c - w_j^c\)</span> for the spacing between adjacent bin centres, the fluxes at time <span class="math inline">\(t+1\)</span> are: <span id="eq-fluxes-tp1"><span class="math display">\[
 \begin{aligned}
-J_{j+1}^{t+1} &amp;= g_j N_j^{t+1} - \frac{1}{2} \frac{d_{j+1} N_{j+1}^{t+1} - d_j N_j^{t+1}}{\Delta w_j} \\
-J_j^{t+1} &amp;= g_{j-1} N_{j-1}^{t+1} - \frac{1}{2} \frac{d_j N_j^{t+1} - d_{j-1} N_{j-1}^{t+1}}{\Delta w_{j-1}}.
+J_{j+1}^{t+1} &amp;= g_{j+1} N_j^{t+1} - \frac{1}{2} \frac{d_{j+1} N_{j+1}^{t+1} - d_j N_j^{t+1}}{\Delta w_j^c} \\
+J_j^{t+1} &amp;= g_j N_{j-1}^{t+1} - \frac{1}{2} \frac{d_j N_j^{t+1} - d_{j-1} N_{j-1}^{t+1}}{\Delta w_{j-1}^c}.
 \end{aligned}
-\tag{12}\]</span></span> This leads to a linear system of the form: <span id="eq-tridiagonal"><span class="math display">\[
+\tag{16}\]</span></span> This leads to a linear system of the form: <span id="eq-tridiagonal"><span class="math display">\[
 A_j N_{j-1}^{t+1} + B_j N_j^{t+1} + C_j N_{j+1}^{t+1} = S_j
-\tag{13}\]</span></span> where <span class="math inline">\(S_j = N_j^t\)</span>. This is a <strong>tridiagonal system</strong> for each species, which can be solved efficiently (e.g., using the Thomas algorithm).</p>
+\tag{17}\]</span></span> where <span class="math inline">\(S_j = N_j^t\)</span>. This is a <strong>tridiagonal system</strong> for each species, which can be solved efficiently (e.g., using the Thomas algorithm).</p>
 <p>The coefficients are: <span id="eq-coefficients"><span class="math display">\[
 \begin{aligned}
-A_j &amp;= -\frac{\Delta t}{\Delta w_j} \left( g_{j-1} + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}} \right) \\
-C_j &amp;= -\frac{\Delta t}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j} \right) \\
-B_j &amp;= 1 + \Delta t \mu_j + \frac{\Delta t}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_j}{\Delta w_j} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}} \right)
+A_j &amp;= -\frac{\Delta t}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}^c} \right) \\
+C_j &amp;= -\frac{\Delta t}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j^c} \right) \\
+B_j &amp;= 1 + \Delta t \mu_j + \frac{\Delta t}{\Delta w_j} \left( g_{j+1} + \frac{1}{2} \frac{d_j}{\Delta w_j^c} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}^c} \right)
 \end{aligned}
-\tag{14}\]</span></span></p>
+\tag{18}\]</span></span> The advective velocity is taken at each bin boundary (<span class="math inline">\(g_j\)</span> at the lower boundary of bin <span class="math inline">\(j\)</span>, <span class="math inline">\(g_{j+1}\)</span> at the upper one), and the diffusion differences the bin-averaged products <span class="math inline">\(d_jN_j\)</span> between bin centres — exactly <a href="#eq-fluxes-tp1" class="quarto-xref">Equation 16</a>.</p>
 </section><section class="level2"><h2 id="boundary-conditions">Boundary Conditions<a class="anchor" aria-label="anchor" href="#boundary-conditions"></a>
 </h2>
-<p><strong>At the smallest size (<span class="math inline">\(j=j_{min}\)</span>):</strong> The flux entering the grid is determined by recruitment: <span id="eq-lower-bc-flux"><span class="math display">\[ J_{j_{min}}^{t+1} = R_{dd}  \tag{15}\]</span></span> (We assume diffusive flux at the lower boundary is negligible or incorporated into <span class="math inline">\(R_{dd}\)</span>). The equation for the first bin becomes: <span id="eq-first-bin"><span class="math display">\[ \frac{N_{j_{min}}^{t+1} - N_{j_{min}}^t}{\Delta t} + \frac{J_{j_{min}+1}^{t+1} - R_{dd}}{\Delta w_{j_{min}}} = -\mu_{j_{min}} N_{j_{min}}^{t+1}  \tag{16}\]</span></span> This involves <span class="math inline">\(N_{j_{min}}^{t+1}\)</span> and <span class="math inline">\(N_{j_{min}+1}^{t+1}\)</span>. Comparing this to the general discretised equation translates to modifying the first row (<span class="math inline">\(j=j_{min}\)</span>) of our tri-diagonal matrices:</p>
+<p><strong>At the smallest size (<span class="math inline">\(j=j_{min}\)</span>):</strong> The flux entering the grid is determined by recruitment: <span id="eq-lower-bc-flux"><span class="math display">\[ J_{j_{min}}^{t+1} = R_{dd}  \tag{19}\]</span></span> (We assume diffusive flux at the lower boundary is negligible or incorporated into <span class="math inline">\(R_{dd}\)</span>). The equation for the first bin becomes: <span id="eq-first-bin"><span class="math display">\[ \frac{N_{j_{min}}^{t+1} - N_{j_{min}}^t}{\Delta t} + \frac{J_{j_{min}+1}^{t+1} - R_{dd}}{\Delta w_{j_{min}}} = -\mu_{j_{min}} N_{j_{min}}^{t+1}  \tag{20}\]</span></span> This involves <span class="math inline">\(N_{j_{min}}^{t+1}\)</span> and <span class="math inline">\(N_{j_{min}+1}^{t+1}\)</span>. Comparing this to the general discretised equation translates to modifying the first row (<span class="math inline">\(j=j_{min}\)</span>) of our tri-diagonal matrices:</p>
 <ul>
 <li>The <span class="math inline">\(j_{min}-1\)</span> term does not exist, so <span class="math inline">\(A_{j_{min}} = 0\)</span>.</li>
-<li>The upward diffusion term from below the boundary is omitted, so <span class="math inline">\(B_{j_{min}}\)</span> does not have the <span class="math inline">\(\frac{1}{2} \frac{d_{j_{min}}}{\Delta w_{j_{min}-1}}\)</span> component: <span id="eq-lower-bc-B"><span class="math display">\[ B_{j_{min}} = 1 + \Delta t \mu_{j_{min}} + \frac{\Delta t}{\Delta w_{j_{min}}} \left( g_{j_{min}} + \frac{1}{2} \frac{d_{j_{min}}}{\Delta w_{j_{min}}} \right)  \tag{17}\]</span></span>
+<li>The upward diffusion term from below the boundary is omitted, so <span class="math inline">\(B_{j_{min}}\)</span> does not have the <span class="math inline">\(\frac{1}{2} \frac{d_{j_{min}}}{\Delta w_{j_{min}-1}^c}\)</span> component: <span id="eq-lower-bc-B"><span class="math display">\[ B_{j_{min}} = 1 + \Delta t \mu_{j_{min}} + \frac{\Delta t}{\Delta w_{j_{min}}} \left( g_{j_{min}+1} + \frac{1}{2} \frac{d_{j_{min}}}{\Delta w_{j_{min}}^c} \right)  \tag{21}\]</span></span>
 </li>
 <li>The coefficient <span class="math inline">\(C_{j_{min}}\)</span> remains unchanged from the general formula.</li>
-<li>The recruitment flux enters as a source term, so it is added to the right-hand side <span class="math inline">\(S_{j_{min}}\)</span>: <span id="eq-lower-bc-S"><span class="math display">\[ S_{j_{min}} = N_{j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd}  \tag{18}\]</span></span>
+<li>The recruitment flux enters as a source term, so it is added to the right-hand side <span class="math inline">\(S_{j_{min}}\)</span>: <span id="eq-lower-bc-S"><span class="math display">\[ S_{j_{min}} = N_{j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd}  \tag{22}\]</span></span>
 </li>
 </ul>
 <p>(Additionally, for any size classes below the recruitment size <span class="math inline">\(j &lt; j_{min}\)</span>, we set all coefficients in the matrices <span class="math inline">\(A\)</span>, <span class="math inline">\(B\)</span>, <span class="math inline">\(C\)</span> and vector <span class="math inline">\(S\)</span> to <span class="math inline">\(0\)</span> to avoid any dynamics in that range).</p>
-<p><strong>At the largest size (<span class="math inline">\(j=j_{max}\)</span>):</strong> We typically assume that densities drop to zero beyond the maximum size, <span class="math inline">\(N_{j_{max}+1} = 0\)</span>. The flux leaving the grid is: <span id="eq-upper-bc-flux"><span class="math display">\[ J_{j_{max}+1}^{t+1} = g_{j_{max}} N_{j_{max}}^{t+1} - \frac{1}{2} \frac{0 - d_{j_{max}} N_{j_{max}}^{t+1}}{\Delta w_{j_{max}}}  \tag{19}\]</span></span> This means the term <span class="math inline">\(C_{j_{max}}\)</span> multiplying <span class="math inline">\(N_{j_{max}+1}^{t+1}\)</span> is not needed, so <span class="math inline">\(C_{j_{max}} = 0\)</span>. The coefficients <span class="math inline">\(A_{j_{max}}\)</span> and <span class="math inline">\(B_{j_{max}}\)</span> use the standard formulas.</p>
+<p><strong>At the largest size (<span class="math inline">\(j=j_{max}\)</span>):</strong> We typically assume that densities drop to zero beyond the maximum size, <span class="math inline">\(N_{j_{max}+1} = 0\)</span>. The flux leaving the grid is: <span id="eq-upper-bc-flux"><span class="math display">\[ J_{j_{max}+1}^{t+1} = g_{j_{max}+1} N_{j_{max}}^{t+1} - \frac{1}{2} \frac{0 - d_{j_{max}} N_{j_{max}}^{t+1}}{\Delta w_{j_{max}}^c}  \tag{23}\]</span></span> This means the term <span class="math inline">\(C_{j_{max}}\)</span> multiplying <span class="math inline">\(N_{j_{max}+1}^{t+1}\)</span> is not needed, so <span class="math inline">\(C_{j_{max}} = 0\)</span>. The coefficients <span class="math inline">\(A_{j_{max}}\)</span> and <span class="math inline">\(B_{j_{max}}\)</span> use the standard formulas.</p>
 </section><section class="level2"><h2 id="numerical-diffusion">Numerical Diffusion<a class="anchor" aria-label="anchor" href="#numerical-diffusion"></a>
 </h2>
 <p>The upwind scheme used for the advective term introduces numerical diffusion. This is a well-known property of first-order upwind schemes. We can estimate the magnitude of this diffusion by expanding the discretised term using a Taylor series.</p>
-<p>The discretised equation for the transport (advection only, with constant rates for simplicity) is: <span id="eq-upwind-advection"><span class="math display">\[ \frac{N_j^{t+1} - N_j^t}{\Delta t} + g \frac{N_j^{t+1} - N_{j-1}^{t+1}}{\Delta w} = 0  \tag{20}\]</span></span> Expanding <span class="math inline">\(N(w, t)\)</span> around <span class="math inline">\((w_j, t+\Delta t)\)</span> leads to the following leading order error terms: <span id="eq-modified-eqn-euler"><span class="math display">\[ \frac{\partial N}{\partial t} + g \frac{\partial N}{\partial w} = \frac{g \Delta w}{2} \left( 1 + \frac{g \Delta t}{\Delta w} \right) \frac{\partial^2 N}{\partial w^2}  \tag{21}\]</span></span> The coefficient of the second derivative represents the numerical diffusivity: <span id="eq-num-diffusivity-euler"><span class="math display">\[ D_{num} = \frac{g \Delta w}{2} (1 + C)  \tag{22}\]</span></span> where <span class="math inline">\(C = \frac{g \Delta t}{\Delta w}\)</span> is the Courant-Friedrichs-Lewy (CFL) number. Comparing this to the Mizer diffusion equation form (where the diffusion term is <span class="math inline">\(\frac{\partial}{\partial w} ( \frac{1}{2} \frac{\partial (D N)}{\partial w} )\)</span>), the effective diffusion parameter is: <span id="eq-d-num-euler"><span class="math display">\[ d_{num}(w) \approx g(w) \Delta w (1 + C(w))  \tag{23}\]</span></span> Since <span class="math inline">\(\Delta w \approx w \ln(\beta)\)</span>, this is: <span id="eq-d-num-euler-log"><span class="math display">\[ d_{num}(w) \approx g(w) w \ln(\beta) \left( 1 + \frac{g(w) \Delta t}{w \ln(\beta)} \right) = g(w) w \ln(\beta) + g(w)^2 \Delta t  \tag{24}\]</span></span> This means the numerical scheme behaves as if there is a diffusion <span class="math inline">\(d_{num}\)</span>. This numerical diffusion has two components: one from spatial discretisation (scaling with <span class="math inline">\(\Delta w\)</span>) and one from time stepping (scaling with <span class="math inline">\(\Delta t\)</span>).</p>
+<p>The discretised equation for the transport (advection only, with constant rates for simplicity) is: <span id="eq-upwind-advection"><span class="math display">\[ \frac{N_j^{t+1} - N_j^t}{\Delta t} + g \frac{N_j^{t+1} - N_{j-1}^{t+1}}{\Delta w} = 0  \tag{24}\]</span></span> Expanding <span class="math inline">\(N(w, t)\)</span> around <span class="math inline">\((w_j, t+\Delta t)\)</span> leads to the following leading order error terms: <span id="eq-modified-eqn-euler"><span class="math display">\[ \frac{\partial N}{\partial t} + g \frac{\partial N}{\partial w} = \frac{g \Delta w}{2} \left( 1 + \frac{g \Delta t}{\Delta w} \right) \frac{\partial^2 N}{\partial w^2}  \tag{25}\]</span></span> The coefficient of the second derivative represents the numerical diffusivity: <span id="eq-num-diffusivity-euler"><span class="math display">\[ D_{num} = \frac{g \Delta w}{2} (1 + C)  \tag{26}\]</span></span> where <span class="math inline">\(C = \frac{g \Delta t}{\Delta w}\)</span> is the Courant-Friedrichs-Lewy (CFL) number. Comparing this to the Mizer diffusion equation form (where the diffusion term is <span class="math inline">\(\frac{\partial}{\partial w} ( \frac{1}{2} \frac{\partial (D N)}{\partial w} )\)</span>), the effective diffusion parameter is: <span id="eq-d-num-euler"><span class="math display">\[ d_{num}(w) \approx g(w) \Delta w (1 + C(w))  \tag{27}\]</span></span> Since <span class="math inline">\(\Delta w \approx w \ln(\beta)\)</span>, this is: <span id="eq-d-num-euler-log"><span class="math display">\[ d_{num}(w) \approx g(w) w \ln(\beta) \left( 1 + \frac{g(w) \Delta t}{w \ln(\beta)} \right) = g(w) w \ln(\beta) + g(w)^2 \Delta t  \tag{28}\]</span></span> This means the numerical scheme behaves as if there is a diffusion <span class="math inline">\(d_{num}\)</span>. This numerical diffusion has two components: one from spatial discretisation (scaling with <span class="math inline">\(\Delta w\)</span>) and one from time stepping (scaling with <span class="math inline">\(\Delta t\)</span>).</p>
 </section><section class="level2"><h2 id="order-of-accuracy">Order of Accuracy<a class="anchor" aria-label="anchor" href="#order-of-accuracy"></a>
 </h2>
 <p>The scheme is first order in time. To see this, expand the backward difference around the new time level: <span id="eq-time-truncation"><span class="math display">\[
@@ -205,26 +235,26 @@ B_j &amp;= 1 + \Delta t \mu_j + \frac{\Delta t}{\Delta w_j} \left( g_j + \frac{1
 = \frac{\partial N_j}{\partial t}(t+\Delta t)
 - \frac{\Delta t}{2}\frac{\partial^2 N_j}{\partial t^2}(t+\Delta t)
 + O(\Delta t^2).
-\tag{25}\]</span></span> Thus the time discretisation has a truncation error of order <span class="math inline">\(O(\Delta t)\)</span>. Evaluating the rates <span class="math inline">\(g\)</span>, <span class="math inline">\(d\)</span> and <span class="math inline">\(\mu\)</span> at time <span class="math inline">\(t\)</span> instead of <span class="math inline">\(t+1\)</span> also introduces only an <span class="math inline">\(O(\Delta t)\)</span> error, provided the rates vary smoothly in time. The semi-implicit scheme is therefore first order in <span class="math inline">\(\Delta t\)</span>.</p>
+\tag{29}\]</span></span> Thus the time discretisation has a truncation error of order <span class="math inline">\(O(\Delta t)\)</span>. Evaluating the rates <span class="math inline">\(g\)</span>, <span class="math inline">\(d\)</span> and <span class="math inline">\(\mu\)</span> at time <span class="math inline">\(t\)</span> instead of <span class="math inline">\(t+1\)</span> also introduces only an <span class="math inline">\(O(\Delta t)\)</span> error, provided the rates vary smoothly in time. The semi-implicit scheme is therefore first order in <span class="math inline">\(\Delta t\)</span>.</p>
 <p>For the spatial discretisation, the upwind advective flux is the limiting term. For smooth <span class="math inline">\(gN\)</span>, <span id="eq-space-truncation"><span class="math display">\[
 \frac{(gN)_j - (gN)_{j-1}}{\Delta w_{j-1}}
 = \frac{\partial(gN)}{\partial w}(w_j)
 - \frac{\Delta w_{j-1}}{2}\frac{\partial^2(gN)}{\partial w^2}(w_j)
 + O(\Delta w_{j-1}^2),
-\tag{26}\]</span></span> so the advective part has an <span class="math inline">\(O(\Delta w_j)\)</span> spatial truncation error. The diffusive part uses a centred difference for the flux and is of higher order on a locally uniform grid, but the overall spatial order is still set by the upwind advective term.</p>
+\tag{30}\]</span></span> so the upwind advective reconstruction has an <span class="math inline">\(O(\Delta w_j)\)</span> spatial truncation error. The diffusive flux, being a central difference of the bin-averaged products between bin centres (<a href="#eq-diffusive-flux" class="quarto-xref">Equation 10</a>), is second order, and the bin-averaged sinks are second order too; so on the default scheme the spatial order is set entirely by the upwind advective reconstruction. Replacing it by a higher-order reconstruction (<a href="#sec-reducing-spatial-error" class="quarto-xref">Section 13</a>) removes this last <span class="math inline">\(O(\Delta w_j)\)</span> error.</p>
 <p>On the logarithmic grid, writing <span class="math inline">\(\beta = w_{j+1}/w_j\)</span>, we have <span id="eq-dw-log"><span class="math display">\[
 \Delta w_j = w_j(\beta - 1) = w_j\left(\log\beta + O((\log\beta)^2)\right).
-\tag{27}\]</span></span> Thus, at fixed body size <span class="math inline">\(w_j\)</span>, first order in <span class="math inline">\(\Delta w_j\)</span> is equivalently first order in <span class="math inline">\(\log\beta\)</span>. Combining the time and space errors, the scheme is <span id="eq-order-euler"><span class="math display">\[
+\tag{31}\]</span></span> Thus, at fixed body size <span class="math inline">\(w_j\)</span>, first order in <span class="math inline">\(\Delta w_j\)</span> is equivalently first order in <span class="math inline">\(\log\beta\)</span>. Combining the time and space errors, the scheme is <span id="eq-order-euler"><span class="math display">\[
 O(\Delta t) + O(\Delta w_j)
-\tag{28}\]</span></span> locally, or <span class="math inline">\(O(\Delta t + \log\beta)\)</span> on the logarithmic grid.</p>
+\tag{32}\]</span></span> locally, or <span class="math inline">\(O(\Delta t + \log\beta)\)</span> on the logarithmic grid.</p>
 </section><section class="level2"><h2 id="predictor-corrector-time-stepping">Predictor-Corrector Time Stepping<a class="anchor" aria-label="anchor" href="#predictor-corrector-time-stepping"></a>
 </h2>
 <p>A straightforward way to make the time discretisation second order is to combine a predictor step for the rates with a Crank-Nicolson corrector for the densities. The aim is to keep the useful property that, once the rates are fixed, the density update is still a tridiagonal linear solve.</p>
 <p>Let <span class="math inline">\(L(r)\)</span> denote the spatial operator for the consumer spectrum when the rates <span id="eq-rates-vector"><span class="math display">\[
 r = (g, d, \mu)
-\tag{29}\]</span></span> are fixed, and let <span class="math inline">\(q(R_{dd})\)</span> denote the recruitment source at the lower boundary. The semi-implicit Euler method used above can be written schematically as <span id="eq-euler-scheme"><span class="math display">\[
+\tag{33}\]</span></span> are fixed, and let <span class="math inline">\(q(R_{dd})\)</span> denote the recruitment source at the lower boundary. The semi-implicit Euler method used above can be written schematically as <span id="eq-euler-scheme"><span class="math display">\[
 \frac{N^{t+1} - N^t}{\Delta t} = L(r^t) N^{t+1} + q(R_{dd}^t).
-\tag{30}\]</span></span> This is first order because the rates and recruitment are only evaluated at the start of the time step.</p>
+\tag{34}\]</span></span> This is first order because the rates and recruitment are only evaluated at the start of the time step.</p>
 <p>The predictor-corrector method proceeds as follows:</p>
 <ol type="1">
 <li>
@@ -234,20 +264,20 @@ r = (g, d, \mu)
 <li>
 <strong>Approximate midpoint rates:</strong> Use <span id="eq-midpoint-rates"><span class="math display">\[
 r^{t+1/2} = \frac{1}{2}\left(r^t + \hat{r}^{t+1}\right),
-\tag{31}\]</span></span> so in particular <span id="eq-midpoint-rates-components"><span class="math display">\[
+\tag{35}\]</span></span> so in particular <span id="eq-midpoint-rates-components"><span class="math display">\[
 g_j^{t+1/2} = \frac{1}{2}\left(g_j^t + \hat{g}_j^{t+1}\right), \quad
 d_j^{t+1/2} = \frac{1}{2}\left(d_j^t + \hat{d}_j^{t+1}\right), \quad
 \mu_j^{t+1/2} = \frac{1}{2}\left(\mu_j^t + \hat{\mu}_j^{t+1}\right).
-\tag{32}\]</span></span> The recruitment flux is averaged in the same way: <span id="eq-midpoint-recruitment"><span class="math display">\[
+\tag{36}\]</span></span> The recruitment flux is averaged in the same way: <span id="eq-midpoint-recruitment"><span class="math display">\[
 R_{dd}^{t+1/2} = \frac{1}{2}\left(R_{dd}^t + \hat{R}_{dd}^{t+1}\right).
-\tag{33}\]</span></span>
+\tag{37}\]</span></span>
 </li>
 <li>
 <strong>Correct:</strong> Do a Crank-Nicolson update using the midpoint rates: <span id="eq-cn-corrector"><span class="math display">\[
 \frac{N^{t+1} - N^t}{\Delta t}
 = \frac{1}{2}\left(L(r^{t+1/2})N^t + L(r^{t+1/2})N^{t+1}\right)
 + q(R_{dd}^{t+1/2}).
-\tag{34}\]</span></span>
+\tag{38}\]</span></span>
 </li>
 </ol>
 <p>In flux form, the corrector equation for an interior bin is <span id="eq-cn-flux-form"><span class="math display">\[
@@ -260,54 +290,54 @@ R_{dd}^{t+1/2} = \frac{1}{2}\left(R_{dd}^t + \hat{R}_{dd}^{t+1}\right).
 \right] \\
 &amp;= -\frac{1}{2}\mu_j^{t+1/2}\left(N_j^{t+1} + N_j^t\right),
 \end{aligned}
-\tag{35}\]</span></span> where all fluxes use the midpoint rates. For example, <span id="eq-cn-flux"><span class="math display">\[
+\tag{39}\]</span></span> where all fluxes use the midpoint rates. For example, <span id="eq-cn-flux"><span class="math display">\[
 J_j^{t+1}
-= g_{j-1}^{t+1/2} N_{j-1}^{t+1}
+= g_j^{t+1/2} N_{j-1}^{t+1}
 - \frac{1}{2}\frac{
 d_j^{t+1/2} N_j^{t+1}
 - d_{j-1}^{t+1/2} N_{j-1}^{t+1}
-}{\Delta w_{j-1}},
-\tag{36}\]</span></span> and <span class="math inline">\(J_j^t\)</span> is the same expression with <span class="math inline">\(N^t\)</span> instead of <span class="math inline">\(N^{t+1}\)</span>. The lower boundary uses <span id="eq-cn-lower-bc"><span class="math display">\[
+}{\Delta w_{j-1}^c},
+\tag{40}\]</span></span> and <span class="math inline">\(J_j^t\)</span> is the same expression with <span class="math inline">\(N^t\)</span> instead of <span class="math inline">\(N^{t+1}\)</span>. The lower boundary uses <span id="eq-cn-lower-bc"><span class="math display">\[
 J_{j_{min}}^{t+1} = J_{j_{min}}^t = R_{dd}^{t+1/2}.
-\tag{37}\]</span></span></p>
+\tag{41}\]</span></span></p>
 <p>Because the midpoint rates are fixed during the corrector step, the unknowns still enter only through <span class="math inline">\(N_{j-1}^{t+1}\)</span>, <span class="math inline">\(N_j^{t+1}\)</span> and <span class="math inline">\(N_{j+1}^{t+1}\)</span>. The corrector is therefore again a tridiagonal system. The difference from the first-order scheme is that the old-time fluxes and mortality terms are moved to the right-hand side, while the new-time terms supply the tridiagonal matrix.</p>
 <p>If the provisional predictor has the usual one-step accuracy, the averaged rates approximate the true midpoint rates to second order. The Crank-Nicolson corrector is then second order in <span class="math inline">\(\Delta t\)</span> for smooth solutions: <span id="eq-cn-time-order"><span class="math display">\[
 \text{time error} = O(\Delta t^2).
-\tag{38}\]</span></span> This does not change the spatial order of the scheme, which remains first order because of the upwind advective flux. The combined order would therefore be <span id="eq-order-pc"><span class="math display">\[
+\tag{42}\]</span></span> This does not change the spatial order of the scheme, which remains first order because of the upwind advective flux. The combined order would therefore be <span id="eq-order-pc"><span class="math display">\[
 O(\Delta t^2) + O(\Delta w_j),
-\tag{39}\]</span></span> or <span class="math inline">\(O(\Delta t^2 + \log\beta)\)</span> on the logarithmic grid.</p>
+\tag{43}\]</span></span> or <span class="math inline">\(O(\Delta t^2 + \log\beta)\)</span> on the logarithmic grid.</p>
 <p>There are two practical cautions. First, this doubles the number of rate evaluations per time step. Second, Crank-Nicolson-type methods are less damping than backward Euler, so for large time steps they can show oscillations even when they are formally stable. Positivity and robustness would therefore need to be checked carefully before using this as the default time stepper.</p>
 </section><section class="level2"><h2 id="tr-bdf2-time-stepping">TR-BDF2 Time Stepping<a class="anchor" aria-label="anchor" href="#tr-bdf2-time-stepping"></a>
 </h2>
 <p>The oscillations of the Crank-Nicolson corrector are a consequence of its stability function. For the scalar test problem <span class="math inline">\(N' = \lambda N\)</span> the corrector multiplies the solution by <span id="eq-cn-amplification"><span class="math display">\[
 R_{CN}(z) = \frac{1 + z/2}{1 - z/2}, \qquad z = \lambda\,\Delta t,
-\tag{40}\]</span></span> and for a strongly damped mode (<span class="math inline">\(\lambda\)</span> real and very negative) <span class="math inline">\(R_{CN}(z) \to -1\)</span> as <span class="math inline">\(z \to -\infty\)</span>. Such modes are therefore barely damped and flip sign every step. This is the ringing seen at large <span class="math inline">\(\Delta t\)</span>, and it is driven most strongly by the non-smooth recruitment boundary at <span class="math inline">\(w_{min}\)</span>. Crank-Nicolson is <em>A-stable</em> but not <em>L-stable</em>: it does not satisfy <span class="math inline">\(R(z) \to 0\)</span> as <span class="math inline">\(z \to -\infty\)</span>.</p>
+\tag{44}\]</span></span> and for a strongly damped mode (<span class="math inline">\(\lambda\)</span> real and very negative) <span class="math inline">\(R_{CN}(z) \to -1\)</span> as <span class="math inline">\(z \to -\infty\)</span>. Such modes are therefore barely damped and flip sign every step. This is the ringing seen at large <span class="math inline">\(\Delta t\)</span>, and it is driven most strongly by the non-smooth recruitment boundary at <span class="math inline">\(w_{min}\)</span>. Crank-Nicolson is <em>A-stable</em> but not <em>L-stable</em>: it does not satisfy <span class="math inline">\(R(z) \to 0\)</span> as <span class="math inline">\(z \to -\infty\)</span>.</p>
 <p>The <strong>TR-BDF2</strong> method, selected with <code>method = "tr_bdf2"</code>, keeps second-order accuracy but is <em>L-stable</em>, so the stiff modes are damped rather than ringing. It is a one-step, two-stage method. Writing the frozen-rate spatial operator and recruitment source as <span class="math inline">\(L\)</span> and <span class="math inline">\(q\)</span> (as above), and using a stage fraction <span class="math inline">\(\gamma\)</span>, one step from <span class="math inline">\(N^t\)</span> to <span class="math inline">\(N^{t+1}\)</span> is</p>
 <ol type="1">
 <li>
 <strong>Trapezoidal (TR) stage</strong> over <span class="math inline">\([t, t+\gamma\Delta t]\)</span>: <span id="eq-trbdf2-tr"><span class="math display">\[
 \frac{N^{t+\gamma} - N^t}{\gamma\Delta t}
 = \tfrac{1}{2}\left(L N^t + L N^{t+\gamma}\right) + q.
-\tag{41}\]</span></span>
+\tag{45}\]</span></span>
 </li>
 <li>
 <strong>Backward-differentiation (BDF2) stage</strong> over the whole step, using <span class="math inline">\(N^t\)</span>, <span class="math inline">\(N^{t+\gamma}\)</span> and <span class="math inline">\(N^{t+1}\)</span>: <span id="eq-trbdf2-bdf2"><span class="math display">\[
 N^{t+1} = \frac{1}{\gamma(2-\gamma)}N^{t+\gamma}
 - \frac{(1-\gamma)^2}{\gamma(2-\gamma)}N^t
 + \frac{1-\gamma}{2-\gamma}\,\Delta t\left(L N^{t+1} + q\right).
-\tag{42}\]</span></span>
+\tag{46}\]</span></span>
 </li>
 </ol>
 <p>The standard choice is <span id="eq-trbdf2-gamma"><span class="math display">\[
 \gamma = 2 - \sqrt{2},
-\tag{43}\]</span></span> which makes the method L-stable and, crucially for the implementation, makes the two stages share the <strong>same</strong> implicit coefficient. The TR stage implicitly multiplies <span class="math inline">\(L\)</span> by <span class="math inline">\(\gamma\Delta t/2\)</span> and the BDF2 stage by <span class="math inline">\((1-\gamma)/(2-\gamma)\,\Delta t\)</span>, and for <span class="math inline">\(\gamma = 2-\sqrt 2\)</span> both equal <span id="eq-trbdf2-alpha"><span class="math display">\[
+\tag{47}\]</span></span> which makes the method L-stable and, crucially for the implementation, makes the two stages share the <strong>same</strong> implicit coefficient. The TR stage implicitly multiplies <span class="math inline">\(L\)</span> by <span class="math inline">\(\gamma\Delta t/2\)</span> and the BDF2 stage by <span class="math inline">\((1-\gamma)/(2-\gamma)\,\Delta t\)</span>, and for <span class="math inline">\(\gamma = 2-\sqrt 2\)</span> both equal <span id="eq-trbdf2-alpha"><span class="math display">\[
 \alpha\,\Delta t, \qquad \alpha = \frac{\gamma}{2} = 1 - \frac{1}{\sqrt 2}.
-\tag{44}\]</span></span> Each stage is therefore a solve against the same matrix <span class="math inline">\(I - \alpha\Delta t\,L\)</span>, which is exactly the tridiagonal operator <span class="math inline">\(\tt{get\_transport\_coefs()}\)</span> builds at time step <span class="math inline">\(\alpha\Delta t\)</span>. The matrix is assembled once and the BDF2 stage reuses it; only the right-hand sides differ. Writing <span class="math inline">\(c_1 = (\sqrt 2 + 1)/2\)</span> and <span class="math inline">\(c_0 = (\sqrt 2 - 1)/2\)</span> (with <span class="math inline">\(c_1 - c_0 = 1\)</span>), the right-hand sides are <span id="eq-trbdf2-rhs"><span class="math display">\[
+\tag{48}\]</span></span> Each stage is therefore a solve against the same matrix <span class="math inline">\(I - \alpha\Delta t\,L\)</span>, which is exactly the tridiagonal operator <span class="math inline">\(\tt{get\_transport\_coefs()}\)</span> builds at time step <span class="math inline">\(\alpha\Delta t\)</span>. The matrix is assembled once and the BDF2 stage reuses it; only the right-hand sides differ. Writing <span class="math inline">\(c_1 = (\sqrt 2 + 1)/2\)</span> and <span class="math inline">\(c_0 = (\sqrt 2 - 1)/2\)</span> (with <span class="math inline">\(c_1 - c_0 = 1\)</span>), the right-hand sides are <span id="eq-trbdf2-rhs"><span class="math display">\[
 \begin{aligned}
 S^{TR} &amp;= 2N^t - (I - \alpha\Delta t\,L)\,N^t + \gamma\Delta t\, q, \\
 S^{BDF2} &amp;= c_1 N^{t+\gamma} - c_0 N^t + \alpha\Delta t\, q.
 \end{aligned}
-\tag{45}\]</span></span> The first of these is the Crank-Nicolson right-hand side over the sub-step <span class="math inline">\(\gamma\Delta t\)</span>, so the TR stage reuses the existing corrector assembly.</p>
+\tag{49}\]</span></span> The first of these is the Crank-Nicolson right-hand side over the sub-step <span class="math inline">\(\gamma\Delta t\)</span>, so the TR stage reuses the existing corrector assembly.</p>
 <p>The nonlinear rates are treated exactly as in the predictor-corrector method: a provisional Euler predictor gives end-of-step rates, these are averaged with the start-of-step rates to obtain second-order midpoint rates, and the frozen operator <span class="math inline">\(L\)</span> uses those midpoint rates. The result is second order in <span class="math inline">\(\Delta t\)</span> for the full nonlinear dynamics while remaining L-stable, at the cost of one predictor solve, two stage solves and one rate recalculation per step.</p>
 <p>At a steady state the argument of the previous section applies unchanged: with <span class="math inline">\(N^t = N^{t+\gamma} = N^{t+1} = N^*\)</span> both stages reduce to <span class="math inline">\(L N^* + q = 0\)</span>. TR-BDF2 therefore has the same fixed point as the Euler and predictor-corrector methods and only changes the transient path.</p>
 </section><section class="level2"><h2 id="accuracy-comparison">Accuracy comparison<a class="anchor" aria-label="anchor" href="#accuracy-comparison"></a>
@@ -356,13 +386,13 @@ S^{BDF2} &amp;= c_1 N^{t+\gamma} - c_0 N^t + \alpha\Delta t\, q.
 <span><span class="va">accuracy</span></span></code></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre><code>     dt euler_error predictor_corrector_error tr_bdf2_error
-1 1.600  0.31609765              3.1447457513  0.1929676262
-2 0.800  0.15025862              1.5760514160  0.2165592058
-3 0.400  0.06986764              0.2499106400  0.0847116977
-4 0.200  0.07985591              0.0312476570  0.0310379094
-5 0.100  0.06201639              0.0096668324  0.0098381908
-6 0.050  0.03985901              0.0029286815  0.0029279979
-7 0.025  0.02282473              0.0008966127  0.0008793703</code></pre>
+1 1.600  0.31596647              3.4780282823  0.1485219020
+2 0.800  0.15030919              1.5930749272  0.2161710472
+3 0.400  0.06998422              0.2491341164  0.0858144631
+4 0.200  0.07996242              0.0305651825  0.0305334237
+5 0.100  0.06213206              0.0089017443  0.0091873340
+6 0.050  0.03998051              0.0023680430  0.0024242194
+7 0.025  0.02294875              0.0005722933  0.0005797011</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -415,7 +445,7 @@ S^{BDF2} &amp;= c_1 N^{t+\gamma} - c_0 N^t + \alpha\Delta t\, q.
 </h3>
 <p>Under the second-order methods the resource is also advanced to second order. The resource mortality <span class="math inline">\(\mu_R\)</span> depends on the consumer densities, so evaluating it only at the start of the step would make the resource update first order and cap the overall accuracy. Instead, the predictor step is used to form the same midpoint rates <span class="math inline">\(r^{t+1/2}\)</span> that drive the consumer corrector, and the resource is then advanced with the midpoint resource mortality <span id="eq-midpoint-resource-mort"><span class="math display">\[
 \mu_R^{t+1/2} = \tfrac{1}{2}\left(\mu_R^t + \hat\mu_R^{t+1}\right).
-\tag{46}\]</span></span> At a steady state <span class="math inline">\(r^t = \hat r^{t+1} = r^{t+1/2}\)</span>, so the resource corrector reproduces the predictor and the steady state is unchanged. With the default semi-chemostat resource dynamics, which already use the analytic solution for fixed mortality, the remaining resource error is small, but the midpoint mortality removes the first-order time-stepping component. The <code>euler</code> method keeps the first-order resource update.</p>
+\tag{50}\]</span></span> At a steady state <span class="math inline">\(r^t = \hat r^{t+1} = r^{t+1/2}\)</span>, so the resource corrector reproduces the predictor and the steady state is unchanged. With the default semi-chemostat resource dynamics, which already use the analytic solution for fixed mortality, the remaining resource error is small, but the midpoint mortality removes the first-order time-stepping component. The <code>euler</code> method keeps the first-order resource update.</p>
 </section><section class="level3"><h3 id="interpretation">Interpretation<a class="anchor" aria-label="anchor" href="#interpretation"></a>
 </h3>
 <p>On short runs the second-order methods may not always show a clean second-order convergence slope because the comparison is affected by the fixed spatial grid, nonlinear rate feedbacks and ordinary timing noise. TR-BDF2 typically shows the cleanest slope of the three because, being L-stable, it does not ring at the larger time steps.</p>
@@ -425,19 +455,19 @@ S^{BDF2} &amp;= c_1 N^{t+\gamma} - c_0 N^t + \alpha\Delta t\, q.
 <p>The predictor-corrector method uses the same upwind approximation in size as the first-order method, so it still has numerical diffusion. However, the Crank-Nicolson corrector changes the time-stepping contribution to that diffusion.</p>
 <p>To see this, again consider the advection-only problem with constant growth rate <span class="math inline">\(g\)</span> on a locally uniform grid with spacing <span class="math inline">\(\Delta w\)</span>: <span id="eq-advection-only"><span class="math display">\[
 \frac{\partial N}{\partial t} + g\frac{\partial N}{\partial w} = 0.
-\tag{47}\]</span></span> With fixed rates, the corrector step reduces to the Crank-Nicolson upwind scheme <span id="eq-cn-upwind"><span class="math display">\[
+\tag{51}\]</span></span> With fixed rates, the corrector step reduces to the Crank-Nicolson upwind scheme <span id="eq-cn-upwind"><span class="math display">\[
 \frac{N_j^{t+1} - N_j^t}{\Delta t}
 + \frac{g}{2}
 \left[
 \frac{N_j^{t+1} - N_{j-1}^{t+1}}{\Delta w}
 + \frac{N_j^t - N_{j-1}^t}{\Delta w}
 \right] = 0.
-\tag{48}\]</span></span></p>
+\tag{52}\]</span></span></p>
 <p>Expand this equation about the midpoint <span class="math inline">\((w_j, t + \Delta t / 2)\)</span>. The centred time difference gives <span id="eq-cn-time-expansion"><span class="math display">\[
 \frac{N_j^{t+1} - N_j^t}{\Delta t}
 = \frac{\partial N}{\partial t}
 + O(\Delta t^2).
-\tag{49}\]</span></span> The average of the two upwind spatial differences gives <span id="eq-cn-space-expansion"><span class="math display">\[
+\tag{53}\]</span></span> The average of the two upwind spatial differences gives <span id="eq-cn-space-expansion"><span class="math display">\[
 \frac{1}{2}
 \left[
 \frac{N_j^{t+1} - N_{j-1}^{t+1}}{\Delta w}
@@ -446,43 +476,73 @@ S^{BDF2} &amp;= c_1 N^{t+\gamma} - c_0 N^t + \alpha\Delta t\, q.
 = \frac{\partial N}{\partial w}
 - \frac{\Delta w}{2}\frac{\partial^2 N}{\partial w^2}
 + O(\Delta w^2) + O(\Delta t^2).
-\tag{50}\]</span></span> Substituting these expansions into the scheme gives the modified equation <span id="eq-modified-eqn-pc"><span class="math display">\[
+\tag{54}\]</span></span> Substituting these expansions into the scheme gives the modified equation <span id="eq-modified-eqn-pc"><span class="math display">\[
 \frac{\partial N}{\partial t} + g\frac{\partial N}{\partial w}
 = \frac{g\Delta w}{2}\frac{\partial^2 N}{\partial w^2}
 + O(\Delta w^2) + O(\Delta t^2).
-\tag{51}\]</span></span> Thus the numerical diffusivity in the usual advection-diffusion form is <span id="eq-num-diffusivity-pc"><span class="math display">\[
+\tag{55}\]</span></span> Thus the numerical diffusivity in the usual advection-diffusion form is <span id="eq-num-diffusivity-pc"><span class="math display">\[
 D_{num}^{PC} = \frac{g\Delta w}{2}.
-\tag{52}\]</span></span> In the mizer notation, where the diffusion term is written with a factor <span class="math inline">\(1/2\)</span> inside the flux, this corresponds to the effective diffusion parameter <span id="eq-d-num-pc"><span class="math display">\[
+\tag{56}\]</span></span> In the mizer notation, where the diffusion term is written with a factor <span class="math inline">\(1/2\)</span> inside the flux, this corresponds to the effective diffusion parameter <span id="eq-d-num-pc"><span class="math display">\[
 d_{num}^{PC}(w) \approx g(w)\Delta w.
-\tag{53}\]</span></span> On the logarithmic grid this becomes <span id="eq-d-num-pc-log"><span class="math display">\[
+\tag{57}\]</span></span> On the logarithmic grid this becomes <span id="eq-d-num-pc-log"><span class="math display">\[
 d_{num}^{PC}(w) \approx g(w)w\log\beta.
-\tag{54}\]</span></span></p>
+\tag{58}\]</span></span></p>
 <p>Compared with the first-order semi-implicit scheme, <span id="eq-d-num-euler-compare"><span class="math display">\[
 d_{num}^{Euler}(w) \approx g(w)\Delta w + g(w)^2\Delta t,
-\tag{55}\]</span></span> the predictor-corrector method removes the leading artificial diffusion proportional to <span class="math inline">\(\Delta t\)</span>. The remaining numerical diffusion is the spatial upwind diffusion, proportional to <span class="math inline">\(\Delta w\)</span> or equivalently to <span class="math inline">\(\log\beta\)</span> on the logarithmic grid. This is why decreasing <span class="math inline">\(\Delta t\)</span> eventually stops improving the error much: once the time-stepping error is small, the spatial upwind error and other fixed discretisation errors dominate.</p>
-</section><section class="level2"><h2 id="steady-state-solution">Steady-State Solution<a class="anchor" aria-label="anchor" href="#steady-state-solution"></a>
+\tag{59}\]</span></span> the predictor-corrector method removes the leading artificial diffusion proportional to <span class="math inline">\(\Delta t\)</span>. The remaining numerical diffusion is the spatial upwind diffusion, proportional to <span class="math inline">\(\Delta w\)</span> or equivalently to <span class="math inline">\(\log\beta\)</span> on the logarithmic grid. This is why decreasing <span class="math inline">\(\Delta t\)</span> eventually stops improving the error much: once the time-stepping error is small, the spatial upwind error and other fixed discretisation errors dominate.</p>
+</section><section class="level2"><h2 id="sec-reducing-spatial-error">Reducing the Spatial Error: a Higher-Order Reconstruction<a class="anchor" aria-label="anchor" href="#sec-reducing-spatial-error"></a>
+</h2>
+<p>In the scheme above only one ingredient is first order: the <strong>upwind reconstruction</strong> of the boundary density in the advective flux (<a href="#eq-advective-flux" class="quarto-xref">Equation 9</a>). Using the bin-below average <span class="math inline">\(N_{j-1}\)</span> as the density at the boundary <span class="math inline">\(w_j\)</span> introduces the numerical diffusion <span class="math inline">\(d_{num}\approx g(w)\,w\log\beta\)</span> derived earlier, and on a coarse logarithmic grid (a few hundred bins over many decades) it is not small. It is the one spatial error the second-order time methods <em>cannot</em> remove. The <code>flux</code> entry of the <code>second_order_w</code> slot replaces the upwind reconstruction by a higher-order one. Because the choice changes the discrete steady state it lives in the params object rather than being a <code><a href="../reference/project.html">project()</a></code> argument.</p>
+<section class="level3"><h3 id="the-reconstruction">The reconstruction<a class="anchor" aria-label="anchor" href="#the-reconstruction"></a>
+</h3>
+<p>The boundary <span class="math inline">\(w_j\)</span> is the midpoint, on the logarithmic axis, of the two bin centres <span class="math inline">\(w_{j-1}^c\)</span> and <span class="math inline">\(w_j^c\)</span>, so a second-order estimate of the density there is the average of the two bin averages. We write the general reconstruction with a weight <span class="math inline">\(\psi_j\)</span>, <span id="eq-face-reconstruction"><span class="math display">\[ N(w_j) \approx N_{j-1} + \tfrac12\,\psi_j\,(N_j - N_{j-1}),  \tag{60}\]</span></span> which is pure upwind (<span class="math inline">\(N_{j-1}\)</span>) when <span class="math inline">\(\psi_j = 0\)</span> and the centred value <span class="math inline">\(\tfrac12(N_{j-1}+N_j)\)</span> when <span class="math inline">\(\psi_j = 1\)</span>. The advective flux becomes <span id="eq-so-face-flux"><span class="math display">\[ J_j^{adv} = g_j\bigl[N_{j-1} + \tfrac12\,\psi_j(N_j - N_{j-1})\bigr].  \tag{61}\]</span></span> With <span class="math inline">\(\psi_j = 1\)</span> the upwind numerical diffusion is gone and the advective flux is second order. The remaining requirement for a fully second-order model is that the bin-average rates — the diffusion coefficient <span class="math inline">\(d_j\)</span> in the diffusive flux (<a href="#eq-diffusive-flux" class="quarto-xref">Equation 10</a>) and the mortality <span class="math inline">\(\mu_j\)</span> in the sink (<a href="#eq-bin-averaged-mortality" class="quarto-xref">Equation 14</a>) — actually be bin-averaged rather than point-sampled. That is the job of the <code>bin_average</code> entry of the slot, which gates exactly that point-versus-bin-average choice for <span class="math inline">\(d\)</span> and <span class="math inline">\(\mu\)</span> alike.</p>
+</section><section class="level3"><h3 id="choosing-the-weight-van-leer-or-centred">Choosing the weight: van Leer or centred<a class="anchor" aria-label="anchor" href="#choosing-the-weight-van-leer-or-centred"></a>
+</h3>
+<p>With <span class="math inline">\(\psi\equiv1\)</span> the reconstruction is the pure <strong>centred</strong> one, which is genuinely second order everywhere, including at smooth extrema, but is not monotonicity-preserving: it can produce small over/undershoots, and at a steady state with no physical diffusion it admits an undamped odd-even mode. With the <strong>van Leer</strong> weight <span id="eq-van-leer"><span class="math display">\[
+\psi_j=\psi(r_j),\qquad
+\psi(r)=\frac{r+|r|}{1+|r|},\qquad
+r_j=\frac{N_{j-1}-N_{j-2}}{N_j-N_{j-1}},
+\tag{62}\]</span></span> the scheme is <em>total-variation diminishing</em> (TVD): <span class="math inline">\(\psi\to1\)</span> where the solution is smooth, and <span class="math inline">\(\psi\to0\)</span> (pure upwind) at extrema and at the non-smooth recruitment boundary. This keeps abundances non-negative and manufactures no new oscillations, at the price — a corollary of Godunov’s theorem — of dropping to first order at smooth extrema.</p>
+<p>At the left boundary of the grid where <span class="math inline">\(N_{j-2}\)</span> does not exist, the weight is handled as follows:</p>
+<ul>
+<li>At and below the first two faces above the recruitment boundary (<span class="math inline">\(j \le j_{min} + 2\)</span>), the weight <span class="math inline">\(\psi_j\)</span> is forced to 0. This keeps the advective flux leaving the recruitment boundary first-order upwind and avoids referencing the non-smooth recruitment boundary cell <span class="math inline">\(N_{j_{min}}\)</span> (and the inactive region below it) when calculating the smoothness ratio, preventing ragged or oscillating solutions near the boundary.</li>
+</ul>
+<p>The two types are selected with</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/second_order_w.html">second_order_w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">flux</span> <span class="op">&lt;-</span> <span class="st">"van_leer"</span> <span class="co"># TVD, the default for TRUE</span></span>
+<span><span class="fu"><a href="../reference/second_order_w.html">second_order_w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">flux</span> <span class="op">&lt;-</span> <span class="st">"centred"</span>   <span class="co"># unlimited, true 2nd order</span></span></code></pre></div>
+<p>The default (<code>TRUE</code>) is van Leer, the safe choice for production runs; the centred reconstruction is most useful for smooth problems that carry some physical diffusion.</p>
+</section><section class="level3"><h3 id="implicit-treatment-with-a-frozen-weight">Implicit treatment with a frozen weight<a class="anchor" aria-label="anchor" href="#implicit-treatment-with-a-frozen-weight"></a>
+</h3>
+<p>The weight <span class="math inline">\(\psi_j\)</span> is evaluated from the densities at the start of the step (for the second-order methods, from the midpoint field), so it is a fixed number during the solve. With <span class="math inline">\(\psi\)</span> <em>frozen</em>, the flux <a href="#eq-so-face-flux" class="quarto-xref">Equation 61</a> is linear in the unknown densities <span class="math inline">\(N^{t+1}\)</span> and still couples only <span class="math inline">\(N_{j-1},N_j,N_{j+1}\)</span>, so it folds directly into the same tridiagonal operator <span class="math inline">\(\tt{get\_transport\_coefs()}\)</span> builds — only the advective coefficients gain the <span class="math inline">\(\psi\)</span> terms. Keeping the high-order term <em>implicit</em> in this way is important: treating the extra (anti-diffusive) part explicitly on the right-hand side is only conditionally stable and breaks down for the lightly damped second-order time steppers, whereas the implicit form is stable for backward Euler and TR-BDF2 even with no physical diffusion.</p>
+<p>The price is that the high-order term can make the off-diagonal coefficient <span class="math inline">\(C_j\)</span> positive, so the operator is no longer an M-matrix and non-negativity is no longer guaranteed by construction. The van Leer reconstruction keeps any undershoot at the level of rounding, and the consumer update floors it to zero to preserve <span class="math inline">\(N\ge 0\)</span>; the unlimited centred reconstruction gives up this guarantee in exchange for the extra order.</p>
+<p>Because the reconstruction weight is frozen at the beginning (or midpoint) of the step, the flux limiter is only conditionally <em>total-variation diminishing</em> (TVD). In simulations with highly dynamic, sharp features (such as pulsed reproduction starting from a zero initial abundance), the time step <span class="math inline">\(\Delta t\)</span> must satisfy the Courant-Friedrichs-Lewy (CFL) condition, which requires that the log-size Courant number <span class="math display">\[ C = \frac{g(w) \Delta t}{w \log\beta} \]</span> be at most <span class="math inline">\(1\)</span> across the grid. If the Courant number exceeds 1, the lagged limiter can no longer guarantee the TVD property, resulting in spurious oscillations (wiggles) and negative densities (which the update floors to zero, leading to a ragged/zero-interleaved distribution). To avoid wiggles in such cases, users should either reduce <code>dt</code> so that <span class="math inline">\(C \le 1\)</span>, or use the first-order upwind scheme (by setting <code>second_order_w(params) &lt;- FALSE</code> and using the L-stable <code>method = "tr_bdf2"</code>) which remains positive and monotonic for any <code>dt</code>.</p>
+</section><section class="level3"><h3 id="steady-state-and-reproduction">Steady state and reproduction<a class="anchor" aria-label="anchor" href="#steady-state-and-reproduction"></a>
+</h3>
+<p>Because the reconstruction lives entirely in the coefficients <span class="math inline">\(A,B,C\)</span>, the steady-state machinery stays consistent automatically: <code><a href="../reference/getRequiredRDD.html">getRequiredRDD()</a></code> reads the same boundary coefficients and <code><a href="../reference/get_steady_state_n.html">get_steady_state_n()</a></code> solves the same system. With the van Leer reconstruction the weight depends on the solution, so the steady state is found by an <em>under-relaxed</em> fixed-point iteration (freezing <span class="math inline">\(\psi\)</span> at the current iterate, solving, repeating), because at <span class="math inline">\(\Delta t=1\)</span> the operator is not diagonally dominant. Both <code><a href="../reference/getRequiredRDD.html">getRequiredRDD()</a></code> and <code><a href="../reference/steadySingleSpecies.html">steadySingleSpecies()</a></code> read the same <code>second_order_w</code> slot, so a model is automatically set up at the steady state of exactly the scheme that <code><a href="../reference/project.html">project()</a></code> will use, and that state is preserved to machine precision by all three time-stepping methods.</p>
+</section></section><section class="level2"><h2 id="steady-state-solution">Steady-State Solution<a class="anchor" aria-label="anchor" href="#steady-state-solution"></a>
 </h2>
 <p>When solving the steady-state ODE instead of the time-dependent PDE, we are looking for a state where the population densities do not change over time, meaning <span class="math inline">\(N_j^{t+1} = N_j^t = N_j^*\)</span>.</p>
 <p>Substituting this into our discretised linear system: <span id="eq-ss-substitution"><span class="math display">\[
 A_j N_{j-1}^* + B_j N_j^* + C_j N_{j+1}^* = S_j
-\tag{56}\]</span></span> Recall that for <span class="math inline">\(j &gt; j_{min}\)</span>, <span class="math inline">\(S_j = N_j^t\)</span>. The equation simplifies to: <span id="eq-ss-simplified"><span class="math display">\[
+\tag{63}\]</span></span> Recall that for <span class="math inline">\(j &gt; j_{min}\)</span>, <span class="math inline">\(S_j = N_j^t\)</span>. The equation simplifies to: <span id="eq-ss-simplified"><span class="math display">\[
 A_j N_{j-1}^* + (B_j - 1) N_j^* + C_j N_{j+1}^* = 0
-\tag{57}\]</span></span></p>
+\tag{64}\]</span></span></p>
 <p>To find the steady-state population densities <span class="math inline">\(N^*\)</span>, we formulate a new time-independent tridiagonal system: <span id="eq-ss-tridiagonal"><span class="math display">\[
 \tilde{A}_j N_{j-1}^* + \tilde{B}_j N_j^* + \tilde{C}_j N_{j+1}^* = \tilde{S}_j
-\tag{58}\]</span></span> To eliminate the explicit dependence on the time step <span class="math inline">\(\Delta t\)</span>, we can divide the equation by <span class="math inline">\(\Delta t\)</span>. The modified coefficients <span class="math inline">\(\tilde{A}, \tilde{B}, \tilde{C}\)</span> defining the new tri-diagonal system are: <span id="eq-ss-coefficients"><span class="math display">\[
+\tag{65}\]</span></span> To eliminate the explicit dependence on the time step <span class="math inline">\(\Delta t\)</span>, we can divide the equation by <span class="math inline">\(\Delta t\)</span>. The modified coefficients <span class="math inline">\(\tilde{A}, \tilde{B}, \tilde{C}\)</span> defining the new tri-diagonal system are: <span id="eq-ss-coefficients"><span class="math display">\[
 \begin{aligned}
-\tilde{A}_j &amp;= \frac{A_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( g_{j-1} + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}} \right) \\
-\tilde{C}_j &amp;= \frac{C_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j} \right) \\
-\tilde{B}_j &amp;= \frac{B_j - 1}{\Delta t} = \mu_j + \frac{1}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_j}{\Delta w_j} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}} \right)
+\tilde{A}_j &amp;= \frac{A_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( g_j + \frac{1}{2} \frac{d_{j-1}}{\Delta w_{j-1}^c} \right) \\
+\tilde{C}_j &amp;= \frac{C_j}{\Delta t} = -\frac{1}{\Delta w_j} \left( \frac{1}{2} \frac{d_{j+1}}{\Delta w_j^c} \right) \\
+\tilde{B}_j &amp;= \frac{B_j - 1}{\Delta t} = \mu_j + \frac{1}{\Delta w_j} \left( g_{j+1} + \frac{1}{2} \frac{d_j}{\Delta w_j^c} + \frac{1}{2} \frac{d_j}{\Delta w_{j-1}^c} \right)
 \end{aligned}
-\tag{59}\]</span></span> Notice that <span class="math inline">\(\tilde{A}_j\)</span> and <span class="math inline">\(\tilde{C}_j\)</span> are exactly the expressions for <span class="math inline">\(A_j\)</span> and <span class="math inline">\(C_j\)</span> evaluated at <span class="math inline">\(\Delta t = 1\)</span>. Similarly, <span class="math inline">\(\tilde{B}_j\)</span> is exactly the expression for <span class="math inline">\(B_j - 1\)</span> evaluated at <span class="math inline">\(\Delta t = 1\)</span>.</p>
+\tag{66}\]</span></span> Notice that <span class="math inline">\(\tilde{A}_j\)</span> and <span class="math inline">\(\tilde{C}_j\)</span> are exactly the expressions for <span class="math inline">\(A_j\)</span> and <span class="math inline">\(C_j\)</span> evaluated at <span class="math inline">\(\Delta t = 1\)</span>. Similarly, <span class="math inline">\(\tilde{B}_j\)</span> is exactly the expression for <span class="math inline">\(B_j - 1\)</span> evaluated at <span class="math inline">\(\Delta t = 1\)</span>.</p>
 <p><strong>Boundary conditions for the steady state:</strong></p>
 <p>For the smallest size (<span class="math inline">\(j=j_{min}\)</span>), the original equation had a source term due to recruitment: <span id="eq-ss-lower-bc-S"><span class="math display">\[
 S_{j_{min}} = N_{j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd}
-\tag{60}\]</span></span> Following the same logic of setting <span class="math inline">\(N^{t+1} = N^t = N^*\)</span> and dividing by <span class="math inline">\(\Delta t\)</span>, the right-hand side vector <span class="math inline">\(\tilde{S}_j\)</span> for the steady-state system becomes purely the recruitment flux term. If we again observe the original term <span class="math inline">\(\frac{\Delta t}{\Delta w_{j_{min}}} R_{dd}\)</span> when evaluated at <span class="math inline">\(\Delta t = 1\)</span>, we get our new source vector: <span id="eq-ss-lower-bc-Stilde"><span class="math display">\[
+\tag{67}\]</span></span> Following the same logic of setting <span class="math inline">\(N^{t+1} = N^t = N^*\)</span> and dividing by <span class="math inline">\(\Delta t\)</span>, the right-hand side vector <span class="math inline">\(\tilde{S}_j\)</span> for the steady-state system becomes purely the recruitment flux term. If we again observe the original term <span class="math inline">\(\frac{\Delta t}{\Delta w_{j_{min}}} R_{dd}\)</span> when evaluated at <span class="math inline">\(\Delta t = 1\)</span>, we get our new source vector: <span id="eq-ss-lower-bc-Stilde"><span class="math display">\[
 \tilde{S}_{j_{min}} = \frac{R_{dd}}{\Delta w_{j_{min}}}
-\tag{61}\]</span></span> For all other <span class="math inline">\(j &gt; j_{min}\)</span>, <span class="math inline">\(\tilde{S}_j = 0\)</span>.</p>
+\tag{68}\]</span></span> For all other <span class="math inline">\(j &gt; j_{min}\)</span>, <span class="math inline">\(\tilde{S}_j = 0\)</span>.</p>
 <p>The boundary condition modifications at the edges of the grid remain the same conceptually: <span class="math inline">\(\tilde{A}_{j_{min}} = 0\)</span>, the upward diffusion term is omitted from <span class="math inline">\(\tilde{B}_{j_{min}}\)</span>, and <span class="math inline">\(\tilde{C}_{j_{max}} = 0\)</span>. For any <span class="math inline">\(j &lt; j_{min}\)</span>, all matrix entries remain zero.</p>
 <p>In code, this means that the steady-state coefficients for the matrix multiplication (<span class="math inline">\(\tilde{A}, \tilde{B}, \tilde{C}\)</span>) and the constant vector (<span class="math inline">\(\tilde{S}\)</span>) can be calculated by calling the standard coefficient function but simply setting <span class="math inline">\(\Delta t = 1\)</span>, and dropping the <span class="math inline">\(+1\)</span> and <span class="math inline">\(+N_j^t\)</span> from the resulting <span class="math inline">\(B\)</span> and <span class="math inline">\(S\)</span> variables respectively.</p>
 <p>With these modified matrices, the steady-state densities can be calculated directly by solving the linear system avoiding the need to iterate step by step over time.</p>
@@ -491,13 +551,13 @@ S_{j_{min}} = N_{j_{min}}^t + \frac{\Delta t}{\Delta w_{j_{min}}} R_{dd}
 <p>The predictor-corrector method changes the time stepping, but it does not change the steady state that is obtained when the rates are evaluated at that steady state. To see this, write the Crank-Nicolson corrector with fixed midpoint rates as <span id="eq-cn-corrector-fixed"><span class="math display">\[
 \frac{N^{t+1} - N^t}{\Delta t}
 = \frac{1}{2}\left(L N^t + L N^{t+1}\right) + q,
-\tag{62}\]</span></span> where <span class="math inline">\(L\)</span> is the spatial transport-and-mortality operator built from the midpoint rates and <span class="math inline">\(q\)</span> is the recruitment source at the lower boundary. At a steady state, <span class="math inline">\(N^{t+1} = N^t = N^*\)</span>, so this becomes simply <span id="eq-ss-fixed-point"><span class="math display">\[
+\tag{69}\]</span></span> where <span class="math inline">\(L\)</span> is the spatial transport-and-mortality operator built from the midpoint rates and <span class="math inline">\(q\)</span> is the recruitment source at the lower boundary. At a steady state, <span class="math inline">\(N^{t+1} = N^t = N^*\)</span>, so this becomes simply <span id="eq-ss-fixed-point"><span class="math display">\[
 0 = L N^* + q.
-\tag{63}\]</span></span></p>
+\tag{70}\]</span></span></p>
 <p>Thus the predictor-corrector method has the same fixed-point equation as the first-order method. The predictor step also becomes irrelevant at the fixed point: if <span class="math inline">\(N^t = N^*\)</span>, then the predicted <span class="math inline">\(\hat{N}^{t+1}\)</span> is also <span class="math inline">\(N^*\)</span> up to the residual of the steady-state equation, so <span id="eq-ss-rates-equal"><span class="math display">\[
 r^t = \hat{r}^{t+1} = r^{t+1/2}, \qquad
 R_{dd}^t = \hat{R}_{dd}^{t+1} = R_{dd}^{t+1/2}.
-\tag{64}\]</span></span> The rates used in the steady-state calculation are therefore just the rates evaluated at <span class="math inline">\(N^*\)</span>. The predictor-corrector method affects the transient path to the steady state, not the steady state itself.</p>
+\tag{71}\]</span></span> The rates used in the steady-state calculation are therefore just the rates evaluated at <span class="math inline">\(N^*\)</span>. The predictor-corrector method affects the transient path to the steady state, not the steady state itself.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);

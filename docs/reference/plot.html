@@ -19,7 +19,7 @@ output). plotHover() creates an interactive version of the same figure."><meta p
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,6 +50,7 @@ output). plotHover() creates an interactive version of the same figure."><meta p
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -78,7 +79,7 @@ output). plotHover() creates an interactive version of the same figure."><meta p
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Plot mizer arrays</h1>
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/R/ArraySpeciesBySize-class.R" class="external-link"><code>R/ArraySpeciesBySize-class.R</code></a>, <a href="https://github.com/sizespectrum/mizer/blob/HEAD/R/ArrayTimeBySpecies-class.R" class="external-link"><code>R/ArrayTimeBySpecies-class.R</code></a>, <a href="https://github.com/sizespectrum/mizer/blob/HEAD/R/ArrayTimeBySpeciesBySize-class.R" class="external-link"><code>R/ArrayTimeBySpeciesBySize-class.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/R/ArraySpeciesBySize-class.R" class="external-link"><code>R/ArraySpeciesBySize-class.R</code></a>, <a href="https://github.com/sizespectrum/mizer/blob/HEAD/R/ArrayTimeBySpecies-class.R" class="external-link"><code>R/ArrayTimeBySpecies-class.R</code></a>, <a href="https://github.com/sizespectrum/mizer/blob/HEAD/R/ArrayTimeBySpeciesBySize-class.R" class="external-link"><code>R/ArrayTimeBySpeciesBySize-class.R</code></a>, and 1 more</small>
       <div class="d-none name"><code>plot.Rd</code></div>
     </div>
 
@@ -241,6 +242,18 @@ relative difference between two arrays, use <code><a href="plotRelative.html">pl
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getFMort.html">getFMort</a></span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span>, time <span class="op">=</span> <span class="fl">2010</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot-7.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getResourceMort.html">getResourceMort</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plot-8.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #00BB00;">log-10</span> transformation introduced infinite values.</span>
+<span class="r-plt img"><img src="plot-9.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="N.html">NResource</a></span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #00BB00;">log-10</span> transformation introduced infinite values.</span>
+<span class="r-plt img"><img src="plot-10.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

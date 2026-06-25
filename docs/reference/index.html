@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,7 @@
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -215,7 +216,7 @@
         <dt>
 
           <code><a href="second_order_w.html">second_order_w()</a></code> <code><a href="second_order_w.html">`second_order_w&lt;-`()</a></code>
-
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
         <dd>Get or set the second_order_w flags</dd>
       </dl></div><div class="section level2">
@@ -606,6 +607,13 @@
 
         <dt>
 
+          <code><a href="getFluxGradient.html">getFluxGradient()</a></code>
+
+        </dt>
+        <dd>Get flux gradient</dd>
+
+        <dt>
+
           <code><a href="getMort.html">getMort()</a></code>
 
         </dt>
@@ -708,7 +716,7 @@
 
         <dt>
 
-          <code><a href="plot.html">plot</a></code> <code><a href="plot.html">plot.ArraySpeciesBySize</a></code> <code><a href="plot.html">plot.ArrayTimeBySpecies</a></code> <code><a href="plot.html">plot.ArrayTimeBySpeciesBySize</a></code>
+          <code><a href="plot.html">plot</a></code> <code><a href="plot.html">plot.ArraySpeciesBySize</a></code> <code><a href="plot.html">plot.ArrayTimeBySpecies</a></code> <code><a href="plot.html">plot.ArrayTimeBySpeciesBySize</a></code> <code><a href="plot.html">plot.ArrayResourceBySize</a></code> <code><a href="plot.html">plot.ArrayTimeByResourceBySize</a></code>
 
         </dt>
         <dd>Plot mizer arrays</dd>
@@ -1017,6 +1025,13 @@
 
         </dt>
         <dd>Get the registered mizer extension chain</dd>
+
+        <dt>
+
+          <code><a href="recordExtension.html">recordExtension()</a></code>
+
+        </dt>
+        <dd>Record an extension and its version stamp on a mizer object</dd>
 
         <dt>
 
@@ -1573,17 +1588,17 @@
 
         <dt>
 
-          <code><a href="summary.MizerParams.html">summary(<i>&lt;MizerParams&gt;</i>)</a></code>
+          <code><a href="summary.html">summary</a></code> <code><a href="summary.html">summary.ArraySpeciesBySize</a></code> <code><a href="summary.html">summary.ArrayTimeBySpecies</a></code> <code><a href="summary.html">summary.ArrayTimeBySpeciesBySize</a></code> <code><a href="summary.html">summary.MizerSim</a></code> <code><a href="summary.html">summary.MizerParams</a></code>
 
         </dt>
-        <dd>Summarize MizerParams object</dd>
+        <dd>Summarise mizer objects</dd>
 
         <dt>
 
-          <code><a href="str.MizerParams.html">str(<i>&lt;MizerParams&gt;</i>)</a></code>
+          <code><a href="str.html">str</a></code> <code><a href="str.html">str.ArraySpeciesBySize</a></code> <code><a href="str.html">str.ArrayTimeBySpecies</a></code> <code><a href="str.html">str.ArrayTimeBySpeciesBySize</a></code> <code><a href="str.html">str.MizerSim</a></code> <code><a href="str.html">str.MizerParams</a></code>
 
         </dt>
-        <dd>Display structure of MizerParams object</dd>
+        <dd>Display the structure of mizer objects</dd>
 
         <dt>
 
@@ -1615,20 +1630,6 @@
 
         <dt>
 
-          <code><a href="summary.MizerSim.html">summary(<i>&lt;MizerSim&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Summarize MizerSim object</dd>
-
-        <dt>
-
-          <code><a href="str.MizerSim.html">str(<i>&lt;MizerSim&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Display structure of MizerSim object</dd>
-
-        <dt>
-
           <code><a href="getSimParams.html">getSimParams()</a></code>
 
         </dt>
@@ -1654,20 +1655,6 @@
 
         </dt>
         <dd>Print mizer objects</dd>
-
-        <dt>
-
-          <code><a href="summary.html">summary</a></code> <code><a href="summary.html">summary.ArraySpeciesBySize</a></code> <code><a href="summary.html">summary.ArrayTimeBySpecies</a></code> <code><a href="summary.html">summary.ArrayTimeBySpeciesBySize</a></code>
-
-        </dt>
-        <dd>Summarise mizer objects</dd>
-
-        <dt>
-
-          <code><a href="str.html">str</a></code> <code><a href="str.html">str.ArraySpeciesBySize</a></code> <code><a href="str.html">str.ArrayTimeBySpecies</a></code> <code><a href="str.html">str.ArrayTimeBySpeciesBySize</a></code>
-
-        </dt>
-        <dd>Display the structure of mizer objects</dd>
 
         <dt>
 
@@ -1717,6 +1704,34 @@
 
         </dt>
         <dd>Test if an object is an ArrayTimeBySpeciesBySize</dd>
+
+        <dt>
+
+          <code><a href="ArrayResourceBySize.html">ArrayResourceBySize()</a></code>
+
+        </dt>
+        <dd>S3 class for resource size spectra</dd>
+
+        <dt>
+
+          <code><a href="is.ArrayResourceBySize.html">is.ArrayResourceBySize()</a></code>
+
+        </dt>
+        <dd>Test if an object is an ArrayResourceBySize</dd>
+
+        <dt>
+
+          <code><a href="ArrayTimeByResourceBySize.html">ArrayTimeByResourceBySize()</a></code>
+
+        </dt>
+        <dd>S3 class for time x resource-size arrays</dd>
+
+        <dt>
+
+          <code><a href="is.ArrayTimeByResourceBySize.html">is.ArrayTimeByResourceBySize()</a></code>
+
+        </dt>
+        <dd>Test if an object is an ArrayTimeByResourceBySize</dd>
       </dl></div><div class="section level2">
       <h2 id="example-parameter-sets">Example parameter sets<a class="anchor" aria-label="anchor" href="#example-parameter-sets"></a></h2>
 

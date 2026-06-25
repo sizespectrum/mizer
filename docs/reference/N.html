@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,7 @@
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -112,12 +113,16 @@ size) with the number density of consumers.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ w   : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "value_name")= chr "Number density"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "units")= chr "1/g"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 46 slots</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "representation")= chr "point"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots</span>
 <span class="r-in"><span><span class="fu"><a href="str.html">str</a></span><span class="op">(</span><span class="fu">NResource</span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  num [1:44, 1:218] 4.88e+35 4.88e+35 4.88e+35 4.88e+35 4.88e+35 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  'ArrayTimeByResourceBySize' num [1:44, 1:218] 4.88e+35 4.88e+35 4.88e+35 4.88e+35 4.88e+35 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "dimnames")=List of 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ time: chr [1:44] "1967" "1968" "1969" "1970" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ w   : chr [1:218] "8.73e-13" "1.04e-12" "1.24e-12" "1.48e-12" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "value_name")= chr "Number density"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "units")= chr "1/g"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

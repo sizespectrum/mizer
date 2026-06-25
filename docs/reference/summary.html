@@ -15,7 +15,7 @@ array classes returned by many mizer functions."><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,6 +46,7 @@ array classes returned by many mizer functions."><meta property="og:image" conte
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -117,7 +118,7 @@ compact table in a human-readable form.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="print.html">print()</a></code>, <code><a href="as.data.frame.html">as.data.frame()</a></code>, <code><a href="MizerParams.html">MizerParams()</a></code>, <code><a href="MizerSim.html">MizerSim()</a></code>,
+    <div class="dont-index"><p><code><a href="print.html">print()</a></code>, <code><a href="as.data.frame.html">as.data.frame()</a></code>, <code><a href="str.html">str()</a></code>, <code><a href="MizerParams.html">MizerParams()</a></code>, <code><a href="MizerSim.html">MizerSim()</a></code>,
 <code><a href="ArraySpeciesBySize.html">ArraySpeciesBySize()</a></code>, <code><a href="ArrayTimeBySpecies.html">ArrayTimeBySpecies()</a></code>,
 <code><a href="ArrayTimeBySpeciesBySize.html">ArrayTimeBySpeciesBySize()</a></code></p></div>
     </div>
@@ -127,9 +128,9 @@ compact table in a human-readable form.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu">summary</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> An object of class "MizerParams" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> mizer version: 2.5.4.9126</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> mizer version: 3.0.0.9003</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Created: 2021-09-03 20:29:38</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Modified: 2026-05-09 08:16:12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Modified: 2026-06-24 13:50:03</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Consumer size spectrum:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	minimum size:	0.001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	maximum size:	39851.3</span>
@@ -164,9 +165,9 @@ compact table in a human-readable form.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> An object of class "MizerSim" </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameters:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> An object of class "MizerParams" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> mizer version: 2.5.4.9126</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> mizer version: 3.0.0.9003</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Created: 2021-09-03 20:30:02</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Modified: 2026-05-09 08:15:13</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Modified: 2026-06-24 13:50:04</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Consumer size spectrum:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	minimum size:	0.001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	maximum size:	39851.3</span>
@@ -193,21 +194,23 @@ compact table in a human-readable form.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fishing gear details:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Gear          Effort  Target species </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  ----------------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sprat          0.00   Sprat </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sandeel        0.00   Sandeel </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> N.pout         0.00   N.pout </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Herring        1.81   Herring </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Dab            0.76   Dab </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Whiting        0.63   Whiting </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sole           0.91   Sole </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Gurnard        0.00   Gurnard </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Plaice         0.76   Plaice </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Haddock        0.56   Haddock </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cod            0.68   Cod </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Saithe         0.53   Saithe </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sprat          0.51   Sprat </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sandeel        0.56   Sandeel </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> N.pout         0.51   N.pout </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Herring        1.29   Herring </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dab            0.93   Dab </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Whiting        0.73   Whiting </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sole           1.14   Sole </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gurnard        0.28   Gurnard </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Plaice         0.93   Plaice </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Haddock        0.68   Haddock </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cod            0.94   Cod </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Saithe         0.74   Saithe </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 	Note: effort varied over time for Sprat (0.00 to 1.76), Sandeel (0.00 to 1.48), N.pout (0.00 to 1.76), Herring (0.12 to 3.33), Dab (0.40 to 1.40), Whiting (0.30 to 1.07), Sole (0.76 to 1.58), Gurnard (0.00 to 1.00), Plaice (0.40 to 1.40), Haddock (0.18 to 1.08), Cod (0.68 to 1.10), Saithe (0.33 to 1.36); mean shown above.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Simulation parameters:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	Time period: 1967 to 2010</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	Output stored every 1 years</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 	Time step 	Method: </span>
 <span class="r-in"><span><span class="fu">summary</span><span class="op">(</span><span class="fu"><a href="getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Encounter rate [g/year] </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 12 species x 100 sizes</span>

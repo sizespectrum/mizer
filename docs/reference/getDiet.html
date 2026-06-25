@@ -19,7 +19,7 @@ total consumption rate."><meta property="og:image" content="https://sizespectrum
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,6 +50,7 @@ total consumption rate."><meta property="og:image" content="https://sizespectrum
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -91,36 +92,43 @@ total consumption rate.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getDiet</span><span class="op">(</span></span>
-<span>  <span class="va">params</span>,</span>
-<span>  n <span class="op">=</span> <span class="fu"><a href="initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
-<span>  n_pp <span class="op">=</span> <span class="fu"><a href="initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
-<span>  n_other <span class="op">=</span> <span class="fu"><a href="initialNOther-set.html">initialNOther</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
-<span>  proportion <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getDiet</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-params">params<a class="anchor" aria-label="anchor" href="#arg-params"></a></dt>
-<dd><p>A <a href="MizerParams-class.html">MizerParams</a> object.</p></dd>
+<dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
+<dd><p>A <a href="MizerParams-class.html">MizerParams</a> or <a href="MizerSim-class.html">MizerSim</a> object.</p></dd>
 
 
-<dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Additional arguments that depend on the class of <code>object</code>.</p>
+<p><strong>For a <a href="MizerParams-class.html">MizerParams</a> object:</strong></p><dl><dt><code>n</code></dt>
 <dd><p>A matrix of species abundances (species x size). Defaults to
-the initial abundances stored in <code>params</code>.</p></dd>
+the initial abundances stored in <code>object</code>.</p></dd>
 
-
-<dt id="arg-n-pp">n_pp<a class="anchor" aria-label="anchor" href="#arg-n-pp"></a></dt>
+<dt><code>n_pp</code></dt>
 <dd><p>A vector of the resource abundance by size. Defaults to the
-initial resource abundance stored in <code>params</code>.</p></dd>
+initial resource abundance stored in <code>object</code>.</p></dd>
 
-
-<dt id="arg-n-other">n_other<a class="anchor" aria-label="anchor" href="#arg-n-other"></a></dt>
+<dt><code>n_other</code></dt>
 <dd><p>A named list of the abundances of other dynamical
-components. Defaults to the initial values stored in <code>params</code>.</p></dd>
+components. Defaults to the initial values stored in <code>object</code>.</p></dd>
+
+
+</dl><p><strong>For a <a href="MizerSim-class.html">MizerSim</a> object:</strong></p><dl><dt><code>time_range</code></dt>
+<dd><p>The time range over which to return the diet. Either
+a vector of values, a vector of min and max time, or a single value.
+Defaults to the whole time range of the simulation.</p></dd>
+
+<dt><code>drop</code></dt>
+<dd><p>If <code>TRUE</code> then any dimension of length 1 is removed from
+the returned array.</p></dd>
+
+
+</dl></dd>
 
 
 <dt id="arg-proportion">proportion<a class="anchor" aria-label="anchor" href="#arg-proportion"></a></dt>
@@ -131,10 +139,14 @@ consumption rate in grams per year.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An array (predator species  x predator size x
-(prey species + resource + other components). Dimnames are "prey", "w",
-and "predator".</p>
-    </div>
+
+<ul><li><p><code>MizerParams</code>: An array (predator species x predator size x
+(prey species + resource + other components)). Dimnames are "predator",
+"w", and "prey".</p></li>
+<li><p><code>MizerSim</code>: A four-dimensional array (time x predator species x predator
+size x prey) with the diet at each selected saved time step. If
+<code>drop = TRUE</code> then dimensions of length 1 are removed.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The rates \(D_{ij}(w)\) at which a predator of species \(i\)
@@ -180,6 +192,19 @@ sizes for a predator species the returned rate is zero.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ predator: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ w       : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ prey    : chr [1:14] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># For a MizerSim the diet is returned at each saved time step</span></span></span>
+<span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="project.html">project</a></span><span class="op">(</span><span class="va">NS_params</span>, t_max <span class="op">=</span> <span class="fl">20</span>, effort <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Diet at the saved time steps over years 15 - 20</span></span></span>
+<span class="r-in"><span><span class="va">diet</span> <span class="op">&lt;-</span> <span class="fu">getDiet</span><span class="op">(</span><span class="va">sim</span>, time_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="str.html">str</a></span><span class="op">(</span><span class="va">diet</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  num [1:6, 1:12, 1:100, 1:14] 8.42e-18 1.37e-17 8.76e-18 7.98e-18 7.49e-18 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "dimnames")=List of 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ time    : chr [1:6] "15" "16" "17" "18" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ predator: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ w       : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ prey    : chr [1:14] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

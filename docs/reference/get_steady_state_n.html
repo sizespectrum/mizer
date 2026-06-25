@@ -17,7 +17,7 @@ tri-diagonal system and solves it."><meta property="og:image" content="https://s
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,7 @@ tri-diagonal system and solves it."><meta property="og:image" content="https://s
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -88,7 +89,16 @@ tri-diagonal system and solves it.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_steady_state_n</span><span class="op">(</span><span class="va">params</span>, <span class="va">g</span>, <span class="va">mu</span>, <span class="va">D</span>, <span class="va">N0</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_steady_state_n</span><span class="op">(</span></span>
+<span>  <span class="va">params</span>,</span>
+<span>  <span class="va">g</span>,</span>
+<span>  <span class="va">mu</span>,</span>
+<span>  <span class="va">D</span>,</span>
+<span>  <span class="va">N0</span>,</span>
+<span>  max_iterations <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  tol <span class="op">=</span> <span class="fl">1e-10</span>,</span>
+<span>  relax <span class="op">=</span> <span class="fl">0.3</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -114,10 +124,36 @@ tri-diagonal system and solves it.</p>
 <dt id="arg-n-">N0<a class="anchor" aria-label="anchor" href="#arg-n-"></a></dt>
 <dd><p>A vector with the abundance at the smallest size for each species</p></dd>
 
+
+<dt id="arg-max-iterations">max_iterations<a class="anchor" aria-label="anchor" href="#arg-max-iterations"></a></dt>
+<dd><p>Maximum number of Picard iterations used when a flux
+limiter is active.</p></dd>
+
+
+<dt id="arg-tol">tol<a class="anchor" aria-label="anchor" href="#arg-tol"></a></dt>
+<dd><p>Relative convergence tolerance for the Picard iteration.</p></dd>
+
+
+<dt id="arg-relax">relax<a class="anchor" aria-label="anchor" href="#arg-relax"></a></dt>
+<dd><p>Under-relaxation factor in (0, 1] for the Picard iteration when a
+flux limiter is active.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A matrix with the steady state abundance</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The spatial discretisation of the advective flux is read from the
+<code>flux</code> entry of the <code>second_order_w</code> slot of <code>params</code>. With a second-order
+flux scheme active the steady state must match the one that <code><a href="project.html">project()</a></code> converges
+to. Because the limiter depends on the solution, the steady state is then
+found by an under-relaxed Picard iteration: the limiter is frozen at the
+current iterate, the resulting tridiagonal system is solved, and the iterate
+is updated towards that solution, repeating until it converges. (At <code>dt = 1</code>
+the limited operator is not diagonally dominant, so the plain fixed-point map
+only stalls; under-relaxation makes it converge.)</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

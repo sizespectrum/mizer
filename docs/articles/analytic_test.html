@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,6 +65,7 @@
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -181,8 +182,8 @@ The negative root is <span class="math inline">\(\frac{(2A-K) -
 \text{larger}}{2K} &lt; 0\)</span>. So we need the negative root:</p>
 <p><span class="math display">\[
 \begin{split}
-\lambda &amp;= p + \frac{(2A - K) - \sqrt{(2A - K)^2 + 8KB}}{2K}\\
-&amp;=p - \frac{4B}{(2A - K) + \sqrt{(2A - K)^2 + 8KB}}.
+\lambda &amp;= p - \frac{(2A - K) - \sqrt{(2A - K)^2 + 8KB}}{2K}\\
+&amp;=p + \frac{4B}{(2A - K) + \sqrt{(2A - K)^2 + 8KB}}.
 \end{split}
 \]</span> The second expression above is better for numerical evaluation
 because it avoids the subtraction of two similarly sized numbers.</p>
@@ -749,6 +750,148 @@ instead stays close to the slope-2 trend and remains an order of
 magnitude more accurate there. This is the large-step robustness
 discussed in the <a href="numerical_details.html">Numerical details</a>
 vignette.</p>
+</div>
+<div class="section level2">
+<h2 id="order-of-convergence-in-size">Order of convergence in size<a class="anchor" aria-label="anchor" href="#order-of-convergence-in-size"></a>
+</h2>
+<p>The previous section isolated the error in the time step. Here we
+isolate the error in the <strong>size</strong> step and verify that
+<code>second_order_w &lt;- TRUE</code> turns the transport step from
+first to second order in the grid spacing. With the default
+(<code>FALSE</code>) mizer uses the first-order upwind advective flux,
+whose numerical diffusion scales like <span class="math inline">\(g(w)\,w\log\beta\)</span>. Setting
+<code>second_order_w &lt;- TRUE</code> selects the second-order
+finite-volume scheme (the <code>flux_limiter</code> flag) <em>and</em>
+the bin-averaged sinks (the <code>bin_average</code> flag); both are
+needed, because the second-order fluxes would otherwise be held back by
+a point-sampled mortality (see the <a href="numerical_details.html">Numerical details</a> vignette).</p>
+<p>One thing changes in how we measure the error. In the second-order
+scheme the finite-volume cells are the bins, so <span class="math inline">\(N_j\)</span> is the <strong>cell average</strong>
+over <span class="math inline">\([w_j, w_{j+1}]\)</span>, which equals
+the analytic value at the cell centre <span class="math inline">\(w_j^c=\sqrt{w_j w_{j+1}}\)</span> to second order
+— not the value at the node <span class="math inline">\(w_j\)</span>. We
+therefore set the initial condition and compare against the analytic
+solution sampled at the cell centres; for the first-order scheme, whose
+<span class="math inline">\(N_j\)</span> is a node value, we use the
+nodes. (Using node values for the second-order field would re-introduce
+an <span class="math inline">\(O(\Delta w)\)</span> node-versus-centre
+offset and mask the order.) We supply the power-law mortality through
+the <code>z_ext</code> species parameter so that it is bin-averaged when
+<code>bin_average</code> is on.</p>
+<p>We refine the grid by increasing <code>no_w</code> and, as in the
+time-dependent test above, project the analytic pulse from <span class="math inline">\(t_{start}\)</span> to <span class="math inline">\(t_{end}\)</span> and measure the relative <span class="math inline">\(L^2\)</span> error against
+<code>N_analytic</code>, restricted to the bulk of the pulse. The time
+step is kept small and fixed with the second-order <code>tr_bdf2</code>
+method so that the temporal error is negligible and the slope reflects
+the spatial order alone.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">build_sp</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">no_w</span>, <span class="va">second_order</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">sp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Test"</span>, w_max <span class="op">=</span> <span class="fl">1000</span>, w_mat <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>                     n <span class="op">=</span> <span class="va">p</span>, z0 <span class="op">=</span> <span class="fl">0</span>, z_ext <span class="op">=</span> <span class="va">B</span>, d <span class="op">=</span> <span class="va">p</span> <span class="op">-</span> <span class="fl">1</span>, D_ext <span class="op">=</span> <span class="va">K</span><span class="op">)</span></span>
+<span>    <span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">sp</span>, no_w <span class="op">=</span> <span class="va">no_w</span>, min_w <span class="op">=</span> <span class="fl">1e-3</span>, info_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="../reference/second_order_w.html">second_order_w</a></span><span class="op">(</span><span class="va">pr</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">second_order</span></span>
+<span>    <span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">pr</span>, <span class="st">"EGrowth"</span>, <span class="st">"start_growth"</span><span class="op">)</span></span>
+<span>    <span class="va">pr</span><span class="op">@</span><span class="va">interaction</span><span class="op">[</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span>           <span class="co"># no predation: total mortality is B w^(p-1)</span></span>
+<span>    <span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setExtMort.html">setExtMort</a></span><span class="op">(</span><span class="va">pr</span><span class="op">)</span></span>
+<span>    <span class="va">pr</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">constant_reproduction</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span>    <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">pr</span>, <span class="st">"RDD"</span>, <span class="st">"constantRDD"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Cell average (= cell-centre value) for the second-order scheme, node value for</span></span>
+<span><span class="co"># the first-order scheme.</span></span>
+<span><span class="va">ref_w</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">pr</span>, <span class="va">second_order</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">wv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">pr</span><span class="op">)</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">second_order</span><span class="op">)</span> <span class="va">wv</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">wv</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">/</span> <span class="va">wv</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="kw">else</span> <span class="va">wv</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">pulse_err</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">no_w</span>, <span class="va">second_order</span>, <span class="va">dt</span> <span class="op">=</span> <span class="fl">0.0025</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu">build_sp</span><span class="op">(</span><span class="va">no_w</span>, <span class="va">second_order</span><span class="op">)</span></span>
+<span>    <span class="va">rw</span> <span class="op">&lt;-</span> <span class="fu">ref_w</span><span class="op">(</span><span class="va">pr</span>, <span class="va">second_order</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">pr</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu">N_analytic</span><span class="op">(</span><span class="va">rw</span>, <span class="va">t_start</span>, <span class="va">w0</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>    <span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">pr</span>, t_max <span class="op">=</span> <span class="va">t_end</span> <span class="op">-</span> <span class="va">t_start</span>, dt <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>                   t_save <span class="op">=</span> <span class="va">t_end</span> <span class="op">-</span> <span class="va">t_start</span>, method <span class="op">=</span> <span class="st">"tr_bdf2"</span>,</span>
+<span>                   progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>    <span class="va">num</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/finalN.html">finalN</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span>
+<span>    <span class="va">ana</span> <span class="op">&lt;-</span> <span class="fu">N_analytic</span><span class="op">(</span><span class="va">rw</span>, <span class="va">t_end</span>, <span class="va">w0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span>    <span class="va">mask</span> <span class="op">&lt;-</span> <span class="va">ana</span> <span class="op">&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">ana</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1e-3</span>        <span class="co"># bulk of the pulse, away from boundaries</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">num</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span> <span class="op">-</span> <span class="va">ana</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pr</span><span class="op">@</span><span class="va">dw</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span></span>
+<span>         <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">ana</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pr</span><span class="op">@</span><span class="va">dw</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">no_ws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">400</span>, <span class="fl">800</span><span class="op">)</span></span>
+<span><span class="va">dx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1000</span> <span class="op">/</span> <span class="fl">1e-3</span><span class="op">)</span> <span class="op">/</span> <span class="va">no_ws</span>            <span class="co"># log-size grid spacing</span></span>
+<span><span class="va">err_first</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">no_ws</span>, <span class="va">pulse_err</span>, second_order <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">err_second</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">no_ws</span>, <span class="va">pulse_err</span>, second_order <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sp_order</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">dx</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>first_order <span class="op">=</span> <span class="fu">sp_order</span><span class="op">(</span><span class="va">err_first</span><span class="op">)</span>,</span>
+<span>        second_order <span class="op">=</span> <span class="fu">sp_order</span><span class="op">(</span><span class="va">err_second</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  first_order second_order </span></span>
+<span><span class="co">#&gt;         0.74         2.03</span></span></code></pre></div>
+<p>The fitted slopes confirm that the default scheme is first order in
+the size step while <code>second_order_w &lt;- TRUE</code> is, indeed,
+second order.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">dx</span>, <span class="va">err_first</span>, log <span class="op">=</span> <span class="st">"xy"</span>, type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">16</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>     col <span class="op">=</span> <span class="st">"#E69F00"</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">Delta</span> <span class="op">*</span> <span class="va">x</span> <span class="op">==</span> <span class="va">log</span> <span class="op">*</span> <span class="va">beta</span><span class="op">)</span>,</span>
+<span>     ylab <span class="op">=</span> <span class="st">"relative L2 error"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">err_first</span>, <span class="va">err_second</span><span class="op">)</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"Spatial order of convergence"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">dx</span>, <span class="va">err_second</span>, type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">17</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"#0072B2"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># slope-1 and slope-2 guide lines, anchored at the finest grid</span></span>
+<span><span class="va">i0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dx</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">dx</span>, <span class="va">err_first</span><span class="op">[</span><span class="va">i0</span><span class="op">]</span>  <span class="op">*</span> <span class="op">(</span><span class="va">dx</span> <span class="op">/</span> <span class="va">dx</span><span class="op">[</span><span class="va">i0</span><span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">3</span>, col <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">dx</span>, <span class="va">err_second</span><span class="op">[</span><span class="va">i0</span><span class="op">]</span> <span class="op">*</span> <span class="op">(</span><span class="va">dx</span> <span class="op">/</span> <span class="va">dx</span><span class="op">[</span><span class="va">i0</span><span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"bottomright"</span>, bty <span class="op">=</span> <span class="st">"n"</span>,</span>
+<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"first order (%.2f)"</span>, <span class="fu">sp_order</span><span class="op">(</span><span class="va">err_first</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                  <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"second order (%.2f)"</span>, <span class="fu">sp_order</span><span class="op">(</span><span class="va">err_second</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                  <span class="st">"slope 1"</span>, <span class="st">"slope 2"</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#E69F00"</span>, <span class="st">"#0072B2"</span>, <span class="st">"grey50"</span>, <span class="st">"grey50"</span><span class="op">)</span>,</span>
+<span>       pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">17</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="analytic_test_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" alt="" width="700"></p>
+<p>The first-order curve runs parallel to the slope-1 guide line —
+halving the grid spacing only halves the error — while the second-order
+curve follows the slope-2 line, four times more accurate for each
+halving of <span class="math inline">\(\Delta x\)</span>, and is already
+an order of magnitude more accurate at these resolutions. (The
+travelling pulse has a peak, where the van Leer limiter falls back to
+first order; over the resolutions shown that single-cell contribution
+stays below the smooth <span class="math inline">\(O(\Delta
+x^2)\)</span> error of the bulk. The <code>"centred"</code>
+reconstruction, which keeps second order even at the peak, gives an
+almost identical slope here.)</p>
+<p>For the <strong>steady-state</strong> power law we set each model up
+at the steady state of its own discretisation with
+[steadySingleSpecies()] and compare to the exact power law sampled at
+the same reference sizes.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">steady_err</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">no_w</span>, <span class="va">second_order</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu">build_sp</span><span class="op">(</span><span class="va">no_w</span>, <span class="va">second_order</span><span class="op">)</span></span>
+<span>    <span class="va">rw</span> <span class="op">&lt;-</span> <span class="fu">ref_w</span><span class="op">(</span><span class="va">pr</span>, <span class="va">second_order</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">pr</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">rw</span><span class="op">^</span><span class="op">(</span><span class="op">-</span><span class="va">lambda</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>    <span class="va">pr</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">constant_reproduction</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getRequiredRDD.html">getRequiredRDD</a></span><span class="op">(</span><span class="va">pr</span><span class="op">)</span></span>
+<span>    <span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">pr</span>, <span class="st">"RDD"</span>, <span class="st">"constantRDD"</span><span class="op">)</span></span>
+<span>    <span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steadySingleSpecies.html">steadySingleSpecies</a></span><span class="op">(</span><span class="va">pr</span>, keep <span class="op">=</span> <span class="st">"egg"</span><span class="op">)</span></span>
+<span>    <span class="va">num</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">pr</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span>
+<span>    <span class="va">ana</span> <span class="op">&lt;-</span> <span class="va">rw</span><span class="op">^</span><span class="op">(</span><span class="op">-</span><span class="va">lambda</span><span class="op">)</span></span>
+<span>    <span class="va">no</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">num</span><span class="op">)</span></span>
+<span>    <span class="va">mask</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">no</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0.05</span> <span class="op">*</span> <span class="va">no</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">no</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.85</span> <span class="op">*</span> <span class="va">no</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">num</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span> <span class="op">-</span> <span class="va">ana</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pr</span><span class="op">@</span><span class="va">dw</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span></span>
+<span>         <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">ana</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pr</span><span class="op">@</span><span class="va">dw</span><span class="op">[</span><span class="va">mask</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">err_ss_first</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">no_ws</span>, <span class="va">steady_err</span>, second_order <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">err_ss_second</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">no_ws</span>, <span class="va">steady_err</span>, second_order <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>first_order <span class="op">=</span> <span class="fu">sp_order</span><span class="op">(</span><span class="va">err_ss_first</span><span class="op">)</span>,</span>
+<span>        second_order <span class="op">=</span> <span class="fu">sp_order</span><span class="op">(</span><span class="va">err_ss_second</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  first_order second_order </span></span>
+<span><span class="co">#&gt;         0.95         1.35</span></span></code></pre></div>
+<p>Again the first-order steady state converges at first order and the
+second-order scheme faster; the second-order slope approaches 2 as the
+grid is refined, the small shortfall coming from the first-order upwind
+treatment that both schemes keep at the non-smooth recruitment boundary,
+which the steady state feels through the reproduction influx there.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

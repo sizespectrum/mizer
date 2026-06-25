@@ -5,10 +5,6 @@ output:
     toc: yes
     fig_width: 5
     fig_height: 5
-vignette: >
-  %\VignetteIndexEntry{The Numerical Scheme used in Mizer}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}
@@ -166,7 +162,7 @@ Comparing this to the general discretised equation translates to modifying the f
 **At the largest size ($j=j_{max}$):**
 We typically assume that densities drop to zero beyond the maximum size, $N_{j_{max}+1} = 0$.
 The flux leaving the grid is:
-$$ J_{j_{max}+1}^{t+1} = g_{j_{max}} N_{j_{max}}^{t+1} - \frac{1}{2} \frac{0 - d_{j_{max}} N_{j_{max}}^{t+1}}{\Delta w_{j_{max}}^c} $$ {#eq-upper-bc-flux}
+$$ J_{j_{max}+1}^{t+1} = g_{j_{max}+1} N_{j_{max}}^{t+1} - \frac{1}{2} \frac{0 - d_{j_{max}} N_{j_{max}}^{t+1}}{\Delta w_{j_{max}}^c} $$ {#eq-upper-bc-flux}
 This means the term $C_{j_{max}}$ multiplying $N_{j_{max}+1}^{t+1}$ is not needed, so $C_{j_{max}} = 0$. The coefficients $A_{j_{max}}$ and $B_{j_{max}}$ use the standard formulas.
 
 ## Numerical Diffusion

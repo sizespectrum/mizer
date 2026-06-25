@@ -1015,7 +1015,7 @@ summary.MizerParams <- function(object, ...) {
     cat("\tno. size bins:\t", length(params@w_full[params@initial_n_pp > 0]),
         "\t(", length(params@w_full), " size bins in total)\n", sep = "")
     cat("Species details:\n")
-    sel_params <- intersect(c("species", "w_max", "w_mat", "w_min", "f0", "fc",
+    sel_params <- intersect(c("species", "w_inf", "w_mat", "w_min", "f0", "fc",
                               "age_mat", "beta", "sigma"),
                             names(params@species_params))
     sp <- params@species_params[, sel_params]

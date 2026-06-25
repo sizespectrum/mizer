@@ -49,14 +49,16 @@ default options that you can however change when needed.
 Mizer has been supporting research in marine ecology and fisheries
 science since 2014 ([see
 publications](https://sizespectrum.org/mizer/articles/publications.html)).
-Mizer is still under active development. Version 2.0 has increased the
-user-friendliness and the flexibility of the framework. Contributions
-from the user community are very welcome. There is a sister package
-called [mizerExperimental](https://sizespectrum.org/mizerExperimental/)
-where user contributions can be checked out and receive feedback from
-the community. A growing number of other extension packages add new
-biology such as temperature dependence, starvation mortality, seasonal
-dynamics, and more — see the [list of extension
+Mizer is still under active development. Version 2 has increased the
+user-friendliness and the flexibility of the framework. Version 3 has
+introduced diffusion, arising from stochastic growth, and improved the
+numerics. Contributions from the user community are very welcome. There
+is a sister package called
+[mizerExperimental](https://sizespectrum.org/mizerExperimental/) where
+user contributions can be checked out and receive feedback from the
+community. A growing number of other extension packages add new biology
+such as temperature dependence, starvation mortality, seasonal dynamics,
+and more — see the [list of extension
 packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html).
 Example mizer models can be contributed to
 [mizerExamples](https://sizespectrum.org/mizerExamples/). Follow us on
@@ -67,8 +69,8 @@ would love to know.
 
 Recent work on mizer was funded by the European Commission Horizon 2020
 Research and Innovation Programme under Grant Agreement No 634495 for
-the project MINOUW and the Australian
-Research Council Discovery Project [Rewiring Marine Food
+the project MINOUW and the Australian Research Council Discovery Project
+[Rewiring Marine Food
 Webs](https://marinesocioecology.org/projects/rewiring-marine-food-webs-predicting-consequences-of-species-distribution-shifts-on-marine-communities/).
 
 ## Installation
