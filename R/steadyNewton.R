@@ -30,16 +30,19 @@
 #'
 #' The consumer densities are solved for in log space, which both keeps them
 #' positive and conditions the otherwise badly-scaled system. The unknowns are
-#' the densities in the size classes that carry non-zero density in the steady
-#' state, namely from the egg size up to the size grid's maximum size `w_max`;
-#' densities above `w_max` are held at zero by the upper boundary condition. The
-#' nonlinear system is
-#' solved with a globalised Newton iteration from the `nleqslv` package, starting
-#' from the current `initial_n`. Newton's method converges from any starting
-#' point in the *root's* basin of attraction (which is unrelated to the dynamic
-#' stability of the steady state), so a reasonable initial guess should be
-#' supplied in `initialN(params)` — for example the spectra from a nearby stable
-#' parameterisation, or the (diverging) output of [steady()].
+#' the size classes that carry non-zero density, taken from the current
+#' `initial_n` rather than from `w_max`: the support runs from the egg size up to
+#' the highest class with non-zero density in the supplied spectra (capped at the
+#' grid). This matters because users routinely set `w_max` much larger than the
+#' largest fish, and the structurally-zero classes below such a `w_max` must not
+#' enter the log-space system. The nonlinear system is solved with a globalised
+#' Newton iteration from the `nleqslv` package, starting from the current
+#' `initial_n`. Newton's method converges from any starting point in the *root's*
+#' basin of attraction (which is unrelated to the dynamic stability of the steady
+#' state), so a reasonable initial guess should be supplied in `initialN(params)`
+#' — for example the spectra from a nearby stable parameterisation, or the
+#' (diverging) output of [steady()]. The guess also defines the support, so it
+#' should be non-zero across the size range that should carry density.
 #'
 #' The solver respects the active transport scheme: if the experimental
 #' second-order scheme is enabled (see [second_order_w()]) it solves the
@@ -129,8 +132,8 @@ steadyNewton.MizerParams <- function(params,
     # second-order schemes can leave isolated zeros inside the support (a
     # negativity-floor artefact), which would make the 1/N-scaled residual
     # overflow. Fill those by log-interpolation from the nonzero neighbours.
-    N0 <- positive_initial_guess(params@initial_n, active$mask,
-                                 params@w_min_idx, support_top_idx(params))
+    N0 <- positive_initial_guess(params@initial_n, params@w_min_idx,
+                                 active$w_top)
     x0 <- log(N0[active$mask])
     sol <- nleqslv::nleqslv(x0, residual_fn, method = method,
                             global = global,
@@ -169,11 +172,25 @@ steadyNewton.MizerParams <- function(params,
 #'
 #' Builds the logical mask of the (species x size) density matrix that the
 #' direct solver treats as unknowns. For each species the unknowns run from the
-#' egg size `w_min_idx` up to the support top returned by [support_top_idx()].
-#' This is exactly the set of classes that carry non-zero density in the steady
-#' state of the active transport scheme, so the solution is an exact fixed point
-#' of [project()]. Including the structurally-zero classes above the support
-#' would put `log(0)` unknowns into the system and make the Jacobian singular.
+#' egg size `w_min_idx` up to the highest class that actually carries density in
+#' the current `initial_n`, capped at the grid truncation [support_top_idx()].
+#'
+#' The support is read off the abundances rather than from `w_max` on purpose.
+#' Users routinely set `w_max` far larger than necessary (so the grid need not
+#' change when a parameter change produces larger fish), which would otherwise
+#' put a whole band of structurally-zero classes — `log(0)` unknowns that make
+#' the Jacobian singular — into the system. The growth rate alone cannot locate
+#' the top either: the main reason fish grow beyond `w_repro_max` is diffusion,
+#' and the diffusion rate only grows with `w`, never vanishing. The abundance is
+#' therefore the only reliable indicator of where the (possibly diffusion-fed)
+#' tail has died away. The distinction is clean: without diffusion the classes
+#' above where growth stops receive no inflow and are *exactly* zero, while with
+#' diffusion the tail is genuinely non-zero up to where it decays away (or to the
+#' grid truncation).
+#'
+#' Isolated interior zeros (negativity-floor artefacts of the second-order
+#' schemes) below the top are kept in the mask and repaired by
+#' [positive_initial_guess()]; only a trailing run of zeros is dropped.
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @return A list with the logical matrix `mask` and a function `unpack(x)` that
@@ -184,14 +201,19 @@ steady_active_set <- function(params) {
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
 
-    # The support is exactly the range that the upper boundary condition keeps
-    # non-zero in the dynamics (see support_top_idx() and the upper-boundary
-    # handling in get_transport_coefs()), so the solution is an exact fixed point
-    # of project().
-    w_top <- support_top_idx(params)
+    # The grid truncation caps the support: the dynamics hold the density at zero
+    # above this, so it can never be an unknown (see support_top_idx()).
+    grid_top <- support_top_idx(params)
+    n <- params@initial_n
+    w_top <- integer(no_sp)
     mask <- matrix(FALSE, nrow = no_sp, ncol = no_w)
     for (i in seq_len(no_sp)) {
-        mask[i, params@w_min_idx[i]:w_top[i]] <- TRUE
+        lo <- params@w_min_idx[i]
+        pos <- which(n[i, lo:grid_top[i]] > 0)
+        # Highest class carrying density (fall back to the egg class if the
+        # species is empty), capped at the grid truncation.
+        w_top[i] <- if (length(pos)) lo + max(pos) - 1L else lo
+        mask[i, lo:w_top[i]] <- TRUE
     }
 
     dn <- dimnames(params@initial_n)
@@ -200,7 +222,7 @@ steady_active_set <- function(params) {
         N[mask] <- exp(x)
         N
     }
-    list(mask = mask, unpack = unpack)
+    list(mask = mask, w_top = w_top, unpack = unpack)
 }
 
 #' Strictly positive starting guess for the log-space solve
@@ -217,12 +239,11 @@ steady_active_set <- function(params) {
 #' side are extrapolated flat.
 #'
 #' @param N The current density matrix (species x size).
-#' @param mask The active-set logical matrix from [steady_active_set()].
 #' @param w_min_idx Per-species egg-size index.
-#' @param w_top Per-species support top from [support_top_idx()].
-#' @return A density matrix that is strictly positive on `mask`.
+#' @param w_top Per-species support top from [steady_active_set()].
+#' @return A density matrix that is strictly positive on the active range.
 #' @noRd
-positive_initial_guess <- function(N, mask, w_min_idx, w_top) {
+positive_initial_guess <- function(N, w_min_idx, w_top) {
     for (i in seq_len(nrow(N))) {
         rng <- w_min_idx[i]:w_top[i]
         v <- N[i, rng]

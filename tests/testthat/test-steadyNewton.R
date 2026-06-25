@@ -103,6 +103,37 @@ test_that("support_top_idx drops the pile-up bin for the second-order scheme", {
     expect_equal(mizer:::support_top_idx(p2), pmin(w_max_idx, no_w))
 })
 
+test_that("steady_active_set follows the abundances, not w_max", {
+    # Users often set w_max much larger than the largest fish, leaving a band of
+    # structurally-zero classes below the grid truncation. The active set must
+    # follow the actual abundances so those classes are not made into log(0)
+    # unknowns.
+    p <- NS_params_small
+    no_w <- length(p@w)
+    grid_top <- mizer:::support_top_idx(p)
+
+    # Default behaviour: a fully populated support reaches the grid truncation.
+    active0 <- mizer:::steady_active_set(p)
+    expected0 <- vapply(seq_len(nrow(p@species_params)), function(i) {
+        max(which(p@initial_n[i, seq_len(grid_top[i])] > 0))
+    }, integer(1))
+    expect_equal(active0$w_top, expected0)
+
+    # Mimic a loose w_max: zero the density above a cutoff well below the grid
+    # truncation. The active-set top must drop to that cutoff, and no zero
+    # classes may remain in the mask.
+    cutoff <- unname(pmax(p@w_min_idx + 2L, grid_top - 3L))
+    for (i in seq_len(nrow(p@species_params))) {
+        if (cutoff[i] < no_w) {
+            p@initial_n[i, (cutoff[i] + 1L):no_w] <- 0
+        }
+    }
+    active <- mizer:::steady_active_set(p)
+    expect_equal(active$w_top, cutoff)
+    expect_true(all(active$w_top < grid_top))
+    expect_equal(sum(p@initial_n[active$mask] == 0), 0)
+})
+
 test_that("support_top_idx is the first class above w_max", {
     p <- NS_params_small
     g <- getEGrowth(p)
