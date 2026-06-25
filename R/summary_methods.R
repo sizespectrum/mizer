@@ -110,15 +110,15 @@ NULL
 #' diet <- getDiet(sim, time_range = c(15, 20))
 #' str(diet)
 #' }
-getDiet <- function(object, ...) {
+getDiet <- function(object, proportion = TRUE, ...) {
     UseMethod("getDiet")
 }
 #' @export
 getDiet.MizerParams <- function(object,
+                    proportion = TRUE,
                     n = initialN(object),
                     n_pp = initialNResource(object),
-                    n_other = initialNOther(object),
-                    proportion = TRUE, ...) {
+                    n_other = initialNOther(object), ...) {
     # The code is based on that for getEncounter()
     params <- validParams(object)
     species <- params@species_params$species

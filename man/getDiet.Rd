@@ -4,10 +4,14 @@
 \alias{getDiet}
 \title{Get diet of predator at size, resolved by prey species}
 \usage{
-getDiet(object, ...)
+getDiet(object, proportion = TRUE, ...)
 }
 \arguments{
 \item{object}{A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.}
+
+\item{proportion}{If TRUE (default) the function returns the diet as a
+proportion of the total consumption rate. If FALSE it returns the
+consumption rate in grams per year.}
 
 \item{...}{Additional arguments that depend on the class of \code{object}.
 
@@ -29,10 +33,6 @@ Defaults to the whole time range of the simulation.}
 \item{\code{drop}}{If \code{TRUE} then any dimension of length 1 is removed from
 the returned array.}
 }}
-
-\item{proportion}{If TRUE (default) the function returns the diet as a
-proportion of the total consumption rate. If FALSE it returns the
-consumption rate in grams per year.}
 }
 \value{
 \itemize{
