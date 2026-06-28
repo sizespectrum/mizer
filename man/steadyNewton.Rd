@@ -87,19 +87,20 @@ parameters are not adjusted.
 
 The consumer densities are solved for in log space, which both keeps them
 positive and conditions the otherwise badly-scaled system. The unknowns are
-the size classes that carry non-zero density, taken from the current
-\code{initial_n} rather than from \code{w_max}: the support runs from the egg size up to
-the highest class with non-zero density in the supplied spectra (capped at the
-grid). This matters because users routinely set \code{w_max} much larger than the
-largest fish, and the structurally-zero classes below such a \code{w_max} must not
-enter the log-space system. The nonlinear system is solved with a globalised
-Newton iteration from the \code{nleqslv} package, starting from the current
-\code{initial_n}. Newton's method converges from any starting point in the \emph{root's}
-basin of attraction (which is unrelated to the dynamic stability of the steady
-state), so a reasonable initial guess should be supplied in \code{initialN(params)}
-— for example the spectra from a nearby stable parameterisation, or the
-(diverging) output of \code{\link[=steady]{steady()}}. The guess also defines the support, so it
-should be non-zero across the size range that should carry density.
+the size classes in the full potential grid support (running from the egg
+size up to the grid truncation limit \code{support_top_idx()}), regardless of
+whether they carry non-zero density in the supplied initial spectra. A
+smoothed log-abundance penalty floor is applied to all size classes, which
+automatically handles zero-density and tail classes smoothly and prevents
+singular Jacobians. After convergence, size classes that remain at or near
+the floor are set to zero. This allows the solver to automatically discover
+the support of the steady state. The nonlinear system is solved with a
+globalised Newton iteration from the \code{nleqslv} package, starting from the
+current \code{initial_n}. Newton's method converges from any starting point in the
+\emph{root's} basin of attraction (which is unrelated to the dynamic stability of
+the steady state), so a reasonable initial guess should still be supplied in
+\code{initialN(params)} — for example the spectra from a nearby stable
+parameterisation, or the (diverging) output of \code{\link[=steady]{steady()}}.
 
 The solver respects the active transport scheme: if the experimental
 second-order scheme is enabled (see \code{\link[=second_order_w]{second_order_w()}}) it solves the

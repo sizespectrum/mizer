@@ -134,25 +134,18 @@ test_that("support_top_idx drops the pile-up bin for the second-order scheme", {
     expect_equal(mizer:::support_top_idx(p2), pmin(w_max_idx, no_w))
 })
 
-test_that("steady_active_set follows the abundances, not w_max", {
-    # Users often set w_max much larger than the largest fish, leaving a band of
-    # structurally-zero classes below the grid truncation. The active set must
-    # follow the actual abundances so those classes are not made into log(0)
-    # unknowns.
+test_that("steady_active_set always reaches the grid truncation limit", {
+    # Under the new dynamic support design, the active set always reaches
+    # the grid truncation limit (support_top_idx) to allow the solver to
+    # automatically discover the non-zero region.
     p <- NS_params_small
     no_w <- length(p@w)
     grid_top <- mizer:::support_top_idx(p)
 
-    # Default behaviour: a fully populated support reaches the grid truncation.
     active0 <- mizer:::steady_active_set(p)
-    expected0 <- vapply(seq_len(nrow(p@species_params)), function(i) {
-        max(which(p@initial_n[i, seq_len(grid_top[i])] > 0))
-    }, integer(1))
-    expect_equal(active0$w_top, expected0)
+    expect_equal(active0$w_top, grid_top)
 
-    # Mimic a loose w_max: zero the density above a cutoff well below the grid
-    # truncation. The active-set top must drop to that cutoff, and no zero
-    # classes may remain in the mask.
+    # Even if we zero out the tail of the abundances, the mask still reaches grid_top
     cutoff <- unname(pmax(p@w_min_idx + 2L, grid_top - 3L))
     for (i in seq_len(nrow(p@species_params))) {
         if (cutoff[i] < no_w) {
@@ -160,9 +153,7 @@ test_that("steady_active_set follows the abundances, not w_max", {
         }
     }
     active <- mizer:::steady_active_set(p)
-    expect_equal(active$w_top, cutoff)
-    expect_true(all(active$w_top < grid_top))
-    expect_equal(sum(p@initial_n[active$mask] == 0), 0)
+    expect_equal(active$w_top, grid_top)
 })
 
 test_that("support_top_idx is the first class above w_max", {
@@ -222,5 +213,31 @@ test_that("the upper boundary condition stops diffusion leaking above w_max", {
         if (w_top[i] < no_w) {
             expect_true(all(nf[i, (w_top[i] + 1):no_w] == 0))
         }
+    }
+})
+
+test_that("steadyNewton handles initial guesses that are non-zero at large sizes where steady state is zero", {
+    # Start with the stable model
+    p <- p_steady
+    # Fill the trailing tail (which is zero in p_steady) with positive numbers
+    grid_top <- mizer:::support_top_idx(p)
+    no_w <- length(p@w)
+
+    # We will corrupt the tail of the first species with positive numbers
+    # above its actual support.
+    # In p_steady, species 1 (Sprat) only grows to its w_max (0.33g).
+    # We set non-zero values up to the end of the grid.
+    idx_zeros <- (grid_top[1] + 1):no_w
+    if (length(idx_zeros) > 0) {
+        p@initial_n[1, idx_zeros] <- 1e-3
+    }
+
+    # Run steadyNewton
+    pn <- steadyNewton(p)
+    expect_s4_class(pn, "MizerParams")
+
+    # The tail should be correctly zeroed out in the result
+    if (length(idx_zeros) > 0) {
+        expect_true(all(pn@initial_n[1, idx_zeros] == 0))
     }
 })

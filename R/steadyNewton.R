@@ -33,19 +33,20 @@
 #'
 #' The consumer densities are solved for in log space, which both keeps them
 #' positive and conditions the otherwise badly-scaled system. The unknowns are
-#' the size classes that carry non-zero density, taken from the current
-#' `initial_n` rather than from `w_max`: the support runs from the egg size up to
-#' the highest class with non-zero density in the supplied spectra (capped at the
-#' grid). This matters because users routinely set `w_max` much larger than the
-#' largest fish, and the structurally-zero classes below such a `w_max` must not
-#' enter the log-space system. The nonlinear system is solved with a globalised
-#' Newton iteration from the `nleqslv` package, starting from the current
-#' `initial_n`. Newton's method converges from any starting point in the *root's*
-#' basin of attraction (which is unrelated to the dynamic stability of the steady
-#' state), so a reasonable initial guess should be supplied in `initialN(params)`
-#' — for example the spectra from a nearby stable parameterisation, or the
-#' (diverging) output of [steady()]. The guess also defines the support, so it
-#' should be non-zero across the size range that should carry density.
+#' the size classes in the full potential grid support (running from the egg
+#' size up to the grid truncation limit `support_top_idx()`), regardless of
+#' whether they carry non-zero density in the supplied initial spectra. A
+#' smoothed log-abundance penalty floor is applied to all size classes, which
+#' automatically handles zero-density and tail classes smoothly and prevents
+#' singular Jacobians. After convergence, size classes that remain at or near
+#' the floor are set to zero. This allows the solver to automatically discover
+#' the support of the steady state. The nonlinear system is solved with a
+#' globalised Newton iteration from the `nleqslv` package, starting from the
+#' current `initial_n`. Newton's method converges from any starting point in the
+#' *root's* basin of attraction (which is unrelated to the dynamic stability of
+#' the steady state), so a reasonable initial guess should still be supplied in
+#' `initialN(params)` — for example the spectra from a nearby stable
+#' parameterisation, or the (diverging) output of [steady()].
 #'
 #' The solver respects the active transport scheme: if the experimental
 #' second-order scheme is enabled (see [second_order_w()]) it solves the
@@ -174,6 +175,12 @@ steadyNewton.MizerParams <- function(params,
     N <- active$unpack(sol$x)
     n_pp <- resource_steady_semichemostat(params, N, n_other)
 
+    # Zero out any densities that ended up at or near the penalty floor
+    for (i in seq_len(nrow(N))) {
+        floor_val <- max(N[i, ]) * 1.1 * 1e-15
+        N[i, N[i, ] < floor_val] <- 0
+    }
+
     params@initial_n[] <- N
     params@initial_n_pp[] <- n_pp
 
@@ -253,10 +260,8 @@ steady_active_set <- function(params) {
     mask <- matrix(FALSE, nrow = no_sp, ncol = no_w)
     for (i in seq_len(no_sp)) {
         lo <- params@w_min_idx[i]
-        pos <- which(n[i, lo:grid_top[i]] > 0)
-        # Highest class carrying density (fall back to the egg class if the
-        # species is empty), capped at the grid truncation.
-        w_top[i] <- if (length(pos)) lo + max(pos) - 1L else lo
+        # Always solve up to the grid truncation limit
+        w_top[i] <- grid_top[i]
         mask[i, lo:w_top[i]] <- TRUE
     }
 
@@ -292,10 +297,14 @@ positive_initial_guess <- function(N, w_min_idx, w_top) {
         rng <- w_min_idx[i]:w_top[i]
         v <- N[i, rng]
         pos <- v > 0
-        if (all(pos) || !any(pos)) next
-        idx <- seq_along(v)
-        v[!pos] <- exp(stats::approx(idx[pos], log(v[pos]),
-                                     xout = idx[!pos], rule = 2)$y)
+        if (!any(pos)) next
+        floor_val <- max(v) * 1e-20
+        if (!all(pos)) {
+            idx <- seq_along(v)
+            v[!pos] <- exp(stats::approx(idx[pos], log(v[pos]),
+                                         xout = idx[!pos], rule = 2)$y)
+        }
+        v[is.na(v) | v <= 0] <- floor_val
         N[i, rng] <- v
     }
     N
@@ -367,12 +376,18 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
     rates_fns <- projectRateFunctions(params)
     x0_initial <- params@initial_n
 
-    # Set up floor for relative abundance floor if rdd_const is NULL
+    # A floor is always active to handle zero-abundance tail classes smoothly
+    # and prevent singular Jacobians.
+    x0 <- log(x0_initial[mask])
+    support_floor <- matrix(0, nrow = nrow(x0_initial), ncol = no_w)
+    for (i in seq_len(nrow(x0_initial))) {
+        support_floor[i, ] <- log(max(x0_initial[i, ])) + log(1e-15)
+    }
+    x_floor <- support_floor[mask]
+
     if (is.null(rdd_const) && !is.null(extinction_floor) && extinction_floor > 0) {
-        x0 <- log(x0_initial[mask])
-        x_floor <- x0 + log(extinction_floor)
-    } else {
-        x_floor <- NULL
+        ext_floor <- x0 + log(extinction_floor)
+        x_floor <- pmax(x_floor, ext_floor)
     }
 
     function(x) {
