@@ -221,9 +221,6 @@ newSingleSpeciesParams <-
     params@species_params$z_ext <- mu0
     params@given_species_params$z_ext <- mu0
     params <- setExtMort(params)
-    i_inf <- sum(params@w <= w_max)  # index of maximum size
-    idx <- 1:(i_inf - 1)
-    idxs <- 1:i_inf
     gg <- hbar * w^n * (1 - params@psi[1, ])  # Growth rate
     # Steady state solution of the upwind-difference scheme used in project
     growth_matrix <- matrix(gg, nrow = 1)
@@ -232,7 +229,7 @@ newSingleSpeciesParams <-
     diffusion_matrix[] <- 0
     n_exact <- get_steady_state_n(params, growth_matrix, mort_matrix,
                                   diffusion_matrix, c(1))
-    initial_n[1, idxs] <- n_exact[1, idxs]
+    initial_n[1, ] <- n_exact[1, ]
 
     # The resource was already set up by newMultispeciesParams()
     initial_n_pp <- params@initial_n_pp
