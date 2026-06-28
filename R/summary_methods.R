@@ -110,15 +110,15 @@ NULL
 #' diet <- getDiet(sim, time_range = c(15, 20))
 #' str(diet)
 #' }
-getDiet <- function(object, ...) {
+getDiet <- function(object, proportion = TRUE, ...) {
     UseMethod("getDiet")
 }
 #' @export
 getDiet.MizerParams <- function(object,
+                    proportion = TRUE,
                     n = initialN(object),
                     n_pp = initialNResource(object),
-                    n_other = initialNOther(object),
-                    proportion = TRUE, ...) {
+                    n_other = initialNOther(object), ...) {
     # The code is based on that for getEncounter()
     params <- validParams(object)
     species <- params@species_params$species
@@ -877,8 +877,14 @@ getGrowthCurves.MizerParams <- function(object,
     g <- getEGrowth(params)
     for (j in seq_along(species)) {
         i <- idx[j]
-        g_fn <- stats::approxfun(c(params@w, params@species_params$w_max[[i]]),
-                                 c(g[i, ], 0))
+        w_max <- params@species_params$w_max[[i]]
+        # Build the interpolation points, appending a point at `w_max` where
+        # growth is zero. Drop any grid points at or above `w_max` first to
+        # avoid duplicate x values, which would trigger a warning from
+        # approxfun().
+        keep <- params@w < w_max
+        g_fn <- stats::approxfun(c(params@w[keep], w_max),
+                                 c(g[i, keep], 0))
         myodefun <- function(t, state, parameters) {
             return(list(g_fn(state)))
         }
@@ -1015,7 +1021,7 @@ summary.MizerParams <- function(object, ...) {
     cat("\tno. size bins:\t", length(params@w_full[params@initial_n_pp > 0]),
         "\t(", length(params@w_full), " size bins in total)\n", sep = "")
     cat("Species details:\n")
-    sel_params <- intersect(c("species", "w_max", "w_mat", "w_min", "f0", "fc",
+    sel_params <- intersect(c("species", "w_inf", "w_mat", "w_min", "f0", "fc",
                               "age_mat", "beta", "sigma"),
                             names(params@species_params))
     sp <- params@species_params[, sel_params]

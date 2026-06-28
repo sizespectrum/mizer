@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="Set up parameters for a single species in a power-law background — newSingleSpeciesParams"><meta name="description" content="
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Set up parameters for a single species in a power-law background — newSingleSpeciesParams"><meta name="description" content="
 This functions creates a MizerParams object with a single
 species. This species is embedded in a fixed power-law community spectrum
 $$N_c(w) = \kappa w^{-\lambda}$$
@@ -29,7 +29,7 @@ many arguments, all of which have default values."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,6 +60,7 @@ many arguments, all of which have default values."><meta property="og:image" con
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -127,6 +128,7 @@ many arguments, all of which have default values.</p>
 <span>  gamma <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  ext_mort_prop <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  reproduction_level <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  second_order_w <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  R_factor <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  w_inf <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  k_vb <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span></span>
@@ -230,6 +232,15 @@ the interval [0, 1).</p></dd>
 <dt id="arg-reproduction-level">reproduction_level<a class="anchor" aria-label="anchor" href="#arg-reproduction-level"></a></dt>
 <dd><p>A number between 0 and 1 that determines the
 level of density dependence in reproduction, see <code><a href="setBevertonHolt.html">setBevertonHolt()</a></code>.</p></dd>
+
+
+<dt id="arg-second-order-w">second_order_w<a class="anchor" aria-label="anchor" href="#arg-second-order-w"></a></dt>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a> Selects the
+second-order numerical scheme for the new model, applied before the
+resource and abundance power laws are constructed so that they are built
+bin-averaged from the start. Accepts the same values as the
+<code><a href="second_order_w.html">second_order_w()</a></code> setter. Defaults to <code>FALSE</code>. See
+<code><a href="newMultispeciesParams.html">newMultispeciesParams()</a></code>.</p></dd>
 
 
 <dt id="arg-r-factor">R_factor<a class="anchor" aria-label="anchor" href="#arg-r-factor"></a></dt>

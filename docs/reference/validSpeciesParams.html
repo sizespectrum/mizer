@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="Validate species parameter data frame — validSpeciesParams"><meta name="description" content="These functions check the validity of a species parameter frame and, where
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Validate species parameter data frame — validSpeciesParams"><meta name="description" content="These functions check the validity of a species parameter frame and, where
 necessary, make corrections. validGivenSpeciesParams() only checks and
 corrects the given species parameters but does not add default values for
 species parameters that were not provided. validSpeciesParams() first calls
@@ -23,7 +23,7 @@ for species parameters that were not provided."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +54,7 @@ for species parameters that were not provided."><meta property="og:image" conten
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -121,17 +122,21 @@ without additional parameters.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>validGivenSpeciesParams()</code> checks the validity of the given species
 parameters. It throws an error if</p><ul><li><p>the <code>species</code> column does not exist or contains duplicates</p></li>
-<li><p>the maximum size is not specified for all species</p></li>
+<li><p>the asymptotic size <code>w_inf</code> is not specified for all species (but see the
+backwards-compatibility note below)</p></li>
 </ul><p>If a weight-based parameter is missing but the corresponding length-based
 parameter is given, as well as the <code>a</code> and <code>b</code> parameters for length-weight
 conversion, then the weight-based parameters are added. If both length and
 weight are given, then weight is used and an <code>info_about_default</code> condition
 is signalled if the two are inconsistent.</p>
-<p>If a <code>w_inf</code> column is given but no <code>w_max</code> then the value from <code>w_inf</code> is
-used. This is for backwards compatibility. But note that the von Bertalanffy
-parameter <code>w_inf</code> is not the maximum size of the largest individual, but the
-asymptotic size of an average individual.</p>
-<p>Some inconsistencies in the size parameters are resolved as follows:</p><ul><li><p>Any <code>w_mat</code> that is not smaller than <code>w_max</code> is set to <code>w_max / 4</code>.</p></li>
+<p>The required maximum-size parameter is <code>w_inf</code>, the von Bertalanffy
+asymptotic size of an average individual. For backwards compatibility, if no
+<code>w_inf</code> column is given, its values are taken from the <code>w_repro_max</code> column
+if that is present, or otherwise from the <code>w_max</code> column, and an
+informational message is issued. (<code>w_repro_max</code> is preferred over <code>w_max</code>
+because in earlier versions of mizer it was the size at which growth stopped
+and is therefore the closest analogue to the asymptotic size.)</p>
+<p>Some inconsistencies in the size parameters are resolved as follows:</p><ul><li><p>Any <code>w_mat</code> that is not smaller than <code>w_inf</code> is set to <code>w_inf / 4</code>.</p></li>
 <li><p>Any <code>w_mat25</code> that is not smaller than <code>w_mat</code> is set to NA.</p></li>
 <li><p>Any <code>w_min</code> that is not smaller than <code>w_mat</code> is set to <code>0.001</code> or
 <code>w_mat /10</code>, whichever is smaller.</p></li>
@@ -145,8 +150,9 @@ detects such a name.</p>
 <p><code>validSpeciesParams()</code> first calls <code>validGivenSpeciesParams()</code> but then
 goes further by adding default values for species parameters that were not
 provided. The function sets default values if any of the following species
-parameters are missing or NA:</p><ul><li><p><code>w_repro_max</code> is set to <code>w_max</code></p></li>
-<li><p><code>w_mat</code> is set to <code>w_max/4</code></p></li>
+parameters are missing or NA:</p><ul><li><p><code>w_max</code> is set to <code>1.5 * w_inf</code> (it is only a computational boundary)</p></li>
+<li><p><code>w_repro_max</code> is set to <code>w_inf</code></p></li>
+<li><p><code>w_mat</code> is set to <code>w_inf/4</code></p></li>
 <li><p><code>w_min</code> is set to <code>0.001</code></p></li>
 <li><p><code>alpha</code> is set to <code>0.6</code></p></li>
 <li><p><code>interaction_resource</code> is set to <code>1</code></p></li>

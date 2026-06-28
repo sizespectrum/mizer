@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="Species parameters — species_params"><meta name="description" content="These functions allow you to get or set the species-specific parameters
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Species parameters — species_params"><meta name="description" content="These functions allow you to get or set the species-specific parameters
 stored in a MizerParams object."><meta property="og:description" content="These functions allow you to get or set the species-specific parameters
 stored in a MizerParams object."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -15,7 +15,7 @@ stored in a MizerParams object."><meta property="og:image" content="https://size
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,6 +46,7 @@ stored in a MizerParams object."><meta property="og:image" content="https://size
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -129,10 +130,20 @@ consist entirely of <code>NA</code> values are dropped.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>There are a lot of species parameters and we will list them all below, but
 most of them have sensible default values. The only required columns are
-<code>species</code> for the species name and <code>w_max</code> for its maximum size. However
-if you have information about the values of other parameters then you should
-provide them.</p>
-<p>Mizer distinguishes between the species parameters that you have given
+<code>species</code> for the species name and <code>w_inf</code> for its von Bertalanffy
+asymptotic size. However if you have information about the values of other
+parameters then you should provide them.</p>
+<p>Three species parameters describe maximum sizes and play distinct roles:</p><ul><li><p><code>w_inf</code> is the von Bertalanffy asymptotic size of an average individual.
+It is the required maximum-size parameter and is used to set default values
+for <code>w_max</code>, <code>w_repro_max</code> and <code>w_mat</code>.</p></li>
+<li><p><code>w_repro_max</code> is the size at which a typical mature individual invests all
+of its available energy into reproduction, see <code><a href="setReproduction.html">setReproduction()</a></code>. It is
+not a hard ceiling on size and defaults to <code>w_inf</code>.</p></li>
+<li><p><code>w_max</code> is purely a computational boundary: it sets the upper end of the
+size grid and the range of plots. It defaults to <code>1.5 * w_inf</code>. For
+backwards compatibility, if <code>w_inf</code> is not supplied it is taken from
+<code>w_repro_max</code> or <code>w_max</code> instead.</p></li>
+</ul><p>Mizer distinguishes between the species parameters that you have given
 explicitly and the species parameters that have been calculated by mizer or
 set to default values. You can retrieve the given species parameters with
 <code>given_species_params()</code> and the calculated ones with
@@ -187,9 +198,9 @@ parameters if you use other density dependence functions, see the
 weight and length:</p><ul><li><p><code>a</code> and <code>b</code> are the parameters in the allometric weight-length
 relationship \(w = a l ^ b\).</p></li>
 </ul><p>If you have supplied the <code>a</code> and <code>b</code> parameters, then you can replace weight
-parameters like <code>w_max</code>, <code>w_mat</code>, <code>w_mat25</code>, <code>w_repro_max</code> and <code>w_min</code> by
-their corresponding length parameters <code>l_max</code>, <code>l_mat</code>, <code>l_mat25</code>,
-<code>l_repro_max</code> and <code>l_min</code>.</p>
+parameters like <code>w_inf</code>, <code>w_max</code>, <code>w_mat</code>, <code>w_mat25</code>, <code>w_repro_max</code> and
+<code>w_min</code> by their corresponding length parameters <code>l_inf</code>, <code>l_max</code>, <code>l_mat</code>,
+<code>l_mat25</code>, <code>l_repro_max</code> and <code>l_min</code>.</p>
 <p>The parameters that are only used to calculate default values for other
 parameters are:</p><ul><li><p><code>f0</code> is the feeding level and is used to get a default value for the
 coefficient of the search volume <code>gamma</code>, see <code><a href="get_gamma_default.html">get_gamma_default()</a></code>.</p></li>
@@ -198,15 +209,15 @@ maintain itself. This is used to get a default value for the coefficient
 <code>ks</code> of the metabolic rate, see <code><a href="get_ks_default.html">get_ks_default()</a></code>.</p></li>
 <li><p><code>age_mat</code> is the age at maturity and is used to get a default value for
 the coefficient <code>h</code> of the maximum intake rate, see <code><a href="get_h_default.html">get_h_default()</a></code>.</p></li>
+<li><p>If <code>age_mat</code> is not supplied, mizer used the von Bertalanffy parameters
+<code>k_vb</code>, <code>w_inf</code> and <code>t0</code> as well as the weight-length exponent <code>b</code> to
+determine it. This is unreliable and is therefore not recommended.</p></li>
 </ul><p>Changing these parameters with <code>species_params&lt;-()</code> updates the stored
 species parameter table and triggers a recalculation via <code><a href="setParams.html">setParams()</a></code>.
 However they only affect model behaviour if the corresponding downstream
 parameters are recalculated rather than kept at explicitly supplied values.
 In typical workflows these quantities should therefore be changed via
 <code>given_species_params&lt;-()</code>.</p>
-<p>In the past, mizer also used the von Bertalanffy parameters <code>k_vb</code>, <code>w_inf</code>
-and <code>t0</code> to determine a default for <code>h</code>. This is unreliable and is therefore
-now deprecated.</p>
 <p>There are other species parameters that are used in tuning the model to
 observations:</p><ul><li><p><code>biomass_observed</code> and <code>biomass_cutoff</code> allow you to specify for each
 species the total observed biomass above some cutoff size. This is

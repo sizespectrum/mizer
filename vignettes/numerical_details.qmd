@@ -5,10 +5,6 @@ output:
     toc: yes
     fig_width: 5
     fig_height: 5
-vignette: >
-  %\VignetteIndexEntry{The Numerical Scheme used in Mizer}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}

@@ -10,3 +10,22 @@
   --bs-navbar-toggler-border-color: rgba(255, 255, 255, 0.1);
   --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255,255,255,0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
+
+/* Bootstrap caps navbar dropdowns at 280px, which hides most of the long
+   Articles menu behind a scrollbar. Let them grow with the viewport instead. */
+.navbar .dropdown-menu {
+  max-height: calc(100vh - 4rem);
+}
+
+/* On wider screens, open navbar dropdowns on hover (in addition to click), so
+   the Articles menu appears without first having to click. The button itself
+   navigates to the articles index page (see extra.js). */
+@media (min-width: 992px) {
+  .navbar .nav-item.dropdown:hover > .dropdown-menu {
+    display: block;
+    margin-top: 0;
+  }
+  .navbar .nav-item.dropdown > .dropdown-toggle {
+    cursor: pointer;
+  }
+}

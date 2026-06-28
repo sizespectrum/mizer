@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="Calculate selectivity from gear parameters — calc_selectivity"><meta name="description" content="This function calculates the selectivity for each gear, species and size from
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Calculate selectivity from gear parameters — calc_selectivity"><meta name="description" content="This function calculates the selectivity for each gear, species and size from
 the gear parameters. It is called by setFishing() when the selectivity is
 not set by the user. The returned array is initialised to zero, so
 gear-species combinations that are not listed in gear_params(params) remain
@@ -25,7 +25,7 @@ selectivity parameters from the matching row in gear_params(params)."><meta prop
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,6 +56,7 @@ selectivity parameters from the matching row in gear_params(params)."><meta prop
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -114,6 +115,24 @@ selectivity parameters from the matching row in <code>gear_params(params)</code>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An array (gear x species x size) with the selectivity values</p>
+    </div>
+    <div class="section level2">
+    <h2 id="bin-averaged-selectivity">Bin-averaged selectivity<a class="anchor" aria-label="anchor" href="#bin-averaged-selectivity"></a></h2>
+
+
+<p>By default the selectivity is point-sampled at the grid nodes <code>params@w</code>,
+i.e. at the left edge of each size bin. This is only first-order accurate in
+the bin size when the selectivity is used in the finite-volume update of the
+size spectrum. When the <code>bin_average</code> entry of the <code><a href="second_order_w.html">second_order_w()</a></code> slot is
+<code>TRUE</code>, each selectivity function is instead integrated over its size bin,
+so that <code>selectivity[g, i, j]</code> holds the bin average
+$$\bar S_{g,i,j} = \frac{1}{\Delta w_j} \int_{w_j}^{w_{j+1}} S_{g,i}(w)\, dw.$$
+The integral is evaluated with a composite-midpoint rule on a log-spaced
+sub-grid of each bin, mirroring the bin-integrated predation kernel. This
+lifts the fishing mortality towards second order at no extra runtime cost
+(the integration happens once here, the rate functions are unchanged). A
+welcome side effect is that a knife-edge gear then gets the exact fraction of
+the straddling bin that lies above the knife edge, removing a grid artefact.</p>
     </div>
 
     <div class="section level2">

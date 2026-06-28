@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="Set up parameters for a general multispecies model — newMultispeciesParams"><meta name="description" content="Sets up a multi-species size spectrum model by filling all slots in the
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Set up parameters for a general multispecies model — newMultispeciesParams"><meta name="description" content="Sets up a multi-species size spectrum model by filling all slots in the
 MizerParams object based on user-provided or default
 parameters. There is a long list of arguments, but almost
 all of them have sensible default values. The only required argument is
@@ -23,7 +23,7 @@ details in the sections below the list."><meta property="og:image" content="http
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +54,7 @@ details in the sections below the list."><meta property="og:image" content="http
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -127,6 +128,7 @@ details in the sections below the list.</p>
 <span>  selectivity <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  catchability <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  initial_effort <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  second_order_w <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  info_level <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  z0 <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  r_pp <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span></span>
@@ -206,13 +208,13 @@ section "Setting external mortality rate".</p></dd>
 
 <dt id="arg-z-pre">z0pre<a class="anchor" aria-label="anchor" href="#arg-z-pre"></a></dt>
 <dd><p>If <code>z0</code>, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_max ^ z0exp.
+in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
 Default value is 0.6.</p></dd>
 
 
 <dt id="arg-z-exp">z0exp<a class="anchor" aria-label="anchor" href="#arg-z-exp"></a></dt>
 <dd><p>If <code>z0</code>, the mortality from other sources, is not a column in
-the species data frame, it is calculated as <code>z0pre * w_max ^ z0exp</code>.
+the species data frame, it is calculated as <code>z0pre * w_inf ^ z0exp</code>.
 Default value is <code>n-1</code>.</p></dd>
 
 
@@ -307,6 +309,21 @@ the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.</p></dd>
 
 
+<dt id="arg-second-order-w">second_order_w<a class="anchor" aria-label="anchor" href="#arg-second-order-w"></a></dt>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a> Selects the
+second-order numerical scheme for the new model. Accepts the same values as
+the <code><a href="second_order_w.html">second_order_w()</a></code> setter: a single logical (<code>TRUE</code> switches on both
+second-order flux and bin-averaging), a single flux scheme name
+(<code>"upwind"</code>, <code>"van_leer"</code> or <code>"centred"</code>), or a named vector with entries
+<code>flux</code> and/or <code>bin_average</code>. The <code>bin_average</code> choice is applied <em>before</em>
+the resource and abundance power laws are constructed, so they are built
+bin-averaged from the start (unlike setting <code><a href="second_order_w.html">second_order_w()</a></code> on an
+existing object). The <code>flux</code> scheme governs time projection only, so the
+robust first-order upwind scheme is used for the construction-time
+steady-state solve and the chosen scheme is then activated for the returned
+model. Defaults to <code>FALSE</code> (the first-order behaviour of previous mizer).</p></dd>
+
+
 <dt id="arg-info-level">info_level<a class="anchor" aria-label="anchor" href="#arg-info-level"></a></dt>
 <dd><p>Controls the amount of information messages that are shown
 when the function sets default values for parameters. Higher levels lead
@@ -338,9 +355,12 @@ parameters for one of the species in the model.</p>
 <p>There are two essential columns that must be included in the species
 parameter data.frame and that do not have default values: the
 <code>species</code> column that should hold strings with the names of the
-species and the <code>w_max</code> column with the maximum sizes of the species
-in grams. (You could alternatively specify the maximum length in cm in an
-<code>l_max</code> column.)</p>
+species and the <code>w_inf</code> column with the von Bertalanffy asymptotic sizes of
+the species in grams. (You could alternatively specify the corresponding
+length in cm in an <code>l_inf</code> column.) The computational upper size boundary
+<code>w_max</code> is not essential; if it is missing it defaults to <code>1.5 * w_inf</code>. For
+backwards compatibility, if <code>w_inf</code> is missing it is taken from the
+<code>w_repro_max</code> or <code>w_max</code> column instead.</p>
 <p>The <code>species_params dataframe</code> also needs to contain the parameters needed
 by any predation kernel function (size selectivity function). This will
 be mentioned in the appropriate sections below.</p>
@@ -583,6 +603,17 @@ Otherwise it is calculated as
 $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$
 Missing values of <code>z_ext</code> are set to 0 and missing values of <code>d</code> are set to
 <code>n - 1</code>.</p>
+<p>By default the power law is evaluated at the left bin edges \(w_j\)
+(point sampling). If the <code>bin_average</code> entry of the <code>second_order_w</code> slot is
+<code>TRUE</code> (see <code><a href="second_order_w.html">second_order_w()</a></code>), then the \(z_{ext} w^d\) term is instead
+replaced by its exact average over each bin \([w_j, w_{j+1}]\),
+$$\frac{z_{ext}}{\Delta w_j}\int_{w_j}^{w_{j+1}} w^d\, dw
+  = z_{ext}\,\frac{w_{j+1}^{d+1} - w_j^{d+1}}{(d+1)\,\Delta w_j},$$
+(with the limiting form \(z_{ext}\ln(w_{j+1}/w_j)/\Delta w_j\) when
+\(d = -1\)). This is the consistent choice in the finite-volume scheme,
+where the external mortality multiplies the bin-averaged abundance. The
+bin-averaging is applied only to the auto-calculated power-law default; a
+user-supplied <code>ext_mort</code> array is left untouched.</p>
     </div>
     <div class="section level2">
     <h2 id="setting-external-encounter-rate">Setting external encounter rate<a class="anchor" aria-label="anchor" href="#setting-external-encounter-rate"></a></h2>
@@ -631,11 +662,13 @@ available energy
 that is invested into reproduction is the product of two factors: the
 proportion <code>maturity</code> of individuals that are mature and the proportion
 <code>repro_prop</code> of the energy available to a mature individual that is
-invested into reproduction. There is a size <code>w_repro_max</code> at which all the
-energy is invested into reproduction and therefore all growth stops. There
-can be no fish larger than <code>w_repro_max</code>. If you have not specified the
-<code>w_repro_max</code> column in the species parameter data frame, then the maximum size
-<code>w_max</code> is used instead.</p>
+invested into reproduction. There is a size <code>w_repro_max</code> at which a typical
+mature individual invests all of its available energy into reproduction.
+This is <strong>not</strong> a hard ceiling on size: not all individuals are mature at
+<code>w_repro_max</code>, and diffusion in the growth process allows some individuals to
+grow beyond it, so fish larger than <code>w_repro_max</code> can exist. If you have not
+specified the <code>w_repro_max</code> column in the species parameter data frame, then
+the von Bertalanffy asymptotic size <code>w_inf</code> is used instead.</p>
 <div class="section">
 <h3 id="maturity-ogive">Maturity ogive<a class="anchor" aria-label="anchor" href="#maturity-ogive"></a></h3>
 <p>If the the proportion of individuals that are mature is not supplied via
@@ -646,7 +679,7 @@ $${\tt maturity}(w) = \left[1+\left(\frac{w}{w_{mat}}\right)^{-U}\right]^{-1}.$$
 although each species has its own maturity ogive.)
 The maturity weights are taken from the <code>w_mat</code> column of the
 species_params data frame. Any missing maturity weights are set to 1/4 of the
-maximum weight in the <code>w_max</code> column.</p>
+asymptotic size in the <code>w_inf</code> column.</p>
 <p>The exponent \(U\) determines the steepness of the maturity ogive. By
 default it is chosen as \(U = 10\), however this can be overridden by
 including a column <code>w_mat25</code> in the species parameter dataframe that
@@ -669,9 +702,9 @@ the exponent \(m\) determines the scaling of the investment into
 reproduction for mature individuals. By default it is chosen to be
 \(m = 1\) so that the rate at which energy is invested into reproduction
 scales linearly with the size. This default can be overridden by including a
-column <code>m</code> in the species parameter dataframe. The maximum sizes are taken
-from the <code>w_repro_max</code> column in the species parameter data frame, if it
-exists, or otherwise from the <code>w_max</code> column.</p>
+column <code>m</code> in the species parameter dataframe. The sizes \(w_{repro\_max}\)
+are taken from the <code>w_repro_max</code> column in the species parameter data frame,
+if it exists, or otherwise from the <code>w_inf</code> column.</p>
 <p>The total proportion of energy invested into reproduction of an individual
 of size \(w\) is then
 $$\psi(w) = {\tt maturity}(w){\tt repro\_prop}(w)$$
@@ -849,7 +882,7 @@ re-used automatically in the future. That list can be accessed with
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Because the age at maturity is not known, I need to fall back to using</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> von Bertalanffy parameters, where available, and this is not reliable.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> No ks column so calculating from critical feeding level.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using z0 = z0pre * w_max ^ z0exp for missing z0 values.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span>
 </code></pre></div>
     </div>

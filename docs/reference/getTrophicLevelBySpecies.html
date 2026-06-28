@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="Get mean trophic level of each species — getTrophicLevelBySpecies"><meta name="description" content="
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Get mean trophic level of each species — getTrophicLevelBySpecies"><meta name="description" content="
 Calculates the consumption-rate-weighted mean trophic level of each species,
 defined as
 $$
@@ -15,7 +15,8 @@ $$
 where \(r_i(w) = (1 - f_i(w))\,E_i(w)\) is the consumption rate of an
 individual of species \(i\) at weight \(w\), \(N_i(w)\) is the
 abundance density, and \(T_i(w)\) is the size-resolved trophic level
-from getTrophicLevel()."><meta property="og:description" content="
+from getTrophicLevel(). As in getTrophicLevel(), the resource is given a
+size-dependent trophic level controlled by the w_R and beta_R arguments."><meta property="og:description" content="
 Calculates the consumption-rate-weighted mean trophic level of each species,
 defined as
 $$
@@ -25,7 +26,8 @@ $$
 where \(r_i(w) = (1 - f_i(w))\,E_i(w)\) is the consumption rate of an
 individual of species \(i\) at weight \(w\), \(N_i(w)\) is the
 abundance density, and \(T_i(w)\) is the size-resolved trophic level
-from getTrophicLevel()."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+from getTrophicLevel(). As in getTrophicLevel(), the resource is given a
+size-dependent trophic level controlled by the w_R and beta_R arguments."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -33,7 +35,7 @@ from getTrophicLevel()."><meta property="og:image" content="https://sizespectrum
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,6 +66,7 @@ from getTrophicLevel()."><meta property="og:image" content="https://sizespectrum
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -107,7 +110,8 @@ $$
 where \(r_i(w) = (1 - f_i(w))\,E_i(w)\) is the consumption rate of an
 individual of species \(i\) at weight \(w\), \(N_i(w)\) is the
 abundance density, and \(T_i(w)\) is the size-resolved trophic level
-from <code><a href="getTrophicLevel.html">getTrophicLevel()</a></code>.</p>
+from <code><a href="getTrophicLevel.html">getTrophicLevel()</a></code>. As in <code><a href="getTrophicLevel.html">getTrophicLevel()</a></code>, the resource is given a
+size-dependent trophic level controlled by the <code>w_R</code> and <code>beta_R</code> arguments.</p>
     </div>
 
     <div class="section level2">
@@ -117,6 +121,8 @@ from <code><a href="getTrophicLevel.html">getTrophicLevel()</a></code>.</p>
 <span>  n <span class="op">=</span> <span class="fu"><a href="initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
 <span>  n_pp <span class="op">=</span> <span class="fu"><a href="initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
 <span>  n_other <span class="op">=</span> <span class="fu"><a href="initialNOther-set.html">initialNOther</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
+<span>  w_R <span class="op">=</span> <span class="fl">1e-10</span>,</span>
+<span>  beta_R <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -142,6 +148,18 @@ initial resource abundance stored in <code>params</code>.</p></dd>
 <dt id="arg-n-other">n_other<a class="anchor" aria-label="anchor" href="#arg-n-other"></a></dt>
 <dd><p>A named list of the abundances of other dynamical
 components. Defaults to the initial values stored in <code>params</code>.</p></dd>
+
+
+<dt id="arg-w-r">w_R<a class="anchor" aria-label="anchor" href="#arg-w-r"></a></dt>
+<dd><p>An average size (in grams) of primary producers in the resource
+spectrum, used to set the size-dependent resource trophic level. Defaults
+to <code>1e-10</code>.</p></dd>
+
+
+<dt id="arg-beta-r">beta_R<a class="anchor" aria-label="anchor" href="#arg-beta-r"></a></dt>
+<dd><p>An average predator/prey mass ratio for the resource spectrum,
+used to set the size-dependent resource trophic level. Must be greater than
+<code>1</code>. Defaults to <code>1000</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -170,9 +188,9 @@ components. Defaults to the initial values stored in <code>params</code>.</p></d
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">getTrophicLevelBySpecies</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Sprat  Sandeel   N.pout  Herring      Dab  Whiting     Sole  Gurnard </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.000097 1.000046 1.215283 1.005033 1.278265 1.525713 1.217122 1.044212 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3.845388 3.702670 4.723848 3.596897 4.760884 4.958668 4.751892 4.302460 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice  Haddock      Cod   Saithe </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.146182 1.151806 2.074701 1.602743 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4.417412 4.481840 5.241173 5.200990 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

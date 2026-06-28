@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="Set predation kernel — setPredKernel"><meta name="description" content="The predation kernel determines the distribution of prey sizes that a
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Set predation kernel — setPredKernel"><meta name="description" content="The predation kernel determines the distribution of prey sizes that a
 predator feeds on. It is used in getEncounter() when calculating
 the rate at which food is encountered and in getPredRate() when
 calculating the rate at which a prey is predated upon. The predation kernel
@@ -25,7 +25,7 @@ this function."><meta property="og:image" content="https://sizespectrum.org/mize
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,6 +56,7 @@ this function."><meta property="og:image" content="https://sizespectrum.org/mize
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -189,6 +190,27 @@ methods to significantly reduce the running time of simulations.</p>
 as the order in the species params dataframe in the <code>params</code> object. If you
 supply a named array then the function will check the order and warn if it is
 different.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="higher-order-quadrature">Higher-order quadrature<a class="anchor" aria-label="anchor" href="#higher-order-quadrature"></a></h2>
+
+
+<p>When the predation kernel depends only on the predator/prey mass ratio, the
+encounter and predation rates are evaluated as convolutions using the fast
+Fourier transform. By default mizer point-samples the kernel at the grid
+nodes, which is a first-order (rectangle-rule) quadrature. When the
+<code>bin_average</code> entry of the <code>second_order_w</code> slot is <code>TRUE</code>, the kernel is
+instead integrated over each logarithmic size bin when building the
+Fourier-transformed kernels. This finite-volume consistent quadrature lifts
+the encounter and predation rates towards second order at no extra runtime
+cost, because the integration is performed once here and the rate functions
+themselves are unchanged. The predation kernel is additionally averaged over
+the prey bin (a trapezoid fold), so that the predation rate returned by
+<code><a href="getPredRate.html">getPredRate()</a></code> is the prey-bin average that the predation-mortality sink
+needs to be second order. The default remains the first-order scheme so that
+existing models are unaffected. Enable it with <code>second_order_w(params) &lt;- TRUE</code> (see <code><a href="second_order_w.html">second_order_w()</a></code>), which also turns on the other bin-averaged
+rate quadratures so the whole model stays consistent. See the
+<code><a href="../articles/fft.html">vignette("fft")</a></code> for the mathematical details.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

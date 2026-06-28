@@ -5,17 +5,17 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="Get trophic level of individuals at size — getTrophicLevel"><meta name="description" content="
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Get trophic level of individuals at size — getTrophicLevel"><meta name="description" content="
 Calculates the trophic level of individuals of each species at each size,
 assuming the system is in a steady state. The trophic level of an individual
 is defined as 1 more than the consumption-rate-weighted average trophic level
 of all the prey it has consumed during its lifetime up to the current size.
-The trophic level of the primary resource is set to 0."><meta property="og:description" content="
+The resource is given a size-dependent trophic level (see below)."><meta property="og:description" content="
 Calculates the trophic level of individuals of each species at each size,
 assuming the system is in a steady state. The trophic level of an individual
 is defined as 1 more than the consumption-rate-weighted average trophic level
 of all the prey it has consumed during its lifetime up to the current size.
-The trophic level of the primary resource is set to 0."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+The resource is given a size-dependent trophic level (see below)."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -23,7 +23,7 @@ The trophic level of the primary resource is set to 0."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +54,7 @@ The trophic level of the primary resource is set to 0."><meta property="og:image
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -92,7 +93,7 @@ Calculates the trophic level of individuals of each species at each size,
 assuming the system is in a steady state. The trophic level of an individual
 is defined as 1 more than the consumption-rate-weighted average trophic level
 of all the prey it has consumed during its lifetime up to the current size.
-The trophic level of the primary resource is set to 0.</p>
+The resource is given a size-dependent trophic level (see below).</p>
     </div>
 
     <div class="section level2">
@@ -102,6 +103,8 @@ The trophic level of the primary resource is set to 0.</p>
 <span>  n <span class="op">=</span> <span class="fu"><a href="initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
 <span>  n_pp <span class="op">=</span> <span class="fu"><a href="initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
 <span>  n_other <span class="op">=</span> <span class="fu"><a href="initialNOther-set.html">initialNOther</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
+<span>  w_R <span class="op">=</span> <span class="fl">1e-10</span>,</span>
+<span>  beta_R <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -127,6 +130,18 @@ initial resource abundance stored in <code>params</code>.</p></dd>
 <dt id="arg-n-other">n_other<a class="anchor" aria-label="anchor" href="#arg-n-other"></a></dt>
 <dd><p>A named list of the abundances of other dynamical
 components. Defaults to the initial values stored in <code>params</code>.</p></dd>
+
+
+<dt id="arg-w-r">w_R<a class="anchor" aria-label="anchor" href="#arg-w-r"></a></dt>
+<dd><p>An average size (in grams) of primary producers in the resource
+spectrum, used to set the size-dependent resource trophic level. Defaults
+to <code>1e-10</code>.</p></dd>
+
+
+<dt id="arg-beta-r">beta_R<a class="anchor" aria-label="anchor" href="#arg-beta-r"></a></dt>
+<dd><p>An average predator/prey mass ratio for the resource spectrum,
+used to set the size-dependent resource trophic level. Must be greater than
+<code>1</code>. Defaults to <code>1000</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -168,10 +183,19 @@ $$
 r_{ij}(w, w_p) = \theta_{ij}\,\gamma_i(w)\,(1 - f_i(w))\,\phi_i(w/w_p)\,
   N_j(w_p)\,w_p.
 $$
-The sum over \(j\) runs over all species. The resource is excluded from
-the numerator because its trophic level is 0, but is included in the
-denominator (which equals the total biomass consumed over the predator's
-lifetime from egg size to current weight \(w\)).</p>
+The sum over \(j\) runs over all species and the resource. The resource is
+assigned a size-dependent trophic level
+$$
+  T_R(w) = \max\left(1,\; 1 + \frac{\log(w / w_R)}{\log(\beta_R)}\right),
+$$
+where \(w_R\) is an average size of primary producers (which therefore have
+trophic level 1) and \(\beta_R\) is an average predator/prey mass ratio for
+the resource (for example zooplankton). This adds one trophic level for each
+factor of \(\beta_R\) increase in resource size, with a floor at 1 so that
+the resource trophic level never drops below the primary-producer level.
+Both the numerator and the denominator (which equals the total biomass
+consumed over the predator's lifetime from egg size to current weight
+\(w\)) therefore include the resource.</p>
 <p>This equation can be viewed as a linear system
 \((I - D)\,\mathbf{T} = \mathbf{1}\) in which the entries of
 \(\mathbf{T}\) are indexed by \((i, w)\) and the matrix \(D\) encodes

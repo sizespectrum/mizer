@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="A class to hold the parameters for a size based model. — MizerParams-class"><meta name="description" content="Although it is possible to build a MizerParams object by hand it is
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="A class to hold the parameters for a size based model. — MizerParams-class"><meta name="description" content="Although it is possible to build a MizerParams object by hand it is
 not recommended and several constructors are available. Dynamic simulations
 are performed using project() function on objects of this class. As a
 user you should never need to access the slots inside a MizerParams object
@@ -21,7 +21,7 @@ directly."><meta property="og:image" content="https://sizespectrum.org/mizer/ref
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,6 +52,7 @@ directly."><meta property="og:image" content="https://sizespectrum.org/mizer/ref
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -117,11 +118,16 @@ abundances or harvest effort through time. These are held in
 
 
 <dt><code>extensions</code></dt>
-<dd><p>A named vector of strings describing the extension chain
-needed to run the model. The names are extension identifiers and S4 marker
-class names. The order is the S3 dispatch order, from outermost to
-innermost extension. The values are version strings, installation
-specifications, or <code>NA_character_</code>. Extension subclasses are marker
+<dd><p>Describes the extension chain needed to run the model. The
+entries are named by extension identifier (also the S4 marker class name)
+and ordered in S3 dispatch order, from outermost to innermost extension.
+It is either a named character vector whose values are requirement strings
+(version strings, installation specifications, or <code>NA_character_</code>), or a
+named list whose entries are length-2 character vectors
+<code>c(requirement = ..., version = ...)</code>. The <code>version</code> records the version of
+the extension package that last upgraded the object (<code>NA</code> if unknown) and
+is used by <code><a href="needs_upgrading.html">needs_upgrading()</a></code>. Use <code><a href="recordExtension.html">recordExtension()</a></code> to write entries
+rather than modifying the slot directly. Extension subclasses are marker
 classes only and must not add slots.</p></dd>
 
 
@@ -226,6 +232,16 @@ that holds the Fourier transform of the feeding kernel in a form
 appropriate for evaluating the predation mortality integral. If this is NA
 then the <code>pred_kernel</code> will be used to calculate the integral.
 Changed with <code><a href="setPredKernel.html">setPredKernel()</a></code>.</p></dd>
+
+
+<dt><code>ft_pred_kernel_d</code></dt>
+<dd><p>An array (species x log of predator/prey size ratio)
+that holds the Fourier transform of the feeding kernel in a form
+appropriate for evaluating the predation-diffusion integral (used when
+<code>use_predation_diffusion</code> is <code>TRUE</code>). It differs from <code>ft_pred_kernel_e</code>
+only when <code>second_order_w[["bin_average"]]</code> is <code>TRUE</code>, where it carries the
+extra power of prey size that the diffusion integrand needs; otherwise it
+equals <code>ft_pred_kernel_e</code>. Changed with <code><a href="setPredKernel.html">setPredKernel()</a></code>.</p></dd>
 
 
 <dt><code>rr_pp</code></dt>
@@ -364,10 +380,11 @@ Set to <code>TRUE</code> to enable the diffusion term from the jump-growth equat
 
 
 <dt><code>second_order_w</code></dt>
-<dd><p>A named logical vector with entries <code>flux_limiter</code>
-(controls whether a second-order advective flux is used for growth) and
-<code>bin_average</code> (controls whether bin-averaging is used for rates). Both
-default to <code>FALSE</code> to preserve the behaviour of previous mizer versions.</p></dd>
+<dd><p>A named list with entry <code>flux</code>
+(the advective flux scheme: <code>"upwind"</code>, <code>"van_leer"</code>, or <code>"centred"</code>) and
+logical entry <code>bin_average</code> (controls whether bin-averaging is used for
+rates). Both default to the first-order setting to preserve the behaviour
+of previous mizer versions.</p></dd>
 
 
 </dl></div>

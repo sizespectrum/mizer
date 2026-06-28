@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><meta property="og:title" content="Set up parameters for a community-type model — newCommunityParams"><meta name="description" content="This functions creates a MizerParams object describing a
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Set up parameters for a community-type model — newCommunityParams"><meta name="description" content="This functions creates a MizerParams object describing a
 community-type model.
 The function has many arguments, all of which have default values."><meta property="og:description" content="This functions creates a MizerParams object describing a
 community-type model.
@@ -17,7 +17,7 @@ The function has many arguments, all of which have default values."><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,7 @@ The function has many arguments, all of which have default values."><meta proper
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
     <li><a class="dropdown-item" href="../articles/numerical_details.html">The Numerical Scheme used in Mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -106,6 +107,7 @@ The function has many arguments, all of which have default values.</p>
 <span>  r_pp <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  knife_edge_size <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  <span class="va">reproduction</span>,</span>
+<span>  second_order_w <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  info_level <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -192,6 +194,21 @@ function.</p></dd>
 <dd><p>The constant reproduction in the smallest size class of
 the community spectrum. By default this is set to the rate required to
 maintain the constructed initial egg abundance.</p></dd>
+
+
+<dt id="arg-second-order-w">second_order_w<a class="anchor" aria-label="anchor" href="#arg-second-order-w"></a></dt>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a> Selects the
+second-order numerical scheme for the new model. Accepts the same values as
+the <code><a href="second_order_w.html">second_order_w()</a></code> setter: a single logical (<code>TRUE</code> switches on both
+second-order flux and bin-averaging), a single flux scheme name
+(<code>"upwind"</code>, <code>"van_leer"</code> or <code>"centred"</code>), or a named vector with entries
+<code>flux</code> and/or <code>bin_average</code>. The <code>bin_average</code> choice is applied <em>before</em>
+the resource and abundance power laws are constructed, so they are built
+bin-averaged from the start (unlike setting <code><a href="second_order_w.html">second_order_w()</a></code> on an
+existing object). The <code>flux</code> scheme governs time projection only, so the
+robust first-order upwind scheme is used for the construction-time
+steady-state solve and the chosen scheme is then activated for the returned
+model. Defaults to <code>FALSE</code> (the first-order behaviour of previous mizer).</p></dd>
 
 
 <dt id="arg-info-level">info_level<a class="anchor" aria-label="anchor" href="#arg-info-level"></a></dt>

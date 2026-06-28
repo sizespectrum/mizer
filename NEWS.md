@@ -211,6 +211,10 @@ calibrated models may need recalibrating. See `?second_order_w` and the
   per `dt` time step. Their dynamics are now integrated with the same time step
   as the consumer and resource spectra, so results no longer depend on `t_save`.
 
+- `getGrowthCurves()` no longer emits a cryptic
+  `collapsing to unique 'x' values` warning when a species' `w_max` lies exactly
+  on a grid point. (#413)
+
 - `getRDI()`, `getRDD()` and `getFlux()` on a `MizerSim` object now correctly use
   the simulated time-varying effort instead of the initial effort. (#370)
 

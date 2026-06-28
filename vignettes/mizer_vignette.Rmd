@@ -85,7 +85,7 @@ speed is usually quite acceptable.
 This guide assumes that you will be using RStudio to work with R. There is
 really no reason not to use RStudio and it makes a lot of things much easier.
 RStudio develops rapidly and adds useful features all the time and so it pays 
-to upgrade to the [latest version](https://posit.co/download/rstudio-desktop) 
+to upgrade to the [latest version](https://docs.posit.co/ide/user/#rstudio-ide-oss-downloads) 
 frequently. This guide was written with version 2023.12.1.
 
 The source code for mizer is hosted on
