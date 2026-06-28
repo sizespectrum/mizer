@@ -375,8 +375,21 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
                                 targets = c("EGrowth", "Mort", "Diffusion"))
 
         if (is.null(rdd_const)) {
-            rdd <- getRDD(params, n = N, n_pp = n_pp, n_other = n_other, t = 0,
-                          rates_fns = rates_fns)
+            if (usesExtensionDispatch(params)) {
+                rdi <- projectRDI(params, n = N, n_pp = n_pp, n_other = n_other, t = 0,
+                                  e_repro = r$e_repro, e_growth = r$e_growth, mort = r$mort,
+                                  diffusion = r$diffusion)
+                rdd <- projectRDD(params, rdi = rdi, species_params = params@species_params,
+                                  t = 0)
+            } else {
+                f_rdi <- get(params@rates_funcs$RDI)
+                rdi <- f_rdi(params, n = N, n_pp = n_pp, n_other = n_other, t = 0,
+                             e_repro = r$e_repro, e_growth = r$e_growth, mort = r$mort,
+                             diffusion = r$diffusion)
+                f_rdd <- get(params@rates_funcs$RDD)
+                rdd <- f_rdd(rdi = rdi, species_params = params@species_params,
+                             params = params, t = 0)
+            }
         } else {
             rdd <- rdd_const
         }
