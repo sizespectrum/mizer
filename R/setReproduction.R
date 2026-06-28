@@ -38,8 +38,10 @@
 #' \eqn{U = \log(3) / \log(w_{mat} / w_{mat25}).}{U = log(3) / log(w_mat /
 #' w_mat25).}
 #'
-#' The sigmoidal function given above would strictly reach 1 only
-#' asymptotically. For computational simplicity, any proportion smaller than
+#' The sigmoidal function given above would strictly reach 0 only
+#' asymptotically and thus have some (negligible) amound of reproduction at
+#' arbitrarily small size.
+#' For computational simplicity, any proportion smaller than
 #' `1e-8` is set to `0`.
 #' }
 #'
@@ -48,8 +50,8 @@
 #' invested into reproduction is not supplied via the `repro_prop` argument,
 #' it is set to the allometric form
 #' \deqn{{\tt repro\_prop}(w) =
-#'   \left(\frac{w}{w_{\tt{repro\_max}}}\right)^{m-n}.}{
-#'   repro_prop(w) = (w/w_repro_max)^(m - n).}
+#'   \min\left(\left(\dfrac{w}{w_{\tt{repro\_max}}}\right)^{m-n},1\right).}{
+#'   repro_prop(w) = min((w/w_repro_max)^(m - n),1).}
 #' Here \eqn{n} is the scaling exponent of the energy income rate. Hence
 #' the exponent \eqn{m} determines the scaling of the investment into
 #' reproduction for mature individuals. By default it is chosen to be
