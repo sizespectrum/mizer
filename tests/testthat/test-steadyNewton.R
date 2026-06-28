@@ -61,6 +61,10 @@ test_that("steadyNewton honours the preserve argument", {
                  p_steady@species_params$R_max, tolerance = 1e-5)
     expect_equal(pn_none@species_params$erepro,
                  p_steady@species_params$erepro, tolerance = 1e-5)
+
+    # Verify verbose = TRUE captures iteration report output
+    out <- capture.output(steadyNewton(p_steady, verbose = TRUE))
+    expect_true(any(grepl("Iteration report", out)))
 })
 
 test_that("steadyNewton handles extinctions under preserve = 'none' with relative floor", {

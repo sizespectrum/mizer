@@ -72,6 +72,9 @@
 #' @param extinction_floor `r lifecycle::badge("experimental")`
 #'   The relative abundance floor below which a species is considered extinct.
 #'   Only used when `preserve = "none"`. Default is 1e-6.
+#' @param verbose `r lifecycle::badge("experimental")`
+#'   If `TRUE` then the solver iterations will be traced and printed to the console.
+#'   Default is `FALSE`.
 #' @param tol Convergence tolerance passed to [nleqslv::nleqslv()] (both the
 #'   function-value tolerance `ftol` and the step tolerance `xtol`).
 #' @param maxit Maximum number of iterations for [nleqslv::nleqslv()].
@@ -101,6 +104,7 @@ steadyNewton.MizerParams <- function(params,
                                      preserve = c("reproduction_level",
                                                   "erepro", "R_max", "none"),
                                      extinction_floor = 1e-6,
+                                     verbose = FALSE,
                                      tol = 1e-10, maxit = 100,
                                      method = c("Newton", "Broyden"),
                                      global = "dbldog", ...) {
@@ -149,7 +153,8 @@ steadyNewton.MizerParams <- function(params,
     sol <- nleqslv::nleqslv(x0, residual_fn, method = method,
                             global = global,
                             control = list(maxit = maxit, ftol = tol,
-                                           xtol = tol))
+                                           xtol = tol,
+                                           trace = if (verbose) 1 else 0))
     # termcd 1 (function convergence) and 2 (x convergence) are successes.
     if (sol$termcd > 2) {
         warning("steadyNewton() did not converge (nleqslv termination code ",

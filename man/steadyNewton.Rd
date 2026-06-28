@@ -12,6 +12,7 @@ steadyNewton(params, ...)
   effort = params@initial_effort,
   preserve = c("reproduction_level", "erepro", "R_max", "none"),
   extinction_floor = 1e-06,
+  verbose = FALSE,
   tol = 1e-10,
   maxit = 100,
   method = c("Newton", "Broyden"),
@@ -39,6 +40,10 @@ re-adjusting them.}
 \item{extinction_floor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 The relative abundance floor below which a species is considered extinct.
 Only used when \code{preserve = "none"}. Default is 1e-6.}
+
+\item{verbose}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If \code{TRUE} then the solver iterations will be traced and printed to the console.
+Default is \code{FALSE}.}
 
 \item{tol}{Convergence tolerance passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}} (both the
 function-value tolerance \code{ftol} and the step tolerance \code{xtol}).}
