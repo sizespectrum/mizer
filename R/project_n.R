@@ -54,7 +54,10 @@ project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
         n[n < 0] <- 0
     }
 
-    n
+    # Upper boundary condition: hold abundance at zero above w_max. The operator
+    # decouples the active spectrum from the tail (see apply_upper_cutoff());
+    # this enforces N = 0 there on the result.
+    zero_above_support(n, support_top_idx(params))
 }
 
 # Average the start-of-step rates `r` with the provisional end-of-step rates
@@ -141,10 +144,14 @@ project_n_2 <- function(params, r, n, dt, a, b, c, S, idx,
     S <- project_n_2_rhs(params, n, a, b, c, dt, r_mid$rdd)
 
     n_new <- project_n_loop(n, a, b, c, S, params@w_min_idx)
+    # The Crank-Nicolson corrector is not an M-matrix update, so with a flux
+    # limiter it can leave a tiny negative undershoot at sharp spectral
+    # features; floor it to keep mizer's N >= 0 invariant.
     if (flux_limiter != "none") {
         n_new[n_new < 0] <- 0
     }
-    n_new
+    # Hold abundance at zero above w_max (the upper boundary; see project_n()).
+    zero_above_support(n_new, support_top_idx(params))
 }
 
 project_n_2_rhs <- function(params, n, a, b, c, dt, recruitment_flux) {
@@ -265,10 +272,12 @@ project_n_tr_bdf2 <- function(params, r, n, dt, a, b, c, S, idx,
                                 c1, c0)
     n_new <- project_n_loop(n_gamma, coefs$a, coefs$b, coefs$c, S2,
                             params@w_min_idx)
+    # Floor any negative undershoot from a flux limiter (see project_n_2()).
     if (flux_limiter != "none") {
         n_new[n_new < 0] <- 0
     }
-    n_new
+    # Hold abundance at zero above w_max (the upper boundary; see project_n()).
+    zero_above_support(n_new, support_top_idx(params))
 }
 
 project_n_tr_bdf2_rhs <- function(params, n, n_gamma, dt_eff, recruitment_flux,

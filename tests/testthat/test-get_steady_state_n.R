@@ -80,3 +80,48 @@ test_that("get_steady_state_n uses supplied diffusion array", {
 
     expect_false(isTRUE(all.equal(n_with_D, n_without_D)))
 })
+
+test_that("get_steady_state_n holds abundance at zero above w_max (no diffusion)", {
+    params <- NS_params_small
+    no_sp <- nrow(params@species_params)
+    no_w <- length(params@w)
+
+    # Constant positive growth, so the bottom-up recursion would never decay on
+    # its own and would otherwise climb to the top of the grid.
+    growth <- matrix(1, nrow = no_sp, ncol = no_w)
+    mort <- matrix(0.5, nrow = no_sp, ncol = no_w)
+    N0_vec <- rep(100, no_sp)
+    params@ext_diffusion[] <- 0
+
+    n_calc <- mizer:::get_steady_state_n(params, growth, mort,
+                                         params@ext_diffusion, N0_vec)
+
+    w_top <- mizer:::support_top_idx(params)
+    for (sp in seq_len(no_sp)) {
+        # Positive up to and including the support top, exactly zero above it.
+        expect_true(all(n_calc[sp, params@w_min_idx[sp]:w_top[sp]] > 0))
+        if (w_top[sp] < no_w) {
+            expect_true(all(n_calc[sp, (w_top[sp] + 1):no_w] == 0))
+        }
+    }
+})
+
+test_that("get_steady_state_n holds abundance at zero above w_max (diffusion)", {
+    params <- example_params()
+    no_sp <- nrow(params@species_params)
+    no_w <- length(params@w)
+
+    growth <- matrix(1, nrow = no_sp, ncol = no_w)
+    mort <- matrix(0.1, nrow = no_sp, ncol = no_w)
+    N0_vec <- rep(100, no_sp)
+    D <- getDiffusion(params)
+
+    n_calc <- mizer:::get_steady_state_n(params, growth, mort, D, N0_vec)
+
+    w_top <- mizer:::support_top_idx(params)
+    for (sp in seq_len(no_sp)) {
+        if (w_top[sp] < no_w) {
+            expect_true(all(n_calc[sp, (w_top[sp] + 1):no_w] == 0))
+        }
+    }
+})

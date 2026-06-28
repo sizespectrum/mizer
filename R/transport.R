@@ -26,6 +26,98 @@ log_dx <- function(params) {
     log(params@w[2] / params@w[1])
 }
 
+#' Highest size class retained at the upper boundary (the support top)
+#'
+#' The size grid is truncated at each species' maximum size `w_max`, and the
+#' density is held at zero above it. `w_max` is purely a computational boundary
+#' (the top of the size grid); it is **not** the size at which somatic growth
+#' stops. Growth slows around the separate parameter `w_repro_max` (where a
+#' typical mature individual invests all energy in reproduction), so whether the
+#' growth rate is actually zero near `w_max` depends entirely on how large the
+#' user chose `w_max`. This cut-off therefore makes no assumption about the rates;
+#' it is appropriate when `w_max` is chosen large enough that the density there is
+#' negligible.
+#'
+#' The top retained class depends on the scheme, because the two schemes place the
+#' advective inflow differently. With `w_max_idx = sum(w <= w_max)`:
+#'
+#' * the first-order upwind scheme feeds class `j` from the growth of the class
+#'   below, `g(w_{j-1})`, so the class just above the one containing `w_max` can
+#'   still carry advected density; the support top is `w_max_idx + 1`. This
+#'   reproduces the long-standing (untruncated) mizer behaviour exactly;
+#' * the second-order scheme reconstructs the inflow at a class's own lower face,
+#'   `g(w_j)`, so its support ends one class lower, at `w_max_idx`.
+#'
+#' The result is capped at the top of the grid. Because it is fixed by `w_max` and
+#' the scheme rather than by the instantaneous growth field, it is well defined
+#' even when a frozen, food-limited or otherwise degenerate growth field is
+#' supplied (e.g. in the second-order time-steppers' frozen-rate solves).
+#'
+#' The dynamics impose this as the upper boundary condition (see
+#' `get_transport_coefs()`) so that abundance is held at zero above `w_max` even
+#' when diffusion would otherwise carry density past it, and [steadyNewton()]
+#' solves on exactly this support.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @return A per-species integer vector of the top retained size-class index.
+#' @noRd
+support_top_idx <- function(params) {
+    w <- params@w
+    no_w <- length(w)
+    w_max <- params@species_params$w_max
+    w_max_idx <- vapply(w_max, function(wm) sum(w <= wm), integer(1))
+    # The grid is truncated at w_max. First-order upwind feeds a class from the
+    # growth of the class below, so its support reaches one bin past w_max (this
+    # matches untruncated mizer); the second-order scheme feeds a class from the
+    # growth at its own lower face, so it stops at w_max.
+    offset <- if (flux_limiter_scheme(params) == "none") 1L else 0L
+    pmin(w_max_idx + offset, no_w)
+}
+
+#' Sever the coupling to the size classes above the support top
+#'
+#' Sets `c = 0` at the support-top class `w_top` (see `support_top_idx()`), which
+#' decouples the active spectrum from the (held-at-zero) classes above it in the
+#' tridiagonal solve. Cutting `c_{top}` zeroes the back-substitution coefficient
+#' there, so the active solution up to `w_top` never reads the inactive tail. The
+#' tail itself is held at zero after the solve by `zero_above_support()`.
+#'
+#' For the default no-diffusion scheme this is a no-op, because `c` already
+#' vanishes at the top class (nothing diffuses or grows into the class above);
+#' with diffusion it stops the diffusive flux above `w_max` from re-entering the
+#' active spectrum.
+#'
+#' @param coefs The list of tridiagonal coefficients `a`, `b`, `c`, `S`.
+#' @param w_top Per-species support-top index from `support_top_idx()`.
+#' @return The coefficient list with the upper boundary condition applied.
+#' @noRd
+apply_upper_cutoff <- function(coefs, w_top) {
+    top_idx <- cbind(seq_len(nrow(coefs$c)), w_top)
+    coefs$c[top_idx] <- 0
+    coefs
+}
+
+#' Hold abundance at zero above the support top
+#'
+#' Zeros every size class above the support top `w_top` (see `support_top_idx()`)
+#' after a density update. This is the partner of `apply_upper_cutoff()`: the
+#' coefficient surgery decouples the active spectrum from these classes during the
+#' solve, and this enforces the upper boundary condition `N = 0` above `w_max` on
+#' the result. For the default no-diffusion scheme these classes are already zero
+#' (nothing flows into them), so this is a no-op; with diffusion it removes the
+#' density that would otherwise leak above `w_max`.
+#'
+#' @param n The updated density matrix (species x size).
+#' @param w_top Per-species support-top index from `support_top_idx()`.
+#' @return `n` with all classes above the support top set to zero.
+#' @noRd
+zero_above_support <- function(n, w_top) {
+    no_w <- ncol(n)
+    w_idx_mat <- matrix(seq_len(no_w), nrow = nrow(n), ncol = no_w, byrow = TRUE)
+    n[w_idx_mat > w_top] <- 0
+    n
+}
+
 #' Helper function to calculate the transport coefficients
 #'
 #' @param params A \linkS4class{MizerParams} object.
@@ -46,12 +138,14 @@ log_dx <- function(params) {
 #' @noRd
 get_transport_coefs <- function(params, n, g, mu, dt, recruitment_flux, d,
                                 flux_limiter = "none") {
-    if (flux_limiter == "none") {
-        return(get_transport_coefs_upwind(params, n, g, mu, dt,
-                                          recruitment_flux, d))
+    coefs <- if (flux_limiter == "none") {
+        get_transport_coefs_upwind(params, n, g, mu, dt, recruitment_flux, d)
+    } else {
+        get_transport_coefs_logfv(params, n, g, mu, dt, recruitment_flux, d,
+                                  flux_limiter)
     }
-    get_transport_coefs_logfv(params, n, g, mu, dt, recruitment_flux, d,
-                              flux_limiter)
+    # Upper boundary: hold abundance at zero above the maximum size w_max.
+    apply_upper_cutoff(coefs, support_top_idx(params))
 }
 
 #' Second-order finite-volume transport coefficients

@@ -124,6 +124,7 @@ reference:
     average observed growth rates, abundances and fisheries yields.
   contents:
   - steady
+  - steadyNewton
   - steadySingleSpecies
   - matchGrowth
   - plotBiomassObservedVsModel
