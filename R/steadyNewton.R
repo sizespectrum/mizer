@@ -173,7 +173,7 @@ steadyNewton.MizerParams <- function(params,
 #' Builds the logical mask of the (species x size) density matrix that the
 #' direct solver treats as unknowns. For each species the unknowns run from the
 #' egg size `w_min_idx` up to the highest class that actually carries density in
-#' the current `initial_n`, capped at the grid truncation [support_top_idx()].
+#' the current `initial_n`, capped at the grid truncation `support_top_idx()`.
 #'
 #' The support is read off the abundances rather than from `w_max` on purpose.
 #' Users routinely set `w_max` far larger than necessary (so the grid need not
@@ -190,7 +190,7 @@ steadyNewton.MizerParams <- function(params,
 #'
 #' Isolated interior zeros (negativity-floor artefacts of the second-order
 #' schemes) below the top are kept in the mask and repaired by
-#' [positive_initial_guess()]; only a trailing run of zeros is dropped.
+#' `positive_initial_guess()`; only a trailing run of zeros is dropped.
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @return A list with the logical matrix `mask` and a function `unpack(x)` that
@@ -240,7 +240,7 @@ steady_active_set <- function(params) {
 #'
 #' @param N The current density matrix (species x size).
 #' @param w_min_idx Per-species egg-size index.
-#' @param w_top Per-species support top from [steady_active_set()].
+#' @param w_top Per-species support top from `steady_active_set()`.
 #' @return A density matrix that is strictly positive on the active range.
 #' @noRd
 positive_initial_guess <- function(N, w_min_idx, w_top) {
@@ -290,10 +290,10 @@ resource_steady_semichemostat <- function(params, N, n_other) {
 #'
 #' Returns a closure `f(x)` suitable for [nleqslv::nleqslv()]. The argument `x`
 #' is the vector of log-densities of the active size classes (see
-#' [steady_active_set()]). The closure rebuilds the full density matrix,
+#' `steady_active_set()`). The closure rebuilds the full density matrix,
 #' substitutes the analytic resource steady state, evaluates the growth,
 #' mortality and diffusion rates, assembles the steady-state tridiagonal
-#' coefficients with [get_transport_coefs()] at `dt = 1`, and returns the
+#' coefficients with `get_transport_coefs()` at `dt = 1`, and returns the
 #' steady-state residual
 #' \deqn{F_j = a_j N_{j-1} + b_j N_j + c_j N_{j+1} - S_j}
 #' (since `S = N + recruitment source`, the `+N` cancels the backward-Euler
@@ -311,7 +311,7 @@ resource_steady_semichemostat <- function(params, N, n_other) {
 #' @param rdd_const Per-species reproduction rate held constant during the solve.
 #' @param n_other Abundances of other components (held constant).
 #' @param effort The fishing effort vector.
-#' @param active The active-set list from [steady_active_set()].
+#' @param active The active-set list from `steady_active_set()`.
 #' @return A function of the packed log-density vector returning the packed
 #'   scaled residual.
 #' @noRd

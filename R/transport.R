@@ -54,7 +54,7 @@ log_dx <- function(params) {
 #' supplied (e.g. in the second-order time-steppers' frozen-rate solves).
 #'
 #' The dynamics impose this as the upper boundary condition (see
-#' [get_transport_coefs()]) so that abundance is held at zero above `w_max` even
+#' `get_transport_coefs()`) so that abundance is held at zero above `w_max` even
 #' when diffusion would otherwise carry density past it, and [steadyNewton()]
 #' solves on exactly this support.
 #'
@@ -76,11 +76,11 @@ support_top_idx <- function(params) {
 
 #' Sever the coupling to the size classes above the support top
 #'
-#' Sets `c = 0` at the support-top class `w_top` (see [support_top_idx()]), which
+#' Sets `c = 0` at the support-top class `w_top` (see `support_top_idx()`), which
 #' decouples the active spectrum from the (held-at-zero) classes above it in the
 #' tridiagonal solve. Cutting `c_{top}` zeroes the back-substitution coefficient
 #' there, so the active solution up to `w_top` never reads the inactive tail. The
-#' tail itself is held at zero after the solve by [zero_above_support()].
+#' tail itself is held at zero after the solve by `zero_above_support()`.
 #'
 #' For the default no-diffusion scheme this is a no-op, because `c` already
 #' vanishes at the top class (nothing diffuses or grows into the class above);
@@ -88,7 +88,7 @@ support_top_idx <- function(params) {
 #' active spectrum.
 #'
 #' @param coefs The list of tridiagonal coefficients `a`, `b`, `c`, `S`.
-#' @param w_top Per-species support-top index from [support_top_idx()].
+#' @param w_top Per-species support-top index from `support_top_idx()`.
 #' @return The coefficient list with the upper boundary condition applied.
 #' @noRd
 apply_upper_cutoff <- function(coefs, w_top) {
@@ -99,8 +99,8 @@ apply_upper_cutoff <- function(coefs, w_top) {
 
 #' Hold abundance at zero above the support top
 #'
-#' Zeros every size class above the support top `w_top` (see [support_top_idx()])
-#' after a density update. This is the partner of [apply_upper_cutoff()]: the
+#' Zeros every size class above the support top `w_top` (see `support_top_idx()`)
+#' after a density update. This is the partner of `apply_upper_cutoff()`: the
 #' coefficient surgery decouples the active spectrum from these classes during the
 #' solve, and this enforces the upper boundary condition `N = 0` above `w_max` on
 #' the result. For the default no-diffusion scheme these classes are already zero
@@ -108,7 +108,7 @@ apply_upper_cutoff <- function(coefs, w_top) {
 #' density that would otherwise leak above `w_max`.
 #'
 #' @param n The updated density matrix (species x size).
-#' @param w_top Per-species support-top index from [support_top_idx()].
+#' @param w_top Per-species support-top index from `support_top_idx()`.
 #' @return `n` with all classes above the support top set to zero.
 #' @noRd
 zero_above_support <- function(n, w_top) {
