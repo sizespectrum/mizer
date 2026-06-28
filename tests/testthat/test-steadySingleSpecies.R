@@ -74,6 +74,25 @@ test_that("steadySingleSpecies produces steady state with diffusion", {
     expect_lt(max_rel_error_pc, 1e-10)
 })
 
+test_that("steadySingleSpecies holds abundance at zero above w_max", {
+    # example_params() has diffusion on species 1, which would otherwise carry
+    # density above w_max.
+    params <- example_params()
+    params <- steadySingleSpecies(params)
+
+    w_top <- mizer:::support_top_idx(params)
+    no_w <- length(params@w)
+    checked_any <- FALSE
+    for (sp in seq_len(nrow(params@species_params))) {
+        if (w_top[sp] < no_w) {
+            checked_any <- TRUE
+            expect_true(all(params@initial_n[sp, (w_top[sp] + 1):no_w] == 0))
+        }
+    }
+    # Make sure the assertion above was actually exercised.
+    expect_true(checked_any)
+})
+
 test_that("steadySingleSpecies errors when growth stops before maturity", {
     # Create a simple params object
     params <- single_sp_params

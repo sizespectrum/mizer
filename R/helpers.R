@@ -231,6 +231,12 @@ w2l <- function(w, species_params) {
 #' is updated towards that solution, repeating until it converges. (At `dt = 1`
 #' the limited operator is not diagonally dominant, so the plain fixed-point map
 #' only stalls; under-relaxation makes it converge.)
+#'
+#' The returned abundance is held at zero above each species' `w_max`, the same
+#' upper boundary condition that [project()] imposes (via `zero_above_support()`
+#' in `project_n()`) and that [steadyNewton()] solves on. Without this the
+#' bottom-up solve would carry density above `w_max` whenever growth is still
+#' positive there or diffusion pushes density past it.
 #' @concept helper
 get_steady_state_n <- function(params, g, mu, D, N0,
                                max_iterations = 500, tol = 1e-10,
@@ -244,6 +250,10 @@ get_steady_state_n <- function(params, g, mu, D, N0,
 
     j_start <- params@w_min_idx
     idxs_start <- cbind(1:no_sp, j_start)
+
+    # Highest retained class per species; abundance is held at zero above it,
+    # matching the upper boundary condition imposed by the time-steppers.
+    w_top <- support_top_idx(params)
 
     for (iteration in seq_len(max_iterations)) {
         # Coefficients with dt = 1 and no recruitment flux (the boundary is
@@ -276,7 +286,7 @@ get_steady_state_n <- function(params, g, mu, D, N0,
 
         # Without a limiter the system is linear, so one solve is exact.
         if (flux_limiter == "none") {
-            return(n_solve)
+            return(zero_above_support(n_solve, w_top))
         }
 
         # Under-relax the update and keep the iterate non-negative (the limited
@@ -290,5 +300,5 @@ get_steady_state_n <- function(params, g, mu, D, N0,
         }
     }
 
-    return(n)
+    return(zero_above_support(n, w_top))
 }

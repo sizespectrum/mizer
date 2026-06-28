@@ -124,6 +124,12 @@ calibrated models may need recalibrating. See `?second_order_w` and the
   switched on it stops a small amount of density leaking to sizes above `w_max`.
   See the "Numerical Details" vignette.
 
+- `steadySingleSpecies()` now applies this same upper boundary condition, holding
+  the initial abundance at zero above `w_max`, so its result is consistent with
+  the dynamics in `project()` and with `steadyNewton()`. Previously density could
+  remain above `w_max` when diffusion was switched on or when `w_max` was set close
+  to `w_repro_max`.
+
 - Extension packages can now upgrade their own data in saved model objects
   independently of the mizer version. The `@extensions` slot can record, for
   each extension, the version of the extension package that the object conforms
