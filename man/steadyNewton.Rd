@@ -11,9 +11,12 @@ steadyNewton(params, ...)
   params,
   effort = params@initial_effort,
   preserve = c("reproduction_level", "erepro", "R_max"),
-  tol = 1e-10,
-  maxit = 100,
-  method = c("Newton", "Broyden"),
+  reproduction = c("fixed", "dynamic"),
+  extinction_floor = 1e-06,
+  verbose = FALSE,
+  tol = 1e-06,
+  maxit = 200,
+  method = c("Broyden", "Newton"),
   global = "dbldog",
   ...
 )
@@ -31,16 +34,29 @@ the starting guess for the iteration.}
 Specifies whether the \code{reproduction_level} should be preserved (default)
 or the maximum reproduction rate \code{R_max} or the reproductive efficiency
 \code{erepro}. See \code{\link[=setBevertonHolt]{setBevertonHolt()}} for an explanation of the
-\code{reproduction_level}.}
+\code{reproduction_level}. This argument is ignored when \code{reproduction = "dynamic"}.}
+
+\item{reproduction}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If \code{"fixed"}, the reproduction rate (RDD) is held constant at the initial
+value. If \code{"dynamic"}, the reproduction dynamics are run dynamically and the
+reproduction parameters are not adjusted. Default is \code{"fixed"}.}
+
+\item{extinction_floor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+The relative abundance floor below which a species is considered extinct.
+Only used when \code{reproduction = "dynamic"}. Default is 1e-6.}
+
+\item{verbose}{If \code{TRUE} then the solver iterations will be traced and
+printed to the console. Default is \code{FALSE}.}
 
 \item{tol}{Convergence tolerance passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}} (both the
 function-value tolerance \code{ftol} and the step tolerance \code{xtol}).}
 
 \item{maxit}{Maximum number of iterations for \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}}.}
 
-\item{method}{The \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}} method, either \code{"Newton"} (default, a
-full Newton step with a numerical Jacobian — fastest and most accurate when
-the starting guess is reasonable) or \code{"Broyden"}.}
+\item{method}{The \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}} method, either \code{"Newton"} (with a
+numerical Jacobian calculated at each iteration) or \code{"Broyden"} (which
+calculates the full Jacobian only once and then only updates it on each
+iteration. '"Broyden"' is the default.}
 
 \item{global}{The globalisation strategy passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}}.
 The default \code{"dbldog"} (double dogleg) is a robust trust-region method.}
@@ -59,28 +75,32 @@ a case in which \code{\link[=steady]{steady()}} fails because the time-stepping 
 the fixed point.
 }
 \details{
-Like \code{\link[=steady]{steady()}}, the function holds the reproduction rate (RDD) constant
-while solving for the consumer spectra, substitutes the analytic steady state
-of the resource, and keeps any other components constant. After the spectra
-have been found it restores density-dependent Beverton-Holt reproduction with
-\code{\link[=setBevertonHolt]{setBevertonHolt()}}, honouring the \code{preserve} argument exactly as \code{\link[=steady]{steady()}}
-does.
+By default, or when \code{reproduction = "fixed"}, the function holds the
+reproduction rate (RDD) constant while solving for the consumer spectra,
+substitutes the analytic steady state of the resource, and keeps any other
+components constant. After the spectra have been found it restores
+density-dependent Beverton-Holt reproduction with \code{\link[=setBevertonHolt]{setBevertonHolt()}},
+honouring the \code{preserve} argument exactly as \code{\link[=steady]{steady()}} does.
+If \code{reproduction = "dynamic"}, the reproduction dynamics are run dynamically,
+meaning the reproduction rate varies during the solve and the reproduction
+parameters are not adjusted.
 
 The consumer densities are solved for in log space, which both keeps them
 positive and conditions the otherwise badly-scaled system. The unknowns are
-the size classes that carry non-zero density, taken from the current
-\code{initial_n} rather than from \code{w_max}: the support runs from the egg size up to
-the highest class with non-zero density in the supplied spectra (capped at the
-grid). This matters because users routinely set \code{w_max} much larger than the
-largest fish, and the structurally-zero classes below such a \code{w_max} must not
-enter the log-space system. The nonlinear system is solved with a globalised
-Newton iteration from the \code{nleqslv} package, starting from the current
-\code{initial_n}. Newton's method converges from any starting point in the \emph{root's}
-basin of attraction (which is unrelated to the dynamic stability of the steady
-state), so a reasonable initial guess should be supplied in \code{initialN(params)}
-— for example the spectra from a nearby stable parameterisation, or the
-(diverging) output of \code{\link[=steady]{steady()}}. The guess also defines the support, so it
-should be non-zero across the size range that should carry density.
+the size classes in the full potential grid support (running from the egg
+size up to the grid truncation limit \code{support_top_idx()}), regardless of
+whether they carry non-zero density in the supplied initial spectra. A
+smoothed log-abundance penalty floor is applied to all size classes, which
+automatically handles zero-density and tail classes smoothly and prevents
+singular Jacobians. After convergence, size classes that remain at or near
+the floor are set to zero. This allows the solver to automatically discover
+the support of the steady state. The nonlinear system is solved with a
+globalised Newton iteration from the \code{nleqslv} package, starting from the
+current \code{initial_n}. Newton's method converges from any starting point in the
+\emph{root's} basin of attraction (which is unrelated to the dynamic stability of
+the steady state), so a reasonable initial guess should still be supplied in
+\code{initialN(params)} — for example the spectra from a nearby stable
+parameterisation, or the (diverging) output of \code{\link[=steady]{steady()}}.
 
 The solver respects the active transport scheme: if the experimental
 second-order scheme is enabled (see \code{\link[=second_order_w]{second_order_w()}}) it solves the

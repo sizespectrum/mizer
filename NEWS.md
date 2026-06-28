@@ -1,3 +1,21 @@
+# development version
+
+- New experimental `steadyNewton()` finds a steady state by solving the
+  steady-state equation directly with a Newton-type root finder (using the
+  `nleqslv` package) instead of running the dynamics to convergence. Unlike
+  `steady()` it converges even when the steady state is dynamically unstable.
+  Currently supports the default semichemostat resource dynamics.
+  It automatically discovers the support of the steady state (even if the
+  initial guess contains zeros or non-zeros in the wrong regions) using a
+  smoothed log-abundance penalty floor.
+
+- The upper boundary condition of the size-spectrum solvers now holds the
+  abundance at zero above each species' maximum size `w_max`. Without diffusion
+  this is automatic and results are unchanged, but with predation diffusion
+  switched on it stops a small amount of density leaking to sizes above `w_max`.
+  See the "Numerical Details" vignette.
+
+
 # mizer 3.1.0
 
 Version 3.1.0 builds on 3.0.0 with an experimental second-order accurate
@@ -111,24 +129,6 @@ calibrated models may need recalibrating. See `?second_order_w` and the
   the consumer spectra. The `"euler"` method and the steady states are unchanged.
 
 ## Other improvements
-
-- New experimental `steadyNewton()` finds a steady state by solving the
-  steady-state equation directly with a Newton-type root finder (using the
-  `nleqslv` package) instead of running the dynamics to convergence. Unlike
-  `steady()` it converges even when the steady state is dynamically unstable.
-  Currently supports the default semichemostat resource dynamics.
-
-- The upper boundary condition of the size-spectrum solver now holds the
-  abundance at zero above each species' maximum size `w_max`. Without diffusion
-  this is automatic and results are unchanged, but with predation diffusion
-  switched on it stops a small amount of density leaking to sizes above `w_max`.
-  See the "Numerical Details" vignette.
-
-- `steadySingleSpecies()` now applies this same upper boundary condition, holding
-  the initial abundance at zero above `w_max`, so its result is consistent with
-  the dynamics in `project()` and with `steadyNewton()`. Previously density could
-  remain above `w_max` when diffusion was switched on or when `w_max` was set close
-  to `w_repro_max`.
 
 - Extension packages can now upgrade their own data in saved model objects
   independently of the mizer version. The `@extensions` slot can record, for

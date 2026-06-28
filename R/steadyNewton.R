@@ -21,28 +21,32 @@
 #' a case in which [steady()] fails because the time-stepping diverges away from
 #' the fixed point.
 #'
-#' Like [steady()], the function holds the reproduction rate (RDD) constant
-#' while solving for the consumer spectra, substitutes the analytic steady state
-#' of the resource, and keeps any other components constant. After the spectra
-#' have been found it restores density-dependent Beverton-Holt reproduction with
-#' [setBevertonHolt()], honouring the `preserve` argument exactly as [steady()]
-#' does.
+#' By default, or when `reproduction = "fixed"`, the function holds the
+#' reproduction rate (RDD) constant while solving for the consumer spectra,
+#' substitutes the analytic steady state of the resource, and keeps any other
+#' components constant. After the spectra have been found it restores
+#' density-dependent Beverton-Holt reproduction with [setBevertonHolt()],
+#' honouring the `preserve` argument exactly as [steady()] does.
+#' If `reproduction = "dynamic"`, the reproduction dynamics are run dynamically,
+#' meaning the reproduction rate varies during the solve and the reproduction
+#' parameters are not adjusted.
 #'
 #' The consumer densities are solved for in log space, which both keeps them
 #' positive and conditions the otherwise badly-scaled system. The unknowns are
-#' the size classes that carry non-zero density, taken from the current
-#' `initial_n` rather than from `w_max`: the support runs from the egg size up to
-#' the highest class with non-zero density in the supplied spectra (capped at the
-#' grid). This matters because users routinely set `w_max` much larger than the
-#' largest fish, and the structurally-zero classes below such a `w_max` must not
-#' enter the log-space system. The nonlinear system is solved with a globalised
-#' Newton iteration from the `nleqslv` package, starting from the current
-#' `initial_n`. Newton's method converges from any starting point in the *root's*
-#' basin of attraction (which is unrelated to the dynamic stability of the steady
-#' state), so a reasonable initial guess should be supplied in `initialN(params)`
-#' — for example the spectra from a nearby stable parameterisation, or the
-#' (diverging) output of [steady()]. The guess also defines the support, so it
-#' should be non-zero across the size range that should carry density.
+#' the size classes in the full potential grid support (running from the egg
+#' size up to the grid truncation limit `support_top_idx()`), regardless of
+#' whether they carry non-zero density in the supplied initial spectra. A
+#' smoothed log-abundance penalty floor is applied to all size classes, which
+#' automatically handles zero-density and tail classes smoothly and prevents
+#' singular Jacobians. After convergence, size classes that remain at or near
+#' the floor are set to zero. This allows the solver to automatically discover
+#' the support of the steady state. The nonlinear system is solved with a
+#' globalised Newton iteration from the `nleqslv` package, starting from the
+#' current `initial_n`. Newton's method converges from any starting point in the
+#' *root's* basin of attraction (which is unrelated to the dynamic stability of
+#' the steady state), so a reasonable initial guess should still be supplied in
+#' `initialN(params)` — for example the spectra from a nearby stable
+#' parameterisation, or the (diverging) output of [steady()].
 #'
 #' The solver respects the active transport scheme: if the experimental
 #' second-order scheme is enabled (see [second_order_w()]) it solves the
@@ -66,13 +70,23 @@
 #'   Specifies whether the `reproduction_level` should be preserved (default)
 #'   or the maximum reproduction rate `R_max` or the reproductive efficiency
 #'   `erepro`. See [setBevertonHolt()] for an explanation of the
-#'   `reproduction_level`.
+#'   `reproduction_level`. This argument is ignored when `reproduction = "dynamic"`.
+#' @param reproduction `r lifecycle::badge("experimental")`
+#'   If `"fixed"`, the reproduction rate (RDD) is held constant at the initial
+#'   value. If `"dynamic"`, the reproduction dynamics are run dynamically and the
+#'   reproduction parameters are not adjusted. Default is `"fixed"`.
+#' @param extinction_floor `r lifecycle::badge("experimental")`
+#'   The relative abundance floor below which a species is considered extinct.
+#'   Only used when `reproduction = "dynamic"`. Default is 1e-6.
+#' @param verbose If `TRUE` then the solver iterations will be traced and
+#'   printed to the console. Default is `FALSE`.
 #' @param tol Convergence tolerance passed to [nleqslv::nleqslv()] (both the
 #'   function-value tolerance `ftol` and the step tolerance `xtol`).
 #' @param maxit Maximum number of iterations for [nleqslv::nleqslv()].
-#' @param method The [nleqslv::nleqslv()] method, either `"Newton"` (default, a
-#'   full Newton step with a numerical Jacobian — fastest and most accurate when
-#'   the starting guess is reasonable) or `"Broyden"`.
+#' @param method The [nleqslv::nleqslv()] method, either `"Newton"` (with a
+#'   numerical Jacobian calculated at each iteration) or `"Broyden"` (which
+#'   calculates the full Jacobian only once and then only updates it on each
+#'   iteration. '"Broyden"' is the default.
 #' @param global The globalisation strategy passed to [nleqslv::nleqslv()].
 #'   The default `"dbldog"` (double dogleg) is a robust trust-region method.
 #' @param ... Unused.
@@ -95,9 +109,16 @@ steadyNewton.MizerParams <- function(params,
                                      effort = params@initial_effort,
                                      preserve = c("reproduction_level",
                                                   "erepro", "R_max"),
-                                     tol = 1e-10, maxit = 100,
-                                     method = c("Newton", "Broyden"),
+                                     reproduction = c("fixed", "dynamic"),
+                                     extinction_floor = 1e-6,
+                                     verbose = FALSE,
+                                     tol = 1e-6, maxit = 200,
+                                     method = c("Broyden", "Newton"),
                                      global = "dbldog", ...) {
+    reproduction <- match.arg(reproduction)
+    if (reproduction == "fixed") {
+        preserve <- match.arg(preserve)
+    }
     method <- match.arg(method)
     if (!requireNamespace("nleqslv", quietly = TRUE)) {
         stop("steadyNewton() requires the 'nleqslv' package. ",
@@ -112,21 +133,25 @@ steadyNewton.MizerParams <- function(params,
     effort <- validEffortVector(effort, params = params)
     params@initial_effort <- effort
 
-    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
-        preserve <- match.arg(preserve)
+    if (params@rates_funcs$RDD == "BevertonHoltRDD" && reproduction == "fixed") {
         old_reproduction_level <- getReproductionLevel(params)
         old_R_max <- params@species_params$R_max
         old_erepro <- params@species_params$erepro
     }
 
-    # Hold reproduction at the current level for the duration of the solve,
-    # exactly as steady() does with constant_reproduction.
-    rdd_const <- getRDD(params)
+    if (reproduction == "dynamic") {
+        rdd_const <- NULL
+    } else {
+        rdd_const <- getRDD(params)
+    }
     n_other <- params@initial_n_other
 
     active <- steady_active_set(params)
     residual_fn <- steady_state_residual(params, rdd_const, n_other, effort,
-                                         active)
+                                         active, extinction_floor = extinction_floor)
+
+    # Save initial state for relative floor checks
+    N0_initial <- params@initial_n
 
     # The log-space solve needs a strictly positive, well-scaled start. The
     # second-order schemes can leave isolated zeros inside the support (a
@@ -138,7 +163,8 @@ steadyNewton.MizerParams <- function(params,
     sol <- nleqslv::nleqslv(x0, residual_fn, method = method,
                             global = global,
                             control = list(maxit = maxit, ftol = tol,
-                                           xtol = tol))
+                                           xtol = tol,
+                                           trace = if (verbose) 1 else 0))
     # termcd 1 (function convergence) and 2 (x convergence) are successes.
     if (sol$termcd > 2) {
         warning("steadyNewton() did not converge (nleqslv termination code ",
@@ -149,17 +175,42 @@ steadyNewton.MizerParams <- function(params,
     N <- active$unpack(sol$x)
     n_pp <- resource_steady_semichemostat(params, N, n_other)
 
+    # Zero out any densities that ended up at or near the penalty floor
+    for (i in seq_len(nrow(N))) {
+        floor_val <- max(N[i, ]) * 1.1 * 1e-15
+        N[i, N[i, ] < floor_val] <- 0
+    }
+
     params@initial_n[] <- N
     params@initial_n_pp[] <- n_pp
 
+    # Check for extinctions if using the relative floor
+    if (reproduction == "dynamic" && !is.null(extinction_floor) && extinction_floor > 0) {
+        extinct_threshold <- extinction_floor * 1.01
+        is_extinct <- rep(FALSE, nrow(N))
+        names(is_extinct) <- rownames(N)
+        for (i in seq_len(nrow(N))) {
+            lo <- params@w_min_idx[i]
+            pos <- lo:active$w_top[i]
+            pos <- pos[N0_initial[i, pos] > 0]
+            if (length(pos) && any(N[i, pos] / N0_initial[i, pos] <= extinct_threshold)) {
+                is_extinct[i] <- TRUE
+            }
+        }
+        if (any(is_extinct)) {
+            warning("The following species went extinct and were pegged to their abundance floor: ",
+                    paste(names(is_extinct)[is_extinct], collapse = ", "))
+        }
+    }
+
     # Restore density-dependent reproduction, just as steady() does.
-    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
+    if (params@rates_funcs$RDD == "BevertonHoltRDD" && reproduction == "fixed") {
         if (preserve == "reproduction_level") {
             params <- setBevertonHolt(params,
                                       reproduction_level = old_reproduction_level)
         } else if (preserve == "R_max") {
             params <- setBevertonHolt(params, R_max = old_R_max)
-        } else {
+        } else if (preserve == "erepro") {
             params <- setBevertonHolt(params, erepro = old_erepro)
         }
     }
@@ -209,10 +260,8 @@ steady_active_set <- function(params) {
     mask <- matrix(FALSE, nrow = no_sp, ncol = no_w)
     for (i in seq_len(no_sp)) {
         lo <- params@w_min_idx[i]
-        pos <- which(n[i, lo:grid_top[i]] > 0)
-        # Highest class carrying density (fall back to the egg class if the
-        # species is empty), capped at the grid truncation.
-        w_top[i] <- if (length(pos)) lo + max(pos) - 1L else lo
+        # Always solve up to the grid truncation limit
+        w_top[i] <- grid_top[i]
         mask[i, lo:w_top[i]] <- TRUE
     }
 
@@ -248,10 +297,14 @@ positive_initial_guess <- function(N, w_min_idx, w_top) {
         rng <- w_min_idx[i]:w_top[i]
         v <- N[i, rng]
         pos <- v > 0
-        if (all(pos) || !any(pos)) next
-        idx <- seq_along(v)
-        v[!pos] <- exp(stats::approx(idx[pos], log(v[pos]),
-                                     xout = idx[!pos], rule = 2)$y)
+        if (!any(pos)) next
+        floor_val <- max(v) * 1e-20
+        if (!all(pos)) {
+            idx <- seq_along(v)
+            v[!pos] <- exp(stats::approx(idx[pos], log(v[pos]),
+                                         xout = idx[!pos], rule = 2)$y)
+        }
+        v[is.na(v) | v <= 0] <- floor_val
         N[i, rng] <- v
     }
     N
@@ -315,11 +368,27 @@ resource_steady_semichemostat <- function(params, N, n_other) {
 #' @return A function of the packed log-density vector returning the packed
 #'   scaled residual.
 #' @noRd
-steady_state_residual <- function(params, rdd_const, n_other, effort, active) {
+steady_state_residual <- function(params, rdd_const, n_other, effort, active,
+                                  extinction_floor = 1e-6) {
     no_w <- length(params@w)
     mask <- active$mask
     flux_limiter <- flux_limiter_scheme(params)
     rates_fns <- projectRateFunctions(params)
+    x0_initial <- params@initial_n
+
+    # A floor is always active to handle zero-abundance tail classes smoothly
+    # and prevent singular Jacobians.
+    x0 <- log(x0_initial[mask])
+    support_floor <- matrix(0, nrow = nrow(x0_initial), ncol = no_w)
+    for (i in seq_len(nrow(x0_initial))) {
+        support_floor[i, ] <- log(max(x0_initial[i, ])) + log(1e-15)
+    }
+    x_floor <- support_floor[mask]
+
+    if (is.null(rdd_const) && !is.null(extinction_floor) && extinction_floor > 0) {
+        ext_floor <- x0 + log(extinction_floor)
+        x_floor <- pmax(x_floor, ext_floor)
+    }
 
     function(x) {
         N <- active$unpack(x)
@@ -329,9 +398,29 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active) {
                                 t = 0, effort = effort, rates_fns = rates_fns,
                                 targets = c("EGrowth", "Mort", "Diffusion"))
 
+        if (is.null(rdd_const)) {
+            if (usesExtensionDispatch(params)) {
+                rdi <- projectRDI(params, n = N, n_pp = n_pp, n_other = n_other, t = 0,
+                                  e_repro = r$e_repro, e_growth = r$e_growth, mort = r$mort,
+                                  diffusion = r$diffusion)
+                rdd <- projectRDD(params, rdi = rdi, species_params = params@species_params,
+                                  t = 0)
+            } else {
+                f_rdi <- get(params@rates_funcs$RDI)
+                rdi <- f_rdi(params, n = N, n_pp = n_pp, n_other = n_other, t = 0,
+                             e_repro = r$e_repro, e_growth = r$e_growth, mort = r$mort,
+                             diffusion = r$diffusion)
+                f_rdd <- get(params@rates_funcs$RDD)
+                rdd <- f_rdd(rdi = rdi, species_params = params@species_params,
+                             params = params, t = 0)
+            }
+        } else {
+            rdd <- rdd_const
+        }
+
         coefs <- get_transport_coefs(params, n = N, g = r$e_growth,
                                      mu = r$mort, dt = 1,
-                                     recruitment_flux = rdd_const,
+                                     recruitment_flux = rdd,
                                      d = r$diffusion,
                                      flux_limiter = flux_limiter)
 
@@ -340,6 +429,19 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active) {
         res <- coefs$a * Nm + coefs$b * N + coefs$c * Np - coefs$S
 
         # Scale to a per-capita rate of change (N > 0 on the active set).
-        (res / N)[mask]
+        if (is.null(rdd_const)) {
+            r_ss <- (res / x0_initial)[mask]
+        } else {
+            r_ss <- (res / N)[mask]
+        }
+
+        if (!is.null(x_floor)) {
+            y <- x - x_floor
+            delta <- 0.001
+            penalty <- 0.5 * (y - sqrt(y^2 + delta^2))
+            r_ss <- r_ss + penalty
+        }
+
+        r_ss
     }
 }
