@@ -55,6 +55,28 @@ test_that("steadyNewton honours the preserve argument", {
     pn_erepro <- suppressWarnings(steadyNewton(p_steady, preserve = "erepro"))
     expect_equal(pn_erepro@species_params$erepro,
                  p_steady@species_params$erepro, tolerance = 1e-5)
+
+    pn_none <- steadyNewton(p_steady, preserve = "none")
+    expect_equal(pn_none@species_params$R_max,
+                 p_steady@species_params$R_max, tolerance = 1e-5)
+    expect_equal(pn_none@species_params$erepro,
+                 p_steady@species_params$erepro, tolerance = 1e-5)
+})
+
+test_that("steadyNewton handles extinctions under preserve = 'none' with relative floor", {
+    # Make species 3 (Cod) unviable by setting its reproduction efficiency extremely low
+    p_extinct <- p_steady
+    p_extinct@species_params$erepro[3] <- 1e-12
+    p_extinct@initial_n[3, ] <- p_steady@initial_n[3, ]
+
+    # Verify that the solver issues the extinction warning and pegs to the floor
+    expect_warning(pn_ext <- steadyNewton(p_extinct, preserve = "none", extinction_floor = 1e-6),
+                   "went extinct and were pegged to their abundance floor")
+
+    # Verify Cod abundance is pegged exactly to the floor (1e-6 of its initial abundance)
+    lo <- p_extinct@w_min_idx[3]
+    ratio <- pn_ext@initial_n[3, lo] / p_extinct@initial_n[3, lo]
+    expect_equal(ratio, 1e-6, tolerance = 1e-2)
 })
 
 test_that("steadyNewton errors for unsupported resource dynamics", {

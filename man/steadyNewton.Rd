@@ -10,7 +10,8 @@ steadyNewton(params, ...)
 \method{steadyNewton}{MizerParams}(
   params,
   effort = params@initial_effort,
-  preserve = c("reproduction_level", "erepro", "R_max"),
+  preserve = c("reproduction_level", "erepro", "R_max", "none"),
+  extinction_floor = 1e-06,
   tol = 1e-10,
   maxit = 100,
   method = c("Newton", "Broyden"),
@@ -31,7 +32,13 @@ the starting guess for the iteration.}
 Specifies whether the \code{reproduction_level} should be preserved (default)
 or the maximum reproduction rate \code{R_max} or the reproductive efficiency
 \code{erepro}. See \code{\link[=setBevertonHolt]{setBevertonHolt()}} for an explanation of the
-\code{reproduction_level}.}
+\code{reproduction_level}. Alternatively, \code{"none"} finds the steady state given
+the current reproduction parameters (fixed \code{erepro} and \code{R_max}) without
+re-adjusting them.}
+
+\item{extinction_floor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+The relative abundance floor below which a species is considered extinct.
+Only used when \code{preserve = "none"}. Default is 1e-6.}
 
 \item{tol}{Convergence tolerance passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}} (both the
 function-value tolerance \code{ftol} and the step tolerance \code{xtol}).}

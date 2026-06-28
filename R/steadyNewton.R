@@ -66,7 +66,12 @@
 #'   Specifies whether the `reproduction_level` should be preserved (default)
 #'   or the maximum reproduction rate `R_max` or the reproductive efficiency
 #'   `erepro`. See [setBevertonHolt()] for an explanation of the
-#'   `reproduction_level`.
+#'   `reproduction_level`. Alternatively, `"none"` finds the steady state given
+#'   the current reproduction parameters (fixed `erepro` and `R_max`) without
+#'   re-adjusting them.
+#' @param extinction_floor `r lifecycle::badge("experimental")`
+#'   The relative abundance floor below which a species is considered extinct.
+#'   Only used when `preserve = "none"`. Default is 1e-6.
 #' @param tol Convergence tolerance passed to [nleqslv::nleqslv()] (both the
 #'   function-value tolerance `ftol` and the step tolerance `xtol`).
 #' @param maxit Maximum number of iterations for [nleqslv::nleqslv()].
@@ -94,10 +99,12 @@ steadyNewton <- function(params, ...) {
 steadyNewton.MizerParams <- function(params,
                                      effort = params@initial_effort,
                                      preserve = c("reproduction_level",
-                                                  "erepro", "R_max"),
+                                                  "erepro", "R_max", "none"),
+                                     extinction_floor = 1e-6,
                                      tol = 1e-10, maxit = 100,
                                      method = c("Newton", "Broyden"),
                                      global = "dbldog", ...) {
+    preserve <- match.arg(preserve)
     method <- match.arg(method)
     if (!requireNamespace("nleqslv", quietly = TRUE)) {
         stop("steadyNewton() requires the 'nleqslv' package. ",
@@ -112,21 +119,25 @@ steadyNewton.MizerParams <- function(params,
     effort <- validEffortVector(effort, params = params)
     params@initial_effort <- effort
 
-    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
-        preserve <- match.arg(preserve)
+    if (params@rates_funcs$RDD == "BevertonHoltRDD" && preserve != "none") {
         old_reproduction_level <- getReproductionLevel(params)
         old_R_max <- params@species_params$R_max
         old_erepro <- params@species_params$erepro
     }
 
-    # Hold reproduction at the current level for the duration of the solve,
-    # exactly as steady() does with constant_reproduction.
-    rdd_const <- getRDD(params)
+    if (preserve == "none") {
+        rdd_const <- NULL
+    } else {
+        rdd_const <- getRDD(params)
+    }
     n_other <- params@initial_n_other
 
     active <- steady_active_set(params)
     residual_fn <- steady_state_residual(params, rdd_const, n_other, effort,
-                                         active)
+                                         active, extinction_floor = extinction_floor)
+
+    # Save initial state for relative floor checks
+    N0_initial <- params@initial_n
 
     # The log-space solve needs a strictly positive, well-scaled start. The
     # second-order schemes can leave isolated zeros inside the support (a
@@ -152,8 +163,27 @@ steadyNewton.MizerParams <- function(params,
     params@initial_n[] <- N
     params@initial_n_pp[] <- n_pp
 
+    # Check for extinctions if using the relative floor
+    if (preserve == "none" && !is.null(extinction_floor) && extinction_floor > 0) {
+        extinct_threshold <- extinction_floor * 1.01
+        is_extinct <- rep(FALSE, nrow(N))
+        names(is_extinct) <- rownames(N)
+        for (i in seq_len(nrow(N))) {
+            lo <- params@w_min_idx[i]
+            pos <- lo:active$w_top[i]
+            pos <- pos[N0_initial[i, pos] > 0]
+            if (length(pos) && any(N[i, pos] / N0_initial[i, pos] <= extinct_threshold)) {
+                is_extinct[i] <- TRUE
+            }
+        }
+        if (any(is_extinct)) {
+            warning("The following species went extinct and were pegged to their abundance floor: ",
+                    paste(names(is_extinct)[is_extinct], collapse = ", "))
+        }
+    }
+
     # Restore density-dependent reproduction, just as steady() does.
-    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
+    if (params@rates_funcs$RDD == "BevertonHoltRDD" && preserve != "none") {
         if (preserve == "reproduction_level") {
             params <- setBevertonHolt(params,
                                       reproduction_level = old_reproduction_level)
@@ -315,11 +345,21 @@ resource_steady_semichemostat <- function(params, N, n_other) {
 #' @return A function of the packed log-density vector returning the packed
 #'   scaled residual.
 #' @noRd
-steady_state_residual <- function(params, rdd_const, n_other, effort, active) {
+steady_state_residual <- function(params, rdd_const, n_other, effort, active,
+                                  extinction_floor = 1e-6) {
     no_w <- length(params@w)
     mask <- active$mask
     flux_limiter <- flux_limiter_scheme(params)
     rates_fns <- projectRateFunctions(params)
+    x0_initial <- params@initial_n
+
+    # Set up floor for relative abundance floor if rdd_const is NULL
+    if (is.null(rdd_const) && !is.null(extinction_floor) && extinction_floor > 0) {
+        x0 <- log(x0_initial[mask])
+        x_floor <- x0 + log(extinction_floor)
+    } else {
+        x_floor <- NULL
+    }
 
     function(x) {
         N <- active$unpack(x)
@@ -329,9 +369,16 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active) {
                                 t = 0, effort = effort, rates_fns = rates_fns,
                                 targets = c("EGrowth", "Mort", "Diffusion"))
 
+        if (is.null(rdd_const)) {
+            rdd <- getRDD(params, n = N, n_pp = n_pp, n_other = n_other, t = 0,
+                          rates_fns = rates_fns)
+        } else {
+            rdd <- rdd_const
+        }
+
         coefs <- get_transport_coefs(params, n = N, g = r$e_growth,
                                      mu = r$mort, dt = 1,
-                                     recruitment_flux = rdd_const,
+                                     recruitment_flux = rdd,
                                      d = r$diffusion,
                                      flux_limiter = flux_limiter)
 
@@ -340,6 +387,19 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active) {
         res <- coefs$a * Nm + coefs$b * N + coefs$c * Np - coefs$S
 
         # Scale to a per-capita rate of change (N > 0 on the active set).
-        (res / N)[mask]
+        if (is.null(rdd_const)) {
+            r_ss <- (res / x0_initial)[mask]
+        } else {
+            r_ss <- (res / N)[mask]
+        }
+
+        if (!is.null(x_floor)) {
+            y <- x - x_floor
+            delta <- 0.001
+            penalty <- 0.5 * (y - sqrt(y^2 + delta^2))
+            r_ss <- r_ss + penalty
+        }
+
+        r_ss
     }
 }
