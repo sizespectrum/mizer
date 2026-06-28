@@ -43,7 +43,7 @@ test_that("steadyNewton agrees with steady on a stable model", {
     expect_lt(max(rel[big]), 0.1)
 })
 
-test_that("steadyNewton honours the preserve argument", {
+test_that("steadyNewton honours the preserve and reproduction arguments", {
     pn_level <- steadyNewton(p_steady, preserve = "reproduction_level")
     expect_equal(getReproductionLevel(pn_level),
                  getReproductionLevel(p_steady), tolerance = 1e-5)
@@ -56,25 +56,30 @@ test_that("steadyNewton honours the preserve argument", {
     expect_equal(pn_erepro@species_params$erepro,
                  p_steady@species_params$erepro, tolerance = 1e-5)
 
-    pn_none <- steadyNewton(p_steady, preserve = "none")
+    pn_none <- steadyNewton(p_steady, reproduction = "dynamic")
     expect_equal(pn_none@species_params$R_max,
                  p_steady@species_params$R_max, tolerance = 1e-5)
     expect_equal(pn_none@species_params$erepro,
                  p_steady@species_params$erepro, tolerance = 1e-5)
+
+    # Verify preserve argument is ignored when reproduction = "dynamic"
+    pn_ignored <- steadyNewton(p_steady, reproduction = "dynamic", preserve = "invalid_option")
+    expect_equal(pn_ignored@species_params$R_max,
+                 p_steady@species_params$R_max, tolerance = 1e-5)
 
     # Verify verbose = TRUE captures iteration report output
     out <- capture.output(steadyNewton(p_steady, verbose = TRUE))
     expect_true(any(grepl("Iteration report", out)))
 })
 
-test_that("steadyNewton handles extinctions under preserve = 'none' with relative floor", {
+test_that("steadyNewton handles extinctions under reproduction = 'dynamic' with relative floor", {
     # Make species 3 (Cod) unviable by setting its reproduction efficiency extremely low
     p_extinct <- p_steady
     p_extinct@species_params$erepro[3] <- 1e-12
     p_extinct@initial_n[3, ] <- p_steady@initial_n[3, ]
 
     # Verify that the solver issues the extinction warning and pegs to the floor
-    expect_warning(pn_ext <- steadyNewton(p_extinct, preserve = "none", extinction_floor = 1e-6),
+    expect_warning(pn_ext <- steadyNewton(p_extinct, reproduction = "dynamic", extinction_floor = 1e-6),
                    "went extinct and were pegged to their abundance floor")
 
     # Verify Cod abundance is pegged exactly to the floor (1e-6 of its initial abundance)

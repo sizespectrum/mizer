@@ -10,12 +10,13 @@ steadyNewton(params, ...)
 \method{steadyNewton}{MizerParams}(
   params,
   effort = params@initial_effort,
-  preserve = c("reproduction_level", "erepro", "R_max", "none"),
+  preserve = c("reproduction_level", "erepro", "R_max"),
+  reproduction = c("fixed", "dynamic"),
   extinction_floor = 1e-06,
   verbose = FALSE,
-  tol = 1e-10,
-  maxit = 100,
-  method = c("Newton", "Broyden"),
+  tol = 1e-06,
+  maxit = 200,
+  method = c("Broyden", "Newton"),
   global = "dbldog",
   ...
 )
@@ -33,26 +34,29 @@ the starting guess for the iteration.}
 Specifies whether the \code{reproduction_level} should be preserved (default)
 or the maximum reproduction rate \code{R_max} or the reproductive efficiency
 \code{erepro}. See \code{\link[=setBevertonHolt]{setBevertonHolt()}} for an explanation of the
-\code{reproduction_level}. Alternatively, \code{"none"} finds the steady state given
-the current reproduction parameters (fixed \code{erepro} and \code{R_max}) without
-re-adjusting them.}
+\code{reproduction_level}. This argument is ignored when \code{reproduction = "dynamic"}.}
+
+\item{reproduction}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+If \code{"fixed"}, the reproduction rate (RDD) is held constant at the initial
+value. If \code{"dynamic"}, the reproduction dynamics are run dynamically and the
+reproduction parameters are not adjusted. Default is \code{"fixed"}.}
 
 \item{extinction_floor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 The relative abundance floor below which a species is considered extinct.
-Only used when \code{preserve = "none"}. Default is 1e-6.}
+Only used when \code{reproduction = "dynamic"}. Default is 1e-6.}
 
-\item{verbose}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-If \code{TRUE} then the solver iterations will be traced and printed to the console.
-Default is \code{FALSE}.}
+\item{verbose}{If \code{TRUE} then the solver iterations will be traced and
+printed to the console. Default is \code{FALSE}.}
 
 \item{tol}{Convergence tolerance passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}} (both the
 function-value tolerance \code{ftol} and the step tolerance \code{xtol}).}
 
 \item{maxit}{Maximum number of iterations for \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}}.}
 
-\item{method}{The \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}} method, either \code{"Newton"} (default, a
-full Newton step with a numerical Jacobian — fastest and most accurate when
-the starting guess is reasonable) or \code{"Broyden"}.}
+\item{method}{The \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}} method, either \code{"Newton"} (with a
+numerical Jacobian calculated at each iteration) or \code{"Broyden"} (which
+calculates the full Jacobian only once and then only updates it on each
+iteration. '"Broyden"' is the default.}
 
 \item{global}{The globalisation strategy passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}}.
 The default \code{"dbldog"} (double dogleg) is a robust trust-region method.}
@@ -71,12 +75,15 @@ a case in which \code{\link[=steady]{steady()}} fails because the time-stepping 
 the fixed point.
 }
 \details{
-Like \code{\link[=steady]{steady()}}, the function holds the reproduction rate (RDD) constant
-while solving for the consumer spectra, substitutes the analytic steady state
-of the resource, and keeps any other components constant. After the spectra
-have been found it restores density-dependent Beverton-Holt reproduction with
-\code{\link[=setBevertonHolt]{setBevertonHolt()}}, honouring the \code{preserve} argument exactly as \code{\link[=steady]{steady()}}
-does.
+By default, or when \code{reproduction = "fixed"}, the function holds the
+reproduction rate (RDD) constant while solving for the consumer spectra,
+substitutes the analytic steady state of the resource, and keeps any other
+components constant. After the spectra have been found it restores
+density-dependent Beverton-Holt reproduction with \code{\link[=setBevertonHolt]{setBevertonHolt()}},
+honouring the \code{preserve} argument exactly as \code{\link[=steady]{steady()}} does.
+If \code{reproduction = "dynamic"}, the reproduction dynamics are run dynamically,
+meaning the reproduction rate varies during the solve and the reproduction
+parameters are not adjusted.
 
 The consumer densities are solved for in log space, which both keeps them
 positive and conditions the otherwise badly-scaled system. The unknowns are
