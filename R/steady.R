@@ -218,6 +218,8 @@ projectToSteady.MizerParams <- function(params,
     params@initial_n_pp[] <- current$n_pp
     params@initial_n_other[] <- current$n_other
 
+    warn_if_w_max_violation(params, n = current$n, rates = current$rates)
+
     if (return_sim) {
         sim@params <- params
         sel <- 1:i

@@ -391,6 +391,8 @@ project.MizerParams <- function(object, effort,
         sim@n_other[i, ] <- unserialize(serialize(n_list$n_other, NULL))
     }
 
+    warn_if_w_max_violation(params, n = n_list$n, rates = n_list$rates)
+
     return(sim)
 }
 

@@ -1,5 +1,7 @@
 # development version
 
+- Adds a warning to `project()` and `projectToSteady()` / `steady()` if the abundance of any species at its maximum size `w_max` is not negligible, indicating that the chosen `w_max` is too small and individuals are being cut off by the upper boundary condition.
+
 - New experimental `steadyNewton()` finds a steady state by solving the
   steady-state equation directly with a Newton-type root finder (using the
   `nleqslv` package) instead of running the dynamics to convergence. Unlike

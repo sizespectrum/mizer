@@ -498,3 +498,15 @@ test_that("Predation diffusion changes simulation trajectory", {
     sim_base <- project(NS_params_small, t_max = 1)
     expect_false(identical(sim_d@n, sim_base@n))
 })
+
+test_that("warn_if_w_max_violation warns when w_max is too small", {
+    # Check that it doesn't warn on default NS_params_small
+    expect_warning(project(NS_params_small, t_max = 1), NA)
+
+    # Check that it warns when w_max of Herring is set too small
+    params <- NS_params_small
+    params@species_params$w_max[2] <- 5
+    params <- validParams(params)
+    expect_warning(project(params, t_max = 1), "abundance is not negligible at their maximum size w_max")
+})
+
