@@ -563,7 +563,7 @@ specifies the weight at which 25\% of individuals are mature, which sets
 w_mat25).}
 
 The sigmoidal function given above would strictly reach 0 only
-asymptotically and thus have some (negligible) amound of reproduction at
+asymptotically and thus have some (negligible) amount of reproduction at
 arbitrarily small size.
 For computational simplicity, any proportion smaller than
 \code{1e-8} is set to \code{0}.

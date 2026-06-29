@@ -161,18 +161,18 @@ get_transport_coefs <- function(params, n, g, mu, dt, recruitment_flux, d,
 #' \itemize{
 #'   \item the growth velocity is the point value at the bin boundary, \eqn{g_j};
 #'   \item the density at the boundary is reconstructed from the two flanking bin
-#'     averages, \eqn{N_{j-1} + \tfrac12\psi_j(N_j - N_{j-1})}, which is the
-#'     centred value \eqn{\tfrac12(N_{j-1}+N_j)} when \eqn{\psi_j = 1} and pure
-#'     upwind when \eqn{\psi_j = 0};
+#'     averages, \eqn{N_{j-1} + \tfrac12\chi_j(N_j - N_{j-1})}, which is the
+#'     centred value \eqn{\tfrac12(N_{j-1}+N_j)} when \eqn{\chi_j = 1} and pure
+#'     upwind when \eqn{\chi_j = 0};
 #'   \item the diffusion coefficient is the **bin average** \eqn{d_j} supplied in
 #'     `d` ([getDiffusion()] returns the bin average when `bin_average` is on,
 #'     gated just like the mortality), so the diffusive flux differences the
 #'     bin-averaged products \eqn{d_jN_j} between bin centres.
 #' }
 #' The advective flux is therefore
-#' \eqn{J_j = g_j\,[N_{j-1} + \tfrac12\psi_j(N_j - N_{j-1})]}. The sink uses the
+#' \eqn{J_j = g_j\,[N_{j-1} + \tfrac12\chi_j(N_j - N_{j-1})]}. The sink uses the
 #' supplied mortality `mu`, which is the bin average when `bin_average` is on;
-#' both flags together give a fully second-order step. Because \eqn{\psi} is
+#' both flags together give a fully second-order step. Because \eqn{\chi} is
 #' frozen the operator stays tridiagonal with the same \eqn{\Delta w} divisor.
 #' @noRd
 get_transport_coefs_logfv <- function(params, n, g, mu, dt, recruitment_flux,
@@ -196,10 +196,10 @@ get_transport_coefs_logfv <- function(params, n, g, mu, dt, recruitment_flux,
     # face (clamped at the outflow top, where the limiter is off anyway).
     gR <- cbind(g[, -1, drop = FALSE], g[, no_w, drop = FALSE])     # g_{j+1}
 
-    # Frozen reconstruction weight psi[, j] at the face below cell j. psi == 1
-    # gives the centred reconstruction, psi == 0 first-order upwind.
-    psi <- flux_limiter_psi(params, n, g, flux_limiter)
-    psiR <- cbind(psi[, -1, drop = FALSE], matrix(0, no_sp, 1))     # psi_{j+1}
+    # Frozen reconstruction weight chi[, j] at the face below cell j. chi == 1
+    # gives the centred reconstruction, chi == 0 first-order upwind.
+    chi <- flux_limiter_chi(params, n, g, flux_limiter)
+    chiR <- cbind(chi[, -1, drop = FALSE], matrix(0, no_sp, 1))     # chi_{j+1}
 
     # Per-node 1 / (2 h w) factors for the diffusive flux, with the upper face
     # using w_{j+1} (extrapolated past the top).
@@ -209,10 +209,10 @@ get_transport_coefs_logfv <- function(params, n, g, mu, dt, recruitment_flux,
     over_dw <- M(dt / params@dw)
 
     # Interior coefficients (faces at the nodes, divisor Delta w_j).
-    a <- -over_dw * (g * (1 - 0.5 * psi) + dL * f_lo)
+    a <- -over_dw * (g * (1 - 0.5 * chi) + dL * f_lo)
     b <- 1 + dt * mu +
-        over_dw * (gR * (1 - 0.5 * psiR) - 0.5 * psi * g + d * (f_lo + f_hi))
-    c <- over_dw * (0.5 * psiR * gR - dR * f_hi)
+        over_dw * (gR * (1 - 0.5 * chiR) - 0.5 * chi * g + d * (f_lo + f_hi))
+    c <- over_dw * (0.5 * chiR * gR - dR * f_hi)
     dimnames(a) <- dimnames(b) <- dimnames(c) <-
         list(params@species_params$species, NULL)
     c[, no_w] <- 0                  # no cell above the top: pure outflow
@@ -226,7 +226,7 @@ get_transport_coefs_logfv <- function(params, n, g, mu, dt, recruitment_flux,
     j_start <- params@w_min_idx
     idxs <- cbind(seq_len(no_sp), j_start)
     b[idxs] <- 1 + dt * mu[idxs] + (dt / params@dw[j_start]) *
-        (gR[idxs] * (1 - 0.5 * psiR[idxs]) +
+        (gR[idxs] * (1 - 0.5 * chiR[idxs]) +
              d[idxs] / (2 * h * wR[j_start]))
     a[idxs] <- 0
     S[idxs] <- S[idxs] + recruitment_flux * dt / params@dw[j_start]
@@ -302,7 +302,7 @@ get_transport_coefs_upwind <- function(params, n, g, mu, dt, recruitment_flux,
     list(a = a, b = b, c = c, S = S)
 }
 
-# Flux limiter functions psi(r) of the smoothness ratio r. To add another
+# Flux limiter functions chi(r) of the smoothness ratio r. To add another
 # limiter, give it a name here and offer that name in the `flux_limiter`
 # argument of `project()`.
 flux_limiter_funcs <- list(
@@ -313,40 +313,40 @@ flux_limiter_funcs <- list(
 #'
 #' The second-order scheme reconstructs the density at the face below cell `j`
 #' from the two flanking cell averages,
-#' \deqn{N_j^{face} = N_{j-1} + \tfrac12\,\psi_j\,(N_j - N_{j-1}),}
-#' so that \eqn{\psi_j = 1} gives the centred value \eqn{\tfrac12(N_{j-1}+N_j)}
-#' and \eqn{\psi_j = 0} gives pure upwind. This helper returns the weights
-#' \eqn{\psi}, frozen at a known density field so that the advective flux
+#' \deqn{N_j^{face} = N_{j-1} + \tfrac12\,\chi_j\,(N_j - N_{j-1}),}
+#' so that \eqn{\chi_j = 1} gives the centred value \eqn{\tfrac12(N_{j-1}+N_j)}
+#' and \eqn{\chi_j = 0} gives pure upwind. This helper returns the weights
+#' \eqn{\chi}, frozen at a known density field so that the advective flux
 #' \eqn{g_j N_j^{face}} is linear in the unknowns and the operator stays
-#' tridiagonal. `psi[, j]` is the weight at the face below cell `j`.
+#' tridiagonal. `chi[, j]` is the weight at the face below cell `j`.
 #'
 #' For `"centred"` the weight is `1` everywhere (pure second-order centred flux,
 #' not TVD: it can over/undershoot but is genuinely second order, including at
-#' extrema). For `"van_leer"` it is the van Leer limiter \eqn{\psi(r_j)} of the
+#' extrema). For `"van_leer"` it is the van Leer limiter \eqn{\chi(r_j)} of the
 #' smoothness ratio \eqn{r_j} of successive jumps of the density \eqn{N}, which
 #' falls to `0` at extrema and so keeps the update positivity-friendly (TVD). In
-#' both cases \eqn{\psi} is forced to `0` at and below the non-smooth recruitment
+#' both cases \eqn{\chi} is forced to `0` at and below the non-smooth recruitment
 #' boundary, where the advective flux stays first-order upwind.
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @param n Density field (species x size) at which to freeze the weights.
 #' @param g Growth rate (species x size). Unused; kept for interface symmetry.
 #' @param flux_limiter `"none"`, `"centred"` or `"van_leer"`.
-#' @return A (species x size) matrix `psi`. Zero everywhere when
+#' @return A (species x size) matrix `chi`. Zero everywhere when
 #'   `flux_limiter == "none"`.
 #' @noRd
-flux_limiter_psi <- function(params, n, g, flux_limiter) {
+flux_limiter_chi <- function(params, n, g, flux_limiter) {
     no_sp <- nrow(n)
     no_w <- ncol(n)
-    psi <- matrix(0, nrow = no_sp, ncol = no_w)
+    chi <- matrix(0, nrow = no_sp, ncol = no_w)
     # The high-order term needs an upstream and a downstream bin, so it is only
     # defined once there are at least three size bins.
     if (flux_limiter == "none" || no_w < 3) {
-        return(psi)
+        return(chi)
     }
 
     if (flux_limiter == "centred") {
-        psi[, 3:no_w] <- 1
+        chi[, 3:no_w] <- 1
     } else {
         limiter <- flux_limiter_funcs[[flux_limiter]]
         # Jump of the reconstructed variable N across the face below cell j,
@@ -357,7 +357,7 @@ flux_limiter_psi <- function(params, n, g, flux_limiter) {
         num <- delta[, jint - 1, drop = FALSE]   # delta_{j-1}
         den <- delta[, jint, drop = FALSE]       # delta_j
         r <- ifelse(den == 0, 0, num / den)      # upwind where the jump is 0
-        psi[, jint] <- limiter(r)
+        chi[, jint] <- limiter(r)
     }
 
     # First-order upwind at and below the recruitment boundary, and at the first
@@ -365,6 +365,6 @@ flux_limiter_psi <- function(params, n, g, flux_limiter) {
     # the inactive region below the boundary or the non-smooth recruitment boundary cell.
     j_start <- params@w_min_idx
     w_idx_mat <- matrix(1:no_w, nrow = no_sp, ncol = no_w, byrow = TRUE)
-    psi[w_idx_mat <= j_start + 2] <- 0
-    psi
+    chi[w_idx_mat <= j_start + 2] <- 0
+    chi
 }

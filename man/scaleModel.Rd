@@ -21,7 +21,7 @@ The rescaled MizerParams object
 
 The abundances in mizer and some rates depend on the size of the area to
 which they refer. So they could be given per square meter or per square
-kilometer or for an entire study area or any other choice of yours. This
+kilometre or for an entire study area or any other choice of yours. This
 function allows you to change the scale of the model by automatically
 changing the abundances and rates accordingly.
 }

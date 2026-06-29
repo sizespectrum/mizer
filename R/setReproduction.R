@@ -39,7 +39,7 @@
 #' w_mat25).}
 #'
 #' The sigmoidal function given above would strictly reach 0 only
-#' asymptotically and thus have some (negligible) amound of reproduction at
+#' asymptotically and thus have some (negligible) amount of reproduction at
 #' arbitrarily small size.
 #' For computational simplicity, any proportion smaller than
 #' `1e-8` is set to `0`.
