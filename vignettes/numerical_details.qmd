@@ -160,22 +160,23 @@ Comparing this to the general discretised equation translates to modifying the f
 (Additionally, for any size classes below the recruitment size $j < j_{min}$, we set all coefficients in the matrices $A$, $B$, $C$ and vector $S$ to $0$ to avoid any dynamics in that range).
 
 **At the largest size ($j=j_{max}$):**
-The size grid is truncated at each species' maximum size $w_{max}$, and we hold
-the density at zero above it,
+The size grid is truncated at $w_{max}$, and the density above it is held at zero:
 $$ N_{j}^{t+1} = 0 \quad\text{for } j > j_{max}. $$ {#eq-upper-bc-zero}
-This is a property of the computational grid, not of the rates. Here $w_{max}$ is
-purely the top of the size grid (and the plot range); it is a *different*
-parameter from $w_{repro\_max}$, the size at which a typical mature individual
-diverts all of its available energy into reproduction. Somatic growth slows down
-around $w_{repro\_max}$, not at $w_{max}$, so whether the growth rate has actually
-reached zero near $w_{max}$ depends entirely on how large the user chose $w_{max}$
-relative to $w_{repro\_max}$ — and even at $w_{repro\_max}$ growth need not vanish
-for every individual, since the maturity ogive is gradual and diffusion lets some
-fish grow beyond it. The truncation @eq-upper-bc-zero therefore makes **no
-assumption** that the rates are zero at $w_{max}$; it is simply a cut-off of the
-finite grid, appropriate when $w_{max}$ is chosen large enough that the density
-(and the flux leaving the grid through the boundary $w_{j_{max}+1}$) is negligible
-there. Choosing $w_{max}$ that large is the modeller's responsibility.
+Any flux that reaches the upper boundary $w_{j_{max}+1}$ is simply lost — the
+boundary absorbs it rather than reflecting it back. One could interpret this as an
+infinite senescent mortality that removes every fish reaching $w_{max}$, but a
+better approach is to choose $w_{max}$ **large enough that
+the flux reaching the boundary is already negligible**: fish should grow to their
+asymptotic size and die of natural mortality well before $w_{max}$, so the
+truncation has no material effect on the dynamics.
+
+Note that $w_{max}$ is distinct from $w_{repro\_max}$, the size at which a typical
+mature individual diverts all available energy into reproduction. Somatic growth
+slows around $w_{repro\_max}$, but not instantaneously — the maturity ogive is
+gradual, diffusion lets some individuals grow beyond it, and at $w_{repro\_max}$
+the growth rate need not vanish entirely. Choosing $w_{max}$ sufficiently larger
+than $w_{repro\_max}$ ensures that both the density and the flux have decayed to
+negligible levels before the boundary is reached.
 
 The top retained class $j_{max}$ depends on the scheme, because the two schemes
 place the advective inflow differently. With $w_{max\_idx} = \max\{j : w_j \le
