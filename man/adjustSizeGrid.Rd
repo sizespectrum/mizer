@@ -11,6 +11,7 @@ adjustSizeGrid(params, ...)
   params,
   new_min_w = min(params@species_params$w_min),
   new_max_w = max(params@species_params$w_max),
+  new_min_w_pp = min(params@w_full),
   preserve_species = params@species_params$species,
   tol = 1e-06,
   ...
@@ -26,6 +27,9 @@ egg size of all species.}
 
 \item{new_max_w}{The new maximum size in the grid. Defaults to the maximum
 asymptotic size of all species.}
+
+\item{new_min_w_pp}{The new minimum size of the resource spectrum. Defaults
+to the current minimum of \code{w_full}.}
 
 \item{preserve_species}{A vector of species names for which all rate arrays
 should be copied over to the new params object rather than being

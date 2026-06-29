@@ -541,5 +541,20 @@ test_that("adjustSizeGrid works for expansion and truncation", {
     # Species w_min larger than new_max_w
     expect_error(adjustSizeGrid(NS_params_small, new_min_w = 0.00001, new_max_w = 0.0001),
                  "The following species have their minimum size w_min larger than the new maximum size:")
+
+    # 6. Resource spectrum truncation (new_min_w_pp)
+    # Truncate resource at the bottom and expect diet loss warning
+    expect_warning(adjustSizeGrid(params, new_min_w_pp = params@w_full[4]),
+                   "Non-negligible diet of smallest fish was lost due to resource truncation:")
+
+    # When resource is zeroed out in the truncated region, no warning is issued
+    params_clean <- params
+    params_clean@initial_n_pp[params@w_full < params@w_full[4]] <- 0
+    p_clean_pp <- expect_warning(adjustSizeGrid(params_clean, new_min_w_pp = params@w_full[4]), NA)
+    expect_equal(min(p_clean_pp@w_full), params@w_full[4])
+
+    # Error when new_min_w_pp >= new_min_w
+    expect_error(adjustSizeGrid(NS_params_small, new_min_w_pp = min(NS_params_small@w)),
+                 "new_min_w_pp must be smaller than new_min_w.")
 })
 

@@ -557,6 +557,8 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
 #'   egg size of all species.
 #' @param new_max_w The new maximum size in the grid. Defaults to the maximum
 #'   asymptotic size of all species.
+#' @param new_min_w_pp The new minimum size of the resource spectrum. Defaults
+#'   to the current minimum of `w_full`.
 #' @param preserve_species A vector of species names for which all rate arrays
 #'   should be copied over to the new params object rather than being
 #'   re-calculated from the species parameters. If missing, all species are
@@ -578,6 +580,7 @@ adjustSizeGrid <- function(params, ...) {
 adjustSizeGrid.MizerParams <- function(params,
                                        new_min_w = min(params@species_params$w_min),
                                        new_max_w = max(params@species_params$w_max),
+                                       new_min_w_pp = min(params@w_full),
                                        preserve_species = params@species_params$species,
                                        tol = 1e-6,
                                        ...) {
@@ -588,6 +591,7 @@ adjustSizeGrid.MizerParams <- function(params,
     # Short-circuit if no adjustment is needed
     if (abs(new_min_w - min_w) < .Machine$double.eps &&
         abs(new_max_w - max_w) < .Machine$double.eps &&
+        abs(new_min_w_pp - min(params@w_full)) < .Machine$double.eps &&
         all(preserve_species == params@species_params$species)) {
         params@time_modified <- lubridate::now()
         return(params)
@@ -610,9 +614,23 @@ adjustSizeGrid.MizerParams <- function(params,
     k_max <- ceiling(log10(new_max_w / min_w) / dx - 1e-9)
     new_max_w <- min_w * 10^(k_max * dx)
 
+    # Align/snap new_min_w_pp
+    if (new_min_w_pp < min(params@w_full) - .Machine$double.eps) {
+        stop("The smallest resource size is too small.")
+    }
+    k_min_pp <- floor(log10(new_min_w_pp / min_w) / dx + 1e-9)
+    k_min_pp_limit <- round(log10(min(params@w_full) / min_w) / dx)
+    if (k_min_pp < k_min_pp_limit) {
+        k_min_pp <- k_min_pp_limit
+    }
+    new_min_w_pp <- min_w * 10^(k_min_pp * dx)
+
     # Safety checks
     if (new_min_w >= new_max_w) {
         stop("new_min_w must be smaller than new_max_w.")
+    }
+    if (new_min_w_pp >= new_min_w) {
+        stop("new_min_w_pp must be smaller than new_min_w.")
     }
     too_small_species <- params@species_params$species[sp_sel & params@species_params$w_max < new_min_w]
     if (length(too_small_species) > 0) {
@@ -646,7 +664,7 @@ adjustSizeGrid.MizerParams <- function(params,
         interaction = params@interaction,
         max_w = new_max_w,
         min_w = new_min_w,
-        min_w_pp = (params@w_full[[1]] + params@w_full[[2]]) / 2,
+        min_w_pp = new_min_w_pp * 10^(0.5 * dx),
         no_w = new_no_w,
         gear_params = params@gear_params,
         initial_effort = params@initial_effort,
@@ -698,9 +716,13 @@ adjustSizeGrid.MizerParams <- function(params,
     old_full_idx <- which(!is.na(match_full_new))
     new_full_idx <- match_full_new[old_full_idx]
 
-    # Check for biomass loss warnings
+    # Check for biomass/diet loss warnings
     truncated_idx <- setdiff(seq_along(params@w), old_idx)
-    truncated_full_idx <- setdiff(seq_along(params@w_full), old_full_idx)
+    
+    # Low-end resource truncation (below new_min_w_pp)
+    truncated_full_low_idx <- which(params@w_full < min(p@w_full) - .Machine$double.eps)
+    # High-end resource truncation (above new_max_w)
+    truncated_full_high_idx <- which(params@w_full > max(p@w_full) + .Machine$double.eps)
 
     if (length(truncated_idx) > 0) {
         lost_fracs <- sapply(seq_along(params@species_params$species), function(sp_idx) {
@@ -716,10 +738,38 @@ adjustSizeGrid.MizerParams <- function(params,
         }
     }
 
-    if (length(truncated_full_idx) > 0) {
+    # Resource low-end truncation: check diet loss of smallest fish
+    if (length(truncated_full_low_idx) > 0) {
+        pred_kernel <- getPredKernel(params)
+        encounter_old <- getEncounter(params)
+        
+        lost_diet_fracs <- sapply(seq_along(params@species_params$species), function(sp_idx) {
+            w_egg_idx <- params@w_min_idx[sp_idx]
+            tot_diet <- encounter_old[sp_idx, w_egg_idx]
+            if (tot_diet <= 0) return(0)
+            
+            lost_enc <- params@search_vol[sp_idx, w_egg_idx] * 
+                params@species_params$interaction_resource[sp_idx] * 
+                sum(pred_kernel[sp_idx, w_egg_idx, truncated_full_low_idx] * 
+                    params@w_full[truncated_full_low_idx] * 
+                    params@dw_full[truncated_full_low_idx] * 
+                    params@initial_n_pp[truncated_full_low_idx])
+            
+            return(lost_enc / tot_diet)
+        })
+        names(lost_diet_fracs) <- params@species_params$species
+        warn_diet <- lost_diet_fracs[lost_diet_fracs > tol]
+        if (length(warn_diet) > 0) {
+            warning("Non-negligible diet of smallest fish was lost due to resource truncation: ",
+                    paste(names(warn_diet), sprintf("(%.2f%%)", warn_diet * 100), collapse = ", "))
+        }
+    }
+
+    # Resource high-end truncation: check resource biomass loss
+    if (length(truncated_full_high_idx) > 0) {
         tot_pp <- sum(params@initial_n_pp * params@w_full * params@dw_full)
         if (tot_pp > 0) {
-            lost_pp <- sum(params@initial_n_pp[truncated_full_idx] * params@w_full[truncated_full_idx] * params@dw_full[truncated_full_idx]) / tot_pp
+            lost_pp <- sum(params@initial_n_pp[truncated_full_high_idx] * params@w_full[truncated_full_high_idx] * params@dw_full[truncated_full_high_idx]) / tot_pp
             if (lost_pp > tol) {
                 warning("Non-negligible resource biomass (", sprintf("%.2f%%", lost_pp * 100), ") was lost due to grid truncation.")
             }
