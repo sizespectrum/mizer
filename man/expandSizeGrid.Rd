@@ -20,11 +20,9 @@ expandSizeGrid(params, ...)
 
 \item{...}{Additional arguments (currently unused).}
 
-\item{new_min_w}{The new minimum size in the grid. Must not be larger than
-the current minimum size.}
+\item{new_min_w}{The new minimum size in the grid. Defaults to the current minimum.}
 
-\item{new_max_w}{The new maximum size in the grid. Must not be smaller than
-the current maximum size.}
+\item{new_max_w}{The new maximum size in the grid. Defaults to the current maximum.}
 
 \item{preserve_species}{A vector of species names for which all rate arrays
 should be copied over to the new params object rather than being
@@ -35,6 +33,9 @@ preserved.}
 A new \link{MizerParams} object with the updated size grid.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+}
+\details{
 This function expands the size grid in a \link{MizerParams} object to the desired
 min and max size, preserving all existing species.
 }

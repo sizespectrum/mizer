@@ -434,8 +434,12 @@ test_that("renameGear warns on wrong names", {
 })
 
 # expandSizeGrid ----
+test_that("expandSizeGrid is deprecated", {
+    expect_warning(expandSizeGrid(NS_params_small), "deprecated")
+})
+
 test_that("expandSizeGrid works", {
-    params <- expandSizeGrid(NS_params_small, new_min_w = 1e-4, new_max_w = 50000)
+    params <- suppressWarnings(expandSizeGrid(NS_params_small, new_min_w = 1e-4, new_max_w = 50000))
     expect_lt(min(params@w), 1e-4)
     expect_gt(max(params@w), 50000)
     min_idx <- sum(params@w < min(NS_params_small@w)) + 1
@@ -448,7 +452,7 @@ test_that("expandSizeGrid works", {
 })
 
 test_that("expandSizeGrid preserves existing data", {
-    params <- expandSizeGrid(NS_params_small)
+    params <- suppressWarnings(expandSizeGrid(NS_params_small, new_min_w = min(NS_params_small@w), new_max_w = max(NS_params_small@w)))
     expect_unchanged(params, NS_params_small)
 })
 
@@ -457,7 +461,7 @@ test_that("expandSizeGrid preserves slots recently added to upgradeParams", {
     params <- small_trait_grid_manipulate_params
     params <- randomise_upgrade_preserved_slots(params)
 
-    p <- expandSizeGrid(params, new_max_w = max(params@w) * 10)
+    p <- suppressWarnings(expandSizeGrid(params, new_max_w = max(params@w) * 10))
     old_sp <- seq_len(nrow(params@species_params))
     old_w <- seq_along(params@w)
 
@@ -475,9 +479,67 @@ test_that("expandSizeGrid preserves the class", {
         methods::setClass("ExpandGridTestParams", contains = "MizerParams")
     }
     params <- as(small_trait_grid_manipulate_params, "ExpandGridTestParams")
-    p <- expandSizeGrid(params, new_max_w = max(params@w) * 10)
+    p <- suppressWarnings(expandSizeGrid(params, new_max_w = max(params@w) * 10))
 
     expect_s4_class(p, "ExpandGridTestParams")
     expect_true(validObject(p))
+})
+
+# adjustSizeGrid ----
+test_that("adjustSizeGrid works for expansion and truncation", {
+    # 1. No-op
+    p_noop <- adjustSizeGrid(NS_params_small, new_min_w = min(NS_params_small@w), new_max_w = max(NS_params_small@w))
+    expect_unchanged(p_noop, NS_params_small)
+
+    # 2. Expansion (should match expandSizeGrid output)
+    p_exp <- adjustSizeGrid(NS_params_small, new_min_w = 1e-4, new_max_w = 50000)
+    p_exp_ref <- suppressWarnings(expandSizeGrid(NS_params_small, new_min_w = 1e-4, new_max_w = 50000))
+    expect_equal(p_exp, p_exp_ref)
+
+    # 3. Truncation
+    # First, let's zero out abundance in the margins to avoid warnings
+    params <- NS_params_small
+    min_w_val <- params@w[5]
+    max_w_val <- params@w[15]
+    params@initial_n[, params@w < min_w_val] <- 0
+    params@initial_n[, params@w > max_w_val] <- 0
+    params@initial_n_pp[params@w_full < min_w_val] <- 0
+    params@initial_n_pp[params@w_full > max_w_val] <- 0
+
+    p_trunc <- expect_warning(adjustSizeGrid(params, new_min_w = min_w_val, new_max_w = max_w_val), NA)
+    expect_equal(min(p_trunc@w), min_w_val)
+    expect_equal(max(p_trunc@w), max_w_val)
+
+    # 4. Truncation warning when abundance is present
+    params <- NS_params_small
+    # With original abundance (very high at small sizes), truncating at the bottom triggers species warning:
+    expect_warning(adjustSizeGrid(params, new_min_w = params@w[3]),
+                   "Non-negligible species biomass was lost due to grid truncation: Sprat")
+
+    # Truncating at the top triggers species biomass warning:
+    expect_warning(adjustSizeGrid(params, new_max_w = params@w[18]),
+                   "Non-negligible species biomass was lost")
+
+    # Truncating further down with low tol and non-zero resource at large sizes triggers resource biomass warning:
+    params_pp <- params
+    params_pp@resource_params$w_pp_cutoff <- 50000
+    params_pp@initial_n_pp[] <- 1
+    expect_warning(
+        expect_warning(
+            adjustSizeGrid(params_pp, new_max_w = params@w[18], tol = 1e-15),
+            "Non-negligible species biomass was lost"
+        ),
+        "Non-negligible resource biomass"
+    )
+
+    # 5. Invalid parameters
+    expect_error(adjustSizeGrid(NS_params_small, new_min_w = 10, new_max_w = 2),
+                 "new_min_w must be smaller than new_max_w.")
+    # Species w_max smaller than new_min_w
+    expect_error(adjustSizeGrid(NS_params_small, new_min_w = 100),
+                 "The following species have their maximum size w_max smaller than the new minimum size: Sprat")
+    # Species w_min larger than new_max_w
+    expect_error(adjustSizeGrid(NS_params_small, new_min_w = 0.00001, new_max_w = 0.0001),
+                 "The following species have their minimum size w_min larger than the new maximum size:")
 })
 

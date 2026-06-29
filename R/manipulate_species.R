@@ -544,88 +544,108 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
     params@time_modified <- lubridate::now()
     return(params)
 }
-
-#' Expand the size grid
+#' Adjust the size grid
 #'
-#' This function expands the size grid in a [MizerParams] object to the desired
-#' min and max size, preserving all existing species.
+#' This function adjusts the size grid in a [MizerParams] object to the desired
+#' minimum and maximum size. It can both expand and truncate the grid.
+#' If the grid is truncated, any data outside the new grid is discarded.
+#' A warning is issued if there is non-negligible biomass in the discarded
+#' size bins.
 #'
 #' @param params A [MizerParams] object.
-#' @param new_min_w The new minimum size in the grid. Must not be larger than
-#'   the current minimum size.
-#' @param new_max_w The new maximum size in the grid. Must not be smaller than
-#'   the current maximum size.
+#' @param new_min_w The new minimum size in the grid. Defaults to the minimum
+#'   egg size of all species.
+#' @param new_max_w The new maximum size in the grid. Defaults to the maximum
+#'   asymptotic size of all species.
 #' @param preserve_species A vector of species names for which all rate arrays
 #'   should be copied over to the new params object rather than being
 #'   re-calculated from the species parameters. If missing, all species are
 #'   preserved.
-#' @param ... Additional arguments (currently unused).
+#' @param tol A numeric value specifying the tolerance for lost biomass.
+#'   If the fraction of species biomass or resource biomass lost due to
+#'   truncation exceeds this value, a warning is raised. Defaults to `1e-6`.
+#' @param ... Additional arguments.
 #'
 #' @return A new [MizerParams] object with the updated size grid.
 #' @export
-#' @rdname expandSizeGrid
-expandSizeGrid <- function(params, ...) {
-    UseMethod("expandSizeGrid")
+#' @rdname adjustSizeGrid
+adjustSizeGrid <- function(params, ...) {
+    UseMethod("adjustSizeGrid")
 }
 
 #' @export
-#' @rdname expandSizeGrid
-expandSizeGrid.MizerParams <- function(params,
-                           new_min_w = min(params@w),
-                           new_max_w = max(params@w),
-                           preserve_species = params@species_params$species,
-                           ...) {
+#' @rdname adjustSizeGrid
+adjustSizeGrid.MizerParams <- function(params,
+                                       new_min_w = min(params@species_params$w_min),
+                                       new_max_w = max(params@species_params$w_max),
+                                       preserve_species = params@species_params$species,
+                                       tol = 1e-6,
+                                       ...) {
     target_class <- class(params)[[1]]
     sp_sel <- valid_species_arg(params, preserve_species, return.logical = TRUE)
     min_w <- min(params@w)
     max_w <- max(params@w)
-    if (new_min_w > min_w || new_max_w < max_w) {
-        stop("`expandSizeGrid()` can only expand, not shrink the grid.")
+    # Short-circuit if no adjustment is needed
+    if (abs(new_min_w - min_w) < .Machine$double.eps &&
+        abs(new_max_w - max_w) < .Machine$double.eps &&
+        all(preserve_species == params@species_params$species)) {
+        params@time_modified <- lubridate::now()
+        return(params)
     }
-    if (new_min_w < min(params@w_full)) {
+
+    dx <- log10(params@w[2] / params@w[1])
+
+    # Align/snap new_min_w
+    if (new_min_w < min(params@w_full) - .Machine$double.eps) {
         stop("The smallest egg size is too small.")
     }
-    # Step 1: Determine the desired size range and calculate new number of bins. ----
-    no_w <- length(params@w)
-    new_no_w <- no_w
-    extra_no_w <- 0  # extra bins added for smaller egg size
-    if (new_max_w > max(params@w) + .Machine$double.eps) {
-        dx <- log10(max_w / min_w) / (no_w - 1)
-        new_no_w <- ceiling(log10(new_max_w / min_w) / dx) + 1
-        new_max_w <- min_w * 10^(dx * (new_no_w - 1))
+    k_min <- floor(log10(new_min_w / min_w) / dx + 1e-9)
+    k_min_limit <- round(log10(min(params@w_full) / min_w) / dx)
+    if (k_min < k_min_limit) {
+        k_min <- k_min_limit
     }
-    if (new_min_w < min(params@w) - .Machine$double.eps) {
-        # We need to set the smallest egg size to a size on the existing grid
-        # so that the new grid will be compatible
-        new_min_w <- max(params@w_full[params@w_full <= new_min_w])
-        extra_no_w <- sum(params@w_full >= new_min_w) - no_w
-        new_no_w <- new_no_w + extra_no_w
+    new_min_w <- min_w * 10^(k_min * dx)
+
+    # Align/snap new_max_w
+    k_max <- ceiling(log10(new_max_w / min_w) / dx - 1e-9)
+    new_max_w <- min_w * 10^(k_max * dx)
+
+    # Safety checks
+    if (new_min_w >= new_max_w) {
+        stop("new_min_w must be smaller than new_max_w.")
+    }
+    too_small_species <- params@species_params$species[sp_sel & params@species_params$w_max < new_min_w]
+    if (length(too_small_species) > 0) {
+        stop("The following species have their maximum size w_max smaller than the new minimum size: ",
+             paste(too_small_species, collapse = ", "))
+    }
+    too_large_species <- params@species_params$species[sp_sel & params@species_params$w_min > new_max_w]
+    if (length(too_large_species) > 0) {
+        stop("The following species have their minimum size w_min larger than the new maximum size: ",
+             paste(too_large_species, collapse = ", "))
     }
 
-    # Step 2: Create a new MizerParams object with the updated size grid ----
+    # Calculate new number of bins
+    new_no_w <- round(log10(new_max_w / new_min_w) / dx) + 1
 
-    # Build a modified species_params to pass to newMultispeciesParams.
-    # We add linetype/linecolour so the new params will inherit the colours.
-    # We also snap the minimum w_min to new_min_w so that emptyParams() creates
-    # the grid starting at new_min_w (emptyParams uses min(species_params$w_min)
-    # as the grid start).
+    # Setup constructor parameters
     sp_params_for_grid <- params@species_params
     sp_params_for_grid$linetype <- params@linetype[params@species_params$species]
     sp_params_for_grid$linecolour <- params@linecolour[params@species_params$species]
-    if (extra_no_w > 0) {
-        # Force at least one species to have w_min = new_min_w so that
-        # emptyParams() creates the grid starting there.
-        idx_min <- which.min(sp_params_for_grid$w_min)
-        sp_params_for_grid$w_min[idx_min] <- new_min_w
-    }
+    sp_params_for_grid$w_min <- pmax(sp_params_for_grid$w_min, new_min_w)
+    sp_params_for_grid$w_max <- pmin(sp_params_for_grid$w_max, new_max_w)
+    sp_params_for_grid$w_mat <- sp_params_for_grid$w_min + (sp_params_for_grid$w_max - sp_params_for_grid$w_min) * 0.5
+    sp_params_for_grid$w_mat25 <- sp_params_for_grid$w_min + (sp_params_for_grid$w_mat - sp_params_for_grid$w_min) * 0.5
+    sp_params_for_grid$w_repro_max <- sp_params_for_grid$w_max
+
+    idx_min <- which.min(sp_params_for_grid$w_min)
+    sp_params_for_grid$w_min[idx_min] <- new_min_w
 
     p <- newMultispeciesParams(
         sp_params_for_grid,
         interaction = params@interaction,
         max_w = new_max_w,
         min_w = new_min_w,
-        # for min_w_pp we choose something that will then be rounded down
-        # to the existing smallest size when emptyParams() creates the new grid
         min_w_pp = (params@w_full[[1]] + params@w_full[[2]]) / 2,
         no_w = new_no_w,
         gear_params = params@gear_params,
@@ -636,33 +656,97 @@ expandSizeGrid.MizerParams <- function(params,
         w_pp_cutoff = params@resource_params$w_pp_cutoff
     )
 
-    # Restore original species_params (without the temporary modifications).
-    # validParams() will recompute w_min_idx from species_params$w_min and p@w.
-    p@species_params <- params@species_params
+    # Update species_params and given_species_params to align with the new grid boundaries
+    new_sp_params <- params@species_params
+    new_sp_params$w_min <- pmax(new_sp_params$w_min, new_min_w)
+    new_sp_params$w_max <- pmin(new_sp_params$w_max, new_max_w)
+    new_sp_params$w_mat <- pmin(new_sp_params$w_mat, new_sp_params$w_max * 0.9)
+    new_sp_params$w_mat25 <- pmin(new_sp_params$w_mat25, new_sp_params$w_mat * 0.9)
+    if ("w_repro_max" %in% names(new_sp_params)) {
+        new_sp_params$w_repro_max <- pmin(new_sp_params$w_repro_max, new_sp_params$w_max)
+    }
+    p@species_params <- new_sp_params
 
-    # Step 3: Copy over data for existing species and resource spectra ----
-    # selector for old w bins inside new w
-    old_w <- (extra_no_w + 1):(extra_no_w + no_w)
-    p@initial_n[sp_sel, old_w] <- params@initial_n[sp_sel, ]
+    new_given_sp_params <- params@given_species_params
+    if ("w_min" %in% names(new_given_sp_params)) {
+        new_given_sp_params$w_min <- pmax(new_given_sp_params$w_min, new_min_w)
+    }
+    if ("w_max" %in% names(new_given_sp_params)) {
+        new_given_sp_params$w_max <- pmin(new_given_sp_params$w_max, new_max_w)
+    }
+    if ("w_mat" %in% names(new_given_sp_params)) {
+        new_given_sp_params$w_mat <- pmin(new_given_sp_params$w_mat, new_sp_params$w_max * 0.9)
+    }
+    if ("w_mat25" %in% names(new_given_sp_params)) {
+        new_given_sp_params$w_mat25 <- pmin(new_given_sp_params$w_mat25, new_sp_params$w_mat * 0.9)
+    }
+    if ("w_repro_max" %in% names(new_given_sp_params)) {
+        new_given_sp_params$w_repro_max <- pmin(new_given_sp_params$w_repro_max, new_sp_params$w_max)
+    }
+    p@given_species_params <- new_given_sp_params
+
+    # Now calculate grid indices
+    old_grid_k <- round(log10(params@w / min_w) / dx)
+    new_grid_k <- round(log10(p@w / min_w) / dx)
+    match_new <- match(old_grid_k, new_grid_k)
+    old_idx <- which(!is.na(match_new))
+    new_idx <- match_new[old_idx]
+
+    old_full_k <- round(log10(params@w_full / min_w) / dx)
+    new_full_k <- round(log10(p@w_full / min_w) / dx)
+    match_full_new <- match(old_full_k, new_full_k)
+    old_full_idx <- which(!is.na(match_full_new))
+    new_full_idx <- match_full_new[old_full_idx]
+
+    # Check for biomass loss warnings
+    truncated_idx <- setdiff(seq_along(params@w), old_idx)
+    truncated_full_idx <- setdiff(seq_along(params@w_full), old_full_idx)
+
+    if (length(truncated_idx) > 0) {
+        lost_fracs <- sapply(seq_along(params@species_params$species), function(sp_idx) {
+            tot <- sum(params@initial_n[sp_idx, ] * params@w * params@dw)
+            if (tot == 0) return(0)
+            sum(params@initial_n[sp_idx, truncated_idx] * params@w[truncated_idx] * params@dw[truncated_idx]) / tot
+        })
+        names(lost_fracs) <- params@species_params$species
+        warn_sp <- lost_fracs[lost_fracs > tol]
+        if (length(warn_sp) > 0) {
+            warning("Non-negligible species biomass was lost due to grid truncation: ",
+                    paste(names(warn_sp), sprintf("(%.2f%%)", warn_sp * 100), collapse = ", "))
+        }
+    }
+
+    if (length(truncated_full_idx) > 0) {
+        tot_pp <- sum(params@initial_n_pp * params@w_full * params@dw_full)
+        if (tot_pp > 0) {
+            lost_pp <- sum(params@initial_n_pp[truncated_full_idx] * params@w_full[truncated_full_idx] * params@dw_full[truncated_full_idx]) / tot_pp
+            if (lost_pp > tol) {
+                warning("Non-negligible resource biomass (", sprintf("%.2f%%", lost_pp * 100), ") was lost due to grid truncation.")
+            }
+        }
+    }
+
+    # Copy over overlapping data
+    p@initial_n[sp_sel, new_idx] <- params@initial_n[sp_sel, old_idx]
     p@A[sp_sel] <- params@A[sp_sel]
-    p@psi[sp_sel, old_w] <- params@psi[sp_sel, ]
-    p@maturity[sp_sel, old_w] <- params@maturity[sp_sel, ]
-    p@sc[old_w] <- params@sc
-    p@mu_b[sp_sel, old_w] <- params@mu_b[sp_sel, ]
-    p@ext_encounter[sp_sel, old_w] <- params@ext_encounter[sp_sel, ]
-    p@ext_diffusion[sp_sel, old_w] <- params@ext_diffusion[sp_sel, ]
-    p@intake_max[sp_sel, old_w] <- params@intake_max[sp_sel, ]
-    p@search_vol[sp_sel, old_w] <- params@search_vol[sp_sel, ]
-    p@metab[sp_sel, old_w] <- params@metab[sp_sel, ]
+    p@psi[sp_sel, new_idx] <- params@psi[sp_sel, old_idx]
+    p@maturity[sp_sel, new_idx] <- params@maturity[sp_sel, old_idx]
+    p@sc[new_idx] <- params@sc[old_idx]
+    p@mu_b[sp_sel, new_idx] <- params@mu_b[sp_sel, old_idx]
+    p@ext_encounter[sp_sel, new_idx] <- params@ext_encounter[sp_sel, old_idx]
+    p@ext_diffusion[sp_sel, new_idx] <- params@ext_diffusion[sp_sel, old_idx]
+    p@intake_max[sp_sel, new_idx] <- params@intake_max[sp_sel, old_idx]
+    p@search_vol[sp_sel, new_idx] <- params@search_vol[sp_sel, old_idx]
+    p@metab[sp_sel, new_idx] <- params@metab[sp_sel, old_idx]
 
-    p@initial_n_pp[1:length(params@w_full)] <- params@initial_n_pp
-    p@cc_pp[1:length(params@w_full)] <- params@cc_pp
-    p@rr_pp[1:length(params@w_full)] <- params@rr_pp
+    p@initial_n_pp[new_full_idx] <- params@initial_n_pp[old_full_idx]
+    p@cc_pp[new_full_idx] <- params@cc_pp[old_full_idx]
+    p@rr_pp[new_full_idx] <- params@rr_pp[old_full_idx]
     p@resource_dynamics <- params@resource_dynamics
     p@resource_params <- params@resource_params
 
-    # Step 4: Preserve other slots and metadata ----
-    p@given_species_params <- params@given_species_params
+    # Preserve other slots and metadata
+    p@given_species_params <- new_given_sp_params
     p <- copyPreservedParamsSlots(p, params)
     p <- setColours(p, params@linecolour)
     p <- setLinetypes(p, params@linetype)
@@ -672,17 +756,55 @@ expandSizeGrid.MizerParams <- function(params,
 
     p <- validParams(p)
 
-    # validParams() may add recently introduced default species parameters
-    # and the constructor may reorder plot metadata. expandSizeGrid() should
-    # preserve the original user-visible metadata exactly.
-    p@species_params <- params@species_params
-    p@given_species_params <- params@given_species_params
+    # Restore plot metadata exactly
+    p@species_params <- new_sp_params
+    p@given_species_params <- new_given_sp_params
     p@linecolour <- params@linecolour
     p@linetype <- params@linetype
 
     p <- restoreParamsClass(p, target_class)
 
     return(p)
+}
+
+#' Expand the size grid
+#'
+#' `r lifecycle::badge("deprecated")`
+#'
+#' This function expands the size grid in a [MizerParams] object to the desired
+#' min and max size, preserving all existing species.
+#'
+#' @param params A [MizerParams] object.
+#' @param new_min_w The new minimum size in the grid. Defaults to the current minimum.
+#' @param new_max_w The new maximum size in the grid. Defaults to the current maximum.
+#' @param preserve_species A vector of species names for which all rate arrays
+#'   should be copied over to the new params object rather than being
+#'   re-calculated from the species parameters. If missing, all species are
+#'   preserved.
+#' @param ... Additional arguments (currently unused).
+#'
+#' @return A new [MizerParams] object with the updated size grid.
+#' @export
+#' @rdname expandSizeGrid
+expandSizeGrid <- function(params, ...) {
+    lifecycle::deprecate_warn("3.1.1", "expandSizeGrid()", "adjustSizeGrid()")
+    UseMethod("expandSizeGrid")
+}
+
+#' @export
+#' @rdname expandSizeGrid
+expandSizeGrid.MizerParams <- function(params,
+                                       new_min_w = min(params@w),
+                                       new_max_w = max(params@w),
+                                       preserve_species = params@species_params$species,
+                                       ...) {
+    min_w <- min(params@w)
+    max_w <- max(params@w)
+    if (new_min_w > min_w || new_max_w < max_w) {
+        stop("`expandSizeGrid()` can only expand, not shrink the grid.")
+    }
+    adjustSizeGrid(params, new_min_w = new_min_w, new_max_w = new_max_w,
+                   preserve_species = preserve_species, ...)
 }
 
 #' Rename gears
