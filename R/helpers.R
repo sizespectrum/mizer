@@ -302,3 +302,52 @@ get_steady_state_n <- function(params, g, mu, D, N0,
 
     return(zero_above_support(n, w_top))
 }
+
+#' Warn if w_max is too small for any species
+#'
+#' Checks whether the total flux (advective + diffusive) of any species at its
+#' maximum size `w_max` is non-negligible compared to the maximum total flux
+#' across all sizes.
+#' 
+#' It also issues a warning if species do not even reach maturity size.
+#'
+#' @param params A MizerParams object.
+#' @param n An array (species x size) with the number density.
+#' @param rates A list of rates as returned by `mizerRates()`.
+#' @param threshold The threshold ratio above which a warning is issued.
+#' @noRd
+warn_if_w_max_violation <- function(params, n, rates, threshold = 1e-5) {
+    w_top <- support_top_idx(params)
+    no_sp <- nrow(params@species_params)
+    flux <- getFlux(params, n = n)
+    violating_species <- character()
+    starving_species <- character()
+    for (i in seq_len(no_sp)) {
+        w_mat_idx <- sum(params@w <= params@species_params[i, "w_mat"])
+        w_max_idx <- sum(params@w <= params@species_params[i, "w_max"])
+        # increase by 1 is needed in second-order scheme and it is also
+        # needed in first-order scheme to not warn on existing models
+        w_max_idx <- min(w_max_idx + 1, length(params@w))
+        if (flux[i, w_mat_idx] > 0) {
+            ratio <- flux[i, w_top[i]] / flux[i, w_mat_idx]
+            if (ratio > threshold) {
+                violating_species <- c(violating_species, params@species_params$species[i])
+            }
+        } else {
+            starving_species <- c(starving_species, params@species_params$species[i])
+        }
+    }
+    if (length(violating_species) > 0) {
+        warning("For the following species, the abundance is not negligible at their maximum size w_max:\n",
+                paste(violating_species, collapse = ", "),
+                ".\nThis means that individuals are being cut off by the upper boundary condition. ",
+                "You should choose a larger w_max for these species.",
+                call. = FALSE)
+    }
+    if (length(starving_species) > 0) {
+        warning("The following species never reach their maturity size:\n",
+                paste(violating_species, collapse = ", "),
+                call. = FALSE)
+    }
+}
+

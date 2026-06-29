@@ -100,7 +100,8 @@ test_that("steadyNewton works with the second-order (van Leer) scheme", {
     sow$flux <- "van_leer"
     sow$bin_average <- TRUE
     second_order_w(p) <- sow
-    ps <- steady(p, t_max = 100, progress_bar = FALSE)
+    expect_warning(ps <- steady(p, t_max = 100, progress_bar = FALSE),
+                   "abundance is not negligible")
 
     pn <- steadyNewton(ps)
     expect_s4_class(pn, "MizerParams")
@@ -108,7 +109,8 @@ test_that("steadyNewton works with the second-order (van Leer) scheme", {
     # dynamics. The van Leer limiter is only Lipschitz, so the Newton residual
     # cannot be driven to machine precision, but the projected drift is the
     # honest test and stays small.
-    sim <- project(pn, t_max = 1, dt = 0.25, t_save = 1)
+    expect_warning(sim <- project(pn, t_max = 1, dt = 0.25, t_save = 1),
+                   "abundance is not negligible")
     n0 <- pn@initial_n
     n1 <- finalN(sim)
     support <- n0 > 0
