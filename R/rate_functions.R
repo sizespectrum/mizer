@@ -1660,13 +1660,13 @@ flux_from_rates <- function(params, n, g, d, rdd, power = 0,
     } else {
         # Second-order log-size scheme: advective velocity at the face, van Leer
         # or centred reconstruction, log-size diffusion denominator h*w_j.
-        # J_{i,j} = g_{i,j} [N_{i,j-1} + psi_{i,j}/2 (N_{i,j} - N_{i,j-1})]
+        # J_{i,j} = g_{i,j} [N_{i,j-1} + chi_{i,j}/2 (N_{i,j} - N_{i,j-1})]
         #           - 1/2 (d_{i,j} N_{i,j} - d_{i,j-1} N_{i,j-1}) / (h w_j)
         h <- log_dx(params)
         w <- params@w
-        psi <- flux_limiter_psi(params, n, g, flux_limiter)
+        chi <- flux_limiter_chi(params, n, g, flux_limiter)
         adv <- g[, idx] * (n[, idx_minus_1] +
-                               0.5 * psi[, idx] * (n[, idx] - n[, idx_minus_1]))
+                               0.5 * chi[, idx] * (n[, idx] - n[, idx_minus_1]))
         diff_term <- (d[, idx] * n[, idx] - d[, idx_minus_1] * n[, idx_minus_1]) /
             matrix(h * w[idx], nrow = no_sp, ncol = length(idx), byrow = TRUE)
         flux[, idx] <- adv - 0.5 * diff_term
@@ -1803,7 +1803,7 @@ getFluxGradient.MizerParams <- function(object,
             0.5 * d[, no_w] * n[, no_w] / dw[no_w]
     } else {
         # Log-size second-order: J_{K+1} = g_K N_K - (0 - d_K N_K) / (2 h w_{K+1})
-        # psi = 0 at the upper boundary (forced upwind there)
+        # chi = 0 at the upper boundary (forced upwind there)
         h <- log_dx(params)
         beta <- params@w[2] / params@w[1]
         w_Kp1 <- params@w[no_w] * beta

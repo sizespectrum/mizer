@@ -579,25 +579,25 @@ In the scheme above only one ingredient is first order: the **upwind reconstruct
 
 ### The reconstruction
 
-The boundary $w_j$ is the midpoint, on the logarithmic axis, of the two bin centres $w_{j-1}^c$ and $w_j^c$, so a second-order estimate of the density there is the average of the two bin averages. We write the general reconstruction with a weight $\psi_j$,
-$$ N(w_j) \approx N_{j-1} + \tfrac12\,\psi_j\,(N_j - N_{j-1}), $$ {#eq-face-reconstruction}
-which is pure upwind ($N_{j-1}$) when $\psi_j = 0$ and the centred value $\tfrac12(N_{j-1}+N_j)$ when $\psi_j = 1$. The advective flux becomes
-$$ J_j^{adv} = g_j\bigl[N_{j-1} + \tfrac12\,\psi_j(N_j - N_{j-1})\bigr]. $$ {#eq-so-face-flux}
-With $\psi_j = 1$ the upwind numerical diffusion is gone and the advective flux is second order. The remaining requirement for a fully second-order model is that the bin-average rates — the diffusion coefficient $d_j$ in the diffusive flux (@eq-diffusive-flux) and the mortality $\mu_j$ in the sink (@eq-bin-averaged-mortality) — actually be bin-averaged rather than point-sampled. That is the job of the `bin_average` entry of the slot, which gates exactly that point-versus-bin-average choice for $d$ and $\mu$ alike.
+The boundary $w_j$ is the midpoint, on the logarithmic axis, of the two bin centres $w_{j-1}^c$ and $w_j^c$, so a second-order estimate of the density there is the average of the two bin averages. We write the general reconstruction with a weight $\chi_j$,
+$$ N(w_j) \approx N_{j-1} + \tfrac12\,\chi_j\,(N_j - N_{j-1}), $$ {#eq-face-reconstruction}
+which is pure upwind ($N_{j-1}$) when $\chi_j = 0$ and the centred value $\tfrac12(N_{j-1}+N_j)$ when $\chi_j = 1$. The advective flux becomes
+$$ J_j^{adv} = g_j\bigl[N_{j-1} + \tfrac12\,\chi_j(N_j - N_{j-1})\bigr]. $$ {#eq-so-face-flux}
+With $\chi_j = 1$ the upwind numerical diffusion is gone and the advective flux is second order. The remaining requirement for a fully second-order model is that the bin-average rates — the diffusion coefficient $d_j$ in the diffusive flux (@eq-diffusive-flux) and the mortality $\mu_j$ in the sink (@eq-bin-averaged-mortality) — actually be bin-averaged rather than point-sampled. That is the job of the `bin_average` entry of the slot, which gates exactly that point-versus-bin-average choice for $d$ and $\mu$ alike.
 
 ### Choosing the weight: van Leer or centred
 
-With $\psi\equiv1$ the reconstruction is the pure **centred** one, which is genuinely second order everywhere, including at smooth extrema, but is not monotonicity-preserving: it can produce small over/undershoots, and at a steady state with no physical diffusion it admits an undamped odd-even mode. With the **van Leer** weight
+With $\chi\equiv1$ the reconstruction is the pure **centred** one, which is genuinely second order everywhere, including at smooth extrema, but is not monotonicity-preserving: it can produce small over/undershoots, and at a steady state with no physical diffusion it admits an undamped odd-even mode. With the **van Leer** weight
 $$
-\psi_j=\psi(r_j),\qquad
-\psi(r)=\frac{r+|r|}{1+|r|},\qquad
+\chi_j=\chi(r_j),\qquad
+\chi(r)=\frac{r+|r|}{1+|r|},\qquad
 r_j=\frac{N_{j-1}-N_{j-2}}{N_j-N_{j-1}},
 $$ {#eq-van-leer}
-the scheme is *total-variation diminishing* (TVD): $\psi\to1$ where the solution is smooth, and $\psi\to0$ (pure upwind) at extrema and at the non-smooth recruitment boundary. This keeps abundances non-negative and manufactures no new oscillations, at the price — a corollary of Godunov's theorem — of dropping to first order at smooth extrema.
+the scheme is *total-variation diminishing* (TVD): $\chi\to1$ where the solution is smooth, and $\chi\to0$ (pure upwind) at extrema and at the non-smooth recruitment boundary. This keeps abundances non-negative and manufactures no new oscillations, at the price — a corollary of Godunov's theorem — of dropping to first order at smooth extrema.
 
 At the left boundary of the grid where $N_{j-2}$ does not exist, the weight is handled as follows:
 
-- At and below the first two faces above the recruitment boundary ($j \le j_{min} + 2$), the weight $\psi_j$ is forced to 0. This keeps the advective flux leaving the recruitment boundary first-order upwind and avoids referencing the non-smooth recruitment boundary cell $N_{j_{min}}$ (and the inactive region below it) when calculating the smoothness ratio, preventing ragged or oscillating solutions near the boundary.
+- At and below the first two faces above the recruitment boundary ($j \le j_{min} + 2$), the weight $\chi_j$ is forced to 0. This keeps the advective flux leaving the recruitment boundary first-order upwind and avoids referencing the non-smooth recruitment boundary cell $N_{j_{min}}$ (and the inactive region below it) when calculating the smoothness ratio, preventing ragged or oscillating solutions near the boundary.
 
 The two types are selected with
 ```r
@@ -608,7 +608,7 @@ The default (`TRUE`) is van Leer, the safe choice for production runs; the centr
 
 ### Implicit treatment with a frozen weight
 
-The weight $\psi_j$ is evaluated from the densities at the start of the step (for the second-order methods, from the midpoint field), so it is a fixed number during the solve. With $\psi$ *frozen*, the flux @eq-so-face-flux is linear in the unknown densities $N^{t+1}$ and still couples only $N_{j-1},N_j,N_{j+1}$, so it folds directly into the same tridiagonal operator $\tt{get\_transport\_coefs()}$ builds — only the advective coefficients gain the $\psi$ terms. Keeping the high-order term *implicit* in this way is important: treating the extra (anti-diffusive) part explicitly on the right-hand side is only conditionally stable and breaks down for the lightly damped second-order time steppers, whereas the implicit form is stable for backward Euler and TR-BDF2 even with no physical diffusion.
+The weight $\chi_j$ is evaluated from the densities at the start of the step (for the second-order methods, from the midpoint field), so it is a fixed number during the solve. With $\chi$ *frozen*, the flux @eq-so-face-flux is linear in the unknown densities $N^{t+1}$ and still couples only $N_{j-1},N_j,N_{j+1}$, so it folds directly into the same tridiagonal operator $\tt{get\_transport\_coefs()}$ builds — only the advective coefficients gain the $\chi$ terms. Keeping the high-order term *implicit* in this way is important: treating the extra (anti-diffusive) part explicitly on the right-hand side is only conditionally stable and breaks down for the lightly damped second-order time steppers, whereas the implicit form is stable for backward Euler and TR-BDF2 even with no physical diffusion.
 
 The price is that the high-order term can make the off-diagonal coefficient $C_j$ positive, so the operator is no longer an M-matrix and non-negativity is no longer guaranteed by construction. The van Leer reconstruction keeps any undershoot at the level of rounding, and the consumer update floors it to zero to preserve $N\ge 0$; the unlimited centred reconstruction gives up this guarantee in exchange for the extra order.
 
@@ -618,7 +618,7 @@ be at most $1$ across the grid. If the Courant number exceeds 1, the lagged limi
 
 ### Steady state and reproduction
 
-Because the reconstruction lives entirely in the coefficients $A,B,C$, the steady-state machinery stays consistent automatically: `getRequiredRDD()` reads the same boundary coefficients and `get_steady_state_n()` solves the same system. With the van Leer reconstruction the weight depends on the solution, so the steady state is found by an *under-relaxed* fixed-point iteration (freezing $\psi$ at the current iterate, solving, repeating), because at $\Delta t=1$ the operator is not diagonally dominant. Both `getRequiredRDD()` and `steadySingleSpecies()` read the same `second_order_w` slot, so a model is automatically set up at the steady state of exactly the scheme that `project()` will use, and that state is preserved to machine precision by all three time-stepping methods.
+Because the reconstruction lives entirely in the coefficients $A,B,C$, the steady-state machinery stays consistent automatically: `getRequiredRDD()` reads the same boundary coefficients and `get_steady_state_n()` solves the same system. With the van Leer reconstruction the weight depends on the solution, so the steady state is found by an *under-relaxed* fixed-point iteration (freezing $\chi$ at the current iterate, solving, repeating), because at $\Delta t=1$ the operator is not diagonally dominant. Both `getRequiredRDD()` and `steadySingleSpecies()` read the same `second_order_w` slot, so a model is automatically set up at the steady state of exactly the scheme that `project()` will use, and that state is preserved to machine precision by all three time-stepping methods.
 
 The direct solver [steadyNewton()] reads its set of unknowns from where the supplied abundances are non-zero, rather than from $w_{max}$. This keeps it robust when $w_{max}$ is set far above the largest fish (a common choice, so that the grid need not change when a parameter update produces larger fish): the structurally-zero classes below such a $w_{max}$ are simply excluded. The growth rate alone could not be used to find the support, because the main reason fish grow past $w_{repro\_max}$ is diffusion, whose rate only grows with $w$ and never vanishes; the abundance is the only reliable indicator of where the (possibly diffusion-fed) tail has died away. With the van Leer limiter the residual is only Lipschitz, so the Newton iteration converges to a fixed point of the dynamics but not to machine precision; the unlimited centred reconstruction — which admits an undamped odd-even mode at a steady state with no physical diffusion — gives an ill-conditioned steady-state Jacobian for which the direct solver is not expected to converge.
 
