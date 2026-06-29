@@ -1,5 +1,7 @@
 # development version
 
+- New `adjustSizeGrid()` function (an S3 generic) adjusts the size grid of a `MizerParams` object to a new minimum and/or maximum size. It can both expand and truncate (shrink) the grid, warning if non-negligible abundance (species or resource) is discarded.
+
 - New experimental `steadyNewton()` finds a steady state by solving the
   steady-state equation directly with a Newton-type root finder (using the
   `nleqslv` package) instead of running the dynamics to convergence. Unlike

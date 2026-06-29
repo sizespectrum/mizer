@@ -114,6 +114,7 @@ reference:
   - renameSpecies
   - renameGear
   - expandSizeGrid
+  - adjustSizeGrid
   - markBackground
   - removeBackgroundSpecies
   - use_predation_diffusion
