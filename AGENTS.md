@@ -26,6 +26,8 @@ devtools::clean_dll(); devtools::load_all()
 
 **`ArraySpeciesBySize`** / **`ArrayTimeBySpecies`** / **`ArrayTimeBySpeciesBySize`** (S3) — wrap some arrays with metadata. When assigning back to S4 slots, use `slot[] <- value` (not `slot <- value`) to strip the class.
 
+**`species_params`** / **`given_species_params`** / **`gear_params`** (S3) — parameter tables subclassing `data.frame` stored in S4 slots. Users should access/modify these tables via S3 generics (e.g. `species_params(params)` or `gear_params(params)`), but package code and developers can modify slots directly (e.g. `params@species_params`) when appropriate. Inline modifications on the S3 objects (via `[<-`, `$<-`, `[[<-` S3 methods) preserve the subclass and trigger reactive validation checks and conversions (e.g. length-to-weight).
+
 **Customisable rate functions**: users replace rate functions by storing a custom function name in `params@rates_funcs`. Dispatch via `get(params@rates_funcs$FunctionName)(params, ...)`.
 
 **Auto-generated files** — never edit `NAMESPACE`, `man/`, `RcppExports.R`, or `RcppExports.cpp` directly.
@@ -68,3 +70,5 @@ In testthat 3.x all test files share the same global environment. A top-level `d
 - After adding a new file under `R/`, add it to the `Collate:` field in `DESCRIPTION` (roxygen2 does not manage this automatically in this package).
 - After adding or renaming exported functions, add them to the `appropriate` section in `pkgdown/_pkgdown.yml` so they appear on the reference page of the website.
 - Update `NEWS.md` when adding features or fixing bugs.
+- When creating a pull request, always include the summary of your changes in the PR body.
+

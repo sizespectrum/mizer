@@ -401,3 +401,17 @@ test_that("gear_params S3 class properties work", {
     gp_df[[1, "gear"]] <- "third_gear"
     expect_true(is.gear_params(gp_df))
 })
+
+test_that("gear_params reactive validation works", {
+    # 1. Misspelling warning
+    df <- data.frame(species = "Sprat", gear = "g", selfunc = "knife_edge")
+    expect_warning(gp <- gear_params(df), "very close to standard parameter names")
+
+    # 2. Parameter checks for sigmoid_length (l25 >= l50)
+    df2 <- data.frame(species = "Sprat", gear = "g", sel_func = "sigmoid_length", l25 = 15, l50 = 10)
+    expect_warning(gp2 <- gear_params(df2), "must be smaller than l50")
+    
+    # 3. Parameter checks for knife_edge (knife_edge_size < 0)
+    df3 <- data.frame(species = "Sprat", gear = "g", sel_func = "knife_edge", knife_edge_size = -5)
+    expect_warning(gp3 <- gear_params(df3), "knife_edge_size must be non-negative")
+})
