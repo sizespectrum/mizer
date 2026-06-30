@@ -17,7 +17,7 @@ project(
   initial_n_pp,
   append = TRUE,
   progress_bar = TRUE,
-  biomass_trace = FALSE,
+  callback = NULL,
   method = c("euler", "predictor_corrector", "tr_bdf2"),
   ...
 )
@@ -60,13 +60,10 @@ are appended to the previous ones. Only relevant if \code{object} is a
 bar should be shown in the console, or a shiny Progress object to implement
 a progress bar in a shiny app.}
 
-\item{biomass_trace}{A character vector of species names or a logical value.
-If \code{TRUE} or a character vector of species names, the biomasses of the
-species are plotted in real-time as the simulation runs. Defaults to \code{FALSE}.
-Note that in RStudio, plot updates are buffered and not shown in real-time
-in the Plots pane. To see the plot update in real-time in RStudio, you
-should open an external graphics device (like \code{x11()}, \code{windows()} or
-\code{quartz()}) before running \code{project()}.}
+\item{callback}{A function to be called at each saved time step of the
+simulation. The callback function is called with the \code{MizerSim} object
+and the current time index. See \code{\link[=biomass_callback]{biomass_callback()}} for an example of a
+callback function.}
 
 \item{method}{The numerical method to use for the consumer density update.
 \code{"euler"} uses the first-order semi-implicit Euler update.

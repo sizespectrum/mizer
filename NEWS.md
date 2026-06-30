@@ -1,6 +1,8 @@
 # development version
 
-- New `biomass_trace` argument for `project()` allows plotting the species biomasses in real-time as the simulation runs. This is implemented using fast, low-level base R graphics.
+- New `callback` argument for `project()` allows running a custom callback function at each save time step.
+
+- New `biomass_callback()` function returns a callback for `project()` that plots the species biomasses in real-time.
 
 - Columns accessed via `$` on a `species_params` or
 `gear_params` object now return named vectors, where the names are the species

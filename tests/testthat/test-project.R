@@ -499,19 +499,31 @@ test_that("Predation diffusion changes simulation trajectory", {
     expect_false(identical(sim_d@n, sim_base@n))
 })
 
-test_that("biomass_trace plots during simulation", {
+test_that("callback works during simulation", {
     params <- NS_params_small
     pdf(NULL)
     on.exit(dev.off())
     
-    sim <- project(params, t_max = 2, biomass_trace = TRUE, progress_bar = FALSE)
+    # Test callback execution
+    counter <- 0
+    test_callback <- function(sim, t_idx) {
+        counter <<- counter + 1
+    }
+    sim <- project(params, t_max = 2, callback = test_callback, progress_bar = FALSE)
     expect_s4_class(sim, "MizerSim")
+    expect_equal(counter, 3)
+
+    # Test biomass_callback
+    sim_bm <- project(params, t_max = 2, callback = biomass_callback(), progress_bar = FALSE)
+    expect_s4_class(sim_bm, "MizerSim")
     
-    sim2 <- project(params, t_max = 2, biomass_trace = c("Cod", "Herring"), progress_bar = FALSE)
-    expect_s4_class(sim2, "MizerSim")
+    # Test biomass_callback with species filtering
+    sim_bm2 <- project(params, t_max = 2, callback = biomass_callback(species = c("Cod", "Herring")), progress_bar = FALSE)
+    expect_s4_class(sim_bm2, "MizerSim")
     
+    # Test biomass_callback warning on invalid species
     expect_warning(
-        project(params, t_max = 2, biomass_trace = c("Cod", "InvalidSpecies"), progress_bar = FALSE),
-        "The following species specified in biomass_trace were not found"
+        project(params, t_max = 2, callback = biomass_callback(species = c("Cod", "InvalidSpecies")), progress_bar = FALSE),
+        "The following species specified in biomass_callback were not found"
     )
 })
