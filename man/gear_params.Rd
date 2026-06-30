@@ -2,17 +2,20 @@
 % Please edit documentation in R/setFishing.R
 \name{gear_params}
 \alias{gear_params}
+\alias{gear_params.MizerParams}
+\alias{gear_params.MizerSim}
+\alias{gear_params.data.frame}
+\alias{gear_params.gear_params}
 \alias{gear_params<-}
+\alias{gear_params<-.MizerParams}
 \title{Gear parameters}
 \usage{
-gear_params(params)
+gear_params(object)
 
-gear_params(params) <- value
+gear_params(object) <- value
 }
 \arguments{
-\item{params}{A MizerParams object}
-
-\item{value}{A data frame with the gear parameters.}
+\item{object}{A MizerParams object, a MizerSim object or a data frame}
 }
 \value{
 Data frame with gear parameters
@@ -76,8 +79,6 @@ gear_params(params)
 gear_params(params)["Cod, gear1", "catchability"] <- 0.8
 }
 \seealso{
-\code{\link[=validGearParams]{validGearParams()}}
-
 Other functions for setting parameters:
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},

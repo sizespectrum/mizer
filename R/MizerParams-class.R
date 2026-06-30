@@ -7,6 +7,7 @@
 
 setOldClass(c("species_params", "data.frame"))
 setOldClass(c("given_species_params", "species_params"))
+setOldClass(c("gear_params", "data.frame"))
 
 
 # Naming conventions:

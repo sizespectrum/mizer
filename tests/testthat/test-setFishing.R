@@ -8,7 +8,7 @@ test_that("validGearParams works", {
                    stringsAsFactors = FALSE))
     # gear_params is allowed to have zero rows
     gp <- validGearParams(data.frame(), sp)
-    expect_identical(gp, data.frame(species = list(), gear = list()))
+    expect_identical(gp, gear_params(data.frame(species = list(), gear = list())))
     # There must be columns `species` and `gear`
     gp <- data.frame(species = 1)
     expect_error(validGearParams(gp, sp), 
@@ -369,4 +369,35 @@ test_that("Projection with bin-averaged selectivity runs finite", {
     second_order_w(params) <- c(bin_average = TRUE)
     sim <- project(params, t_max = 2)
     expect_true(all(is.finite(sim@n)))
+})
+
+test_that("gear_params S3 class properties work", {
+    params <- NS_params_small
+    sim <- NS_sim_small
+
+    # Test getters return gear_params objects
+    expect_true(is.gear_params(gear_params(params)))
+    expect_true(is.gear_params(gear_params(sim)))
+
+    # Test constructor on data frame
+    df <- data.frame(species = c("Sprat", "Herring"), gear = c("gear1", "gear2"))
+    gp_df <- gear_params(df)
+    expect_true(is.gear_params(gp_df))
+    expect_identical(class(gp_df)[1], "gear_params")
+
+    # Test constructor on already S3 gear_params object
+    expect_identical(gear_params(gp_df), gp_df)
+
+    # Test class preservation on subsetting and modifications
+    expect_true(is.gear_params(gp_df[1, ]))
+    expect_true(is.gear_params(gp_df[, 1, drop = FALSE]))
+
+    gp_df$gear[1] <- "new_gear"
+    expect_true(is.gear_params(gp_df))
+
+    gp_df[1, "gear"] <- "other_gear"
+    expect_true(is.gear_params(gp_df))
+
+    gp_df[[1, "gear"]] <- "third_gear"
+    expect_true(is.gear_params(gp_df))
 })
