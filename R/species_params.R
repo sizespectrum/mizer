@@ -632,7 +632,7 @@ get_h_default.data.frame <- function(object) {
 #' spectrum described by the power law \eqn{\kappa w^{-\lambda}} achieve a
 #' feeding level \eqn{f_0}. Only for internal use.
 #'
-#' @param params A MizerParams object
+#' @param object A MizerParams object
 #' @return A vector with the values of gamma for all species
 #' @export
 #' @concept helper

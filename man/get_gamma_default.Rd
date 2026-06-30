@@ -8,7 +8,7 @@
 get_gamma_default(object)
 }
 \arguments{
-\item{params}{A MizerParams object}
+\item{object}{A MizerParams object}
 }
 \value{
 A vector with the values of gamma for all species
