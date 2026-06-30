@@ -420,6 +420,21 @@ is.gear_params <- function(x) {
     out
 }
 
+#' @export
+print.gear_params <- function(x, ...) {
+    cat("An object of class \"gear_params\" containing gear parameters for", nrow(x), "gears:\n")
+    core_cols <- c("gear", "species", "sel_func", "catchability")
+    cols_to_show <- intersect(core_cols, names(x))
+    extra_cols <- setdiff(names(x), core_cols)
+    
+    print(as.data.frame(x)[, cols_to_show, drop = FALSE], row.names = FALSE, ...)
+    
+    if (length(extra_cols) > 0) {
+        cat("With", length(extra_cols), "other parameters:", paste(extra_cols, collapse = ", "), "\n")
+    }
+    invisible(x)
+}
+
 #' @rdname setFishing
 #' @return `getCatchability()` or equivalently `catchability()`: An array (gear
 #'   x species) that holds the catchability of each species by each gear,

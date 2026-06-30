@@ -289,3 +289,49 @@ test_that("species_params S3 class properties work", {
     given_df[[1, "w_inf"]] <- 18
     expect_true(is.given_species_params(given_df))
 })
+
+test_that("Reactive validation and conversions work", {
+    # 1. Misspelling warnings
+    df <- data.frame(species = c("Sprat", "Herring"), w_inf = c(10, 100))
+    sp <- species_params(df)
+    expect_warning(sp$wmin <- 0.1, "very close to standard parameter names")
+
+    # 2. Length-to-weight conversion
+    df2 <- data.frame(species = "Sprat", a = 0.01, b = 3, l_mat = 10)
+    sp2 <- species_params(df2)
+    # Check that w_mat was automatically calculated (0.01 * 10^3 = 10)
+    expect_equal(sp2$w_mat, 10)
+    
+    # Check conversion updates when l_mat is edited
+    sp2$l_mat <- 20
+    expect_equal(sp2$w_mat, 80)
+
+    # 3. Consistency checks
+    sp2$w_inf <- 50
+    expect_warning(sp2$w_mat <- 60, "the value for `w_mat` is not smaller than that of `w_inf`")
+})
+
+test_that("Print and Summary methods work", {
+    df <- data.frame(species = c("Sprat", "Herring"), w_inf = c(10, 100), extra_param = c(1, 2))
+    sp <- species_params(df)
+    given <- given_species_params(df)
+    gp <- gear_params(data.frame(gear = "g", species = "Sprat", catchability = 0.5, extra = 1))
+
+    expect_output(print(sp), "An object of class \"species_params\"")
+    expect_output(print(given), "An object of class \"given_species_params\"")
+    expect_output(print(gp), "An object of class \"gear_params\"")
+    expect_output(summary(sp), "Summary of species_params")
+})
+
+test_that("get_h_default S3 methods work", {
+    params <- NS_params_small
+    sp <- species_params(params)
+    df <- as.data.frame(sp)
+
+    h_params <- get_h_default(params)
+    h_sp <- get_h_default(sp)
+    h_df <- get_h_default(df)
+
+    expect_equal(h_params, h_sp)
+    expect_equal(h_params, h_df)
+})

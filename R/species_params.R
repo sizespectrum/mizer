@@ -189,7 +189,7 @@ species_params.MizerSim <- function(object) {
 #' @export
 species_params.data.frame <- function(object) {
     class(object) <- c("species_params", setdiff(class(object), c("given_species_params", "species_params")))
-    object
+    check_and_convert_species_params(object)
 }
 
 #' @rdname species_params
@@ -197,7 +197,7 @@ species_params.data.frame <- function(object) {
 #' @export
 species_params.species_params <- function(object) {
     class(object) <- c("species_params", setdiff(class(object), c("given_species_params", "species_params")))
-    object
+    check_and_convert_species_params(object)
 }
 
 #' @rdname species_params
@@ -227,6 +227,57 @@ is.species_params <- function(x) {
     inherits(x, "species_params")
 }
 
+check_and_convert_species_params <- function(x) {
+    # Check for misspellings
+    misspellings <- c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
+                      "Species", "Gamma", "Beta", "Sigma", "Alpha",
+                      "W_min", "W_max", "W_mat", "e_repro", "Age_mat",
+                      "w_max_mat")
+    query <- intersect(misspellings, names(x))
+    if (length(query) > 0) {
+        warning("Some column names in your species parameter data ",
+                "frame are very close to standard parameter names: ",
+                paste(query, collapse = ", "),
+                ". Did you perhaps mis-spell the names?")
+    }
+    
+    # Auto convert length to weight if allometric parameters exist
+    if (all(c("a", "b") %in% names(x))) {
+        mappings <- list(
+            c("w_mat", "l_mat"),
+            c("w_mat25", "l_mat25"),
+            c("w_repro_max", "l_repro_max"),
+            c("w_inf", "l_inf"),
+            c("w_max", "l_max"),
+            c("w_min", "l_min")
+        )
+        for (m in mappings) {
+            pw <- m[1]
+            pl <- m[2]
+            if (pl %in% names(x)) {
+                # Convert the values
+                vw <- l2w(x[[pl]], x)
+                # If weight is missing or different, update it
+                if (!(pw %in% names(x)) || any(is.na(x[[pw]])) || any(abs(x[[pw]] - vw) > 1e-10, na.rm = TRUE)) {
+                    x[[pw]] <- vw
+                }
+            }
+        }
+    }
+    
+    # Check w_mat < w_inf consistency
+    if (all(c("w_mat", "w_inf") %in% names(x))) {
+        wrong <- !is.na(x$w_mat) & !is.na(x$w_inf) & x$w_mat >= x$w_inf
+        if (any(wrong)) {
+            warning("For the species ",
+                    paste(x$species[wrong], collapse = ", "),
+                    " the value for `w_mat` is not smaller than that of `w_inf`.")
+        }
+    }
+    
+    x
+}
+
 #' @export
 `[.species_params` <- function(x, i, j, ..., drop = FALSE) {
     out <- NextMethod("[")
@@ -240,21 +291,67 @@ is.species_params <- function(x) {
 `[<-.species_params` <- function(x, i, j, ..., value) {
     out <- NextMethod("[<-")
     class(out) <- class(x)
-    out
+    check_and_convert_species_params(out)
 }
 
 #' @export
 `[[<-.species_params` <- function(x, i, j, ..., value) {
     out <- NextMethod("[[<-")
     class(out) <- class(x)
-    out
+    check_and_convert_species_params(out)
 }
 
 #' @export
 `$<-.species_params` <- function(x, name, value) {
     out <- NextMethod("$<-")
     class(out) <- class(x)
-    out
+    check_and_convert_species_params(out)
+}
+
+#' @export
+print.species_params <- function(x, ...) {
+    cat("An object of class \"species_params\" containing parameters for", nrow(x), "species:\n")
+    core_cols <- c("species", "w_inf", "w_mat", "w_min", "alpha", "erepro")
+    cols_to_show <- intersect(core_cols, names(x))
+    extra_cols <- setdiff(names(x), core_cols)
+    
+    print(as.data.frame(x)[, cols_to_show, drop = FALSE], row.names = FALSE, ...)
+    
+    if (length(extra_cols) > 0) {
+        cat("With", length(extra_cols), "other parameters:", paste(extra_cols, collapse = ", "), "\n")
+    }
+    invisible(x)
+}
+
+#' @export
+print.given_species_params <- function(x, ...) {
+    cat("An object of class \"given_species_params\" containing given parameters for", nrow(x), "species:\n")
+    core_cols <- c("species", "w_inf", "w_mat", "w_min", "alpha", "erepro")
+    cols_to_show <- intersect(core_cols, names(x))
+    extra_cols <- setdiff(names(x), core_cols)
+    
+    print(as.data.frame(x)[, cols_to_show, drop = FALSE], row.names = FALSE, ...)
+    
+    if (length(extra_cols) > 0) {
+        cat("With", length(extra_cols), "other parameters:", paste(extra_cols, collapse = ", "), "\n")
+    }
+    invisible(x)
+}
+
+#' @export
+summary.species_params <- function(object, ...) {
+    cat("Summary of species_params:\n")
+    cat("Number of species:", nrow(object), "\n")
+    num_cols <- names(object)[vapply(object, is.numeric, logical(1))]
+    cat("Parameter ranges:\n")
+    for (col in num_cols) {
+        vals <- object[[col]]
+        vals <- vals[is.finite(vals)]
+        if (length(vals) > 0) {
+            cat("  ", col, ": min = ", min(vals), ", max = ", max(vals), "\n", sep = "")
+        }
+    }
+    invisible(object)
 }
 
 
@@ -283,14 +380,14 @@ given_species_params.MizerSim <- function(object) {
 #' @export
 given_species_params.data.frame <- function(object) {
     class(object) <- c("given_species_params", "species_params", setdiff(class(object), c("given_species_params", "species_params")))
-    object
+    check_and_convert_species_params(object)
 }
 
 #' @rdname species_params
 #' @usage NULL
 #' @export
 given_species_params.given_species_params <- function(object) {
-    object
+    check_and_convert_species_params(object)
 }
 
 #' Test if an object is a given_species_params object
@@ -459,12 +556,22 @@ set_species_param_default <- function(object, parname, default,
 #' @keywords internal
 #' @concept helper
 #' @family functions calculating defaults
-get_h_default <- function(params) {
-    if (is(params, "MizerParams")) {
-        species_params <- params@species_params
-    } else {
-        species_params <- validSpeciesParams(params)
-    }
+get_h_default <- function(object) {
+    UseMethod("get_h_default")
+}
+
+#' @rdname get_h_default
+#' @usage NULL
+#' @export
+get_h_default.MizerParams <- function(object) {
+    get_h_default(object@species_params)
+}
+
+#' @rdname get_h_default
+#' @usage NULL
+#' @export
+get_h_default.species_params <- function(object) {
+    species_params <- object
     assert_that("n" %in% names(species_params))
     species_params <- set_species_param_default(species_params, "f0", 0.6)
     if (!("h" %in% colnames(species_params))) {
@@ -509,6 +616,13 @@ get_h_default <- function(params) {
         }
     }
     return(species_params[["h"]])
+}
+
+#' @rdname get_h_default
+#' @usage NULL
+#' @export
+get_h_default.data.frame <- function(object) {
+    get_h_default(validSpeciesParams(object))
 }
 
 
