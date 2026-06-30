@@ -46,9 +46,9 @@ NULL
 #'   bar should be shown in the console, or a shiny Progress object to implement
 #'   a progress bar in a shiny app.
 #' @param callback A function to be called at each saved time step of the
-#'   simulation. The callback function is called with the `MizerSim` object
-#'   and the current time index. See [biomass_callback()] for an example of a
-#'   callback function.
+#'   simulation. The callback function is called with the `MizerSim` object,
+#'   the current time index, and any additional arguments passed to `project()`
+#'   via `...`. See [biomass_callback()] for an example of a callback function.
 #' @param method The numerical method to use for the consumer density update.
 #'   `"euler"` uses the first-order semi-implicit Euler update.
 #'   `"predictor_corrector"` uses a predictor-corrector Crank-Nicolson update

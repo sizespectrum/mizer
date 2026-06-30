@@ -61,9 +61,9 @@ bar should be shown in the console, or a shiny Progress object to implement
 a progress bar in a shiny app.}
 
 \item{callback}{A function to be called at each saved time step of the
-simulation. The callback function is called with the \code{MizerSim} object
-and the current time index. See \code{\link[=biomass_callback]{biomass_callback()}} for an example of a
-callback function.}
+simulation. The callback function is called with the \code{MizerSim} object,
+the current time index, and any additional arguments passed to \code{project()}
+via \code{...}. See \code{\link[=biomass_callback]{biomass_callback()}} for an example of a callback function.}
 
 \item{method}{The numerical method to use for the consumer density update.
 \code{"euler"} uses the first-order semi-implicit Euler update.
