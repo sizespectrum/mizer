@@ -1,5 +1,7 @@
 # development version
 
+- New `biomass_trace` argument for `project()` allows plotting the species biomasses in real-time as the simulation runs. This is implemented using fast, low-level base R graphics.
+
 - Columns accessed via `$` on a `species_params` or
 `gear_params` object now return named vectors, where the names are the species
 names (or "species, gear" row names for `gear_params`). For example,

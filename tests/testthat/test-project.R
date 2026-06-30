@@ -498,3 +498,20 @@ test_that("Predation diffusion changes simulation trajectory", {
     sim_base <- project(NS_params_small, t_max = 1)
     expect_false(identical(sim_d@n, sim_base@n))
 })
+
+test_that("biomass_trace plots during simulation", {
+    params <- NS_params_small
+    pdf(NULL)
+    on.exit(dev.off())
+    
+    sim <- project(params, t_max = 2, biomass_trace = TRUE, progress_bar = FALSE)
+    expect_s4_class(sim, "MizerSim")
+    
+    sim2 <- project(params, t_max = 2, biomass_trace = c("Cod", "Herring"), progress_bar = FALSE)
+    expect_s4_class(sim2, "MizerSim")
+    
+    expect_warning(
+        project(params, t_max = 2, biomass_trace = c("Cod", "InvalidSpecies"), progress_bar = FALSE),
+        "The following species specified in biomass_trace were not found"
+    )
+})

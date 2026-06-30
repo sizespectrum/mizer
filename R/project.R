@@ -45,6 +45,9 @@ NULL
 #' @param progress_bar Either a boolean value to determine whether a progress
 #'   bar should be shown in the console, or a shiny Progress object to implement
 #'   a progress bar in a shiny app.
+#' @param biomass_trace A character vector of species names or a logical value.
+#'   If `TRUE` or a character vector of species names, the biomasses of the
+#'   species are plotted in real-time as the simulation runs. Defaults to `FALSE`.
 #' @param method The numerical method to use for the consumer density update.
 #'   `"euler"` uses the first-order semi-implicit Euler update.
 #'   `"predictor_corrector"` uses a predictor-corrector Crank-Nicolson update
@@ -160,6 +163,7 @@ project <- function(object, effort,
                     initial_n, initial_n_pp,
                     append = TRUE,
                     progress_bar = TRUE,
+                    biomass_trace = FALSE,
                     method = c("euler", "predictor_corrector", "tr_bdf2"),
                     ...) {
     UseMethod("project")
@@ -185,6 +189,7 @@ project.MizerParams <- function(object, effort,
                                 initial_n, initial_n_pp,
                                 append = TRUE,
                                 progress_bar = TRUE,
+                                biomass_trace = FALSE,
                                 method = c("euler", "predictor_corrector", "tr_bdf2"),
                                 ...) {
     params <- validParams(object)
@@ -353,6 +358,91 @@ project.MizerParams <- function(object, effort,
         pb$tick(0)
     }
 
+    # Set up biomass trace plotting
+    if (is.logical(biomass_trace) && biomass_trace) {
+        plot_species <- names(params@linecolour)[names(params@linecolour) %in% params@species_params$species]
+    } else if (is.character(biomass_trace)) {
+        # Check that all specified species are actually in the model
+        invalid_species <- setdiff(biomass_trace, params@species_params$species)
+        if (length(invalid_species) > 0) {
+            warning("The following species specified in biomass_trace were not found: ",
+                    paste(invalid_species, collapse = ", "))
+        }
+        plot_species <- intersect(biomass_trace, params@species_params$species)
+        biomass_trace <- length(plot_species) > 0
+    } else {
+        biomass_trace <- FALSE
+    }
+
+    if (biomass_trace) {
+        dots <- list(...)
+        use_cutoff <- if ("use_cutoff" %in% names(dots)) dots$use_cutoff else FALSE
+        min_w <- if ("min_w" %in% names(dots)) dots$min_w else min(params@w)
+        max_w <- if ("max_w" %in% names(dots)) dots$max_w else max(params@w)
+        min_l <- if ("min_l" %in% names(dots)) dots$min_l else NULL
+        max_l <- if ("max_l" %in% names(dots)) dots$max_l else NULL
+        
+        if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
+            biomass_cutoff <- params@species_params$biomass_cutoff
+            biomass_cutoff[is.na(biomass_cutoff)] <- min(params@w)
+            size_range <- get_size_range_array(params, min_w = biomass_cutoff)
+        } else {
+            size_range <- get_size_range_array(params, min_w = min_w, max_w = max_w,
+                                               min_l = min_l, max_l = max_l)
+        }
+
+        if (isTRUE(params@second_order_w[["bin_average"]])) {
+            weight <- sweep(
+                bin_average_weight(sweep(size_range, 2, params@w, "*")),
+                2, params@dw, "*")
+        } else {
+            weight <- sweep(size_range, 2, params@w * params@dw, "*")
+        }
+
+        bm_init <- rowSums(initial_n * weight)
+
+        log_y <- if ("log_y" %in% names(dots)) dots$log_y else TRUE
+        if ("log" %in% names(dots)) {
+            log_axes <- parsePlotLog(dots$log, log_x = FALSE, log_y = log_y)
+            log_y <- log_axes$log_y
+        }
+
+        ylim_val <- if ("ylim" %in% names(dots)) dots$ylim else c(NA, NA)
+        if (anyNA(ylim_val)) {
+            bm_pos <- bm_init[bm_init > 0]
+            if (length(bm_pos) == 0) {
+                ylim_val <- c(1e-2, 1e2)
+            } else {
+                min_bm <- min(bm_pos)
+                max_bm <- max(bm_pos)
+                if (log_y) {
+                    ylim_val[is.na(ylim_val)] <- c(min_bm / 10, max_bm * 10)
+                } else {
+                    ylim_val[is.na(ylim_val)] <- c(0, max_bm * 1.1)
+                }
+            }
+        }
+
+        old_mar <- graphics::par(mar = c(5.1, 4.1, 4.1, 8.1))
+        on.exit(graphics::par(old_mar), add = TRUE)
+
+        xlim_val <- c(min(times), max(times))
+        log_str <- if (log_y) "y" else ""
+
+        graphics::plot(NULL, xlim = xlim_val, ylim = ylim_val, log = log_str,
+             xlab = "Year", ylab = "Biomass [g]",
+             main = "Biomass Trace")
+
+        cols <- params@linecolour[plot_species]
+        cols[is.na(cols)] <- "black"
+
+        graphics::legend(x = "topleft", inset = c(1.02, 0), legend = plot_species,
+                         col = cols, lty = 1, lwd = 2, bg = "white", xpd = TRUE)
+
+        bm_prev <- bm_init
+        t_prev <- times[[1]]
+    }
+
     n_list <- list(
         n = initial_n, n_pp = initial_n_pp,
         n_other = unserialize(serialize(initial_n_other, NULL))
@@ -389,6 +479,23 @@ project.MizerParams <- function(object, effort,
         sim@n[i, , ] <- n_list$n
         sim@n_pp[i, ] <- n_list$n_pp
         sim@n_other[i, ] <- unserialize(serialize(n_list$n_other, NULL))
+
+        if (biomass_trace) {
+            bm_curr <- rowSums(n_list$n * weight)
+            for (sp in plot_species) {
+                if (is.na(bm_prev[sp]) || is.na(bm_curr[sp])) {
+                    next
+                }
+                if (log_y && (bm_prev[sp] <= 0 || bm_curr[sp] <= 0)) {
+                    next
+                }
+                graphics::segments(t_prev, bm_prev[sp], times[[i]], bm_curr[sp], col = cols[sp], lwd = 2)
+            }
+            grDevices::dev.flush()
+            Sys.sleep(0.01)
+            bm_prev <- bm_curr
+            t_prev <- times[[i]]
+        }
     }
 
     return(sim)
@@ -402,6 +509,7 @@ project.MizerSim <- function(object, effort,
                              initial_n, initial_n_pp,
                              append = TRUE,
                              progress_bar = TRUE,
+                             biomass_trace = FALSE,
                              method = c("euler", "predictor_corrector", "tr_bdf2"),
                              ...) {
     validObject(object)
@@ -438,6 +546,7 @@ project.MizerSim <- function(object, effort,
         t_save = t_save, t_start = t_start,
         initial_n = initial_n, initial_n_pp = initial_n_pp,
         progress_bar = progress_bar,
+        biomass_trace = biomass_trace,
         method = method, ...
     )
 

@@ -17,6 +17,7 @@ project(
   initial_n_pp,
   append = TRUE,
   progress_bar = TRUE,
+  biomass_trace = FALSE,
   method = c("euler", "predictor_corrector", "tr_bdf2"),
   ...
 )
@@ -58,6 +59,10 @@ are appended to the previous ones. Only relevant if \code{object} is a
 \item{progress_bar}{Either a boolean value to determine whether a progress
 bar should be shown in the console, or a shiny Progress object to implement
 a progress bar in a shiny app.}
+
+\item{biomass_trace}{A character vector of species names or a logical value.
+If \code{TRUE} or a character vector of species names, the biomasses of the
+species are plotted in real-time as the simulation runs. Defaults to \code{FALSE}.}
 
 \item{method}{The numerical method to use for the consumer density update.
 \code{"euler"} uses the first-order semi-implicit Euler update.
