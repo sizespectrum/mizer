@@ -48,6 +48,10 @@ NULL
 #' @param biomass_trace A character vector of species names or a logical value.
 #'   If `TRUE` or a character vector of species names, the biomasses of the
 #'   species are plotted in real-time as the simulation runs. Defaults to `FALSE`.
+#'   Note that in RStudio, plot updates are buffered and not shown in real-time
+#'   in the Plots pane. To see the plot update in real-time in RStudio, you
+#'   should open an external graphics device (like `x11()`, `windows()` or
+#'   `quartz()`) before running `project()`.
 #' @param method The numerical method to use for the consumer density update.
 #'   `"euler"` uses the first-order semi-implicit Euler update.
 #'   `"predictor_corrector"` uses a predictor-corrector Crank-Nicolson update

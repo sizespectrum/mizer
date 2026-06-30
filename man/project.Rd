@@ -62,7 +62,11 @@ a progress bar in a shiny app.}
 
 \item{biomass_trace}{A character vector of species names or a logical value.
 If \code{TRUE} or a character vector of species names, the biomasses of the
-species are plotted in real-time as the simulation runs. Defaults to \code{FALSE}.}
+species are plotted in real-time as the simulation runs. Defaults to \code{FALSE}.
+Note that in RStudio, plot updates are buffered and not shown in real-time
+in the Plots pane. To see the plot update in real-time in RStudio, you
+should open an external graphics device (like \code{x11()}, \code{windows()} or
+\code{quartz()}) before running \code{project()}.}
 
 \item{method}{The numerical method to use for the consumer density update.
 \code{"euler"} uses the first-order semi-implicit Euler update.
