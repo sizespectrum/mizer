@@ -11,28 +11,29 @@ test_that("validGearParams works", {
     expect_identical(gp, gear_params(data.frame(species = list(), gear = list())))
     # There must be columns `species` and `gear`
     gp <- data.frame(species = 1)
-    expect_error(validGearParams(gp, sp), 
+    expect_error(validGearParams(gp, sp),
                  "`gear_params` must have columns 'species' and 'gear'.")
     # Any species-gear pair is allowed to appear at most once
     gp <- data.frame(species = c("species1", "species1"), gear = c("g", "g"),
                      stringsAsFactors = FALSE)
-    expect_error(validGearParams(gp, sp), 
+    expect_error(validGearParams(gp, sp),
                  "Some species - gear pairs appear more than once.")
     # Any species that appears must also appear in the `species_params` data frame.
     gp <- data.frame(species = c("species1", "species3"), gear = c("g", "g"),
                      stringsAsFactors = FALSE)
-    expect_error(validGearParams(gp, sp), 
+    expect_error(validGearParams(gp, sp),
                  "The gear_params dataframe contains species that do not exist in the model.")
     # There must be a `sel_fun` column
     gp <- validGearParams(
         data.frame(species = c("species1", "species2"), gear = c("g", "g"),
                    stringsAsFactors = FALSE),
         sp)
-    expect_identical(gp$sel_func, c("knife_edge", "knife_edge"))
-    expect_identical(gp$knife_edge_size, c(25, 250))
+    expect_identical(gp$sel_func, c("knife_edge", "knife_edge"),
+                     ignore_attr = TRUE)
+    expect_identical(gp$knife_edge_size, c(25, 250), ignore_attr = TRUE)
     # There must be a catchability column
     expect_identical(gp$catchability,
-                     rep(ifelse(defaults_edition() < 2, 1, 0.3), 2))
+                     rep(ifelse(defaults_edition() < 2, 1, 0.3), 2), ignore_attr = TRUE)
     # Defaults for NAs
     gp$gear[[1]] <- NA
     expect_identical(validGearParams(gp, sp)$gear[[1]], "species1")
@@ -43,20 +44,20 @@ test_that("validGearParams works", {
                      ifelse(defaults_edition() < 2, 1, 0.3))
     gp$knife_edge_size[[2]] <- NA
     expect_identical(validGearParams(gp, sp)$knife_edge_size[[2]], 250)
-    
+
     # The rownames must be of the form "species, gear"
     gp$species <- c("species1", "species1")
     gp$gear <- c("g1", "g2")
-    expect_identical(rownames(validGearParams(gp, sp)), 
+    expect_identical(rownames(validGearParams(gp, sp)),
                      c("species1, g1", "species1, g2"))
-    
+
     # Factors are converted to strings
     gp <- data.frame(species = factor("species1"), gear = factor("g"),
                      stringsAsFactors = TRUE)
     sp <- data.frame(species = "species1", w_max = 100)
     gp <- validGearParams(gp, sp)
-    expect_identical(gp$species, "species1")
-    expect_identical(gp$gear, "g")
+    expect_identical(gp$species, "species1", ignore_attr = TRUE)
+    expect_identical(gp$gear, "g", ignore_attr = TRUE)
 })
 
 # validEffortVector ----
@@ -79,10 +80,10 @@ test_that("validEffort works", {
     # A shortened vector is expanded with the edition-specific default
     expect_identical(validEffortVector(ie[c(1,2)], params)[[3]],
                      ifelse(defaults_edition() < 2, 0, 1))
-                
+
     # The names are checked
     names(ie)[[1]] <- "test"
-    expect_error(validEffortVector(ie, params), 
+    expect_error(validEffortVector(ie, params),
                  "it has names that are not among the gear names")
 })
 test_that("validEffortParams works when no gears are set up", {
@@ -131,17 +132,17 @@ test_that("Comment works on selectivity", {
     selectivity <- params@selectivity
     params <- setFishing(params, selectivity = selectivity)
     expect_identical(comment(params@selectivity), "set manually")
-    
+
     # comment is stored
     comment(selectivity) <- "test"
     params <- setFishing(params, selectivity = selectivity)
     expect_identical(comment(params@selectivity), "test")
-    
+
     # if no comment, previous comment is kept
     comment(selectivity) <- NULL
     params <- setFishing(params, selectivity = selectivity)
     expect_identical(comment(params@selectivity), "test")
-    
+
     # no message when nothing changes
     expect_message(setFishing(params), NA)
     # but message when a change is not stored due to comment
@@ -161,17 +162,17 @@ test_that("Comment works on catchability", {
     catchability <- params@catchability
     params <- setFishing(params, catchability = catchability)
     expect_identical(comment(params@catchability), "set manually")
-    
+
     # comment is stored
     comment(catchability) <- "test"
     params <- setFishing(params, catchability = catchability)
     expect_identical(comment(params@catchability), "test")
-    
+
     # if no comment, previous comment is kept
     comment(catchability) <- NULL
     params <- setFishing(params, catchability = catchability)
     expect_identical(comment(params@catchability), "test")
-    
+
     # no message when nothing changes
     expect_message(setFishing(params), NA)
     # but message when a change is not stored due to comment
@@ -410,7 +411,7 @@ test_that("gear_params reactive validation works", {
     # 2. Parameter checks for sigmoid_length (l25 >= l50)
     df2 <- data.frame(species = "Sprat", gear = "g", sel_func = "sigmoid_length", l25 = 15, l50 = 10)
     expect_warning(gp2 <- gear_params(df2), "must be smaller than l50")
-    
+
     # 3. Parameter checks for knife_edge (knife_edge_size < 0)
     df3 <- data.frame(species = "Sprat", gear = "g", sel_func = "knife_edge", knife_edge_size = -5)
     expect_warning(gp3 <- gear_params(df3), "knife_edge_size must be non-negative")

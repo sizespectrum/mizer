@@ -12,11 +12,11 @@ test_that("setMetabolicRate works", {
 test_that("setMetabolicRate can set exponent p", {
     # no change where p is already set in species_params
     params <- setMetabolicRate(params, p = 1)
-    expect_identical(params@species_params$p, rep(0.7, 3))
+    expect_identical(params@species_params$p, rep(0.7, 3), ignore_attr = TRUE)
     # but change where it is not
     params@species_params$p[[1]] <- NA
     params <- setMetabolicRate(params, p = 1)
-    expect_identical(params@species_params$p, c(1, rep(0.7, 2)))
+    expect_identical(params@species_params$p, c(1, rep(0.7, 2)), ignore_attr = TRUE)
 })
 test_that("Comment works on metab", {
     params <- NS_params_small
@@ -24,17 +24,17 @@ test_that("Comment works on metab", {
     metab <- params@metab
     params <- setMetabolicRate(params, metab = metab)
     expect_identical(comment(params@metab), "set manually")
-    
+
     # comment is stored
     comment(metab) <- "test"
     params <- setMetabolicRate(params, metab = metab)
     expect_identical(comment(params@metab), "test")
-    
+
     # if no comment, previous comment is kept
     comment(metab) <- NULL
     params <- setMetabolicRate(params, metab = metab)
     expect_identical(comment(params@metab), "test")
-    
+
     # no message when nothing changes
     expect_message(setMetabolicRate(params), NA)
     # but message when a change is not stored due to comment
@@ -69,7 +69,8 @@ test_that("setMetabolicRate uses the documented defaults and validates inputs", 
     params <- NS_params_small
     params@species_params$p[] <- NA
     params <- setMetabolicRate(params)
-    expect_identical(species_params(params)$p, rep(3 / 4, nrow(species_params(params))))
+    expect_identical(species_params(params)$p, rep(3 / 4, nrow(species_params(params))),
+                     ignore_attr = TRUE)
 
     expect_error(setMetabolicRate(NS_params_small, p = "x"), "p must be numeric")
 

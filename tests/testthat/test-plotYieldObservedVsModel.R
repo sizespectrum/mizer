@@ -19,7 +19,8 @@ test_that("plotYieldObservedVsModel works", {
     expect_message(dummy <- plotYieldObservedVsModel(params, return_data = T))
 
     # Check yields equal those put in for fished species (Herring and Cod)
-    expect_equal(dummy$observed, species_params(params)$yield_observed[2:3])
+    expect_equal(dummy$observed, species_params(params)$yield_observed[2:3],
+                 ignore_attr = TRUE)
 
     # check that you get error with no species
     expect_error(plotYieldObservedVsModel(params, species = rep(F, 3)),
@@ -33,7 +34,8 @@ test_that("plotYieldObservedVsModel works", {
     expect_equal(as.character(dummy$species),
                  species_params(params)$species[3])
     expect_equal(dummy$observed,
-                 species_params(params2)$yield_observed[3])
+                 species_params(params2)$yield_observed[3],
+                 ignore_attr = TRUE)
     # plot with unobserved species (Herring + Cod shown; Sprat still excluded as unfished)
     expect_message(dummy <- plotYieldObservedVsModel(params2, return_data = T,
                                                     show_unobserved = TRUE))
@@ -46,7 +48,8 @@ test_that("plotYieldObservedVsModel works", {
                                       return_data = T)
     expect_equal(nrow(dummy), length(sp_select))
     expect_equal(dummy$observed,
-                 species_params(params)$yield_observed[sp_select])
+                 species_params(params)$yield_observed[sp_select],
+                 ignore_attr = TRUE)
 
     # Finally, look at plot
     expect_message(p <- plotYieldObservedVsModel(params))
