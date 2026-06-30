@@ -7,6 +7,7 @@ test_that("validSpeciesParams() works", {
     expect_message(sp <- validSpeciesParams(sp), NA)
     expect_equal(sp$w_mat[1], sp$w_max[1] / 4)
     # Set w_mat > w_max for species 1 and 2 (Sprat w_max=33, Herring w_max=334)
+    class(sp) <- "data.frame"
     sp$w_mat[1:2] <- sp$w_max[1:2] * 2
     sp1 <- sp$species[1]; sp2 <- sp$species[2]
     expect_warning(sp <- validSpeciesParams(sp),
@@ -18,6 +19,7 @@ test_that("validSpeciesParams() works", {
     sp$w_mat25 <- c(NA, 1, 2)
     expect_warning(validSpeciesParams(sp), NA)
     # Set w_mat25 > w_mat for species 1 and 2
+    class(sp) <- "data.frame"
     sp$w_mat25[1:2] <- sp$w_mat[1:2] * 2
     expect_warning(sp <- validSpeciesParams(sp),
                    paste0("For the species ", sp1, ", ", sp2, " the value"))
@@ -29,6 +31,7 @@ test_that("validSpeciesParams() works", {
     sp$w_min <- c(NA, 1, 2)
     expect_warning(validSpeciesParams(sp), NA)
     # Set w_min > w_max for species 1 and 2
+    class(sp) <- "data.frame"
     sp$w_min[1:2] <- sp$w_max[1:2] * 2
     expect_warning(sp <- validSpeciesParams(sp),
                    paste0("For the species ", sp1, ", ", sp2, " the value"))
@@ -36,6 +39,7 @@ test_that("validSpeciesParams() works", {
     expect_identical(sp$w_min[[3]], 2)
     
     # test misspelling detection
+    class(sp) <- "data.frame"
     sp$wmat <- 1
     expect_warning(validSpeciesParams(sp),
                    "very close to standard parameter names") %>%
