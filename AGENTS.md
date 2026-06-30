@@ -68,3 +68,5 @@ In testthat 3.x all test files share the same global environment. A top-level `d
 - After adding a new file under `R/`, add it to the `Collate:` field in `DESCRIPTION` (roxygen2 does not manage this automatically in this package).
 - After adding or renaming exported functions, add them to the `appropriate` section in `pkgdown/_pkgdown.yml` so they appear on the reference page of the website.
 - Update `NEWS.md` when adding features or fixing bugs.
+- When creating a pull request, always include the summary of your changes in the PR body.
+
