@@ -361,7 +361,7 @@ project.MizerParams <- function(object, effort,
 
     # Call callback on initial state
     if (!is.null(callback)) {
-        callback(sim, t_idx = 1)
+        callback(sim, t_idx = 1, ...)
     }
 
     n_list <- list(
@@ -402,7 +402,7 @@ project.MizerParams <- function(object, effort,
         sim@n_other[i, ] <- unserialize(serialize(n_list$n_other, NULL))
 
         if (!is.null(callback)) {
-            callback(sim, t_idx = i)
+            callback(sim, t_idx = i, ...)
         }
     }
 
@@ -746,18 +746,19 @@ validEffortArray <- function(effort, params) {
 #' This function can be passed to the `callback` argument of [project()] to
 #' plot the biomasses of the species in real-time as the simulation runs.
 #' 
+#' @param sim A [MizerSim] object.
+#' @param t_idx The current time index.
 #' @param ... Other arguments passed to the callback (such as `ylim`, `species`,
 #'   `use_cutoff`, etc.).
-#' @return A callback function that can be passed to [project()].
 #' @export
 #' @examples
 #' \dontrun{
 #' params <- NS_params
 #' # Open an external graphics window to see the real-time plot in RStudio
 #' x11()
-#' sim <- project(params, callback = biomass_callback())
+#' sim <- project(params, callback = biomass_callback)
 #' }
-biomass_callback <- function(...) {
+biomass_callback <- local({
     # State variables captured by the closure
     weight <- NULL
     plot_species <- NULL
@@ -767,11 +768,10 @@ biomass_callback <- function(...) {
     log_y <- TRUE
     old_mar <- NULL
     
-    dots <- list(...)
-    
-    function(sim, t_idx) {
+    function(sim, t_idx, ...) {
         params <- sim@params
         times <- as.numeric(dimnames(sim@n)[[1]])
+        dots <- list(...)
         
         if (t_idx == 1) {
             # Set up species to trace
@@ -885,5 +885,5 @@ biomass_callback <- function(...) {
             }
         }
     }
-}
+})
 

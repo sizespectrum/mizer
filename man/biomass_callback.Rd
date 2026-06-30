@@ -4,14 +4,15 @@
 \alias{biomass_callback}
 \title{Callback function for plotting biomass in real-time}
 \usage{
-biomass_callback(...)
+biomass_callback(sim, t_idx, ...)
 }
 \arguments{
+\item{sim}{A \link{MizerSim} object.}
+
+\item{t_idx}{The current time index.}
+
 \item{...}{Other arguments passed to the callback (such as \code{ylim}, \code{species},
 \code{use_cutoff}, etc.).}
-}
-\value{
-A callback function that can be passed to \code{\link[=project]{project()}}.
 }
 \description{
 This function can be passed to the \code{callback} argument of \code{\link[=project]{project()}} to
@@ -22,6 +23,6 @@ plot the biomasses of the species in real-time as the simulation runs.
 params <- NS_params
 # Open an external graphics window to see the real-time plot in RStudio
 x11()
-sim <- project(params, callback = biomass_callback())
+sim <- project(params, callback = biomass_callback)
 }
 }

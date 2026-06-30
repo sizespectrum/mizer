@@ -514,16 +514,16 @@ test_that("callback works during simulation", {
     expect_equal(counter, 3)
 
     # Test biomass_callback
-    sim_bm <- project(params, t_max = 2, callback = biomass_callback(), progress_bar = FALSE)
+    sim_bm <- project(params, t_max = 2, callback = biomass_callback, progress_bar = FALSE)
     expect_s4_class(sim_bm, "MizerSim")
     
     # Test biomass_callback with species filtering
-    sim_bm2 <- project(params, t_max = 2, callback = biomass_callback(species = c("Cod", "Herring")), progress_bar = FALSE)
+    sim_bm2 <- project(params, t_max = 2, callback = biomass_callback, species = c("Cod", "Herring"), progress_bar = FALSE)
     expect_s4_class(sim_bm2, "MizerSim")
     
     # Test biomass_callback warning on invalid species
     expect_warning(
-        project(params, t_max = 2, callback = biomass_callback(species = c("Cod", "InvalidSpecies")), progress_bar = FALSE),
+        project(params, t_max = 2, callback = biomass_callback, species = c("Cod", "InvalidSpecies"), progress_bar = FALSE),
         "The following species specified in biomass_callback were not found"
     )
 })
