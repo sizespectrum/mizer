@@ -144,7 +144,7 @@
 #' data frames. They will simply be ignored by mizer but will be stored in the
 #' MizerParams object, in case your own code makes use of them.
 #'
-#' @param params A MizerParams object
+#' @param object A MizerParams object, a MizerSim object or a data frame
 #' @return `species_params()`: Data frame containing all species parameters
 #'   currently stored in the model.
 #'
@@ -166,32 +166,153 @@
 #' @export
 #' @seealso [validSpeciesParams()], [setParams()]
 #' @family functions for setting parameters
-species_params <- function(params) {
-    params@species_params
+species_params <- function(object) {
+    UseMethod("species_params")
 }
 
 #' @rdname species_params
-#' @param value A data frame with the species parameters
+#' @usage NULL
 #' @export
-`species_params<-` <- function(params, value) {
+species_params.MizerParams <- function(object) {
+    object@species_params
+}
+
+#' @rdname species_params
+#' @usage NULL
+#' @export
+species_params.MizerSim <- function(object) {
+    object@params@species_params
+}
+
+#' @rdname species_params
+#' @usage NULL
+#' @export
+species_params.data.frame <- function(object) {
+    class(object) <- c("species_params", setdiff(class(object), c("given_species_params", "species_params")))
+    object
+}
+
+#' @rdname species_params
+#' @usage NULL
+#' @export
+species_params.species_params <- function(object) {
+    class(object) <- c("species_params", setdiff(class(object), c("given_species_params", "species_params")))
+    object
+}
+
+#' @rdname species_params
+#' @export
+`species_params<-` <- function(object, value) {
+    UseMethod("species_params<-")
+}
+
+#' @rdname species_params
+#' @usage NULL
+#' @export
+`species_params<-.MizerParams` <- function(object, value) {
     value <- validSpeciesParams(value)
-    if (!all(value$species == params@species_params$species)) {
+    if (!all(value$species == object@species_params$species)) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")
     }
-    params@species_params <- value
-    suppressMessages(setParams(params))
+    object@species_params <- value
+    suppressMessages(setParams(object))
+}
+
+#' Test if an object is a species_params object
+#'
+#' @param x An object to test.
+#' @return `TRUE` if `x` is a `species_params` object, `FALSE` otherwise.
+#' @export
+is.species_params <- function(x) {
+    inherits(x, "species_params")
+}
+
+#' @export
+`[.species_params` <- function(x, i, j, ..., drop = FALSE) {
+    out <- NextMethod("[")
+    if (is.data.frame(out)) {
+        class(out) <- class(x)
+    }
+    out
+}
+
+#' @export
+`[<-.species_params` <- function(x, i, j, ..., value) {
+    out <- NextMethod("[<-")
+    class(out) <- class(x)
+    out
+}
+
+#' @export
+`[[<-.species_params` <- function(x, i, j, ..., value) {
+    out <- NextMethod("[[<-")
+    class(out) <- class(x)
+    out
+}
+
+#' @export
+`$<-.species_params` <- function(x, name, value) {
+    out <- NextMethod("$<-")
+    class(out) <- class(x)
+    out
 }
 
 
 #' @rdname species_params
 #' @export
-given_species_params <- function(params) {
-    params@given_species_params
+given_species_params <- function(object) {
+    UseMethod("given_species_params")
+}
+
+#' @rdname species_params
+#' @usage NULL
+#' @export
+given_species_params.MizerParams <- function(object) {
+    object@given_species_params
+}
+
+#' @rdname species_params
+#' @usage NULL
+#' @export
+given_species_params.MizerSim <- function(object) {
+    object@params@given_species_params
+}
+
+#' @rdname species_params
+#' @usage NULL
+#' @export
+given_species_params.data.frame <- function(object) {
+    class(object) <- c("given_species_params", "species_params", setdiff(class(object), c("given_species_params", "species_params")))
+    object
+}
+
+#' @rdname species_params
+#' @usage NULL
+#' @export
+given_species_params.given_species_params <- function(object) {
+    object
+}
+
+#' Test if an object is a given_species_params object
+#'
+#' @param x An object to test.
+#' @return `TRUE` if `x` is a `given_species_params` object, `FALSE` otherwise.
+#' @export
+is.given_species_params <- function(x) {
+    inherits(x, "given_species_params")
 }
 
 #' @rdname species_params
 #' @export
-`given_species_params<-` <- function(params, value) {
+`given_species_params<-` <- function(object, value) {
+    UseMethod("given_species_params<-")
+}
+
+#' @rdname species_params
+#' @usage NULL
+#' @export
+`given_species_params<-.MizerParams` <- function(object, value) {
+    params <- object
     value <- validGivenSpeciesParams(value)
     if (!all(value$species == params@species_params$species)) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")

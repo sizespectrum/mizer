@@ -2,26 +2,34 @@
 % Please edit documentation in R/species_params.R
 \name{species_params}
 \alias{species_params}
+\alias{species_params.MizerParams}
+\alias{species_params.MizerSim}
+\alias{species_params.data.frame}
+\alias{species_params.species_params}
 \alias{species_params<-}
+\alias{species_params<-.MizerParams}
 \alias{given_species_params}
+\alias{given_species_params.MizerParams}
+\alias{given_species_params.MizerSim}
+\alias{given_species_params.data.frame}
+\alias{given_species_params.given_species_params}
 \alias{given_species_params<-}
+\alias{given_species_params<-.MizerParams}
 \alias{calculated_species_params}
 \title{Species parameters}
 \usage{
-species_params(params)
+species_params(object)
 
-species_params(params) <- value
+species_params(object) <- value
 
-given_species_params(params)
+given_species_params(object)
 
-given_species_params(params) <- value
+given_species_params(object) <- value
 
 calculated_species_params(params)
 }
 \arguments{
-\item{params}{A MizerParams object}
-
-\item{value}{A data frame with the species parameters}
+\item{object}{A MizerParams object, a MizerSim object or a data frame}
 }
 \value{
 \code{species_params()}: Data frame containing all species parameters

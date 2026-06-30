@@ -86,7 +86,7 @@ validSpeciesParams <- function(species_params) {
     sp <- set_species_param_default(sp, "E_ext", 0)
     sp <- set_species_param_default(sp, "D_ext", 0)
     sp <- set_species_param_default(sp, "is_background", FALSE)
-    return(sp)
+    return(species_params(sp))
 }
 
 #' @rdname validSpeciesParams
@@ -219,7 +219,7 @@ validGivenSpeciesParams <- function(species_params) {
             sp$w_repro_max[wrong] <- 4 * sp$w_mat[wrong]
         }
     }
-    sp
+    given_species_params(sp)
 }
 
 # Set weight-based parameter from length-based parameter

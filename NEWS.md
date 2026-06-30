@@ -1,5 +1,7 @@
 # development version
 
+- The `species_params` data frame is now an S3 subclass of `data.frame` (`class = c("species_params", "data.frame")`). It supports class-preserving subsetting and subassignment S3 methods, making it safer to use and paving the way for future auto-recalculations.
+
 - New `adjustSizeGrid()` function (an S3 generic) adjusts the size grid of a `MizerParams` object to a new minimum and/or maximum size. It can both expand and truncate (shrink) the grid, warning if non-negligible abundance (species or resource) is discarded.
 
 - New experimental `steadyNewton()` finds a steady state by solving the

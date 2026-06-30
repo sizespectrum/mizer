@@ -105,6 +105,8 @@ reference:
     while tuning the model and for investigating the impact of changes in parameters.
   contents:
   - species_params
+  - is.species_params
+  - is.given_species_params
   - gear_params
   - initialN
   - initialNResource

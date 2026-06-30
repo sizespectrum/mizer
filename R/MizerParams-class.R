@@ -5,6 +5,10 @@
 # Distributed under the GPL 3 or later
 # Maintainer: Gustav Delius, University of York, <gustav.delius@york.ac.uk>
 
+setOldClass(c("species_params", "data.frame"))
+setOldClass(c("given_species_params", "species_params"))
+
+
 # Naming conventions:
 # S4 classes and constructors: AClass
 # Functions: aFunction
