@@ -145,6 +145,7 @@
 #' MizerParams object, in case your own code makes use of them.
 #'
 #' @param object A MizerParams object, a MizerSim object or a data frame
+#' @param ... Other arguments passed to S3 methods (such as `strict`).
 #' @return `species_params()`: Data frame containing all species parameters
 #'   currently stored in the model.
 #'
