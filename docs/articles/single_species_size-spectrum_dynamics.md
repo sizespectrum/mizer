@@ -1,0 +1,1323 @@
+# The Single-Species Model
+
+## Introduction
+
+The general Mizer model introduces two important concepts at once:
+multi-species interactions and size-spectrum dynamics. It is best to
+start by understanding the latter before introducing the multi-species
+complications. So here we start with the single-species model.
+
+Size-spectrum dynamics describes in detail how biomass is transported
+through the ecosystem from small sizes to large sizes. Thus the best way
+to think about size-spectrum dynamics is to think of traffic on a
+highway, except that instead of cars travelling along the road we have
+fish growing along the size axis, all the way from their egg size to
+their maximum size. Let us explore this analogy briefly.
+
+The flow of traffic on a highway is dependent on the traffic density,
+which in turn is dependent on changes in the traffic velocity. High
+traffic density arises in sections of the road where the traffic
+velocity decreases. Such a decrease can lead to traffic jams. Low
+traffic density arises in sections where the velocity increases, as
+familiar when emerging on the other side of a traffic jam. Traffic jams
+are self-reinforcing phenomena: if there is a decrease in speed
+somewhere then the density of cars increases which causes a further
+decrease in speed, leading to an even higher density, and so on.
+
+Similarly, high fish density arises in size classes where the growth
+rate decreases. A pronounced decrease in growth rate can lead to
+pronounced peaks in the fish density, similar to a traffic jam. Of
+course fish density is also controlled by the death rate, with a high
+death rate leading to a decreased fish density.
+
+To be precise, fish density in a size class increases if the rate at
+which fish grow into the size class is larger than the rate at which
+they either grow out of the size class or die while they are in the size
+class. Thus size-spectrum dynamics is the result of the interplay
+between the death rate and the changes in the growth rate. For the
+mathematically minded, this interplay is expressed by the partial
+differential equation \\\frac{\partial}{\partial t}N(w,t) =
+-\frac{\partial}{\partial w}\big(N(w,t)g(w,t)\big) - \mu(w,t)\\ where
+\\N(w,t)\\ is the fish density at size \\w\\ and time \\t\\, \\g(w,t)\\
+is the growth rate of an individual of size \\w\\ at time \\t\\ and
+\\\mu(w,t)\\ is its death rate. There is no need for you to understand
+the mathematical notation.
+
+Size-spectrum dynamics is like the traffic on a highway where cars can
+leave the highway (fish can die) at any point, but they can only join
+the highway at its beginning (fish start out at the egg size). To model
+the size spectrum we therefore also have to describe the rate \\R(t)\\
+at which eggs are entering the size spectrum, i.e., the rate at which
+mature fish reproduce.
+
+Below we will be discussing in detail what determines the death rate
+\\\mu(w,t)\\, the growth rate \\g(w,t)\\ and the rate of reproduction
+\\R(t)\\.
+
+## Why study size-spectrum dynamics?
+
+The study of traffic dynamics has had real practical benefits. For
+example, at least on motorways in Europe, when there is a danger of a
+traffic jam developing, automatic speed restrictions are imposed at a
+certain distance in front of the developing slow-moving traffic. For
+motorists who have not thought about traffic flow, these speed
+restrictions in places where there is no obvious reason for them are
+very annoying. However they do indeed avoid the formation of the traffic
+jam.
+
+Of course we can not directly tell fish to obey limits to their growth
+rates. However we do have influence on their size-spectrum dynamics
+through fishing policy. For example if some species experiences stunted
+growth, like for example the Herring in the Baltic Sea, we could resolve
+that by reducing their numbers (which increases their growth rate
+because of reduced competition for food) or by reducing fishing on their
+prey.
+
+The size-spectrum dynamics in a multi-species ecosystem is extremely
+complex. We can understand very simplified cases analytically, but in
+general we need to use numerical simulation to understand the
+consequences of various interventions.
+
+The mizer package can simulate the size-spectrum dynamics. Given the
+model parameters that enter into the expression of the growth rate, the
+death rate and the reproductive rate, and an initial fish size spectrum,
+mizer simulates the changes in the size spectrum over time according to
+the above equations.
+
+Of particular interest is the steady state of the size spectrum, where
+the effects of the death rate and the changes in the growth rate exactly
+balance in such a way that the size spectrum stays constant over time.
+We will be looking both at the steady state and at time-varying size
+spectra below.
+
+Our emphasis will be on understanding the dynamics. We do not just want
+to learn how to run simulations but we want to use the simulations to
+develop an intuition for how fish populations behave. We therefore start
+with very simple models first.
+
+## A first example
+
+The most effective way of working with this tutorial is to open up an R
+script file in RStudio and copying all the commands from this tutorial
+into that R script file. You should then execute them by sending them to
+the R console, thereby reproducing all the results. Later in this
+tutorial there will be exercises that you can do by adapting the code in
+your R script file to the tasks in the exercises. That way you will pick
+up a facility in working with mizer in R at the same time as gaining a
+deeper understanding of size spectrum modelling.
+
+First, load some required packages with the following commands:
+
+``` r
+
+library(mizer)
+library(dplyr)
+library(ggplot2)
+```
+
+If you get error messages saying that a particular package is not
+available, you will need to install that package.
+
+Mizer collects all the parameters describing a size-spectrum model into
+one object of class `MizerParams`. You do not need to set up this object
+by hand but instead there are several wrapper functions in mizer that
+create the object for you for various types of models, and also many
+functions for changing specific parameters in a model. We will use the
+[`newSingleSpeciesParams()`](https://sizespectrum.org/mizer/reference/newSingleSpeciesParams.md)
+function to set up a model describing a single fish species living in an
+ecosystem whose community size spectrum is given by a power-law.
+
+The
+[`newSingleSpeciesParams()`](https://sizespectrum.org/mizer/reference/newSingleSpeciesParams.md)
+function has many arguments that allow you to specify parameters for the
+fish species as well as for the community, but all these arguments have
+default values, so we can simply call the function without specifying
+those arguments. We will only specify the power-law exponent of the
+background community
+
+``` r
+
+params <- newSingleSpeciesParams(lambda = 2.05)
+```
+
+The function returns a `MizerParams` object and we have assigned that to
+the variable `params`. We will be explaining more about this model as we
+go along.
+
+## Steady state spectrum
+
+In this tutorial we will only be interested in the *shape* of the size
+spectrum, i.e., in how the individuals are distributed over the
+different sizes, and not yet in the overall abundance of the species.
+The overall abundance is controlled by the rate of reproduction, which
+involves a dynamic feedback that we will only study once we move to
+multi-species models.
+
+We therefore concentrate on the steady state of the model. The steady
+state is the state where in each size class the inflow of individuals
+through growth exactly balances the outflow of individuals through
+growth and death. The
+[`newSingleSpeciesParams()`](https://sizespectrum.org/mizer/reference/newSingleSpeciesParams.md)
+function has already set the initial size spectrum of the species to its
+steady-state shape, so there is nothing more for us to do at this point.
+Later, after we have changed some parameters, we will use the
+[`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
+function to recalculate the steady-state shape.
+
+We can plot the size spectrum with the
+[`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
+function.
+
+``` r
+
+plotSpectra(params, power = 0)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-3-1.png)
+
+The `power = 0` argument to the
+[`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
+function specifies that we want to plot the number density, rather than
+for example the biomass density.
+
+The green line represents the number density of the background
+community, labelled as “Resource” in the plot legend, in which our
+foreground species finds itself. The green line is a straight line with
+slope `lambda = -2.05`. It is important to understand that a power-law
+curve looks like a straight line when plotted on logarithmic axes and
+the slope of the line is the exponent in the power law. Thus the number
+density is proportional to \\w^{-2.05}\\.
+
+The other line represents the number density of our single species,
+which by default is just named unimaginatively “Target species”. We see
+that it is a straight line initially, but then has a bump before
+declining rapidly at large sizes. We will discuss in a short while what
+causes that shape.
+
+The initial slope of the species number density is negative, which means
+that there are fewer larger fish than smaller fish. That is of course
+understandable: some fish die while they are growing up, so there tend
+to be fewer fish in larger size classes.
+
+> ### Exercise 1
+>
+> Now it is time for you to do the first exercise to use the commands
+> you have just learned about. Create a MizerParams object describing a
+> single species in a power-law background where the Sheldon exponent is
+> 2.1. Assign that MizerParams object to a variable with a name other
+> than `params`, in order not to overwrite the MizerParams object that
+> we created above. Then plot the number density as a function of weight
+> in the steady state of that model. Once you are happy with your plot,
+> you can continue reading. If you need to see the solution, you can
+> click on the “Solution” triangle below.
+
+Solution
+
+``` r
+
+params2 <- newSingleSpeciesParams(lambda = 2.1)
+plotSpectra(params2, power = 0)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-4-1.png)
+
+## Numbers
+
+While the
+[`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
+function gives us a plot of the number density, it would be nice if we
+could get at the actual numbers. These are stored as the initial
+condition in the params object and we can access them with the
+[`initialN()`](https://sizespectrum.org/mizer/reference/initialN-set.md)
+function. Let us assign this to a variable `n`:
+
+``` r
+
+n <- initialN(params)
+```
+
+As you can see in the “Environment” pane in RStudio, `n` is a matrix
+with 1 row and 101 columns. The one row corresponds to the one species.
+In a multispecies model there would be one row for each species, holding
+the number density for that species. The 101 columns are for the number
+densities in each of the 101 size classes. In fact, `n` is a named
+array, i.e., each row and each column has names. These we can extract
+with the [`dimnames()`](https://rdrr.io/r/base/dimnames.html) function.
+
+``` r
+
+dimnames(n)
+```
+
+    ## $sp
+    ## [1] "Target species"
+    ## 
+    ## $w
+    ##   [1] "0.001"   "0.00112" "0.00126" "0.00141" "0.00158" "0.00178" "0.002"  
+    ##   [8] "0.00224" "0.00251" "0.00282" "0.00316" "0.00355" "0.00398" "0.00447"
+    ##  [15] "0.00501" "0.00562" "0.00631" "0.00708" "0.00794" "0.00891" "0.01"   
+    ##  [22] "0.0112"  "0.0126"  "0.0141"  "0.0158"  "0.0178"  "0.02"    "0.0224" 
+    ##  [29] "0.0251"  "0.0282"  "0.0316"  "0.0355"  "0.0398"  "0.0447"  "0.0501" 
+    ##  [36] "0.0562"  "0.0631"  "0.0708"  "0.0794"  "0.0891"  "0.1"     "0.112"  
+    ##  [43] "0.126"   "0.141"   "0.158"   "0.178"   "0.2"     "0.224"   "0.251"  
+    ##  [50] "0.282"   "0.316"   "0.355"   "0.398"   "0.447"   "0.501"   "0.562"  
+    ##  [57] "0.631"   "0.708"   "0.794"   "0.891"   "1"       "1.12"    "1.26"   
+    ##  [64] "1.41"    "1.58"    "1.78"    "2"       "2.24"    "2.51"    "2.82"   
+    ##  [71] "3.16"    "3.55"    "3.98"    "4.47"    "5.01"    "5.62"    "6.31"   
+    ##  [78] "7.08"    "7.94"    "8.91"    "10"      "11.2"    "12.6"    "14.1"   
+    ##  [85] "15.8"    "17.8"    "20"      "22.4"    "25.1"    "28.2"    "31.6"   
+    ##  [92] "35.5"    "39.8"    "44.7"    "50.1"    "56.2"    "63.1"    "70.8"   
+    ##  [99] "79.4"    "89.1"    "100"
+
+The names of the columns are the weight in grams at the start of each
+size class. Notice how R displays long vectors by breaking them across
+many lines and starting each line with a number in brackets. That number
+is the index of the first value in that row. So for example we see that
+the 61st size bracket starts at 1 gram. The number density in the size
+class between 1 gram and 1.12 grams is
+
+``` r
+
+n[1, 61]
+```
+
+    ## [1] 0.0003282314
+
+It is important to realise that this is not the number of fish in the
+size class, but the number density. To get the number of fish we have to
+multiply the number by the width of the size class. Those widths can be
+obtained with the
+[`dw()`](https://sizespectrum.org/mizer/reference/w.md) function. So the
+number of fish in the 61st size class is
+
+``` r
+
+(n * dw(params))[1, 61]
+```
+
+    ## [1] 4.005029e-05
+
+You may be surprised by the small number if you interpret it as the
+number of fish between 1 gram and 1.12 gram in the entire ocean. However
+it looks more reasonable if it is the average number per square meter of
+sea. For more of a discussion of this issue of working with numbers per
+area, numbers per volume or numbers for the entire system see
+<https://sizespectrum.org/mizer/reference/setParams.html#units-in-mizer>
+
+> ### Exercise 2
+>
+> Determine the total number of fish with sizes between 10 grams and 20
+> grams. You can use the [`sum()`](https://rdrr.io/r/base/sum.html)
+> function to add together contributions from the various size classes.
+
+Solution
+
+``` r
+
+sum((n * dw(params))[1, 81:86])
+```
+
+    ## [1] 4.163148e-05
+
+## Biomass spectra
+
+Without the `power` argument (or with `power = 1` which is the default)
+the
+[`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
+function plots the biomass density as a function of size.
+
+``` r
+
+plotSpectra(params)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-10-1.png)
+
+Now the green line representing the biomass density of the background
+has a slope of -1.05.
+
+The initial slope of the species biomass density is negative, meaning
+that the biomass density decreases with size. This means that even
+though the individual fish of course gain biomass as they grow up, there
+is so much death among the larvae and juvenile fish that the total
+biomass of any cohort nevertheless decreases as it grows up. We will
+explain the reason for this later when we discuss predation mortality.
+
+We can also plot the Sheldon spectrum, i.e., the biomass density as a
+function of the log weight instead of the weight, by supplying the
+argument `power = 2` to
+[`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md).
+
+``` r
+
+plotSpectra(params, power = 2)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-11-1.png)
+
+This now shows an approximately constant biomass density as a function
+of log size (the slope of the green line is -0.05). The biomass density
+of the species as a function of log size initially increases. So if
+binned in logarithmically-sized bins the biomass in each bin will
+initially increase, until it starts decreasing close to the maximum size
+of the species.
+
+It may have been a bit confusing that we displayed the same size
+spectrum in three different ways. But it is important to be aware of
+this because in the literature you will see all different conventions
+being used, so if you see a plot of a size spectrum you always need to
+ask yourself exactly which density is being shown.
+
+We can obtain the biomass density in a size class from the number
+density by multiplying the number density by the weight of the
+individuals in the size class. To obtain these weights, we use the
+function [`w()`](https://sizespectrum.org/mizer/reference/w.md) that
+returns the weights at the start of each size class. Of course using
+these will lead to a discretisation error because not all fish in the
+size class have the same weight, but with the small size classes that we
+use in mizer, the error is not too important. So we calculate
+
+``` r
+
+biomass_density <- n * w(params)
+```
+
+The total biomass in each size class we obtain by multiplying the
+biomass density in each size class by the width of each size class
+
+``` r
+
+biomass <- biomass_density * dw(params)
+```
+
+For example the biomass of fish between 1 gram and 1.12 grams is
+
+``` r
+
+biomass[61]
+```
+
+    ## [1] 4.005029e-05
+
+Next we will discuss the shape of the species size-spectrum in more
+detail.
+
+## Allometric rates
+
+The first striking feature of the species size-spectrum, in all its
+representations, is that for small fish (larvae and juveniles) it is
+given by a straight line. This is due to the allometric scaling of the
+physiological rates, which we will discuss in this section. The other
+striking feature is the bulge at around maturity size, which we will
+discuss in the section on reproduction.
+
+First of all, the metabolic rate, i.e., the rate at which an organism
+expends energy on its basic metabolic needs, scales as a power of the
+organism’s body size, and the power is about \\p = 3/4\\.
+
+Because this energy needs to be supplied by consumption of food, it is
+natural to assume that also the consumption rate scales allometrically
+with a power of \\n = 3/4\\. When the consumption is greater than the
+metabolic cost then the excess leads to growth. Hence the growth rate
+too scales allometrically with power \\n = 3/4\\. While these are
+standard choices for the allometric exponents, mizer allows you to
+choose other values for \\p\\ and \\n\\.
+
+Finally, the death rate of organisms tends to scale allometrically with
+a power of \\p - 1 = 3/4 - 1 = -1/4\\. The death rate experienced by
+larger individuals is smaller than that of small individuals. Again this
+is confirmed by many observations.
+
+It is a result of the mathematics that if the growth and death rates
+scale allometrically with exponents \\p\\ and \\1-p\\ respectively, for
+some metabolic exponent \\p\\, that the number density at steady state
+is also a power law, i.e., a straight line on the log-log plot.
+
+Let us check that in our model the physiological rates are indeed power
+laws, at least for the small sizes. We can get the growth rate with the
+[`getEGrowth()`](https://sizespectrum.org/mizer/reference/getEGrowth.md)
+function. We assign the result to a variable that we name `growth_rate`.
+
+``` r
+
+growth_rate <- getEGrowth(params)
+```
+
+You can again see in the “Environment” pane that this is a matrix with
+one row for the one species and 101 columns for the 101 size classes. So
+for example the growth rate at size 1 gram is
+
+``` r
+
+growth_rate[1, 61]
+```
+
+    ## [1] 4.2
+
+(because we had seen that the 61st size class starts at 1 gram). This is
+the instantaneous per-capita growth rate, measured in grams per year.
+
+We would like to make a log-log plot of the growth rate against size to
+check that it gives a straight line. Because
+[`getEGrowth()`](https://sizespectrum.org/mizer/reference/getEGrowth.md)
+returns the growth rate as an `ArraySpeciesBySize` object, which carries
+the information about axis labels and units along with it, we can simply
+call [`plot()`](https://sizespectrum.org/mizer/reference/plot.md) on it
+and ask for logarithmic axes:
+
+``` r
+
+plot(growth_rate, log_x = TRUE, log_y = TRUE)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-17-1.png)
+
+We see that at least up to a size of a few grams the line is straight.
+Let’s isolate the weights and the growth rate for those smaller sizes
+
+``` r
+
+w_small_fish <- w(params)[w(params) <= 10]
+g_small_fish <- growth_rate[w(params) <= 10]
+```
+
+and fit a linear model
+
+``` r
+
+lm(log(g_small_fish) ~ log(w_small_fish))
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = log(g_small_fish) ~ log(w_small_fish))
+    ## 
+    ## Coefficients:
+    ##       (Intercept)  log(w_small_fish)  
+    ##             1.435              0.750
+
+The slope of the line is indeed \\0.75 = 3/4\\. In fact, the above shows
+that for juveniles \\\log(g(w)) \approx 1.435 + \frac34 \log(w)\\ and
+thus \\g(w) = g_0\\ w^p \approx \exp(1.435)\\ w^{3/4} \approx 4.2\\
+w^{3/4}.\\
+
+Of course in a real model, the growth rate would not so exactly follow a
+power law, due to variations in the growth rate due to variations in
+food availability, for example.
+
+> ### Exercise 3
+>
+> Now over to you. Use the methods you have just seen to make a log-log
+> plot of the mortality rate. You can get the mortality rate with the
+> [`getMort()`](https://sizespectrum.org/mizer/reference/getMort.md)
+> function.
+
+Solution
+
+``` r
+
+mort_rate <- getMort(params)
+plot(mort_rate, log_x = TRUE, log_y = TRUE)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-22-1.png)
+
+> Then fit a linear model to determine the slope and intercept and thus
+> the allometric exponent and the coefficient for the mortality rate, to
+> establish that the mortality rate is \\\mu(w) = \mu_0\\ w^{p-1}
+> \approx 3.897 \\ w^{-1/4}.\\
+
+Solution
+
+The slope and intercept come from the linear model fit
+
+``` r
+
+mm <- lm(log(mort_rate[1, ]) ~ log(w(params)))
+mm
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = log(mort_rate[1, ]) ~ log(w(params)))
+    ## 
+    ## Coefficients:
+    ##    (Intercept)  log(w(params))  
+    ##           1.36           -0.25
+
+and the coefficient \\\mu_0\\ is obtained by exponentiating the
+intercept
+
+``` r
+
+m0 <- exp(mm$coefficients[[1]])
+m0
+```
+
+    ## [1] 3.896875
+
+## Slope of juvenile spectrum
+
+We have seen that for juvenile fish the growth rate and the death rate
+are both power laws with exponents \\p=3/4\\ and \\p-1=-1/4\\
+respectively. By solving a differential equation we can derive that the
+juvenile spectrum also follows a power law: \\N(w) = N_0\\
+w^{-\mu_0/g_0 - p}\\
+
+I won’t do the maths here with you (and you probably don’t want me to
+anyway), but we can check this claim numerically. Just like the growth
+rate and the mortality rate, the number density `n` is an
+`ArraySpeciesBySize` object, so we can plot it on log-log axes with
+
+``` r
+
+plot(n, log_x = TRUE, log_y = TRUE)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-25-1.png)
+
+That confirms what we had seen earlier, that for fish less than 10 grams
+the number density is a power law. To determine the exponent of the
+power law we need the slope of that straight line in the log-log plot,
+and the easiest way to do that is to fit a linear model to the log
+variables for the small fish:
+
+``` r
+
+n_small_fish <- n[w(params) <= 10]
+lm(log(n_small_fish) ~ log(w_small_fish))
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = log(n_small_fish) ~ log(w_small_fish))
+    ## 
+    ## Coefficients:
+    ##       (Intercept)  log(w_small_fish)  
+    ##            -8.022             -1.682
+
+The linear model fit says that the exponent is -1.682. The mathematics
+claimed that the exponent should be \\-\mu_0 / g_0 - p\\. We have
+already observed that \\\mu_0 \approx 3.897\\ and \\g_0 \approx 4.2\\ so
+we get
+
+``` r
+
+-m0 / g0 - 3 / 4
+```
+
+    ## [1] -1.67783
+
+That is not quite the result of the linear model fit, but that is the
+nature of numerical calculations: one gets discretisation errors and
+rounding errors.
+
+## Shape of adult spectrum
+
+Now that we understand the shape of the size spectrum for the juvenile
+fish, let us try to understand the bulge that follows. The increase of
+abundance that we see at around the maturity size of our species is due
+to a drop in growth rate at that size. This in turn is due to the fact
+that the mature fish invests some of its energy income into
+reproduction.
+
+### Investment into reproduction
+
+Let us look at a plot of the proportion \\\psi(w)\\ of the available
+energy that is invested into reproduction as a function of the size
+\\w\\. This is the product of the proportion of individuals that are
+mature (which we could obtain with the
+[`maturity()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
+function) and the proportion of their energy income that a mature fish
+invests into reproduction (which we could obtain with the
+[`repro_prop()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
+function). The product is returned directly by the
+[`psi()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
+function, which we can pass straight to
+[`plot()`](https://sizespectrum.org/mizer/reference/plot.md):
+
+``` r
+
+p <- plot(psi(params), log_x = FALSE)
+p
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-29-1.png)
+
+How was this maturity curve specified? You can find the details in the
+[mizer
+documentation](https://sizespectrum.org/mizer/reference/setReproduction.html#investment).
+We look at four species parameters that are involved:
+
+- the maturity size `w_mat` at which 50% of the individuals are mature.
+- the size `w_mat25` at which 25% of the individuals are mature.
+- the size `w_repro_max` at which a typical mature individual invests
+  100% of its income into reproduction. (This is not a hard upper size
+  limit: not all individuals are mature at `w_repro_max`, and diffusion
+  in the growth process allows some to grow beyond it.)
+- an exponent `m` that determines how the proportion that an individual
+  invests into reproduction scales with its size.
+
+Such species parameters are contained in a data frame inside the
+`params` object that we can access with the
+[`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+function.
+
+``` r
+
+species_params(params)
+```
+
+    ##                       species w_min w_inf w_max    w_mat w_min_idx  h    gamma
+    ## Target species Target species 0.001   100   100 25.11886         1 30 2066.004
+    ##                ks  f0   fc beta sigma z0 alpha   erepro    n    p w_repro_max
+    ## Target species  3 0.6 0.25  100   1.3  0   0.4 0.899483 0.75 0.75         100
+    ##                interaction_resource    z_ext     d E_ext D_ext is_background
+    ## Target species                    1 3.896875 -0.25     0     0         FALSE
+    ##                pred_kernel_type k   q  w_mat25 m R_max
+    ## Target species        lognormal 0 0.8 22.50546 1   Inf
+
+As you can see, there are a lot of other species parameters, some of
+which we will talk about later. For now let’s just select the four
+parameters we are interested in.
+
+``` r
+
+select(species_params(params), w_mat, w_mat25, w_repro_max, m)
+```
+
+    ##                   w_mat  w_mat25 w_repro_max m
+    ## Target species 25.11886 22.50546         100 1
+
+### Effect of change in maturity curve
+
+Let us investigate what happens when we change the maturity curve. Let’s
+assume the maturity size is actually 40 grams and the size at which 25%
+of the individuals are mature is 30 grams. But first we make a copy of
+the params object so that we can keep the old version around unchanged.
+
+``` r
+
+params_changed_maturity <- params
+```
+
+In this copy we now change the species parameters. We do this with
+[`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+rather than with
+[`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md).
+The difference is that
+[`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+holds only the values that *you* have supplied, and changing one of them
+triggers mizer to recalculate any other parameters that are derived from
+it. So this is the safe way to change input parameters.
+
+``` r
+
+given_species_params(params_changed_maturity)$w_mat <- 40
+given_species_params(params_changed_maturity)$w_mat25 <- 30
+```
+
+Now the maturity curve has changed, which we can verify by plotting it
+
+``` r
+
+plot(psi(params_changed_maturity), log_x = FALSE)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-34-1.png)
+
+How can we see the old maturity curve and the new maturity curve in the
+same plot? Earlier we saved the plot of the original maturity curve in
+the variable `p`. The
+[`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md)
+function lets us add a second curve to an existing plot, so we do not
+have to combine data frames by hand:
+
+``` r
+
+addPlot(p, psi(params_changed_maturity))
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-35-1.png)
+
+This change in the maturity curve of course implies a change in the
+growth rates.
+
+> ### Exercise 4
+>
+> Make a plot showing the growth rates of the original model and of the
+> model with the changed maturity curve.
+
+Solution
+
+The [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md)
+function plots two `ArraySpeciesBySize` objects on the same graph, which
+is exactly what we need here:
+
+``` r
+
+plot2(getEGrowth(params), getEGrowth(params_changed_maturity),
+      name1 = "original", name2 = "changed", log_x = FALSE)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-36-1.png)
+
+Next let us look at how the steady state spectrum has changed. We first
+need to recalculate the steady-state shape of the changed model with the
+[`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
+function. This is the function that, for a single species in a fixed
+background, finds the abundance at each size that balances the growth
+and mortality rates, while keeping the egg influx fixed.
+
+``` r
+
+params_changed_maturity <- steadySingleSpecies(params_changed_maturity)
+```
+
+We use the
+[`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md)
+function to plot the steady-state spectra of both models on top of each
+other. We restrict the plot to weights above 10 grams so that we can see
+the difference in the adult spectrum clearly.
+
+``` r
+
+plotSpectra2(params, name1 = "original",
+             params_changed_maturity, name2 = "changed",
+             power = 2, resource = FALSE, wlim = c(10, NA))
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-38-1.png)
+
+As expected, the bump happens later due to the larger maturity size and
+it is less pronounced, because the maturity curve is less steep.
+
+### Reproductive efficiency
+
+So what happens with the energy that is invested into reproduction? It
+leads to spawning and thus the influx of new individuals at the egg
+size. This conversion of energy invested into reproduction into egg
+biomass is inefficient. Firstly much energy is spent on things like
+migration to spawning grounds, rather than on production of gonadic
+mass. Secondly, only a small proportion of eggs that are produced are
+viable and hatch into larvae. The proportion of the invested energy that
+ends up as viable eggs is described by the species parameter `erepro`,
+the reproductive efficiency.
+
+It is important to understand that the
+[`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
+function that we used above only adjusts the *shape* of the size
+spectrum. It finds the abundance at each size that balances the growth
+and mortality rates while keeping the egg influx fixed, but it does not
+touch the reproduction parameters. So it does not by itself tell us what
+reproductive efficiency would be needed to actually sustain the
+population at this steady state.
+
+To work that out we use the
+[`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+function. This function adjusts the reproduction parameters so that the
+energy that the mature individuals invest into reproduction produces
+exactly the reproduction rate required to maintain the egg abundance at
+its steady-state value — without changing the steady-state spectrum we
+have just found. We ask for a `reproduction_level` of 0, which imposes
+no maximum on the reproduction rate, so that the reproductive efficiency
+`erepro` alone has to do the job.
+
+``` r
+
+params <- setBevertonHolt(params, reproduction_level = 0)
+species_params(params)$erepro
+```
+
+    ## [1] 0.899483
+
+In order for the population to be at steady state, the reproductive
+efficiency has to have this particular value. If it were higher, the
+population would increase, if it were lower, the population would
+decrease with time.
+
+The model with the changed maturity curve invests energy into
+reproduction at a different rate and so needs a different reproductive
+efficiency to remain at steady state. Because
+[`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
+left the reproduction parameters untouched, the value of `erepro` is at
+this point still the same as in the original model:
+
+``` r
+
+species_params(params_changed_maturity)$erepro
+```
+
+    ## [1] 0.899483
+
+Calling
+[`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+on the changed model retunes it to the value required for its own steady
+state:
+
+``` r
+
+params_changed_maturity <- setBevertonHolt(params_changed_maturity,
+                                           reproduction_level = 0)
+species_params(params_changed_maturity)$erepro
+```
+
+    ## [1] 0.8894122
+
+When the population deviates from the steady state, for example due to a
+change in fishing, the reproduction rate can be set to change according
+to a Beverton-Holt stock-recruitment curve. The `reproduction_level`
+argument controls how strong that density dependence is. We will discuss
+this again later.
+
+## Predation
+
+It is now time to discuss the important issue of predation. It is
+through predation that the fish obtains the energy it needs to maintain
+its metabolism, to grow and to invest in reproduction. So it is
+important how we model this predation.
+
+### Effect of prey availability
+
+The energy income for a fish comes from predation on its prey. If there
+is less prey, the fish consumes less and thus its growth rate will
+decrease. Let us investigate this by artificially removing some prey.
+
+Below we decrease the community spectrum by a factor of 10 in the size
+range from 1mg to 10mg. We again create a new parameter object to be
+able to keep the old one around
+
+``` r
+
+params_starved <- params
+size_range <- w_full(params) > 10^-3 & w_full(params) < 10^-2
+initialNResource(params_starved)[size_range] <- 
+  initialNResource(params)[size_range] / 10
+```
+
+That is of course quite a dramatic intervention, and so should allow us
+to clearly see its effect on the steady-state size distribution of our
+species. We recalculate the steady-state shape with
+[`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
+
+``` r
+
+params_starved <- steadySingleSpecies(params_starved)
+```
+
+and compare it to the original spectrum with
+[`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md)
+
+``` r
+
+plotSpectra2(params, name1 = "original",
+             params_starved, name2 = "less prey",
+             power = 2)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-44-1.png)
+
+As expected, the lack of food and the resulting slow-down in growth
+leads to a traffic jam: a peak in the biomass density. This slow-down
+occurs at a size that is about a factor of 100 larger than the size at
+which food is reduced. Why this is we will discuss in the next section.
+But first investigate what happens when the prey abundance is increased
+instead of decreased.
+
+> ### Exercise 5
+>
+> Plot the steady state biomass density in our model when the community
+> abundance is increased by a factor of 10 in the size range from 1mg to
+> 10mg.
+
+Solution
+
+``` r
+
+params_overfed <- params
+size_range <- w_full(params) > 10^-3 & w_full(params) < 10^-2
+initialNResource(params_overfed)[size_range] <-
+  initialNResource(params)[size_range] * 10
+params_overfed <- steadySingleSpecies(params_overfed)
+plotSpectra2(params, name1 = "original",
+             params_overfed, name2 = "more prey",
+             power = 2)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-45-1.png)
+
+### How predation is modelled
+
+The easiest case in which to understand predation is to imagine a filter
+feeding fish, swimming around with its mouth open. Clearly the amount of
+food it takes in is determined by four things:
+
+- the density of prey in the water,
+- how much volume of water the fish is able to filter, which will depend
+  on how fast it swims as well as on its gape size.
+- what sizes of prey the fish is able to filter out of the water, which
+  will be limited by its gape size and by how fine its gill rakers are,
+- how fast it can digest the food. If it can filter the prey faster than
+  it can digest, it will have to start letting prey go uneaten.
+
+For a more active hunter the situation will be similar. The rate at
+which it predates will depend on four things:
+
+- the density of prey in the water
+- the volume of water that the fish patrols and in which it will be able
+  to seek out its prey. This may depend on things like radius of vision.
+- which of this detected prey the fish is able to catch, which will
+  depend on its mouth size but also on its agility and skill as well as
+  on the defensive mechanisms of the prey.
+- how fast it can digest the food.
+
+Of these four factors, we have of course already been discussing the
+density of prey. In the next section we will discuss the ability to
+filter out or catch prey of particular sizes, which we model via the
+predation kernel. In the section after that we will discuss the search
+volume and then in the following section the maximum consumption rate.
+
+### The predation kernel
+
+Fish will be particularly good at catching prey in a specific range of
+sizes, smaller than themselves. This is encoded in the size-spectrum
+model by the predation kernel. Let us take a look at the predation
+kernel in our model. We can obtain it with the function
+[`getPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md).
+
+``` r
+
+pred_kernel <- getPredKernel(params)
+```
+
+This is a large three-dimensional array (predator species x predator
+size x prey size). We extract the kernel of a predator of size 10g
+(using that we remember that this is in size class 81)
+
+``` r
+
+pred_kernel_10 <- pred_kernel[, 81, , drop = FALSE]
+```
+
+The `drop = FALSE` option is there to prevent R from dropping any of the
+array dimensions. We can now plot this as usual
+
+``` r
+
+ggplot(melt(pred_kernel_10)) +
+  geom_line(aes(x = w_prey, y = value)) +
+  scale_x_log10()
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-48-1.png)
+
+We see that the predator of size 10g likes to feed on prey that is about
+a factor 100 smaller than itself, but also feeds on other sizes, just
+with reduced preference. The preferred predator/prey size ratio is
+determined by the species parameter `beta` and the width of the feeding
+kernel, i.e., how fussy the predator is regarding their prey size, is
+determined by the species parameter `sigma`. In our model these have the
+values
+
+``` r
+
+select(species_params(params), beta, sigma)
+```
+
+    ##                beta sigma
+    ## Target species  100   1.3
+
+Let us change the preferred predator/prey mass ratio from 100 to 1000.
+As usual, we first create a copy of the parameter object, then we make
+the change in that copy.
+
+``` r
+
+params_pk <- params
+given_species_params(params_pk)$beta <- 1000
+```
+
+Let’s make a plot to see that the predation kernel has indeed changed.
+
+``` r
+
+getPredKernel(params_pk)[, 81, , drop = FALSE] %>% 
+  melt() %>% 
+  ggplot() +
+  geom_line(aes(x = w_prey, y = value)) +
+  scale_x_log10()
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-51-1.png)
+
+If we now again reduce the prey in the size range from 1mg to 10mg as
+before, we now expect this to produce a peak in the biomass spectrum
+somewhere between 1g and 10g. Let’s check.
+
+``` r
+
+initialNResource(params_pk) <- initialNResource(params_starved)
+params_pk <- steadySingleSpecies(params_pk)
+plotSpectra2(params_starved, name1 = "beta = 100",
+             params_pk, name2 = "beta = 1000",
+             power = 2)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-52-1.png)
+
+Yes, as expected: with the larger preferred predator/prey mass ratio the
+peak has moved to a larger size.
+
+For details of how `beta` and `sigma` parametrise the predation kernel,
+see
+<https://sizespectrum.org/mizer/reference/lognormal_pred_kernel.html#details>.
+For information on how to change the predation kernel, see
+<https://sizespectrum.org/mizer/reference/setPredKernel.html#setting-predation-kernel>
+
+It is very important not to confuse the prey preference with the diet.
+Just because a predator might prefer to feed on prey of a particular
+size if it had free choice does not mean that it actually feeds
+predominantly on such prey. The actual diet of the fish depends also on
+the availability of prey. Because smaller prey are more abundant, the
+realised predator/prey mass ratio in the diet will be smaller than the
+preferred predator/prey mass ratio. This is particularly important when
+estimating the predation kernel from stomach data.
+
+> ### Exercise 6
+>
+> Change the parameters of the predation kernel to `beta = 50` and
+> `sigma = 2` and plot the predation kernel of a predator of size 1g.
+> You should see that the predation kernel is truncated so that the
+> predator never feeds on prey larger than themselves.
+
+Solution
+
+``` r
+
+params3 <- params
+given_species_params(params3)$beta <- 50
+given_species_params(params3)$sigma <- 2
+getPredKernel(params3)[, 61, , drop = FALSE] %>%
+  melt() %>%
+  ggplot() +
+  geom_line(aes(x = w_prey, y = value)) +
+  scale_x_log10()
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-53-1.png)
+
+> Next, plot the steady state arising with this feeding kernel when the
+> prey abundance is artificially reduced by a factor of 10 in the size
+> range between 1mg and 10mg as in previous examples. What do you
+> observe? Are you surprised?
+
+Solution
+
+``` r
+
+initialNResource(params3) <- initialNResource(params_starved)
+params3 <- steadySingleSpecies(params3)
+plotSpectra2(params, name1 = "original",
+             params3, name2 = "less prey",
+             power = 2)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-54-1.png)
+There is no pronounced bump created this time. This is because the
+larvae experience a decreased growth rate already almost from the start
+of their life, so there is no sharp slow-down at a particular size to
+create the traffic jam.
+
+### Search volume
+
+Next we consider the factor that models the volume of water a filter
+feeder is able to filter in a certain amount of time, or the volume of
+water a forage fish is able to patrol in a certain amount of time. This
+is difficult to model from first principles, although people have tried
+to argue in terms of swimming speeds of fish. We assume that this search
+volume rate is also an allometric rate. Let \\\gamma(w)\\ denote this
+rate for a predator of size \\w\\. Thus we assume that \\\gamma(w) =
+\gamma_0\\ w^q\\ for some exponent \\q\\. We know that a fish needs to
+consume prey at a rate that scales with its body size to the power
+\\p\\, with \\p\\ about \\3/4\\. We also know that the prey density will
+be approximately described by the Sheldon power law, i.e., that \\N(w) =
+N_0\\ w^{-\lambda}\\. A bit of maths then says that \\q = 2 - \lambda +
+n.\\ This explains the message you got when you created the params
+object with a certain choice of \\\lambda\\: mizer chose the search
+volume exponent automatically according to this formula. In the real
+world, evolution will have made sure that the fish will have developed a
+feeding strategy that allows it to cover its metabolic costs, and thus
+leads to that search volume exponent of \\q\\. Clearly, filter feeders
+have taken a very different route to this than forage fish, but the
+result is the same.
+
+Let us see what effect changing the coefficient \\\gamma_0\\ in the
+search volume rate has. Its current value in our model is
+
+``` r
+
+species_params(params)$gamma
+```
+
+    ## [1] 2066.004
+
+We change that to 2000 and find the new steady state.
+
+``` r
+
+params_new_gamma <- params
+given_species_params(params_new_gamma)$gamma <- 1000
+params_new_gamma <- steadySingleSpecies(params_new_gamma)
+```
+
+We can see the effect in the growth curve of our species. In the
+original model it looks as follows:
+
+``` r
+
+plotGrowthCurves(params)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-57-1.png)
+
+In the modified model it looks like
+
+``` r
+
+plotGrowthCurves(params_new_gamma)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-58-1.png)
+
+> ### Exercise 7
+>
+> What effect will this change in growth rate have on the slope of the
+> juvenile spectrum? Will it be steeper or shallower? Make the plot of
+> the spectrum to see.
+
+Solution
+
+The juvenile spectrum will be steeper because the slope is
+\\-\mu_0/g_0 - p\\ and for smaller growth rate coefficient \\g_0\\ this
+will be more negative.
+
+``` r
+
+plotSpectra2(params, name1 = "original",
+             params_new_gamma, name2 = "changed",
+             power = 0, resource = FALSE)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-59-1.png)
+
+### Feeding level
+
+A predator will have a maximum intake rate. It will simply not be able
+to utilise food at a faster rate than its maximum intake rate. Of course
+in practice it will not feed at the maximum intake rate because of
+limited availability of prey. We describe this by the *feeding level*
+which is the proportion of its maximum intake rate at which the predator
+is actually taking in prey.
+
+In our simple model this feeding level is constant.
+
+``` r
+
+plot2(getFeedingLevel(params), getFeedingLevel(params_new_gamma))
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-60-1.png)
+
+In the model with the reduced search volume the feeding level is lower
+
+Our model is taking an allometric form for the maximum intake rate
+\\h(w)\\ as a function of predator size \\w\\: \\h(w) = h\\ w^n\\. The
+current value of the coefficient \\h\\ is
+
+``` r
+
+species_params(params)$h
+```
+
+    ## [1] 30
+
+## Mortality
+
+### Predation mortality
+
+Of course growth of the predator is only one aspect of predation. The
+other is the death of the prey. Growth and mortality are coupled.
+Increased growth of one class of individuals will necessitate increased
+death of another. There is no free lunch.
+
+Once we have specified the predation parameters, these parameters
+determine both the growth of predators but also the mortality rate of
+prey. So we don’t have to introduce new parameters for death from
+predation.
+
+### External mortality
+
+In addition to mortality caused by predation from other fish, there will
+be some mortality from other causes. This could be predation from
+animals that we have not included in our model, like sea birds or
+mammals, or it could be death from old age (senescent death) or disease.
+Mizer allows setting of background death with
+[`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md).
+
+### Fishing mortality
+
+The cause of mortality that is most under our control is mortality from
+fishing. You can see how fishing is set up in mizer at
+<https://sizespectrum.org/mizer/reference/setFishing.html#setting-fishing>.
+The parameters describing the fishing gears are stored in a
+`gear_params` data frame. Our single-species model already comes with
+one gear:
+
+``` r
+
+gear_params(params)
+```
+
+    ##                                        species            gear   sel_func
+    ## Target species, knife_edge_gear Target species knife_edge_gear knife_edge
+    ##                                 knife_edge_size catchability
+    ## Target species, knife_edge_gear        25.11886            1
+
+We see that it uses a `knife_edge` selectivity function with a
+`knife_edge_size` of about 25 grams. This means that all fish larger
+than that size are exposed to the same fishing mortality, while smaller
+fish experience none. We call this kind of fishing selectivity
+“knife_edge” selectivity. Mizer can also deal with more general
+selectivity curves, like sigmoidal or doubly sigmoidal.
+
+Let us change the knife-edge size to 30 grams, so that fishing only
+affects fish above 30 grams.
+
+``` r
+
+params_fishing <- params
+gear_params(params_fishing)$knife_edge_size <- 30
+```
+
+We also need to specify the fishing effort. The effort is multiplied by
+the catchability and the selectivity to give the fishing mortality rate.
+We set it to 1 with the
+[`initial_effort()`](https://sizespectrum.org/mizer/reference/initial_effort.md)
+function and can then plot the resulting fishing mortality.
+
+``` r
+
+initial_effort(params) <- 1
+initial_effort(params_fishing) <- 1
+plot2(getFMort(params), getFMort(params_fishing), log_x = FALSE)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-64-1.png)
+
+## Outlook
+
+The fish species we have studied had unlimited food and constant
+mortality. That of course is very unrealistic. In reality, food will
+become scarce when the fish population increases too much. Also the
+number of predators will grow. This will lead to interesting and
+important non-linear effects.
