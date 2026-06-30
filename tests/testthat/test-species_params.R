@@ -307,7 +307,12 @@ test_that("Reactive validation and conversions work", {
     expect_equal(sp2$w_mat, 80)
 
     # 3. Consistency checks
-    sp2$w_inf <- 50
+    # Remove l_mat so the length-to-weight conversion does not override w_mat
+    sp2$l_mat <- NULL
+    # Setting w_inf < current w_mat (80) should warn and auto-correct w_mat
+    expect_warning(sp2$w_inf <- 50, "the value for `w_mat` is not smaller than that of `w_inf`")
+    # After auto-correction, w_mat should now be w_inf/4 = 12.5, so setting
+    # w_mat <- 60 (> w_inf=50) should warn again
     expect_warning(sp2$w_mat <- 60, "the value for `w_mat` is not smaller than that of `w_inf`")
 })
 
