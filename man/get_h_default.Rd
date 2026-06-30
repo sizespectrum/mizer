@@ -2,9 +2,12 @@
 % Please edit documentation in R/species_params.R
 \name{get_h_default}
 \alias{get_h_default}
+\alias{get_h_default.MizerParams}
+\alias{get_h_default.species_params}
+\alias{get_h_default.data.frame}
 \title{Get default value for h}
 \usage{
-get_h_default(params)
+get_h_default(object)
 }
 \arguments{
 \item{params}{A MizerParams object or a species parameter data frame}
