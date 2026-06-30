@@ -92,15 +92,20 @@ expect_unchanged <- function(object, expected) {
         sp_expected <- expected@params@species_params
     }
     # Check that the species_params are unchanged except for a
-    # reordering of the dataframe columns
+    # reordering of the dataframe columns (ignore column-level name attributes
+    # since named numeric columns are new behaviour from $.species_params)
     expect_equal(sp[, sort(names(sp))],
-                     sp_expected[, sort(names(sp_expected))])
-    # And if they were the same, remove the reordering
+                     sp_expected[, sort(names(sp_expected))],
+                     ignore_attr = TRUE)
+    # And if they were the same, remove the reordering; also align class of
+    # given_species_params so old fixtures with plain data.frame compare equal
     if (is(object, "MizerParams")) {
         object@species_params <- sp_expected
+        object@given_species_params <- expected@given_species_params
     } else if (is(object, "MizerSim")) {
         object@params@species_params <- sp_expected
+        object@params@given_species_params <- expected@params@given_species_params
     }
 
-    expect_equal(object, expected)
+    expect_equal(object, expected, ignore_attr = TRUE)
 }

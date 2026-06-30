@@ -1,7 +1,7 @@
 test_that("set_species_param_default sets default correctly", {
     params <- NS_params_small
     no_sp <- nrow(params@species_params)
-    
+
     # Add comments to test that they are preserved
     comment(params@species_params) <- "top"
     comment(params@species_params$w_max) <- "test"
@@ -9,11 +9,11 @@ test_that("set_species_param_default sets default correctly", {
     expect_condition(set_species_param_default(params, "hype", 2, "hi"),
                    "hi", class = "info_about_default")
     p2 <- set_species_param_default(params, "hype", 2, "hi")
-    expect_identical(p2@species_params$hype, rep(2, no_sp))
+    expect_identical(p2@species_params$hype, rep(2, no_sp), ignore_attr = TRUE)
     expect_identical(comment(p2@species_params$w_max), "test")
     expect_identical(comment(p2@species_params), "top")
     expect_message(sp2 <- set_species_param_default(params@species_params, "hype", 3), NA)
-    expect_identical(sp2$hype, rep(3, no_sp))
+    expect_identical(sp2$hype, rep(3, no_sp), ignore_attr = TRUE)
     # does not change existing colunn
     p2 <- set_species_param_default(params, "species", "a")
     expect_identical(p2, params)
@@ -41,17 +41,17 @@ test_that("default for gamma is correct", {
         exp(lm2^2 * species_params$sigma^2 / 2) *
         # The factor on the following lines takes into account the cutoff
         # of the integral at 0 and at beta + 3 sigma
-        (pnorm(3 - lm2 * species_params$sigma) + 
-             pnorm(log(species_params$beta)/species_params$sigma + 
+        (pnorm(3 - lm2 * species_params$sigma) +
+             pnorm(log(species_params$beta)/species_params$sigma +
                        lm2 * species_params$sigma) - 1)
-    if (!"h" %in% names(params@species_params) || 
+    if (!"h" %in% names(params@species_params) ||
         any(is.na(species_params$h))) {
         species_params$h <- get_h_default(params)
     }
-    gamma_analytic <- (species_params$h / (params@resource_params$kappa * ae)) * 
+    gamma_analytic <- (species_params$h / (params@resource_params$kappa * ae)) *
         (species_params$f0 / (1 - species_params$f0))
     # The analytic formula is only approximate; tolerance depends on species params
-    expect_equal(gamma_default / gamma_analytic,
+    expect_equal(unname(gamma_default / gamma_analytic),
                  rep(1, length(gamma_default)),
                  tolerance = 0.5)
 })
@@ -69,30 +69,30 @@ test_that("Setting species params works", {
     species_params(params)$h[[1]] <- NA
     expect_identical(params@species_params$h[[1]], h_old)
     expect_identical(params@intake_max[1, 1], intake_max_old)
-    
+
     # changing k_vb does not immediately change anything
     species_params(params)$k_vb[[1]] <- 2 * species_params(params)$k_vb[[1]]
     expect_identical(params@intake_max[1, 1], intake_max_old)
     # but clearing the default on h will lead to change
     species_params(params)$h[[1]] <- NA
     expect_equal(params@species_params$h[[1]], 2 * h_old)
-    
+
     # increasing f0 increases gamma
     gamma_old <- species_params(params)$gamma[[1]]
     species_params(params)$f0 <- max(getFeedingLevel(params)) + 0.1
     species_params(params)$gamma <- NA
     expect_gt(species_params(params)$gamma[[1]], gamma_old)
-    
+
     # increasing fc increases ks
     ks_old <- species_params(params)$ks[[1]]
     species_params(params)$fc <- max(getCriticalFeedingLevel(params)) + 0.1
     species_params(params)$ks <- NA
     expect_gt(species_params(params)$ks[[1]], ks_old)
-    
+
     # changing w_min changes w_min_idx
     species_params(params)$w_min[[1]] <- 1
     expect_identical(params@w_min_idx[[1]], 40)
-    
+
     # given species params are not affected
     beta <- params@given_species_params$beta
     species_params(params)$beta <- 1
@@ -130,19 +130,19 @@ test_that("set_species_params_from_length works", {
 
 test_that("`given_species_params<-()` gives correct warnings", {
     params <- NS_params_small
-    
+
     no_sp <- nrow(params@species_params)
     expect_warning(given_species_params(params)$f0 <- 1)
     expect_warning(given_species_params(params)$fc <- 1)
     expect_warning(given_species_params(params)$age_mat <- 1)
     expect_warning(given_species_params(params)$catchability <- 2)
     expect_warning(given_species_params(params)$yield_observed <- 1)
-    
+
     # No warning if NA
     params@given_species_params$gamma[-1] <- NA
     expect_warning(given_species_params(params)$f0 <- c(NA, rep(2, no_sp - 1)),
                    NA)
-    
+
 })
 
 test_that("`given_species_params<-()` triggers recalculation", {
@@ -184,7 +184,7 @@ test_that("species_params setter validates and recalculates", {
     sp <- species_params(params)
     sp$w_min[1] <- 1
     species_params(params) <- sp
-    expect_identical(species_params(params)$w_min[1], 1)
+    expect_identical(species_params(params)$w_min[1], 1, ignore_attr = TRUE)
     idx <- unname(params@w_min_idx[1])
     expect_lte(w(params)[idx], 1)
     if (idx < length(w(params))) {
@@ -197,8 +197,10 @@ test_that("given_species_params setter can add new explicit columns", {
     sp <- given_species_params(params)
     sp$custom <- seq_len(nrow(sp))
     given_species_params(params) <- sp
-    expect_identical(given_species_params(params)$custom, seq_len(nrow(sp)))
-    expect_identical(species_params(params)$custom, seq_len(nrow(sp)))
+    expect_equal(given_species_params(params)$custom, seq_len(nrow(sp)),
+                 ignore_attr = TRUE)
+    expect_equal(species_params(params)$custom, seq_len(nrow(sp)),
+                 ignore_attr = TRUE)
 })
 
 test_that("set_species_param_default converts factors to character and fills NAs only", {
@@ -207,8 +209,9 @@ test_that("set_species_param_default converts factors to character and fills NAs
     sp$dummy[1] <- NA
     sp2 <- set_species_param_default(sp, "dummy", "black")
     expect_true(is.character(sp2$dummy))
-    expect_identical(sp2$dummy[1], "black")
-    expect_identical(sp2$dummy[-1], rep("blue", nrow(sp) - 1))
+    expect_identical(sp2$dummy[1], "black", ignore_attr = TRUE)
+    expect_identical(sp2$dummy[-1], rep("blue", nrow(sp) - 1),
+                     ignore_attr = TRUE)
 })
 
 test_that("get_h_default, get_f0_default and get_ks_default follow documented defaults", {
@@ -219,12 +222,12 @@ test_that("get_h_default, get_f0_default and get_ks_default follow documented de
     sp$age_mat <- rep(NA_real_, nrow(sp))
     sp$k_vb <- rep(NA_real_, nrow(sp))
     h <- get_h_default(sp)
-    expect_identical(h, rep(30, nrow(sp)))
+    expect_identical(unname(h), rep(30, nrow(sp)))
 
     params2 <- params
     params2@species_params$f0[] <- 0.6
     params2@species_params$gamma[] <- NA
-    expect_identical(get_f0_default(params2), rep(0.6, nrow(species_params(params2))))
+    expect_identical(unname(get_f0_default(params2)), rep(0.6, nrow(species_params(params2))))
 
     params3 <- params
     params3@species_params$ks[] <- NA
@@ -233,7 +236,7 @@ test_that("get_h_default, get_f0_default and get_ks_default follow documented de
         species_params(params3),
         fc * alpha * h * w_mat^(n - p)
     )
-    expect_equal(get_ks_default(params3), expected_ks)
+    expect_equal(unname(get_ks_default(params3)), unname(expected_ks))
 })
 
 test_that("species_params S3 class properties work", {
@@ -300,14 +303,14 @@ test_that("Reactive validation and conversions work", {
     df2 <- data.frame(species = "Sprat", a = 0.01, b = 3, l_mat = 10)
     sp2 <- species_params(df2)
     # Check that w_mat was automatically calculated (0.01 * 10^3 = 10)
-    expect_equal(sp2$w_mat, 10)
-    
+    expect_equal(sp2$w_mat, 10, ignore_attr = TRUE)
+
     # Check conversion updates when l_mat is edited
     sp2$l_mat <- 20
-    expect_equal(sp2$w_mat, 80)
+    expect_equal(sp2$w_mat, 80, ignore_attr = TRUE)
 
     # 3. Consistency checks
-    sp2$w_inf <- 50
+    expect_warning(sp2$w_inf <- 50, "the value for `w_mat` is not smaller than that of `w_inf`")
     expect_warning(sp2$w_mat <- 60, "the value for `w_mat` is not smaller than that of `w_inf`")
 })
 
@@ -321,6 +324,26 @@ test_that("Print and Summary methods work", {
     expect_output(print(given), "An object of class \"given_species_params\"")
     expect_output(print(gp), "An object of class \"gear_params\"")
     expect_output(summary(sp), "Summary of species_params")
+})
+
+test_that("$ on species_params returns named vectors for non-character columns", {
+    params <- NS_params_small
+    sp <- species_params(params)
+    sp_names <- sp$species  # character column
+
+    # Numeric columns get species names
+    expect_named(sp$w_mat, sp_names)
+
+    # Character column stays unnamed (avoids self-referential names)
+    expect_null(names(sp$species))
+
+    # Works via accessor too
+    expect_named(species_params(params)$w_mat, sp_names)
+    expect_named(given_species_params(params)$w_inf, sp_names)
+
+    # gear_params columns get row names
+    gp <- gear_params(params)
+    expect_named(gp$catchability, rownames(gp))
 })
 
 test_that("get_h_default S3 methods work", {

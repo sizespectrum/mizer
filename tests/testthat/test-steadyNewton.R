@@ -130,8 +130,10 @@ test_that("support_top_idx drops the pile-up bin for the second-order scheme", {
         sum(p1@w <= p1@species_params$w_max[i])
     })
     no_w <- length(p1@w)
-    expect_equal(mizer:::support_top_idx(p1), pmin(w_max_idx + 1L, no_w))
-    expect_equal(mizer:::support_top_idx(p2), pmin(w_max_idx, no_w))
+    expect_equal(mizer:::support_top_idx(p1), pmin(w_max_idx + 1L, no_w),
+                 ignore_attr = TRUE)
+    expect_equal(mizer:::support_top_idx(p2), pmin(w_max_idx, no_w),
+                 ignore_attr = TRUE)
 })
 
 test_that("steady_active_set always reaches the grid truncation limit", {
@@ -143,7 +145,7 @@ test_that("steady_active_set always reaches the grid truncation limit", {
     grid_top <- mizer:::support_top_idx(p)
 
     active0 <- mizer:::steady_active_set(p)
-    expect_equal(active0$w_top, grid_top)
+    expect_equal(active0$w_top, unname(grid_top))
 
     # Even if we zero out the tail of the abundances, the mask still reaches grid_top
     cutoff <- unname(pmax(p@w_min_idx + 2L, grid_top - 3L))
@@ -153,7 +155,7 @@ test_that("steady_active_set always reaches the grid truncation limit", {
         }
     }
     active <- mizer:::steady_active_set(p)
-    expect_equal(active$w_top, grid_top)
+    expect_equal(active$w_top, unname(grid_top))
 })
 
 test_that("support_top_idx is the first class above w_max", {
@@ -165,7 +167,7 @@ test_that("support_top_idx is the first class above w_max", {
         # The support top is one class above w_max (the pile-up bin), capped at
         # the top of the grid.
         w_max_idx <- sum(p@w <= p@species_params$w_max[i])
-        expect_equal(w_top[i], min(w_max_idx + 1, no_w))
+        expect_equal(unname(w_top[i]), min(w_max_idx + 1, no_w))
         # For a standard model this coincides with the first zero-growth class.
         if (w_top[i] < no_w) {
             expect_equal(unname(g[i, w_top[i]]), 0)

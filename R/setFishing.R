@@ -127,11 +127,11 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
     assert_that(is.flag(reset))
     species_params <- params@species_params
     gear_params <- params@gear_params
-    sp_names <- species_params$species
+    sp_names <- unname(species_params$species)
     no_sp <- length(sp_names)
     w_names <- dimnames(params@selectivity)[[3]]
     no_w <- length(params@w)
-    gear_names <- unique(gear_params$gear)
+    gear_names <- unname(unique(gear_params$gear))
     no_gears <- length(gear_names)
 
     if (reset) {
@@ -341,7 +341,7 @@ gear_params <- function(object) {
 #' @usage NULL
 #' @export
 gear_params.MizerParams <- function(object) {
-    object@gear_params
+    gp <- object@gear_params
 }
 
 #' @rdname gear_params
@@ -407,13 +407,13 @@ check_gear_params <- function(x) {
         for (i in seq_len(nrow(x))) {
             sf <- x$sel_func[[i]]
             if (is.na(sf)) next
-            
+
             if (sf == "sigmoid_length") {
                 if (all(c("l25", "l50") %in% names(x))) {
                     l25 <- x$l25[[i]]
                     l50 <- x$l50[[i]]
                     if (!is.na(l25) && !is.na(l50) && l25 >= l50) {
-                        warning("For row ", i, " (", x$species[[i]], ", ", x$gear[[i]], 
+                        warning("For row ", i, " (", x$species[[i]], ", ", x$gear[[i]],
                                 "): l25 (", l25, ") must be smaller than l50 (", l50, ").")
                     }
                 }
@@ -425,7 +425,7 @@ check_gear_params <- function(x) {
                     l25_r <- x$l25_right[[i]]
                     if (!is.na(l25) && !is.na(l50) && !is.na(l50_r) && !is.na(l25_r)) {
                         if (l25 >= l50 || l50 >= l50_r || l50_r >= l25_r) {
-                            warning("For row ", i, " (", x$species[[i]], ", ", x$gear[[i]], 
+                            warning("For row ", i, " (", x$species[[i]], ", ", x$gear[[i]],
                                     "): double_sigmoid_length parameters must satisfy l25 < l50 < l50_right < l25_right.")
                         }
                     }
@@ -434,7 +434,7 @@ check_gear_params <- function(x) {
                 if ("knife_edge_size" %in% names(x)) {
                     kes <- x$knife_edge_size[[i]]
                     if (!is.na(kes) && kes < 0) {
-                        warning("For row ", i, " (", x$species[[i]], ", ", x$gear[[i]], 
+                        warning("For row ", i, " (", x$species[[i]], ", ", x$gear[[i]],
                                 "): knife_edge_size must be non-negative.")
                     }
                 }
@@ -442,16 +442,26 @@ check_gear_params <- function(x) {
                 if ("sigmoidal_weight" %in% names(x)) {
                     sw <- x$sigmoidal_weight[[i]]
                     if (!is.na(sw) && sw <= 0) {
-                        warning("For row ", i, " (", x$species[[i]], ", ", x$gear[[i]], 
+                        warning("For row ", i, " (", x$species[[i]], ", ", x$gear[[i]],
                                 "): sigmoidal_weight must be positive.")
                     }
                 }
             }
         }
     }
-    
+
     x
 }
+
+#' @export
+`$.gear_params` <- function(x, name) {
+    out <- NextMethod()
+    if (!is.null(out) && !is.data.frame(out)) {
+        names(out) <- rownames(x)
+    }
+    out
+}
+
 
 #' @export
 `[.gear_params` <- function(x, i, j, ..., drop = FALSE) {
@@ -489,9 +499,9 @@ print.gear_params <- function(x, ...) {
     core_cols <- c("gear", "species", "sel_func", "catchability")
     cols_to_show <- intersect(core_cols, names(x))
     extra_cols <- setdiff(names(x), core_cols)
-    
+
     print(as.data.frame(x)[, cols_to_show, drop = FALSE], row.names = FALSE, ...)
-    
+
     if (length(extra_cols) > 0) {
         cat("With", length(extra_cols), "other parameters:", paste(extra_cols, collapse = ", "), "\n")
     }
@@ -808,7 +818,7 @@ validGearParams <- function(gear_params, species_params) {
 }
 
 #' Make a valid effort vector
-#' 
+#'
 #' @inherit initial_effort details
 #'
 #' @param effort A vector or scalar with the initial fishing effort, see Details
@@ -896,11 +906,11 @@ calc_selectivity <- function(params) {
     assert_that(is(params, "MizerParams"))
     species_params <- params@species_params
     gear_params <- params@gear_params
-    sp_names <- species_params$species
+    sp_names <- unname(species_params$species)
     no_sp <- length(sp_names)
     w_names <- dimnames(params@selectivity)[[3]]
     no_w <- length(params@w)
-    gear_names <- unique(gear_params$gear)
+    gear_names <- unname(unique(gear_params$gear))
     no_gears <- length(gear_names)
 
     bin_average <- isTRUE(params@second_order_w[["bin_average"]])

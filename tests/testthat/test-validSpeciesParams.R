@@ -47,8 +47,8 @@ test_that("validSpeciesParams() works", {
                      stringsAsFactors = FALSE)
     expect_s3_class(sp <- validSpeciesParams(sp), "data.frame")
     expect_equal(sp$w_mat, sp$w_max / 4)
-    expect_equal(sp$alpha, c(0.6, 0.6))
-    expect_equal(sp$interaction_resource, c(1, 1))
+    expect_equal(sp$alpha, c(0.6, 0.6), ignore_attr = TRUE)
+    expect_equal(sp$interaction_resource, c(1, 1), ignore_attr = TRUE)
     expect_identical(rownames(sp), c("2", "1"))
 })
 
@@ -57,7 +57,7 @@ test_that("validSpeciesParams converts from length to weight", {
                      l_max = 1:2,
                      a = 0.01, b = 3)
     sp2 <- validSpeciesParams(sp)
-    expect_identical(sp2$w_max, c(0.01, 0.08))
+    expect_equal(sp2$w_max, c(0.01, 0.08), ignore_attr = TRUE)
 })
 
 test_that("validGivenSpeciesParams checks documented error cases and signals inconsistency info", {
@@ -104,23 +104,23 @@ test_that("validSpeciesParams sets the documented defaults", {
     sp2 <- validSpeciesParams(sp)
 
     expect_equal(sp2$w_repro_max, sp2$w_max)
-    expect_equal(sp2$w_mat, c(10 / 4, 20))
-    expect_equal(sp2$w_min, c(0.001, 1))
-    expect_equal(sp2$alpha, c(0.6, 0.5))
-    expect_equal(sp2$interaction_resource, c(1, 2))
-    expect_equal(sp2$n, c(3/4, 0.8))
-    expect_equal(sp2$p, c(3/4, 0.7))
+    expect_equal(sp2$w_mat, c(10 / 4, 20), ignore_attr = TRUE)
+    expect_equal(sp2$w_min, c(0.001, 1), ignore_attr = TRUE)
+    expect_equal(sp2$alpha, c(0.6, 0.5), ignore_attr = TRUE)
+    expect_equal(sp2$interaction_resource, c(1, 2), ignore_attr = TRUE)
+    expect_equal(sp2$n, c(3/4, 0.8), ignore_attr = TRUE)
+    expect_equal(sp2$p, c(3/4, 0.7), ignore_attr = TRUE)
 })
 
 test_that("w_inf is the first-class maximum-size parameter", {
     # When w_inf is given, w_max, w_repro_max and w_mat are derived from it
     sp <- validSpeciesParams(data.frame(species = "a", w_inf = 100))
-    expect_equal(sp$w_max, 150)         # 1.5 * w_inf
-    expect_equal(sp$w_repro_max, 100)   # w_inf
-    expect_equal(sp$w_mat, 25)          # w_inf / 4
+    expect_equal(sp$w_max, 150, ignore_attr = TRUE)         # 1.5 * w_inf
+    expect_equal(sp$w_repro_max, 100, ignore_attr = TRUE)   # w_inf
+    expect_equal(sp$w_mat, 25, ignore_attr = TRUE)          # w_inf / 4
     # An explicitly given w_max is not overwritten
     sp <- validSpeciesParams(data.frame(species = "a", w_inf = 100, w_max = 300))
-    expect_equal(sp$w_max, 300)
+    expect_equal(sp$w_max, 300, ignore_attr = TRUE)
 })
 
 test_that("w_inf is derived from w_repro_max or w_max for backwards compatibility", {
@@ -131,8 +131,8 @@ test_that("w_inf is derived from w_repro_max or w_max for backwards compatibilit
         "missing a .w_inf. column",
         class = "info_about_default"
     )
-    expect_equal(sp$w_inf, 100)         # from w_repro_max, not w_max
-    expect_equal(sp$w_max, 150)         # kept as given
+    expect_equal(sp$w_inf, 100, ignore_attr = TRUE)         # from w_repro_max, not w_max
+    expect_equal(sp$w_max, 150, ignore_attr = TRUE)         # kept as given
 
     # Fall back to w_max when w_repro_max is absent
     expect_condition(
@@ -140,7 +140,7 @@ test_that("w_inf is derived from w_repro_max or w_max for backwards compatibilit
         "missing a .w_inf. column",
         class = "info_about_default"
     )
-    expect_equal(sp$w_inf, 100)
+    expect_equal(sp$w_inf, 100, ignore_attr = TRUE)
 })
 
 test_that("completeSpeciesParams is a deprecated alias for validSpeciesParams", {

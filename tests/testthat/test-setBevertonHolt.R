@@ -16,7 +16,7 @@ test_that("setBevertonHolt sets erepro correctly when setting same value for all
     expect_warning(params <- setBevertonHolt(NS_params_small, erepro = 0.1),
                    "For the following species `erepro` has been")
     expect_identical(params@species_params$R_max[params@species_params$species == sp_name],
-                     Inf)
+                     Inf, ignore_attr = TRUE)
     expect_equal(NS_required_rdd, getRDD(params))
 })
 
@@ -27,7 +27,7 @@ test_that("setBevertonHolt sets erepro correctly when setting same value for sin
     names(erepro_new) <- params@species_params$species[1]
     params <- setBevertonHolt(NS_params_small, erepro = erepro_new)
     expect_identical(params@species_params$erepro[2:3], erepro_old[2:3])
-    expect_identical(params@species_params$erepro[1], 0.1)
+    expect_identical(params@species_params$erepro[1], 0.1, ignore_attr = TRUE)
 })
 
 test_that("setBevertonHolt sets erepro correctly when setting same value for some species by using named vector", {
@@ -37,7 +37,7 @@ test_that("setBevertonHolt sets erepro correctly when setting same value for som
     names(erepro_new) <- params@species_params$species[1:3]
     params <- setBevertonHolt(NS_params_small, erepro = erepro_new)
     expect_identical(params@species_params$erepro[3], erepro_old[3])
-    expect_identical(params@species_params$erepro[1:2], c(0.1, 0.2))
+    expect_identical(params@species_params$erepro[1:2], c(0.1, 0.2), ignore_attr = TRUE)
     expect_equal(NS_required_rdd[1:2], getRDD(params)[1:2])
 })
 
@@ -49,11 +49,11 @@ test_that("setBevertonHolt sets erepro correctly when setting same value for som
     erepro_new[1:2] <- c(0.1, 0.2)
     params <- setBevertonHolt(NS_params_small, erepro = erepro_new)
     expect_identical(params@species_params$erepro[3], erepro_old[3])
-    expect_identical(params@species_params$erepro[1:2], c(0.1, 0.2))
+    expect_identical(params@species_params$erepro[1:2], c(0.1, 0.2), ignore_attr = TRUE)
 })
 
 test_that("setBevertonHolt updates `time_modified`", {
-    expect_false(identical(setBevertonHolt(NS_params_small, erepro = 1)@time_modified, 
+    expect_false(identical(setBevertonHolt(NS_params_small, erepro = 1)@time_modified,
                            NS_params_small@time_modified))
 })
 
@@ -77,7 +77,7 @@ test_that("setBevertonHolt sets R_max only for named species when R_max is absen
     p <- NS_params
     given_species_params(p)$R_max <- NULL
     p2 <- setBevertonHolt(p, R_max = c(Sprat = 2e12))
-    expect_equal(given_species_params(p2)$R_max[1], 2e12)
+    expect_equal(given_species_params(p2)$R_max[1], 2e12, ignore_attr = TRUE)
     expect_true(all(is.na(given_species_params(p2)$R_max[2:12])))
 })
 
@@ -88,7 +88,7 @@ test_that("setBevertonHolt sets R_max correctly when setting values for some spe
     names(R_max_new) <- params@species_params$species[1:3]
     params <- setBevertonHolt(NS_params_small, R_max = R_max_new)
     expect_identical(params@species_params$R_max[3], R_max_old[3])
-    expect_identical(params@species_params$R_max[1:2], c(1e12, 1e13))
+    expect_identical(params@species_params$R_max[1:2], c(1e12, 1e13), ignore_attr = TRUE)
 })
 
 test_that("setBevertonHolt issues warning when an R_max leads to an erepro > 1", {
@@ -102,7 +102,7 @@ test_that("setBevertonHolt issues warning when an R_max leads to an erepro > 1",
     expect_warning(params <- setBevertonHolt(NS_params_small, R_max = R_max_new),
                    paste0("The following species require an unrealistic value greater than 1 for `erepro`: ", sp_name))
     expect_gt(params@species_params$erepro[params@species_params$species == sp_name], 1)
-    expect_equal(params@species_params$R_max[3], unname(R_max_new))
+    expect_equal(params@species_params$R_max[3], unname(R_max_new), ignore_attr = TRUE)
 })
 
 # reproduction_level ----
@@ -167,11 +167,11 @@ test_that("setBevertonHolt throws error when called with invalid values", {
 test_that("reproduction_level of 0 works", {
     params <- setBevertonHolt(NS_params_small, reproduction_level = 0)
     expect_equal(getRDD(params), getRequiredRDD(params))
-    expect_equal(params@species_params$R_max[1], Inf)
-    
+    expect_equal(params@species_params$R_max[1], Inf, ignore_attr = TRUE)
+
     params <- setBevertonHolt(NS_params_small, R_factor = Inf)
     expect_equal(getRDD(params), getRequiredRDD(params))
-    expect_equal(params@species_params$R_max[1], Inf)
+    expect_equal(params@species_params$R_max[1], Inf, ignore_attr = TRUE)
 })
 
 test_that("R_max is increased when needed", {

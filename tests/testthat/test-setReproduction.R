@@ -17,7 +17,7 @@ test_that("setReproduction works", {
                  "Arguments of RDD function can only contain 'rdi', 'species_params' and `t`.")
     params@species_params$erepro[1] <- NA
     p2 <- setReproduction(params, RDD = "SheperdRDD")
-    expect_equal(p2@species_params$erepro[1], 1)
+    expect_equal(p2@species_params$erepro[1], 1, ignore_attr = TRUE)
     p2@species_params$sheperd_b <- 0
     expect_error(getRDD(p2),
                  "The species_params dataframe must contain columns sheperd_b and sheperd_c.")
