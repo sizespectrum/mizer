@@ -235,3 +235,57 @@ test_that("get_h_default, get_f0_default and get_ks_default follow documented de
     )
     expect_equal(get_ks_default(params3), expected_ks)
 })
+
+test_that("species_params S3 class properties work", {
+    params <- NS_params_small
+    sim <- NS_sim_small
+
+    # Test getters return species_params objects
+    expect_true(is.species_params(species_params(params)))
+    expect_true(is.species_params(given_species_params(params)))
+    expect_true(is.species_params(species_params(sim)))
+
+    # Test given_species_params specific class
+    expect_true(is.given_species_params(given_species_params(params)))
+    expect_false(is.given_species_params(species_params(params)))
+    expect_true(is.given_species_params(given_species_params(sim)))
+
+    # Test constructor on data frame
+    df <- data.frame(species = c("Sprat", "Herring"), w_inf = c(10, 100))
+    sp_df <- species_params(df)
+    expect_true(is.species_params(sp_df))
+    expect_identical(class(sp_df)[1], "species_params")
+
+    given_df <- given_species_params(df)
+    expect_true(is.given_species_params(given_df))
+    expect_identical(class(given_df)[1:2], c("given_species_params", "species_params"))
+
+    # Test constructor on already S3 species_params object
+    expect_identical(species_params(sp_df), sp_df)
+    expect_identical(given_species_params(given_df), given_df)
+
+    # Test class preservation on subsetting and modifications
+    expect_true(is.species_params(sp_df[1, ]))
+    expect_true(is.species_params(sp_df[, 1, drop = FALSE]))
+
+    expect_true(is.given_species_params(given_df[1, ]))
+    expect_true(is.given_species_params(given_df[, 1, drop = FALSE]))
+
+    sp_df$w_inf[1] <- 12
+    expect_true(is.species_params(sp_df))
+
+    given_df$w_inf[1] <- 12
+    expect_true(is.given_species_params(given_df))
+
+    sp_df[1, "w_inf"] <- 15
+    expect_true(is.species_params(sp_df))
+
+    given_df[1, "w_inf"] <- 15
+    expect_true(is.given_species_params(given_df))
+
+    sp_df[[1, "w_inf"]] <- 18
+    expect_true(is.species_params(sp_df))
+
+    given_df[[1, "w_inf"]] <- 18
+    expect_true(is.given_species_params(given_df))
+})
