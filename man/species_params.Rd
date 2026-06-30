@@ -18,11 +18,11 @@
 \alias{calculated_species_params}
 \title{Species parameters}
 \usage{
-species_params(object)
+species_params(object, ...)
 
 species_params(object) <- value
 
-given_species_params(object)
+given_species_params(object, ...)
 
 given_species_params(object) <- value
 

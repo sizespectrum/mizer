@@ -166,7 +166,7 @@
 #' @export
 #' @seealso [validSpeciesParams()], [setParams()]
 #' @family functions for setting parameters
-species_params <- function(object) {
+species_params <- function(object, ...) {
     UseMethod("species_params")
 }
 
@@ -187,11 +187,13 @@ species_params.MizerSim <- function(object) {
 #' @rdname species_params
 #' @usage NULL
 #' @export
-species_params.data.frame <- function(object) {
-    sp <- given_species_params(object)
-    sp <- set_species_param_default(sp, "w_max", 1.5 * sp$w_inf)
-    sp <- set_species_param_default(sp, "w_repro_max", sp$w_inf)
-    sp <- set_species_param_default(sp, "w_mat", sp$w_inf / 4)
+species_params.data.frame <- function(object, strict = FALSE, ...) {
+    sp <- given_species_params(object, strict = strict)
+    if ("w_inf" %in% names(sp)) {
+        sp <- set_species_param_default(sp, "w_max", 1.5 * sp$w_inf)
+        sp <- set_species_param_default(sp, "w_repro_max", sp$w_inf)
+        sp <- set_species_param_default(sp, "w_mat", sp$w_inf / 4)
+    }
     sp <- set_species_param_default(sp, "w_min", 0.001)
     sp <- set_species_param_default(sp, "alpha", 0.6)
     sp <- set_species_param_default(sp, "interaction_resource", 1)
@@ -209,8 +211,8 @@ species_params.data.frame <- function(object) {
 #' @rdname species_params
 #' @usage NULL
 #' @export
-species_params.species_params <- function(object) {
-    species_params.data.frame(object)
+species_params.species_params <- function(object, strict = FALSE, ...) {
+    species_params.data.frame(object, strict = strict, ...)
 }
 
 #' @rdname species_params
@@ -370,7 +372,7 @@ summary.species_params <- function(object, ...) {
 
 #' @rdname species_params
 #' @export
-given_species_params <- function(object) {
+given_species_params <- function(object, ...) {
     UseMethod("given_species_params")
 }
 
@@ -391,7 +393,7 @@ given_species_params.MizerSim <- function(object) {
 #' @rdname species_params
 #' @usage NULL
 #' @export
-given_species_params.data.frame <- function(object) {
+given_species_params.data.frame <- function(object, strict = FALSE, ...) {
     assert_that(is.data.frame(object))
     # Convert a tibble back to an ordinary data frame
     sp <- as.data.frame(object, stringsAsFactors = FALSE)
@@ -448,21 +450,23 @@ given_species_params.data.frame <- function(object) {
             sp$w_inf <- sp$w_max
             signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_max` column instead. Note that `w_inf`, the von Bertalanffy asymptotic size, is now the preferred parameter for specifying the maximum size, whereas `w_max` is only a computational boundary.",
                    class = "info_about_default", var = "w_inf", level = 1)
-        } else {
+        } else if (strict) {
             stop("You need to specify the asymptotic size `w_inf` for all species.")
         }
     }
-    missing <- is.na(sp$w_inf)
-    if (any(missing)) {
-        stop("You need to specify the asymptotic size `w_inf` for all species.")
-    }
-    if (!is.numeric(sp$w_inf)) {
-        stop("`w_inf` contains non-numeric values.")
+    if ("w_inf" %in% names(sp)) {
+        missing <- is.na(sp$w_inf)
+        if (any(missing) && strict) {
+            stop("You need to specify the asymptotic size `w_inf` for all species.")
+        }
+        if (!is.numeric(sp$w_inf) && strict) {
+            stop("`w_inf` contains non-numeric values.")
+        }
     }
     
     # check w_mat
-    if ("w_mat" %in% names(sp)) {
-        wrong <- !is.na(sp$w_mat) & sp$w_mat >= sp$w_inf
+    if ("w_mat" %in% names(sp) && "w_inf" %in% names(sp)) {
+        wrong <- !is.na(sp$w_mat) & !is.na(sp$w_inf) & sp$w_mat >= sp$w_inf
         if (any(wrong)) {
             warning("For the species ",
                     paste(sp$species[wrong], collapse = ", "),
@@ -515,8 +519,8 @@ given_species_params.data.frame <- function(object) {
 #' @rdname species_params
 #' @usage NULL
 #' @export
-given_species_params.given_species_params <- function(object) {
-    given_species_params.data.frame(object)
+given_species_params.given_species_params <- function(object, strict = FALSE, ...) {
+    given_species_params.data.frame(object, strict = strict, ...)
 }
 
 #' Test if an object is a given_species_params object

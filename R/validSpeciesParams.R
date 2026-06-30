@@ -72,7 +72,7 @@
 #' @concept helper
 #' @export
 validSpeciesParams <- function(species_params) {
-    species_params(species_params)
+    species_params(species_params, strict = TRUE)
 }
 
 #' @rdname validSpeciesParams
@@ -80,7 +80,7 @@ validSpeciesParams <- function(species_params) {
 #'   without additional parameters.
 #' @export
 validGivenSpeciesParams <- function(species_params) {
-    given_species_params(species_params)
+    given_species_params(species_params, strict = TRUE)
 }
 
 # Set weight-based parameter from length-based parameter
