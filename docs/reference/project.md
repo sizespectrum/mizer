@@ -1,0 +1,218 @@
+# Project size spectrum forward in time
+
+Runs the size spectrum model simulation. The function returns an object
+of type
+[MizerSim](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
+that can then be explored with a range of
+[summary_functions](https://sizespectrum.org/mizer/reference/summary_functions.md),
+[indicator_functions](https://sizespectrum.org/mizer/reference/indicator_functions.md)
+and
+[plotting_functions](https://sizespectrum.org/mizer/reference/plotting_functions.md).
+
+## Usage
+
+``` r
+project(
+  object,
+  effort,
+  t_max = 100,
+  dt = 0.1,
+  t_save = 1,
+  t_start = 0,
+  initial_n,
+  initial_n_pp,
+  append = TRUE,
+  progress_bar = TRUE,
+  method = c("euler", "predictor_corrector", "tr_bdf2"),
+  ...
+)
+```
+
+## Arguments
+
+- object:
+
+  Either a
+  [MizerParams](https://sizespectrum.org/mizer/reference/MizerParams-class.md)
+  object or a
+  [MizerSim](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
+  object (which contains a `MizerParams` object).
+
+- effort:
+
+  The effort of each fishing gear through time. See notes below.
+
+- t_max:
+
+  The number of years the projection runs for. The default value is 100.
+  When an effort array is supplied, this argument can be used to extend
+  the simulation beyond the times specified in the effort array. See
+  notes below.
+
+- dt:
+
+  Time step of the solver. The default value is 0.1. When `object` is a
+  `MizerSim`, defaults to the value used to produce that simulation.
+
+- t_save:
+
+  The frequency with which the output is stored. The default value is 1.
+  See notes below.
+
+- t_start:
+
+  The the year of the start of the simulation. The simulation will cover
+  the period from `t_start` to `t_start + t_max`. Defaults to 0. Ignored
+  if an array is used for the `effort` argument or a `MizerSim` for the
+  `object` argument.
+
+- initial_n:
+
+  **\[deprecated\]** The initial abundances of species. Instead of using
+  this argument you should set `initialN(params)` to the desired value.
+
+- initial_n_pp:
+
+  **\[deprecated\]** The initial abundances of resource. Instead of
+  using this argument you should set `initialNResource(params)` to the
+  desired value.
+
+- append:
+
+  A boolean that determines whether the new simulation results are
+  appended to the previous ones. Only relevant if `object` is a
+  `MizerSim` object. Default = TRUE.
+
+- progress_bar:
+
+  Either a boolean value to determine whether a progress bar should be
+  shown in the console, or a shiny Progress object to implement a
+  progress bar in a shiny app.
+
+- method:
+
+  The numerical method to use for the consumer density update. `"euler"`
+  uses the first-order semi-implicit Euler update.
+  `"predictor_corrector"` uses a predictor-corrector Crank-Nicolson
+  update with midpoint rates, which is second order in time but can
+  oscillate at large time steps. `"tr_bdf2"` uses the L-stable,
+  second-order TR-BDF2 method, which retains second-order accuracy while
+  damping those oscillations. `"predictor-corrector"` is accepted as an
+  alias for `"predictor_corrector"`. When `object` is a `MizerSim`,
+  defaults to the value used to produce that simulation. A warning is
+  issued if `append = TRUE` and the supplied value differs from the
+  stored one.
+
+- ...:
+
+  Other arguments will be passed to rate functions.
+
+## Value
+
+An object of class
+[MizerSim](https://sizespectrum.org/mizer/reference/MizerSim-class.md).
+
+## Note
+
+The `effort` argument specifies the level of fishing effort during the
+simulation. If it is not supplied, the initial effort stored in the
+params object is used. The effort can be specified in four different
+ways:
+
+- A single numeric value. This specifies the effort of all fishing gears
+  which is constant through time (i.e. all the gears have the same
+  constant effort).
+
+- A named vector whose names match with existing gear names. The values
+  in the vector specify the constant fishing effort for those fishing
+  gears, i.e. the effort is constant through time. The effort for gears
+  that are not included in the effort vector is set to the default
+  effort value, which is 1 in defaults edition 2 and later and 0 in
+  earlier defaults editions. Missing (`NA`) effort entries are replaced
+  in the same way.
+
+- A numerical vector which has the same length as the number of fishing
+  gears. The values in the vector specify the constant fishing effort of
+  each of the fishing gears, with the ordering assumed to be the same as
+  in the MizerParams object.
+
+- A numerical array with dimensions time x gear. This specifies the
+  fishing effort of each gear at each time step. The first dimension,
+  time, must be named numerically and increasing. The second dimension
+  of the array must be named and the names must correspond to the gear
+  names in the `MizerParams` object. The value for the effort for a
+  particular time is used during the interval from that time to the next
+  time in the array.
+
+If effort is specified as an array then the smallest time in the array
+is used as the initial time for the simulation. Otherwise the initial
+time is set to the final time of the previous simulation if `object` is
+a `MizerSim` object or to `t_start` otherwise.
+
+When an effort array is provided, the `t_max` argument can be used to
+extend the simulation beyond the last time specified in the effort
+array. In this case, the effort values from the last time in the array
+will be used for the extended period. The `t_save` argument can be used
+to specify the frequency at which simulation results are saved. If
+`t_save` is not supplied, the results will be saved at the times
+specified in the effort array. If both `t_max` and `t_save` are provided
+with an effort array, effort values will be interpolated (using step
+function) or extrapolated (using the last known value) as needed for the
+new time points. The `t_start` argument continues to be ignored when an
+effort array is supplied.
+
+Note that if `t_max` or `t_save` are specified, the time grid for the
+simulation is resampled based on `t_save`. This means that if the time
+points in the `effort` array are irregular and do not align with the new
+grid, those specific time points may be lost and the effort values at
+the new grid points will be calculated via interpolation.
+
+If the `object` argument is of class `MizerSim` then the initial values
+for the simulation are taken from the final values in the `MizerSim`
+object and the corresponding arguments to this function will be ignored.
+
+## Advective flux scheme
+
+The spatial discretisation of the growth (advection) term is controlled
+by the `flux` entry of the `second_order_w` slot of the params object,
+not by an argument to `project()`. With the default (`"upwind"`) the
+first-order upwind flux is used. Setting it to `"van_leer"` (for example
+with `second_order_w(params) <- TRUE`) switches on a flux-limited (van
+Leer, TVD) deferred correction that removes the leading numerical
+diffusion \\\approx g\\w\\\log\beta\\ of the upwind flux while keeping
+the density update a tridiagonal solve and preserving positivity. The
+correction is most useful on coarse logarithmic grids and pairs
+naturally with the second-order time methods. Because it changes the
+discrete steady state, the choice lives in the params object alongside
+the steady state rather than being a per-run argument. See
+[`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md).
+
+## Examples
+
+``` r
+# \donttest{
+params <- NS_params
+# With constant fishing effort for all gears for 20 time steps
+sim <- project(params, t_max = 20, effort = 0.5)
+# With constant fishing effort which is different for each gear
+effort <- c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5)
+sim <- project(params, t_max = 20, effort = effort)
+# With fishing effort that varies through time for each gear
+gear_names <- c("Industrial", "Pelagic", "Beam", "Otter")
+times <- seq(from = 1, to = 10, by = 1)
+effort_array <- array(NA,
+    dim = c(length(times), length(gear_names)),
+    dimnames = list(time = times, gear = gear_names)
+)
+effort_array[, "Industrial"] <- 0.5
+effort_array[, "Pelagic"] <- seq(from = 1, to = 2, length = length(times))
+effort_array[, "Beam"] <- seq(from = 1, to = 0, length = length(times))
+effort_array[, "Otter"] <- seq(from = 1, to = 0.5, length = length(times))
+sim <- project(params, effort = effort_array)
+# Extend a simulation beyond the effort array times
+# Effort values from the final time are used for the extension
+sim <- project(params, effort = effort_array, t_max = 15)
+# Control save times with an effort array using t_save
+sim <- project(params, effort = effort_array, t_save = 2)
+# }
+```

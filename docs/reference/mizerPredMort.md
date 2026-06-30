@@ -1,0 +1,91 @@
+# Get total predation mortality rate needed to project standard mizer model
+
+Calculates the total predation mortality rate \\\mu\_{p,i}(w_p)\\ (in
+units of 1/year) on each prey species by prey size: \$\$\mu\_{p.i}(w_p)
+= \sum_j {\tt pred\\rate}\_j(w_p)\\ \theta\_{ji}.\$\$ You would not
+usually call this function directly but instead use
+[`getPredMort()`](https://sizespectrum.org/mizer/reference/getPredMort.md),
+which then calls this function unless an alternative function has been
+registered, see below.
+
+## Usage
+
+``` r
+projectPredMort(params, n, n_pp, n_other, t = 0, pred_rate, ...)
+
+# S3 method for class 'MizerParams'
+projectPredMort(params, n, n_pp, n_other, t = 0, pred_rate, ...)
+
+mizerPredMort(params, n, n_pp, n_other, t = 0, pred_rate, ...)
+```
+
+## Arguments
+
+- params:
+
+  A
+  [MizerParams](https://sizespectrum.org/mizer/reference/MizerParams-class.md)
+  object
+
+- n:
+
+  A matrix of species abundances (species x size).
+
+- n_pp:
+
+  A vector of the resource abundance by size
+
+- n_other:
+
+  A list of abundances for other dynamical components of the ecosystem
+
+- t:
+
+  The time for which to do the calculation (Not used by standard mizer
+  rate functions but useful for extensions with time-dependent
+  parameters.)
+
+- pred_rate:
+
+  A two dimensional array (predator species x prey size) with the
+  predation rate, where prey size runs over fish community plus resource
+  spectrum.
+
+- ...:
+
+  Unused
+
+## Value
+
+A two dimensional array (prey species x prey size) with the predation
+mortality
+
+## Your own predation mortality function
+
+By default
+[`getPredMort()`](https://sizespectrum.org/mizer/reference/getPredMort.md)
+calls `mizerPredMort()`. However you can replace this with your own
+alternative predation mortality function. If your function is called
+`"myPredMort"` then you register it in a MizerParams object `params`
+with
+
+    params <- setRateFunction(params, "PredMort", "myPredMort")
+
+Your function will then be called instead of `mizerPredMort()`, with the
+same arguments.
+
+## See also
+
+Other mizer rate functions:
+[`mizerEGrowth()`](https://sizespectrum.org/mizer/reference/mizerEGrowth.md),
+[`mizerERepro()`](https://sizespectrum.org/mizer/reference/mizerERepro.md),
+[`mizerEReproAndGrowth()`](https://sizespectrum.org/mizer/reference/mizerEReproAndGrowth.md),
+[`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md),
+[`mizerFMort()`](https://sizespectrum.org/mizer/reference/mizerFMort.md),
+[`mizerFMortGear()`](https://sizespectrum.org/mizer/reference/mizerFMortGear.md),
+[`mizerFeedingLevel()`](https://sizespectrum.org/mizer/reference/mizerFeedingLevel.md),
+[`mizerMort()`](https://sizespectrum.org/mizer/reference/mizerMort.md),
+[`mizerPredRate()`](https://sizespectrum.org/mizer/reference/mizerPredRate.md),
+[`mizerRDI()`](https://sizespectrum.org/mizer/reference/mizerRDI.md),
+[`mizerRates()`](https://sizespectrum.org/mizer/reference/mizerRates.md),
+[`mizerResourceMort()`](https://sizespectrum.org/mizer/reference/mizerResourceMort.md)
