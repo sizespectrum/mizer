@@ -356,14 +356,14 @@ gear_params.MizerSim <- function(object) {
 #' @export
 gear_params.data.frame <- function(object) {
     class(object) <- c("gear_params", setdiff(class(object), "gear_params"))
-    object
+    check_gear_params(object)
 }
 
 #' @rdname gear_params
 #' @usage NULL
 #' @export
 gear_params.gear_params <- function(object) {
-    object
+    check_gear_params(object)
 }
 
 #' @rdname gear_params
@@ -390,6 +390,69 @@ is.gear_params <- function(x) {
     inherits(x, "gear_params")
 }
 
+check_gear_params <- function(x) {
+    # Check for misspellings
+    misspellings <- c("selfunc", "selectivity_function", "catch", "catchab",
+                      "sigmoid_weight", "sigmoid_sigma", "knife_edge")
+    query <- intersect(misspellings, names(x))
+    if (length(query) > 0) {
+        warning("Some column names in your gear parameter data ",
+                "frame are very close to standard parameter names: ",
+                paste(query, collapse = ", "),
+                ". Did you perhaps mis-spell the names?")
+    }
+
+    # Validate parameters based on selectivity function
+    if (nrow(x) > 0 && "sel_func" %in% names(x)) {
+        for (i in seq_len(nrow(x))) {
+            sf <- x$sel_func[[i]]
+            if (is.na(sf)) next
+            
+            if (sf == "sigmoid_length") {
+                if (all(c("l25", "l50") %in% names(x))) {
+                    l25 <- x$l25[[i]]
+                    l50 <- x$l50[[i]]
+                    if (!is.na(l25) && !is.na(l50) && l25 >= l50) {
+                        warning("For row ", i, " (", x$species[[i]], ", ", x$gear[[i]], 
+                                "): l25 (", l25, ") must be smaller than l50 (", l50, ").")
+                    }
+                }
+            } else if (sf == "double_sigmoid_length") {
+                if (all(c("l25", "l50", "l50_right", "l25_right") %in% names(x))) {
+                    l25 <- x$l25[[i]]
+                    l50 <- x$l50[[i]]
+                    l50_r <- x$l50_right[[i]]
+                    l25_r <- x$l25_right[[i]]
+                    if (!is.na(l25) && !is.na(l50) && !is.na(l50_r) && !is.na(l25_r)) {
+                        if (l25 >= l50 || l50 >= l50_r || l50_r >= l25_r) {
+                            warning("For row ", i, " (", x$species[[i]], ", ", x$gear[[i]], 
+                                    "): double_sigmoid_length parameters must satisfy l25 < l50 < l50_right < l25_right.")
+                        }
+                    }
+                }
+            } else if (sf == "knife_edge") {
+                if ("knife_edge_size" %in% names(x)) {
+                    kes <- x$knife_edge_size[[i]]
+                    if (!is.na(kes) && kes < 0) {
+                        warning("For row ", i, " (", x$species[[i]], ", ", x$gear[[i]], 
+                                "): knife_edge_size must be non-negative.")
+                    }
+                }
+            } else if (sf == "sigmoid_weight") {
+                if ("sigmoidal_weight" %in% names(x)) {
+                    sw <- x$sigmoidal_weight[[i]]
+                    if (!is.na(sw) && sw <= 0) {
+                        warning("For row ", i, " (", x$species[[i]], ", ", x$gear[[i]], 
+                                "): sigmoidal_weight must be positive.")
+                    }
+                }
+            }
+        }
+    }
+    
+    x
+}
+
 #' @export
 `[.gear_params` <- function(x, i, j, ..., drop = FALSE) {
     out <- NextMethod("[")
@@ -403,21 +466,21 @@ is.gear_params <- function(x) {
 `[<-.gear_params` <- function(x, i, j, ..., value) {
     out <- NextMethod("[<-")
     class(out) <- class(x)
-    out
+    check_gear_params(out)
 }
 
 #' @export
 `[[<-.gear_params` <- function(x, i, j, ..., value) {
     out <- NextMethod("[[<-")
     class(out) <- class(x)
-    out
+    check_gear_params(out)
 }
 
 #' @export
 `$<-.gear_params` <- function(x, name, value) {
     out <- NextMethod("$<-")
     class(out) <- class(x)
-    out
+    check_gear_params(out)
 }
 
 #' @export
