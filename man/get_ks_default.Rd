@@ -2,12 +2,13 @@
 % Please edit documentation in R/species_params.R
 \name{get_ks_default}
 \alias{get_ks_default}
+\alias{get_ks_default.MizerParams}
 \title{Get default value for \code{ks}}
 \usage{
-get_ks_default(params)
+get_ks_default(object)
 }
 \arguments{
-\item{params}{A MizerParams object}
+\item{object}{A MizerParams object}
 }
 \value{
 A vector with the values of ks for all species

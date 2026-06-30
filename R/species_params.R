@@ -637,8 +637,15 @@ get_h_default.data.frame <- function(object) {
 #' @export
 #' @concept helper
 #' @family functions calculating defaults
-get_gamma_default <- function(params) {
-    assert_that(is(params, "MizerParams"))
+get_gamma_default <- function(object) {
+    UseMethod("get_gamma_default")
+}
+
+#' @rdname get_gamma_default
+#' @usage NULL
+#' @export
+get_gamma_default.MizerParams <- function(object) {
+    params <- object
     species_params <- params@species_params %>%
         set_species_param_default("f0", 0.6)
     if (!("gamma" %in% colnames(species_params))) {
@@ -683,6 +690,7 @@ get_gamma_default <- function(params) {
     return(species_params$gamma)
 }
 
+
 #' Get default value for f0
 #'
 #' Fills in any missing values for f0 so that if the prey abundance was
@@ -695,13 +703,20 @@ get_gamma_default <- function(params) {
 #' parameter data frame, the `f0` values is kept as provided in the species
 #' parameter data frame or it is set to 0.6 if it is not provided.
 #'
-#' @param params A MizerParams object
+#' @param object A MizerParams object
 #' @return A vector with the values of f0 for all species
 #' @export
 #' @concept helper
 #' @family functions calculating defaults
-get_f0_default <- function(params) {
-    assert_that(is(params, "MizerParams"))
+get_f0_default <- function(object) {
+    UseMethod("get_f0_default")
+}
+
+#' @rdname get_f0_default
+#' @usage NULL
+#' @export
+get_f0_default.MizerParams <- function(object) {
+    params <- object
     species_params <- params@species_params %>%
         set_species_param_default("f0", 0.6)
     if (!("gamma" %in% colnames(species_params))) {
@@ -736,6 +751,7 @@ get_f0_default <- function(params) {
     return(species_params$f0)
 }
 
+
 #' Get default value for `ks`
 #'
 #' Fills in any missing values for `ks` so that the critical feeding level needed
@@ -743,14 +759,21 @@ get_f0_default <- function(params) {
 #' parameter data frame. If that column is not provided the default critical
 #' feeding level \eqn{f_c = 0.2} is used.
 #'
-#' @param params A MizerParams object
+#' @param object A MizerParams object
 #' @return A vector with the values of ks for all species
 #' @export
 #' @concept helper
 #' @family functions calculating defaults
-get_ks_default <- function(params) {
-    assert_that(is(params, "MizerParams"),
-                "n" %in% names(params@species_params),
+get_ks_default <- function(object) {
+    UseMethod("get_ks_default")
+}
+
+#' @rdname get_ks_default
+#' @usage NULL
+#' @export
+get_ks_default.MizerParams <- function(object) {
+    params <- object
+    assert_that("n" %in% names(params@species_params),
                 "p" %in% names(params@species_params))
     if (!"h" %in% names(params@species_params) ||
         any(is.na(params@species_params[["h"]]))) {

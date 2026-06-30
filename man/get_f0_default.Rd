@@ -2,12 +2,13 @@
 % Please edit documentation in R/species_params.R
 \name{get_f0_default}
 \alias{get_f0_default}
+\alias{get_f0_default.MizerParams}
 \title{Get default value for f0}
 \usage{
-get_f0_default(params)
+get_f0_default(object)
 }
 \arguments{
-\item{params}{A MizerParams object}
+\item{object}{A MizerParams object}
 }
 \value{
 A vector with the values of f0 for all species

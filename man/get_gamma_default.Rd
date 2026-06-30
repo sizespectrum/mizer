@@ -2,9 +2,10 @@
 % Please edit documentation in R/species_params.R
 \name{get_gamma_default}
 \alias{get_gamma_default}
+\alias{get_gamma_default.MizerParams}
 \title{Get default value for gamma}
 \usage{
-get_gamma_default(params)
+get_gamma_default(object)
 }
 \arguments{
 \item{params}{A MizerParams object}
