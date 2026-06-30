@@ -108,6 +108,7 @@ reference:
   - is.species_params
   - is.given_species_params
   - gear_params
+  - is.gear_params
   - initialN
   - initialNResource
   - initial_effort

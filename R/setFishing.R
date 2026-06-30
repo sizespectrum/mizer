@@ -309,7 +309,7 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
 #' and the gear name, separated by a comma and a space. The last example below
 #' illustrates how this facilitates changing an individual gear parameter.
 #'
-#' @param params A MizerParams object
+#' @param object A MizerParams object, a MizerSim object or a data frame
 #' @return Data frame with gear parameters
 #' @export
 #' @family functions for setting parameters
@@ -333,18 +333,91 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
 #'
 #' # changing an individual entry
 #' gear_params(params)["Cod, gear1", "catchability"] <- 0.8
-gear_params <- function(params) {
-    params@gear_params
+gear_params <- function(object) {
+    UseMethod("gear_params")
 }
 
 #' @rdname gear_params
-#' @param value A data frame with the gear parameters.
-#' @seealso [validGearParams()]
+#' @usage NULL
 #' @export
-`gear_params<-` <- function(params, value) {
-    value <- validGearParams(value, params@species_params)
-    params@gear_params <- value
-    setFishing(params)
+gear_params.MizerParams <- function(object) {
+    object@gear_params
+}
+
+#' @rdname gear_params
+#' @usage NULL
+#' @export
+gear_params.MizerSim <- function(object) {
+    object@params@gear_params
+}
+
+#' @rdname gear_params
+#' @usage NULL
+#' @export
+gear_params.data.frame <- function(object) {
+    class(object) <- c("gear_params", setdiff(class(object), "gear_params"))
+    object
+}
+
+#' @rdname gear_params
+#' @usage NULL
+#' @export
+gear_params.gear_params <- function(object) {
+    object
+}
+
+#' @rdname gear_params
+#' @export
+`gear_params<-` <- function(object, value) {
+    UseMethod("gear_params<-")
+}
+
+#' @rdname gear_params
+#' @usage NULL
+#' @export
+`gear_params<-.MizerParams` <- function(object, value) {
+    value <- validGearParams(value, object@species_params)
+    object@gear_params <- value
+    setFishing(object)
+}
+
+#' Test if an object is a gear_params object
+#'
+#' @param x An object to test.
+#' @return `TRUE` if `x` is a `gear_params` object, `FALSE` otherwise.
+#' @export
+is.gear_params <- function(x) {
+    inherits(x, "gear_params")
+}
+
+#' @export
+`[.gear_params` <- function(x, i, j, ..., drop = FALSE) {
+    out <- NextMethod("[")
+    if (is.data.frame(out)) {
+        class(out) <- class(x)
+    }
+    out
+}
+
+#' @export
+`[<-.gear_params` <- function(x, i, j, ..., value) {
+    out <- NextMethod("[<-")
+    class(out) <- class(x)
+    out
+}
+
+#' @export
+`[[<-.gear_params` <- function(x, i, j, ..., value) {
+    out <- NextMethod("[[<-")
+    class(out) <- class(x)
+    out
+}
+
+#' @export
+`$<-.gear_params` <- function(x, name, value) {
+    out <- NextMethod("$<-")
+    class(out) <- class(x)
+    out
 }
 
 #' @rdname setFishing
@@ -589,7 +662,7 @@ validGearParams <- function(gear_params, species_params) {
 
     # An empty gear_params data frame is valid
     if (nrow(gear_params) == 0) {
-        return(gear_params)
+        return(gear_params(gear_params))
     }
 
     if (!all(c("species", "gear") %in% names(gear_params))) {
@@ -653,7 +726,7 @@ validGearParams <- function(gear_params, species_params) {
     rownames(gear_params) <- paste(gear_params$species, gear_params$gear,
                                        sep = ", ")
 
-    gear_params
+    gear_params(gear_params)
 }
 
 #' Make a valid effort vector
