@@ -36,8 +36,7 @@ REF_PAGES = [
 # Articles to inline (bibliography and image lines are stripped).
 ARTICLES = [
     "model_description.md",
-    "extending-mizer.md",
-    "cheatsheet-analysis-and-plotting.md",
+    "extending-mizer.md"
 ]
 
 
@@ -101,7 +100,7 @@ def main():
 
     output = "\n".join(parts)
 
-    MIZER_AGENTS_INST = os.path.join("..", "mizerAGENTS", "inst")
+    MIZER_AGENTS_INST = os.path.join("..", "mizerAgents", "inst")
 
     for outpath in [os.path.join(DOCS, "llms-full.txt"),
                     os.path.join(MIZER_AGENTS_INST, "llms-full.txt")]:
