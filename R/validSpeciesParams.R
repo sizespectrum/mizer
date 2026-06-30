@@ -72,21 +72,7 @@
 #' @concept helper
 #' @export
 validSpeciesParams <- function(species_params) {
-    sp <- validGivenSpeciesParams(species_params)
-    sp <- set_species_param_default(sp, "w_max", 1.5 * sp$w_inf)
-    sp <- set_species_param_default(sp, "w_repro_max", sp$w_inf)
-    sp <- set_species_param_default(sp, "w_mat", sp$w_inf / 4)
-    sp <- set_species_param_default(sp, "w_min", 0.001)
-    sp <- set_species_param_default(sp, "alpha", 0.6)
-    sp <- set_species_param_default(sp, "interaction_resource", 1)
-    sp <- set_species_param_default(sp, "n", 3/4)
-    sp <- set_species_param_default(sp, "p", sp$n)
-    sp <- set_species_param_default(sp, "z_ext", 0)
-    sp <- set_species_param_default(sp, "d", sp$n - 1)
-    sp <- set_species_param_default(sp, "E_ext", 0)
-    sp <- set_species_param_default(sp, "D_ext", 0)
-    sp <- set_species_param_default(sp, "is_background", FALSE)
-    return(species_params(sp))
+    species_params(species_params)
 }
 
 #' @rdname validSpeciesParams
@@ -94,132 +80,7 @@ validSpeciesParams <- function(species_params) {
 #'   without additional parameters.
 #' @export
 validGivenSpeciesParams <- function(species_params) {
-    assert_that(is.data.frame(species_params))
-    # Convert a tibble back to an ordinary data frame
-    sp <- as.data.frame(species_params,
-                        stringsAsFactors = FALSE) # for old versions of R
-    # Check for misspellings ----
-    misspellings <- c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
-                      "Species", "Gamma", "Beta", "Sigma", "Alpha",
-                      "W_min", "W_max", "W_mat", "e_repro", "Age_mat",
-                      "w_max_mat")
-    query <- intersect(misspellings, names(sp))
-    if (length(query) > 0) {
-        warning("Some column names in your species parameter data ",
-                "frame are very close to standard parameter names: ",
-                paste(query, collapse = ", "),
-                ". Did you perhaps mis-spell the names?")
-    }
-    
-    # check species ----
-    if (!("species" %in% colnames(sp))) {
-        stop("The species params dataframe needs a column 'species' with the species names")
-    }
-    sp$species <- as.character(sp$species)
-    species_names <- as.character(sp$species)
-    no_sp <- nrow(sp)
-    if (length(unique(species_names)) != no_sp) {
-        stop("The species parameter data frame has multiple rows for the same species")
-    }
-    sp$species <- species_names
-    row.names(sp) <- species_names
-    
-    ## For backwards compatibility, allow r_max instead of R_max
-    if (!("R_max" %in% names(sp)) &&
-        "r_max" %in% names(sp)) {
-        names(sp)[names(sp) == "r_max"] <- "R_max"
-    }
-    
-    # Convert lengths to weights ----
-    if (all(c("a", "b") %in% names(sp))) {
-        sp <- sp %>%
-            set_species_param_from_length("w_mat", "l_mat") %>%
-            set_species_param_from_length("w_mat25", "l_mat25") %>%
-            set_species_param_from_length("w_repro_max", "l_repro_max") %>%
-            set_species_param_from_length("w_inf", "l_inf") %>%
-            set_species_param_from_length("w_max", "l_max") %>%
-            set_species_param_from_length("w_min", "l_min")
-    }
-    
-    # check w_inf ----
-    # `w_inf`, the von Bertalanffy asymptotic size, is the required maximum-size
-    # parameter. For backwards compatibility we derive it from `w_repro_max` or
-    # `w_max` if only those are given, preferring `w_repro_max` because in
-    # earlier versions of mizer that was the size at which growth stopped and is
-    # therefore the closest analogue to the asymptotic size.
-    if (!("w_inf" %in% names(sp))) {
-        if ("w_repro_max" %in% names(sp)) {
-            sp$w_inf <- sp$w_repro_max
-            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_repro_max` column instead. Note that `w_inf`, the von Bertalanffy asymptotic size, is now the preferred parameter for specifying the maximum size.",
-                   class = "info_about_default", var = "w_inf", level = 1)
-        } else if ("w_max" %in% names(sp)) {
-            sp$w_inf <- sp$w_max
-            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_max` column instead. Note that `w_inf`, the von Bertalanffy asymptotic size, is now the preferred parameter for specifying the maximum size, whereas `w_max` is only a computational boundary.",
-                   class = "info_about_default", var = "w_inf", level = 1)
-        } else {
-            stop("You need to specify the asymptotic size `w_inf` for all species.")
-        }
-    }
-    missing <- is.na(sp$w_inf)
-    if (any(missing)) {
-        stop("You need to specify the asymptotic size `w_inf` for all species.")
-    }
-    if (!is.numeric(sp$w_inf)) {
-        stop("`w_inf` contains non-numeric values.")
-    }
-    
-    # check w_mat ----
-    if ("w_mat" %in% names(sp)) {
-        wrong <- !is.na(sp$w_mat) & sp$w_mat >= sp$w_inf
-        if (any(wrong)) {
-            warning("For the species ",
-                    paste(sp$species[wrong], collapse = ", "),
-                    " the value for `w_mat` is not smaller than that of `w_inf`.",
-                    " I have corrected that by setting it to 25% of `w_inf`.")
-            sp$w_mat[wrong] <- sp$w_inf[wrong] / 4
-        }
-        
-        # check w_mat25 ----
-        if ("w_mat25" %in% names(sp)) {
-            wrong <- !is.na(sp$w_mat) & !is.na(sp$w_mat25) & sp$w_mat25 >= sp$w_mat
-            if (any(wrong)) {
-                warning("For the species ", 
-                        paste(sp$species[wrong], collapse = ", "),
-                        " the value for `w_mat25` is not smaller than that of `w_mat`.",
-                        " I have corrected that by setting it to NA.")
-                sp$w_mat25[wrong] <- NA
-            }
-        }
-        
-        # check w_min ----
-        if ("w_min" %in% names(sp)) {
-            wrong <- !is.na(sp$w_min) & !is.na(sp$w_mat) & sp$w_min >= sp$w_mat
-            if (any(wrong)) {
-                sp$w_min[wrong] <- pmin(0.001, sp$w_mat[wrong] / 10)
-                warning("For the species ", 
-                        paste(sp$species[wrong], collapse = ", "),
-                        " the value for `w_min` is not smaller than that of `w_mat`.",
-                        " I have reduced the values.")
-            }
-        }
-    }
-    
-    # check w_repro_max ----
-    if ("w_repro_max" %in% names(sp) &&
-        "w_mat" %in% names(sp) &&
-        "w_mat" %in% names(sp)) {
-        wrong <- !is.na(sp$w_repro_max) &
-            !is.na(sp$w_mat) &
-            sp$w_repro_max <= sp$w_mat
-        if (any(wrong)) {
-            warning("For the species ", 
-                    paste(sp$species[wrong], collapse = ", "),
-                    " the value for `w_repro_max` is smaller than that of `w_mat`.",
-                    " I have corrected that by setting it to 4 times `w_mat.")
-            sp$w_repro_max[wrong] <- 4 * sp$w_mat[wrong]
-        }
-    }
-    given_species_params(sp)
+    given_species_params(species_params)
 }
 
 # Set weight-based parameter from length-based parameter
