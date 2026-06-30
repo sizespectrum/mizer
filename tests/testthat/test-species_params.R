@@ -334,4 +334,9 @@ test_that("get_h_default S3 methods work", {
 
     expect_equal(h_params, h_sp)
     expect_equal(h_params, h_df)
+
+    # Test other default S3 generics
+    expect_equal(get_gamma_default(params), get_gamma_default.MizerParams(params))
+    expect_equal(get_f0_default(params), get_f0_default.MizerParams(params))
+    expect_equal(get_ks_default(params), get_ks_default.MizerParams(params))
 })
