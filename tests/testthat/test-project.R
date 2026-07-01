@@ -498,3 +498,18 @@ test_that("Predation diffusion changes simulation trajectory", {
     sim_base <- project(NS_params_small, t_max = 1)
     expect_false(identical(sim_d@n, sim_base@n))
 })
+
+test_that("callback works during simulation", {
+    params <- NS_params_small
+    pdf(NULL)
+    on.exit(dev.off())
+    
+    # Test callback execution
+    counter <- 0
+    test_callback <- function(sim, t_idx) {
+        counter <<- counter + 1
+    }
+    sim <- project(params, t_max = 2, callback = test_callback, progress_bar = FALSE)
+    expect_s4_class(sim, "MizerSim")
+    expect_equal(counter, 3)
+})
