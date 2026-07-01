@@ -145,6 +145,7 @@
 #' MizerParams object, in case your own code makes use of them.
 #'
 #' @param object A MizerParams object, a MizerSim object or a data frame
+#' @param ... Other arguments passed to S3 methods (such as `strict`).
 #' @return `species_params()`: Data frame containing all species parameters
 #'   currently stored in the model.
 #'
@@ -166,7 +167,7 @@
 #' @export
 #' @seealso [validSpeciesParams()], [setParams()]
 #' @family functions for setting parameters
-species_params <- function(object) {
+species_params <- function(object, ...) {
     UseMethod("species_params")
 }
 
@@ -187,17 +188,32 @@ species_params.MizerSim <- function(object) {
 #' @rdname species_params
 #' @usage NULL
 #' @export
-species_params.data.frame <- function(object) {
-    class(object) <- c("species_params", setdiff(class(object), c("given_species_params", "species_params")))
-    check_and_convert_species_params(object)
+species_params.data.frame <- function(object, strict = FALSE, ...) {
+    sp <- given_species_params(object, strict = strict)
+    if ("w_inf" %in% names(sp)) {
+        sp <- set_species_param_default(sp, "w_max", 1.5 * sp$w_inf)
+        sp <- set_species_param_default(sp, "w_repro_max", sp$w_inf)
+        sp <- set_species_param_default(sp, "w_mat", sp$w_inf / 4)
+    }
+    sp <- set_species_param_default(sp, "w_min", 0.001)
+    sp <- set_species_param_default(sp, "alpha", 0.6)
+    sp <- set_species_param_default(sp, "interaction_resource", 1)
+    sp <- set_species_param_default(sp, "n", 3/4)
+    sp <- set_species_param_default(sp, "p", sp$n)
+    sp <- set_species_param_default(sp, "z_ext", 0)
+    sp <- set_species_param_default(sp, "d", sp$n - 1)
+    sp <- set_species_param_default(sp, "E_ext", 0)
+    sp <- set_species_param_default(sp, "D_ext", 0)
+    sp <- set_species_param_default(sp, "is_background", FALSE)
+    class(sp) <- c("species_params", setdiff(class(sp), c("given_species_params", "species_params")))
+    check_and_convert_species_params(sp)
 }
 
 #' @rdname species_params
 #' @usage NULL
 #' @export
-species_params.species_params <- function(object) {
-    class(object) <- c("species_params", setdiff(class(object), c("given_species_params", "species_params")))
-    check_and_convert_species_params(object)
+species_params.species_params <- function(object, strict = FALSE, ...) {
+    species_params.data.frame(object, strict = strict, ...)
 }
 
 #' @rdname species_params
@@ -371,7 +387,7 @@ summary.species_params <- function(object, ...) {
 
 #' @rdname species_params
 #' @export
-given_species_params <- function(object) {
+given_species_params <- function(object, ...) {
     UseMethod("given_species_params")
 }
 
@@ -392,16 +408,134 @@ given_species_params.MizerSim <- function(object) {
 #' @rdname species_params
 #' @usage NULL
 #' @export
-given_species_params.data.frame <- function(object) {
-    class(object) <- c("given_species_params", "species_params", setdiff(class(object), c("given_species_params", "species_params")))
-    check_and_convert_species_params(object)
+given_species_params.data.frame <- function(object, strict = FALSE, ...) {
+    assert_that(is.data.frame(object))
+    # Convert a tibble back to an ordinary data frame
+    sp <- as.data.frame(object, stringsAsFactors = FALSE)
+    
+    # Check for misspellings
+    misspellings <- c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
+                      "Species", "Gamma", "Beta", "Sigma", "Alpha",
+                      "W_min", "W_max", "W_mat", "e_repro", "Age_mat",
+                      "w_max_mat")
+    query <- intersect(misspellings, names(sp))
+    if (length(query) > 0) {
+        warning("Some column names in your species parameter data ",
+                "frame are very close to standard parameter names: ",
+                paste(query, collapse = ", "),
+                ". Did you perhaps mis-spell the names?")
+    }
+    
+    # check species
+    if (!("species" %in% colnames(sp))) {
+        stop("The species params dataframe needs a column 'species' with the species names")
+    }
+    sp$species <- as.character(sp$species)
+    species_names <- as.character(sp$species)
+    no_sp <- nrow(sp)
+    if (length(unique(species_names)) != no_sp) {
+        stop("The species parameter data frame has multiple rows for the same species")
+    }
+    sp$species <- species_names
+    row.names(sp) <- species_names
+    
+    # Allow r_max instead of R_max
+    if (!("R_max" %in% names(sp)) && "r_max" %in% names(sp)) {
+        names(sp)[names(sp) == "r_max"] <- "R_max"
+    }
+    
+    # Convert lengths to weights
+    if (all(c("a", "b") %in% names(sp))) {
+        sp <- sp %>%
+            set_species_param_from_length("w_mat", "l_mat") %>%
+            set_species_param_from_length("w_mat25", "l_mat25") %>%
+            set_species_param_from_length("w_repro_max", "l_repro_max") %>%
+            set_species_param_from_length("w_inf", "l_inf") %>%
+            set_species_param_from_length("w_max", "l_max") %>%
+            set_species_param_from_length("w_min", "l_min")
+    }
+    
+    # check w_inf
+    if (!("w_inf" %in% names(sp))) {
+        if ("w_repro_max" %in% names(sp)) {
+            sp$w_inf <- sp$w_repro_max
+            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_repro_max` column instead. Note that `w_inf`, the von Bertalanffy asymptotic size, is now the preferred parameter for specifying the maximum size.",
+                   class = "info_about_default", var = "w_inf", level = 1)
+        } else if ("w_max" %in% names(sp)) {
+            sp$w_inf <- sp$w_max
+            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_max` column instead. Note that `w_inf`, the von Bertalanffy asymptotic size, is now the preferred parameter for specifying the maximum size, whereas `w_max` is only a computational boundary.",
+                   class = "info_about_default", var = "w_inf", level = 1)
+        } else if (strict) {
+            stop("You need to specify the asymptotic size `w_inf` for all species.")
+        }
+    }
+    if ("w_inf" %in% names(sp)) {
+        missing <- is.na(sp$w_inf)
+        if (any(missing) && strict) {
+            stop("You need to specify the asymptotic size `w_inf` for all species.")
+        }
+        if (!is.numeric(sp$w_inf) && strict) {
+            stop("`w_inf` contains non-numeric values.")
+        }
+    }
+    
+    # check w_mat
+    if ("w_mat" %in% names(sp) && "w_inf" %in% names(sp)) {
+        wrong <- !is.na(sp$w_mat) & !is.na(sp$w_inf) & sp$w_mat >= sp$w_inf
+        if (any(wrong)) {
+            warning("For the species ",
+                    paste(sp$species[wrong], collapse = ", "),
+                    " the value for `w_mat` is not smaller than that of `w_inf`.",
+                    " I have corrected that by setting it to 25% of `w_inf`.")
+            sp$w_mat[wrong] <- sp$w_inf[wrong] / 4
+        }
+        
+        # check w_mat25
+        if ("w_mat25" %in% names(sp)) {
+            wrong <- !is.na(sp$w_mat) & !is.na(sp$w_mat25) & sp$w_mat25 >= sp$w_mat
+            if (any(wrong)) {
+                warning("For the species ", 
+                        paste(sp$species[wrong], collapse = ", "),
+                        " the value for `w_mat25` is not smaller than that of `w_mat`.",
+                        " I have corrected that by setting it to NA.")
+                sp$w_mat25[wrong] <- NA
+            }
+        }
+        
+        # check w_min
+        if ("w_min" %in% names(sp)) {
+            wrong <- !is.na(sp$w_min) & !is.na(sp$w_mat) & sp$w_min >= sp$w_mat
+            if (any(wrong)) {
+                sp$w_min[wrong] <- pmin(0.001, sp$w_mat[wrong] / 10)
+                warning("For the species ", 
+                        paste(sp$species[wrong], collapse = ", "),
+                        " the value for `w_min` is not smaller than that of `w_mat`.",
+                        " I have reduced the values.")
+            }
+        }
+    }
+    
+    # check w_repro_max
+    if ("w_repro_max" %in% names(sp) && "w_mat" %in% names(sp)) {
+        wrong <- !is.na(sp$w_repro_max) & !is.na(sp$w_mat) & sp$w_repro_max <= sp$w_mat
+        if (any(wrong)) {
+            warning("For the species ", 
+                    paste(sp$species[wrong], collapse = ", "),
+                    " the value for `w_repro_max` is smaller than that of `w_mat`.",
+                    " I have corrected that by setting it to 4 times `w_mat.")
+            sp$w_repro_max[wrong] <- 4 * sp$w_mat[wrong]
+        }
+    }
+    
+    class(sp) <- c("given_species_params", "species_params", setdiff(class(sp), c("given_species_params", "species_params")))
+    check_and_convert_species_params(sp)
 }
 
 #' @rdname species_params
 #' @usage NULL
 #' @export
-given_species_params.given_species_params <- function(object) {
-    check_and_convert_species_params(object)
+given_species_params.given_species_params <- function(object, strict = FALSE, ...) {
+    given_species_params.data.frame(object, strict = strict, ...)
 }
 
 #' Test if an object is a given_species_params object
