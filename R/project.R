@@ -45,6 +45,10 @@ NULL
 #' @param progress_bar Either a boolean value to determine whether a progress
 #'   bar should be shown in the console, or a shiny Progress object to implement
 #'   a progress bar in a shiny app.
+#' @param callback A function to be called at each saved time step of the
+#'   simulation. The callback function is called with the `MizerSim` object,
+#'   the current time index, and any additional arguments passed to `project()`
+#'   via `...`.
 #' @param method The numerical method to use for the consumer density update.
 #'   `"euler"` uses the first-order semi-implicit Euler update.
 #'   `"predictor_corrector"` uses a predictor-corrector Crank-Nicolson update
@@ -160,6 +164,7 @@ project <- function(object, effort,
                     initial_n, initial_n_pp,
                     append = TRUE,
                     progress_bar = TRUE,
+                    callback = NULL,
                     method = c("euler", "predictor_corrector", "tr_bdf2"),
                     ...) {
     UseMethod("project")
@@ -185,6 +190,7 @@ project.MizerParams <- function(object, effort,
                                 initial_n, initial_n_pp,
                                 append = TRUE,
                                 progress_bar = TRUE,
+                                callback = NULL,
                                 method = c("euler", "predictor_corrector", "tr_bdf2"),
                                 ...) {
     params <- validParams(object)
@@ -353,6 +359,11 @@ project.MizerParams <- function(object, effort,
         pb$tick(0)
     }
 
+    # Call callback on initial state
+    if (!is.null(callback)) {
+        callback(sim, t_idx = 1, ...)
+    }
+
     n_list <- list(
         n = initial_n, n_pp = initial_n_pp,
         n_other = unserialize(serialize(initial_n_other, NULL))
@@ -389,6 +400,10 @@ project.MizerParams <- function(object, effort,
         sim@n[i, , ] <- n_list$n
         sim@n_pp[i, ] <- n_list$n_pp
         sim@n_other[i, ] <- unserialize(serialize(n_list$n_other, NULL))
+
+        if (!is.null(callback)) {
+            callback(sim, t_idx = i, ...)
+        }
     }
 
     return(sim)
@@ -402,6 +417,7 @@ project.MizerSim <- function(object, effort,
                              initial_n, initial_n_pp,
                              append = TRUE,
                              progress_bar = TRUE,
+                             callback = NULL,
                              method = c("euler", "predictor_corrector", "tr_bdf2"),
                              ...) {
     validObject(object)
@@ -438,6 +454,7 @@ project.MizerSim <- function(object, effort,
         t_save = t_save, t_start = t_start,
         initial_n = initial_n, initial_n_pp = initial_n_pp,
         progress_bar = progress_bar,
+        callback = callback,
         method = method, ...
     )
 

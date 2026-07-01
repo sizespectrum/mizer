@@ -1,5 +1,7 @@
 # development version
 
+- Added a `callback` parameter to `project()` to allow user-defined functions to be called at each saved time step.
+
 - Columns accessed via `$` on a `species_params` or
 `gear_params` object now return named vectors, where the names are the species
 names (or "species, gear" row names for `gear_params`). For example,
