@@ -1,5 +1,7 @@
 # development version
 
+- `resource_params<-` now rebuilds the resource size-spectrum arrays (`cc_pp`, `rr_pp`) via `setResource()`, making resource parameter assignment consistent with `species_params<-` and `gear_params<-` (#439).
+
 - Added a `callback` parameter to `project()` to allow user-defined functions to be called at each saved time step.
 
 - Columns accessed via `$` on a `species_params` or
