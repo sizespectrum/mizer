@@ -1,5 +1,19 @@
 # development version
 
+- Added three new cheatsheets: "Model Setup and Calibration" (building a model,
+  finding the steady state, calibrating to observed biomass/yield/growth, and
+  projecting), "Fishing" (gears, selectivity functions, catchability, and
+  effort), and "Changing Model Parameters" (the distinction between
+  `given_species_params()`, `calculated_species_params()` and `species_params()`,
+  when changing a species parameter updates a size-dependent rate versus freezing
+  it, and how `gear_params()` and the resource setters differ).
+
+- The analysis-and-plotting cheatsheet now covers the newer plotting functions
+  (`plotCDF()`, `plotSpectra2()`, `plotSpectraRelative()`, `plotCDF2()`,
+  `plot2()`, `plotRelative()`, `animate()`) and the `ArrayResourceBySize`
+  class, and corrects the interactive-plot advice for array objects to use
+  `plotHover()` (they have no `ggplotly()` method).
+
 - Added a `callback` parameter to `project()` to allow user-defined functions to be called at each saved time step.
 
 - Columns accessed via `$` on a `species_params` or

@@ -1,0 +1,243 @@
+---
+title: "Cheatsheet: Changing Model Parameters"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    fig_width: 5
+    fig_height: 4
+---
+
+```{r include=FALSE}
+library(mizer)
+params <- NS_params
+```
+
+Mizer offers several ways to change a model, and it is easy to be unsure which
+one to reach for. This cheatsheet explains the distinctions and gives a rule for
+each. The guiding principle:
+
+> **Change the model at the highest level that expresses your intent, and let
+> mizer propagate the change downwards.** Only drop to a lower level when you
+> deliberately want to override mizer's calculations.
+
+Every setter returns a **new** `MizerParams` object, so always reassign the
+result (`params <- setResource(params, ...)`).
+
+---
+
+## The three levels of parameters
+
+| Level | What it holds | Change it with |
+|---|---|---|
+| **Species parameters** | per-species scalars (`w_inf`, `beta`, `gamma`, `h`, `erepro`, …) | [`given_species_params(params) <-`](../reference/species_params.html) |
+| **Size-dependent rates** | arrays over size (search volume, metabolic rate, predation kernel, …) | the [`set…()`](../reference/setParams.html) functions |
+| **Other groups** | fishing, resource, interaction | [`gear_params()`](../reference/gear_params.html), [`setResource()`](../reference/setResource.html), [`setInteraction()`](../reference/setInteraction.html) |
+
+Species parameters are the highest level: most of them are used to **calculate**
+the size-dependent rate arrays. Changing a species parameter therefore normally
+updates the corresponding rate array automatically — you rarely need to touch the
+arrays yourself.
+
+---
+
+## Species parameters: `given` vs `calculated` vs all
+
+Mizer separates the species parameters you **gave** from the ones it
+**calculated** (from your values or from defaults).
+
+| Accessor | Returns |
+|---|---|
+| [`given_species_params(params)`](../reference/species_params.html) | only the parameters you supplied explicitly |
+| [`calculated_species_params(params)`](../reference/species_params.html) | the parameters mizer derived or defaulted |
+| [`species_params(params)`](../reference/species_params.html) | everything (given, with calculated filling the gaps) |
+
+There are two replacement functions, and the difference matters:
+
+- **`given_species_params(params) <- …`** — the one to use. It records your value
+  as *given* and **triggers recalculation** of everything that depends on it
+  (both the calculated scalar parameters and the size-dependent rate arrays).
+
+    ```{r eval=FALSE}
+    given_species_params(params)$beta <- 150     # updates the predation kernel too
+    ```
+
+- **`species_params(params) <- …`** — writes the value into the combined table
+  **without** recalculating the derived scalar parameters, and your value may be
+  **silently overwritten** the next time a recalculation is triggered. Avoid it
+  unless you know you want this.
+
+**Rule:** to change a species parameter, use `given_species_params(params) <-`.
+
+Access columns with `$` (they come back as named vectors):
+
+```{r eval=FALSE}
+species_params(params)$w_mat        # named by species
+given_species_params(params)$gamma  # only where you set it (NA elsewhere)
+```
+
+---
+
+## How a change propagates
+
+Many species parameters exist only to *set up* a size-dependent rate. When you
+change one with `given_species_params(params) <-`, mizer re-runs the relevant
+setter for you:
+
+| Species parameter(s) | Sets up | via |
+|---|---|---|
+| `gamma`, `q` | search volume | [`setSearchVolume()`](../reference/setSearchVolume.html) |
+| `h`, `n` | maximum intake rate | [`setMaxIntakeRate()`](../reference/setMaxIntakeRate.html) |
+| `k`, `ks`, `p` | metabolic rate | [`setMetabolicRate()`](../reference/setMetabolicRate.html) |
+| `z0`, `z_ext`, `d` | external mortality | [`setExtMort()`](../reference/setExtMort.html) |
+| `beta`, `sigma`, `pred_kernel_type` | predation kernel | [`setPredKernel()`](../reference/setPredKernel.html) |
+| `w_mat`, `w_mat25`, `w_repro_max`, `m` | reproduction allocation | [`setReproduction()`](../reference/setReproduction.html) |
+
+Some species parameters are instead used **directly** by the model and set up no
+array — changing them just changes the model: `alpha` (assimilation), `w_min`
+(egg size), `erepro` and `R_max` (reproduction), `interaction_resource`, and the
+length–weight parameters `a`, `b`.
+
+---
+
+## Size-dependent rates: the `set…()` functions
+
+Each size-dependent rate array has its own setter. Called with only a `params`
+object, a setter **recomputes** the array from the current species parameters:
+
+```{r eval=FALSE}
+params <- setMetabolicRate(params)   # recompute from k, ks, p
+```
+
+[`setParams(params)`](../reference/setParams.html) runs *all* of these setters at
+once (interaction, predation kernel, intake, metabolism, mortality, encounter,
+diffusion, search volume, reproduction). Use it to rebuild everything after
+several changes.
+
+### Overriding an array by hand (and the consequence)
+
+You can pass an array directly to a setter to set a rate **manually**:
+
+```{r eval=FALSE}
+params <- setSearchVolume(params, search_vol = my_array)  # species × size
+```
+
+Doing so **freezes** that array: mizer marks it as "set manually" and will
+**no longer update it** when you change the species parameters that would
+otherwise feed it. This is intentional — it lets you impose a bespoke rate — but
+it means, for example, that after setting `search_vol` by hand, changing `gamma`
+has no effect on the search volume. To hand control back to mizer, recompute the
+array from the parameters:
+
+```{r eval=FALSE}
+params <- setSearchVolume(params)    # drop the manual override, recompute
+```
+
+---
+
+## Fishing parameters
+
+Fishing gears, selectivity, and catchability live in a separate table,
+[`gear_params()`](../reference/gear_params.html), one row per gear–species pair.
+Assigning to it recomputes the fishing arrays. See the **Fishing** cheatsheet for
+details.
+
+```{r eval=FALSE}
+gp <- gear_params(params)
+gp["Cod, Otter", "catchability"] <- 0.8
+gear_params(params) <- gp
+```
+
+The related setter [`setFishing()`](../reference/setFishing.html) is for supplying
+selectivity/catchability **arrays** directly or setting the baseline effort.
+
+---
+
+## Resource parameters
+
+The resource is a place where the parallel with species parameters **breaks
+down**, and this catches people out. [`resource_params()`](../reference/resource_params.html)
+returns a named list of scalars (`kappa`, `lambda`, `r_pp`, `n`, `w_pp_cutoff`),
+but — unlike `given_species_params<-` or `gear_params<-` — **assigning to it does
+not rebuild the resource arrays.** These scalars are essentially set-up metadata.
+
+```{r eval=FALSE}
+resource_params(params)$kappa <- 1e11   # stores the value but does NOT change
+                                        # the resource carrying capacity!
+```
+
+Instead, change the resource through [`setResource()`](../reference/setResource.html)
+or the array replacement functions, which take effect immediately:
+
+| Function | Sets |
+|---|---|
+| [`resource_capacity(params) <-`](../reference/setResource.html) | the carrying capacity over size |
+| [`resource_rate(params) <-`](../reference/setResource.html) | the replenishment (regeneration) rate over size |
+| [`resource_level(params) <-`](../reference/setResource.html) | the resource level (fraction of capacity) |
+| [`setResource(params, …)`](../reference/setResource.html) | any of the above, plus `lambda`, `n`, `w_pp_cutoff`, `resource_dynamics` |
+
+```{r eval=FALSE}
+params <- setResource(params, resource_capacity = my_capacity)   # array over size
+resource_rate(params) <- my_rate                                 # array over size
+```
+
+Note the scalar `kappa` and `r_pp` arguments are **deprecated** in favour of the
+`resource_capacity` and `resource_rate` array forms above.
+
+---
+
+## The interaction matrix
+
+The species × species interaction matrix is set with
+[`setInteraction()`](../reference/setInteraction.html) and read with
+`getInteraction()`. (The resource interaction is the `interaction_resource`
+species-parameter column instead.)
+
+```{r eval=FALSE}
+inter <- getInteraction(params)
+inter["Cod", "Herring"] <- 0.5
+params <- setInteraction(params, inter)
+```
+
+---
+
+## Which should I use?
+
+| I want to change… | Use |
+|---|---|
+| a per-species value (`beta`, `w_mat`, `h`, `erepro`, …) | `given_species_params(params) <- …` |
+| a size-dependent rate, keeping it tied to the parameters | change the underlying species parameter (above) |
+| a size-dependent rate to a bespoke array (freezing it) | the matching `set…()` with the array argument |
+| everything at once after edits | `setParams(params)` |
+| fishing gears / selectivity / catchability | `gear_params(params) <- …` |
+| baseline fishing effort or selectivity arrays | `setFishing(params, …)` |
+| the resource (capacity, rate, level) | `setResource(params, …)` or `resource_capacity(params) <- …` (**not** `resource_params(params) <-`) |
+| species interactions | `setInteraction(params, …)` |
+
+---
+
+## Quick reference
+
+```{r eval=FALSE}
+# ── Species parameters (preferred: triggers recalculation) ────────────────────
+given_species_params(params)$beta <- 150
+species_params(params)                     # view all (given + calculated)
+calculated_species_params(params)          # only what mizer derived
+
+# ── Size-dependent rate arrays ────────────────────────────────────────────────
+params <- setMetabolicRate(params)         # recompute from species params
+params <- setSearchVolume(params, search_vol = my_array)  # freeze a manual array
+params <- setSearchVolume(params)          # unfreeze: recompute again
+params <- setParams(params)                # rebuild ALL rate arrays
+
+# ── Fishing ───────────────────────────────────────────────────────────────────
+gear_params(params) <- gp
+params <- setFishing(params, initial_effort = c(Otter = 1))
+
+# ── Resource (resource_params(params)<- does NOT rebuild the arrays) ──────────
+params <- setResource(params, resource_capacity = my_capacity)
+resource_rate(params) <- my_rate           # array over size, applies immediately
+
+# ── Interaction ───────────────────────────────────────────────────────────────
+params <- setInteraction(params, inter)
+```

@@ -68,6 +68,9 @@ articles:
 - title: Cheat sheets
   navbar: Cheat sheets
   contents:
+  - cheatsheet-model-setup-and-calibration
+  - cheatsheet-changing-parameters
+  - cheatsheet-fishing
   - cheatsheet-analysis-and-plotting
 - title: Extending mizer
   navbar: Extending mizer

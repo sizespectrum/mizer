@@ -142,12 +142,15 @@ step. Use `time_range` to average over a time period.
 | [`plotFMort(sim)`](../reference/plotFMort.html) | `time_range`, `species`, `highlight`, `log_x`, `log_y` | fishing mortality at size |
 | [`plotGrowthCurves(sim)`](../reference/plotGrowthCurves.html) | `species`, `max_age`, `percentage`, `species_panel`, `log_x`, `log_y` | size at age |
 | [`plotDiet(params)`](../reference/plotDiet.html) | `species`, `log_x`, `log_y` | diet composition at size |
+| [`plotCDF(sim)`](../reference/plotCDF.html) | `power`, `normalise`, `species`, `resource`, `wlim` | cumulative abundance/biomass over size |
 
 ```{r eval=FALSE}
 plotSpectra(sim, power = 2, time_range = 1990:2000)
 plotFeedingLevel(sim, highlight = c("Cod", "Haddock"))
 plotGrowthCurves(sim, species = "Cod", max_age = 20)
 plotDiet(params, species = "Cod")
+plotCDF(sim, power = 1)              # cumulative biomass; power = 0 for numbers
+plotCDF(sim, normalise = FALSE)     # cumulative total rather than proportion
 ```
 
 ### Summary plot
@@ -156,31 +159,59 @@ plotDiet(params, species = "Cod")
 plot(sim)   # 5-panel summary: feeding level, biomass, predation mort, fishing mort, spectra
 ```
 
+### Comparing two simulations or models
+
+These take two compatible `MizerSim` or `MizerParams` objects (e.g. before and
+after a change) and show them together.
+
+| Function | Shows |
+|---|---|
+| [`plotSpectra2(object1, object2, name1, name2)`](../reference/plotSpectra2.html) | two abundance spectra overlaid |
+| [`plotSpectraRelative(object1, object2)`](../reference/plotSpectraRelative.html) | relative difference of two spectra |
+| [`plotCDF2(object1, object2, name1, name2)`](../reference/plotCDF2.html) | two cumulative distributions overlaid |
+
+```{r eval=FALSE}
+plotSpectra2(params, params2, "Before", "After")
+plotSpectraRelative(params, params2)         # 2 (N2 - N1) / (N1 + N2)
+plotCDF2(sim, sim2, "Unfished", "Fished")
+```
+
+To compare arbitrary rate arrays rather than whole spectra, use `plot2()` and
+`plotRelative()` — see [Plotting arrays directly](#plotting-arrays-directly).
+
 ---
 
 ## Plotting arrays directly
 
-The arrays returned by summary functions carry class `ArraySpeciesBySize` or
-`ArrayTimeBySpecies` and have `plot()` and `ggplotly()` methods. This makes it
-easy to plot any quantity without a dedicated plot function.
+The arrays returned by summary and rate functions carry a mizer array class and
+have a `plot()` method, so you can plot any quantity without a dedicated plot
+function.
 
 | Class | Typical source | `plot()` shows |
 |---|---|---|
-| `ArrayTimeBySpecies` | `getBiomass(sim)`, `getSSB(sim)`, `getYield(sim)`, `getN(sim)` | value vs time, one line per species |
-| `ArraySpeciesBySize` | `getFeedingLevel(params)`, `getPredMort(params)`, `getEncounter(params)` | value vs size, one line per species |
+| [`ArrayTimeBySpecies`](../reference/ArrayTimeBySpecies.html) | `getBiomass(sim)`, `getSSB(sim)`, `getYield(sim)`, `getN(sim)` | value vs time, one line per species |
+| [`ArraySpeciesBySize`](../reference/ArraySpeciesBySize.html) | `getFeedingLevel(params)`, `getPredMort(params)`, `getEncounter(params)` | value vs size, one line per species |
+| [`ArrayTimeBySpeciesBySize`](../reference/ArrayTimeBySpeciesBySize.html) | `getFMort(sim)`, `getPredMort(sim)` | one time slice vs size (set with `time`) |
+| [`ArrayResourceBySize`](../reference/ArrayResourceBySize.html) | `NResource(params)`, `getResourceMort(params)`, `resource_rate(params)`, `resource_capacity(params)` | resource quantity vs size |
 
 ```{r eval=FALSE}
 plot(getBiomass(sim))          # equivalent to plotBiomass(sim)
 plot(getSSB(sim))
 plot(getFeedingLevel(params))  # same as plotFeedingLevel(params)
+plot(getResourceMort(params))  # plankton resource mortality vs size
 
 # Add another compatible array to an existing plot
 p <- plot(getBiomass(sim), species = "Cod")
 addPlot(p, getBiomass(sim), species = "Herring", linetype = "dashed")
 
-# Interactive versions
-ggplotly(getBiomass(sim))
-ggplotly(getEncounter(params))
+# Compare two compatible arrays
+plot2(getFMort(params), getFMort(params2), "Before", "After")
+plotRelative(getEGrowth(params), getEGrowth(params2))  # relative difference
+
+# Interactive (hover) versions — the array plots have no plotly*() twin,
+# so wrap them with plotHover() instead
+plotHover(getBiomass(sim))
+plotHover(getEncounter(params))
 ```
 
 `plot(<ArrayTimeBySpecies>)` accepts: `species`, `start_time`, `end_time`,
@@ -189,8 +220,21 @@ ggplotly(getEncounter(params))
 `plot(<ArraySpeciesBySize>)` accepts: `species`, `highlight`, `log_x`, `log_y`,
 `wlim`, `ylim`, `all.sizes`.
 
-[`addPlot()`](../reference/addPlot.html) adds an `ArrayTimeBySpecies` or
-`ArraySpeciesBySize` object as extra lines on an existing compatible plot.
+[`addPlot()`](../reference/addPlot.html) adds a compatible array as extra lines on
+an existing plot; [`plot2()`](../reference/plot2.html) and
+[`plotRelative()`](../reference/plotRelative.html) compare two compatible arrays
+(colour = species, linetype = which object); [`plotHover()`](../reference/plotHover.html)
+turns any of these ggplots into a hover-enabled plotly plot.
+
+### Animating spectra through time
+
+[`animate()`](../reference/animate.html) plays a spectrum or rate array through
+the course of a simulation.
+
+```{r eval=FALSE}
+animate(sim)                 # abundance spectra over time
+animate(getFMort(sim))       # an ArrayTimeBySpeciesBySize over time
+```
 
 ---
 
@@ -275,13 +319,23 @@ plotPredMort(sim)       # predation mortality vs size
 plotFMort(sim)          # fishing mortality vs size
 plotGrowthCurves(sim)   # size vs age
 plotDiet(params, species = "Cod")  # diet composition vs size
+plotCDF(sim)            # cumulative biomass/abundance over size
 
-# ── Plot any summary array directly ───────────────────────────────────────────
+# ── Compare two simulations or models ─────────────────────────────────────────
+plotSpectra2(params, params2, "Before", "After")
+plotSpectraRelative(params, params2)      # relative difference of spectra
+plotCDF2(sim, sim2, "Unfished", "Fished")
+
+# ── Plot any summary or rate array directly ───────────────────────────────────
 plot(getBiomass(sim))           # ArrayTimeBySpecies → value vs time
 plot(getFeedingLevel(params))   # ArraySpeciesBySize → value vs size
+plot(getResourceMort(params))   # ArrayResourceBySize → resource vs size
 p <- plot(getBiomass(sim), species = "Cod")
 addPlot(p, getBiomass(sim), species = "Herring", linetype = "dashed")
-ggplotly(getBiomass(sim))       # interactive version
+plot2(getFMort(params), getFMort(params2), "Before", "After")  # compare arrays
+plotRelative(getEGrowth(params), getEGrowth(params2))          # relative diff
+plotHover(getBiomass(sim))      # interactive (hover) version of an array plot
+animate(sim)                    # animate spectra through time
 
 # ── Add plotly interactivity to any named plot function ───────────────────────
 plotlyBiomass(sim)
