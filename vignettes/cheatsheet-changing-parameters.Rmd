@@ -32,7 +32,7 @@ result (`params <- setResource(params, ...)`).
 |---|---|---|
 | **Species parameters** | per-species scalars (`w_inf`, `beta`, `gamma`, `h`, `erepro`, …) | [`given_species_params(params) <-`](../reference/species_params.html) |
 | **Size-dependent rates** | arrays over size (search volume, metabolic rate, predation kernel, …) | the [`set…()`](../reference/setParams.html) functions |
-| **Other groups** | fishing, resource, interaction | [`gear_params()`](../reference/gear_params.html), [`setResource()`](../reference/setResource.html), [`setInteraction()`](../reference/setInteraction.html) |
+| **Other groups** | fishing, resource, interaction | [`gear_params()`](../reference/gear_params.html), [`resource_params()`](../reference/resource_params.html), [`setInteraction()`](../reference/setInteraction.html) |
 
 Species parameters are the highest level: most of them are used to **calculate**
 the size-dependent rate arrays. Changing a species parameter therefore normally
@@ -155,21 +155,28 @@ selectivity/catchability **arrays** directly or setting the baseline effort.
 
 ## Resource parameters
 
-The resource is a place where the parallel with species parameters **breaks
-down**, and this catches people out. [`resource_params()`](../reference/resource_params.html)
-returns a named list of scalars (`kappa`, `lambda`, `r_pp`, `n`, `w_pp_cutoff`),
-but — unlike `given_species_params<-` or `gear_params<-` — **assigning to it does
-not rebuild the resource arrays.** These scalars are essentially set-up metadata.
+The resource works just like the species parameters.
+[`resource_params()`](../reference/resource_params.html) returns a named list of
+scalars (`kappa`, `lambda`, `r_pp`, `n`, `w_pp_cutoff`) that set up the resource
+size-spectrum arrays, and — like `given_species_params<-` — assigning to it
+**rebuilds those arrays**:
 
 ```{r eval=FALSE}
-resource_params(params)$kappa <- 1e11   # stores the value but does NOT change
-                                        # the resource carrying capacity!
+resource_params(params)$kappa  <- 1e11   # rescales the carrying capacity
+resource_params(params)$lambda <- 2.05   # changes the slope of the capacity
+resource_params(params)$r_pp   <- 10     # rebuilds the replenishment rate
 ```
 
-Instead, change the resource through [`setResource()`](../reference/setResource.html)
-or the array replacement functions, which take effect immediately:
+| Scalar(s) | Rebuilds |
+|---|---|
+| `kappa`, `lambda`, `w_pp_cutoff` | resource carrying capacity (`cc_pp`) |
+| `r_pp`, `n` | resource replenishment rate (`rr_pp`) |
 
-| Function | Sets |
+You can also set the size-resolved arrays directly. As with the species rate
+arrays, doing so **freezes** them ("set manually"), so a later scalar change no
+longer touches them:
+
+| Function | Sets (and freezes) |
 |---|---|
 | [`resource_capacity(params) <-`](../reference/setResource.html) | the carrying capacity over size |
 | [`resource_rate(params) <-`](../reference/setResource.html) | the replenishment (regeneration) rate over size |
@@ -177,12 +184,13 @@ or the array replacement functions, which take effect immediately:
 | [`setResource(params, …)`](../reference/setResource.html) | any of the above, plus `lambda`, `n`, `w_pp_cutoff`, `resource_dynamics` |
 
 ```{r eval=FALSE}
-params <- setResource(params, resource_capacity = my_capacity)   # array over size
-resource_rate(params) <- my_rate                                 # array over size
+resource_capacity(params) <- my_capacity          # array over size; now frozen
+resource_params(params)$kappa <- 1e11             # ignored: capacity is frozen
+params <- setResource(params, reset = TRUE)       # unfreeze: recompute from the scalars
 ```
 
-Note the scalar `kappa` and `r_pp` arguments are **deprecated** in favour of the
-`resource_capacity` and `resource_rate` array forms above.
+This mirrors the species-parameter behaviour exactly: scalars are the "given"
+inputs, the arrays are calculated from them unless you override an array by hand.
 
 ---
 
@@ -211,7 +219,8 @@ params <- setInteraction(params, inter)
 | everything at once after edits | `setParams(params)` |
 | fishing gears / selectivity / catchability | `gear_params(params) <- …` |
 | baseline fishing effort or selectivity arrays | `setFishing(params, …)` |
-| the resource (capacity, rate, level) | `setResource(params, …)` or `resource_capacity(params) <- …` (**not** `resource_params(params) <-`) |
+| the resource (kappa, lambda, r_pp, …) | `resource_params(params) <- …` |
+| the resource capacity/rate as a bespoke array (freezing it) | `resource_capacity(params) <- …` / `resource_rate(params) <- …` / `setResource(params, …)` |
 | species interactions | `setInteraction(params, …)` |
 
 ---
@@ -234,9 +243,10 @@ params <- setParams(params)                # rebuild ALL rate arrays
 gear_params(params) <- gp
 params <- setFishing(params, initial_effort = c(Otter = 1))
 
-# ── Resource (resource_params(params)<- does NOT rebuild the arrays) ──────────
-params <- setResource(params, resource_capacity = my_capacity)
-resource_rate(params) <- my_rate           # array over size, applies immediately
+# ── Resource (scalars rebuild the arrays, like given_species_params) ──────────
+resource_params(params)$kappa <- 1e11      # rescales the carrying capacity
+resource_capacity(params) <- my_capacity   # bespoke array; freezes it
+params <- setResource(params, reset = TRUE)  # unfreeze: recompute from scalars
 
 # ── Interaction ───────────────────────────────────────────────────────────────
 params <- setInteraction(params, inter)
