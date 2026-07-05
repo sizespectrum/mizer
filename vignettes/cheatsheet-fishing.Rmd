@@ -107,17 +107,36 @@ gear_params(params) <- gp
 
 ---
 
-## `setFishing()`
+## The selectivity and catchability arrays
 
-[`setFishing()`](../reference/setFishing.html) recomputes the fishing setup.
-Assigning `gear_params(params) <-` already triggers this, so you mainly call
-`setFishing()` when supplying a `selectivity` or `catchability` **array**
-directly, setting a baseline effort, or rebuilding from scratch.
+Behind the scenes mizer turns the `gear_params` table into two numeric arrays,
+the ones that enter the fishing-mortality formula directly. You can read them,
+and — when a `sel_func` cannot express the shape you need — set them by hand.
+
+| Function | Returns | Dimensions |
+|---|---|---|
+| [`catchability(params)`](../reference/setFishing.html) / `getCatchability(params)` | $Q_{g,i}$ | gear × species |
+| [`selectivity(params)`](../reference/setFishing.html) / `getSelectivity(params)` | $S_{g,i}(w)$ | gear × species × size |
+
+The bare and `get`-prefixed names are equivalent; use whichever reads better.
+Each has a matching setter that pushes an array straight into the model (this
+routes through `setFishing()`, so validation still runs):
 
 ```{r eval=FALSE}
-params <- setFishing(params, initial_effort = c(Otter = 1, Beam = 0.5))
-params <- setFishing(params, reset = TRUE)   # rebuild arrays from gear_params
+catchability(params)                       # gear × species matrix of Q
+selectivity(params)["Otter", "Cod", ]      # the S curve for one gear–species pair
+
+# Assign a custom selectivity curve that no sel_func produces
+sel <- getSelectivity(params)
+sel["Otter", "Cod", ] <- my_curve          # length = number of size bins, in [0, 1]
+selectivity(params) <- sel                 # triggers recalculation via setFishing()
 ```
+
+A direct assignment here is for shapes you cannot obtain from a selectivity
+function. Once you set an array by hand, mizer marks it as manual and stops
+recalculating it from `gear_params` — so later edits to the gear table leave your
+array untouched (you'll see a message saying so). To discard the hand-set array
+and rebuild from `gear_params`, call `setFishing(params, reset = TRUE)`.
 
 ---
 
@@ -164,6 +183,8 @@ sim <- project(params, effort = effort_array)
 
 ```{r eval=FALSE}
 gear_params(params)        # the gear table
+catchability(params)       # Q array (gear × species)
+selectivity(params)        # S array (gear × species × size)
 initial_effort(params)     # baseline effort per gear
 plotFMort(params)          # realised fishing mortality at size
 getFMort(params)           # F by species × size
@@ -189,7 +210,7 @@ sim <- project(params, effort = 1)                   # constant during run
 sim <- project(params, effort = effort_array)        # time × gear array
 
 # ── Inspect ───────────────────────────────────────────────────────────────────
-getInitialEffort(params)
+initial_effort(params)
 plotFMort(params)
 getFMortGear(params)
 ```

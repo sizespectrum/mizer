@@ -78,7 +78,7 @@ getYield(sim)["2010", ]                  # yield in year 2010
 
 The result is an `ArrayTimeBySpecies` (time × species) or `ArraySpeciesBySize`
 (species × size), which can be plotted directly with `plot()` — see
-[Plotting arrays directly](#plotting-arrays-directly) below.
+[Plotting any array directly](#plotting-any-array-directly-with-plot) below.
 
 ---
 
@@ -108,41 +108,125 @@ head(slope)
 
 ## Plotting functions
 
-All plotting functions return a `ggplot2` object that can be further modified.
-Each has a `plotly` counterpart (e.g. `plotlyBiomass()`) for interactive use.
-See [`?plotting_functions`](../reference/plotting_functions.html).
+All plotting functions return a `ggplot2` object that you can customise further
+(see [Working with ggplot2](#working-with-ggplot2)). See
+[`?plotting_functions`](../reference/plotting_functions.html).
 
-### Plots against time
+The rest of this section starts with the general mechanism — calling `plot()`
+directly on any array, and the arguments that control it — and only then
+describes the dedicated `plot...()` functions, which are mostly shortcuts for it.
 
-These show how a quantity changes over the course of the simulation.
+### Plotting any array directly with `plot()`
 
-| Function | Key arguments | Shows |
+The arrays returned by the summary and rate functions carry a mizer array class
+and have their own `plot()` method, so you can plot any quantity without a
+dedicated plot function.
+
+| Class | Typical source | `plot()` shows |
 |---|---|---|
-| [`plotBiomass(sim)`](../reference/plotBiomass.html) | `species`, `total`, `start_time`, `end_time`, `log_x`, `log_y` | total biomass per species |
-| [`plotYield(sim)`](../reference/plotYield.html) | `species`, `total`, `log_x`, `log_y` | total yield per species |
-| [`plotYieldGear(sim)`](../reference/plotYieldGear.html) | `species`, `total` | yield per species faceted by gear |
+| [`ArrayTimeBySpecies`](../reference/ArrayTimeBySpecies.html) | `getBiomass(sim)`, `getSSB(sim)`, `getYield(sim)`, `getN(sim)` | value vs time, one line per species |
+| [`ArraySpeciesBySize`](../reference/ArraySpeciesBySize.html) | `getFeedingLevel(params)`, `getPredMort(params)`, `getEncounter(params)` | value vs size, one line per species |
+| [`ArrayTimeBySpeciesBySize`](../reference/ArrayTimeBySpeciesBySize.html) | `getFMort(sim)`, `getPredMort(sim)` | one time slice vs size (set with `time`) |
+| [`ArrayResourceBySize`](../reference/ArrayResourceBySize.html) | `NResource(params)`, `getResourceMort(params)`, `resource_rate(params)`, `resource_capacity(params)` | resource quantity vs size |
 
 ```{r eval=FALSE}
-plotBiomass(sim)
+plot(getBiomass(sim))          # value vs time, one line per species
+plot(getSSB(sim))
+plot(getFeedingLevel(params))  # value vs size, one line per species
+plot(getResourceMort(params))  # plankton resource mortality vs size
+```
+
+The array plots come with a small toolkit for combining and comparing them:
+
+```{r eval=FALSE}
+# Add another compatible array as extra lines on an existing plot
+p <- plot(getBiomass(sim), species = "Cod")
+addPlot(p, getBiomass(sim), species = "Herring", linetype = "dashed")
+
+# Compare two compatible arrays
+plot2(getFMort(params), getFMort(params2), "Before", "After")
+plotRelative(getEGrowth(params), getEGrowth(params2))  # relative difference
+
+# Interactive (hover) version of any array plot
+plotHover(getBiomass(sim))
+```
+
+| Function | What it does |
+|---|---|
+| [`addPlot()`](../reference/addPlot.html) | adds a compatible array as extra lines on an existing plot |
+| [`plot2()`](../reference/plot2.html) | compares two compatible arrays (colour = species, linetype = which object) |
+| [`plotRelative()`](../reference/plotRelative.html) | shows the relative difference between two compatible arrays |
+| [`plotHover()`](../reference/plotHover.html) | turns any of these ggplots into a hover-enabled plotly plot |
+
+### Common arguments
+
+Most analysis and plotting functions — including `plot()` on an array and the
+dedicated `plot...()` functions below — share these optional arguments:
+
+| Argument | Effect |
+|---|---|
+| `species` | character vector — restrict to a subset of species |
+| `time_range` | numeric vector — average over this time period (plots against size) |
+| `tlim` | numeric vector `c(min, max)` — restrict time axis (plots against time) |
+| `wlim`/`llim` | numeric vector `c(min, max)` — restrict the size (x) axis (plots against size) |
+| `ylim` | numeric vector `c(min, max)` — restrict the value (y) axis |
+| `highlight` | character vector — draw named species with thicker lines |
+| `total` | logical — add a line for the community total |
+| `log_x`, `log_y`, `log` | logical — log-scale the x or y axis |
+
+`wlim`/`llim` (size axis) and `ylim` (value axis) only set the visible window:
+data outside the range is hidden but nothing is recomputed. To change the
+underlying numbers — for example the size range that a biomass is summed over —
+pass `min_w`/`max_w` (or `min_l`/`max_l`) to the `get...()` function instead, e.g.
+`plotBiomass(sim, min_w = 10)` restricts the calculation to fish above 10 g.
+
+Which of these apply depends on the array's shape:
+
+`plot(<ArrayTimeBySpecies>)` accepts: `species`, `tlim`, `total`,
+`background`, `highlight`, `log_x`, `log_y`, `ylim`.
+
+`plot(<ArraySpeciesBySize>)` accepts: `species`, `highlight`, `log_x`, `log_y`,
+`wlim`, `ylim`, `all.sizes`.
+
+### Dedicated plot functions
+
+Each dedicated `plot...()` function is essentially `plot()` applied to the matching
+`get...()` array, so `plotBiomass(sim)` is `plot(getBiomass(sim))` and
+`plotFeedingLevel(sim)` is `plot(getFeedingLevel(sim))`. They accept the common
+arguments above. The tables below note only where a function does something you
+could **not** get by plotting the array directly.
+
+Each also has a `plotly` counterpart (e.g. `plotlyBiomass()`) for interactive
+use — the array `plot()`s use [`plotHover()`](../reference/plotHover.html) instead.
+
+#### Against time
+
+| Function | How it relates to plotting the array directly |
+|---|---|
+| [`plotBiomass(sim)`](../reference/plotBiomass.html) | same as `plot(getBiomass(sim))` |
+| [`plotYield(sim)`](../reference/plotYield.html) | same as `plot(getYield(sim))` |
+| [`plotYieldGear(sim)`](../reference/plotYieldGear.html) | like `plotYield()` but keeps the gear dimension, drawing one panel per fishing gear |
+
+```{r eval=FALSE}
 plotBiomass(sim, species = c("Cod", "Herring"), total = TRUE)
-plotBiomass(sim, start_time = 1980, end_time = 1990)
+plotBiomass(sim, tlim = c(1980, 1990))
 plotYield(sim, log_y = FALSE)
 ```
 
-### Plots against body size
+#### Against body size
 
-These show how a quantity varies with body size, by default at the final time
-step. Use `time_range` to average over a time period.
+By default these show the final time step; use `time_range` to average over a
+period.
 
-| Function | Key arguments | Shows |
-|---|---|---|
-| [`plotSpectra(sim)`](../reference/plotSpectra.html) | `power`, `time_range`, `wlim`, `species` | abundance (or biomass) spectra |
-| [`plotFeedingLevel(sim)`](../reference/plotFeedingLevel.html) | `time_range`, `species`, `highlight`, `log_x`, `log_y` | feeding level (0–1) at size |
-| [`plotPredMort(sim)`](../reference/plotPredMort.html) | `time_range`, `species`, `highlight`, `log_x`, `log_y` | predation mortality at size |
-| [`plotFMort(sim)`](../reference/plotFMort.html) | `time_range`, `species`, `highlight`, `log_x`, `log_y` | fishing mortality at size |
-| [`plotGrowthCurves(sim)`](../reference/plotGrowthCurves.html) | `species`, `max_age`, `percentage`, `species_panel`, `log_x`, `log_y` | size at age |
-| [`plotDiet(params)`](../reference/plotDiet.html) | `species`, `log_x`, `log_y` | diet composition at size |
-| [`plotCDF(sim)`](../reference/plotCDF.html) | `power`, `normalise`, `species`, `resource`, `wlim` | cumulative abundance/biomass over size |
+| Function | How it relates to plotting the array directly |
+|---|---|
+| [`plotFeedingLevel(sim)`](../reference/plotFeedingLevel.html) | same as `plot(getFeedingLevel(sim))` |
+| [`plotPredMort(sim)`](../reference/plotPredMort.html) | same as `plot(getPredMort(sim))` |
+| [`plotFMort(sim)`](../reference/plotFMort.html) | same as `plot(getFMort(sim))` |
+| [`plotSpectra(sim)`](../reference/plotSpectra.html) | abundance/biomass spectra: additionally overlays the resource spectrum and background species, and `power` rescales the y axis |
+| [`plotCDF(sim)`](../reference/plotCDF.html) | cumulative version of the spectrum (`normalise` for proportion vs total) |
+| [`plotGrowthCurves(sim)`](../reference/plotGrowthCurves.html) | a distinct plot: size at age rather than a size spectrum |
+| [`plotDiet(params)`](../reference/plotDiet.html) | a distinct plot: stacked diet composition by prey |
 
 ```{r eval=FALSE}
 plotSpectra(sim, power = 2, time_range = 1990:2000)
@@ -156,13 +240,16 @@ plotCDF(sim, normalise = FALSE)     # cumulative total rather than proportion
 ### Summary plot
 
 ```{r eval=FALSE}
-plot(sim)   # 5-panel summary: feeding level, biomass, predation mort, fishing mort, spectra
+plot(sim)      # 5-panel summary: feeding level, biomass, predation mort, fishing mort, spectra
+plot(params)   # same panels for a model's steady state (no biomass-through-time panel)
 ```
 
 ### Comparing two simulations or models
 
 These take two compatible `MizerSim` or `MizerParams` objects (e.g. before and
-after a change) and show them together.
+after a change) and show them together. For whole spectra use the dedicated
+functions below; for any other rate array use `plot2()` and `plotRelative()`
+from [Plotting any array directly](#plotting-any-array-directly-with-plot).
 
 | Function | Shows |
 |---|---|
@@ -176,56 +263,6 @@ plotSpectraRelative(params, params2)         # 2 (N2 - N1) / (N1 + N2)
 plotCDF2(sim, sim2, "Unfished", "Fished")
 ```
 
-To compare arbitrary rate arrays rather than whole spectra, use `plot2()` and
-`plotRelative()` — see [Plotting arrays directly](#plotting-arrays-directly).
-
----
-
-## Plotting arrays directly
-
-The arrays returned by summary and rate functions carry a mizer array class and
-have a `plot()` method, so you can plot any quantity without a dedicated plot
-function.
-
-| Class | Typical source | `plot()` shows |
-|---|---|---|
-| [`ArrayTimeBySpecies`](../reference/ArrayTimeBySpecies.html) | `getBiomass(sim)`, `getSSB(sim)`, `getYield(sim)`, `getN(sim)` | value vs time, one line per species |
-| [`ArraySpeciesBySize`](../reference/ArraySpeciesBySize.html) | `getFeedingLevel(params)`, `getPredMort(params)`, `getEncounter(params)` | value vs size, one line per species |
-| [`ArrayTimeBySpeciesBySize`](../reference/ArrayTimeBySpeciesBySize.html) | `getFMort(sim)`, `getPredMort(sim)` | one time slice vs size (set with `time`) |
-| [`ArrayResourceBySize`](../reference/ArrayResourceBySize.html) | `NResource(params)`, `getResourceMort(params)`, `resource_rate(params)`, `resource_capacity(params)` | resource quantity vs size |
-
-```{r eval=FALSE}
-plot(getBiomass(sim))          # equivalent to plotBiomass(sim)
-plot(getSSB(sim))
-plot(getFeedingLevel(params))  # same as plotFeedingLevel(params)
-plot(getResourceMort(params))  # plankton resource mortality vs size
-
-# Add another compatible array to an existing plot
-p <- plot(getBiomass(sim), species = "Cod")
-addPlot(p, getBiomass(sim), species = "Herring", linetype = "dashed")
-
-# Compare two compatible arrays
-plot2(getFMort(params), getFMort(params2), "Before", "After")
-plotRelative(getEGrowth(params), getEGrowth(params2))  # relative difference
-
-# Interactive (hover) versions — the array plots have no plotly*() twin,
-# so wrap them with plotHover() instead
-plotHover(getBiomass(sim))
-plotHover(getEncounter(params))
-```
-
-`plot(<ArrayTimeBySpecies>)` accepts: `species`, `start_time`, `end_time`,
-`total`, `background`, `highlight`, `log`, `ylim`.
-
-`plot(<ArraySpeciesBySize>)` accepts: `species`, `highlight`, `log_x`, `log_y`,
-`wlim`, `ylim`, `all.sizes`.
-
-[`addPlot()`](../reference/addPlot.html) adds a compatible array as extra lines on
-an existing plot; [`plot2()`](../reference/plot2.html) and
-[`plotRelative()`](../reference/plotRelative.html) compare two compatible arrays
-(colour = species, linetype = which object); [`plotHover()`](../reference/plotHover.html)
-turns any of these ggplots into a hover-enabled plotly plot.
-
 ### Animating spectra through time
 
 [`animate()`](../reference/animate.html) plays a spectrum or rate array through
@@ -238,26 +275,9 @@ animate(getFMort(sim))       # an ArrayTimeBySpeciesBySize over time
 
 ---
 
-## Common arguments
+### Working with ggplot2
 
-Most analysis and plotting functions share these optional arguments:
-
-| Argument | Effect |
-|---|---|
-| `species` | character vector — restrict to a subset of species |
-| `min_w`, `max_w` | restrict size range (by weight, in grams) |
-| `min_l`, `max_l` | restrict size range (by length, in cm) |
-| `time_range` | numeric vector — average over this time period (plot functions) |
-| `start_time`, `end_time` | restrict time axis (time-series plots) |
-| `highlight` | character vector — draw named species with thicker lines |
-| `total` | logical — add a line for the community total |
-| `log` | logical — log-scale y axis |
-
----
-
-## Working with ggplot2
-
-All `plot*()` functions return a `ggplot2` object, so you can customise them:
+All `plot...()` functions return a `ggplot2` object, so you can customise them:
 
 ```{r eval=FALSE}
 library(ggplot2)
@@ -308,12 +328,14 @@ getMeanWeight(sim)
 getMeanMaxWeight(sim)
 getCommunitySlope(sim)          # returns data.frame with slope, intercept, R²
 
-# ── Dedicated plot functions ───────────────────────────────────────────────────
+# ── Dedicated plot functions ──────────────────────────────────────────────────
+# Each plot*() is a shortcut for plot() on the matching get*() array, and each has
+# an interactive plotly*() twin (plotlyBiomass(), plotlySpectra(), …).
 plot(sim)               # 5-panel summary
 plotBiomass(sim)        # biomass vs time
 plotYield(sim)          # yield vs time
 plotYieldGear(sim)      # yield vs time, faceted by gear
-plotSpectra(sim)        # abundance spectra vs size
+plotSpectra(sim)        # abundance spectra vs size (+ resource & background)
 plotFeedingLevel(sim)   # feeding level vs size
 plotPredMort(sim)       # predation mortality vs size
 plotFMort(sim)          # fishing mortality vs size
@@ -321,25 +343,17 @@ plotGrowthCurves(sim)   # size vs age
 plotDiet(params, species = "Cod")  # diet composition vs size
 plotCDF(sim)            # cumulative biomass/abundance over size
 
-# ── Compare two simulations or models ─────────────────────────────────────────
-plotSpectra2(params, params2, "Before", "After")
-plotSpectraRelative(params, params2)      # relative difference of spectra
-plotCDF2(sim, sim2, "Unfished", "Fished")
-
-# ── Plot any summary or rate array directly ───────────────────────────────────
-plot(getBiomass(sim))           # ArrayTimeBySpecies → value vs time
-plot(getFeedingLevel(params))   # ArraySpeciesBySize → value vs size
-plot(getResourceMort(params))   # ArrayResourceBySize → resource vs size
+# ── Plot any array directly, plus combine / compare tools ─────────────────────
+plot(getResourceMort(params))   # any get*() array plots directly (resource mort vs size)
 p <- plot(getBiomass(sim), species = "Cod")
-addPlot(p, getBiomass(sim), species = "Herring", linetype = "dashed")
+addPlot(p, getBiomass(sim), species = "Herring", linetype = "dashed")  # add lines
 plot2(getFMort(params), getFMort(params2), "Before", "After")  # compare arrays
 plotRelative(getEGrowth(params), getEGrowth(params2))          # relative diff
 plotHover(getBiomass(sim))      # interactive (hover) version of an array plot
 animate(sim)                    # animate spectra through time
 
-# ── Add plotly interactivity to any named plot function ───────────────────────
-plotlyBiomass(sim)
-plotlySpectra(sim)
-plotlyFeedingLevel(sim)
-# … etc.
+# ── Compare two simulations or models ─────────────────────────────────────────
+plotSpectra2(params, params2, "Before", "After")
+plotSpectraRelative(params, params2)      # relative difference of spectra
+plotCDF2(sim, sim2, "Unfished", "Fished")
 ```
