@@ -34,6 +34,9 @@
     <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
@@ -78,7 +81,7 @@
     <div class="section level2">
       <h2 id="creating-a-new-model">Creating a new model<a class="anchor" aria-label="anchor" href="#creating-a-new-model"></a></h2>
 
-      <div class="section-desc"><p>Mizer allows the easy set-up of four different types of models, of increasing level of complexity. See <a href="https://sizespectrum.org/mizer/articles/mizer.html#size-spectrum-models" class="uri">https://sizespectrum.org/mizer/articles/mizer.html#size-spectrum-models</a> for a description of these model types.</p></div>
+      <div class="section-desc"><p>Mizer allows the easy set-up of four different types of models, of increasing level of complexity. See <a href="https://sizespectrum.org/mizer/articles/mizer.html#size-spectrum-models" class="uri">https://sizespectrum.org/mizer/articles/mizer.html#size-spectrum-models</a> for a description of these model types. The <a href="https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html">Model setup and calibration cheatsheet</a> gives a quick overview of the workflow.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -115,7 +118,7 @@
       </dl></div><div class="section level2">
       <h2 id="changing-model-parameters">Changing model parameters<a class="anchor" aria-label="anchor" href="#changing-model-parameters"></a></h2>
 
-      <div class="section-desc"><p>After you have created a model, you will want to make changes to it while tuning the model and for investigating the impact of changes in parameters.</p></div>
+      <div class="section-desc"><p>After you have created a model, you will want to make changes to it while tuning the model and for investigating the impact of changes in parameters. See the <a href="https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.html">Changing model parameters cheatsheet</a> for a quick reference.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -131,10 +134,31 @@
 
         <dt>
 
+          <code><a href="is.species_params.html">is.species_params()</a></code>
+
+        </dt>
+        <dd>Test if an object is a species_params object</dd>
+
+        <dt>
+
+          <code><a href="is.given_species_params.html">is.given_species_params()</a></code>
+
+        </dt>
+        <dd>Test if an object is a given_species_params object</dd>
+
+        <dt>
+
           <code><a href="gear_params.html">gear_params()</a></code> <code><a href="gear_params.html">`gear_params&lt;-`()</a></code>
 
         </dt>
         <dd>Gear parameters</dd>
+
+        <dt>
+
+          <code><a href="is.gear_params.html">is.gear_params()</a></code>
+
+        </dt>
+        <dd>Test if an object is a gear_params object</dd>
 
         <dt>
 
@@ -188,9 +212,16 @@
         <dt>
 
           <code><a href="expandSizeGrid.html">expandSizeGrid()</a></code>
-
+          <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Expand the size grid</dd>
+
+        <dt>
+
+          <code><a href="adjustSizeGrid.html">adjustSizeGrid()</a></code>
+
+        </dt>
+        <dd>Adjust the size grid</dd>
 
         <dt>
 
@@ -222,7 +253,7 @@
       </dl></div><div class="section level2">
       <h2 id="steady-state-tuning">Steady state tuning<a class="anchor" aria-label="anchor" href="#steady-state-tuning"></a></h2>
 
-      <div class="section-desc"><p>The first task after creating a multi-species model is to tune the model parameters so that in its steady state the model reproduces average observed growth rates, abundances and fisheries yields.</p></div>
+      <div class="section-desc"><p>The first task after creating a multi-species model is to tune the model parameters so that in its steady state the model reproduces average observed growth rates, abundances and fisheries yields. The <a href="https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html">Model setup and calibration cheatsheet</a> walks through this calibration workflow.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -235,6 +266,13 @@
 
         </dt>
         <dd>Set initial values to a steady state for the model</dd>
+
+        <dt>
+
+          <code><a href="steadyNewton.html">steadyNewton()</a></code>
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
+        </dt>
+        <dd>Find a steady state by directly solving the steady-state equation</dd>
 
         <dt>
 
@@ -435,7 +473,7 @@
       </dl></div><div class="section level2">
       <h2 id="analysing-results">Analysing results<a class="anchor" aria-label="anchor" href="#analysing-results"></a></h2>
 
-      <div class="section-desc"><p>Calculate summary quantities from a <code>MizerSim</code> object, such as biomass, yield, growth, and feeding level, averaged or disaggregated over time, species, or size.</p></div>
+      <div class="section-desc"><p>Calculate summary quantities from a <code>MizerSim</code> object, such as biomass, yield, growth, and feeding level, averaged or disaggregated over time, species, or size. The <a href="https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html">Analysis and plotting cheatsheet</a> gives a quick reference to these functions.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -700,7 +738,7 @@
       </dl></div><div class="section level2">
       <h2 id="plotting-results">Plotting results<a class="anchor" aria-label="anchor" href="#plotting-results"></a></h2>
 
-      <div class="section-desc"><p>Visualise size spectra, biomass and yield trajectories, growth curves, and comparisons of model output with observations.</p></div>
+      <div class="section-desc"><p>Visualise size spectra, biomass and yield trajectories, growth curves, and comparisons of model output with observations. See the <a href="https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html">Analysis and plotting cheatsheet</a> for a quick reference.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -1093,7 +1131,7 @@
       </dl></div><div class="section level2">
       <h2 id="fishing-selectivity-functions">Fishing selectivity functions<a class="anchor" aria-label="anchor" href="#fishing-selectivity-functions"></a></h2>
 
-      <div class="section-desc"><p>Functions that determine the size-selectivity of fishing gears, i.e. the proportion of fish of a given size that are retained by a gear.</p></div>
+      <div class="section-desc"><p>Functions that determine the size-selectivity of fishing gears, i.e. the proportion of fish of a given size that are retained by a gear. The <a href="https://sizespectrum.org/mizer/articles/cheatsheet-fishing.html">Fishing cheatsheet</a> gives a quick reference to setting up gears, selectivity and effort.</p></div>
 
       <dl></dl></div><div class="section level2">
 

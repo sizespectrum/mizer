@@ -29,9 +29,15 @@ parameters.
   [`` `given_species_params<-`() ``](https://sizespectrum.org/mizer/reference/species_params.md)
   [`calculated_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
   : Species parameters
+- [`is.species_params()`](https://sizespectrum.org/mizer/reference/is.species_params.md)
+  : Test if an object is a species_params object
+- [`is.given_species_params()`](https://sizespectrum.org/mizer/reference/is.given_species_params.md)
+  : Test if an object is a given_species_params object
 - [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
   [`` `gear_params<-`() ``](https://sizespectrum.org/mizer/reference/gear_params.md)
   : Gear parameters
+- [`is.gear_params()`](https://sizespectrum.org/mizer/reference/is.gear_params.md)
+  : Test if an object is a gear_params object
 - [`` `initialN<-`() ``](https://sizespectrum.org/mizer/reference/initialN-set.md)
   [`initialN()`](https://sizespectrum.org/mizer/reference/initialN-set.md)
   : Initial values for fish spectra
@@ -50,7 +56,9 @@ parameters.
 - [`renameGear()`](https://sizespectrum.org/mizer/reference/renameGear.md)
   : Rename gears
 - [`expandSizeGrid()`](https://sizespectrum.org/mizer/reference/expandSizeGrid.md)
-  : Expand the size grid
+  **\[deprecated\]** : Expand the size grid
+- [`adjustSizeGrid()`](https://sizespectrum.org/mizer/reference/adjustSizeGrid.md)
+  : Adjust the size grid
 - [`markBackground()`](https://sizespectrum.org/mizer/reference/markBackground.md)
   : Designate species as background species
 - [`removeBackgroundSpecies()`](https://sizespectrum.org/mizer/reference/removeBackgroundSpecies.md)
@@ -70,6 +78,9 @@ observed growth rates, abundances and fisheries yields.
 
 - [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) : Set
   initial values to a steady state for the model
+- [`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
+  **\[experimental\]** : Find a steady state by directly solving the
+  steady-state equation
 - [`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
   **\[experimental\]** : Set initial abundances to solution of
   steady-state equation with current rates

@@ -55,6 +55,9 @@
     <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
@@ -268,7 +271,8 @@ size range.</p>
 <span><span class="fu"><a href="../reference/getYield.html">getYield</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">[</span><span class="st">"2010"</span>, <span class="op">]</span>                  <span class="co"># yield in year 2010</span></span></code></pre></div>
 <p>The result is an <code>ArrayTimeBySpecies</code> (time × species) or
 <code>ArraySpeciesBySize</code> (species × size), which can be plotted
-directly with <code><a href="../reference/plot.html">plot()</a></code> — see <a href="#plotting-arrays-directly">Plotting arrays directly</a> below.</p>
+directly with <code><a href="../reference/plot.html">plot()</a></code> — see <a href="#plotting-any-array-directly-with-plot">Plotting any array
+directly</a> below.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -329,145 +333,19 @@ value from initial state). See <a href="../reference/indicator_functions.html"><
 <div class="section level2">
 <h2 id="plotting-functions">Plotting functions<a class="anchor" aria-label="anchor" href="#plotting-functions"></a>
 </h2>
-<p>All plotting functions return a <code>ggplot2</code> object that can
-be further modified. Each has a <code>plotly</code> counterpart
-(e.g. <code><a href="../reference/plotBiomass.html">plotlyBiomass()</a></code>) for interactive use. See <a href="../reference/plotting_functions.html"><code>?plotting_functions</code></a>.</p>
+<p>All plotting functions return a <code>ggplot2</code> object that you
+can customise further (see <a href="#working-with-ggplot2">Working with
+ggplot2</a>). See <a href="../reference/plotting_functions.html"><code>?plotting_functions</code></a>.</p>
+<p>The rest of this section starts with the general mechanism — calling
+<code><a href="../reference/plot.html">plot()</a></code> directly on any array, and the arguments that
+control it — and only then describes the dedicated
+<code>plot...()</code> functions, which are mostly shortcuts for it.</p>
 <div class="section level3">
-<h3 id="plots-against-time">Plots against time<a class="anchor" aria-label="anchor" href="#plots-against-time"></a>
+<h3 id="plotting-any-array-directly-with-plot">Plotting any array directly with <code>plot()</code><a class="anchor" aria-label="anchor" href="#plotting-any-array-directly-with-plot"></a>
 </h3>
-<p>These show how a quantity changes over the course of the
-simulation.</p>
-<table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
-<thead><tr class="header">
-<th>Function</th>
-<th>Key arguments</th>
-<th>Shows</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><a href="../reference/plotBiomass.html"><code>plotBiomass(sim)</code></a></td>
-<td>
-<code>species</code>, <code>total</code>, <code>start_time</code>,
-<code>end_time</code>, <code>log_x</code>, <code>log_y</code>
-</td>
-<td>total biomass per species</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/plotYield.html"><code>plotYield(sim)</code></a></td>
-<td>
-<code>species</code>, <code>total</code>, <code>log_x</code>,
-<code>log_y</code>
-</td>
-<td>total yield per species</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/plotYieldGear.html"><code>plotYieldGear(sim)</code></a></td>
-<td>
-<code>species</code>, <code>total</code>
-</td>
-<td>yield per species faceted by gear</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span>, species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Herring"</span><span class="op">)</span>, total <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span>, start_time <span class="op">=</span> <span class="fl">1980</span>, end_time <span class="op">=</span> <span class="fl">1990</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plotYield.html">plotYield</a></span><span class="op">(</span><span class="va">sim</span>, log_y <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="plots-against-body-size">Plots against body size<a class="anchor" aria-label="anchor" href="#plots-against-body-size"></a>
-</h3>
-<p>These show how a quantity varies with body size, by default at the
-final time step. Use <code>time_range</code> to average over a time
-period.</p>
-<table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
-<thead><tr class="header">
-<th>Function</th>
-<th>Key arguments</th>
-<th>Shows</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><a href="../reference/plotSpectra.html"><code>plotSpectra(sim)</code></a></td>
-<td>
-<code>power</code>, <code>time_range</code>, <code>wlim</code>,
-<code>species</code>
-</td>
-<td>abundance (or biomass) spectra</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/plotFeedingLevel.html"><code>plotFeedingLevel(sim)</code></a></td>
-<td>
-<code>time_range</code>, <code>species</code>,
-<code>highlight</code>, <code>log_x</code>, <code>log_y</code>
-</td>
-<td>feeding level (0–1) at size</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/plotPredMort.html"><code>plotPredMort(sim)</code></a></td>
-<td>
-<code>time_range</code>, <code>species</code>,
-<code>highlight</code>, <code>log_x</code>, <code>log_y</code>
-</td>
-<td>predation mortality at size</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/plotFMort.html"><code>plotFMort(sim)</code></a></td>
-<td>
-<code>time_range</code>, <code>species</code>,
-<code>highlight</code>, <code>log_x</code>, <code>log_y</code>
-</td>
-<td>fishing mortality at size</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/plotGrowthCurves.html"><code>plotGrowthCurves(sim)</code></a></td>
-<td>
-<code>species</code>, <code>max_age</code>, <code>percentage</code>,
-<code>species_panel</code>, <code>log_x</code>, <code>log_y</code>
-</td>
-<td>size at age</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/plotDiet.html"><code>plotDiet(params)</code></a></td>
-<td>
-<code>species</code>, <code>log_x</code>, <code>log_y</code>
-</td>
-<td>diet composition at size</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">sim</span>, power <span class="op">=</span> <span class="fl">2</span>, time_range <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">2000</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plotFeedingLevel.html">plotFeedingLevel</a></span><span class="op">(</span><span class="va">sim</span>, highlight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Haddock"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plotGrowthCurves.html">plotGrowthCurves</a></span><span class="op">(</span><span class="va">sim</span>, species <span class="op">=</span> <span class="st">"Cod"</span>, max_age <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plotDiet.html">plotDiet</a></span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="summary-plot">Summary plot<a class="anchor" aria-label="anchor" href="#summary-plot"></a>
-</h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>   <span class="co"># 5-panel summary: feeding level, biomass, predation mort, fishing mort, spectra</span></span></code></pre></div>
-<hr>
-</div>
-</div>
-<div class="section level2">
-<h2 id="plotting-arrays-directly">Plotting arrays directly<a class="anchor" aria-label="anchor" href="#plotting-arrays-directly"></a>
-</h2>
-<p>The arrays returned by summary functions carry class
-<code>ArraySpeciesBySize</code> or <code>ArrayTimeBySpecies</code> and
-have <code><a href="../reference/plot.html">plot()</a></code> and <code>ggplotly()</code> methods. This makes
-it easy to plot any quantity without a dedicated plot function.</p>
+<p>The arrays returned by the summary and rate functions carry a mizer
+array class and have their own <code><a href="../reference/plot.html">plot()</a></code> method, so you can
+plot any quantity without a dedicated plot function.</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -482,7 +360,7 @@ it easy to plot any quantity without a dedicated plot function.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>ArrayTimeBySpecies</code></td>
+<td><a href="../reference/ArrayTimeBySpecies.html"><code>ArrayTimeBySpecies</code></a></td>
 <td>
 <code>getBiomass(sim)</code>, <code>getSSB(sim)</code>,
 <code>getYield(sim)</code>, <code>getN(sim)</code>
@@ -490,45 +368,86 @@ it easy to plot any quantity without a dedicated plot function.</p>
 <td>value vs time, one line per species</td>
 </tr>
 <tr class="even">
-<td><code>ArraySpeciesBySize</code></td>
+<td><a href="../reference/ArraySpeciesBySize.html"><code>ArraySpeciesBySize</code></a></td>
 <td>
 <code>getFeedingLevel(params)</code>,
 <code>getPredMort(params)</code>, <code>getEncounter(params)</code>
 </td>
 <td>value vs size, one line per species</td>
 </tr>
+<tr class="odd">
+<td><a href="../reference/ArrayTimeBySpeciesBySize.html"><code>ArrayTimeBySpeciesBySize</code></a></td>
+<td>
+<code>getFMort(sim)</code>, <code>getPredMort(sim)</code>
+</td>
+<td>one time slice vs size (set with <code>time</code>)</td>
+</tr>
+<tr class="even">
+<td><a href="../reference/ArrayResourceBySize.html"><code>ArrayResourceBySize</code></a></td>
+<td>
+<code>NResource(params)</code>,
+<code>getResourceMort(params)</code>,
+<code>resource_rate(params)</code>,
+<code>resource_capacity(params)</code>
+</td>
+<td>resource quantity vs size</td>
+</tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span>          <span class="co"># equivalent to plotBiomass(sim)</span></span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span>          <span class="co"># value vs time, one line per species</span></span>
 <span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getSSB.html">getSSB</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getFeedingLevel.html">getFeedingLevel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>  <span class="co"># same as plotFeedingLevel(params)</span></span>
-<span></span>
-<span><span class="co"># Add another compatible array to an existing plot</span></span>
+<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getFeedingLevel.html">getFeedingLevel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>  <span class="co"># value vs size, one line per species</span></span>
+<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getResourceMort.html">getResourceMort</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>  <span class="co"># plankton resource mortality vs size</span></span></code></pre></div>
+<p>The array plots come with a small toolkit for combining and comparing
+them:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Add another compatible array as extra lines on an existing plot</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/addPlot.html">addPlot</a></span><span class="op">(</span><span class="va">p</span>, <span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Herring"</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Interactive versions</span></span>
-<span><span class="fu">ggplotly</span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">ggplotly</span><span class="op">(</span><span class="fu"><a href="../reference/getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><code>plot(&lt;ArrayTimeBySpecies&gt;)</code> accepts:
-<code>species</code>, <code>start_time</code>, <code>end_time</code>,
-<code>total</code>, <code>background</code>, <code>highlight</code>,
-<code>log</code>, <code>ylim</code>.</p>
-<p><code>plot(&lt;ArraySpeciesBySize&gt;)</code> accepts:
-<code>species</code>, <code>highlight</code>, <code>log_x</code>,
-<code>log_y</code>, <code>wlim</code>, <code>ylim</code>,
-<code>all.sizes</code>.</p>
-<p><a href="../reference/addPlot.html"><code>addPlot()</code></a> adds
-an <code>ArrayTimeBySpecies</code> or <code>ArraySpeciesBySize</code>
-object as extra lines on an existing compatible plot.</p>
-<hr>
+<span><span class="co"># Compare two compatible arrays</span></span>
+<span><span class="fu"><a href="../reference/plot2.html">plot2</a></span><span class="op">(</span><span class="fu"><a href="../reference/getFMort.html">getFMort</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="fu"><a href="../reference/getFMort.html">getFMort</a></span><span class="op">(</span><span class="va">params2</span><span class="op">)</span>, <span class="st">"Before"</span>, <span class="st">"After"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotRelative.html">plotRelative</a></span><span class="op">(</span><span class="fu"><a href="../reference/getEGrowth.html">getEGrowth</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="fu"><a href="../reference/getEGrowth.html">getEGrowth</a></span><span class="op">(</span><span class="va">params2</span><span class="op">)</span><span class="op">)</span>  <span class="co"># relative difference</span></span>
+<span></span>
+<span><span class="co"># Interactive (hover) version of any array plot</span></span>
+<span><span class="fu"><a href="../reference/plotHover.html">plotHover</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>What it does</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><a href="../reference/addPlot.html"><code>addPlot()</code></a></td>
+<td>adds a compatible array as extra lines on an existing plot</td>
+</tr>
+<tr class="even">
+<td><a href="../reference/plot2.html"><code>plot2()</code></a></td>
+<td>compares two compatible arrays (colour = species, linetype = which
+object)</td>
+</tr>
+<tr class="odd">
+<td><a href="../reference/plotRelative.html"><code>plotRelative()</code></a></td>
+<td>shows the relative difference between two compatible arrays</td>
+</tr>
+<tr class="even">
+<td><a href="../reference/plotHover.html"><code>plotHover()</code></a></td>
+<td>turns any of these ggplots into a hover-enabled plotly plot</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="section level2">
-<h2 id="common-arguments">Common arguments<a class="anchor" aria-label="anchor" href="#common-arguments"></a>
-</h2>
-<p>Most analysis and plotting functions share these optional
-arguments:</p>
+<div class="section level3">
+<h3 id="common-arguments">Common arguments<a class="anchor" aria-label="anchor" href="#common-arguments"></a>
+</h3>
+<p>Most analysis and plotting functions — including <code><a href="../reference/plot.html">plot()</a></code>
+on an array and the dedicated <code>plot...()</code> functions below —
+share these optional arguments:</p>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -544,26 +463,26 @@ arguments:</p>
 <td>character vector — restrict to a subset of species</td>
 </tr>
 <tr class="even">
-<td>
-<code>min_w</code>, <code>max_w</code>
-</td>
-<td>restrict size range (by weight, in grams)</td>
+<td><code>time_range</code></td>
+<td>numeric vector — average over this time period (plots against
+size)</td>
 </tr>
 <tr class="odd">
-<td>
-<code>min_l</code>, <code>max_l</code>
-</td>
-<td>restrict size range (by length, in cm)</td>
+<td><code>tlim</code></td>
+<td>numeric vector <code>c(min, max)</code> — restrict time axis (plots
+against time)</td>
 </tr>
 <tr class="even">
-<td><code>time_range</code></td>
-<td>numeric vector — average over this time period (plot functions)</td>
+<td>
+<code>wlim</code>/<code>llim</code>
+</td>
+<td>numeric vector <code>c(min, max)</code> — restrict the size (x) axis
+(plots against size)</td>
 </tr>
 <tr class="odd">
-<td>
-<code>start_time</code>, <code>end_time</code>
-</td>
-<td>restrict time axis (time-series plots)</td>
+<td><code>ylim</code></td>
+<td>numeric vector <code>c(min, max)</code> — restrict the value (y)
+axis</td>
 </tr>
 <tr class="even">
 <td><code>highlight</code></td>
@@ -574,34 +493,218 @@ arguments:</p>
 <td>logical — add a line for the community total</td>
 </tr>
 <tr class="even">
-<td><code>log</code></td>
-<td>logical — log-scale y axis</td>
+<td>
+<code>log_x</code>, <code>log_y</code>, <code>log</code>
+</td>
+<td>logical — log-scale the x or y axis</td>
 </tr>
 </tbody>
 </table>
+<p><code>wlim</code>/<code>llim</code> (size axis) and <code>ylim</code>
+(value axis) only set the visible window: data outside the range is
+hidden but nothing is recomputed. To change the underlying numbers — for
+example the size range that a biomass is summed over — pass
+<code>min_w</code>/<code>max_w</code> (or
+<code>min_l</code>/<code>max_l</code>) to the <code>get...()</code>
+function instead, e.g. <code>plotBiomass(sim, min_w = 10)</code>
+restricts the calculation to fish above 10 g.</p>
+<p>Which of these apply depends on the array’s shape:</p>
+<p><code>plot(&lt;ArrayTimeBySpecies&gt;)</code> accepts:
+<code>species</code>, <code>tlim</code>, <code>total</code>,
+<code>background</code>, <code>highlight</code>, <code>log_x</code>,
+<code>log_y</code>, <code>ylim</code>.</p>
+<p><code>plot(&lt;ArraySpeciesBySize&gt;)</code> accepts:
+<code>species</code>, <code>highlight</code>, <code>log_x</code>,
+<code>log_y</code>, <code>wlim</code>, <code>ylim</code>,
+<code>all.sizes</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="dedicated-plot-functions">Dedicated plot functions<a class="anchor" aria-label="anchor" href="#dedicated-plot-functions"></a>
+</h3>
+<p>Each dedicated <code>plot...()</code> function is essentially
+<code><a href="../reference/plot.html">plot()</a></code> applied to the matching <code>get...()</code> array,
+so <code>plotBiomass(sim)</code> is <code>plot(getBiomass(sim))</code>
+and <code>plotFeedingLevel(sim)</code> is
+<code>plot(getFeedingLevel(sim))</code>. They accept the common
+arguments above. The tables below note only where a function does
+something you could <strong>not</strong> get by plotting the array
+directly.</p>
+<p>Each also has a <code>plotly</code> counterpart
+(e.g. <code><a href="../reference/plotBiomass.html">plotlyBiomass()</a></code>) for interactive use — the array
+<code><a href="../reference/plot.html">plot()</a></code>s use <a href="../reference/plotHover.html"><code>plotHover()</code></a>
+instead.</p>
+<div class="section level4">
+<h4 id="against-time">Against time<a class="anchor" aria-label="anchor" href="#against-time"></a>
+</h4>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>How it relates to plotting the array directly</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><a href="../reference/plotBiomass.html"><code>plotBiomass(sim)</code></a></td>
+<td>same as <code>plot(getBiomass(sim))</code>
+</td>
+</tr>
+<tr class="even">
+<td><a href="../reference/plotYield.html"><code>plotYield(sim)</code></a></td>
+<td>same as <code>plot(getYield(sim))</code>
+</td>
+</tr>
+<tr class="odd">
+<td><a href="../reference/plotYieldGear.html"><code>plotYieldGear(sim)</code></a></td>
+<td>like <code><a href="../reference/plotYield.html">plotYield()</a></code> but keeps the gear dimension, drawing
+one panel per fishing gear</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span>, species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Herring"</span><span class="op">)</span>, total <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span>, tlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1980</span>, <span class="fl">1990</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotYield.html">plotYield</a></span><span class="op">(</span><span class="va">sim</span>, log_y <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="against-body-size">Against body size<a class="anchor" aria-label="anchor" href="#against-body-size"></a>
+</h4>
+<p>By default these show the final time step; use
+<code>time_range</code> to average over a period.</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>How it relates to plotting the array directly</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><a href="../reference/plotFeedingLevel.html"><code>plotFeedingLevel(sim)</code></a></td>
+<td>same as <code>plot(getFeedingLevel(sim))</code>
+</td>
+</tr>
+<tr class="even">
+<td><a href="../reference/plotPredMort.html"><code>plotPredMort(sim)</code></a></td>
+<td>same as <code>plot(getPredMort(sim))</code>
+</td>
+</tr>
+<tr class="odd">
+<td><a href="../reference/plotFMort.html"><code>plotFMort(sim)</code></a></td>
+<td>same as <code>plot(getFMort(sim))</code>
+</td>
+</tr>
+<tr class="even">
+<td><a href="../reference/plotSpectra.html"><code>plotSpectra(sim)</code></a></td>
+<td>abundance/biomass spectra: additionally overlays the resource
+spectrum and background species, and <code>power</code> rescales the y
+axis</td>
+</tr>
+<tr class="odd">
+<td><a href="../reference/plotCDF.html"><code>plotCDF(sim)</code></a></td>
+<td>cumulative version of the spectrum (<code>normalise</code> for
+proportion vs total)</td>
+</tr>
+<tr class="even">
+<td><a href="../reference/plotGrowthCurves.html"><code>plotGrowthCurves(sim)</code></a></td>
+<td>a distinct plot: size at age rather than a size spectrum</td>
+</tr>
+<tr class="odd">
+<td><a href="../reference/plotDiet.html"><code>plotDiet(params)</code></a></td>
+<td>a distinct plot: stacked diet composition by prey</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">sim</span>, power <span class="op">=</span> <span class="fl">2</span>, time_range <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">2000</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotFeedingLevel.html">plotFeedingLevel</a></span><span class="op">(</span><span class="va">sim</span>, highlight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Haddock"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotGrowthCurves.html">plotGrowthCurves</a></span><span class="op">(</span><span class="va">sim</span>, species <span class="op">=</span> <span class="st">"Cod"</span>, max_age <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotDiet.html">plotDiet</a></span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotCDF.html">plotCDF</a></span><span class="op">(</span><span class="va">sim</span>, power <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>              <span class="co"># cumulative biomass; power = 0 for numbers</span></span>
+<span><span class="fu"><a href="../reference/plotCDF.html">plotCDF</a></span><span class="op">(</span><span class="va">sim</span>, normalise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>     <span class="co"># cumulative total rather than proportion</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level3">
+<h3 id="summary-plot">Summary plot<a class="anchor" aria-label="anchor" href="#summary-plot"></a>
+</h3>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>      <span class="co"># 5-panel summary: feeding level, biomass, predation mort, fishing mort, spectra</span></span>
+<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>   <span class="co"># same panels for a model's steady state (no biomass-through-time panel)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="comparing-two-simulations-or-models">Comparing two simulations or models<a class="anchor" aria-label="anchor" href="#comparing-two-simulations-or-models"></a>
+</h3>
+<p>These take two compatible <code>MizerSim</code> or
+<code>MizerParams</code> objects (e.g. before and after a change) and
+show them together. For whole spectra use the dedicated functions below;
+for any other rate array use <code><a href="../reference/plot2.html">plot2()</a></code> and
+<code><a href="../reference/plotRelative.html">plotRelative()</a></code> from <a href="#plotting-any-array-directly-with-plot">Plotting any array
+directly</a>.</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Shows</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><a href="../reference/plotSpectra2.html"><code>plotSpectra2(object1, object2, name1, name2)</code></a></td>
+<td>two abundance spectra overlaid</td>
+</tr>
+<tr class="even">
+<td><a href="../reference/plotSpectraRelative.html"><code>plotSpectraRelative(object1, object2)</code></a></td>
+<td>relative difference of two spectra</td>
+</tr>
+<tr class="odd">
+<td><a href="../reference/plotCDF2.html"><code>plotCDF2(object1, object2, name1, name2)</code></a></td>
+<td>two cumulative distributions overlaid</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra2.html">plotSpectra2</a></span><span class="op">(</span><span class="va">params</span>, <span class="va">params2</span>, <span class="st">"Before"</span>, <span class="st">"After"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotSpectraRelative.html">plotSpectraRelative</a></span><span class="op">(</span><span class="va">params</span>, <span class="va">params2</span><span class="op">)</span>         <span class="co"># 2 (N2 - N1) / (N1 + N2)</span></span>
+<span><span class="fu"><a href="../reference/plotCDF2.html">plotCDF2</a></span><span class="op">(</span><span class="va">sim</span>, <span class="va">sim2</span>, <span class="st">"Unfished"</span>, <span class="st">"Fished"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="animating-spectra-through-time">Animating spectra through time<a class="anchor" aria-label="anchor" href="#animating-spectra-through-time"></a>
+</h3>
+<p><a href="../reference/animate.html"><code>animate()</code></a> plays
+a spectrum or rate array through the course of a simulation.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/animate.html">animate</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>                 <span class="co"># abundance spectra over time</span></span>
+<span><span class="fu"><a href="../reference/animate.html">animate</a></span><span class="op">(</span><span class="fu"><a href="../reference/getFMort.html">getFMort</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span>       <span class="co"># an ArrayTimeBySpeciesBySize over time</span></span></code></pre></div>
 <hr>
 </div>
-<div class="section level2">
-<h2 id="working-with-ggplot2">Working with ggplot2<a class="anchor" aria-label="anchor" href="#working-with-ggplot2"></a>
-</h2>
-<p>All <code>plot*()</code> functions return a <code>ggplot2</code>
+<div class="section level3">
+<h3 id="working-with-ggplot2">Working with ggplot2<a class="anchor" aria-label="anchor" href="#working-with-ggplot2"></a>
+</h3>
+<p>All <code>plot...()</code> functions return a <code>ggplot2</code>
 object, so you can customise them:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span>, species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Herring"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Biomass through time"</span><span class="op">)</span></span>
 <span><span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">1e10</span><span class="op">)</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span></span></code></pre></div>
 <p>Change species colours and line types via the
 <code>MizerParams</code> object:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span><span class="op">@</span><span class="va">linecolour</span><span class="op">[</span><span class="st">"Cod"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"darkblue"</span></span>
 <span><span class="va">params</span><span class="op">@</span><span class="va">linetype</span><span class="op">[</span><span class="st">"Cod"</span><span class="op">]</span>   <span class="op">&lt;-</span> <span class="st">"dashed"</span></span></code></pre></div>
 <hr>
 </div>
+</div>
 <div class="section level2">
 <h2 id="quick-reference">Quick reference<a class="anchor" aria-label="anchor" href="#quick-reference"></a>
 </h2>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ── Accessing raw arrays ───────────────────────────────────────────────────────</span></span>
 <span><span class="fu"><a href="../reference/N.html">N</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>                  <span class="co"># time × species × size</span></span>
 <span><span class="fu"><a href="../reference/N.html">NResource</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>          <span class="co"># time × size</span></span>
@@ -632,30 +735,34 @@ object, so you can customise them:</p>
 <span><span class="fu"><a href="../reference/getMeanMaxWeight.html">getMeanMaxWeight</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/getCommunitySlope.html">getCommunitySlope</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>          <span class="co"># returns data.frame with slope, intercept, R²</span></span>
 <span></span>
-<span><span class="co"># ── Dedicated plot functions ───────────────────────────────────────────────────</span></span>
+<span><span class="co"># ── Dedicated plot functions ──────────────────────────────────────────────────</span></span>
+<span><span class="co"># Each plot*() is a shortcut for plot() on the matching get*() array, and each has</span></span>
+<span><span class="co"># an interactive plotly*() twin (plotlyBiomass(), plotlySpectra(), …).</span></span>
 <span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>               <span class="co"># 5-panel summary</span></span>
 <span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>        <span class="co"># biomass vs time</span></span>
 <span><span class="fu"><a href="../reference/plotYield.html">plotYield</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>          <span class="co"># yield vs time</span></span>
 <span><span class="fu"><a href="../reference/plotYieldGear.html">plotYieldGear</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>      <span class="co"># yield vs time, faceted by gear</span></span>
-<span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>        <span class="co"># abundance spectra vs size</span></span>
+<span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>        <span class="co"># abundance spectra vs size (+ resource &amp; background)</span></span>
 <span><span class="fu"><a href="../reference/plotFeedingLevel.html">plotFeedingLevel</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>   <span class="co"># feeding level vs size</span></span>
 <span><span class="fu"><a href="../reference/plotPredMort.html">plotPredMort</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>       <span class="co"># predation mortality vs size</span></span>
 <span><span class="fu"><a href="../reference/plotFMort.html">plotFMort</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>          <span class="co"># fishing mortality vs size</span></span>
 <span><span class="fu"><a href="../reference/plotGrowthCurves.html">plotGrowthCurves</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>   <span class="co"># size vs age</span></span>
 <span><span class="fu"><a href="../reference/plotDiet.html">plotDiet</a></span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span>  <span class="co"># diet composition vs size</span></span>
+<span><span class="fu"><a href="../reference/plotCDF.html">plotCDF</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>            <span class="co"># cumulative biomass/abundance over size</span></span>
 <span></span>
-<span><span class="co"># ── Plot any summary array directly ───────────────────────────────────────────</span></span>
-<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span>           <span class="co"># ArrayTimeBySpecies → value vs time</span></span>
-<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getFeedingLevel.html">getFeedingLevel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>   <span class="co"># ArraySpeciesBySize → value vs size</span></span>
+<span><span class="co"># ── Plot any array directly, plus combine / compare tools ─────────────────────</span></span>
+<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getResourceMort.html">getResourceMort</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>   <span class="co"># any get*() array plots directly (resource mort vs size)</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/addPlot.html">addPlot</a></span><span class="op">(</span><span class="va">p</span>, <span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Herring"</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span></span>
-<span><span class="fu">ggplotly</span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span>       <span class="co"># interactive version</span></span>
+<span><span class="fu"><a href="../reference/addPlot.html">addPlot</a></span><span class="op">(</span><span class="va">p</span>, <span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Herring"</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span>  <span class="co"># add lines</span></span>
+<span><span class="fu"><a href="../reference/plot2.html">plot2</a></span><span class="op">(</span><span class="fu"><a href="../reference/getFMort.html">getFMort</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="fu"><a href="../reference/getFMort.html">getFMort</a></span><span class="op">(</span><span class="va">params2</span><span class="op">)</span>, <span class="st">"Before"</span>, <span class="st">"After"</span><span class="op">)</span>  <span class="co"># compare arrays</span></span>
+<span><span class="fu"><a href="../reference/plotRelative.html">plotRelative</a></span><span class="op">(</span><span class="fu"><a href="../reference/getEGrowth.html">getEGrowth</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="fu"><a href="../reference/getEGrowth.html">getEGrowth</a></span><span class="op">(</span><span class="va">params2</span><span class="op">)</span><span class="op">)</span>          <span class="co"># relative diff</span></span>
+<span><span class="fu"><a href="../reference/plotHover.html">plotHover</a></span><span class="op">(</span><span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span>      <span class="co"># interactive (hover) version of an array plot</span></span>
+<span><span class="fu"><a href="../reference/animate.html">animate</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>                    <span class="co"># animate spectra through time</span></span>
 <span></span>
-<span><span class="co"># ── Add plotly interactivity to any named plot function ───────────────────────</span></span>
-<span><span class="fu"><a href="../reference/plotBiomass.html">plotlyBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plotSpectra.html">plotlySpectra</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plotFeedingLevel.html">plotlyFeedingLevel</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>
-<span><span class="co"># … etc.</span></span></code></pre></div>
+<span><span class="co"># ── Compare two simulations or models ─────────────────────────────────────────</span></span>
+<span><span class="fu"><a href="../reference/plotSpectra2.html">plotSpectra2</a></span><span class="op">(</span><span class="va">params</span>, <span class="va">params2</span>, <span class="st">"Before"</span>, <span class="st">"After"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotSpectraRelative.html">plotSpectraRelative</a></span><span class="op">(</span><span class="va">params</span>, <span class="va">params2</span><span class="op">)</span>      <span class="co"># relative difference of spectra</span></span>
+<span><span class="fu"><a href="../reference/plotCDF2.html">plotCDF2</a></span><span class="op">(</span><span class="va">sim</span>, <span class="va">sim2</span>, <span class="st">"Unfished"</span>, <span class="st">"Fished"</span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

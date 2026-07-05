@@ -122,24 +122,26 @@ including a column `w_mat25` in the species parameter dataframe that
 specifies the weight at which 25% of individuals are mature, which sets
 \\U = \log(3) / \log(w\_{mat} / w\_{mat25}).\\
 
-The sigmoidal function given above would strictly reach 1 only
-asymptotically. For computational simplicity, any proportion smaller
-than `1e-8` is set to `0`.
+The sigmoidal function given above would strictly reach 0 only
+asymptotically and thus have some (negligible) amount of reproduction at
+arbitrarily small size. For computational simplicity, any proportion
+smaller than `1e-8` is set to `0`.
 
 ### Investment into reproduction
 
 If the the energy available to a mature individual that is invested into
 reproduction is not supplied via the `repro_prop` argument, it is set to
 the allometric form \$\${\tt repro\\prop}(w) =
-\left(\frac{w}{w\_{\tt{repro\\max}}}\right)^{m-n}.\$\$ Here \\n\\ is the
-scaling exponent of the energy income rate. Hence the exponent \\m\\
-determines the scaling of the investment into reproduction for mature
-individuals. By default it is chosen to be \\m = 1\\ so that the rate at
-which energy is invested into reproduction scales linearly with the
-size. This default can be overridden by including a column `m` in the
-species parameter dataframe. The sizes \\w\_{repro\\max}\\ are taken
-from the `w_repro_max` column in the species parameter data frame, if it
-exists, or otherwise from the `w_inf` column.
+\min\left(\left(\dfrac{w}{w\_{\tt{repro\\max}}}\right)^{m-n},1\right).\$\$
+Here \\n\\ is the scaling exponent of the energy income rate. Hence the
+exponent \\m\\ determines the scaling of the investment into
+reproduction for mature individuals. By default it is chosen to be \\m =
+1\\ so that the rate at which energy is invested into reproduction
+scales linearly with the size. This default can be overridden by
+including a column `m` in the species parameter dataframe. The sizes
+\\w\_{repro\\max}\\ are taken from the `w_repro_max` column in the
+species parameter data frame, if it exists, or otherwise from the
+`w_inf` column.
 
 The total proportion of energy invested into reproduction of an
 individual of size \\w\\ is then \$\$\psi(w) = {\tt maturity}(w){\tt
