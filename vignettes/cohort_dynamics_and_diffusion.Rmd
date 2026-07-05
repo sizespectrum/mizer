@@ -216,7 +216,7 @@ of high diffusion:
 ```{r fig.height=5, fig.width=9}
 sim <- sim_high_diff
 all_times <- getTimes(sim)
-w <- params@w
+w <- w(params)
 n <- N(sim)
 
 heatmap_list <- list()

@@ -122,6 +122,22 @@ them, re-running `steady()` between, until both are satisfied.
 
 ---
 
+## When calibration misbehaves
+
+- **A species collapses to near-zero.** Its mortality exceeds the growth it can
+  fund. Check its predation-kernel parameters `beta` and `sigma`, its row of the
+  interaction matrix, and whether its fishing mortality is too high.
+- **`steady()` will not settle.** The initial spectrum is probably far from the
+  steady state. Run
+  [`steadySingleSpecies(params)`](../reference/steadySingleSpecies.html) first to
+  get a sensible starting spectrum, or take a smaller step in whatever parameter
+  you changed and re-run.
+
+Diagnose the fit with `plotBiomassObservedVsModel(params)` and
+`plotGrowthCurves(params)` — see [Verifying the model](#verifying-the-model).
+
+---
+
 ## Density-dependent reproduction
 
 [`setBevertonHolt()`](../reference/setBevertonHolt.html) sets how strongly
