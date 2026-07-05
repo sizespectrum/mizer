@@ -1,5 +1,11 @@
 # development version
 
+- When `sel_func` is set on a `gear_params` object, any argument columns
+  required by that selectivity function (other than `w`, `species_params`, and
+  `...`) are now automatically added as `NA` columns. This means, for example,
+  that setting `gp$sel_func <- "sigmoid_length"` immediately creates the `l25`
+  and `l50` columns, ready to be filled in (#431).
+
 - The `species_params` data frame is now an S3 subclass of `data.frame` (`class = c("species_params", "data.frame")`). It supports class-preserving subsetting and subassignment S3 methods, making it safer to use and paving the way for future auto-recalculations.
 
 - New `adjustSizeGrid()` function (an S3 generic) adjusts the size grid of a `MizerParams` object to a new minimum and/or maximum size. It can both expand and truncate (shrink) the grid, warning if non-negligible abundance (species or resource) is discarded.
