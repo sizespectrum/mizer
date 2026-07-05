@@ -37,7 +37,7 @@ test_that("calc_selectivity leaves unspecified gear-species combinations at zero
 
 test_that("calc_selectivity errors for missing or NA selectivity parameters", {
     params_missing <- knife_edge_selectivity_params_no_length
-
+    class(params_missing@gear_params) <- "data.frame"
     params_missing@gear_params$knife_edge_size <- NULL
     expect_error(calc_selectivity(params_missing),
                  "missing in the gear_params dataframe")

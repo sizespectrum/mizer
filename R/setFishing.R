@@ -402,6 +402,25 @@ check_gear_params <- function(x) {
                 ". Did you perhaps mis-spell the names?")
     }
 
+    # Auto-populate missing argument columns for selectivity functions
+    if ("sel_func" %in% names(x)) {
+        funcs <- unique(x$sel_func)
+        funcs <- funcs[!is.na(funcs)]
+        for (sf in funcs) {
+            arg <- tryCatch({
+                args <- names(formals(sf))
+                args[!(args %in% c("w", "species_params", "..."))]
+            }, error = function(e) NULL)
+            if (length(arg) > 0) {
+                for (a in arg) {
+                    if (!(a %in% names(x))) {
+                        x[[a]] <- NA
+                    }
+                }
+            }
+        }
+    }
+
     # Validate parameters based on selectivity function
     if (nrow(x) > 0 && "sel_func" %in% names(x)) {
         for (i in seq_len(nrow(x))) {

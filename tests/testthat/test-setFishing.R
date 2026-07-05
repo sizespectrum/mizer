@@ -416,3 +416,14 @@ test_that("gear_params reactive validation works", {
     df3 <- data.frame(species = "Sprat", gear = "g", sel_func = "knife_edge", knife_edge_size = -5)
     expect_warning(gp3 <- gear_params(df3), "knife_edge_size must be non-negative")
 })
+
+test_that("gear_params selectivity column auto-population works", {
+    df <- data.frame(species = "Sprat", gear = "g")
+    gp <- gear_params(df)
+    
+    # Setting sel_func to sigmoid_length should add columns l25 and l50
+    gp$sel_func <- "sigmoid_length"
+    expect_true(all(c("l25", "l50") %in% colnames(gp)))
+    expect_true(all(is.na(gp$l25)))
+    expect_true(all(is.na(gp$l50)))
+})
