@@ -53,6 +53,13 @@ This course has three parts, each consisting of several tutorials with example c
 Click on this preview to open a mizer cheat sheet.
 [![Cheat Sheet](images/cheat_sheet_preview.png)](https://sizespectrum.org/mizer/articles/images/cheat_sheet.pdf)
 
+For quick reference while working we also provide four topic-based cheat sheets:
+
+-   [Model setup and calibration](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html)
+-   [Changing model parameters](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.html)
+-   [Fishing](https://sizespectrum.org/mizer/articles/cheatsheet-fishing.html)
+-   [Analysis and plotting](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html)
+
 There is a [series of YouTube videos](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B) 
 by Richard Southwell about mizer which are however no longer entirely up-to-date.
 
