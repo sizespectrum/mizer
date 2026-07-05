@@ -22,6 +22,7 @@ setResource(
   n = resource_params(params)[["n"]],
   w_pp_cutoff = resource_params(params)[["w_pp_cutoff"]],
   balance = NULL,
+  reset = FALSE,
   ...
 )
 
@@ -85,6 +86,12 @@ set so that the resource replenishes at the same rate at which it is
 consumed. In this case you should only specify either the resource rate
 or the resource capacity (or resource level) because the other is then
 determined automatically. Set to FALSE if you do not want the balancing.}
+
+\item{reset}{If set to TRUE, then the resource capacity and birth rate will be reset
+to the values calculated from the resource parameters, even if they were
+previously overwritten with custom values. If set to FALSE (default) then a
+recalculation from the resource parameters will take place only if no custom
+values have been set.}
 
 \item{...}{Unused}
 
