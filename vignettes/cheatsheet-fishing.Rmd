@@ -19,10 +19,10 @@ documentation of each function, follow the links.
 
 Fishing mortality is
 $$F_{g,i}(w) = S_{g,i}(w)\, Q_{g,i}\, E_g,$$
-the product of a gear's **selectivity** at size, its **catchability** for a
-species, and its **effort**. Selectivity and catchability are configured through
+the product of gear $g$'s **selectivity** $S_{g,i}(w)$ for species $i$ at size $w$, its **catchability** for
+species $i$, and its **effort**. Selectivity and catchability are configured through
 the [`gear_params`](../reference/gear_params.html) data frame; effort is set at
-run time. All setter functions return a new `MizerParams` — reassign the result.
+run time.
 
 ---
 
@@ -42,11 +42,36 @@ Required columns:
 Plus one column per parameter of the chosen `sel_func` (see below). Row names
 follow the pattern `"species, gear"`.
 
+**Editing an existing gear table.** Pull it out, change what you need, and assign
+it back — the assignment triggers recalculation of the selectivity and
+catchability arrays:
+
 ```{r eval=FALSE}
 gp <- gear_params(params)
 gp["Cod, Otter", "catchability"] <- 0.8
 gear_params(params) <- gp                 # assignment triggers recalculation
 ```
+
+**Setting one up from scratch.** Assign a fresh data frame with one row per
+gear–species combination. Only `species` is strictly required: `gear` defaults
+to the species name, `sel_func` to `knife_edge`, `catchability` to 1, and the
+`knife_edge` cut-off to `w_mat`. You must, however, supply the parameter columns
+of whatever `sel_func` you choose. Here two gears fish cod, each with its own
+length-based selectivity:
+
+```{r eval=FALSE}
+gear_params(params) <- data.frame(
+    gear         = c("Otter", "Beam"),
+    species      = c("Cod",   "Cod"),
+    sel_func     = "sigmoid_length",       # recycled to both rows
+    l50          = c(25, 20),              # 50% selected at this length (cm)
+    l25          = c(20, 15),              # 25% selected at this length (cm)
+    catchability = 1
+)
+```
+
+This replaces the whole gear table; mizer generates the `"species, gear"` row
+names for you.
 
 If each species is caught by only one gear, the gear columns may instead be
 supplied within `species_params` when building the model; mizer copies them into
@@ -103,7 +128,7 @@ without an explicit `effort` argument.
 
 | Function | Use |
 |---|---|
-| [`getInitialEffort(params)`](../reference/setFishing.html) | read baseline effort (a named vector) |
+| [`initial_effort(params)`](../reference/initial_effort.html) | read baseline effort (a named vector) |
 | [`initial_effort(params) <-`](../reference/initial_effort.html) | set baseline effort |
 | [`getEffort(sim)`](../reference/getEffort.html) | effort actually used over time in a simulation |
 
@@ -139,7 +164,7 @@ sim <- project(params, effort = effort_array)
 
 ```{r eval=FALSE}
 gear_params(params)        # the gear table
-getInitialEffort(params)   # baseline effort per gear
+initial_effort(params)     # baseline effort per gear
 plotFMort(params)          # realised fishing mortality at size
 getFMort(params)           # F by species × size
 getFMortGear(params)       # F by gear × species × size
