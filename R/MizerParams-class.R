@@ -621,8 +621,8 @@ emptyParams <- function(species_params,
 
     # Basic arrays for templates ----
     no_sp <- nrow(species_params)
-    species_names <- species_params$species
-    gear_names <- unique(gear_params$gear)
+    species_names <- unname(species_params$species)
+    gear_names <- unname(unique(gear_params$gear))
     mat1 <- array(0, dim = c(no_sp, no_w),
                   dimnames = list(sp = species_names, w = signif(w, 3)))
     ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
@@ -941,6 +941,9 @@ validParams.MizerParams <- function(params, info_level = 3) {
     params@given_species_params <-
         validGivenSpeciesParams(params@given_species_params)
     params@species_params <- validSpeciesParams(params@species_params)
+    if (!inherits(params@gear_params, "gear_params")) {
+        class(params@gear_params) <- c("gear_params", class(params@gear_params))
+    }
 
     # Check w_max and w_min
     # This isn't checked by `validSpeciesParams()` because that function does

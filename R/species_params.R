@@ -240,7 +240,7 @@ check_and_convert_species_params <- function(x) {
                 paste(query, collapse = ", "),
                 ". Did you perhaps mis-spell the names?")
     }
-    
+
     # Auto convert length to weight if allometric parameters exist
     if (all(c("a", "b") %in% names(x))) {
         mappings <- list(
@@ -257,14 +257,18 @@ check_and_convert_species_params <- function(x) {
             if (pl %in% names(x)) {
                 # Convert the values
                 vw <- l2w(x[[pl]], x)
-                # If weight is missing or different, update it
+                # If weight is missing or different, update it without
+                # triggering recursive validation
                 if (!(pw %in% names(x)) || any(is.na(x[[pw]])) || any(abs(x[[pw]] - vw) > 1e-10, na.rm = TRUE)) {
+                    saved_class <- class(x)
+                    class(x) <- "data.frame"
                     x[[pw]] <- vw
+                    class(x) <- saved_class
                 }
             }
         }
     }
-    
+
     # Check w_mat < w_inf consistency
     if (all(c("w_mat", "w_inf") %in% names(x))) {
         wrong <- !is.na(x$w_mat) & !is.na(x$w_inf) & x$w_mat >= x$w_inf
@@ -274,9 +278,19 @@ check_and_convert_species_params <- function(x) {
                     " the value for `w_mat` is not smaller than that of `w_inf`.")
         }
     }
-    
+
     x
 }
+
+#' @export
+`$.species_params` <- function(x, name) {
+    out <- NextMethod()
+    if (!is.null(out) && !is.data.frame(out) && name != "species") {
+        names(out) <- rownames(x)
+    }
+    out
+}
+
 
 #' @export
 `[.species_params` <- function(x, i, j, ..., drop = FALSE) {
@@ -314,9 +328,9 @@ print.species_params <- function(x, ...) {
     core_cols <- c("species", "w_inf", "w_mat", "w_min", "alpha", "erepro")
     cols_to_show <- intersect(core_cols, names(x))
     extra_cols <- setdiff(names(x), core_cols)
-    
+
     print(as.data.frame(x)[, cols_to_show, drop = FALSE], row.names = FALSE, ...)
-    
+
     if (length(extra_cols) > 0) {
         cat("With", length(extra_cols), "other parameters:", paste(extra_cols, collapse = ", "), "\n")
     }
@@ -329,9 +343,9 @@ print.given_species_params <- function(x, ...) {
     core_cols <- c("species", "w_inf", "w_mat", "w_min", "alpha", "erepro")
     cols_to_show <- intersect(core_cols, names(x))
     extra_cols <- setdiff(names(x), core_cols)
-    
+
     print(as.data.frame(x)[, cols_to_show, drop = FALSE], row.names = FALSE, ...)
-    
+
     if (length(extra_cols) > 0) {
         cat("With", length(extra_cols), "other parameters:", paste(extra_cols, collapse = ", "), "\n")
     }

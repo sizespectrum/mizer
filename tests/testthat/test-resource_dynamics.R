@@ -23,6 +23,7 @@ test_that("We can set and get resource parameters", {
     expect_identical(params@resource_params$test, "hi")
 
     rp2 <- params@resource_params
+    rp2$kappa <- 1e13
     rp2$lambda <- rp2$lambda + 0.1
     resource_params(params) <- rp2
     expect_identical(resource_params(params), rp2)

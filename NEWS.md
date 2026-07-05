@@ -6,9 +6,33 @@
   that setting `gp$sel_func <- "sigmoid_length"` immediately creates the `l25`
   and `l50` columns, ready to be filled in (#431).
 
-- The `species_params` data frame is now an S3 subclass of `data.frame` (`class = c("species_params", "data.frame")`). It supports class-preserving subsetting and subassignment S3 methods, making it safer to use and paving the way for future auto-recalculations.
+- The `species_params` data frame is now an S3 subclass of `data.frame`
+  (`class = c("species_params", "data.frame")`). It supports class-preserving
+  subsetting and subassignment S3 methods, making it safer to use and paving
+  the way for future auto-recalculations.
 
-- New `adjustSizeGrid()` function (an S3 generic) adjusts the size grid of a `MizerParams` object to a new minimum and/or maximum size. It can both expand and truncate (shrink) the grid, warning if non-negligible abundance (species or resource) is discarded.
+- `resource_params<-` now rebuilds the resource size-spectrum arrays (`cc_pp`,
+  `rr_pp`) via `setResource()`, making resource parameter assignment
+  consistent with `species_params<-` and `gear_params<-` (#439).
+
+- Added a `callback` parameter to `project()` to allow user-defined functions
+  to be called at each saved time step.
+
+- Columns accessed via `$` on a `species_params` or `gear_params` object now
+  return named vectors, where the names are the species names (or "species,
+  gear" row names for `gear_params`). For example,
+  `species_params(params)$w_mat` now returns a named vector making it easier
+  to identify entries. The `species` vector is left unnamed.
+
+- The `species_params` data frame is now an S3 subclass of `data.frame`
+  (`class = c("species_params", "data.frame")`). It supports class-preserving
+  subsetting and subassignment S3 methods, making it safer to use and paving
+  the way for future auto-recalculations.
+
+- New `adjustSizeGrid()` function (an S3 generic) adjusts the size grid of
+  a `MizerParams` object to a new minimum and/or maximum size. It can both
+  expand and truncate (shrink) the grid, warning if non-negligible abundance
+  (species or resource) is discarded.
 
 - New experimental `steadyNewton()` finds a steady state by solving the
   steady-state equation directly with a Newton-type root finder (using the

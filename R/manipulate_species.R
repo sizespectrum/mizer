@@ -538,6 +538,9 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
     dimnames(params@interaction)$prey <- species
     dimnames(params@selectivity)$sp <- species
     dimnames(params@catchability)$sp <- species
+    if (!is.null(dimnames(params@ft_mask)[[1]])) {
+        dimnames(params@ft_mask)[[1]] <- species
+    }
 
     validObject(params)
 

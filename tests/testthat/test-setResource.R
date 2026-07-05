@@ -251,3 +251,50 @@ test_that("default resource construction is byte-identical (first order)", {
     cap[w >= w_pp_cutoff] <- 0
     expect_equal(unname(p@cc_pp), cap)
 })
+
+test_that("resource_params<- rebuilds capacity and rate arrays (issue #439)", {
+    p <- NS_params_small
+    cc0 <- resource_capacity(p)
+    rr0 <- resource_rate(p)
+
+    # 1. resource_params(p)$kappa <- x scales cc_pp
+    p1 <- p
+    resource_params(p1)$kappa <- 10 * resource_params(p1)$kappa
+    expect_equal(as.numeric(resource_capacity(p1)), 10 * as.numeric(cc0))
+    # rr_pp is rebalanced under semichemostat
+    expect_false(isTRUE(all.equal(as.numeric(resource_rate(p1)), as.numeric(rr0))))
+
+    # 2. resource_params(p)$lambda <- x changes the slope of cc_pp
+    p2 <- p
+    rp2 <- resource_params(p2)
+    rp2$kappa <- 1e14
+    rp2$lambda <- 2.2
+    resource_params(p2) <- rp2
+    expect_equal(resource_params(p2)$lambda, 2.2)
+    expect_false(isTRUE(all.equal(as.numeric(resource_capacity(p2)), as.numeric(cc0))))
+
+    # 3. Freeze mechanism: manually set resource_capacity is preserved when scalar changes
+    p3 <- p
+    custom_cc <- 2 * resource_capacity(p3)
+    resource_capacity(p3) <- custom_cc
+    expect_identical(comment(p3@cc_pp), "set manually")
+    
+    # Modifying kappa now does not overwrite custom cc_pp array
+    resource_params(p3)$kappa <- 10 * resource_params(p3)$kappa
+    expect_equal(resource_capacity(p3), custom_cc, ignore_attr = TRUE)
+    
+    # setResource(..., reset = TRUE) resets to scalar-driven capacity
+    p4 <- setResource(p3, reset = TRUE)
+    expect_null(comment(p4@cc_pp))
+    expect_equal(as.numeric(resource_capacity(p4)), 10 * as.numeric(cc0))
+
+    # 4. w_pp_cutoff change via resource_params<- truncates capacity
+    p5 <- p
+    old_cutoff <- resource_params(p5)$w_pp_cutoff
+    new_cutoff <- old_cutoff / 2
+    resource_params(p5)$w_pp_cutoff <- new_cutoff
+    expect_equal(resource_params(p5)$w_pp_cutoff, new_cutoff)
+    w_full <- p5@w_full
+    expect_true(all(p5@cc_pp[w_full >= new_cutoff] == 0))
+    expect_true(all(p5@initial_n_pp[w_full >= new_cutoff] == 0))
+})

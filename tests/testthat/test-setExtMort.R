@@ -49,7 +49,8 @@ test_that("setExtMort defaults z_ext to 0 and d to n - 1", {
     expect_equal(p2@mu_b,
                  outer(p2@species_params$z0, rep(1, length(p2@w))),
                  ignore_attr = TRUE)
-    expect_equal(p2@species_params$z_ext, rep(0, nrow(p2@species_params)))
+    expect_equal(p2@species_params$z_ext, rep(0, nrow(p2@species_params)),
+                 ignore_attr = TRUE)
     expect_equal(p2@species_params$d, p2@species_params$n - 1)
 })
 

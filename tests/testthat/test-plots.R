@@ -358,7 +358,7 @@ test_that("size-based plots support length axes", {
                     as.character(params_len@species_params$species))
     expected_l <- w2l(spectra_w$w,
                       params_len@species_params[sp_idx, , drop = FALSE])
-    expect_equal(spectra_l$l, expected_l)
+    expect_equal(spectra_l$l, expected_l, ignore_attr = TRUE)
 
     llim <- stats::quantile(spectra_l$l, c(0.25, 0.75), names = FALSE)
     spectra_l_limited <- plotSpectra(params_len, species = species,

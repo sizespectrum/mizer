@@ -13,7 +13,8 @@ params <- calibrateBiomass(params)
 dummy <- plotBiomassObservedVsModel(params, return_data = TRUE)
 
 # Check biomasses equal those put in
-expect_equal(dummy$observed, species_params(params)$biomass_observed)
+expect_equal(dummy$observed, species_params(params)$biomass_observed,
+             ignore_attr = TRUE)
 
 # check that you get error with no species
 expect_error(plotBiomassObservedVsModel(params, species = rep(FALSE, 3)))
@@ -27,7 +28,8 @@ expect_equal(as.character(dummy$species),
              species_params(params)$species[!is.na(species_params(params2)$biomass_observed)])
 expect_equal(dummy$observed,
              species_params(params2)$biomass_observed
-             [!is.na(species_params(params2)$biomass_observed)])
+             [!is.na(species_params(params2)$biomass_observed)],
+             ignore_attr = TRUE)
 # plot with unobserved species
 dummy <- plotBiomassObservedVsModel(params2, return_data = TRUE,
                                    show_unobserved = TRUE)
@@ -39,7 +41,8 @@ sp_select <- c(1, 3) # choose some species
 dummy <- plotBiomassObservedVsModel(params, species = sp_select, return_data = T)
 expect_equal(nrow(dummy), length(sp_select))
 expect_equal(dummy$observed,
-             species_params(params)$biomass_observed[sp_select])
+             species_params(params)$biomass_observed[sp_select],
+             ignore_attr = TRUE)
 
 # Finally, look at default plot (model biomass vs observed biomass)
 dummy <- plotBiomassObservedVsModel(params, return_data = TRUE)

@@ -69,7 +69,7 @@ test_that("balance_resource_logistic works", {
     rate <- getResourceMort(params) * 1.1
     params <- setResource(params, resource_rate = rate, 
                           resource_dynamics = "resource_logistic")
-    expect_identical(params@rr_pp, rate)
+    expect_equal(params@rr_pp, rate, ignore_attr = TRUE)
     expect_true(sc(params))
     
     # setting capacity

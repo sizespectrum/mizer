@@ -80,10 +80,19 @@ resource_params <- function(params) {
         value$w_pp_cutoff > min(params@w_full),
         value$w_pp_cutoff < max(params@w_full)
     )
-    params@resource_params <- value
+    if (!is.null(value$r_pp)) {
+        assert_that(is.number(value$r_pp), value$r_pp >= 0)
+    }
     
+    rp_changed <- !identical(params@resource_params$kappa, value$kappa) ||
+                  !identical(params@resource_params$lambda, value$lambda) ||
+                  !identical(params@resource_params[["n"]], value[["n"]]) ||
+                  !identical(params@resource_params$w_pp_cutoff, value$w_pp_cutoff) ||
+                  !identical(params@resource_params$r_pp, value$r_pp)
+    
+    params@resource_params <- value
     params@time_modified <- lubridate::now()
-    params
+    setResource(params, resource_params_changed = rp_changed)
 }
 
 

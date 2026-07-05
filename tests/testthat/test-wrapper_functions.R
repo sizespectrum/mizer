@@ -3,7 +3,7 @@ test_that("Providing gamma overrules f0 in newTraitParams()", {
     gamma <- 2000
     params <- newTraitParams(f0 = 0.4, gamma = gamma, info_level = 0)
     expect_identical(params@species_params$gamma,
-                     rep(gamma, nrow(params@species_params)))
+                     rep(gamma, nrow(params@species_params)), ignore_attr = TRUE)
 })
 
 test_that("newTraitParams uses documented gear and resource-cutoff behaviour", {
@@ -53,7 +53,7 @@ test_that("Multiple gears work correctly in trait-based model", {
                              knife_edge_size = knife_edges,
                              info_level = 0)
     expect_identical(params@gear_params$knife_edge_size,
-                     knife_edges)
+                     knife_edges, ignore_attr = TRUE)
     # All gears fire
     sim1 <- project(params, t_max = 2, effort = 1)
     fmg <- getFMortGear(sim1)
@@ -140,7 +140,8 @@ test_that("Scaling model is set up correctly", {
     expect_equal(total, expected, tolerance = 1e-15, ignore_attr = TRUE)
 
     # All erepros should be equal
-    expect_equal(p@species_params$erepro, rep(p@species_params$erepro[1], no_sp))
+    expect_equal(p@species_params$erepro, rep(p@species_params$erepro[1], no_sp),
+                 ignore_attr = TRUE)
 
     # TODO: Check that total biomass changes little (relatively)
 })

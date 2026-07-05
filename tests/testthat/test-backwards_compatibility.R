@@ -227,7 +227,7 @@ test_that("set_multispecies_model keeps documented legacy defaults", {
     "deprecated"
   )
   sp <- species_params(params2)
-  expect_identical(sp$gear, sp$species)
+  expect_identical(sp$gear, sp$species, ignore_attr = TRUE)
   expect_true(all(sp$alpha == 0.6))
   expect_true(all(sp$erepro == 1))
   expect_true(all(sp$sel_func == "knife_edge"))

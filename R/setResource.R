@@ -96,6 +96,12 @@
 #'   resource abundance will be cut off at the new value. To increase the
 #'   cutoff, you must also provide the `resource_capacity` for the extended
 #'   range.
+#' @param reset
+#'   If set to TRUE, then the resource capacity and birth rate will be reset
+#'   to the values calculated from the resource parameters, even if they were
+#'   previously overwritten with custom values. If set to FALSE (default) then a
+#'   recalculation from the resource parameters will take place only if no custom
+#'   values have been set.
 #' @param ... Unused
 #'
 #' @return `setResource`: A MizerParams object with updated resource parameters
@@ -106,7 +112,7 @@ setResource <- function(params, resource_rate = NULL, resource_capacity = NULL,
                         lambda = resource_params(params)[["lambda"]],
                         n = resource_params(params)[["n"]],
                         w_pp_cutoff = resource_params(params)[["w_pp_cutoff"]],
-                        balance = NULL, ...) {
+                        balance = NULL, reset = FALSE, ...) {
     UseMethod("setResource")
 }
 #' @export
@@ -119,18 +125,42 @@ setResource.MizerParams <- function(params,
                         n = resource_params(params)[["n"]],
                         w_pp_cutoff = resource_params(params)[["w_pp_cutoff"]],
                         balance = NULL,
+                        reset = FALSE,
                         ...) {
 
+    assert_that(is.flag(reset))
+    if (reset) {
+        if (!is.null(resource_capacity) || !is.null(resource_rate) || !is.null(resource_level)) {
+            warning("Because you set `reset = TRUE`, the values you provided for `resource_capacity`, `resource_rate`, or `resource_level` will be ignored and values will be calculated from the resource parameters.")
+            resource_capacity <- NULL
+            resource_rate <- NULL
+            resource_level <- NULL
+        }
+        comment(params@cc_pp) <- NULL
+        comment(params@rr_pp) <- NULL
+    }
+
+    resource_rate_user <- resource_rate
+    resource_capacity_user <- resource_capacity
+    if (!is.null(resource_level)) {
+        resource_capacity_user <- resource_level
+    }
+
     args <- list(...)
+    resource_params_changed <- isTRUE(args[["resource_params_changed"]]) ||
+        !missing(lambda) || !missing(n) || !missing(w_pp_cutoff) || reset
+
     if ("r_pp" %in% names(args)) {
         lifecycle::deprecate_warn("1.0.0", "setParams(r_pp)",
                                   "setParams(resource_rate)")
         resource_rate <- args[["r_pp"]]
+        resource_rate_user <- resource_rate
     }
     if ("kappa" %in% names(args)) {
         lifecycle::deprecate_warn("1.0.0", "setParams(kappa)",
                                   "setParams(resource_capacity)")
         resource_capacity <- args[["kappa"]]
+        resource_capacity_user <- resource_capacity
     }
     assert_that(is.number(lambda),
                 is.number(w_pp_cutoff), w_pp_cutoff > 0,
@@ -178,13 +208,22 @@ setResource.MizerParams <- function(params,
         }
         resource_capacity <- NR / resource_level
         resource_capacity[is.nan(resource_level)] <- 0
-        comment(resource_capacity) <- comment(resource_level)
+        if (is.null(comment(resource_level))) {
+            if (is.null(comment(params@cc_pp))) {
+                comment(resource_capacity) <- "set manually"
+            } else {
+                comment(resource_capacity) <- comment(params@cc_pp)
+            }
+        } else {
+            comment(resource_capacity) <- comment(resource_level)
+        }
     }
 
     # Check growth rate ----
     if (!is.null(resource_rate)) {
         assert_that(is.numeric(resource_rate))
         if (length(resource_rate) == 1) {
+            params@resource_params[["r_pp"]] <- resource_rate
             co <- comment(resource_rate)
             if (isTRUE(params@second_order_w[["bin_average"]])) {
                 # Exact bin average of the power law r_pp * w^(n-1) over each
@@ -201,6 +240,14 @@ setResource.MizerParams <- function(params,
         } else if (length(resource_rate) != no_w_full) {
             stop("The 'resource_rate' should have length 1 or length ",
                  no_w_full, ".")
+        } else {
+            if (is.null(comment(resource_rate))) {
+                if (is.null(comment(params@rr_pp))) {
+                    comment(resource_rate) <- "set manually"
+                } else {
+                    comment(resource_rate) <- comment(params@rr_pp)
+                }
+            }
         }
         if (any(resource_rate < 0)) {
             stop("The 'resource_rate' must always be non-negative.")
@@ -211,6 +258,7 @@ setResource.MizerParams <- function(params,
     if (!is.null(resource_capacity)) {
         assert_that(is.numeric(resource_capacity))
         if (length(resource_capacity) == 1) {
+            params@resource_params[["kappa"]] <- resource_capacity
             co <- comment(resource_capacity)
             if (isTRUE(params@second_order_w[["bin_average"]])) {
                 # Exact bin average of kappa * w^(-lambda), truncated at the
@@ -230,28 +278,70 @@ setResource.MizerParams <- function(params,
             }
             comment(resource_capacity) <- co
         } else if (length(resource_capacity) != no_w_full) {
-            stop("The 'resource_rate' should have length 1 or length ",
+            stop("The 'resource_capacity' should have length 1 or length ",
                  no_w_full, ".")
+        } else {
+            if (is.null(comment(resource_capacity))) {
+                if (is.null(comment(params@cc_pp))) {
+                    comment(resource_capacity) <- "set manually"
+                } else {
+                    comment(resource_capacity) <- comment(params@cc_pp)
+                }
+            }
         }
         if (any(resource_capacity < 0)) {
             stop("The 'resource_capacity' must never be negative.")
         }
     }
 
-    # Handle w_pp_cutoff change when capacity is not explicitly provided ----
-    if (is.null(resource_capacity) && is.null(resource_level) &&
-        !is.null(old_w_pp_cutoff) && w_pp_cutoff != old_w_pp_cutoff) {
-        if (w_pp_cutoff > old_w_pp_cutoff) {
-            stop("You cannot increase w_pp_cutoff without also providing the resource_capacity for the extended range.")
+    # Handle w_pp_cutoff increase error when capacity is not explicitly provided ----
+    if (is.null(resource_capacity_user) &&
+        !is.null(old_w_pp_cutoff) && w_pp_cutoff > old_w_pp_cutoff) {
+        stop("You cannot increase w_pp_cutoff without also providing the resource_capacity for the extended range.")
+    }
+
+    # Recompute capacity from stored scalar kappa if not provided and not commented ----
+    if (is.null(resource_capacity)) {
+        if (!is.null(comment(params@cc_pp))) {
+            # cc_pp is commented (frozen)
+            if (!is.null(old_w_pp_cutoff) && w_pp_cutoff < old_w_pp_cutoff) {
+                params@cc_pp[w_full >= w_pp_cutoff] <- 0
+                params@initial_n_pp[w_full >= w_pp_cutoff] <- 0
+                NR <- params@initial_n_pp
+            }
+        } else if (resource_params_changed) {
+            kappa <- params@resource_params[["kappa"]]
+            if (!is.null(kappa) && is.numeric(kappa) && length(kappa) == 1) {
+                if (isTRUE(params@second_order_w[["bin_average"]])) {
+                    resource_capacity <- kappa *
+                        power_law_bin_average(
+                            w_full, params@dw_full, -lambda,
+                            w_max = params@resource_params$w_pp_cutoff)
+                } else {
+                    resource_capacity <- kappa * w_full ^ (-lambda)
+                    resource_capacity[w_full >= params@resource_params$w_pp_cutoff] <- 0
+                }
+                if (!is.null(old_w_pp_cutoff) && w_pp_cutoff < old_w_pp_cutoff) {
+                    params@initial_n_pp[w_full >= w_pp_cutoff] <- 0
+                    NR <- params@initial_n_pp
+                }
+            }
         }
-        # New cutoff is smaller, so we need to cut off both carrying capacity
-        # and initial resource abundance at the new cutoff
-        # Cut off the carrying capacity at the new cutoff
-        params@cc_pp[w_full >= w_pp_cutoff] <- 0
-        # Cut off the initial resource abundance at the new cutoff
-        params@initial_n_pp[w_full >= w_pp_cutoff] <- 0
-        # Update NR for consistency
-        NR <- params@initial_n_pp
+    }
+
+    # Recompute rate from stored scalar r_pp if not provided and not commented ----
+    if (is.null(resource_rate) && is.null(resource_capacity) && resource_params_changed) {
+        if (is.null(comment(params@rr_pp))) {
+            r_pp <- params@resource_params[["r_pp"]]
+            if (!is.null(r_pp) && is.numeric(r_pp) && length(r_pp) == 1) {
+                if (isTRUE(params@second_order_w[["bin_average"]])) {
+                    resource_rate <- r_pp *
+                        power_law_bin_average(w_full, params@dw_full, n - 1)
+                } else {
+                    resource_rate <- r_pp * w_full ^ (n - 1)
+                }
+            }
+        }
     }
 
     # Balance ----
@@ -260,15 +350,29 @@ setResource.MizerParams <- function(params,
         balance <- is.function(balance_fn)
     }
     if (balance) {
-        # check number of arguments
-        num_args <- (!is.null(resource_rate)) +
-            (!is.null(resource_capacity))
-        if (num_args > 1) {
+        num_args_user <- (!is.null(resource_rate_user)) +
+            (!is.null(resource_capacity_user))
+        if (num_args_user > 1) {
             stop("You should only provide either the `resource_rate` or `resource_capacity` (or `resource_level`) because the other is determined by the requirement that the resource replenishes at the same rate at which it is consumed.")
         }
-        if (num_args == 0) {
-            # no values given, so use previous resource_rate
-            resource_rate <- params@rr_pp
+
+        if (num_args_user == 1) {
+            if (!is.null(resource_capacity_user)) {
+                resource_rate <- NULL
+            } else {
+                resource_capacity <- NULL
+            }
+        } else {
+            # num_args_user == 0
+            if (!is.null(resource_capacity)) {
+                resource_rate <- NULL
+            } else if (!is.null(resource_rate)) {
+                resource_capacity <- NULL
+            } else {
+                # Neither changed from scalar; use existing rr_pp to balance capacity
+                resource_rate <- params@rr_pp
+                resource_capacity <- NULL
+            }
         }
 
         balance_fn <- get0(paste0("balance_", params@resource_dynamics))
