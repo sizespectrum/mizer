@@ -246,28 +246,33 @@ and <code><a href="../reference/project.html">project()</a></code>.</p>
 <tbody>
 <tr class="odd">
 <td><a href="../reference/steady.html"><code>steady(params)</code></a></td>
-<td>run the dynamics to convergence (the default)</td>
+<td>run the dynamics to convergence with births held fixed (the
+default)</td>
 </tr>
 <tr class="even">
 <td><a href="../reference/projectToSteady.html"><code>projectToSteady(params)</code></a></td>
-<td>lower-level version exposing <code>t_max</code>, <code>tol</code>,
-<code>return_sim</code>
+<td>version with births responding dynamically; exposes
+<code>t_max</code>, <code>return_sim</code>
 </td>
 </tr>
 <tr class="odd">
 <td><a href="../reference/steadySingleSpecies.html"><code>steadySingleSpecies(params)</code></a></td>
-<td>set each species to its single-species steady form (fast starting
-point)</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/steadyNewton.html"><code>steadyNewton(params)</code></a></td>
-<td>solve the steady-state equation directly; converges even when
-unstable</td>
+<td>set each species to its single-species steady form with births held
+fixed (fast starting point)</td>
 </tr>
 </tbody>
 </table>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+<p>During model setup and calibration you almost always want
+<code><a href="../reference/steady.html">steady()</a></code> or <code><a href="../reference/steadySingleSpecies.html">steadySingleSpecies()</a></code> because
+keeping births constant lets the dynamics converge reliably onto
+<em>a</em> steady state. Afterwards these functions re-tune the
+reproduction parameters so that density-dependent reproduction
+reproduces exactly that birth rate at the new steady state — use
+<code>preserve</code> to choose whether <code>reproduction_level</code>
+(default), <code>R_max</code>, or <code>erepro</code> is held fixed
+during that re-tuning.</p>
 <hr>
 </div>
 <div class="section level2">

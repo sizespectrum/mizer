@@ -77,14 +77,21 @@ state, which also sets the initial values used by calibration and `project()`.
 
 | Function | Use |
 |---|---|
-| [`steady(params)`](../reference/steady.html) | run the dynamics to convergence (the default) |
-| [`projectToSteady(params)`](../reference/projectToSteady.html) | lower-level version exposing `t_max`, `tol`, `return_sim` |
-| [`steadySingleSpecies(params)`](../reference/steadySingleSpecies.html) | set each species to its single-species steady form (fast starting point) |
-| [`steadyNewton(params)`](../reference/steadyNewton.html) | solve the steady-state equation directly; converges even when unstable |
+| [`steady(params)`](../reference/steady.html) | run the dynamics to convergence with births held fixed (the default) |
+| [`projectToSteady(params)`](../reference/projectToSteady.html) | version with births responding dynamically; exposes `t_max`, `return_sim` |
+| [`steadySingleSpecies(params)`](../reference/steadySingleSpecies.html) | set each species to its single-species steady form with births held fixed (fast starting point) |
 
 ```{r eval=FALSE}
 params <- steady(params)
 ```
+
+During model setup and calibration you almost always want `steady()` or
+`steadySingleSpecies()` because keeping births constant lets the dynamics
+  converge reliably onto *a* steady state. Afterwards these functions re-tune the
+  reproduction parameters so that density-dependent reproduction reproduces
+  exactly that birth rate at the new steady state — use `preserve` to choose
+  whether `reproduction_level` (default), `R_max`, or `erepro` is held fixed
+  during that re-tuning.
 
 ---
 
