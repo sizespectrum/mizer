@@ -1032,6 +1032,13 @@ parseTimePlotLog <- function(log, log_x, log_y) {
 #'  all gears.
 #' @param total A boolean value that determines whether the total yield from all
 #'   species is plotted as well. Default is FALSE.
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `FALSE`.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `TRUE`.
+#' @param log Character string specifying which axes should use log10 scales,
+#'   in the same form as the base [plot()] argument. For example, `"x"`,
+#'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
+#'   For backward compatibility, `TRUE` and `FALSE` are interpreted as setting
+#'   only `log_y`.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the y axis. Use `NA` to refer to the existing minimum or maximum.
 #' @param tlim A numeric vector of length two providing lower and upper limits
@@ -1062,7 +1069,9 @@ parseTimePlotLog <- function(log, log_x, log_y) {
 #' @rdname plotYieldGear
 #' @export
 plotYieldGear <- function(object, species = NULL, gears = NULL,
-                          total = FALSE, ylim = c(NA, NA), tlim = c(NA, NA),
+                          total = FALSE,
+                          log_x = FALSE, log_y = TRUE, log = NULL,
+                          ylim = c(NA, NA), tlim = c(NA, NA),
                           highlight = NULL, return_data = FALSE, ...) {
     UseMethod("plotYieldGear")
 }
@@ -1074,11 +1083,15 @@ plotYieldGear.MizerSim <- function(object,
                           species = NULL,
                           gears = NULL,
                           total = FALSE,
+                          log_x = FALSE, log_y = TRUE, log = NULL,
                           ylim = c(NA, NA), tlim = c(NA, NA),
                           highlight = NULL, return_data = FALSE,
                           ...) {
+    log_axes <- parseTimePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is(object, "MizerSim"),
                 is.flag(total),
+                is.flag(log_axes$log_x),
+                is.flag(log_axes$log_y),
                 is.flag(return_data))
     params <- object@params
     species <- valid_species_arg(object, species, error_on_empty = TRUE)
@@ -1120,8 +1133,10 @@ plotYieldGear.MizerSim <- function(object,
         ggplot(ym) +
             geom_line(aes(x = Year, y = Yield, colour = Species,
                           linetype = Gear, linewidth = Legend)) +
-            scale_y_continuous(trans = "log10", name = "Yield [g]",
+            scale_y_continuous(trans = if (log_axes$log_y) "log10" else "identity",
+                               name = "Yield [g]",
                                limits = ylim) +
+            scale_x_continuous(trans = if (log_axes$log_x) "log10" else "identity") +
             scale_colour_manual(values = params@linecolour[species_levels]) +
             scale_discrete_manual("linewidth", values = linesize),
         c("Species", "Gear", "Year", "Yield")
@@ -1134,6 +1149,7 @@ plotYieldGear.MizerSim <- function(object,
 plotlyYieldGear <- function(object, species = NULL,
                             gears = NULL,
                             total = FALSE,
+                            log_x = FALSE, log_y = TRUE, log = NULL,
                             ylim = c(NA, NA), tlim = c(NA, NA),
                             highlight = NULL, ...) {
     argg <- as.list(environment())

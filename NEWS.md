@@ -1,5 +1,7 @@
 # development version
 
+- `plotYieldGear()` now supports `log_x`, `log_y`, and `log` arguments, aligning its arguments with `plotYield()`.
+
 - Added three new cheatsheets: "Model Setup and Calibration" (building a model,
   finding the steady state, calibrating to observed biomass/yield/growth, and
   projecting), "Fishing" (gears, selectivity functions, catchability, and
