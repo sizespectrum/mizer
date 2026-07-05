@@ -68,6 +68,9 @@ articles:
 - title: Cheat sheets
   navbar: Cheat sheets
   contents:
+  - cheatsheet-model-setup-and-calibration
+  - cheatsheet-changing-parameters
+  - cheatsheet-fishing
   - cheatsheet-analysis-and-plotting
 - title: Extending mizer
   navbar: Extending mizer
@@ -94,7 +97,9 @@ reference:
   description: Mizer allows the easy set-up of four different types of models,
     of increasing level of complexity. See
     https://sizespectrum.org/mizer/articles/mizer.html#size-spectrum-models
-    for a description of these model types.
+    for a description of these model types. The
+    [Model setup and calibration cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html)
+    gives a quick overview of the workflow.
   contents:
   - newSingleSpeciesParams
   - newCommunityParams
@@ -103,6 +108,9 @@ reference:
 - title: Changing model parameters
   description: After you have created a model, you will want to make changes to it
     while tuning the model and for investigating the impact of changes in parameters.
+    See the
+    [Changing model parameters cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.html)
+    for a quick reference.
   contents:
   - species_params
   - is.species_params
@@ -125,7 +133,9 @@ reference:
 - title: Steady state tuning
   description: The first task after creating a multi-species model is to tune
     the model parameters so that in its steady state the model reproduces
-    average observed growth rates, abundances and fisheries yields.
+    average observed growth rates, abundances and fisheries yields. The
+    [Model setup and calibration cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html)
+    walks through this calibration workflow.
   contents:
   - steady
   - steadyNewton
@@ -174,7 +184,9 @@ reference:
 - title: Analysing results
   description: Calculate summary quantities from a `MizerSim` object, such as
     biomass, yield, growth, and feeding level, averaged or disaggregated over
-    time, species, or size.
+    time, species, or size. The
+    [Analysis and plotting cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html)
+    gives a quick reference to these functions.
   contents:
   - summary_functions
   - has_concept("summary functions")
@@ -194,7 +206,9 @@ reference:
   - has_concept("functions for calculating indicators")
 - title: Plotting results
   description: Visualise size spectra, biomass and yield trajectories, growth
-    curves, and comparisons of model output with observations.
+    curves, and comparisons of model output with observations. See the
+    [Analysis and plotting cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html)
+    for a quick reference.
   contents:
   - plotting_functions
   - plot
@@ -257,6 +271,8 @@ reference:
 - title: Fishing selectivity functions
   description: Functions that determine the size-selectivity of fishing gears,
     i.e. the proportion of fish of a given size that are retained by a gear.
+    The [Fishing cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-fishing.html)
+    gives a quick reference to setting up gears, selectivity and effort.
   contents:
   - has_concept("selectivity functions")
 - title: Resource dynamics

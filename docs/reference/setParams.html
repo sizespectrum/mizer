@@ -56,6 +56,9 @@ See the Details section below for a discussion of how to use this function."><me
     <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
@@ -542,8 +545,10 @@ default it is chosen as \(U = 10\), however this can be overridden by
 including a column <code>w_mat25</code> in the species parameter dataframe that
 specifies the weight at which 25% of individuals are mature, which sets
 \(U = \log(3) / \log(w_{mat} / w_{mat25}).\)</p>
-<p>The sigmoidal function given above would strictly reach 1 only
-asymptotically. For computational simplicity, any proportion smaller than
+<p>The sigmoidal function given above would strictly reach 0 only
+asymptotically and thus have some (negligible) amount of reproduction at
+arbitrarily small size.
+For computational simplicity, any proportion smaller than
 <code>1e-8</code> is set to <code>0</code>.</p>
 </div>
 
@@ -553,7 +558,7 @@ asymptotically. For computational simplicity, any proportion smaller than
 invested into reproduction is not supplied via the <code>repro_prop</code> argument,
 it is set to the allometric form
 $${\tt repro\_prop}(w) =
-  \left(\frac{w}{w_{\tt{repro\_max}}}\right)^{m-n}.$$
+  \min\left(\left(\dfrac{w}{w_{\tt{repro\_max}}}\right)^{m-n},1\right).$$
 Here \(n\) is the scaling exponent of the energy income rate. Hence
 the exponent \(m\) determines the scaling of the investment into
 reproduction for mature individuals. By default it is chosen to be

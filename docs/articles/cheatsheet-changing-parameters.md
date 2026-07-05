@@ -1,0 +1,420 @@
+# Cheatsheet: Changing Model Parameters
+
+Mizer offers several ways to change a model, and it is easy to be unsure
+which one to reach for. This cheatsheet explains the distinctions and
+gives a rule for each. The guiding principle:
+
+> **Change the model at the highest level that expresses your intent,
+> and let mizer propagate the change downwards.** Only drop to a lower
+> level when you deliberately want to override mizer’s calculations.
+
+------------------------------------------------------------------------
+
+## The levels of a mizer model
+
+A mizer model is built in layers. Almost every change you make is really
+a choice of *which layer* to reach into:
+
+| Level | What it is | Change it with |
+|----|----|----|
+| **1. Size-independent parameters** | the high-level inputs: per-species scalars (`w_inf`, `beta`, `gamma`, `h`, `erepro`, …), fishing gears, resource scalars, and interactions | [`given_species_params(params) <-`](https://sizespectrum.org/mizer/reference/species_params.md), [`gear_params(params) <-`](https://sizespectrum.org/mizer/reference/gear_params.md), [`resource_params(params) <-`](https://sizespectrum.org/mizer/reference/resource_params.md), [`setInteraction()`](https://sizespectrum.org/mizer/reference/setInteraction.md) |
+| **2. Size-dependent parameters** | arrays over size that mizer **calculates** from the parameters (search volume, metabolic rate, predation kernel, resource capacity, selectivity, …) | the [`set…()`](https://sizespectrum.org/mizer/reference/setParams.md) functions |
+| **3. Rate functions** | the functions mizer calls to compute the rates during a simulation | [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) |
+
+**Levels 1 and 2 cover almost all everyday work.** The parameters at
+level 1 are the highest level: most of them are used to **calculate**
+the size-dependent rate arrays at level 2. Changing a parameter
+therefore normally updates the corresponding array automatically — you
+rarely need to touch the arrays yourself. This is what the guiding
+principle above means by propagating a change downwards. Species
+parameters, gear parameters and resource parameters all sit together at
+the top level: each is a set of scalar inputs from which mizer builds
+the arrays below.
+
+**Levels 3** is for going beyond mizer’s built-in behaviour. With
+[`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
+you replace the function mizer uses to compute a rate (for example a
+bespoke mortality or reproduction rate), and with
+[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+you add a whole new ecosystem component — a detritus pool, a carrion
+pool, an extra predator — with its own dynamics. These are advanced and
+are documented on their own reference pages rather than in this
+cheatsheet.
+
+------------------------------------------------------------------------
+
+## Level 1: Size-independent parameters
+
+A size-structured model like mizer potentially has a huge number of
+parameters because for example mortality rates or predation rates need
+to be specified at every size. Luckily, mizer by default assumes some
+sensible functional forms for such size-dependent parameters, so that
+you only need to specify a small number of parameters that are then used
+to calculate the size-dependent parameters.
+
+There are four types of size-independent parameters: species parameters,
+gear parameters, resource parameters and the interaction matrix. For a
+full discussion of how mizer uses size-independent rates to set up the
+size-dependent rates you can read the help page of
+[`setRates()`](https://sizespectrum.org/mizer/reference/setRates.md)
+
+### Species parameters
+
+There are many species-specific parameters in mizer. Luckily, mizer sets
+or calculates defaults for those that you do not specify explicitly.
+
+#### `given` vs `calculated` vs all
+
+Mizer keeps track of which species parameter values you **gave** and
+which ones it **calculated** (from your values or from defaults).
+
+| Accessor | Returns |
+|----|----|
+| [`given_species_params(params)`](https://sizespectrum.org/mizer/reference/species_params.md) | only the parameters you supplied explicitly |
+| [`calculated_species_params(params)`](https://sizespectrum.org/mizer/reference/species_params.md) | the parameters mizer derived or defaulted |
+| [`species_params(params)`](https://sizespectrum.org/mizer/reference/species_params.md) | everything (given, with calculated filling the gaps) |
+
+There are two replacement functions, and the difference matters:
+
+- **`given_species_params(params) <- …`** — the one to use. It records
+  your value as *given* and **triggers recalculation** of everything
+  that depends on it (both the calculated scalar parameters and the
+  size-dependent rate arrays).
+
+  ``` r
+
+  given_species_params(params)$beta <- 150     # updates the predation kernel too
+  ```
+
+- **`species_params(params) <- …`** — writes the value into the combined
+  table **without** recalculating the derived scalar parameters, and
+  your value may be **silently overwritten** the next time a
+  recalculation is triggered. Avoid it unless you know you want this.
+
+**Rule:** to change a species parameter, use
+`given_species_params(params) <-`.
+
+Access columns with `$` (they come back as named vectors):
+
+``` r
+
+species_params(params)$w_mat        # named by species
+given_species_params(params)$gamma  # only if you gave it (NA or NULL otherwise)
+```
+
+------------------------------------------------------------------------
+
+#### How a change propagates
+
+Many species parameters exist only to *set up* a size-dependent rate.
+When you change one with `given_species_params(params) <-`, mizer
+re-runs the relevant setter for you:
+
+| Species parameter(s) | Sets up | via |
+|----|----|----|
+| `gamma`, `q` | search volume | [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md) |
+| `h`, `n` | maximum intake rate | [`setMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md) |
+| `k`, `ks`, `p` | metabolic rate | [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md) |
+| `z0`, `z_ext`, `d` | external mortality | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) |
+| `beta`, `sigma`, `pred_kernel_type` | predation kernel | [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md) |
+| `w_mat`, `w_mat25`, `w_repro_max`, `m` | reproduction allocation | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md) |
+
+Some species parameters are instead used **directly** by the model and
+set up no array — changing them just changes the model: `alpha`
+(assimilation), `w_min` (egg size), `erepro` and `R_max` (reproduction),
+`interaction_resource`, and the length–weight parameters `a`, `b`.
+
+For a fuller description of the species parameters see the help page of
+[`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md).
+
+------------------------------------------------------------------------
+
+### Fishing gear parameters
+
+Fishing gears, selectivity, and catchability live in a separate table,
+[`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
+one row per gear–species pair. Assigning to it recomputes the fishing
+arrays with
+[`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md).
+See the **Fishing** cheatsheet for details.
+
+``` r
+
+gp <- gear_params(params)
+gp["Cod, Otter", "catchability"] <- 0.8
+gear_params(params) <- gp
+```
+
+The related setter
+[`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md)
+is for supplying selectivity/catchability **arrays** directly or setting
+the baseline effort.
+
+------------------------------------------------------------------------
+
+### Resource parameters
+
+The resource works just like the species parameters.
+[`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md)
+returns a named list of scalars (`kappa`, `lambda`, `r_pp`, `n`,
+`w_pp_cutoff`) that set up the resource size-spectrum arrays, and — like
+`given_species_params<-` — assigning to it **rebuilds those arrays** by
+calling
+[`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
+
+``` r
+
+resource_params(params)$kappa  <- 1e11   # rescales the carrying capacity
+resource_params(params)$lambda <- 2.05   # changes the slope of the capacity
+resource_params(params)$r_pp   <- 10     # rebuilds the replenishment rate
+```
+
+| Scalar(s)                        | Rebuilds                              |
+|----------------------------------|---------------------------------------|
+| `kappa`, `lambda`, `w_pp_cutoff` | resource carrying capacity (`cc_pp`)  |
+| `r_pp`, `n`                      | resource replenishment rate (`rr_pp`) |
+
+You can also set the size-resolved arrays directly. As with the species
+rate arrays, doing so **freezes** them (“set manually”), so a later
+scalar change no longer touches them:
+
+| Function | Sets (and freezes) |
+|----|----|
+| [`resource_capacity(params) <-`](https://sizespectrum.org/mizer/reference/setResource.md) | the carrying capacity over size |
+| [`resource_rate(params) <-`](https://sizespectrum.org/mizer/reference/setResource.md) | the replenishment (regeneration) rate over size |
+| [`resource_level(params) <-`](https://sizespectrum.org/mizer/reference/setResource.md) | the resource level (fraction of capacity) |
+| [`setResource(params, …)`](https://sizespectrum.org/mizer/reference/setResource.md) | any of the above, plus `lambda`, `n`, `w_pp_cutoff`, `resource_dynamics` |
+
+``` r
+
+resource_capacity(params) <- my_capacity          # array over size; now frozen
+resource_params(params)$kappa <- 1e11             # ignored: capacity is frozen
+params <- setResource(params, reset = TRUE)       # unfreeze: recompute from the scalars
+```
+
+This mirrors the species-parameter behaviour exactly: scalars are the
+“given” inputs, the arrays are calculated from them unless you override
+an array by hand.
+
+------------------------------------------------------------------------
+
+### The interaction matrix
+
+The species × species interaction matrix is set with
+[`setInteraction()`](https://sizespectrum.org/mizer/reference/setInteraction.md)
+and read with
+[`getInteraction()`](https://sizespectrum.org/mizer/reference/getInteraction.md).
+(The resource interaction is in the `interaction_resource`
+species-parameter column instead.)
+
+``` r
+
+inter <- getInteraction(params)
+inter["Cod", "Herring"] <- 0.5
+params <- setInteraction(params, inter)
+```
+
+------------------------------------------------------------------------
+
+## Level 2: Size-dependent rates
+
+Everything above changes level-1 parameters and lets mizer rebuild the
+level-2 arrays for you. This section is about reaching *into* level 2
+directly if you need a different size-dependence from the one mizer
+assumes by default.
+
+Each size-dependent parameter is stored as an array and has its own
+**setter function** — `metab(params) <-`, `search_vol(params) <-`, and
+so on — that writes an array straight into the model. (The matching
+getter, e.g. `metab(params)`, reads it back.) This is equivalent to
+passing the array to the corresponding `set…()` function:
+
+``` r
+
+metab(params) <- my_array                             # direct setter
+params <- setMetabolicRate(params, metab = my_array)  # create new model
+```
+
+Note how the `set...()` functions return a new `MizerParams` object
+while the direct setter functions like `metab()<-` make the change in
+place, i.e., modify the passed `MizerParams` object.
+
+Either way you **freeze** that array: mizer marks it as “set manually”
+and will **no longer update it** when you change the species parameters
+that would otherwise feed it. This is intentional — it lets you impose a
+bespoke rate — but it means, for example, that after setting
+`search_vol` by hand, changing `gamma` has no effect on the search
+volume. To hand control back to mizer, recompute the array from the
+parameters:
+
+``` r
+
+params <- setSearchVolume(params, reset = TRUE)   # drop the manual override, recompute
+```
+
+(Calling `setSearchVolume(params)` *without* `reset = TRUE` will **not**
+recompute a frozen array — mizer leaves a manually set array in place
+until you explicitly reset it. Each of the size-dependent rate setters
+below takes this `reset` argument, as do
+[`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
+and
+[`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md).)
+
+The full set of size-dependent rate arrays, each with its direct
+setter/getter and the `set…()` function that recomputes it:
+
+| Rate array | Direct setter / getter | Recompute with |
+|----|----|----|
+| search volume | `search_vol(params) <-` | [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md) |
+| maximum intake rate | `intake_max(params) <-` | [`setMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md) |
+| metabolic rate | `metab(params) <-` | [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md) |
+| external mortality | `ext_mort(params) <-` | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) |
+| external encounter rate | `ext_encounter(params) <-` | [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md) |
+| external diffusion | `ext_diffusion(params) <-` | [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md) |
+| predation kernel | `pred_kernel(params) <-` | [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md) |
+| maturity ogive | `maturity(params) <-` | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md) |
+| reproduction allocation | `repro_prop(params) <-` | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md) |
+
+The fishing arrays (selectivity, catchability) and the resource arrays
+behave the same way but are covered in the
+[Fishing](#fishing-parameters) and [Resource](#resource-parameters)
+sections above.
+
+------------------------------------------------------------------------
+
+## Level 3: Replacing a rate function
+
+Levels 1 and 2 change the *numbers* mizer uses; level 3 changes the
+*code*. At every time step of a
+[`project()`](https://sizespectrum.org/mizer/reference/project.md) run,
+mizer calls a set of functions to compute the instantaneous rates
+(encounter, feeding level, mortality, reproduction, …).
+[`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
+swaps any one of these for a function of your own, without touching the
+species parameters or the rate arrays:
+
+``` r
+
+params <- setRateFunction(params, "Mort", "myMort")   # use myMort() for total mortality
+getRateFunction(params)                               # list the current rate functions
+```
+
+The first argument names the rate to replace. The available names are
+the components mizer computes internally: `Encounter`, `FeedingLevel`,
+`PredRate`, `PredMort`, `FMort`, `Mort`, `EReproAndGrowth`, `ERepro`,
+`EGrowth`, `Diffusion`, `ResourceMort`, `RDI`, `RDD` — and `Rates`
+itself, if you need to replace the whole bundle. Each has a default
+`mizer…()` implementation
+(e.g. [`mizerMort()`](https://sizespectrum.org/mizer/reference/mizerMort.md))
+that you can call, wrap, or ignore.
+
+Your function must accept the same arguments as the mizer function it
+replaces and **return an array of the same shape**. The signature always
+includes the current simulation time `t`:
+
+``` r
+myRate <- function(params, n, n_pp, n_other, t, ...) { … }
+```
+
+### Time-dependent rates
+
+This is the key reason to reach for
+[`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md):
+**species parameters and rate arrays are fixed for the whole simulation,
+but a rate *function* receives the current time `t` and can therefore
+change as the simulation runs.** That lets you express things the
+parameters cannot — seasonal forcing, a warming trend, a management
+measure that switches on in a given year, and so on.
+
+For example, to give total mortality an annual cycle (with `t` measured
+in years), wrap the default
+[`mizerMort()`](https://sizespectrum.org/mizer/reference/mizerMort.md)
+and scale its result:
+
+``` r
+
+seasonalMort <- function(params, t, ...) {
+    mizerMort(params, t = t, ...) * (1 + 0.3 * sin(2 * pi * t))
+}
+params <- setRateFunction(params, "Mort", "seasonalMort")
+```
+
+or to step fishing-independent mortality up permanently from year 30
+onwards:
+
+``` r
+
+regimeShift <- function(params, t, ...) {
+    factor <- if (t >= 30) 1.5 else 1
+    mizerMort(params, t = t, ...) * factor
+}
+params <- setRateFunction(params, "Mort", "regimeShift")
+```
+
+Two practical points:
+
+- **Extra parameters** your function needs go in
+  [`other_params(params)`](https://sizespectrum.org/mizer/reference/setRateFunction.md),
+  e.g. `other_params(params)$warming_rate <- 0.02`, and are then
+  reachable inside the function as `params@other_params$warming_rate`.
+- Your functions must be defined in the **global environment or in a
+  package** — mizer cannot find a function defined inside another
+  function.
+
+For the full mechanism, including adding new ecosystem components with
+[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
+see
+[`vignette("extending-mizer")`](https://sizespectrum.org/mizer/articles/extending-mizer.md).
+
+------------------------------------------------------------------------
+
+## Which should I use?
+
+| I want to change… | Use |
+|----|----|
+| a per-species value (`beta`, `w_mat`, `h`, `erepro`, …) | `given_species_params(params) <- …` |
+| fishing gears / selectivity / catchability | `gear_params(params) <- …` |
+| the resource (kappa, lambda, r_pp, …) | `resource_params(params) <- …` |
+| species interactions | `setInteraction(params, …)` |
+| a size-dependent rate, keeping it tied to the parameters | change the underlying parameter (above) |
+| a size-dependent rate to a bespoke array (freezing it) | the direct setter `metab(params) <- …` (or the matching `set…()` with the array argument) |
+| a size-dependent rate back to default form | call matching `set...()` with `reset = TRUE` |
+| how a rate is *computed* (e.g. to make it time-dependent) | `setRateFunction(params, …)` |
+
+------------------------------------------------------------------------
+
+## Quick reference
+
+``` r
+
+# ── Species parameters (preferred: triggers recalculation) ────────────────────
+given_species_params(params)$beta <- 150
+species_params(params)                     # view all (given + calculated)
+calculated_species_params(params)          # only what mizer derived
+
+# ── Size-dependent rate arrays ────────────────────────────────────────────────
+params <- setMetabolicRate(params)         # recompute from species params
+metab(params) <- my_array                  # direct setter; freezes the array
+params <- setSearchVolume(params, search_vol = my_array)  # same, via set...()
+params <- setSearchVolume(params, reset = TRUE)  # unfreeze: recompute again
+params <- setParams(params)                # rebuild ALL rate arrays
+
+# ── Fishing ───────────────────────────────────────────────────────────────────
+gear_params(params) <- gp
+params <- setFishing(params, initial_effort = c(Otter = 1))
+
+# ── Resource (scalars rebuild the arrays, like given_species_params) ──────────
+resource_params(params)$kappa <- 1e11      # rescales the carrying capacity
+resource_capacity(params) <- my_capacity   # bespoke array; freezes it
+params <- setResource(params, reset = TRUE)  # unfreeze: recompute from scalars
+
+# ── Interaction ───────────────────────────────────────────────────────────────
+params <- setInteraction(params, inter)
+
+# ── Rate functions (level 3: replace how a rate is computed) ──────────────────
+seasonalMort <- function(params, t, ...) {
+    mizerMort(params, t = t, ...) * (1 + 0.3 * sin(2 * pi * t))   # t in years
+}
+params <- setRateFunction(params, "Mort", "seasonalMort")  # now time-dependent
+other_params(params)$my_param <- 42                        # params for your function
+```

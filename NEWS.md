@@ -1,5 +1,21 @@
 # development version
 
+- `plotYieldGear()` now supports `log_x`, `log_y`, and `log` arguments, aligning its arguments with `plotYield()`.
+
+- Added three new cheatsheets: "Model Setup and Calibration" (building a model,
+  finding the steady state, calibrating to observed biomass/yield/growth, and
+  projecting), "Fishing" (gears, selectivity functions, catchability, and
+  effort), and "Changing Model Parameters" (the distinction between
+  `given_species_params()`, `calculated_species_params()` and `species_params()`,
+  when changing a species parameter updates a size-dependent rate versus freezing
+  it, and how `gear_params()` and the resource setters differ).
+
+- The analysis-and-plotting cheatsheet now covers the newer plotting functions
+  (`plotCDF()`, `plotSpectra2()`, `plotSpectraRelative()`, `plotCDF2()`,
+  `plot2()`, `plotRelative()`, `animate()`) and the `ArrayResourceBySize`
+  class, and corrects the interactive-plot advice for array objects to use
+  `plotHover()` (they have no `ggplotly()` method).
+
 - When `sel_func` is set on a `gear_params` object, any argument columns
   required by that selectivity function (other than `w`, `species_params`, and
   `...`) are now automatically added as `NA` columns. This means, for example,
@@ -23,11 +39,6 @@
   gear" row names for `gear_params`). For example,
   `species_params(params)$w_mat` now returns a named vector making it easier
   to identify entries. The `species` vector is left unnamed.
-
-- The `species_params` data frame is now an S3 subclass of `data.frame`
-  (`class = c("species_params", "data.frame")`). It supports class-preserving
-  subsetting and subassignment S3 methods, making it safer to use and paving
-  the way for future auto-recalculations.
 
 - New `adjustSizeGrid()` function (an S3 generic) adjusts the size grid of
   a `MizerParams` object to a new minimum and/or maximum size. It can both

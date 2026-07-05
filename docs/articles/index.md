@@ -15,6 +15,12 @@
 
 ### Cheat sheets
 
+- [Cheatsheet: Model Setup and
+  Calibration](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.md):
+- [Cheatsheet: Changing Model
+  Parameters](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md):
+- [Cheatsheet:
+  Fishing](https://sizespectrum.org/mizer/articles/cheatsheet-fishing.md):
 - [Cheatsheet: Analysis and
   Plotting](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.md):
 

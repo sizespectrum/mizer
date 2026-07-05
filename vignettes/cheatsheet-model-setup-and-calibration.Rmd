@@ -1,0 +1,200 @@
+---
+title: "Cheatsheet: Model Setup and Calibration"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    fig_width: 5
+    fig_height: 4
+---
+
+```{r include=FALSE}
+library(mizer)
+params <- NS_params
+```
+
+This cheatsheet gives a quick overview of the functions used to **build** a
+mizer model, bring it to **steady state**, **calibrate** it to observations, and
+**project** it forward. For full documentation of each function, follow the
+links.
+
+Every setter function returns a **new** `MizerParams` object, so always reassign
+the result (`params <- steady(params)`). Change species parameters through
+[`given_species_params(params) <-`](../reference/species_params.html) so that
+dependent quantities are recalculated.
+
+---
+
+## Creating a model
+
+Choose a constructor for the type of model you need.
+
+| Function | Model type |
+|---|---|
+| [`newSingleSpeciesParams()`](../reference/newSingleSpeciesParams.html) | one species in a fixed background |
+| [`newCommunityParams()`](../reference/newCommunityParams.html) | single size spectrum, no species identity |
+| [`newTraitParams()`](../reference/newTraitParams.html) | several species differing only in asymptotic size |
+| [`newMultispeciesParams()`](../reference/newMultispeciesParams.html) | fully general multi-species model |
+
+Most work uses `newMultispeciesParams()`, driven by a **species parameter data
+frame** — one row per species. Only two columns are required:
+
+| Column | Meaning |
+|---|---|
+| `species` | species name |
+| `w_inf` | von Bertalanffy asymptotic weight (g) — the required maximum-size parameter |
+
+`w_max` (the computational grid boundary) defaults to `1.5 * w_inf`; `w_mat`,
+`beta`, `sigma`, `h`, `gamma`, `alpha`, `erepro`, `R_max`, … all have defaults
+or are calculated. Weights are in **grams**, lengths in **cm**, time in
+**years**.
+
+```{r eval=FALSE}
+species_params <- read.csv(
+    system.file("extdata", "NS_species_params.csv", package = "mizer"))
+params <- newMultispeciesParams(species_params)
+```
+
+Useful optional arguments to `newMultispeciesParams()`:
+
+| Argument | Effect |
+|---|---|
+| `interaction` | species × species matrix of overlaps in `[0, 1]` (default all 1) |
+| `gear_params` | fishing gear definitions (see the fishing cheatsheet) |
+| `no_w`, `min_w`, `max_w` | size-grid resolution and range (`no_w = 100` default) |
+
+Inspect the result with [`summary(params)`](../reference/summary.html),
+[`species_params(params)`](../reference/species_params.html),
+[`getInteraction(params)`](../reference/getInteraction.html), and
+[`gear_params(params)`](../reference/gear_params.html).
+
+---
+
+## Finding the steady state
+
+A freshly constructed model has only a rough spectrum. Settle it onto a steady
+state, which also sets the initial values used by calibration and `project()`.
+
+| Function | Use |
+|---|---|
+| [`steady(params)`](../reference/steady.html) | run the dynamics to convergence with births held fixed (the default) |
+| [`projectToSteady(params)`](../reference/projectToSteady.html) | version with births responding dynamically; exposes `t_max`, `return_sim` |
+| [`steadySingleSpecies(params)`](../reference/steadySingleSpecies.html) | set each species to its single-species steady form with births held fixed (fast starting point) |
+
+```{r eval=FALSE}
+params <- steady(params)
+```
+
+During model setup and calibration you almost always want `steady()` or
+`steadySingleSpecies()` because keeping births constant lets the dynamics
+  converge reliably onto *a* steady state. Afterwards these functions re-tune the
+  reproduction parameters so that density-dependent reproduction reproduces
+  exactly that birth rate at the new steady state — use `preserve` to choose
+  whether `reproduction_level` (default), `R_max`, or `erepro` is held fixed
+  during that re-tuning.
+
+---
+
+## Calibrating to observations
+
+Supply observations in the species-parameter columns `biomass_observed` and/or
+`yield_observed` (optionally with `biomass_cutoff` / `yield_cutoff` size
+thresholds). Then run the calibration loop, **re-running `steady()` after any
+match/calibrate step**:
+
+| Function | Adjusts | To match |
+|---|---|---|
+| [`calibrateBiomass(params)`](../reference/calibrateBiomass.html) | `kappa` (resource level) | total community biomass |
+| [`matchBiomasses(params)`](../reference/matchBiomasses.html) | per-species abundance | each `biomass_observed` |
+| [`calibrateYield(params)`](../reference/calibrateYield.html) | overall abundance scale | total community yield |
+| [`matchYields(params)`](../reference/matchYields.html) | per-species abundance | each `yield_observed` |
+| [`matchGrowth(params)`](../reference/matchGrowth.html) | `h`, `gamma`, `ks`, `k` | growth to `w_mat` / `w_inf` |
+
+```{r eval=FALSE}
+params <- calibrateBiomass(params)   # total biomass
+params <- matchBiomasses(params)     # per species
+params <- matchGrowth(params)        # growth
+params <- steady(params)             # re-converge
+```
+
+`matchGrowth()` and `matchBiomasses()` pull on different parameters; alternate
+them, re-running `steady()` between, until both are satisfied.
+
+---
+
+## Density-dependent reproduction
+
+[`setBevertonHolt()`](../reference/setBevertonHolt.html) sets how strongly
+reproduction is density-limited. `reproduction_level` is the fraction of maximum
+recruitment realised at steady state (0 = density independent, closer to 1 =
+strongly limited).
+
+```{r eval=FALSE}
+params <- setBevertonHolt(params, reproduction_level = 0.25)
+```
+
+You can instead pass `R_max`, `erepro`, or a per-species named vector.
+
+---
+
+## Projecting forward
+
+[`project()`](../reference/project.html) runs the model and returns a
+`MizerSim`. See the analysis-and-plotting cheatsheet for exploring the result.
+
+```{r eval=FALSE}
+sim <- project(params, t_max = 20, effort = 1)
+```
+
+| Argument | Meaning |
+|---|---|
+| `effort` | scalar, per-gear vector, or time × gear array (see fishing cheatsheet) |
+| `t_max` | number of years to simulate |
+| `dt` | integration time step (reduce if a run is unstable) |
+| `t_save` | interval at which output is stored |
+| `method` | `"euler"` (default), `"predictor_corrector"`, `"tr_bdf2"` |
+
+Pass a `MizerSim` back to `project()` to continue from where it ended.
+
+---
+
+## Verifying the model
+
+```{r eval=FALSE}
+plotSpectra(params)                    # sensible, overlapping spectra?
+plotGrowthCurves(params, species = "Cod")
+plotBiomassObservedVsModel(params)     # points near the 1:1 line?
+plotYieldObservedVsModel(params)
+```
+
+---
+
+## Quick reference
+
+```{r eval=FALSE}
+# ── Build ─────────────────────────────────────────────────────────────────────
+params <- newMultispeciesParams(species_params, interaction)
+params <- newTraitParams()          # or newCommunityParams(), newSingleSpeciesParams()
+
+# ── Steady state ──────────────────────────────────────────────────────────────
+params <- steady(params)
+params <- steadySingleSpecies(params)   # fast starting spectrum
+params <- steadyNewton(params)          # direct solve (experimental)
+
+# ── Calibrate to data (re-run steady() after each) ────────────────────────────
+params <- calibrateBiomass(params)      # total biomass  → kappa
+params <- matchBiomasses(params)        # per-species biomass
+params <- calibrateYield(params)        # total yield
+params <- matchYields(params)           # per-species yield
+params <- matchGrowth(params)           # growth → h, gamma, ks, k
+
+# ── Reproduction ──────────────────────────────────────────────────────────────
+params <- setBevertonHolt(params, reproduction_level = 0.25)
+
+# ── Project ───────────────────────────────────────────────────────────────────
+sim <- project(params, t_max = 20, effort = 1)
+
+# ── Verify ────────────────────────────────────────────────────────────────────
+plotBiomassObservedVsModel(params)
+plotGrowthCurves(params)
+```

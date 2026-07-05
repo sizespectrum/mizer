@@ -459,6 +459,23 @@ test_that("yield plotting helpers accept ylim", {
     expect_equal(p_gear$scales$get_scales("y")$limits, log10(c(1e-5, 1)))
 })
 
+test_that("plotYieldGear supports log_x, log_y, and log arguments", {
+    p_default <- plotYieldGear(sim, species = species)
+    expect_identical(p_default$scales$get_scales("x")$trans$name, "identity")
+    expect_identical(p_default$scales$get_scales("y")$trans$name, "log-10")
+
+    p_log_x <- plotYieldGear(sim, species = species, log_x = TRUE)
+    expect_identical(p_log_x$scales$get_scales("x")$trans$name, "log-10")
+
+    p_log_y_false <- plotYieldGear(sim, species = species, log_y = FALSE)
+    expect_identical(p_log_y_false$scales$get_scales("y")$trans$name, "identity")
+
+    p_log_xy <- plotYieldGear(sim, species = species, log = "xy")
+    expect_identical(p_log_xy$scales$get_scales("x")$trans$name, "log-10")
+    expect_identical(p_log_xy$scales$get_scales("y")$trans$name, "log-10")
+})
+
+
 
 # testing the plot outputs
 test_that("return_data is identical",{
