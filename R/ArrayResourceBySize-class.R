@@ -76,15 +76,7 @@ print.ArrayResourceBySize <- function(x, ...) {
         header <- paste0(header, " [", units_str, "]")
     }
     cat(header, "\n")
-    vals <- unclass(x)
-    vals <- vals[is.finite(vals)]
-    if (length(vals) == 0) {
-        cat("  all NA/Inf\n")
-    } else {
-        cat("  min=", signif(min(vals), 3),
-            " mean=", signif(mean(vals), 3),
-            " max=", signif(max(vals), 3), "\n", sep = "")
-    }
+    print(unclass_resource(x))
     invisible(x)
 }
 
@@ -339,15 +331,7 @@ print.ArrayTimeByResourceBySize <- function(x, ...) {
         header <- paste0(header, " [", units_str, "]")
     }
     cat(header, "\n")
-    vals <- unclass(x)
-    vals <- vals[is.finite(vals)]
-    if (length(vals) == 0) {
-        cat("  all NA/Inf\n")
-    } else {
-        cat("  min=", signif(min(vals), 3),
-            " mean=", signif(mean(vals), 3),
-            " max=", signif(max(vals), 3), "\n", sep = "")
-    }
+    print(unclass_resource(x))
     invisible(x)
 }
 

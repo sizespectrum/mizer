@@ -80,20 +80,7 @@ print.ArraySpeciesBySize <- function(x, ...) {
         header <- paste0(header, " [", units_str, "]")
     }
     cat(header, "\n")
-    # Print a compact summary per species
-    sp_names <- rownames(x)
-    if (!is.null(sp_names)) {
-        vals <- apply(unclass(x), 1, function(row) {
-            row <- row[is.finite(row)]
-            if (length(row) == 0) return("all NA/Inf")
-            paste0("min=", signif(min(row), 3),
-                   " mean=", signif(mean(row), 3),
-                   " max=", signif(max(row), 3))
-        })
-        for (i in seq_along(sp_names)) {
-            cat("  ", sp_names[i], ": ", vals[i], "\n", sep = "")
-        }
-    }
+    print(unclass_rate(x))
     invisible(x)
 }
 
@@ -957,6 +944,7 @@ unclass_rate <- function(x) {
     attr(x, "value_name") <- NULL
     attr(x, "units") <- NULL
     attr(x, "params") <- NULL
+    attr(x, "representation") <- NULL
     x
 }
 

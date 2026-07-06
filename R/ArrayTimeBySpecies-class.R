@@ -71,19 +71,7 @@ print.ArrayTimeBySpecies <- function(x, ...) {
         header <- paste0(header, " [", units_str, "]")
     }
     cat(header, "\n")
-    sp_names <- colnames(x)
-    if (!is.null(sp_names)) {
-        vals <- apply(unclass(x), 2, function(col) {
-            col <- col[is.finite(col)]
-            if (length(col) == 0) return("all NA/Inf")
-            paste0("min=", signif(min(col), 3),
-                   " mean=", signif(mean(col), 3),
-                   " max=", signif(max(col), 3))
-        })
-        for (i in seq_along(sp_names)) {
-            cat("  ", sp_names[i], ": ", vals[i], "\n", sep = "")
-        }
-    }
+    print(unclass_time(x))
     invisible(x)
 }
 
