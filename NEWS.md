@@ -1,5 +1,20 @@
 # mizer 3.1.0.9000 (development version)
 
+- An installed extension package is now recognised as a dispatching extension
+  from the S3 methods it registers for its marker class (e.g.
+  `getEncounter.mizerMR`), rather than only from a statically defined S4 marker
+  class. This lets extension packages omit the static
+  `setClass("mizerFoo", contains = "MizerParams")` and instead let mizer create
+  the marker class dynamically when the package is loaded, inserting it at the
+  correct place in the S4 hierarchy relative to any other extensions loaded in
+  the session. As a result, two independently developed extension packages
+  (for example mizerReef and mizerMR) can now be chained in either load order,
+  which a static sibling-of-`MizerParams` class prevented.
+
+- `recordExtension()` now prepends a genuinely new extension to the front of the
+  object's `@extensions` chain, keeping it ordered outermost-first to match
+  `registerExtension()`. Existing entries stay in place.
+
 - `print()` on `ArraySpeciesBySize`, `ArrayTimeBySpecies`, `ArrayResourceBySize`,
   `ArrayTimeByResourceBySize` and `ArrayTimeBySpeciesBySize` objects (as
   returned by `getEncounter()`, `getBiomass()`, `getResourceMort()`, `NResource()`,

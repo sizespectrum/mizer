@@ -35,6 +35,57 @@ test_that("getEncounter dispatches through extension chain", {
     expect_equal(getRates(params)$encounter, base + 1, ignore_attr = TRUE)
 })
 
+test_that("getEncounter composes a two-extension chain outermost-first", {
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
+
+    suffix <- Sys.getpid()
+    extA <- paste0("mizerTestChainA", suffix)
+    extB <- paste0("mizerTestChainB", suffix)
+    # The chain is stored outermost-first, so extB dispatches before extA.
+    chain <- setNames(c(NA_character_, NA_character_), c(extB, extA))
+    registerExtensions(chain)
+
+    order <- new.env(parent = emptyenv())
+    order$log <- character()
+    registerS3method(
+        "projectEncounter", extA,
+        function(params, ...) {
+            order$log <- c(order$log, "extA")
+            NextMethod() + 1
+        },
+        envir = asNamespace("mizer")
+    )
+    registerS3method(
+        "projectEncounter", extB,
+        function(params, ...) {
+            order$log <- c(order$log, "extB")
+            NextMethod() + 10
+        },
+        envir = asNamespace("mizer")
+    )
+
+    params <- NS_params_small
+    params@extensions <- chain
+    params <- coerceToExtensionClass(params)
+    # The object is coerced to the outermost class, extending extA and MizerParams.
+    expect_identical(class(params)[[1]], extB)
+    expect_true(is(params, extA))
+
+    base <- projectEncounter.MizerParams(
+        params,
+        n = initialN(params),
+        n_pp = initialNResource(params),
+        n_other = initialNOther(params),
+        t = 0
+    )
+
+    result <- getEncounter(params)
+    # Outermost extB runs first, then extA, then the base method.
+    expect_identical(order$log, c("extB", "extA"))
+    expect_equal(result, base + 11, ignore_attr = TRUE)
+})
+
 test_that("projectEncounter base method is mizerEncounter", {
     expect_identical(projectEncounter.MizerParams, mizerEncounter)
     expect_identical(projectFeedingLevel.MizerParams, mizerFeedingLevel)
@@ -154,4 +205,25 @@ test_that("classless extensions do not trigger project dispatch", {
     expect_identical(getRates(params)$classless, TRUE)
     expect_equal(getEncounter(params, t = 3), params@initial_n * 0 + 3,
                  ignore_attr = TRUE)
+})
+
+test_that("dispatch extensions are detected from their registered S3 methods", {
+    # An installed extension participates in dispatch if its package registers
+    # S3 methods for its marker class, even with a non-NA requirement and no
+    # statically defined S4 class. This lets packages omit the static setClass
+    # and let mizer build the class hierarchy dynamically so they can be chained.
+    ns <- asNamespace("mizer")
+    orig <- getNamespaceInfo(ns, "S3methods")
+    withr::defer(setNamespaceInfo(ns, "S3methods", orig))
+    registerS3method("format", "mizer", function(x, ...) x, envir = ns)
+
+    expect_true(providesDispatchMethods("mizer"))
+    expect_true("mizer" %in%
+                    names(dispatchExtensions(c(mizer = "1.0.0"))))
+
+    # A package that registers no methods for its own name is not a dispatcher,
+    # nor is an unloaded package name.
+    expect_false(providesDispatchMethods("methods"))
+    expect_false(providesDispatchMethods("nonexistent_pkg_xyz_123"))
+    expect_false("stats" %in% names(dispatchExtensions(c(stats = "0.0"))))
 })

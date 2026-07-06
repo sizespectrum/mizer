@@ -40,6 +40,28 @@ test_that("recordExtension stamps without disturbing other entries", {
     expect_identical(unname(p3@extensions$extA[["version"]]), "2.0.0")
 })
 
+test_that("recordExtension prepends genuinely new entries", {
+    p <- NS_params
+    p@extensions <- list(extA = c(requirement = "owner/repo",
+                                  version = NA_character_))
+
+    # unversioned new entry goes to the front
+    p2 <- recordExtension(p, "extB")
+    expect_identical(names(p2@extensions), c("extB", "extA"))
+
+    # versioned new entry also goes to the front, existing entry untouched
+    p3 <- recordExtension(p, "extB", version = "1.0.0")
+    expect_identical(names(p3@extensions), c("extB", "extA"))
+    expect_identical(unname(p3@extensions$extB[["version"]]), "1.0.0")
+    expect_identical(p3@extensions$extA, p@extensions$extA)
+
+    # legacy character slot: new entry prepended, slot stays a character vector
+    p@extensions <- c(extA = "owner/repo")
+    p4 <- recordExtension(p, "extB")
+    expect_false(is.list(p4@extensions))
+    expect_identical(names(p4@extensions), c("extB", "extA"))
+})
+
 test_that("recordExtension can stamp onto an empty slot", {
     p <- NS_params
     expect_length(p@extensions, 0)

@@ -20,8 +20,11 @@ The \code{params} object with the updated \verb{@extensions} slot.
 \description{
 Writes an entry for \code{name} into the object's \verb{@extensions} slot, converting
 the slot to the versioned list form. Existing entries (and their version
-stamps) are preserved. The requirement is taken from the existing entry if
-present, otherwise from the registered extension chain.
+stamps) are preserved, keeping their position in the chain. A genuinely new
+entry is prepended to the front of the chain so that it stays ordered
+outermost-first, matching \code{\link[=registerExtension]{registerExtension()}}. The requirement is taken
+from the existing entry if present, otherwise from the registered extension
+chain.
 }
 \details{
 Extension packages should call this instead of assigning to \verb{@extensions}

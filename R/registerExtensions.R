@@ -269,8 +269,11 @@ makeExtensions <- function(requirements, versions = character()) {
 #'
 #' Writes an entry for `name` into the object's `@extensions` slot, converting
 #' the slot to the versioned list form. Existing entries (and their version
-#' stamps) are preserved. The requirement is taken from the existing entry if
-#' present, otherwise from the registered extension chain.
+#' stamps) are preserved, keeping their position in the chain. A genuinely new
+#' entry is prepended to the front of the chain so that it stays ordered
+#' outermost-first, matching [registerExtension()]. The requirement is taken
+#' from the existing entry if present, otherwise from the registered extension
+#' chain.
 #'
 #' Extension packages should call this instead of assigning to `@extensions`
 #' directly. Pass `version` (typically `packageVersion(name)`) only when the
@@ -308,11 +311,15 @@ recordExtension <- function(params, name, version = NULL) {
         # Preserve the existing stamp. If the entry already exists, leave the
         # slot exactly as it is so ordinary modifications do not perturb it.
         if (present) return(params)
-        # Otherwise add an unversioned entry, keeping the slot's current form.
+        # Otherwise add an unversioned entry at the front, keeping the slot's
+        # current form. New entries are prepended so the chain stays
+        # outermost-first, matching registerExtension().
         if (is.list(ext)) {
-            ext[[name]] <- c(requirement = req, version = NA_character_)
+            entry <- setNames(list(c(requirement = req, version = NA_character_)),
+                              name)
+            ext <- c(entry, ext)
         } else {
-            ext[[name]] <- req
+            ext <- c(setNames(req, name), ext)
         }
         params@extensions <- ext
         return(params)
@@ -323,7 +330,14 @@ recordExtension <- function(params, name, version = NULL) {
         ext <- makeExtensions(reqs, extensionVersions(ext))
         if (!is.list(ext)) ext <- setNames(list(), character())
     }
-    ext[[name]] <- c(requirement = req, version = as.character(version))
+    entry <- c(requirement = req, version = as.character(version))
+    if (present) {
+        # Update the existing entry in place, preserving its position.
+        ext[[name]] <- entry
+    } else {
+        # Prepend a new entry to keep the chain outermost-first.
+        ext <- c(setNames(list(entry), name), ext)
+    }
     params@extensions <- ext
     params
 }
@@ -518,10 +532,44 @@ defineExtensionClasses <- function(extensions) {
     invisible(extensions)
 }
 
+#' Does an installed extension register dispatch methods for its own class?
+#'
+#' An extension package participates in dispatch by registering S3 methods for
+#' mizer generics keyed on its marker class (e.g. `getEncounter.mizerMR`). This
+#' checks the package namespace's own S3 method registry for any method whose
+#' class is the extension name or its sim variant. Because S3 method
+#' registration does not require the S4 marker class to exist, this lets mizer
+#' recognise a dispatching extension *before* creating its class, so extension
+#' packages no longer have to define the marker class statically. Defining it
+#' statically as `contains = "MizerParams"` would in fact prevent the package
+#' from being chained with other extensions, since a sealed class cannot be
+#' re-parented into the chain (see [defineExtensionClasses()]).
+#'
+#' @param name The extension identifier (its marker class / package name).
+#' @return `TRUE` if the loaded namespace `name` registers S3 methods for class
+#'   `name` or `paste0(name, "Sim")`, otherwise `FALSE`.
+#' @keywords internal
+providesDispatchMethods <- function(name) {
+    if (!isNamespaceLoaded(name)) {
+        return(FALSE)
+    }
+    s3 <- tryCatch(getNamespaceInfo(asNamespace(name), "S3methods"),
+                   error = function(e) NULL)
+    if (is.null(s3) || nrow(s3) == 0) {
+        return(FALSE)
+    }
+    classes <- s3[, 2]
+    name %in% classes || simExtensionClass(name) %in% classes
+}
+
 #' Filter an extension vector to those that participate in S3/S4 dispatch
 #'
 #' An extension participates in dispatch if its requirement is `NA_character_`
-#' (in-development) or if an S4 class with its name already exists.
+#' (in-development), if an S4 class with its name already exists, or if its
+#' loaded package registers S3 dispatch methods for its marker class (see
+#' [providesDispatchMethods()]). The last case lets an installed extension
+#' package participate without defining its marker class statically; mizer
+#' creates the class dynamically in [defineExtensionClasses()].
 #'
 #' @param extensions Named character vector of extensions.
 #' @return A named character vector containing only the dispatch extensions,
@@ -537,7 +585,8 @@ dispatchExtensions <- function(extensions) {
         extension <- names(extensions)[[i]]
         requirement <- unname(extensions[[i]])
 
-        is.na(requirement) || methods::isClass(extension)
+        is.na(requirement) || methods::isClass(extension) ||
+            providesDispatchMethods(extension)
     }, logical(1))
 
     extensions[is_dispatch_extension]

@@ -15,6 +15,10 @@ preserving order.
 }
 \description{
 An extension participates in dispatch if its requirement is \code{NA_character_}
-(in-development) or if an S4 class with its name already exists.
+(in-development), if an S4 class with its name already exists, or if its
+loaded package registers S3 dispatch methods for its marker class (see
+\code{\link[=providesDispatchMethods]{providesDispatchMethods()}}). The last case lets an installed extension
+package participate without defining its marker class statically; mizer
+creates the class dynamically in \code{\link[=defineExtensionClasses]{defineExtensionClasses()}}.
 }
 \keyword{internal}
