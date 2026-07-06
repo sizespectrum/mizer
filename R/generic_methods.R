@@ -163,21 +163,12 @@ NULL
 #
 # Shared, non-exported machinery used by the print.Array*() methods (defined
 # in the various *-class.R files) to keep their console output compact for
-# large models or long simulations, while never truncating the species or
-# time dimensions of typical mizer models such as NS_params/NS_sim.
-
-# Defaults chosen so that NS_params (12 species, up to 226 sizes) and NS_sim
-# (44 annual time steps) are never truncated on the species or time
-# dimensions. The size dimension always samples down to `size_max` points,
-# since even a handful of species already have too many size bins to show in
-# full and a spread of sizes is far more informative than a full dump.
+# large models or long simulations.
 mizer_print_defaults <- list(
-    time_head = 5L,
-    time_tail = 5L,
     time_max = 8L,
-    time_threshold = 50L,
-    species_head = 15L,
-    species_threshold = 40L,
+    time_threshold = 12L,
+    species_head = 8L,
+    species_threshold = 13L,
     size_max = 10L,
     size_min = 2L
 )
@@ -204,17 +195,6 @@ pick_head_indices <- function(n, head_n, threshold = head_n) {
         return(seq_len(n))
     }
     seq_len(head_n)
-}
-
-# Choose leading and trailing indices out of 1:n, for the time dimension,
-# where both the start and the end of a simulation are usually of interest.
-# Returns a list with `idx` (the selected indices) and `gap_after` (how many
-# leading elements of `idx` come before the omitted gap; NA if untruncated).
-pick_head_tail_indices <- function(n, head_n, tail_n, threshold = head_n + tail_n) {
-    if (n <= threshold) {
-        return(list(idx = seq_len(n), gap_after = NA_integer_))
-    }
-    list(idx = c(seq_len(head_n), (n - tail_n + 1):n), gap_after = head_n)
 }
 
 # Estimate the number of characters needed to print a numeric matrix (with
@@ -284,39 +264,7 @@ format_size_range_detail <- function(w) {
 # Format the time-range detail used inside format_truncation_note() for an
 # evenly spaced sample of time steps.
 format_time_range_detail <- function(times) {
-    paste0(signif(min(times), 3), "-", signif(max(times), 3), ", evenly spaced")
-}
-
-# Format the inline gap marker printed between the head and tail blocks of a
-# truncated time series.
-format_gap_marker <- function(n_hidden, from_label = NULL, to_label = NULL) {
-    if (!is.null(from_label) && !is.null(to_label)) {
-        paste0("   ...  (", n_hidden, " more, ", from_label, "-", to_label, ")  ...")
-    } else {
-        paste0("   ...  (", n_hidden, " more)  ...")
-    }
-}
-
-# Print a time-indexed matrix (time along the rows), inserting a gap marker
-# between the head and tail blocks if `tt` (from pick_head_tail_indices())
-# indicates truncation. `col_idx` selects which columns to show.
-print_time_matrix <- function(mat, tt, col_idx) {
-    if (is.na(tt$gap_after)) {
-        print(mat[tt$idx, col_idx, drop = FALSE])
-        return(invisible(NULL))
-    }
-    head_rows <- tt$idx[seq_len(tt$gap_after)]
-    tail_rows <- tt$idx[(tt$gap_after + 1):length(tt$idx)]
-    print(mat[head_rows, col_idx, drop = FALSE])
-
-    hidden_first <- tt$gap_after + 1
-    hidden_last <- nrow(mat) - length(tail_rows)
-    time_labels <- rownames(mat)
-    from_label <- if (!is.null(time_labels)) time_labels[hidden_first] else hidden_first
-    to_label <- if (!is.null(time_labels)) time_labels[hidden_last] else hidden_last
-    cat(format_gap_marker(hidden_last - hidden_first + 1, from_label, to_label), "\n")
-
-    print(mat[tail_rows, col_idx, drop = FALSE])
-    invisible(NULL)
+    paste0(format(min(times), trim = TRUE), "-", format(max(times), trim = TRUE),
+          ", evenly spaced")
 }
 

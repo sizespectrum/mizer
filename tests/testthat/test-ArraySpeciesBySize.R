@@ -82,7 +82,7 @@ test_that("print.ArraySpeciesBySize truncates a wide size grid", {
 test_that("print.ArraySpeciesBySize truncates a large number of species", {
     params_big <- suppressMessages(newTraitParams(no_sp = 60))
     enc_big <- getEncounter(params_big)
-    expect_output(print(enc_big), "showing 15 of 60 species")
+    expect_output(print(enc_big), "showing 8 of 60 species")
 })
 
 test_that("summary.ArraySpeciesBySize works", {

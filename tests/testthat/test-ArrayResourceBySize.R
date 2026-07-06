@@ -86,7 +86,10 @@ test_that("print.ArrayTimeByResourceBySize truncates a long time series", {
     n_resource <- NResource(sim_long)
     expect_identical(nrow(n_resource), 121L)
     out <- paste(capture.output(print(n_resource)), collapse = "\n")
-    expect_match(out, "more, .*-.*\\.\\.\\.")
+    expect_match(out, "\\b0\\b")
+    expect_match(out, "\\b60\\b")
+    expect_match(out, "showing 8 of 121 times")
+    expect_match(out, "evenly spaced")
 })
 
 test_that("summary.ArrayTimeByResourceBySize works", {
