@@ -6,10 +6,11 @@
   `getFMort()` and similar functions) now prints the array's actual values
   instead of a per-species min/mean/max summary, truncating large arrays to
   fit the console: species are shown as a leading subset, sizes as an evenly
-  log-spaced sample across the full size range, and time series as their
-  earliest and latest time steps, with a note reporting how much was omitted.
-  A three-dimensional `ArrayTimeBySpeciesBySize` object is previewed via its
-  final time slice, matching `plot()`'s existing default for that class. Use
+  log-spaced sample across the full size range, and time series as a
+  representative sample of time steps that always includes the first and
+  last, with a note reporting how much was omitted. A three-dimensional
+  `ArrayTimeBySpeciesBySize` object is previewed via its final time slice,
+  matching `plot()`'s existing default for that class. Use
   `as.data.frame()` for full, untruncated access to the data.
 
 - `plotYieldGear()` now supports `log_x`, `log_y`, and `log` arguments,

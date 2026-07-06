@@ -23,14 +23,14 @@ Mizer supplies \code{print()} methods for the array-like objects returned by man
 rate and summary functions. These methods print a compact preview of the
 underlying matrix, array or vector: a header reporting the value name,
 dimensions and units, followed by the actual values, truncated to fit the
-console when the array is large. Species are truncated to a leading subset,
-sizes to an evenly log-spaced sample spanning the full size range (because
-size grids are uniform in log-space, this shows small, medium and large
-individuals rather than just the smallest), and time series to their
-earliest and latest time steps. A trailing note reports how much was
-omitted. A three-dimensional \code{\link[=ArrayTimeBySpeciesBySize]{ArrayTimeBySpeciesBySize()}} object is
-previewed via its final time slice, matching the default behaviour of
-\code{\link[=plot]{plot()}} for that class.
+console when the array is large. Species are truncated to a leading
+subset, sizes to an evenly log-spaced sample spanning the full size range
+(because size grids are uniform in log-space, this shows small, medium and
+large individuals rather than just the smallest), and time series to a
+representative sample of time steps that always includes the first and
+last. A trailing note reports how much was omitted. A three-dimensional
+\code{\link[=ArrayTimeBySpeciesBySize]{ArrayTimeBySpeciesBySize()}} object is previewed via its final time slice,
+matching the default behaviour of \code{\link[=plot]{plot()}} for that class.
 }
 \details{
 For full numeric access, use the object itself as an ordinary matrix, array

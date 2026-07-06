@@ -75,14 +75,19 @@ print.ArrayTimeBySpecies <- function(x, ...) {
     mat <- unclass_time(x)
     n_time <- nrow(mat)
     n_species <- ncol(mat)
+    times <- parse_numeric_labels(rownames(mat), n_time)
 
     sp_idx <- pick_head_indices(n_species, mizer_print_defaults$species_head,
                                 mizer_print_defaults$species_threshold)
-    tt <- pick_head_tail_indices(n_time, mizer_print_defaults$time_head,
-                                 mizer_print_defaults$time_tail,
-                                 mizer_print_defaults$time_threshold)
-    print_time_matrix(mat, tt, sp_idx)
+    time_idx <- pick_log_spaced_indices(n_time, mizer_print_defaults$time_max,
+                                        mizer_print_defaults$time_threshold)
 
+    print(mat[time_idx, sp_idx, drop = FALSE])
+
+    if (length(time_idx) < n_time) {
+        cat(format_truncation_note(length(time_idx), n_time, "times",
+                                   format_time_range_detail(times)), "\n")
+    }
     if (length(sp_idx) < n_species) {
         omitted <- setdiff(colnames(mat), colnames(mat)[sp_idx])
         detail <- paste(utils::head(omitted, 5), collapse = ", ")

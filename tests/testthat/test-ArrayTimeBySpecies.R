@@ -52,8 +52,9 @@ test_that("print.ArrayTimeBySpecies truncates a long time series", {
     # the earliest and latest time steps should both be visible ...
     expect_match(out, "\\b0\\b")
     expect_match(out, "\\b60\\b")
-    # ... with a gap marker reporting how many were hidden in between
-    expect_match(out, "more, .*-.*\\.\\.\\.")
+    # ... via an evenly spaced sample, reported in a trailing footer
+    expect_match(out, "showing 8 of 121 times")
+    expect_match(out, "evenly spaced")
 })
 
 test_that("summary.ArrayTimeBySpecies works", {

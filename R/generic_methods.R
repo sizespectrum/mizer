@@ -10,14 +10,14 @@
 #' rate and summary functions. These methods print a compact preview of the
 #' underlying matrix, array or vector: a header reporting the value name,
 #' dimensions and units, followed by the actual values, truncated to fit the
-#' console when the array is large. Species are truncated to a leading subset,
-#' sizes to an evenly log-spaced sample spanning the full size range (because
-#' size grids are uniform in log-space, this shows small, medium and large
-#' individuals rather than just the smallest), and time series to their
-#' earliest and latest time steps. A trailing note reports how much was
-#' omitted. A three-dimensional [ArrayTimeBySpeciesBySize()] object is
-#' previewed via its final time slice, matching the default behaviour of
-#' [plot()] for that class.
+#' console when the array is large. Species are truncated to a leading
+#' subset, sizes to an evenly log-spaced sample spanning the full size range
+#' (because size grids are uniform in log-space, this shows small, medium and
+#' large individuals rather than just the smallest), and time series to a
+#' representative sample of time steps that always includes the first and
+#' last. A trailing note reports how much was omitted. A three-dimensional
+#' [ArrayTimeBySpeciesBySize()] object is previewed via its final time slice,
+#' matching the default behaviour of [plot()] for that class.
 #'
 #' For full numeric access, use the object itself as an ordinary matrix, array
 #' or vector, or convert it to a long data frame with [as.data.frame()].
@@ -174,6 +174,7 @@ NULL
 mizer_print_defaults <- list(
     time_head = 5L,
     time_tail = 5L,
+    time_max = 8L,
     time_threshold = 50L,
     species_head = 15L,
     species_threshold = 40L,
@@ -181,11 +182,16 @@ mizer_print_defaults <- list(
     size_min = 2L
 )
 
-# Choose evenly log-spaced indices out of 1:n, always including 1 and n.
-# Because mizer's size grids are uniform in log-space, spacing the *indices*
-# evenly reproduces an even spread of *sizes* from smallest to largest.
-pick_log_spaced_indices <- function(n, max_n) {
-    if (n <= max_n) {
+# Choose evenly spaced indices out of 1:n, always including 1 and n, unless
+# n is at most `threshold` (which defaults to max_n itself). Because mizer's
+# size grids are uniform in log-space, spacing the *indices* evenly
+# reproduces an even spread of *sizes* from smallest to largest; for a
+# regularly-saved time grid it reproduces an even spread of *times*.
+# `threshold` lets a caller trigger truncation later than `max_n` alone would
+# (e.g. only truncate once well past the display count), mirroring
+# pick_head_indices()'s `threshold` argument.
+pick_log_spaced_indices <- function(n, max_n, threshold = max_n) {
+    if (n <= threshold) {
         return(seq_len(n))
     }
     sort(unique(round(seq(1, n, length.out = max_n))))
@@ -273,6 +279,12 @@ format_truncation_note <- function(shown, total, label, detail = NULL) {
 # size dimension. Weights are always in grams (see mizer's units convention).
 format_size_range_detail <- function(w) {
     paste0(signif(min(w), 3), "-", signif(max(w), 3), " g, log-spaced")
+}
+
+# Format the time-range detail used inside format_truncation_note() for an
+# evenly spaced sample of time steps.
+format_time_range_detail <- function(times) {
+    paste0(signif(min(times), 3), "-", signif(max(times), 3), ", evenly spaced")
 }
 
 # Format the inline gap marker printed between the head and tail blocks of a
