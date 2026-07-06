@@ -27,15 +27,15 @@ Values used as starting values for simulations with \code{project()}.
 \seealso{
 \code{\link[=initialNResource]{initialNResource()}}, \code{\link[=initialN]{initialN()}}
 
-Other extension tools:
-\code{\link[=NOther]{NOther()}},
-\code{\link[=clearExtensionChain]{clearExtensionChain()}},
-\code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
-\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
-\code{\link[=recordExtension]{recordExtension()}},
-\code{\link[=registerExtension]{registerExtension()}},
-\code{\link[=registerExtensions]{registerExtensions()}},
-\code{\link[=setComponent]{setComponent()}},
-\code{\link[=setRateFunction]{setRateFunction()}}
+Other extension tools: 
+\code{\link{NOther}()},
+\code{\link{clearExtensionChain}()},
+\code{\link{coerceToExtensionClass}()},
+\code{\link{getRegisteredExtensions}()},
+\code{\link{recordExtension}()},
+\code{\link{registerExtension}()},
+\code{\link{registerExtensions}()},
+\code{\link{setComponent}()},
+\code{\link{setRateFunction}()}
 }
 \concept{extension tools}

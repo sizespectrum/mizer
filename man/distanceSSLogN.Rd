@@ -29,8 +29,8 @@ state. This function can be used in \code{\link[=projectToSteady]{projectToStead
 sufficient convergence to steady state has been achieved.
 }
 \seealso{
-Other distance functions:
-\code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}
+Other distance functions: 
+\code{\link{distanceMaxRelRDI}()}
 }
 \concept{distance functions}
 \concept{helper}

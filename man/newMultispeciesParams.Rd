@@ -766,9 +766,9 @@ re-used automatically in the future. That list can be accessed with
 params <- newMultispeciesParams(NS_species_params)
 }
 \seealso{
-Other functions for setting up models:
-\code{\link[=newCommunityParams]{newCommunityParams()}},
-\code{\link[=newSingleSpeciesParams]{newSingleSpeciesParams()}},
-\code{\link[=newTraitParams]{newTraitParams()}}
+Other functions for setting up models: 
+\code{\link{newCommunityParams}()},
+\code{\link{newSingleSpeciesParams}()},
+\code{\link{newTraitParams}()}
 }
 \concept{functions for setting up models}

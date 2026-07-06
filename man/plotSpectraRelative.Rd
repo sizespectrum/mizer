@@ -12,8 +12,8 @@ plotSpectraRelative(
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
-  power = 1,
-  biomass = TRUE,
+  power = lifecycle::deprecated(),
+  biomass = lifecycle::deprecated(),
   total = FALSE,
   resource = TRUE,
   background = TRUE,
@@ -49,15 +49,11 @@ accordingly.}
 for the y axis (the relative difference). Use \code{NA} to refer to the
 existing minimum or maximum.}
 
-\item{power}{The abundance is plotted as the number density times the weight
-raised to \code{power}. The default \code{power = 1} gives the biomass
-density, whereas \code{power = 2} gives the biomass density with respect
-to logarithmic size bins.}
+\item{power}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The powers of \code{w} cancel
+out in the relative difference, so this argument has no effect.}
 
-\item{biomass}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
-Only used if \code{power} argument is missing. Then
-\code{biomass = TRUE} is equivalent to \code{power=1} and
-\code{biomass = FALSE} is equivalent to \code{power=0}}
+\item{biomass}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The powers of \code{w} cancel
+out in the relative difference, so this argument has no effect.}
 
 \item{total}{A boolean value that determines whether the total over all
 species in the system is plotted as well. Note that even if the plot
@@ -110,26 +106,26 @@ plotSpectraRelative(sim1, sim2)
 \seealso{
 \link{plotting_functions}, \code{\link[=plotSpectra]{plotSpectra()}}, \code{\link[=plotSpectra2]{plotSpectra2()}}
 
-Other plotting functions:
-\code{\link[=addPlot]{addPlot()}},
-\code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
-\code{\link{plot}},
-\code{\link[=plot2]{plot2()}},
-\code{\link[=plotBiomass]{plotBiomass()}},
-\code{\link[=plotCDF]{plotCDF()}},
-\code{\link[=plotCDF2]{plotCDF2()}},
-\code{\link[=plotDiet]{plotDiet()}},
-\code{\link[=plotFMort]{plotFMort()}},
-\code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
-\code{\link[=plotGrowthCurves]{plotGrowthCurves()}},
+Other plotting functions: 
+\code{\link{addPlot}()},
+\code{\link{animate.ArrayTimeBySpeciesBySize}()},
+\code{\link{plot}()},
+\code{\link{plot2}()},
+\code{\link{plotBiomass}()},
+\code{\link{plotCDF}()},
+\code{\link{plotCDF2}()},
+\code{\link{plotDiet}()},
+\code{\link{plotFMort}()},
+\code{\link{plotFeedingLevel}()},
+\code{\link{plotGrowthCurves}()},
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
-\code{\link[=plotPredMort]{plotPredMort()}},
-\code{\link[=plotRelative]{plotRelative()}},
-\code{\link[=plotSpectra]{plotSpectra()}},
-\code{\link[=plotSpectra2]{plotSpectra2()}},
-\code{\link[=plotYield]{plotYield()}},
-\code{\link[=plotYieldGear]{plotYieldGear()}},
+\code{\link{plotPredMort}()},
+\code{\link{plotRelative}()},
+\code{\link{plotSpectra}()},
+\code{\link{plotSpectra2}()},
+\code{\link{plotYield}()},
+\code{\link{plotYieldGear}()},
 \code{\link{plotting_functions}}
 }
 \concept{plotting functions}

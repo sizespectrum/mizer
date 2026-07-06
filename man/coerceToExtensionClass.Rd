@@ -25,15 +25,15 @@ extension chain is read from \code{sim@params@extensions}.
 "Creating a mizer extension package":
 \code{vignette("creating-extension-packages", package = "mizer")}
 
-Other extension tools:
-\code{\link[=NOther]{NOther()}},
-\code{\link[=clearExtensionChain]{clearExtensionChain()}},
-\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
-\code{\link[=initialNOther<-]{initialNOther<-()}},
-\code{\link[=recordExtension]{recordExtension()}},
-\code{\link[=registerExtension]{registerExtension()}},
-\code{\link[=registerExtensions]{registerExtensions()}},
-\code{\link[=setComponent]{setComponent()}},
-\code{\link[=setRateFunction]{setRateFunction()}}
+Other extension tools: 
+\code{\link{NOther}()},
+\code{\link{clearExtensionChain}()},
+\code{\link{getRegisteredExtensions}()},
+\code{\link{initialNOther<-}()},
+\code{\link{recordExtension}()},
+\code{\link{registerExtension}()},
+\code{\link{registerExtensions}()},
+\code{\link{setComponent}()},
+\code{\link{setRateFunction}()}
 }
 \concept{extension tools}

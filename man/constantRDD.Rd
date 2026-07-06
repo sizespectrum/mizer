@@ -23,11 +23,11 @@ Vector \code{species_params$constant_reproduction}
 Simply returns the value from \code{species_params$constant_reproduction}.
 }
 \seealso{
-Other functions calculating density-dependent reproduction rate:
-\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}},
-\code{\link[=RickerRDD]{RickerRDD()}},
-\code{\link[=SheperdRDD]{SheperdRDD()}},
-\code{\link[=constantEggRDI]{constantEggRDI()}},
-\code{\link[=noRDD]{noRDD()}}
+Other functions calculating density-dependent reproduction rate: 
+\code{\link{BevertonHoltRDD}()},
+\code{\link{RickerRDD}()},
+\code{\link{SheperdRDD}()},
+\code{\link{constantEggRDI}()},
+\code{\link{noRDD}()}
 }
 \concept{functions calculating density-dependent reproduction rate}

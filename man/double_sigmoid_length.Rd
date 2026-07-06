@@ -68,9 +68,9 @@ double_sigmoid_length(w, l25 = 10, l50 = 15,
 \seealso{
 \code{\link[=gear_params]{gear_params()}} for setting the selectivity parameters.
 
-Other selectivity functions:
-\code{\link[=knife_edge]{knife_edge()}},
-\code{\link[=sigmoid_length]{sigmoid_length()}},
-\code{\link[=sigmoid_weight]{sigmoid_weight()}}
+Other selectivity functions: 
+\code{\link{knife_edge}()},
+\code{\link{sigmoid_length}()},
+\code{\link{sigmoid_weight}()}
 }
 \concept{selectivity functions}

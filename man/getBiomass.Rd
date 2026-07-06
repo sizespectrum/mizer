@@ -16,7 +16,7 @@ size range arguments in \code{...}). If FALSE (default), the specified size rang
 arguments are used, if provided, or the full size range of the species is used.}
 
 \item{...}{
-  Arguments passed on to \code{\link{get_size_range_array}}
+  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
   \describe{
     \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
 the model.}
@@ -63,15 +63,15 @@ biomass <- getBiomass(NS_sim, use_cutoff = TRUE)  # Uses biomass_cutoff as min_w
 biomass["1972", "Herring"]
 }
 \seealso{
-Other summary functions:
-\code{\link[=getDiet]{getDiet()}},
-\code{\link[=getGrowthCurves]{getGrowthCurves()}},
-\code{\link[=getN]{getN()}},
-\code{\link[=getSSB]{getSSB()}},
-\code{\link[=getTrophicLevel]{getTrophicLevel()}},
-\code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
-\code{\link[=getYield]{getYield()}},
-\code{\link[=getYieldGear]{getYieldGear()}}
+Other summary functions: 
+\code{\link{getDiet}()},
+\code{\link{getGrowthCurves}()},
+\code{\link{getN}()},
+\code{\link{getSSB}()},
+\code{\link{getTrophicLevel}()},
+\code{\link{getTrophicLevelBySpecies}()},
+\code{\link{getYield}()},
+\code{\link{getYieldGear}()}
 }
 \concept{summary functions}
 \concept{summary_function}

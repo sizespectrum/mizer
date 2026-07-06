@@ -27,8 +27,8 @@ This function can be used in \code{\link[=projectToSteady]{projectToSteady()}} t
 convergence to steady state has been achieved.
 }
 \seealso{
-Other distance functions:
-\code{\link[=distanceSSLogN]{distanceSSLogN()}}
+Other distance functions: 
+\code{\link{distanceSSLogN}()}
 }
 \concept{distance functions}
 \concept{helper}

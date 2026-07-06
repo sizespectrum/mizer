@@ -18,7 +18,7 @@ each species whether it is to be selected (TRUE) or not.}
 if FALSE the abundance is based on numbers.}
 
 \item{...}{
-  Arguments passed on to \code{\link{get_size_range_array}}
+  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
   \describe{
     \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
 the model.}
@@ -69,10 +69,10 @@ slope_biomass[1, ] # in 1976
 getCommunitySlope(NS_params)
 }
 \seealso{
-Other functions for calculating indicators:
-\code{\link[=getMeanMaxWeight]{getMeanMaxWeight()}},
-\code{\link[=getMeanWeight]{getMeanWeight()}},
-\code{\link[=getProportionOfLargeFish]{getProportionOfLargeFish()}}
+Other functions for calculating indicators: 
+\code{\link{getMeanMaxWeight}()},
+\code{\link{getMeanWeight}()},
+\code{\link{getProportionOfLargeFish}()}
 }
 \concept{functions for calculating indicators}
 \concept{summary_function}

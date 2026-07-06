@@ -33,15 +33,15 @@ object has just been created or upgraded to conform to that version; leave it
 "Creating a mizer extension package":
 \code{vignette("creating-extension-packages", package = "mizer")}
 
-Other extension tools:
-\code{\link[=NOther]{NOther()}},
-\code{\link[=clearExtensionChain]{clearExtensionChain()}},
-\code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
-\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
-\code{\link[=initialNOther<-]{initialNOther<-()}},
-\code{\link[=registerExtension]{registerExtension()}},
-\code{\link[=registerExtensions]{registerExtensions()}},
-\code{\link[=setComponent]{setComponent()}},
-\code{\link[=setRateFunction]{setRateFunction()}}
+Other extension tools: 
+\code{\link{NOther}()},
+\code{\link{clearExtensionChain}()},
+\code{\link{coerceToExtensionClass}()},
+\code{\link{getRegisteredExtensions}()},
+\code{\link{initialNOther<-}()},
+\code{\link{registerExtension}()},
+\code{\link{registerExtensions}()},
+\code{\link{setComponent}()},
+\code{\link{setRateFunction}()}
 }
 \concept{extension tools}

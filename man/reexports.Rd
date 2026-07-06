@@ -11,6 +11,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{reshape2}{\code{\link[reshape2:melt]{melt()}}}
+  \item{reshape2}{\code{\link[reshape2]{melt}}}
 }}
 

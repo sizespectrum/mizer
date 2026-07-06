@@ -15,7 +15,7 @@ numeric vector with the species indices, or a logical vector indicating for
 each species whether it is to be selected (TRUE) or not.}
 
 \item{...}{
-  Arguments passed on to \code{\link{get_size_range_array}}
+  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
   \describe{
     \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
 the model.}
@@ -48,10 +48,10 @@ getMeanWeight(NS_sim, min_w = 10, max_w = 5000)[years]
 getMeanWeight(NS_params)
 }
 \seealso{
-Other functions for calculating indicators:
-\code{\link[=getCommunitySlope]{getCommunitySlope()}},
-\code{\link[=getMeanMaxWeight]{getMeanMaxWeight()}},
-\code{\link[=getProportionOfLargeFish]{getProportionOfLargeFish()}}
+Other functions for calculating indicators: 
+\code{\link{getCommunitySlope}()},
+\code{\link{getMeanMaxWeight}()},
+\code{\link{getProportionOfLargeFish}()}
 }
 \concept{functions for calculating indicators}
 \concept{summary_function}

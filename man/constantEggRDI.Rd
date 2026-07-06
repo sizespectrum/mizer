@@ -50,11 +50,11 @@ all.equal(finalN(sim)[idx], initialN(params)[idx])
 }
 }
 \seealso{
-Other functions calculating density-dependent reproduction rate:
-\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}},
-\code{\link[=RickerRDD]{RickerRDD()}},
-\code{\link[=SheperdRDD]{SheperdRDD()}},
-\code{\link[=constantRDD]{constantRDD()}},
-\code{\link[=noRDD]{noRDD()}}
+Other functions calculating density-dependent reproduction rate: 
+\code{\link{BevertonHoltRDD}()},
+\code{\link{RickerRDD}()},
+\code{\link{SheperdRDD}()},
+\code{\link{constantRDD}()},
+\code{\link{noRDD}()}
 }
 \concept{functions calculating density-dependent reproduction rate}

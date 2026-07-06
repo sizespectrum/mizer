@@ -31,15 +31,15 @@ yield["1972", , "Herring"]
 \seealso{
 \code{\link[=getYield]{getYield()}}
 
-Other summary functions:
-\code{\link[=getBiomass]{getBiomass()}},
-\code{\link[=getDiet]{getDiet()}},
-\code{\link[=getGrowthCurves]{getGrowthCurves()}},
-\code{\link[=getN]{getN()}},
-\code{\link[=getSSB]{getSSB()}},
-\code{\link[=getTrophicLevel]{getTrophicLevel()}},
-\code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
-\code{\link[=getYield]{getYield()}}
+Other summary functions: 
+\code{\link{getBiomass}()},
+\code{\link{getDiet}()},
+\code{\link{getGrowthCurves}()},
+\code{\link{getN}()},
+\code{\link{getSSB}()},
+\code{\link{getTrophicLevel}()},
+\code{\link{getTrophicLevelBySpecies}()},
+\code{\link{getYield}()}
 }
 \concept{summary functions}
 \concept{summary_function}

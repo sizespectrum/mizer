@@ -39,14 +39,14 @@ ggplot(melt(growth_curves)) +
   ylab("Size[g]") + xlab("Age[years]")
 }
 \seealso{
-Other summary functions:
-\code{\link[=getBiomass]{getBiomass()}},
-\code{\link[=getDiet]{getDiet()}},
-\code{\link[=getN]{getN()}},
-\code{\link[=getSSB]{getSSB()}},
-\code{\link[=getTrophicLevel]{getTrophicLevel()}},
-\code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
-\code{\link[=getYield]{getYield()}},
-\code{\link[=getYieldGear]{getYieldGear()}}
+Other summary functions: 
+\code{\link{getBiomass}()},
+\code{\link{getDiet}()},
+\code{\link{getN}()},
+\code{\link{getSSB}()},
+\code{\link{getTrophicLevel}()},
+\code{\link{getTrophicLevelBySpecies}()},
+\code{\link{getYield}()},
+\code{\link{getYieldGear}()}
 }
 \concept{summary functions}

@@ -201,19 +201,19 @@ ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
 }
 }
 \seealso{
-Other functions for setting parameters:
-\code{\link[=gear_params]{gear_params()}},
-\code{\link[=setExtDiffusion]{setExtDiffusion()}},
-\code{\link[=setExtEncounter]{setExtEncounter()}},
-\code{\link[=setExtMort]{setExtMort()}},
-\code{\link[=setFishing]{setFishing()}},
-\code{\link[=setInteraction]{setInteraction()}},
-\code{\link[=setMaxIntakeRate]{setMaxIntakeRate()}},
-\code{\link[=setMetabolicRate]{setMetabolicRate()}},
-\code{\link[=setParams]{setParams()}},
-\code{\link[=setPredKernel]{setPredKernel()}},
-\code{\link[=setSearchVolume]{setSearchVolume()}},
-\code{\link[=species_params]{species_params()}},
-\code{\link[=use_predation_diffusion]{use_predation_diffusion()}}
+Other functions for setting parameters: 
+\code{\link{gear_params}},
+\code{\link{setExtDiffusion}()},
+\code{\link{setExtEncounter}()},
+\code{\link{setExtMort}()},
+\code{\link{setFishing}()},
+\code{\link{setInteraction}()},
+\code{\link{setMaxIntakeRate}()},
+\code{\link{setMetabolicRate}()},
+\code{\link{setParams}()},
+\code{\link{setPredKernel}()},
+\code{\link{setSearchVolume}()},
+\code{\link{species_params}},
+\code{\link{use_predation_diffusion}()}
 }
 \concept{functions for setting parameters}

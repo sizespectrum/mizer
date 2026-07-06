@@ -141,9 +141,9 @@ individual efficiencies of size-structured communities, Proceedings of the
 Royal Society, 276, 109-114
 }
 \seealso{
-Other functions for setting up models:
-\code{\link[=newMultispeciesParams]{newMultispeciesParams()}},
-\code{\link[=newSingleSpeciesParams]{newSingleSpeciesParams()}},
-\code{\link[=newTraitParams]{newTraitParams()}}
+Other functions for setting up models: 
+\code{\link{newMultispeciesParams}()},
+\code{\link{newSingleSpeciesParams}()},
+\code{\link{newTraitParams}()}
 }
 \concept{functions for setting up models}

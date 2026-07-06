@@ -17,7 +17,7 @@ each species whether it is to be selected (TRUE) or not.}
 \item{measure}{The measure to return. Can be 'numbers', 'biomass' or 'both'}
 
 \item{...}{
-  Arguments passed on to \code{\link{get_size_range_array}}
+  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
   \describe{
     \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
 the model.}
@@ -55,10 +55,10 @@ getMeanMaxWeight(NS_sim, min_w = 10, max_w = 5000)[years, ]
 getMeanMaxWeight(NS_params)
 }
 \seealso{
-Other functions for calculating indicators:
-\code{\link[=getCommunitySlope]{getCommunitySlope()}},
-\code{\link[=getMeanWeight]{getMeanWeight()}},
-\code{\link[=getProportionOfLargeFish]{getProportionOfLargeFish()}}
+Other functions for calculating indicators: 
+\code{\link{getCommunitySlope}()},
+\code{\link{getMeanWeight}()},
+\code{\link{getProportionOfLargeFish}()}
 }
 \concept{functions for calculating indicators}
 \concept{summary_function}

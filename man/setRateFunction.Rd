@@ -98,15 +98,15 @@ mizer will not find them.
 "Extending mizer":
 \code{vignette("extending-mizer", package = "mizer")}
 
-Other extension tools:
-\code{\link[=NOther]{NOther()}},
-\code{\link[=clearExtensionChain]{clearExtensionChain()}},
-\code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
-\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
-\code{\link[=initialNOther<-]{initialNOther<-()}},
-\code{\link[=recordExtension]{recordExtension()}},
-\code{\link[=registerExtension]{registerExtension()}},
-\code{\link[=registerExtensions]{registerExtensions()}},
-\code{\link[=setComponent]{setComponent()}}
+Other extension tools: 
+\code{\link{NOther}()},
+\code{\link{clearExtensionChain}()},
+\code{\link{coerceToExtensionClass}()},
+\code{\link{getRegisteredExtensions}()},
+\code{\link{initialNOther<-}()},
+\code{\link{recordExtension}()},
+\code{\link{registerExtension}()},
+\code{\link{registerExtensions}()},
+\code{\link{setComponent}()}
 }
 \concept{extension tools}

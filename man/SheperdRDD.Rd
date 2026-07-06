@@ -29,11 +29,11 @@ With \eqn{b = 1/R_{max}} and \eqn{c = 1} this reduces to the Beverton-Holt
 reproduction rate, see \code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}.
 }
 \seealso{
-Other functions calculating density-dependent reproduction rate:
-\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}},
-\code{\link[=RickerRDD]{RickerRDD()}},
-\code{\link[=constantEggRDI]{constantEggRDI()}},
-\code{\link[=constantRDD]{constantRDD()}},
-\code{\link[=noRDD]{noRDD()}}
+Other functions calculating density-dependent reproduction rate: 
+\code{\link{BevertonHoltRDD}()},
+\code{\link{RickerRDD}()},
+\code{\link{constantEggRDI}()},
+\code{\link{constantRDD}()},
+\code{\link{noRDD}()}
 }
 \concept{functions calculating density-dependent reproduction rate}

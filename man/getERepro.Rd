@@ -76,22 +76,22 @@ erepro["Sprat", "2"]
 }
 }
 \seealso{
-Other rate functions:
-\code{\link[=getDiffusion]{getDiffusion()}},
-\code{\link[=getEGrowth]{getEGrowth()}},
-\code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}},
-\code{\link[=getEncounter]{getEncounter()}},
-\code{\link[=getFMort]{getFMort()}},
-\code{\link[=getFMortGear]{getFMortGear()}},
-\code{\link[=getFeedingLevel]{getFeedingLevel()}},
-\code{\link[=getFlux]{getFlux()}},
-\code{\link[=getFluxGradient]{getFluxGradient()}},
-\code{\link[=getMort]{getMort()}},
-\code{\link[=getPredMort]{getPredMort()}},
-\code{\link[=getPredRate]{getPredRate()}},
-\code{\link[=getRDD]{getRDD()}},
-\code{\link[=getRDI]{getRDI()}},
-\code{\link[=getRates]{getRates()}},
-\code{\link[=getResourceMort]{getResourceMort()}}
+Other rate functions: 
+\code{\link{getDiffusion}()},
+\code{\link{getEGrowth}()},
+\code{\link{getEReproAndGrowth}()},
+\code{\link{getEncounter}()},
+\code{\link{getFMort}()},
+\code{\link{getFMortGear}()},
+\code{\link{getFeedingLevel}()},
+\code{\link{getFlux}()},
+\code{\link{getFluxGradient}()},
+\code{\link{getMort}()},
+\code{\link{getPredMort}()},
+\code{\link{getPredRate}()},
+\code{\link{getRDD}()},
+\code{\link{getRDI}()},
+\code{\link{getRates}()},
+\code{\link{getResourceMort}()}
 }
 \concept{rate functions}
