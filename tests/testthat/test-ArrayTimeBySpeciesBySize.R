@@ -51,6 +51,12 @@ test_that("print.ArrayTimeBySpeciesBySize works", {
     expect_output(print(fmort_small), "1/year")
 })
 
+test_that("print.ArrayTimeBySpeciesBySize shows only the final time slice", {
+    expect_output(print(fmort_small), "Showing final time step")
+    final_time <- dimnames(fmort_small)[[1]][dim(fmort_small)[1]]
+    expect_output(print(fmort_small), final_time)
+})
+
 test_that("summary.ArrayTimeBySpeciesBySize works", {
     s <- summary(fmort_small)
     expect_s3_class(s, "summary.ArrayTimeBySpeciesBySize")

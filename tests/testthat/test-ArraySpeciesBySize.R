@@ -68,6 +68,23 @@ test_that("print.ArraySpeciesBySize works", {
     expect_output(print(enc_small), "g/year")
 })
 
+test_that("print.ArraySpeciesBySize truncates a wide size grid", {
+    enc <- getEncounter(NS_params)
+    # 12 species is below the truncation threshold, so all species still show
+    expect_output(print(enc), "Cod")
+    expect_output(print(enc), "Sprat")
+    # but the 100 sizes must be truncated with an explanatory footer
+    expect_output(print(enc), "showing .* of 100 sizes")
+    expect_output(print(enc), "log-spaced")
+    expect_output(print(enc), "as.data.frame")
+})
+
+test_that("print.ArraySpeciesBySize truncates a large number of species", {
+    params_big <- suppressMessages(newTraitParams(no_sp = 60))
+    enc_big <- getEncounter(params_big)
+    expect_output(print(enc_big), "showing 8 of 60 species")
+})
+
 test_that("summary.ArraySpeciesBySize works", {
     s <- summary(enc_small)
     expect_s3_class(s, "summary.ArraySpeciesBySize")

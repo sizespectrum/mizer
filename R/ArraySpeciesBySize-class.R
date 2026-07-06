@@ -80,21 +80,45 @@ print.ArraySpeciesBySize <- function(x, ...) {
         header <- paste0(header, " [", units_str, "]")
     }
     cat(header, "\n")
-    # Print a compact summary per species
-    sp_names <- rownames(x)
-    if (!is.null(sp_names)) {
-        vals <- apply(unclass(x), 1, function(row) {
-            row <- row[is.finite(row)]
-            if (length(row) == 0) return("all NA/Inf")
-            paste0("min=", signif(min(row), 3),
-                   " mean=", signif(mean(row), 3),
-                   " max=", signif(max(row), 3))
-        })
-        for (i in seq_along(sp_names)) {
-            cat("  ", sp_names[i], ": ", vals[i], "\n", sep = "")
-        }
-    }
+    print_ArraySpeciesBySize_body(x)
     invisible(x)
+}
+
+# Print the (possibly truncated) species x size body of an ArraySpeciesBySize
+# object, without the header line. Species are truncated to a leading subset,
+# sizes to an evenly log-spaced, width-fitted sample. Shared with
+# print.ArrayTimeBySpeciesBySize, which prints this body for a single time
+# slice.
+print_ArraySpeciesBySize_body <- function(x) {
+    w <- get_ArraySpeciesBySize_w(x)
+    mat <- unclass_rate(x)
+    n_species <- nrow(mat)
+    n_sizes <- ncol(mat)
+
+    sp_idx <- pick_head_indices(n_species, mizer_print_defaults$species_head,
+                                mizer_print_defaults$species_threshold)
+
+    size_k <- fit_log_spaced_k(
+        n_sizes, mizer_print_defaults$size_max, mizer_print_defaults$size_min,
+        width_fn = function(k) {
+            sz_idx <- pick_log_spaced_indices(n_sizes, k)
+            matrix_display_width(mat[sp_idx, sz_idx, drop = FALSE])
+        })
+    sz_idx <- pick_log_spaced_indices(n_sizes, size_k)
+
+    print(mat[sp_idx, sz_idx, drop = FALSE])
+
+    if (length(sp_idx) < n_species) {
+        omitted <- setdiff(rownames(mat), rownames(mat)[sp_idx])
+        detail <- paste(utils::head(omitted, 5), collapse = ", ")
+        if (length(omitted) > 5) detail <- paste0(detail, ", ...")
+        cat(format_truncation_note(length(sp_idx), n_species, "species", detail), "\n")
+    }
+    if (length(sz_idx) < n_sizes) {
+        cat(format_truncation_note(length(sz_idx), n_sizes, "sizes",
+                                   format_size_range_detail(w)), "\n")
+    }
+    invisible(NULL)
 }
 
 #' @export
@@ -957,6 +981,7 @@ unclass_rate <- function(x) {
     attr(x, "value_name") <- NULL
     attr(x, "units") <- NULL
     attr(x, "params") <- NULL
+    attr(x, "representation") <- NULL
     x
 }
 

@@ -107,20 +107,15 @@ print.ArrayTimeBySpeciesBySize <- function(x, ...) {
         header <- paste0(header, " [", units_str, "]")
     }
     cat(header, "\n")
-    sp_names <- dimnames(x)[[2]]
-    if (!is.null(sp_names)) {
-        arr <- unclass(x)
-        vals <- apply(arr, 2, function(col) {
-            col <- col[is.finite(col)]
-            if (length(col) == 0) return("all NA/Inf")
-            paste0("min=", signif(min(col), 3),
-                   " mean=", signif(mean(col), 3),
-                   " max=", signif(max(col), 3))
-        })
-        for (i in seq_along(sp_names)) {
-            cat("  ", sp_names[i], ": ", vals[i], "\n", sep = "")
-        }
-    }
+
+    time_labels <- dimnames(x)[[1]]
+    shown_label <- if (!is.null(time_labels)) time_labels[dims[1]] else dims[1]
+    cat("Showing final time step (t = ", shown_label, ") of ", dims[1],
+        " time steps; use as.data.frame() or animate() for the full data.\n",
+        sep = "")
+
+    slice <- ArrayTimeBySpeciesBySize_slice(x)
+    print_ArraySpeciesBySize_body(slice)
     invisible(x)
 }
 
@@ -457,6 +452,7 @@ unclass_tss <- function(x) {
     attr(x, "value_name") <- NULL
     attr(x, "units") <- NULL
     attr(x, "params") <- NULL
+    attr(x, "representation") <- NULL
     x
 }
 

@@ -71,18 +71,28 @@ print.ArrayTimeBySpecies <- function(x, ...) {
         header <- paste0(header, " [", units_str, "]")
     }
     cat(header, "\n")
-    sp_names <- colnames(x)
-    if (!is.null(sp_names)) {
-        vals <- apply(unclass(x), 2, function(col) {
-            col <- col[is.finite(col)]
-            if (length(col) == 0) return("all NA/Inf")
-            paste0("min=", signif(min(col), 3),
-                   " mean=", signif(mean(col), 3),
-                   " max=", signif(max(col), 3))
-        })
-        for (i in seq_along(sp_names)) {
-            cat("  ", sp_names[i], ": ", vals[i], "\n", sep = "")
-        }
+
+    mat <- unclass_time(x)
+    n_time <- nrow(mat)
+    n_species <- ncol(mat)
+    times <- parse_numeric_labels(rownames(mat), n_time)
+
+    sp_idx <- pick_head_indices(n_species, mizer_print_defaults$species_head,
+                                mizer_print_defaults$species_threshold)
+    time_idx <- pick_log_spaced_indices(n_time, mizer_print_defaults$time_max,
+                                        mizer_print_defaults$time_threshold)
+
+    print(mat[time_idx, sp_idx, drop = FALSE])
+
+    if (length(time_idx) < n_time) {
+        cat(format_truncation_note(length(time_idx), n_time, "times",
+                                   format_time_range_detail(times)), "\n")
+    }
+    if (length(sp_idx) < n_species) {
+        omitted <- setdiff(colnames(mat), colnames(mat)[sp_idx])
+        detail <- paste(utils::head(omitted, 5), collapse = ", ")
+        if (length(omitted) > 5) detail <- paste0(detail, ", ...")
+        cat(format_truncation_note(length(sp_idx), n_species, "species", detail), "\n")
     }
     invisible(x)
 }
