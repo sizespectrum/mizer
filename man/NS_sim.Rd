@@ -22,7 +22,7 @@ mortalities from the North Sea, as created in the tutorial
 plotBiomass(NS_sim)
 }
 \seealso{
-Other example parameter objects: 
+Other example parameter objects:
 \code{\link{NS_params}}
 }
 \concept{example parameter objects}

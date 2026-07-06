@@ -17,15 +17,15 @@ Get the registered mizer extension chain
 "Using mizer extension packages":
 \code{vignette("using-extension-packages", package = "mizer")}
 
-Other extension tools: 
-\code{\link{NOther}()},
-\code{\link{clearExtensionChain}()},
-\code{\link{coerceToExtensionClass}()},
-\code{\link{initialNOther<-}()},
-\code{\link{recordExtension}()},
-\code{\link{registerExtension}()},
-\code{\link{registerExtensions}()},
-\code{\link{setComponent}()},
-\code{\link{setRateFunction}()}
+Other extension tools:
+\code{\link[=NOther]{NOther()}},
+\code{\link[=clearExtensionChain]{clearExtensionChain()}},
+\code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
+\code{\link[=initialNOther<-]{initialNOther<-()}},
+\code{\link[=recordExtension]{recordExtension()}},
+\code{\link[=registerExtension]{registerExtension()}},
+\code{\link[=registerExtensions]{registerExtensions()}},
+\code{\link[=setComponent]{setComponent()}},
+\code{\link[=setRateFunction]{setRateFunction()}}
 }
 \concept{extension tools}

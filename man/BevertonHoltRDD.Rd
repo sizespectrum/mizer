@@ -38,11 +38,11 @@ reproduction rates. Three other examples provided are \code{\link[=RickerRDD]{Ri
 \code{\link[=setReproduction]{setReproduction()}}.
 }
 \seealso{
-Other functions calculating density-dependent reproduction rate: 
-\code{\link{RickerRDD}()},
-\code{\link{SheperdRDD}()},
-\code{\link{constantEggRDI}()},
-\code{\link{constantRDD}()},
-\code{\link{noRDD}()}
+Other functions calculating density-dependent reproduction rate:
+\code{\link[=RickerRDD]{RickerRDD()}},
+\code{\link[=SheperdRDD]{SheperdRDD()}},
+\code{\link[=constantEggRDI]{constantEggRDI()}},
+\code{\link[=constantRDD]{constantRDD()}},
+\code{\link[=noRDD]{noRDD()}}
 }
 \concept{functions calculating density-dependent reproduction rate}

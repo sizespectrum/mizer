@@ -85,8 +85,8 @@ upwards slightly to avoid division by zero.
 \seealso{
 \code{\link[=setResource]{setResource()}}
 
-Other resource dynamics functions: 
-\code{\link{resource_constant}()},
-\code{\link{resource_logistic}()}
+Other resource dynamics functions:
+\code{\link[=resource_constant]{resource_constant()}},
+\code{\link[=resource_logistic]{resource_logistic()}}
 }
 \concept{resource dynamics functions}

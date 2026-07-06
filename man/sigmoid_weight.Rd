@@ -36,9 +36,9 @@ sigmoid_weight(w = c(1, 10, 100, 1000),
 \seealso{
 \code{\link[=gear_params]{gear_params()}} for setting the selectivity parameters.
 
-Other selectivity functions: 
-\code{\link{double_sigmoid_length}()},
-\code{\link{knife_edge}()},
-\code{\link{sigmoid_length}()}
+Other selectivity functions:
+\code{\link[=double_sigmoid_length]{double_sigmoid_length()}},
+\code{\link[=knife_edge]{knife_edge()}},
+\code{\link[=sigmoid_length]{sigmoid_length()}}
 }
 \concept{selectivity functions}

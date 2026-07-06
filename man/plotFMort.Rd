@@ -92,26 +92,26 @@ str(fr)
 \seealso{
 \link{plotting_functions}, \code{\link[=getFMort]{getFMort()}}
 
-Other plotting functions: 
-\code{\link{addPlot}()},
-\code{\link{animate.ArrayTimeBySpeciesBySize}()},
-\code{\link{plot}()},
-\code{\link{plot2}()},
-\code{\link{plotBiomass}()},
-\code{\link{plotCDF}()},
-\code{\link{plotCDF2}()},
-\code{\link{plotDiet}()},
-\code{\link{plotFeedingLevel}()},
-\code{\link{plotGrowthCurves}()},
+Other plotting functions:
+\code{\link[=addPlot]{addPlot()}},
+\code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
+\code{\link{plot}},
+\code{\link[=plot2]{plot2()}},
+\code{\link[=plotBiomass]{plotBiomass()}},
+\code{\link[=plotCDF]{plotCDF()}},
+\code{\link[=plotCDF2]{plotCDF2()}},
+\code{\link[=plotDiet]{plotDiet()}},
+\code{\link[=plotFeedingLevel]{plotFeedingLevel()}},
+\code{\link[=plotGrowthCurves]{plotGrowthCurves()}},
 \code{\link{plotMizerParams}},
 \code{\link{plotMizerSim}},
-\code{\link{plotPredMort}()},
-\code{\link{plotRelative}()},
-\code{\link{plotSpectra}()},
-\code{\link{plotSpectra2}()},
-\code{\link{plotSpectraRelative}()},
-\code{\link{plotYield}()},
-\code{\link{plotYieldGear}()},
+\code{\link[=plotPredMort]{plotPredMort()}},
+\code{\link[=plotRelative]{plotRelative()}},
+\code{\link[=plotSpectra]{plotSpectra()}},
+\code{\link[=plotSpectra2]{plotSpectra2()}},
+\code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
+\code{\link[=plotYield]{plotYield()}},
+\code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}
 }
 \concept{plotting functions}

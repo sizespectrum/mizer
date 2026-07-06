@@ -18,10 +18,10 @@ spectrum described by the power law \eqn{\kappa w^{-\lambda}} achieve a
 feeding level \eqn{f_0}. Only for internal use.
 }
 \seealso{
-Other functions calculating defaults: 
-\code{\link{get_f0_default}()},
-\code{\link{get_h_default}()},
-\code{\link{get_ks_default}()}
+Other functions calculating defaults:
+\code{\link[=get_f0_default]{get_f0_default()}},
+\code{\link[=get_h_default]{get_h_default()}},
+\code{\link[=get_ks_default]{get_ks_default()}}
 }
 \concept{functions calculating defaults}
 \concept{helper}

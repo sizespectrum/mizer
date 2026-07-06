@@ -51,7 +51,7 @@ equation
       = -\mu_j N_j.}
 The bin-boundary fluxes \eqn{J_j} are obtained from \code{\link[=getFlux]{getFlux()}}, which
 uses the advective-flux scheme stored in the \code{flux} entry of the
-\code{\link[=second_order_w]{second_order_w}} slot of \code{params}.  The flux leaving
+\code{\link{second_order_w}} slot of \code{params}.  The flux leaving
 the largest size class through the upper boundary (\eqn{J_{K+1}}) is
 evaluated with the same scheme using the boundary condition
 \eqn{N_{K+1} = 0}.
@@ -67,22 +67,22 @@ fg_sim <- getFluxGradient(sim)
 \seealso{
 \code{\link[=getFlux]{getFlux()}}, \code{\link[=second_order_w]{second_order_w()}}
 
-Other rate functions: 
-\code{\link{getDiffusion}()},
-\code{\link{getEGrowth}()},
-\code{\link{getERepro}()},
-\code{\link{getEReproAndGrowth}()},
-\code{\link{getEncounter}()},
-\code{\link{getFMort}()},
-\code{\link{getFMortGear}()},
-\code{\link{getFeedingLevel}()},
-\code{\link{getFlux}()},
-\code{\link{getMort}()},
-\code{\link{getPredMort}()},
-\code{\link{getPredRate}()},
-\code{\link{getRDD}()},
-\code{\link{getRDI}()},
-\code{\link{getRates}()},
-\code{\link{getResourceMort}()}
+Other rate functions:
+\code{\link[=getDiffusion]{getDiffusion()}},
+\code{\link[=getEGrowth]{getEGrowth()}},
+\code{\link[=getERepro]{getERepro()}},
+\code{\link[=getEReproAndGrowth]{getEReproAndGrowth()}},
+\code{\link[=getEncounter]{getEncounter()}},
+\code{\link[=getFMort]{getFMort()}},
+\code{\link[=getFMortGear]{getFMortGear()}},
+\code{\link[=getFeedingLevel]{getFeedingLevel()}},
+\code{\link[=getFlux]{getFlux()}},
+\code{\link[=getMort]{getMort()}},
+\code{\link[=getPredMort]{getPredMort()}},
+\code{\link[=getPredRate]{getPredRate()}},
+\code{\link[=getRDD]{getRDD()}},
+\code{\link[=getRDI]{getRDI()}},
+\code{\link[=getRates]{getRates()}},
+\code{\link[=getResourceMort]{getResourceMort()}}
 }
 \concept{rate functions}

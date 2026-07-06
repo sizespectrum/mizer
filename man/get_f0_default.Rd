@@ -25,10 +25,10 @@ parameter data frame, the \code{f0} values is kept as provided in the species
 parameter data frame or it is set to 0.6 if it is not provided.
 }
 \seealso{
-Other functions calculating defaults: 
-\code{\link{get_gamma_default}()},
-\code{\link{get_h_default}()},
-\code{\link{get_ks_default}()}
+Other functions calculating defaults:
+\code{\link[=get_gamma_default]{get_gamma_default()}},
+\code{\link[=get_h_default]{get_h_default()}},
+\code{\link[=get_ks_default]{get_ks_default()}}
 }
 \concept{functions calculating defaults}
 \concept{helper}

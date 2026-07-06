@@ -146,9 +146,9 @@ sim <- project(params, t_max = 5, effort = 0)
 plotSpectra(sim)
 }
 \seealso{
-Other functions for setting up models: 
-\code{\link{newCommunityParams}()},
-\code{\link{newMultispeciesParams}()},
-\code{\link{newTraitParams}()}
+Other functions for setting up models:
+\code{\link[=newCommunityParams]{newCommunityParams()}},
+\code{\link[=newMultispeciesParams]{newMultispeciesParams()}},
+\code{\link[=newTraitParams]{newTraitParams()}}
 }
 \concept{functions for setting up models}

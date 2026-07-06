@@ -19,11 +19,11 @@ Vector of density-dependent reproduction rates.
 Simply returns its \code{rdi} argument.
 }
 \seealso{
-Other functions calculating density-dependent reproduction rate: 
-\code{\link{BevertonHoltRDD}()},
-\code{\link{RickerRDD}()},
-\code{\link{SheperdRDD}()},
-\code{\link{constantEggRDI}()},
-\code{\link{constantRDD}()}
+Other functions calculating density-dependent reproduction rate:
+\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}},
+\code{\link[=RickerRDD]{RickerRDD()}},
+\code{\link[=SheperdRDD]{SheperdRDD()}},
+\code{\link[=constantEggRDI]{constantEggRDI()}},
+\code{\link[=constantRDD]{constantRDD()}}
 }
 \concept{functions calculating density-dependent reproduction rate}

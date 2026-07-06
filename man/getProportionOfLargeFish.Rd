@@ -33,7 +33,7 @@ is based on biomass, if FALSE it is based on numbers of individuals.
 Default is TRUE.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=get_size_range_array]{get_size_range_array}}
+  Arguments passed on to \code{\link{get_size_range_array}}
   \describe{
     \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
 the model.}
@@ -74,10 +74,10 @@ getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000,
 getProportionOfLargeFish(NS_params)
 }
 \seealso{
-Other functions for calculating indicators: 
-\code{\link{getCommunitySlope}()},
-\code{\link{getMeanMaxWeight}()},
-\code{\link{getMeanWeight}()}
+Other functions for calculating indicators:
+\code{\link[=getCommunitySlope]{getCommunitySlope()}},
+\code{\link[=getMeanMaxWeight]{getMeanMaxWeight()}},
+\code{\link[=getMeanWeight]{getMeanWeight()}}
 }
 \concept{functions for calculating indicators}
 \concept{summary_function}

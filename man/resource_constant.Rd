@@ -37,8 +37,8 @@ resource_dynamics(params) <- "resource_constant"
 \seealso{
 \code{\link[=setResource]{setResource()}}
 
-Other resource dynamics functions: 
-\code{\link{resource_logistic}()},
-\code{\link{resource_semichemostat}()}
+Other resource dynamics functions:
+\code{\link[=resource_logistic]{resource_logistic()}},
+\code{\link[=resource_semichemostat]{resource_semichemostat()}}
 }
 \concept{resource dynamics functions}

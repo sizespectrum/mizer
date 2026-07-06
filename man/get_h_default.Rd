@@ -29,10 +29,10 @@ If no growth information is given at all for a species, the default is set
 to \code{h = 30}.
 }
 \seealso{
-Other functions calculating defaults: 
-\code{\link{get_f0_default}()},
-\code{\link{get_gamma_default}()},
-\code{\link{get_ks_default}()}
+Other functions calculating defaults:
+\code{\link[=get_f0_default]{get_f0_default()}},
+\code{\link[=get_gamma_default]{get_gamma_default()}},
+\code{\link[=get_ks_default]{get_ks_default()}}
 }
 \concept{functions calculating defaults}
 \concept{helper}

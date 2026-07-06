@@ -28,7 +28,7 @@ plot(sim)
 }
 }
 \seealso{
-Other example parameter objects: 
+Other example parameter objects:
 \code{\link{NS_sim}}
 }
 \concept{example parameter objects}
