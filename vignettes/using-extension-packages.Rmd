@@ -255,6 +255,23 @@ params <- readParams("my_model.rds", install_extensions = TRUE)
 This uses the installation specifications stored in `params@extensions` to fetch
 the correct version of each package (from CRAN or GitHub as appropriate).
 
+# Built-in example models from extension packages
+
+Extension packages often ship ready-made `MizerParams` or `MizerSim` objects
+as built-in example models. As long as the package is written following mizer's
+conventions, these objects work correctly as soon as you load the package:
+
+```r
+library(mizerShelf)
+NWMed_params   # already has the correct extension class — no extra steps needed
+```
+
+If you ever encounter an object from an older package that does not behave as
+expected, calling `coerceToExtensionClass()` on it will restore the correct
+class.
+
+
+
 # Common scenarios
 
 ## You get a warning about missing extension packages
@@ -310,6 +327,7 @@ same order when you source the script fresh.
 - `?registerExtensions`
 - `?getRegisteredExtensions`
 - `?clearExtensionChain`
+- `?coerceToExtensionClass`
 - `?saveParams`
 - `?readParams`
 - `?saveSim`
