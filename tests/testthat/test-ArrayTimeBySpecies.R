@@ -42,6 +42,20 @@ test_that("print.ArrayTimeBySpecies works", {
     expect_output(print(bio_small), "g")
 })
 
+test_that("print.ArrayTimeBySpecies truncates a long time series", {
+    sim_long <- suppressMessages(
+        project(NS_params_small, t_max = 60, dt = 0.5, t_save = 0.5,
+               progress_bar = FALSE))
+    bio <- getBiomass(sim_long)
+    expect_identical(nrow(bio), 121L)
+    out <- paste(capture.output(print(bio)), collapse = "\n")
+    # the earliest and latest time steps should both be visible ...
+    expect_match(out, "\\b0\\b")
+    expect_match(out, "\\b60\\b")
+    # ... with a gap marker reporting how many were hidden in between
+    expect_match(out, "more, .*-.*\\.\\.\\.")
+})
+
 test_that("summary.ArrayTimeBySpecies works", {
     s <- summary(bio_small)
     expect_s3_class(s, "summary.ArrayTimeBySpecies")

@@ -34,9 +34,11 @@
       y
     Output
       Yield rate (3 times x 3 species) [g/year] 
-        Sprat: min=3.8e+07 mean=9.64e+09 max=2.83e+10
-        Herring: min=30700000 mean=3.71e+11 max=1.11e+12
-        Cod: min=28400000 mean=1.34e+11 max=4.03e+11
+          sp
+      time       Sprat      Herring          Cod
+         0    38044416 3.065804e+07     28430360
+         1   611156758 5.903516e+09     68138615
+         2 28282194041 1.107689e+12 402564745724
 
 # getDiet works with proportion = FALSE
 
@@ -510,9 +512,11 @@
       ssb
     Output
       Spawning stock biomass (3 times x 3 species) [g] 
-        Sprat: min=37100000 mean=9.38e+09 max=2.75e+10
-        Herring: min=31600000 mean=4.67e+11 max=1.39e+12
-        Cod: min=28300000 mean=1.24e+11 max=3.72e+11
+          sp
+      time       Sprat      Herring          Cod
+         0    37145900 3.158808e+07     28345640
+         1   632999673 8.475118e+09     68632922
+         2 27472954532 1.391151e+12 371765810182
 
 # getBiomass works
 
@@ -520,9 +524,11 @@
       biomass
     Output
       Biomass (3 times x 3 species) [g] 
-        Sprat: min=65500000 mean=1.01e+11 max=2.85e+11
-        Herring: min=47300000 mean=2.94e+12 max=8.57e+12
-        Cod: min=29500000 mean=3.93e+11 max=1.17e+12
+          sp
+      time        Sprat      Herring          Cod
+         0     65513764 4.734134e+07 2.951603e+07
+         1  17027157440 2.627214e+11 5.942565e+09
+         2 284754140823 8.565514e+12 1.172657e+12
 
 # getN works
 
@@ -530,7 +536,9 @@
       N
     Output
       Abundance (3 times x 3 species) 
-        Sprat: min=23700000 mean=1.44e+11 max=3.9e+11
-        Herring: min=2140000 mean=3.14e+11 max=7.57e+11
-        Cod: min=13700 mean=1.88e+09 max=5.23e+09
+          sp
+      time        Sprat      Herring          Cod
+         0     23713127      2142447 1.372279e+04
+         1  41066027853 185894581828 4.028179e+08
+         2 389848150793 757408590634 5.231033e+09
 

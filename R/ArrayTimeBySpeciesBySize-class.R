@@ -107,7 +107,15 @@ print.ArrayTimeBySpeciesBySize <- function(x, ...) {
         header <- paste0(header, " [", units_str, "]")
     }
     cat(header, "\n")
-    print(unclass_tss(x))
+
+    time_labels <- dimnames(x)[[1]]
+    shown_label <- if (!is.null(time_labels)) time_labels[dims[1]] else dims[1]
+    cat("Showing final time step (t = ", shown_label, ") of ", dims[1],
+        " time steps; use as.data.frame() or animate() for the full data.\n",
+        sep = "")
+
+    slice <- ArrayTimeBySpeciesBySize_slice(x)
+    print_ArraySpeciesBySize_body(slice)
     invisible(x)
 }
 

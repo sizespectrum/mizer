@@ -76,7 +76,24 @@ print.ArrayResourceBySize <- function(x, ...) {
         header <- paste0(header, " [", units_str, "]")
     }
     cat(header, "\n")
-    print(unclass_resource(x))
+
+    w <- get_ArrayResourceBySize_w(x)
+    vec <- unclass_resource(x)
+    n <- length(vec)
+
+    size_k <- fit_log_spaced_k(
+        n, mizer_print_defaults$size_max, mizer_print_defaults$size_min,
+        width_fn = function(k) {
+            idx <- pick_log_spaced_indices(n, k)
+            vector_display_width(vec[idx])
+        })
+    sz_idx <- pick_log_spaced_indices(n, size_k)
+    print(vec[sz_idx])
+
+    if (length(sz_idx) < n) {
+        cat(format_truncation_note(length(sz_idx), n, "sizes",
+                                   format_size_range_detail(w)), "\n")
+    }
     invisible(x)
 }
 
@@ -331,7 +348,29 @@ print.ArrayTimeByResourceBySize <- function(x, ...) {
         header <- paste0(header, " [", units_str, "]")
     }
     cat(header, "\n")
-    print(unclass_resource(x))
+
+    mat <- unclass_resource(x)
+    n_time <- nrow(mat)
+    n_sizes <- ncol(mat)
+    w <- parse_numeric_labels(colnames(mat), n_sizes)
+
+    tt <- pick_head_tail_indices(n_time, mizer_print_defaults$time_head,
+                                 mizer_print_defaults$time_tail,
+                                 mizer_print_defaults$time_threshold)
+    size_k <- fit_log_spaced_k(
+        n_sizes, mizer_print_defaults$size_max, mizer_print_defaults$size_min,
+        width_fn = function(k) {
+            sz_idx <- pick_log_spaced_indices(n_sizes, k)
+            matrix_display_width(mat[tt$idx, sz_idx, drop = FALSE])
+        })
+    sz_idx <- pick_log_spaced_indices(n_sizes, size_k)
+
+    print_time_matrix(mat, tt, sz_idx)
+
+    if (length(sz_idx) < n_sizes) {
+        cat(format_truncation_note(length(sz_idx), n_sizes, "sizes",
+                                   format_size_range_detail(w)), "\n")
+    }
     invisible(x)
 }
 
