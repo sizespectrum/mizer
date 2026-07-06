@@ -38,6 +38,7 @@ Imports:
     reshape2,
     rlang,
     lifecycle,
+    pak
 LinkingTo: Rcpp
 Depends:
     R (>= 3.5)
