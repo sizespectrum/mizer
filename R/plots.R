@@ -2014,10 +2014,6 @@ plotlySpectra2 <- function(object1, object2, name1 = "First",
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the y axis (the relative difference). Use `NA` to refer to the
 #'   existing minimum or maximum.
-#' @param power `r lifecycle::badge("deprecated")` The powers of `w` cancel
-#'   out in the relative difference, so this argument has no effect.
-#' @param biomass `r lifecycle::badge("deprecated")` The powers of `w` cancel
-#'   out in the relative difference, so this argument has no effect.
 #' @param ... Additional arguments passed to [plotSpectra()] for preparing the
 #'   spectra data, for example `time_range` or `geometric_mean` for `MizerSim`
 #'   objects.
@@ -2037,20 +2033,12 @@ plotSpectraRelative <- function(object1, object2,
                                 species = NULL,
                                 wlim = c(NA, NA), llim = c(NA, NA),
                                 ylim = c(NA, NA),
-                                power = lifecycle::deprecated(),
-                                biomass = lifecycle::deprecated(),
                                 total = FALSE, resource = TRUE,
                                 background = TRUE,
                                 highlight = NULL,
                                 log_x = TRUE,
                                 size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
-    if (lifecycle::is_present(power)) {
-        lifecycle::deprecate_warn("3.1.0", "plotSpectraRelative(power)")
-    }
-    if (lifecycle::is_present(biomass)) {
-        lifecycle::deprecate_warn("3.1.0", "plotSpectraRelative(biomass)")
-    }
     assert_that(length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
     sf1 <- plotSpectra(object1, species = species, wlim = wlim,
@@ -2079,8 +2067,6 @@ plotlySpectraRelative <- function(object1, object2,
                                   species = NULL,
                                   wlim = c(NA, NA), llim = c(NA, NA),
                                   ylim = c(NA, NA),
-                                  power = lifecycle::deprecated(),
-                                  biomass = lifecycle::deprecated(),
                                   total = FALSE, resource = TRUE,
                                   background = TRUE,
                                   highlight = NULL,
@@ -2093,12 +2079,6 @@ plotlySpectraRelative <- function(object1, object2,
                  resource = resource, background = background,
                  highlight = highlight, log_x = log_x,
                  size_axis = size_axis, ...)
-    if (lifecycle::is_present(power)) {
-        args$power <- power
-    }
-    if (lifecycle::is_present(biomass)) {
-        args$biomass <- biomass
-    }
     plotHover(do.call("plotSpectraRelative", args),
              tooltip = plot_size_tooltip(size_axis, before = "Legend",
                                          after = "rel_diff"))

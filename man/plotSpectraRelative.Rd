@@ -12,8 +12,6 @@ plotSpectraRelative(
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
-  power = lifecycle::deprecated(),
-  biomass = lifecycle::deprecated(),
   total = FALSE,
   resource = TRUE,
   background = TRUE,
@@ -48,12 +46,6 @@ accordingly.}
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the y axis (the relative difference). Use \code{NA} to refer to the
 existing minimum or maximum.}
-
-\item{power}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The powers of \code{w} cancel
-out in the relative difference, so this argument has no effect.}
-
-\item{biomass}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The powers of \code{w} cancel
-out in the relative difference, so this argument has no effect.}
 
 \item{total}{A boolean value that determines whether the total over all
 species in the system is plotted as well. Note that even if the plot

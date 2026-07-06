@@ -1,10 +1,5 @@
 # mizer 3.1.0.9000 (development version)
 
-- The `power` and `biomass` arguments of `plotSpectraRelative()` and
-  `plotlySpectraRelative()` are now deprecated. They had no effect because the
-  factors of \eqn{w} cancel out in the relative difference
-  \eqn{2(N_2 - N_1)/(N_2 + N_1)}.
-
 - `print()` on `ArraySpeciesBySize`, `ArrayTimeBySpecies`, `ArrayResourceBySize`,
   `ArrayTimeByResourceBySize` and `ArrayTimeBySpeciesBySize` objects (as
   returned by `getEncounter()`, `getBiomass()`, `getResourceMort()`, `NResource()`,
