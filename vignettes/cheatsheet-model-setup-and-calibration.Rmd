@@ -107,7 +107,6 @@ match/calibrate step**:
 | [`calibrateBiomass(params)`](../reference/calibrateBiomass.html) | `kappa` (resource level) | total community biomass |
 | [`matchBiomasses(params)`](../reference/matchBiomasses.html) | per-species abundance | each `biomass_observed` |
 | [`calibrateYield(params)`](../reference/calibrateYield.html) | overall abundance scale | total community yield |
-| [`matchYields(params)`](../reference/matchYields.html) | per-species abundance | each `yield_observed` |
 | [`matchGrowth(params)`](../reference/matchGrowth.html) | `h`, `gamma`, `ks`, `k` | growth to `w_mat` / `w_inf` |
 
 ```{r eval=FALSE}
@@ -201,7 +200,6 @@ params <- steadyNewton(params)          # direct solve (experimental)
 params <- calibrateBiomass(params)      # total biomass  → kappa
 params <- matchBiomasses(params)        # per-species biomass
 params <- calibrateYield(params)        # total yield
-params <- matchYields(params)           # per-species yield
 params <- matchGrowth(params)           # growth → h, gamma, ks, k
 
 # ── Reproduction ──────────────────────────────────────────────────────────────
