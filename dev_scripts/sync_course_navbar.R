@@ -13,7 +13,7 @@
 args <- commandArgs(trailingOnly = TRUE)
 
 `%||%` <- function(x, y) {
-    if (is.null(x) || length(x) == 0 || identical(x, NA)) {
+    if (is.null(x) || length(x) == 0 || is.na(x[1])) {
         y
     } else {
         x
@@ -28,10 +28,23 @@ value_after <- function(flag, default = NULL) {
     args[[pos + 1]]
 }
 
-file_arg <- grep(
-    "^--file=", commandArgs(trailingOnly = FALSE), value = TRUE
-)
-script_path <- sub("^--file=", "", file_arg[1] %||% "scripts/sync_course_navbar.R")
+get_script_path <- function() {
+    file_arg <- grep(
+        "^--file=", commandArgs(trailingOnly = FALSE), value = TRUE
+    )
+    if (length(file_arg) > 0) {
+        return(sub("^--file=", "", file_arg[1]))
+    }
+    for (i in rev(seq_len(sys.nframe()))) {
+        frame <- sys.frame(i)
+        if (exists("ofile", envir = frame, inherits = FALSE)) {
+            return(get("ofile", envir = frame))
+        }
+    }
+    "dev_scripts/sync_course_navbar.R"
+}
+
+script_path <- get_script_path()
 
 repo_root <- normalizePath(
     file.path(dirname(script_path), ".."),
@@ -198,7 +211,9 @@ intro_slug <- function(config) {
     )
     package <- sub("\\.Rproj$", "", basename(rproj[1] %||% "mizer"))
 
-    if (package %in% articles) {
+    package_vignette <- file.path(repo_root, "vignettes", paste0(package, c(".Rmd", ".qmd")))
+
+    if (any(file.exists(package_vignette)) || package %in% articles) {
         package
     } else {
         articles[[1]] %||% package
