@@ -111,7 +111,9 @@ reproduction".}
 reproduction rate from the density-independent rate. Defaults to
 "\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}".}
 
-\item{kappa}{The coefficient of the initial resource abundance power-law.}
+\item{kappa}{The coefficient \eqn{\kappa} of the resource carrying capacity
+power law \eqn{c_R(w) = \kappa\, w^{-\lambda}}, which also sets the initial
+resource abundance. See \code{\link[=resource_params]{resource_params()}}.}
 
 \item{n}{The allometric growth exponent. This can be overruled for individual
 species by including a \code{n} column in the \code{species_params}.}

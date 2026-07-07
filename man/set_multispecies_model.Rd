@@ -48,7 +48,9 @@ species by including a \code{n} column in the \code{species_params}.}
 coefficient in the search rate. Ignored if \code{gamma} is given
 explicitly.}
 
-\item{kappa}{The coefficient of the initial resource abundance power-law.}
+\item{kappa}{The coefficient \eqn{\kappa} of the resource carrying capacity
+power law \eqn{c_R(w) = \kappa\, w^{-\lambda}}, which also sets the initial
+resource abundance. See \code{\link[=resource_params]{resource_params()}}.}
 
 \item{lambda}{Used to set power-law exponent for resource capacity if the
 \code{resource_capacity} argument is given as a single number.}

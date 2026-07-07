@@ -20,7 +20,9 @@
 #' @inheritParams setResource
 #' @param r_pp `r lifecycle::badge("deprecated")`. Use `resource_rate` argument
 #'   instead.
-#' @param kappa The coefficient of the initial resource abundance power-law.
+#' @param kappa The coefficient \eqn{\kappa} of the resource carrying capacity
+#'   power law \eqn{c_R(w) = \kappa\, w^{-\lambda}}, which also sets the initial
+#'   resource abundance. See [resource_params()].
 #' @param min_w_pp The smallest size of the resource spectrum. By default this
 #'   is set to the smallest value at which any of the consumers can feed.
 #' @param n The allometric growth exponent. This can be overruled for individual
