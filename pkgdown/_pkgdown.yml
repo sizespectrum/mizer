@@ -72,6 +72,10 @@ articles:
   - cheatsheet-changing-parameters
   - cheatsheet-fishing
   - cheatsheet-analysis-and-plotting
+- title: Upgrading
+  navbar: Upgrading
+  contents:
+  - upgrading
 - title: Extending mizer
   navbar: Extending mizer
   contents:

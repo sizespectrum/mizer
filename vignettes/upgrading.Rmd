@@ -1,0 +1,101 @@
+---
+title: "Upgrading mizer"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    fig_width: 5
+    fig_height: 4
+vignette: >
+  %\VignetteIndexEntry{Upgrading mizer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    eval = FALSE
+)
+library(mizer)
+```
+
+This article collects the changes that may require you to update your own code
+or models when you upgrade to a new release of mizer. Existing model objects
+created with an earlier version continue to load and run — they are upgraded
+automatically — so the notes below are about changes in *behaviour* and in the
+functions you call, not about stored objects. The changes are grouped by the
+release in which they took effect, most recent first.
+
+# Setting resource parameters
+
+Two related changes affect how you modify the resource size spectrum. Together
+they make the resource scalars behave like the species parameters: a scalar is
+an input, and the size-dependent arrays are computed from it.
+
+## Assigning to `resource_params()` now updates the resource arrays
+
+Previously, assigning to `resource_params()` — or to one of its components, such
+as `resource_params(params)$kappa <- ...` — only stored the new scalar values.
+The size-dependent carrying capacity (`cc_pp`) and replenishment rate (`rr_pp`)
+were left unchanged until you next called `setResource()`.
+
+Now these assignments immediately rebuild the arrays from the scalars, exactly as
+`species_params()<-` rebuilds the species rates:
+
+- `kappa`, `lambda` and `w_pp_cutoff` rebuild the carrying capacity;
+- `r_pp` and `n` rebuild the replenishment rate.
+
+Arrays that you have set by hand are left untouched (see *Frozen arrays* below).
+
+If your code changed a resource scalar and then called `setResource()` to apply
+it, nothing breaks — you can drop the now-redundant `setResource()` call. If you
+changed a resource scalar and relied on the arrays *not* changing until later,
+review that code.
+
+## Assigning to `resource_params()` does not balance the resource
+
+*Balancing* means adjusting the rate and capacity together so that the resource
+replenishes at exactly the rate at which it is consumed, keeping it at its steady
+state. Assigning to `resource_params()` rebuilds the arrays from the scalars but
+does **not** balance, so the resource steady state generally shifts.
+
+Balancing is now solely a feature of `setResource()`. To change a resource
+coefficient *and* keep the resource balanced, call `setResource()` rather than
+assigning to `resource_params()`:
+
+```{r}
+# Rebuild the capacity from a new coefficient and rebalance the rate,
+# so the steady state is preserved:
+params <- setResource(params, resource_capacity = new_kappa)
+
+# Likewise, set a new rate coefficient and rebalance the capacity:
+params <- setResource(params, resource_rate = new_r_pp)
+```
+
+## The resource setters gained a `balance` argument
+
+`resource_rate<-`, `resource_capacity<-`, `resource_level<-` and
+`resource_dynamics<-` still balance by default (unchanged behaviour), but they
+now accept a `balance` argument so you can switch balancing off:
+
+```{r}
+# Set the capacity but leave the rate untouched (do not rebalance):
+resource_capacity(params, balance = FALSE) <- my_capacity
+```
+
+## Frozen arrays are protected from incidental balancing
+
+When you set `rr_pp` or `cc_pp` by hand (by assigning a full array rather than a
+scalar), mizer marks it "set manually" — it is *frozen* and will not be
+recomputed from the resource parameters. Previously, an operation that
+re-balanced the resource *without* being given a replacement rate or capacity —
+for example changing only `resource_dynamics`, or calling `setResource()` with
+neither a rate nor a capacity — would silently overwrite such a frozen array. It
+is now kept, and a warning is issued instead.
+
+To deliberately recompute a frozen array from the resource parameters, pass
+`reset = TRUE`. An *explicit* balance — where you hand `setResource()` a new rate
+or capacity — still overrides the freeze; pass `balance = FALSE` if you want the
+frozen array kept in that case.
