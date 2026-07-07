@@ -261,8 +261,8 @@ test_that("resource_params<- rebuilds capacity and rate arrays (issue #439)", {
     p1 <- p
     resource_params(p1)$kappa <- 10 * resource_params(p1)$kappa
     expect_equal(as.numeric(resource_capacity(p1)), 10 * as.numeric(cc0))
-    # rr_pp is rebalanced under semichemostat
-    expect_false(isTRUE(all.equal(as.numeric(resource_rate(p1)), as.numeric(rr0))))
+    # resource_params<- does not balance, so rr_pp is left unchanged
+    expect_equal(as.numeric(resource_rate(p1)), as.numeric(rr0))
 
     # 2. resource_params(p)$lambda <- x changes the slope of cc_pp
     p2 <- p
@@ -279,9 +279,11 @@ test_that("resource_params<- rebuilds capacity and rate arrays (issue #439)", {
     resource_capacity(p3) <- custom_cc
     expect_identical(comment(p3@cc_pp), "set manually")
     
-    # Modifying kappa now does not overwrite custom cc_pp array
+    # Modifying kappa now does not overwrite custom cc_pp array and, because
+    # resource_params<- no longer balances, the freeze comment survives too.
     resource_params(p3)$kappa <- 10 * resource_params(p3)$kappa
     expect_equal(resource_capacity(p3), custom_cc, ignore_attr = TRUE)
+    expect_identical(comment(p3@cc_pp), "set manually")
     
     # setResource(..., reset = TRUE) resets to scalar-driven capacity
     p4 <- setResource(p3, reset = TRUE)
@@ -297,4 +299,79 @@ test_that("resource_params<- rebuilds capacity and rate arrays (issue #439)", {
     w_full <- p5@w_full
     expect_true(all(p5@cc_pp[w_full >= new_cutoff] == 0))
     expect_true(all(p5@initial_n_pp[w_full >= new_cutoff] == 0))
+})
+
+test_that("resource_params<- does not balance and rate-side scalars take effect", {
+    p <- NS_params_small
+    # Give the model a scalar r_pp so the rate is driven by resource_params
+    p <- setResource(p, resource_rate = 1, balance = FALSE)
+    rr1 <- as.numeric(resource_rate(p))
+
+    # Changing the rate-side scalar r_pp now updates rr_pp (was inert before
+    # because balancing re-derived the rate from the capacity)
+    resource_params(p)$r_pp <- 2
+    expect_equal(as.numeric(resource_rate(p)), 2 * rr1)
+
+    # Sequential scalar edits accumulate: a later capacity-side change does not
+    # discard the earlier rate-side change (mirrors species_params<-)
+    cc_before <- as.numeric(resource_capacity(p))
+    rr_before <- as.numeric(resource_rate(p))
+    resource_params(p)$kappa <- 5 * resource_params(p)$kappa
+    expect_equal(as.numeric(resource_rate(p)), rr_before)
+    expect_equal(as.numeric(resource_capacity(p)), 5 * cc_before)
+})
+
+test_that("resource setters take a balance argument", {
+    p <- NS_params_small
+    rr0 <- as.numeric(resource_rate(p))
+
+    # balance = FALSE leaves the opposite side untouched
+    p_f <- p
+    resource_capacity(p_f, balance = FALSE) <- 2 * resource_capacity(p_f)
+    expect_equal(as.numeric(resource_rate(p_f)), rr0)
+
+    # the default (balance = TRUE) rebalances the rate to the new capacity
+    p_t <- p
+    resource_capacity(p_t) <- 2 * resource_capacity(p_t)
+    expect_false(isTRUE(all.equal(as.numeric(resource_rate(p_t)), rr0)))
+})
+
+test_that("incidental balancing does not overwrite a frozen array (freeze wins)", {
+    p <- NS_params_small
+    # Freeze the capacity manually
+    resource_capacity(p) <- 2 * resource_capacity(p)
+    expect_false(is.null(comment(p@cc_pp)))
+    cc_frozen <- as.numeric(resource_capacity(p))
+
+    # An incidental balance (no rate/capacity supplied) would re-derive the
+    # capacity, but the frozen capacity must be preserved and a warning issued.
+    expect_warning(
+        p2 <- setResource(p, balance = TRUE),
+        "set manually"
+    )
+    expect_equal(as.numeric(resource_capacity(p2)), cc_frozen)
+    expect_false(is.null(comment(p2@cc_pp)))
+})
+
+test_that("explicit balancing overrides a frozen complementary array", {
+    p <- NS_params_small
+    # Freeze the rate manually
+    resource_rate(p) <- resource_rate(p)
+    expect_false(is.null(comment(p@rr_pp)))
+
+    # Explicitly supplying a new capacity with balance = TRUE (the default)
+    # re-derives the rate, overriding the freeze, so the resource stays at
+    # steady state.
+    p2 <- setResource(p, resource_capacity = 2 * resource_capacity(p))
+    N <- initialNResource(p2)
+    mu <- getResourceMort(p2)
+    r <- p2@rr_pp
+    c <- p2@cc_pp
+    sel <- (mu + r) > 0
+    expect_equal((r * c / (mu + r))[sel], N[sel], ignore_attr = TRUE)
+
+    # ... but balance = FALSE keeps the frozen rate untouched.
+    p3 <- setResource(p, resource_capacity = 2 * resource_capacity(p),
+                      balance = FALSE)
+    expect_equal(resource_rate(p3), resource_rate(p), ignore_attr = TRUE)
 })

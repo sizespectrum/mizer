@@ -22,7 +22,12 @@
 #' in that case you should not specify `resource_capacity` as well.
 #'
 #' If you provide none of the arguments `resource_level`, `resource_rate` or
-#' `resource_capacity` then the resource rate is kept at its previous value.
+#' `resource_capacity`, and you do not change any of the resource parameters,
+#' then the resource rate is kept at its previous value and, when balancing, the
+#' capacity is recalculated from it. If instead you change one of the resource
+#' parameters (`kappa`, `lambda`, `n` or `w_pp_cutoff`) or set `reset = TRUE`,
+#' the rate and capacity are recalculated from the resource parameters (and then
+#' balanced, unless `balance = FALSE`).
 #'
 #' @section Setting resource dynamics:
 #'
@@ -58,7 +63,9 @@
 #'
 #' The values for `lambda`, `n` and `w_pp_cutoff` are stored in a list
 #' in the `resource_params` slot of the MizerParams object so that they can be
-#' re-used automatically in the future. That list can be accessed with
+#' re-used automatically in the future. If you specify `resource_rate` or
+#' `resource_capacity` as a single number, that coefficient is likewise stored,
+#' as `r_pp` and `kappa` respectively. That list can be accessed with
 #' [resource_params()].
 #'
 #' @param params A MizerParams object
@@ -330,7 +337,10 @@ setResource.MizerParams <- function(params,
     }
 
     # Recompute rate from stored scalar r_pp if not provided and not commented ----
-    if (is.null(resource_rate) && is.null(resource_capacity) && resource_params_changed) {
+    # This is deliberately independent of whether the capacity was recomputed:
+    # each array is rebuilt from its own scalars so that rate-side parameters
+    # (`r_pp`, `n`) take effect even when capacity-side parameters also changed.
+    if (is.null(resource_rate) && resource_params_changed) {
         if (is.null(comment(params@rr_pp))) {
             r_pp <- params@resource_params[["r_pp"]]
             if (!is.null(r_pp) && is.numeric(r_pp) && length(r_pp) == 1) {
@@ -375,6 +385,16 @@ setResource.MizerParams <- function(params,
             }
         }
 
+        # Whichever side is NULL going into the balancing function is the one
+        # that gets derived from the other. A frozen (commented) array is only
+        # protected from *incidental* balancing, i.e. when the user did not
+        # explicitly supply the complementary rate/capacity/level
+        # (`num_args_user == 0`). An explicit request to balance against a
+        # supplied value overrides the freeze; pass `balance = FALSE` to keep a
+        # manually set array in that case.
+        derive_rate <- is.null(resource_rate)
+        derive_capacity <- is.null(resource_capacity)
+
         balance_fn <- get0(paste0("balance_", params@resource_dynamics))
         if (!is.function(balance_fn)) {
             stop("There is no balancing function available for ",
@@ -384,8 +404,31 @@ setResource.MizerParams <- function(params,
         balance <- balance_fn(params,
                               resource_rate = resource_rate,
                               resource_capacity = resource_capacity)
-        resource_rate <- balance$resource_rate
-        resource_capacity <- balance$resource_capacity
+
+        freeze_rate <- num_args_user == 0 && derive_rate &&
+            !is.null(comment(params@rr_pp))
+        freeze_capacity <- num_args_user == 0 && derive_capacity &&
+            !is.null(comment(params@cc_pp))
+        if (freeze_rate) {
+            warning("The resource rate has been set manually and so it was ",
+                    "not rebalanced. The resource may no longer replenish at ",
+                    "the rate at which it is consumed. Use `reset = TRUE` to ",
+                    "recalculate it from the resource parameters.",
+                    call. = FALSE)
+            resource_rate <- NULL
+        } else {
+            resource_rate <- balance$resource_rate
+        }
+        if (freeze_capacity) {
+            warning("The resource capacity has been set manually and so it ",
+                    "was not rebalanced. The resource may no longer replenish ",
+                    "at the rate at which it is consumed. Use `reset = TRUE` ",
+                    "to recalculate it from the resource parameters.",
+                    call. = FALSE)
+            resource_capacity <- NULL
+        } else {
+            resource_capacity <- balance$resource_capacity
+        }
     }
 
     # Set rates
@@ -413,8 +456,8 @@ resource_rate <- function(params) {
 #' @rdname setResource
 #' @param value The desired new value for the respective parameter.
 #' @export
-`resource_rate<-` <- function(params, value) {
-    setResource(params, resource_rate = value)
+`resource_rate<-` <- function(params, balance = NULL, value) {
+    setResource(params, resource_rate = value, balance = balance)
 }
 
 #' @rdname setResource
@@ -427,8 +470,8 @@ resource_capacity <- function(params) {
 
 #' @rdname setResource
 #' @export
-`resource_capacity<-` <- function(params, value) {
-    setResource(params, resource_capacity = value)
+`resource_capacity<-` <- function(params, balance = NULL, value) {
+    setResource(params, resource_capacity = value, balance = balance)
 }
 
 
@@ -444,8 +487,8 @@ resource_level <- function(params) {
 
 #' @rdname setResource
 #' @export
-`resource_level<-` <- function(params, value) {
-    setResource(params, resource_level = value)
+`resource_level<-` <- function(params, balance = NULL, value) {
+    setResource(params, resource_level = value, balance = balance)
 }
 
 
@@ -463,6 +506,6 @@ resource_dynamics <- function(params) {
 #' params <- NS_params
 #' resource_dynamics(params)
 #' resource_dynamics(params) <- "resource_constant"
-`resource_dynamics<-` <- function(params, value) {
-    setResource(params, resource_dynamics = value)
+`resource_dynamics<-` <- function(params, balance = NULL, value) {
+    setResource(params, resource_dynamics = value, balance = balance)
 }

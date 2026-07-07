@@ -111,7 +111,9 @@ reproduction".}
 reproduction rate from the density-independent rate. Defaults to
 "\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}".}
 
-\item{kappa}{The coefficient of the initial resource abundance power-law.}
+\item{kappa}{The coefficient \eqn{\kappa} of the resource carrying capacity
+power law \eqn{c_R(w) = \kappa\, w^{-\lambda}}, which also sets the initial
+resource abundance. See \code{\link[=resource_params]{resource_params()}}.}
 
 \item{n}{The allometric growth exponent. This can be overruled for individual
 species by including a \code{n} column in the \code{species_params}.}
@@ -758,7 +760,9 @@ The power-law exponent \eqn{\lambda} is taken from the \code{lambda} argument.
 
 The values for \code{lambda}, \code{n} and \code{w_pp_cutoff} are stored in a list
 in the \code{resource_params} slot of the MizerParams object so that they can be
-re-used automatically in the future. That list can be accessed with
+re-used automatically in the future. If you specify \code{resource_rate} or
+\code{resource_capacity} as a single number, that coefficient is likewise stored,
+as \code{r_pp} and \code{kappa} respectively. That list can be accessed with
 \code{\link[=resource_params]{resource_params()}}.
 }
 
