@@ -45,6 +45,15 @@ that determined the initial resource abundance when the model was created:
 for all \eqn{w} less than \code{w_pp_cutoff} and zero for larger sizes. Note that
 the initial resource abundance is not changed by \code{\link[=setResource]{setResource()}} even if you
 change the value of \code{kappa} in the \code{resource_params}.
+
+Assigning to \code{resource_params} only rebuilds the size-dependent resource rate
+and capacity arrays from these scalars (leaving any arrays you have set
+manually untouched). It does \strong{not} balance the resource, i.e. it does not
+adjust one of the rate or capacity to keep the resource at the steady state
+where it replenishes at the rate at which it is consumed. This mirrors the
+way the species parameters feed the species rates. If you want to preserve
+the steady state after changing a resource scalar, call \code{\link[=setResource]{setResource()}} with
+the appropriate argument (which balances by default).
 }
 \seealso{
 \code{\link[=setResource]{setResource()}}

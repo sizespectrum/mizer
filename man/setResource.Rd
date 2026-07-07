@@ -28,19 +28,19 @@ setResource(
 
 resource_rate(params)
 
-resource_rate(params) <- value
+resource_rate(params, balance = NULL) <- value
 
 resource_capacity(params)
 
-resource_capacity(params) <- value
+resource_capacity(params, balance = NULL) <- value
 
 resource_level(params)
 
-resource_level(params) <- value
+resource_level(params, balance = NULL) <- value
 
 resource_dynamics(params)
 
-resource_dynamics(params) <- value
+resource_dynamics(params, balance = NULL) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -133,7 +133,12 @@ to the current resource number density divided by the resource level. So
 in that case you should not specify \code{resource_capacity} as well.
 
 If you provide none of the arguments \code{resource_level}, \code{resource_rate} or
-\code{resource_capacity} then the resource rate is kept at its previous value.
+\code{resource_capacity}, and you do not change any of the resource parameters,
+then the resource rate is kept at its previous value and, when balancing, the
+capacity is recalculated from it. If instead you change one of the resource
+parameters (\code{kappa}, \code{lambda}, \code{n} or \code{w_pp_cutoff}) or set \code{reset = TRUE},
+the rate and capacity are recalculated from the resource parameters (and then
+balanced, unless \code{balance = FALSE}).
 }
 \section{Setting resource dynamics}{
 
@@ -170,7 +175,9 @@ The power-law exponent \eqn{\lambda} is taken from the \code{lambda} argument.
 
 The values for \code{lambda}, \code{n} and \code{w_pp_cutoff} are stored in a list
 in the \code{resource_params} slot of the MizerParams object so that they can be
-re-used automatically in the future. That list can be accessed with
+re-used automatically in the future. If you specify \code{resource_rate} or
+\code{resource_capacity} as a single number, that coefficient is likewise stored,
+as \code{r_pp} and \code{kappa} respectively. That list can be accessed with
 \code{\link[=resource_params]{resource_params()}}.
 }
 

@@ -193,6 +193,13 @@ params <- setResource(params, reset = TRUE)       # unfreeze: recompute from the
 This mirrors the species-parameter behaviour exactly: scalars are the "given"
 inputs, the arrays are calculated from them unless you override an array by hand.
 
+Keeping the resource at its steady state (where it replenishes at the rate at
+which it is consumed) is a separate, deliberate step called *balancing*. It is
+**not** triggered by `resource_params(params) <-`; it happens only in
+[`setResource()`](../reference/setResource.html), and in the array/level/dynamics
+setters, which balance by default. Pass `balance = FALSE` to switch it off, e.g.
+`resource_capacity(params, balance = FALSE) <- my_capacity`.
+
 ---
 
 ### The interaction matrix

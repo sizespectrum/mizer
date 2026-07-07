@@ -1,5 +1,19 @@
 # mizer 3.1.0.9000 (development version)
 
+- Assigning to `resource_params()` no longer balances the resource. It now only
+  rebuilds the size-dependent rate (`rr_pp`) and capacity (`cc_pp`) arrays from
+  the scalars, leaving any manually set (frozen) arrays untouched, exactly as
+  `species_params<-` feeds the species rates. As a result changing the rate-side
+  scalars `r_pp` or `n` now takes effect (previously the value was silently
+  discarded by balancing), and successive scalar edits accumulate instead of
+  overwriting each other. Balancing the resource to preserve the steady state is
+  now solely a feature of `setResource()`. The `resource_rate<-`,
+  `resource_capacity<-`, `resource_level<-` and `resource_dynamics<-` setters
+  gained a `balance` argument (default unchanged) so it can be switched off, e.g.
+  `resource_capacity(params, balance = FALSE) <- my_capacity`. `setResource()`
+  also no longer silently overwrites a manually set rate or capacity array when
+  balancing: the frozen array wins and a warning is issued.
+
 - An installed extension package is now recognised as a dispatching extension
   from the S3 methods it registers for its marker class (e.g.
   `getEncounter.mizerMR`), rather than only from a statically defined S4 marker

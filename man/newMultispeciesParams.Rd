@@ -758,7 +758,9 @@ The power-law exponent \eqn{\lambda} is taken from the \code{lambda} argument.
 
 The values for \code{lambda}, \code{n} and \code{w_pp_cutoff} are stored in a list
 in the \code{resource_params} slot of the MizerParams object so that they can be
-re-used automatically in the future. That list can be accessed with
+re-used automatically in the future. If you specify \code{resource_rate} or
+\code{resource_capacity} as a single number, that coefficient is likewise stored,
+as \code{r_pp} and \code{kappa} respectively. That list can be accessed with
 \code{\link[=resource_params]{resource_params()}}.
 }
 
