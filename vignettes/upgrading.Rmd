@@ -28,13 +28,20 @@ automatically — so the notes below are about changes in *behaviour* and in the
 functions you call, not about stored objects. The changes are grouped by the
 release in which they took effect, most recent first.
 
-# Setting resource parameters
+Only changes that can alter the behaviour of *existing* code are listed. The
+many purely additive features (new functions, new optional arguments, new
+plots) are described in the [changelog](https://sizespectrum.org/mizer/news/index.html)
+and are not repeated here.
+
+# Upgrading from mizer 3.1 to 3.2
+
+## Setting resource parameters
 
 Two related changes affect how you modify the resource size spectrum. Together
 they make the resource scalars behave like the species parameters: a scalar is
 an input, and the size-dependent arrays are computed from it.
 
-## Assigning to `resource_params()` now updates the resource arrays
+### Assigning to `resource_params()` now updates the resource arrays
 
 Previously, assigning to `resource_params()` — or to one of its components, such
 as `resource_params(params)$kappa <- ...` — only stored the new scalar values.
@@ -54,7 +61,7 @@ it, nothing breaks — you can drop the now-redundant `setResource()` call. If y
 changed a resource scalar and relied on the arrays *not* changing until later,
 review that code.
 
-## Assigning to `resource_params()` does not balance the resource
+### Assigning to `resource_params()` does not balance the resource
 
 *Balancing* means adjusting the rate and capacity together so that the resource
 replenishes at exactly the rate at which it is consumed, keeping it at its steady
@@ -74,7 +81,7 @@ params <- setResource(params, resource_capacity = new_kappa)
 params <- setResource(params, resource_rate = new_r_pp)
 ```
 
-## The resource setters gained a `balance` argument
+### The resource setters gained a `balance` argument
 
 `resource_rate<-`, `resource_capacity<-`, `resource_level<-` and
 `resource_dynamics<-` still balance by default (unchanged behaviour), but they
@@ -85,17 +92,301 @@ now accept a `balance` argument so you can switch balancing off:
 resource_capacity(params, balance = FALSE) <- my_capacity
 ```
 
-## Frozen arrays are protected from incidental balancing
+### Frozen arrays are protected from incidental balancing
 
-When you set `rr_pp` or `cc_pp` by hand (by assigning a full array rather than a
-scalar), mizer marks it "set manually" — it is *frozen* and will not be
-recomputed from the resource parameters. Previously, an operation that
-re-balanced the resource *without* being given a replacement rate or capacity —
-for example changing only `resource_dynamics`, or calling `setResource()` with
-neither a rate nor a capacity — would silently overwrite such a frozen array. It
-is now kept, and a warning is issued instead.
+When you set the size dependence of the resource capacity or the resource rate
+by hand (by assigning a full vector rather than a scalar), mizer marks it "set
+manually" — it is *frozen* and will not be recomputed from the resource
+parameters. Previously, an operation that re-balanced the resource *without*
+being given a replacement rate or capacity — for example changing only
+`resource_dynamics`, or calling `setResource()` with neither a rate nor a
+capacity — would silently overwrite such a frozen array. It is now kept, and a
+warning is issued instead.
 
 To deliberately recompute a frozen array from the resource parameters, pass
-`reset = TRUE`. An *explicit* balance — where you hand `setResource()` a new rate
-or capacity — still overrides the freeze; pass `balance = FALSE` if you want the
-frozen array kept in that case.
+`reset = TRUE` to `setResource()`.
+
+## The `species_params` data frame is now an S3 subclass
+
+The `species_params` data frame now has class `c("species_params",
+"data.frame")` (and `gear_params` similarly). It behaves like an ordinary data
+frame, but subsetting and subassignment go through class-preserving S3 methods
+and can trigger reactive re-validation and conversions (for example filling in a
+weight from a length). Code that relied on `class(species_params(params))` being
+exactly `"data.frame"`, or that stripped attributes with the assumption of a
+plain data frame, may need adjusting. When you need a plain frame, coerce
+explicitly with `as.data.frame()`.
+
+## Accessing a column with `$` now returns a named vector
+
+Extracting a single column from a `species_params` or `gear_params` object with
+`$` now returns a vector named by species (or by `"species, gear"` for
+`gear_params`):
+
+```{r}
+species_params(params)$w_mat
+#>   Sprat  Herring      Cod
+#>    ...      ...      ...
+```
+
+The values are unchanged, but the names are new. This is convenient for
+identifying entries, but code that compared such a vector with `identical()` to
+an unnamed vector, or that used it as-is where names matter (for example as
+row/column names elsewhere), may behave differently. Strip the names with
+`unname()` if you need the old behaviour. The `species` column itself is
+returned unnamed.
+
+## Setting `sel_func` adds the required argument columns
+
+Assigning a selectivity function name to a `gear_params` object now
+automatically adds the argument columns that the function needs (as `NA`),
+ready to be filled in:
+
+```{r}
+gp$sel_func <- "sigmoid_length"
+# gp now has l25 and l50 columns, both NA
+```
+
+Previously these columns had to be added by hand. Code that checks which columns
+are present in `gear_params`, or that expected setting `sel_func` to leave the
+column set unchanged, will now see the extra columns (#431).
+
+## Passing a data frame to `species_params()` / `given_species_params()` now validates it
+
+Calling `species_params()` or `given_species_params()` on a plain data frame now
+runs the same validation and defaults that `validSpeciesParams()` and
+`validGivenSpeciesParams()` apply, rather than only checking for misspellings and
+converting lengths to weights. `species_params(df)` fills in the default columns
+(`w_max`, `alpha`, `n`, `p`, `interaction_resource`, `z_ext`, and the rest), and
+`given_species_params(df)` applies the consistency corrections (for example
+clamping `w_mat` below `w_inf`), derives `w_inf` from `w_max`/`w_repro_max` when
+it is absent, and now stops if the frame has duplicate species rows. Models built
+or modified through `newMultispeciesParams()`, `setParams()` and the
+`species_params()<-` / `given_species_params()<-` setters are unaffected, because
+those already ran this validation. Only code that called the two accessors
+directly on a bare data frame will see the extra columns and stricter checks
+(#432).
+
+## Printing of mizer array objects shows the values
+
+`print()` on the array objects returned by the rate getters (`ArraySpeciesBySize`,
+`ArrayTimeBySpecies`, `ArrayResourceBySize`, `ArrayTimeByResourceBySize` and
+`ArrayTimeBySpeciesBySize`, as returned by `getEncounter()`, `getBiomass()`,
+`getFMort()`, `NResource()` and similar) now truncates the output instead of
+flooding the console with all the array entries. If your code or reports relied
+on the old printed format, use `as.data.frame()` to go back to the full output.
+
+## Upper boundary condition at `w_max`
+
+The size-spectrum solver now holds the abundance at zero above each species'
+maximum size `w_max`. Without diffusion this happens automatically and results
+are unchanged. With diffusion switched on this change stops a small amount of
+density leaking to sizes above `w_max`, so results there change slightly. See
+`vignette("numerical_details")`.
+
+## Extension packages: dynamic marker classes
+
+If you develop a mizer extension, an installed extension package is now
+recognised as a dispatching extension from the S3 methods it registers for its
+marker class (for example `getEncounter.mizerMR`), rather than only from a
+statically defined S4 marker class. You can now omit the static
+`setClass("mizerFoo", contains = "MizerParams")` and let mizer create the marker
+class dynamically. This lets two independently developed extensions be chained
+in either load order. See `vignette("creating-extension-packages")`.
+
+# Upgrading from mizer 3.0 to 3.1
+
+Version 3.1 leaves default results unchanged from 3.0 unless you opt in to the
+new experimental second-order-in-size scheme. The changes below can still affect
+existing code in specific situations.
+
+## Maximum-size species parameters clarified
+
+The maximum-size parameters have been given clearer, separate roles (#325):
+
+- `w_inf`, the von Bertalanffy asymptotic size, is now the primary maximum-size
+  parameter and is used as the default for `w_repro_max` (the size at which a
+  mature individual invests all its energy in reproduction) and for `w_mat`.
+- `w_max` is now purely a computational boundary — it sets the size grid and the
+  plot range — and defaults to `1.5 * w_inf`.
+- The default external mortality parameter `z0` is now computed from `w_inf`
+  rather than `w_max`, so the computational boundary `w_max` no longer feeds into
+  any model parameter.
+
+Existing models and scripts are unaffected: if `w_inf` is not supplied it is
+taken from `w_repro_max` or `w_max`, so old objects behave as before. However,
+**new models built from the defaults may differ from 3.0.0**. If you build models
+from scratch, check that `w_inf`, `w_max` and `w_repro_max` mean what you intend.
+
+## `getTrophicLevel()` gives the resource a size-dependent trophic level
+
+`getTrophicLevel()` and `getTrophicLevelBySpecies()` now assign the resource a
+size-dependent trophic level,
+$T_R(w) = \max(1,\, 1 + \log(w / w_R) / \log(\beta_R))$, instead of treating the
+resource as trophic level 0. The new `w_R` and `beta_R` arguments control this.
+Trophic levels computed with these functions will therefore be higher than
+before. Set the arguments explicitly if you need to reproduce old numbers.
+
+## Bug fixes that change results
+
+Several fixes correct earlier behaviour and so change output:
+
+- **`summary()` of a `MizerSim`** now reports the fishing effort that was used
+  during the simulation, rather than the model's `initial_effort`. Gears whose
+  effort varied over time show the mean, flagged with a note giving the range.
+  The printed summary therefore differs for simulations run with time-varying
+  effort.
+- **`MizerSim` method for `plotDiet()`** introduced in version 3.0 simply
+  plotted the diet at the initial time of the simulation. Now `plotDiet()` for
+  a `MizerSim` accepts a `time_range` argument. The diet is now computed from
+  the *simulated* abundances at the requested times, defaulting to the final
+  saved step, rather than the initial one (#357).
+- **Other components and `t_save`.** `project()` was advancing the abundances of
+  other components (set via `setComponent()`) only once per *saved* time step
+  instead of once per `dt` step. They are now integrated with the same `dt` as
+  the consumer and resource spectra, so results for models with other components
+  no longer depend on `t_save`.
+- **Time-varying effort in `getRDI()`, `getRDD()`, `getFlux()`.** On a
+  `MizerSim` object these now use the simulated time-varying effort rather than
+  the initial effort, so they change for simulations with varying effort (#370).
+- **`plotCDF()` / `plotlyCDF()` bin placement.** Each cumulative value is now
+  plotted at its bin's *upper* edge, correcting a one-bin offset.
+  The curves shift by one bin compared with 3.0 (#383).
+- **`distanceMaxRelRDI()`.** Now returns `Inf` instead of `NaN` when a previous
+  RDI is zero, so `projectToSteady()` no longer mistakes a `NaN` distance for
+  convergence. Convergence behaviour can therefore differ in edge cases.
+
+## Second-order methods advance the resource at the midpoint
+
+If you use `project()` with `method = "predictor_corrector"` (or the new
+`method = "tr_bdf2"`), the resource and the other components are now advanced
+with midpoint rates rather than the start-of-step value, so that they reach the
+same second-order accuracy in time as the consumer spectra. Results from these
+methods therefore differ slightly from 3.0. The default `method = "euler"` and
+the steady states are unchanged.
+
+## Opting in to the second-order-in-size scheme
+
+3.1 adds an optional, experimental second-order-accurate finite-volume scheme in
+the size variable, controlled by the new `second_order_w` slot. It is **off by
+default**, so default results are byte-identical to 3.0. If you switch it on
+(via `second_order_w()<-` or the `second_order_w` argument of the `new...Params()`
+constructors), size-integrated diagnostics and the resource spectrum shift by
+$O(\Delta w)$, so a calibrated model may need recalibrating. See `?second_order_w`
+and the "Numerical Details" vignette.
+
+# Upgrading from mizer 2.5.4 to 3.0
+
+Version 3.0 is a large release. Most new capabilities are additive and off by
+default, but there are several renamed arguments, deprecations and behavioural
+changes that can affect existing code.
+
+## Renamed arguments and changed defaults (breaking changes)
+
+- **First argument of `plotBiomass()`, `plotYield()`, `plotYieldGear()`** (and
+  their `MizerSim` methods and `plotly*` wrappers) is renamed from `sim` to
+  `object`, for consistency with the other plot generics. Calls that passed the
+  simulation by name, `plotBiomass(sim = my_sim)`, must become
+  `plotBiomass(object = my_sim)`. Positional calls are unaffected.
+- **`plotBiomassObservedVsModel()` / `plotlyBiomassObservedVsModel()`** now
+  default to `ratio = FALSE` for all object types. Calls that relied on the
+  previous ratio plot must set `ratio = TRUE` explicitly.
+- **`plotDiet()` no longer accepts a `time_range` argument.** Remove it from your
+  calls. (In 3.1 a `time_range` argument returns for the `MizerSim` method — see
+  above.)
+- **Dimnames of `getMort()` and `getPredRate()`** arrays are now `sp` and `w`
+  (matching `getFMort()` and the other rate getters). Code that referred to the
+  old dimnames by name must be updated.
+
+## Rate getters return classed array objects
+
+Functions that return arrays of the form (species × size), (time × species) or
+(time × species × size) now attach extra attributes and an S3 class
+(`ArraySpeciesBySize`, `ArrayTimeBySpecies` or `ArrayTimeBySpeciesBySize`). The
+numeric values and ordinary matrix behaviour (arithmetic, subsetting) are
+unchanged, but the extra class and attributes mean that a strict comparison such
+as `identical(getMort(params), old_value)` can now report a difference where the
+numbers agree. Use `unclass()`, or compare with `all.equal()` on the values, if
+you need to ignore the class. These objects also carry `print()`, `summary()`,
+`plot()` and `as.data.frame()` methods, so printing them looks different from a
+bare matrix.
+
+## `setInitialValues()` is deprecated
+
+`setInitialValues()` is deprecated. Replace
+
+```{r}
+params <- setInitialValues(params, sim)
+```
+
+with
+
+```{r}
+params <- finalParams(sim)
+```
+
+or, when averaging over a time range, with
+`getParams(sim, time_range, geometric_mean)`. This reflects a shift in
+interpretation: a `MizerParams` object now represents not just the model
+specification but also its current state (the abundances), which can be
+extracted from a simulation with `getParams()`, `finalParams()` and
+`initialParams()`.
+
+## Growth can no longer be negative
+
+Growth is now forced to be non-negative, preventing unphysical shrinkage. In any
+model where the energy available for growth used to go negative (for example a
+strongly food-limited large individual), growth is now clamped at zero instead,
+so projected size spectra can differ from 2.5.4. No warning is issued when growth
+stops at or after the maturity size.
+
+## `project()` timing and effort handling
+
+- **Inherited `dt` and `method`.** When `project()` is called on an existing
+  `MizerSim` object, `dt` and `method` now default to the values stored in the
+  simulation's new `sim_params` slot. If you pass values that differ from the
+  stored ones, a warning is issued. To use different settings deliberately, pass
+  them explicitly and expect the warning.
+- **`t_max` / `t_save` with an effort array.** These arguments are now respected
+  even when an effort array is supplied (#231). With `t_max` the simulation
+  extends beyond the times in the effort array using the last known effort; with
+  `t_save` the save frequency is controlled independently, interpolating effort
+  as needed. Simulations that previously derived their length or save times
+  solely from the effort array may now produce a different set of saved steps.
+- **State at `t_max` always saved.** `project()` now warns when `t_max` is not a
+  multiple of `t_save` and ensures the state at `t_max` is saved even if the
+  final interval is shorter than `t_save` (#341). The returned simulation may
+  therefore contain one extra saved time step compared with 3.0.
+
+## `plot()` and `summary()` are now S3 methods
+
+The `plot()` and `summary()` methods for `MizerParams`, `MizerSim` and the mizer
+array classes are now registered as S3 methods rather than S4 methods, so
+`plot()` and `summary()` stay plain S3 generics when mizer is loaded. This avoids
+interfering with S4 dispatch in other packages, but code that relied on
+`plot`/`summary` being S4 generics (for example via `selectMethod()` or
+`getMethod()`) needs adjusting.
+
+## Bug fixes that change results
+
+- **`getMeanMaxWeight()`** now applies the species selector to the denominator as
+  well, so its values change when a subset of species is selected.
+- **`plotSpectra()` axis limits.** It no longer forces the y-axis lower limit to
+  `1e-20` (it auto-scales to the data) and, when `resource = FALSE`, it uses
+  `min(params@w)` rather than `min(params@w) / 100` as the default lower size
+  limit. Plots therefore look different.
+- **`getFMort()` on a `MizerSim`** was silently dropping the component names from
+  `n_other`, breaking rate functions that access `n_other` by name (e.g.
+  `n_other[["resource"]]`); it now preserves them.
+- **`getFMort.MizerSim()`** now passes the time argument `t` to user-defined
+  fishing-mortality functions, so a time-dependent fishing function now sees the
+  correct time.
+
+## Predation diffusion is available but off by default
+
+3.0 adds a diffusion term to the growth dynamics, controlled by the new
+`use_predation_diffusion` slot. It defaults to `FALSE`, preserving the behaviour
+of earlier mizer, so existing models are unchanged unless you switch it on with
+`use_predation_diffusion(params) <- TRUE`. Likewise the new species parameters
+`z_ext`, `d`, `E_ext` and `D_ext` for external mortality, encounter and diffusion
+all default to values that leave the model unchanged.
