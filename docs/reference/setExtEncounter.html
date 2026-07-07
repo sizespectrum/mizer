@@ -5,7 +5,19 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Set external encounter rate — setExtEncounter"><meta name="description" content="Set external encounter rate"><meta property="og:description" content="Set external encounter rate"><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Set external encounter rate — setExtEncounter"><meta name="description" content='You will usually not need to call this function directly. Instead change
+the E_ext and n species parameters with
+given_species_params(params) &amp;lt;- and let mizer recalculate the external
+encounter rate for you. Call setExtEncounter() directly only if you want
+to impose a different functional form for the size dependence of the
+external encounter rate. See vignette("cheatsheet-changing-parameters")
+for a full explanation of when to reach for which level of the model.'><meta property="og:description" content='You will usually not need to call this function directly. Instead change
+the E_ext and n species parameters with
+given_species_params(params) &amp;lt;- and let mizer recalculate the external
+encounter rate for you. Call setExtEncounter() directly only if you want
+to impose a different functional form for the size dependence of the
+external encounter rate. See vignette("cheatsheet-changing-parameters")
+for a full explanation of when to reach for which level of the model.'><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -81,7 +93,13 @@
     </div>
 
     <div class="ref-description section level2">
-    <p>Set external encounter rate</p>
+    <p>You will usually not need to call this function directly. Instead change
+the <code>E_ext</code> and <code>n</code> species parameters with
+<code>given_species_params(params) &lt;-</code> and let mizer recalculate the external
+encounter rate for you. Call <code>setExtEncounter()</code> directly only if you want
+to impose a different functional form for the size dependence of the
+external encounter rate. See <code><a href="../articles/cheatsheet-changing-parameters.html">vignette("cheatsheet-changing-parameters")</a></code>
+for a full explanation of when to reach for which level of the model.</p>
     </div>
 
     <div class="section level2">

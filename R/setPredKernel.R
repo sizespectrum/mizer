@@ -1,5 +1,14 @@
 #' Set predation kernel
 #'
+#' You will usually not need to call this function directly. Instead change
+#' the relevant species parameters (`pred_kernel_type`, and, depending on its
+#' value, `beta`/`sigma` or `ppmr_min`/`ppmr_max`) with
+#' `given_species_params(params) <-` and let mizer recalculate the predation
+#' kernel for you. Call `setPredKernel()` directly only if you want to supply
+#' the full kernel array yourself. See
+#' `vignette("cheatsheet-changing-parameters")` for a full explanation of when
+#' to reach for which level of the model.
+#'
 #' The predation kernel determines the distribution of prey sizes that a
 #' predator feeds on. It is used in [getEncounter()] when calculating
 #' the rate at which food is encountered and in [getPredRate()] when

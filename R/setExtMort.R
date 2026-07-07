@@ -1,5 +1,13 @@
 #' Set external mortality rate
 #'
+#' You will usually not need to call this function directly. Instead change
+#' the `z0`, `z_ext` and `d` species parameters with
+#' `given_species_params(params) <-` and let mizer recalculate the external
+#' mortality rate for you. Call `setExtMort()` directly only if you want to
+#' impose a different functional form for the size dependence of the external
+#' mortality. See `vignette("cheatsheet-changing-parameters")` for a full
+#' explanation of when to reach for which level of the model.
+#'
 #' @section Setting external mortality rate:
 #' The external mortality is all the mortality that is not due to fishing or
 #' predation by predators included in the model. The external mortality could be

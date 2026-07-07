@@ -39,7 +39,13 @@ diffusion rate.
 with the external diffusion rate.
 }
 \description{
-Set external diffusion rate
+You will usually not need to call this function directly. Instead change
+the \code{D_ext} and \code{n} species parameters with
+\verb{given_species_params(params) <-} and let mizer recalculate the external
+diffusion rate for you. Call \code{setExtDiffusion()} directly only if you want
+to impose a different functional form for the size dependence of the
+external diffusion rate. See \code{vignette("cheatsheet-changing-parameters")}
+for a full explanation of when to reach for which level of the model.
 }
 \section{Setting external diffusion rate}{
 

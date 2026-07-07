@@ -1,5 +1,13 @@
 #' Set maximum intake rate
 #'
+#' You will usually not need to call this function directly. Instead change
+#' the `h` and `n` species parameters with `given_species_params(params) <-`
+#' and let mizer recalculate the maximum intake rate for you. Call
+#' `setMaxIntakeRate()` directly only if you want to impose a different
+#' functional form for the size dependence of the intake rate. See
+#' `vignette("cheatsheet-changing-parameters")` for a full explanation of when
+#' to reach for which level of the model.
+#'
 #' @section Setting maximum intake rate:
 #' The maximum intake rate \eqn{h_i(w)} of an individual of species \eqn{i} and
 #' weight \eqn{w} determines the feeding level, calculated with

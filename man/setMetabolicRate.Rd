@@ -45,7 +45,14 @@ custom value has been set.}
 \code{ArraySpeciesBySize} object (species x size) with the metabolic rate.
 }
 \description{
-Sets the rate at which energy is used for metabolism and activity
+Sets the rate at which energy is used for metabolism and activity. You will
+usually not need to call this function directly. Instead change the \code{k},
+\code{ks} and \code{p} species parameters with \verb{given_species_params(params) <-} and
+let mizer recalculate the metabolic rate for you. Call \code{setMetabolicRate()}
+directly only if you want to impose a different functional form for the
+size dependence of the metabolic rate. See
+\code{vignette("cheatsheet-changing-parameters")} for a full explanation of when
+to reach for which level of the model.
 }
 \section{Setting metabolic rate}{
 

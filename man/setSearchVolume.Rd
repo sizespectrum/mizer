@@ -39,7 +39,12 @@ value has been set.}
 \code{ArraySpeciesBySize} object (species x size) holding the search volume.
 }
 \description{
-Set search volume
+You will usually not need to call this function directly. Instead change
+the \code{gamma} and \code{q} species parameters with \verb{given_species_params(params) <-}
+and let mizer recalculate the search volume for you. Call \code{setSearchVolume()}
+directly only if you want to impose a different functional form for the size
+dependence of the search volume. See \code{vignette("cheatsheet-changing-parameters")}
+for a full explanation of when to reach for which level of the model.
 }
 \section{Setting search volume}{
 

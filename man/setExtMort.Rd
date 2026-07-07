@@ -59,7 +59,13 @@ rate.
 object (species x size) with the external mortality.
 }
 \description{
-Set external mortality rate
+You will usually not need to call this function directly. Instead change
+the \code{z0}, \code{z_ext} and \code{d} species parameters with
+\verb{given_species_params(params) <-} and let mizer recalculate the external
+mortality rate for you. Call \code{setExtMort()} directly only if you want to
+impose a different functional form for the size dependence of the external
+mortality. See \code{vignette("cheatsheet-changing-parameters")} for a full
+explanation of when to reach for which level of the model.
 }
 \section{Setting external mortality rate}{
 

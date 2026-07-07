@@ -41,7 +41,13 @@ rate.
 \code{ArraySpeciesBySize} object (species x size) with the external encounter rate.
 }
 \description{
-Set external encounter rate
+You will usually not need to call this function directly. Instead change
+the \code{E_ext} and \code{n} species parameters with
+\verb{given_species_params(params) <-} and let mizer recalculate the external
+encounter rate for you. Call \code{setExtEncounter()} directly only if you want
+to impose a different functional form for the size dependence of the
+external encounter rate. See \code{vignette("cheatsheet-changing-parameters")}
+for a full explanation of when to reach for which level of the model.
 }
 \section{Setting external encounter rate}{
 

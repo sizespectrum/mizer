@@ -1,6 +1,13 @@
 #' Set metabolic rate
 #'
-#' Sets the rate at which energy is used for metabolism and activity
+#' Sets the rate at which energy is used for metabolism and activity. You will
+#' usually not need to call this function directly. Instead change the `k`,
+#' `ks` and `p` species parameters with `given_species_params(params) <-` and
+#' let mizer recalculate the metabolic rate for you. Call `setMetabolicRate()`
+#' directly only if you want to impose a different functional form for the
+#' size dependence of the metabolic rate. See
+#' `vignette("cheatsheet-changing-parameters")` for a full explanation of when
+#' to reach for which level of the model.
 #'
 #' @section Setting metabolic rate:
 #' The metabolic rate is subtracted from the energy income rate to calculate

@@ -1,5 +1,13 @@
 #' Set external diffusion rate
 #'
+#' You will usually not need to call this function directly. Instead change
+#' the `D_ext` and `n` species parameters with
+#' `given_species_params(params) <-` and let mizer recalculate the external
+#' diffusion rate for you. Call `setExtDiffusion()` directly only if you want
+#' to impose a different functional form for the size dependence of the
+#' external diffusion rate. See `vignette("cheatsheet-changing-parameters")`
+#' for a full explanation of when to reach for which level of the model.
+#'
 #' @section Setting external diffusion rate:
 #' The external diffusion rate allows you to impose additional diffusion
 #' beyond the predation-driven diffusion that can be internally modelled by mizer.

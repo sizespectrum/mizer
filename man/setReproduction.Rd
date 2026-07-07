@@ -79,7 +79,14 @@ returned as zero.
 \description{
 Sets the proportion of the total energy available for reproduction and growth
 that is invested into reproduction as a function of the size of the
-individual and sets additional density dependence.
+individual and sets additional density dependence. You will usually not
+need to call this function directly. Instead change the \code{w_mat},
+\code{w_mat25}, \code{w_repro_max} and \code{m} species parameters with
+\verb{given_species_params(params) <-} and let mizer recalculate the maturity
+ogive and reproduction allocation for you. Call \code{setReproduction()}
+directly only if you want to impose different functional forms for these.
+See \code{vignette("cheatsheet-changing-parameters")} for a full explanation of
+when to reach for which level of the model.
 }
 \section{Setting reproduction}{
 

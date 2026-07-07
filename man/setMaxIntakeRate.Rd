@@ -40,7 +40,13 @@ intake rate.
 \code{ArraySpeciesBySize} object (species x size) with the maximum intake rate.
 }
 \description{
-Set maximum intake rate
+You will usually not need to call this function directly. Instead change
+the \code{h} and \code{n} species parameters with \verb{given_species_params(params) <-}
+and let mizer recalculate the maximum intake rate for you. Call
+\code{setMaxIntakeRate()} directly only if you want to impose a different
+functional form for the size dependence of the intake rate. See
+\code{vignette("cheatsheet-changing-parameters")} for a full explanation of when
+to reach for which level of the model.
 }
 \section{Setting maximum intake rate}{
 

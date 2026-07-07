@@ -40,6 +40,16 @@ value has been set.}
 species x predator_size x prey_size)
 }
 \description{
+You will usually not need to call this function directly. Instead change
+the relevant species parameters (\code{pred_kernel_type}, and, depending on its
+value, \code{beta}/\code{sigma} or \code{ppmr_min}/\code{ppmr_max}) with
+\verb{given_species_params(params) <-} and let mizer recalculate the predation
+kernel for you. Call \code{setPredKernel()} directly only if you want to supply
+the full kernel array yourself. See
+\code{vignette("cheatsheet-changing-parameters")} for a full explanation of when
+to reach for which level of the model.
+}
+\details{
 The predation kernel determines the distribution of prey sizes that a
 predator feeds on. It is used in \code{\link[=getEncounter]{getEncounter()}} when calculating
 the rate at which food is encountered and in \code{\link[=getPredRate]{getPredRate()}} when

@@ -1,5 +1,13 @@
 #' Set external encounter rate
 #'
+#' You will usually not need to call this function directly. Instead change
+#' the `E_ext` and `n` species parameters with
+#' `given_species_params(params) <-` and let mizer recalculate the external
+#' encounter rate for you. Call `setExtEncounter()` directly only if you want
+#' to impose a different functional form for the size dependence of the
+#' external encounter rate. See `vignette("cheatsheet-changing-parameters")`
+#' for a full explanation of when to reach for which level of the model.
+#'
 #' @section Setting external encounter rate:
 #' The external encounter rate is the rate at which a predator encounters
 #' food that is not explicitly modelled. It is a rate with units mass/year.
