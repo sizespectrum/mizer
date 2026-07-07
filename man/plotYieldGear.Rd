@@ -11,6 +11,9 @@ plotYieldGear(
   species = NULL,
   gears = NULL,
   total = FALSE,
+  log_x = FALSE,
+  log_y = TRUE,
+  log = NULL,
   ylim = c(NA, NA),
   tlim = c(NA, NA),
   highlight = NULL,
@@ -31,6 +34,16 @@ all gears.}
 
 \item{total}{A boolean value that determines whether the total yield from all
 species is plotted as well. Default is FALSE.}
+
+\item{log_x}{If \code{TRUE}, use a log10 x-axis. Default is \code{FALSE}.}
+
+\item{log_y}{If \code{TRUE}, use a log10 y-axis. Default is \code{TRUE}.}
+
+\item{log}{Character string specifying which axes should use log10 scales,
+in the same form as the base \code{\link[=plot]{plot()}} argument. For example, \code{"x"},
+\code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x} and \code{log_y}.
+For backward compatibility, \code{TRUE} and \code{FALSE} are interpreted as setting
+only \code{log_y}.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the y axis. Use \code{NA} to refer to the existing minimum or maximum.}
