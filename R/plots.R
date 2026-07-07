@@ -2033,24 +2033,20 @@ plotSpectraRelative <- function(object1, object2,
                                 species = NULL,
                                 wlim = c(NA, NA), llim = c(NA, NA),
                                 ylim = c(NA, NA),
-                                power = 1, biomass = TRUE,
                                 total = FALSE, resource = TRUE,
                                 background = TRUE,
                                 highlight = NULL,
                                 log_x = TRUE,
                                 size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
-    if (missing(power)) {
-        power <- as.numeric(biomass)
-    }
     assert_that(length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
     sf1 <- plotSpectra(object1, species = species, wlim = wlim,
-                       power = power, total = total, resource = resource,
+                       power = 1, total = total, resource = resource,
                        background = background, size_axis = "w",
                        return_data = TRUE, ...)
     sf2 <- plotSpectra(object2, species = species, wlim = wlim,
-                       power = power, total = total, resource = resource,
+                       power = 1, total = total, resource = resource,
                        background = background, size_axis = "w",
                        return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
@@ -2071,7 +2067,6 @@ plotlySpectraRelative <- function(object1, object2,
                                   species = NULL,
                                   wlim = c(NA, NA), llim = c(NA, NA),
                                   ylim = c(NA, NA),
-                                  power = 1, biomass = TRUE,
                                   total = FALSE, resource = TRUE,
                                   background = TRUE,
                                   highlight = NULL,
@@ -2080,13 +2075,10 @@ plotlySpectraRelative <- function(object1, object2,
     size_axis <- plot_size_axis(size_axis)
     args <- list(object1 = object1, object2 = object2,
                  species = species, wlim = wlim, llim = llim, ylim = ylim,
-                 biomass = biomass, total = total,
+                 total = total,
                  resource = resource, background = background,
                  highlight = highlight, log_x = log_x,
                  size_axis = size_axis, ...)
-    if (!missing(power)) {
-        args$power <- power
-    }
     plotHover(do.call("plotSpectraRelative", args),
              tooltip = plot_size_tooltip(size_axis, before = "Legend",
                                          after = "rel_diff"))

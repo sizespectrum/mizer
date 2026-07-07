@@ -12,8 +12,6 @@ plotSpectraRelative(
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
-  power = 1,
-  biomass = TRUE,
   total = FALSE,
   resource = TRUE,
   background = TRUE,
@@ -48,16 +46,6 @@ accordingly.}
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the y axis (the relative difference). Use \code{NA} to refer to the
 existing minimum or maximum.}
-
-\item{power}{The abundance is plotted as the number density times the weight
-raised to \code{power}. The default \code{power = 1} gives the biomass
-density, whereas \code{power = 2} gives the biomass density with respect
-to logarithmic size bins.}
-
-\item{biomass}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
-Only used if \code{power} argument is missing. Then
-\code{biomass = TRUE} is equivalent to \code{power=1} and
-\code{biomass = FALSE} is equivalent to \code{power=0}}
 
 \item{total}{A boolean value that determines whether the total over all
 species in the system is plotted as well. Note that even if the plot

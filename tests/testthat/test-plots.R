@@ -827,26 +827,17 @@ test_that("plotCDF cumulative is second-order and free of the one-bin offset", {
     expect_equal(cdf[[2]][1], V * (cdf$w[1] - w_min), tolerance = 1e-8)
 })
 
-test_that("plotSpectraRelative shifts x to centres but cancels the power weight", {
+test_that("plotSpectraRelative shifts x to centres", {
     p1a <- params
     p1b <- params
     p1b@initial_n <- p1b@initial_n * 1.5
     second_order_w(p1a) <- c(bin_average = TRUE)
     second_order_w(p1b) <- c(bin_average = TRUE)
-    beta <- params@w_full[2] / params@w_full[1]
-    # power cancels in 2(N2-N1)/(N1+N2), so the relative value is independent of
-    # power; only the x-location picks up the centre shift.
-    p_p1 <- plotSpectraRelative(p1a, p1b, species = species, resource = FALSE,
-                                power = 1)
-    p_p2 <- plotSpectraRelative(p1a, p1b, species = species, resource = FALSE,
-                                power = 2)
-    d_p1 <- p_p1$data[order(p_p1$data$Species, p_p1$data$w), ]
-    d_p2 <- p_p2$data[order(p_p2$data$Species, p_p2$data$w), ]
-    expect_equal(d_p1$w, d_p2$w)
-    expect_equal(d_p1$rel_diff, d_p2$rel_diff)
+    p_centre <- plotSpectraRelative(p1a, p1b, species = species, resource = FALSE)
+    d_centre <- p_centre$data[order(p_centre$data$Species, p_centre$data$w), ]
     # The x-location is the geometric bin centre, not the node.
     p_node <- plotSpectraRelative(params, params, species = species,
                                   resource = FALSE)
     expect_true(all(p_node$data$w %in% params@w))
-    expect_false(all(d_p1$w %in% params@w))
+    expect_false(all(d_centre$w %in% params@w))
 })
