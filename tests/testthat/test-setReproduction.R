@@ -33,13 +33,13 @@ test_that("setReproduction checks arguments", {
     params@species_params$w_max[[2]] <- NA
     sp_name <- params@species_params$species[2]
     expect_error(setReproduction(params),
-                 paste0("The following species are missing data for their maximum size w_max: ", sp_name))
+                 paste0("The following species are missing their upper size-grid boundary `w_max`: ", sp_name))
     params@species_params$w_max[[2]] <- 1e-5
     expect_error(setReproduction(params),
-                 "Some of the maximum sizes are smaller than the egg sizes.")
+                 "Some of the upper size-grid boundaries \\(`w_max`\\) are smaller than the egg sizes.")
     params@species_params$w_max <- NULL
     expect_error(setReproduction(params),
-                 "The maximum sizes of the species must be specified in the w_max column of the species parameter data frame.")
+                 "The upper size-grid boundary must be specified in the `w_max` column of the species parameter data frame.")
 
     params <- NS_params_small
     params@species_params$w_mat[[3]] <- NA

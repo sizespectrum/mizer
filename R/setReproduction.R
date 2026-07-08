@@ -184,18 +184,21 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
         comment(params@psi) <- NULL
     }
 
-    # Check maximum sizes
+    # Check that the upper size-grid boundary w_max is set. This is the
+    # computational boundary of the size grid, not the size at which
+    # reproduction is maximal (that is `w_repro_max`, used below).
     if (!("w_max" %in% colnames(species_params))) {
-        stop("The maximum sizes of the species must be specified in the w_max ",
+        stop("The upper size-grid boundary must be specified in the `w_max` ",
              "column of the species parameter data frame.")
     }
     missing <- is.na(species_params$w_max)
     if (any(missing)) {
-        stop("The following species are missing data for their maximum size w_max: ",
+        stop("The following species are missing their upper size-grid boundary `w_max`: ",
              toString(species_params$species[missing]))
     }
     if (any(species_params$w_max <= species_params$w_min)) {
-        stop("Some of the maximum sizes are smaller than the egg sizes.")
+        stop("Some of the upper size-grid boundaries (`w_max`) are smaller ",
+             "than the egg sizes.")
     }
     # # Round maximum sizes to nearest grid point
     # for (i in seq_along(species_params$w_max)) {

@@ -637,7 +637,7 @@ adjustSizeGrid.MizerParams <- function(params,
     }
     too_small_species <- params@species_params$species[sp_sel & params@species_params$w_max < new_min_w]
     if (length(too_small_species) > 0) {
-        stop("The following species have their maximum size w_max smaller than the new minimum size: ",
+        stop("The following species have their upper size-grid boundary w_max smaller than the new minimum size: ",
              paste(too_small_species, collapse = ", "))
     }
     too_large_species <- params@species_params$species[sp_sel & params@species_params$w_min > new_max_w]

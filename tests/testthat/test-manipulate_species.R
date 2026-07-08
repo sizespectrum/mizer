@@ -537,7 +537,7 @@ test_that("adjustSizeGrid works for expansion and truncation", {
                  "new_min_w must be smaller than new_max_w.")
     # Species w_max smaller than new_min_w
     expect_error(adjustSizeGrid(NS_params_small, new_min_w = 100),
-                 "The following species have their maximum size w_max smaller than the new minimum size: Sprat")
+                 "The following species have their upper size-grid boundary w_max smaller than the new minimum size: Sprat")
     # Species w_min larger than new_max_w
     expect_error(adjustSizeGrid(NS_params_small, new_min_w = 0.00001, new_max_w = 0.0001),
                  "The following species have their minimum size w_min larger than the new maximum size:")

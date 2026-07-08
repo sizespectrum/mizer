@@ -25,6 +25,13 @@
 #' `knife_edge_size`, which determines the size at which species are
 #' selected.
 #'
+#' Because this constructor does not yet set up stochastic growth by diffusion,
+#' the size grid is not extended beyond the community's maximum size `max_w`
+#' (so that `w_max = w_repro_max`), rather than leaving the headroom that
+#' [newMultispeciesParams()] uses to accommodate stochastic growth. This will be
+#' revisited once these constructors gain a diffusion parameter, see
+#' \url{https://github.com/sizespectrum/mizer/issues/339}.
+#'
 #' The resulting `MizerParams` object can be projected forward using
 #' \code{project()} like any other `MizerParams` object. When projecting
 #' the community model it may be necessary to keep a small time step size
@@ -111,6 +118,9 @@ newCommunityParams <- function(max_w = 1e6,
     # Make the species data.frame
     species_params <- data.frame(
         species = "Community",
+        # Without diffusion nothing grows beyond the maximum size, so the
+        # computational grid boundary w_max is placed there too, with no
+        # headroom above it. To be revisited with diffusion (#339).
         w_inf = w_max,
         w_max = w_max,
         f0 = f0,
@@ -200,7 +210,14 @@ newCommunityParams <- function(max_w = 1e6,
 #' The search rate coefficient `gamma` is calculated using the expected
 #' feeding level, `f0`.
 #'
-#' The diffusion rate is set to `0`.
+#' The diffusion rate is set to `0`. Because growth is therefore deterministic,
+#' no individual grows beyond `w_repro_max`, the size at which all available
+#' energy is invested into reproduction. The upper boundary of the size grid is
+#' therefore placed at that size, so that `w_max = w_repro_max`, instead of the
+#' `1.5 * w_repro_max` headroom that [newMultispeciesParams()] leaves to
+#' accommodate the stochastic growth produced by diffusion. This choice will be
+#' revisited once these constructors gain a diffusion parameter, see
+#' \url{https://github.com/sizespectrum/mizer/issues/339}.
 #'
 #' The option of including fishing is given, but the steady state may loose its
 #' natural stability if too much fishing is included. In such a case the user
@@ -484,6 +501,9 @@ newTraitParams <- function(no_sp = 11,
     species_params <- data.frame(
         species = as.factor(1:no_sp),
         w_min = w_min,
+        # Without diffusion nothing grows beyond w_repro_max (= w_inf here), so
+        # the computational grid boundary w_max is placed there too, with no
+        # headroom above the maximum size. To be revisited with diffusion (#339).
         w_inf = w_max,
         w_max = w_max,
         w_mat = w_mat,
