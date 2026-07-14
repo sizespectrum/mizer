@@ -181,35 +181,42 @@ steadyNewton.MizerParams <- function(params,
     }
 
     N <- active$unpack(sol$x)
-    n_pp <- resource_steady_semichemostat(params, N, n_other)
 
-    # Zero out any densities that ended up at or near the penalty floor
-    for (i in seq_len(nrow(N))) {
-        floor_val <- max(N[i, ]) * 1.1 * 1e-15
-        N[i, N[i, ] < floor_val] <- 0
-    }
-
-    params@initial_n[] <- N
-    params@initial_n_pp[] <- n_pp
+    is_extinct <- rep(FALSE, nrow(N))
+    names(is_extinct) <- rownames(N)
 
     # Check for extinctions if using the relative floor
     if (reproduction == "dynamic" && !is.null(extinction_floor) && extinction_floor > 0) {
         extinct_threshold <- extinction_floor * 1.01
-        is_extinct <- rep(FALSE, nrow(N))
-        names(is_extinct) <- rownames(N)
         for (i in seq_len(nrow(N))) {
             lo <- params@w_min_idx[i]
-            pos <- lo:active$w_top[i]
-            pos <- pos[N0_initial[i, pos] > 0]
-            if (length(pos) && any(N[i, pos] / N0_initial[i, pos] <= extinct_threshold)) {
+            # A species is considered extinct if its recruitment (the egg class)
+            # has dropped to the relative abundance floor. Checking any() would
+            # produce false positives when the tail naturally shortens.
+            if (N0_initial[i, lo] > 0 && 
+                N[i, lo] / N0_initial[i, lo] <= extinct_threshold) {
                 is_extinct[i] <- TRUE
+                N[i, ] <- 0
             }
         }
         if (any(is_extinct)) {
-            warning("The following species went extinct and were pegged to their abundance floor: ",
+            warning("The following species went extinct and were set to zero: ",
                     paste(names(is_extinct)[is_extinct], collapse = ", "))
         }
     }
+
+    # Zero out any tail densities that ended up at or near the structural penalty floor
+    for (i in seq_len(nrow(N))) {
+        if (!is_extinct[i]) {
+            floor_val <- max(N0_initial[i, ]) * 1.1 * 1e-15
+            N[i, N[i, ] < floor_val] <- 0
+        }
+    }
+
+    n_pp <- resource_steady_semichemostat(params, N, n_other)
+
+    params@initial_n[] <- N
+    params@initial_n_pp[] <- n_pp
 
     # Restore density-dependent reproduction, just as steady() does.
     if (params@rates_funcs$RDD == "BevertonHoltRDD" && reproduction == "fixed") {
