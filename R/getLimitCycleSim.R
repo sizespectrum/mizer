@@ -71,23 +71,26 @@ getLimitCycleSim <- function(params, amplitude = 0.1, n_points = NULL, ...) {
     # ------------------------------------------------------------------
     # 2. Identify the eigenvalue / eigenvector to use
     # ------------------------------------------------------------------
-    lam1 <- stab$eigenvalues[1]
-
-    if (abs(Im(lam1)) <= 1e-8) {
-        # Dominant mode is real (monotone); the oscillatory Hopf mode is
-        # not the leading one.  Error with guidance.
-        stop("The dominant eigenvalue is real (monotone dynamics). ",
-             "The oscillatory Hopf mode (period ",
-             round(stab$hopf_period, 1), " time steps) is not the leading ",
-             "eigenvalue; getLimitCycleSim() requires the Hopf mode to be ",
-             "dominant.  Try using a parameter setting closer to the Hopf ",
-             "bifurcation, where the complex pair has larger modulus.")
+    is_complex <- abs(Im(stab$eigenvalues)) > 1e-8
+    if (!any(is_complex)) {
+        stop("No complex eigenvalues were found (monotone dynamics). ",
+             "The system does not possess an oscillatory Hopf mode. ",
+             "Try using a parameter setting closer to a Hopf ",
+             "bifurcation, where a complex pair exists.")
     }
+
+    # Find the complex eigenvalue closest to the unit circle
+    complex_idx <- which(is_complex)
+    idx <- complex_idx[which.min(abs(Mod(stab$eigenvalues[complex_idx]) - 1))]
+    lam1 <- stab$eigenvalues[idx]
 
     # Leading eigenvectors are stored as (sp × w × 2) array, or as a list
     # with $fish when include_resource = TRUE was used.
+    # Note: getStability only returns the top few eigenvectors. If our chosen
+    # eigenvalue is not among the leading ones returned, we fall back to index 1.
     lev <- stab$leading_eigenvectors
-    v_use <- if (is.array(lev)) lev[, , 1] else lev$fish[, , 1]
+    safe_idx <- if (idx <= dim(if (is.array(lev)) lev else lev$fish)[3]) idx else 1
+    v_use <- if (is.array(lev)) lev[, , safe_idx] else lev$fish[, , safe_idx]
 
     theta    <- Arg(lam1)               # angular frequency per time step
     T_period <- 2 * pi / abs(theta)    # period in time steps
