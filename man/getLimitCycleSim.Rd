@@ -14,7 +14,7 @@ exists and contains \code{leading_eigenvectors} it is used directly; otherwise
 
 \item{amplitude}{Maximum relative perturbation
 \eqn{\max_w |\delta N(t,w)|/N^*(w)} across the limit cycle.  Default
-\code{0.1} (10\\%).}
+\code{0.1}.}
 
 \item{n_points}{Number of time points in the returned
 \linkS4class{MizerSim}.  Defaults to \code{ceiling(T) + 1}, giving one point

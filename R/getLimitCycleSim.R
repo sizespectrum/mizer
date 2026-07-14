@@ -42,7 +42,7 @@
 #'   [getStability()] is called.
 #' @param amplitude Maximum relative perturbation
 #'   \eqn{\max_w |\delta N(t,w)|/N^*(w)} across the limit cycle.  Default
-#'   `0.1` (10\%).
+#'   `0.1`.
 #' @param n_points Number of time points in the returned
 #'   \linkS4class{MizerSim}.  Defaults to `ceiling(T) + 1`, giving one point
 #'   per time step (year) over exactly one period.  Increase for smoother
