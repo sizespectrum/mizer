@@ -90,6 +90,7 @@ articles:
   - default_parameters
   - fft
   - analytic_test
+  - dynamic_stability
 - title: internal
   contents:
   - mizer_vignette
