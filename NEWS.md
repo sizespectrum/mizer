@@ -1,98 +1,110 @@
-# mizer 3.1.0.9000 (development version)
+# mizer 3.2.0
 
-- Assigning to `resource_params()` no longer balances the resource. It now only
-  rebuilds the size-dependent rate (`rr_pp`) and capacity (`cc_pp`) arrays from
-  the scalars, leaving any manually set (frozen) arrays untouched, exactly as
-  `species_params<-` feeds the species rates. As a result changing the rate-side
-  scalars `r_pp` or `n` now takes effect (previously the value was silently
-  discarded by balancing), and successive scalar edits accumulate instead of
-  overwriting each other. Balancing the resource to preserve the steady state is
-  now solely a feature of `setResource()`. The `resource_rate<-`,
-  `resource_capacity<-`, `resource_level<-` and `resource_dynamics<-` setters
-  gained a `balance` argument (default unchanged) so it can be switched off, e.g.
-  `resource_capacity(params, balance = FALSE) <- my_capacity`. `setResource()`
-  also no longer silently overwrites a manually set rate or capacity array when
-  balancing: the frozen array wins and a warning is issued.
+This release corrects and refines the resource-setting interface, makes the
+extension framework composable regardless of load order, adds new analysis
+functions and cheatsheets, and includes a range of smaller improvements and bug
+fixes.
+
+For an overview see the release announcement on the mizer blog.
+
+## Resource setting
+
+- Assigning to `resource_params()` now rebuilds the size-dependent resource
+  capacity and resource rate arrays from the resource parameters, but leaving
+  any manually set (frozen) arrays untouched, mirroring the way 
+  `species_params<-` feeds the species rate arrays.
+
+- The `resource_rate<-`, `resource_capacity<-`, `resource_level<-` and
+  `resource_dynamics<-` setters gained a `balance` argument so balancing can be
+  switched off, e.g. `resource_capacity(params, balance = FALSE) <- my_capacity`.
+
+- `setResource()` no longer silently overwrites a manually set (frozen) rate or
+  capacity array when balancing: the frozen array wins and a warning is issued.
+
+These changes and how to adapt existing code are described in the new
+`vignette("upgrading")` ("Upgrading mizer").
+
+## Extension framework
 
 - An installed extension package is now recognised as a dispatching extension
   from the S3 methods it registers for its marker class (e.g.
   `getEncounter.mizerMR`), rather than only from a statically defined S4 marker
-  class. This lets extension packages omit the static
-  `setClass("mizerFoo", contains = "MizerParams")` and instead let mizer create
-  the marker class dynamically when the package is loaded, inserting it at the
-  correct place in the S4 hierarchy relative to any other extensions loaded in
-  the session. As a result, two independently developed extension packages
-  (for example mizerReef and mizerMR) can now be chained in either load order,
-  which a static sibling-of-`MizerParams` class prevented.
+  class. Extension packages can therefore omit the static
+  `setClass("mizerFoo", contains = "MizerParams")` and let mizer create the
+  marker class dynamically on load, inserting it at the correct place in the S4
+  hierarchy. As a result two independently developed extension packages (for
+  example mizerReef and mizerMR) can now be chained in either load order, which a
+  static sibling-of-`MizerParams` class prevented.
 
 - `recordExtension()` now prepends a genuinely new extension to the front of the
   object's `@extensions` chain, keeping it ordered outermost-first to match
-  `registerExtension()`. Existing entries stay in place.
+  `registerExtension()`.
 
-- `print()` on `ArraySpeciesBySize`, `ArrayTimeBySpecies`, `ArrayResourceBySize`,
-  `ArrayTimeByResourceBySize` and `ArrayTimeBySpeciesBySize` objects (as
-  returned by `getEncounter()`, `getBiomass()`, `getResourceMort()`, `NResource()`,
-  `getFMort()` and similar functions) now prints the array's actual values
-  instead of a per-species min/mean/max summary, truncating large arrays to
-  fit the console: species are shown as a leading subset, sizes as an evenly
-  log-spaced sample across the full size range, and time series as a
-  representative sample of time steps that always includes the first and
-  last, with a note reporting how much was omitted. A three-dimensional
-  `ArrayTimeBySpeciesBySize` object is previewed via its final time slice,
-  matching `plot()`'s existing default for that class. Use
-  `as.data.frame()` for full, untruncated access to the data.
+## New functions
 
-- `plotYieldGear()` now supports `log_x`, `log_y`, and `log` arguments,
-  aligning its arguments with `plotYield()`.
+- New `adjustSizeGrid()` (an S3 generic) adjusts the size grid of a
+  `MizerParams` object to a new minimum and/or maximum size. It can both expand
+  and truncate the grid, warning if non-negligible abundance is discarded.
 
-- Added three new cheatsheets: "Model Setup and Calibration" (building a model,
-  finding the steady state, calibrating to observed biomass/yield/growth, and
-  projecting), "Fishing" (gears, selectivity functions, catchability, and
-  effort), and "Changing Model Parameters" (the distinction between
-  `given_species_params()`, `calculated_species_params()` and `species_params()`,
-  when changing a species parameter updates a size-dependent rate versus freezing
-  it, and how `gear_params()` and the resource setters differ).
+- New experimental `steadyNewton()` finds a steady state by solving the
+  steady-state equation directly with a Newton-type root finder (via the
+  `nleqslv` package) instead of running the dynamics to convergence. Unlike
+  `steady()` it converges even when the steady state is dynamically unstable, and
+  it discovers the support of the steady state automatically. Currently supports
+  the default semichemostat resource dynamics.
+
+- New experimental `getStability()` analyses the dynamic stability of a mizer
+  steady state by computing the eigenvalues of the linearised one-step-ahead map
+  at the fixed point. It reports whether the steady state is stable or unstable,
+  the spectral radius, and — when the system approaches a Hopf bifurcation — the
+  period of the emergent limit cycle. By default the resource is treated as a
+  quasi-static fast variable (valid for semichemostat dynamics); setting
+  `include_resource = TRUE` gives the full coupled (fish + resource) Jacobian,
+  useful for verifying that the quasi-static approximation makes little difference.
+  `steadyNewton()` gains a `stability = TRUE` argument that calls `getStability()`
+  automatically and attaches the result as the attribute `"stability"` on the
+  returned `MizerParams` object.
+
+- `project()` gains a `callback` argument for a user-defined function to be
+  called at each saved time step.
+
+## Other improvements
+
+- `print()` on the array classes returned by the rate getters (e.g.
+  `getEncounter()`, `getBiomass()`, `getFMort()`, `NResource()`) now prints the
+  array's actual values, truncated to fit the console, instead of a per-species
+  min/mean/max summary. Use `as.data.frame()` for full, untruncated access.
+
+- Columns accessed via `$` on a `species_params` or `gear_params` object now
+  return vectors named by species (or by "species, gear" for `gear_params`),
+  making entries easier to identify. The `species` column is left unnamed.
+
+- The `species_params` data frame is now an S3 subclass of `data.frame`, with
+  class-preserving subsetting and subassignment methods, paving the way for
+  future auto-recalculations.
+
+- When `sel_func` is set on a `gear_params` object, the argument columns that
+  selectivity function requires are now added automatically as `NA` columns. For
+  example, setting `gp$sel_func <- "sigmoid_length"` immediately creates the
+  `l25` and `l50` columns, ready to be filled in (#431).
+
+- `plotYieldGear()` gains `log_x`, `log_y` and `log` arguments, aligning it with
+  `plotYield()`.
+
+- The upper boundary condition of the size-spectrum solvers now holds the
+  abundance at zero above each species' maximum size `w_max`. Results are
+  unchanged without diffusion, but with predation diffusion switched on this
+  stops a small amount of density leaking to sizes above `w_max`. See the
+  "Numerical Details" vignette.
+
+## Documentation
+
+- Added three new cheatsheets: "Model Setup and Calibration", "Fishing", and
+  "Changing Model Parameters".
 
 - The analysis-and-plotting cheatsheet now covers the newer plotting functions
   (`plotCDF()`, `plotSpectra2()`, `plotSpectraRelative()`, `plotCDF2()`,
-  `plot2()`, `plotRelative()`, `animate()`) and the `ArrayResourceBySize`
-  class, and corrects the interactive-plot advice for array objects to use
-  `plotHover()` (they have no `ggplotly()` method).
-
-- When `sel_func` is set on a `gear_params` object, any argument columns
-  required by that selectivity function (other than `w`, `species_params`, and
-  `...`) are now automatically added as `NA` columns. This means, for example,
-  that setting `gp$sel_func <- "sigmoid_length"` immediately creates the `l25`
-  and `l50` columns, ready to be filled in (#431).
-
-- The `species_params` data frame is now an S3 subclass of `data.frame`
-  (`class = c("species_params", "data.frame")`). It supports class-preserving
-  subsetting and subassignment S3 methods, making it safer to use and paving
-  the way for future auto-recalculations.
-
-- `resource_params<-` now rebuilds the resource size-spectrum arrays (`cc_pp`,
-  `rr_pp`) via `setResource()`, making resource parameter assignment
-  consistent with `species_params<-` and `gear_params<-` (#439).
-
-- Added a `callback` parameter to `project()` to allow user-defined functions
-  to be called at each saved time step.
-
-- Columns accessed via `$` on a `species_params` or `gear_params` object now
-  return named vectors, where the names are the species names (or "species,
-  gear" row names for `gear_params`). For example,
-  `species_params(params)$w_mat` now returns a named vector making it easier
-  to identify entries. The `species` vector is left unnamed.
-
-- New `adjustSizeGrid()` function (an S3 generic) adjusts the size grid of
-  a `MizerParams` object to a new minimum and/or maximum size. It can both
-  expand and truncate (shrink) the grid, warning if non-negligible abundance
-  (species or resource) is discarded.
-
-- The upper boundary condition of the size-spectrum solvers now holds the
-  abundance at zero above each species' maximum size `w_max`. Without diffusion
-  this is automatic and results are unchanged, but with predation diffusion
-  switched on it stops a small amount of density leaking to sizes above `w_max`.
-  See the "Numerical Details" vignette.
+  `plot2()`, `plotRelative()`, `animate()`) and the `ArrayResourceBySize` class.
 
 
 # mizer 3.1.0
