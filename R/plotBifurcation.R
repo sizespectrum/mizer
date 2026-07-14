@@ -58,6 +58,15 @@
 #'   available (a stable or non-converged run). Default `10`.
 #' @param t_save The interval at which the sampling window is saved, controlling
 #'   how finely the cycle envelope is resolved. Default `0.25`.
+#' @param tol Convergence tolerance for the settling stage, passed to
+#'   [projectToSteady()]. Tighter (smaller) values settle the stable branch more
+#'   fully, giving cleaner single lines below the bifurcation at the cost of
+#'   longer runs. Default `0.01`.
+#' @param amplitude_tol The minimum relative biomass amplitude for a run to be
+#'   classified as a limit cycle, passed to [projectToSteady()]. Default `0.01`.
+#' @param extinction_threshold The relative reproduction collapse below which a
+#'   species is treated as extinct, passed to [projectToSteady()]. Default
+#'   `1e-6`.
 #' @param continuation If `TRUE` (default) each settling run warm-starts from the
 #'   attractor of the previous effort value.
 #' @param return_data If `TRUE` the data frame underlying the plot is returned
@@ -84,6 +93,9 @@ plotBifurcation <- function(params,
                             t_sample = NULL,
                             t_sample_default = 10,
                             t_save = 0.25,
+                            tol = 0.01,
+                            amplitude_tol = 0.01,
+                            extinction_threshold = 1e-6,
                             continuation = TRUE,
                             return_data = FALSE,
                             progress_bar = TRUE,
@@ -93,7 +105,10 @@ plotBifurcation <- function(params,
     assert_that(is.numeric(effort), length(effort) >= 2,
                 is.number(t_max), t_max > 0,
                 is.null(t_sample) || is.number(t_sample),
-                is.number(t_sample_default), t_sample_default > 0)
+                is.number(t_sample_default), t_sample_default > 0,
+                is.number(tol), tol > 0,
+                is.number(amplitude_tol), amplitude_tol > 0,
+                is.number(extinction_threshold), extinction_threshold >= 0)
     species <- valid_species_arg(params, species, error_on_empty = TRUE)
 
     value_func <- switch(value,
@@ -116,6 +131,8 @@ plotBifurcation <- function(params,
         # Stage 1: settle onto the attractor, stopping early once a steady state
         # or limit cycle is detected.
         settled <- projectToSteady(p_run, effort = effort[i], t_max = t_max,
+                                   tol = tol, amplitude_tol = amplitude_tol,
+                                   extinction_threshold = extinction_threshold,
                                    return_sim = FALSE, progress_bar = FALSE,
                                    info_level = 0)
         conv <- attr(settled, "convergence")

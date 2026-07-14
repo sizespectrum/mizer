@@ -13,6 +13,9 @@ plotBifurcation(
   t_sample = NULL,
   t_sample_default = 10,
   t_save = 0.25,
+  tol = 0.01,
+  amplitude_tol = 0.01,
+  extinction_threshold = 1e-06,
   continuation = TRUE,
   return_data = FALSE,
   progress_bar = TRUE,
@@ -46,6 +49,18 @@ available (a stable or non-converged run). Default \code{10}.}
 
 \item{t_save}{The interval at which the sampling window is saved, controlling
 how finely the cycle envelope is resolved. Default \code{0.25}.}
+
+\item{tol}{Convergence tolerance for the settling stage, passed to
+\code{\link[=projectToSteady]{projectToSteady()}}. Tighter (smaller) values settle the stable branch more
+fully, giving cleaner single lines below the bifurcation at the cost of
+longer runs. Default \code{0.01}.}
+
+\item{amplitude_tol}{The minimum relative biomass amplitude for a run to be
+classified as a limit cycle, passed to \code{\link[=projectToSteady]{projectToSteady()}}. Default \code{0.01}.}
+
+\item{extinction_threshold}{The relative reproduction collapse below which a
+species is treated as extinct, passed to \code{\link[=projectToSteady]{projectToSteady()}}. Default
+\code{1e-6}.}
 
 \item{continuation}{If \code{TRUE} (default) each settling run warm-starts from the
 attractor of the previous effort value.}

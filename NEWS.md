@@ -96,7 +96,8 @@ These changes and how to adapt existing code are described in the new
   and plots the long-term range of a summary quantity (biomass, yield or SSB).
   A stable steady state appears as a single line and a limit cycle as a band
   between the minimum and maximum, so a Hopf bifurcation shows up as the effort
-  at which the band opens up.
+  at which the band opens up. The settling stage runs `projectToSteady()`, whose
+  `tol`, `amplitude_tol` and `extinction_threshold` are exposed for tuning.
 
 - `project()` gains a `callback` argument for a user-defined function to be
   called at each saved time step.
