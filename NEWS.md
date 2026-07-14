@@ -86,6 +86,13 @@ These changes and how to adapt existing code are described in the new
   resolution (default `dt`), so detection no longer relies on the cycle period
   being commensurate with `t_per`.
 
+- New experimental `plotBifurcation()` draws a bifurcation diagram over fishing
+  effort. For each effort value it follows the attractor of the full dynamics
+  and plots the long-term range of a summary quantity (biomass, yield or SSB).
+  A stable steady state appears as a single line and a limit cycle as a band
+  between the minimum and maximum, so a Hopf bifurcation shows up as the effort
+  at which the band opens up.
+
 - `project()` gains a `callback` argument for a user-defined function to be
   called at each saved time step.
 

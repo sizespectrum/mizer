@@ -233,6 +233,7 @@ reference:
   - plotFeedingLevel
   - plotYield
   - plotYieldGear
+  - plotBifurcation
   - plotFMort
   - plotMizerParams
   - plotMizerSim

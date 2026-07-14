@@ -103,6 +103,7 @@ Collate:
     'summary_methods.R'
     'indicator_functions.R'
     'plots.R'
+    'plotBifurcation.R'
     'plotBiomassObservedVsModel.R'
     'plotYieldObservedVsModel.R'
     'animateSpectra.R'

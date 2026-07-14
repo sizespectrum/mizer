@@ -118,6 +118,7 @@ Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
 \code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
 \code{\link[=plot2]{plot2()}},
+\code{\link[=plotBifurcation]{plotBifurcation()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
 \code{\link[=plotCDF2]{plotCDF2()}},
