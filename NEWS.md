@@ -77,6 +77,15 @@ These changes and how to adapt existing code are described in the new
   argument (default 10\%). The returned object can be passed directly to
   `plotBiomass()`, `plotSpectra()`, and other standard mizer plot functions.
 
+- `steady()` and `projectToSteady()` now report the nature of the solution they
+  converged to via a `"convergence"` attribute on the returned object (mirroring
+  the `"stability"` attribute of `steadyNewton()`). It records whether the run
+  settled on a stable steady state, a limit cycle, or neither, together with the
+  cycle period and relative amplitude when a cycle is found. Limit cycles are
+  detected from a per-species biomass series sampled at the new `t_save`
+  resolution (default `dt`), so detection no longer relies on the cycle period
+  being commensurate with `t_per`.
+
 - `project()` gains a `callback` argument for a user-defined function to be
   called at each saved time step.
 

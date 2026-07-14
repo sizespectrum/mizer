@@ -11,6 +11,7 @@ projectToSteady(
   t_per = 1.5,
   t_max = 100,
   dt = 0.1,
+  t_save = dt,
   tol = 0.1 * t_per,
   return_sim = FALSE,
   progress_bar = TRUE,
@@ -42,6 +43,11 @@ able to detect period 2 cycles.}
 
 \item{dt}{The time step to use in \code{project()}.}
 
+\item{t_save}{The interval at which a cheap per-species biomass summary is
+recorded for limit-cycle detection. Must be a positive multiple of \code{dt} and
+a divisor of \code{t_per}. Smaller values resolve the cycle period more finely at
+a small extra cost. Default is \code{dt}.}
+
 \item{tol}{The simulation stops when the relative change in the egg
 production RDI over \code{t_per} years is less than \code{tol} for every species.}
 
@@ -65,6 +71,21 @@ If \code{return_sim = FALSE}, a \code{MizerParams} object with the initial
 state replaced by the final state found by the steady-state search. If
 \code{return_sim = TRUE}, a \code{MizerSim} object containing the intermediate states
 saved every \code{t_per} years.
+
+In either case the returned object carries an attribute \code{"convergence"}
+describing the solution the run settled on, a named list with entries:
+\describe{
+\item{\code{type}}{One of \code{"steady"} (a stable fixed point), \code{"cycle"} (a
+limit cycle), \code{"not_converged"} (still changing at \code{t_max}) or
+\code{"extinction"} (a species died out).}
+\item{\code{converged}}{Logical, \code{TRUE} for \code{"steady"} and \code{"cycle"}.}
+\item{\code{distance}}{The final value returned by \code{distance_func}.}
+\item{\code{years}}{The number of years simulated.}
+\item{\code{period}}{For a limit cycle, its period in years; otherwise \code{NA}.}
+\item{\code{amplitude}}{For a limit cycle, the largest per-species relative
+peak-to-trough biomass amplitude; otherwise \code{NA}.}
+}
+This mirrors how \code{\link[=steadyNewton]{steadyNewton()}} attaches an \code{"stability"} attribute.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -75,5 +96,5 @@ successive time steps is less than \code{tol}. You determine how the distance is
 calculated.
 }
 \seealso{
-\code{\link[=distanceSSLogN]{distanceSSLogN()}}, \code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}
+\code{\link[=distanceSSLogN]{distanceSSLogN()}}, \code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}, \code{\link[=steadyNewton]{steadyNewton()}}
 }

@@ -91,7 +91,22 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   state replaced by the final state found by the steady-state search. If
 #'   `return_sim = TRUE`, a `MizerSim` object containing the intermediate states
 #'   saved every `t_per` years.
-#' @seealso [distanceSSLogN()], [distanceMaxRelRDI()]
+#'
+#'   In either case the returned object carries an attribute `"convergence"`
+#'   describing the solution the run settled on, a named list with entries:
+#'   \describe{
+#'     \item{`type`}{One of `"steady"` (a stable fixed point), `"cycle"` (a
+#'       limit cycle), `"not_converged"` (still changing at `t_max`) or
+#'       `"extinction"` (a species died out).}
+#'     \item{`converged`}{Logical, `TRUE` for `"steady"` and `"cycle"`.}
+#'     \item{`distance`}{The final value returned by `distance_func`.}
+#'     \item{`years`}{The number of years simulated.}
+#'     \item{`period`}{For a limit cycle, its period in years; otherwise `NA`.}
+#'     \item{`amplitude`}{For a limit cycle, the largest per-species relative
+#'       peak-to-trough biomass amplitude; otherwise `NA`.}
+#'   }
+#'   This mirrors how [steadyNewton()] attaches an `"stability"` attribute.
+#' @seealso [distanceSSLogN()], [distanceMaxRelRDI()], [steadyNewton()]
 #' @export
 projectToSteady <- function(params,
                             effort = params@initial_effort,
@@ -99,6 +114,7 @@ projectToSteady <- function(params,
                             t_per = 1.5,
                             t_max = 100,
                             dt = 0.1,
+                            t_save = dt,
                             tol = 0.1 * t_per,
                             return_sim = FALSE,
                             progress_bar = TRUE,
@@ -113,6 +129,7 @@ projectToSteady.MizerParams <- function(params,
                             t_per = 1.5,
                             t_max = 100,
                             dt = 0.1,
+                            t_save = dt,
                             tol = 0.1 * t_per,
                             return_sim = FALSE,
                             progress_bar = TRUE,
@@ -126,6 +143,13 @@ projectToSteady.MizerParams <- function(params,
                 tol > 0)
     if ((t_per < dt) || !isTRUE(all.equal((t_per - round(t_per / dt) * dt), 0))) {
         stop("t_per must be a positive multiple of dt")
+    }
+    if ((t_save < dt) || !isTRUE(all.equal((t_save - round(t_save / dt) * dt), 0))) {
+        stop("t_save must be a positive multiple of dt")
+    }
+    if ((t_per < t_save) ||
+        !isTRUE(all.equal((t_per - round(t_per / t_save) * t_save), 0))) {
+        stop("t_per must be a positive multiple of t_save")
     }
     t_dimnames <-  seq(0, t_max, by = t_per)
 
@@ -161,19 +185,44 @@ projectToSteady.MizerParams <- function(params,
                      n_other = params@initial_n_other,
                      rates = r)
 
+    # Record a cheap scalar summary (per-species biomass) at the fine `t_save`
+    # resolution so that a limit cycle can be detected and characterised even
+    # when its period is incommensurate with `t_per`.
+    wdw <- params@w * params@dw
+    steps_per_save  <- round(t_save / dt)
+    saves_per_block <- round(t_per / t_save)
+    max_saves <- (length(t_dimnames) - 1) * saves_per_block + 1
+    bio_series <- matrix(NA_real_, nrow = max_saves,
+                         ncol = nrow(params@species_params))
+    bio_series[1, ] <- as.numeric(previous$n %*% wdw)
+    save_idx <- 1L
+
+    cycle <- NULL
+    success <- FALSE
+    extinct <- FALSE
+    distance <- NA_real_
     for (i in 2:length(t_dimnames)) {
         # advance shiny progress bar
         if (is(progress_bar, "Progress")) {
             progress_bar$inc(amount = proginc)
         }
-        current <- project_simple(params, n = previous$n, n_pp = previous$n_pp,
-                                  n_other = previous$n_other, t = 0,
-                                  dt = dt, steps = round(t_per / dt),
-                                  effort = params@initial_effort,
-                                  resource_dynamics_fn = resource_dynamics_fn,
-                                  other_dynamics_fns = other_dynamics_fns,
-                                  rates_fns = rates_fns,
-                                  method = method)
+        # Step the block in `t_save`-sized sub-steps, recording the biomass
+        # summary after each. Passing the within-block time keeps the result
+        # bit-identical to a single project_simple() call over the whole block.
+        current <- previous
+        for (s in seq_len(saves_per_block)) {
+            current <- project_simple(params, n = current$n, n_pp = current$n_pp,
+                                      n_other = current$n_other,
+                                      t = (s - 1) * t_save,
+                                      dt = dt, steps = steps_per_save,
+                                      effort = params@initial_effort,
+                                      resource_dynamics_fn = resource_dynamics_fn,
+                                      other_dynamics_fns = other_dynamics_fns,
+                                      rates_fns = rates_fns,
+                                      method = method)
+            save_idx <- save_idx + 1L
+            bio_series[save_idx, ] <- as.numeric(current$n %*% wdw)
+        }
         if (return_sim) {
             # Store result
             sim@n[i, , ] <- current$n
@@ -199,20 +248,49 @@ projectToSteady.MizerParams <- function(params,
         if (success == TRUE) {
             break
         }
+        # Not settling to a fixed point: check whether we are on a limit cycle.
+        cycle <- detect_limit_cycle(bio_series[seq_len(save_idx), , drop = FALSE],
+                                    t_save, tol)
+        if (!is.null(cycle)) {
+            break
+        }
         previous <- current
     }
-    if (!success) {
+
+    years <- (i - 1) * t_per
+    converged <- FALSE
+    if (!is.null(cycle)) {
+        type <- "cycle"
+        converged <- TRUE
+        if (info_level >= 3) {
+            message("Converged to a limit cycle of period ",
+                    signif(cycle$period, 3), " years (relative amplitude ",
+                    signif(cycle$amplitude, 2), ") after ", years, " years.")
+        }
+    } else if (success) {
+        type <- "steady"
+        converged <- TRUE
+        if (info_level >= 3) {
+            message("Convergence was achieved in ", years, " years.")
+        }
+    } else {
+        type <- if (any(extinct)) "extinction" else "not_converged"
         if (info_level >= 3) {
             message("Simulation run did not converge after ",
-                    (i - 1) * t_per,
+                    years,
                     " years. Value returned by the distance function was: ",
                     distance)
         }
-    } else {
-        if (info_level >= 3) {
-            message("Convergence was achieved in ", (i - 1) * t_per, " years.")
-        }
     }
+
+    convergence <- list(
+        type = type,
+        converged = converged,
+        distance = distance,
+        years = years,
+        period = if (type == "cycle") cycle$period else NA_real_,
+        amplitude = if (type == "cycle") cycle$amplitude else NA_real_
+    )
 
     params@initial_n[] <- current$n
     params@initial_n_pp[] <- current$n_pp
@@ -225,11 +303,97 @@ projectToSteady.MizerParams <- function(params,
         sim@n_pp <- sim@n_pp[sel, , drop = FALSE]
         sim@n_other <- sim@n_other[sel, , drop = FALSE]
         sim@effort <- sim@effort[sel, , drop = FALSE]
+        attr(sim, "convergence") <- convergence
         return(sim)
     } else {
         params@time_modified <- lubridate::now()
+        attr(params, "convergence") <- convergence
         return(params)
     }
+}
+
+#' Detect a limit cycle from a fine-resolution biomass time series
+#'
+#' Used by [projectToSteady()] to decide whether a run that is not settling to a
+#' fixed point has instead converged onto a limit cycle. Works on the per-species
+#' biomass sampled at the fine `t_save` resolution, so it is independent of
+#' whether the cycle period is commensurate with the block length `t_per`.
+#'
+#' The community-total log-biomass is used as a scalar signal. Its
+#' autocorrelation gives a candidate period (the first autocorrelation peak). The
+#' oscillation is accepted as a settled limit cycle only if it has already
+#' persisted for three periods: the relative amplitude of the three successive
+#' period-windows must agree within `amp_rel_tol`, must exceed `tol`, and must
+#' show no net decay across the three periods. The no-decay condition is what
+#' distinguishes a genuine limit cycle from a slowly-decaying spiral toward a
+#' stable fixed point (which has a spectral radius just below 1). Discrimination
+#' is necessarily imperfect when the spectral radius is extremely close to 1,
+#' because such a spiral is indistinguishable from a cycle over any finite run.
+#'
+#' @param bio Numeric matrix of per-species biomass, one row per saved time step.
+#' @param t_save The sampling interval, so period `= lag * t_save`.
+#' @param tol Minimum relative amplitude for an oscillation to count as a cycle.
+#' @param acf_threshold Minimum autocorrelation at the candidate period.
+#' @param amp_rel_tol Maximum relative change of amplitude between successive
+#'   periods for the cycle to count as settled.
+#' @return `NULL` if no settled cycle is detected, otherwise a list with the
+#'   `period` (in the same time units as `t_save`) and the relative `amplitude`.
+#' @noRd
+detect_limit_cycle <- function(bio, t_save, tol,
+                               acf_threshold = 0.5,
+                               amp_rel_tol = 0.1) {
+    n <- nrow(bio)
+    if (n < 20) return(NULL)
+    s <- log(rowSums(bio))
+    s <- s - mean(s)
+    if (all(abs(s) < .Machine$double.eps)) return(NULL)
+    lag_max <- floor(n / 2)
+    ac <- stats::acf(s, lag.max = lag_max, plot = FALSE, demean = TRUE)$acf[, 1, 1]
+    w <- find_first_acf_peak(ac, acf_threshold)
+    # Need three full periods of history to confirm a settled cycle.
+    if (is.na(w) || w < 2 || n < 3 * w) return(NULL)
+    amp_old <- amp_window(bio[(n - 3 * w + 1):(n - 2 * w), , drop = FALSE])
+    amp_mid <- amp_window(bio[(n - 2 * w + 1):(n - w), , drop = FALSE])
+    amp_new <- amp_window(bio[(n - w + 1):n, , drop = FALSE])
+    if (amp_new <= tol) return(NULL)
+    # Successive periods must have matching amplitude ...
+    if (abs(amp_new - amp_mid) / amp_new > amp_rel_tol) return(NULL)
+    if (abs(amp_mid - amp_old) / amp_mid > amp_rel_tol) return(NULL)
+    # ... and there must be no net decay (which would signal a decaying spiral).
+    if (amp_new < amp_old * (1 - amp_rel_tol)) return(NULL)
+    list(period = w * t_save, amplitude = amp_new)
+}
+
+#' Largest per-species relative peak-to-trough amplitude in a window
+#' @param bio Numeric matrix of per-species biomass over the window.
+#' @return The maximum over species of `(max - min) / mean`.
+#' @noRd
+amp_window <- function(bio) {
+    rng <- apply(bio, 2, function(x) {
+        m <- mean(x)
+        if (!is.finite(m) || m <= 0) return(0)
+        (max(x) - min(x)) / m
+    })
+    max(rng)
+}
+
+#' First local maximum of an autocorrelation vector
+#'
+#' `ac[1]` is the lag-0 autocorrelation; a peak at vector position `k`
+#' corresponds to lag `k - 1`.
+#' @param ac Autocorrelation values indexed from lag 0.
+#' @param threshold Minimum autocorrelation for a peak to count.
+#' @return The lag of the first qualifying local maximum, or `NA`.
+#' @noRd
+find_first_acf_peak <- function(ac, threshold) {
+    n <- length(ac)
+    if (n < 3) return(NA_integer_)
+    for (k in 2:(n - 1)) {
+        if (ac[k] > ac[k - 1] && ac[k] >= ac[k + 1] && ac[k] > threshold) {
+            return(k - 1L)
+        }
+    }
+    NA_integer_
 }
 
 #' Set initial values to a steady state for the model
@@ -250,6 +414,10 @@ projectToSteady.MizerParams <- function(params,
 #'   should be chosen as an odd multiple of the timestep `dt` in order to be
 #'   able to detect period 2 cycles.
 #' @param dt The time step to use in `project()`.
+#' @param t_save The interval at which a cheap per-species biomass summary is
+#'   recorded for limit-cycle detection. Must be a positive multiple of `dt` and
+#'   a divisor of `t_per`. Smaller values resolve the cycle period more finely at
+#'   a small extra cost. Default is `dt`.
 #' @param tol The simulation stops when the relative change in the egg
 #'   production RDI over `t_per` years is less than `tol` for every species.
 #' @param return_sim If TRUE, the function returns the MizerSim object holding
@@ -268,7 +436,10 @@ projectToSteady.MizerParams <- function(params,
 #'   See [project()].
 #' @return If `return_sim = FALSE`, a `MizerParams` object with the initial
 #'   state replaced by the steady state. If `return_sim = TRUE`, a `MizerSim`
-#'   object containing the intermediate states saved every `t_per` years.
+#'   object containing the intermediate states saved every `t_per` years. The
+#'   returned object carries a `"convergence"` attribute describing the solution
+#'   found (steady state, limit cycle, or non-convergence); see
+#'   [projectToSteady()].
 #' @export
 #' @examples
 #' \donttest{
@@ -277,7 +448,7 @@ projectToSteady.MizerParams <- function(params,
 #' params <- steady(params)
 #' plotSpectra(params)
 #' }
-steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
+steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1, t_save = dt,
                    tol = 0.1 * dt, return_sim = FALSE,
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE,
@@ -288,6 +459,7 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
 
 #' @export
 steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
+                   t_save = dt,
                    tol = 0.1 * dt, return_sim = FALSE,
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE,
@@ -322,11 +494,15 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                               t_per = t_per,
                               t_max = t_max,
                               dt = dt,
+                              t_save = t_save,
                               tol = tol,
                               return_sim = return_sim,
                               progress_bar = progress_bar,
                               info_level = info_level,
                               method = method)
+    # Capture the convergence diagnostic before the setter functions below
+    # return fresh objects that drop attributes; it is re-attached at the end.
+    conv <- attr(object, "convergence")
     if (return_sim) {
         params <- object@params
     } else {
@@ -354,9 +530,11 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
 
     if (return_sim) {
         object@params <- params
+        attr(object, "convergence") <- conv
         return(object)
     } else {
         params@time_modified <- lubridate::now()
+        attr(params, "convergence") <- conv
         return(params)
     }
 }

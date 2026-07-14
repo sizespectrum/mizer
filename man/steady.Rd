@@ -9,6 +9,7 @@ steady(
   t_max = 100,
   t_per = 1.5,
   dt = 0.1,
+  t_save = dt,
   tol = 0.1 * dt,
   return_sim = FALSE,
   preserve = c("reproduction_level", "erepro", "R_max"),
@@ -28,6 +29,11 @@ should be chosen as an odd multiple of the timestep \code{dt} in order to be
 able to detect period 2 cycles.}
 
 \item{dt}{The time step to use in \code{project()}.}
+
+\item{t_save}{The interval at which a cheap per-species biomass summary is
+recorded for limit-cycle detection. Must be a positive multiple of \code{dt} and
+a divisor of \code{t_per}. Smaller values resolve the cycle period more finely at
+a small extra cost. Default is \code{dt}.}
 
 \item{tol}{The simulation stops when the relative change in the egg
 production RDI over \code{t_per} years is less than \code{tol} for every species.}
@@ -54,7 +60,10 @@ See \code{\link[=project]{project()}}.}
 \value{
 If \code{return_sim = FALSE}, a \code{MizerParams} object with the initial
 state replaced by the steady state. If \code{return_sim = TRUE}, a \code{MizerSim}
-object containing the intermediate states saved every \code{t_per} years.
+object containing the intermediate states saved every \code{t_per} years. The
+returned object carries a \code{"convergence"} attribute describing the solution
+found (steady state, limit cycle, or non-convergence); see
+\code{\link[=projectToSteady]{projectToSteady()}}.
 }
 \description{
 The steady state is found by running the dynamics while keeping reproduction,
