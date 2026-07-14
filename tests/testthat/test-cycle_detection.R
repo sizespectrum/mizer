@@ -25,7 +25,7 @@ test_that("detect_limit_cycle finds a sustained oscillation", {
     t_save <- 0.25; period <- 5; a <- 0.1
     idx <- 0:199
     bio <- matrix(1000 * (1 + a * sin(2 * pi * idx * t_save / period)), ncol = 1)
-    cyc <- detect_limit_cycle(bio, t_save, tol = 0.01)
+    cyc <- detect_limit_cycle(bio, t_save, amplitude_tol = 0.01)
     expect_type(cyc, "list")
     expect_equal(cyc$period, period)
     # For a sinusoid about the mean the relative peak-to-trough amplitude is 2a.
@@ -38,13 +38,22 @@ test_that("detect_limit_cycle rejects non-cycles", {
     # A decaying oscillation (spiral toward a fixed point) is not a cycle.
     bio_decay <- matrix(1000 * (1 + a * exp(-0.03 * idx) *
                                     sin(2 * pi * idx * t_save / period)), ncol = 1)
-    expect_null(detect_limit_cycle(bio_decay, t_save, tol = 0.01))
+    expect_null(detect_limit_cycle(bio_decay, t_save, amplitude_tol = 0.01))
     # A flat series is not a cycle.
     expect_null(detect_limit_cycle(matrix(1000, nrow = 200, ncol = 1),
-                                   t_save, tol = 0.01))
+                                   t_save, amplitude_tol = 0.01))
     # Too few samples.
     expect_null(detect_limit_cycle(matrix(1000, nrow = 10, ncol = 1),
-                                   t_save, tol = 0.01))
+                                   t_save, amplitude_tol = 0.01))
+})
+
+test_that("detect_limit_cycle respects amplitude_tol", {
+    t_save <- 0.25; period <- 5; a <- 0.03   # ~6% peak-to-trough amplitude
+    idx <- 0:199
+    bio <- matrix(1000 * (1 + a * sin(2 * pi * idx * t_save / period)), ncol = 1)
+    # A 6% cycle counts when the floor is 1% but not when it is 10%.
+    expect_type(detect_limit_cycle(bio, t_save, amplitude_tol = 0.01), "list")
+    expect_null(detect_limit_cycle(bio, t_save, amplitude_tol = 0.1))
 })
 
 # Fixtures for the integration tests -----------------------------------------

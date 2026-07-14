@@ -84,7 +84,12 @@ These changes and how to adapt existing code are described in the new
   cycle period and relative amplitude when a cycle is found. Limit cycles are
   detected from a per-species biomass series sampled at the new `t_save`
   resolution (default `dt`), so detection no longer relies on the cycle period
-  being commensurate with `t_per`.
+  being commensurate with `t_per`. The relative-amplitude floor for calling an
+  oscillation a limit cycle is a separate `amplitude_tol` argument (default
+  `0.01`), independent of the fixed-point convergence tolerance `tol`, and a
+  species is treated as extinct once its reproduction falls below the
+  `extinction_threshold` fraction (default `1e-6`) of its value at the start of
+  the run.
 
 - New experimental `plotBifurcation()` draws a bifurcation diagram over fishing
   effort. For each effort value it follows the attractor of the full dynamics

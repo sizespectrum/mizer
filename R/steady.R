@@ -116,6 +116,8 @@ projectToSteady <- function(params,
                             dt = 0.1,
                             t_save = dt,
                             tol = 0.1 * t_per,
+                            amplitude_tol = 0.01,
+                            extinction_threshold = 1e-6,
                             return_sim = FALSE,
                             progress_bar = TRUE,
                             info_level = 3,
@@ -131,6 +133,8 @@ projectToSteady.MizerParams <- function(params,
                             dt = 0.1,
                             t_save = dt,
                             tol = 0.1 * t_per,
+                            amplitude_tol = 0.01,
+                            extinction_threshold = 1e-6,
                             return_sim = FALSE,
                             progress_bar = TRUE,
                             info_level = 3,
@@ -140,7 +144,9 @@ projectToSteady.MizerParams <- function(params,
     effort <- validEffortVector(effort, params = params)
     params@initial_effort <- effort
     assert_that(t_max >= t_per,
-                tol > 0)
+                tol > 0,
+                amplitude_tol > 0,
+                extinction_threshold >= 0)
     if ((t_per < dt) || !isTRUE(all.equal((t_per - round(t_per / dt) * dt), 0))) {
         stop("t_per must be a positive multiple of dt")
     }
@@ -184,6 +190,9 @@ projectToSteady.MizerParams <- function(params,
                      n_pp = params@initial_n_pp,
                      n_other = params@initial_n_other,
                      rates = r)
+
+    # Reference reproduction rate for the relative extinction test below.
+    rdd_start <- r$rdd
 
     # Record a cheap scalar summary (per-species biomass) at the fine `t_save`
     # resolution so that a limit cycle can be detected and characterised even
@@ -231,8 +240,10 @@ projectToSteady.MizerParams <- function(params,
             sim@effort[i, ] <- params@initial_effort
         }
 
-        # Species with no reproduction are going extinct, so stop.
-        extinct <- is.na(current$rates$rdd) | current$rates$rdd <= 1e-20
+        # A species whose reproduction has collapsed to a tiny fraction of its
+        # starting value is going extinct, so stop.
+        extinct <- is.na(current$rates$rdd) |
+            current$rates$rdd <= extinction_threshold * rdd_start
         if (any(extinct)) {
             warning(paste(params@species_params$species[extinct], collapse = ", "),
                     " are going extinct.")
@@ -250,7 +261,7 @@ projectToSteady.MizerParams <- function(params,
         }
         # Not settling to a fixed point: check whether we are on a limit cycle.
         cycle <- detect_limit_cycle(bio_series[seq_len(save_idx), , drop = FALSE],
-                                    t_save, tol)
+                                    t_save, amplitude_tol)
         if (!is.null(cycle)) {
             break
         }
@@ -323,8 +334,8 @@ projectToSteady.MizerParams <- function(params,
 #' autocorrelation gives a candidate period (the first autocorrelation peak). The
 #' oscillation is accepted as a settled limit cycle only if it has already
 #' persisted for three periods: the relative amplitude of the three successive
-#' period-windows must agree within `amp_rel_tol`, must exceed `tol`, and must
-#' show no net decay across the three periods. The no-decay condition is what
+#' period-windows must agree within `amp_rel_tol`, must exceed `amplitude_tol`,
+#' and must show no net decay across the three periods. The no-decay condition is what
 #' distinguishes a genuine limit cycle from a slowly-decaying spiral toward a
 #' stable fixed point (which has a spectral radius just below 1). Discrimination
 #' is necessarily imperfect when the spectral radius is extremely close to 1,
@@ -332,14 +343,15 @@ projectToSteady.MizerParams <- function(params,
 #'
 #' @param bio Numeric matrix of per-species biomass, one row per saved time step.
 #' @param t_save The sampling interval, so period `= lag * t_save`.
-#' @param tol Minimum relative amplitude for an oscillation to count as a cycle.
+#' @param amplitude_tol Minimum relative amplitude for an oscillation to count as
+#'   a cycle.
 #' @param acf_threshold Minimum autocorrelation at the candidate period.
 #' @param amp_rel_tol Maximum relative change of amplitude between successive
 #'   periods for the cycle to count as settled.
 #' @return `NULL` if no settled cycle is detected, otherwise a list with the
 #'   `period` (in the same time units as `t_save`) and the relative `amplitude`.
 #' @noRd
-detect_limit_cycle <- function(bio, t_save, tol,
+detect_limit_cycle <- function(bio, t_save, amplitude_tol,
                                acf_threshold = 0.5,
                                amp_rel_tol = 0.1) {
     n <- nrow(bio)
@@ -355,7 +367,7 @@ detect_limit_cycle <- function(bio, t_save, tol,
     amp_old <- amp_window(bio[(n - 3 * w + 1):(n - 2 * w), , drop = FALSE])
     amp_mid <- amp_window(bio[(n - 2 * w + 1):(n - w), , drop = FALSE])
     amp_new <- amp_window(bio[(n - w + 1):n, , drop = FALSE])
-    if (amp_new <= tol) return(NULL)
+    if (amp_new <= amplitude_tol) return(NULL)
     # Successive periods must have matching amplitude ...
     if (abs(amp_new - amp_mid) / amp_new > amp_rel_tol) return(NULL)
     if (abs(amp_mid - amp_old) / amp_mid > amp_rel_tol) return(NULL)
@@ -420,6 +432,20 @@ find_first_acf_peak <- function(ac, threshold) {
 #'   a small extra cost. Default is `dt`.
 #' @param tol The simulation stops when the relative change in the egg
 #'   production RDI over `t_per` years is less than `tol` for every species.
+#' @param amplitude_tol `r lifecycle::badge("experimental")`
+#'   The minimum relative biomass amplitude for a persistent oscillation to be
+#'   reported as a limit cycle rather than treated as an (effectively steady)
+#'   fixed point. This is a fraction of mean biomass and is kept separate from
+#'   `tol` (which measures convergence to a fixed point on a different scale).
+#'   Default `0.01`.
+#' @param extinction_threshold `r lifecycle::badge("experimental")`
+#'   A species is treated as going extinct, stopping the run, once its
+#'   reproduction rate (RDD) falls below this fraction of its value at the start
+#'   of the run. For example the default `1e-6` treats a species as extinct once
+#'   its reproduction has collapsed to a millionth of its initial level. Because
+#'   it is relative to the initial reproduction, a species that starts with zero
+#'   reproduction is flagged immediately, and (in [steady()], where reproduction
+#'   is held constant) a healthy species is never flagged.
 #' @param return_sim If TRUE, the function returns the MizerSim object holding
 #'   the result of the simulation run, saved at intervals of `t_per`. If FALSE (default) the function returns
 #'   a MizerParams object with the "initial" slots set to the steady state.
@@ -449,7 +475,8 @@ find_first_acf_peak <- function(ac, threshold) {
 #' plotSpectra(params)
 #' }
 steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1, t_save = dt,
-                   tol = 0.1 * dt, return_sim = FALSE,
+                   tol = 0.1 * dt, amplitude_tol = 0.01,
+                   extinction_threshold = 1e-6, return_sim = FALSE,
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE,
                    info_level = 3,
@@ -460,7 +487,8 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1, t_save = dt,
 #' @export
 steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    t_save = dt,
-                   tol = 0.1 * dt, return_sim = FALSE,
+                   tol = 0.1 * dt, amplitude_tol = 0.01,
+                   extinction_threshold = 1e-6, return_sim = FALSE,
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE,
                    info_level = 3,
@@ -496,6 +524,8 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                               dt = dt,
                               t_save = t_save,
                               tol = tol,
+                              amplitude_tol = amplitude_tol,
+                              extinction_threshold = extinction_threshold,
                               return_sim = return_sim,
                               progress_bar = progress_bar,
                               info_level = info_level,
