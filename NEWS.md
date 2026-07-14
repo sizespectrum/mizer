@@ -63,7 +63,19 @@ These changes and how to adapt existing code are described in the new
   useful for verifying that the quasi-static approximation makes little difference.
   `steadyNewton()` gains a `stability = TRUE` argument that calls `getStability()`
   automatically and attaches the result as the attribute `"stability"` on the
-  returned `MizerParams` object.
+  returned `MizerParams` object. The stability list now also includes
+  `leading_eigenvectors`: a complex array `(n_species, n_sizes, 2)` of the
+  top two eigenvectors reshaped into the fish abundance space, normalised to
+  maximum modulus 1.
+
+- New experimental `getLimitCycleSim()` takes the output of `steadyNewton()`
+  and constructs a `MizerSim` covering one period of the limit cycle in the
+  linear approximation. The trajectory is
+  \eqn{N(t) = N^* + A\,\text{Re}[e^{i\theta t}\,\mathbf{v}]}, where
+  \eqn{\mathbf{v}} is the leading complex eigenvector and the amplitude \eqn{A}
+  is scaled so the maximum relative perturbation equals the `amplitude`
+  argument (default 10\%). The returned object can be passed directly to
+  `plotBiomass()`, `plotSpectra()`, and other standard mizer plot functions.
 
 - `project()` gains a `callback` argument for a user-defined function to be
   called at each saved time step.
