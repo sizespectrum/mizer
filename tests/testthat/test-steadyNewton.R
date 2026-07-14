@@ -78,14 +78,13 @@ test_that("steadyNewton handles extinctions under reproduction = 'dynamic' with 
     p_extinct@species_params$erepro[3] <- 1e-12
     p_extinct@initial_n[3, ] <- p_steady@initial_n[3, ]
 
-    # Verify that the solver issues the extinction warning and pegs to the floor
+    # Verify that the solver issues the extinction warning and zeroes out the species
     expect_warning(pn_ext <- steadyNewton(p_extinct, reproduction = "dynamic", extinction_floor = 1e-6),
-                   "went extinct and were pegged to their abundance floor")
+                   "went extinct and were set to zero")
 
-    # Verify Cod abundance is pegged exactly to the floor (1e-6 of its initial abundance)
+    # Verify Cod abundance is exactly 0
     lo <- p_extinct@w_min_idx[3]
-    ratio <- pn_ext@initial_n[3, lo] / p_extinct@initial_n[3, lo]
-    expect_equal(ratio, 1e-6, tolerance = 1e-2)
+    expect_equal(pn_ext@initial_n[3, lo], 0)
 })
 
 test_that("steadyNewton errors for unsupported resource dynamics", {
