@@ -19,13 +19,13 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-In a mizer model, a steady state represents an equilibrium where the abundance of every species at every size remains constant over time. While `steady()` attempts to find such a state by projecting the dynamics forward in time until changes stop, this only works if the steady state is *dynamically stable*. 
+In a mizer model, a steady state represents an equilibrium where the abundance of every species at every size remains constant over time. While `steady()` attempts to find such a state by projecting the dynamics forward in time until changes stop, this only works if the steady state is *dynamically stable*.
 
 If a steady state is unstable, small perturbations will grow rather than decay, and the system will naturally move away from the steady state, often settling into persistent oscillations (a limit cycle) or more complex dynamics.
 
 Mizer provides the `steadyNewton()` function to find steady states irrespective of their stability by solving the algebraic equilibrium equations directly. Once a steady state is found, its stability can be analysed using `getStability()`.
 
-This vignette explains how to perform this stability analysis, what the results mean, and how to use the linearised limit cycle approximation provided by `getLimitCycleSim()` to understand emergent oscillations around a Hopf bifurcation.
+This vignette explains how to perform this stability analysis, what the results mean, how mizer's steady-state finders detect and characterise limit cycles, and how to use the linearised limit cycle approximation provided by `getLimitCycleSim()` to understand emergent oscillations around a Hopf bifurcation.
 
 ## Linear stability analysis
 
@@ -41,9 +41,9 @@ $$ \delta N(t+\Delta t) \approx L \, \delta N(t) $$
 
 where $L$ is the Jacobian matrix evaluated at $N^*$, with elements $L_{ij} = \frac{\partial G_i}{\partial N_j}(N^*)$.
 
-The stability of the steady state is determined by the eigenvalues $\lambda_i$ of $L$. The **spectral radius** is the maximum of the absolute values (moduli) of these eigenvalues: $\rho = \max_i |\lambda_i|$. 
+The stability of the steady state is determined by the eigenvalues $\lambda_i$ of $L$. The **spectral radius** is the maximum of the absolute values (moduli) of these eigenvalues: $\rho = \max_i |\lambda_i|$. If $\rho < 1$ every perturbation decays and the steady state is stable; if $\rho > 1$ some perturbation grows and it is unstable.
 
-## Analyzing the North Sea model
+## Driving the North Sea model unstable
 
 Let's load mizer and start with the standard North Sea model.
 
@@ -52,79 +52,93 @@ suppressMessages(devtools::load_all("..", quiet = TRUE))
 params <- NS_params
 ```
 
-First, we find its steady state and check its stability. We can do this in one step by passing `stability = TRUE` to `steadyNewton()`.
+The North Sea model at its default fishing effort is dynamically stable, so it makes a rather uneventful example: perturb it and it simply settles back down. To see something more interesting we increase the fishing pressure, setting the effort of every gear to `2`. This pushes the model across a **Hopf bifurcation** into a regime where the steady state is unstable.
 
-```{r NS_stable}
-# Find the exact steady state and compute its stability
-params_stable <- steadyNewton(params, stability = TRUE)
+Because the steady state is now unstable, `steady()` cannot find it — projecting the dynamics forward would diverge away from it. This is exactly the situation `steadyNewton()` is designed for: it solves the equilibrium equations directly and therefore finds the steady state regardless of its stability.
 
-# The stability results are attached as an attribute
-stab <- attr(params_stable, "stability")
-stab$spectral_radius
+```{r find_steady}
+params_f2 <- steadyNewton(params, effort = 2)
 ```
 
-The spectral radius is less than 1 (around 0.8), so the steady state is dynamically stable. Small perturbations will decay and the system will return to this equilibrium.
+## Diagnosing the instability
 
-However, the way the system returns to equilibrium is determined by the dominant eigenvalue. If the dominant eigenvalue is complex, the system will exhibit decaying oscillations as it returns to the steady state. Let's check the dominant eigenvalue:
+Is this steady state stable? We compute the spectral radius with `getStability()`.
+
+```{r default_stability}
+getStability(params_f2, effort = 2)$spectral_radius
+```
+
+This is below 1, which would suggest stability — but by default `getStability()` treats the resource spectrum as a *quasi-static* fast variable that instantly equilibrates to the fish. The instability here is driven by the two-way coupling between the fish and their resource, which that approximation suppresses. Analysing the full coupled fish–resource system with `include_resource = TRUE` reveals it:
+
+```{r coupled_stability}
+stab <- getStability(params_f2, effort = 2, include_resource = TRUE)
+stab$spectral_radius
+stab$stable
+```
+
+The spectral radius now exceeds 1: the steady state is unstable. To see *how* it is unstable, we look at the dominant eigenvalue (the one with the largest modulus).
 
 ```{r dominant_mode}
 stab$eigenvalues[1]
 ```
 
-The dominant eigenvalue is indeed complex (with a non-zero imaginary part). This means the leading mode of the system is an oscillation (a stable spiral).
+It is **complex** with modulus greater than 1. A real eigenvalue above 1 would signal monotone growth, but a complex pair crossing the unit circle means the perturbation grows *while oscillating* — a Hopf (or Neimark–Sacker) bifurcation. The period of this oscillation is set by the argument of the eigenvalue,
 
-## The Hopf bifurcation and Limit Cycles
+$$ \text{Period} = \frac{2\pi}{|\arg(\lambda)|} \text{ time steps}, $$
 
-If we were to change parameters (for instance, increasing the maximum reproduction rate `R_max` or changing feeding preferences) to make the model less stable, this complex eigenvalue could cross the unit circle (its modulus exceeding 1). When this happens, the system undergoes a **Hopf bifurcation** (or Neimark-Sacker bifurcation in discrete time). 
+which mizer reports as `dominant_period`:
 
-At a Hopf bifurcation, the system transitions from a stable steady state to an oscillating **limit cycle**. The period of this oscillation is determined by the argument (angle) of the complex eigenvalue $\lambda$:
-
-$$ \text{Period} \approx \frac{2\pi}{|\arg(\lambda)|} \text{ time steps} $$
-
-Mizer calculates the period of the dominant complex eigenvalue and reports it as `hopf_period`, even if the state is stable.
-
-```{r hopf_period}
-stab$hopf_period
+```{r dominant_period}
+stab$dominant_period
 ```
 
-The model has an oscillatory component with a period of roughly `r round(stab$hopf_period, 1)` years.
+So the linear analysis predicts a growing oscillation with a period of roughly `r round(stab$dominant_period, 1)` years.
 
-## Simulating the oscillation shape
+## Watching the limit cycle emerge
 
-Because the dominant mode is complex, perturbations will initially follow the shape of the corresponding complex eigenvector.
+We can confirm this prediction by running the full nonlinear dynamics with `project()`. Starting from the unstable steady state with a tiny 2% perturbation, the oscillation should grow and then saturate into a sustained limit cycle.
 
-Mizer provides the `getLimitCycleSim()` function to construct a `MizerSim` object representing one period of this oscillation in the linear approximation. While the true perturbations in our stable model will decay, `getLimitCycleSim()` ignores the decay (acting as if we are exactly at the bifurcation point) to isolate and visualise the pure shape of the cohort oscillations.
+```{r projection}
+params_perturbed <- params_f2
+params_perturbed@initial_n <- params_perturbed@initial_n * 1.02
+sim_cycle <- project(params_perturbed, effort = 2, t_max = 200)
+
+plotBiomass(sim_cycle)
+```
+
+Exactly as the spectral radius $> 1$ predicted, the oscillations grow out of the unstable steady state and settle into a persistent **limit cycle** rather than decaying away. (In a stable model, spectral radius $< 1$, the same perturbation would instead ring down to the flat lines of the steady state.)
+
+## Detecting the attractor with `projectToSteady()`
+
+Because the attractor is a cycle rather than a fixed point, running the dynamics forward will never "converge" in the usual sense of successive states becoming identical. Previously `steady()` and `projectToSteady()` would simply run until `t_max` and hand back an arbitrary snapshot of the cycle, dressed up as if it were a steady state.
+
+They now recognise this situation. Both functions attach a `"convergence"` attribute to their result that reports what the run actually settled on — a stable fixed point, a limit cycle, or neither — and, for a cycle, its period and relative amplitude.
+
+```{r pts_cycle}
+params_run <- projectToSteady(params, effort = 2, t_max = 200)
+attr(params_run, "convergence")
+```
+
+The run is correctly identified as a limit cycle, with a period of about `r round(attr(params_run, "convergence")$period, 1)` years and a peak-to-trough biomass amplitude of about `r round(100 * attr(params_run, "convergence")$amplitude)`% of the mean. Applied to a model with a genuine stable steady state, the same function reports `type = "steady"` instead:
+
+```{r pts_steady}
+attr(projectToSteady(params, t_max = 100), "convergence")$type
+```
+
+Notice that the detected nonlinear period (about `r round(attr(params_run, "convergence")$period, 1)` years) is somewhat longer than the `dominant_period` of about `r round(stab$dominant_period, 1)` years from the linear analysis. This is expected: at effort 2 we are well beyond the bifurcation, where the oscillation amplitude is large and nonlinear effects reshape the cycle. Close to the bifurcation the two agree; far from it the linear analysis remains an excellent *qualitative* guide, correctly predicting an oscillatory instability.
+
+## Visualising the oscillation shape
+
+Finally, `getLimitCycleSim()` constructs a `MizerSim` object covering one period of the oscillation *in the linear approximation*, using the leading complex eigenvector. This isolates the pure **shape** of the cycle — which species and sizes participate and with what phase — without the growth or the nonlinear distortion of the full run.
 
 ```{r limit_cycle}
-lcs <- getLimitCycleSim(params_stable)
+lcs <- getLimitCycleSim(params_f2, include_resource = TRUE)
 ```
 
-Because `lcs` is a standard `MizerSim` object, we can use any of the standard mizer plotting functions to visualise the pattern of the cycle. For example, we can plot the biomass dynamics over one period:
+Because `lcs` is an ordinary `MizerSim` object, any of the standard mizer plotting functions can be used to explore it. For example, the biomass over one period:
 
 ```{r plot_lcs_biomass}
 plotBiomass(lcs)
 ```
 
-This linearised cycle provides a very useful picture of which species and sizes are driving the natural oscillations in the system, and what the cohort resonance would look like if the system were destabilised.
-
-## Comparing with full nonlinear dynamics
-
-We can verify our linear stability analysis by running a full dynamic projection using `project()`. Since the steady state is stable (spectral radius < 1), if we perturb it, it should oscillate with the predicted period but the amplitude will decay over time.
-
-We will perturb the initial abundance by adding a 10% bump to the initial state, and project for 50 years.
-
-```{r true_projection}
-# Perturb the steady state
-params_perturbed <- params_stable
-params_perturbed@initial_n <- params_perturbed@initial_n * 1.1
-
-# Project forward in time
-sim_full <- project(params_perturbed, t_max = 50)
-
-plotBiomass(sim_full)
-```
-
-As predicted by the spectral radius < 1, the steady state is stable and the biomasses oscillate with decaying amplitude, eventually settling back to the straight lines of the steady state. 
-
-If you compare the shape of these decaying oscillations to the pure, un-decayed oscillations produced by `getLimitCycleSim()` above, you will see they match perfectly. The linear stability analysis successfully decomposes the complex nonlinear ecosystem dynamics into a simple period, shape, and decay rate.
-
+This linearised cycle gives a clear picture of the cohort-resonance pattern driving the oscillation — the mode shape that the full nonlinear limit cycle grows out of.
