@@ -54,6 +54,17 @@ bifurcation.}
 \item{\code{n_active}}{Dimension of the Jacobian: number of active fish cells
 when \code{include_resource = FALSE}, or fish cells plus all resource cells
 when \code{include_resource = TRUE}.}
+\item{\code{leading_eigenvectors}}{The eigenvectors of the two largest-modulus
+eigenvalues, reshaped back into the fish abundance space.
+When \code{include_resource = FALSE}: a complex array of shape
+\verb{(n_species, n_sizes, 2)} with the same species and size dimnames as
+\code{params@initial_n}. When \code{include_resource = TRUE}: a list with
+\verb{$fish} (the same array) and \verb{$resource} (a complex matrix of shape
+\verb{(n_w_full, 2)} for the resource component).
+Each eigenvector is normalised so that its maximum modulus equals 1.
+The real and imaginary parts of eigenvector 1 span the two-dimensional
+oscillation plane of the dominant mode; \code{Mod()} gives the amplitude
+pattern across species and sizes.}
 }
 }
 \description{

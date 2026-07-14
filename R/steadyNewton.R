@@ -541,6 +541,17 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #'     \item{`n_active`}{Dimension of the Jacobian: number of active fish cells
 #'       when `include_resource = FALSE`, or fish cells plus all resource cells
 #'       when `include_resource = TRUE`.}
+#'     \item{`leading_eigenvectors`}{The eigenvectors of the two largest-modulus
+#'       eigenvalues, reshaped back into the fish abundance space.
+#'       When `include_resource = FALSE`: a complex array of shape
+#'       `(n_species, n_sizes, 2)` with the same species and size dimnames as
+#'       `params@initial_n`. When `include_resource = TRUE`: a list with
+#'       `$fish` (the same array) and `$resource` (a complex matrix of shape
+#'       `(n_w_full, 2)` for the resource component).
+#'       Each eigenvector is normalised so that its maximum modulus equals 1.
+#'       The real and imaginary parts of eigenvector 1 span the two-dimensional
+#'       oscillation plane of the dominant mode; `Mod()` gives the amplitude
+#'       pattern across species and sizes.}
 #'   }
 #' @seealso [steadyNewton()]
 #' @export
@@ -688,9 +699,14 @@ getStability <- function(params,
     # -------------------------------------------------------------------------
     # Eigenvalue analysis (shared by both branches)
     # -------------------------------------------------------------------------
-    evals_map <- eigen(L, only.values = TRUE)$values
+    eig       <- eigen(L)
+    evals_map <- eig$values
+    evecs     <- eig$vectors          # columns are eigenvectors
+
+    # Sort by decreasing eigenvalue modulus.
     ord       <- order(Mod(evals_map), decreasing = TRUE)
     evals_map <- evals_map[ord]
+    evecs     <- evecs[, ord, drop = FALSE]
 
     spectral_radius <- max(Mod(evals_map))
     stable          <- spectral_radius < 1
@@ -715,12 +731,53 @@ getStability <- function(params,
         hopf_period <- NULL
     }
 
+    # -------------------------------------------------------------------------
+    # Reshape leading eigenvectors back to (species x size) complex arrays.
+    # Eigenvectors are normalised so max(Mod(.)) == 1 for comparability.
+    # For include_resource = TRUE the resource component is also extracted.
+    # -------------------------------------------------------------------------
+    n_leading <- min(2L, n_state)          # top 2 (or 1 if Jacobian is 1×1)
+    no_sp     <- nrow(N_ss)
+    no_w      <- ncol(N_ss)
+
+    # Preallocate leading eigenvector array (species x size x n_leading), complex
+    leading_evecs_fish <- array(0 + 0i,
+                                dim      = c(no_sp, no_w, n_leading),
+                                dimnames = c(dimnames(N_ss), list(NULL)))
+
+    for (k in seq_len(n_leading)) {
+        v_fish <- evecs[seq_len(n_fish_active), k]  # fish component
+        # Normalise to max modulus 1
+        max_mod <- max(Mod(v_fish))
+        if (max_mod > 0) v_fish <- v_fish / max_mod
+        M <- matrix(0 + 0i, nrow = no_sp, ncol = no_w)
+        M[active_idx] <- v_fish
+        leading_evecs_fish[, , k] <- M
+    }
+
+    if (include_resource) {
+        # Resource component: rows n_fish_active+1..n_state of each eigenvector.
+        leading_evecs_resource <- matrix(0 + 0i, nrow = n_npp, ncol = n_leading)
+        for (k in seq_len(n_leading)) {
+            v_res <- evecs[n_fish_active + seq_len(n_npp), k]
+            max_mod <- max(Mod(v_res))
+            if (max_mod > 0) v_res <- v_res / max_mod
+            leading_evecs_resource[, k] <- v_res
+        }
+        rownames(leading_evecs_resource) <- names(params@initial_n_pp)
+        leading_eigenvectors <- list(fish     = leading_evecs_fish,
+                                     resource = leading_evecs_resource)
+    } else {
+        leading_eigenvectors <- leading_evecs_fish
+    }
+
     list(
-        eigenvalues     = evals_map,
-        spectral_radius = spectral_radius,
-        stable          = stable,
-        dominant_period = dominant_period,
-        hopf_period     = hopf_period,
-        n_active        = n_state
+        eigenvalues          = evals_map,
+        spectral_radius      = spectral_radius,
+        stable               = stable,
+        dominant_period      = dominant_period,
+        hopf_period          = hopf_period,
+        n_active             = n_state,
+        leading_eigenvectors = leading_eigenvectors
     )
 }

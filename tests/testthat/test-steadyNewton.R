@@ -252,7 +252,8 @@ test_that("getStability returns a well-formed list for a stable model", {
 
     expect_type(stab, "list")
     expect_named(stab, c("eigenvalues", "spectral_radius", "stable",
-                         "dominant_period", "hopf_period", "n_active"))
+                         "dominant_period", "hopf_period", "n_active",
+                         "leading_eigenvectors"))
     expect_true(is.complex(stab$eigenvalues))
     expect_length(stab$eigenvalues, stab$n_active)
     expect_true(is.numeric(stab$spectral_radius))
@@ -301,7 +302,8 @@ test_that("getStability with include_resource = TRUE returns well-formed list", 
 
     expect_type(stab_full, "list")
     expect_named(stab_full, c("eigenvalues", "spectral_radius", "stable",
-                              "dominant_period", "hopf_period", "n_active"))
+                              "dominant_period", "hopf_period", "n_active",
+                              "leading_eigenvectors"))
     # n_active must equal n_fish_active + n_resource (always strictly larger)
     stab_red <- getStability(pn, include_resource = FALSE)
     expect_gt(stab_full$n_active, stab_red$n_active)
@@ -319,4 +321,22 @@ test_that("full and reduced stability analyses agree on spectral radius for NS m
     # Dominant eigenvalue moduli should match to within a loose tolerance.
     expect_equal(stab_full$spectral_radius, stab_red$spectral_radius,
                  tolerance = 0.05)
+})
+
+test_that("leading_eigenvectors have correct shape and are normalised", {
+    pn   <- steadyNewton(p_steady)
+    stab <- getStability(pn)
+    lev  <- stab$leading_eigenvectors
+
+    # Shape: (n_species, n_sizes, 2)
+    expect_equal(dim(lev)[1], nrow(pn@initial_n))
+    expect_equal(dim(lev)[2], ncol(pn@initial_n))
+    expect_equal(dim(lev)[3], 2L)
+
+    # Each eigenvector normalised: max(Mod(.)) == 1 over active cells
+    expect_equal(max(Mod(lev[, , 1])), 1, tolerance = 1e-10)
+    expect_equal(max(Mod(lev[, , 2])), 1, tolerance = 1e-10)
+
+    # Dimnames match initial_n
+    expect_equal(dimnames(lev)[1:2], dimnames(pn@initial_n))
 })
