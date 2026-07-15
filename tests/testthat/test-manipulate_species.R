@@ -520,7 +520,7 @@ test_that("adjustSizeGrid works for expansion and truncation", {
     expect_warning(adjustSizeGrid(params, new_max_w = params@w[18]),
                    "Non-negligible species biomass was lost")
 
-    # Truncating further down with low tol and non-zero resource at large sizes triggers resource biomass warning:
+    # Truncating the top with low tol and non-zero resource at large sizes triggers largest-fish diet warning:
     params_pp <- params
     params_pp@resource_params$w_pp_cutoff <- 50000
     params_pp@initial_n_pp[] <- 1
@@ -529,7 +529,7 @@ test_that("adjustSizeGrid works for expansion and truncation", {
             adjustSizeGrid(params_pp, new_max_w = params@w[18], tol = 1e-15),
             "Non-negligible species biomass was lost"
         ),
-        "Non-negligible resource biomass"
+        "Non-negligible diet of largest fish was lost"
     )
 
     # 5. Invalid parameters

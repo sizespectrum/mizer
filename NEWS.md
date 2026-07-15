@@ -85,8 +85,9 @@
 
 - New `adjustSizeGrid()` function (an S3 generic) adjusts the size grid of
   a `MizerParams` object to a new minimum and/or maximum size. It can both
-  expand and truncate (shrink) the grid, warning if non-negligible abundance
-  (species or resource) is discarded.
+  expand and truncate (shrink) the grid. For each species it warns if truncation
+  discards a non-negligible fraction of the species' biomass, of the diet of its
+  smallest individuals, or of the diet of its largest individuals.
 
 - The upper boundary condition of the size-spectrum solvers now holds the
   abundance at zero above each species' maximum size `w_max`. Without diffusion
