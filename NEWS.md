@@ -1,5 +1,12 @@
 # mizer 3.1.0.9000 (development version)
 
+- Mis-spelled column names in the `gear_params` and `species_params` data frames
+  are now detected by fuzzy matching against the recognised parameter names. A
+  near miss such as `sel_fun` (instead of `sel_func`) triggers a warning that
+  suggests the intended name, rather than being silently ignored (#442). Columns
+  are only flagged, never renamed, so legitimate custom columns are left
+  untouched.
+
 - The reference index on the website now opens with an "Overview: the mizer
   workflow" section that frames the whole page as a five-stage pipeline (create →
   calibrate → tune dynamics → project → analyse) with links to the key function
