@@ -194,7 +194,6 @@ params <- newTraitParams()          # or newCommunityParams(), newSingleSpeciesP
 # ── Steady state ──────────────────────────────────────────────────────────────
 params <- steady(params)
 params <- steadySingleSpecies(params)   # fast starting spectrum
-params <- steadyNewton(params)          # direct solve (experimental)
 
 # ── Calibrate to data (re-run steady() after each) ────────────────────────────
 params <- calibrateBiomass(params)      # total biomass  → kappa

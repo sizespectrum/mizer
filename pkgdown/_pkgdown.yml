@@ -142,7 +142,6 @@ reference:
     walks through this calibration workflow.
   contents:
   - steady
-  - steadyNewton
   - steadySingleSpecies
   - matchGrowth
   - plotBiomassObservedVsModel

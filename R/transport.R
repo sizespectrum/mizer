@@ -55,8 +55,7 @@ log_dx <- function(params) {
 #'
 #' The dynamics impose this as the upper boundary condition (see
 #' `get_transport_coefs()`) so that abundance is held at zero above `w_max` even
-#' when diffusion would otherwise carry density past it, and [steadyNewton()]
-#' solves on exactly this support.
+#' when diffusion would otherwise carry density past it.
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @return A per-species integer vector of the top retained size-class index.

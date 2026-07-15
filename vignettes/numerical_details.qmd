@@ -204,9 +204,7 @@ size where growth has died away, so they are already zero and imposing
 @eq-upper-bc-zero changes nothing. With diffusion, density would otherwise leak
 to sizes above $w_{max}$; the boundary condition holds it at zero there instead.
 Because the location of $j_{max}$ is fixed by $w_{max}$ and the scheme — not by
-the densities — it is the same at every time step and at the steady state, so the
-steady-state solver ([steadyNewton()]) solves on exactly this support and its
-solution is a fixed point of the dynamics.
+the densities — it is the same at every time step and at the steady state.
 
 ## Numerical Diffusion
 
@@ -620,8 +618,6 @@ be at most $1$ across the grid. If the Courant number exceeds 1, the lagged limi
 ### Steady state and reproduction
 
 Because the reconstruction lives entirely in the coefficients $A,B,C$, the steady-state machinery stays consistent automatically: `getRequiredRDD()` reads the same boundary coefficients and `get_steady_state_n()` solves the same system. With the van Leer reconstruction the weight depends on the solution, so the steady state is found by an *under-relaxed* fixed-point iteration (freezing $\chi$ at the current iterate, solving, repeating), because at $\Delta t=1$ the operator is not diagonally dominant. Both `getRequiredRDD()` and `steadySingleSpecies()` read the same `second_order_w` slot, so a model is automatically set up at the steady state of exactly the scheme that `project()` will use, and that state is preserved to machine precision by all three time-stepping methods.
-
-The direct solver [steadyNewton()] reads its set of unknowns from where the supplied abundances are non-zero, rather than from $w_{max}$. This keeps it robust when $w_{max}$ is set far above the largest fish (a common choice, so that the grid need not change when a parameter update produces larger fish): the structurally-zero classes below such a $w_{max}$ are simply excluded. The growth rate alone could not be used to find the support, because the main reason fish grow past $w_{repro\_max}$ is diffusion, whose rate only grows with $w$ and never vanishes; the abundance is the only reliable indicator of where the (possibly diffusion-fed) tail has died away. With the van Leer limiter the residual is only Lipschitz, so the Newton iteration converges to a fixed point of the dynamics but not to machine precision; the unlimited centred reconstruction — which admits an undamped odd-even mode at a steady state with no physical diffusion — gives an ill-conditioned steady-state Jacobian for which the direct solver is not expected to converge.
 
 
 ## Steady-State Solution

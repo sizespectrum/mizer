@@ -88,15 +88,6 @@
   expand and truncate (shrink) the grid, warning if non-negligible abundance
   (species or resource) is discarded.
 
-- New experimental `steadyNewton()` finds a steady state by solving the
-  steady-state equation directly with a Newton-type root finder (using the
-  `nleqslv` package) instead of running the dynamics to convergence. Unlike
-  `steady()` it converges even when the steady state is dynamically unstable.
-  Currently supports the default semichemostat resource dynamics.
-  It automatically discovers the support of the steady state (even if the
-  initial guess contains zeros or non-zeros in the wrong regions) using a
-  smoothed log-abundance penalty floor.
-
 - The upper boundary condition of the size-spectrum solvers now holds the
   abundance at zero above each species' maximum size `w_max`. Without diffusion
   this is automatic and results are unchanged, but with predation diffusion

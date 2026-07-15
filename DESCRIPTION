@@ -30,7 +30,6 @@ Imports:
     grid,
     lubridate,
     methods,
-    nleqslv,
     plotly,
     plyr,
     progress,
@@ -123,7 +122,6 @@ Collate:
     'match.R'
     'matchGrowth.R'
     'steadySingleSpecies.R'
-    'steadyNewton.R'
     'defaults_edition.R'
     'validSpeciesParams.R'
 Roxygen: list(markdown = TRUE)

@@ -55,8 +55,8 @@ only stalls; under-relaxation makes it converge.)
 
 The returned abundance is held at zero above each species' \code{w_max}, the same
 upper boundary condition that \code{\link[=project]{project()}} imposes (via \code{zero_above_support()}
-in \code{project_n()}) and that \code{\link[=steadyNewton]{steadyNewton()}} solves on. Without this the
-bottom-up solve would carry density above \code{w_max} whenever growth is still
-positive there or diffusion pushes density past it.
+in \code{project_n()}). Without this the bottom-up solve would carry density above
+\code{w_max} whenever growth is still positive there or diffusion pushes density
+past it.
 }
 \concept{helper}
