@@ -43,17 +43,15 @@
 #' @param amplitude Maximum relative perturbation
 #'   \eqn{\max_w |\delta N(t,w)|/N^*(w)} across the limit cycle.  Default
 #'   `0.1`.
-#' @param n_points Number of time points in the returned
-#'   \linkS4class{MizerSim}.  Defaults to `ceiling(T) + 1`, giving one point
-#'   per time step (year) over exactly one period.  Increase for smoother
-#'   plots, e.g. `n_points = 200`.
+#' @param t_save The time interval between saved time steps in the returned
+#'   \linkS4class{MizerSim}.  Defaults to `0.1`.
 #' @param ... Additional arguments forwarded to [getStability()] when
 #'   stability has not already been computed and cached on `params`.
 #' @return A \linkS4class{MizerSim} object whose time axis spans one period
 #'   \eqn{[0, T]} of the linearised limit cycle.
 #' @seealso [getStability()], [steadyNewton()]
 #' @export
-getLimitCycleSim <- function(params, amplitude = 0.1, n_points = NULL, ...) {
+getLimitCycleSim <- function(params, amplitude = 0.1, t_save = 0.1, ...) {
     # ------------------------------------------------------------------
     # 1. Get (or compute) stability analysis
     # ------------------------------------------------------------------
@@ -98,11 +96,8 @@ getLimitCycleSim <- function(params, amplitude = 0.1, n_points = NULL, ...) {
     # ------------------------------------------------------------------
     # 3. Time grid
     # ------------------------------------------------------------------
-    if (is.null(n_points)) {
-        t_seq <- seq(0, ceiling(T_period))   # integer steps, one per year
-    } else {
-        t_seq <- seq(0, T_period, length.out = as.integer(n_points))
-    }
+    n_steps <- ceiling(T_period / t_save)
+    t_seq <- seq(0, by = t_save, length.out = n_steps + 1)
 
     # ------------------------------------------------------------------
     # 4. Amplitude scaling

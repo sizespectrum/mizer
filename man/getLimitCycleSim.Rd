@@ -4,7 +4,7 @@
 \alias{getLimitCycleSim}
 \title{Construct a MizerSim of the linearised limit cycle}
 \usage{
-getLimitCycleSim(params, amplitude = 0.1, n_points = NULL, ...)
+getLimitCycleSim(params, amplitude = 0.1, t_save = 0.1, ...)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object at a steady state,
@@ -16,10 +16,8 @@ exists and contains \code{leading_eigenvectors} it is used directly; otherwise
 \eqn{\max_w |\delta N(t,w)|/N^*(w)} across the limit cycle.  Default
 \code{0.1}.}
 
-\item{n_points}{Number of time points in the returned
-\linkS4class{MizerSim}.  Defaults to \code{ceiling(T) + 1}, giving one point
-per time step (year) over exactly one period.  Increase for smoother
-plots, e.g. \code{n_points = 200}.}
+\item{t_save}{The time interval between saved time steps in the returned
+\linkS4class{MizerSim}.  Defaults to \code{0.1}.}
 
 \item{...}{Additional arguments forwarded to \code{\link[=getStability]{getStability()}} when
 stability has not already been computed and cached on \code{params}.}

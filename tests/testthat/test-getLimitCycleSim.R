@@ -45,15 +45,20 @@ test_that("getLimitCycleSim abundances are non-negative", {
     expect_true(all(lcs@n_pp >= 0))
 })
 
-test_that("getLimitCycleSim n_points controls number of time steps", {
+test_that("getLimitCycleSim t_save controls the time step spacing", {
     pn   <- steadyNewton(p_steady_lcs, stability = TRUE)
     stab <- attr(pn, "stability")
 
     skip_if(is.null(stab$hopf_period))
     skip_if(abs(Im(stab$eigenvalues[1])) <= 1e-8)
 
-    lcs <- getLimitCycleSim(pn, n_points = 50)
-    expect_equal(length(getTimes(lcs)), 50L)
+    T_period <- stab$dominant_period
+    t_save   <- T_period / 50
+    lcs      <- getLimitCycleSim(pn, t_save = t_save)
+    times    <- getTimes(lcs)
+
+    expect_equal(length(times), ceiling(T_period / t_save) + 1L)
+    expect_equal(diff(times), rep(t_save, length(times) - 1L))
 })
 
 test_that("getLimitCycleSim n array has correct species and size dimnames", {
@@ -76,7 +81,7 @@ test_that("getLimitCycleSim respects amplitude: max relative perturbation ~ ampl
     skip_if(abs(Im(stab$eigenvalues[1])) <= 1e-8)
 
     amp <- 0.1
-    lcs <- getLimitCycleSim(pn, amplitude = amp, n_points = 200)
+    lcs <- getLimitCycleSim(pn, amplitude = amp, t_save = stab$dominant_period / 200)
     N_ss <- pn@initial_n
     active <- N_ss > 0
     max_rel <- max(abs(lcs@n - rep(N_ss, each = dim(lcs@n)[1])) /
