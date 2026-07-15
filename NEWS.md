@@ -13,8 +13,7 @@
 
 - Error messages that referred to `w_max` as a species' "maximum size" now
   correctly describe it as the upper size-grid boundary, consistent with `w_max`
-  being a purely computational parameter (the biological maximum size is `w_inf`
-  and the reproduction cut-off is `w_repro_max`).
+  being a purely computational parameter.
 
 - `newSingleSpeciesParams()`, `newTraitParams()` and `newCommunityParams()` now
   document why they place the size-grid boundary at the maximum size
