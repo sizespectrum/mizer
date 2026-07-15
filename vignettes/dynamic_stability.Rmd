@@ -35,13 +35,23 @@ $$ N(t+\Delta t) = G(N(t)) $$
 
 where $N(t)$ represents the full state vector (abundances of all species at all sizes) at time $t$. At a steady state $N^*$, we have $N^* = G(N^*)$.
 
-To determine if $N^*$ is stable, we linearise the dynamics for small perturbations $\delta N(t) = N(t) - N^*$ around the steady state:
+Because abundances in a mizer model span dozens of orders of magnitude across the size spectrum, evaluating stability in terms of absolute perturbations (e.g., $N(t) = N^* + \delta N(t)$) can be numerically poorly-scaled. Instead, it is more natural to consider **multiplicative (relative) perturbations**, where we perturb the steady state by a small relative amount $x(t)$:
 
-$$ \delta N(t+\Delta t) \approx L \, \delta N(t) $$
+$$ N_i(t) = N_i^* \left(1 + x_i(t)\right) $$
 
-where $L$ is the Jacobian matrix evaluated at $N^*$, with elements $L_{ij} = \frac{\partial G_i}{\partial N_j}(N^*)$.
+Linearising the dynamics for these small relative perturbations $x(t)$ gives:
 
-The stability of the steady state is determined by the eigenvalues $\lambda_i$ of $L$. The **spectral radius** is the maximum of the absolute values (moduli) of these eigenvalues: $\rho = \max_i |\lambda_i|$. If $\rho < 1$ every perturbation decays and the steady state is stable; if $\rho > 1$ some perturbation grows and it is unstable.
+$$ x(t+\Delta t) \approx K \, x(t) $$
+
+where $K$ is the relative Jacobian matrix. The elements of $K$ describe the proportional change in species $i$ resulting from a proportional change in species $j$:
+
+$$ K_{ij} = \frac{\partial \log G_i}{\partial \log N_j}(N^*) = \frac{N_j^*}{N_i^*} \frac{\partial G_i}{\partial N_j}(N^*) $$
+
+Notice that $K$ is related to the standard absolute Jacobian $L$ (with elements $L_{ij} = \frac{\partial G_i}{\partial N_j}$) by a similarity transform $K = D^{-1} L D$, where $D$ is a diagonal matrix of the steady-state abundances $N^*$. Because $K$ and $L$ are similar matrices, **they have exactly the same eigenvalues**. 
+
+The stability of the steady state is determined by the eigenvalues $\lambda_i$ of these matrices. The **spectral radius** is the maximum of the absolute values (moduli) of these eigenvalues: $\rho = \max_i |\lambda_i|$. If $\rho < 1$ every perturbation decays and the steady state is stable; if $\rho > 1$ some perturbation grows and it is unstable.
+
+*(Note on numerical implementation: While analyzing the relative Jacobian $K$ is conceptually natural, computing it requires dividing by $N_i^*$, which causes floating-point overflow for structurally zero size classes (e.g., extinct species or truncated tails). Therefore, `getStability()` numerically computes the absolute Jacobian $L$ using finite-difference steps scaled multiplicatively to the local density. This is mathematically equivalent to the relative analysis but avoids dividing by zero, ensuring robust eigenvalue computation.)*
 
 ## Driving the North Sea model unstable
 

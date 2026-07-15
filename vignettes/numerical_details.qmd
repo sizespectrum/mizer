@@ -684,3 +684,51 @@ R_{dd}^t = \hat{R}_{dd}^{t+1} = R_{dd}^{t+1/2}.
 $$ {#eq-ss-rates-equal}
 The rates used in the steady-state calculation are therefore just the rates evaluated at $N^*$.
 The predictor-corrector method affects the transient path to the steady state, not the steady state itself.
+
+## Direct Steady-State Solver (`steadyNewton`)
+
+The function `steadyNewton()` finds the steady state by directly solving the discretised algebraic equation $F(N) = 0$ (derived in the sections above) using a Newton-type root finder. This allows it to converge to the steady state even when the state is dynamically unstable.
+
+To make the nonlinear algebraic system well-behaved for the root finder, `steadyNewton()` employs several numerical strategies:
+
+1. **Log-space solve:** The consumer densities are solved for in logarithmic space ($x = \log N$). This enforces strict positivity of the densities during the iteration and natively conditions the Jacobian by turning absolute density perturbations—which span dozens of orders of magnitude—into well-scaled $O(1)$ relative (multiplicative) perturbations. The residual of the equation is correspondingly scaled by $1/N$, turning it into a per-capita rate of change that is also $O(1)$ across all size classes.
+
+2. **Active support and structural zeros:** The solver defines the "active" size classes for each species as running from the egg size up to the overall grid truncation limit, regardless of whether they initially carry non-zero density. Because the logarithm of zero is $-\infty$, the solver applies a smooth, continuous penalty floor to the log-abundances. This automatically bounds the unknowns, gracefully handling structurally zero-density classes and preventing singular Jacobians. After convergence, densities that remain trapped at or near this penalty floor are explicitly set to exactly zero. This allows the solver to automatically discover the true support (the highest non-zero size class) of the steady state.
+
+3. **Interaction with high-order spatial schemes:** The solver strictly respects the spatial transport scheme configured in the parameters (e.g., via `second_order_w()`). The nonlinear flux limiter weight is recalculated at every residual evaluation, ensuring the returned steady state is an exact fixed point of the chosen dynamics. However, because the TVD "van Leer" flux limiter is only Lipschitz-continuous (its derivative is discontinuous where the smoothness indicator equals 1), the Newton iteration converges to the fixed point but typically not to machine precision. Conversely, the unlimited "centred" reconstruction is perfectly smooth, but at a steady state with no physical diffusion it admits an undamped odd-even mode, leading to a structurally ill-conditioned Jacobian for which the Newton solver is unlikely to converge.
+
+## Linear Stability Analysis
+
+Once a steady state $N^*$ has been found, mizer can evaluate its dynamic stability by linearising the discrete-time map around $N^*$. The time step acts as a map $N^{t+1} = G(N^t)$, and the stability of the steady state is governed by the eigenvalues of the absolute Jacobian matrix $L$:
+$$
+L_{ij} = \frac{\partial G_i}{\partial N_j}(N^*)
+$$ {#eq-absolute-jacobian}
+
+### Multiplicative Finite Differences
+Because abundances in a mizer model span dozens of orders of magnitude, evaluating the Jacobian $L$ numerically using a constant absolute perturbation size (e.g., $N_j^* + \epsilon$ with $\epsilon = 10^{-4}$) is poorly scaled. The perturbation would be lost in rounding error for larvae, and catastrophically huge for large fish. 
+
+Instead, the `getStability()` function approximates the derivative using a **multiplicative (relative)** finite-difference step. It perturbs the abundance $N_j^*$ by an amount $\Delta N_j$ proportional to the steady-state abundance:
+$$
+\Delta N_j = h \cdot \max(N_j^*, \text{machine eps})
+$$ {#eq-multiplicative-step}
+where $h$ is the relative step size (default $10^{-4}$). The function then evaluates the system's response:
+$$
+L_{ij} \approx \frac{G_i(N^* + \Delta N_j) - G_i(N^* - \Delta N_j)}{2 \Delta N_j}
+$$ {#eq-jacobian-fd}
+This ensures the numerical precision is maintained across all size classes. A tiny additive floor (the machine epsilon) is kept to allow the solver to gently "poke" classes where the steady-state abundance is exactly zero (like extinct species or the truncated tail above $w_{max}$), capturing their stability against small invasions.
+
+### Equivalence to Log-Space Analysis
+It might seem conceptually more natural to analyze stability entirely in log-space, by perturbing the relative abundances $x_j(t) = (N_j(t) - N_j^*) / N_j^*$ and computing the relative Jacobian $K$:
+$$
+K_{ij} = \frac{\partial \log G_i}{\partial \log N_j}
+$$ {#eq-relative-jacobian}
+
+Applying the chain rule, this log-space Jacobian relates to the absolute Jacobian via:
+$$
+K_{ij} = \frac{\partial \log G_i}{\partial G_i} \frac{\partial G_i}{\partial N_j} \frac{\partial N_j}{\partial \log N_j} = \frac{1}{N_i^*} L_{ij} N_j^*
+$$ {#eq-jacobian-similarity}
+In matrix notation, this is a **similarity transform**: $K = D^{-1} L D$, where $D$ is a diagonal matrix containing the steady-state abundances $N^*$.
+
+A fundamental theorem of linear algebra states that similar matrices have **exactly the same eigenvalues**. Because stability is determined entirely by whether any eigenvalue's modulus exceeds 1, $L$ and $K$ yield mathematically identical stability conclusions.
+
+Numerically, however, explicitly computing the relative Jacobian $K$ requires dividing the elements of $L$ by the steady-state abundances $N_i^*$. For structurally zero size classes, this division by zero causes floating-point overflow (`Inf` or `NaN`), breaking standard eigenvalue solvers. Therefore, `getStability()` numerically computes the well-conditioned absolute Jacobian $L$ (using the multiplicative-scale finite difference) and relies on the similarity equivalence to guarantee the correct result.
