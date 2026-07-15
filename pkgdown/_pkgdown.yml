@@ -97,6 +97,38 @@ articles:
   - plotting
 
 reference:
+- title: "Overview: the mizer workflow"
+  description: |
+    mizer builds and simulates dynamic, size-structured models of fish
+    communities. Building and using a model follows five stages, and the
+    reference sections below are organised in roughly this order:
+
+    1. **Create** a model from species and gear parameters, starting with
+       [`newMultispeciesParams()`](newMultispeciesParams.html) or one of the
+       simpler [`newCommunityParams()`](newCommunityParams.html),
+       [`newTraitParams()`](newTraitParams.html) and
+       [`newSingleSpeciesParams()`](newSingleSpeciesParams.html).
+    2. **Calibrate the steady state** so that growth, biomass and yield match
+       observations, with [`matchGrowth()`](matchGrowth.html),
+       [`calibrateBiomass()`](calibrateBiomass.html),
+       [`matchBiomasses()`](matchBiomasses.html) and [`steady()`](steady.html).
+    3. **Tune the dynamics** so the model responds realistically to
+       perturbations away from the steady state, with
+       [`setBevertonHolt()`](setBevertonHolt.html) and
+       [`setResource()`](setResource.html).
+    4. **Project** the model forward in time under a fishing scenario, with
+       [`project()`](project.html).
+    5. **Analyse and plot** the results, with summary functions such as
+       [`getBiomass()`](getBiomass.html) and [`getYield()`](getYield.html) and
+       plots such as [`plotBiomass()`](plotBiomass.html) and
+       [`plotSpectra()`](plotSpectra.html).
+
+    New users should start with the
+    [Get started guide](https://sizespectrum.org/mizer/articles/mizer.html) and
+    the topic [cheat sheets](https://sizespectrum.org/mizer/articles/index.html),
+    or open the package overview page below.
+  contents:
+  - mizer-package
 - title: Creating a new model
   description: Mizer allows the easy set-up of four different types of models,
     of increasing level of complexity. See
@@ -135,11 +167,23 @@ reference:
   - use_predation_diffusion
   - second_order_w
 - title: Steady state tuning
-  description: The first task after creating a multi-species model is to tune
+  description: >
+    The first task after creating a multi-species model is to tune
     the model parameters so that in its steady state the model reproduces
     average observed growth rates, abundances and fisheries yields. The
     [Model setup and calibration cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html)
     walks through this calibration workflow.
+
+
+    Two families of functions rescale abundances to match observations.
+    The `calibrate...()` functions apply a single overall scaling factor to
+    the whole model, whereas the `match...()` functions rescale each species
+    individually. Within each family, the `...Biomass` variant matches
+    observed biomasses (a `biomass_observed` column in the species parameters)
+    while the `...Number` variant matches observed numbers
+    (a `number_observed` column). Use `matchGrowth()` to match observed
+    von Bertalanffy growth, and the `plot...ObservedVsModel()` functions to
+    see how well the current model reproduces the observations.
   contents:
   - steady
   - steadySingleSpecies
@@ -196,8 +240,21 @@ reference:
   - getFeedingLevel
   - getCriticalFeedingLevel
 - title: Calculating rates
-  description: Calculate instantaneous ecological rates from a `MizerParams`
+  description: >
+    Calculate instantaneous ecological rates from a `MizerParams`
     object, such as encounter rate, predation mortality, or somatic growth rate.
+
+
+    For readers coming from single-species fisheries assessment, mizer's fish
+    mortality rates map onto the standard notation as follows: predation
+    mortality `getPredMort()` is the multi-species analogue of *M2*, external
+    mortality `getExtMort()` is the residual natural mortality not resolved by
+    the model, fishing mortality `getFMort()` is *F*, and the total mortality
+    `getMort()` is *Z*, the sum of all of these. The older names `getM2()` and
+    `getZ()` are retained as deprecated aliases for `getPredMort()` and
+    `getMort()`. Note that `getResourceMort()` is different in kind: it is the
+    predation mortality imposed by fish *on the background resource* spectrum,
+    not a component of fish mortality (its deprecated alias is `getM2Background()`).
   contents:
   - getRates
   - has_concept("rate functions")
@@ -208,10 +265,21 @@ reference:
   - indicator_functions
   - has_concept("functions for calculating indicators")
 - title: Plotting results
-  description: Visualise size spectra, biomass and yield trajectories, growth
+  description: >
+    Visualise size spectra, biomass and yield trajectories, growth
     curves, and comparisons of model output with observations. See the
     [Analysis and plotting cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html)
     for a quick reference.
+
+
+    Several plots come in related variants. A plain plot such as
+    `plotSpectra()` shows a single model or simulation. The `...2` variants
+    (`plotSpectra2()`, `plotCDF2()`) overlay **two** objects in one figure so
+    you can compare them, and the `...Relative` variants
+    (`plotSpectraRelative()`) show the ratio between two objects. The
+    `...ObservedVsModel` functions compare model output against observed data.
+    Most `plot...()` functions have a matching `get...()` accessor that returns
+    the underlying data frame if you would rather build the plot yourself.
   contents:
   - plotting_functions
   - plot
@@ -311,7 +379,6 @@ reference:
   description: The S4 and S3 classes used by mizer, together with functions for
     constructing, inspecting, comparing, and validating them.
   contents:
-  - mizer-package
   - MizerParams-class
   - summary.MizerParams
   - str.MizerParams

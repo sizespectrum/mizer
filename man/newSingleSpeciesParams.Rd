@@ -138,7 +138,14 @@ maximum abundance is half the background abundance at the corresponding
 size, and \code{erepro} is then adjusted so the initial state satisfies the egg
 boundary condition.
 
-The diffusion rate is set to \code{0}
+The diffusion rate is set to \code{0}. Because growth is therefore deterministic,
+no individual grows beyond \code{w_repro_max}, the size at which all available
+energy is invested into reproduction. The upper boundary of the size grid is
+therefore placed at that size, so that \code{w_max = w_repro_max}, instead of the
+\code{1.5 * w_repro_max} headroom that \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} leaves to
+accommodate the stochastic growth produced by diffusion. This choice will be
+revisited once these constructors gain a diffusion parameter, see
+\url{https://github.com/sizespectrum/mizer/issues/339}.
 }
 \examples{
 params <- newSingleSpeciesParams()

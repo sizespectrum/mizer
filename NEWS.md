@@ -1,5 +1,27 @@
 # mizer 3.1.0.9000 (development version)
 
+- The reference index on the website now opens with an "Overview: the mizer
+  workflow" section that frames the whole page as a five-stage pipeline (create →
+  calibrate → tune dynamics → project → analyse) with links to the key function
+  in each stage, so readers can see how the sections below fit together.
+
+- The reference index on the website now explains the differences between related
+  families of functions. It disambiguates the `calibrate...()`/`match...()` and
+  `...Biomass`/`...Number` calibration functions and the `plot...()` variants
+  (`...2`, `...Relative`, `...ObservedVsModel`), and maps mizer's mortality-rate
+  names onto the standard fisheries notation (*M2*, *F*, *Z*).
+
+- Error messages that referred to `w_max` as a species' "maximum size" now
+  correctly describe it as the upper size-grid boundary, consistent with `w_max`
+  being a purely computational parameter.
+
+- `newSingleSpeciesParams()`, `newTraitParams()` and `newCommunityParams()` now
+  document why they place the size-grid boundary at the maximum size
+  (`w_max = w_repro_max`): because they do not yet set up stochastic growth by
+  diffusion, no individual grows beyond `w_repro_max`, so no headroom above it is
+  needed. This will be revisited when the constructors gain a diffusion parameter
+  (#339).
+
 - Assigning to `resource_params()` no longer balances the resource. It now only
   rebuilds the size-dependent rate (`rr_pp`) and capacity (`cc_pp`) arrays from
   the scalars, leaving any manually set (frozen) arrays untouched, exactly as
