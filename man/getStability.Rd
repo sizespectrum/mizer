@@ -8,7 +8,7 @@ getStability(
   params,
   reproduction = c("fixed", "dynamic"),
   effort = params@initial_effort,
-  include_resource = TRUE,
+  include_resource = FALSE,
   extinction_floor = 1e-06,
   h = 1e-04
 )
