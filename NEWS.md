@@ -1,12 +1,15 @@
 # mizer 3.1.0.9000 (development version)
 
-- The default for the metabolic exponent `p` is now `n` in `setMetabolicRate()`,
-  which is the only place that sets it. Previously there were two disagreeing
-  defaults: `validSpeciesParams()` set `p = n` and `setMetabolicRate()` set
-  `p = 3/4`. The former always ran first, so `p = n` is the value models have
-  been getting all along and no model changes as a result. The stale `3/4` was
-  only reachable by removing the `p` column from an existing `MizerParams`
-  object and calling `setMetabolicRate()` on it; that now also gives `p = n`.
+- The default for the metabolic exponent `p` is now `n` rather than `3/4` in
+  `setMetabolicRate()`, which is where the default now lives;
+  `validSpeciesParams()` no longer sets `p`. No model changes as a result.
+  Models built with `newMultispeciesParams()` take `p` from its own `p`
+  argument (default `0.7`), which is injected into the species parameter table
+  before validation and is untouched by this change, so neither of these
+  defaults fires for them. The `validSpeciesParams()` default (`p = n`) only
+  ever applied when it was called directly on a bare species parameter data
+  frame, which now returns no `p` column, and it shadowed the
+  `setMetabolicRate()` default whenever both were in play.
 
 - Each species parameter default now has a single home: the rate-setting
   function that uses the parameter. `validSpeciesParams()` now only fills in
