@@ -615,11 +615,12 @@ params_changed_maturity <- params
 ```
 
 In this copy we now change the species parameters. We do this with
-`given_species_params()` rather than with `species_params()`. The
-difference is that `given_species_params()` holds only the values that
-*you* have supplied, and changing one of them triggers mizer to
-recalculate any other parameters that are derived from it. So this is the
-safe way to change input parameters.
+`given_species_params()` rather than with `species_params()`. Both
+would work and trigger a recalculation of any other parameters that are
+derived from the changed parameters. The difference is that
+`given_species_params()` is particularly helpful during interactive use
+because it issues warnings if you try to change a parameter whose effect
+is overridden by another parameter.
 
 ```{r}
 given_species_params(params_changed_maturity)$w_mat <- 40
