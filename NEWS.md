@@ -1,5 +1,16 @@
 # mizer 3.1.0.9000 (development version)
 
+- The "Getting started" guide now includes a self-contained "A worked example:
+  the Celtic Sea" section that takes a real ecosystem from raw species parameters
+  through building, finding the steady state, calibrating to observed biomasses
+  and growth, checking against observed yields, setting the resilience to
+  fishing, and projecting a fishing scenario whose sustainable-yield curve is
+  interpreted — the whole mizer workflow in one place (#450).
+
+- The first example in the "Getting started" guide no longer prints the
+  parameter-default notes from `newMultispeciesParams()`, which were alarming to
+  new users out of context (#450).
+
 - The `p` argument of `setMetabolicRate()` is deprecated (#459). It never had
   any effect on a `MizerParams` object: such an object always has a `p` column
   already, and the argument was only ever used to fill in a missing one, so it
