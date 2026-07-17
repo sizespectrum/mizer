@@ -165,8 +165,9 @@ test_that("calculated_species_params returns only non-given values", {
     params <- NS_params_small
 
     calculated <- calculated_species_params(params)
-    expect_false("species" %in% names(calculated))
-    expect_true(all(vapply(calculated, function(col) !all(is.na(col)), logical(1))))
+    expect_true("species" %in% names(calculated))
+    expect_identical(names(calculated)[1], "species")
+    expect_true(all(vapply(calculated[, -1, drop = FALSE], function(col) !all(is.na(col)), logical(1))))
 
     given_species_params(params)$gamma <- NULL
     calculated <- calculated_species_params(params)

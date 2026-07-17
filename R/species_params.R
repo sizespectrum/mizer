@@ -612,6 +612,9 @@ calculated_species_params <- function(params) {
     # Removing columns that only contain NAs
     calculated <- calculated %>%
         select(where(~ !all(is.na(.))))
+    
+    calculated$species <- params@species_params$species
+    calculated <- calculated[, c("species", setdiff(names(calculated), "species")), drop = FALSE]
 
     return(calculated)
 }
