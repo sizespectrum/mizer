@@ -1,5 +1,12 @@
 # mizer 3.1.0.9000 (development version)
 
+- Mis-spelled column names in the `gear_params` and `species_params` data frames
+  are now detected by fuzzy matching against the recognised parameter names. A
+  near miss such as `sel_fun` (instead of `sel_func`) triggers a warning that
+  suggests the intended name, rather than being silently ignored (#442). Columns
+  are only flagged, never renamed, so legitimate custom columns are left
+  untouched.
+  
 - `compareParams()` now checks that the number of size bins, species and gears
   agree before comparing the array-valued slots. When they differ it reports the
   mismatch instead of erroring while trying to compare arrays of incompatible
