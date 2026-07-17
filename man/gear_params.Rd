@@ -16,6 +16,8 @@ gear_params(object) <- value
 }
 \arguments{
 \item{object}{A MizerParams object, a MizerSim object or a data frame}
+
+\item{value}{A data frame with the new gear parameters.}
 }
 \value{
 Data frame with gear parameters

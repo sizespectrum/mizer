@@ -310,6 +310,7 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
 #' illustrates how this facilitates changing an individual gear parameter.
 #'
 #' @param object A MizerParams object, a MizerSim object or a data frame
+#' @param value A data frame with the new gear parameters.
 #' @return Data frame with gear parameters
 #' @export
 #' @family functions for setting parameters

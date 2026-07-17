@@ -498,8 +498,11 @@ test_that("return_data is identical",{
     expect_equal(dim(plotFMort(sim, species = species,
                                return_data = TRUE)), c(40, 4))
 
+    # 200 rows = 50 ages x 2 species x 2 legends (model + von Bertalanffy);
+    # the von Bertalanffy curve is added because a, b, k_vb and w_inf are all
+    # present (a, b and w_inf are now supplied by default).
     expect_equal(dim(plotGrowthCurves(sim, species = species,
-                                      return_data = TRUE)), c(100,4))
+                                      return_data = TRUE)), c(200,4))
     # the following is not a good test because the size of the returned data
     # frame is machine dependent due to the selection of only results above a
     # certain threshold.

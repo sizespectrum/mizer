@@ -140,6 +140,8 @@
 #' MizerParams object, in case your own code makes use of them.
 #'
 #' @param object A MizerParams object, a MizerSim object or a data frame
+#' @param params A MizerParams object.
+#' @param value A data frame with the new species parameters.
 #' @param ... Other arguments passed to S3 methods (such as `strict`).
 #' @return `species_params()`: Data frame containing all species parameters
 #'   currently stored in the model.
@@ -170,14 +172,14 @@ species_params <- function(object, ...) {
 #' @rdname species_params
 #' @usage NULL
 #' @export
-species_params.MizerParams <- function(object) {
+species_params.MizerParams <- function(object, ...) {
     object@species_params
 }
 
 #' @rdname species_params
 #' @usage NULL
 #' @export
-species_params.MizerSim <- function(object) {
+species_params.MizerSim <- function(object, ...) {
     object@params@species_params
 }
 
@@ -252,7 +254,16 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     }
     
     object@given_species_params <- given
-    object@species_params <- validSpeciesParams(given)
+    new_sp <- validSpeciesParams(given)
+    # Preserve any columns that were present in the supplied species params but
+    # are not tracked in `given_species_params` (for example parameters set
+    # directly on the `@species_params` slot) and are therefore not regenerated
+    # when rebuilding from `given_species_params`.
+    extra_cols <- setdiff(names(value), names(new_sp))
+    for (col in extra_cols) {
+        new_sp[[col]] <- value[[col]]
+    }
+    object@species_params <- new_sp
     return(suppressMessages(setParams(object)))
 }
 
@@ -439,14 +450,14 @@ given_species_params <- function(object, ...) {
 #' @rdname species_params
 #' @usage NULL
 #' @export
-given_species_params.MizerParams <- function(object) {
+given_species_params.MizerParams <- function(object, ...) {
     object@given_species_params
 }
 
 #' @rdname species_params
 #' @usage NULL
 #' @export
-given_species_params.MizerSim <- function(object) {
+given_species_params.MizerSim <- function(object, ...) {
     object@params@given_species_params
 }
 
@@ -495,11 +506,11 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
     if (!("w_inf" %in% names(sp))) {
         if ("w_repro_max" %in% names(sp)) {
             sp$w_inf <- sp$w_repro_max
-            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_repro_max` column instead. Note that `w_inf`, the von Bertalanffy asymptotic size, is now the preferred parameter for specifying the maximum size.",
+            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_repro_max` column instead.",
                    class = "info_about_default", var = "w_inf", level = 1)
         } else if ("w_max" %in% names(sp)) {
             sp$w_inf <- sp$w_max
-            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_max` column instead. Note that `w_inf`, the von Bertalanffy asymptotic size, is now the preferred parameter for specifying the maximum size, whereas `w_max` is only a computational boundary.",
+            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_max` column instead. ",
                    class = "info_about_default", var = "w_inf", level = 1)
         } else if (strict) {
             stop("You need to specify the asymptotic size `w_inf` for all species.")
@@ -737,7 +748,7 @@ set_species_param_default <- function(object, parname, default,
 #' If no growth information is given at all for a species, the default is set
 #' to `h = 30`.
 #'
-#' @param params A MizerParams object or a species parameter data frame
+#' @param object A MizerParams object or a species parameter data frame
 #' @return A vector with the values of h for all species
 #' @export
 #' @keywords internal

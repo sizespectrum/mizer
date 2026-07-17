@@ -10,7 +10,7 @@
 get_h_default(object)
 }
 \arguments{
-\item{params}{A MizerParams object or a species parameter data frame}
+\item{object}{A MizerParams object or a species parameter data frame}
 }
 \value{
 A vector with the values of h for all species

@@ -32,6 +32,10 @@ calculated_species_params(params)
 \item{object}{A MizerParams object, a MizerSim object or a data frame}
 
 \item{...}{Other arguments passed to S3 methods (such as \code{strict}).}
+
+\item{value}{A data frame with the new species parameters.}
+
+\item{params}{A MizerParams object.}
 }
 \value{
 \code{species_params()}: Data frame containing all species parameters
