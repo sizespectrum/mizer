@@ -1,5 +1,25 @@
 # mizer 3.1.0.9000 (development version)
 
+- The default for the metabolic exponent `p` is now `n` in `setMetabolicRate()`,
+  which is the only place that sets it. Previously there were two disagreeing
+  defaults: `validSpeciesParams()` set `p = n` and `setMetabolicRate()` set
+  `p = 3/4`. The former always ran first, so `p = n` is the value models have
+  been getting all along and no model changes as a result. The stale `3/4` was
+  only reachable by removing the `p` column from an existing `MizerParams`
+  object and calling `setMetabolicRate()` on it; that now also gives `p = n`.
+
+- Each species parameter default now has a single home: the rate-setting
+  function that uses the parameter. `validSpeciesParams()` now only fills in
+  defaults for parameters that no single rate setter owns, namely `w_max`,
+  `w_repro_max`, `w_mat`, `w_min`, `alpha`, `n`, `a`, `b` and `is_background`.
+  The defaults for `p`, `k`, `z_ext`, `d`, `E_ext`, `D_ext` and
+  `interaction_resource` are supplied by `setMetabolicRate()`, `setExtMort()`,
+  `setExtEncounter()`, `setExtDiffusion()` and `setInteraction()` respectively,
+  where they were already being set. Built models are unaffected, because
+  `setParams()` calls all the rate-setting functions, but
+  `validSpeciesParams()` applied to a bare species parameter data frame now
+  returns fewer columns. See the `default_parameters` vignette.
+
 - `compareParams()` now checks that the number of size bins, species and gears
   agree before comparing the array-valued slots. When they differ it reports the
   mismatch instead of erroring while trying to compare arrays of incompatible

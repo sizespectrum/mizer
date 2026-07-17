@@ -66,13 +66,25 @@ test_that("Can get and set metab slot", {
 })
 
 test_that("setMetabolicRate uses the documented defaults and validates inputs", {
+    # `p` defaults to `n`. NS_params_small has n = 2/3, so this also pins that
+    # the default tracks `n` rather than a hardcoded 3/4.
     params <- NS_params_small
     params@species_params$p[] <- NA
     params <- setMetabolicRate(params)
-    expect_identical(species_params(params)$p, rep(3 / 4, nrow(species_params(params))),
-                     ignore_attr = TRUE)
+    expect_equal(species_params(params)$p, species_params(params)$n,
+                 ignore_attr = TRUE)
 
     expect_error(setMetabolicRate(NS_params_small, p = "x"), "p must be numeric")
+
+    # The default must not depend on how the model was reached: filling `p`
+    # via a standalone setter call must agree with the construction path.
+    sp <- data.frame(species = c("a", "b"), w_inf = c(100, 200), n = 0.7)
+    params <- suppressMessages(newMultispeciesParams(sp))
+    expect_equal(species_params(params)$p, c(0.7, 0.7), ignore_attr = TRUE)
+
+    params@species_params$p[] <- NA
+    params <- suppressMessages(setMetabolicRate(params))
+    expect_equal(species_params(params)$p, c(0.7, 0.7), ignore_attr = TRUE)
 
     new <- metab(NS_params_small)
     bad_names <- new

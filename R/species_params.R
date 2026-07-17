@@ -195,15 +195,13 @@ species_params.data.frame <- function(object, strict = FALSE, ...) {
         sp <- set_species_param_default(sp, "w_repro_max", sp$w_inf)
         sp <- set_species_param_default(sp, "w_mat", sp$w_inf / 4)
     }
+    # Only parameters that no single rate setter owns are defaulted here. A
+    # parameter that exactly one `setX()` function reads is defaulted by that
+    # function instead, so that each default has a single home. See the
+    # "Where defaults live" section of the `default_parameters` vignette.
     sp <- set_species_param_default(sp, "w_min", 0.001)
     sp <- set_species_param_default(sp, "alpha", 0.6)
-    sp <- set_species_param_default(sp, "interaction_resource", 1)
     sp <- set_species_param_default(sp, "n", 3/4)
-    sp <- set_species_param_default(sp, "p", sp$n)
-    sp <- set_species_param_default(sp, "z_ext", 0)
-    sp <- set_species_param_default(sp, "d", sp$n - 1)
-    sp <- set_species_param_default(sp, "E_ext", 0)
-    sp <- set_species_param_default(sp, "D_ext", 0)
     sp <- set_species_param_default(sp, "is_background", FALSE)
     sp <- set_species_param_default(sp, "a", 0.01)
     sp <- set_species_param_default(sp, "b", 3)

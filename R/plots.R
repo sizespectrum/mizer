@@ -2930,8 +2930,6 @@ plot_growth_curves <- function(params, species,
             stop("The size at age data frame needs to have either a 'length' or a 'weight' column.")
         }
         if (!"weight" %in% names(size_at_age)) {
-            sp <- set_species_param_default(sp, "a", 0.004, message = "Using a = 0.004 for missing weight-length conversion parameters.")
-            sp <- set_species_param_default(sp, "b", 3, message = "Using b = 3 for missing weight-length conversion parameters.")
             size_at_age <- left_join(size_at_age, select(sp, species, a, b),
                                      by = "species")
             size_at_age$weight <- size_at_age$a * size_at_age$length ^ size_at_age$b
