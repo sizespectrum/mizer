@@ -19,9 +19,9 @@ library(mizer)
 
 A key design feature of the `mizer` package is that a multi-species size-spectrum model can be set up using only a small amount of information. This is possible because `mizer` uses **allometric scaling relations** and **size-based feeding rules** to choose sensible default values for parameters that are not explicitly provided by the user.
 
-For example, to set up a model using the `newMultispeciesParams()` function, the user only *needs* to provide the von Bertalanffy asymptotic sizes ($w_{\infty}$) for the species in the community. Almost all other physiological, ecological, and mortality parameters can be automatically filled in using defaults. (See the section on [maximum-size parameters](#maximum-size-parameters) below for the distinction between $w_{\infty}$, $w_{\text{repro\_max}}$ and $w_{\text{max}}$.)
+For example, to set up a model using the `newMultispeciesParams()` function, the user only *needs* to provide the von Bertalanffy asymptotic sizes ($w_{\infty}$) for the species in the community. Almost all other physiological, ecological, and mortality parameters can be automatically filled in using defaults. (See the section on [maximum-size parameters](#maximum-size-parameters) below for the distinction between $w_{\infty}$, $w_{\text{repro_max}}$ and $w_{\text{max}}$.)
 
-This vignette details the philosophy, the relationships, and the mathematical derivations behind the default parameter values calculated by `mizer`. For a description of the model equations themselves, see the [vignette on the model description](model_description.html).
+This vignette details the philosophy, the relationships, and the mathematical derivations behind the default parameter values calculated by `mizer`. For a description of the model equations themselves, see [The General Mizer Size-spectrum Model](model_description.html).
 
 ---
 
@@ -87,25 +87,17 @@ behave differently. For example `z0pre` and `z0exp` are used to *compute* the
 external mortality parameter `z0`, which therefore appears among the calculated
 parameters rather than the given ones.)
 
-### Changing parameters: `given_species_params<-()` vs. `species_params<-()`
+### Changing parameters: `species_params<-()` vs. `given_species_params<-()`
 
-There are correspondingly two ways to change species parameters, and the
-difference matters:
+There are correspondingly two ways to change species parameters:
 
-* **`given_species_params<-()`** (recommended) records your change as a *given*
-  value and then triggers a recalculation, via `setParams()`, of every
-  calculated parameter and size-dependent rate that depends on it. This is what
-  you almost always want.
-* **`species_params<-()`** overwrites the *full* table directly. It does **not**
-  protect your change: the value you write is not marked as "given", so the very
-  next recalculation (for instance the next time you use
-  `given_species_params<-()`) may overwrite it with a freshly calculated
-  default.
+* **`species_params<-()`** (often preferred in scripts) intelligently detects which values you have changed, records those changes as *given* values (protecting them from being overwritten by defaults), and then silently triggers a recalculation of everything that depends on them.
+* **`given_species_params<-()`** is very useful in interactive use. Like `species_params<-()` it triggers a recalculation of other parameters, but importantly it will warn you when you set a parameter whose effect is overridden by another value you have already given.
 
 For example, in a model where the age at maturity is known, `mizer` derives the
 maximum intake coefficient `h` from it (see the
 ["Dependency Chain"](#the-dependency-chain) below). Changing the size at maturity
-through the given parameters then propagates to `h` (and onward to `gamma` and
+via `species_params<-()` then propagates to `h` (and onward to `gamma` and
 `ks`) automatically:
 
 ```{r message=FALSE, warning=FALSE}
@@ -113,20 +105,19 @@ growing <- newMultispeciesParams(
     data.frame(species = "Cod", w_inf = 5000, age_mat = 5)
 )
 species_params(growing)$h
-given_species_params(growing)$w_mat <- 1000
+# using species_params<-() detects the change and protects it
+species_params(growing)$w_mat <- 1000
 species_params(growing)$h           # recalculated
 ```
 
 After this, `w_mat` has moved from the calculated frame into the given frame of
-`growing`, because you have now supplied it explicitly.
+`growing`, because `species_params<-()` detected that you supplied it explicitly.
 
 A useful consequence of the given/calculated split is that supplying a value
 *switches off* the corresponding default calculation. The
 ["Dependency Chain"](#the-dependency-chain) below shows, for instance, that
 `age_mat` is only used to calculate a default for `h`. If you give `h` directly,
 `age_mat` is ignored; if you give `gamma`, the `f0` value is ignored; and so on.
-`given_species_params<-()` will warn you when you set a parameter whose effect is
-overridden by another value you have already given.
 
 ### `setParams()` and the size-dependent rate arrays
 
@@ -211,7 +202,7 @@ play distinct roles. Keeping them separate avoids a lot of confusion.
   defaults to `1.5 * w_inf`.
 
 A typical (but not enforced) ordering is therefore
-$w_{\text{mat}} < w_{\infty} \approx w_{\text{repro\_max}} \le w_{\text{max}}$.
+$w_{\text{mat}} < w_{\infty} \approx w_{\text{repro_max}} \le w_{\text{max}}$.
 
 For backwards compatibility, if you supply `w_max` (or `w_repro_max`) but not
 `w_inf`, then `w_inf` is taken from those columns and an informational message is

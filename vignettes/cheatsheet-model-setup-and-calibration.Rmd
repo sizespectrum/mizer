@@ -20,7 +20,7 @@ links.
 
 Every setter function returns a **new** `MizerParams` object, so always reassign
 the result (`params <- steady(params)`). Change species parameters through
-[`given_species_params(params) <-`](../reference/species_params.html) so that
+[`species_params(params) <-`](../reference/species_params.html) so that
 dependent quantities are recalculated.
 
 ---

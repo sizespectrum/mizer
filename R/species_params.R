@@ -30,13 +30,11 @@
 #' `calculated_species_params()`. You get all species_params with
 #' `species_params()`.
 #'
-#' If you change given species parameters with `given_species_params<-()` this
-#' will trigger a re-calculation of the calculated species parameters, where
-#' necessary. However if you change species parameters with `species_params<-()`
-#' no recalculation will take place and furthermore your values could be
-#' overwritten by a future recalculation triggered by a call to
-#' `given_species_params<-()` . So in most use cases you will only want to use
-#' `given_species_params<-()`.
+#' When you change species parameters with `species_params<-()`, mizer
+#' automatically detects which parameters you have changed. It records these
+#' changed parameters in `given_species_params` so that they are protected
+#' against being overwritten by future recalculations. It then triggers a
+#' re-calculation of the calculated species parameters.
 #'
 #' There are some species parameters that are used to set up the
 #' size-dependent parameters that are used in the mizer model:
@@ -61,7 +59,7 @@
 #'   using other predation kernel functions.
 #'
 #' When you change one of the above species parameters using
-#' `given_species_params<-()` or `species_params<-()`, the new value will be
+#' `species_params<-()` or `given_species_params<-()`, the new value will be
 #' used to update the corresponding size-dependent rates automatically, unless
 #' you have set those size-dependent rates manually, in which case the
 #' corresponding species parameters will be ignored.
@@ -108,12 +106,9 @@
 #'   `k_vb`, `w_inf` and `t0` as well as the weight-length exponent `b` to
 #'   determine it. This is unreliable and is therefore not recommended.
 #'
-#' Changing these parameters with `species_params<-()` updates the stored
-#' species parameter table and triggers a recalculation via [setParams()].
-#' However they only affect model behaviour if the corresponding downstream
-#' parameters are recalculated rather than kept at explicitly supplied values.
-#' In typical workflows these quantities should therefore be changed via
-#' `given_species_params<-()`.
+#' Changing these parameters with `species_params<-()` will trigger a
+#' recalculation of the downstream parameters, provided they are not protected
+#' by being explicitly given.
 #'
 #' There are other species parameters that are used in tuning the model to
 #' observations:
@@ -149,17 +144,18 @@
 #' @return `species_params()`: Data frame containing all species parameters
 #'   currently stored in the model.
 #'
-#'   `species_params<-()`: Updates the full species parameter table after
-#'   validating it with [validSpeciesParams()] and then recalculating the model
-#'   parameters with [setParams()].
+#'   `species_params<-()`: Updates the `given_species_params` with any
+#'   parameters you have changed, and then recalculates the full species
+#'   parameter table and the model parameters.
 #'
 #'   `given_species_params()`: Data frame containing the species parameter
 #'   values that were supplied explicitly by the user.
 #'
-#'   `given_species_params<-()`: Updates the explicitly supplied species
-#'   parameters after validating them with [validGivenSpeciesParams()] and then
-#'   recalculating the full species parameter table and dependent model
-#'   quantities.
+#'   `given_species_params<-()`: An alternative to `species_params<-()` that
+#'   also triggers a recalculation of other parameters. The only difference is
+#'   that `given_species_params<-()` issues warnings when a parameter is
+#'   changed whose effect is overridden by another parameter that has already
+#'   been given. This is especially useful during interactive use.
 #'
 #'   `calculated_species_params()`: Data frame containing only those species
 #'   parameter entries that are not explicit user input. Columns that would
@@ -230,8 +226,34 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     if (!all(value$species == object@species_params$species)) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")
     }
-    object@species_params <- value
-    suppressMessages(setParams(object))
+    
+    # Find what changed compared to old species_params
+    old_sp <- object@species_params
+    given <- object@given_species_params
+    
+    common_cols <- intersect(names(value), names(old_sp))
+    for (col in common_cols) {
+        old_vals <- old_sp[[col]]
+        new_vals <- value[[col]]
+        # which ones changed?
+        changed <- !((old_vals == new_vals) | (is.na(old_vals) & is.na(new_vals)))
+        changed[is.na(changed)] <- TRUE
+        
+        if (any(changed)) {
+            if (!col %in% names(given)) {
+                given[[col]] <- NA
+            }
+            given[[col]][changed] <- new_vals[changed]
+        }
+    }
+    new_cols <- setdiff(names(value), names(old_sp))
+    if (length(new_cols) > 0) {
+        given <- cbind(given, value[new_cols])
+    }
+    
+    object@given_species_params <- given
+    object@species_params <- validSpeciesParams(given)
+    return(suppressMessages(setParams(object)))
 }
 
 #' Test if an object is a species_params object
@@ -243,19 +265,51 @@ is.species_params <- function(x) {
     inherits(x, "species_params")
 }
 
+# Recognised species_params column names, used by check_for_misspellings() to
+# flag likely typos. This is not an exhaustive list of every possible column
+# (users may add custom columns), but covers the standard parameters so that a
+# near miss can be detected. Grouped roughly by purpose.
+known_species_params_columns <- function() {
+    c(# identity and sizes
+      "species", "w_max", "w_mat", "w_mat25", "w_min", "w_inf",
+      "w_repro_max", "w_min_idx",
+      # length-based equivalents and length-weight parameters
+      "l_max", "l_mat", "l_mat25", "l_min", "l_inf", "l_repro_max", "a", "b",
+      # von Bertalanffy growth
+      "k_vb", "t0", "age_mat",
+      # physiology
+      "h", "k", "ks", "gamma", "alpha", "beta", "sigma",
+      "n", "p", "q", "m", "z0", "fc", "f0", "erepro",
+      "d", "z_ext", "D_ext", "E_ext",
+      # reproduction
+      "R_max", "r_max", "constant_recruitment", "constant_reproduction",
+      "ricker_b", "sheperd_b", "sheperd_c",
+      # predation kernel
+      "pred_kernel_type", "kernel_exp", "kernel_l_l", "kernel_u_l",
+      "kernel_l_r", "kernel_u_r", "ppmr_min", "ppmr_max",
+      # fishing
+      "gear", "sel_func", "catchability", "knife_edge_size",
+      "yield_observed", "catch_observed",
+      # interactions
+      "interaction_resource", "interaction_p",
+      # observations
+      "biomass_observed", "biomass_cutoff", "number_observed", "number_cutoff",
+      # flags and plotting
+      "is_background", "linecolour", "linetype", "legend_name")
+}
+
+# Familiar abbreviations / capitalisation mistakes that should always be flagged
+# even when further than the fuzzy-match threshold from a recognised name.
+curated_species_params_misspellings <- function() {
+    c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
+      "Species", "Gamma", "Beta", "Sigma", "Alpha",
+      "W_min", "W_max", "W_mat", "e_repro", "Age_mat", "w_max_mat")
+}
+
 check_and_convert_species_params <- function(x) {
-    # Check for misspellings
-    misspellings <- c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
-                      "Species", "Gamma", "Beta", "Sigma", "Alpha",
-                      "W_min", "W_max", "W_mat", "e_repro", "Age_mat",
-                      "w_max_mat")
-    query <- intersect(misspellings, names(x))
-    if (length(query) > 0) {
-        warning("Some column names in your species parameter data ",
-                "frame are very close to standard parameter names: ",
-                paste(query, collapse = ", "),
-                ". Did you perhaps mis-spell the names?")
-    }
+    check_for_misspellings(names(x), known_species_params_columns(),
+                           "species parameter",
+                           curated_species_params_misspellings())
 
     # Auto convert length to weight if allometric parameters exist
     if (all(c("a", "b") %in% names(x))) {
@@ -403,19 +457,10 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
     assert_that(is.data.frame(object))
     # Convert a tibble back to an ordinary data frame
     sp <- as.data.frame(object, stringsAsFactors = FALSE)
-
-    # Check for misspellings
-    misspellings <- c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
-                      "Species", "Gamma", "Beta", "Sigma", "Alpha",
-                      "W_min", "W_max", "W_mat", "e_repro", "Age_mat",
-                      "w_max_mat")
-    query <- intersect(misspellings, names(sp))
-    if (length(query) > 0) {
-        warning("Some column names in your species parameter data ",
-                "frame are very close to standard parameter names: ",
-                paste(query, collapse = ", "),
-                ". Did you perhaps mis-spell the names?")
-    }
+    
+    check_for_misspellings(names(sp), known_species_params_columns(),
+                           "species parameter",
+                           curated_species_params_misspellings())
 
     # check species
     if (!("species" %in% colnames(sp))) {

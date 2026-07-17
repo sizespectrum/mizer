@@ -37,17 +37,18 @@ calculated_species_params(params)
 \code{species_params()}: Data frame containing all species parameters
 currently stored in the model.
 
-\verb{species_params<-()}: Updates the full species parameter table after
-validating it with \code{\link[=validSpeciesParams]{validSpeciesParams()}} and then recalculating the model
-parameters with \code{\link[=setParams]{setParams()}}.
+\verb{species_params<-()}: Updates the \code{given_species_params} with any
+parameters you have changed, and then recalculates the full species
+parameter table and the model parameters.
 
 \code{given_species_params()}: Data frame containing the species parameter
 values that were supplied explicitly by the user.
 
-\verb{given_species_params<-()}: Updates the explicitly supplied species
-parameters after validating them with \code{\link[=validGivenSpeciesParams]{validGivenSpeciesParams()}} and then
-recalculating the full species parameter table and dependent model
-quantities.
+\verb{given_species_params<-()}: An alternative to \verb{species_params<-()} that
+also triggers a recalculation of other parameters. The only difference is
+that \verb{given_species_params<-()} issues warnings when a parameter is
+changed whose effect is overridden by another parameter that has already
+been given. This is especially useful during interactive use.
 
 \code{calculated_species_params()}: Data frame containing only those species
 parameter entries that are not explicit user input. Columns that would
@@ -85,13 +86,11 @@ set to default values. You can retrieve the given species parameters with
 \code{calculated_species_params()}. You get all species_params with
 \code{species_params()}.
 
-If you change given species parameters with \verb{given_species_params<-()} this
-will trigger a re-calculation of the calculated species parameters, where
-necessary. However if you change species parameters with \verb{species_params<-()}
-no recalculation will take place and furthermore your values could be
-overwritten by a future recalculation triggered by a call to
-\verb{given_species_params<-()} . So in most use cases you will only want to use
-\verb{given_species_params<-()}.
+When you change species parameters with \verb{species_params<-()}, mizer
+automatically detects which parameters you have changed. It records these
+changed parameters in \code{given_species_params} so that they are protected
+against being overwritten by future recalculations. It then triggers a
+re-calculation of the calculated species parameters.
 
 There are some species parameters that are used to set up the
 size-dependent parameters that are used in the mizer model:
@@ -117,7 +116,7 @@ using other predation kernel functions.
 }
 
 When you change one of the above species parameters using
-\verb{given_species_params<-()} or \verb{species_params<-()}, the new value will be
+\verb{species_params<-()} or \verb{given_species_params<-()}, the new value will be
 used to update the corresponding size-dependent rates automatically, unless
 you have set those size-dependent rates manually, in which case the
 corresponding species parameters will be ignored.
@@ -167,12 +166,9 @@ the coefficient \code{h} of the maximum intake rate, see \code{\link[=get_h_defa
 determine it. This is unreliable and is therefore not recommended.
 }
 
-Changing these parameters with \verb{species_params<-()} updates the stored
-species parameter table and triggers a recalculation via \code{\link[=setParams]{setParams()}}.
-However they only affect model behaviour if the corresponding downstream
-parameters are recalculated rather than kept at explicitly supplied values.
-In typical workflows these quantities should therefore be changed via
-\verb{given_species_params<-()}.
+Changing these parameters with \verb{species_params<-()} will trigger a
+recalculation of the downstream parameters, provided they are not protected
+by being explicitly given.
 
 There are other species parameters that are used in tuning the model to
 observations:
