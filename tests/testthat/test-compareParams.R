@@ -56,3 +56,26 @@ test_that("compareParams", {
   expect_true("The community size bins differ." %in%
                   compareParams(params, params2))
 })
+
+test_that("compareParams reports mismatched species and gear counts", {
+  local_reproducible_output()
+  sink(nullfile())
+  on.exit(sink(), add = TRUE, after = FALSE)
+  params <- NS_params_small
+
+  # Different number of species: report the count difference and the extra
+  # species, but do not try to compare the incompatible arrays.
+  params_fewer <- removeSpecies(params, species_params(params)$species[[1]])
+  result <- compareParams(params, params_fewer)
+  expect_true("The number of species is different." %in% result)
+  expect_true(any(startsWith(result, "params1 has the following additional species:")))
+  expect_false(any(startsWith(result, "The metab slots do not agree")))
+  # Identical messages are not repeated
+  expect_equal(anyDuplicated(result), 0L)
+
+  # Different number of gears
+  params_gears <- params
+  gear_params(params_gears)$gear <- "single"
+  expect_true("The number of gears is different." %in%
+                  compareParams(params, params_gears))
+})

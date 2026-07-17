@@ -6,6 +6,13 @@
   suggests the intended name, rather than being silently ignored (#442). Columns
   are only flagged, never renamed, so legitimate custom columns are left
   untouched.
+  
+- `compareParams()` now checks that the number of size bins, species and gears
+  agree before comparing the array-valued slots. When they differ it reports the
+  mismatch instead of erroring while trying to compare arrays of incompatible
+  dimensions. It also compares the species-parameter tables by matching species
+  and parameters by name, so differing species no longer produce a long list of
+  per-column length mismatches, and duplicated messages are no longer repeated.
 
 - The reference index on the website now opens with an "Overview: the mizer
   workflow" section that frames the whole page as a five-stage pipeline (create →

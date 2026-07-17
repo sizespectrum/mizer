@@ -44,7 +44,8 @@ compareParams.MizerParams <- function(params1, params2, ...) {
     }
 
     # size grid ----
-    if (length(params1@w) != length(params2@w)) {
+    same_w <- length(params1@w) == length(params2@w)
+    if (!same_w) {
         msg <- "The number of community size bins is different."
         result <- c(result, msg)
     } else {
@@ -53,7 +54,8 @@ compareParams.MizerParams <- function(params1, params2, ...) {
             result <- c(result, msg)
         }
     }
-    if (length(params1@w_full) != length(params2@w_full)) {
+    same_w_full <- length(params1@w_full) == length(params2@w_full)
+    if (!same_w_full) {
         msg <- "The number of resource size bins is different."
         result <- c(result, msg)
     } else {
@@ -61,6 +63,29 @@ compareParams.MizerParams <- function(params1, params2, ...) {
             msg <- "The resource size bins differ."
             result <- c(result, msg)
         }
+    }
+
+    # number of species and gears ----
+    same_species <- nrow(params1@species_params) == nrow(params2@species_params)
+    if (!same_species) {
+        msg <- "The number of species is different."
+        result <- c(result, msg)
+    }
+    same_gears <- dim(params1@catchability)[[1]] == dim(params2@catchability)[[1]]
+    if (!same_gears) {
+        msg <- "The number of gears is different."
+        result <- c(result, msg)
+    }
+
+    # If the number of size bins, species or gears differs then the
+    # remaining array-valued slots have incompatible dimensions and cannot be
+    # compared element by element, so we stop here.
+    dims_agree <- same_w && same_w_full && same_species && same_gears
+    if (!dims_agree) {
+        result <- unique(result)
+        cat(result, sep = "\n\n")
+        cat("\n")
+        return(invisible(result))
     }
 
     # other slots ----
@@ -100,6 +125,7 @@ compareParams.MizerParams <- function(params1, params2, ...) {
         cat("No differences\n")
         return(invisible("No differences"))
     }
+    result <- unique(result)
     cat(result, sep = "\n\n")
     cat("\n")
     invisible(result)
@@ -130,33 +156,48 @@ compareSpeciesParams <- function(species_params1,
 
     result <- character()
 
-    # species parameters ----
-    sp_names1 <- names(species_params1)
-    sp_names2 <- names(species_params2)
-    sp_diff1 <- setdiff(sp_names1, sp_names2)
-    if (length(sp_diff1) > 0) {
-        msg <- paste0("params1 has the following additional ",
-                      text, ": ", toString(sp_diff1))
+    # Which species are only in one of the two tables? ----
+    species1 <- rownames(species_params1)
+    species2 <- rownames(species_params2)
+    species_diff1 <- setdiff(species1, species2)
+    if (length(species_diff1) > 0) {
+        msg <- paste0("params1 has the following additional species: ",
+                      toString(species_diff1))
         result <- c(result, msg)
     }
-    sp_diff2 <- setdiff(sp_names2, sp_names1)
-    if (length(sp_diff2) > 0) {
-        msg <- paste0("params2 has the following additional ",
-                      text, ": ", toString(sp_diff2))
+    species_diff2 <- setdiff(species2, species1)
+    if (length(species_diff2) > 0) {
+        msg <- paste0("params2 has the following additional species: ",
+                      toString(species_diff2))
         result <- c(result, msg)
     }
-    sp_names <- intersect(sp_names1, sp_names2)
+    species <- intersect(species1, species2)
 
-    sp_eq <- all.equal(species_params1[, sp_names],
-                       species_params2[, sp_names], scale = 1)
+    # Which parameters (columns) are only in one of the two tables? ----
+    param_names1 <- names(species_params1)
+    param_names2 <- names(species_params2)
+    param_diff1 <- setdiff(param_names1, param_names2)
+    if (length(param_diff1) > 0) {
+        msg <- paste0("params1 has the following additional ",
+                      text, ": ", toString(param_diff1))
+        result <- c(result, msg)
+    }
+    param_diff2 <- setdiff(param_names2, param_names1)
+    if (length(param_diff2) > 0) {
+        msg <- paste0("params2 has the following additional ",
+                      text, ": ", toString(param_diff2))
+        result <- c(result, msg)
+    }
+    param_names <- intersect(param_names1, param_names2)
+
+    # Compare only the species and parameters the two tables share, matched by
+    # name, so that extra species or parameters do not clutter the comparison.
+    sp_eq <- all.equal(species_params1[species, param_names],
+                       species_params2[species, param_names], scale = 1)
     if (!isTRUE(sp_eq)) {
         msg <- paste("The following", text, "differ:",
                toString(sp_eq))
         result <- c(result, msg)
-        # ctable <- compareDF::compare_df(params1@species_params[, sp_names],
-        #                       params2@species_params[, sp_names],
-        #                       keep_unchanged_cols = FALSE)
-        # print(ctable$comparison_df)
     }
 
     result
