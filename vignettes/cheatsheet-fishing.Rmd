@@ -73,15 +73,11 @@ gear_params(params) <- data.frame(
 This replaces the whole gear table; mizer generates the `"species, gear"` row
 names for you.
 
-If each species is caught by only one gear, the gear columns may instead be
-supplied within `species_params` when building the model; mizer copies them into
-`gear_params`. Later edits to those `species_params` columns do **not**
-propagate — edit `gear_params` after construction.
-
 ---
 
 ## Selectivity functions
 
+The selectivity function determines the size-dependence of fishing mortality.
 Each selectivity function takes `w` as its first argument and returns a value in
 `[0, 1]` at each size. Its other arguments must appear as columns in
 `gear_params`.
@@ -119,8 +115,7 @@ and — when a `sel_func` cannot express the shape you need — set them by hand
 | [`selectivity(params)`](../reference/setFishing.html) / `getSelectivity(params)` | $S_{g,i}(w)$ | gear × species × size |
 
 The bare and `get`-prefixed names are equivalent; use whichever reads better.
-Each has a matching setter that pushes an array straight into the model (this
-routes through `setFishing()`, so validation still runs):
+Each has a matching setter that pushes an array straight into the model:
 
 ```{r eval=FALSE}
 catchability(params)                       # gear × species matrix of Q

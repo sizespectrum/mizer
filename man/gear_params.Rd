@@ -8,19 +8,27 @@
 \alias{gear_params.gear_params}
 \alias{gear_params<-}
 \alias{gear_params<-.MizerParams}
+\alias{is.gear_params}
 \title{Gear parameters}
 \usage{
 gear_params(object)
 
 gear_params(object) <- value
+
+is.gear_params(x)
 }
 \arguments{
 \item{object}{A MizerParams object, a MizerSim object or a data frame}
 
 \item{value}{A data frame with the new gear parameters.}
+
+\item{x}{An object to test with \code{is.gear_params()}.}
 }
 \value{
 Data frame with gear parameters
+
+\code{is.gear_params()} returns \code{TRUE} if \code{x} is a \code{gear_params} object,
+\code{FALSE} otherwise.
 }
 \description{
 These functions allow you to get or set the gear parameters stored in

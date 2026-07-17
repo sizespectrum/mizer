@@ -18,7 +18,8 @@
 #'   \item `units` – the units of the rate (e.g. "g/year").
 #' }
 #'
-#' @param x A matrix (species x size).
+#' @param x A matrix (species x size). For `is.ArraySpeciesBySize()`, any
+#'   object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "g/year", "1/year").
 #' @param params A `MizerParams` object. Used for species colours, linetypes,
@@ -57,14 +58,10 @@ ArraySpeciesBySize <- function(x, value_name = NULL, units = NULL,
     )
 }
 
-#' Test if an object is a ArraySpeciesBySize
-#'
-#' @param x An object to test.
-#' @return `TRUE` if `x` is an `ArraySpeciesBySize` object, `FALSE` otherwise.
+#' @rdname ArraySpeciesBySize
+#' @return `is.ArraySpeciesBySize()` returns `TRUE` if `x` is an
+#'   `ArraySpeciesBySize` object, `FALSE` otherwise.
 #' @export
-#' @examples
-#' is.ArraySpeciesBySize(getEncounter(NS_params))
-#' is.ArraySpeciesBySize(matrix(1:4, nrow = 2))
 is.ArraySpeciesBySize <- function(x) {
     inherits(x, "ArraySpeciesBySize")
 }

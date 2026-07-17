@@ -8,11 +8,13 @@
 \alias{species_params.species_params}
 \alias{species_params<-}
 \alias{species_params<-.MizerParams}
+\alias{is.species_params}
 \alias{given_species_params}
 \alias{given_species_params.MizerParams}
 \alias{given_species_params.MizerSim}
 \alias{given_species_params.data.frame}
 \alias{given_species_params.given_species_params}
+\alias{is.given_species_params}
 \alias{given_species_params<-}
 \alias{given_species_params<-.MizerParams}
 \alias{calculated_species_params}
@@ -22,7 +24,11 @@ species_params(object, ...)
 
 species_params(object) <- value
 
+is.species_params(x)
+
 given_species_params(object, ...)
+
+is.given_species_params(x)
 
 given_species_params(object) <- value
 
@@ -31,9 +37,12 @@ calculated_species_params(params)
 \arguments{
 \item{object}{A MizerParams object, a MizerSim object or a data frame}
 
-\item{...}{Other arguments passed to S3 methods (such as \code{strict}).}
+\item{...}{Other arguments passed to methods.}
 
 \item{value}{A data frame with the new species parameters.}
+
+\item{x}{An object to test with \code{is.species_params()} or
+\code{is.given_species_params()}.}
 
 \item{params}{A MizerParams object.}
 }
@@ -57,6 +66,12 @@ been given. This is especially useful during interactive use.
 \code{calculated_species_params()}: Data frame containing only those species
 parameter entries that are not explicit user input. Columns that would
 consist entirely of \code{NA} values are dropped.
+
+\code{is.species_params()} returns \code{TRUE} if \code{x} is a \code{species_params}
+object, \code{FALSE} otherwise.
+
+\code{is.given_species_params()} returns \code{TRUE} if \code{x} is a
+\code{given_species_params} object, \code{FALSE} otherwise.
 }
 \description{
 These functions allow you to get or set the species-specific parameters

@@ -149,10 +149,7 @@ reference:
     for a quick reference.
   contents:
   - species_params
-  - is.species_params
-  - is.given_species_params
   - gear_params
-  - is.gear_params
   - initialN
   - initialNResource
   - initial_effort
@@ -396,15 +393,10 @@ reference:
   - str
   - as.data.frame
   - ArraySpeciesBySize
-  - is.ArraySpeciesBySize
   - ArrayTimeBySpecies
-  - is.ArrayTimeBySpecies
   - ArrayTimeBySpeciesBySize
-  - is.ArrayTimeBySpeciesBySize
   - ArrayResourceBySize
-  - is.ArrayResourceBySize
   - ArrayTimeByResourceBySize
-  - is.ArrayTimeByResourceBySize
 - title: Example parameter sets
   desc: More example parameter sets are available via
     <https://sizespectrum.org/mizerExamples>

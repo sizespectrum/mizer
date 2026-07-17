@@ -2,6 +2,7 @@
 % Please edit documentation in R/ArrayTimeBySpeciesBySize-class.R
 \name{ArrayTimeBySpeciesBySize}
 \alias{ArrayTimeBySpeciesBySize}
+\alias{is.ArrayTimeBySpeciesBySize}
 \title{S3 class for time x species x size arrays}
 \usage{
 ArrayTimeBySpeciesBySize(
@@ -11,9 +12,12 @@ ArrayTimeBySpeciesBySize(
   params = NULL,
   representation = c("point", "average")
 )
+
+is.ArrayTimeBySpeciesBySize(x)
 }
 \arguments{
-\item{x}{A 3D array (time x species x size).}
+\item{x}{A 3D array (time x species x size). For
+\code{is.ArrayTimeBySpeciesBySize()}, any object to test.}
 
 \item{value_name}{A string giving the human-readable name for the value.}
 
@@ -30,6 +34,9 @@ bin-averaging (\code{second_order_w[["bin_average"]]}). See
 }
 \value{
 An \code{ArrayTimeBySpeciesBySize} object (inherits from \code{array}).
+
+\code{is.ArrayTimeBySpeciesBySize()} returns \code{TRUE} if \code{x} is an
+\code{ArrayTimeBySpeciesBySize} object, \code{FALSE} otherwise.
 }
 \description{
 Some functions in mizer return three-dimensional arrays (time x species x

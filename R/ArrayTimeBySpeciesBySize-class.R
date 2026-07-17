@@ -20,7 +20,8 @@
 #'   \item `params` – the `MizerParams` object that the value was computed from.
 #' }
 #'
-#' @param x A 3D array (time x species x size).
+#' @param x A 3D array (time x species x size). For
+#'   `is.ArrayTimeBySpeciesBySize()`, any object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "1/year").
 #' @param params A `MizerParams` object. Used for species colours, linetypes,
@@ -83,15 +84,10 @@ get_ArrayTimeBySpeciesBySize_w <- function(x) {
     w
 }
 
-#' Test if an object is an ArrayTimeBySpeciesBySize
-#'
-#' @param x An object to test.
-#' @return `TRUE` if `x` is an `ArrayTimeBySpeciesBySize` object, `FALSE`
-#'   otherwise.
+#' @rdname ArrayTimeBySpeciesBySize
+#' @return `is.ArrayTimeBySpeciesBySize()` returns `TRUE` if `x` is an
+#'   `ArrayTimeBySpeciesBySize` object, `FALSE` otherwise.
 #' @export
-#' @examples
-#' is.ArrayTimeBySpeciesBySize(getFMort(NS_sim))
-#' is.ArrayTimeBySpeciesBySize(array(1:8, dim = c(2, 2, 2)))
 is.ArrayTimeBySpeciesBySize <- function(x) {
     inherits(x, "ArrayTimeBySpeciesBySize")
 }

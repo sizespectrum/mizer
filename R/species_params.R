@@ -142,7 +142,9 @@
 #' @param object A MizerParams object, a MizerSim object or a data frame
 #' @param params A MizerParams object.
 #' @param value A data frame with the new species parameters.
-#' @param ... Other arguments passed to S3 methods (such as `strict`).
+#' @param x An object to test with `is.species_params()` or
+#'   `is.given_species_params()`.
+#' @param ... Other arguments passed to methods.
 #' @return `species_params()`: Data frame containing all species parameters
 #'   currently stored in the model.
 #'
@@ -267,10 +269,9 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     return(suppressMessages(setParams(object)))
 }
 
-#' Test if an object is a species_params object
-#'
-#' @param x An object to test.
-#' @return `TRUE` if `x` is a `species_params` object, `FALSE` otherwise.
+#' @rdname species_params
+#' @return `is.species_params()` returns `TRUE` if `x` is a `species_params`
+#'   object, `FALSE` otherwise.
 #' @export
 is.species_params <- function(x) {
     inherits(x, "species_params")
@@ -585,10 +586,9 @@ given_species_params.given_species_params <- function(object, strict = FALSE, ..
     given_species_params.data.frame(object, strict = strict, ...)
 }
 
-#' Test if an object is a given_species_params object
-#'
-#' @param x An object to test.
-#' @return `TRUE` if `x` is a `given_species_params` object, `FALSE` otherwise.
+#' @rdname species_params
+#' @return `is.given_species_params()` returns `TRUE` if `x` is a
+#'   `given_species_params` object, `FALSE` otherwise.
 #' @export
 is.given_species_params <- function(x) {
     inherits(x, "given_species_params")

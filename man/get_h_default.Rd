@@ -2,15 +2,12 @@
 % Please edit documentation in R/species_params.R
 \name{get_h_default}
 \alias{get_h_default}
-\alias{get_h_default.MizerParams}
-\alias{get_h_default.species_params}
-\alias{get_h_default.data.frame}
 \title{Get default value for h}
 \usage{
-get_h_default(object)
+get_h_default(params)
 }
 \arguments{
-\item{object}{A MizerParams object or a species parameter data frame}
+\item{params}{A MizerParams object or a species parameter data frame}
 }
 \value{
 A vector with the values of h for all species
@@ -27,6 +24,10 @@ reliable and a warning is issued.
 
 If no growth information is given at all for a species, the default is set
 to \code{h = 30}.
+
+See the \href{https://sizespectrum.org/mizer/articles/default_parameters.html#h-default}{Maximum Intake Rate Coefficient}
+section of the "Calculation of Default Parameter Values" vignette for the
+mathematical derivation.
 }
 \seealso{
 Other functions calculating defaults:
@@ -36,4 +37,3 @@ Other functions calculating defaults:
 }
 \concept{functions calculating defaults}
 \concept{helper}
-\keyword{internal}

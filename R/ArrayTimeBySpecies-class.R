@@ -19,7 +19,8 @@
 #'   \item `params` – the `MizerParams` object that created the values.
 #' }
 #'
-#' @param x A matrix (time x species).
+#' @param x A matrix (time x species). For `is.ArrayTimeBySpecies()`, any
+#'   object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "g", "g/year").
 #' @param params A `MizerParams` object holding the model that created the
@@ -48,14 +49,10 @@ ArrayTimeBySpecies <- function(x, value_name = NULL, units = NULL,
     )
 }
 
-#' Test if an object is a ArrayTimeBySpecies
-#'
-#' @param x An object to test.
-#' @return `TRUE` if `x` is an `ArrayTimeBySpecies` object, `FALSE` otherwise.
+#' @rdname ArrayTimeBySpecies
+#' @return `is.ArrayTimeBySpecies()` returns `TRUE` if `x` is an
+#'   `ArrayTimeBySpecies` object, `FALSE` otherwise.
 #' @export
-#' @examples
-#' is.ArrayTimeBySpecies(getBiomass(NS_sim))
-#' is.ArrayTimeBySpecies(matrix(1:4, nrow = 2))
 is.ArrayTimeBySpecies <- function(x) {
     inherits(x, "ArrayTimeBySpecies")
 }

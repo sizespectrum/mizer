@@ -2,6 +2,7 @@
 % Please edit documentation in R/ArraySpeciesBySize-class.R
 \name{ArraySpeciesBySize}
 \alias{ArraySpeciesBySize}
+\alias{is.ArraySpeciesBySize}
 \title{S3 class for species x size rate arrays}
 \usage{
 ArraySpeciesBySize(
@@ -11,9 +12,12 @@ ArraySpeciesBySize(
   params = NULL,
   representation = c("point", "average")
 )
+
+is.ArraySpeciesBySize(x)
 }
 \arguments{
-\item{x}{A matrix (species x size).}
+\item{x}{A matrix (species x size). For \code{is.ArraySpeciesBySize()}, any
+object to test.}
 
 \item{value_name}{A string giving the human-readable name for the value.}
 
@@ -30,6 +34,9 @@ left bin edge, but only when the model uses second-order bin-averaging
 }
 \value{
 An \code{ArraySpeciesBySize} object (inherits from \code{matrix} and \code{array}).
+
+\code{is.ArraySpeciesBySize()} returns \code{TRUE} if \code{x} is an
+\code{ArraySpeciesBySize} object, \code{FALSE} otherwise.
 }
 \description{
 Many functions in mizer return two-dimensional arrays (species x size)

@@ -18,6 +18,11 @@ to sustain the species is as specified in the \code{fc} column in the species
 parameter data frame. If that column is not provided the default critical
 feeding level \eqn{f_c = 0.2} is used.
 }
+\details{
+See the \href{https://sizespectrum.org/mizer/articles/default_parameters.html#ks-default}{Standard Metabolic Rate Coefficient}
+section of the "Calculation of Default Parameter Values" vignette for the
+mathematical derivation.
+}
 \seealso{
 Other functions calculating defaults:
 \code{\link[=get_f0_default]{get_f0_default()}},

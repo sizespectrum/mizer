@@ -48,8 +48,8 @@ behaviour. With [`setRateFunction()`](../reference/setRateFunction.html) you
 replace the function mizer uses to compute a rate (for example a bespoke mortality
 or reproduction rate), and with [`setComponent()`](../reference/setComponent.html)
 you add a whole new ecosystem component — a detritus pool, a carrion pool, an
-extra predator — with its own dynamics. These are advanced and are documented on
-their own reference pages rather than in this cheatsheet.
+extra predator — with its own dynamics. These are advanced and are documented in
+the [Extending mizer](extending-mizer.html) article rather than in this cheatsheet.
 
 ---
 
@@ -70,7 +70,8 @@ rates you can read the help page of [`setRates()`](../reference/setRates.html)
 ### Species parameters
 
 There are many species-specific parameters in mizer. Luckily, mizer sets or
-calculates defaults for those that you do not specify explicitly. 
+calculates defaults for those that you do not specify explicitly. For details see
+[Calculation of Default Parameter Values](default_parameters.html).
 
 #### `given` vs `calculated` vs all
 
@@ -332,8 +333,7 @@ Two practical points:
 
 - **Extra parameters** your function needs go in
   [`other_params(params)`](../reference/setRateFunction.html), e.g.
-  `other_params(params)$warming_rate <- 0.02`, and are then reachable inside the
-  function as `params@other_params$warming_rate`.
+  `other_params(params)$warming_rate <- 0.02`.
 - Your functions must be defined in the **global environment or in a package** —
   mizer cannot find a function defined inside another function.
 

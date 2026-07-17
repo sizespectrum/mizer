@@ -17,6 +17,11 @@ Fills in any missing values for gamma so that fish feeding on a resource
 spectrum described by the power law \eqn{\kappa w^{-\lambda}} achieve a
 feeding level \eqn{f_0}. Only for internal use.
 }
+\details{
+See the \href{https://sizespectrum.org/mizer/articles/default_parameters.html#gamma-default}{Search Volume Coefficient}
+section of the "Calculation of Default Parameter Values" vignette for the
+mathematical derivation.
+}
 \seealso{
 Other functions calculating defaults:
 \code{\link[=get_f0_default]{get_f0_default()}},

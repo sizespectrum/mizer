@@ -311,6 +311,7 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
 #'
 #' @param object A MizerParams object, a MizerSim object or a data frame
 #' @param value A data frame with the new gear parameters.
+#' @param x An object to test with `is.gear_params()`.
 #' @return Data frame with gear parameters
 #' @export
 #' @family functions for setting parameters
@@ -382,10 +383,9 @@ gear_params.gear_params <- function(object) {
     setFishing(object)
 }
 
-#' Test if an object is a gear_params object
-#'
-#' @param x An object to test.
-#' @return `TRUE` if `x` is a `gear_params` object, `FALSE` otherwise.
+#' @rdname gear_params
+#' @return `is.gear_params()` returns `TRUE` if `x` is a `gear_params` object,
+#'   `FALSE` otherwise.
 #' @export
 is.gear_params <- function(x) {
     inherits(x, "gear_params")

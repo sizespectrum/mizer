@@ -22,7 +22,8 @@
 #'   \item `params` – the `MizerParams` object that the value was computed from.
 #' }
 #'
-#' @param x A numeric vector over the full size grid.
+#' @param x A numeric vector over the full size grid. For
+#'   `is.ArrayResourceBySize()`, any object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "1/year").
 #' @param params A `MizerParams` object. Used for the resource colour and the
@@ -55,14 +56,10 @@ ArrayResourceBySize <- function(x, value_name = NULL, units = NULL,
     )
 }
 
-#' Test if an object is an ArrayResourceBySize
-#'
-#' @param x An object to test.
-#' @return `TRUE` if `x` is an `ArrayResourceBySize` object, `FALSE` otherwise.
+#' @rdname ArrayResourceBySize
+#' @return `is.ArrayResourceBySize()` returns `TRUE` if `x` is an
+#'   `ArrayResourceBySize` object, `FALSE` otherwise.
 #' @export
-#' @examples
-#' is.ArrayResourceBySize(getResourceMort(NS_params))
-#' is.ArrayResourceBySize(1:4)
 is.ArrayResourceBySize <- function(x) {
     inherits(x, "ArrayResourceBySize")
 }
@@ -294,7 +291,8 @@ str.ArrayResourceBySize <- function(object, ...) {
 #'   \item `params` – the `MizerParams` object that the value was computed from.
 #' }
 #'
-#' @param x A matrix (time x size).
+#' @param x A matrix (time x size). For `is.ArrayTimeByResourceBySize()`, any
+#'   object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "1/g").
 #' @param params A `MizerParams` object. Used for the resource colour and the
@@ -324,15 +322,10 @@ ArrayTimeByResourceBySize <- function(x, value_name = NULL, units = NULL,
     )
 }
 
-#' Test if an object is an ArrayTimeByResourceBySize
-#'
-#' @param x An object to test.
-#' @return `TRUE` if `x` is an `ArrayTimeByResourceBySize` object, `FALSE`
-#'   otherwise.
+#' @rdname ArrayTimeByResourceBySize
+#' @return `is.ArrayTimeByResourceBySize()` returns `TRUE` if `x` is an
+#'   `ArrayTimeByResourceBySize` object, `FALSE` otherwise.
 #' @export
-#' @examples
-#' is.ArrayTimeByResourceBySize(NResource(NS_sim))
-#' is.ArrayTimeByResourceBySize(matrix(1:4, nrow = 2))
 is.ArrayTimeByResourceBySize <- function(x) {
     inherits(x, "ArrayTimeByResourceBySize")
 }

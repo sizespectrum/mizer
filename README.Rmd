@@ -79,7 +79,7 @@ available from R's built-in package manager.
 install.packages("mizer")
 
 # Alternatively, install the development version from GitHub
-remotes::install_github("sizespectrum/mizer")
+pak::pak("sizespectrum/mizer")
 ```
 
 ## Example
@@ -114,7 +114,7 @@ Another advantage of size-based multi-species models is that they can be used to
 Because mizer is a mechanistic model, it can deduce the
 complex population-level changes that we are interested in from the simpler
 changes in the physiological rates and feeding interactions of individual fish
-species.
+species. You can find examples of this in the [list of publications](https://sizespectrum.org/mizer/articles/publications.html).
 
 Overall, size-based multi-species models provide a more comprehensive and realistic framework for understanding the dynamics of fish populations and ecosystems, and for developing effective fisheries management strategies that account for the complex interactions among species and their environment.
 

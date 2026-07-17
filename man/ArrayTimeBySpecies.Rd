@@ -2,12 +2,16 @@
 % Please edit documentation in R/ArrayTimeBySpecies-class.R
 \name{ArrayTimeBySpecies}
 \alias{ArrayTimeBySpecies}
+\alias{is.ArrayTimeBySpecies}
 \title{S3 class for time x species arrays}
 \usage{
 ArrayTimeBySpecies(x, value_name = NULL, units = NULL, params = NULL)
+
+is.ArrayTimeBySpecies(x)
 }
 \arguments{
-\item{x}{A matrix (time x species).}
+\item{x}{A matrix (time x species). For \code{is.ArrayTimeBySpecies()}, any
+object to test.}
 
 \item{value_name}{A string giving the human-readable name for the value.}
 
@@ -18,6 +22,9 @@ values.}
 }
 \value{
 An \code{ArrayTimeBySpecies} object (inherits from \code{matrix} and \code{array}).
+
+\code{is.ArrayTimeBySpecies()} returns \code{TRUE} if \code{x} is an
+\code{ArrayTimeBySpecies} object, \code{FALSE} otherwise.
 }
 \description{
 Some functions in mizer return two-dimensional arrays (time x species)
