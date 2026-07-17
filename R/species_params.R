@@ -748,28 +748,22 @@ set_species_param_default <- function(object, parname, default,
 #' If no growth information is given at all for a species, the default is set
 #' to `h = 30`.
 #'
-#' @param object A MizerParams object or a species parameter data frame
+#' See the [Maximum Intake Rate Coefficient](
+#' https://sizespectrum.org/mizer/articles/default_parameters.html#h-default)
+#' section of the "Calculation of Default Parameter Values" vignette for the
+#' mathematical derivation.
+#'
+#' @param params A MizerParams object or a species parameter data frame
 #' @return A vector with the values of h for all species
 #' @export
-#' @keywords internal
 #' @concept helper
 #' @family functions calculating defaults
-get_h_default <- function(object) {
-    UseMethod("get_h_default")
-}
-
-#' @rdname get_h_default
-#' @usage NULL
-#' @export
-get_h_default.MizerParams <- function(object) {
-    get_h_default(object@species_params)
-}
-
-#' @rdname get_h_default
-#' @usage NULL
-#' @export
-get_h_default.species_params <- function(object) {
-    species_params <- object
+get_h_default <- function(params) {
+    if (is(params, "MizerParams")) {
+        species_params <- params@species_params
+    } else {
+        species_params <- validSpeciesParams(params)
+    }
     assert_that("n" %in% names(species_params))
     species_params <- set_species_param_default(species_params, "f0", 0.6)
     if (!("h" %in% colnames(species_params))) {
@@ -816,19 +810,17 @@ get_h_default.species_params <- function(object) {
     return(species_params[["h"]])
 }
 
-#' @rdname get_h_default
-#' @usage NULL
-#' @export
-get_h_default.data.frame <- function(object) {
-    get_h_default(validSpeciesParams(object))
-}
-
 
 #' Get default value for gamma
 #'
 #' Fills in any missing values for gamma so that fish feeding on a resource
 #' spectrum described by the power law \eqn{\kappa w^{-\lambda}} achieve a
 #' feeding level \eqn{f_0}. Only for internal use.
+#'
+#' See the [Search Volume Coefficient](
+#' https://sizespectrum.org/mizer/articles/default_parameters.html#gamma-default)
+#' section of the "Calculation of Default Parameter Values" vignette for the
+#' mathematical derivation.
 #'
 #' @param params A MizerParams object
 #' @return A vector with the values of gamma for all species
@@ -893,6 +885,11 @@ get_gamma_default <- function(params) {
 #' parameter data frame, the `f0` values is kept as provided in the species
 #' parameter data frame or it is set to 0.6 if it is not provided.
 #'
+#' See the [Target Feeding Level](
+#' https://sizespectrum.org/mizer/articles/default_parameters.html#f0-default)
+#' section of the "Calculation of Default Parameter Values" vignette for the
+#' mathematical derivation.
+#'
 #' @param params A MizerParams object
 #' @return A vector with the values of f0 for all species
 #' @export
@@ -940,6 +937,11 @@ get_f0_default <- function(params) {
 #' to sustain the species is as specified in the `fc` column in the species
 #' parameter data frame. If that column is not provided the default critical
 #' feeding level \eqn{f_c = 0.2} is used.
+#'
+#' See the [Standard Metabolic Rate Coefficient](
+#' https://sizespectrum.org/mizer/articles/default_parameters.html#ks-default)
+#' section of the "Calculation of Default Parameter Values" vignette for the
+#' mathematical derivation.
 #'
 #' @param params A MizerParams object
 #' @return A vector with the values of ks for all species

@@ -308,7 +308,7 @@ Calculating the default physiological parameters follows a sequential dependency
 
 ## Mathematical Derivations
 
-### 1. Maximum Intake Rate Coefficient ($h$)
+### 1. Maximum Intake Rate Coefficient ($h$) {#h-default}
 
 The maximum intake rate coefficient $h_i$ for species $i$ is calculated by `get_h_default()`. The derivation is based on the idea that an average individual must grow from egg size $w_{\text{min}}$ to maturity size $w_{\text{mat}}$ in a given time $\text{age}_{\text{mat}}$ when feeding at a constant feeding level $f_0$ (which defaults to $0.6$).
 
@@ -347,7 +347,7 @@ If no growth information is provided at all, `mizer` defaults to $h = 30$.
 
 ---
 
-### 2. Search Volume Coefficient ($\gamma$)
+### 2. Search Volume Coefficient ($\gamma$) {#gamma-default}
 
 The search volume coefficient $\gamma_i$ is calculated by `get_gamma_default()`. It is selected such that if the prey abundance were described by a power-law resource spectrum:
 $$N_R(w_p) = \kappa w_p^{-\lambda}$$
@@ -387,7 +387,7 @@ $$\gamma_i = \frac{h_i}{\text{avail_energy}_i} \frac{f_0}{1 - f_0}$$
 
 ---
 
-### 3. Standard Metabolic Rate Coefficient ($ks$)
+### 3. Standard Metabolic Rate Coefficient ($ks$) {#ks-default}
 
 The standard metabolic rate coefficient $k_{s,i}$ is calculated by `get_ks_default()`. It is chosen so that the critical feeding level $f_c$ (default $0.2$) is exactly the feeding level required for assimilation to balance metabolism at maturity size $w_{\text{mat}}$.
 
@@ -405,7 +405,7 @@ $$k_{s,i} = f_c \alpha_i h_i$$
 
 ---
 
-### 4. Target Feeding Level ($f_0$)
+### 4. Target Feeding Level ($f_0$) {#f0-default}
 
 For models where the search volume coefficient $\gamma_i$ is provided by the user but the target feeding level $f_0$ is not, `get_f0_default()` calculates the inverse of the search volume default.
 

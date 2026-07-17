@@ -354,7 +354,7 @@ test_that("$ on species_params returns named vectors for non-character columns",
     expect_named(gp$catchability, rownames(gp))
 })
 
-test_that("get_h_default S3 methods work", {
+test_that("get_h_default accepts MizerParams, species_params and data.frame", {
     params <- NS_params_small
     sp <- species_params(params)
     df <- as.data.frame(sp)
