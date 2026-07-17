@@ -265,19 +265,51 @@ is.species_params <- function(x) {
     inherits(x, "species_params")
 }
 
+# Recognised species_params column names, used by check_for_misspellings() to
+# flag likely typos. This is not an exhaustive list of every possible column
+# (users may add custom columns), but covers the standard parameters so that a
+# near miss can be detected. Grouped roughly by purpose.
+known_species_params_columns <- function() {
+    c(# identity and sizes
+      "species", "w_max", "w_mat", "w_mat25", "w_min", "w_inf",
+      "w_repro_max", "w_min_idx",
+      # length-based equivalents and length-weight parameters
+      "l_max", "l_mat", "l_mat25", "l_min", "l_inf", "l_repro_max", "a", "b",
+      # von Bertalanffy growth
+      "k_vb", "t0", "age_mat",
+      # physiology
+      "h", "k", "ks", "gamma", "alpha", "beta", "sigma",
+      "n", "p", "q", "m", "z0", "fc", "f0", "erepro",
+      "d", "z_ext", "D_ext", "E_ext",
+      # reproduction
+      "R_max", "r_max", "constant_recruitment", "constant_reproduction",
+      "ricker_b", "sheperd_b", "sheperd_c",
+      # predation kernel
+      "pred_kernel_type", "kernel_exp", "kernel_l_l", "kernel_u_l",
+      "kernel_l_r", "kernel_u_r", "ppmr_min", "ppmr_max",
+      # fishing
+      "gear", "sel_func", "catchability", "knife_edge_size",
+      "yield_observed", "catch_observed",
+      # interactions
+      "interaction_resource", "interaction_p",
+      # observations
+      "biomass_observed", "biomass_cutoff", "number_observed", "number_cutoff",
+      # flags and plotting
+      "is_background", "linecolour", "linetype", "legend_name")
+}
+
+# Familiar abbreviations / capitalisation mistakes that should always be flagged
+# even when further than the fuzzy-match threshold from a recognised name.
+curated_species_params_misspellings <- function() {
+    c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
+      "Species", "Gamma", "Beta", "Sigma", "Alpha",
+      "W_min", "W_max", "W_mat", "e_repro", "Age_mat", "w_max_mat")
+}
+
 check_and_convert_species_params <- function(x) {
-    # Check for misspellings
-    misspellings <- c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
-                      "Species", "Gamma", "Beta", "Sigma", "Alpha",
-                      "W_min", "W_max", "W_mat", "e_repro", "Age_mat",
-                      "w_max_mat")
-    query <- intersect(misspellings, names(x))
-    if (length(query) > 0) {
-        warning("Some column names in your species parameter data ",
-                "frame are very close to standard parameter names: ",
-                paste(query, collapse = ", "),
-                ". Did you perhaps mis-spell the names?")
-    }
+    check_for_misspellings(names(x), known_species_params_columns(),
+                           "species parameter",
+                           curated_species_params_misspellings())
 
     # Auto convert length to weight if allometric parameters exist
     if (all(c("a", "b") %in% names(x))) {
@@ -425,19 +457,10 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
     assert_that(is.data.frame(object))
     # Convert a tibble back to an ordinary data frame
     sp <- as.data.frame(object, stringsAsFactors = FALSE)
-
-    # Check for misspellings
-    misspellings <- c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
-                      "Species", "Gamma", "Beta", "Sigma", "Alpha",
-                      "W_min", "W_max", "W_mat", "e_repro", "Age_mat",
-                      "w_max_mat")
-    query <- intersect(misspellings, names(sp))
-    if (length(query) > 0) {
-        warning("Some column names in your species parameter data ",
-                "frame are very close to standard parameter names: ",
-                paste(query, collapse = ", "),
-                ". Did you perhaps mis-spell the names?")
-    }
+    
+    check_for_misspellings(names(sp), known_species_params_columns(),
+                           "species parameter",
+                           curated_species_params_misspellings())
 
     # check species
     if (!("species" %in% colnames(sp))) {

@@ -295,6 +295,12 @@ test_that("Reactive validation and conversions work", {
     df <- data.frame(species = c("Sprat", "Herring"), w_inf = c(10, 100))
     sp <- species_params(df)
     expect_warning(sp$wmin <- 0.1, "very close to standard parameter names")
+    # Fuzzy typo of a recognised name is flagged with a suggestion ...
+    expect_warning(sp$w_maxx <- 100, "did you mean `w_max`")
+    # ... but a genuine custom column is not (use a fresh object without the
+    # typo'd columns added above)
+    sp_clean <- species_params(df)
+    expect_no_warning(sp_clean$my_note <- "x")
 
     # 2. Length-to-weight conversion
     df2 <- data.frame(species = "Sprat", a = 0.01, b = 3, l_mat = 10)

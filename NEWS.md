@@ -2,11 +2,27 @@
 
 ## Species parameter setting
 
-- Modifying species parameters via `species_params<-()` now automatically detects your changes, records them in `given_species_params` so they are protected from being overwritten by defaults in the future, and silently triggers the recalculation of any dependent parameters and rate arrays. Previously, `species_params<-()` bypassed the `given_species_params` protection and didn't trigger recalculations. This restores expected behaviour and makes `species_params<-()` the recommended setter for scripts.
-- The `given_species_params<-()` setter remains as an explicit alternative that is particularly useful during interactive sessions, because it issues warnings if you change a parameter whose effect is overridden by another parameter that has already been given.
+- Modifying species parameters via `species_params<-()` now automatically
+  detects your changes, records them in `given_species_params` so they are
+  protected from being overwritten by defaults in the future, and silently
+  triggers the recalculation of any dependent parameters and rate arrays.
+  Previously, `species_params<-()` bypassed the `given_species_params`
+  protection and didn't trigger recalculations. This restores expected
+  behaviour and makes `species_params<-()` the recommended setter for scripts.
+- The `given_species_params<-()` setter remains as an explicit alternative that
+  is particularly useful during interactive sessions, because it issues warnings
+  if you change a parameter whose effect is overridden by another parameter that
+  has already been given.
 
 ## Other improvements
 
+- Mis-spelled column names in the `gear_params` and `species_params` data frames
+  are now detected by fuzzy matching against the recognised parameter names. A
+  near miss such as `sel_fun` (instead of `sel_func`) triggers a warning that
+  suggests the intended name, rather than being silently ignored (#442). Columns
+  are only flagged, never renamed, so legitimate custom columns are left
+  untouched.
+  
 - `compareParams()` now checks that the number of size bins, species and gears
   agree before comparing the array-valued slots. When they differ it reports the
   mismatch instead of erroring while trying to compare arrays of incompatible
