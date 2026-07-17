@@ -7,7 +7,7 @@
 \alias{metab<-}
 \title{Set metabolic rate}
 \usage{
-setMetabolicRate(object, metab = NULL, p = NULL, reset = FALSE, ...)
+setMetabolicRate(object, metab = NULL, p = deprecated(), reset = FALSE, ...)
 
 getMetabolicRate(params)
 
@@ -22,9 +22,11 @@ metab(params) <- value
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".}
 
-\item{p}{The allometric metabolic exponent. This is only used if \code{metab}
-is not given explicitly and if the exponent is not specified in a \code{p}
-column in the \code{species_params}.}
+\item{p}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The allometric metabolic
+exponent. Set the \code{p} column in the species parameters instead, with
+\code{species_params(params)$p <- value}. This argument never took effect on a
+\code{MizerParams} object because such an object always has a \code{p} column
+already, and the argument was only used to fill in a missing one.}
 
 \item{reset}{If set to TRUE, then the metabolic rate will be reset to the
 value calculated from the species parameters, even if it was previously

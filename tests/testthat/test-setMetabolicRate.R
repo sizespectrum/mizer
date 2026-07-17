@@ -9,7 +9,10 @@ test_that("setMetabolicRate works", {
     p2@metab <- params@metab
     expect_unchanged(p2, params)
 })
-test_that("setMetabolicRate can set exponent p", {
+test_that("the deprecated p argument still only fills in a missing p", {
+    # Deprecating the argument does not change what it does: it only ever
+    # filled in a missing or NA `p`, never overwrote one. See issue #459.
+    withr::local_options(lifecycle_verbosity = "quiet")
     # no change where p is already set in species_params
     params <- setMetabolicRate(params, p = 1)
     expect_identical(params@species_params$p, rep(0.7, 3), ignore_attr = TRUE)
@@ -65,6 +68,25 @@ test_that("Can get and set metab slot", {
     expect_identical(comment(params@metab), "test")
 })
 
+test_that("the p argument of setMetabolicRate is deprecated", {
+    params <- NS_params_small
+    expect_warning(setMetabolicRate(params, p = 0.8), "deprecated")
+
+    # Setting the species parameter is the replacement and does work.
+    p2 <- params
+    species_params(p2)$p <- 0.8
+    expect_equal(species_params(p2)$p, rep(0.8, nrow(species_params(p2))),
+                 ignore_attr = TRUE)
+    expect_false(isTRUE(all.equal(c(metab(p2)), c(metab(params)))))
+
+    # The `p` argument of newMultispeciesParams() is a different argument and
+    # is not deprecated.
+    sp <- data.frame(species = c("a", "b"), w_inf = c(100, 200))
+    expect_no_warning(
+        p3 <- suppressMessages(newMultispeciesParams(sp, p = 0.8)))
+    expect_equal(species_params(p3)$p, c(0.8, 0.8), ignore_attr = TRUE)
+})
+
 test_that("setMetabolicRate uses the documented defaults and validates inputs", {
     # `p` defaults to `n`. NS_params_small has n = 2/3, so this also pins that
     # the default tracks `n` rather than a hardcoded 3/4.
@@ -74,7 +96,8 @@ test_that("setMetabolicRate uses the documented defaults and validates inputs", 
     expect_equal(species_params(params)$p, species_params(params)$n,
                  ignore_attr = TRUE)
 
-    expect_error(setMetabolicRate(NS_params_small, p = "x"), "p must be numeric")
+    expect_error(suppressWarnings(setMetabolicRate(NS_params_small, p = "x")),
+                 "p must be numeric")
 
     # The default must not depend on how the model was reached: filling `p`
     # via a standalone setter call must agree with the construction path.

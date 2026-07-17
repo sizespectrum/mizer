@@ -36,9 +36,11 @@
 #' @param metab Optional. An array (species x size) holding the metabolic rate
 #'   for each species at size. If not supplied, a default is set as described in
 #'   the section "Setting metabolic rate".
-#' @param p The allometric metabolic exponent. This is only used if `metab`
-#'   is not given explicitly and if the exponent is not specified in a `p`
-#'   column in the `species_params`.
+#' @param p `r lifecycle::badge("deprecated")` The allometric metabolic
+#'   exponent. Set the `p` column in the species parameters instead, with
+#'   `species_params(params)$p <- value`. This argument never took effect on a
+#'   `MizerParams` object because such an object always has a `p` column
+#'   already, and the argument was only used to fill in a missing one.
 #' @param reset
 #'   If set to TRUE, then the metabolic rate will be reset to the
 #'   value calculated from the species parameters, even if it was previously
@@ -57,22 +59,28 @@
 #' # Reset metabolic rate from species parameters
 #' params <- setMetabolicRate(NS_params, reset = TRUE)
 #' getMetabolicRate(params)["Cod", 1:5]
-setMetabolicRate <- function(object, metab = NULL, p = NULL,
+setMetabolicRate <- function(object, metab = NULL, p = deprecated(),
                              reset = FALSE, ...) {
     UseMethod("setMetabolicRate")
 }
 #' @export
-setMetabolicRate.MizerParams <- function(object, metab = NULL, p = NULL,
+setMetabolicRate.MizerParams <- function(object, metab = NULL, p = deprecated(),
                                          reset = FALSE, ...) {
     assert_that(is.flag(reset))
     params <- object
-    if (!is.null(p)) {
+    if (lifecycle::is_present(p)) {
+        lifecycle::deprecate_warn(
+            when = "3.2.0",
+            what = "setMetabolicRate(p)",
+            details = "Set the `p` column in the species parameters instead, with `species_params(params)$p <- value`."
+        )
         if (!is.numeric(p)) stop("p must be numeric")
+        # Only fills in a missing or NA `p`, which is why this never had an
+        # effect on a MizerParams object. Kept as-is until the argument goes.
         params <- set_species_param_default(params, "p", p)
-    } else {
-        params <- set_species_param_default(params, "p",
-                                            params@species_params[["n"]])
     }
+    params <- set_species_param_default(params, "p",
+                                        params@species_params[["n"]])
     species_params <- params@species_params
 
     if (reset) {

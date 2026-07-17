@@ -34,9 +34,6 @@ described in the section "Setting maximum intake rate".}
     \item{\code{metab}}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".}
-    \item{\code{p}}{The allometric metabolic exponent. This is only used if \code{metab}
-is not given explicitly and if the exponent is not specified in a \code{p}
-column in the \code{species_params}.}
     \item{\code{ext_mort}}{Optional. An array (species x size) holding the external
 mortality rate.  If not supplied, a default is set as described in the
 section "Setting external mortality rate".}

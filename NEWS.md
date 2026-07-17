@@ -1,5 +1,12 @@
 # mizer 3.1.0.9000 (development version)
 
+- The `p` argument of `setMetabolicRate()` is deprecated (#459). It never had
+  any effect on a `MizerParams` object: such an object always has a `p` column
+  already, and the argument was only ever used to fill in a missing one, so it
+  was silently ignored. Set the species parameter instead, with
+  `species_params(params)$p <- value`. The `p` argument of
+  `newMultispeciesParams()` is a different argument and is not affected.
+
 - The default for the metabolic exponent `p` is now `n` rather than `3/4` in
   `setMetabolicRate()`, which is where the default now lives;
   `validSpeciesParams()` no longer sets `p`. No model changes as a result.
