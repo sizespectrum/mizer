@@ -1,5 +1,35 @@
 # mizer 3.1.0.9000 (development version)
 
+- The `p` argument of `setMetabolicRate()` is deprecated (#459). It never had
+  any effect on a `MizerParams` object: such an object always has a `p` column
+  already, and the argument was only ever used to fill in a missing one, so it
+  was silently ignored. Set the species parameter instead, with
+  `species_params(params)$p <- value`. The `p` argument of
+  `newMultispeciesParams()` is a different argument and is not affected.
+
+- The default for the metabolic exponent `p` is now `n` rather than `3/4` in
+  `setMetabolicRate()`, which is where the default now lives;
+  `validSpeciesParams()` no longer sets `p`. No model changes as a result.
+  Models built with `newMultispeciesParams()` take `p` from its own `p`
+  argument (default `0.7`), which is injected into the species parameter table
+  before validation and is untouched by this change, so neither of these
+  defaults fires for them. The `validSpeciesParams()` default (`p = n`) only
+  ever applied when it was called directly on a bare species parameter data
+  frame, which now returns no `p` column, and it shadowed the
+  `setMetabolicRate()` default whenever both were in play.
+
+- Each species parameter default now has a single home: the rate-setting
+  function that uses the parameter. `validSpeciesParams()` now only fills in
+  defaults for parameters that no single rate setter owns, namely `w_max`,
+  `w_repro_max`, `w_mat`, `w_min`, `alpha`, `n`, `a`, `b` and `is_background`.
+  The defaults for `p`, `k`, `z_ext`, `d`, `E_ext`, `D_ext` and
+  `interaction_resource` are supplied by `setMetabolicRate()`, `setExtMort()`,
+  `setExtEncounter()`, `setExtDiffusion()` and `setInteraction()` respectively,
+  where they were already being set. Built models are unaffected, because
+  `setParams()` calls all the rate-setting functions, but
+  `validSpeciesParams()` applied to a bare species parameter data frame now
+  returns fewer columns. See the `default_parameters` vignette.
+
 ## Species parameter setting
 
 - Modifying species parameters via `species_params<-()` now automatically
@@ -121,6 +151,10 @@
   (`class = c("species_params", "data.frame")`). It supports class-preserving
   subsetting and subassignment S3 methods, making it safer to use and paving
   the way for future auto-recalculations.
+
+- Default values for the `a` (0.01) and `b` (3) species parameters (for the 
+  weight-length relationship) are now saved in `species_params` instead of being 
+  calculated internally by `l2w()` and `w2l()` only when needed.
 
 - `resource_params<-` now rebuilds the resource size-spectrum arrays (`cc_pp`,
   `rr_pp`) via `setResource()`, making resource parameter assignment

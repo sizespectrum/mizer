@@ -112,11 +112,11 @@ setInteraction.MizerParams <- function(params,
     }
     params@interaction[] <- interaction
 
-    # Check the interaction_resource column in species_params
-    message <- "Note: No interaction_resource column in species data frame so assuming all species feed on resource."
+    # Set the default for the interaction_resource column in species_params.
+    # A missing column means all species feed on the resource, which is the
+    # normal case and so is not worth a message.
     species_params <- set_species_param_default(params@species_params,
-                                                "interaction_resource", 1,
-                                                message = message)
+                                                "interaction_resource", 1)
     # Check that all values of interaction vector are positive
     if (!all(species_params$interaction_resource >= 0)) {
         stop("Values in the resource interaction vector must be non-negative.")

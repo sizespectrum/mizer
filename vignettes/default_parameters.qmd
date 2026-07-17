@@ -232,6 +232,20 @@ These parameters have been handled differently over the history of `mizer`:
 
 When creating a `MizerParams` object, `validSpeciesParams()` (and subsequent setup functions like `setSearchVolume()`, `setMaxIntakeRate()`, `setMetabolicRate()`, `setExtMort()`, and `setReproduction()`) check the species parameter data frame and fill in missing parameters.
 
+### Where defaults live
+
+Each default has a single home: the rate-setting function that uses the parameter. `setMetabolicRate()` defaults `p` and `k` because it is the only function that reads them; `setExtMort()` defaults `z0`, `z_ext` and `d`; and so on. This matters because the rate setters are also called directly, without going through `setParams()`, so a setter has to be able to supply the defaults it needs on its own.
+
+Only parameters that no single rate setter owns are defaulted centrally in `validSpeciesParams()`. That happens for five reasons:
+
+- **several setters read it** --- `n` is used by `setExtDiffusion()`, `setExtEncounter()`, `setExtMort()`, `setMaxIntakeRate()`, `setReproduction()` and `setSearchVolume()`;
+- **only the projection reads it** --- no setter touches `alpha`; it is used when calculating growth and reproduction;
+- **the size grid is built from it** --- `w_min` and `w_max` are needed before any rate setter runs;
+- **the length-weight conversion needs it** --- `a` and `b` are used by `validSpeciesParams()` itself to convert lengths such as `l_mat` into weights;
+- **it is only used for reporting** --- `is_background`.
+
+A consequence is that `validSpeciesParams()` applied to a bare data frame returns only the central defaults. The setter-owned columns appear once the model is built, because `setParams()` calls every rate-setting function.
+
 Below is a reference of the default values and the functions responsible for calculating them:
 
 | Parameter | Description | Default Value / Formula | Function |
@@ -241,22 +255,27 @@ Below is a reference of the default values and the functions responsible for cal
 | `w_mat` | Size at maturity | `w_inf / 4` | `validSpeciesParams()` |
 | `w_min` | Egg size / birth size | `0.001` g | `validSpeciesParams()` |
 | `alpha` | Assimilation efficiency | `0.6` | `validSpeciesParams()` |
-| `interaction_resource` | Species interaction strength with resource | `1` | `validSpeciesParams()` |
 | `n` | Allometric scaling exponent of intake | `3/4` | `validSpeciesParams()` |
-| `p` | Allometric scaling exponent of metabolism | `n` (which is `3/4`) | `validSpeciesParams()` |
-| `z_ext` | Size-dependent external mortality | `0` | `validSpeciesParams()` |
-| `d` | Exponent of size-dependent external mortality | `n - 1` | `validSpeciesParams()` |
-| `E_ext` | External encounter rate | `0` | `validSpeciesParams()` |
-| `D_ext` | External diffusion rate | `0` | `validSpeciesParams()` |
+| `a` | Length-weight conversion coefficient | `0.01` | `validSpeciesParams()` |
+| `b` | Length-weight conversion exponent | `3` | `validSpeciesParams()` |
 | `is_background` | Flag indicating background species | `FALSE` | `validSpeciesParams()` |
 | `h` | Maximum intake rate coefficient | Derived from growth/age at maturity (or `30`) | `get_h_default()` |
 | `gamma` | Search volume coefficient | Derived from target feeding level $f_0$ | `get_gamma_default()` |
+| `q` | Exponent of the search volume | `lambda - 2 + n` | `setSearchVolume()` |
 | `f0` | Target feeding level | `0.6` (or derived from `gamma` if given) | `get_f0_default()` |
-| `fc` | Critical feeding level | `0.2` | `set_species_param_default()` |
+| `fc` | Critical feeding level | `0.2` | `get_ks_default()` |
 | `ks` | Standard metabolic rate coefficient | Derived from critical feeding level $f_c$ | `get_ks_default()` |
+| `p` | Allometric scaling exponent of metabolism | `n` | `setMetabolicRate()` |
 | `k` | Activity/movement cost coefficient | `0` | `setMetabolicRate()` |
 | `z0` | Constant external mortality rate | `z0pre * w_inf^z0exp` | `setExtMort()` |
+| `z_ext` | Size-dependent external mortality | `0` | `setExtMort()` |
+| `d` | Exponent of size-dependent external mortality | `n - 1` | `setExtMort()` |
+| `E_ext` | External encounter rate | `0` | `setExtEncounter()` |
+| `D_ext` | External diffusion rate | `0` | `setExtDiffusion()` |
+| `interaction_resource` | Species interaction strength with resource | `1` | `setInteraction()` |
 | `erepro` | Reproduction efficiency | `1` | `setReproduction()` |
+| `m` | Exponent of the investment into reproduction | `1` | `setReproduction()` |
+| `w_mat25` | Size at which 25% of individuals are mature | `w_mat / 3^(1/10)` | `setReproduction()` |
 | `beta` | Preferred predator/prey mass ratio | `30` | `default_pred_kernel_params()` |
 | `sigma` | Width of predation kernel | `2` | `default_pred_kernel_params()` |
 

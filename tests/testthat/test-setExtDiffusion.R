@@ -41,6 +41,19 @@ test_that("setExtDiffusion works", {
     expect_false(identical(params@time_modified, p2@time_modified))
 })
 
+test_that("setExtDiffusion defaults D_ext to 0", {
+    # setExtDiffusion owns the D_ext default, so it must supply it even when
+    # called standalone, without going through setParams()/validParams().
+    params <- NS_params_small
+    params@species_params$D_ext <- NULL
+
+    p2 <- setExtDiffusion(params, reset = TRUE)
+
+    expect_equal(p2@species_params$D_ext, rep(0, nrow(p2@species_params)),
+                 ignore_attr = TRUE)
+    expect_equal(p2@ext_diffusion, p2@ext_diffusion * 0, ignore_attr = TRUE)
+})
+
 test_that("setExtDiffusion uses D_ext species param", {
     params <- NS_params_small
     species_params(params)$D_ext <- 0.1
