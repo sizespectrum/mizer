@@ -10,7 +10,7 @@ mizer is an R package for dynamic multi-species size-spectrum modelling of fish 
 
 **`ArraySpeciesBySize`** / **`ArrayTimeBySpecies`** / **`ArrayTimeBySpeciesBySize`** (S3) — wrap some arrays with metadata. When assigning back to S4 slots, use `slot[] <- value` (not `slot <- value`) to strip the class.
 
-**`species_params`** / **`given_species_params`** / **`gear_params`** (S3) — parameter tables subclassing `data.frame` stored in S4 slots. Users should access/modify these tables via S3 generics (e.g. `species_params(params)` or `gear_params(params)`), but package code and developers can modify slots directly (e.g. `params@species_params`) when appropriate. Inline modifications on the S3 objects (via `[<-`, `$<-`, `[[<-` S3 methods) preserve the subclass and trigger reactive validation checks and conversions (e.g. length-to-weight).
+**`species_params`** / **`given_species_params`** / **`gear_params`** (S3) — parameter tables subclassing `data.frame` stored in S4 slots. Users should access/modify these tables via S3 generics (e.g. `species_params(params)` or `gear_params(params)`), but package code and developers can modify slots directly (e.g. `params@species_params`) when appropriate. Inline modifications on the S3 objects (via `[<-`, `$<-`, `[[<-` S3 methods) preserve the subclass and trigger reactive validation checks and conversions (e.g. length-to-weight). `given_species_params` holds what the user supplied **plus the defaults of any function argument that sets a species parameter** (e.g. `n` and `p` from `newMultispeciesParams()`), even when the user did not override the argument; defaults that are not function arguments stay out of it.
 
 **Customisable rate functions**: users replace rate functions by storing a custom function name in `params@rates_funcs`. Dispatch via `get(params@rates_funcs$FunctionName)(params, ...)`.
 
@@ -22,6 +22,7 @@ mizer is an R package for dynamic multi-species size-spectrum modelling of fish 
 - **Naming**: camelCase or snake_case for functions/variables; PascalCase for classes
 - **Language**: British English (en-GB) — "colour", "behaviour", "modelling"
 - When documenting a mizer S3 generic whose methods share a man page (combined with `@rdname`/`@name`), follow the steps in `.claude/skills/document-s3-generics.md`.
+- When adding, moving or removing a species parameter default, follow `.claude/skills/species-param-defaults.md`. A default belongs to the rate setter that reads the parameter; only parameters that no single rate setter owns are defaulted centrally.
 
 ## Testing
 
