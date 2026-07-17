@@ -27,6 +27,8 @@
 #'   is set to the smallest value at which any of the consumers can feed.
 #' @param n The allometric growth exponent. This can be overruled for individual
 #'   species by including a `n` column in the `species_params`.
+#' @param p The allometric metabolic exponent. This can be overruled for
+#'   individual species by including a `p` column in the `species_params`.
 #' @param second_order_w `r lifecycle::badge("experimental")` Selects the
 #'   second-order numerical scheme for the new model. Accepts the same values as
 #'   the [second_order_w()] setter: a single logical (`TRUE` switches on both
@@ -290,7 +292,7 @@ newMultispeciesParams <- function(
 #' @inheritDotParams setPredKernel -reset
 #' @inheritDotParams setSearchVolume -reset
 #' @inheritDotParams setMaxIntakeRate -reset
-#' @inheritDotParams setMetabolicRate -reset
+#' @inheritDotParams setMetabolicRate -reset -p
 #' @inheritDotParams setExtMort -reset
 #' @inheritDotParams setExtEncounter -reset
 #' @inheritDotParams setReproduction -reset

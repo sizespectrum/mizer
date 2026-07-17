@@ -44,20 +44,34 @@
 #' 
 #' `validSpeciesParams()` first calls `validGivenSpeciesParams()` but then
 #' goes further by adding default values for species parameters that were not
-#' provided. The function sets default values if any of the following species
-#' parameters are missing or NA:
+#' provided. It only sets defaults for those species parameters that are not
+#' owned by a single rate-setting function, namely those that are read by
+#' several of them (`n`), that are used only when projecting (`alpha`), that
+#' determine the size grid (`w_min`, `w_max`), that are needed for the
+#' length-weight conversion (`a`, `b`) or that are used only for reporting
+#' (`is_background`). The function sets default values if any of the following
+#' species parameters are missing or NA:
 #' * `w_max` is set to `1.5 * w_inf` (it is only a computational boundary)
 #' * `w_repro_max` is set to `w_inf`
 #' * `w_mat` is set to `w_inf/4`
 #' * `w_min` is set to `0.001`
 #' * `alpha` is set to `0.6`
-#' * `interaction_resource` is set to `1`
 #' * `n` is set to `3/4`
-#' * `p` is set to `n`
-#' * `z_ext` is set to `0`
-#' * `d` is set to `n - 1`
-#' * `E_ext` is set to `0`
-#' * `D_ext` is set to `0`
+#' * `a` is set to `0.01`
+#' * `b` is set to `3`
+#' * `is_background` is set to `FALSE`
+#'
+#' All other species parameters are given their default values by the
+#' rate-setting function that uses them, so that each default has a single
+#' home. For example `p` and `k` are set by [setMetabolicRate()], `z_ext`, `d`
+#' and `z0` by [setExtMort()], `E_ext` by [setExtEncounter()], `D_ext` by
+#' [setExtDiffusion()], `interaction_resource` by [setInteraction()], `beta`
+#' and `sigma` by [setPredKernel()], `q` and `gamma` by [setSearchVolume()],
+#' and `erepro`, `m`, `w_mat25` and `R_max` by [setReproduction()]. These
+#' columns are therefore absent from the data frame returned by
+#' `validSpeciesParams()` but present in the species parameters of a
+#' `MizerParams` object, because [setParams()] calls all the rate-setting
+#' functions.
 #'
 #' Note that the species parameters returned by these functions are not
 #' guaranteed to produce a viable model. More checks of the parameters are

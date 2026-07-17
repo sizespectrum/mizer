@@ -145,9 +145,6 @@ bin_midpoints <- function(params, w_full = FALSE) {
 #' This is useful for converting a length-based species parameter to a
 #' weight-based species parameter.
 #'
-#' If any `a` or `b` parameters are missing the default values `a = 0.01` and
-#' `b = 3` are used for the missing values.
-#'
 #' @param l Lengths in cm. Either a single number used for all species or a
 #'   vector with one number for each species.
 #' @param w Weights in grams. Either a single number used for all species or a
@@ -170,11 +167,9 @@ l2w <- function(l, species_params) {
     if (length(l) != 1 && length(l) != nrow(sp)) {
         stop("The length of 'l' should be one or equal to the number of species.")
     }
-    sp <- sp %>%
-        set_species_param_default("a", 0.01,
-                                  "Using default values for 'a' parameter.") %>%
-        set_species_param_default("b", 3,
-                                  "Using default values for 'b' parameter.")
+    if (!all(c("a", "b") %in% names(sp))) {
+        stop("The species parameter data frame must contain columns 'a' and 'b'.")
+    }
 
     sp[["a"]] * l^sp[["b"]]
 }
@@ -194,11 +189,9 @@ w2l <- function(w, species_params) {
     if (length(w) != 1 && length(w) != nrow(sp)) {
         stop("The length of 'w' should be one or equal to the number of species.")
     }
-    sp <- sp %>%
-        set_species_param_default("a", 0.01,
-                                  "Using default values for 'a' parameter.") %>%
-        set_species_param_default("b", 3,
-                                  "Using default values for 'b' parameter.")
+    if (!all(c("a", "b") %in% names(sp))) {
+        stop("The species parameter data frame must contain columns 'a' and 'b'.")
+    }
 
     (w / sp[["a"]])^(1 / sp[["b"]])
 }
@@ -301,4 +294,58 @@ get_steady_state_n <- function(params, g, mu, D, N0,
     }
 
     return(zero_above_support(n, w_top))
+}
+
+#' Warn about column names that look like mis-spelled parameter names
+#'
+#' Compares the actual column names of a parameter data frame against the set of
+#' recognised names and issues a single warning about any names that are a near
+#' match (a likely typo) but not an exact match. Names are not corrected, only
+#' flagged, so that legitimate custom columns are left untouched.
+#'
+#' @param actual Character vector of the column names present in the data frame.
+#' @param known Character vector of recognised parameter names.
+#' @param df_type A short description of the data frame used in the warning
+#'   message, e.g. `"gear parameter"` or `"species parameter"`.
+#' @param curated Character vector of known problematic names that should always
+#'   be flagged even when they are further than the fuzzy-match threshold from
+#'   any recognised name (e.g. familiar abbreviations).
+#'
+#' @return Called for its side effect (a warning). Returns `NULL` invisibly.
+#' @concept helper
+#' @noRd
+check_for_misspellings <- function(actual, known, df_type,
+                                   curated = character(0)) {
+    unknown <- setdiff(actual, known)
+    if (length(unknown) == 0) {
+        return(invisible(NULL))
+    }
+    # Only fuzzy-match against names long enough that a near miss is meaningful.
+    known_fuzzy <- known[nchar(known) >= 3]
+    hits <- character(0)
+    guess <- character(0)
+    for (nm in unknown) {
+        if (length(known_fuzzy) == 0) {
+            j <- integer(0)
+            near <- FALSE
+        } else {
+            d <- as.vector(adist(nm, known_fuzzy, ignore.case = TRUE))
+            j <- which.min(d)
+            near <- nchar(nm) >= 3 &&
+                (d[j] == 1 || (d[j] <= 2 && nchar(known_fuzzy[j]) >= 6))
+        }
+        if (nm %in% curated || near) {
+            hits <- c(hits, nm)
+            guess <- c(guess, if (length(j) == 1) known_fuzzy[j] else NA_character_)
+        }
+    }
+    if (length(hits) > 0) {
+        suggestions <- ifelse(is.na(guess), paste0("`", hits, "`"),
+                              paste0("`", hits, "` (did you mean `", guess, "`?)"))
+        warning("Some column names in your ", df_type, " data ",
+                "frame are very close to standard parameter names: ",
+                paste(suggestions, collapse = ", "),
+                ". Please check for mis-spellings.")
+    }
+    invisible(NULL)
 }

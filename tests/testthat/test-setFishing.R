@@ -408,6 +408,15 @@ test_that("gear_params reactive validation works", {
     df <- data.frame(species = "Sprat", gear = "g", selfunc = "knife_edge")
     expect_warning(gp <- gear_params(df), "very close to standard parameter names")
 
+    # 1b. Fuzzy typo (issue #442): `sel_fun` should be flagged as `sel_func`
+    df_typo <- data.frame(species = "Sprat", gear = "g", sel_fun = "knife_edge")
+    expect_warning(gear_params(df_typo), "did you mean `sel_func`")
+    # A legitimate custom column must not be flagged
+    df_custom <- data.frame(species = "Sprat", gear = "g",
+                            sel_func = "knife_edge", knife_edge_size = 10,
+                            my_custom_note = "abc")
+    expect_no_warning(gear_params(df_custom))
+
     # 2. Parameter checks for sigmoid_length (l25 >= l50)
     df2 <- data.frame(species = "Sprat", gear = "g", sel_func = "sigmoid_length", l25 = 15, l50 = 10)
     expect_warning(gp2 <- gear_params(df2), "must be smaller than l50")

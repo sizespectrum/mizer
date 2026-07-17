@@ -69,22 +69,36 @@ detects such a name.
 
 \code{validSpeciesParams()} first calls \code{validGivenSpeciesParams()} but then
 goes further by adding default values for species parameters that were not
-provided. The function sets default values if any of the following species
-parameters are missing or NA:
+provided. It only sets defaults for those species parameters that are not
+owned by a single rate-setting function, namely those that are read by
+several of them (\code{n}), that are used only when projecting (\code{alpha}), that
+determine the size grid (\code{w_min}, \code{w_max}), that are needed for the
+length-weight conversion (\code{a}, \code{b}) or that are used only for reporting
+(\code{is_background}). The function sets default values if any of the following
+species parameters are missing or NA:
 \itemize{
 \item \code{w_max} is set to \code{1.5 * w_inf} (it is only a computational boundary)
 \item \code{w_repro_max} is set to \code{w_inf}
 \item \code{w_mat} is set to \code{w_inf/4}
 \item \code{w_min} is set to \code{0.001}
 \item \code{alpha} is set to \code{0.6}
-\item \code{interaction_resource} is set to \code{1}
 \item \code{n} is set to \code{3/4}
-\item \code{p} is set to \code{n}
-\item \code{z_ext} is set to \code{0}
-\item \code{d} is set to \code{n - 1}
-\item \code{E_ext} is set to \code{0}
-\item \code{D_ext} is set to \code{0}
+\item \code{a} is set to \code{0.01}
+\item \code{b} is set to \code{3}
+\item \code{is_background} is set to \code{FALSE}
 }
+
+All other species parameters are given their default values by the
+rate-setting function that uses them, so that each default has a single
+home. For example \code{p} and \code{k} are set by \code{\link[=setMetabolicRate]{setMetabolicRate()}}, \code{z_ext}, \code{d}
+and \code{z0} by \code{\link[=setExtMort]{setExtMort()}}, \code{E_ext} by \code{\link[=setExtEncounter]{setExtEncounter()}}, \code{D_ext} by
+\code{\link[=setExtDiffusion]{setExtDiffusion()}}, \code{interaction_resource} by \code{\link[=setInteraction]{setInteraction()}}, \code{beta}
+and \code{sigma} by \code{\link[=setPredKernel]{setPredKernel()}}, \code{q} and \code{gamma} by \code{\link[=setSearchVolume]{setSearchVolume()}},
+and \code{erepro}, \code{m}, \code{w_mat25} and \code{R_max} by \code{\link[=setReproduction]{setReproduction()}}. These
+columns are therefore absent from the data frame returned by
+\code{validSpeciesParams()} but present in the species parameters of a
+\code{MizerParams} object, because \code{\link[=setParams]{setParams()}} calls all the rate-setting
+functions.
 
 Note that the species parameters returned by these functions are not
 guaranteed to produce a viable model. More checks of the parameters are

@@ -7,7 +7,7 @@
 \alias{metab<-}
 \title{Set metabolic rate}
 \usage{
-setMetabolicRate(object, metab = NULL, p = NULL, reset = FALSE, ...)
+setMetabolicRate(object, metab = NULL, p = deprecated(), reset = FALSE, ...)
 
 getMetabolicRate(params)
 
@@ -22,9 +22,11 @@ metab(params) <- value
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".}
 
-\item{p}{The allometric metabolic exponent. This is only used if \code{metab}
-is not given explicitly and if the exponent is not specified in a \code{p}
-column in the \code{species_params}.}
+\item{p}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The allometric metabolic
+exponent. Set the \code{p} column in the species parameters instead, with
+\code{species_params(params)$p <- value}. This argument never took effect on a
+\code{MizerParams} object because such an object always has a \code{p} column
+already, and the argument was only used to fill in a missing one.}
 
 \item{reset}{If set to TRUE, then the metabolic rate will be reset to the
 value calculated from the species parameters, even if it was previously
@@ -67,7 +69,7 @@ where \eqn{k_s w^p} represents the rate of standard metabolism and \eqn{k w}
 is the rate at which energy is expended on activity and movement. The values
 of \eqn{k_s}, \eqn{p} and \eqn{k} are taken from the \code{ks}, \code{p} and
 \code{k} columns in the species parameter dataframe. If any of these
-parameters are not supplied, the defaults are \eqn{k = 0}, \eqn{p = 3/4} and
+parameters are not supplied, the defaults are \eqn{k = 0}, \eqn{p = n} and
 \deqn{k_s = f_c h \alpha w_{mat}^{n-p},}{k_s = f_c * h * alpha * w_mat^(n - p),}
 where \eqn{f_c} is the critical feeding level taken from the \code{fc} column
 in the species parameter data frame. If the critical feeding level is not

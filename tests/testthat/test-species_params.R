@@ -70,11 +70,8 @@ test_that("Setting species params works", {
     expect_identical(params@species_params$h[[1]], h_old)
     expect_identical(params@intake_max[1, 1], intake_max_old)
 
-    # changing k_vb does not immediately change anything
+    # changing k_vb changes h because h is missing from given_species_params
     species_params(params)$k_vb[[1]] <- 2 * species_params(params)$k_vb[[1]]
-    expect_identical(params@intake_max[1, 1], intake_max_old)
-    # but clearing the default on h will lead to change
-    species_params(params)$h[[1]] <- NA
     expect_equal(params@species_params$h[[1]], 2 * h_old)
 
     # increasing f0 increases gamma
@@ -93,10 +90,9 @@ test_that("Setting species params works", {
     species_params(params)$w_min[[1]] <- 1
     expect_identical(params@w_min_idx[[1]], 40)
 
-    # given species params are not affected
-    beta <- params@given_species_params$beta
+    # given species params are updated by species_params<-
     species_params(params)$beta <- 1
-    expect_identical(params@given_species_params$beta, beta)
+    expect_identical(unname(params@given_species_params$beta), rep(1, 3))
 })
 
 test_that("Error if species names don't match", {
@@ -165,8 +161,9 @@ test_that("calculated_species_params returns only non-given values", {
     params <- NS_params_small
 
     calculated <- calculated_species_params(params)
-    expect_false("species" %in% names(calculated))
-    expect_true(all(vapply(calculated, function(col) !all(is.na(col)), logical(1))))
+    expect_true("species" %in% names(calculated))
+    expect_identical(names(calculated)[1], "species")
+    expect_true(all(vapply(calculated[, -1, drop = FALSE], function(col) !all(is.na(col)), logical(1))))
 
     given_species_params(params)$gamma <- NULL
     calculated <- calculated_species_params(params)
@@ -298,6 +295,12 @@ test_that("Reactive validation and conversions work", {
     df <- data.frame(species = c("Sprat", "Herring"), w_inf = c(10, 100))
     sp <- species_params(df)
     expect_warning(sp$wmin <- 0.1, "very close to standard parameter names")
+    # Fuzzy typo of a recognised name is flagged with a suggestion ...
+    expect_warning(sp$w_maxx <- 100, "did you mean `w_max`")
+    # ... but a genuine custom column is not (use a fresh object without the
+    # typo'd columns added above)
+    sp_clean <- species_params(df)
+    expect_no_warning(sp_clean$my_note <- "x")
 
     # 2. Length-to-weight conversion
     df2 <- data.frame(species = "Sprat", a = 0.01, b = 3, l_mat = 10)

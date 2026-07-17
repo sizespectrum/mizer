@@ -68,7 +68,7 @@ gear_params(params) <- data.frame(
     gear = c("gear1", "gear2", "gear1"),
     species = c("Cod", "Cod", "Haddock"),
     catchability = c(0.5, 2, 1),
-    sel_fun = c("sigmoid_weight", "knife_edge", "sigmoid_weight"),
+    sel_func = c("sigmoid_weight", "knife_edge", "sigmoid_weight"),
     sigmoidal_weight = c(1000, NA, 800),
     sigmoidal_sigma = c(100, NA, 100),
     knife_edge_size = c(NA, 1000, NA)

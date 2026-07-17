@@ -52,7 +52,7 @@ test_that("validSpeciesParams() works", {
     expect_s3_class(sp <- validSpeciesParams(sp), "data.frame")
     expect_equal(sp$w_mat, sp$w_max / 4)
     expect_equal(sp$alpha, c(0.6, 0.6), ignore_attr = TRUE)
-    expect_equal(sp$interaction_resource, c(1, 1), ignore_attr = TRUE)
+    expect_equal(sp$n, c(3/4, 3/4), ignore_attr = TRUE)
     expect_identical(rownames(sp), c("2", "1"))
 })
 
@@ -101,9 +101,9 @@ test_that("validSpeciesParams sets the documented defaults", {
                      w_mat = c(NA, 20),
                      w_min = c(NA, 1),
                      alpha = c(NA, 0.5),
-                     interaction_resource = c(NA, 2),
                      n = c(NA, 0.8),
-                     p = c(NA, 0.7))
+                     a = c(NA, 0.02),
+                     b = c(NA, 3.1))
 
     sp2 <- validSpeciesParams(sp)
 
@@ -111,9 +111,34 @@ test_that("validSpeciesParams sets the documented defaults", {
     expect_equal(sp2$w_mat, c(10 / 4, 20), ignore_attr = TRUE)
     expect_equal(sp2$w_min, c(0.001, 1), ignore_attr = TRUE)
     expect_equal(sp2$alpha, c(0.6, 0.5), ignore_attr = TRUE)
-    expect_equal(sp2$interaction_resource, c(1, 2), ignore_attr = TRUE)
     expect_equal(sp2$n, c(3/4, 0.8), ignore_attr = TRUE)
-    expect_equal(sp2$p, c(3/4, 0.7), ignore_attr = TRUE)
+    expect_equal(sp2$a, c(0.01, 0.02), ignore_attr = TRUE)
+    expect_equal(sp2$b, c(3, 3.1), ignore_attr = TRUE)
+    expect_false(sp2$is_background[[1]])
+})
+
+test_that("validSpeciesParams does not set defaults owned by a rate setter", {
+    # Parameters that exactly one setX() function reads are defaulted by that
+    # function, not here, so that each default has a single home.
+    sp <- validSpeciesParams(data.frame(species = "a", w_inf = 100))
+    for (par in c("p", "z_ext", "d", "E_ext", "D_ext", "interaction_resource",
+                  "k", "erepro", "m", "w_mat25", "q", "gamma", "h", "ks")) {
+        expect_false(par %in% names(sp),
+                     info = paste(par, "should be set by its rate setter, not centrally"))
+    }
+    # But the owning setters do supply them, so a built model has them all.
+    params <- suppressMessages(newMultispeciesParams(
+        data.frame(species = "a", w_inf = 100)))
+    for (par in c("p", "z_ext", "d", "E_ext", "D_ext", "interaction_resource",
+                  "k", "erepro", "m", "w_mat25", "q", "gamma", "h", "ks")) {
+        expect_true(par %in% names(params@species_params), info = par)
+    }
+})
+
+test_that("a missing maximum-size column does not break the defaults", {
+    # Without w_inf there is no w_mat column, so any default derived from
+    # w_mat must not be evaluated. See species_params.data.frame().
+    expect_no_error(species_params(data.frame(species = c("a", "b"))))
 })
 
 test_that("w_inf is the first-class maximum-size parameter", {
