@@ -30,13 +30,11 @@
 #' `calculated_species_params()`. You get all species_params with
 #' `species_params()`.
 #'
-#' If you change given species parameters with `given_species_params<-()` this
-#' will trigger a re-calculation of the calculated species parameters, where
-#' necessary. However if you change species parameters with `species_params<-()`
-#' no recalculation will take place and furthermore your values could be
-#' overwritten by a future recalculation triggered by a call to
-#' `given_species_params<-()` . So in most use cases you will only want to use
-#' `given_species_params<-()`.
+#' When you change species parameters with `species_params<-()`, mizer
+#' automatically detects which parameters you have changed. It records these
+#' changed parameters in `given_species_params` so that they are protected
+#' against being overwritten by future recalculations. It then triggers a
+#' re-calculation of the calculated species parameters.
 #'
 #' There are some species parameters that are used to set up the
 #' size-dependent parameters that are used in the mizer model:
@@ -61,7 +59,7 @@
 #'   using other predation kernel functions.
 #'
 #' When you change one of the above species parameters using
-#' `given_species_params<-()` or `species_params<-()`, the new value will be
+#' `species_params<-()` or `given_species_params<-()`, the new value will be
 #' used to update the corresponding size-dependent rates automatically, unless
 #' you have set those size-dependent rates manually, in which case the
 #' corresponding species parameters will be ignored.
@@ -108,12 +106,9 @@
 #'   `k_vb`, `w_inf` and `t0` as well as the weight-length exponent `b` to
 #'   determine it. This is unreliable and is therefore not recommended.
 #'
-#' Changing these parameters with `species_params<-()` updates the stored
-#' species parameter table and triggers a recalculation via [setParams()].
-#' However they only affect model behaviour if the corresponding downstream
-#' parameters are recalculated rather than kept at explicitly supplied values.
-#' In typical workflows these quantities should therefore be changed via
-#' `given_species_params<-()`.
+#' Changing these parameters with `species_params<-()` will trigger a
+#' recalculation of the downstream parameters, provided they are not protected
+#' by being explicitly given.
 #'
 #' There are other species parameters that are used in tuning the model to
 #' observations:
@@ -149,17 +144,18 @@
 #' @return `species_params()`: Data frame containing all species parameters
 #'   currently stored in the model.
 #'
-#'   `species_params<-()`: Updates the full species parameter table after
-#'   validating it with [validSpeciesParams()] and then recalculating the model
-#'   parameters with [setParams()].
+#'   `species_params<-()`: Updates the `given_species_params` with any
+#'   parameters you have changed, and then recalculates the full species
+#'   parameter table and the model parameters.
 #'
 #'   `given_species_params()`: Data frame containing the species parameter
 #'   values that were supplied explicitly by the user.
 #'
-#'   `given_species_params<-()`: Updates the explicitly supplied species
-#'   parameters after validating them with [validGivenSpeciesParams()] and then
-#'   recalculating the full species parameter table and dependent model
-#'   quantities.
+#'   `given_species_params<-()`: An alternative to `species_params<-()` that
+#'   also triggers a recalculation of other parameters. The only difference is
+#'   that `given_species_params<-()` issues warnings when a parameter is
+#'   changed whose effect is overridden by another parameter that has already
+#'   been given. This is especially useful during interactive use.
 #'
 #'   `calculated_species_params()`: Data frame containing only those species
 #'   parameter entries that are not explicit user input. Columns that would
@@ -230,8 +226,34 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     if (!all(value$species == object@species_params$species)) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")
     }
-    object@species_params <- value
-    suppressMessages(setParams(object))
+    
+    # Find what changed compared to old species_params
+    old_sp <- object@species_params
+    given <- object@given_species_params
+    
+    common_cols <- intersect(names(value), names(old_sp))
+    for (col in common_cols) {
+        old_vals <- old_sp[[col]]
+        new_vals <- value[[col]]
+        # which ones changed?
+        changed <- !((old_vals == new_vals) | (is.na(old_vals) & is.na(new_vals)))
+        changed[is.na(changed)] <- TRUE
+        
+        if (any(changed)) {
+            if (!col %in% names(given)) {
+                given[[col]] <- NA
+            }
+            given[[col]][changed] <- new_vals[changed]
+        }
+    }
+    new_cols <- setdiff(names(value), names(old_sp))
+    if (length(new_cols) > 0) {
+        given <- cbind(given, value[new_cols])
+    }
+    
+    object@given_species_params <- given
+    object@species_params <- validSpeciesParams(given)
+    return(suppressMessages(setParams(object)))
 }
 
 #' Test if an object is a species_params object

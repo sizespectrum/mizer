@@ -70,11 +70,8 @@ test_that("Setting species params works", {
     expect_identical(params@species_params$h[[1]], h_old)
     expect_identical(params@intake_max[1, 1], intake_max_old)
 
-    # changing k_vb does not immediately change anything
+    # changing k_vb changes h because h is missing from given_species_params
     species_params(params)$k_vb[[1]] <- 2 * species_params(params)$k_vb[[1]]
-    expect_identical(params@intake_max[1, 1], intake_max_old)
-    # but clearing the default on h will lead to change
-    species_params(params)$h[[1]] <- NA
     expect_equal(params@species_params$h[[1]], 2 * h_old)
 
     # increasing f0 increases gamma
@@ -93,10 +90,9 @@ test_that("Setting species params works", {
     species_params(params)$w_min[[1]] <- 1
     expect_identical(params@w_min_idx[[1]], 40)
 
-    # given species params are not affected
-    beta <- params@given_species_params$beta
+    # given species params are updated by species_params<-
     species_params(params)$beta <- 1
-    expect_identical(params@given_species_params$beta, beta)
+    expect_identical(unname(params@given_species_params$beta), rep(1, 3))
 })
 
 test_that("Error if species names don't match", {
