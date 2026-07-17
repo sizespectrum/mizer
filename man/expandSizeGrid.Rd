@@ -34,8 +34,8 @@ A new \link{MizerParams} object with the updated size grid.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
-}
-\details{
 This function expands the size grid in a \link{MizerParams} object to the desired
-min and max size, preserving all existing species.
+min and max size, preserving all existing species. The function is deprecated
+because you can achieve the same more flexibly with \code{adjustSizeGrid()}.
 }
+\concept{deprecated}

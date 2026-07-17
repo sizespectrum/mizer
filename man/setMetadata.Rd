@@ -45,7 +45,6 @@ including at least
 \code{mizer_version}, \code{extensions}, \code{time_created} and \code{time_modified}.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Setting metadata is particularly important for sharing your model with
 others. All metadata fields are optional and you can also add other fields
 of your own choosing. If you set a value
@@ -64,8 +63,7 @@ working.
 \item \code{extensions} A named vector of strings where each name is the name of and
 extension package needed to run the model and each value is a string giving
 the information that the remotes package needs to install the correct version
-of the extension package, see https://remotes.r-lib.org/. This field is
-set by the extension packages.
+of the extension package. This field is set by the extension packages.
 \item \code{time_created} A POSIXct date-time object with the creation time.
 \item \code{time_modified} A POSIXct date-time object with the last modified time.
 }
@@ -77,7 +75,8 @@ the object, so the \code{time_modified} field will not be updated.
 params <- setMetadata(NS_params,
     title = "North Sea model",
     description = "A multi-species model of the North Sea fish community.",
-    authors = list(list(name = "Finlay Scott", email = "finlay@example.com")))
+    authors = list(list(name = "Finlay Scott", email = "finlay@example.com")),
+    my_own_filed = "something that doesn't fit elsewhere")
 getMetadata(params)$title
 getMetadata(params)$authors[[1]]$name
 }

@@ -157,7 +157,6 @@ reference:
   - removeSpecies
   - renameSpecies
   - renameGear
-  - expandSizeGrid
   - adjustSizeGrid
   - markBackground
   - removeBackgroundSpecies
@@ -236,6 +235,7 @@ reference:
   - has_concept("summary functions")
   - getFeedingLevel
   - getCriticalFeedingLevel
+  - "w"
 - title: Calculating rates
   description: >
     Calculate instantaneous ecological rates from a `MizerParams`
@@ -358,9 +358,9 @@ reference:
   - getReproductionLevel
   - getRequiredRDD
 - title: Internal rate functions
-  description: These functions are used by project() to calculate
-    instantaneous rates at each time step. You should use the get...()
-    functions instead of the mizer...() functions.
+  description: These functions are used by `project()` to calculate
+    instantaneous rates at each time step. You should use the `get...()`
+    functions instead of the `project...()` functions.
   contents:
   - mizerRates
   - starts_with("mizer")
@@ -380,7 +380,6 @@ reference:
   - summary.MizerParams
   - str.MizerParams
   - compareParams
-  - "w"
   - validParams
   - MizerSim-class
   - summary.MizerSim

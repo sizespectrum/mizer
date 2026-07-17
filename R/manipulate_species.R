@@ -726,7 +726,7 @@ adjustSizeGrid.MizerParams <- function(params,
 
     # Check for biomass/diet loss warnings
     truncated_idx <- setdiff(seq_along(params@w), old_idx)
-    
+
     # Low-end resource truncation (below new_min_w_pp)
     truncated_full_low_idx <- which(params@w_full < min(p@w_full) - .Machine$double.eps)
     # High-end resource truncation (above new_max_w)
@@ -750,19 +750,19 @@ adjustSizeGrid.MizerParams <- function(params,
     if (length(truncated_full_low_idx) > 0) {
         pred_kernel <- getPredKernel(params)
         encounter_old <- getEncounter(params)
-        
+
         lost_diet_fracs <- sapply(seq_along(params@species_params$species), function(sp_idx) {
             w_egg_idx <- params@w_min_idx[sp_idx]
             tot_diet <- encounter_old[sp_idx, w_egg_idx]
             if (tot_diet <= 0) return(0)
-            
-            lost_enc <- params@search_vol[sp_idx, w_egg_idx] * 
-                params@species_params$interaction_resource[sp_idx] * 
-                sum(pred_kernel[sp_idx, w_egg_idx, truncated_full_low_idx] * 
-                    params@w_full[truncated_full_low_idx] * 
-                    params@dw_full[truncated_full_low_idx] * 
+
+            lost_enc <- params@search_vol[sp_idx, w_egg_idx] *
+                params@species_params$interaction_resource[sp_idx] *
+                sum(pred_kernel[sp_idx, w_egg_idx, truncated_full_low_idx] *
+                    params@w_full[truncated_full_low_idx] *
+                    params@dw_full[truncated_full_low_idx] *
                     params@initial_n_pp[truncated_full_low_idx])
-            
+
             return(lost_enc / tot_diet)
         })
         names(lost_diet_fracs) <- params@species_params$species
@@ -845,9 +845,9 @@ adjustSizeGrid.MizerParams <- function(params,
 #' Expand the size grid
 #'
 #' `r lifecycle::badge("deprecated")`
-#'
 #' This function expands the size grid in a [MizerParams] object to the desired
-#' min and max size, preserving all existing species.
+#' min and max size, preserving all existing species. The function is deprecated
+#' because you can achieve the same more flexibly with `adjustSizeGrid()`.
 #'
 #' @param params A [MizerParams] object.
 #' @param new_min_w The new minimum size in the grid. Defaults to the current minimum.
@@ -861,6 +861,7 @@ adjustSizeGrid.MizerParams <- function(params,
 #' @return A new [MizerParams] object with the updated size grid.
 #' @export
 #' @rdname expandSizeGrid
+#' @concept deprecated
 expandSizeGrid <- function(params, ...) {
     lifecycle::deprecate_warn("3.1.1", "expandSizeGrid()", "adjustSizeGrid()")
     UseMethod("expandSizeGrid")
