@@ -1,5 +1,10 @@
 # mizer 3.1.0.9000 (development version)
 
+- `library(mizer)` now prints a one-line startup message the first time you
+  load a new mizer version, pointing you to `news(package = "mizer")`. It is
+  shown at most once per version and never interrupts a session more than
+  that.
+
 - The "Getting started" guide now includes a self-contained "A worked example:
   the Celtic Sea" section that takes a real ecosystem from raw species parameters
   through building, finding the steady state, calibrating to observed biomasses
