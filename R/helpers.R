@@ -145,9 +145,6 @@ bin_midpoints <- function(params, w_full = FALSE) {
 #' This is useful for converting a length-based species parameter to a
 #' weight-based species parameter.
 #'
-#' If any `a` or `b` parameters are missing the default values `a = 0.01` and
-#' `b = 3` are used for the missing values.
-#'
 #' @param l Lengths in cm. Either a single number used for all species or a
 #'   vector with one number for each species.
 #' @param w Weights in grams. Either a single number used for all species or a
@@ -170,11 +167,9 @@ l2w <- function(l, species_params) {
     if (length(l) != 1 && length(l) != nrow(sp)) {
         stop("The length of 'l' should be one or equal to the number of species.")
     }
-    sp <- sp %>%
-        set_species_param_default("a", 0.01,
-                                  "Using default values for 'a' parameter.") %>%
-        set_species_param_default("b", 3,
-                                  "Using default values for 'b' parameter.")
+    if (!all(c("a", "b") %in% names(sp))) {
+        stop("The species parameter data frame must contain columns 'a' and 'b'.")
+    }
 
     sp[["a"]] * l^sp[["b"]]
 }
@@ -194,11 +189,9 @@ w2l <- function(w, species_params) {
     if (length(w) != 1 && length(w) != nrow(sp)) {
         stop("The length of 'w' should be one or equal to the number of species.")
     }
-    sp <- sp %>%
-        set_species_param_default("a", 0.01,
-                                  "Using default values for 'a' parameter.") %>%
-        set_species_param_default("b", 3,
-                                  "Using default values for 'b' parameter.")
+    if (!all(c("a", "b") %in% names(sp))) {
+        stop("The species parameter data frame must contain columns 'a' and 'b'.")
+    }
 
     (w / sp[["a"]])^(1 / sp[["b"]])
 }

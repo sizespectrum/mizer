@@ -99,6 +99,10 @@
   subsetting and subassignment S3 methods, making it safer to use and paving
   the way for future auto-recalculations.
 
+- Default values for the `a` (0.01) and `b` (3) species parameters (for the 
+  weight-length relationship) are now saved in `species_params` instead of being 
+  calculated internally by `l2w()` and `w2l()` only when needed.
+
 - `resource_params<-` now rebuilds the resource size-spectrum arrays (`cc_pp`,
   `rr_pp`) via `setResource()`, making resource parameter assignment
   consistent with `species_params<-` and `gear_params<-` (#439).

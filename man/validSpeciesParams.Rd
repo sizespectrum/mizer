@@ -79,6 +79,8 @@ parameters are missing or NA:
 \item \code{alpha} is set to \code{0.6}
 \item \code{interaction_resource} is set to \code{1}
 \item \code{n} is set to \code{3/4}
+\item \code{a} is set to \code{0.01}
+\item \code{b} is set to \code{3}
 \item \code{p} is set to \code{n}
 \item \code{z_ext} is set to \code{0}
 \item \code{d} is set to \code{n - 1}

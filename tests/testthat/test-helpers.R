@@ -1,49 +1,38 @@
 test_that("l2w works", {
-    no_sp <- nrow(NS_species_params_small)
+    sp <- validSpeciesParams(NS_species_params_small)
+    no_sp <- nrow(sp)
     # call with species_params
-    expect_identical(l2w(2, NS_species_params_small), rep(0.08, no_sp))
+    expect_identical(l2w(2, sp), rep(0.08, no_sp))
     # call with params - result is named by species
+    # NS_params_small should have `a` and `b` because of the mizer upgrade,
+    # but let's make sure by testing against it directly if it has them.
+    # (Actually we will just test it directly)
     expect_equal(l2w(2, NS_params_small), rep(0.08, no_sp), ignore_attr = TRUE)
     # call with wrong 2nd argument
     expect_error(l2w(2, 4),
                  "The second argument must be either ")
     # call with wrong 1st argument
-    expect_error(l2w("a", NS_species_params_small),
+    expect_error(l2w("a", sp),
                  "l is not a numeric or integer vector")
-    expect_error(l2w(1:2, NS_species_params_small),
+    expect_error(l2w(1:2, sp),
                  "The length of 'l'")
-    sp <- NS_species_params_small[1:2, "species", drop = FALSE]
-    expect_condition(
-        expect_condition(expect_equal(l2w(c(2, 3), sp), c(0.08, 0.27)),
-                         "Using default values for 'a' parameter.",
-                         class = "info_about_default"),
-        "Using default values for 'b' parameter.",
-        class = "info_about_default"
-    )
 })
 
 test_that("w2l works", {
-    no_sp <- nrow(NS_species_params_small)
+    sp <- validSpeciesParams(NS_species_params_small)
+    no_sp <- nrow(sp)
     # call with species_params
-    expect_identical(w2l(0.08, NS_species_params_small), rep(2, no_sp))
+    expect_identical(w2l(0.08, sp), rep(2, no_sp))
     # call with params - result is named by species
     expect_equal(w2l(0.08, NS_params_small), rep(2, no_sp), ignore_attr = TRUE)
     # call with wrong 1st argument
-    expect_error(w2l("a", NS_species_params_small),
+    expect_error(w2l("a", sp),
                  "w is not a numeric or integer vector")
-    expect_error(w2l(1:2, NS_species_params_small),
+    expect_error(w2l(1:2, sp),
                  "The length of 'w'")
     # w2l should do the inverse of l2w
-    expect_equal(w2l(l2w(2, NS_species_params_small), NS_species_params_small),
+    expect_equal(w2l(l2w(2, sp), sp),
                  rep(2, no_sp))
-    sp <- NS_species_params_small[1:2, "species", drop = FALSE]
-    expect_condition(
-        expect_condition(expect_equal(w2l(c(0.08, 0.27), sp), c(2, 3)),
-                         "Using default values for 'a' parameter.",
-                         class = "info_about_default"),
-        "Using default values for 'b' parameter.",
-        class = "info_about_default"
-    )
 })
 
 test_that("resource_power_law point-samples by default", {

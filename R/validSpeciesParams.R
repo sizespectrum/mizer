@@ -53,6 +53,8 @@
 #' * `alpha` is set to `0.6`
 #' * `interaction_resource` is set to `1`
 #' * `n` is set to `3/4`
+#' * `a` is set to `0.01`
+#' * `b` is set to `3`
 #' * `p` is set to `n`
 #' * `z_ext` is set to `0`
 #' * `d` is set to `n - 1`

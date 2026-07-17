@@ -205,6 +205,8 @@ species_params.data.frame <- function(object, strict = FALSE, ...) {
     sp <- set_species_param_default(sp, "E_ext", 0)
     sp <- set_species_param_default(sp, "D_ext", 0)
     sp <- set_species_param_default(sp, "is_background", FALSE)
+    sp <- set_species_param_default(sp, "a", 0.01)
+    sp <- set_species_param_default(sp, "b", 3)
     class(sp) <- c("species_params", setdiff(class(sp), c("given_species_params", "species_params")))
     check_and_convert_species_params(sp)
 }
