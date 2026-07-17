@@ -1,5 +1,12 @@
 # mizer 3.1.0.9000 (development version)
 
+## Species parameter setting
+
+- Modifying species parameters via `species_params<-()` now automatically detects your changes, records them in `given_species_params` so they are protected from being overwritten by defaults in the future, and silently triggers the recalculation of any dependent parameters and rate arrays. Previously, `species_params<-()` bypassed the `given_species_params` protection and didn't trigger recalculations. This restores expected behaviour and makes `species_params<-()` the recommended setter for scripts.
+- The `given_species_params<-()` setter remains as an explicit alternative that is particularly useful during interactive sessions, because it issues warnings if you change a parameter whose effect is overridden by another parameter that has already been given.
+
+## Other improvements
+
 - `compareParams()` now checks that the number of size bins, species and gears
   agree before comparing the array-valued slots. When they differ it reports the
   mismatch instead of erroring while trying to compare arrays of incompatible
