@@ -44,6 +44,16 @@ as standalone `@param`, which re-triggers the check error.
 new formals. So all of their method arguments go in the `@param ...` `\describe{}`
 block on the page, and the methods use `@usage NULL`.
 
+Because every method on the page uses `@usage NULL` (and, for `print`/`summary`/
+`as.data.frame`/`str`, the shared doc block is attached to a `NULL` placeholder
+rather than a real function), roxygen2 never auto-generates a `\usage{}` section
+for these pages at all. An Rd file with `\arguments` but no `\usage` triggers the
+`R CMD check` NOTE "Rd files without \usage". Fix it by adding one manual
+`@usage` tag — matching the base generic's own signature, e.g. `@usage
+print(x, ...)` or `@usage str(object, max.level = NA, ...)` — to the single
+roxygen block that carries `@name`/`@rdname` for that page. After running
+`devtools::document()`, confirm the fix with `tools::checkRd("man/<name>.Rd")`.
+
 ## The `param_object_dots` template
 
 Most rate-function generics use `@template param_object_dots`. That template

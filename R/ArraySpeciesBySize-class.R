@@ -236,7 +236,7 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #'
 #' @name plot
 #' @family plotting functions
-#' @usage NULL
+#' @usage plot(x, ...)
 #' @export
 #' @examples
 #' \donttest{

@@ -28,6 +28,7 @@
 #'
 #' @return The printed object, invisibly.
 #'
+#' @usage print(x, ...)
 #' @aliases print.ArraySpeciesBySize print.ArrayTimeBySpecies print.ArrayTimeBySpeciesBySize print.summary.ArraySpeciesBySize print.summary.ArrayTimeBySpecies print.summary.ArrayTimeBySpeciesBySize
 #' @seealso [summary()], [as.data.frame()], [plot()],
 #'   [ArraySpeciesBySize()], [ArrayTimeBySpecies()],
@@ -70,6 +71,7 @@ NULL
 #' For array objects, a list of class `summary.ArraySpeciesBySize`,
 #' `summary.ArrayTimeBySpecies` or `summary.ArrayTimeBySpeciesBySize`.
 #'
+#' @usage summary(object, ...)
 #' @aliases summary.ArraySpeciesBySize summary.ArrayTimeBySpecies summary.ArrayTimeBySpeciesBySize summary.MizerSim summary.MizerParams
 #' @seealso [print()], [as.data.frame()], [str()], [MizerParams()], [MizerSim()],
 #'   [ArraySpeciesBySize()], [ArrayTimeBySpecies()],
@@ -117,6 +119,7 @@ NULL
 #'
 #' @return A data frame in long format.
 #'
+#' @usage as.data.frame(x, row.names = NULL, optional = FALSE, ...)
 #' @aliases as.data.frame.ArraySpeciesBySize as.data.frame.ArrayTimeBySpecies as.data.frame.ArrayTimeBySpeciesBySize
 #' @seealso [print()], [summary()], [str()], [plot()], [ArraySpeciesBySize()],
 #'   [ArrayTimeBySpecies()], [ArrayTimeBySpeciesBySize()]
@@ -146,6 +149,7 @@ NULL
 #'
 #' @return `NULL`, invisibly.
 #'
+#' @usage str(object, max.level = NA, ...)
 #' @aliases str.ArraySpeciesBySize str.ArrayTimeBySpecies str.ArrayTimeBySpeciesBySize str.MizerSim str.MizerParams
 #' @seealso [print()], [as.data.frame()], [summary()], [plot()], [MizerParams()], [MizerSim()], [ArraySpeciesBySize()],
 #'   [ArrayTimeBySpecies()], [ArrayTimeBySpeciesBySize()]

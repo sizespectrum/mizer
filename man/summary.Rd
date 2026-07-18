@@ -8,6 +8,9 @@
 \alias{summary.MizerSim}
 \alias{summary.MizerParams}
 \title{Summarise mizer objects}
+\usage{
+summary(object, ...)
+}
 \arguments{
 \item{object}{The object to summarise.}
 

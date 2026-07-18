@@ -8,6 +8,9 @@
 \alias{str.MizerSim}
 \alias{str.MizerParams}
 \title{Display the structure of mizer objects}
+\usage{
+str(object, max.level = NA, ...)
+}
 \arguments{
 \item{object}{The object to display the structure of.}
 

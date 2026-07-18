@@ -62,8 +62,8 @@ the resource abundance at time \code{t + dt} from all abundances and rates at ti
 
 To set your model to use semichemostat dynamics for the resource you do
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setResource(params, 
-                      resource_dynamics = "resource_semichemostat", 
+\if{html}{\out{<div class="sourceCode">}}\preformatted{params <- setResource(params,
+                      resource_dynamics = "resource_semichemostat",
                       resource_level = 0.5)
 }\if{html}{\out{</div>}}
 

@@ -10,6 +10,9 @@
 \alias{plot.ArrayResourceBySize}
 \alias{plot.ArrayTimeByResourceBySize}
 \title{Plot mizer arrays}
+\usage{
+plot(x, ...)
+}
 \arguments{
 \item{x}{An \code{ArraySpeciesBySize}, \code{ArrayTimeBySpecies}, or
 \code{ArrayTimeBySpeciesBySize} object.}
