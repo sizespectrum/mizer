@@ -100,7 +100,7 @@ These changes and how to adapt existing code are described in the new
   that setting `gp$sel_func <- "sigmoid_length"` immediately creates the `l25`
   and `l50` columns, ready to be filled in (#431).
 
-- Mis-spelled column names in the `gear_params` and `species_params` data
+- Misspelled column names in the `gear_params` and `species_params` data
   frames are now detected by fuzzy matching against the recognised parameter
   names. A near miss such as `sel_fun` (instead of `sel_func`) triggers a
   warning that suggests the intended name, rather than being silently ignored

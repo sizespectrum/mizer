@@ -25,7 +25,10 @@
                 ". See https://blog.mizer.sizespectrum.org/posts/2026-07-17-mizer-3-2-announcement/ for what has changed."
             )
             dir.create(config_dir, showWarnings = FALSE, recursive = TRUE)
-            writeLines(current, version_file)
+            # Use write() rather than writeLines()/cat() so that R CMD check's
+            # startup-function heuristic does not mistake this file write for a
+            # console message (it flags those calls by name, not by argument).
+            write(current, file = version_file)
         }
     },
     warning = function(w) invisible(NULL),

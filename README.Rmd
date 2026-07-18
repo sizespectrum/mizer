@@ -17,8 +17,8 @@ knitr::opts_chunk$set(
 <img src="man/figures/mizer.png" style='height: 50%; width: 50%; object-fit: contain' title="mizer logo created by Kira Askaroff (www.kiraaskaroff.com)"/>
 
 [![CRAN Status](https://www.r-pkg.org/badges/version-ago/mizer)](https://cran.r-project.org/package=mizer)
-[![CRAN Downloads](http://cranlogs.r-pkg.org/badges/grand-total/mizer)](https://cran.r-project.org/package=mizer)
-[![CRAN Downloads](http://cranlogs.r-pkg.org/badges/mizer)](https://cran.r-project.org/package=mizer)
+[![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/mizer)](https://cran.r-project.org/package=mizer)
+[![CRAN Downloads](https://cranlogs.r-pkg.org/badges/mizer)](https://cran.r-project.org/package=mizer)
 [![Coverage status](https://codecov.io/gh/sizespectrum/mizer/branch/master/graph/badge.svg)](https://app.codecov.io/github/sizespectrum/mizer?branch=master)
 </div>
 

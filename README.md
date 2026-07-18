@@ -8,9 +8,9 @@
 [![CRAN
 Status](https://www.r-pkg.org/badges/version-ago/mizer)](https://cran.r-project.org/package=mizer)
 [![CRAN
-Downloads](http://cranlogs.r-pkg.org/badges/grand-total/mizer)](https://cran.r-project.org/package=mizer)
+Downloads](https://cranlogs.r-pkg.org/badges/grand-total/mizer)](https://cran.r-project.org/package=mizer)
 [![CRAN
-Downloads](http://cranlogs.r-pkg.org/badges/mizer)](https://cran.r-project.org/package=mizer)
+Downloads](https://cranlogs.r-pkg.org/badges/mizer)](https://cran.r-project.org/package=mizer)
 [![Coverage
 status](https://codecov.io/gh/sizespectrum/mizer/branch/master/graph/badge.svg)](https://app.codecov.io/github/sizespectrum/mizer?branch=master)
 
@@ -83,7 +83,7 @@ therefore available from R’s built-in package manager.
 install.packages("mizer")
 
 # Alternatively, install the development version from GitHub
-remotes::install_github("sizespectrum/mizer")
+pak::pak("sizespectrum/mizer")
 ```
 
 ## Example
@@ -144,7 +144,9 @@ distribution and abundance of fish populations, or the effects of
 habitat loss or pollution on fish communities. Because mizer is a
 mechanistic model, it can deduce the complex population-level changes
 that we are interested in from the simpler changes in the physiological
-rates and feeding interactions of individual fish species.
+rates and feeding interactions of individual fish species. You can find
+examples of this in the [list of
+publications](https://sizespectrum.org/mizer/articles/publications.html).
 
 Overall, size-based multi-species models provide a more comprehensive
 and realistic framework for understanding the dynamics of fish

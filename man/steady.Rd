@@ -66,6 +66,12 @@ If the model use Beverton-Holt reproduction then the reproduction parameters
 are set to values that give the level of reproduction observed in that
 steady state. The \code{preserve} argument can be used to specify which of the
 reproduction parameters should be preserved.
+
+The resource is rebalanced so that the returned state is a steady state of
+the resource as well as of the consumers. The resource abundance is
+preserved while the capacity is recomputed to keep it steady. If the resource
+capacity had been set manually (frozen), it is rebalanced and thereby
+unfrozen.
 }
 \examples{
 \donttest{
