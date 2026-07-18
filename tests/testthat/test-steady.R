@@ -268,3 +268,51 @@ test_that("distance functions implement their documented formulas", {
     expect_equal(length(dist_log), 1)
     expect_equal(distanceSSLogN(params, previous, previous), 0)
 })
+
+# Deviation of the resource from the semichemostat fixed point
+# n_steady = r * cc / (r + mu); zero when the resource is exactly at steady
+# state.
+resource_deviation <- function(params) {
+    mu <- getResourceMort(params)
+    n_pp <- params@initial_n_pp
+    n_steady <- params@rr_pp * params@cc_pp / (params@rr_pp + mu)
+    sel <- n_pp > 0 & is.finite(n_steady)
+    max(abs(n_pp[sel] - n_steady[sel]) / n_pp[sel])
+}
+
+test_that("steady() rebalances the resource to a genuine fixed point", {
+    # For a normal (non-frozen) resource, steady() rebalances the resource so
+    # that it is a genuine fixed point and issues no warning.
+    expect_no_warning(
+        ps <- suppressMessages(steady(NS_params_small, progress_bar = FALSE))
+    )
+    expect_lt(resource_deviation(ps), 1e-8)
+    # From this state both the second-order and Euler steppers stay put and
+    # agree closely, confirming the resource really is at steady state.
+    sim_t <- project(ps, t_max = 5, dt = 0.1, method = "tr_bdf2",
+                     progress_bar = FALSE)
+    sim_e <- project(ps, t_max = 5, dt = 0.1, method = "euler",
+                     progress_bar = FALSE)
+    rel_diff_pp <- max(abs(finalNResource(sim_t) - finalNResource(sim_e)) /
+                           (finalNResource(sim_e) + 1e-30))
+    expect_lt(rel_diff_pp, 1e-3)
+})
+
+test_that("steady() rebalances a frozen resource capacity", {
+    # Freeze the resource capacity away from its balanced value.
+    pf <- suppressMessages(setResource(NS_params_small,
+                                       resource_capacity = NS_params_small@cc_pp * 1.3,
+                                       balance = FALSE))
+    expect_false(is.null(comment(pf@cc_pp)))
+    npp_before <- pf@initial_n_pp
+
+    # steady() rebalances the frozen capacity silently, as earlier mizer
+    # versions did, without a warning or message about the resource.
+    expect_no_warning(ps <- suppressMessages(steady(pf, progress_bar = FALSE)))
+    # The resource is now a genuine fixed point and no longer frozen ...
+    expect_lt(resource_deviation(ps), 1e-8)
+    expect_null(comment(ps@cc_pp))
+    # ... and the resource abundance itself was preserved (only the capacity
+    # was adjusted to balance it).
+    expect_equal(unclass(ps@initial_n_pp), unclass(npp_before))
+})

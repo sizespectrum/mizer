@@ -29,7 +29,9 @@ on the mizer blog.
 
 - `setResource()` no longer silently overwrites a manually set (frozen) rate
   or capacity array when balancing: the frozen array wins and a warning is
-  issued.
+  issued. The one exception to the frozen-array protection is that `steady()`
+  will rebalance the resource_capacity in order to return a steady state,
+  ignoring any freeze.
 
 These changes and how to adapt existing code are described in the new
 `vignette("upgrading")` ("Upgrading mizer").
