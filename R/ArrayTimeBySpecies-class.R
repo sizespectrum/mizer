@@ -132,8 +132,41 @@ print.summary.ArrayTimeBySpecies <- function(x, ...) {
     invisible(x)
 }
 
-#' @rdname plot
-#' @usage NULL
+#' Plot method for `ArrayTimeBySpecies` objects
+#'
+#' See [plot()] for an overview of the mizer plotting system and the
+#' arguments shared by all of its methods.
+#'
+#' @param x An `ArrayTimeBySpecies` object.
+#' @param species Character vector of species to include. `NULL`
+#'   (default) means all species.
+#' @param tlim A numeric vector of length two providing lower and upper
+#'   limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
+#'   limit at that end. Default is `c(NA, NA)`.
+#' @param y_ticks The approximate number of ticks desired on the y axis.
+#' @param ylim A numeric vector of length two providing lower and upper
+#'   limits for the value (y) axis. Use `NA` to refer to the existing
+#'   minimum or maximum.
+#' @param total A boolean value that determines whether the total over
+#'   all selected species is plotted as well. Default is `FALSE`.
+#' @param background A boolean value that determines whether background
+#'   species are included. Ignored if the model does not contain background
+#'   species. Default is `TRUE`.
+#' @param highlight Name or vector of names of the species to be
+#'   highlighted.
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `FALSE`.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `TRUE`.
+#' @param log Character string specifying which axes should use log10
+#'   scales, in the same form as the base [plot()] argument. For example,
+#'   `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and
+#'   `log_y`.
+#' @param return_data If `TRUE`, return the data frame instead of the
+#'   plot.
+#' @param ... Unused.
+#'
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a
+#'   data frame is returned.
+#' @keywords internal
 #' @export
 #' @examples
 #' \donttest{
@@ -414,6 +447,8 @@ unclass_time <- function(x) {
     x
 }
 
+# Strip the `params` back-reference so the default str() doesn't dump the whole
+# MizerParams; summarise it in a single line instead. See str.ArraySpeciesBySize.
 #' @export
 str.ArrayTimeBySpecies <- function(object, ...) {
     params <- attr(object, "params")

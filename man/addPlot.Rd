@@ -89,7 +89,7 @@ addPlot(p, getEncounter(NS_params), species = "Cod")
 }
 \seealso{
 Other plotting functions:
-\code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
+\code{\link[=animate]{animate()}},
 \code{\link{plot}},
 \code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},

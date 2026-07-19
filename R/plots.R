@@ -35,6 +35,13 @@
 #'   time-by-species-by-size array, such as those returned by [getFMort()] or
 #'   [getPredMort()] on a `MizerSim`.
 #'
+#' * `plot(<ArrayResourceBySize>)` plots a resource array, such as
+#'   those returned by [getResourceMort()], against body size.
+#'
+#' * `plot(<ArrayTimeByResourceBySize>)` plots a time slice from a
+#'   time-by-resource array, such as that returned by [NResource()] on a
+#'   `MizerSim`, against body size.
+#'
 #' The same array objects can be passed to [plotHover()] to produce
 #' hover-enabled plotly versions, for example `plotHover(getBiomass(sim))` or
 #' `plotHover(getEncounter(params))`. To add another compatible array to an

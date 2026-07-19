@@ -9,7 +9,11 @@
 \alias{str.MizerParams}
 \title{Display the structure of mizer objects}
 \usage{
-str(object, max.level = NA, ...)
+\method{str}{ArraySpeciesBySize}(object, ...)
+\method{str}{ArrayTimeBySpecies}(object, ...)
+\method{str}{ArrayTimeBySpeciesBySize}(object, ...)
+\method{str}{MizerSim}(object, max.level = NA, ...)
+\method{str}{MizerParams}(object, max.level = NA, ...)
 }
 \arguments{
 \item{object}{The object to display the structure of.}
