@@ -288,6 +288,21 @@ make_mizer_plot <- function(plot, tooltip) {
     plot
 }
 
+#' @export
+print.mizer_plot <- function(x, ...) {
+    class(x) <- setdiff(class(x), "mizer_plot")
+    withCallingHandlers(
+        print(x, ...),
+        warning = function(w) {
+            if (grepl("transformation introduced infinite values",
+                      conditionMessage(w))) {
+                tryInvokeRestart("muffleWarning")
+            }
+        }
+    )
+    invisible(x)
+}
+
 #' Determine the tooltip variables for a mizer plot
 #'
 #' Works out which variables should appear in the plotly tooltip, including the
@@ -339,7 +354,15 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
                                  tooltip = attr(x, "mizer_tooltip") %||%
                                      "all") {
     class(x) <- setdiff(class(x), "mizer_plot")
-    plotly::ggplotly(x, ..., tooltip = tooltip)
+    withCallingHandlers(
+        plotly::ggplotly(x, ..., tooltip = tooltip),
+        warning = function(w) {
+            if (grepl("transformation introduced infinite values",
+                      conditionMessage(w))) {
+                tryInvokeRestart("muffleWarning")
+            }
+        }
+    )
 }
 
 #' Make a plot comparing two data frames
