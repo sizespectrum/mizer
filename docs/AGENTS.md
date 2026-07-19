@@ -3,23 +3,6 @@
 mizer is an R package for dynamic multi-species size-spectrum modelling
 of fish communities.
 
-## Common Commands
-
-``` r
-
-devtools::load_all()        # Load package for development
-devtools::document()        # Regenerate NAMESPACE and man/ pages from roxygen2
-devtools::test()            # Run all tests
-devtools::check()           # Full R CMD check
-lintr::lint_package()       # Lint the package
-
-# Run a single test file
-testthat::test_file("tests/testthat/test-filename.R")
-
-# After editing C++ source
-devtools::clean_dll(); devtools::load_all()
-```
-
 ## Architecture
 
 **`MizerParams`** (S4) — central object passed to nearly all functions.
@@ -34,6 +17,21 @@ used.
 **`ArrayTimeBySpeciesBySize`** (S3) — wrap some arrays with metadata.
 When assigning back to S4 slots, use `slot[] <- value` (not
 `slot <- value`) to strip the class.
+
+**`species_params`** / **`given_species_params`** / **`gear_params`**
+(S3) — parameter tables subclassing `data.frame` stored in S4 slots.
+Users should access/modify these tables via S3 generics
+(e.g. `species_params(params)` or `gear_params(params)`), but package
+code and developers can modify slots directly
+(e.g. `params@species_params`) when appropriate. Inline modifications on
+the S3 objects (via `[<-`, `$<-`, `[[<-` S3 methods) preserve the
+subclass and trigger reactive validation checks and conversions
+(e.g. length-to-weight). `given_species_params` holds what the user
+supplied **plus the defaults of any function argument that sets a
+species parameter** (e.g. `n` and `p` from
+[`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)),
+even when the user did not override the argument; defaults that are not
+function arguments stay out of it.
 
 **Customisable rate functions**: users replace rate functions by storing
 a custom function name in `params@rates_funcs`. Dispatch via
@@ -51,26 +49,46 @@ a custom function name in `params@rates_funcs`. Dispatch via
   “modelling”
 - When documenting a mizer S3 generic whose methods share a man page
   (combined with `@rdname`/`@name`), follow the steps in
-  `.claude/skills/document-s3-generics.md`. Claude Code users can invoke
-  this as `/document-s3-generics`.
+  `.claude/skills/document-s3-generics.md`.
+- When adding, moving or removing a species parameter default, follow
+  `.claude/skills/species-param-defaults.md`. A default belongs to the
+  rate setter that reads the parameter; only parameters that no single
+  rate setter owns are defaulted centrally.
 
 ## Testing
 
 - Use `expect_doppelganger()` (vdiffr) for plot tests
+
 - Use snapshot tests for complex outputs
+
 - Run
   [`devtools::document()`](https://devtools.r-lib.org/reference/document.html)
   after adding or changing exports
+
 - Run
   [`devtools::load_all()`](https://devtools.r-lib.org/reference/load_all.html)
   before running tests
+
+- Run only relevant tests with `devtools::test(filter = "pattern")`.
+  Running all tests is too slow.
+
+- Lint a file with
+  [`lintr::lint()`](https://lintr.r-lib.org/reference/lint.html)
+
+- After editing C++ source:
+  [`devtools::clean_dll(); devtools::load_all()`](https://pkgbuild.r-lib.org/reference/clean_dll.html)
+
 - After modifying the `MizerParams` or `MizerSim` class (new/removed
   slots, changes to `@rates_funcs`, etc.), follow the steps in
-  `.claude/skills/upgrade-mizer-data.md`. Claude Code users can invoke
-  this as `/upgrade-mizer-data`.
+  `.claude/skills/upgrade-mizer-data.md`.
+
 - When snapshot tests fail because values legitimately changed, run
   [`testthat::snapshot_accept()`](https://testthat.r-lib.org/reference/snapshot_accept.html)
   to promote the `.new.md` files into the canonical `.md` snapshots.
+
+- Avoid top-level [`data()`](https://rdrr.io/r/utils/data.html) calls in
+  test files. `testthat 3.x` shares `.GlobalEnv` across all tests. Use
+  the `_small` fixtures from `helper.R` instead.
 
 ### Test helper objects
 
@@ -90,18 +108,6 @@ datasets:
 Tests that hardcode species indices (e.g. `[12, ]`) or time indices
 (e.g. `times[10]`) must use values valid for 3 species and 4 time steps.
 
-### Global environment and `data()` in test files
-
-In testthat 3.x all test files share the same global environment. A
-top-level [`data()`](https://rdrr.io/r/utils/data.html) call in one file
-writes to `.GlobalEnv` and therefore affects all alphabetically-later
-files. `test-backwards_compatibility.R` deliberately loads the full
-12-species `NS_species_params_gears` and `inter` datasets at the top for
-its own snapshot tests — those names are intentionally **not** renamed
-to `_small` in that file. No restore block is needed at the bottom
-because the `_small` test fixtures have distinct names and are not
-overwritten.
-
 ## Before Submitting
 
 - After adding a new file under `R/`, add it to the `Collate:` field in
@@ -111,3 +117,5 @@ overwritten.
   `appropriate` section in `pkgdown/_pkgdown.yml` so they appear on the
   reference page of the website.
 - Update `NEWS.md` when adding features or fixing bugs.
+- When creating a pull request, always include the summary of your
+  changes in the PR body.

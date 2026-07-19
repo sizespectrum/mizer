@@ -313,8 +313,8 @@ Change species colours and line types via the `MizerParams` object:
 
 ``` r
 
-params@linecolour["Cod"] <- "darkblue"
-params@linetype["Cod"]   <- "dashed"
+params <- setColours(params, c("Cod" = "darkblue"))
+params <- setLinetypes(params, c("Cod" = "dashed"))
 ```
 
 ------------------------------------------------------------------------

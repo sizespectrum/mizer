@@ -22,24 +22,25 @@ setResource(
   n = resource_params(params)[["n"]],
   w_pp_cutoff = resource_params(params)[["w_pp_cutoff"]],
   balance = NULL,
+  reset = FALSE,
   ...
 )
 
 resource_rate(params)
 
-resource_rate(params) <- value
+resource_rate(params, balance = NULL) <- value
 
 resource_capacity(params)
 
-resource_capacity(params) <- value
+resource_capacity(params, balance = NULL) <- value
 
 resource_level(params)
 
-resource_level(params) <- value
+resource_level(params, balance = NULL) <- value
 
 resource_dynamics(params)
 
-resource_dynamics(params) <- value
+resource_dynamics(params, balance = NULL) <- value
 ```
 
 ## Arguments
@@ -105,6 +106,14 @@ resource_dynamics(params) <- value
   capacity (or resource level) because the other is then determined
   automatically. Set to FALSE if you do not want the balancing.
 
+- reset:
+
+  If set to TRUE, then the resource capacity and birth rate will be
+  reset to the values calculated from the resource parameters, even if
+  they were previously overwritten with custom values. If set to FALSE
+  (default) then a recalculation from the resource parameters will take
+  place only if no custom values have been set.
+
 - ...:
 
   Unused
@@ -142,8 +151,13 @@ the resource level. So in that case you should not specify
 `resource_capacity` as well.
 
 If you provide none of the arguments `resource_level`, `resource_rate`
-or `resource_capacity` then the resource rate is kept at its previous
-value.
+or `resource_capacity`, and you do not change any of the resource
+parameters, then the resource rate is kept at its previous value and,
+when balancing, the capacity is recalculated from it. If instead you
+change one of the resource parameters (`kappa`, `lambda`, `n` or
+`w_pp_cutoff`) or set `reset = TRUE`, the rate and capacity are
+recalculated from the resource parameters (and then balanced, unless
+`balance = FALSE`).
 
 ## Setting resource dynamics
 
@@ -183,7 +197,10 @@ is set to \$\$c_R(w) = c_R\\ w^{-\lambda}\$\$ for all \\w\\ less than
 
 The values for `lambda`, `n` and `w_pp_cutoff` are stored in a list in
 the `resource_params` slot of the MizerParams object so that they can be
-re-used automatically in the future. That list can be accessed with
+re-used automatically in the future. If you specify `resource_rate` or
+`resource_capacity` as a single number, that coefficient is likewise
+stored, as `r_pp` and `kappa` respectively. That list can be accessed
+with
 [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md).
 
 ## See also

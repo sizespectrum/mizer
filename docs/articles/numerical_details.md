@@ -289,14 +289,60 @@ the general discretised equation translates to modifying the first row
 j\_{min}\\, we set all coefficients in the matrices \\A\\, \\B\\, \\C\\
 and vector \\S\\ to \\0\\ to avoid any dynamics in that range).
 
-**At the largest size (\\j=j\_{max}\\):** We typically assume that
-densities drop to zero beyond the maximum size, \\N\_{j\_{max}+1} = 0\\.
-The flux leaving the grid is: \\ J\_{j\_{max}+1}^{t+1} = g\_{j\_{max}+1}
-N\_{j\_{max}}^{t+1} - \frac{1}{2} \frac{0 - d\_{j\_{max}}
-N\_{j\_{max}}^{t+1}}{\Delta w\_{j\_{max}}^c} \tag{23}\\ This means the
-term \\C\_{j\_{max}}\\ multiplying \\N\_{j\_{max}+1}^{t+1}\\ is not
-needed, so \\C\_{j\_{max}} = 0\\. The coefficients \\A\_{j\_{max}}\\ and
-\\B\_{j\_{max}}\\ use the standard formulas.
+**At the largest size (\\j=j\_{max}\\):** The size grid is truncated at
+\\w\_{max}\\, and the density above it is held at zero: \\ N\_{j}^{t+1}
+= 0 \quad\text{for } j \> j\_{max}. \tag{23}\\ Any flux that reaches the
+upper boundary \\w\_{j\_{max}+1}\\ is simply lost — the boundary absorbs
+it rather than reflecting it back. One could interpret this as an
+infinite senescent mortality that removes every fish reaching
+\\w\_{max}\\, but a better approach is to choose \\w\_{max}\\ **large
+enough that the flux reaching the boundary is already negligible**: fish
+should grow to their asymptotic size and die of natural mortality well
+before \\w\_{max}\\, so the truncation has no material effect on the
+dynamics.
+
+Note that \\w\_{max}\\ is distinct from \\w\_{repro\\max}\\, the size at
+which a typical mature individual diverts all available energy into
+reproduction. Somatic growth slows around \\w\_{repro\\max}\\, but not
+instantaneously — the maturity ogive is gradual, diffusion lets some
+individuals grow beyond it, and at \\w\_{repro\\max}\\ the growth rate
+need not vanish entirely. Choosing \\w\_{max}\\ sufficiently larger than
+\\w\_{repro\\max}\\ ensures that both the density and the flux have
+decayed to negligible levels before the boundary is reached.
+
+The top retained class \\j\_{max}\\ depends on the scheme, because the
+two schemes place the advective inflow differently. With \\w\_{max\\idx}
+= \max\\j : w_j \le w\_{max}\\\\:
+
+- the default first-order upwind scheme feeds class \\j\\ from the
+  growth of the class below, \\g(w\_{j-1})\\, so the class just above
+  the one containing \\w\_{max}\\ can still carry advected density; here
+  \\j\_{max} = w\_{max\\idx} + 1\\. This reproduces the long-standing
+  mizer behaviour exactly;
+- the second-order scheme reconstructs the flux at a class’s own lower
+  face, \\g(w_j)\\, so its support ends one class lower, \\j\_{max} =
+  w\_{max\\idx}\\.
+
+To impose [Equation 23](#eq-upper-bc-zero), the term \\C\_{j\_{max}}\\
+multiplying \\N\_{j\_{max}+1}^{t+1}\\ is dropped (\\C\_{j\_{max}} =
+0\\), exactly as at the lower boundary. This sets the back-substitution
+coefficient at \\j\_{max}\\ to zero, so the retained spectrum up to
+\\j\_{max}\\ is solved independently of the classes above it; those
+classes are then set to zero after the tridiagonal solve. The
+coefficients \\A\_{j\_{max}}\\ and \\B\_{j\_{max}}\\ use the standard
+formulas; in particular \\B\_{j\_{max}}\\ keeps its advective outflow
+term, which carries whatever (possibly non-zero) growth flux leaves the
+grid at the truncation boundary.
+
+Without diffusion the truncation reproduces the untruncated mizer
+behaviour: the classes above \\j\_{max}\\ receive no advective inflow
+once \\w\_{max}\\ is past the size where growth has died away, so they
+are already zero and imposing [Equation 23](#eq-upper-bc-zero) changes
+nothing. With diffusion, density would otherwise leak to sizes above
+\\w\_{max}\\; the boundary condition holds it at zero there instead.
+Because the location of \\j\_{max}\\ is fixed by \\w\_{max}\\ and the
+scheme — not by the densities — it is the same at every time step and at
+the steady state.
 
 ## Numerical Diffusion
 
@@ -708,12 +754,12 @@ argument.
 The boundary \\w_j\\ is the midpoint, on the logarithmic axis, of the
 two bin centres \\w\_{j-1}^c\\ and \\w_j^c\\, so a second-order estimate
 of the density there is the average of the two bin averages. We write
-the general reconstruction with a weight \\\psi_j\\, \\ N(w_j) \approx
-N\_{j-1} + \tfrac12\\\psi_j\\(N_j - N\_{j-1}), \tag{60}\\ which is pure
-upwind (\\N\_{j-1}\\) when \\\psi_j = 0\\ and the centred value
-\\\tfrac12(N\_{j-1}+N_j)\\ when \\\psi_j = 1\\. The advective flux
-becomes \\ J_j^{adv} = g_j\bigl\[N\_{j-1} + \tfrac12\\\psi_j(N_j -
-N\_{j-1})\bigr\]. \tag{61}\\ With \\\psi_j = 1\\ the upwind numerical
+the general reconstruction with a weight \\\chi_j\\, \\ N(w_j) \approx
+N\_{j-1} + \tfrac12\\\chi_j\\(N_j - N\_{j-1}), \tag{60}\\ which is pure
+upwind (\\N\_{j-1}\\) when \\\chi_j = 0\\ and the centred value
+\\\tfrac12(N\_{j-1}+N_j)\\ when \\\chi_j = 1\\. The advective flux
+becomes \\ J_j^{adv} = g_j\bigl\[N\_{j-1} + \tfrac12\\\chi_j(N_j -
+N\_{j-1})\bigr\]. \tag{61}\\ With \\\chi_j = 1\\ the upwind numerical
 diffusion is gone and the advective flux is second order. The remaining
 requirement for a fully second-order model is that the bin-average rates
 — the diffusion coefficient \\d_j\\ in the diffusive flux
@@ -725,15 +771,15 @@ point-versus-bin-average choice for \\d\\ and \\\mu\\ alike.
 
 ### Choosing the weight: van Leer or centred
 
-With \\\psi\equiv1\\ the reconstruction is the pure **centred** one,
+With \\\chi\equiv1\\ the reconstruction is the pure **centred** one,
 which is genuinely second order everywhere, including at smooth extrema,
 but is not monotonicity-preserving: it can produce small
 over/undershoots, and at a steady state with no physical diffusion it
 admits an undamped odd-even mode. With the **van Leer** weight \\
-\psi_j=\psi(r_j),\qquad \psi(r)=\frac{r+\|r\|}{1+\|r\|},\qquad
+\chi_j=\chi(r_j),\qquad \chi(r)=\frac{r+\|r\|}{1+\|r\|},\qquad
 r_j=\frac{N\_{j-1}-N\_{j-2}}{N_j-N\_{j-1}}, \tag{62}\\ the scheme is
-*total-variation diminishing* (TVD): \\\psi\to1\\ where the solution is
-smooth, and \\\psi\to0\\ (pure upwind) at extrema and at the non-smooth
+*total-variation diminishing* (TVD): \\\chi\to1\\ where the solution is
+smooth, and \\\chi\to0\\ (pure upwind) at extrema and at the non-smooth
 recruitment boundary. This keeps abundances non-negative and
 manufactures no new oscillations, at the price — a corollary of
 Godunov’s theorem — of dropping to first order at smooth extrema.
@@ -742,7 +788,7 @@ At the left boundary of the grid where \\N\_{j-2}\\ does not exist, the
 weight is handled as follows:
 
 - At and below the first two faces above the recruitment boundary (\\j
-  \le j\_{min} + 2\\), the weight \\\psi_j\\ is forced to 0. This keeps
+  \le j\_{min} + 2\\), the weight \\\chi_j\\ is forced to 0. This keeps
   the advective flux leaving the recruitment boundary first-order upwind
   and avoids referencing the non-smooth recruitment boundary cell
   \\N\_{j\_{min}}\\ (and the inactive region below it) when calculating
@@ -763,14 +809,14 @@ some physical diffusion.
 
 ### Implicit treatment with a frozen weight
 
-The weight \\\psi_j\\ is evaluated from the densities at the start of
+The weight \\\chi_j\\ is evaluated from the densities at the start of
 the step (for the second-order methods, from the midpoint field), so it
-is a fixed number during the solve. With \\\psi\\ *frozen*, the flux
+is a fixed number during the solve. With \\\chi\\ *frozen*, the flux
 [Equation 61](#eq-so-face-flux) is linear in the unknown densities
 \\N^{t+1}\\ and still couples only \\N\_{j-1},N_j,N\_{j+1}\\, so it
 folds directly into the same tridiagonal operator
 \\\tt{get\\transport\\coefs()}\\ builds — only the advective
-coefficients gain the \\\psi\\ terms. Keeping the high-order term
+coefficients gain the \\\chi\\ terms. Keeping the high-order term
 *implicit* in this way is important: treating the extra (anti-diffusive)
 part explicitly on the right-hand side is only conditionally stable and
 breaks down for the lightly damped second-order time steppers, whereas
@@ -810,7 +856,7 @@ reads the same boundary coefficients and
 [`get_steady_state_n()`](https://sizespectrum.org/mizer/reference/get_steady_state_n.md)
 solves the same system. With the van Leer reconstruction the weight
 depends on the solution, so the steady state is found by an
-*under-relaxed* fixed-point iteration (freezing \\\psi\\ at the current
+*under-relaxed* fixed-point iteration (freezing \\\chi\\ at the current
 iterate, solving, repeating), because at \\\Delta t=1\\ the operator is
 not diagonally dominant. Both
 [`getRequiredRDD()`](https://sizespectrum.org/mizer/reference/getRequiredRDD.md)
@@ -867,8 +913,9 @@ For all other \\j \> j\_{min}\\, \\\tilde{S}\_j = 0\\.
 The boundary condition modifications at the edges of the grid remain the
 same conceptually: \\\tilde{A}\_{j\_{min}} = 0\\, the upward diffusion
 term is omitted from \\\tilde{B}\_{j\_{min}}\\, and
-\\\tilde{C}\_{j\_{max}} = 0\\. For any \\j \< j\_{min}\\, all matrix
-entries remain zero.
+\\\tilde{C}\_{j\_{max}} = 0\\, where \\j\_{max}\\ is the support top of
+the previous section (the first class above \\w\_{max}\\). The density
+is held at zero for any \\j \< j\_{min}\\ or \\j \> j\_{max}\\.
 
 In code, this means that the steady-state coefficients for the matrix
 multiplication (\\\tilde{A}, \tilde{B}, \tilde{C}\\) and the constant

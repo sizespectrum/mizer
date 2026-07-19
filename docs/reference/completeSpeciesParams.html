@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Alias for validSpeciesParams() — completeSpeciesParams"><meta name="description" content="
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Alias for validSpeciesParams() — completeSpeciesParams"><meta name="description" content="
 An alias provided for backward compatibility with mizer version &amp;lt;= 2.5.2"><meta property="og:description" content="
 An alias provided for backward compatibility with mizer version &amp;lt;= 2.5.2"><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -15,7 +15,7 @@ An alias provided for backward compatibility with mizer version &amp;lt;= 2.5.2"
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,6 +40,9 @@ An alias provided for backward compatibility with mizer version &amp;lt;= 2.5.2"
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -138,20 +141,33 @@ wrong capitalisation or missing underscores and issues a warning if it
 detects such a name.</p>
 <p><code><a href="validSpeciesParams.html">validSpeciesParams()</a></code> first calls <code><a href="validSpeciesParams.html">validGivenSpeciesParams()</a></code> but then
 goes further by adding default values for species parameters that were not
-provided. The function sets default values if any of the following species
-parameters are missing or NA:</p><ul><li><p><code>w_max</code> is set to <code>1.5 * w_inf</code> (it is only a computational boundary)</p></li>
+provided. It only sets defaults for those species parameters that are not
+owned by a single rate-setting function, namely those that are read by
+several of them (<code>n</code>), that are used only when projecting (<code>alpha</code>), that
+determine the size grid (<code>w_min</code>, <code>w_max</code>), that are needed for the
+length-weight conversion (<code>a</code>, <code>b</code>) or that are used only for reporting
+(<code>is_background</code>). The function sets default values if any of the following
+species parameters are missing or NA:</p><ul><li><p><code>w_max</code> is set to <code>1.5 * w_inf</code> (it is only a computational boundary)</p></li>
 <li><p><code>w_repro_max</code> is set to <code>w_inf</code></p></li>
 <li><p><code>w_mat</code> is set to <code>w_inf/4</code></p></li>
 <li><p><code>w_min</code> is set to <code>0.001</code></p></li>
 <li><p><code>alpha</code> is set to <code>0.6</code></p></li>
-<li><p><code>interaction_resource</code> is set to <code>1</code></p></li>
 <li><p><code>n</code> is set to <code>3/4</code></p></li>
-<li><p><code>p</code> is set to <code>n</code></p></li>
-<li><p><code>z_ext</code> is set to <code>0</code></p></li>
-<li><p><code>d</code> is set to <code>n - 1</code></p></li>
-<li><p><code>E_ext</code> is set to <code>0</code></p></li>
-<li><p><code>D_ext</code> is set to <code>0</code></p></li>
-</ul><p>Note that the species parameters returned by these functions are not
+<li><p><code>a</code> is set to <code>0.01</code></p></li>
+<li><p><code>b</code> is set to <code>3</code></p></li>
+<li><p><code>is_background</code> is set to <code>FALSE</code></p></li>
+</ul><p>All other species parameters are given their default values by the
+rate-setting function that uses them, so that each default has a single
+home. For example <code>p</code> and <code>k</code> are set by <code><a href="setMetabolicRate.html">setMetabolicRate()</a></code>, <code>z_ext</code>, <code>d</code>
+and <code>z0</code> by <code><a href="setExtMort.html">setExtMort()</a></code>, <code>E_ext</code> by <code><a href="setExtEncounter.html">setExtEncounter()</a></code>, <code>D_ext</code> by
+<code><a href="setExtDiffusion.html">setExtDiffusion()</a></code>, <code>interaction_resource</code> by <code><a href="setInteraction.html">setInteraction()</a></code>, <code>beta</code>
+and <code>sigma</code> by <code><a href="setPredKernel.html">setPredKernel()</a></code>, <code>q</code> and <code>gamma</code> by <code><a href="setSearchVolume.html">setSearchVolume()</a></code>,
+and <code>erepro</code>, <code>m</code>, <code>w_mat25</code> and <code>R_max</code> by <code><a href="setReproduction.html">setReproduction()</a></code>. These
+columns are therefore absent from the data frame returned by
+<code><a href="validSpeciesParams.html">validSpeciesParams()</a></code> but present in the species parameters of a
+<code>MizerParams</code> object, because <code><a href="setParams.html">setParams()</a></code> calls all the rate-setting
+functions.</p>
+<p>Note that the species parameters returned by these functions are not
 guaranteed to produce a viable model. More checks of the parameters are
 performed by the individual rate-setting functions (see <code><a href="setParams.html">setParams()</a></code> for the
 list of these functions).</p>
@@ -166,7 +182,7 @@ list of these functions).</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

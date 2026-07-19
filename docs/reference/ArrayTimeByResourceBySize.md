@@ -14,13 +14,16 @@ methods.
 
 ``` r
 ArrayTimeByResourceBySize(x, value_name = NULL, units = NULL, params = NULL)
+
+is.ArrayTimeByResourceBySize(x)
 ```
 
 ## Arguments
 
 - x:
 
-  A matrix (time x size).
+  A matrix (time x size). For `is.ArrayTimeByResourceBySize()`, any
+  object to test.
 
 - value_name:
 
@@ -40,6 +43,9 @@ ArrayTimeByResourceBySize(x, value_name = NULL, units = NULL, params = NULL)
 
 An `ArrayTimeByResourceBySize` object (inherits from `matrix` and
 `array`).
+
+`is.ArrayTimeByResourceBySize()` returns `TRUE` if `x` is an
+`ArrayTimeByResourceBySize` object, `FALSE` otherwise.
 
 ## Details
 

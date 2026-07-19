@@ -40,7 +40,10 @@ An object of type
 replace <- c(Industrial = "Trawl", Otter = "Beam_Trawl")
 params <- renameGear(NS_params, replace)
 gear_params(params)$gear
-#>  [1] "Trawl"      "Trawl"      "Trawl"      "Pelagic"    "Beam"      
-#>  [6] "Beam_Trawl" "Beam"       "Beam_Trawl" "Beam"       "Beam_Trawl"
-#> [11] "Beam_Trawl" "Beam_Trawl"
+#>        Sprat, Trawl      Sandeel, Trawl       N.pout, Trawl    Herring, Pelagic 
+#>             "Trawl"             "Trawl"             "Trawl"           "Pelagic" 
+#>           Dab, Beam Whiting, Beam_Trawl          Sole, Beam Gurnard, Beam_Trawl 
+#>              "Beam"        "Beam_Trawl"              "Beam"        "Beam_Trawl" 
+#>        Plaice, Beam Haddock, Beam_Trawl     Cod, Beam_Trawl  Saithe, Beam_Trawl 
+#>              "Beam"        "Beam_Trawl"        "Beam_Trawl"        "Beam_Trawl" 
 ```

@@ -1,11 +1,19 @@
 # Set metabolic rate
 
-Sets the rate at which energy is used for metabolism and activity
+Sets the rate at which energy is used for metabolism and activity. You
+will usually not need to call this function directly. Instead change the
+`k`, `ks` and `p` species parameters with
+`given_species_params(params) <-` and let mizer recalculate the
+metabolic rate for you. Call `setMetabolicRate()` directly only if you
+want to impose a different functional form for the size dependence of
+the metabolic rate. See
+[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+for a full explanation of when to reach for which level of the model.
 
 ## Usage
 
 ``` r
-setMetabolicRate(object, metab = NULL, p = NULL, reset = FALSE, ...)
+setMetabolicRate(object, metab = NULL, p = deprecated(), reset = FALSE, ...)
 
 getMetabolicRate(params)
 
@@ -28,9 +36,12 @@ metab(params) <- value
 
 - p:
 
-  The allometric metabolic exponent. This is only used if `metab` is not
-  given explicitly and if the exponent is not specified in a `p` column
-  in the `species_params`.
+  **\[deprecated\]** The allometric metabolic exponent. Set the `p`
+  column in the species parameters instead, with
+  `species_params(params)$p <- value`. This argument never took effect
+  on a `MizerParams` object because such an object always has a `p`
+  column already, and the argument was only used to fill in a missing
+  one.
 
 - reset:
 
@@ -74,7 +85,7 @@ standard metabolism and \\k w\\ is the rate at which energy is expended
 on activity and movement. The values of \\k_s\\, \\p\\ and \\k\\ are
 taken from the `ks`, `p` and `k` columns in the species parameter
 dataframe. If any of these parameters are not supplied, the defaults are
-\\k = 0\\, \\p = 3/4\\ and \$\$k_s = f_c h \alpha w\_{mat}^{n-p},\$\$
+\\k = 0\\, \\p = n\\ and \$\$k_s = f_c h \alpha w\_{mat}^{n-p},\$\$
 where \\f_c\\ is the critical feeding level taken from the `fc` column
 in the species parameter data frame. If the critical feeding level is
 not specified, a default of \\f_c = 0.2\\ is used.

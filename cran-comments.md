@@ -27,10 +27,10 @@ bug fixes. See NEWS.md for details.
 
 ## Previous CRAN check results
 
-The original NOTE was also already visible in the CRAN checks for the
+The original NOTE was already visible in the CRAN checks for the
 released version 3.1.0
 (https://cran.rstudio.org/web/checks/check_results_mizer.html), on the
-r-devel Debian flavors there too.
+r-devel Debian flavors and this has now been fixed.
 
 ## Reverse dependencies
 

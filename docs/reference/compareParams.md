@@ -38,7 +38,11 @@ species_params(params2)$w_mat[1] <- 10
 compareParams(params1, params2)
 #> The following species parameters differ: Component “w_mat”: Mean absolute difference: 3, Component “w_mat25”: Mean absolute difference: 2.687875
 #> 
-#> The time_modified slots do not agree: Mean absolute difference: 111848.4
+#> params2 has the following additional given species parameters: w_mat25, a, b
+#> 
+#> The following given species parameters differ: Component “w_mat”: Mean absolute difference: 3
+#> 
+#> The time_modified slots do not agree: Mean absolute difference: 2174548
 #> 
 #> The maturity slots do not agree: Mean absolute difference: 0.04497162
 #>   Max |diff|: Sprat: 0.568

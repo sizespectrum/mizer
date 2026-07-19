@@ -1,6 +1,13 @@
 # Set external diffusion rate
 
-Set external diffusion rate
+You will usually not need to call this function directly. Instead change
+the `D_ext` and `n` species parameters with
+`given_species_params(params) <-` and let mizer recalculate the external
+diffusion rate for you. Call `setExtDiffusion()` directly only if you
+want to impose a different functional form for the size dependence of
+the external diffusion rate. See
+[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+for a full explanation of when to reach for which level of the model.
 
 ## Usage
 

@@ -1,6 +1,13 @@
 # Set external encounter rate
 
-Set external encounter rate
+You will usually not need to call this function directly. Instead change
+the `E_ext` and `n` species parameters with
+`given_species_params(params) <-` and let mizer recalculate the external
+encounter rate for you. Call `setExtEncounter()` directly only if you
+want to impose a different functional form for the size dependence of
+the external encounter rate. See
+[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+for a full explanation of when to reach for which level of the model.
 
 ## Usage
 

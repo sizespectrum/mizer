@@ -17,6 +17,11 @@ described in more detail in sections below.
 
 4.  [Exploring the results](#exploring-the-results).
 
+Once you have seen these stages individually, the [worked
+example](#a-worked-example-the-celtic-sea) near the end of this page
+puts them together into a complete, self-contained study of a real
+ecosystem — building, calibrating and projecting a Celtic Sea model.
+
 If you run into any difficulties or have any questions or suggestions,
 let us know about it by posting about it on our [issue
 tracker](https://github.com/sizespectrum/mizer/issues/new). You can also
@@ -49,6 +54,17 @@ exercises:
 
 Click on this preview to open a mizer cheat sheet. [![Cheat
 Sheet](images/cheat_sheet_preview.png)](https://sizespectrum.org/mizer/articles/images/cheat_sheet.pdf)
+
+For quick reference while working we also provide four topic-based cheat
+sheets:
+
+- [Model setup and
+  calibration](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html)
+- [Changing model
+  parameters](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.html)
+- [Fishing](https://sizespectrum.org/mizer/articles/cheatsheet-fishing.html)
+- [Analysis and
+  plotting](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html)
 
 There is a [series of YouTube
 videos](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B)
@@ -159,15 +175,15 @@ for the North Sea species.
 params <- newMultispeciesParams(NS_species_params, NS_interaction)
 ```
 
-    ## Because you have n != p, the default value for `h` is not very good.
-    ## Because the age at maturity is not known, I need to fall back to using
-    ## von Bertalanffy parameters, where available, and this is not reliable.
-    ## No ks column so calculating from critical feeding level.
-    ## Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.
-    ## Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
-
-The notes printed out by the function show us that mizer calculated
-default values for many parameters that were not provided.
+When you run this yourself, the function prints some notes explaining
+that, because only a few species parameters were supplied, mizer has
+calculated default values for many others (for example the maximum
+intake rate `h` and the search volume `gamma`) using size-based theory.
+These notes are informational, not errors: they simply flag the
+parameters you may want to refine later once you calibrate the model to
+data. We have suppressed them here to keep the output short. Calibrating
+such a model to observed biomasses and yields is demonstrated in the
+[worked example](#a-worked-example-the-celtic-sea) below.
 
 ## Running a simulation
 
@@ -229,6 +245,275 @@ We can then use the full power of R to work with these results.
 The functionality provided by mizer to explore the simulation results is
 more fully described in [the section on exploring the simulation
 results.](https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html)
+
+## A worked example: the Celtic Sea
+
+The four stages above introduced the mizer API one command at a time.
+This section puts them together into a single, self-contained study of a
+real ecosystem — the Celtic Sea — taking a model from raw species
+parameters all the way to a fishing-scenario result:
+
+1.  **Build** a multi-species model from species parameters, an
+    interaction matrix and fishing-gear definitions.
+2.  **Bring it to steady state** so the size spectra are
+    self-consistent.
+3.  **Calibrate** it so that its steady state reproduces the *observed*
+    biomasses and growth rates.
+4.  **Check** it against an independent quantity — the observed
+    fisheries yields.
+5.  **Set its resilience** to fishing.
+6.  **Project a fishing scenario** and **interpret an indicator** —
+    here, the total sustainable yield as a function of fishing effort.
+
+The model is the one built step-by-step, with much more explanation of
+every choice, in the [Build part of the mizer
+course](https://mizer.course.sizespectrum.org/build/). It is based on
+the Celtic Sea model of Spence et al.
+([2021](#ref-spence_parameterizing_2021)), with species parameters and
+observations drawn from FishBase and the ICES stock-assessment database.
+Here we concentrate on seeing the whole workflow run in one place.
+
+### Getting the data
+
+The model needs three inputs: a species-parameter data frame, a species
+interaction matrix, and a table of fishing-gear parameters. We also load
+a set of observed commercial yields to check the model against later.
+These small files live in the course repository; the code below
+downloads them into your working directory the first time you run it.
+
+``` r
+
+base_url <- "https://github.com/gustavdelius/mizerCourse/raw/master/build/"
+files <- c("celtic_species_params.rds", "celtic_gear_params.csv",
+           "celtic_interaction.csv", "celtic_yields.rds")
+for (f in files) {
+    if (!file.exists(f)) download.file(paste0(base_url, f), destfile = f)
+}
+
+celtic_species_params <- readRDS("celtic_species_params.rds")
+celtic_gear_params    <- read.csv("celtic_gear_params.csv")
+celtic_interaction    <- as.matrix(read.csv("celtic_interaction.csv",
+                                             row.names = 1))
+```
+
+The species-parameter data frame has one row per species. Besides the
+required maximum size `w_max` it carries a few life-history parameters
+and, crucially, the **observed** average biomass of each species
+(`biomass_observed`, in grams per square metre) that we will calibrate
+to. Some species have no observation and are left as `NA`.
+
+``` r
+
+celtic_species_params[, c("species", "w_max", "biomass_observed")]
+```
+
+    ##           species       w_max biomass_observed
+    ## 1         Herring   307.31559      0.300000000
+    ## 2           Sprat    35.84195      0.295749801
+    ## 3             Cod 41561.32628      0.008179382
+    ## 4         Haddock  6669.92227      0.067381049
+    ## 5         Whiting  2611.42837      0.070079361
+    ## 6    Blue whiting   599.82211      1.188248745
+    ## 7     Norway Pout   319.77787      0.172520253
+    ## 8        Poor Cod   711.87913               NA
+    ## 9   European Hake 15506.13615      0.164362236
+    ## 10       Monkfish 21478.67091      0.048720611
+    ## 11 Horse Mackerel   518.58232               NA
+    ## 12       Mackerel  1857.47965               NA
+    ## 13     Common Dab   640.30873               NA
+    ## 14         Plaice  3133.64249      0.022404698
+    ## 15         Megrim  1556.92834      0.074079322
+    ## 16           Sole  1979.31808      0.063519261
+    ## 17       Boarfish   278.92128               NA
+
+### Building the model
+
+[`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)
+turns these inputs into a `MizerParams` object, filling in with
+size-based defaults every parameter we have not supplied. We set the
+allometric exponents `n` and `p` both to 3/4 and switch the commercial
+gear on at unit effort.
+
+``` r
+
+cel <- newMultispeciesParams(
+    species_params = celtic_species_params,
+    gear_params    = celtic_gear_params,
+    interaction    = celtic_interaction,
+    n = 3/4, p = 3/4,
+    initial_effort = 1
+)
+```
+
+As before, mizer prints notes about the defaults it has chosen; we have
+suppressed them here to keep the output short.
+
+### Finding the steady state
+
+A freshly built model has only a rough spectrum.
+[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) runs
+the size-spectrum dynamics, holding reproduction and the resource fixed,
+until the community settles onto a steady state.
+
+``` r
+
+cel <- steady(cel)
+plotSpectra(cel, power = 2)
+```
+
+![](mizer_files/figure-html/unnamed-chunk-14-1.png)
+
+Each curve is now a smooth species spectrum, and together they line up
+along the background resource — the hallmark of a self-consistent
+size-spectrum model.
+
+### Calibrating to observed biomass
+
+The steady state is self-consistent, but its species abundances are
+still arbitrary. Calibration rescales them to match observation. We do
+this in stages, **re-running
+[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) after
+every adjustment** because each change pushes the community off its
+steady state:
+
+- [`calibrateBiomass()`](https://sizespectrum.org/mizer/reference/calibrateBiomass.md)
+  sets the overall abundance scale (the resource level `kappa`) so that
+  the *total* community biomass matches the sum of the observed
+  biomasses.
+- [`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md)
+  then rescales each species individually to its own `biomass_observed`.
+- [`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md)
+  adjusts intake, search volume and metabolism so the fish reach
+  maturity at the right age.
+
+[`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md)
+and
+[`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md)
+pull on different parameters, so we alternate them, re-converging each
+time, until both are satisfied.
+
+``` r
+
+cel <- calibrateBiomass(cel)
+for (i in 1:4) {
+    cel <- matchBiomasses(cel)
+    cel <- matchGrowth(cel)
+    cel <- steady(cel)
+}
+```
+
+[`plotBiomassObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotBiomassObservedVsModel.md)
+shows how well the calibrated steady state reproduces the observations:
+points on the diagonal are a perfect match.
+
+``` r
+
+plotBiomassObservedVsModel(cel)
+```
+
+![](mizer_files/figure-html/unnamed-chunk-16-1.png)
+
+Most species sit close to the 1:1 line. A few remain off — the worst by
+nearly an order of magnitude — and these would need more iteration, or a
+look at their predation-kernel parameters, before you trusted the model
+for them. Diagnosing and fixing such residuals is exactly what the
+[refinement
+tutorial](https://mizer.course.sizespectrum.org/build/refine.html) of
+the course is about.
+
+### Checking against observed yield
+
+Biomass was our calibration target. The fisheries **yield** is an
+independent quantity: we did not tune to it, so comparing modelled and
+observed yields is a genuine test of the model. We attach the observed
+yields and plot them against the model.
+
+``` r
+
+celtic_yields <- readRDS("celtic_yields.rds")
+species_params(cel)$yield_observed <- as.numeric(celtic_yields)
+plotYieldObservedVsModel(cel)
+```
+
+![](mizer_files/figure-html/unnamed-chunk-17-1.png)
+
+The modelled yields come out at the right overall level and mostly
+within a factor of a few of the observations — reassuring, given that
+yield was not a calibration target. Where a species’ yield is badly off,
+the usual culprit is its gear selectivity or catchability, which you
+would adjust next (see the [landings
+tutorial](https://mizer.course.sizespectrum.org/build/landings.html)).
+
+### Setting the resilience to fishing
+
+Calibrating the steady state fixes *where* the community sits, but not
+*how sensitively* it responds when we change fishing. That sensitivity
+is governed by the strength of density dependence in reproduction.
+[`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+sets it through the `reproduction_level` — the fraction of the maximum
+recruitment that is realised at the steady state. A value of 0.5 gives
+moderate density dependence, a common default in the absence of
+stock-specific information.
+
+``` r
+
+cel <- setBevertonHolt(cel, reproduction_level = 0.5)
+```
+
+This changes the reproduction parameters without moving the steady
+state, so the biomass and yield fits above are preserved.
+
+### Projecting a fishing scenario
+
+We now have a calibrated, resilient model. Let us use it to ask a
+management question: **is the fishery being fished at the effort that
+maximises the total sustainable yield?**
+
+We sweep fishing effort from zero to twice its current value. For each
+level we project to the new steady state and record the total community
+yield — the yield that could be taken indefinitely at that effort.
+
+``` r
+
+efforts <- c(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2)
+sustainable_yield <- sapply(efforts, function(e) {
+    p <- projectToSteady(cel, effort = e, t_max = 100,
+                         return_sim = FALSE, progress_bar = FALSE)
+    sum(getYield(p))
+})
+
+plot(efforts, sustainable_yield, type = "b", pch = 19,
+     xlab = "Fishing effort (relative to current)",
+     ylab = "Total sustainable yield (g/m²/year)")
+abline(v = 1, lty = 2)
+```
+
+![](mizer_files/figure-html/unnamed-chunk-19-1.png)
+
+### Interpreting the result
+
+The curve is the community-level analogue of a single-stock yield curve.
+It rises, peaks, and then falls as heavier fishing starts to erode the
+stocks faster than they can rebuild. The dashed line marks the
+**current** effort.
+
+The peak — the effort giving maximum sustainable yield for the community
+as a whole — lies a little *below* the current effort. In other words,
+this fishery is already working slightly harder than the level that
+would maximise its total long-term catch: pushing effort higher buys no
+extra yield and depletes the community, while easing off a little would
+*increase* the sustainable catch. That is a textbook signature of a
+lightly overfished community, recovered here purely from the model we
+calibrated to biomass and growth.
+
+This is only the beginning of what the calibrated model can tell you.
+From here you could look at individual species’ yield curves to find
+each stock’s own \\F\_\text{MSY}\\
+([`plotYieldVsF()`](https://sizespectrum.org/mizerExperimental/reference/plotYieldVsF.html)),
+change the gear selectivity to protect juveniles, or explore how the
+community size spectrum flattens under fishing. The [Use part of the
+course](https://mizer.course.sizespectrum.org/use/) develops several
+such scenarios.
 
 ## Size-spectrum models
 
@@ -492,3 +777,10 @@ Gislason. 2006. “Modelling an Exploited Marine Fish Community with 15
 Parameters - Results from a Simple Size-Based Model.” *Ices Journal of
 Marine Science* 63 (6): 1029–44.
 <https://doi.org/10.1016/j.icesjms.2006.04.015>.
+
+Spence, Michael A., Robert B. Thorpe, Paul G. Blackwell, Finlay Scott,
+Richard Southwell, and Julia L. Blanchard. 2021. “Quantifying
+Uncertainty and Dynamical Changes in Multi-Species Fishing Mortality
+Rates, Catches and Biomass by Combining State-Space and Size-Based
+Multi-Species Models.” *Fish and Fisheries* 22 (4): 667–81.
+<https://doi.org/10.1111/faf.12543>.

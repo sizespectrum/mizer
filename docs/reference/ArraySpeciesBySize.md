@@ -20,13 +20,16 @@ ArraySpeciesBySize(
   params = NULL,
   representation = c("point", "average")
 )
+
+is.ArraySpeciesBySize(x)
 ```
 
 ## Arguments
 
 - x:
 
-  A matrix (species x size).
+  A matrix (species x size). For `is.ArraySpeciesBySize()`, any object
+  to test.
 
 - value_name:
 
@@ -53,6 +56,9 @@ ArraySpeciesBySize(
 ## Value
 
 An `ArraySpeciesBySize` object (inherits from `matrix` and `array`).
+
+`is.ArraySpeciesBySize()` returns `TRUE` if `x` is an
+`ArraySpeciesBySize` object, `FALSE` otherwise.
 
 ## Details
 

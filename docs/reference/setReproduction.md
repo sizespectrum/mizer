@@ -2,7 +2,15 @@
 
 Sets the proportion of the total energy available for reproduction and
 growth that is invested into reproduction as a function of the size of
-the individual and sets additional density dependence.
+the individual and sets additional density dependence. You will usually
+not need to call this function directly. Instead change the `w_mat`,
+`w_mat25`, `w_repro_max` and `m` species parameters with
+`given_species_params(params) <-` and let mizer recalculate the maturity
+ogive and reproduction allocation for you. Call `setReproduction()`
+directly only if you want to impose different functional forms for
+these. See
+[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+for a full explanation of when to reach for which level of the model.
 
 ## Usage
 

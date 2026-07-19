@@ -9,24 +9,33 @@ fishing effort determine the fishing mortality.
 ## Usage
 
 ``` r
-gear_params(params)
+gear_params(object)
 
-gear_params(params) <- value
+gear_params(object) <- value
+
+is.gear_params(x)
 ```
 
 ## Arguments
 
-- params:
+- object:
 
-  A MizerParams object
+  A MizerParams object, a MizerSim object or a data frame
 
 - value:
 
-  A data frame with the gear parameters.
+  A data frame with the new gear parameters.
+
+- x:
+
+  An object to test with `is.gear_params()`.
 
 ## Value
 
 Data frame with gear parameters
+
+`is.gear_params()` returns `TRUE` if `x` is a `gear_params` object,
+`FALSE` otherwise.
 
 ## Details
 
@@ -72,8 +81,6 @@ gear parameter.
 
 ## See also
 
-[`validGearParams()`](https://sizespectrum.org/mizer/reference/validGearParams.md)
-
 Other functions for setting parameters:
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
@@ -96,39 +103,18 @@ params <- NS_params
 
 # gears set up in example
 gear_params(params)
-#>                           gear species   sel_func knife_edge_size catchability
-#> Sprat, Industrial   Industrial   Sprat knife_edge              13            1
-#> Sandeel, Industrial Industrial Sandeel knife_edge               4            1
-#> N.pout, Industrial  Industrial  N.pout knife_edge              23            1
-#> Herring, Pelagic       Pelagic Herring knife_edge              99            1
-#> Dab, Beam                 Beam     Dab knife_edge              21            1
-#> Whiting, Otter           Otter Whiting knife_edge              75            1
-#> Sole, Beam                Beam    Sole knife_edge              78            1
-#> Gurnard, Otter           Otter Gurnard knife_edge              39            1
-#> Plaice, Beam              Beam  Plaice knife_edge             105            1
-#> Haddock, Otter           Otter Haddock knife_edge             165            1
-#> Cod, Otter               Otter     Cod knife_edge            1606            1
-#> Saithe, Otter            Otter  Saithe knife_edge            1076            1
 
 # setting totally different gears
 gear_params(params) <- data.frame(
     gear = c("gear1", "gear2", "gear1"),
     species = c("Cod", "Cod", "Haddock"),
     catchability = c(0.5, 2, 1),
-    sel_fun = c("sigmoid_weight", "knife_edge", "sigmoid_weight"),
+    sel_func = c("sigmoid_weight", "knife_edge", "sigmoid_weight"),
     sigmoidal_weight = c(1000, NA, 800),
     sigmoidal_sigma = c(100, NA, 100),
     knife_edge_size = c(NA, 1000, NA)
     )
 gear_params(params)
-#>                 gear species catchability        sel_fun sigmoidal_weight
-#> Cod, gear1     gear1     Cod          0.5 sigmoid_weight             1000
-#> Cod, gear2     gear2     Cod          2.0     knife_edge               NA
-#> Haddock, gear1 gear1 Haddock          1.0 sigmoid_weight              800
-#>                sigmoidal_sigma knife_edge_size   sel_func
-#> Cod, gear1                 100            1606 knife_edge
-#> Cod, gear2                  NA            1000 knife_edge
-#> Haddock, gear1             100             165 knife_edge
 
 # changing an individual entry
 gear_params(params)["Cod, gear1", "catchability"] <- 0.8

@@ -44,9 +44,54 @@ returns a MizerParams object. `readSim()` returns a MizerSim object.
 
 ## Details
 
-Issues a warning if the model you are saving relies on some custom
-functions. Before saving a model you may want to set its metadata with
+While these functions ultimately use
+[`saveRDS()`](https://rdrr.io/r/base/readRDS.html) and
+[`readRDS()`](https://rdrr.io/r/base/readRDS.html), they do extra work
+to make the saved file more robust and more portable, so you should
+always prefer them over calling
+[`saveRDS()`](https://rdrr.io/r/base/readRDS.html)/[`readRDS()`](https://rdrr.io/r/base/readRDS.html)
+directly on a mizer object.
+
+## What `saveParams()` and `saveSim()` do beyond [`saveRDS()`](https://rdrr.io/r/base/readRDS.html)
+
+- They **validate** the object before writing it, so a corrupted or
+  inconsistent object is caught at save time rather than when you next
+  try to use it.
+
+- They **strip any extension class** and save the object as a plain base
+  mizer object (recording which extension packages it needs in a slot).
+  This means the file can be read back even in an R session where the
+  extension packages that defined those S4 classes are not loaded, and
+  it protects the file against future changes to those extension
+  classes.
+
+- They **check that the required extension packages are installed** and
+  stop with an informative error if they are not, so you do not save a
+  file that you would be unable to read back.
+
+- They **warn if the model relies on custom functions** (custom rate,
+  dynamics, selectivity or predation-kernel functions that are not
+  provided by mizer or a registered extension package). Such functions
+  are not stored in the file, so to share the model you also need to
+  share an R script or R Markdown file defining them.
+
+Before saving a model you may want to set its metadata with
 [`setMetadata()`](https://sizespectrum.org/mizer/reference/setMetadata.md).
+
+## What `readParams()` and `readSim()` do beyond [`readRDS()`](https://rdrr.io/r/base/readRDS.html)
+
+- They **upgrade** an object saved by an older version of mizer to the
+  current structure (see
+  [`upgradeParams()`](https://sizespectrum.org/mizer/reference/upgradeParams.md)),
+  so that models saved years ago still load correctly.
+
+- They **re-register the extension packages** that the model needs and,
+  optionally, install any that are missing (see `install_extensions`),
+  before restoring the object's extension class.
+
+- They **coerce the object back to its extension class** and revalidate
+  it, reversing the class-stripping done at save time so you get back an
+  object of the same class you saved.
 
 ## See also
 
@@ -61,7 +106,7 @@ tmp <- tempfile(fileext = ".rds")
 saveParams(NS_params, file = tmp)
 params <- readParams(tmp)
 identical(params, NS_params)
-#> [1] TRUE
+#> [1] FALSE
 
 # Save and read back a simulation
 tmp2 <- tempfile(fileext = ".rds")

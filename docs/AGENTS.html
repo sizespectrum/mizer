@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet"><script src="extra.js"></script><meta property="og:title" content="AI Agent Instructions for mizer"><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+</script><script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet"><script src="extra.js"></script><meta property="og:title" content="AI Agent Instructions for mizer"><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,13 @@
     <li><a class="dropdown-item" href="articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
+    <li><a class="dropdown-item" href="articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
+    <li><a class="dropdown-item" href="articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
+    <li><a class="dropdown-item" href="articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="articles/extending-mizer.html">Extending mizer</a></li>
@@ -80,25 +86,11 @@
 
 <p>mizer is an R package for dynamic multi-species size-spectrum modelling of fish communities.</p>
 <div class="section level2">
-<h2 id="common-commands">Common Commands<a class="anchor" aria-label="anchor" href="#common-commands"></a></h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">load_all</a></span><span class="op">(</span><span class="op">)</span>        <span class="co"># Load package for development</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">document</a></span><span class="op">(</span><span class="op">)</span>        <span class="co"># Regenerate NAMESPACE and man/ pages from roxygen2</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">test</a></span><span class="op">(</span><span class="op">)</span>            <span class="co"># Run all tests</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">check</a></span><span class="op">(</span><span class="op">)</span>           <span class="co"># Full R CMD check</span></span>
-<span><span class="fu">lintr</span><span class="fu">::</span><span class="fu"><a href="https://lintr.r-lib.org/reference/lint.html" class="external-link">lint_package</a></span><span class="op">(</span><span class="op">)</span>       <span class="co"># Lint the package</span></span>
-<span></span>
-<span><span class="co"># Run a single test file</span></span>
-<span><span class="fu">testthat</span><span class="fu">::</span><span class="fu"><a href="https://testthat.r-lib.org/reference/test_file.html" class="external-link">test_file</a></span><span class="op">(</span><span class="st">"tests/testthat/test-filename.R"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># After editing C++ source</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://pkgbuild.r-lib.org/reference/clean_dll.html" class="external-link">clean_dll</a></span><span class="op">(</span><span class="op">)</span>; <span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">load_all</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
 <h2 id="architecture">Architecture<a class="anchor" aria-label="anchor" href="#architecture"></a></h2>
 <p><strong><code>MizerParams</code></strong> (S4) — central object passed to nearly all functions. Modified via setter functions that return new copies: <code>setFishing(params, ...)</code>, etc.</p>
 <p><strong><code>MizerSim</code></strong> (S4) — stores simulation output: arrays <code>n</code> (time × species × size), <code>n_pp</code>, <code>n_other</code>, <code>effort</code>, and the <code>MizerParams</code> used.</p>
 <p><strong><code>ArraySpeciesBySize</code></strong> / <strong><code>ArrayTimeBySpecies</code></strong> / <strong><code>ArrayTimeBySpeciesBySize</code></strong> (S3) — wrap some arrays with metadata. When assigning back to S4 slots, use <code>slot[] &lt;- value</code> (not <code>slot &lt;- value</code>) to strip the class.</p>
+<p><strong><code>species_params</code></strong> / <strong><code>given_species_params</code></strong> / <strong><code>gear_params</code></strong> (S3) — parameter tables subclassing <code>data.frame</code> stored in S4 slots. Users should access/modify these tables via S3 generics (e.g. <code>species_params(params)</code> or <code>gear_params(params)</code>), but package code and developers can modify slots directly (e.g. <code>params@species_params</code>) when appropriate. Inline modifications on the S3 objects (via <code>[&lt;-</code>, <code>$&lt;-</code>, <code>[[&lt;-</code> S3 methods) preserve the subclass and trigger reactive validation checks and conversions (e.g. length-to-weight). <code>given_species_params</code> holds what the user supplied <strong>plus the defaults of any function argument that sets a species parameter</strong> (e.g. <code>n</code> and <code>p</code> from <code><a href="reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>), even when the user did not override the argument; defaults that are not function arguments stay out of it.</p>
 <p><strong>Customisable rate functions</strong>: users replace rate functions by storing a custom function name in <code>params@rates_funcs</code>. Dispatch via <code>get(params@rates_funcs$FunctionName)(params, ...)</code>.</p>
 <p><strong>Auto-generated files</strong> — never edit <code>NAMESPACE</code>, <code>man/</code>, <code>RcppExports.R</code>, or <code>RcppExports.cpp</code> directly.</p>
 </div>
@@ -110,16 +102,21 @@
 <strong>Naming</strong>: camelCase or snake_case for functions/variables; PascalCase for classes</li>
 <li>
 <strong>Language</strong>: British English (en-GB) — “colour”, “behaviour”, “modelling”</li>
-<li>When documenting a mizer S3 generic whose methods share a man page (combined with <code>@rdname</code>/<code>@name</code>), follow the steps in <code>.claude/skills/document-s3-generics.md</code>. Claude Code users can invoke this as <code>/document-s3-generics</code>.</li>
+<li>When documenting a mizer S3 generic whose methods share a man page (combined with <code>@rdname</code>/<code>@name</code>), follow the steps in <code>.claude/skills/document-s3-generics.md</code>.</li>
+<li>When adding, moving or removing a species parameter default, follow <code>.claude/skills/species-param-defaults.md</code>. A default belongs to the rate setter that reads the parameter; only parameters that no single rate setter owns are defaulted centrally.</li>
 </ul></div>
 <div class="section level2">
 <h2 id="testing">Testing<a class="anchor" aria-label="anchor" href="#testing"></a></h2>
-<ul><li>Use <code>expect_doppelganger()</code> (vdiffr) for plot tests</li>
-<li>Use snapshot tests for complex outputs</li>
-<li>Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> after adding or changing exports</li>
-<li>Run <code><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">devtools::load_all()</a></code> before running tests</li>
-<li>After modifying the <code>MizerParams</code> or <code>MizerSim</code> class (new/removed slots, changes to <code>@rates_funcs</code>, etc.), follow the steps in <code>.claude/skills/upgrade-mizer-data.md</code>. Claude Code users can invoke this as <code>/upgrade-mizer-data</code>.</li>
-<li>When snapshot tests fail because values legitimately changed, run <code><a href="https://testthat.r-lib.org/reference/snapshot_accept.html" class="external-link">testthat::snapshot_accept()</a></code> to promote the <code>.new.md</code> files into the canonical <code>.md</code> snapshots.</li>
+<ul><li><p>Use <code>expect_doppelganger()</code> (vdiffr) for plot tests</p></li>
+<li><p>Use snapshot tests for complex outputs</p></li>
+<li><p>Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> after adding or changing exports</p></li>
+<li><p>Run <code><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">devtools::load_all()</a></code> before running tests</p></li>
+<li><p>Run only relevant tests with <code>devtools::test(filter = "pattern")</code>. Running all tests is too slow.</p></li>
+<li><p>Lint a file with <code><a href="https://lintr.r-lib.org/reference/lint.html" class="external-link">lintr::lint()</a></code></p></li>
+<li><p>After editing C++ source: <code><a href="https://pkgbuild.r-lib.org/reference/clean_dll.html" class="external-link">devtools::clean_dll(); devtools::load_all()</a></code></p></li>
+<li><p>After modifying the <code>MizerParams</code> or <code>MizerSim</code> class (new/removed slots, changes to <code>@rates_funcs</code>, etc.), follow the steps in <code>.claude/skills/upgrade-mizer-data.md</code>.</p></li>
+<li><p>When snapshot tests fail because values legitimately changed, run <code><a href="https://testthat.r-lib.org/reference/snapshot_accept.html" class="external-link">testthat::snapshot_accept()</a></code> to promote the <code>.new.md</code> files into the canonical <code>.md</code> snapshots.</p></li>
+<li><p>Avoid top-level <code><a href="https://rdrr.io/r/utils/data.html" class="external-link">data()</a></code> calls in test files. <code>testthat 3.x</code> shares <code>.GlobalEnv</code> across all tests. Use the <code>_small</code> fixtures from <code>helper.R</code> instead.</p></li>
 </ul><div class="section level3">
 <h3 id="test-helper-objects">Test helper objects<a class="anchor" aria-label="anchor" href="#test-helper-objects"></a></h3>
 <p><code>helper.R</code> defines small objects used across all test files. All are named with the <code>_small</code> suffix to avoid shadowing the built-in package datasets:</p>
@@ -131,16 +128,13 @@
 <strong><code>NS_species_params_small</code></strong>, <strong><code>NS_species_params_gears_small</code></strong>, <strong><code>inter_small</code></strong>: 3-species subsets of the full package datasets (rows 1, 4, 11 = Sprat, Herring, Cod).</li>
 </ul><p>Tests that hardcode species indices (e.g. <code>[12, ]</code>) or time indices (e.g. <code>times[10]</code>) must use values valid for 3 species and 4 time steps.</p>
 </div>
-<div class="section level3">
-<h3 id="global-environment-and-data-in-test-files">Global environment and <code>data()</code> in test files<a class="anchor" aria-label="anchor" href="#global-environment-and-data-in-test-files"></a></h3>
-<p>In testthat 3.x all test files share the same global environment. A top-level <code><a href="https://rdrr.io/r/utils/data.html" class="external-link">data()</a></code> call in one file writes to <code>.GlobalEnv</code> and therefore affects all alphabetically-later files. <code>test-backwards_compatibility.R</code> deliberately loads the full 12-species <code>NS_species_params_gears</code> and <code>inter</code> datasets at the top for its own snapshot tests — those names are intentionally <strong>not</strong> renamed to <code>_small</code> in that file. No restore block is needed at the bottom because the <code>_small</code> test fixtures have distinct names and are not overwritten.</p>
-</div>
 </div>
 <div class="section level2">
 <h2 id="before-submitting">Before Submitting<a class="anchor" aria-label="anchor" href="#before-submitting"></a></h2>
 <ul><li>After adding a new file under <code>R/</code>, add it to the <code>Collate:</code> field in <code>DESCRIPTION</code> (roxygen2 does not manage this automatically in this package).</li>
 <li>After adding or renaming exported functions, add them to the <code>appropriate</code> section in <code>pkgdown/_pkgdown.yml</code> so they appear on the reference page of the website.</li>
 <li>Update <code>NEWS.md</code> when adding features or fixing bugs.</li>
+<li>When creating a pull request, always include the summary of your changes in the PR body.</li>
 </ul></div>
 </div>
 
@@ -149,7 +143,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

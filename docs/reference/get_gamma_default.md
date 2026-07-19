@@ -20,6 +20,13 @@ get_gamma_default(params)
 
 A vector with the values of gamma for all species
 
+## Details
+
+See the [Search Volume
+Coefficient](https://sizespectrum.org/mizer/articles/default_parameters.html#gamma-default)
+section of the "Calculation of Default Parameter Values" vignette for
+the mathematical derivation.
+
 ## See also
 
 Other functions calculating defaults:

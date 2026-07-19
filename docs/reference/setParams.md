@@ -94,12 +94,6 @@ setParams(object, interaction = NULL, info_level = 3, ...)
       each species at size. If not supplied, a default is set as
       described in the section "Setting metabolic rate".
 
-  `p`
-
-  :   The allometric metabolic exponent. This is only used if `metab` is
-      not given explicitly and if the exponent is not specified in a `p`
-      column in the `species_params`.
-
   `ext_mort`
 
   :   Optional. An array (species x size) holding the external mortality
@@ -418,7 +412,7 @@ standard metabolism and \\k w\\ is the rate at which energy is expended
 on activity and movement. The values of \\k_s\\, \\p\\ and \\k\\ are
 taken from the `ks`, `p` and `k` columns in the species parameter
 dataframe. If any of these parameters are not supplied, the defaults are
-\\k = 0\\, \\p = 3/4\\ and \$\$k_s = f_c h \alpha w\_{mat}^{n-p},\$\$
+\\k = 0\\, \\p = n\\ and \$\$k_s = f_c h \alpha w\_{mat}^{n-p},\$\$
 where \\f_c\\ is the critical feeding level taken from the `fc` column
 in the species parameter data frame. If the critical feeding level is
 not specified, a default of \\f_c = 0.2\\ is used.

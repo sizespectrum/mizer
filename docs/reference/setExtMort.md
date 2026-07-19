@@ -1,6 +1,13 @@
 # Set external mortality rate
 
-Set external mortality rate
+You will usually not need to call this function directly. Instead change
+the `z0`, `z_ext` and `d` species parameters with
+`given_species_params(params) <-` and let mizer recalculate the external
+mortality rate for you. Call `setExtMort()` directly only if you want to
+impose a different functional form for the size dependence of the
+external mortality. See
+[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+for a full explanation of when to reach for which level of the model.
 
 ## Usage
 

@@ -1,10 +1,10 @@
 # Get flux gradient
 
-Calculates the flux divergence \\(J\_{j+1} - J_j)/\Delta w_j\\ that
-appears as the second term in the discretised size-spectrum transport
-equation \$\$\frac{\partial N_j}{\partial t} + \frac{J\_{j+1} -
-J_j}{\Delta w_j} = -\mu_j N_j.\$\$ The bin-boundary fluxes \\J_j\\ are
-obtained from
+**\[experimental\]** Calculates the flux divergence \\(J\_{j+1} -
+J_j)/\Delta w_j\\ that appears as the second term in the discretised
+size-spectrum transport equation \$\$\frac{\partial N_j}{\partial t} +
+\frac{J\_{j+1} - J_j}{\Delta w_j} = -\mu_j N_j.\$\$ The bin-boundary
+fluxes \\J_j\\ are obtained from
 [`getFlux()`](https://sizespectrum.org/mizer/reference/getFlux.md),
 which uses the advective-flux scheme stored in the `flux` entry of the
 [`second_order_w`](https://sizespectrum.org/mizer/reference/second_order_w.md)

@@ -184,11 +184,10 @@ extension you need, and the chain builds itself.
 ### What gets recorded in a params object
 
 When an extension package creates a new `MizerParams` object (for
-example, when you call
-[`mizerShelf::newDetritusCarrionParams()`](https://sizespectrum.org/mizerShelf/reference/newDetritusCarrionParams.html)),
-it stamps the object with the full extension chain that was active at
-that moment. This snapshot is stored in the `@extensions` slot of the
-params object.
+example, when you call `mizerShelf::newDetritusCarrionParams()`), it
+stamps the object with the full extension chain that was active at that
+moment. This snapshot is stored in the `@extensions` slot of the params
+object.
 
 You can inspect it:
 
@@ -282,6 +281,24 @@ This uses the installation specifications stored in `params@extensions`
 to fetch the correct version of each package (from CRAN or GitHub as
 appropriate).
 
+## Built-in example models from extension packages
+
+Extension packages often ship ready-made `MizerParams` or `MizerSim`
+objects as built-in example models. As long as the package is written
+following mizer’s conventions, these objects work correctly as soon as
+you load the package:
+
+``` r
+
+library(mizerShelf)
+NWMed_params   # already has the correct extension class — no extra steps needed
+```
+
+If you ever encounter an object from an older package that does not
+behave as expected, calling
+[`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
+on it will restore the correct class.
+
 ## Common scenarios
 
 ### You get a warning about missing extension packages
@@ -342,6 +359,7 @@ you source the script fresh.
 - [`?registerExtensions`](https://sizespectrum.org/mizer/reference/registerExtensions.md)
 - [`?getRegisteredExtensions`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md)
 - [`?clearExtensionChain`](https://sizespectrum.org/mizer/reference/clearExtensionChain.md)
+- [`?coerceToExtensionClass`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
 - [`?saveParams`](https://sizespectrum.org/mizer/reference/saveParams.md)
 - [`?readParams`](https://sizespectrum.org/mizer/reference/saveParams.md)
 - [`?saveSim`](https://sizespectrum.org/mizer/reference/saveParams.md)

@@ -70,7 +70,10 @@ MizerParams(
 
 - kappa:
 
-  The coefficient of the initial resource abundance power-law.
+  The coefficient \\\kappa\\ of the resource carrying capacity power law
+  \\c_R(w) = \kappa\\ w^{-\lambda}\\, which also sets the initial
+  resource abundance. See
+  [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md).
 
 - lambda:
 

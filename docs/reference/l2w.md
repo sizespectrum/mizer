@@ -38,6 +38,3 @@ weights in grams and `w2l()` returns a vector of lengths in cm.
 
 This is useful for converting a length-based species parameter to a
 weight-based species parameter.
-
-If any `a` or `b` parameters are missing the default values `a = 0.01`
-and `b = 3` are used for the missing values.

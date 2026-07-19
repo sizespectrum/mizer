@@ -262,7 +262,15 @@ initial condition that is close to steady state.
 The search rate coefficient `gamma` is calculated using the expected
 feeding level, `f0`.
 
-The diffusion rate is set to `0`.
+The diffusion rate is set to `0`. Because growth is therefore
+deterministic, no individual grows beyond `w_repro_max`, the size at
+which all available energy is invested into reproduction. The upper
+boundary of the size grid is therefore placed at that size, so that
+`w_max = w_repro_max`, instead of the `1.5 * w_repro_max` headroom that
+[`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)
+leaves to accommodate the stochastic growth produced by diffusion. This
+choice will be revisited once these constructors gain a diffusion
+parameter, see <https://github.com/sizespectrum/mizer/issues/339>.
 
 The option of including fishing is given, but the steady state may loose
 its natural stability if too much fishing is included. In such a case

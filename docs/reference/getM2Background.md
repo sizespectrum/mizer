@@ -96,6 +96,8 @@ sim <- project(params, t_max = 20, effort = 0.5)
 # Get resource mortality at one time step
 getResourceMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
 #> Resource mortality (226 sizes) [1/year] 
-#>   min=3.9e-16 mean=5.5 max=17.6
+#>     2.12e-13     6.05e-10     1.72e-06      0.00491           14        39900 
+#> 1.191600e-05 2.103607e-02 4.621551e+00 1.540257e+01 4.873209e+00 3.902282e-16 
+#> ... showing 6 of 226 sizes (2.12e-13-39900 g, log-spaced); use as.data.frame() for the full data. 
 # }
 ```

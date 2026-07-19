@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Species parameters — species_params"><meta name="description" content="These functions allow you to get or set the species-specific parameters
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Species parameters — species_params"><meta name="description" content="These functions allow you to get or set the species-specific parameters
 stored in a MizerParams object."><meta property="og:description" content="These functions allow you to get or set the species-specific parameters
 stored in a MizerParams object."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -15,7 +15,7 @@ stored in a MizerParams object."><meta property="og:image" content="https://size
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,6 +40,9 @@ stored in a MizerParams object."><meta property="og:image" content="https://size
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -89,13 +92,17 @@ stored in a MizerParams object.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">species_params</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">species_params</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">species_params</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span><span class="fu">species_params</span><span class="op">(</span><span class="va">object</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
 <span></span>
-<span><span class="fu">given_species_params</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
+<span><span class="fu">is.species_params</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">given_species_params</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span><span class="fu">given_species_params</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">is.given_species_params</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">given_species_params</span><span class="op">(</span><span class="va">object</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
 <span></span>
 <span><span class="fu">calculated_species_params</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -104,30 +111,48 @@ stored in a MizerParams object.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-params">params<a class="anchor" aria-label="anchor" href="#arg-params"></a></dt>
-<dd><p>A MizerParams object</p></dd>
+<dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
+<dd><p>A MizerParams object, a MizerSim object or a data frame</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Other arguments passed to methods.</p></dd>
 
 
 <dt id="arg-value">value<a class="anchor" aria-label="anchor" href="#arg-value"></a></dt>
-<dd><p>A data frame with the species parameters</p></dd>
+<dd><p>A data frame with the new species parameters.</p></dd>
+
+
+<dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p>An object to test with <code>is.species_params()</code> or
+<code>is.given_species_params()</code>.</p></dd>
+
+
+<dt id="arg-params">params<a class="anchor" aria-label="anchor" href="#arg-params"></a></dt>
+<dd><p>A MizerParams object.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code>species_params()</code>: Data frame containing all species parameters
 currently stored in the model.</p>
-<p><code>species_params&lt;-()</code>: Updates the full species parameter table after
-validating it with <code><a href="validSpeciesParams.html">validSpeciesParams()</a></code> and then recalculating the model
-parameters with <code><a href="setParams.html">setParams()</a></code>.</p>
+<p><code>species_params&lt;-()</code>: Updates the <code>given_species_params</code> with any
+parameters you have changed, and then recalculates the full species
+parameter table and the model parameters.</p>
 <p><code>given_species_params()</code>: Data frame containing the species parameter
 values that were supplied explicitly by the user.</p>
-<p><code>given_species_params&lt;-()</code>: Updates the explicitly supplied species
-parameters after validating them with <code><a href="validSpeciesParams.html">validGivenSpeciesParams()</a></code> and then
-recalculating the full species parameter table and dependent model
-quantities.</p>
+<p><code>given_species_params&lt;-()</code>: An alternative to <code>species_params&lt;-()</code> that
+also triggers a recalculation of other parameters. The only difference is
+that <code>given_species_params&lt;-()</code> issues warnings when a parameter is
+changed whose effect is overridden by another parameter that has already
+been given. This is especially useful during interactive use.</p>
 <p><code>calculated_species_params()</code>: Data frame containing only those species
 parameter entries that are not explicit user input. Columns that would
 consist entirely of <code>NA</code> values are dropped.</p>
+<p><code>is.species_params()</code> returns <code>TRUE</code> if <code>x</code> is a <code>species_params</code>
+object, <code>FALSE</code> otherwise.</p>
+<p><code>is.given_species_params()</code> returns <code>TRUE</code> if <code>x</code> is a
+<code>given_species_params</code> object, <code>FALSE</code> otherwise.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -152,13 +177,11 @@ set to default values. You can retrieve the given species parameters with
 <code>given_species_params()</code> and the calculated ones with
 <code>calculated_species_params()</code>. You get all species_params with
 <code>species_params()</code>.</p>
-<p>If you change given species parameters with <code>given_species_params&lt;-()</code> this
-will trigger a re-calculation of the calculated species parameters, where
-necessary. However if you change species parameters with <code>species_params&lt;-()</code>
-no recalculation will take place and furthermore your values could be
-overwritten by a future recalculation triggered by a call to
-<code>given_species_params&lt;-()</code> . So in most use cases you will only want to use
-<code>given_species_params&lt;-()</code>.</p>
+<p>When you change species parameters with <code>species_params&lt;-()</code>, mizer
+automatically detects which parameters you have changed. It records these
+changed parameters in <code>given_species_params</code> so that they are protected
+against being overwritten by future recalculations. It then triggers a
+re-calculation of the calculated species parameters.</p>
 <p>There are some species parameters that are used to set up the
 size-dependent parameters that are used in the mizer model:</p><ul><li><p><code>gamma</code> and <code>q</code> are used to set the search volume, see <code><a href="setSearchVolume.html">setSearchVolume()</a></code>.</p></li>
 <li><p><code>h</code> and <code>n</code> are used to set the maximum intake rate, see <code><a href="setMaxIntakeRate.html">setMaxIntakeRate()</a></code>.</p></li>
@@ -179,7 +202,7 @@ section in the help for <code><a href="setPredKernel.html">setPredKernel()</a></
 <code><a href="lognormal_pred_kernel.html">lognormal_pred_kernel()</a></code>. There will be other parameters if you are
 using other predation kernel functions.</p></li>
 </ul><p>When you change one of the above species parameters using
-<code>given_species_params&lt;-()</code> or <code>species_params&lt;-()</code>, the new value will be
+<code>species_params&lt;-()</code> or <code>given_species_params&lt;-()</code>, the new value will be
 used to update the corresponding size-dependent rates automatically, unless
 you have set those size-dependent rates manually, in which case the
 corresponding species parameters will be ignored.</p>
@@ -215,12 +238,9 @@ the coefficient <code>h</code> of the maximum intake rate, see <code><a href="ge
 <li><p>If <code>age_mat</code> is not supplied, mizer used the von Bertalanffy parameters
 <code>k_vb</code>, <code>w_inf</code> and <code>t0</code> as well as the weight-length exponent <code>b</code> to
 determine it. This is unreliable and is therefore not recommended.</p></li>
-</ul><p>Changing these parameters with <code>species_params&lt;-()</code> updates the stored
-species parameter table and triggers a recalculation via <code><a href="setParams.html">setParams()</a></code>.
-However they only affect model behaviour if the corresponding downstream
-parameters are recalculated rather than kept at explicitly supplied values.
-In typical workflows these quantities should therefore be changed via
-<code>given_species_params&lt;-()</code>.</p>
+</ul><p>Changing these parameters with <code>species_params&lt;-()</code> will trigger a
+recalculation of the downstream parameters, provided they are not protected
+by being explicitly given.</p>
 <p>There are other species parameters that are used in tuning the model to
 observations:</p><ul><li><p><code>biomass_observed</code> and <code>biomass_cutoff</code> allow you to specify for each
 species the total observed biomass above some cutoff size. This is
@@ -267,7 +287,7 @@ MizerParams object, in case your own code makes use of them.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

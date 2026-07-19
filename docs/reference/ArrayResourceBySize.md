@@ -15,13 +15,16 @@ methods.
 
 ``` r
 ArrayResourceBySize(x, value_name = NULL, units = NULL, params = NULL)
+
+is.ArrayResourceBySize(x)
 ```
 
 ## Arguments
 
 - x:
 
-  A numeric vector over the full size grid.
+  A numeric vector over the full size grid. For
+  `is.ArrayResourceBySize()`, any object to test.
 
 - value_name:
 
@@ -40,6 +43,9 @@ ArrayResourceBySize(x, value_name = NULL, units = NULL, params = NULL)
 ## Value
 
 An `ArrayResourceBySize` object (inherits from `numeric`).
+
+`is.ArrayResourceBySize()` returns `TRUE` if `x` is an
+`ArrayResourceBySize` object, `FALSE` otherwise.
 
 ## Details
 

@@ -11,6 +11,9 @@ plotYieldGear(
   species = NULL,
   gears = NULL,
   total = FALSE,
+  log_x = FALSE,
+  log_y = TRUE,
+  log = NULL,
   ylim = c(NA, NA),
   tlim = c(NA, NA),
   highlight = NULL,
@@ -42,6 +45,23 @@ plotYieldGear(
 
   A boolean value that determines whether the total yield from all
   species is plotted as well. Default is FALSE.
+
+- log_x:
+
+  If `TRUE`, use a log10 x-axis. Default is `FALSE`.
+
+- log_y:
+
+  If `TRUE`, use a log10 y-axis. Default is `TRUE`.
+
+- log:
+
+  Character string specifying which axes should use log10 scales, in the
+  same form as the base
+  [`plot()`](https://sizespectrum.org/mizer/reference/plot.md) argument.
+  For example, `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides
+  `log_x` and `log_y`. For backward compatibility, `TRUE` and `FALSE`
+  are interpreted as setting only `log_y`.
 
 - ylim:
 

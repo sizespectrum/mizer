@@ -18,8 +18,8 @@
     }
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="default_parameters_files/libs/quarto-html/popper.min.js"></script><script src="default_parameters_files/libs/quarto-html/tippy.umd.min.js"></script><link href="default_parameters_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="default_parameters_files/libs/quarto-html/light-border.css" rel="stylesheet">
@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,6 +66,9 @@
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -127,8 +130,8 @@
     <section class="level2"><h2 id="introduction-philosophy">Introduction &amp; Philosophy<a class="anchor" aria-label="anchor" href="#introduction-philosophy"></a>
 </h2>
 <p>A key design feature of the <code>mizer</code> package is that a multi-species size-spectrum model can be set up using only a small amount of information. This is possible because <code>mizer</code> uses <strong>allometric scaling relations</strong> and <strong>size-based feeding rules</strong> to choose sensible default values for parameters that are not explicitly provided by the user.</p>
-<p>For example, to set up a model using the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> function, the user only <em>needs</em> to provide the von Bertalanffy asymptotic sizes (<span class="math inline">\(w_{\infty}\)</span>) for the species in the community. Almost all other physiological, ecological, and mortality parameters can be automatically filled in using defaults. (See the section on <a href="#maximum-size-parameters">maximum-size parameters</a> below for the distinction between <span class="math inline">\(w_{\infty}\)</span>, <span class="math inline">\(w_{\text{repro\_max}}\)</span> and <span class="math inline">\(w_{\text{max}}\)</span>.)</p>
-<p>This vignette details the philosophy, the relationships, and the mathematical derivations behind the default parameter values calculated by <code>mizer</code>. For a description of the model equations themselves, see the <a href="model_description.html">vignette on the model description</a>.</p>
+<p>For example, to set up a model using the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> function, the user only <em>needs</em> to provide the von Bertalanffy asymptotic sizes (<span class="math inline">\(w_{\infty}\)</span>) for the species in the community. Almost all other physiological, ecological, and mortality parameters can be automatically filled in using defaults. (See the section on <a href="#maximum-size-parameters">maximum-size parameters</a> below for the distinction between <span class="math inline">\(w_{\infty}\)</span>, <span class="math inline">\(w_{\text{repro_max}}\)</span> and <span class="math inline">\(w_{\text{max}}\)</span>.)</p>
+<p>This vignette details the philosophy, the relationships, and the mathematical derivations behind the default parameter values calculated by <code>mizer</code>. For a description of the model equations themselves, see <a href="model_description.html">The General Mizer Size-spectrum Model</a>.</p>
 <hr></section><section class="level2"><h2 id="how-species-parameters-are-stored-and-used">How species parameters are stored and used<a class="anchor" aria-label="anchor" href="#how-species-parameters-are-stored-and-used"></a>
 </h2>
 <p>Because most species parameters can be filled in with defaults, <code>mizer</code> needs to keep track of which values <em>you</em> supplied and which it calculated for you. It also needs a rule for what should happen when you later change a value. This section explains the machinery — the two species-parameter data frames, the accessor and setter functions, the role of <code><a href="../reference/setParams.html">setParams()</a></code>, and the “comment” mechanism on the size-dependent rate arrays — so that the rest of this vignette makes sense.</p>
@@ -162,7 +165,7 @@
 </div>
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Everything else was calculated, for example:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">intersect</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"w_mat"</span>, <span class="st">"w_min"</span>, <span class="st">"h"</span>, <span class="st">"gamma"</span>, <span class="st">"ks"</span><span class="op">)</span>,</span>
+<span><span class="fu"><a href="https://generics.r-lib.org/reference/setops.html" class="external-link">intersect</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"w_mat"</span>, <span class="st">"w_min"</span>, <span class="st">"h"</span>, <span class="st">"gamma"</span>, <span class="st">"ks"</span><span class="op">)</span>,</span>
 <span>          <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/species_params.html">calculated_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "w_mat" "w_min" "h"     "gamma" "ks"   </code></pre>
@@ -170,17 +173,17 @@
 </div>
 <p>Notice that <code>n</code> and <code>p</code> appear among the <em>given</em> parameters even though we did not put them in the data frame. This is deliberate: some species parameters can also be set through arguments to the constructor functions (here the <code>n</code> and <code>p</code> arguments of <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>), and any species parameter set from such an argument is recorded as given — <strong>even when the argument was left at its default value in the function signature</strong>. In other words, “given” means “fixed by the way you called the constructor”, not only “typed into the species parameter data frame”. The practical consequence is that these values count as explicit input and so are not silently changed by later recalculations.</p>
 <p>(Constructor arguments that do <em>not</em> directly correspond to a species parameter behave differently. For example <code>z0pre</code> and <code>z0exp</code> are used to <em>compute</em> the external mortality parameter <code>z0</code>, which therefore appears among the calculated parameters rather than the given ones.)</p>
-</section><section class="level3"><h3 id="changing-parameters-given_species_params--vs--species_params-">Changing parameters: <code>given_species_params&lt;-()</code> vs. <code>species_params&lt;-()</code>
-<a class="anchor" aria-label="anchor" href="#changing-parameters-given_species_params--vs--species_params-"></a>
+</section><section class="level3"><h3 id="changing-parameters-species_params--vs--given_species_params-">Changing parameters: <code>species_params&lt;-()</code> vs. <code>given_species_params&lt;-()</code>
+<a class="anchor" aria-label="anchor" href="#changing-parameters-species_params--vs--given_species_params-"></a>
 </h3>
-<p>There are correspondingly two ways to change species parameters, and the difference matters:</p>
+<p>There are correspondingly two ways to change species parameters:</p>
 <ul>
 <li>
-<strong><code>given_species_params&lt;-()</code></strong> (recommended) records your change as a <em>given</em> value and then triggers a recalculation, via <code><a href="../reference/setParams.html">setParams()</a></code>, of every calculated parameter and size-dependent rate that depends on it. This is what you almost always want.</li>
+<strong><code>species_params&lt;-()</code></strong> (often preferred in scripts) intelligently detects which values you have changed, records those changes as <em>given</em> values (protecting them from being overwritten by defaults), and then silently triggers a recalculation of everything that depends on them.</li>
 <li>
-<strong><code>species_params&lt;-()</code></strong> overwrites the <em>full</em> table directly. It does <strong>not</strong> protect your change: the value you write is not marked as “given”, so the very next recalculation (for instance the next time you use <code>given_species_params&lt;-()</code>) may overwrite it with a freshly calculated default.</li>
+<strong><code>given_species_params&lt;-()</code></strong> is very useful in interactive use. Like <code>species_params&lt;-()</code> it triggers a recalculation of other parameters, but importantly it will warn you when you set a parameter whose effect is overridden by another value you have already given.</li>
 </ul>
-<p>For example, in a model where the age at maturity is known, <code>mizer</code> derives the maximum intake coefficient <code>h</code> from it (see the <a href="#the-dependency-chain">“Dependency Chain”</a> below). Changing the size at maturity through the given parameters then propagates to <code>h</code> (and onward to <code>gamma</code> and <code>ks</code>) automatically:</p>
+<p>For example, in a model where the age at maturity is known, <code>mizer</code> derives the maximum intake coefficient <code>h</code> from it (see the <a href="#the-dependency-chain">“Dependency Chain”</a> below). Changing the size at maturity via <code>species_params&lt;-()</code> then propagates to <code>h</code> (and onward to <code>gamma</code> and <code>ks</code>) automatically:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">growing</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span></span>
@@ -188,17 +191,20 @@
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">growing</span><span class="op">)</span><span class="op">$</span><span class="va">h</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 26.68043</code></pre>
+<pre><code><span>     <span class="va">Cod</span></span>
+<span><span class="fl">26.68043</span> </span></code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">growing</span><span class="op">)</span><span class="op">$</span><span class="va">w_mat</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<code class="sourceCode R"><span><span class="co"># using species_params&lt;-() detects the change and protects it</span></span>
+<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">growing</span><span class="op">)</span><span class="op">$</span><span class="va">w_mat</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">growing</span><span class="op">)</span><span class="op">$</span><span class="va">h</span>           <span class="co"># recalculated</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 24.75</code></pre>
+<pre><code><span>     <span class="va">Cod</span></span>
+<span><span class="fl">26.68043</span> </span></code></pre>
 </div>
 </div>
-<p>After this, <code>w_mat</code> has moved from the calculated frame into the given frame of <code>growing</code>, because you have now supplied it explicitly.</p>
-<p>A useful consequence of the given/calculated split is that supplying a value <em>switches off</em> the corresponding default calculation. The <a href="#the-dependency-chain">“Dependency Chain”</a> below shows, for instance, that <code>age_mat</code> is only used to calculate a default for <code>h</code>. If you give <code>h</code> directly, <code>age_mat</code> is ignored; if you give <code>gamma</code>, the <code>f0</code> value is ignored; and so on. <code>given_species_params&lt;-()</code> will warn you when you set a parameter whose effect is overridden by another value you have already given.</p>
+<p>After this, <code>w_mat</code> has moved from the calculated frame into the given frame of <code>growing</code>, because <code>species_params&lt;-()</code> detected that you supplied it explicitly.</p>
+<p>A useful consequence of the given/calculated split is that supplying a value <em>switches off</em> the corresponding default calculation. The <a href="#the-dependency-chain">“Dependency Chain”</a> below shows, for instance, that <code>age_mat</code> is only used to calculate a default for <code>h</code>. If you give <code>h</code> directly, <code>age_mat</code> is ignored; if you give <code>gamma</code>, the <code>f0</code> value is ignored; and so on.</p>
 </section><section class="level3"><h3 id="setparams-and-the-size-dependent-rate-arrays">
 <code>setParams()</code> and the size-dependent rate arrays<a class="anchor" aria-label="anchor" href="#setparams-and-the-size-dependent-rate-arrays"></a>
 </h3>
@@ -226,7 +232,8 @@
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span> <span class="op">&lt;-</span> <span class="fl">1e-10</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span>        <span class="co"># the species parameter did change ...</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1e-10</code></pre>
+<pre><code><span>  <span class="va">Cod</span></span>
+<span><span class="fl">1e-10</span> </span></code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/comment.html" class="external-link">comment</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">search_vol</span><span class="op">)</span>, <span class="st">"set manually"</span><span class="op">)</span>  <span class="co"># ... but the rate is frozen</span></span></code></pre></div>
@@ -259,7 +266,7 @@
 <li>
 <strong><code>w_max</code></strong> is purely a <em>computational</em> boundary. It sets the upper end of the size grid and the range of the plots; it does not by itself stop growth. It defaults to <code>1.5 * w_inf</code>.</li>
 </ul>
-<p>A typical (but not enforced) ordering is therefore <span class="math inline">\(w_{\text{mat}} &lt; w_{\infty} \approx w_{\text{repro\_max}} \le w_{\text{max}}\)</span>.</p>
+<p>A typical (but not enforced) ordering is therefore <span class="math inline">\(w_{\text{mat}} &lt; w_{\infty} \approx w_{\text{repro_max}} \le w_{\text{max}}\)</span>.</p>
 <p>For backwards compatibility, if you supply <code>w_max</code> (or <code>w_repro_max</code>) but not <code>w_inf</code>, then <code>w_inf</code> is taken from those columns and an informational message is issued, so models and scripts written for earlier versions of <code>mizer</code> continue to work unchanged.</p>
 <p>These parameters have been handled differently over the history of <code>mizer</code>:</p>
 <ul>
@@ -270,6 +277,23 @@
 <hr></section><section class="level2"><h2 id="species-parameter-defaults-reference-table">Species Parameter Defaults Reference Table<a class="anchor" aria-label="anchor" href="#species-parameter-defaults-reference-table"></a>
 </h2>
 <p>When creating a <code>MizerParams</code> object, <code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code> (and subsequent setup functions like <code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code>, <code><a href="../reference/setMaxIntakeRate.html">setMaxIntakeRate()</a></code>, <code><a href="../reference/setMetabolicRate.html">setMetabolicRate()</a></code>, <code><a href="../reference/setExtMort.html">setExtMort()</a></code>, and <code><a href="../reference/setReproduction.html">setReproduction()</a></code>) check the species parameter data frame and fill in missing parameters.</p>
+<section class="level3"><h3 id="where-defaults-live">Where defaults live<a class="anchor" aria-label="anchor" href="#where-defaults-live"></a>
+</h3>
+<p>Each default has a single home: the rate-setting function that uses the parameter. <code><a href="../reference/setMetabolicRate.html">setMetabolicRate()</a></code> defaults <code>p</code> and <code>k</code> because it is the only function that reads them; <code><a href="../reference/setExtMort.html">setExtMort()</a></code> defaults <code>z0</code>, <code>z_ext</code> and <code>d</code>; and so on. This matters because the rate setters are also called directly, without going through <code><a href="../reference/setParams.html">setParams()</a></code>, so a setter has to be able to supply the defaults it needs on its own.</p>
+<p>Only parameters that no single rate setter owns are defaulted centrally in <code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code>. That happens for five reasons:</p>
+<ul>
+<li>
+<strong>several setters read it</strong> — <code>n</code> is used by <code><a href="../reference/setExtDiffusion.html">setExtDiffusion()</a></code>, <code><a href="../reference/setExtEncounter.html">setExtEncounter()</a></code>, <code><a href="../reference/setExtMort.html">setExtMort()</a></code>, <code><a href="../reference/setMaxIntakeRate.html">setMaxIntakeRate()</a></code>, <code><a href="../reference/setReproduction.html">setReproduction()</a></code> and <code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code>;</li>
+<li>
+<strong>only the projection reads it</strong> — no setter touches <code>alpha</code>; it is used when calculating growth and reproduction;</li>
+<li>
+<strong>the size grid is built from it</strong> — <code>w_min</code> and <code>w_max</code> are needed before any rate setter runs;</li>
+<li>
+<strong>the length-weight conversion needs it</strong> — <code>a</code> and <code>b</code> are used by <code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code> itself to convert lengths such as <code>l_mat</code> into weights;</li>
+<li>
+<strong>it is only used for reporting</strong> — <code>is_background</code>.</li>
+</ul>
+<p>A consequence is that <code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code> applied to a bare data frame returns only the central defaults. The setter-owned columns appear once the model is built, because <code><a href="../reference/setParams.html">setParams()</a></code> calls every rate-setting function.</p>
 <p>Below is a reference of the default values and the functions responsible for calculating them:</p>
 <table class="table caption-top">
 <colgroup>
@@ -317,46 +341,21 @@
 <td style="text-align: left;"><code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>interaction_resource</code></td>
-<td style="text-align: left;">Species interaction strength with resource</td>
-<td style="text-align: left;"><code>1</code></td>
-<td style="text-align: left;"><code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code></td>
-</tr>
-<tr class="odd">
 <td style="text-align: left;"><code>n</code></td>
 <td style="text-align: left;">Allometric scaling exponent of intake</td>
 <td style="text-align: left;"><code>3/4</code></td>
 <td style="text-align: left;"><code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code></td>
 </tr>
-<tr class="even">
-<td style="text-align: left;"><code>p</code></td>
-<td style="text-align: left;">Allometric scaling exponent of metabolism</td>
-<td style="text-align: left;">
-<code>n</code> (which is <code>3/4</code>)</td>
-<td style="text-align: left;"><code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code></td>
-</tr>
 <tr class="odd">
-<td style="text-align: left;"><code>z_ext</code></td>
-<td style="text-align: left;">Size-dependent external mortality</td>
-<td style="text-align: left;"><code>0</code></td>
+<td style="text-align: left;"><code>a</code></td>
+<td style="text-align: left;">Length-weight conversion coefficient</td>
+<td style="text-align: left;"><code>0.01</code></td>
 <td style="text-align: left;"><code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>d</code></td>
-<td style="text-align: left;">Exponent of size-dependent external mortality</td>
-<td style="text-align: left;"><code>n - 1</code></td>
-<td style="text-align: left;"><code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>E_ext</code></td>
-<td style="text-align: left;">External encounter rate</td>
-<td style="text-align: left;"><code>0</code></td>
-<td style="text-align: left;"><code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>D_ext</code></td>
-<td style="text-align: left;">External diffusion rate</td>
-<td style="text-align: left;"><code>0</code></td>
+<td style="text-align: left;"><code>b</code></td>
+<td style="text-align: left;">Length-weight conversion exponent</td>
+<td style="text-align: left;"><code>3</code></td>
 <td style="text-align: left;"><code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code></td>
 </tr>
 <tr class="odd">
@@ -379,24 +378,36 @@
 <td style="text-align: left;"><code><a href="../reference/get_gamma_default.html">get_gamma_default()</a></code></td>
 </tr>
 <tr class="even">
+<td style="text-align: left;"><code>q</code></td>
+<td style="text-align: left;">Exponent of the search volume</td>
+<td style="text-align: left;"><code>lambda - 2 + n</code></td>
+<td style="text-align: left;"><code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code></td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;"><code>f0</code></td>
 <td style="text-align: left;">Target feeding level</td>
 <td style="text-align: left;">
 <code>0.6</code> (or derived from <code>gamma</code> if given)</td>
 <td style="text-align: left;"><code><a href="../reference/get_f0_default.html">get_f0_default()</a></code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;"><code>fc</code></td>
 <td style="text-align: left;">Critical feeding level</td>
 <td style="text-align: left;"><code>0.2</code></td>
-<td style="text-align: left;"><code><a href="../reference/set_species_param_default.html">set_species_param_default()</a></code></td>
+<td style="text-align: left;"><code><a href="../reference/get_ks_default.html">get_ks_default()</a></code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;"><code>ks</code></td>
 <td style="text-align: left;">Standard metabolic rate coefficient</td>
 <td style="text-align: left;">Derived from critical feeding level <span class="math inline">\(f_c\)</span>
 </td>
 <td style="text-align: left;"><code><a href="../reference/get_ks_default.html">get_ks_default()</a></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>p</code></td>
+<td style="text-align: left;">Allometric scaling exponent of metabolism</td>
+<td style="text-align: left;"><code>n</code></td>
+<td style="text-align: left;"><code><a href="../reference/setMetabolicRate.html">setMetabolicRate()</a></code></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>k</code></td>
@@ -411,18 +422,60 @@
 <td style="text-align: left;"><code><a href="../reference/setExtMort.html">setExtMort()</a></code></td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;"><code>z_ext</code></td>
+<td style="text-align: left;">Size-dependent external mortality</td>
+<td style="text-align: left;"><code>0</code></td>
+<td style="text-align: left;"><code><a href="../reference/setExtMort.html">setExtMort()</a></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>d</code></td>
+<td style="text-align: left;">Exponent of size-dependent external mortality</td>
+<td style="text-align: left;"><code>n - 1</code></td>
+<td style="text-align: left;"><code><a href="../reference/setExtMort.html">setExtMort()</a></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>E_ext</code></td>
+<td style="text-align: left;">External encounter rate</td>
+<td style="text-align: left;"><code>0</code></td>
+<td style="text-align: left;"><code><a href="../reference/setExtEncounter.html">setExtEncounter()</a></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>D_ext</code></td>
+<td style="text-align: left;">External diffusion rate</td>
+<td style="text-align: left;"><code>0</code></td>
+<td style="text-align: left;"><code><a href="../reference/setExtDiffusion.html">setExtDiffusion()</a></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>interaction_resource</code></td>
+<td style="text-align: left;">Species interaction strength with resource</td>
+<td style="text-align: left;"><code>1</code></td>
+<td style="text-align: left;"><code><a href="../reference/setInteraction.html">setInteraction()</a></code></td>
+</tr>
+<tr class="even">
 <td style="text-align: left;"><code>erepro</code></td>
 <td style="text-align: left;">Reproduction efficiency</td>
 <td style="text-align: left;"><code>1</code></td>
 <td style="text-align: left;"><code><a href="../reference/setReproduction.html">setReproduction()</a></code></td>
 </tr>
+<tr class="odd">
+<td style="text-align: left;"><code>m</code></td>
+<td style="text-align: left;">Exponent of the investment into reproduction</td>
+<td style="text-align: left;"><code>1</code></td>
+<td style="text-align: left;"><code><a href="../reference/setReproduction.html">setReproduction()</a></code></td>
+</tr>
 <tr class="even">
+<td style="text-align: left;"><code>w_mat25</code></td>
+<td style="text-align: left;">Size at which 25% of individuals are mature</td>
+<td style="text-align: left;"><code>w_mat / 3^(1/10)</code></td>
+<td style="text-align: left;"><code><a href="../reference/setReproduction.html">setReproduction()</a></code></td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;"><code>beta</code></td>
 <td style="text-align: left;">Preferred predator/prey mass ratio</td>
 <td style="text-align: left;"><code>30</code></td>
 <td style="text-align: left;"><code><a href="../reference/default_pred_kernel_params.html">default_pred_kernel_params()</a></code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;"><code>sigma</code></td>
 <td style="text-align: left;">Width of predation kernel</td>
 <td style="text-align: left;"><code>2</code></td>
@@ -430,7 +483,7 @@
 </tr>
 </tbody>
 </table>
-<hr></section><section class="level2"><h2 id="the-dependency-chain">The Dependency Chain<a class="anchor" aria-label="anchor" href="#the-dependency-chain"></a>
+<hr></section></section><section class="level2"><h2 id="the-dependency-chain">The Dependency Chain<a class="anchor" aria-label="anchor" href="#the-dependency-chain"></a>
 </h2>
 <p>Calculating the default physiological parameters follows a sequential dependency chain. One parameter value determines the next, starting from basic size parameters and ending with standard metabolic rates:</p>
 <pre><code>[w_min, w_mat, age_mat] (Given or from VB parameters)
@@ -455,7 +508,7 @@
 </ol>
 <hr></section><section class="level2"><h2 id="mathematical-derivations">Mathematical Derivations<a class="anchor" aria-label="anchor" href="#mathematical-derivations"></a>
 </h2>
-<section class="level3"><h3 id="maximum-intake-rate-coefficient-h">1. Maximum Intake Rate Coefficient (<span class="math inline">\(h\)</span>)<a class="anchor" aria-label="anchor" href="#maximum-intake-rate-coefficient-h"></a>
+<section class="level3"><h3 id="h-default">1. Maximum Intake Rate Coefficient (<span class="math inline">\(h\)</span>)<a class="anchor" aria-label="anchor" href="#h-default"></a>
 </h3>
 <p>The maximum intake rate coefficient <span class="math inline">\(h_i\)</span> for species <span class="math inline">\(i\)</span> is calculated by <code><a href="../reference/get_h_default.html">get_h_default()</a></code>. The derivation is based on the idea that an average individual must grow from egg size <span class="math inline">\(w_{\text{min}}\)</span> to maturity size <span class="math inline">\(w_{\text{mat}}\)</span> in a given time <span class="math inline">\(\text{age}_{\text{mat}}\)</span> when feeding at a constant feeding level <span class="math inline">\(f_0\)</span> (which defaults to <span class="math inline">\(0.6\)</span>).</p>
 <p>By definition, the rate of somatic growth is: <span class="math display">\[\frac{dw}{dt} = g(w)\]</span></p>
@@ -468,7 +521,7 @@
 <p>Evaluating the integrals: <span class="math display">\[\frac{w_{\text{mat}}^{1-n} - w_{\text{min}}^{1-n}}{1-n} = \alpha h (f_0 - f_c) \text{age}_{\text{mat}}\]</span></p>
 <p>Solving for <span class="math inline">\(h\)</span> gives the formula implemented in <code><a href="../reference/get_h_default.html">get_h_default()</a></code>: <span class="math display">\[h = \frac{w_{\text{mat}}^{1-n} - w_{\text{min}}^{1-n}}{\text{age}_{\text{mat}} (1-n) \alpha (f_0 - f_c)}\]</span></p>
 <p>If the age at maturity is not known, <code>mizer</code> attempts to estimate it from von Bertalanffy parameters using: <span class="math display">\[\text{age}_{\text{mat}} = - \frac{\ln\left(1 - \left(\frac{w_{\text{mat}}}{w_{\infty}}\right)^{1/b}\right)}{k_{\text{vb}}} + t_0\]</span> If no growth information is provided at all, <code>mizer</code> defaults to <span class="math inline">\(h = 30\)</span>.</p>
-<hr></section><section class="level3"><h3 id="search-volume-coefficient-gamma">2. Search Volume Coefficient (<span class="math inline">\(\gamma\)</span>)<a class="anchor" aria-label="anchor" href="#search-volume-coefficient-gamma"></a>
+<hr></section><section class="level3"><h3 id="gamma-default">2. Search Volume Coefficient (<span class="math inline">\(\gamma\)</span>)<a class="anchor" aria-label="anchor" href="#gamma-default"></a>
 </h3>
 <p>The search volume coefficient <span class="math inline">\(\gamma_i\)</span> is calculated by <code><a href="../reference/get_gamma_default.html">get_gamma_default()</a></code>. It is selected such that if the prey abundance were described by a power-law resource spectrum: <span class="math display">\[N_R(w_p) = \kappa w_p^{-\lambda}\]</span> then the resulting encounter rate would lead to the target feeding level <span class="math inline">\(f_0\)</span> (default <span class="math inline">\(0.6\)</span>).</p>
 <p>The encounter rate <span class="math inline">\(E_i(w)\)</span> of predator species <span class="math inline">\(i\)</span> at size <span class="math inline">\(w\)</span> is: <span class="math display">\[E_i(w) = \gamma_i w^q \int \theta_{iR} N_R(w_p) \phi_i(w, w_p) w_p \, dw_p\]</span></p>
@@ -480,14 +533,14 @@
 <p>For the feeding level to be independent of size and equal to <span class="math inline">\(f_0\)</span>, we must require the size scaling exponents of encounter and maximum intake to match: <span class="math display">\[q + 2 - \lambda = n \implies q = n + \lambda - 2\]</span> When this holds, the size <span class="math inline">\(w\)</span> cancels out: <span class="math display">\[f_0 = \frac{\gamma_i A_{\text{avail}, i}}{\gamma_i A_{\text{avail}, i} + h_i}\]</span></p>
 <p>Solving this equation for <span class="math inline">\(\gamma_i\)</span> yields: <span class="math display">\[\gamma_i = \frac{h_i}{A_{\text{avail}, i}} \frac{f_0}{1 - f_0}\]</span></p>
 <p>In the code, <span class="math inline">\(A_{\text{avail}, i}\)</span> is calculated numerically by setting <span class="math inline">\(\gamma_i = 1\)</span> and evaluating the encounter rate at the maximum size grid point divided by the appropriate power of <span class="math inline">\(w\)</span>: <span class="math display">\[\text{avail_energy}_i = \frac{E_{i}|_{\gamma_i=1}(w_{\text{max}})}{w_{\text{max}}^{q + 2 - \lambda}}\]</span> Then, the default <span class="math inline">\(\gamma\)</span> is: <span class="math display">\[\gamma_i = \frac{h_i}{\text{avail_energy}_i} \frac{f_0}{1 - f_0}\]</span></p>
-<hr></section><section class="level3"><h3 id="standard-metabolic-rate-coefficient-ks">3. Standard Metabolic Rate Coefficient (<span class="math inline">\(ks\)</span>)<a class="anchor" aria-label="anchor" href="#standard-metabolic-rate-coefficient-ks"></a>
+<hr></section><section class="level3"><h3 id="ks-default">3. Standard Metabolic Rate Coefficient (<span class="math inline">\(ks\)</span>)<a class="anchor" aria-label="anchor" href="#ks-default"></a>
 </h3>
 <p>The standard metabolic rate coefficient <span class="math inline">\(k_{s,i}\)</span> is calculated by <code><a href="../reference/get_ks_default.html">get_ks_default()</a></code>. It is chosen so that the critical feeding level <span class="math inline">\(f_c\)</span> (default <span class="math inline">\(0.2\)</span>) is exactly the feeding level required for assimilation to balance metabolism at maturity size <span class="math inline">\(w_{\text{mat}}\)</span>.</p>
 <p>At the critical feeding level <span class="math inline">\(f_c\)</span>, the assimilation rate equals metabolic losses. At size <span class="math inline">\(w_{\text{mat}}\)</span>: <span class="math display">\[\alpha_i f_c h_i w_{\text{mat}}^n = \text{metab}_i(w_{\text{mat}})\]</span></p>
 <p>Using the default metabolic cost equation <span class="math inline">\(\text{metab}_i(w) = k_{s,i} w^p\)</span> (with activity <span class="math inline">\(k = 0\)</span>): <span class="math display">\[\alpha_i f_c h_i w_{\text{mat}}^n = k_{s,i} w_{\text{mat}}^p\]</span></p>
 <p>Solving for <span class="math inline">\(k_{s,i}\)</span> gives the formula: <span class="math display">\[k_{s,i} = f_c \alpha_i h_i w_{\text{mat}}^{n - p}\]</span></p>
 <p>If <span class="math inline">\(n = p\)</span>, this simplifies to: <span class="math display">\[k_{s,i} = f_c \alpha_i h_i\]</span></p>
-<hr></section><section class="level3"><h3 id="target-feeding-level-f_0">4. Target Feeding Level (<span class="math inline">\(f_0\)</span>)<a class="anchor" aria-label="anchor" href="#target-feeding-level-f_0"></a>
+<hr></section><section class="level3"><h3 id="f0-default">4. Target Feeding Level (<span class="math inline">\(f_0\)</span>)<a class="anchor" aria-label="anchor" href="#f0-default"></a>
 </h3>
 <p>For models where the search volume coefficient <span class="math inline">\(\gamma_i\)</span> is provided by the user but the target feeding level <span class="math inline">\(f_0\)</span> is not, <code><a href="../reference/get_f0_default.html">get_f0_default()</a></code> calculates the inverse of the search volume default.</p>
 <p>Using the relationship derived above: <span class="math display">\[f_{0,i} = \frac{\gamma_i A_{\text{avail}, i}}{\gamma_i A_{\text{avail}, i} + h_i}\]</span> Since the encounter rate calculated with the given <span class="math inline">\(\gamma_i\)</span> is <span class="math inline">\(E_i(w) = \gamma_i w^{q+2-\lambda} A_{\text{avail}, i}\)</span>, we evaluate: <span class="math display">\[\text{avail_energy}_i = \frac{E_i(w_{\text{max}})}{w_{\text{max}}^{q+2-\lambda}}\]</span> And then calculate: <span class="math display">\[f_{0,i} = \frac{1}{h_i / \text{avail_energy}_i + 1}\]</span></p>
@@ -536,9 +589,10 @@ Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></
 <code class="sourceCode R"><span><span class="co"># Inspect the automatically filled species parameters</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"species"</span>, <span class="st">"w_mat"</span>, <span class="st">"w_min"</span>, <span class="st">"h"</span>, <span class="st">"gamma"</span>, <span class="st">"ks"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>            species w_mat w_min  h        gamma       ks
-Species A Species A   250 0.001 30 7.214272e-11 2.994823
-Species B Species B  2000 0.001 30 7.214272e-11 2.794269</code></pre>
+<pre><code>An object of class "species_params" containing parameters for 2 species:
+   species w_mat  h       ks w_min        gamma
+ Species A   250 30 2.994823 0.001 7.214272e-11
+ Species B  2000 30 2.794269 0.001 7.214272e-11</code></pre>
 </div>
 </div>
 </section><script id="quarto-html-after-body" type="application/javascript">
@@ -630,7 +684,7 @@ Species B Species B  2000 0.001 30 7.214272e-11 2.794269</code></pre>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

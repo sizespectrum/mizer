@@ -1,9 +1,9 @@
 # Set metadata for a model
 
-**\[experimental\]** Setting metadata is particularly important for
-sharing your model with others. All metadata fields are optional and you
-can also add other fields of your own choosing. If you set a value for a
-field that already existed, the old value will be overwritten.
+Setting metadata is particularly important for sharing your model with
+others. All metadata fields are optional and you can also add other
+fields of your own choosing. If you set a value for a field that already
+existed, the old value will be overwritten.
 
 ## Usage
 
@@ -79,9 +79,8 @@ fields that are set automatically by mizer:
 - `extensions` A named vector of strings where each name is the name of
   and extension package needed to run the model and each value is a
   string giving the information that the remotes package needs to
-  install the correct version of the extension package, see
-  https://remotes.r-lib.org/. This field is set by the extension
-  packages.
+  install the correct version of the extension package. This field is
+  set by the extension packages.
 
 - `time_created` A POSIXct date-time object with the creation time.
 
@@ -97,7 +96,8 @@ of the object, so the `time_modified` field will not be updated.
 params <- setMetadata(NS_params,
     title = "North Sea model",
     description = "A multi-species model of the North Sea fish community.",
-    authors = list(list(name = "Finlay Scott", email = "finlay@example.com")))
+    authors = list(list(name = "Finlay Scott", email = "finlay@example.com")),
+    my_own_filed = "something that doesn't fit elsewhere")
 getMetadata(params)$title
 #> [1] "North Sea model"
 getMetadata(params)$authors[[1]]$name

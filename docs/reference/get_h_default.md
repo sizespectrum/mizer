@@ -29,6 +29,11 @@ not reliable and a warning is issued.
 If no growth information is given at all for a species, the default is
 set to `h = 30`.
 
+See the [Maximum Intake Rate
+Coefficient](https://sizespectrum.org/mizer/articles/default_parameters.html#h-default)
+section of the "Calculation of Default Parameter Values" vignette for
+the mathematical derivation.
+
 ## See also
 
 Other functions calculating defaults:

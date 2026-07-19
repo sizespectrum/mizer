@@ -15,14 +15,14 @@ asymptotic sizes (\\w\_{\infty}\\) for the species in the community.
 Almost all other physiological, ecological, and mortality parameters can
 be automatically filled in using defaults. (See the section on
 [maximum-size parameters](#maximum-size-parameters) below for the
-distinction between \\w\_{\infty}\\, \\w\_{\text{repro\\max}}\\ and
+distinction between \\w\_{\infty}\\, \\w\_{\text{repro_max}}\\ and
 \\w\_{\text{max}}\\.)
 
 This vignette details the philosophy, the relationships, and the
 mathematical derivations behind the default parameter values calculated
-by `mizer`. For a description of the model equations themselves, see the
-[vignette on the model
-description](https://sizespectrum.org/mizer/articles/model_description.md).
+by `mizer`. For a description of the model equations themselves, see
+[The General Mizer Size-spectrum
+Model](https://sizespectrum.org/mizer/articles/model_description.md).
 
 ------------------------------------------------------------------------
 
@@ -106,27 +106,25 @@ parameter behave differently. For example `z0pre` and `z0exp` are used
 to *compute* the external mortality parameter `z0`, which therefore
 appears among the calculated parameters rather than the given ones.)
 
-### Changing parameters: `given_species_params<-()` vs. `species_params<-()`
+### Changing parameters: `species_params<-()` vs. `given_species_params<-()`
 
-There are correspondingly two ways to change species parameters, and the
-difference matters:
+There are correspondingly two ways to change species parameters:
 
-- **`given_species_params<-()`** (recommended) records your change as a
-  *given* value and then triggers a recalculation, via
-  [`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md),
-  of every calculated parameter and size-dependent rate that depends on
-  it. This is what you almost always want.
-- **`species_params<-()`** overwrites the *full* table directly. It does
-  **not** protect your change: the value you write is not marked as
-  “given”, so the very next recalculation (for instance the next time
-  you use `given_species_params<-()`) may overwrite it with a freshly
-  calculated default.
+- **`species_params<-()`** (often preferred in scripts) intelligently
+  detects which values you have changed, records those changes as
+  *given* values (protecting them from being overwritten by defaults),
+  and then silently triggers a recalculation of everything that depends
+  on them.
+- **`given_species_params<-()`** is very useful in interactive use. Like
+  `species_params<-()` it triggers a recalculation of other parameters,
+  but importantly it will warn you when you set a parameter whose effect
+  is overridden by another value you have already given.
 
 For example, in a model where the age at maturity is known, `mizer`
 derives the maximum intake coefficient `h` from it (see the [“Dependency
-Chain”](#the-dependency-chain) below). Changing the size at maturity
-through the given parameters then propagates to `h` (and onward to
-`gamma` and `ks`) automatically:
+Chain”](#the-dependency-chain) below). Changing the size at maturity via
+`species_params<-()` then propagates to `h` (and onward to `gamma` and
+`ks`) automatically:
 
 ``` r
 
@@ -136,27 +134,29 @@ growing <- newMultispeciesParams(
 species_params(growing)$h
 ```
 
-    [1] 26.68043
+         Cod
+    26.68043 
 
 ``` r
 
-given_species_params(growing)$w_mat <- 1000
+# using species_params<-() detects the change and protects it
+species_params(growing)$w_mat <- 1000
 species_params(growing)$h           # recalculated
 ```
 
-    [1] 24.75
+         Cod
+    26.68043 
 
 After this, `w_mat` has moved from the calculated frame into the given
-frame of `growing`, because you have now supplied it explicitly.
+frame of `growing`, because `species_params<-()` detected that you
+supplied it explicitly.
 
 A useful consequence of the given/calculated split is that supplying a
 value *switches off* the corresponding default calculation. The
 [“Dependency Chain”](#the-dependency-chain) below shows, for instance,
 that `age_mat` is only used to calculate a default for `h`. If you give
 `h` directly, `age_mat` is ignored; if you give `gamma`, the `f0` value
-is ignored; and so on. `given_species_params<-()` will warn you when you
-set a parameter whose effect is overridden by another value you have
-already given.
+is ignored; and so on.
 
 ### `setParams()` and the size-dependent rate arrays
 
@@ -214,7 +214,8 @@ given_species_params(params)$gamma <- 1e-10
 species_params(params)$gamma        # the species parameter did change ...
 ```
 
-    [1] 1e-10
+      Cod
+    1e-10 
 
 ``` r
 
@@ -269,7 +270,7 @@ confusion.
   stop growth. It defaults to `1.5 * w_inf`.
 
 A typical (but not enforced) ordering is therefore \\w\_{\text{mat}} \<
-w\_{\infty} \approx w\_{\text{repro\\max}} \le w\_{\text{max}}\\.
+w\_{\infty} \approx w\_{\text{repro_max}} \le w\_{\text{max}}\\.
 
 For backwards compatibility, if you supply `w_max` (or `w_repro_max`)
 but not `w_inf`, then `w_inf` is taken from those columns and an
@@ -311,6 +312,47 @@ and
 [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md))
 check the species parameter data frame and fill in missing parameters.
 
+### Where defaults live
+
+Each default has a single home: the rate-setting function that uses the
+parameter.
+[`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md)
+defaults `p` and `k` because it is the only function that reads them;
+[`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)
+defaults `z0`, `z_ext` and `d`; and so on. This matters because the rate
+setters are also called directly, without going through
+[`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md),
+so a setter has to be able to supply the defaults it needs on its own.
+
+Only parameters that no single rate setter owns are defaulted centrally
+in
+[`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md).
+That happens for five reasons:
+
+- **several setters read it** — `n` is used by
+  [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
+  [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
+  [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),
+  [`setMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md),
+  [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
+  and
+  [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md);
+- **only the projection reads it** — no setter touches `alpha`; it is
+  used when calculating growth and reproduction;
+- **the size grid is built from it** — `w_min` and `w_max` are needed
+  before any rate setter runs;
+- **the length-weight conversion needs it** — `a` and `b` are used by
+  [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)
+  itself to convert lengths such as `l_mat` into weights;
+- **it is only used for reporting** — `is_background`.
+
+A consequence is that
+[`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)
+applied to a bare data frame returns only the central defaults. The
+setter-owned columns appear once the model is built, because
+[`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md)
+calls every rate-setting function.
+
 Below is a reference of the default values and the functions responsible
 for calculating them:
 
@@ -321,22 +363,27 @@ for calculating them:
 | `w_mat` | Size at maturity | `w_inf / 4` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
 | `w_min` | Egg size / birth size | `0.001` g | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
 | `alpha` | Assimilation efficiency | `0.6` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `interaction_resource` | Species interaction strength with resource | `1` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
 | `n` | Allometric scaling exponent of intake | `3/4` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `p` | Allometric scaling exponent of metabolism | `n` (which is `3/4`) | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `z_ext` | Size-dependent external mortality | `0` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `d` | Exponent of size-dependent external mortality | `n - 1` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `E_ext` | External encounter rate | `0` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `D_ext` | External diffusion rate | `0` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
+| `a` | Length-weight conversion coefficient | `0.01` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
+| `b` | Length-weight conversion exponent | `3` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
 | `is_background` | Flag indicating background species | `FALSE` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
 | `h` | Maximum intake rate coefficient | Derived from growth/age at maturity (or `30`) | [`get_h_default()`](https://sizespectrum.org/mizer/reference/get_h_default.md) |
 | `gamma` | Search volume coefficient | Derived from target feeding level \\f_0\\ | [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md) |
+| `q` | Exponent of the search volume | `lambda - 2 + n` | [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md) |
 | `f0` | Target feeding level | `0.6` (or derived from `gamma` if given) | [`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md) |
-| `fc` | Critical feeding level | `0.2` | [`set_species_param_default()`](https://sizespectrum.org/mizer/reference/set_species_param_default.md) |
+| `fc` | Critical feeding level | `0.2` | [`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md) |
 | `ks` | Standard metabolic rate coefficient | Derived from critical feeding level \\f_c\\ | [`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md) |
+| `p` | Allometric scaling exponent of metabolism | `n` | [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md) |
 | `k` | Activity/movement cost coefficient | `0` | [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md) |
 | `z0` | Constant external mortality rate | `z0pre * w_inf^z0exp` | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) |
+| `z_ext` | Size-dependent external mortality | `0` | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) |
+| `d` | Exponent of size-dependent external mortality | `n - 1` | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) |
+| `E_ext` | External encounter rate | `0` | [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md) |
+| `D_ext` | External diffusion rate | `0` | [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md) |
+| `interaction_resource` | Species interaction strength with resource | `1` | [`setInteraction()`](https://sizespectrum.org/mizer/reference/setInteraction.md) |
 | `erepro` | Reproduction efficiency | `1` | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md) |
+| `m` | Exponent of the investment into reproduction | `1` | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md) |
+| `w_mat25` | Size at which 25% of individuals are mature | `w_mat / 3^(1/10)` | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md) |
 | `beta` | Preferred predator/prey mass ratio | `30` | [`default_pred_kernel_params()`](https://sizespectrum.org/mizer/reference/default_pred_kernel_params.md) |
 | `sigma` | Width of predation kernel | `2` | [`default_pred_kernel_params()`](https://sizespectrum.org/mizer/reference/default_pred_kernel_params.md) |
 
@@ -590,6 +637,7 @@ params <- newMultispeciesParams(simple_species)
 species_params(params)[, c("species", "w_mat", "w_min", "h", "gamma", "ks")]
 ```
 
-                species w_mat w_min  h        gamma       ks
-    Species A Species A   250 0.001 30 7.214272e-11 2.994823
-    Species B Species B  2000 0.001 30 7.214272e-11 2.794269
+    An object of class "species_params" containing parameters for 2 species:
+       species w_mat  h       ks w_min        gamma
+     Species A   250 30 2.994823 0.001 7.214272e-11
+     Species B  2000 30 2.794269 0.001 7.214272e-11

@@ -1,14 +1,13 @@
 # Set predation kernel
 
-The predation kernel determines the distribution of prey sizes that a
-predator feeds on. It is used in
-[`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md)
-when calculating the rate at which food is encountered and in
-[`getPredRate()`](https://sizespectrum.org/mizer/reference/getPredRate.md)
-when calculating the rate at which a prey is predated upon. The
-predation kernel can be a function of the predator/prey size ratio or it
-can be a function of the predator size and the prey size separately.
-Both types can be set up with this function.
+You will usually not need to call this function directly. Instead change
+the relevant species parameters (`pred_kernel_type`, and, depending on
+its value, `beta`/`sigma` or `ppmr_min`/`ppmr_max`) with
+`given_species_params(params) <-` and let mizer recalculate the
+predation kernel for you. Call `setPredKernel()` directly only if you
+want to supply the full kernel array yourself. See
+[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+for a full explanation of when to reach for which level of the model.
 
 ## Usage
 
@@ -57,6 +56,18 @@ pred_kernel(params) <- value
 
 `getPredKernel()` or equivalently `pred_kernel()`: An array (predator
 species x predator_size x prey_size)
+
+## Details
+
+The predation kernel determines the distribution of prey sizes that a
+predator feeds on. It is used in
+[`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md)
+when calculating the rate at which food is encountered and in
+[`getPredRate()`](https://sizespectrum.org/mizer/reference/getPredRate.md)
+when calculating the rate at which a prey is predated upon. The
+predation kernel can be a function of the predator/prey size ratio or it
+can be a function of the predator size and the prey size separately.
+Both types can be set up with this function.
 
 ## Setting predation kernel
 

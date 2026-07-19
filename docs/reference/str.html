@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Display the structure of mizer objects — str"><meta name="description" content="Mizer provides str() methods for MizerParams() and MizerSim() objects,
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Display the structure of mizer objects — str"><meta name="description" content="Mizer provides str() methods for MizerParams() and MizerSim() objects,
 as well as ArraySpeciesBySize(), ArrayTimeBySpecies() and ArrayTimeBySpeciesBySize()
 objects. These methods produce a clean, compact overview of the object's structure
 without polluting the console with large amounts of internal data."><meta property="og:description" content="Mizer provides str() methods for MizerParams() and MizerSim() objects,
@@ -19,7 +19,7 @@ without polluting the console with large amounts of internal data."><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,9 @@ without polluting the console with large amounts of internal data."><meta proper
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -93,6 +96,19 @@ objects. These methods produce a clean, compact overview of the object's structu
 without polluting the console with large amounts of internal data.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'ArraySpeciesBySize'</span></span>
+<span><span class="fu">str</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># S3 method for class 'ArrayTimeBySpecies'</span></span>
+<span><span class="fu">str</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># S3 method for class 'ArrayTimeBySpeciesBySize'</span></span>
+<span><span class="fu">str</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># S3 method for class 'MizerSim'</span></span>
+<span><span class="fu">str</span><span class="op">(</span><span class="va">object</span>, max.level <span class="op">=</span> <span class="cn">NA</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="co"># S3 method for class 'MizerParams'</span></span>
+<span><span class="fu">str</span><span class="op">(</span><span class="va">object</span>, max.level <span class="op">=</span> <span class="cn">NA</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
@@ -129,8 +145,8 @@ without polluting the console with large amounts of internal data.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ mizer_version       : Classes 'package_version', 'numeric_version'  hidden list of 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     $ : int [1:4] 3 0 0 9003 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ extensions          :  chr(0) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ time_created        :  POSIXct[1:1], format: "2021-09-03 20:29:38"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ time_modified       :  POSIXct[1:1], format: "2026-06-24 13:50:03"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ time_created        :  POSIXct[1:1], format: "2021-09-03 21:29:38"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ time_modified       :  POSIXct[1:1], format: "2026-06-24 14:50:03"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ w                   :  num [1:100] 0.001 0.00119 0.00142 0.0017 0.00203 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ dw                  :  num [1:100] 0.000193 0.000231 0.000275 0.000329 0.000392 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ w_full              :  num [1:226] 2.12e-13 2.53e-13 3.02e-13 3.61e-13 4.30e-13 ...</span>
@@ -220,7 +236,7 @@ without polluting the console with large amounts of internal data.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ initial_n_pp        :  Named num [1:226] 1.09e+38 7.46e+37 5.11e+37 3.51e+37 2.41e+37 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - attr(*, "names")= chr [1:226] "2.12e-13" "2.53e-13" "3.02e-13" "3.61e-13" ... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ initial_n_other     :  list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ species_params      : 'data.frame':	12 obs. of  34 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ species_params      : Classes ‘species_params’ and 'data.frame':	12 obs. of  34 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     $ species             : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     $ w_max               : num  33 36 100 334 324 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     $ w_mat               : int  13 4 23 99 21 75 78 39 105 165 ...</span>
@@ -255,7 +271,7 @@ without polluting the console with large amounts of internal data.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     $ d                   : num  -0.333 -0.333 -0.333 -0.333 -0.333 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     $ E_ext               : num  0 0 0 0 0 0 0 0 0 0 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     $ D_ext               : num  0 0 0 0 0 0 0 0 0 0 ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ given_species_params: 'data.frame':	12 obs. of  27 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ given_species_params: Classes ‘given_species_params’, ‘species_params’ and 'data.frame':	12 obs. of  27 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     $ species             : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     $ w_max               : num  33 36 100 334 324 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     $ w_mat               : int  13 4 23 99 21 75 78 39 105 165 ...</span>
@@ -287,7 +303,7 @@ without polluting the console with large amounts of internal data.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - attr(*, "dimnames")=List of 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ..$ predator: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ..$ prey    : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ gear_params         : 'data.frame':	12 obs. of  5 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ gear_params         : Classes ‘gear_params’ and 'data.frame':	12 obs. of  5 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     $ gear           : chr  "Industrial" "Industrial" "Industrial" "Pelagic" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     $ species        : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     $ sel_func       : chr  "knife_edge" "knife_edge" "knife_edge" "knife_edge" ...</span>
@@ -321,8 +337,8 @@ without polluting the console with large amounts of internal data.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     @ mizer_version       : Classes 'package_version', 'numeric_version'  hidden list of 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        $ : int [1:4] 3 0 0 9003 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     @ extensions          :  chr(0) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     @ time_created        :  POSIXct[1:1], format: "2021-09-03 20:30:02"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     @ time_modified       :  POSIXct[1:1], format: "2026-06-24 13:50:04"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     @ time_created        :  POSIXct[1:1], format: "2021-09-03 21:30:02"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     @ time_modified       :  POSIXct[1:1], format: "2026-06-24 14:50:03"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     @ w                   :  num [1:100] 0.001 0.00119 0.00142 0.0017 0.00203 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     @ dw                  :  num [1:100] 0.000193 0.000231 0.000275 0.000329 0.000392 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     @ w_full              :  num [1:218] 8.73e-13 1.04e-12 1.24e-12 1.48e-12 1.77e-12 ...</span>
@@ -412,7 +428,7 @@ without polluting the console with large amounts of internal data.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     @ initial_n_pp        :  Named num [1:218] 4.88e+35 3.40e+35 2.36e+35 1.64e+35 1.14e+35 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        - attr(*, "names")= chr [1:218] "8.73e-13" "1.04e-12" "1.24e-12" "1.48e-12" ... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     @ initial_n_other     :  list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     @ species_params      : 'data.frame':	12 obs. of  31 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     @ species_params      : Classes ‘species_params’ and 'data.frame':	12 obs. of  31 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        $ species             : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        $ w_max               : num  33 36 100 334 324 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        $ w_mat               : int  13 4 23 99 21 75 78 39 105 165 ...</span>
@@ -444,7 +460,7 @@ without polluting the console with large amounts of internal data.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        $ E_ext               : num  0 0 0 0 0 0 0 0 0 0 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        $ D_ext               : num  0 0 0 0 0 0 0 0 0 0 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        $ w_inf               : num  33 36 100 334 324 ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     @ given_species_params: 'data.frame':	12 obs. of  25 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     @ given_species_params: Classes ‘given_species_params’, ‘species_params’ and 'data.frame':	12 obs. of  25 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        $ species             : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        $ w_max               : num  33 36 100 334 324 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        $ w_mat               : int  13 4 23 99 21 75 78 39 105 165 ...</span>
@@ -474,7 +490,7 @@ without polluting the console with large amounts of internal data.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        - attr(*, "dimnames")=List of 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         ..$ predator: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         ..$ prey    : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     @ gear_params         : 'data.frame':	12 obs. of  6 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     @ gear_params         : Classes ‘gear_params’ and 'data.frame':	12 obs. of  6 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        $ species     : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        $ gear        : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        $ sel_func    : chr  "sigmoid_length" "sigmoid_length" "sigmoid_length" "sigmoid_length" ...</span>
@@ -538,7 +554,7 @@ without polluting the console with large amounts of internal data.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

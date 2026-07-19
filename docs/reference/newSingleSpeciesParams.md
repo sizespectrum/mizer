@@ -185,7 +185,15 @@ scaled so that its maximum abundance is half the background abundance at
 the corresponding size, and `erepro` is then adjusted so the initial
 state satisfies the egg boundary condition.
 
-The diffusion rate is set to `0`
+The diffusion rate is set to `0`. Because growth is therefore
+deterministic, no individual grows beyond `w_repro_max`, the size at
+which all available energy is invested into reproduction. The upper
+boundary of the size grid is therefore placed at that size, so that
+`w_max = w_repro_max`, instead of the `1.5 * w_repro_max` headroom that
+[`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)
+leaves to accommodate the stochastic growth produced by diffusion. This
+choice will be revisited once these constructors gain a diffusion
+parameter, see <https://github.com/sizespectrum/mizer/issues/339>.
 
 ## See also
 
