@@ -153,8 +153,52 @@ print.summary.ArrayTimeBySpeciesBySize <- function(x, ...) {
     invisible(x)
 }
 
-#' @rdname plot
-#' @usage NULL
+#' Plot method for `ArrayTimeBySpeciesBySize` objects
+#'
+#' See [plot()] for an overview of the mizer plotting system and the
+#' arguments shared by all of its methods. This method plots a single time
+#' slice, by first extracting it as an `ArraySpeciesBySize` object and
+#' delegating to [plot.ArraySpeciesBySize()].
+#'
+#' @param x An `ArrayTimeBySpeciesBySize` object.
+#' @param species Character vector of species to include. `NULL`
+#'   (default) means all species.
+#' @param time The time to display. Default (`NULL`) is the final time
+#'   step.
+#' @param all.sizes If `FALSE` (default), values outside a species' size
+#'   range (`w_min` to `w_max`) are removed.
+#' @param highlight Name or vector of names of the species to be
+#'   highlighted.
+#' @param return_data If `TRUE`, return the data frame instead of the
+#'   plot.
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `TRUE`.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE`.
+#' @param log Character string specifying which axes should use log10
+#'   scales, in the same form as the base [plot()] argument. For example,
+#'   `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and
+#'   `log_y`.
+#' @param wlim A numeric vector of length two providing lower and upper
+#'   limits for the weight (x) axis. Use `NA` to refer to the existing
+#'   minimum or maximum.
+#' @param llim A numeric vector of length two providing lower and upper
+#'   limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
+#'   refer to the existing minimum or maximum.
+#' @param ylim A numeric vector of length two providing lower and upper
+#'   limits for the value (y) axis. Use `NA` to refer to the existing
+#'   minimum or maximum.
+#' @param size_axis Whether to plot size as weight (`"w"`, default) or
+#'   length (`"l"`), using the allometric weight-length relationship.
+#' @param total A boolean value that determines whether the total over
+#'   all selected species is plotted as well. Default is `FALSE`.
+#' @param background A boolean value that determines whether background
+#'   species are included. Ignored if the model does not contain background
+#'   species. Default is `TRUE`.
+#' @param y_ticks The approximate number of ticks desired on the y axis.
+#' @param ... Unused.
+#'
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a
+#'   data frame is returned.
+#' @keywords internal
 #' @export
 #' @examples
 #' \donttest{
@@ -284,6 +328,7 @@ plotHover.ArrayTimeBySpeciesBySize <- function(x, ...) {
 }
 
 #' @rdname animate
+#' @name animate
 #' @usage NULL
 #' @export
 animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,

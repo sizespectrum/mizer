@@ -90,7 +90,7 @@ See the Details section below for a discussion of how to use this function.
 }
 \details{
 If you are not happy with the assumptions that mizer makes by default about
-the shape of the model functions, for example if you want to change one of
+the size-dependence of parameters, for example if you want to change one of
 the allometric scaling assumptions, you can do this by providing your
 choice as an array in the appropriate argument to \code{setParams()}. The
 sections below discuss all the model functions that you can change this way.
@@ -100,7 +100,7 @@ changes to the \code{params} object that you pass to it but instead returns a ne
 params object. So to affect the change you call the function in the form
 \code{params <- setParams(params, ...)}.
 
-Usually, if you are happy with the way mizer calculates its model functions
+Usually, if you are happy with the way mizer calculates the size-dependent parameters
 from the species parameters and only want to change the values of some
 species parameters, you would make those changes in the \code{species_params} data
 frame contained in the \code{params} object using \code{\link[=species_params<-]{species_params<-()}}.
@@ -115,7 +115,7 @@ Internally that will actually call \code{setParams()} to recalculate any of the
 other parameters that are affected by the change in the species parameter.
 
 \code{setParams()} will use the species parameters in the \code{params} object to
-recalculate the values of all the model functions except those for which you
+recalculate the values of all the parameter arrays except those for which you
 have set custom values.
 }
 \section{Units in mizer}{

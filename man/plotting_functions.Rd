@@ -28,6 +28,11 @@ those returned by \code{\link[=getEncounter]{getEncounter()}}, \code{\link[=getF
 \item \verb{plot(<ArrayTimeBySpeciesBySize>)} plots a time slice from a
 time-by-species-by-size array, such as those returned by \code{\link[=getFMort]{getFMort()}} or
 \code{\link[=getPredMort]{getPredMort()}} on a \code{MizerSim}.
+\item \verb{plot(<ArrayResourceBySize>)} plots a resource array, such as
+those returned by \code{\link[=getResourceMort]{getResourceMort()}}, against body size.
+\item \verb{plot(<ArrayTimeByResourceBySize>)} plots a time slice from a
+time-by-resource array, such as that returned by \code{\link[=NResource]{NResource()}} on a
+\code{MizerSim}, against body size.
 }
 
 The same array objects can be passed to \code{\link[=plotHover]{plotHover()}} to produce
@@ -123,7 +128,7 @@ p
 
 Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
-\code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
+\code{\link[=animate]{animate()}},
 \code{\link{plot}},
 \code{\link[=plot2]{plot2()}},
 \code{\link[=plotBiomass]{plotBiomass()}},

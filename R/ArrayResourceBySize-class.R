@@ -127,8 +127,32 @@ print.summary.ArrayResourceBySize <- function(x, ...) {
     invisible(x)
 }
 
-#' @rdname plot
-#' @usage NULL
+#' Plot method for `ArrayResourceBySize` objects
+#'
+#' See [plot()] for an overview of the mizer plotting system and the
+#' arguments shared by all of its methods.
+#'
+#' @param x An `ArrayResourceBySize` object.
+#' @param return_data If `TRUE`, return the data frame instead of the
+#'   plot.
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `TRUE`.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `TRUE`.
+#' @param log Character string specifying which axes should use log10
+#'   scales, in the same form as the base [plot()] argument. For example,
+#'   `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and
+#'   `log_y`.
+#' @param wlim A numeric vector of length two providing lower and upper
+#'   limits for the weight (x) axis. Use `NA` to refer to the existing
+#'   minimum or maximum.
+#' @param ylim A numeric vector of length two providing lower and upper
+#'   limits for the value (y) axis. Use `NA` to refer to the existing
+#'   minimum or maximum.
+#' @param y_ticks The approximate number of ticks desired on the y axis.
+#' @param ... Unused.
+#'
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a
+#'   data frame is returned.
+#' @keywords internal
 #' @export
 #' @examples
 #' \donttest{
@@ -404,8 +428,22 @@ print.summary.ArrayTimeByResourceBySize <- function(x, ...) {
     invisible(x)
 }
 
-#' @rdname plot
-#' @usage NULL
+#' Plot method for `ArrayTimeByResourceBySize` objects
+#'
+#' See [plot()] for an overview of the mizer plotting system. This method
+#' plots a single time slice, by first extracting it as an
+#' `ArrayResourceBySize` object and delegating to
+#' [plot.ArrayResourceBySize()], which the further arguments in `...` are
+#' passed on to.
+#'
+#' @param x An `ArrayTimeByResourceBySize` object.
+#' @param time The time to display. Default (`NULL`) is the final time
+#'   step.
+#' @param ... Passed on to [plot.ArrayResourceBySize()].
+#'
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a
+#'   data frame is returned.
+#' @keywords internal
 #' @export
 #' @examples
 #' \donttest{
