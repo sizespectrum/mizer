@@ -280,6 +280,8 @@ unclass_resource <- function(x) {
     x
 }
 
+# Strip the `params` back-reference so the default str() doesn't dump the whole
+# MizerParams; summarise it in a single line instead. See str.ArraySpeciesBySize.
 #' @export
 str.ArrayResourceBySize <- function(object, ...) {
     params <- attr(object, "params")
@@ -527,6 +529,8 @@ Ops.ArrayTimeByResourceBySize <- function(e1, e2) {
     if (missing(e2)) op(e1) else op(e1, e2)
 }
 
+# Strip the `params` back-reference so the default str() doesn't dump the whole
+# MizerParams; summarise it in a single line instead. See str.ArraySpeciesBySize.
 #' @export
 str.ArrayTimeByResourceBySize <- function(object, ...) {
     params <- attr(object, "params")

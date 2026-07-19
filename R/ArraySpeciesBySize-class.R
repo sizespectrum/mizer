@@ -1044,6 +1044,10 @@ unclass_rate <- function(x) {
     x
 }
 
+# Strip the `params` back-reference (a whole MizerParams) before calling the
+# default str(), otherwise it would dump the entire model. We restore a plain
+# array class for a normal summary, relabel line 1 with the real class, and
+# append a one-line summary of the params attribute.
 #' @export
 str.ArraySpeciesBySize <- function(object, ...) {
     params <- attr(object, "params")

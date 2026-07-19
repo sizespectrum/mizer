@@ -447,6 +447,8 @@ unclass_time <- function(x) {
     x
 }
 
+# Strip the `params` back-reference so the default str() doesn't dump the whole
+# MizerParams; summarise it in a single line instead. See str.ArraySpeciesBySize.
 #' @export
 str.ArrayTimeBySpecies <- function(object, ...) {
     params <- attr(object, "params")

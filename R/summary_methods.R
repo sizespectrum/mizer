@@ -1081,6 +1081,10 @@ summary.MizerSim <- function(object, ...) {
 }
 
 
+# The default str() on an S4 object recurses through every slot. Many
+# MizerParams slots hold arrays that carry a `params` attribute pointing back to
+# the whole object, so the default output would recursively dump the entire
+# model, flooding the console. We instead print a one-line summary per slot.
 #' @export
 str.MizerParams <- function(object, max.level = NA, ...) {
     cat("Formal class 'MizerParams' [package \"mizer\"] with ",
@@ -1103,6 +1107,8 @@ str.MizerParams <- function(object, max.level = NA, ...) {
 }
 
 
+# Like str.MizerParams: avoid the default S4 recursion, which would expand the
+# embedded MizerParams (and its array slots' `params` back-references) in full.
 #' @export
 str.MizerSim <- function(object, max.level = NA, ...) {
     cat("Formal class 'MizerSim' [package \"mizer\"] with ",
