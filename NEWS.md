@@ -143,6 +143,11 @@ existing code to these changes.
 
 ## Other improvements
 
+- `setColours()` and `setLinetypes()` now also update the `linecolour` and
+  `linetype` entries in `species_params` and `given_species_params` whenever a
+  name being set coincides with a species name, so that the choice persists
+  with the species rather than only living in the plotting slot.
+
 - `library(mizer)` now prints a one-line startup message the first time you
   load a new mizer version, pointing you to `news(package = "mizer")`. It is
   shown at most once per version and never interrupts a session more than
