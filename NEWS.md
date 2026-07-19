@@ -143,6 +143,9 @@ existing code to these changes.
 
 ## Other improvements
 
+- Mizer plots no longer produce the unhelpful warning "log-10 transformation
+  introduced infinite values" when a logged axis contains zero values (#463).
+  
 - `setColours()` and `setLinetypes()` now also update the `linecolour` and
   `linetype` entries in `species_params` and `given_species_params` whenever a
   name being set coincides with a species name, so that the choice persists
