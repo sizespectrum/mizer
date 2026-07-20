@@ -6,6 +6,11 @@
 \alias{as.data.frame.ArrayTimeBySpecies}
 \alias{as.data.frame.ArrayTimeBySpeciesBySize}
 \title{Convert mizer arrays to data frames}
+\usage{
+\method{as.data.frame}{ArraySpeciesBySize}(x, row.names = NULL, optional = FALSE, ...)
+\method{as.data.frame}{ArrayTimeBySpecies}(x, row.names = NULL, optional = FALSE, ...)
+\method{as.data.frame}{ArrayTimeBySpeciesBySize}(x, row.names = NULL, optional = FALSE, ...)
+}
 \arguments{
 \item{x}{An \code{ArraySpeciesBySize}, \code{ArrayTimeBySpecies} or
 \code{ArrayTimeBySpeciesBySize} object.}

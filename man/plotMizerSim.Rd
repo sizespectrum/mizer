@@ -36,7 +36,7 @@ plot(sim)
 
 Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
-\code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
+\code{\link[=animate]{animate()}},
 \code{\link{plot}},
 \code{\link[=plot2]{plot2()}},
 \code{\link[=plotBifurcation]{plotBifurcation()}},

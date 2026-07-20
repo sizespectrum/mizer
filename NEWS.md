@@ -1,50 +1,9 @@
-# mizer 3.2.0
+# mizer 3.2.0.9000
 
-This release corrects and refines the resource-setting interface, makes the
-extension framework composable regardless of load order, adds new analysis
-functions and cheatsheets, and includes a range of smaller improvements and bug
-fixes.
-
-For an overview see the release announcement on the mizer blog.
-
-## Resource setting
-
-- Assigning to `resource_params()` now rebuilds the size-dependent resource
-  capacity and resource rate arrays from the resource parameters, but leaving
-  any manually set (frozen) arrays untouched, mirroring the way 
-  `species_params<-` feeds the species rate arrays.
-
-- The `resource_rate<-`, `resource_capacity<-`, `resource_level<-` and
-  `resource_dynamics<-` setters gained a `balance` argument so balancing can be
-  switched off, e.g. `resource_capacity(params, balance = FALSE) <- my_capacity`.
-
-- `setResource()` no longer silently overwrites a manually set (frozen) rate or
-  capacity array when balancing: the frozen array wins and a warning is issued.
-
-These changes and how to adapt existing code are described in the new
-`vignette("upgrading")` ("Upgrading mizer").
-
-## Extension framework
-
-- An installed extension package is now recognised as a dispatching extension
-  from the S3 methods it registers for its marker class (e.g.
-  `getEncounter.mizerMR`), rather than only from a statically defined S4 marker
-  class. Extension packages can therefore omit the static
-  `setClass("mizerFoo", contains = "MizerParams")` and let mizer create the
-  marker class dynamically on load, inserting it at the correct place in the S4
-  hierarchy. As a result two independently developed extension packages (for
-  example mizerReef and mizerMR) can now be chained in either load order, which a
-  static sibling-of-`MizerParams` class prevented.
-
-- `recordExtension()` now prepends a genuinely new extension to the front of the
-  object's `@extensions` chain, keeping it ordered outermost-first to match
-  `registerExtension()`.
+This development version adds experimental tools for analysing the dynamic
+stability of steady states.
 
 ## New functions
-
-- New `adjustSizeGrid()` (an S3 generic) adjusts the size grid of a
-  `MizerParams` object to a new minimum and/or maximum size. It can both expand
-  and truncate the grid, warning if non-negligible abundance is discarded.
 
 - New experimental `steadyNewton()` finds a steady state by solving the
   steady-state equation directly with a Newton-type root finder (via the
@@ -77,6 +36,16 @@ These changes and how to adapt existing code are described in the new
   argument (default 10\%). The returned object can be passed directly to
   `plotBiomass()`, `plotSpectra()`, and other standard mizer plot functions.
 
+- New experimental `plotBifurcation()` draws a bifurcation diagram over fishing
+  effort. For each effort value it follows the attractor of the full dynamics
+  and plots the long-term range of a summary quantity (biomass, yield or SSB).
+  A stable steady state appears as a single line and a limit cycle as a band
+  between the minimum and maximum, so a Hopf bifurcation shows up as the effort
+  at which the band opens up. The settling stage runs `projectToSteady()`, whose
+  `tol`, `amplitude_tol` and `extinction_threshold` are exposed for tuning.
+
+## Other improvements
+
 - `steady()` and `projectToSteady()` now report the nature of the solution they
   converged to via a `"convergence"` attribute on the returned object (mirroring
   the `"stability"` attribute of `steadyNewton()`). It records whether the run
@@ -91,55 +60,241 @@ These changes and how to adapt existing code are described in the new
   `extinction_threshold` fraction (default `1e-6`) of its value at the start of
   the run.
 
-- New experimental `plotBifurcation()` draws a bifurcation diagram over fishing
-  effort. For each effort value it follows the attractor of the full dynamics
-  and plots the long-term range of a summary quantity (biomass, yield or SSB).
-  A stable steady state appears as a single line and a limit cycle as a band
-  between the minimum and maximum, so a Hopf bifurcation shows up as the effort
-  at which the band opens up. The settling stage runs `projectToSteady()`, whose
-  `tol`, `amplitude_tol` and `extinction_threshold` are exposed for tuning.
+# mizer 3.2.0
 
-- `project()` gains a `callback` argument for a user-defined function to be
-  called at each saved time step.
+This release overhauls how species and resource parameters are set, makes the
+extension framework composable regardless of load order, adds a new
+`adjustSizeGrid()` function and cheatsheets, and includes a range of smaller
+improvements and bug fixes.
+
+For an overview see the 
+[release announcement](https://blog.mizer.sizespectrum.org/posts/2026-07-17-mizer-3-2-announcement/)
+on the mizer blog.
+
+## Resource setting
+
+- Assigning to `resource_params()` (or one of its components, e.g.
+  `resource_params(params)$kappa <- ...`) now immediately rebuilds the
+  size-dependent resource rate (`rr_pp`) and capacity (`cc_pp`) arrays from the
+  scalars, leaving any manually set (frozen) arrays untouched, exactly as
+  `species_params<-` feeds the species rates. As a result changing the
+  rate-side scalars `r_pp` or `n` now takes effect (previously the value was
+  silently discarded), and successive scalar edits accumulate instead of
+  overwriting each other. Assigning to `resource_params()` no longer balances
+  the resource; balancing to preserve the steady state is now solely a feature
+  of `setResource()`.
+
+- The `resource_rate<-`, `resource_capacity<-`, `resource_level<-` and
+  `resource_dynamics<-` setters gained a `balance` argument (default
+  unchanged) so it can be switched off, e.g.
+  `resource_capacity(params, balance = FALSE) <- my_capacity`.
+
+- `setResource()` no longer silently overwrites a manually set (frozen) rate
+  or capacity array when balancing: the frozen array wins and a warning is
+  issued. The one exception to the frozen-array protection is that `steady()`
+  will rebalance the resource_capacity in order to return a steady state,
+  ignoring any freeze.
+
+These changes and how to adapt existing code are described in the new
+`vignette("upgrading")` ("Upgrading mizer").
+
+## Species parameter changes
+
+- Modifying species parameters via `species_params<-()` now automatically
+  detects your changes, records them in `given_species_params` so they are
+  protected from being overwritten by defaults in the future, and silently
+  triggers the recalculation of any dependent parameters and rate arrays.
+  Previously, `species_params<-()` bypassed the `given_species_params`
+  protection and didn't trigger recalculations. This restores expected
+  behaviour and makes `species_params<-()` the recommended setter for scripts.
+
+- The `given_species_params<-()` setter remains as an explicit alternative
+  that is particularly useful during interactive sessions, because it issues
+  warnings if you change a parameter whose effect is overridden by another
+  parameter that has already been given.
+
+- Each species parameter default now has a single home: the rate-setting
+  function that uses the parameter. `validSpeciesParams()` now only fills in
+  defaults for parameters that no single rate setter owns, namely `w_max`,
+  `w_repro_max`, `w_mat`, `w_min`, `alpha`, `n`, `a`, `b` and `is_background`.
+  The defaults for `p`, `k`, `z_ext`, `d`, `E_ext`, `D_ext` and
+  `interaction_resource` are supplied by `setMetabolicRate()`, `setExtMort()`,
+  `setExtEncounter()`, `setExtDiffusion()` and `setInteraction()` respectively,
+  where they were already being set. Built models are unaffected, because
+  `setParams()` calls all the rate-setting functions, but
+  `validSpeciesParams()` applied to a bare species parameter data frame now
+  returns fewer columns. See the `default_parameters` vignette.
+
+- The `p` argument of `setMetabolicRate()` is deprecated (#459). It never had
+  any effect on a `MizerParams` object: such an object always has a `p` column
+  already, and the argument was only ever used to fill in a missing one, so it
+  was silently ignored. Set the species parameter instead, with
+  `species_params(params)$p <- value`. The `p` argument of
+  `newMultispeciesParams()` is a different argument and is not affected.
+
+- The default for the metabolic exponent `p` is now `n` rather than `3/4` in
+  `setMetabolicRate()`, which is where the default now lives;
+  `validSpeciesParams()` no longer sets `p`. No model changes as a result.
+  Models built with `newMultispeciesParams()` take `p` from its own `p`
+  argument (default `0.7`), which is injected into the species parameter table
+  before validation and is untouched by this change, so neither of these
+  defaults fires for them. The `validSpeciesParams()` default (`p = n`) only
+  ever applied when it was called directly on a bare species parameter data
+  frame, which now returns no `p` column, and it shadowed the
+  `setMetabolicRate()` default whenever both were in play.
+
+- Default values for the `a` (0.01) and `b` (3) species parameters (for the
+  weight-length relationship) are now saved in `species_params` instead of
+  being calculated internally by `l2w()` and `w2l()` only when needed.
+
+- The `species_params` data frame is now an S3 subclass of `data.frame`
+  (`class = c("species_params", "data.frame")`). It supports class-preserving
+  subsetting and subassignment S3 methods, making it safer to use and paving
+  the way for future auto-recalculations.
+
+- Columns accessed via `$` on a `species_params` or `gear_params` object now
+  return named vectors, where the names are the species names (or "species,
+  gear" row names for `gear_params`). For example,
+  `species_params(params)$w_mat` now returns a named vector making it easier
+  to identify entries. The `species` vector is left unnamed.
+
+- When `sel_func` is set on a `gear_params` object, any argument columns
+  required by that selectivity function (other than `w`, `species_params`, and
+  `...`) are now automatically added as `NA` columns. This means, for example,
+  that setting `gp$sel_func <- "sigmoid_length"` immediately creates the `l25`
+  and `l50` columns, ready to be filled in (#431).
+
+- Misspelled column names in the `gear_params` and `species_params` data
+  frames are now detected by fuzzy matching against the recognised parameter
+  names. A near miss such as `sel_fun` (instead of `sel_func`) triggers a
+  warning that suggests the intended name, rather than being silently ignored
+  (#442). Columns are only flagged, never renamed, so legitimate custom
+  columns are left untouched.
+
+See the new `vignette("upgrading")` ("Upgrading mizer") for how to adapt
+existing code to these changes.
+
+## Extension framework
+
+- An installed extension package is now recognised as a dispatching extension
+  from the S3 methods it registers for its marker class (e.g.
+  `getEncounter.mizerMR`), rather than only from a statically defined S4 marker
+  class. This lets extension packages omit the static
+  `setClass("mizerFoo", contains = "MizerParams")` and instead let mizer create
+  the marker class dynamically when the package is loaded, inserting it at the
+  correct place in the S4 hierarchy relative to any other extensions loaded in
+  the session. As a result, two independently developed extension packages
+  (for example mizerReef and mizerMR) can now be chained in either load order,
+  which a static sibling-of-`MizerParams` class prevented.
+
+- `recordExtension()` now prepends a genuinely new extension to the front of the
+  object's `@extensions` chain, keeping it ordered outermost-first to match
+  `registerExtension()`. Existing entries stay in place.
+
+## New functions
+
+- New `adjustSizeGrid()` function (an S3 generic) adjusts the size grid of
+  a `MizerParams` object to a new minimum and/or maximum size. It can both
+  expand and truncate (shrink) the grid. For each species it warns if
+  truncation discards a non-negligible fraction of the species' biomass, of
+  the diet of its smallest individuals, or of the diet of its largest
+  individuals.
+
+- Added a `callback` parameter to `project()` to allow user-defined functions
+  to be called at each saved time step.
 
 ## Other improvements
 
-- `print()` on the array classes returned by the rate getters (e.g.
-  `getEncounter()`, `getBiomass()`, `getFMort()`, `NResource()`) now prints the
-  array's actual values, truncated to fit the console, instead of a per-species
-  min/mean/max summary. Use `as.data.frame()` for full, untruncated access.
+- Mizer plots no longer produce the unhelpful warning "log-10 transformation
+  introduced infinite values" when a logged axis contains zero values (#463).
+  
+- `setColours()` and `setLinetypes()` now also update the `linecolour` and
+  `linetype` entries in `species_params` and `given_species_params` whenever a
+  name being set coincides with a species name, so that the choice persists
+  with the species rather than only living in the plotting slot.
 
-- Columns accessed via `$` on a `species_params` or `gear_params` object now
-  return vectors named by species (or by "species, gear" for `gear_params`),
-  making entries easier to identify. The `species` column is left unnamed.
+- `library(mizer)` now prints a one-line startup message the first time you
+  load a new mizer version, pointing you to `news(package = "mizer")`. It is
+  shown at most once per version and never interrupts a session more than
+  that.
 
-- The `species_params` data frame is now an S3 subclass of `data.frame`, with
-  class-preserving subsetting and subassignment methods, paving the way for
-  future auto-recalculations.
+- `compareParams()` now checks that the number of size bins, species and gears
+  agree before comparing the array-valued slots. When they differ it reports the
+  mismatch instead of erroring while trying to compare arrays of incompatible
+  dimensions. It also compares the species-parameter tables by matching species
+  and parameters by name, so differing species no longer produce a long list of
+  per-column length mismatches, and duplicated messages are no longer repeated.
 
-- When `sel_func` is set on a `gear_params` object, the argument columns that
-  selectivity function requires are now added automatically as `NA` columns. For
-  example, setting `gp$sel_func <- "sigmoid_length"` immediately creates the
-  `l25` and `l50` columns, ready to be filled in (#431).
+- Error messages that referred to `w_max` as a species' "maximum size" now
+  correctly describe it as the upper size-grid boundary, consistent with `w_max`
+  being a purely computational parameter.
 
-- `plotYieldGear()` gains `log_x`, `log_y` and `log` arguments, aligning it with
-  `plotYield()`.
+- `newSingleSpeciesParams()`, `newTraitParams()` and `newCommunityParams()` now
+  document why they place the size-grid boundary at the maximum size
+  (`w_max = w_repro_max`): because they do not yet set up stochastic growth by
+  diffusion, no individual grows beyond `w_repro_max`, so no headroom above it is
+  needed. This will be revisited when the constructors gain a diffusion parameter
+  (#339).
+
+- `print()` on `ArraySpeciesBySize`, `ArrayTimeBySpecies`, `ArrayResourceBySize`,
+  `ArrayTimeByResourceBySize` and `ArrayTimeBySpeciesBySize` objects (as
+  returned by `getEncounter()`, `getBiomass()`, `getResourceMort()`, `NResource()`,
+  `getFMort()` and similar functions) now prints the array's actual values
+  instead of a per-species min/mean/max summary, truncating large arrays to
+  fit the console: species are shown as a leading subset, sizes as an evenly
+  log-spaced sample across the full size range, and time series as a
+  representative sample of time steps that always includes the first and
+  last, with a note reporting how much was omitted. A three-dimensional
+  `ArrayTimeBySpeciesBySize` object is previewed via its final time slice,
+  matching `plot()`'s existing default for that class. Use
+  `as.data.frame()` for full, untruncated access to the data.
+
+- `plotYieldGear()` now supports `log_x`, `log_y`, and `log` arguments,
+  aligning its arguments with `plotYield()`.
 
 - The upper boundary condition of the size-spectrum solvers now holds the
-  abundance at zero above each species' maximum size `w_max`. Results are
-  unchanged without diffusion, but with predation diffusion switched on this
-  stops a small amount of density leaking to sizes above `w_max`. See the
-  "Numerical Details" vignette.
+  abundance at zero above each species' maximum size `w_max`. Without diffusion
+  this is automatic and results are unchanged, but with predation diffusion
+  switched on it stops a small amount of density leaking to sizes above `w_max`.
+  See the "Numerical Details" vignette.
 
 ## Documentation
 
-- Added three new cheatsheets: "Model Setup and Calibration", "Fishing", and
-  "Changing Model Parameters".
+- The "Getting started" guide now includes a self-contained "A worked example:
+  the Celtic Sea" section that takes a real ecosystem from raw species parameters
+  through building, finding the steady state, calibrating to observed biomasses
+  and growth, checking against observed yields, setting the resilience to
+  fishing, and projecting a fishing scenario whose sustainable-yield curve is
+  interpreted — the whole mizer workflow in one place (#450).
+
+- The first example in the "Getting started" guide no longer prints the
+  parameter-default notes from `newMultispeciesParams()`, which were alarming to
+  new users out of context (#450).
+
+- Added three new cheatsheets: "Model Setup and Calibration" (building a model,
+  finding the steady state, calibrating to observed biomass/yield/growth, and
+  projecting), "Fishing" (gears, selectivity functions, catchability, and
+  effort), and "Changing Model Parameters" (the distinction between
+  `given_species_params()`, `calculated_species_params()` and `species_params()`,
+  when changing a species parameter updates a size-dependent rate versus freezing
+  it, and how `gear_params()` and the resource setters differ).
 
 - The analysis-and-plotting cheatsheet now covers the newer plotting functions
   (`plotCDF()`, `plotSpectra2()`, `plotSpectraRelative()`, `plotCDF2()`,
-  `plot2()`, `plotRelative()`, `animate()`) and the `ArrayResourceBySize` class.
+  `plot2()`, `plotRelative()`, `animate()`) and the `ArrayResourceBySize`
+  class, and corrects the interactive-plot advice for array objects to use
+  `plotHover()` (they have no `ggplotly()` method).
 
+- The reference index on the website now opens with an "Overview: the mizer
+  workflow" section that frames the whole page as a five-stage pipeline (create →
+  calibrate → tune dynamics → project → analyse) with links to the key function
+  in each stage, so readers can see how the sections below fit together.
+
+- The reference index on the website now explains the differences between related
+  families of functions. It disambiguates the `calibrate...()`/`match...()` and
+  `...Biomass`/`...Number` calibration functions and the `plot...()` variants
+  (`...2`, `...Relative`, `...ObservedVsModel`), and maps mizer's mortality-rate
+  names onto the standard fisheries notation (*M2*, *F*, *Z*).
 
 # mizer 3.1.0
 

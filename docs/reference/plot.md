@@ -7,113 +7,6 @@ the type of output).
 [`plotHover()`](https://sizespectrum.org/mizer/reference/plotHover.md)
 creates an interactive version of the same figure.
 
-## Arguments
-
-- x:
-
-  An `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
-  `ArrayTimeBySpeciesBySize` object.
-
-- ...:
-
-  **Arguments used by all methods:**
-
-  `species`
-
-  :   Character vector of species to include. `NULL` (default) means all
-      species.
-
-  `highlight`
-
-  :   Name or vector of names of the species to be highlighted.
-
-  `total`
-
-  :   A boolean value that determines whether the total over all
-      selected species is plotted as well. Default is `FALSE`.
-
-  `background`
-
-  :   A boolean value that determines whether background species are
-      included. Ignored if the model does not contain background
-      species. Default is `TRUE`.
-
-  `return_data`
-
-  :   If `TRUE`, return the data frame instead of the plot.
-
-  `log_x`
-
-  :   If `TRUE`, use a log10 x-axis. Default is `TRUE` for size spectra
-      and `FALSE` for time series.
-
-  `log_y`
-
-  :   If `TRUE`, use a log10 y-axis. Default is `FALSE` for
-      `ArraySpeciesBySize` and `TRUE` for `ArrayTimeBySpecies`.
-
-  `log`
-
-  :   Character string specifying which axes should use log10 scales, in
-      the same form as the base `plot()` argument. For example, `"x"`,
-      `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and
-      `log_y`.
-
-  `ylim`
-
-  :   A numeric vector of length two providing lower and upper limits
-      for the value (y) axis. Use `NA` to refer to the existing minimum
-      or maximum.
-
-  `y_ticks`
-
-  :   The approximate number of ticks desired on the y axis.
-
-  **For `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize` methods:**
-
-  `all.sizes`
-
-  :   If `FALSE` (default), values outside a species' size range
-      (`w_min` to `w_max`) are removed.
-
-  `wlim`
-
-  :   A numeric vector of length two providing lower and upper limits
-      for the weight (x) axis. Use `NA` to refer to the existing minimum
-      or maximum.
-
-  `llim`
-
-  :   A numeric vector of length two providing lower and upper limits
-      for the length (x) axis when `size_axis = "l"`. Use `NA` to refer
-      to the existing minimum or maximum.
-
-  `size_axis`
-
-  :   Whether to plot size as weight (`"w"`, default) or length (`"l"`),
-      using the allometric weight-length relationship.
-
-  **For `ArrayTimeBySpecies` methods:**
-
-  `tlim`
-
-  :   A numeric vector of length two providing lower and upper limits
-      for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
-      limit at that end. Default is `c(NA, NA)`.
-
-  **For `ArrayTimeBySpeciesBySize` methods:**
-
-  `time`
-
-  :   The time to display. Default (`NULL`) is the final time step.
-
-## Value
-
-A ggplot2 object, unless `return_data = TRUE`, in which case a data
-frame is returned.
-[`plotHover()`](https://sizespectrum.org/mizer/reference/plotHover.md)
-returns a plotly object.
-
 ## Details
 
 This works because the mizer functions that give values that depend on
@@ -128,6 +21,116 @@ To compare two mizer arrays in a single plot, use
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md). To show
 the relative difference between two arrays, use
 [`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md).
+
+All methods return a ggplot2 object, unless `return_data = TRUE`, in
+which case they return the underlying data frame instead.
+[`plotHover()`](https://sizespectrum.org/mizer/reference/plotHover.md)
+returns a plotly object.
+
+Arguments used by all methods:
+
+- `species`:
+
+  Character vector of species to include. `NULL` (default) means all
+  species.
+
+- `highlight`:
+
+  Name or vector of names of the species to be highlighted.
+
+- `total`:
+
+  A boolean value that determines whether the total over all selected
+  species is plotted as well. Default is `FALSE`.
+
+- `background`:
+
+  A boolean value that determines whether background species are
+  included. Ignored if the model does not contain background species.
+  Default is `TRUE`.
+
+- `return_data`:
+
+  If `TRUE`, return the data frame instead of the plot.
+
+- `log_x`:
+
+  If `TRUE`, use a log10 x-axis. The default depends on the method; see
+  its own help page.
+
+- `log_y`:
+
+  If `TRUE`, use a log10 y-axis. The default depends on the method; see
+  its own help page.
+
+- `log`:
+
+  Character string specifying which axes should use log10 scales, in the
+  same form as the base `plot()` argument. For example, `"x"`, `"y"`,
+  `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
+
+- `ylim`:
+
+  A numeric vector of length two providing lower and upper limits for
+  the value (y) axis. Use `NA` to refer to the existing minimum or
+  maximum.
+
+- `y_ticks`:
+
+  The approximate number of ticks desired on the y axis.
+
+Additional arguments for
+[`plot.ArraySpeciesBySize()`](https://sizespectrum.org/mizer/reference/plot.ArraySpeciesBySize.md)
+and
+[`plot.ArrayTimeBySpeciesBySize()`](https://sizespectrum.org/mizer/reference/plot.ArrayTimeBySpeciesBySize.md):
+
+- `all.sizes`:
+
+  If `FALSE` (default), values outside a species' size range (`w_min` to
+  `w_max`) are removed.
+
+- `wlim`:
+
+  A numeric vector of length two providing lower and upper limits for
+  the weight (x) axis. Use `NA` to refer to the existing minimum or
+  maximum.
+
+- `llim`:
+
+  A numeric vector of length two providing lower and upper limits for
+  the length (x) axis when `size_axis = "l"`. Use `NA` to refer to the
+  existing minimum or maximum.
+
+- `size_axis`:
+
+  Whether to plot size as weight (`"w"`, default) or length (`"l"`),
+  using the allometric weight-length relationship.
+
+Additional argument for
+[`plot.ArrayTimeBySpecies()`](https://sizespectrum.org/mizer/reference/plot.ArrayTimeBySpecies.md):
+
+- `tlim`:
+
+  A numeric vector of length two providing lower and upper limits for
+  the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
+  that end. Default is `c(NA, NA)`.
+
+Additional argument for
+[`plot.ArrayTimeBySpeciesBySize()`](https://sizespectrum.org/mizer/reference/plot.ArrayTimeBySpeciesBySize.md)
+and
+[`plot.ArrayTimeByResourceBySize()`](https://sizespectrum.org/mizer/reference/plot.ArrayTimeByResourceBySize.md):
+
+- `time`:
+
+  The time to display. Default (`NULL`) is the final time step.
+
+See the individual method help pages for each method's exact arguments
+and defaults:
+[`plot.ArraySpeciesBySize()`](https://sizespectrum.org/mizer/reference/plot.ArraySpeciesBySize.md),
+[`plot.ArrayTimeBySpecies()`](https://sizespectrum.org/mizer/reference/plot.ArrayTimeBySpecies.md),
+[`plot.ArrayTimeBySpeciesBySize()`](https://sizespectrum.org/mizer/reference/plot.ArrayTimeBySpeciesBySize.md),
+[`plot.ArrayResourceBySize()`](https://sizespectrum.org/mizer/reference/plot.ArrayResourceBySize.md),
+[`plot.ArrayTimeByResourceBySize()`](https://sizespectrum.org/mizer/reference/plot.ArrayTimeByResourceBySize.md).
 
 ## See also
 
@@ -164,27 +167,19 @@ plot(getFeedingLevel(NS_params), species = c("Cod", "Herring"))
 plot(getPredMort(NS_params), species = c("Cod", "Herring"),
      size_axis = "l")
 
-# }
-# \donttest{
 plot(getBiomass(NS_sim))
 
 plot(getBiomass(NS_sim), species = c("Cod", "Herring"), total = TRUE)
 
 plot(getYield(NS_sim), species = c("Cod", "Herring"))
 
-# }
-# \donttest{
 plot(getFMort(NS_sim), time = 2010)
 
-# }
-# \donttest{
 plot(getResourceMort(NS_params))
 
 plot(initialNResource(NS_params))
 #> Warning: log-10 transformation introduced infinite values.
 
-# }
-# \donttest{
 plot(NResource(NS_sim))
 #> Warning: log-10 transformation introduced infinite values.
 

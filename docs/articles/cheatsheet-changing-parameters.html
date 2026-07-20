@@ -18,8 +18,8 @@
     }
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <script src="../extra.js"></script><meta property="og:title" content="Cheatsheet: Changing Model Parameters">
@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,6 +59,9 @@
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -150,7 +153,7 @@ really a choice of <em>which layer</em> to reach into:</p>
 <code>erepro</code>, …), fishing gears, resource scalars, and
 interactions</td>
 <td>
-<a href="../reference/species_params.html"><code>given_species_params(params) &lt;-</code></a>,
+<a href="../reference/species_params.html"><code>species_params(params) &lt;-</code></a>,
 <a href="../reference/gear_params.html"><code>gear_params(params) &lt;-</code></a>,
 <a href="../reference/resource_params.html"><code>resource_params(params) &lt;-</code></a>,
 <a href="../reference/setInteraction.html"><code>setInteraction()</code></a>
@@ -187,8 +190,8 @@ you replace the function mizer uses to compute a rate (for example a
 bespoke mortality or reproduction rate), and with <a href="../reference/setComponent.html"><code>setComponent()</code></a>
 you add a whole new ecosystem component — a detritus pool, a carrion
 pool, an extra predator — with its own dynamics. These are advanced and
-are documented on their own reference pages rather than in this
-cheatsheet.</p>
+are documented in the <a href="extending-mizer.html">Extending mizer</a>
+article rather than in this cheatsheet.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -209,7 +212,8 @@ to set up the size-dependent rates you can read the help page of <a href="../ref
 </h3>
 <p>There are many species-specific parameters in mizer. Luckily, mizer
 sets or calculates defaults for those that you do not specify
-explicitly.</p>
+explicitly. For details see <a href="default_parameters.html">Calculation of Default Parameter
+Values</a>.</p>
 <div class="section level4">
 <h4 id="given-vs-calculated-vs-all">
 <code>given</code> vs <code>calculated</code> vs all<a class="anchor" aria-label="anchor" href="#given-vs-calculated-vs-all"></a>
@@ -241,24 +245,27 @@ explicitly.</p>
 </tr>
 </tbody>
 </table>
-<p>There are two replacement functions, and the difference matters:</p>
+<p>There are two replacement functions:</p>
 <ul>
 <li>
-<p><strong><code>given_species_params(params) &lt;- …</code></strong>
-— the one to use. It records your value as <em>given</em> and
-<strong>triggers recalculation</strong> of everything that depends on it
-(both the calculated scalar parameters and the size-dependent rate
-arrays).</p>
+<p><strong><code>species_params(params) &lt;- …</code></strong> —
+Mizer will automatically detect which parameters you have changed,
+record them as <em>given</em> so they are protected from being
+overwritten by defaults in the future, and <strong>trigger
+recalculation</strong> of everything that depends on them. This is often
+preferred in scripts because it operates silently.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fl">150</span>     <span class="co"># updates the predation kernel too</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fl">150</span>     <span class="co"># updates the predation kernel too</span></span></code></pre></div>
 </li>
-<li><p><strong><code>species_params(params) &lt;- …</code></strong> —
-writes the value into the combined table <strong>without</strong>
-recalculating the derived scalar parameters, and your value may be
-<strong>silently overwritten</strong> the next time a recalculation is
-triggered. Avoid it unless you know you want this.</p></li>
+<li><p><strong><code>given_species_params(params) &lt;- …</code></strong>
+— an alternative to <code>species_params&lt;-()</code> that also
+triggers a recalculation of other parameters. It is particularly useful
+in interactive use because it issues warnings if your changes have no
+effect (for example, if the parameter you changed is overridden by
+another value you have already given).</p></li>
 </ul>
 <p><strong>Rule:</strong> to change a species parameter, use
+<code>species_params(params) &lt;-</code> or
 <code>given_species_params(params) &lt;-</code>.</p>
 <p>Access columns with <code>$</code> (they come back as named
 vectors):</p>
@@ -272,8 +279,8 @@ vectors):</p>
 </h4>
 <p>Many species parameters exist only to <em>set up</em> a
 size-dependent rate. When you change one with
-<code>given_species_params(params) &lt;-</code>, mizer re-runs the
-relevant setter for you:</p>
+<code>species_params(params) &lt;-</code>, mizer re-runs the relevant
+setter for you:</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -367,7 +374,7 @@ setting the baseline effort.</p>
 returns a named list of scalars (<code>kappa</code>,
 <code>lambda</code>, <code>r_pp</code>, <code>n</code>,
 <code>w_pp_cutoff</code>) that set up the resource size-spectrum arrays,
-and — like <code>given_species_params&lt;-</code> — assigning to it
+and — like <code>species_params&lt;-</code> — assigning to it
 <strong>rebuilds those arrays</strong> by calling <a href="../reference/setResource.html"><code>setResource()</code></a></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/resource_params.html">resource_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">kappa</span>  <span class="op">&lt;-</span> <span class="fl">1e11</span>   <span class="co"># rescales the carrying capacity</span></span>
@@ -438,6 +445,13 @@ manually”), so a later scalar change no longer touches them:</p>
 <p>This mirrors the species-parameter behaviour exactly: scalars are the
 “given” inputs, the arrays are calculated from them unless you override
 an array by hand.</p>
+<p>Keeping the resource at its steady state (where it replenishes at the
+rate at which it is consumed) is a separate, deliberate step called
+<em>balancing</em>. It is <strong>not</strong> triggered by
+<code>resource_params(params) &lt;-</code>; it happens only in <a href="../reference/setResource.html"><code>setResource()</code></a>, and
+in the array/level/dynamics setters, which balance by default. Pass
+<code>balance = FALSE</code> to switch it off, e.g.
+<code>resource_capacity(params, balance = FALSE) &lt;- my_capacity</code>.</p>
 <hr>
 </div>
 <div class="section level3">
@@ -611,9 +625,7 @@ onwards:</p>
 <ul>
 <li>
 <strong>Extra parameters</strong> your function needs go in <a href="../reference/setRateFunction.html"><code>other_params(params)</code></a>,
-e.g. <code>other_params(params)$warming_rate &lt;- 0.02</code>, and are
-then reachable inside the function as
-<code>params@other_params$warming_rate</code>.</li>
+e.g. <code>other_params(params)$warming_rate &lt;- 0.02</code>.</li>
 <li>Your functions must be defined in the <strong>global environment or
 in a package</strong> — mizer cannot find a function defined inside
 another function.</li>
@@ -640,7 +652,7 @@ see <code><a href="../articles/extending-mizer.html">vignette("extending-mizer")
 <tr class="odd">
 <td>a per-species value (<code>beta</code>, <code>w_mat</code>,
 <code>h</code>, <code>erepro</code>, …)</td>
-<td><code>given_species_params(params) &lt;- …</code></td>
+<td><code>species_params(params) &lt;- …</code></td>
 </tr>
 <tr class="even">
 <td>fishing gears / selectivity / catchability</td>
@@ -683,7 +695,7 @@ time-dependent)</td>
 </h2>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ── Species parameters (preferred: triggers recalculation) ────────────────────</span></span>
-<span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fl">150</span></span>
+<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fl">150</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>                     <span class="co"># view all (given + calculated)</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">calculated_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>          <span class="co"># only what mizer derived</span></span>
 <span></span>
@@ -720,7 +732,7 @@ time-dependent)</td>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

@@ -26,6 +26,20 @@ test_that("setColours and getColours works", {
     expect_false(identical(params@time_modified, NS_params_small@time_modified))
 })
 
+test_that("setColours updates species_params and given_species_params", {
+    params <- setColours(NS_params_small, list(Cod = "black"))
+    expect_identical(species_params(params)["Cod", "linecolour"], "black")
+    expect_identical(given_species_params(params)["Cod", "linecolour"], "black")
+    expect_identical(params@linecolour[["Cod"]], "black")
+    # Non-species names are not added to species_params
+    expect_null(species_params(params)[["test"]])
+    params <- setColours(params, list(test = "orange"))
+    expect_null(species_params(params)[["test"]])
+    # The colour survives a recalculation of the model
+    params <- setBevertonHolt(params, erepro = 0.5)
+    expect_identical(species_params(params)["Cod", "linecolour"], "black")
+})
+
 # setLinetypes, getLinetypes ----
 test_that("setLinetypes and getLinetypes works", {
     params <- NS_params_small
@@ -52,4 +66,17 @@ test_that("setLinetypes and getLinetypes works", {
     expect_identical(getLinetypes(params)[["test"]], "dotted")
     # Expect updated time_modified
     expect_false(identical(params@time_modified, NS_params_small@time_modified))
+})
+
+test_that("setLinetypes updates species_params and given_species_params", {
+    params <- setLinetypes(NS_params_small, list(Cod = "dashed"))
+    expect_identical(species_params(params)["Cod", "linetype"], "dashed")
+    expect_identical(given_species_params(params)["Cod", "linetype"], "dashed")
+    expect_identical(params@linetype[["Cod"]], "dashed")
+    # Non-species names are not added to species_params
+    params <- setLinetypes(params, list(test = "dotted"))
+    expect_null(species_params(params)[["test"]])
+    # The linetype survives a recalculation of the model
+    params <- setBevertonHolt(params, erepro = 0.5)
+    expect_identical(species_params(params)["Cod", "linetype"], "dashed")
 })

@@ -24,6 +24,11 @@
 - [Cheatsheet: Analysis and
   Plotting](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.md):
 
+### Upgrading
+
+- [Upgrading
+  mizer](https://sizespectrum.org/mizer/articles/upgrading.md):
+
 ### Extending mizer
 
 - [Extending

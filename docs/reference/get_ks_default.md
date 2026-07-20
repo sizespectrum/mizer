@@ -21,6 +21,13 @@ get_ks_default(params)
 
 A vector with the values of ks for all species
 
+## Details
+
+See the [Standard Metabolic Rate
+Coefficient](https://sizespectrum.org/mizer/articles/default_parameters.html#ks-default)
+section of the "Calculation of Default Parameter Values" vignette for
+the mathematical derivation.
+
 ## See also
 
 Other functions calculating defaults:

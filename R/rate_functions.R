@@ -1741,6 +1741,7 @@ getFlux.MizerSim <- function(object, n, n_pp, n_other, t, power = 0, ...,
 
 #' Get flux gradient
 #'
+#' `r lifecycle::badge("experimental")`
 #' Calculates the flux divergence \eqn{(J_{j+1} - J_j)/\Delta w_j} that
 #' appears as the second term in the discretised size-spectrum transport
 #' equation

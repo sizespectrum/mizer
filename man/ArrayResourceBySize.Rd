@@ -2,12 +2,16 @@
 % Please edit documentation in R/ArrayResourceBySize-class.R
 \name{ArrayResourceBySize}
 \alias{ArrayResourceBySize}
+\alias{is.ArrayResourceBySize}
 \title{S3 class for resource size spectra}
 \usage{
 ArrayResourceBySize(x, value_name = NULL, units = NULL, params = NULL)
+
+is.ArrayResourceBySize(x)
 }
 \arguments{
-\item{x}{A numeric vector over the full size grid.}
+\item{x}{A numeric vector over the full size grid. For
+\code{is.ArrayResourceBySize()}, any object to test.}
 
 \item{value_name}{A string giving the human-readable name for the value.}
 
@@ -18,6 +22,9 @@ size grid in the \code{plot()} method.}
 }
 \value{
 An \code{ArrayResourceBySize} object (inherits from \code{numeric}).
+
+\code{is.ArrayResourceBySize()} returns \code{TRUE} if \code{x} is an
+\code{ArrayResourceBySize} object, \code{FALSE} otherwise.
 }
 \description{
 Several functions in mizer return a vector over the full size grid holding

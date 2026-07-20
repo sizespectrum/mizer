@@ -274,58 +274,21 @@ frame that we provided. We can look at it with
 species_params(params)
 ```
 
-    ##         species w_inf w_mat   beta sigma    R_max  k_vb         n   p w_min
-    ## Sprat     Sprat    33    13  51076   0.8 7.38e+11 0.681 0.6666667 0.7 0.001
-    ## Sandeel Sandeel    36     4 398849   1.9 4.10e+11 1.000 0.6666667 0.7 0.001
-    ## N.pout   N.pout   100    23     22   1.5 1.05e+13 0.849 0.6666667 0.7 0.001
-    ## Herring Herring   334    99 280540   3.2 1.11e+12 0.606 0.6666667 0.7 0.001
-    ## Dab         Dab   324    21    191   1.9 1.12e+10 0.536 0.6666667 0.7 0.001
-    ## Whiting Whiting  1192    75     22   1.5 5.48e+11 0.323 0.6666667 0.7 0.001
-    ## Sole       Sole   866    78    381   1.9 3.87e+10 0.284 0.6666667 0.7 0.001
-    ## Gurnard Gurnard   668    39    283   1.8 1.65e+12 0.266 0.6666667 0.7 0.001
-    ## Plaice   Plaice  2976   105    113   1.6 4.08e+14 0.122 0.6666667 0.7 0.001
-    ## Haddock Haddock  3485   165    558   2.1 1.84e+12 0.271 0.6666667 0.7 0.001
-    ## Cod         Cod 40044  1606     66   1.3 8.26e+09 0.216 0.6666667 0.7 0.001
-    ## Saithe   Saithe 16856  1076     40   1.1 1.12e+11 0.175 0.6666667 0.7 0.001
-    ##           w_max w_repro_max alpha interaction_resource z_ext          d E_ext
-    ## Sprat      49.5          33   0.6                    1     0 -0.3333333     0
-    ## Sandeel    54.0          36   0.6                    1     0 -0.3333333     0
-    ## N.pout    150.0         100   0.6                    1     0 -0.3333333     0
-    ## Herring   501.0         334   0.6                    1     0 -0.3333333     0
-    ## Dab       486.0         324   0.6                    1     0 -0.3333333     0
-    ## Whiting  1788.0        1192   0.6                    1     0 -0.3333333     0
-    ## Sole     1299.0         866   0.6                    1     0 -0.3333333     0
-    ## Gurnard  1002.0         668   0.6                    1     0 -0.3333333     0
-    ## Plaice   4464.0        2976   0.6                    1     0 -0.3333333     0
-    ## Haddock  5227.5        3485   0.6                    1     0 -0.3333333     0
-    ## Cod     60066.0       40044   0.6                    1     0 -0.3333333     0
-    ## Saithe  25284.0       16856   0.6                    1     0 -0.3333333     0
-    ##         D_ext is_background pred_kernel_type        h k       ks         z0
-    ## Sprat       0         FALSE        lognormal 14.51026 0 1.598545 0.18705957
-    ## Sandeel     0         FALSE        lognormal 28.36951 0 3.250607 0.18171206
-    ## N.pout      0         FALSE        lognormal 30.69918 0 3.318311 0.12926608
-    ## Herring     0         FALSE        lognormal 31.20041 0 3.212332 0.08647736
-    ## Dab         0         FALSE        lognormal 34.68295 0 3.760307 0.08735805
-    ## Whiting     0         FALSE        lognormal 32.78322 0 3.406676 0.05658819
-    ## Sole        0         FALSE        lognormal 24.90951 0 2.585095 0.06294752
-    ## Gurnard     0         FALSE        lognormal 22.29126 0 2.367448 0.06863713
-    ## Plaice      0         FALSE        lognormal 17.71691 0 1.820523 0.04171321
-    ## Haddock     0         FALSE        lognormal 40.62144 0 4.111691 0.03957464
-    ## Cod         0         FALSE        lognormal 74.81794 0 7.019866 0.01753768
-    ## Saithe      0         FALSE        lognormal 43.50194 0 4.136466 0.02340093
-    ##                 q        gamma     w_mat25 m erepro
-    ## Sprat   0.7166667 5.753738e-11   11.647460 1      1
-    ## Sandeel 0.7166667 4.258153e-11    3.583834 1      1
-    ## N.pout  0.7166667 9.729943e-11   20.607045 1      1
-    ## Herring 0.7166667 2.806634e-11   88.699888 1      1
-    ## Dab     0.7166667 7.647896e-11   18.815128 1      1
-    ## Whiting 0.7166667 1.039047e-10   67.196884 1      1
-    ## Sole    0.7166667 5.297276e-11   69.884760 1      1
-    ## Gurnard 0.7166667 5.081126e-11   34.942380 1      1
-    ## Plaice  0.7166667 4.764030e-11   94.075638 1      1
-    ## Haddock 0.7166667 7.662872e-11  147.833146 1      1
-    ## Cod     0.7166667 2.544302e-10 1438.909287 1      1
-    ## Saithe  0.7166667 1.793361e-10  964.051303 1      1
+    ## An object of class "species_params" containing parameters for 12 species:
+    ##  species w_inf w_mat        h       ks         z0 z_ext
+    ##    Sprat    33    13 14.51026 1.598545 0.18705957     0
+    ##  Sandeel    36     4 28.36951 3.250607 0.18171206     0
+    ##   N.pout   100    23 30.69918 3.318311 0.12926608     0
+    ##  Herring   334    99 31.20041 3.212332 0.08647736     0
+    ##      Dab   324    21 34.68295 3.760307 0.08735805     0
+    ##  Whiting  1192    75 32.78322 3.406676 0.05658819     0
+    ##     Sole   866    78 24.90951 2.585095 0.06294752     0
+    ##  Gurnard   668    39 22.29126 2.367448 0.06863713     0
+    ##   Plaice  2976   105 17.71691 1.820523 0.04171321     0
+    ##  Haddock  3485   165 40.62144 4.111691 0.03957464     0
+    ##      Cod 40044  1606 74.81794 7.019866 0.01753768     0
+    ##   Saithe 16856  1076 43.50194 4.136466 0.02340093     0
+    ## With 24 other parameters: beta, sigma, R_max, k_vb, n, p, w_min, w_max, w_repro_max, alpha, is_background, a, b, interaction_resource, pred_kernel_type, k, d, E_ext, D_ext, q, gamma, w_mat25, m, erepro
 
 We can see that this returns the original species data.frame (with
 `w_inf` and so on), plus any default values that may not have been
@@ -340,33 +303,6 @@ one that we can access with
 
 gear_params(params)
 ```
-
-    ##                          species            gear   sel_func knife_edge_size
-    ## Sprat, knife_edge_gear     Sprat knife_edge_gear knife_edge              13
-    ## Sandeel, knife_edge_gear Sandeel knife_edge_gear knife_edge               4
-    ## N.pout, knife_edge_gear   N.pout knife_edge_gear knife_edge              23
-    ## Herring, knife_edge_gear Herring knife_edge_gear knife_edge              99
-    ## Dab, knife_edge_gear         Dab knife_edge_gear knife_edge              21
-    ## Whiting, knife_edge_gear Whiting knife_edge_gear knife_edge              75
-    ## Sole, knife_edge_gear       Sole knife_edge_gear knife_edge              78
-    ## Gurnard, knife_edge_gear Gurnard knife_edge_gear knife_edge              39
-    ## Plaice, knife_edge_gear   Plaice knife_edge_gear knife_edge             105
-    ## Haddock, knife_edge_gear Haddock knife_edge_gear knife_edge             165
-    ## Cod, knife_edge_gear         Cod knife_edge_gear knife_edge            1606
-    ## Saithe, knife_edge_gear   Saithe knife_edge_gear knife_edge            1076
-    ##                          catchability
-    ## Sprat, knife_edge_gear              1
-    ## Sandeel, knife_edge_gear            1
-    ## N.pout, knife_edge_gear             1
-    ## Herring, knife_edge_gear            1
-    ## Dab, knife_edge_gear                1
-    ## Whiting, knife_edge_gear            1
-    ## Sole, knife_edge_gear               1
-    ## Gurnard, knife_edge_gear            1
-    ## Plaice, knife_edge_gear             1
-    ## Haddock, knife_edge_gear            1
-    ## Cod, knife_edge_gear                1
-    ## Saithe, knife_edge_gear             1
 
 All species are caught by a gear called “knife_edge_gear”. The
 selectivity function for each fishing gear has been set in the
@@ -388,9 +324,9 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.1.0
-    ## Created: 2026-06-25 21:02:52
-    ## Modified: 2026-06-25 21:02:52
+    ## mizer version: 3.2.0
+    ## Created: 2026-07-19 19:04:42
+    ## Modified: 2026-07-19 19:04:42
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066
@@ -400,19 +336,20 @@ summary(params)
     ##  maximum size:   8.48399
     ##  no. size bins:  166 (215 size bins in total)
     ## Species details:
-    ##    species w_inf w_mat w_min   beta sigma
-    ## 1    Sprat    33    13 0.001  51076   0.8
-    ## 2  Sandeel    36     4 0.001 398849   1.9
-    ## 3   N.pout   100    23 0.001     22   1.5
-    ## 4  Herring   334    99 0.001 280540   3.2
-    ## 5      Dab   324    21 0.001    191   1.9
-    ## 6  Whiting  1192    75 0.001     22   1.5
-    ## 7     Sole   866    78 0.001    381   1.9
-    ## 8  Gurnard   668    39 0.001    283   1.8
-    ## 9   Plaice  2976   105 0.001    113   1.6
-    ## 10 Haddock  3485   165 0.001    558   2.1
-    ## 11     Cod 40044  1606 0.001     66   1.3
-    ## 12  Saithe 16856  1076 0.001     40   1.1
+    ## An object of class "species_params" containing parameters for 12 species:
+    ##  species w_inf w_mat w_min   beta sigma
+    ##    Sprat    33    13 0.001  51076   0.8
+    ##  Sandeel    36     4 0.001 398849   1.9
+    ##   N.pout   100    23 0.001     22   1.5
+    ##  Herring   334    99 0.001 280540   3.2
+    ##      Dab   324    21 0.001    191   1.9
+    ##  Whiting  1192    75 0.001     22   1.5
+    ##     Sole   866    78 0.001    381   1.9
+    ##  Gurnard   668    39 0.001    283   1.8
+    ##   Plaice  2976   105 0.001    113   1.6
+    ##  Haddock  3485   165 0.001    558   2.1
+    ##      Cod 40044  1606 0.001     66   1.3
+    ##   Saithe 16856  1076 0.001     40   1.1
     ## 
     ## Fishing gear details:
     ## Gear          Effort  Target species 
@@ -594,33 +531,6 @@ provided.
 gear_params(params)
 ```
 
-    ##                          species            gear   sel_func knife_edge_size
-    ## Sprat, knife_edge_gear     Sprat knife_edge_gear knife_edge              13
-    ## Sandeel, knife_edge_gear Sandeel knife_edge_gear knife_edge               4
-    ## N.pout, knife_edge_gear   N.pout knife_edge_gear knife_edge              23
-    ## Herring, knife_edge_gear Herring knife_edge_gear knife_edge              99
-    ## Dab, knife_edge_gear         Dab knife_edge_gear knife_edge              21
-    ## Whiting, knife_edge_gear Whiting knife_edge_gear knife_edge              75
-    ## Sole, knife_edge_gear       Sole knife_edge_gear knife_edge              78
-    ## Gurnard, knife_edge_gear Gurnard knife_edge_gear knife_edge              39
-    ## Plaice, knife_edge_gear   Plaice knife_edge_gear knife_edge             105
-    ## Haddock, knife_edge_gear Haddock knife_edge_gear knife_edge             165
-    ## Cod, knife_edge_gear         Cod knife_edge_gear knife_edge            1606
-    ## Saithe, knife_edge_gear   Saithe knife_edge_gear knife_edge            1076
-    ##                          catchability
-    ## Sprat, knife_edge_gear              1
-    ## Sandeel, knife_edge_gear            1
-    ## N.pout, knife_edge_gear             1
-    ## Herring, knife_edge_gear            1
-    ## Dab, knife_edge_gear                1
-    ## Whiting, knife_edge_gear            1
-    ## Sole, knife_edge_gear               1
-    ## Gurnard, knife_edge_gear            1
-    ## Plaice, knife_edge_gear             1
-    ## Haddock, knife_edge_gear            1
-    ## Cod, knife_edge_gear                1
-    ## Saithe, knife_edge_gear             1
-
 Here, we look at an example where we set up four different gears:
 Industrial, Pelagic, Beam and Otter trawl, that catch different
 combinations of species. We can achieve that by only changing the `gear`
@@ -644,9 +554,9 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.1.0
-    ## Created: 2026-06-25 21:02:52
-    ## Modified: 2026-06-25 21:02:52
+    ## mizer version: 3.2.0
+    ## Created: 2026-07-19 19:04:42
+    ## Modified: 2026-07-19 19:04:44
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066
@@ -656,19 +566,20 @@ summary(params)
     ##  maximum size:   8.48399
     ##  no. size bins:  166 (215 size bins in total)
     ## Species details:
-    ##    species w_inf w_mat w_min   beta sigma
-    ## 1    Sprat    33    13 0.001  51076   0.8
-    ## 2  Sandeel    36     4 0.001 398849   1.9
-    ## 3   N.pout   100    23 0.001     22   1.5
-    ## 4  Herring   334    99 0.001 280540   3.2
-    ## 5      Dab   324    21 0.001    191   1.9
-    ## 6  Whiting  1192    75 0.001     22   1.5
-    ## 7     Sole   866    78 0.001    381   1.9
-    ## 8  Gurnard   668    39 0.001    283   1.8
-    ## 9   Plaice  2976   105 0.001    113   1.6
-    ## 10 Haddock  3485   165 0.001    558   2.1
-    ## 11     Cod 40044  1606 0.001     66   1.3
-    ## 12  Saithe 16856  1076 0.001     40   1.1
+    ## An object of class "species_params" containing parameters for 12 species:
+    ##  species w_inf w_mat w_min   beta sigma
+    ##    Sprat    33    13 0.001  51076   0.8
+    ##  Sandeel    36     4 0.001 398849   1.9
+    ##   N.pout   100    23 0.001     22   1.5
+    ##  Herring   334    99 0.001 280540   3.2
+    ##      Dab   324    21 0.001    191   1.9
+    ##  Whiting  1192    75 0.001     22   1.5
+    ##     Sole   866    78 0.001    381   1.9
+    ##  Gurnard   668    39 0.001    283   1.8
+    ##   Plaice  2976   105 0.001    113   1.6
+    ##  Haddock  3485   165 0.001    558   2.1
+    ##      Cod 40044  1606 0.001     66   1.3
+    ##   Saithe 16856  1076 0.001     40   1.1
     ## 
     ## Fishing gear details:
     ## Gear          Effort  Target species 

@@ -18,8 +18,8 @@
     }
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <script src="../extra.js"></script><meta property="og:title" content="Getting started with mizer">
@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,6 +59,9 @@
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -132,6 +135,10 @@ simulation</a>.</p></li>
 <li><p><a href="#exploring-the-results">Exploring the
 results</a>.</p></li>
 </ol>
+<p>Once you have seen these stages individually, the <a href="#a-worked-example-the-celtic-sea">worked example</a> near the end
+of this page puts them together into a complete, self-contained study of
+a real ecosystem — building, calibrating and projecting a Celtic Sea
+model.</p>
 <p>If you run into any difficulties or have any questions or
 suggestions, let us know about it by posting about it on our <a href="https://github.com/sizespectrum/mizer/issues/new" class="external-link">issue
 tracker</a>. You can also twitter to @<a href="https://twitter.com/mizer_model" class="external-link">mizer_model</a>. We love to hear
@@ -245,21 +252,23 @@ included with the package. Here we also use a species interaction matrix
 for the North Sea species.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">NS_species_params</span>, <span class="va">NS_interaction</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Because you have n != p, the default value for `h` is not very good.</span></span>
-<span><span class="co">## Because the age at maturity is not known, I need to fall back to using</span></span>
-<span><span class="co">## von Bertalanffy parameters, where available, and this is not reliable.</span></span>
-<span><span class="co">## No ks column so calculating from critical feeding level.</span></span>
-<span><span class="co">## Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.</span></span>
-<span><span class="co">## Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span></span></code></pre>
-<p>The notes printed out by the function show us that mizer calculated
-default values for many parameters that were not provided.</p>
+<p>When you run this yourself, the function prints some notes explaining
+that, because only a few species parameters were supplied, mizer has
+calculated default values for many others (for example the maximum
+intake rate <code>h</code> and the search volume <code>gamma</code>)
+using size-based theory. These notes are informational, not errors: they
+simply flag the parameters you may want to refine later once you
+calibrate the model to data. We have suppressed them here to keep the
+output short. Calibrating such a model to observed biomasses and yields
+is demonstrated in the <a href="#a-worked-example-the-celtic-sea">worked
+example</a> below.</p>
 </div>
 <div class="section level2">
 <h2 id="running-a-simulation">Running a simulation<a class="anchor" aria-label="anchor" href="#running-a-simulation"></a>
 </h2>
 <p>This is done by calling the <code><a href="../reference/project.html">project()</a></code> function (as in
 “project forward in time”) with the model parameters.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">10</span>, effort <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p>This produces an object of class <code>MizerSim</code> which contains
 the results of the simulation. In this example we chose to set some
@@ -277,14 +286,14 @@ range of <code><a href="../reference/plotting_functions.html">?plotting_function
 <code><a href="../reference/summary_functions.html">?summary_functions</a></code> and <code><a href="../reference/indicator_functions.html">?indicator_functions</a></code>.
 The <code><a href="../reference/plot.html">plot()</a></code> function combines several of these plots into
 one:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mizer_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="700"></p>
 <p>Just as an example: we might be interested in how the proportion of
 large fish varies over time. We can get the proportion of Herrings in
 terms of biomass that have a weight above 50g in each of the 10
 years:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/getProportionOfLargeFish.html">getProportionOfLargeFish</a></span><span class="op">(</span><span class="va">sim</span>, </span>
 <span>                         species <span class="op">=</span> <span class="st">"Herring"</span>, </span>
 <span>                         threshold_w <span class="op">=</span> <span class="fl">50</span>, </span>
@@ -297,6 +306,248 @@ years:</p>
 <p>The functionality provided by mizer to explore the simulation results
 is more fully described in <a href="https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html">the
 section on exploring the simulation results.</a></p>
+</div>
+<div class="section level2">
+<h2 id="a-worked-example-the-celtic-sea">A worked example: the Celtic Sea<a class="anchor" aria-label="anchor" href="#a-worked-example-the-celtic-sea"></a>
+</h2>
+<p>The four stages above introduced the mizer API one command at a time.
+This section puts them together into a single, self-contained study of a
+real ecosystem — the Celtic Sea — taking a model from raw species
+parameters all the way to a fishing-scenario result:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Build</strong> a multi-species model from species
+parameters, an interaction matrix and fishing-gear definitions.</li>
+<li>
+<strong>Bring it to steady state</strong> so the size spectra are
+self-consistent.</li>
+<li>
+<strong>Calibrate</strong> it so that its steady state reproduces
+the <em>observed</em> biomasses and growth rates.</li>
+<li>
+<strong>Check</strong> it against an independent quantity — the
+observed fisheries yields.</li>
+<li>
+<strong>Set its resilience</strong> to fishing.</li>
+<li>
+<strong>Project a fishing scenario</strong> and <strong>interpret an
+indicator</strong> — here, the total sustainable yield as a function of
+fishing effort.</li>
+</ol>
+<p>The model is the one built step-by-step, with much more explanation
+of every choice, in the <a href="https://mizer.course.sizespectrum.org/build/" class="external-link">Build part of the
+mizer course</a>. It is based on the Celtic Sea model of <span class="citation">Spence et al. (<a href="#ref-spence_parameterizing_2021">2021</a>)</span>, with species
+parameters and observations drawn from FishBase and the ICES
+stock-assessment database. Here we concentrate on seeing the whole
+workflow run in one place.</p>
+<div class="section level3">
+<h3 id="getting-the-data">Getting the data<a class="anchor" aria-label="anchor" href="#getting-the-data"></a>
+</h3>
+<p>The model needs three inputs: a species-parameter data frame, a
+species interaction matrix, and a table of fishing-gear parameters. We
+also load a set of observed commercial yields to check the model against
+later. These small files live in the course repository; the code below
+downloads them into your working directory the first time you run
+it.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">base_url</span> <span class="op">&lt;-</span> <span class="st">"https://github.com/gustavdelius/mizerCourse/raw/master/build/"</span></span>
+<span><span class="va">files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"celtic_species_params.rds"</span>, <span class="st">"celtic_gear_params.csv"</span>,</span>
+<span>           <span class="st">"celtic_interaction.csv"</span>, <span class="st">"celtic_yields.rds"</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">f</span> <span class="kw">in</span> <span class="va">files</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">base_url</span>, <span class="va">f</span><span class="op">)</span>, destfile <span class="op">=</span> <span class="va">f</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">celtic_species_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"celtic_species_params.rds"</span><span class="op">)</span></span>
+<span><span class="va">celtic_gear_params</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"celtic_gear_params.csv"</span><span class="op">)</span></span>
+<span><span class="va">celtic_interaction</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"celtic_interaction.csv"</span>,</span>
+<span>                                             row.names <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>The species-parameter data frame has one row per species. Besides the
+required maximum size <code>w_max</code> it carries a few life-history
+parameters and, crucially, the <strong>observed</strong> average biomass
+of each species (<code>biomass_observed</code>, in grams per square
+metre) that we will calibrate to. Some species have no observation and
+are left as <code>NA</code>.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">celtic_species_params</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"species"</span>, <span class="st">"w_max"</span>, <span class="st">"biomass_observed"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">##           species       w_max biomass_observed</span></span>
+<span><span class="co">## 1         Herring   307.31559      0.300000000</span></span>
+<span><span class="co">## 2           Sprat    35.84195      0.295749801</span></span>
+<span><span class="co">## 3             Cod 41561.32628      0.008179382</span></span>
+<span><span class="co">## 4         Haddock  6669.92227      0.067381049</span></span>
+<span><span class="co">## 5         Whiting  2611.42837      0.070079361</span></span>
+<span><span class="co">## 6    Blue whiting   599.82211      1.188248745</span></span>
+<span><span class="co">## 7     Norway Pout   319.77787      0.172520253</span></span>
+<span><span class="co">## 8        Poor Cod   711.87913               NA</span></span>
+<span><span class="co">## 9   European Hake 15506.13615      0.164362236</span></span>
+<span><span class="co">## 10       Monkfish 21478.67091      0.048720611</span></span>
+<span><span class="co">## 11 Horse Mackerel   518.58232               NA</span></span>
+<span><span class="co">## 12       Mackerel  1857.47965               NA</span></span>
+<span><span class="co">## 13     Common Dab   640.30873               NA</span></span>
+<span><span class="co">## 14         Plaice  3133.64249      0.022404698</span></span>
+<span><span class="co">## 15         Megrim  1556.92834      0.074079322</span></span>
+<span><span class="co">## 16           Sole  1979.31808      0.063519261</span></span>
+<span><span class="co">## 17       Boarfish   278.92128               NA</span></span></code></pre>
+</div>
+<div class="section level3">
+<h3 id="building-the-model">Building the model<a class="anchor" aria-label="anchor" href="#building-the-model"></a>
+</h3>
+<p><code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> turns these inputs into a
+<code>MizerParams</code> object, filling in with size-based defaults
+every parameter we have not supplied. We set the allometric exponents
+<code>n</code> and <code>p</code> both to 3/4 and switch the commercial
+gear on at unit effort.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span></span>
+<span>    species_params <span class="op">=</span> <span class="va">celtic_species_params</span>,</span>
+<span>    gear_params    <span class="op">=</span> <span class="va">celtic_gear_params</span>,</span>
+<span>    interaction    <span class="op">=</span> <span class="va">celtic_interaction</span>,</span>
+<span>    n <span class="op">=</span> <span class="fl">3</span><span class="op">/</span><span class="fl">4</span>, p <span class="op">=</span> <span class="fl">3</span><span class="op">/</span><span class="fl">4</span>,</span>
+<span>    initial_effort <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>As before, mizer prints notes about the defaults it has chosen; we
+have suppressed them here to keep the output short.</p>
+</div>
+<div class="section level3">
+<h3 id="finding-the-steady-state">Finding the steady state<a class="anchor" aria-label="anchor" href="#finding-the-steady-state"></a>
+</h3>
+<p>A freshly built model has only a rough spectrum.
+<code><a href="../reference/steady.html">steady()</a></code> runs the size-spectrum dynamics, holding
+reproduction and the resource fixed, until the community settles onto a
+steady state.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">cel</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="mizer_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="700"></p>
+<p>Each curve is now a smooth species spectrum, and together they line
+up along the background resource — the hallmark of a self-consistent
+size-spectrum model.</p>
+</div>
+<div class="section level3">
+<h3 id="calibrating-to-observed-biomass">Calibrating to observed biomass<a class="anchor" aria-label="anchor" href="#calibrating-to-observed-biomass"></a>
+</h3>
+<p>The steady state is self-consistent, but its species abundances are
+still arbitrary. Calibration rescales them to match observation. We do
+this in stages, <strong>re-running <code><a href="../reference/steady.html">steady()</a></code> after every
+adjustment</strong> because each change pushes the community off its
+steady state:</p>
+<ul>
+<li>
+<code><a href="../reference/calibrateBiomass.html">calibrateBiomass()</a></code> sets the overall abundance scale
+(the resource level <code>kappa</code>) so that the <em>total</em>
+community biomass matches the sum of the observed biomasses.</li>
+<li>
+<code><a href="../reference/matchBiomasses.html">matchBiomasses()</a></code> then rescales each species
+individually to its own <code>biomass_observed</code>.</li>
+<li>
+<code><a href="../reference/matchGrowth.html">matchGrowth()</a></code> adjusts intake, search volume and
+metabolism so the fish reach maturity at the right age.</li>
+</ul>
+<p><code><a href="../reference/matchBiomasses.html">matchBiomasses()</a></code> and <code><a href="../reference/matchGrowth.html">matchGrowth()</a></code> pull on
+different parameters, so we alternate them, re-converging each time,
+until both are satisfied.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrateBiomass.html">calibrateBiomass</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">cel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchBiomasses.html">matchBiomasses</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span></span>
+<span>    <span class="va">cel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchGrowth.html">matchGrowth</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span></span>
+<span>    <span class="va">cel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><code><a href="../reference/plotBiomassObservedVsModel.html">plotBiomassObservedVsModel()</a></code> shows how well the
+calibrated steady state reproduces the observations: points on the
+diagonal are a perfect match.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBiomassObservedVsModel.html">plotBiomassObservedVsModel</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span></span></code></pre></div>
+<p><img src="mizer_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" alt="" width="700"></p>
+<p>Most species sit close to the 1:1 line. A few remain off — the worst
+by nearly an order of magnitude — and these would need more iteration,
+or a look at their predation-kernel parameters, before you trusted the
+model for them. Diagnosing and fixing such residuals is exactly what the
+<a href="https://mizer.course.sizespectrum.org/build/refine.html" class="external-link">refinement
+tutorial</a> of the course is about.</p>
+</div>
+<div class="section level3">
+<h3 id="checking-against-observed-yield">Checking against observed yield<a class="anchor" aria-label="anchor" href="#checking-against-observed-yield"></a>
+</h3>
+<p>Biomass was our calibration target. The fisheries
+<strong>yield</strong> is an independent quantity: we did not tune to
+it, so comparing modelled and observed yields is a genuine test of the
+model. We attach the observed yields and plot them against the
+model.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">celtic_yields</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"celtic_yields.rds"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span><span class="op">$</span><span class="va">yield_observed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">celtic_yields</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span></span></code></pre></div>
+<p><img src="mizer_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="700"></p>
+<p>The modelled yields come out at the right overall level and mostly
+within a factor of a few of the observations — reassuring, given that
+yield was not a calibration target. Where a species’ yield is badly off,
+the usual culprit is its gear selectivity or catchability, which you
+would adjust next (see the <a href="https://mizer.course.sizespectrum.org/build/landings.html" class="external-link">landings
+tutorial</a>).</p>
+</div>
+<div class="section level3">
+<h3 id="setting-the-resilience-to-fishing">Setting the resilience to fishing<a class="anchor" aria-label="anchor" href="#setting-the-resilience-to-fishing"></a>
+</h3>
+<p>Calibrating the steady state fixes <em>where</em> the community sits,
+but not <em>how sensitively</em> it responds when we change fishing.
+That sensitivity is governed by the strength of density dependence in
+reproduction. <code><a href="../reference/setBevertonHolt.html">setBevertonHolt()</a></code> sets it through the
+<code>reproduction_level</code> — the fraction of the maximum
+recruitment that is realised at the steady state. A value of 0.5 gives
+moderate density dependence, a common default in the absence of
+stock-specific information.</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setBevertonHolt.html">setBevertonHolt</a></span><span class="op">(</span><span class="va">cel</span>, reproduction_level <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
+<p>This changes the reproduction parameters without moving the steady
+state, so the biomass and yield fits above are preserved.</p>
+</div>
+<div class="section level3">
+<h3 id="projecting-a-fishing-scenario">Projecting a fishing scenario<a class="anchor" aria-label="anchor" href="#projecting-a-fishing-scenario"></a>
+</h3>
+<p>We now have a calibrated, resilient model. Let us use it to ask a
+management question: <strong>is the fishery being fished at the effort
+that maximises the total sustainable yield?</strong></p>
+<p>We sweep fishing effort from zero to twice its current value. For
+each level we project to the new steady state and record the total
+community yield — the yield that could be taken indefinitely at that
+effort.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">efforts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">1</span>, <span class="fl">1.25</span>, <span class="fl">1.5</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">sustainable_yield</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">efforts</span>, <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projectToSteady.html">projectToSteady</a></span><span class="op">(</span><span class="va">cel</span>, effort <span class="op">=</span> <span class="va">e</span>, t_max <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>                         return_sim <span class="op">=</span> <span class="cn">FALSE</span>, progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/getYield.html">getYield</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">efforts</span>, <span class="va">sustainable_yield</span>, type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">19</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"Fishing effort (relative to current)"</span>,</span>
+<span>     ylab <span class="op">=</span> <span class="st">"Total sustainable yield (g/m²/year)"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="mizer_files/figure-html/unnamed-chunk-19-1.png" class="r-plt" alt="" width="700"></p>
+</div>
+<div class="section level3">
+<h3 id="interpreting-the-result">Interpreting the result<a class="anchor" aria-label="anchor" href="#interpreting-the-result"></a>
+</h3>
+<p>The curve is the community-level analogue of a single-stock yield
+curve. It rises, peaks, and then falls as heavier fishing starts to
+erode the stocks faster than they can rebuild. The dashed line marks the
+<strong>current</strong> effort.</p>
+<p>The peak — the effort giving maximum sustainable yield for the
+community as a whole — lies a little <em>below</em> the current effort.
+In other words, this fishery is already working slightly harder than the
+level that would maximise its total long-term catch: pushing effort
+higher buys no extra yield and depletes the community, while easing off
+a little would <em>increase</em> the sustainable catch. That is a
+textbook signature of a lightly overfished community, recovered here
+purely from the model we calibrated to biomass and growth.</p>
+<p>This is only the beginning of what the calibrated model can tell you.
+From here you could look at individual species’ yield curves to find
+each stock’s own <span class="math inline">\(F_\text{MSY}\)</span>
+(<code><a href="https://sizespectrum.org/mizerExperimental/reference/plotYieldVsF.html">plotYieldVsF()</a></code>), change the gear selectivity to protect
+juveniles, or explore how the community size spectrum flattens under
+fishing. The <a href="https://mizer.course.sizespectrum.org/use/" class="external-link">Use
+part of the course</a> develops several such scenarios.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="size-spectrum-models">Size-spectrum models<a class="anchor" aria-label="anchor" href="#size-spectrum-models"></a>
@@ -469,10 +720,10 @@ bundles a curated mizer reference card and complete API documentation
 optimised for large language models, and deploys them into your mizer
 project with a single function call.</p>
 <p>First install the package from GitHub:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"sizespectrum/mizerAgents"</span><span class="op">)</span></span></code></pre></div>
 <p>Then, from the root of your mizer project, run:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">mizerAgents</span><span class="fu">::</span><span class="fu"><a href="https://sizespectrum.github.io/mizerAgents/reference/setup_mizer_agent.html" class="external-link">setup_mizer_agent</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>See <a href="https://sizespectrum.org/mizerAgents/articles/mizerAgents.html">Using
 AI Agents with Mizer</a> for more detail.</p>
@@ -557,6 +808,14 @@ Gislason. 2006. <span>“Modelling an Exploited Marine Fish Community with
 15 Parameters - Results from a Simple Size-Based Model.”</span> <em>Ices
 Journal of Marine Science</em> 63 (6): 1029–44. <a href="https://doi.org/10.1016/j.icesjms.2006.04.015" class="external-link">https://doi.org/10.1016/j.icesjms.2006.04.015</a>.
 </div>
+<div id="ref-spence_parameterizing_2021" class="csl-entry">
+Spence, Michael A., Robert B. Thorpe, Paul G. Blackwell, Finlay Scott,
+Richard Southwell, and Julia L. Blanchard. 2021. <span>“Quantifying
+Uncertainty and Dynamical Changes in Multi-Species Fishing Mortality
+Rates, Catches and Biomass by Combining State-Space and Size-Based
+Multi-Species Models.”</span> <em>Fish and Fisheries</em> 22 (4):
+667–81. <a href="https://doi.org/10.1111/faf.12543" class="external-link">https://doi.org/10.1111/faf.12543</a>.
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -566,7 +825,7 @@ Journal of Marine Science</em> 63 (6): 1029–44. <a href="https://doi.org/10.10
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

@@ -42,6 +42,8 @@ Other summary functions:
 ssb <- getSSB(NS_sim)
 ssb[c("1972", "2010"), c("Herring", "Cod")]
 #> Spawning stock biomass (2 times x 2 species) [g] 
-#>   Herring: min=4.43e+10 mean=1.09e+11 max=1.73e+11
-#>   Cod: min=3.47e+11 mean=3.62e+11 max=3.76e+11
+#>       sp
+#> time        Herring          Cod
+#>   1972  44290356621 375924484131
+#>   2010 172765918920 347442607081
 ```

@@ -28,6 +28,13 @@
 #'
 #' @return The printed object, invisibly.
 #'
+#' @usage
+#' \method{print}{ArraySpeciesBySize}(x, ...)
+#' \method{print}{ArrayTimeBySpecies}(x, ...)
+#' \method{print}{ArrayTimeBySpeciesBySize}(x, ...)
+#' \method{print}{summary.ArraySpeciesBySize}(x, ...)
+#' \method{print}{summary.ArrayTimeBySpecies}(x, ...)
+#' \method{print}{summary.ArrayTimeBySpeciesBySize}(x, ...)
 #' @aliases print.ArraySpeciesBySize print.ArrayTimeBySpecies print.ArrayTimeBySpeciesBySize print.summary.ArraySpeciesBySize print.summary.ArrayTimeBySpecies print.summary.ArrayTimeBySpeciesBySize
 #' @seealso [summary()], [as.data.frame()], [plot()],
 #'   [ArraySpeciesBySize()], [ArrayTimeBySpecies()],
@@ -70,6 +77,12 @@ NULL
 #' For array objects, a list of class `summary.ArraySpeciesBySize`,
 #' `summary.ArrayTimeBySpecies` or `summary.ArrayTimeBySpeciesBySize`.
 #'
+#' @usage
+#' \method{summary}{ArraySpeciesBySize}(object, ...)
+#' \method{summary}{ArrayTimeBySpecies}(object, ...)
+#' \method{summary}{ArrayTimeBySpeciesBySize}(object, ...)
+#' \method{summary}{MizerSim}(object, ...)
+#' \method{summary}{MizerParams}(object, ...)
 #' @aliases summary.ArraySpeciesBySize summary.ArrayTimeBySpecies summary.ArrayTimeBySpeciesBySize summary.MizerSim summary.MizerParams
 #' @seealso [print()], [as.data.frame()], [str()], [MizerParams()], [MizerSim()],
 #'   [ArraySpeciesBySize()], [ArrayTimeBySpecies()],
@@ -117,6 +130,10 @@ NULL
 #'
 #' @return A data frame in long format.
 #'
+#' @usage
+#' \method{as.data.frame}{ArraySpeciesBySize}(x, row.names = NULL, optional = FALSE, ...)
+#' \method{as.data.frame}{ArrayTimeBySpecies}(x, row.names = NULL, optional = FALSE, ...)
+#' \method{as.data.frame}{ArrayTimeBySpeciesBySize}(x, row.names = NULL, optional = FALSE, ...)
 #' @aliases as.data.frame.ArraySpeciesBySize as.data.frame.ArrayTimeBySpecies as.data.frame.ArrayTimeBySpeciesBySize
 #' @seealso [print()], [summary()], [str()], [plot()], [ArraySpeciesBySize()],
 #'   [ArrayTimeBySpecies()], [ArrayTimeBySpeciesBySize()]
@@ -146,6 +163,12 @@ NULL
 #'
 #' @return `NULL`, invisibly.
 #'
+#' @usage
+#' \method{str}{ArraySpeciesBySize}(object, ...)
+#' \method{str}{ArrayTimeBySpecies}(object, ...)
+#' \method{str}{ArrayTimeBySpeciesBySize}(object, ...)
+#' \method{str}{MizerSim}(object, max.level = NA, ...)
+#' \method{str}{MizerParams}(object, max.level = NA, ...)
 #' @aliases str.ArraySpeciesBySize str.ArrayTimeBySpecies str.ArrayTimeBySpeciesBySize str.MizerSim str.MizerParams
 #' @seealso [print()], [as.data.frame()], [summary()], [plot()], [MizerParams()], [MizerSim()], [ArraySpeciesBySize()],
 #'   [ArrayTimeBySpecies()], [ArrayTimeBySpeciesBySize()]

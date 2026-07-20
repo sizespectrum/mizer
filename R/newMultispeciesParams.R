@@ -27,6 +27,8 @@
 #'   is set to the smallest value at which any of the consumers can feed.
 #' @param n The allometric growth exponent. This can be overruled for individual
 #'   species by including a `n` column in the `species_params`.
+#' @param p The allometric metabolic exponent. This can be overruled for
+#'   individual species by including a `p` column in the `species_params`.
 #' @param second_order_w `r lifecycle::badge("experimental")` Selects the
 #'   second-order numerical scheme for the new model. Accepts the same values as
 #'   the [second_order_w()] setter: a single logical (`TRUE` switches on both
@@ -290,7 +292,7 @@ newMultispeciesParams <- function(
 #' @inheritDotParams setPredKernel -reset
 #' @inheritDotParams setSearchVolume -reset
 #' @inheritDotParams setMaxIntakeRate -reset
-#' @inheritDotParams setMetabolicRate -reset
+#' @inheritDotParams setMetabolicRate -reset -p
 #' @inheritDotParams setExtMort -reset
 #' @inheritDotParams setExtEncounter -reset
 #' @inheritDotParams setReproduction -reset
@@ -302,7 +304,7 @@ newMultispeciesParams <- function(
 #'
 #' @details
 #' If you are not happy with the assumptions that mizer makes by default about
-#' the shape of the model functions, for example if you want to change one of
+#' the size-dependence of parameters, for example if you want to change one of
 #' the allometric scaling assumptions, you can do this by providing your
 #' choice as an array in the appropriate argument to `setParams()`. The
 #' sections below discuss all the model functions that you can change this way.
@@ -312,7 +314,7 @@ newMultispeciesParams <- function(
 #' params object. So to affect the change you call the function in the form
 #' `params <- setParams(params, ...)`.
 #'
-#' Usually, if you are happy with the way mizer calculates its model functions
+#' Usually, if you are happy with the way mizer calculates the size-dependent parameters
 #' from the species parameters and only want to change the values of some
 #' species parameters, you would make those changes in the `species_params` data
 #' frame contained in the `params` object using [species_params<-()].
@@ -326,7 +328,7 @@ newMultispeciesParams <- function(
 #' other parameters that are affected by the change in the species parameter.
 #'
 #' `setParams()` will use the species parameters in the `params` object to
-#' recalculate the values of all the model functions except those for which you
+#' recalculate the values of all the parameter arrays except those for which you
 #' have set custom values.
 #'
 #' @section Units in mizer:

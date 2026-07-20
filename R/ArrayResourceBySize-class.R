@@ -22,7 +22,8 @@
 #'   \item `params` – the `MizerParams` object that the value was computed from.
 #' }
 #'
-#' @param x A numeric vector over the full size grid.
+#' @param x A numeric vector over the full size grid. For
+#'   `is.ArrayResourceBySize()`, any object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "1/year").
 #' @param params A `MizerParams` object. Used for the resource colour and the
@@ -55,14 +56,10 @@ ArrayResourceBySize <- function(x, value_name = NULL, units = NULL,
     )
 }
 
-#' Test if an object is an ArrayResourceBySize
-#'
-#' @param x An object to test.
-#' @return `TRUE` if `x` is an `ArrayResourceBySize` object, `FALSE` otherwise.
+#' @rdname ArrayResourceBySize
+#' @return `is.ArrayResourceBySize()` returns `TRUE` if `x` is an
+#'   `ArrayResourceBySize` object, `FALSE` otherwise.
 #' @export
-#' @examples
-#' is.ArrayResourceBySize(getResourceMort(NS_params))
-#' is.ArrayResourceBySize(1:4)
 is.ArrayResourceBySize <- function(x) {
     inherits(x, "ArrayResourceBySize")
 }
@@ -130,8 +127,32 @@ print.summary.ArrayResourceBySize <- function(x, ...) {
     invisible(x)
 }
 
-#' @rdname plot
-#' @usage NULL
+#' Plot method for `ArrayResourceBySize` objects
+#'
+#' See [plot()] for an overview of the mizer plotting system and the
+#' arguments shared by all of its methods.
+#'
+#' @param x An `ArrayResourceBySize` object.
+#' @param return_data If `TRUE`, return the data frame instead of the
+#'   plot.
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `TRUE`.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `TRUE`.
+#' @param log Character string specifying which axes should use log10
+#'   scales, in the same form as the base [plot()] argument. For example,
+#'   `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and
+#'   `log_y`.
+#' @param wlim A numeric vector of length two providing lower and upper
+#'   limits for the weight (x) axis. Use `NA` to refer to the existing
+#'   minimum or maximum.
+#' @param ylim A numeric vector of length two providing lower and upper
+#'   limits for the value (y) axis. Use `NA` to refer to the existing
+#'   minimum or maximum.
+#' @param y_ticks The approximate number of ticks desired on the y axis.
+#' @param ... Unused.
+#'
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a
+#'   data frame is returned.
+#' @keywords internal
 #' @export
 #' @examples
 #' \donttest{
@@ -259,6 +280,8 @@ unclass_resource <- function(x) {
     x
 }
 
+# Strip the `params` back-reference so the default str() doesn't dump the whole
+# MizerParams; summarise it in a single line instead. See str.ArraySpeciesBySize.
 #' @export
 str.ArrayResourceBySize <- function(object, ...) {
     params <- attr(object, "params")
@@ -294,7 +317,8 @@ str.ArrayResourceBySize <- function(object, ...) {
 #'   \item `params` – the `MizerParams` object that the value was computed from.
 #' }
 #'
-#' @param x A matrix (time x size).
+#' @param x A matrix (time x size). For `is.ArrayTimeByResourceBySize()`, any
+#'   object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "1/g").
 #' @param params A `MizerParams` object. Used for the resource colour and the
@@ -324,15 +348,10 @@ ArrayTimeByResourceBySize <- function(x, value_name = NULL, units = NULL,
     )
 }
 
-#' Test if an object is an ArrayTimeByResourceBySize
-#'
-#' @param x An object to test.
-#' @return `TRUE` if `x` is an `ArrayTimeByResourceBySize` object, `FALSE`
-#'   otherwise.
+#' @rdname ArrayTimeByResourceBySize
+#' @return `is.ArrayTimeByResourceBySize()` returns `TRUE` if `x` is an
+#'   `ArrayTimeByResourceBySize` object, `FALSE` otherwise.
 #' @export
-#' @examples
-#' is.ArrayTimeByResourceBySize(NResource(NS_sim))
-#' is.ArrayTimeByResourceBySize(matrix(1:4, nrow = 2))
 is.ArrayTimeByResourceBySize <- function(x) {
     inherits(x, "ArrayTimeByResourceBySize")
 }
@@ -411,8 +430,22 @@ print.summary.ArrayTimeByResourceBySize <- function(x, ...) {
     invisible(x)
 }
 
-#' @rdname plot
-#' @usage NULL
+#' Plot method for `ArrayTimeByResourceBySize` objects
+#'
+#' See [plot()] for an overview of the mizer plotting system. This method
+#' plots a single time slice, by first extracting it as an
+#' `ArrayResourceBySize` object and delegating to
+#' [plot.ArrayResourceBySize()], which the further arguments in `...` are
+#' passed on to.
+#'
+#' @param x An `ArrayTimeByResourceBySize` object.
+#' @param time The time to display. Default (`NULL`) is the final time
+#'   step.
+#' @param ... Passed on to [plot.ArrayResourceBySize()].
+#'
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a
+#'   data frame is returned.
+#' @keywords internal
 #' @export
 #' @examples
 #' \donttest{
@@ -496,6 +529,8 @@ Ops.ArrayTimeByResourceBySize <- function(e1, e2) {
     if (missing(e2)) op(e1) else op(e1, e2)
 }
 
+# Strip the `params` back-reference so the default str() doesn't dump the whole
+# MizerParams; summarise it in a single line instead. See str.ArraySpeciesBySize.
 #' @export
 str.ArrayTimeByResourceBySize <- function(object, ...) {
     params <- attr(object, "params")

@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Gear parameters — gear_params"><meta name="description" content="These functions allow you to get or set the gear parameters stored in
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Gear parameters — gear_params"><meta name="description" content="These functions allow you to get or set the gear parameters stored in
 a MizerParams object. These are used by setFishing() to set up the
 selectivity and catchability and thus together with the fishing effort
 determine the fishing mortality."><meta property="og:description" content="These functions allow you to get or set the gear parameters stored in
@@ -19,7 +19,7 @@ determine the fishing mortality."><meta property="og:image" content="https://siz
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,9 @@ determine the fishing mortality."><meta property="og:image" content="https://siz
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -95,26 +98,34 @@ determine the fishing mortality.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">gear_params</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">gear_params</span><span class="op">(</span><span class="va">object</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">gear_params</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
+<span><span class="fu">gear_params</span><span class="op">(</span><span class="va">object</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span></span>
+<span><span class="fu">is.gear_params</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-params">params<a class="anchor" aria-label="anchor" href="#arg-params"></a></dt>
-<dd><p>A MizerParams object</p></dd>
+<dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
+<dd><p>A MizerParams object, a MizerSim object or a data frame</p></dd>
 
 
 <dt id="arg-value">value<a class="anchor" aria-label="anchor" href="#arg-value"></a></dt>
-<dd><p>A data frame with the gear parameters.</p></dd>
+<dd><p>A data frame with the new gear parameters.</p></dd>
+
+
+<dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p>An object to test with <code>is.gear_params()</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Data frame with gear parameters</p>
+<p><code>is.gear_params()</code> returns <code>TRUE</code> if <code>x</code> is a <code>gear_params</code> object,
+<code>FALSE</code> otherwise.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -142,8 +153,7 @@ illustrates how this facilitates changing an individual gear parameter.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="validGearParams.html">validGearParams()</a></code></p>
-<p>Other functions for setting parameters:
+    <div class="dont-index"><p>Other functions for setting parameters:
 <code><a href="setExtDiffusion.html">setExtDiffusion()</a></code>,
 <code><a href="setExtEncounter.html">setExtEncounter()</a></code>,
 <code><a href="setExtMort.html">setExtMort()</a></code>,
@@ -165,39 +175,18 @@ illustrates how this facilitates changing an individual gear parameter.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># gears set up in example</span></span></span>
 <span class="r-in"><span><span class="fu">gear_params</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                           gear species   sel_func knife_edge_size catchability</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sprat, Industrial   Industrial   Sprat knife_edge              13            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sandeel, Industrial Industrial Sandeel knife_edge               4            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> N.pout, Industrial  Industrial  N.pout knife_edge              23            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Herring, Pelagic       Pelagic Herring knife_edge              99            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Dab, Beam                 Beam     Dab knife_edge              21            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Whiting, Otter           Otter Whiting knife_edge              75            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sole, Beam                Beam    Sole knife_edge              78            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Gurnard, Otter           Otter Gurnard knife_edge              39            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Plaice, Beam              Beam  Plaice knife_edge             105            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Haddock, Otter           Otter Haddock knife_edge             165            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cod, Otter               Otter     Cod knife_edge            1606            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Saithe, Otter            Otter  Saithe knife_edge            1076            1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># setting totally different gears</span></span></span>
 <span class="r-in"><span><span class="fu">gear_params</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    gear <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gear1"</span>, <span class="st">"gear2"</span>, <span class="st">"gear1"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Cod"</span>, <span class="st">"Haddock"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    catchability <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    sel_fun <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sigmoid_weight"</span>, <span class="st">"knife_edge"</span>, <span class="st">"sigmoid_weight"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    sel_func <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sigmoid_weight"</span>, <span class="st">"knife_edge"</span>, <span class="st">"sigmoid_weight"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    sigmoidal_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="cn">NA</span>, <span class="fl">800</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    sigmoidal_sigma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="cn">NA</span>, <span class="fl">100</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    knife_edge_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">1000</span>, <span class="cn">NA</span><span class="op">)</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">gear_params</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 gear species catchability        sel_fun sigmoidal_weight</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cod, gear1     gear1     Cod          0.5 sigmoid_weight             1000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cod, gear2     gear2     Cod          2.0     knife_edge               NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Haddock, gear1 gear1 Haddock          1.0 sigmoid_weight              800</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                sigmoidal_sigma knife_edge_size   sel_func</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cod, gear1                 100            1606 knife_edge</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cod, gear2                  NA            1000 knife_edge</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Haddock, gear1             100             165 knife_edge</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># changing an individual entry</span></span></span>
 <span class="r-in"><span><span class="fu">gear_params</span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod, gear1"</span>, <span class="st">"catchability"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0.8</span></span></span>
@@ -208,7 +197,7 @@ illustrates how this facilitates changing an individual gear parameter.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

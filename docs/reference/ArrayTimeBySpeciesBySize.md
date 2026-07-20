@@ -21,13 +21,16 @@ ArrayTimeBySpeciesBySize(
   params = NULL,
   representation = c("point", "average")
 )
+
+is.ArrayTimeBySpeciesBySize(x)
 ```
 
 ## Arguments
 
 - x:
 
-  A 3D array (time x species x size).
+  A 3D array (time x species x size). For
+  `is.ArrayTimeBySpeciesBySize()`, any object to test.
 
 - value_name:
 
@@ -56,6 +59,9 @@ ArrayTimeBySpeciesBySize(
 ## Value
 
 An `ArrayTimeBySpeciesBySize` object (inherits from `array`).
+
+`is.ArrayTimeBySpeciesBySize()` returns `TRUE` if `x` is an
+`ArrayTimeBySpeciesBySize` object, `FALSE` otherwise.
 
 ## Details
 

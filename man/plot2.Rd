@@ -104,7 +104,7 @@ plot2(getEncounter(NS_params), getEncounter(NS_params))
 \seealso{
 Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
-\code{\link[=animate.ArrayTimeBySpeciesBySize]{animate.ArrayTimeBySpeciesBySize()}},
+\code{\link[=animate]{animate()}},
 \code{\link{plot}},
 \code{\link[=plotBifurcation]{plotBifurcation()}},
 \code{\link[=plotBiomass]{plotBiomass()}},

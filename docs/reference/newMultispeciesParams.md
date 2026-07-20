@@ -105,9 +105,8 @@ newMultispeciesParams(
 
 - p:
 
-  The allometric metabolic exponent. This is only used if `metab` is not
-  given explicitly and if the exponent is not specified in a `p` column
-  in the `species_params`.
+  The allometric metabolic exponent. This can be overruled for
+  individual species by including a `p` column in the `species_params`.
 
 - ext_mort:
 
@@ -155,7 +154,10 @@ newMultispeciesParams(
 
 - kappa:
 
-  The coefficient of the initial resource abundance power-law.
+  The coefficient \\\kappa\\ of the resource carrying capacity power law
+  \\c_R(w) = \kappa\\ w^{-\lambda}\\, which also sets the initial
+  resource abundance. See
+  [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md).
 
 - n:
 
@@ -525,7 +527,7 @@ standard metabolism and \\k w\\ is the rate at which energy is expended
 on activity and movement. The values of \\k_s\\, \\p\\ and \\k\\ are
 taken from the `ks`, `p` and `k` columns in the species parameter
 dataframe. If any of these parameters are not supplied, the defaults are
-\\k = 0\\, \\p = 3/4\\ and \$\$k_s = f_c h \alpha w\_{mat}^{n-p},\$\$
+\\k = 0\\, \\p = n\\ and \$\$k_s = f_c h \alpha w\_{mat}^{n-p},\$\$
 where \\f_c\\ is the critical feeding level taken from the `fc` column
 in the species parameter data frame. If the critical feeding level is
 not specified, a default of \\f_c = 0.2\\ is used.
@@ -854,7 +856,10 @@ is set to \$\$c_R(w) = c_R\\ w^{-\lambda}\$\$ for all \\w\\ less than
 
 The values for `lambda`, `n` and `w_pp_cutoff` are stored in a list in
 the `resource_params` slot of the MizerParams object so that they can be
-re-used automatically in the future. That list can be accessed with
+re-used automatically in the future. If you specify `resource_rate` or
+`resource_capacity` as a single number, that coefficient is likewise
+stored, as `r_pp` and `kappa` respectively. That list can be accessed
+with
 [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md).
 
 ## See also

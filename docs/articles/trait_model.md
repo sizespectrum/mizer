@@ -67,9 +67,9 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.1.0
-    ## Created: 2026-06-25 21:03:37
-    ## Modified: 2026-06-25 21:03:37
+    ## mizer version: 3.2.0
+    ## Created: 2026-07-19 19:06:03
+    ## Modified: 2026-07-19 19:06:04
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   1e+05
@@ -79,17 +79,19 @@ summary(params)
     ##  maximum size:   2.23872
     ##  no. size bins:  208 (301 size bins in total)
     ## Species details:
-    ##    species        w_inf        w_mat w_min  f0   fc beta sigma
-    ## 1        1 8.912509e+00     2.511886 0.001 0.6 0.25  100   1.3
-    ## 2        2 2.511886e+01     7.079458 0.001 0.6 0.25  100   1.3
-    ## 3        3 7.079458e+01    19.952623 0.001 0.6 0.25  100   1.3
-    ## 4        4 1.995262e+02    56.234133 0.001 0.6 0.25  100   1.3
-    ## 5        5 5.623413e+02   158.489319 0.001 0.6 0.25  100   1.3
-    ## 6        6 1.584893e+03   446.683592 0.001 0.6 0.25  100   1.3
-    ## 7        7 4.466836e+03  1258.925412 0.001 0.6 0.25  100   1.3
-    ## 8        8 1.258925e+04  3548.133892 0.001 0.6 0.25  100   1.3
-    ## 9        9 3.548134e+04 10000.000000 0.001 0.6 0.25  100   1.3
-    ## 10      10 1.000000e+05 28183.829313 0.001 0.6 0.25  100   1.3
+    ## An object of class "species_params" containing parameters for 10 species:
+    ##  species        w_inf        w_mat w_min  f0   fc beta
+    ##        1 8.912509e+00     2.511886 0.001 0.6 0.25  100
+    ##        2 2.511886e+01     7.079458 0.001 0.6 0.25  100
+    ##        3 7.079458e+01    19.952623 0.001 0.6 0.25  100
+    ##        4 1.995262e+02    56.234133 0.001 0.6 0.25  100
+    ##        5 5.623413e+02   158.489319 0.001 0.6 0.25  100
+    ##        6 1.584893e+03   446.683592 0.001 0.6 0.25  100
+    ##        7 4.466836e+03  1258.925412 0.001 0.6 0.25  100
+    ##        8 1.258925e+04  3548.133892 0.001 0.6 0.25  100
+    ##        9 3.548134e+04 10000.000000 0.001 0.6 0.25  100
+    ##       10 1.000000e+05 28183.829313 0.001 0.6 0.25  100
+    ## With 1 other parameters: sigma 
     ## 
     ## Fishing gear details:
     ## Gear          Effort  Target species 
@@ -327,29 +329,6 @@ look at the gear parameters
 gear_params(params)
 ```
 
-    ##                                gear species   sel_func knife_edge_size
-    ## 1, knife_edge_gear  knife_edge_gear       1 knife_edge            1000
-    ## 2, knife_edge_gear  knife_edge_gear       2 knife_edge            1000
-    ## 3, knife_edge_gear  knife_edge_gear       3 knife_edge            1000
-    ## 4, knife_edge_gear  knife_edge_gear       4 knife_edge            1000
-    ## 5, knife_edge_gear  knife_edge_gear       5 knife_edge            1000
-    ## 6, knife_edge_gear  knife_edge_gear       6 knife_edge            1000
-    ## 7, knife_edge_gear  knife_edge_gear       7 knife_edge            1000
-    ## 8, knife_edge_gear  knife_edge_gear       8 knife_edge            1000
-    ## 9, knife_edge_gear  knife_edge_gear       9 knife_edge            1000
-    ## 10, knife_edge_gear knife_edge_gear      10 knife_edge            1000
-    ##                     catchability
-    ## 1, knife_edge_gear             1
-    ## 2, knife_edge_gear             1
-    ## 3, knife_edge_gear             1
-    ## 4, knife_edge_gear             1
-    ## 5, knife_edge_gear             1
-    ## 6, knife_edge_gear             1
-    ## 7, knife_edge_gear             1
-    ## 8, knife_edge_gear             1
-    ## 9, knife_edge_gear             1
-    ## 10, knife_edge_gear            1
-
 We will expand the model to include multiple fishing gears. This
 requires us to look more closely at how fishing gears are handled in
 `mizer`. In `mizer` it is possible for a fishing gear to catch only a
@@ -406,18 +385,6 @@ data frame:
 
 gear_params(params_multi_gear)
 ```
-
-    ##                     gear species   sel_func knife_edge_size catchability
-    ## 1, Industrial Industrial       1 knife_edge       0.4456255            1
-    ## 2, Industrial Industrial       2 knife_edge       1.2559432            1
-    ## 3, Industrial Industrial       3 knife_edge       3.5397289            1
-    ## 4, Industrial Industrial       4 knife_edge       9.9763116            1
-    ## 5, Other           Other       5 knife_edge      28.1170663            1
-    ## 6, Other           Other       6 knife_edge      79.2446596            1
-    ## 7, Other           Other       7 knife_edge     223.3417961            1
-    ## 8, Other           Other       8 knife_edge     629.4627059            1
-    ## 9, Other           Other       9 knife_edge    1774.0669462            1
-    ## 10, Other          Other      10 knife_edge    5000.0000000            1
 
 Having created our `MizerParams` object with multiple gears, we can now
 turn our attention to running a projection with multiple gears. In our

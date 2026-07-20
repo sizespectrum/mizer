@@ -650,10 +650,10 @@ emptyParams <- function(species_params,
     # Colour and linetype scales ----
     # for use in plots
     # Colour-blind-friendly palettes
-    # From http://dr-k-lo.blogspot.co.uk/2013/07/a-color-blind-friendly-palette-for-r.html
+    # From https://dr-k-lo.blogspot.co.uk/2013/07/a-color-blind-friendly-palette-for-r.html
     # cbbPalette <- c("#000000", "#009E73", "#e79f00", "#9ad0f3", "#0072B2", "#D55E00",
     #                 "#CC79A7", "#F0E442")
-    # From http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+    # From https://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
     # cbbPalette <- c("#E69F00", "#56B4E9", "#009E73",
     #                 "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
     # Random palette gemerated pm https://medialab.github.io/iwanthue/

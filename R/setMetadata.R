@@ -1,14 +1,13 @@
 #' Set metadata for a model
-#' 
-#' `r lifecycle::badge("experimental")`
+#'
 #' Setting metadata is particularly important for sharing your model with
 #' others. All metadata fields are optional and you can also add other fields
 #' of your own choosing. If you set a value
 #' for a field that already existed, the old value will be overwritten.
-#' 
+#'
 #' In addition to the metadata fields you can set by hand, there are four fields
 #' that are set automatically by mizer:
-#' 
+#'
 #' * `mizer_version` The version string of the mizer version under which the
 #' model was created or last upgraded. Can be compared to the current version
 #' which is obtained with `packageVersion("mizer")`. The purpose of this field
@@ -18,11 +17,10 @@
 #' * `extensions` A named vector of strings where each name is the name of and
 #' extension package needed to run the model and each value is a string giving
 #' the information that the remotes package needs to install the correct version
-#' of the extension package, see https://remotes.r-lib.org/. This field is
-#' set by the extension packages.
+#' of the extension package. This field is set by the extension packages.
 #' * `time_created` A POSIXct date-time object with the creation time.
 #' * `time_modified` A POSIXct date-time object with the last modified time.
-#' 
+#'
 #' Setting the metadata with this function does not count as a modification of
 #' the object, so the `time_modified` field will not be updated.
 #'
@@ -38,14 +36,15 @@
 #' @param doi The digital object identifier for your model. To create a doi you
 #'   can use online services like https://zenodo.org/ or https://figshare.com.
 #' @param ... Additional metadata fields that you would like to add
-#' 
+#'
 #' @return `setMetadata()`: The MizerParams object with updated metadata
 #' @export
 #' @examples
 #' params <- setMetadata(NS_params,
 #'     title = "North Sea model",
 #'     description = "A multi-species model of the North Sea fish community.",
-#'     authors = list(list(name = "Finlay Scott", email = "finlay@example.com")))
+#'     authors = list(list(name = "Finlay Scott", email = "finlay@example.com")),
+#'     my_own_filed = "something that doesn't fit elsewhere")
 #' getMetadata(params)$title
 #' getMetadata(params)$authors[[1]]$name
 setMetadata <- function(params, title = NULL, description = NULL,
@@ -63,7 +62,7 @@ setMetadata.MizerParams <- function(params, title = NULL, description = NULL,
                 "The values you supplied will be ignored.")
         extra <- extra[!(names(extra) %in% special)]
     }
-    
+
     metadata <- params@metadata
     if (!missing(title)) {
         assert_that(is.string(title))
@@ -91,7 +90,7 @@ setMetadata.MizerParams <- function(params, title = NULL, description = NULL,
 #' @rdname setMetadata
 #' @export
 #' @return `getMetadata()`: A list with all metadata entries that have been set,
-#'   including at least 
+#'   including at least
 #'   `mizer_version`, `extensions`, `time_created` and `time_modified`.
 getMetadata <- function(params) {
     UseMethod("getMetadata")

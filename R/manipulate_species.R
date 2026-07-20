@@ -566,9 +566,14 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
 #'   should be copied over to the new params object rather than being
 #'   re-calculated from the species parameters. If missing, all species are
 #'   preserved.
-#' @param tol A numeric value specifying the tolerance for lost biomass.
-#'   If the fraction of species biomass or resource biomass lost due to
-#'   truncation exceeds this value, a warning is raised. Defaults to `1e-6`.
+#' @param tol A numeric value specifying the tolerance for truncation losses.
+#'   The following checks are made separately for each species and a warning is
+#'   raised, listing the affected species, if the lost fraction exceeds this
+#'   value for any of them: the fraction of the species' biomass lost, the
+#'   fraction of the diet of the smallest individuals of the species lost to
+#'   resource truncation, and the fraction of the diet of the largest
+#'   individuals of the species lost to resource truncation. Defaults to
+#'   `1e-6`.
 #' @param ... Additional arguments.
 #'
 #' @return A new [MizerParams] object with the updated size grid.
@@ -637,7 +642,7 @@ adjustSizeGrid.MizerParams <- function(params,
     }
     too_small_species <- params@species_params$species[sp_sel & params@species_params$w_max < new_min_w]
     if (length(too_small_species) > 0) {
-        stop("The following species have their maximum size w_max smaller than the new minimum size: ",
+        stop("The following species have their upper size-grid boundary w_max smaller than the new minimum size: ",
              paste(too_small_species, collapse = ", "))
     }
     too_large_species <- params@species_params$species[sp_sel & params@species_params$w_min > new_max_w]
@@ -721,7 +726,7 @@ adjustSizeGrid.MizerParams <- function(params,
 
     # Check for biomass/diet loss warnings
     truncated_idx <- setdiff(seq_along(params@w), old_idx)
-    
+
     # Low-end resource truncation (below new_min_w_pp)
     truncated_full_low_idx <- which(params@w_full < min(p@w_full) - .Machine$double.eps)
     # High-end resource truncation (above new_max_w)
@@ -737,7 +742,7 @@ adjustSizeGrid.MizerParams <- function(params,
         warn_sp <- lost_fracs[lost_fracs > tol]
         if (length(warn_sp) > 0) {
             warning("Non-negligible species biomass was lost due to grid truncation: ",
-                    paste(names(warn_sp), sprintf("(%.2f%%)", warn_sp * 100), collapse = ", "))
+                    paste(names(warn_sp), sprintf("(%g%%)", signif(warn_sp * 100, 3)), collapse = ", "))
         }
     }
 
@@ -745,37 +750,54 @@ adjustSizeGrid.MizerParams <- function(params,
     if (length(truncated_full_low_idx) > 0) {
         pred_kernel <- getPredKernel(params)
         encounter_old <- getEncounter(params)
-        
+
         lost_diet_fracs <- sapply(seq_along(params@species_params$species), function(sp_idx) {
             w_egg_idx <- params@w_min_idx[sp_idx]
             tot_diet <- encounter_old[sp_idx, w_egg_idx]
             if (tot_diet <= 0) return(0)
-            
-            lost_enc <- params@search_vol[sp_idx, w_egg_idx] * 
-                params@species_params$interaction_resource[sp_idx] * 
-                sum(pred_kernel[sp_idx, w_egg_idx, truncated_full_low_idx] * 
-                    params@w_full[truncated_full_low_idx] * 
-                    params@dw_full[truncated_full_low_idx] * 
+
+            lost_enc <- params@search_vol[sp_idx, w_egg_idx] *
+                params@species_params$interaction_resource[sp_idx] *
+                sum(pred_kernel[sp_idx, w_egg_idx, truncated_full_low_idx] *
+                    params@w_full[truncated_full_low_idx] *
+                    params@dw_full[truncated_full_low_idx] *
                     params@initial_n_pp[truncated_full_low_idx])
-            
+
             return(lost_enc / tot_diet)
         })
         names(lost_diet_fracs) <- params@species_params$species
         warn_diet <- lost_diet_fracs[lost_diet_fracs > tol]
         if (length(warn_diet) > 0) {
             warning("Non-negligible diet of smallest fish was lost due to resource truncation: ",
-                    paste(names(warn_diet), sprintf("(%.2f%%)", warn_diet * 100), collapse = ", "))
+                    paste(names(warn_diet), sprintf("(%g%%)", signif(warn_diet * 100, 3)), collapse = ", "))
         }
     }
 
-    # Resource high-end truncation: check resource biomass loss
+    # Resource high-end truncation: check diet loss of largest fish
     if (length(truncated_full_high_idx) > 0) {
-        tot_pp <- sum(params@initial_n_pp * params@w_full * params@dw_full)
-        if (tot_pp > 0) {
-            lost_pp <- sum(params@initial_n_pp[truncated_full_high_idx] * params@w_full[truncated_full_high_idx] * params@dw_full[truncated_full_high_idx]) / tot_pp
-            if (lost_pp > tol) {
-                warning("Non-negligible resource biomass (", sprintf("%.2f%%", lost_pp * 100), ") was lost due to grid truncation.")
-            }
+        pred_kernel <- getPredKernel(params)
+        encounter_old <- getEncounter(params)
+
+        lost_enc_fracs <- sapply(seq_along(params@species_params$species), function(sp_idx) {
+            # Largest size bin the species occupies
+            w_top_idx <- max(which(params@w <= params@species_params$w_max[sp_idx]))
+            tot_enc <- encounter_old[sp_idx, w_top_idx]
+            if (tot_enc <= 0) return(0)
+
+            lost_enc <- params@search_vol[sp_idx, w_top_idx] *
+                params@species_params$interaction_resource[sp_idx] *
+                sum(pred_kernel[sp_idx, w_top_idx, truncated_full_high_idx] *
+                    params@w_full[truncated_full_high_idx] *
+                    params@dw_full[truncated_full_high_idx] *
+                    params@initial_n_pp[truncated_full_high_idx])
+
+            return(lost_enc / tot_enc)
+        })
+        names(lost_enc_fracs) <- params@species_params$species
+        warn_enc <- lost_enc_fracs[lost_enc_fracs > tol]
+        if (length(warn_enc) > 0) {
+            warning("Non-negligible diet of largest fish was lost due to resource truncation: ",
+                    paste(names(warn_enc), sprintf("(%g%%)", signif(warn_enc * 100, 3)), collapse = ", "))
         }
     }
 
@@ -823,9 +845,9 @@ adjustSizeGrid.MizerParams <- function(params,
 #' Expand the size grid
 #'
 #' `r lifecycle::badge("deprecated")`
-#'
 #' This function expands the size grid in a [MizerParams] object to the desired
-#' min and max size, preserving all existing species.
+#' min and max size, preserving all existing species. The function is deprecated
+#' because you can achieve the same more flexibly with `adjustSizeGrid()`.
 #'
 #' @param params A [MizerParams] object.
 #' @param new_min_w The new minimum size in the grid. Defaults to the current minimum.
@@ -839,6 +861,7 @@ adjustSizeGrid.MizerParams <- function(params,
 #' @return A new [MizerParams] object with the updated size grid.
 #' @export
 #' @rdname expandSizeGrid
+#' @concept deprecated
 expandSizeGrid <- function(params, ...) {
     lifecycle::deprecate_warn("3.1.1", "expandSizeGrid()", "adjustSizeGrid()")
     UseMethod("expandSizeGrid")

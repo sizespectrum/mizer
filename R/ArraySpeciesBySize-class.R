@@ -18,7 +18,8 @@
 #'   \item `units` – the units of the rate (e.g. "g/year").
 #' }
 #'
-#' @param x A matrix (species x size).
+#' @param x A matrix (species x size). For `is.ArraySpeciesBySize()`, any
+#'   object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "g/year", "1/year").
 #' @param params A `MizerParams` object. Used for species colours, linetypes,
@@ -57,14 +58,10 @@ ArraySpeciesBySize <- function(x, value_name = NULL, units = NULL,
     )
 }
 
-#' Test if an object is a ArraySpeciesBySize
-#'
-#' @param x An object to test.
-#' @return `TRUE` if `x` is an `ArraySpeciesBySize` object, `FALSE` otherwise.
+#' @rdname ArraySpeciesBySize
+#' @return `is.ArraySpeciesBySize()` returns `TRUE` if `x` is an
+#'   `ArraySpeciesBySize` object, `FALSE` otherwise.
 #' @export
-#' @examples
-#' is.ArraySpeciesBySize(getEncounter(NS_params))
-#' is.ArraySpeciesBySize(matrix(1:4, nrow = 2))
 is.ArraySpeciesBySize <- function(x) {
     inherits(x, "ArraySpeciesBySize")
 }
@@ -177,69 +174,131 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' To compare two mizer arrays in a single plot, use [plot2()]. To show the
 #' relative difference between two arrays, use [plotRelative()].
 #'
-#' @param x An `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
-#'   `ArrayTimeBySpeciesBySize` object.
-#' @param ...
-#'   **Arguments used by all methods:**
-#'   \describe{
-#'     \item{`species`}{Character vector of species to include. `NULL`
-#'       (default) means all species.}
-#'     \item{`highlight`}{Name or vector of names of the species to be
-#'       highlighted.}
-#'     \item{`total`}{A boolean value that determines whether the total over
-#'       all selected species is plotted as well. Default is `FALSE`.}
-#'     \item{`background`}{A boolean value that determines whether background
-#'       species are included. Ignored if the model does not contain background
-#'       species. Default is `TRUE`.}
-#'     \item{`return_data`}{If `TRUE`, return the data frame instead of the
-#'       plot.}
-#'     \item{`log_x`}{If `TRUE`, use a log10 x-axis. Default is `TRUE` for size
-#'       spectra and `FALSE` for time series.}
-#'     \item{`log_y`}{If `TRUE`, use a log10 y-axis. Default is `FALSE` for
-#'       `ArraySpeciesBySize` and `TRUE` for `ArrayTimeBySpecies`.}
-#'     \item{`log`}{Character string specifying which axes should use log10
-#'       scales, in the same form as the base [plot()] argument. For example,
-#'       `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and
-#'       `log_y`.}
-#'     \item{`ylim`}{A numeric vector of length two providing lower and upper
-#'       limits for the value (y) axis. Use `NA` to refer to the existing
-#'       minimum or maximum.}
-#'     \item{`y_ticks`}{The approximate number of ticks desired on the y axis.}
-#'   }
+#' All methods return a ggplot2 object, unless `return_data = TRUE`, in
+#' which case they return the underlying data frame instead. [plotHover()]
+#' returns a plotly object.
 #'
-#'   **For `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize` methods:**
-#'   \describe{
-#'     \item{`all.sizes`}{If `FALSE` (default), values outside a species' size
-#'       range (`w_min` to `w_max`) are removed.}
-#'     \item{`wlim`}{A numeric vector of length two providing lower and upper
-#'       limits for the weight (x) axis. Use `NA` to refer to the existing
-#'       minimum or maximum.}
-#'     \item{`llim`}{A numeric vector of length two providing lower and upper
-#'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
-#'       refer to the existing minimum or maximum.}
-#'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
-#'       length (`"l"`), using the allometric weight-length relationship.}
-#'   }
+#' Arguments used by all methods:
+#' \describe{
+#'   \item{`species`}{Character vector of species to include. `NULL`
+#'     (default) means all species.}
+#'   \item{`highlight`}{Name or vector of names of the species to be
+#'     highlighted.}
+#'   \item{`total`}{A boolean value that determines whether the total over
+#'     all selected species is plotted as well. Default is `FALSE`.}
+#'   \item{`background`}{A boolean value that determines whether background
+#'     species are included. Ignored if the model does not contain background
+#'     species. Default is `TRUE`.}
+#'   \item{`return_data`}{If `TRUE`, return the data frame instead of the
+#'     plot.}
+#'   \item{`log_x`}{If `TRUE`, use a log10 x-axis. The default depends on the
+#'     method; see its own help page.}
+#'   \item{`log_y`}{If `TRUE`, use a log10 y-axis. The default depends on the
+#'     method; see its own help page.}
+#'   \item{`log`}{Character string specifying which axes should use log10
+#'     scales, in the same form as the base [plot()] argument. For example,
+#'     `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and
+#'     `log_y`.}
+#'   \item{`ylim`}{A numeric vector of length two providing lower and upper
+#'     limits for the value (y) axis. Use `NA` to refer to the existing
+#'     minimum or maximum.}
+#'   \item{`y_ticks`}{The approximate number of ticks desired on the y axis.}
+#' }
 #'
-#'   **For `ArrayTimeBySpecies` methods:**
-#'   \describe{
-#'     \item{`tlim`}{A numeric vector of length two providing lower and upper
-#'       limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
-#'       limit at that end. Default is `c(NA, NA)`.}
-#'   }
+#' Additional arguments for [plot.ArraySpeciesBySize()] and
+#' [plot.ArrayTimeBySpeciesBySize()]:
+#' \describe{
+#'   \item{`all.sizes`}{If `FALSE` (default), values outside a species' size
+#'     range (`w_min` to `w_max`) are removed.}
+#'   \item{`wlim`}{A numeric vector of length two providing lower and upper
+#'     limits for the weight (x) axis. Use `NA` to refer to the existing
+#'     minimum or maximum.}
+#'   \item{`llim`}{A numeric vector of length two providing lower and upper
+#'     limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
+#'     refer to the existing minimum or maximum.}
+#'   \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
+#'     length (`"l"`), using the allometric weight-length relationship.}
+#' }
 #'
-#'   **For `ArrayTimeBySpeciesBySize` methods:**
-#'   \describe{
-#'     \item{`time`}{The time to display. Default (`NULL`) is the final time
-#'       step.}
-#'   }
+#' Additional argument for [plot.ArrayTimeBySpecies()]:
+#' \describe{
+#'   \item{`tlim`}{A numeric vector of length two providing lower and upper
+#'     limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
+#'     limit at that end. Default is `c(NA, NA)`.}
+#' }
 #'
-#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame is returned. [plotHover()] returns a plotly object.
+#' Additional argument for [plot.ArrayTimeBySpeciesBySize()] and
+#' [plot.ArrayTimeByResourceBySize()]:
+#' \describe{
+#'   \item{`time`}{The time to display. Default (`NULL`) is the final time
+#'     step.}
+#' }
+#'
+#' See the individual method help pages for each method's exact arguments and
+#' defaults: [plot.ArraySpeciesBySize()], [plot.ArrayTimeBySpecies()],
+#' [plot.ArrayTimeBySpeciesBySize()], [plot.ArrayResourceBySize()],
+#' [plot.ArrayTimeByResourceBySize()].
 #'
 #' @name plot
 #' @family plotting functions
-#' @usage NULL
+#' @examples
+#' \donttest{
+#' plot(getEncounter(NS_params))
+#' plot(getFeedingLevel(NS_params), species = c("Cod", "Herring"))
+#' plot(getPredMort(NS_params), species = c("Cod", "Herring"),
+#'      size_axis = "l")
+#' plot(getBiomass(NS_sim))
+#' plot(getBiomass(NS_sim), species = c("Cod", "Herring"), total = TRUE)
+#' plot(getYield(NS_sim), species = c("Cod", "Herring"))
+#' plot(getFMort(NS_sim), time = 2010)
+#' plot(getResourceMort(NS_params))
+#' plot(initialNResource(NS_params))
+#' plot(NResource(NS_sim))
+#' }
+NULL
+
+#' Plot method for `ArraySpeciesBySize` objects
+#'
+#' See [plot()] for an overview of the mizer plotting system and the
+#' arguments shared by all of its methods.
+#'
+#' @param x An `ArraySpeciesBySize` object.
+#' @param species Character vector of species to include. `NULL`
+#'   (default) means all species.
+#' @param all.sizes If `FALSE` (default), values outside a species' size
+#'   range (`w_min` to `w_max`) are removed.
+#' @param highlight Name or vector of names of the species to be
+#'   highlighted.
+#' @param return_data If `TRUE`, return the data frame instead of the
+#'   plot.
+#' @param log_x If `TRUE`, use a log10 x-axis. Default is `TRUE`.
+#' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE`.
+#' @param log Character string specifying which axes should use log10
+#'   scales, in the same form as the base [plot()] argument. For example,
+#'   `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and
+#'   `log_y`.
+#' @param wlim A numeric vector of length two providing lower and upper
+#'   limits for the weight (x) axis. Use `NA` to refer to the existing
+#'   minimum or maximum.
+#' @param llim A numeric vector of length two providing lower and upper
+#'   limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
+#'   refer to the existing minimum or maximum.
+#' @param ylim A numeric vector of length two providing lower and upper
+#'   limits for the value (y) axis. Use `NA` to refer to the existing
+#'   minimum or maximum.
+#' @param size_axis Whether to plot size as weight (`"w"`, default) or
+#'   length (`"l"`), using the allometric weight-length relationship.
+#' @param total A boolean value that determines whether the total over
+#'   all selected species is plotted as well. Default is `FALSE`.
+#' @param background A boolean value that determines whether background
+#'   species are included. Ignored if the model does not contain background
+#'   species. Default is `TRUE`.
+#' @param y_ticks The approximate number of ticks desired on the y axis.
+#' @param ... Unused.
+#'
+#' @return A ggplot2 object, unless `return_data = TRUE`, in which case a
+#'   data frame is returned.
+#' @keywords internal
 #' @export
 #' @examples
 #' \donttest{
@@ -985,6 +1044,10 @@ unclass_rate <- function(x) {
     x
 }
 
+# Strip the `params` back-reference (a whole MizerParams) before calling the
+# default str(), otherwise it would dump the entire model. We restore a plain
+# array class for a normal summary, relabel line 1 with the real class, and
+# append a one-line summary of the params attribute.
 #' @export
 str.ArraySpeciesBySize <- function(object, ...) {
     params <- attr(object, "params")

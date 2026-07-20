@@ -72,3 +72,12 @@ solved, and the iterate is updated towards that solution, repeating
 until it converges. (At `dt = 1` the limited operator is not diagonally
 dominant, so the plain fixed-point map only stalls; under-relaxation
 makes it converge.)
+
+The returned abundance is held at zero above each species' `w_max`, the
+same upper boundary condition that
+[`project()`](https://sizespectrum.org/mizer/reference/project.md)
+imposes (via `zero_above_support()` in
+[`project_n()`](https://sizespectrum.org/mizer/reference/project_n.md)).
+Without this the bottom-up solve would carry density above `w_max`
+whenever growth is still positive there or diffusion pushes density past
+it.

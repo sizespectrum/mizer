@@ -31,7 +31,7 @@
 #' @importFrom plotly ggplotly plotlyOutput renderPlotly
 #' @importFrom stats fft mvfft lm pnorm runif complete.cases setNames
 #' @importFrom grDevices col2rgb
-#' @importFrom utils modifyList packageVersion globalVariables getS3method
+#' @importFrom utils modifyList packageVersion globalVariables getS3method adist
 #' @importFrom rlang signal cnd_muffle
 #' @importFrom lifecycle deprecated
 "_PACKAGE"

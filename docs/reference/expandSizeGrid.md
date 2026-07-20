@@ -1,8 +1,11 @@
 # Expand the size grid
 
-This function expands the size grid in a
+**\[deprecated\]** This function expands the size grid in a
 [MizerParams](https://sizespectrum.org/mizer/reference/MizerParams.md)
 object to the desired min and max size, preserving all existing species.
+The function is deprecated because you can achieve the same more
+flexibly with
+[`adjustSizeGrid()`](https://sizespectrum.org/mizer/reference/adjustSizeGrid.md).
 
 ## Usage
 
@@ -33,13 +36,11 @@ expandSizeGrid(
 
 - new_min_w:
 
-  The new minimum size in the grid. Must not be larger than the current
-  minimum size.
+  The new minimum size in the grid. Defaults to the current minimum.
 
 - new_max_w:
 
-  The new maximum size in the grid. Must not be smaller than the current
-  maximum size.
+  The new maximum size in the grid. Defaults to the current maximum.
 
 - preserve_species:
 

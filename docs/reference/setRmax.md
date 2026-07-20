@@ -119,7 +119,10 @@ less sensitive to fishing, leading to a higher F_MSY.
 ``` r
 params <- NS_params
 species_params(params)$erepro
-#>  [1] 1 1 1 1 1 1 1 1 1 1 1 1
+#>   Sprat Sandeel  N.pout Herring     Dab Whiting    Sole Gurnard  Plaice Haddock 
+#>       1       1       1       1       1       1       1       1       1       1 
+#>     Cod  Saithe 
+#>       1       1 
 # Attempting to set the same erepro for all species
 params <- setBevertonHolt(params, erepro = 0.1)
 #> Warning: For the following species `erepro` has been increased to the smallest possible value: erepro[Gurnard] = 0.558; erepro[Plaice] = 0.921

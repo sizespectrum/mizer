@@ -23,6 +23,7 @@ project(
   initial_n_pp,
   append = TRUE,
   progress_bar = TRUE,
+  callback = NULL,
   method = c("euler", "predictor_corrector", "tr_bdf2"),
   ...
 )
@@ -88,6 +89,13 @@ project(
   Either a boolean value to determine whether a progress bar should be
   shown in the console, or a shiny Progress object to implement a
   progress bar in a shiny app.
+
+- callback:
+
+  A function to be called at each saved time step of the simulation. The
+  callback function is called with the `MizerSim` object, the current
+  time index, and any additional arguments passed to `project()` via
+  `...`.
 
 - method:
 

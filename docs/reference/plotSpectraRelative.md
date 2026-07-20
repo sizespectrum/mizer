@@ -19,8 +19,6 @@ plotSpectraRelative(
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
-  power = 1,
-  biomass = TRUE,
   total = FALSE,
   resource = TRUE,
   background = TRUE,
@@ -69,19 +67,6 @@ plotSpectraRelative(
   A numeric vector of length two providing lower and upper limits for
   the y axis (the relative difference). Use `NA` to refer to the
   existing minimum or maximum.
-
-- power:
-
-  The abundance is plotted as the number density times the weight raised
-  to `power`. The default `power = 1` gives the biomass density, whereas
-  `power = 2` gives the biomass density with respect to logarithmic size
-  bins.
-
-- biomass:
-
-  **\[deprecated\]** Only used if `power` argument is missing. Then
-  `biomass = TRUE` is equivalent to `power=1` and `biomass = FALSE` is
-  equivalent to `power=0`
 
 - total:
 

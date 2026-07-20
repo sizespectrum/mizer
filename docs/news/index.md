@@ -1,6 +1,318 @@
 # Changelog
 
+## mizer 3.2.0
+
+This release overhauls how species and resource parameters are set,
+makes the extension framework composable regardless of load order, adds
+a new
+[`adjustSizeGrid()`](https://sizespectrum.org/mizer/reference/adjustSizeGrid.md)
+function and cheatsheets, and includes a range of smaller improvements
+and bug fixes.
+
+For an overview see the [release
+announcement](https://blog.mizer.sizespectrum.org/posts/2026-07-17-mizer-3-2-announcement/)
+on the mizer blog.
+
+### Resource setting
+
+- Assigning to
+  [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md)
+  (or one of its components, e.g.
+  `resource_params(params)$kappa <- ...`) now immediately rebuilds the
+  size-dependent resource rate (`rr_pp`) and capacity (`cc_pp`) arrays
+  from the scalars, leaving any manually set (frozen) arrays untouched,
+  exactly as `species_params<-` feeds the species rates. As a result
+  changing the rate-side scalars `r_pp` or `n` now takes effect
+  (previously the value was silently discarded), and successive scalar
+  edits accumulate instead of overwriting each other. Assigning to
+  [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md)
+  no longer balances the resource; balancing to preserve the steady
+  state is now solely a feature of
+  [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md).
+
+- The `resource_rate<-`, `resource_capacity<-`, `resource_level<-` and
+  `resource_dynamics<-` setters gained a `balance` argument (default
+  unchanged) so it can be switched off, e.g.
+  `resource_capacity(params, balance = FALSE) <- my_capacity`.
+
+- [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
+  no longer silently overwrites a manually set (frozen) rate or capacity
+  array when balancing: the frozen array wins and a warning is issued.
+  The one exception to the frozen-array protection is that
+  [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) will
+  rebalance the resource_capacity in order to return a steady state,
+  ignoring any freeze.
+
+These changes and how to adapt existing code are described in the new
+[`vignette("upgrading")`](https://sizespectrum.org/mizer/articles/upgrading.md)
+(“Upgrading mizer”).
+
+### Species parameter changes
+
+- Modifying species parameters via `species_params<-()` now
+  automatically detects your changes, records them in
+  `given_species_params` so they are protected from being overwritten by
+  defaults in the future, and silently triggers the recalculation of any
+  dependent parameters and rate arrays. Previously, `species_params<-()`
+  bypassed the `given_species_params` protection and didn’t trigger
+  recalculations. This restores expected behaviour and makes
+  `species_params<-()` the recommended setter for scripts.
+
+- The `given_species_params<-()` setter remains as an explicit
+  alternative that is particularly useful during interactive sessions,
+  because it issues warnings if you change a parameter whose effect is
+  overridden by another parameter that has already been given.
+
+- Each species parameter default now has a single home: the rate-setting
+  function that uses the parameter.
+  [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)
+  now only fills in defaults for parameters that no single rate setter
+  owns, namely `w_max`, `w_repro_max`, `w_mat`, `w_min`, `alpha`, `n`,
+  `a`, `b` and `is_background`. The defaults for `p`, `k`, `z_ext`, `d`,
+  `E_ext`, `D_ext` and `interaction_resource` are supplied by
+  [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md),
+  [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),
+  [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
+  [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md)
+  and
+  [`setInteraction()`](https://sizespectrum.org/mizer/reference/setInteraction.md)
+  respectively, where they were already being set. Built models are
+  unaffected, because
+  [`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md)
+  calls all the rate-setting functions, but
+  [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)
+  applied to a bare species parameter data frame now returns fewer
+  columns. See the `default_parameters` vignette.
+
+- The `p` argument of
+  [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md)
+  is deprecated
+  ([\#459](https://github.com/sizespectrum/mizer/issues/459)). It never
+  had any effect on a `MizerParams` object: such an object always has a
+  `p` column already, and the argument was only ever used to fill in a
+  missing one, so it was silently ignored. Set the species parameter
+  instead, with `species_params(params)$p <- value`. The `p` argument of
+  [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)
+  is a different argument and is not affected.
+
+- The default for the metabolic exponent `p` is now `n` rather than
+  `3/4` in
+  [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md),
+  which is where the default now lives;
+  [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)
+  no longer sets `p`. No model changes as a result. Models built with
+  [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)
+  take `p` from its own `p` argument (default `0.7`), which is injected
+  into the species parameter table before validation and is untouched by
+  this change, so neither of these defaults fires for them. The
+  [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)
+  default (`p = n`) only ever applied when it was called directly on a
+  bare species parameter data frame, which now returns no `p` column,
+  and it shadowed the
+  [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md)
+  default whenever both were in play.
+
+- Default values for the `a` (0.01) and `b` (3) species parameters (for
+  the weight-length relationship) are now saved in `species_params`
+  instead of being calculated internally by
+  [`l2w()`](https://sizespectrum.org/mizer/reference/l2w.md) and
+  [`w2l()`](https://sizespectrum.org/mizer/reference/l2w.md) only when
+  needed.
+
+- The `species_params` data frame is now an S3 subclass of `data.frame`
+  (`class = c("species_params", "data.frame")`). It supports
+  class-preserving subsetting and subassignment S3 methods, making it
+  safer to use and paving the way for future auto-recalculations.
+
+- Columns accessed via `$` on a `species_params` or `gear_params` object
+  now return named vectors, where the names are the species names (or
+  “species, gear” row names for `gear_params`). For example,
+  `species_params(params)$w_mat` now returns a named vector making it
+  easier to identify entries. The `species` vector is left unnamed.
+
+- When `sel_func` is set on a `gear_params` object, any argument columns
+  required by that selectivity function (other than `w`,
+  `species_params`, and `...`) are now automatically added as `NA`
+  columns. This means, for example, that setting
+  `gp$sel_func <- "sigmoid_length"` immediately creates the `l25` and
+  `l50` columns, ready to be filled in
+  ([\#431](https://github.com/sizespectrum/mizer/issues/431)).
+
+- Misspelled column names in the `gear_params` and `species_params` data
+  frames are now detected by fuzzy matching against the recognised
+  parameter names. A near miss such as `sel_fun` (instead of `sel_func`)
+  triggers a warning that suggests the intended name, rather than being
+  silently ignored
+  ([\#442](https://github.com/sizespectrum/mizer/issues/442)). Columns
+  are only flagged, never renamed, so legitimate custom columns are left
+  untouched.
+
+See the new
+[`vignette("upgrading")`](https://sizespectrum.org/mizer/articles/upgrading.md)
+(“Upgrading mizer”) for how to adapt existing code to these changes.
+
+### Extension framework
+
+- An installed extension package is now recognised as a dispatching
+  extension from the S3 methods it registers for its marker class (e.g.
+  `getEncounter.mizerMR`), rather than only from a statically defined S4
+  marker class. This lets extension packages omit the static
+  `setClass("mizerFoo", contains = "MizerParams")` and instead let mizer
+  create the marker class dynamically when the package is loaded,
+  inserting it at the correct place in the S4 hierarchy relative to any
+  other extensions loaded in the session. As a result, two independently
+  developed extension packages (for example mizerReef and mizerMR) can
+  now be chained in either load order, which a static
+  sibling-of-`MizerParams` class prevented.
+
+- [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
+  now prepends a genuinely new extension to the front of the object’s
+  `@extensions` chain, keeping it ordered outermost-first to match
+  [`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md).
+  Existing entries stay in place.
+
+### New functions
+
+- New
+  [`adjustSizeGrid()`](https://sizespectrum.org/mizer/reference/adjustSizeGrid.md)
+  function (an S3 generic) adjusts the size grid of a `MizerParams`
+  object to a new minimum and/or maximum size. It can both expand and
+  truncate (shrink) the grid. For each species it warns if truncation
+  discards a non-negligible fraction of the species’ biomass, of the
+  diet of its smallest individuals, or of the diet of its largest
+  individuals.
+
+- Added a `callback` parameter to
+  [`project()`](https://sizespectrum.org/mizer/reference/project.md) to
+  allow user-defined functions to be called at each saved time step.
+
+### Other improvements
+
+- [`library(mizer)`](https://sizespectrum.org/mizer/) now prints a
+  one-line startup message the first time you load a new mizer version,
+  pointing you to `news(package = "mizer")`. It is shown at most once
+  per version and never interrupts a session more than that.
+
+- [`compareParams()`](https://sizespectrum.org/mizer/reference/compareParams.md)
+  now checks that the number of size bins, species and gears agree
+  before comparing the array-valued slots. When they differ it reports
+  the mismatch instead of erroring while trying to compare arrays of
+  incompatible dimensions. It also compares the species-parameter tables
+  by matching species and parameters by name, so differing species no
+  longer produce a long list of per-column length mismatches, and
+  duplicated messages are no longer repeated.
+
+- Error messages that referred to `w_max` as a species’ “maximum size”
+  now correctly describe it as the upper size-grid boundary, consistent
+  with `w_max` being a purely computational parameter.
+
+- [`newSingleSpeciesParams()`](https://sizespectrum.org/mizer/reference/newSingleSpeciesParams.md),
+  [`newTraitParams()`](https://sizespectrum.org/mizer/reference/newTraitParams.md)
+  and
+  [`newCommunityParams()`](https://sizespectrum.org/mizer/reference/newCommunityParams.md)
+  now document why they place the size-grid boundary at the maximum size
+  (`w_max = w_repro_max`): because they do not yet set up stochastic
+  growth by diffusion, no individual grows beyond `w_repro_max`, so no
+  headroom above it is needed. This will be revisited when the
+  constructors gain a diffusion parameter
+  ([\#339](https://github.com/sizespectrum/mizer/issues/339)).
+
+- [`print()`](https://sizespectrum.org/mizer/reference/print.md) on
+  `ArraySpeciesBySize`, `ArrayTimeBySpecies`, `ArrayResourceBySize`,
+  `ArrayTimeByResourceBySize` and `ArrayTimeBySpeciesBySize` objects (as
+  returned by
+  [`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md),
+  [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md),
+  [`getResourceMort()`](https://sizespectrum.org/mizer/reference/getResourceMort.md),
+  [`NResource()`](https://sizespectrum.org/mizer/reference/N.md),
+  [`getFMort()`](https://sizespectrum.org/mizer/reference/getFMort.md)
+  and similar functions) now prints the array’s actual values instead of
+  a per-species min/mean/max summary, truncating large arrays to fit the
+  console: species are shown as a leading subset, sizes as an evenly
+  log-spaced sample across the full size range, and time series as a
+  representative sample of time steps that always includes the first and
+  last, with a note reporting how much was omitted. A three-dimensional
+  `ArrayTimeBySpeciesBySize` object is previewed via its final time
+  slice, matching
+  [`plot()`](https://sizespectrum.org/mizer/reference/plot.md)’s
+  existing default for that class. Use
+  [`as.data.frame()`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
+  for full, untruncated access to the data.
+
+- [`plotYieldGear()`](https://sizespectrum.org/mizer/reference/plotYieldGear.md)
+  now supports `log_x`, `log_y`, and `log` arguments, aligning its
+  arguments with
+  [`plotYield()`](https://sizespectrum.org/mizer/reference/plotYield.md).
+
+- The upper boundary condition of the size-spectrum solvers now holds
+  the abundance at zero above each species’ maximum size `w_max`.
+  Without diffusion this is automatic and results are unchanged, but
+  with predation diffusion switched on it stops a small amount of
+  density leaking to sizes above `w_max`. See the “Numerical Details”
+  vignette.
+
+### Documentation
+
+- The “Getting started” guide now includes a self-contained “A worked
+  example: the Celtic Sea” section that takes a real ecosystem from raw
+  species parameters through building, finding the steady state,
+  calibrating to observed biomasses and growth, checking against
+  observed yields, setting the resilience to fishing, and projecting a
+  fishing scenario whose sustainable-yield curve is interpreted — the
+  whole mizer workflow in one place
+  ([\#450](https://github.com/sizespectrum/mizer/issues/450)).
+
+- The first example in the “Getting started” guide no longer prints the
+  parameter-default notes from
+  [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md),
+  which were alarming to new users out of context
+  ([\#450](https://github.com/sizespectrum/mizer/issues/450)).
+
+- Added three new cheatsheets: “Model Setup and Calibration” (building a
+  model, finding the steady state, calibrating to observed
+  biomass/yield/growth, and projecting), “Fishing” (gears, selectivity
+  functions, catchability, and effort), and “Changing Model Parameters”
+  (the distinction between
+  [`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md),
+  [`calculated_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+  and
+  [`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md),
+  when changing a species parameter updates a size-dependent rate versus
+  freezing it, and how
+  [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
+  and the resource setters differ).
+
+- The analysis-and-plotting cheatsheet now covers the newer plotting
+  functions
+  ([`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
+  [`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md),
+  [`plotSpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md),
+  [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),
+  [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+  [`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md),
+  [`animate()`](https://sizespectrum.org/mizer/reference/animate.md))
+  and the `ArrayResourceBySize` class, and corrects the interactive-plot
+  advice for array objects to use
+  [`plotHover()`](https://sizespectrum.org/mizer/reference/plotHover.md)
+  (they have no
+  [`ggplotly()`](https://rdrr.io/pkg/plotly/man/ggplotly.html) method).
+
+- The reference index on the website now opens with an “Overview: the
+  mizer workflow” section that frames the whole page as a five-stage
+  pipeline (create → calibrate → tune dynamics → project → analyse) with
+  links to the key function in each stage, so readers can see how the
+  sections below fit together.
+
+- The reference index on the website now explains the differences
+  between related families of functions. It disambiguates the
+  `calibrate...()`/`match...()` and `...Biomass`/`...Number` calibration
+  functions and the `plot...()` variants (`...2`, `...Relative`,
+  `...ObservedVsModel`), and maps mizer’s mortality-rate names onto the
+  standard fisheries notation (*M2*, *F*, *Z*).
+
 ## mizer 3.1.0
+
+CRAN release: 2026-06-29
 
 Version 3.1.0 builds on 3.0.0 with an experimental second-order accurate
 numerical scheme in size, additional higher-order time-stepping options,
@@ -289,6 +601,11 @@ and the “Numerical Details” vignette.
   time step. Their dynamics are now integrated with the same time step
   as the consumer and resource spectra, so results no longer depend on
   `t_save`.
+
+- [`getGrowthCurves()`](https://sizespectrum.org/mizer/reference/getGrowthCurves.md)
+  no longer emits a cryptic `collapsing to unique 'x' values` warning
+  when a species’ `w_max` lies exactly on a grid point.
+  ([\#413](https://github.com/sizespectrum/mizer/issues/413))
 
 - [`getRDI()`](https://sizespectrum.org/mizer/reference/getRDI.md),
   [`getRDD()`](https://sizespectrum.org/mizer/reference/getRDD.md) and

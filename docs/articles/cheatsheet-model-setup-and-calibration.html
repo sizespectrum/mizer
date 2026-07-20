@@ -18,8 +18,8 @@
     }
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <script src="../extra.js"></script><meta property="og:title" content="Cheatsheet: Model Setup and Calibration">
@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,6 +59,9 @@
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -124,7 +127,7 @@ function, follow the links.</p>
 <p>Every setter function returns a <strong>new</strong>
 <code>MizerParams</code> object, so always reassign the result
 (<code>params &lt;- steady(params)</code>). Change species parameters
-through <a href="../reference/species_params.html"><code>given_species_params(params) &lt;-</code></a>
+through <a href="../reference/species_params.html"><code>species_params(params) &lt;-</code></a>
 so that dependent quantities are recalculated.</p>
 <hr>
 <div class="section level2">
@@ -212,7 +215,7 @@ all 1)</td>
 </tr>
 <tr class="even">
 <td><code>gear_params</code></td>
-<td>fishing gear definitions (see the fishing cheatsheet)</td>
+<td>fishing gear definitions (see <a href="cheatsheet-fishing.html">Cheatsheet: Fishing</a>)</td>
 </tr>
 <tr class="odd">
 <td>
@@ -225,7 +228,8 @@ default)</td>
 </table>
 <p>Inspect the result with <a href="../reference/summary.html"><code>summary(params)</code></a>, <a href="../reference/species_params.html"><code>species_params(params)</code></a>,
 <a href="../reference/getInteraction.html"><code>getInteraction(params)</code></a>,
-and <a href="../reference/gear_params.html"><code>gear_params(params)</code></a>.</p>
+<a href="../reference/gear_params.html"><code>gear_params(params)</code></a>
+and <a href="../reference/resource_params.html"><code>gear_params(params)</code></a>.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -279,10 +283,9 @@ during that re-tuning.</p>
 <h2 id="calibrating-to-observations">Calibrating to observations<a class="anchor" aria-label="anchor" href="#calibrating-to-observations"></a>
 </h2>
 <p>Supply observations in the species-parameter columns
-<code>biomass_observed</code> and/or <code>yield_observed</code>
-(optionally with <code>biomass_cutoff</code> / <code>yield_cutoff</code>
-size thresholds). Then run the calibration loop, <strong>re-running
-<code><a href="../reference/steady.html">steady()</a></code> after any match/calibrate step</strong>:</p>
+<code>biomass_observed</code> and/or <code>yield_observed</code>. Then
+run the calibration loop, <strong>re-running <code><a href="../reference/steady.html">steady()</a></code> after
+any match/calibrate step</strong>:</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -313,12 +316,6 @@ size thresholds). Then run the calibration loop, <strong>re-running
 <td>total community yield</td>
 </tr>
 <tr class="even">
-<td><a href="../reference/matchYields.html"><code>matchYields(params)</code></a></td>
-<td>per-species abundance</td>
-<td>each <code>yield_observed</code>
-</td>
-</tr>
-<tr class="odd">
 <td><a href="../reference/matchGrowth.html"><code>matchGrowth(params)</code></a></td>
 <td>
 <code>h</code>, <code>gamma</code>, <code>ks</code>,
@@ -340,6 +337,29 @@ between, until both are satisfied.</p>
 <hr>
 </div>
 <div class="section level2">
+<h2 id="when-calibration-misbehaves">When calibration misbehaves<a class="anchor" aria-label="anchor" href="#when-calibration-misbehaves"></a>
+</h2>
+<ul>
+<li>
+<strong>A species collapses to near-zero.</strong> Its mortality
+exceeds the growth it can fund. Check its predation-kernel parameters
+<code>beta</code> and <code>sigma</code>, its row of the interaction
+matrix, and whether its fishing mortality is too high.</li>
+<li>
+<strong><code><a href="../reference/steady.html">steady()</a></code> will not settle.</strong> The initial
+spectrum is probably far from the steady state. Run <a href="../reference/steadySingleSpecies.html"><code>steadySingleSpecies(params)</code></a>
+first to get a sensible starting spectrum, or take a smaller step in
+whatever parameter you changed and re-run.</li>
+</ul>
+<p>Diagnose the fit with</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>                    <span class="co"># sensible, overlapping spectra?</span></span>
+<span><span class="fu"><a href="../reference/plotGrowthCurves.html">plotGrowthCurves</a></span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotBiomassObservedVsModel.html">plotBiomassObservedVsModel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>     <span class="co"># points near the 1:1 line?</span></span>
+<span><span class="fu"><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+<hr>
+</div>
+<div class="section level2">
 <h2 id="density-dependent-reproduction">Density-dependent reproduction<a class="anchor" aria-label="anchor" href="#density-dependent-reproduction"></a>
 </h2>
 <p><a href="../reference/setBevertonHolt.html"><code>setBevertonHolt()</code></a>
@@ -347,7 +367,7 @@ sets how strongly reproduction is density-limited.
 <code>reproduction_level</code> is the fraction of maximum recruitment
 realised at steady state (0 = density independent, closer to 1 =
 strongly limited).</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setBevertonHolt.html">setBevertonHolt</a></span><span class="op">(</span><span class="va">params</span>, reproduction_level <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span></code></pre></div>
 <p>You can instead pass <code>R_max</code>, <code>erepro</code>, or a
 per-species named vector.</p>
@@ -359,7 +379,7 @@ per-species named vector.</p>
 <p><a href="../reference/project.html"><code>project()</code></a> runs
 the model and returns a <code>MizerSim</code>. See the
 analysis-and-plotting cheatsheet for exploring the result.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">20</span>, effort <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
@@ -402,16 +422,6 @@ continue from where it ended.</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="verifying-the-model">Verifying the model<a class="anchor" aria-label="anchor" href="#verifying-the-model"></a>
-</h2>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>                    <span class="co"># sensible, overlapping spectra?</span></span>
-<span><span class="fu"><a href="../reference/plotGrowthCurves.html">plotGrowthCurves</a></span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plotBiomassObservedVsModel.html">plotBiomassObservedVsModel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>     <span class="co"># points near the 1:1 line?</span></span>
-<span><span class="fu"><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
-<hr>
-</div>
-<div class="section level2">
 <h2 id="quick-reference">Quick reference<a class="anchor" aria-label="anchor" href="#quick-reference"></a>
 </h2>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -422,13 +432,11 @@ continue from where it ended.</p>
 <span><span class="co"># ── Steady state ──────────────────────────────────────────────────────────────</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steadySingleSpecies.html">steadySingleSpecies</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>   <span class="co"># fast starting spectrum</span></span>
-<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steadyNewton.html">steadyNewton</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>          <span class="co"># direct solve (experimental)</span></span>
 <span></span>
 <span><span class="co"># ── Calibrate to data (re-run steady() after each) ────────────────────────────</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrateBiomass.html">calibrateBiomass</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>      <span class="co"># total biomass  → kappa</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchBiomasses.html">matchBiomasses</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>        <span class="co"># per-species biomass</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrateYield.html">calibrateYield</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>        <span class="co"># total yield</span></span>
-<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchYields.html">matchYields</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>           <span class="co"># per-species yield</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchGrowth.html">matchGrowth</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>           <span class="co"># growth → h, gamma, ks, k</span></span>
 <span></span>
 <span><span class="co"># ── Reproduction ──────────────────────────────────────────────────────────────</span></span>
@@ -448,7 +456,7 @@ continue from where it ended.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

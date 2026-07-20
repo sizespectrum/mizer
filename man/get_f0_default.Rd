@@ -23,6 +23,10 @@ Only for internal use.
 For species for which no value for \code{gamma} is specified in the species
 parameter data frame, the \code{f0} values is kept as provided in the species
 parameter data frame or it is set to 0.6 if it is not provided.
+
+See the \href{https://sizespectrum.org/mizer/articles/default_parameters.html#f0-default}{Target Feeding Level}
+section of the "Calculation of Default Parameter Values" vignette for the
+mathematical derivation.
 }
 \seealso{
 Other functions calculating defaults:

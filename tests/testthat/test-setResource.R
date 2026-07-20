@@ -5,7 +5,7 @@ test_that("We can set and get resource parameters", {
   # using expect_equal instead of expect_identical because the latter failed
   # on win_builder
   expect_unchanged(params, setResource(params))
-  
+
   # Create example parameters
   resource_rate <- params@w_full
   comment(resource_rate) <- "resource_rate"
@@ -25,10 +25,10 @@ test_that("We can set and get resource parameters", {
   comment(w_pp_cutoff) <- "w_pp_cutoff"
   resource_dynamics <- "resource_constant"
   comment(resource_dynamics) <- "resource_dynamics"
-  params <- setResource(params, resource_rate = resource_rate, 
+  params <- setResource(params, resource_rate = resource_rate,
                         resource_capacity = resource_capacity,
                         lambda = lambda, n = n,
-                        w_pp_cutoff = w_pp_cutoff, 
+                        w_pp_cutoff = w_pp_cutoff,
                         resource_dynamics = resource_dynamics,
                         balance = FALSE)
   expect_identical(params@resource_params$lambda, lambda)
@@ -37,9 +37,9 @@ test_that("We can set and get resource parameters", {
   expect_identical(params@resource_dynamics, resource_dynamics)
   expect_identical(params@rr_pp, resource_rate)
   expect_identical(params@cc_pp, resource_capacity)
-  
+
   # Check that setResource calculates rates correctly
-  params <- setResource(NS_params_small, resource_rate = rr, 
+  params <- setResource(NS_params_small, resource_rate = rr,
                         resource_capacity = cc,
                         lambda = lambda, n = n,
                         w_pp_cutoff = w_pp_cutoff,
@@ -47,7 +47,7 @@ test_that("We can set and get resource parameters", {
   expected <- rr * params@w_full^(n - 1)
   comment(expected) <- comment(rr)
   expect_identical(unname(params@rr_pp), expected)
-  
+
   expected <- cc * params@w_full^(-lambda)
   comment(expected) <- comment(cc)
   expect_equal(expected[params@w_full <= w_pp_cutoff],
@@ -57,10 +57,10 @@ test_that("We can set and get resource parameters", {
 test_that("setResource gives error", {
   expect_error(setResource(NS_params_small, resource_dynamics = "fake"),
                'The resource dynamics function "fake" is not defined.')
-    expect_error(setResource(NS_params_small, 
+    expect_error(setResource(NS_params_small,
                              resource_capacity = 1, resource_level = 2),
                  "You should specify only either")
-    expect_error(setResource(NS_params_small, 
+    expect_error(setResource(NS_params_small,
                              resource_capacity = 1, resource_rate = 2),
                  "You should only provide either")
 })
@@ -127,20 +127,20 @@ test_that("w_pp_cutoff can be decreased without providing carrying_capacity", {
     old_cutoff <- resource_params(params)$w_pp_cutoff
     # Choose a new cutoff that is smaller
     new_cutoff <- old_cutoff / 2
-    
+
     # This should work and cut off both carrying capacity and initial abundance
-    params_new <- setResource(params, w_pp_cutoff = new_cutoff)
-    
+    params_new <- suppressWarnings(setResource(params, w_pp_cutoff = new_cutoff))
+
     # Check that w_pp_cutoff was updated
     expect_equal(resource_params(params_new)$w_pp_cutoff, new_cutoff)
-    
+
     # Check that carrying capacity is zero above the new cutoff
     w_full <- params_new@w_full
     expect_true(all(params_new@cc_pp[w_full >= new_cutoff] == 0))
-    
+
     # Check that initial resource abundance is zero above the new cutoff
     expect_true(all(params_new@initial_n_pp[w_full >= new_cutoff] == 0))
-    
+
     # Check that carrying capacity is non-zero below the new cutoff
     # (at least somewhere)
     expect_true(any(params_new@cc_pp[w_full < new_cutoff] > 0))
@@ -151,7 +151,7 @@ test_that("w_pp_cutoff cannot be increased without providing carrying_capacity",
     old_cutoff <- resource_params(params)$w_pp_cutoff
     # Try to increase the cutoff
     new_cutoff <- old_cutoff * 2
-    
+
     # This should give an error
     expect_error(
         setResource(params, w_pp_cutoff = new_cutoff),
@@ -163,14 +163,14 @@ test_that("w_pp_cutoff can be changed when providing carrying_capacity", {
     params <- NS_params_small
     old_cutoff <- resource_params(params)$w_pp_cutoff
     new_cutoff <- old_cutoff * 2
-    
+
     # This should work when we also provide carrying capacity
-    params_new <- setResource(params, w_pp_cutoff = new_cutoff, 
+    params_new <- setResource(params, w_pp_cutoff = new_cutoff,
                              resource_capacity = 10, balance = FALSE)
-    
+
     # Check that w_pp_cutoff was updated
     expect_equal(resource_params(params_new)$w_pp_cutoff, new_cutoff)
-    
+
     # Check that carrying capacity follows the new cutoff
     w_full <- params_new@w_full
     expect_true(all(params_new@cc_pp[w_full >= new_cutoff] == 0))
@@ -278,13 +278,13 @@ test_that("resource_params<- rebuilds capacity and rate arrays (issue #439)", {
     custom_cc <- 2 * resource_capacity(p3)
     resource_capacity(p3) <- custom_cc
     expect_identical(comment(p3@cc_pp), "set manually")
-    
+
     # Modifying kappa now does not overwrite custom cc_pp array and, because
     # resource_params<- no longer balances, the freeze comment survives too.
     resource_params(p3)$kappa <- 10 * resource_params(p3)$kappa
     expect_equal(resource_capacity(p3), custom_cc, ignore_attr = TRUE)
     expect_identical(comment(p3@cc_pp), "set manually")
-    
+
     # setResource(..., reset = TRUE) resets to scalar-driven capacity
     p4 <- setResource(p3, reset = TRUE)
     expect_null(comment(p4@cc_pp))

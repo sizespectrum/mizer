@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Package index"><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Package index"><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,9 @@
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -79,6 +82,32 @@
     </div>
 
     <div class="section level2">
+      <h2 id="overview-the-mizer-workflow">Overview: the mizer workflow<a class="anchor" aria-label="anchor" href="#overview-the-mizer-workflow"></a></h2>
+
+      <div class="section-desc"><p>mizer builds and simulates dynamic, size-structured models of fish communities. Building and using a model follows five stages, and the reference sections below are organised in roughly this order:</p><ol style="list-style-type: decimal"><li>
+<strong>Create</strong> a model from species and gear parameters, starting with <a href="newMultispeciesParams.html"><code>newMultispeciesParams()</code></a> or one of the simpler <a href="newCommunityParams.html"><code>newCommunityParams()</code></a>, <a href="newTraitParams.html"><code>newTraitParams()</code></a> and <a href="newSingleSpeciesParams.html"><code>newSingleSpeciesParams()</code></a>.</li>
+<li>
+<strong>Calibrate the steady state</strong> so that growth, biomass and yield match observations, with <a href="matchGrowth.html"><code>matchGrowth()</code></a>, <a href="calibrateBiomass.html"><code>calibrateBiomass()</code></a>, <a href="matchBiomasses.html"><code>matchBiomasses()</code></a> and <a href="steady.html"><code>steady()</code></a>.</li>
+<li>
+<strong>Tune the dynamics</strong> so the model responds realistically to perturbations away from the steady state, with <a href="setBevertonHolt.html"><code>setBevertonHolt()</code></a> and <a href="setResource.html"><code>setResource()</code></a>.</li>
+<li>
+<strong>Project</strong> the model forward in time under a fishing scenario, with <a href="project.html"><code>project()</code></a>.</li>
+<li>
+<strong>Analyse and plot</strong> the results, with summary functions such as <a href="getBiomass.html"><code>getBiomass()</code></a> and <a href="getYield.html"><code>getYield()</code></a> and plots such as <a href="plotBiomass.html"><code>plotBiomass()</code></a> and <a href="plotSpectra.html"><code>plotSpectra()</code></a>.</li>
+</ol><p>New users should start with the <a href="https://sizespectrum.org/mizer/articles/mizer.html">Get started guide</a> and the topic <a href="https://sizespectrum.org/mizer/articles/index.html">cheat sheets</a>, or open the package overview page below.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="mizer-package.html">mizer</a></code> <code><a href="mizer-package.html">mizer-package</a></code>
+
+        </dt>
+        <dd>mizer: Multi-species size-based modelling in R</dd>
+      </dl></div><div class="section level2">
       <h2 id="creating-a-new-model">Creating a new model<a class="anchor" aria-label="anchor" href="#creating-a-new-model"></a></h2>
 
       <div class="section-desc"><p>Mizer allows the easy set-up of four different types of models, of increasing level of complexity. See <a href="https://sizespectrum.org/mizer/articles/mizer.html#size-spectrum-models" class="uri">https://sizespectrum.org/mizer/articles/mizer.html#size-spectrum-models</a> for a description of these model types. The <a href="https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html">Model setup and calibration cheatsheet</a> gives a quick overview of the workflow.</p></div>
@@ -127,38 +156,17 @@
 
       <dl><dt>
 
-          <code><a href="species_params.html">species_params()</a></code> <code><a href="species_params.html">`species_params&lt;-`()</a></code> <code><a href="species_params.html">given_species_params()</a></code> <code><a href="species_params.html">`given_species_params&lt;-`()</a></code> <code><a href="species_params.html">calculated_species_params()</a></code>
+          <code><a href="species_params.html">species_params()</a></code> <code><a href="species_params.html">`species_params&lt;-`()</a></code> <code><a href="species_params.html">is.species_params()</a></code> <code><a href="species_params.html">given_species_params()</a></code> <code><a href="species_params.html">is.given_species_params()</a></code> <code><a href="species_params.html">`given_species_params&lt;-`()</a></code> <code><a href="species_params.html">calculated_species_params()</a></code>
 
         </dt>
         <dd>Species parameters</dd>
 
         <dt>
 
-          <code><a href="is.species_params.html">is.species_params()</a></code>
-
-        </dt>
-        <dd>Test if an object is a species_params object</dd>
-
-        <dt>
-
-          <code><a href="is.given_species_params.html">is.given_species_params()</a></code>
-
-        </dt>
-        <dd>Test if an object is a given_species_params object</dd>
-
-        <dt>
-
-          <code><a href="gear_params.html">gear_params()</a></code> <code><a href="gear_params.html">`gear_params&lt;-`()</a></code>
+          <code><a href="gear_params.html">gear_params()</a></code> <code><a href="gear_params.html">`gear_params&lt;-`()</a></code> <code><a href="gear_params.html">is.gear_params()</a></code>
 
         </dt>
         <dd>Gear parameters</dd>
-
-        <dt>
-
-          <code><a href="is.gear_params.html">is.gear_params()</a></code>
-
-        </dt>
-        <dd>Test if an object is a gear_params object</dd>
 
         <dt>
 
@@ -211,13 +219,6 @@
 
         <dt>
 
-          <code><a href="expandSizeGrid.html">expandSizeGrid()</a></code>
-          <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
-        </dt>
-        <dd>Expand the size grid</dd>
-
-        <dt>
-
           <code><a href="adjustSizeGrid.html">adjustSizeGrid()</a></code>
 
         </dt>
@@ -253,7 +254,7 @@
       </dl></div><div class="section level2">
       <h2 id="steady-state-tuning">Steady state tuning<a class="anchor" aria-label="anchor" href="#steady-state-tuning"></a></h2>
 
-      <div class="section-desc"><p>The first task after creating a multi-species model is to tune the model parameters so that in its steady state the model reproduces average observed growth rates, abundances and fisheries yields. The <a href="https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html">Model setup and calibration cheatsheet</a> walks through this calibration workflow.</p></div>
+      <div class="section-desc"><p>The first task after creating a multi-species model is to tune the model parameters so that in its steady state the model reproduces average observed growth rates, abundances and fisheries yields. The <a href="https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html">Model setup and calibration cheatsheet</a> walks through this calibration workflow.</p><p>Two families of functions rescale abundances to match observations. The <code>calibrate...()</code> functions apply a single overall scaling factor to the whole model, whereas the <code>match...()</code> functions rescale each species individually. Within each family, the <code>...Biomass</code> variant matches observed biomasses (a <code>biomass_observed</code> column in the species parameters) while the <code>...Number</code> variant matches observed numbers (a <code>number_observed</code> column). Use <code><a href="../reference/matchGrowth.html">matchGrowth()</a></code> to match observed von Bertalanffy growth, and the <code>plot...ObservedVsModel()</code> functions to see how well the current model reproduces the observations.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -266,13 +267,6 @@
 
         </dt>
         <dd>Set initial values to a steady state for the model</dd>
-
-        <dt>
-
-          <code><a href="steadyNewton.html">steadyNewton()</a></code>
-          <span class="badge lifecycle lifecycle-experimental">experimental</span>
-        </dt>
-        <dd>Find a steady state by directly solving the steady-state equation</dd>
 
         <dt>
 
@@ -379,7 +373,7 @@
       <dl><dt>
 
           <code><a href="setMetadata.html">setMetadata()</a></code> <code><a href="setMetadata.html">getMetadata()</a></code>
-          <span class="badge lifecycle lifecycle-experimental">experimental</span>
+
         </dt>
         <dd>Set metadata for a model</dd>
 
@@ -563,10 +557,17 @@
 
         </dt>
         <dd>Get critical feeding level</dd>
+
+        <dt>
+
+          <code><a href="w.html">w()</a></code> <code><a href="w.html">w_full()</a></code> <code><a href="w.html">dw()</a></code> <code><a href="w.html">dw_full()</a></code>
+
+        </dt>
+        <dd>Size bins</dd>
       </dl></div><div class="section level2">
       <h2 id="calculating-rates">Calculating rates<a class="anchor" aria-label="anchor" href="#calculating-rates"></a></h2>
 
-      <div class="section-desc"><p>Calculate instantaneous ecological rates from a <code>MizerParams</code> object, such as encounter rate, predation mortality, or somatic growth rate.</p></div>
+      <div class="section-desc"><p>Calculate instantaneous ecological rates from a <code>MizerParams</code> object, such as encounter rate, predation mortality, or somatic growth rate.</p><p>For readers coming from single-species fisheries assessment, mizer’s fish mortality rates map onto the standard notation as follows: predation mortality <code><a href="../reference/getPredMort.html">getPredMort()</a></code> is the multi-species analogue of <em>M2</em>, external mortality <code><a href="../reference/setExtMort.html">getExtMort()</a></code> is the residual natural mortality not resolved by the model, fishing mortality <code><a href="../reference/getFMort.html">getFMort()</a></code> is <em>F</em>, and the total mortality <code><a href="../reference/getMort.html">getMort()</a></code> is <em>Z</em>, the sum of all of these. The older names <code><a href="../reference/getM2.html">getM2()</a></code> and <code><a href="../reference/getZ.html">getZ()</a></code> are retained as deprecated aliases for <code><a href="../reference/getPredMort.html">getPredMort()</a></code> and <code><a href="../reference/getMort.html">getMort()</a></code>. Note that <code><a href="../reference/getResourceMort.html">getResourceMort()</a></code> is different in kind: it is the predation mortality imposed by fish <em>on the background resource</em> spectrum, not a component of fish mortality (its deprecated alias is <code><a href="../reference/getM2Background.html">getM2Background()</a></code>).</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -646,7 +647,7 @@
         <dt>
 
           <code><a href="getFluxGradient.html">getFluxGradient()</a></code>
-
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
         <dd>Get flux gradient</dd>
 
@@ -738,7 +739,7 @@
       </dl></div><div class="section level2">
       <h2 id="plotting-results">Plotting results<a class="anchor" aria-label="anchor" href="#plotting-results"></a></h2>
 
-      <div class="section-desc"><p>Visualise size spectra, biomass and yield trajectories, growth curves, and comparisons of model output with observations. See the <a href="https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html">Analysis and plotting cheatsheet</a> for a quick reference.</p></div>
+      <div class="section-desc"><p>Visualise size spectra, biomass and yield trajectories, growth curves, and comparisons of model output with observations. See the <a href="https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html">Analysis and plotting cheatsheet</a> for a quick reference.</p><p>Several plots come in related variants. A plain plot such as <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> shows a single model or simulation. The <code>...2</code> variants (<code><a href="../reference/plotSpectra2.html">plotSpectra2()</a></code>, <code><a href="../reference/plotCDF2.html">plotCDF2()</a></code>) overlay <strong>two</strong> objects in one figure so you can compare them, and the <code>...Relative</code> variants (<code><a href="../reference/plotSpectraRelative.html">plotSpectraRelative()</a></code>) show the ratio between two objects. The <code>...ObservedVsModel</code> functions compare model output against observed data. Most <code>plot...()</code> functions have a matching <code>get...()</code> accessor that returns the underlying data frame if you would rather build the plot yourself.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -754,7 +755,7 @@
 
         <dt>
 
-          <code><a href="plot.html">plot</a></code> <code><a href="plot.html">plot.ArraySpeciesBySize</a></code> <code><a href="plot.html">plot.ArrayTimeBySpecies</a></code> <code><a href="plot.html">plot.ArrayTimeBySpeciesBySize</a></code> <code><a href="plot.html">plot.ArrayResourceBySize</a></code> <code><a href="plot.html">plot.ArrayTimeByResourceBySize</a></code>
+          <code><a href="plot.html">plot</a></code>
 
         </dt>
         <dd>Plot mizer arrays</dd>
@@ -1270,7 +1271,7 @@
       </dl></div><div class="section level2">
       <h2 id="internal-rate-functions">Internal rate functions<a class="anchor" aria-label="anchor" href="#internal-rate-functions"></a></h2>
 
-      <div class="section-desc"><p>These functions are used by project() to calculate instantaneous rates at each time step. You should use the get…() functions instead of the mizer…() functions.</p></div>
+      <div class="section-desc"><p>These functions are used by <code><a href="../reference/project.html">project()</a></code> to calculate instantaneous rates at each time step. You should use the <code>get...()</code> functions instead of the <code>project...()</code> functions.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -1470,6 +1471,13 @@
 
         <dt>
 
+          <code><a href="get_h_default.html">get_h_default()</a></code>
+
+        </dt>
+        <dd>Get default value for h</dd>
+
+        <dt>
+
           <code><a href="get_initial_n.html">get_initial_n()</a></code>
 
         </dt>
@@ -1612,13 +1620,6 @@
 
       <dl><dt>
 
-          <code><a href="mizer-package.html">mizer</a></code> <code><a href="mizer-package.html">mizer-package</a></code>
-
-        </dt>
-        <dd>mizer: Multi-species size-based modelling in R</dd>
-
-        <dt>
-
           <code><a href="MizerParams-class.html">MizerParams-class</a></code>
 
         </dt>
@@ -1626,14 +1627,14 @@
 
         <dt>
 
-          <code><a href="summary.html">summary</a></code> <code><a href="summary.html">summary.ArraySpeciesBySize</a></code> <code><a href="summary.html">summary.ArrayTimeBySpecies</a></code> <code><a href="summary.html">summary.ArrayTimeBySpeciesBySize</a></code> <code><a href="summary.html">summary.MizerSim</a></code> <code><a href="summary.html">summary.MizerParams</a></code>
+          <code><a href="summary.html">summary(<i>&lt;ArraySpeciesBySize&gt;</i>)</a></code> <code><a href="summary.html">summary(<i>&lt;ArrayTimeBySpecies&gt;</i>)</a></code> <code><a href="summary.html">summary(<i>&lt;ArrayTimeBySpeciesBySize&gt;</i>)</a></code> <code><a href="summary.html">summary(<i>&lt;MizerSim&gt;</i>)</a></code> <code><a href="summary.html">summary(<i>&lt;MizerParams&gt;</i>)</a></code>
 
         </dt>
         <dd>Summarise mizer objects</dd>
 
         <dt>
 
-          <code><a href="str.html">str</a></code> <code><a href="str.html">str.ArraySpeciesBySize</a></code> <code><a href="str.html">str.ArrayTimeBySpecies</a></code> <code><a href="str.html">str.ArrayTimeBySpeciesBySize</a></code> <code><a href="str.html">str.MizerSim</a></code> <code><a href="str.html">str.MizerParams</a></code>
+          <code><a href="str.html">str(<i>&lt;ArraySpeciesBySize&gt;</i>)</a></code> <code><a href="str.html">str(<i>&lt;ArrayTimeBySpecies&gt;</i>)</a></code> <code><a href="str.html">str(<i>&lt;ArrayTimeBySpeciesBySize&gt;</i>)</a></code> <code><a href="str.html">str(<i>&lt;MizerSim&gt;</i>)</a></code> <code><a href="str.html">str(<i>&lt;MizerParams&gt;</i>)</a></code>
 
         </dt>
         <dd>Display the structure of mizer objects</dd>
@@ -1644,13 +1645,6 @@
 
         </dt>
         <dd>Compare two MizerParams objects and print out differences</dd>
-
-        <dt>
-
-          <code><a href="w.html">w()</a></code> <code><a href="w.html">w_full()</a></code> <code><a href="w.html">dw()</a></code> <code><a href="w.html">dw_full()</a></code>
-
-        </dt>
-        <dd>Size bins</dd>
 
         <dt>
 
@@ -1689,87 +1683,52 @@
 
         <dt>
 
-          <code><a href="print.html">print</a></code> <code><a href="print.html">print.ArraySpeciesBySize</a></code> <code><a href="print.html">print.ArrayTimeBySpecies</a></code> <code><a href="print.html">print.ArrayTimeBySpeciesBySize</a></code> <code><a href="print.html">print.summary.ArraySpeciesBySize</a></code> <code><a href="print.html">print.summary.ArrayTimeBySpecies</a></code> <code><a href="print.html">print.summary.ArrayTimeBySpeciesBySize</a></code>
+          <code><a href="print.html">print(<i>&lt;ArraySpeciesBySize&gt;</i>)</a></code> <code><a href="print.html">print(<i>&lt;ArrayTimeBySpecies&gt;</i>)</a></code> <code><a href="print.html">print(<i>&lt;ArrayTimeBySpeciesBySize&gt;</i>)</a></code> <code><a href="print.html">print(<i>&lt;summary.ArraySpeciesBySize&gt;</i>)</a></code> <code><a href="print.html">print(<i>&lt;summary.ArrayTimeBySpecies&gt;</i>)</a></code> <code><a href="print.html">print(<i>&lt;summary.ArrayTimeBySpeciesBySize&gt;</i>)</a></code>
 
         </dt>
         <dd>Print mizer objects</dd>
 
         <dt>
 
-          <code><a href="as.data.frame.html">as.data.frame</a></code> <code><a href="as.data.frame.html">as.data.frame.ArraySpeciesBySize</a></code> <code><a href="as.data.frame.html">as.data.frame.ArrayTimeBySpecies</a></code> <code><a href="as.data.frame.html">as.data.frame.ArrayTimeBySpeciesBySize</a></code>
+          <code><a href="as.data.frame.html">as.data.frame(<i>&lt;ArraySpeciesBySize&gt;</i>)</a></code> <code><a href="as.data.frame.html">as.data.frame(<i>&lt;ArrayTimeBySpecies&gt;</i>)</a></code> <code><a href="as.data.frame.html">as.data.frame(<i>&lt;ArrayTimeBySpeciesBySize&gt;</i>)</a></code>
 
         </dt>
         <dd>Convert mizer arrays to data frames</dd>
 
         <dt>
 
-          <code><a href="ArraySpeciesBySize.html">ArraySpeciesBySize()</a></code>
+          <code><a href="ArraySpeciesBySize.html">ArraySpeciesBySize()</a></code> <code><a href="ArraySpeciesBySize.html">is.ArraySpeciesBySize()</a></code>
 
         </dt>
         <dd>S3 class for species x size rate arrays</dd>
 
         <dt>
 
-          <code><a href="is.ArraySpeciesBySize.html">is.ArraySpeciesBySize()</a></code>
-
-        </dt>
-        <dd>Test if an object is a ArraySpeciesBySize</dd>
-
-        <dt>
-
-          <code><a href="ArrayTimeBySpecies.html">ArrayTimeBySpecies()</a></code>
+          <code><a href="ArrayTimeBySpecies.html">ArrayTimeBySpecies()</a></code> <code><a href="ArrayTimeBySpecies.html">is.ArrayTimeBySpecies()</a></code>
 
         </dt>
         <dd>S3 class for time x species arrays</dd>
 
         <dt>
 
-          <code><a href="is.ArrayTimeBySpecies.html">is.ArrayTimeBySpecies()</a></code>
-
-        </dt>
-        <dd>Test if an object is a ArrayTimeBySpecies</dd>
-
-        <dt>
-
-          <code><a href="ArrayTimeBySpeciesBySize.html">ArrayTimeBySpeciesBySize()</a></code>
+          <code><a href="ArrayTimeBySpeciesBySize.html">ArrayTimeBySpeciesBySize()</a></code> <code><a href="ArrayTimeBySpeciesBySize.html">is.ArrayTimeBySpeciesBySize()</a></code>
 
         </dt>
         <dd>S3 class for time x species x size arrays</dd>
 
         <dt>
 
-          <code><a href="is.ArrayTimeBySpeciesBySize.html">is.ArrayTimeBySpeciesBySize()</a></code>
-
-        </dt>
-        <dd>Test if an object is an ArrayTimeBySpeciesBySize</dd>
-
-        <dt>
-
-          <code><a href="ArrayResourceBySize.html">ArrayResourceBySize()</a></code>
+          <code><a href="ArrayResourceBySize.html">ArrayResourceBySize()</a></code> <code><a href="ArrayResourceBySize.html">is.ArrayResourceBySize()</a></code>
 
         </dt>
         <dd>S3 class for resource size spectra</dd>
 
         <dt>
 
-          <code><a href="is.ArrayResourceBySize.html">is.ArrayResourceBySize()</a></code>
-
-        </dt>
-        <dd>Test if an object is an ArrayResourceBySize</dd>
-
-        <dt>
-
-          <code><a href="ArrayTimeByResourceBySize.html">ArrayTimeByResourceBySize()</a></code>
+          <code><a href="ArrayTimeByResourceBySize.html">ArrayTimeByResourceBySize()</a></code> <code><a href="ArrayTimeByResourceBySize.html">is.ArrayTimeByResourceBySize()</a></code>
 
         </dt>
         <dd>S3 class for time x resource-size arrays</dd>
-
-        <dt>
-
-          <code><a href="is.ArrayTimeByResourceBySize.html">is.ArrayTimeByResourceBySize()</a></code>
-
-        </dt>
-        <dd>Test if an object is an ArrayTimeByResourceBySize</dd>
       </dl></div><div class="section level2">
       <h2 id="example-parameter-sets">Example parameter sets<a class="anchor" aria-label="anchor" href="#example-parameter-sets"></a></h2>
 
@@ -1844,6 +1803,13 @@
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Alias for <code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code></dd>
+
+        <dt>
+
+          <code><a href="expandSizeGrid.html">expandSizeGrid()</a></code>
+          <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
+        </dt>
+        <dd>Expand the size grid</dd>
 
         <dt>
 
@@ -1941,7 +1907,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

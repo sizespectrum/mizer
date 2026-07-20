@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Save and restore mizer objects — saveParams"><meta name="description" content="saveParams() saves a MizerParams object to a file. This can then be
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Save and restore mizer objects — saveParams"><meta name="description" content="saveParams() saves a MizerParams object to a file. This can then be
 restored with readParams(). saveSim() and readSim() provide the same
 lifecycle for MizerSim objects."><meta property="og:description" content="saveParams() saves a MizerParams object to a file. This can then be
 restored with readParams(). saveSim() and readSim() provide the same
@@ -17,7 +17,7 @@ lifecycle for MizerSim objects."><meta property="og:image" content="https://size
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,9 @@ lifecycle for MizerSim objects."><meta property="og:image" content="https://size
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -132,10 +135,47 @@ object.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Issues a warning if the model you are saving relies on some custom functions.
-Before saving a model you may want to set its metadata with
-<code><a href="setMetadata.html">setMetadata()</a></code>.</p>
+    <p>While these functions ultimately use <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code> and <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS()</a></code>, they do
+extra work to make the saved file more robust and more portable, so you
+should always prefer them over calling <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>/<code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS()</a></code> directly on a
+mizer object.</p>
     </div>
+    <div class="section level2">
+    <h2 id="what-saveparams-and-savesim-do-beyond-saverds-">What <code>saveParams()</code> and <code>saveSim()</code> do beyond <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code><a class="anchor" aria-label="anchor" href="#what-saveparams-and-savesim-do-beyond-saverds-"></a></h2>
+
+
+<ul><li><p>They <strong>validate</strong> the object before writing it, so a corrupted or
+inconsistent object is caught at save time rather than when you next try
+to use it.</p></li>
+<li><p>They <strong>strip any extension class</strong> and save the object as a plain base
+mizer object (recording which extension packages it needs in a slot).
+This means the file can be read back even in an R session where the
+extension packages that defined those S4 classes are not loaded, and it
+protects the file against future changes to those extension classes.</p></li>
+<li><p>They <strong>check that the required extension packages are installed</strong> and stop
+with an informative error if they are not, so you do not save a file that
+you would be unable to read back.</p></li>
+<li><p>They <strong>warn if the model relies on custom functions</strong> (custom rate,
+dynamics, selectivity or predation-kernel functions that are not provided
+by mizer or a registered extension package). Such functions are not stored
+in the file, so to share the model you also need to share an R script or R
+Markdown file defining them.</p></li>
+</ul><p>Before saving a model you may want to set its metadata with <code><a href="setMetadata.html">setMetadata()</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="what-readparams-and-readsim-do-beyond-readrds-">What <code>readParams()</code> and <code>readSim()</code> do beyond <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS()</a></code><a class="anchor" aria-label="anchor" href="#what-readparams-and-readsim-do-beyond-readrds-"></a></h2>
+
+
+<ul><li><p>They <strong>upgrade</strong> an object saved by an older version of mizer to the
+current structure (see <code><a href="upgradeParams.html">upgradeParams()</a></code>), so that models saved years ago
+still load correctly.</p></li>
+<li><p>They <strong>re-register the extension packages</strong> that the model needs and,
+optionally, install any that are missing (see <code>install_extensions</code>),
+before restoring the object's extension class.</p></li>
+<li><p>They <strong>coerce the object back to its extension class</strong> and revalidate it,
+reversing the class-stripping done at save time so you get back an object
+of the same class you saved.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>"Using mizer extension packages":
@@ -149,7 +189,7 @@ Before saving a model you may want to set its metadata with
 <span class="r-in"><span><span class="fu">saveParams</span><span class="op">(</span><span class="va">NS_params</span>, file <span class="op">=</span> <span class="va">tmp</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">readParams</span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">params</span>, <span class="va">NS_params</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Save and read back a simulation</span></span></span>
 <span class="r-in"><span><span class="va">tmp2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span></span>
@@ -164,7 +204,7 @@ Before saving a model you may want to set its metadata with
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

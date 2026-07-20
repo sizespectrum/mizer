@@ -32,7 +32,14 @@
 #' size, and `erepro` is then adjusted so the initial state satisfies the egg
 #' boundary condition.
 #'
-#' The diffusion rate is set to `0`
+#' The diffusion rate is set to `0`. Because growth is therefore deterministic,
+#' no individual grows beyond `w_repro_max`, the size at which all available
+#' energy is invested into reproduction. The upper boundary of the size grid is
+#' therefore placed at that size, so that `w_max = w_repro_max`, instead of the
+#' `1.5 * w_repro_max` headroom that [newMultispeciesParams()] leaves to
+#' accommodate the stochastic growth produced by diffusion. This choice will be
+#' revisited once these constructors gain a diffusion parameter, see
+#' \url{https://github.com/sizespectrum/mizer/issues/339}.
 #'
 #' @param species_name A string with a name for the species. Will be used in
 #'   plot legends.
@@ -154,6 +161,9 @@ newSingleSpeciesParams <-
     species_params <- data.frame(
         species = species_name,
         w_min = w_min,
+        # Without diffusion nothing grows beyond w_repro_max (= w_inf here), so
+        # the computational grid boundary w_max is placed there too, with no
+        # headroom above the maximum size. To be revisited with diffusion (#339).
         w_inf = w_max,
         w_max = w_max,
         w_mat = w_mat,

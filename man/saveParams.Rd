@@ -38,10 +38,50 @@ restored with \code{readParams()}. \code{saveSim()} and \code{readSim()} provide
 lifecycle for MizerSim objects.
 }
 \details{
-Issues a warning if the model you are saving relies on some custom functions.
-Before saving a model you may want to set its metadata with
-\code{\link[=setMetadata]{setMetadata()}}.
+While these functions ultimately use \code{\link[=saveRDS]{saveRDS()}} and \code{\link[=readRDS]{readRDS()}}, they do
+extra work to make the saved file more robust and more portable, so you
+should always prefer them over calling \code{saveRDS()}/\code{readRDS()} directly on a
+mizer object.
 }
+\section{What \code{saveParams()} and \code{saveSim()} do beyond \code{saveRDS()}}{
+
+\itemize{
+\item They \strong{validate} the object before writing it, so a corrupted or
+inconsistent object is caught at save time rather than when you next try
+to use it.
+\item They \strong{strip any extension class} and save the object as a plain base
+mizer object (recording which extension packages it needs in a slot).
+This means the file can be read back even in an R session where the
+extension packages that defined those S4 classes are not loaded, and it
+protects the file against future changes to those extension classes.
+\item They \strong{check that the required extension packages are installed} and stop
+with an informative error if they are not, so you do not save a file that
+you would be unable to read back.
+\item They \strong{warn if the model relies on custom functions} (custom rate,
+dynamics, selectivity or predation-kernel functions that are not provided
+by mizer or a registered extension package). Such functions are not stored
+in the file, so to share the model you also need to share an R script or R
+Markdown file defining them.
+}
+
+Before saving a model you may want to set its metadata with \code{\link[=setMetadata]{setMetadata()}}.
+}
+
+\section{What \code{readParams()} and \code{readSim()} do beyond \code{readRDS()}}{
+
+\itemize{
+\item They \strong{upgrade} an object saved by an older version of mizer to the
+current structure (see \code{\link[=upgradeParams]{upgradeParams()}}), so that models saved years ago
+still load correctly.
+\item They \strong{re-register the extension packages} that the model needs and,
+optionally, install any that are missing (see \code{install_extensions}),
+before restoring the object's extension class.
+\item They \strong{coerce the object back to its extension class} and revalidate it,
+reversing the class-stripping done at save time so you get back an object
+of the same class you saved.
+}
+}
+
 \examples{
 # Save params to a temporary file and read them back
 tmp <- tempfile(fileext = ".rds")

@@ -18,8 +18,8 @@
     }
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <script src="../extra.js"></script><meta property="og:title" content="Using mizer extension packages">
@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,6 +59,9 @@
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -214,7 +217,7 @@ chain.</p>
 <code><a href="../reference/getBiomass.html">getBiomass()</a></code>, and <code>mizerFoo</code> adds some other
 component. If you load them as:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizerShelf/">mizerShelf</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerFoo</span><span class="op">)</span></span></code></pre></div>
 <p>then <code>mizerFoo</code> is outermost. When
 <code><a href="../reference/getBiomass.html">getBiomass()</a></code> is called, <code>mizerFoo</code>’s version
@@ -224,7 +227,7 @@ mizerFoo’s additions.</p>
 <p>If instead you load them in the opposite order:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerFoo</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizerShelf/">mizerShelf</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span></span></code></pre></div>
 <p>then <code>mizerShelf</code> is outermost. The result is still
 composed of both contributions, but <code>mizerShelf</code> sees the
 result first and can wrap around everything <code>mizerFoo</code>
@@ -291,7 +294,7 @@ builds itself.</p>
 </h3>
 <p>When an extension package creates a new <code>MizerParams</code>
 object (for example, when you call
-<code><a href="https://sizespectrum.org/mizerShelf/reference/newDetritusCarrionParams.html">mizerShelf::newDetritusCarrionParams()</a></code>), it stamps the
+<code>mizerShelf::newDetritusCarrionParams()</code>), it stamps the
 object with the full extension chain that was active at that moment.
 This snapshot is stored in the <code>@extensions</code> slot of the
 params object.</p>
@@ -366,6 +369,20 @@ pass <code>install_extensions = TRUE</code>:</p>
 package (from CRAN or GitHub as appropriate).</p>
 </div>
 <div class="section level2">
+<h2 id="built-in-example-models-from-extension-packages">Built-in example models from extension packages<a class="anchor" aria-label="anchor" href="#built-in-example-models-from-extension-packages"></a>
+</h2>
+<p>Extension packages often ship ready-made <code>MizerParams</code> or
+<code>MizerSim</code> objects as built-in example models. As long as the
+package is written following mizer’s conventions, these objects work
+correctly as soon as you load the package:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span></span>
+<span><span class="va">NWMed_params</span>   <span class="co"># already has the correct extension class — no extra steps needed</span></span></code></pre></div>
+<p>If you ever encounter an object from an older package that does not
+behave as expected, calling <code><a href="../reference/coerceToExtensionClass.html">coerceToExtensionClass()</a></code> on it
+will restore the correct class.</p>
+</div>
+<div class="section level2">
 <h2 id="common-scenarios">Common scenarios<a class="anchor" aria-label="anchor" href="#common-scenarios"></a>
 </h2>
 <div class="section level3">
@@ -376,13 +393,13 @@ package (from CRAN or GitHub as appropriate).</p>
 <p>Either install the package manually
 (<code>pak::pkg_install("sizespectrum/mizerShelf")</code>) or reload
 with:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/saveParams.html">readParams</a></span><span class="op">(</span><span class="st">"my_model.rds"</span>, install_extensions <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="you-want-to-check-what-extensions-a-params-object-requires">You want to check what extensions a params object requires<a class="anchor" aria-label="anchor" href="#you-want-to-check-what-extensions-a-params-object-requires"></a>
 </h3>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span><span class="op">@</span><span class="va">extensions</span></span></code></pre></div>
 <p>The names are the package names; the values tell you where to get
 each one.</p>
@@ -392,9 +409,9 @@ each one.</p>
 </h3>
 <p>Call <code><a href="../reference/clearExtensionChain.html">clearExtensionChain()</a></code>, then reload in the order you
 want. You do not need to restart R.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/clearExtensionChain.html">clearExtensionChain</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizerShelf/">mizerShelf</a></span><span class="op">)</span>   <span class="co"># innermost (loaded first)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span>   <span class="co"># innermost (loaded first)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerFoo</span><span class="op">)</span>     <span class="co"># outermost (loaded last)</span></span></code></pre></div>
 <p>After reloading, create or re-read your params objects so they pick
 up the new chain.</p>
@@ -424,6 +441,7 @@ others.</li>
 <li><code><a href="../reference/registerExtensions.html">?registerExtensions</a></code></li>
 <li><code><a href="../reference/getRegisteredExtensions.html">?getRegisteredExtensions</a></code></li>
 <li><code><a href="../reference/clearExtensionChain.html">?clearExtensionChain</a></code></li>
+<li><code><a href="../reference/coerceToExtensionClass.html">?coerceToExtensionClass</a></code></li>
 <li><code><a href="../reference/saveParams.html">?saveParams</a></code></li>
 <li><code><a href="../reference/saveParams.html">?readParams</a></code></li>
 <li><code><a href="../reference/saveParams.html">?saveSim</a></code></li>
@@ -437,7 +455,7 @@ others.</li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

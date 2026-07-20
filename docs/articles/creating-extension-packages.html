@@ -18,8 +18,8 @@
     }
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <script src="../extra.js"></script><meta property="og:title" content="Creating a mizer extension package">
@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,6 +59,9 @@
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -371,12 +374,55 @@ chain: <code>c(mizerOuter = "0.3.0", mizerShelf = "1.0.0")</code>
 chain, so dispatch proceeds in the right order automatically.</p>
 </div>
 <div class="section level3">
+<h3 id="bundled-data-objects">Bundled data objects<a class="anchor" aria-label="anchor" href="#bundled-data-objects"></a>
+</h3>
+<p>If your package ships a ready-made <code>MizerParams</code> or
+<code>MizerSim</code> object in its <code>data/</code> directory, you
+need one extra step in <code>.onLoad</code>. R’s lazy-loading mechanism
+delivers data objects exactly as they were serialised, without calling
+<code><a href="../reference/coerceToExtensionClass.html">coerceToExtensionClass()</a></code>. If you do nothing, users get a
+plain <code>MizerParams</code> with the wrong S4 class and method
+dispatch silently misfires.</p>
+<p>The fix is to replace the lazy-loaded binding with an <strong>active
+binding</strong> that calls <code><a href="../reference/coerceToExtensionClass.html">coerceToExtensionClass()</a></code> on
+every access. Because the coercion happens at the moment the user
+touches the object, it always reflects the full extension chain that is
+active at that point — including any other extension packages the user
+loaded after yours.</p>
+<p>Add this to your <code>.onLoad</code>, once per bundled params or sim
+object:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">mizer</span><span class="fu">::</span><span class="fu"><a href="../reference/registerExtension.html">registerExtension</a></span><span class="op">(</span><span class="va">pkgname</span>, requirement <span class="op">=</span> <span class="st">"owner/myExtensionPackage"</span><span class="op">)</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html" class="external-link">exists</a></span><span class="op">(</span><span class="st">"my_example_params"</span>, envir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ns-internal.html" class="external-link">asNamespace</a></span><span class="op">(</span><span class="va">pkgname</span><span class="op">)</span>, inherits <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="va">ns</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ns-internal.html" class="external-link">asNamespace</a></span><span class="op">(</span><span class="va">pkgname</span><span class="op">)</span></span>
+<span>        <span class="va">raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/get.html" class="external-link">get</a></span><span class="op">(</span><span class="st">"my_example_params"</span>, envir <span class="op">=</span> <span class="va">ns</span><span class="op">)</span>   <span class="co"># capture the raw object once</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/bindenv.html" class="external-link">makeActiveBinding</a></span><span class="op">(</span><span class="st">"my_example_params"</span>,</span>
+<span>                          fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="fu">mizer</span><span class="fu">::</span><span class="fu"><a href="../reference/coerceToExtensionClass.html">coerceToExtensionClass</a></span><span class="op">(</span><span class="va">raw</span><span class="op">)</span>,</span>
+<span>                          env <span class="op">=</span> <span class="va">ns</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>After this, users can write <code>myPackage::my_example_params</code>
+(or simply <code>my_example_params</code> after
+<code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(myPackage)</a></code>) and always get a properly classed
+object, with no extra steps on their part.</p>
+<blockquote>
+<p><strong>Why not just do
+<code>my_example_params &lt;&lt;- coerceToExtensionClass(...)</code> in
+<code>.onLoad</code>?</strong> That coercion runs when <em>your</em>
+package loads, at which point only your extension is in the chain. If
+the user then loads a second extension package, the chain grows, but the
+already-promoted object is never updated. <code>makeActiveBinding</code>
+avoids this by re-running the coercion on every access.</p>
+</blockquote>
+</div>
+<div class="section level3">
 <h3 id="writing-methods-that-call-nextmethod">Writing methods that call <code>NextMethod()</code><a class="anchor" aria-label="anchor" href="#writing-methods-that-call-nextmethod"></a>
 </h3>
 <p>Here is <code>getBiomass.mizerShelf</code> from mizerShelf. It calls
 <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> first to get the standard mizer result, then
 appends the detritus and carrion biomasses:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' @method getBiomass mizerShelf</span></span>
 <span><span class="co">#' @export</span></span>
 <span><span class="va">getBiomass.mizerShelf</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
@@ -398,7 +444,7 @@ and carrion without any further changes.</p>
 <p>Always register S3 methods in your package’s <code>NAMESPACE</code>
 file. The roxygen2 <code>@method</code> tag does this for you
 automatically:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' @method getBiomass mizerShelf</span></span>
 <span><span class="co">#' @export</span></span>
 <span><span class="va">getBiomass.mizerShelf</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span> <span class="va">...</span> <span class="op">}</span></span></code></pre></div>
@@ -408,7 +454,7 @@ automatically:</p>
 </h3>
 <p>Users who write mizer extensions often start by replacing one of the
 built-in rate functions with <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code>:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">myEncounter</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">n_pp</span>, <span class="va">n_other</span>, <span class="va">t</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">enc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mizerEncounter.html">mizerEncounter</a></span><span class="op">(</span><span class="va">params</span>, n <span class="op">=</span> <span class="va">n</span>, n_pp <span class="op">=</span> <span class="va">n_pp</span>, n_other <span class="op">=</span> <span class="va">n_other</span>, t <span class="op">=</span> <span class="va">t</span>, <span class="va">...</span><span class="op">)</span></span>
 <span>    <span class="va">enc</span> <span class="op">+</span> <span class="fu">extraEncounter</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">n_pp</span>, <span class="va">n_other</span>, <span class="va">t</span>, <span class="va">...</span><span class="op">)</span></span>
@@ -495,7 +541,7 @@ Define a method for whichever rate your extension modifies:</p>
 </h4>
 <p>Remove the <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code> call from your constructor
 and define a method for your marker class instead:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' @method projectEncounter mizerMyExtension</span></span>
 <span><span class="co">#' @export</span></span>
 <span><span class="va">projectEncounter.mizerMyExtension</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">n_pp</span>, <span class="va">n_other</span>,</span>
@@ -548,12 +594,12 @@ limitation for your users.</p>
 </h3>
 <p>A constructor function that returns a <code>mizerShelf</code> object
 must end with these two lines:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span><span class="op">@</span><span class="va">extensions</span> <span class="op">&lt;-</span> <span class="fu">mizer</span><span class="fu">::</span><span class="fu"><a href="../reference/getRegisteredExtensions.html">getRegisteredExtensions</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">mizer</span><span class="fu">::</span><span class="fu"><a href="../reference/coerceToExtensionClass.html">coerceToExtensionClass</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <p>Here is how <code>newDetritusCarrionParams()</code> uses them in
 mizerShelf:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">newDetritusCarrionParams</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">species_params</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span>, <span class="va">...</span>,</span>
 <span>                                    resource_dynamics <span class="op">=</span> <span class="st">"detritus_dynamics"</span><span class="op">)</span></span>
@@ -623,7 +669,7 @@ creates its output it calls <code><a href="../reference/MizerSim.html">MizerSim(
 <code>@extensions</code> set, mizer knows to promote the sim to
 <code>mizerShelfSim</code> automatically.</p>
 <p>This means that after:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">NWMed_params</span>, t_max <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><code>sim</code> is already of class <code>mizerShelfSim</code>, and
 any method you have defined for that class — such as
@@ -637,34 +683,42 @@ automatically.</p>
 <p>When building a dispatching extension package, verify the
 following:</p>
 <ul class="task-list">
-<li><label><input type="checkbox">Define both
+<li><p><label><input type="checkbox">Define both
 <code>setClass("&lt;myExtension&gt;", contains = "MizerParams")</code>
 and
 <code>setClass("&lt;myExtension&gt;Sim", contains = "MizerSim")</code>
-with no new slots.</label></li>
-<li><label><input type="checkbox">Call
+with no new slots.</label></p></li>
+<li><p><label><input type="checkbox">Call
 <code>mizer::registerExtension(pkgname, requirement = ...)</code> in
-<code>.onLoad</code>.</label></li>
-<li><label><input type="checkbox">End every constructor with
+<code>.onLoad</code>.</label></p></li>
+<li><p><label><input type="checkbox">For every
+<code>MizerParams</code> or <code>MizerSim</code> object bundled in
+<code>data/</code>, add a <code><a href="https://rdrr.io/r/base/bindenv.html" class="external-link">makeActiveBinding()</a></code> call in
+<code>.onLoad</code> so the object is coerced to the correct extension
+class on access. See <a href="#bundled-data-objects">Bundled data
+objects</a>.</label></p></li>
+<li><p><label><input type="checkbox">End every constructor with
 <code>params@extensions &lt;- getRegisteredExtensions()</code> and
-<code>coerceToExtensionClass(params)</code>.</label></li>
-<li><label><input type="checkbox">Register every S3 method in
+<code>coerceToExtensionClass(params)</code>.</label></p></li>
+<li><p><label><input type="checkbox">Register every S3 method in
 <code>NAMESPACE</code> (via <code>@method</code> +
-<code>@export</code>).</label></li>
-<li><label><input type="checkbox">Call <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> in
-every method override.</label></li>
-<li><label><input type="checkbox">For each rate the package modifies
-during projection, define a <code>project*</code> method
+<code>@export</code>).</label></p></li>
+<li><p><label><input type="checkbox">Call <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> in
+every method override.</label></p></li>
+<li><p><label><input type="checkbox">For each rate the package
+modifies during projection, define a <code>project*</code> method
 (e.g. <code>projectEncounter.mizerMyExtension</code>) rather than
 calling <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code>. See <a href="#replacing-setratefunction-with-method-dispatch">Replacing
-<code>setRateFunction()</code> with method dispatch</a>.</label></li>
-<li><label><input type="checkbox">Store all extension-specific state
-in <code>other_params(params)</code> or in new components created with
-<code><a href="../reference/setComponent.html">setComponent()</a></code>, never in new S4 slots.</label></li>
-<li><label><input type="checkbox">Run mizer’s own test suite against
-an object of your subclass to check that your overrides do not break
-core behaviour. See <a href="#running-mizers-test-suite-against-your-subclass">Running mizer’s
-test suite against your subclass</a>.</label></li>
+<code>setRateFunction()</code> with method
+dispatch</a>.</label></p></li>
+<li><p><label><input type="checkbox">Store all extension-specific
+state in <code>other_params(params)</code> or in new components created
+with <code><a href="../reference/setComponent.html">setComponent()</a></code>, never in new S4
+slots.</label></p></li>
+<li><p><label><input type="checkbox">Run mizer’s own test suite
+against an object of your subclass to check that your overrides do not
+break core behaviour. See <a href="#running-mizers-test-suite-against-your-subclass">Running mizer’s
+test suite against your subclass</a>.</label></p></li>
 </ul>
 <p>For metadata-only packages, only the second and third items apply
 (and <code><a href="../reference/coerceToExtensionClass.html">coerceToExtensionClass()</a></code> is not needed — just record
@@ -693,7 +747,7 @@ run the suite.</p>
 <p>The test files are not part of the installed package, so clone the
 mizer source and check out the tag or commit that matches your installed
 version:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html" class="external-link">packageVersion</a></span><span class="op">(</span><span class="st">"mizer"</span><span class="op">)</span>   <span class="co"># note this, then `git checkout` the matching tag</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -713,7 +767,7 @@ namespace, attached packages are not on the lookup path there, so:</p>
 <p>For example, <a href="https://github.com/sizespectrum/mizerMR" class="external-link">mizerMR</a> (which adds
 multiple resources) converts the single resource into two resources like
 this:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizerMR">mizerMR</a></span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/eval.html" class="external-link">local</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>    <span class="va">p1</span> <span class="op">&lt;-</span> <span class="va">NS_params_small</span></span>
@@ -750,7 +804,7 @@ fails in <code><a href="../reference/validParams.html">validParams()</a></code> 
 extensions but no compatible extension chain is registered”</em>. This
 is an artefact of the shared session, not a problem with your extension,
 so exclude those files before running:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chain_tests</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"test-extension-dispatch.R"</span>,</span>
 <span>                 <span class="st">"test-registerExtensions.R"</span>,</span>
 <span>                 <span class="st">"test-io.R"</span><span class="op">)</span></span>
@@ -765,14 +819,14 @@ so exclude those files before running:</p>
 <code><a href="https://testthat.r-lib.org/reference/test_dir.html" class="external-link">testthat::test_dir()</a></code>: it calls <code>load_all()</code>,
 which is required because some mizer tests use mizer’s internal
 (unexported) functions.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">test</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-5-restore-the-source">Step 5: Restore the source<a class="anchor" aria-label="anchor" href="#step-5-restore-the-source"></a>
 </h3>
 <p>The edits above are only for this experiment. Undo them with:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># from the mizer source root</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"git checkout tests/testthat"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -808,7 +862,7 @@ directly. Stamp the installed version <strong>only</strong> when you
 create your component (or when you upgrade the object); for ordinary
 modifications call <code><a href="../reference/recordExtension.html">recordExtension()</a></code> without a
 <code>version</code>, so the existing stamp is preserved:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># in your setup function, when the component is first created:</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recordExtension.html">recordExtension</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"myExtension"</span>,</span>
 <span>                          version <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html" class="external-link">packageVersion</a></span><span class="op">(</span><span class="st">"myExtension"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -829,7 +883,7 @@ must be idempotent, must <strong>not</strong> call
 <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code>, and must <strong>not</strong> touch the
 version stamp — mizer’s orchestrator re-stamps the object after calling
 your method.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' @exportS3Method utils::upgrade</span></span>
 <span><span class="va">upgrade.myExtension</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="co"># Detect the old layout structurally and migrate it. Safe to run twice.</span></span>
@@ -890,7 +944,7 @@ session or in a model object.</li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

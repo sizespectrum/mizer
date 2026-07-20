@@ -34,9 +34,6 @@ described in the section "Setting maximum intake rate".}
     \item{\code{metab}}{Optional. An array (species x size) holding the metabolic rate
 for each species at size. If not supplied, a default is set as described in
 the section "Setting metabolic rate".}
-    \item{\code{p}}{The allometric metabolic exponent. This is only used if \code{metab}
-is not given explicitly and if the exponent is not specified in a \code{p}
-column in the \code{species_params}.}
     \item{\code{ext_mort}}{Optional. An array (species x size) holding the external
 mortality rate.  If not supplied, a default is set as described in the
 section "Setting external mortality rate".}
@@ -93,7 +90,7 @@ See the Details section below for a discussion of how to use this function.
 }
 \details{
 If you are not happy with the assumptions that mizer makes by default about
-the shape of the model functions, for example if you want to change one of
+the size-dependence of parameters, for example if you want to change one of
 the allometric scaling assumptions, you can do this by providing your
 choice as an array in the appropriate argument to \code{setParams()}. The
 sections below discuss all the model functions that you can change this way.
@@ -103,7 +100,7 @@ changes to the \code{params} object that you pass to it but instead returns a ne
 params object. So to affect the change you call the function in the form
 \code{params <- setParams(params, ...)}.
 
-Usually, if you are happy with the way mizer calculates its model functions
+Usually, if you are happy with the way mizer calculates the size-dependent parameters
 from the species parameters and only want to change the values of some
 species parameters, you would make those changes in the \code{species_params} data
 frame contained in the \code{params} object using \code{\link[=species_params<-]{species_params<-()}}.
@@ -118,7 +115,7 @@ Internally that will actually call \code{setParams()} to recalculate any of the
 other parameters that are affected by the change in the species parameter.
 
 \code{setParams()} will use the species parameters in the \code{params} object to
-recalculate the values of all the model functions except those for which you
+recalculate the values of all the parameter arrays except those for which you
 have set custom values.
 }
 \section{Units in mizer}{
@@ -313,7 +310,7 @@ where \eqn{k_s w^p} represents the rate of standard metabolism and \eqn{k w}
 is the rate at which energy is expended on activity and movement. The values
 of \eqn{k_s}, \eqn{p} and \eqn{k} are taken from the \code{ks}, \code{p} and
 \code{k} columns in the species parameter dataframe. If any of these
-parameters are not supplied, the defaults are \eqn{k = 0}, \eqn{p = 3/4} and
+parameters are not supplied, the defaults are \eqn{k = 0}, \eqn{p = n} and
 \deqn{k_s = f_c h \alpha w_{mat}^{n-p},}{k_s = f_c * h * alpha * w_mat^(n - p),}
 where \eqn{f_c} is the critical feeding level taken from the \code{fc} column
 in the species parameter data frame. If the critical feeding level is not

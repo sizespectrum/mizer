@@ -18,8 +18,8 @@
     }
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <script src="../extra.js"></script><meta property="og:title" content="Cheatsheet: Fishing">
@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,6 +59,9 @@
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -186,19 +189,15 @@ each with its own length-based selectivity:</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p>This replaces the whole gear table; mizer generates the
 <code>"species, gear"</code> row names for you.</p>
-<p>If each species is caught by only one gear, the gear columns may
-instead be supplied within <code>species_params</code> when building the
-model; mizer copies them into <code>gear_params</code>. Later edits to
-those <code>species_params</code> columns do <strong>not</strong>
-propagate — edit <code>gear_params</code> after construction.</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="selectivity-functions">Selectivity functions<a class="anchor" aria-label="anchor" href="#selectivity-functions"></a>
 </h2>
-<p>Each selectivity function takes <code>w</code> as its first argument
-and returns a value in <code>[0, 1]</code> at each size. Its other
-arguments must appear as columns in <code>gear_params</code>.</p>
+<p>The selectivity function determines the size-dependence of fishing
+mortality. Each selectivity function takes <code>w</code> as its first
+argument and returns a value in <code>[0, 1]</code> at each size. Its
+other arguments must appear as columns in <code>gear_params</code>.</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -292,8 +291,7 @@ express the shape you need — set them by hand.</p>
 </table>
 <p>The bare and <code>get</code>-prefixed names are equivalent; use
 whichever reads better. Each has a matching setter that pushes an array
-straight into the model (this routes through <code><a href="../reference/setFishing.html">setFishing()</a></code>,
-so validation still runs):</p>
+straight into the model:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setFishing.html">catchability</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>                       <span class="co"># gear × species matrix of Q</span></span>
 <span><span class="fu"><a href="../reference/setFishing.html">selectivity</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="st">"Otter"</span>, <span class="st">"Cod"</span>, <span class="op">]</span>      <span class="co"># the S curve for one gear–species pair</span></span>
@@ -403,7 +401,7 @@ with numeric, increasing row names and gear column names:</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

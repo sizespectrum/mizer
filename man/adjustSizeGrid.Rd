@@ -36,9 +36,14 @@ should be copied over to the new params object rather than being
 re-calculated from the species parameters. If missing, all species are
 preserved.}
 
-\item{tol}{A numeric value specifying the tolerance for lost biomass.
-If the fraction of species biomass or resource biomass lost due to
-truncation exceeds this value, a warning is raised. Defaults to \code{1e-6}.}
+\item{tol}{A numeric value specifying the tolerance for truncation losses.
+The following checks are made separately for each species and a warning is
+raised, listing the affected species, if the lost fraction exceeds this
+value for any of them: the fraction of the species' biomass lost, the
+fraction of the diet of the smallest individuals of the species lost to
+resource truncation, and the fraction of the diet of the largest
+individuals of the species lost to resource truncation. Defaults to
+\code{1e-6}.}
 }
 \value{
 A new \link{MizerParams} object with the updated size grid.

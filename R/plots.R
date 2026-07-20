@@ -35,6 +35,13 @@
 #'   time-by-species-by-size array, such as those returned by [getFMort()] or
 #'   [getPredMort()] on a `MizerSim`.
 #'
+#' * `plot(<ArrayResourceBySize>)` plots a resource array, such as
+#'   those returned by [getResourceMort()], against body size.
+#'
+#' * `plot(<ArrayTimeByResourceBySize>)` plots a time slice from a
+#'   time-by-resource array, such as that returned by [NResource()] on a
+#'   `MizerSim`, against body size.
+#'
 #' The same array objects can be passed to [plotHover()] to produce
 #' hover-enabled plotly versions, for example `plotHover(getBiomass(sim))` or
 #' `plotHover(getEncounter(params))`. To add another compatible array to an
@@ -288,6 +295,30 @@ make_mizer_plot <- function(plot, tooltip) {
     plot
 }
 
+#' Print a mizer plot
+#'
+#' Suppresses the uninformative ggplot2 warning about log transformations
+#' introducing infinite values, which occurs when zero values are present
+#' on a logged axis.
+#'
+#' @param x A `mizer_plot` object.
+#' @param ... Further arguments passed to the ggplot2 print method.
+#' @return The plot object, invisibly.
+#' @export
+print.mizer_plot <- function(x, ...) {
+    class(x) <- setdiff(class(x), "mizer_plot")
+    withCallingHandlers(
+        print(x, ...),
+        warning = function(w) {
+            if (grepl("transformation introduced infinite values",
+                      conditionMessage(w))) {
+                tryInvokeRestart("muffleWarning")
+            }
+        }
+    )
+    invisible(x)
+}
+
 #' Determine the tooltip variables for a mizer plot
 #'
 #' Works out which variables should appear in the plotly tooltip, including the
@@ -339,7 +370,15 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
                                  tooltip = attr(x, "mizer_tooltip") %||%
                                      "all") {
     class(x) <- setdiff(class(x), "mizer_plot")
-    plotly::ggplotly(x, ..., tooltip = tooltip)
+    withCallingHandlers(
+        plotly::ggplotly(x, ..., tooltip = tooltip),
+        warning = function(w) {
+            if (grepl("transformation introduced infinite values",
+                      conditionMessage(w))) {
+                tryInvokeRestart("muffleWarning")
+            }
+        }
+    )
 }
 
 #' Make a plot comparing two data frames
@@ -2930,8 +2969,6 @@ plot_growth_curves <- function(params, species,
             stop("The size at age data frame needs to have either a 'length' or a 'weight' column.")
         }
         if (!"weight" %in% names(size_at_age)) {
-            sp <- set_species_param_default(sp, "a", 0.004, message = "Using a = 0.004 for missing weight-length conversion parameters.")
-            sp <- set_species_param_default(sp, "b", 3, message = "Using b = 3 for missing weight-length conversion parameters.")
             size_at_age <- left_join(size_at_age, select(sp, species, a, b),
                                      by = "species")
             size_at_age$weight <- size_at_age$a * size_at_age$length ^ size_at_age$b

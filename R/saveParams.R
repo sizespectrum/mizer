@@ -4,9 +4,43 @@
 #' restored with `readParams()`. `saveSim()` and `readSim()` provide the same
 #' lifecycle for MizerSim objects.
 #'
-#' Issues a warning if the model you are saving relies on some custom functions.
-#' Before saving a model you may want to set its metadata with
-#' [setMetadata()].
+#' While these functions ultimately use [saveRDS()] and [readRDS()], they do
+#' extra work to make the saved file more robust and more portable, so you
+#' should always prefer them over calling `saveRDS()`/`readRDS()` directly on a
+#' mizer object.
+#'
+#' @section What `saveParams()` and `saveSim()` do beyond `saveRDS()`:
+#'
+#' - They **validate** the object before writing it, so a corrupted or
+#'   inconsistent object is caught at save time rather than when you next try
+#'   to use it.
+#' - They **strip any extension class** and save the object as a plain base
+#'   mizer object (recording which extension packages it needs in a slot).
+#'   This means the file can be read back even in an R session where the
+#'   extension packages that defined those S4 classes are not loaded, and it
+#'   protects the file against future changes to those extension classes.
+#' - They **check that the required extension packages are installed** and stop
+#'   with an informative error if they are not, so you do not save a file that
+#'   you would be unable to read back.
+#' - They **warn if the model relies on custom functions** (custom rate,
+#'   dynamics, selectivity or predation-kernel functions that are not provided
+#'   by mizer or a registered extension package). Such functions are not stored
+#'   in the file, so to share the model you also need to share an R script or R
+#'   Markdown file defining them.
+#'
+#' Before saving a model you may want to set its metadata with [setMetadata()].
+#'
+#' @section What `readParams()` and `readSim()` do beyond `readRDS()`:
+#'
+#' - They **upgrade** an object saved by an older version of mizer to the
+#'   current structure (see [upgradeParams()]), so that models saved years ago
+#'   still load correctly.
+#' - They **re-register the extension packages** that the model needs and,
+#'   optionally, install any that are missing (see `install_extensions`),
+#'   before restoring the object's extension class.
+#' - They **coerce the object back to its extension class** and revalidate it,
+#'   reversing the class-stripping done at save time so you get back an object
+#'   of the same class you saved.
 #'
 #' @param params A MizerParams object
 #' @param file The name of the file or a connection where the object is saved

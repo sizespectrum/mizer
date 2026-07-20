@@ -19,6 +19,19 @@ test_that("setExtEncounter works", {
     expect_false(identical(params@time_modified, p2@time_modified))
 })
 
+test_that("setExtEncounter defaults E_ext to 0", {
+    # setExtEncounter owns the E_ext default, so it must supply it even when
+    # called standalone, without going through setParams()/validParams().
+    params <- NS_params_small
+    params@species_params$E_ext <- NULL
+
+    p2 <- setExtEncounter(params, reset = TRUE)
+
+    expect_equal(p2@species_params$E_ext, rep(0, nrow(p2@species_params)),
+                 ignore_attr = TRUE)
+    expect_equal(p2@ext_encounter, p2@ext_encounter * 0, ignore_attr = TRUE)
+})
+
 test_that("setExtEncounter uses E_ext species param", {
     params <- NS_params_small
     species_params(params)$E_ext <- 0.1

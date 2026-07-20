@@ -1,8 +1,6 @@
 Acad
 ArrayResourceBySize
 ArraySpeciesBySize
-ArrayTimeByResourceBySize
-ArrayTimeBySpecies
 ArrayTimeBySpeciesBySize
 Askaroff
 Ax
@@ -12,7 +10,6 @@ Bertalanffy
 Beverton
 BevertonHoltRDD
 Beyer
-Broyden
 CFL
 CLT
 CN
@@ -38,13 +35,13 @@ EBFM
 Ecopath
 Ecosim
 FFTs
+FishBase
 Foerster
 Friedrichs
 Giacomini
 Godunov's
 Hinzen
 Holling
-Jacobians
 Jefcoats
 Kira
 Lenfest
@@ -109,6 +106,7 @@ bycatch
 camelCase
 catchability
 cheatsheet
+cheatsheets
 cjfas
 coefs
 color
@@ -138,6 +136,7 @@ eff
 encounter's
 eq
 eqn
+erroring
 etc
 eu
 faf
@@ -152,6 +151,7 @@ getPredKernel
 getPredMort
 gganimate
 ggplot
+ggplots
 gonadic
 iR
 idx
@@ -189,6 +189,7 @@ mizerExperimental
 mizerExtensionTemplate
 mizerFoo's
 mizerMR
+mizerReef
 mizerSeasonal
 mizerShelf
 mizerShelf's
@@ -199,6 +200,7 @@ modeling
 mort
 mup
 mupp
+namespace's
 neq
 nonlinear
 nonzero
@@ -235,9 +237,9 @@ sizespectrum
 sp
 spawners
 st
-steadyNewton
 steadySingleSpecies
 stochasticity
+subassignment
 subclassing
 testthat
 tfrac

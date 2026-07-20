@@ -18,8 +18,8 @@
     }
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <script src="../extra.js"></script><meta property="og:title" content="The Single-Species Model">
@@ -37,7 +37,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,13 @@
     <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -644,21 +650,18 @@ an individual invests into reproduction scales with its size.</li>
 <code><a href="../reference/species_params.html">species_params()</a></code> function.</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##                       species w_min w_inf w_max    w_mat w_min_idx  h    gamma</span></span>
-<span><span class="co">## Target species Target species 0.001   100   100 25.11886         1 30 2066.004</span></span>
-<span><span class="co">##                ks  f0   fc beta sigma z0 alpha   erepro    n    p w_repro_max</span></span>
-<span><span class="co">## Target species  3 0.6 0.25  100   1.3  0   0.4 0.899483 0.75 0.75         100</span></span>
-<span><span class="co">##                interaction_resource    z_ext     d E_ext D_ext is_background</span></span>
-<span><span class="co">## Target species                    1 3.896875 -0.25     0     0         FALSE</span></span>
-<span><span class="co">##                pred_kernel_type k   q  w_mat25 m R_max</span></span>
-<span><span class="co">## Target species        lognormal 0 0.8 22.50546 1   Inf</span></span></code></pre>
+<pre><code><span><span class="co">## An object of class "species_params" containing parameters for 1 species:</span></span>
+<span><span class="co">##         species w_inf    w_mat  h ks z0    z_ext</span></span>
+<span><span class="co">##  Target species   100 25.11886 30  3  0 3.896875</span></span>
+<span><span class="co">## With 24 other parameters: w_min, w_max, w_min_idx, gamma, f0, fc, beta, sigma, alpha, erepro, n, p, w_repro_max, interaction_resource, d, E_ext, D_ext, is_background, pred_kernel_type, k, q, w_mat25, m, R_max</span></span></code></pre>
 <p>As you can see, there are a lot of other species parameters, some of
 which we will talk about later. For now let’s just select the four
 parameters we are interested in.</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="va">w_mat</span>, <span class="va">w_mat25</span>, <span class="va">w_repro_max</span>, <span class="va">m</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##                   w_mat  w_mat25 w_repro_max m</span></span>
-<span><span class="co">## Target species 25.11886 22.50546         100 1</span></span></code></pre>
+<pre><code><span><span class="co">## An object of class "species_params" containing parameters for 1 species:</span></span>
+<span><span class="co">##     w_mat  w_mat25 w_repro_max m</span></span>
+<span><span class="co">##  25.11886 22.50546         100 1</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="effect-of-change-in-maturity-curve">Effect of change in maturity curve<a class="anchor" aria-label="anchor" href="#effect-of-change-in-maturity-curve"></a>
@@ -672,11 +675,12 @@ unchanged.</p>
 <code class="sourceCode R"><span><span class="va">params_changed_maturity</span> <span class="op">&lt;-</span> <span class="va">params</span></span></code></pre></div>
 <p>In this copy we now change the species parameters. We do this with
 <code><a href="../reference/species_params.html">given_species_params()</a></code> rather than with
-<code><a href="../reference/species_params.html">species_params()</a></code>. The difference is that
-<code><a href="../reference/species_params.html">given_species_params()</a></code> holds only the values that
-<em>you</em> have supplied, and changing one of them triggers mizer to
-recalculate any other parameters that are derived from it. So this is
-the safe way to change input parameters.</p>
+<code><a href="../reference/species_params.html">species_params()</a></code>. Both would work and trigger a
+recalculation of any other parameters that are derived from the changed
+parameters. The difference is that <code><a href="../reference/species_params.html">given_species_params()</a></code>
+is particularly helpful during interactive use because it issues
+warnings if you try to change a parameter whose effect is overridden by
+another parameter.</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params_changed_maturity</span><span class="op">)</span><span class="op">$</span><span class="va">w_mat</span> <span class="op">&lt;-</span> <span class="fl">40</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params_changed_maturity</span><span class="op">)</span><span class="op">$</span><span class="va">w_mat25</span> <span class="op">&lt;-</span> <span class="fl">30</span></span></code></pre></div>
@@ -759,7 +763,8 @@ efficiency <code>erepro</code> alone has to do the job.</p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setBevertonHolt.html">setBevertonHolt</a></span><span class="op">(</span><span class="va">params</span>, reproduction_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">erepro</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.899483</span></span></code></pre>
+<pre><code><span><span class="co">## Target species </span></span>
+<span><span class="co">##       0.899483</span></span></code></pre>
 <p>In order for the population to be at steady state, the reproductive
 efficiency has to have this particular value. If it were higher, the
 population would increase, if it were lower, the population would
@@ -772,14 +777,16 @@ untouched, the value of <code>erepro</code> is at this point still the
 same as in the original model:</p>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params_changed_maturity</span><span class="op">)</span><span class="op">$</span><span class="va">erepro</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.899483</span></span></code></pre>
+<pre><code><span><span class="co">## Target species </span></span>
+<span><span class="co">##       0.899483</span></span></code></pre>
 <p>Calling <code><a href="../reference/setBevertonHolt.html">setBevertonHolt()</a></code> on the changed model retunes
 it to the value required for its own steady state:</p>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_changed_maturity</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setBevertonHolt.html">setBevertonHolt</a></span><span class="op">(</span><span class="va">params_changed_maturity</span>,</span>
 <span>                                           reproduction_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params_changed_maturity</span><span class="op">)</span><span class="op">$</span><span class="va">erepro</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.8894122</span></span></code></pre>
+<pre><code><span><span class="co">## Target species </span></span>
+<span><span class="co">##      0.8894122</span></span></code></pre>
 <p>When the population deviates from the steady state, for example due
 to a change in fishing, the reproduction rate can be set to change
 according to a Beverton-Holt stock-recruitment curve. The
@@ -913,8 +920,9 @@ size, is determined by the species parameter <code>sigma</code>. In our
 model these have the values</p>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="va">beta</span>, <span class="va">sigma</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##                beta sigma</span></span>
-<span><span class="co">## Target species  100   1.3</span></span></code></pre>
+<pre><code><span><span class="co">## An object of class "species_params" containing parameters for 1 species:</span></span>
+<span><span class="co">##  beta sigma</span></span>
+<span><span class="co">##   100   1.3</span></span></code></pre>
 <p>Let us change the preferred predator/prey mass ratio from 100 to
 1000. As usual, we first create a copy of the parameter object, then we
 make the change in that copy.</p>
@@ -1024,7 +1032,8 @@ same.</p>
 Its current value in our model is</p>
 <div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 2066.004</span></span></code></pre>
+<pre><code><span><span class="co">## Target species </span></span>
+<span><span class="co">##       2066.004</span></span></code></pre>
 <p>We change that to 2000 and find the new steady state.</p>
 <div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_new_gamma</span> <span class="op">&lt;-</span> <span class="va">params</span></span>
@@ -1078,7 +1087,8 @@ lower</p>
 = h\ w^n\)</span>. The current value of the coefficient <span class="math inline">\(h\)</span> is</p>
 <div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">h</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 30</span></span></code></pre>
+<pre><code><span><span class="co">## Target species </span></span>
+<span><span class="co">##             30</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -1116,10 +1126,6 @@ The parameters describing the fishing gears are stored in a
 comes with one gear:</p>
 <div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##                                        species            gear   sel_func</span></span>
-<span><span class="co">## Target species, knife_edge_gear Target species knife_edge_gear knife_edge</span></span>
-<span><span class="co">##                                 knife_edge_size catchability</span></span>
-<span><span class="co">## Target species, knife_edge_gear        25.11886            1</span></span></code></pre>
 <p>We see that it uses a <code>knife_edge</code> selectivity function
 with a <code>knife_edge_size</code> of about 25 grams. This means that
 all fish larger than that size are exposed to the same fishing
@@ -1128,14 +1134,14 @@ fishing selectivity “knife_edge” selectivity. Mizer can also deal with
 more general selectivity curves, like sigmoidal or doubly sigmoidal.</p>
 <p>Let us change the knife-edge size to 30 grams, so that fishing only
 affects fish above 30 grams.</p>
-<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_fishing</span> <span class="op">&lt;-</span> <span class="va">params</span></span>
 <span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params_fishing</span><span class="op">)</span><span class="op">$</span><span class="va">knife_edge_size</span> <span class="op">&lt;-</span> <span class="fl">30</span></span></code></pre></div>
 <p>We also need to specify the fishing effort. The effort is multiplied
 by the catchability and the selectivity to give the fishing mortality
 rate. We set it to 1 with the <code><a href="../reference/initial_effort.html">initial_effort()</a></code> function and
 can then plot the resulting fishing mortality.</p>
-<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/initial_effort.html">initial_effort</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="fu"><a href="../reference/initial_effort.html">initial_effort</a></span><span class="op">(</span><span class="va">params_fishing</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="fu"><a href="../reference/plot2.html">plot2</a></span><span class="op">(</span><span class="fu"><a href="../reference/getFMort.html">getFMort</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="fu"><a href="../reference/getFMort.html">getFMort</a></span><span class="op">(</span><span class="va">params_fishing</span><span class="op">)</span>, log_x <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -1158,7 +1164,7 @@ important non-linear effects.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

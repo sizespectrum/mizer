@@ -5,6 +5,17 @@ array-like results into tidy long-form data frames, with one row per
 observed combination of species, size and/or time. The numeric result is
 always stored in a column called `value`.
 
+## Usage
+
+``` r
+# S3 method for class 'ArraySpeciesBySize'
+as.data.frame(x, row.names = NULL, optional = FALSE, ...)
+# S3 method for class 'ArrayTimeBySpecies'
+as.data.frame(x, row.names = NULL, optional = FALSE, ...)
+# S3 method for class 'ArrayTimeBySpeciesBySize'
+as.data.frame(x, row.names = NULL, optional = FALSE, ...)
+```
+
 ## Arguments
 
 - x:

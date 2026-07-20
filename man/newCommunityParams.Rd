@@ -118,6 +118,13 @@ Fishing selectivity is modelled as a knife-edge function with one parameter,
 \code{knife_edge_size}, which determines the size at which species are
 selected.
 
+Because this constructor does not yet set up stochastic growth by diffusion,
+the size grid is not extended beyond the community's maximum size \code{max_w}
+(so that \code{w_max = w_repro_max}), rather than leaving the headroom that
+\code{\link[=newMultispeciesParams]{newMultispeciesParams()}} uses to accommodate stochastic growth. This will be
+revisited once these constructors gain a diffusion parameter, see
+\url{https://github.com/sizespectrum/mizer/issues/339}.
+
 The resulting \code{MizerParams} object can be projected forward using
 \code{project()} like any other \code{MizerParams} object. When projecting
 the community model it may be necessary to keep a small time step size

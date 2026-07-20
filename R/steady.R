@@ -419,6 +419,12 @@ find_first_acf_peak <- function(ac, threshold) {
 #' steady state. The `preserve` argument can be used to specify which of the
 #' reproduction parameters should be preserved.
 #'
+#' The resource is rebalanced so that the returned state is a steady state of
+#' the resource as well as of the consumers. The resource abundance is
+#' preserved while the capacity is recomputed to keep it steady. If the resource
+#' capacity had been set manually (frozen), it is rebalanced and thereby
+#' unfrozen.
+#'
 #' @param params A \linkS4class{MizerParams} object
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
 #' @param t_per The simulation is broken up into shorter runs of `t_per` years,
@@ -543,7 +549,14 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
     params@other_dynamics <- old_other_dynamics
     params@species_params$constant_reproduction <- NULL
 
-    # Set resource dynamics
+    # Restore the original resource dynamics and rebalance so that the
+    # converged state is a genuine steady state of the resource as well as of
+    # the consumers. Balancing derives the resource capacity from the (preserved)
+    # rate; a manually set (frozen) capacity would otherwise block this, leaving
+    # the resource off its fixed point. We therefore clear the frozen mark on the
+    # capacity first, so that it is rebalanced from the rate exactly as earlier
+    # versions of mizer did when they rebalanced the resource in `steady()`.
+    comment(params@cc_pp) <- NULL
     params <- setResource(params, resource_dynamics = old_resource_dynamics)
 
     if (params@rates_funcs$RDD == "BevertonHoltRDD") {

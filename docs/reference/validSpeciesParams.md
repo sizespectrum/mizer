@@ -77,8 +77,13 @@ it detects such a name.
 
 `validSpeciesParams()` first calls `validGivenSpeciesParams()` but then
 goes further by adding default values for species parameters that were
-not provided. The function sets default values if any of the following
-species parameters are missing or NA:
+not provided. It only sets defaults for those species parameters that
+are not owned by a single rate-setting function, namely those that are
+read by several of them (`n`), that are used only when projecting
+(`alpha`), that determine the size grid (`w_min`, `w_max`), that are
+needed for the length-weight conversion (`a`, `b`) or that are used only
+for reporting (`is_background`). The function sets default values if any
+of the following species parameters are missing or NA:
 
 - `w_max` is set to `1.5 * w_inf` (it is only a computational boundary)
 
@@ -90,19 +95,37 @@ species parameters are missing or NA:
 
 - `alpha` is set to `0.6`
 
-- `interaction_resource` is set to `1`
-
 - `n` is set to `3/4`
 
-- `p` is set to `n`
+- `a` is set to `0.01`
 
-- `z_ext` is set to `0`
+- `b` is set to `3`
 
-- `d` is set to `n - 1`
+- `is_background` is set to `FALSE`
 
-- `E_ext` is set to `0`
-
-- `D_ext` is set to `0`
+All other species parameters are given their default values by the
+rate-setting function that uses them, so that each default has a single
+home. For example `p` and `k` are set by
+[`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md),
+`z_ext`, `d` and `z0` by
+[`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),
+`E_ext` by
+[`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
+`D_ext` by
+[`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
+`interaction_resource` by
+[`setInteraction()`](https://sizespectrum.org/mizer/reference/setInteraction.md),
+`beta` and `sigma` by
+[`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md),
+`q` and `gamma` by
+[`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md),
+and `erepro`, `m`, `w_mat25` and `R_max` by
+[`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md).
+These columns are therefore absent from the data frame returned by
+`validSpeciesParams()` but present in the species parameters of a
+`MizerParams` object, because
+[`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md)
+calls all the rate-setting functions.
 
 Note that the species parameters returned by these functions are not
 guaranteed to produce a viable model. More checks of the parameters are

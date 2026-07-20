@@ -20,7 +20,7 @@ links.
 
 Every setter function returns a **new** `MizerParams` object, so always reassign
 the result (`params <- steady(params)`). Change species parameters through
-[`given_species_params(params) <-`](../reference/species_params.html) so that
+[`species_params(params) <-`](../reference/species_params.html) so that
 dependent quantities are recalculated.
 
 ---
@@ -60,13 +60,14 @@ Useful optional arguments to `newMultispeciesParams()`:
 | Argument | Effect |
 |---|---|
 | `interaction` | species × species matrix of overlaps in `[0, 1]` (default all 1) |
-| `gear_params` | fishing gear definitions (see the fishing cheatsheet) |
+| `gear_params` | fishing gear definitions (see [Cheatsheet: Fishing](cheatsheet-fishing.html)) |
 | `no_w`, `min_w`, `max_w` | size-grid resolution and range (`no_w = 100` default) |
 
 Inspect the result with [`summary(params)`](../reference/summary.html),
 [`species_params(params)`](../reference/species_params.html),
-[`getInteraction(params)`](../reference/getInteraction.html), and
-[`gear_params(params)`](../reference/gear_params.html).
+[`getInteraction(params)`](../reference/getInteraction.html),
+[`gear_params(params)`](../reference/gear_params.html) and
+[`gear_params(params)`](../reference/resource_params.html).
 
 ---
 
@@ -98,8 +99,7 @@ During model setup and calibration you almost always want `steady()` or
 ## Calibrating to observations
 
 Supply observations in the species-parameter columns `biomass_observed` and/or
-`yield_observed` (optionally with `biomass_cutoff` / `yield_cutoff` size
-thresholds). Then run the calibration loop, **re-running `steady()` after any
+`yield_observed`. Then run the calibration loop, **re-running `steady()` after any
 match/calibrate step**:
 
 | Function | Adjusts | To match |
@@ -132,8 +132,13 @@ them, re-running `steady()` between, until both are satisfied.
   get a sensible starting spectrum, or take a smaller step in whatever parameter
   you changed and re-run.
 
-Diagnose the fit with `plotBiomassObservedVsModel(params)` and
-`plotGrowthCurves(params)` — see [Verifying the model](#verifying-the-model).
+Diagnose the fit with
+```{r eval=FALSE}
+plotSpectra(params)                    # sensible, overlapping spectra?
+plotGrowthCurves(params, species = "Cod")
+plotBiomassObservedVsModel(params)     # points near the 1:1 line?
+plotYieldObservedVsModel(params)
+```
 
 ---
 
@@ -170,17 +175,6 @@ sim <- project(params, t_max = 20, effort = 1)
 | `method` | `"euler"` (default), `"predictor_corrector"`, `"tr_bdf2"` |
 
 Pass a `MizerSim` back to `project()` to continue from where it ended.
-
----
-
-## Verifying the model
-
-```{r eval=FALSE}
-plotSpectra(params)                    # sensible, overlapping spectra?
-plotGrowthCurves(params, species = "Cod")
-plotBiomassObservedVsModel(params)     # points near the 1:1 line?
-plotYieldObservedVsModel(params)
-```
 
 ---
 

@@ -91,7 +91,10 @@ newCommunityParams(
 
 - kappa:
 
-  The coefficient of the initial resource abundance power-law.
+  The coefficient \\\kappa\\ of the resource carrying capacity power law
+  \\c_R(w) = \kappa\\ w^{-\lambda}\\, which also sets the initial
+  resource abundance. See
+  [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md).
 
 - lambda:
 
@@ -162,6 +165,15 @@ multi-species model:
 Fishing selectivity is modelled as a knife-edge function with one
 parameter, `knife_edge_size`, which determines the size at which species
 are selected.
+
+Because this constructor does not yet set up stochastic growth by
+diffusion, the size grid is not extended beyond the community's maximum
+size `max_w` (so that `w_max = w_repro_max`), rather than leaving the
+headroom that
+[`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)
+uses to accommodate stochastic growth. This will be revisited once these
+constructors gain a diffusion parameter, see
+<https://github.com/sizespectrum/mizer/issues/339>.
 
 The resulting `MizerParams` object can be projected forward using
 [`project()`](https://sizespectrum.org/mizer/reference/project.md) like

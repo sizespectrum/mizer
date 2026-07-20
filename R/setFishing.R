@@ -310,6 +310,8 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
 #' illustrates how this facilitates changing an individual gear parameter.
 #'
 #' @param object A MizerParams object, a MizerSim object or a data frame
+#' @param value A data frame with the new gear parameters.
+#' @param x An object to test with `is.gear_params()`.
 #' @return Data frame with gear parameters
 #' @export
 #' @family functions for setting parameters
@@ -324,7 +326,7 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
 #'     gear = c("gear1", "gear2", "gear1"),
 #'     species = c("Cod", "Cod", "Haddock"),
 #'     catchability = c(0.5, 2, 1),
-#'     sel_fun = c("sigmoid_weight", "knife_edge", "sigmoid_weight"),
+#'     sel_func = c("sigmoid_weight", "knife_edge", "sigmoid_weight"),
 #'     sigmoidal_weight = c(1000, NA, 800),
 #'     sigmoidal_sigma = c(100, NA, 100),
 #'     knife_edge_size = c(NA, 1000, NA)
@@ -381,26 +383,31 @@ gear_params.gear_params <- function(object) {
     setFishing(object)
 }
 
-#' Test if an object is a gear_params object
-#'
-#' @param x An object to test.
-#' @return `TRUE` if `x` is a `gear_params` object, `FALSE` otherwise.
+#' @rdname gear_params
+#' @return `is.gear_params()` returns `TRUE` if `x` is a `gear_params` object,
+#'   `FALSE` otherwise.
 #' @export
 is.gear_params <- function(x) {
     inherits(x, "gear_params")
 }
 
 check_gear_params <- function(x) {
-    # Check for misspellings
-    misspellings <- c("selfunc", "selectivity_function", "catch", "catchab",
-                      "sigmoid_weight", "sigmoid_sigma", "knife_edge")
-    query <- intersect(misspellings, names(x))
-    if (length(query) > 0) {
-        warning("Some column names in your gear parameter data ",
-                "frame are very close to standard parameter names: ",
-                paste(query, collapse = ", "),
-                ". Did you perhaps mis-spell the names?")
+    # Warn about column names that look like mis-spelled parameter names.
+    # Recognised names are the core columns plus the parameters of the
+    # selectivity functions (both the built-in ones and any function actually
+    # referenced in the `sel_func` column, so custom parameters are recognised).
+    known <- c("species", "gear", "sel_func", "catchability", "yield_observed",
+               "l25", "l50", "l50_right", "l25_right", "knife_edge_size",
+               "sigmoidal_weight", "sigmoidal_sigma")
+    if ("sel_func" %in% names(x)) {
+        for (sf in unique(x$sel_func[!is.na(x$sel_func)])) {
+            args <- tryCatch(names(formals(sf)), error = function(e) NULL)
+            known <- union(known, setdiff(args, c("w", "species_params", "...")))
+        }
     }
+    curated <- c("selfunc", "selectivity_function", "catch", "catchab",
+                 "sigmoid_weight", "sigmoid_sigma", "knife_edge")
+    check_for_misspellings(names(x), known, "gear parameter", curated)
 
     # Auto-populate missing argument columns for selectivity functions
     if ("sel_func" %in% names(x)) {

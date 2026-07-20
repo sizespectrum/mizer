@@ -29,6 +29,11 @@ For species for which no value for `gamma` is specified in the species
 parameter data frame, the `f0` values is kept as provided in the species
 parameter data frame or it is set to 0.6 if it is not provided.
 
+See the [Target Feeding
+Level](https://sizespectrum.org/mizer/articles/default_parameters.html#f0-default)
+section of the "Calculation of Default Parameter Values" vignette for
+the mathematical derivation.
+
 ## See also
 
 Other functions calculating defaults:

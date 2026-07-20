@@ -268,6 +268,52 @@ The class hierarchy `c("mizerOuter", "mizerShelf", "MizerParams")`
 mirrors this chain, so dispatch proceeds in the right order
 automatically.
 
+### Bundled data objects
+
+If your package ships a ready-made `MizerParams` or `MizerSim` object in
+its `data/` directory, you need one extra step in `.onLoad`. R’s
+lazy-loading mechanism delivers data objects exactly as they were
+serialised, without calling
+[`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md).
+If you do nothing, users get a plain `MizerParams` with the wrong S4
+class and method dispatch silently misfires.
+
+The fix is to replace the lazy-loaded binding with an **active binding**
+that calls
+[`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
+on every access. Because the coercion happens at the moment the user
+touches the object, it always reflects the full extension chain that is
+active at that point — including any other extension packages the user
+loaded after yours.
+
+Add this to your `.onLoad`, once per bundled params or sim object:
+
+``` r
+
+.onLoad <- function(libname, pkgname) {
+    mizer::registerExtension(pkgname, requirement = "owner/myExtensionPackage")
+    if (exists("my_example_params", envir = asNamespace(pkgname), inherits = FALSE)) {
+        ns  <- asNamespace(pkgname)
+        raw <- get("my_example_params", envir = ns)   # capture the raw object once
+        makeActiveBinding("my_example_params",
+                          fun = function() mizer::coerceToExtensionClass(raw),
+                          env = ns)
+    }
+}
+```
+
+After this, users can write `myPackage::my_example_params` (or simply
+`my_example_params` after
+[`library(myPackage)`](https://rdrr.io/r/base/library.html)) and always
+get a properly classed object, with no extra steps on their part.
+
+> **Why not just do `my_example_params <<- coerceToExtensionClass(...)`
+> in `.onLoad`?** That coercion runs when *your* package loads, at which
+> point only your extension is in the chain. If the user then loads a
+> second extension package, the chain grows, but the already-promoted
+> object is never updated. `makeActiveBinding` avoids this by re-running
+> the coercion on every access.
+
 ### Writing methods that call `NextMethod()`
 
 Here is `getBiomass.mizerShelf` from mizerShelf. It calls
@@ -526,6 +572,11 @@ Define both `setClass("<myExtension>", contains = "MizerParams")` and
 
 Call `mizer::registerExtension(pkgname, requirement = ...)` in
 `.onLoad`.
+
+For every `MizerParams` or `MizerSim` object bundled in `data/`, add a
+[`makeActiveBinding()`](https://rdrr.io/r/base/bindenv.html) call in
+`.onLoad` so the object is coerced to the correct extension class on
+access. See [Bundled data objects](#bundled-data-objects).
 
 End every constructor with
 `params@extensions <- getRegisteredExtensions()` and

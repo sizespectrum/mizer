@@ -13,13 +13,16 @@ methods.
 
 ``` r
 ArrayTimeBySpecies(x, value_name = NULL, units = NULL, params = NULL)
+
+is.ArrayTimeBySpecies(x)
 ```
 
 ## Arguments
 
 - x:
 
-  A matrix (time x species).
+  A matrix (time x species). For `is.ArrayTimeBySpecies()`, any object
+  to test.
 
 - value_name:
 
@@ -36,6 +39,9 @@ ArrayTimeBySpecies(x, value_name = NULL, units = NULL, params = NULL)
 ## Value
 
 An `ArrayTimeBySpecies` object (inherits from `matrix` and `array`).
+
+`is.ArrayTimeBySpecies()` returns `TRUE` if `x` is an
+`ArrayTimeBySpecies` object, `FALSE` otherwise.
 
 ## Details
 

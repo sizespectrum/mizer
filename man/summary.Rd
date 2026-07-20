@@ -8,6 +8,13 @@
 \alias{summary.MizerSim}
 \alias{summary.MizerParams}
 \title{Summarise mizer objects}
+\usage{
+\method{summary}{ArraySpeciesBySize}(object, ...)
+\method{summary}{ArrayTimeBySpecies}(object, ...)
+\method{summary}{ArrayTimeBySpeciesBySize}(object, ...)
+\method{summary}{MizerSim}(object, ...)
+\method{summary}{MizerParams}(object, ...)
+}
 \arguments{
 \item{object}{The object to summarise.}
 

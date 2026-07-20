@@ -36,7 +36,7 @@ server <- function(input, output, session) {
     #     a_m <- 0.0085
     #     b_m <- 3.11
     #     L_inf_m <- 24.3
-    #     # http://www.fishbase.org/summary/Mullus-barbatus+barbatus.html
+    #     # https://www.fishbase.org/summary/Mullus-barbatus+barbatus.html
     #     L_mat <- 11.1
     #     species_params <- data.frame(
     #         species = "Mullet",

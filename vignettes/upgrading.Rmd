@@ -35,6 +35,19 @@ and are not repeated here.
 
 # Upgrading from mizer 3.1 to 3.2
 
+## `species_params<-()` now detects and protects changes
+
+Previously, modifying species parameters via `species_params<-()` updated the values in the model but bypassed `given_species_params()`. This meant that your changes were not protected, and any subsequent recalculation of defaults (for example, by a call to `given_species_params<-()`) would overwrite your custom values. Furthermore, changing a parameter like `w_inf` via `species_params<-()` did not automatically trigger a recalculation of downstream parameters like `w_mat` or `w_max`.
+
+Now, `species_params<-()` intelligently diffs the new data frame against the old one to detect exactly which parameters you have changed. It automatically records those changed parameters in `given_species_params`, protecting them from future overwrites, and immediately recalculates any downstream defaults based on your changes. 
+
+**How this affects existing code:**
+
+1. If your existing code used `species_params<-()` to update a core parameter like `w_inf` and you expected `w_mat` or `w_max` to remain frozen at their old values, you will now see them automatically recalculate. If you wish to freeze downstream parameters, you must provide their frozen values explicitly in the same update.
+
+2. If your code computes custom parameters and saves them via `species_params<-()`, those parameters will now be preserved and survive future recalculations.
+
+
 ## Setting resource parameters
 
 Two related changes affect how you modify the resource size spectrum. Together

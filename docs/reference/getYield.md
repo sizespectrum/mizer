@@ -65,8 +65,10 @@ Other summary functions:
 yield <- getYield(NS_sim)
 yield[c("1972", "2010"), c("Herring", "Cod")]
 #> Yield rate (2 times x 2 species) [g/year] 
-#>   Herring: min=3.05e+10 mean=5.52e+10 max=8e+10
-#>   Cod: min=2.89e+11 mean=3.22e+11 max=3.55e+11
+#>       sp
+#> time       Herring          Cod
+#>   1972 80002050975 355351719122
+#>   2010 30496241734 289022888045
 
 # Running simulation for another year, saving intermediate time steps
 params <- finalParams(NS_sim)

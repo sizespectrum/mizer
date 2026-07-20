@@ -86,9 +86,9 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.1.0
-    ## Created: 2026-06-25 21:01:51
-    ## Modified: 2026-06-25 21:01:51
+    ## mizer version: 3.2.0
+    ## Created: 2026-07-19 19:01:47
+    ## Modified: 2026-07-19 19:01:47
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   1e+06
@@ -98,8 +98,9 @@ summary(params)
     ##  maximum size:   0.000811131
     ##  no. size bins:  78  (178 size bins in total)
     ## Species details:
-    ##     species w_inf  w_mat w_min  f0 beta sigma
-    ## 1 Community 1e+06 250000 0.001 0.5  100     2
+    ## An object of class "species_params" containing parameters for 1 species:
+    ##    species w_inf  w_mat w_min  f0 beta sigma
+    ##  Community 1e+06 250000 0.001 0.5  100     2
     ## 
     ## Fishing gear details:
     ## Gear          Effort  Target species 
@@ -436,7 +437,8 @@ the MizerParams object:
 species_params(params)$sigma
 ```
 
-    ## [1] 2
+    ## Community 
+    ##         2
 
 When projected through time, the community abundances converge to a
 stable equilibrium. What happens if we reduce the value of \\\sigma\\,

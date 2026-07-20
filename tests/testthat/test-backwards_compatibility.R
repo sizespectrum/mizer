@@ -1,6 +1,11 @@
 # The known values below were calculated with mizer version 1.0.1
 
 # In version 1.0.1 it was still necessary to use data()
+# Note: testthat 3.x shares the global environment across all test files.
+# We deliberately load the full 12-species datasets into .GlobalEnv here for the
+# snapshot tests. They are not renamed to `_small` because we want to test backwards
+# compatibility of the exact original names. This does not break other tests because
+# other files use the distinct `_small` fixtures from helper.R.
 data(NS_species_params_gears)
 data(inter)
 

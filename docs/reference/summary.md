@@ -3,6 +3,21 @@
 Mizer provides `summary()` methods for model objects and for the
 specialised array classes returned by many mizer functions.
 
+## Usage
+
+``` r
+# S3 method for class 'ArraySpeciesBySize'
+summary(object, ...)
+# S3 method for class 'ArrayTimeBySpecies'
+summary(object, ...)
+# S3 method for class 'ArrayTimeBySpeciesBySize'
+summary(object, ...)
+# S3 method for class 'MizerSim'
+summary(object, ...)
+# S3 method for class 'MizerParams'
+summary(object, ...)
+```
+
 ## Arguments
 
 - object:
@@ -61,8 +76,8 @@ table in a human-readable form.
 summary(NS_params)
 #> An object of class "MizerParams" 
 #> mizer version: 3.0.0.9003
-#> Created: 2021-09-03 20:29:38
-#> Modified: 2026-06-24 13:50:03
+#> Created: 2021-09-03 21:29:38
+#> Modified: 2026-06-24 14:50:03
 #> Consumer size spectrum:
 #>  minimum size:   0.001
 #>  maximum size:   39851.3
@@ -72,19 +87,20 @@ summary(NS_params)
 #>  maximum size:   9.82091
 #>  no. size bins:  179 (226 size bins in total)
 #> Species details:
-#>    species   w_inf w_mat w_min  f0   beta sigma
-#> 1    Sprat    33.0    13 0.001 0.6  51076   0.8
-#> 2  Sandeel    36.0     4 0.001 0.6 398849   1.9
-#> 3   N.pout   100.0    23 0.001 0.6     22   1.5
-#> 4  Herring   334.0    99 0.001 0.6 280540   3.2
-#> 5      Dab   324.0    21 0.001 0.6    191   1.9
-#> 6  Whiting  1192.0    75 0.001 0.6     22   1.5
-#> 7     Sole   866.0    78 0.001 0.6    381   1.9
-#> 8  Gurnard   668.0    39 0.001 0.6    283   1.8
-#> 9   Plaice  2976.0   105 0.001 0.6    113   1.6
-#> 10 Haddock  4316.5   165 0.001 0.6    558   2.1
-#> 11     Cod 39851.3  1606 0.001 0.6     66   1.3
-#> 12  Saithe 39658.6  1076 0.001 0.6     40   1.1
+#> An object of class "species_params" containing parameters for 12 species:
+#>  species   w_inf w_mat w_min  f0   beta sigma
+#>    Sprat    33.0    13 0.001 0.6  51076   0.8
+#>  Sandeel    36.0     4 0.001 0.6 398849   1.9
+#>   N.pout   100.0    23 0.001 0.6     22   1.5
+#>  Herring   334.0    99 0.001 0.6 280540   3.2
+#>      Dab   324.0    21 0.001 0.6    191   1.9
+#>  Whiting  1192.0    75 0.001 0.6     22   1.5
+#>     Sole   866.0    78 0.001 0.6    381   1.9
+#>  Gurnard   668.0    39 0.001 0.6    283   1.8
+#>   Plaice  2976.0   105 0.001 0.6    113   1.6
+#>  Haddock  4316.5   165 0.001 0.6    558   2.1
+#>      Cod 39851.3  1606 0.001 0.6     66   1.3
+#>   Saithe 39658.6  1076 0.001 0.6     40   1.1
 #> 
 #> Fishing gear details:
 #> Gear          Effort  Target species 
@@ -98,8 +114,8 @@ summary(NS_sim)
 #> Parameters:
 #> An object of class "MizerParams" 
 #> mizer version: 3.0.0.9003
-#> Created: 2021-09-03 20:30:02
-#> Modified: 2026-06-24 13:50:04
+#> Created: 2021-09-03 21:30:02
+#> Modified: 2026-06-24 14:50:03
 #> Consumer size spectrum:
 #>  minimum size:   0.001
 #>  maximum size:   39851.3
@@ -109,19 +125,20 @@ summary(NS_sim)
 #>  maximum size:   9.82091
 #>  no. size bins:  171 (218 size bins in total)
 #> Species details:
-#>    species   w_inf w_mat w_min   beta sigma
-#> 1    Sprat    33.0    13 0.001  51076   0.8
-#> 2  Sandeel    36.0     4 0.001 398849   1.9
-#> 3   N.pout   100.0    23 0.001     22   1.5
-#> 4  Herring   334.0    99 0.001 280540   3.2
-#> 5      Dab   324.0    21 0.001    191   1.9
-#> 6  Whiting  1192.0    75 0.001     22   1.5
-#> 7     Sole   866.0    78 0.001    381   1.9
-#> 8  Gurnard   668.0    39 0.001    283   1.8
-#> 9   Plaice  2976.0   105 0.001    113   1.6
-#> 10 Haddock  4316.5   165 0.001    558   2.1
-#> 11     Cod 39851.3  1606 0.001     66   1.3
-#> 12  Saithe 39658.6  1076 0.001     40   1.1
+#> An object of class "species_params" containing parameters for 12 species:
+#>  species   w_inf w_mat w_min   beta sigma
+#>    Sprat    33.0    13 0.001  51076   0.8
+#>  Sandeel    36.0     4 0.001 398849   1.9
+#>   N.pout   100.0    23 0.001     22   1.5
+#>  Herring   334.0    99 0.001 280540   3.2
+#>      Dab   324.0    21 0.001    191   1.9
+#>  Whiting  1192.0    75 0.001     22   1.5
+#>     Sole   866.0    78 0.001    381   1.9
+#>  Gurnard   668.0    39 0.001    283   1.8
+#>   Plaice  2976.0   105 0.001    113   1.6
+#>  Haddock  4316.5   165 0.001    558   2.1
+#>      Cod 39851.3  1606 0.001     66   1.3
+#>   Saithe 39658.6  1076 0.001     40   1.1
 #> 
 #> Fishing gear details:
 #> Gear          Effort  Target species 

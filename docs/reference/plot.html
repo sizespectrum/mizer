@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Plot mizer arrays — plot"><meta name="description" content="Many mizer functions return values that depend on species and either size or
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Plot mizer arrays — plot"><meta name="description" content="Many mizer functions return values that depend on species and either size or
 time. plot() creates a ggplot2 figure with one line for each species
 showing the values against size or against time (depending on the type of
 output). plotHover() creates an interactive version of the same figure."><meta property="og:description" content="Many mizer functions return values that depend on species and either size or
@@ -19,7 +19,7 @@ output). plotHover() creates an interactive version of the same figure."><meta p
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,9 @@ output). plotHover() creates an interactive version of the same figure."><meta p
     <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
     <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
     <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
@@ -82,7 +85,7 @@ output). plotHover() creates an interactive version of the same figure."><meta p
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Plot mizer arrays</h1>
-      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/R/ArraySpeciesBySize-class.R" class="external-link"><code>R/ArraySpeciesBySize-class.R</code></a>, <a href="https://github.com/sizespectrum/mizer/blob/HEAD/R/ArrayTimeBySpecies-class.R" class="external-link"><code>R/ArrayTimeBySpecies-class.R</code></a>, <a href="https://github.com/sizespectrum/mizer/blob/HEAD/R/ArrayTimeBySpeciesBySize-class.R" class="external-link"><code>R/ArrayTimeBySpeciesBySize-class.R</code></a>, and 1 more</small>
+      <small class="dont-index">Source: <a href="https://github.com/sizespectrum/mizer/blob/HEAD/R/ArraySpeciesBySize-class.R" class="external-link"><code>R/ArraySpeciesBySize-class.R</code></a></small>
       <div class="d-none name"><code>plot.Rd</code></div>
     </div>
 
@@ -95,16 +98,20 @@ output). <code><a href="plotHover.html">plotHover()</a></code> creates an intera
 
 
     <div class="section level2">
-    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-
-
-<dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>An <code>ArraySpeciesBySize</code>, <code>ArrayTimeBySpecies</code>, or
-<code>ArrayTimeBySpeciesBySize</code> object.</p></dd>
-
-
-<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p><strong>Arguments used by all methods:</strong></p><dl><dt><code>species</code></dt>
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>This works because the mizer functions that give values that depend on
+species and size return an <code>ArraySpeciesBySize</code> object and those that
+give values that depend on species and time return an <code>ArrayTimeBySpecies</code>
+object. These objects have attributes that store the name of the value,
+its units, and a reference to the <code>MizerParams</code> object that the value was
+computed from. This allows the plots to be automatically labelled and
+coloured appropriately.</p>
+<p>To compare two mizer arrays in a single plot, use <code><a href="plot2.html">plot2()</a></code>. To show the
+relative difference between two arrays, use <code><a href="plotRelative.html">plotRelative()</a></code>.</p>
+<p>All methods return a ggplot2 object, unless <code>return_data = TRUE</code>, in
+which case they return the underlying data frame instead. <code><a href="plotHover.html">plotHover()</a></code>
+returns a plotly object.</p>
+<p>Arguments used by all methods:</p><dl><dt><code>species</code></dt>
 <dd><p>Character vector of species to include. <code>NULL</code>
 (default) means all species.</p></dd>
 
@@ -126,12 +133,12 @@ species. Default is <code>TRUE</code>.</p></dd>
 plot.</p></dd>
 
 <dt><code>log_x</code></dt>
-<dd><p>If <code>TRUE</code>, use a log10 x-axis. Default is <code>TRUE</code> for size
-spectra and <code>FALSE</code> for time series.</p></dd>
+<dd><p>If <code>TRUE</code>, use a log10 x-axis. The default depends on the
+method; see its own help page.</p></dd>
 
 <dt><code>log_y</code></dt>
-<dd><p>If <code>TRUE</code>, use a log10 y-axis. Default is <code>FALSE</code> for
-<code>ArraySpeciesBySize</code> and <code>TRUE</code> for <code>ArrayTimeBySpecies</code>.</p></dd>
+<dd><p>If <code>TRUE</code>, use a log10 y-axis. The default depends on the
+method; see its own help page.</p></dd>
 
 <dt><code>log</code></dt>
 <dd><p>Character string specifying which axes should use log10
@@ -148,7 +155,8 @@ minimum or maximum.</p></dd>
 <dd><p>The approximate number of ticks desired on the y axis.</p></dd>
 
 
-</dl><p><strong>For <code>ArraySpeciesBySize</code> and <code>ArrayTimeBySpeciesBySize</code> methods:</strong></p><dl><dt><code>all.sizes</code></dt>
+</dl><p>Additional arguments for <code><a href="plot.ArraySpeciesBySize.html">plot.ArraySpeciesBySize()</a></code> and
+<code><a href="plot.ArrayTimeBySpeciesBySize.html">plot.ArrayTimeBySpeciesBySize()</a></code>:</p><dl><dt><code>all.sizes</code></dt>
 <dd><p>If <code>FALSE</code> (default), values outside a species' size
 range (<code>w_min</code> to <code>w_max</code>) are removed.</p></dd>
 
@@ -167,36 +175,22 @@ refer to the existing minimum or maximum.</p></dd>
 length (<code>"l"</code>), using the allometric weight-length relationship.</p></dd>
 
 
-</dl><p><strong>For <code>ArrayTimeBySpecies</code> methods:</strong></p><dl><dt><code>tlim</code></dt>
+</dl><p>Additional argument for <code><a href="plot.ArrayTimeBySpecies.html">plot.ArrayTimeBySpecies()</a></code>:</p><dl><dt><code>tlim</code></dt>
 <dd><p>A numeric vector of length two providing lower and upper
 limits for the time axis, e.g. <code>c(1980, 2000)</code>. Use <code>NA</code> to apply no
 limit at that end. Default is <code>c(NA, NA)</code>.</p></dd>
 
 
-</dl><p><strong>For <code>ArrayTimeBySpeciesBySize</code> methods:</strong></p><dl><dt><code>time</code></dt>
+</dl><p>Additional argument for <code><a href="plot.ArrayTimeBySpeciesBySize.html">plot.ArrayTimeBySpeciesBySize()</a></code> and
+<code><a href="plot.ArrayTimeByResourceBySize.html">plot.ArrayTimeByResourceBySize()</a></code>:</p><dl><dt><code>time</code></dt>
 <dd><p>The time to display. Default (<code>NULL</code>) is the final time
 step.</p></dd>
 
 
-</dl></dd>
-
-</dl></div>
-    <div class="section level2">
-    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A ggplot2 object, unless <code>return_data = TRUE</code>, in which case a data
-frame is returned. <code><a href="plotHover.html">plotHover()</a></code> returns a plotly object.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This works because the mizer functions that give values that depend on
-species and size return an <code>ArraySpeciesBySize</code> object and those that
-give values that depend on species and time return an <code>ArrayTimeBySpecies</code>
-object. These objects have attributes that store the name of the value,
-its units, and a reference to the <code>MizerParams</code> object that the value was
-computed from. This allows the plots to be automatically labelled and
-coloured appropriately.</p>
-<p>To compare two mizer arrays in a single plot, use <code><a href="plot2.html">plot2()</a></code>. To show the
-relative difference between two arrays, use <code><a href="plotRelative.html">plotRelative()</a></code>.</p>
+</dl><p>See the individual method help pages for each method's exact arguments and
+defaults: <code><a href="plot.ArraySpeciesBySize.html">plot.ArraySpeciesBySize()</a></code>, <code><a href="plot.ArrayTimeBySpecies.html">plot.ArrayTimeBySpecies()</a></code>,
+<code><a href="plot.ArrayTimeBySpeciesBySize.html">plot.ArrayTimeBySpeciesBySize()</a></code>, <code><a href="plot.ArrayResourceBySize.html">plot.ArrayResourceBySize()</a></code>,
+<code><a href="plot.ArrayTimeByResourceBySize.html">plot.ArrayTimeByResourceBySize()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -233,27 +227,19 @@ relative difference between two arrays, use <code><a href="plotRelative.html">pl
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getPredMort.html">getPredMort</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span>, species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Herring"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>     size_axis <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot-3.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
-<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span>, species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Herring"</span><span class="op">)</span>, total <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getYield.html">getYield</a></span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span>, species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Herring"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot-6.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
-<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getFMort.html">getFMort</a></span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span>, time <span class="op">=</span> <span class="fl">2010</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot-7.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
-<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getResourceMort.html">getResourceMort</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot-8.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #00BB00;">log-10</span> transformation introduced infinite values.</span>
 <span class="r-plt img"><img src="plot-9.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
-<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="N.html">NResource</a></span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #00BB00;">log-10</span> transformation introduced infinite values.</span>
 <span class="r-plt img"><img src="plot-10.png" alt="" width="700" height="433"></span>
@@ -265,7 +251,7 @@ relative difference between two arrays, use <code><a href="plotRelative.html">pl
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="http://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
+  <p>Developed by <a href="https://www.york.ac.uk/maths/staff/gustav-delius/" class="external-link">Gustav Delius</a>, Finlay Scott, <a href="https://www.utas.edu.au/profiles/staff/imas/julia-blanchard" class="external-link">Julia Blanchard</a>, <a href="https://ken.haste.dk/" class="external-link">Ken Andersen</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

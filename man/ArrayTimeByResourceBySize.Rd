@@ -2,12 +2,16 @@
 % Please edit documentation in R/ArrayResourceBySize-class.R
 \name{ArrayTimeByResourceBySize}
 \alias{ArrayTimeByResourceBySize}
+\alias{is.ArrayTimeByResourceBySize}
 \title{S3 class for time x resource-size arrays}
 \usage{
 ArrayTimeByResourceBySize(x, value_name = NULL, units = NULL, params = NULL)
+
+is.ArrayTimeByResourceBySize(x)
 }
 \arguments{
-\item{x}{A matrix (time x size).}
+\item{x}{A matrix (time x size). For \code{is.ArrayTimeByResourceBySize()}, any
+object to test.}
 
 \item{value_name}{A string giving the human-readable name for the value.}
 
@@ -19,6 +23,9 @@ size grid in the \code{plot()} method.}
 \value{
 An \code{ArrayTimeByResourceBySize} object (inherits from \code{matrix} and
 \code{array}).
+
+\code{is.ArrayTimeByResourceBySize()} returns \code{TRUE} if \code{x} is an
+\code{ArrayTimeByResourceBySize} object, \code{FALSE} otherwise.
 }
 \description{
 The \code{\link[=NResource]{NResource()}} function returns a two-dimensional array (time x size)

@@ -2,9 +2,12 @@
 
 Writes an entry for `name` into the object's `@extensions` slot,
 converting the slot to the versioned list form. Existing entries (and
-their version stamps) are preserved. The requirement is taken from the
-existing entry if present, otherwise from the registered extension
-chain.
+their version stamps) are preserved, keeping their position in the
+chain. A genuinely new entry is prepended to the front of the chain so
+that it stays ordered outermost-first, matching
+[`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md).
+The requirement is taken from the existing entry if present, otherwise
+from the registered extension chain.
 
 ## Usage
 

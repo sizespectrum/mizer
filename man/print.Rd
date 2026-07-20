@@ -9,6 +9,14 @@
 \alias{print.summary.ArrayTimeBySpecies}
 \alias{print.summary.ArrayTimeBySpeciesBySize}
 \title{Print mizer objects}
+\usage{
+\method{print}{ArraySpeciesBySize}(x, ...)
+\method{print}{ArrayTimeBySpecies}(x, ...)
+\method{print}{ArrayTimeBySpeciesBySize}(x, ...)
+\method{print}{summary.ArraySpeciesBySize}(x, ...)
+\method{print}{summary.ArrayTimeBySpecies}(x, ...)
+\method{print}{summary.ArrayTimeBySpeciesBySize}(x, ...)
+}
 \arguments{
 \item{x}{The object to print.}
 

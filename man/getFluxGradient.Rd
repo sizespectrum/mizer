@@ -44,6 +44,7 @@ then dimensions of length 1 will be removed.
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Calculates the flux divergence \eqn{(J_{j+1} - J_j)/\Delta w_j} that
 appears as the second term in the discretised size-spectrum transport
 equation
