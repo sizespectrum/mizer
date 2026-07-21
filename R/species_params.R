@@ -234,18 +234,42 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     # Find what changed compared to old species_params
     old_sp <- object@species_params
     given <- object@given_species_params
-    
+    no_sp <- nrow(old_sp)
+
     common_cols <- intersect(names(value), names(old_sp))
     for (col in common_cols) {
         old_vals <- old_sp[[col]]
         new_vals <- value[[col]]
-        # which ones changed?
-        changed <- !((old_vals == new_vals) | (is.na(old_vals) & is.na(new_vals)))
-        changed[is.na(changed)] <- TRUE
+        # Determine, per species, which values changed. `==` is only reliable
+        # for plain atomic vectors. It is undefined (and errors) for list
+        # columns or columns holding S4/other objects, and for a matrix column
+        # it returns a matrix rather than one logical per species. In those
+        # cases fall back to a per-species `identical()` comparison.
+        simple <- is.atomic(old_vals) && is.atomic(new_vals) &&
+            is.null(dim(old_vals)) && is.null(dim(new_vals)) &&
+            length(old_vals) == no_sp && length(new_vals) == no_sp
+        if (simple) {
+            changed <- !((old_vals == new_vals) |
+                             (is.na(old_vals) & is.na(new_vals)))
+            changed[is.na(changed)] <- TRUE
+        } else {
+            get_row <- function(x, i) {
+                d <- dim(x)
+                if (!is.null(d) && length(d) >= 2) x[i, ] else x[[i]]
+            }
+            changed <- !vapply(
+                seq_len(no_sp),
+                function(i) identical(get_row(old_vals, i), get_row(new_vals, i)),
+                logical(1))
+        }
         
         if (any(changed)) {
             if (!col %in% names(given)) {
-                given[[col]] <- NA
+                given[[col]] <- if (is.list(new_vals)) {
+                    vector("list", length(new_vals))
+                } else {
+                    NA
+                }
             }
             given[[col]][changed] <- new_vals[changed]
         }
