@@ -19,7 +19,7 @@ Authors@R: c(person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
                     comment = c(ORCID = "0000-0002-8478-3430")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb", "cph")))
-Version: 3.2.0
+Version: 3.2.0.9000
 License: GPL-3
 Imports:
     assertthat,
@@ -30,6 +30,7 @@ Imports:
     grid,
     lubridate,
     methods,
+    nleqslv,
     plotly,
     plyr,
     progress,
@@ -102,6 +103,7 @@ Collate:
     'summary_methods.R'
     'indicator_functions.R'
     'plots.R'
+    'plotBifurcation.R'
     'plotBiomassObservedVsModel.R'
     'plotYieldObservedVsModel.R'
     'animateSpectra.R'
@@ -122,6 +124,8 @@ Collate:
     'match.R'
     'matchGrowth.R'
     'steadySingleSpecies.R'
+    'steadyNewton.R'
+    'getLimitCycleSim.R'
     'defaults_edition.R'
     'validSpeciesParams.R'
     'zzz.R'

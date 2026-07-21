@@ -1,6 +1,64 @@
-# mizer (development version)
+# mizer 3.2.0.9000
 
-## Bug fixes
+This development version adds experimental tools for analysing the dynamic
+stability of steady states.
+
+## New functions
+
+- New experimental `steadyNewton()` finds a steady state by solving the
+  steady-state equation directly with a Newton-type root finder (via the
+  `nleqslv` package) instead of running the dynamics to convergence. Unlike
+  `steady()` it converges even when the steady state is dynamically unstable, and
+  it discovers the support of the steady state automatically. Currently supports
+  the default semichemostat resource dynamics.
+
+- New experimental `getStability()` analyses the dynamic stability of a mizer
+  steady state by computing the eigenvalues of the linearised one-step-ahead map
+  at the fixed point. It reports whether the steady state is stable or unstable,
+  the spectral radius, and — when the system approaches a Hopf bifurcation — the
+  period of the emergent limit cycle. By default the resource is treated as a
+  quasi-static fast variable (valid for semichemostat dynamics); setting
+  `include_resource = TRUE` gives the full coupled (fish + resource) Jacobian,
+  useful for verifying that the quasi-static approximation makes little difference.
+  `steadyNewton()` gains a `stability = TRUE` argument that calls `getStability()`
+  automatically and attaches the result as the attribute `"stability"` on the
+  returned `MizerParams` object. The stability list now also includes
+  `leading_eigenvectors`: a complex array `(n_species, n_sizes, 2)` of the
+  top two eigenvectors reshaped into the fish abundance space, normalised to
+  maximum modulus 1.
+
+- New experimental `getLimitCycleSim()` takes the output of `steadyNewton()`
+  and constructs a `MizerSim` covering one period of the limit cycle in the
+  linear approximation. The trajectory is
+  \eqn{N(t) = N^* + A\,\text{Re}[e^{i\theta t}\,\mathbf{v}]}, where
+  \eqn{\mathbf{v}} is the leading complex eigenvector and the amplitude \eqn{A}
+  is scaled so the maximum relative perturbation equals the `amplitude`
+  argument (default 10\%). The returned object can be passed directly to
+  `plotBiomass()`, `plotSpectra()`, and other standard mizer plot functions.
+
+- New experimental `plotBifurcation()` draws a bifurcation diagram over fishing
+  effort. For each effort value it follows the attractor of the full dynamics
+  and plots the long-term range of a summary quantity (biomass, yield or SSB).
+  A stable steady state appears as a single line and a limit cycle as a band
+  between the minimum and maximum, so a Hopf bifurcation shows up as the effort
+  at which the band opens up. The settling stage runs `projectToSteady()`, whose
+  `tol`, `amplitude_tol` and `extinction_threshold` are exposed for tuning.
+
+## Other improvements
+
+- `steady()` and `projectToSteady()` now report the nature of the solution they
+  converged to via a `"convergence"` attribute on the returned object (mirroring
+  the `"stability"` attribute of `steadyNewton()`). It records whether the run
+  settled on a stable steady state, a limit cycle, or neither, together with the
+  cycle period and relative amplitude when a cycle is found. Limit cycles are
+  detected from a per-species biomass series sampled at the new `t_save`
+  resolution (default `dt`), so detection no longer relies on the cycle period
+  being commensurate with `t_per`. The relative-amplitude floor for calling an
+  oscillation a limit cycle is a separate `amplitude_tol` argument (default
+  `0.01`), independent of the fixed-point convergence tolerance `tol`, and a
+  species is treated as extinct once its reproduction falls below the
+  `extinction_threshold` fraction (default `1e-6`) of its value at the start of
+  the run.
 
 - `species_params<-()` no longer errors when the species parameter data frame
   contains a list column (or a column holding S4/other objects), and no longer

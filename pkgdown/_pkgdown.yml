@@ -90,6 +90,7 @@ articles:
   - default_parameters
   - fft
   - analytic_test
+  - dynamic_stability
 - title: internal
   contents:
   - mizer_vignette
@@ -182,6 +183,9 @@ reference:
     see how well the current model reproduces the observations.
   contents:
   - steady
+  - steadyNewton
+  - getStability
+  - getLimitCycleSim
   - steadySingleSpecies
   - matchGrowth
   - plotBiomassObservedVsModel
@@ -294,6 +298,7 @@ reference:
   - plotFeedingLevel
   - plotYield
   - plotYieldGear
+  - plotBifurcation
   - plotFMort
   - plotMizerParams
   - plotMizerSim
