@@ -189,6 +189,36 @@ test_that("species_params setter validates and recalculates", {
     }
 })
 
+test_that("species_params setter handles list and matrix columns", {
+    # The old-vs-new diff in `species_params<-()` must not use `==` on columns
+    # where it is undefined (list, S4) or does not reduce to one logical per
+    # species (matrix). It should fall back to a per-species `identical()`.
+    params <- NS_params_small
+    no_sp <- nrow(species_params(params))
+
+    # List column, round-tripped unchanged: no error, value preserved.
+    sp <- species_params(params)
+    sp$groups <- lapply(seq_len(no_sp), function(i) letters[i])
+    expect_error(species_params(params) <- sp, NA)
+    expect_identical(species_params(params)$groups[[2]], "b")
+
+    # Changing one element of the list column is detected and recorded.
+    sp <- species_params(params)
+    sp$groups[[1]] <- c("a", "z")
+    species_params(params) <- sp
+    expect_identical(species_params(params)$groups[[1]], c("a", "z"))
+    expect_identical(given_species_params(params)$groups[[1]], c("a", "z"))
+
+    # Matrix column, round-tripped unchanged: no error (a bare `==` would return
+    # a matrix rather than one logical per species).
+    params <- NS_params_small
+    sp <- species_params(params)
+    sp$mat <- matrix(seq_len(2 * no_sp), nrow = no_sp)
+    expect_error(species_params(params) <- sp, NA)
+    expect_equal(species_params(params)$mat, matrix(seq_len(2 * no_sp), nrow = no_sp),
+                 ignore_attr = TRUE)
+})
+
 test_that("given_species_params setter can add new explicit columns", {
     params <- NS_params_small
     sp <- given_species_params(params)

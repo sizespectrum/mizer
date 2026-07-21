@@ -1,3 +1,12 @@
+# mizer (development version)
+
+## Bug fixes
+
+- `species_params<-()` no longer errors when the species parameter data frame
+  contains a list column (or a column holding S4/other objects), and no longer
+  mis-handles a matrix column. The old-vs-new diff now compares such columns
+  per species with `identical()` instead of `==`.
+
 # mizer 3.2.0
 
 This release overhauls how species and resource parameters are set, makes the
