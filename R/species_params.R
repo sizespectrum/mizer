@@ -359,9 +359,13 @@ record_given_species_params <- function(given, value, old_sp) {
             given[[col]][changed] <- new_vals[changed]
         }
     }
+    # A column that `old_sp` does not have at all is new and is recorded in
+    # full. Assigned one at a time rather than with `cbind()`, which would
+    # return a plain data frame and so strip the `given_species_params` class,
+    # stopping `$` from naming the entries after the species.
     new_cols <- setdiff(names(value), names(old_sp))
-    if (length(new_cols) > 0) {
-        given <- cbind(given, value[new_cols])
+    for (col in new_cols) {
+        given[[col]] <- value[[col]]
     }
 
     given
