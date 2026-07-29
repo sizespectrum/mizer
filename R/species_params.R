@@ -230,11 +230,96 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     if (!all(value$species == object@species_params$species)) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")
     }
-    
-    # Find what changed compared to old species_params
-    old_sp <- object@species_params
-    given <- object@given_species_params
+
+    # Find what changed compared to old species_params and record it among the
+    # given species parameters
+    object@given_species_params <-
+        record_given_species_params(object@given_species_params, value,
+                                    object@species_params)
+    new_sp <- validSpeciesParams(object@given_species_params)
+    # Preserve any columns that were present in the supplied species params but
+    # are not tracked in `given_species_params` (for example parameters set
+    # directly on the `@species_params` slot) and are therefore not regenerated
+    # when rebuilding from `given_species_params`.
+    extra_cols <- setdiff(names(value), names(new_sp))
+    for (col in extra_cols) {
+        new_sp[[col]] <- value[[col]]
+    }
+    object@species_params <- new_sp
+    return(suppressMessages(setParams(object)))
+}
+
+#' Record the species parameters that have changed
+#'
+#' Compares the new species parameters in `value` against the old ones in
+#' `old_sp` and records the entries that have changed in the given species
+#' parameter data frame `given`. This is the change detection used by
+#' `species_params<-()`, exported so that code which updates the species
+#' parameters by other means can record its changes the same way.
+#'
+#' @details
+#' Mizer distinguishes between the species parameters that were given
+#' explicitly and those that it calculated itself, see [species_params()]. Only
+#' the given ones are protected: whenever the species parameters are
+#' recalculated -- which every use of `species_params<-()` triggers -- the
+#' calculated ones are derived afresh from the given ones. So code that
+#' computes a species parameter and writes it into the `species_params` slot
+#' directly has its work silently undone by the next parameter change, unless
+#' the value is also recorded among the given species parameters.
+#'
+#' The usual way to record a parameter is to set it with `species_params<-()`,
+#' which also rebuilds the species parameters and recalculates all the rates
+#' that depend on them. This function is the recording step on its own, for the
+#' case where the caller has already updated the affected rates itself, for
+#' example an optimiser that fits a species parameter and the rate array it
+#' determines together. Rebuilding and recalculating would then be wasted work,
+#' and can even undo the caller's own adjustment.
+#'
+#' Only the values that have actually changed are recorded. This matters:
+#' recording an unchanged value would turn a calculated species parameter into
+#' a given one and thereby stop it from responding to changes in the parameters
+#' it is derived from. The comparison is made entry by entry, so a parameter is
+#' protected only for the species whose value changed. `NA` is compared as a
+#' value rather than as an unknown, so `NA` staying `NA` does not count as a
+#' change. A column that is not present in `old_sp` at all is taken to be new
+#' and is recorded in full.
+#'
+#' @param given The given species parameter data frame to record into, usually
+#'   `given_species_params(params)`.
+#' @param value A data frame holding the new species parameters.
+#' @param old_sp A data frame holding the species parameters as they were
+#'   before the change. Must have one row per species, in the same order as
+#'   `value` and `given`.
+#'
+#' @return The updated `given` data frame.
+#' @export
+#' @seealso [species_params()], [given_species_params()]
+#' @concept helper
+#' @examples
+#' params <- NS_params
+#' sp_before <- species_params(params)
+#' given_before <- given_species_params(params)
+#'
+#' # Set a species parameter and the rate it determines, without going through
+#' # `species_params<-()` and its recalculation of every other rate.
+#' params@species_params$ks[1] <- species_params(params)$ks[1] * 2
+#' params@metab[1, ] <- params@metab[1, ] * 2
+#'
+#' # Record the change so that it is not recalculated away later
+#' params@given_species_params <-
+#'     record_given_species_params(given_species_params(params),
+#'                                 species_params(params), sp_before)
+#'
+#' # Only the entry that changed has been recorded
+#' given_species_params(params)$ks == given_before$ks
+record_given_species_params <- function(given, value, old_sp) {
+    assert_that(is.data.frame(given),
+                is.data.frame(value),
+                is.data.frame(old_sp))
     no_sp <- nrow(old_sp)
+    if (nrow(value) != no_sp || nrow(given) != no_sp) {
+        stop("`given`, `value` and `old_sp` must all have one row per species.")
+    }
 
     common_cols <- intersect(names(value), names(old_sp))
     for (col in common_cols) {
@@ -262,7 +347,7 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
                 function(i) identical(get_row(old_vals, i), get_row(new_vals, i)),
                 logical(1))
         }
-        
+
         if (any(changed)) {
             if (!col %in% names(given)) {
                 given[[col]] <- if (is.list(new_vals)) {
@@ -278,19 +363,8 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     if (length(new_cols) > 0) {
         given <- cbind(given, value[new_cols])
     }
-    
-    object@given_species_params <- given
-    new_sp <- validSpeciesParams(given)
-    # Preserve any columns that were present in the supplied species params but
-    # are not tracked in `given_species_params` (for example parameters set
-    # directly on the `@species_params` slot) and are therefore not regenerated
-    # when rebuilding from `given_species_params`.
-    extra_cols <- setdiff(names(value), names(new_sp))
-    for (col in extra_cols) {
-        new_sp[[col]] <- value[[col]]
-    }
-    object@species_params <- new_sp
-    return(suppressMessages(setParams(object)))
+
+    given
 }
 
 #' @rdname species_params
@@ -493,7 +567,7 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
     assert_that(is.data.frame(object))
     # Convert a tibble back to an ordinary data frame
     sp <- as.data.frame(object, stringsAsFactors = FALSE)
-    
+
     check_for_misspellings(names(sp), known_species_params_columns(),
                            "species parameter",
                            curated_species_params_misspellings())
@@ -692,7 +766,7 @@ calculated_species_params <- function(params) {
     # Removing columns that only contain NAs
     calculated <- calculated %>%
         select(where(~ !all(is.na(.))))
-    
+
     calculated$species <- params@species_params$species
     calculated <- calculated[, c("species", setdiff(names(calculated), "species")), drop = FALSE]
 
