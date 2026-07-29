@@ -396,3 +396,96 @@ test_that("get_h_default accepts MizerParams, species_params and data.frame", {
     expect_equal(h_params, h_sp)
     expect_equal(h_params, h_df)
 })
+
+# record_given_species_params ---------------------------------------------
+
+test_that("record_given_species_params records changed values", {
+    params <- NS_params_small
+    sp_before <- species_params(params)
+    value <- sp_before
+    value$gamma <- value$gamma * 2
+
+    given <- record_given_species_params(given_species_params(params),
+                                         value, sp_before)
+
+    expect_equal(given$gamma, sp_before$gamma * 2, ignore_attr = TRUE)
+})
+
+test_that("record_given_species_params records nothing when nothing changed", {
+    params <- NS_params_small
+    sp <- species_params(params)
+    given <- given_species_params(params)
+
+    expect_identical(record_given_species_params(given, sp, sp), given)
+})
+
+test_that("record_given_species_params only records the species that changed", {
+    params <- NS_params_small
+    sp_before <- species_params(params)
+    value <- sp_before
+    value$gamma[2] <- value$gamma[2] * 2
+
+    given_before <- given_species_params(params)
+    given <- record_given_species_params(given_before, value, sp_before)
+
+    expect_equal(given$gamma[2], sp_before$gamma[2] * 2, ignore_attr = TRUE)
+    expect_equal(given$gamma[-2], given_before$gamma[-2], ignore_attr = TRUE)
+})
+
+test_that("record_given_species_params treats NA as a value", {
+    params <- NS_params_small
+    sp_before <- species_params(params)
+    sp_before$my_par <- NA_real_
+    value <- sp_before
+    value$my_par[1] <- 3.5
+
+    given <- record_given_species_params(given_species_params(params),
+                                         value, sp_before)
+
+    expect_equal(unname(given$my_par[1]), 3.5)
+    expect_true(all(is.na(given$my_par[-1])))
+})
+
+test_that("record_given_species_params records a wholly new column", {
+    params <- NS_params_small
+    sp_before <- species_params(params)
+    value <- sp_before
+    value$my_par <- seq_len(nrow(value)) + 0.5
+
+    given <- record_given_species_params(given_species_params(params),
+                                         value, sp_before)
+
+    expect_equal(given$my_par, seq_len(nrow(value)) + 0.5, ignore_attr = TRUE)
+})
+
+test_that("recorded parameters survive a recalculation", {
+    params <- NS_params_small
+    sp_before <- species_params(params)
+    new_ks <- sp_before$ks * 2
+
+    # Without recording, the recalculation triggered by any species parameter
+    # change derives ks afresh from the given parameters.
+    unprotected <- params
+    unprotected@species_params$ks <- new_ks
+    species_params(unprotected)$w_mat <- species_params(unprotected)$w_mat
+    expect_false(isTRUE(all.equal(species_params(unprotected)$ks, new_ks)))
+
+    protected <- params
+    protected@species_params$ks <- new_ks
+    protected@given_species_params <-
+        record_given_species_params(given_species_params(protected),
+                                    species_params(protected), sp_before)
+    species_params(protected)$w_mat <- species_params(protected)$w_mat
+    expect_equal(species_params(protected)$ks, new_ks)
+})
+
+test_that("record_given_species_params checks the number of species", {
+    params <- NS_params_small
+    sp <- species_params(params)
+    given <- given_species_params(params)
+
+    expect_error(record_given_species_params(given, sp, sp[-1, ]),
+                 "must all have one row per species")
+    expect_error(record_given_species_params(given, sp[-1, ], sp),
+                 "must all have one row per species")
+})

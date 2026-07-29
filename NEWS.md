@@ -1,5 +1,17 @@
 # mizer (development version)
 
+## New functions
+
+- New `record_given_species_params()` exports the entry-by-entry change
+  detection that `species_params<-()` uses to decide which values to record in
+  `given_species_params()`. It is the recording step on its own, without the
+  rebuild of the species parameters and the recalculation of all the rates.
+  This is for code that fits a species parameter together with the rate array
+  it determines — an optimiser, say — where that recalculation would be wasted
+  work or would undo the caller's own adjustment. Such code has to record its
+  changes: a species parameter written straight into the `species_params` slot
+  is silently reverted the next time anything triggers a recalculation.
+
 ## Bug fixes
 
 - `species_params<-()` no longer errors when the species parameter data frame
