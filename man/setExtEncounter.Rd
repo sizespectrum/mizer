@@ -88,7 +88,6 @@ ext_encounter(params) <- allo_encounter
 \seealso{
 Other functions for setting parameters:
 \code{\link[=gear_params]{gear_params()}},
-\code{\link[=record_given_species_params]{record_given_species_params()}},
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtMort]{setExtMort()}},
 \code{\link[=setFishing]{setFishing()}},

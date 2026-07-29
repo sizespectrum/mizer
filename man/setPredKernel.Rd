@@ -153,7 +153,6 @@ params<- setPredKernel(params, pred_kernel = pred_kernel)
 \seealso{
 Other functions for setting parameters:
 \code{\link[=gear_params]{gear_params()}},
-\code{\link[=record_given_species_params]{record_given_species_params()}},
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},
 \code{\link[=setExtMort]{setExtMort()}},

@@ -230,7 +230,7 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     if (!all(value$species == object@species_params$species)) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")
     }
-    
+
     # Find what changed compared to old species_params and record it among the
     # given species parameters
     object@given_species_params <-
@@ -294,7 +294,7 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
 #' @return The updated `given` data frame.
 #' @export
 #' @seealso [species_params()], [given_species_params()]
-#' @family functions for setting parameters
+#' @concept helper
 #' @examples
 #' params <- NS_params
 #' sp_before <- species_params(params)
@@ -567,7 +567,7 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
     assert_that(is.data.frame(object))
     # Convert a tibble back to an ordinary data frame
     sp <- as.data.frame(object, stringsAsFactors = FALSE)
-    
+
     check_for_misspellings(names(sp), known_species_params_columns(),
                            "species parameter",
                            curated_species_params_misspellings())
@@ -766,7 +766,7 @@ calculated_species_params <- function(params) {
     # Removing columns that only contain NAs
     calculated <- calculated %>%
         select(where(~ !all(is.na(.))))
-    
+
     calculated$species <- params@species_params$species
     calculated <- calculated[, c("species", setdiff(names(calculated), "species")), drop = FALSE]
 
