@@ -489,3 +489,22 @@ test_that("record_given_species_params checks the number of species", {
     expect_error(record_given_species_params(given, sp[-1, ], sp),
                  "must all have one row per species")
 })
+
+test_that("record_given_species_params preserves the class of `given`", {
+    params <- NS_params_small
+    sp_before <- species_params(params)
+    given_before <- given_species_params(params)
+
+    # Both with and without a wholly new column, which used to be added with
+    # `cbind()` and thereby strip the class.
+    value <- sp_before
+    value$my_par <- seq_len(nrow(value)) + 0.5
+    for (v in list(sp_before, value)) {
+        given <- record_given_species_params(given_before, v, sp_before)
+        expect_s3_class(given, "given_species_params")
+        expect_s3_class(given, "species_params")
+        expect_identical(rownames(given), rownames(given_before))
+        # `$` names the entries after the species, as for species_params()
+        expect_identical(names(given$w_mat), rownames(given))
+    }
+})
