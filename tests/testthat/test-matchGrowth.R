@@ -62,3 +62,21 @@ test_that("matchGrowth rescales rates and species parameters by age ratio", {
     expect_equal(species_params(params2)$h[[i]],
                  species_params(params)$h[[i]] * factor)
 })
+
+test_that("matchGrowth survives a later recalculation", {
+    # The scaled species parameters have to be recorded among the given ones,
+    # otherwise the next species parameter change recalculates them from the
+    # unscaled given values and undoes the match.
+    params <- NS_params_small
+    matched <- matchGrowth(params)
+    growth <- getEGrowth(matched)
+    scaled <- species_params(matched)[, intersect(c("gamma", "h", "ks", "k"),
+                                                  names(species_params(matched)))]
+
+    species_params(matched)$w_mat <- species_params(matched)$w_mat
+    expect_equal(species_params(matched)[, names(scaled)], scaled)
+    # `getEGrowth()` attaches the params object as an attribute, and the
+    # rebuild legitimately reorders the species parameter columns, so compare
+    # the values only.
+    expect_equal(getEGrowth(matched), growth, ignore_attr = TRUE)
+})

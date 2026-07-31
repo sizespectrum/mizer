@@ -89,10 +89,17 @@ test_that("validGivenSpeciesParams checks documented error cases and signals inc
                      a = 0.01,
                      b = 3)
     expect_condition(
-        validGivenSpeciesParams(sp),
+        suppressWarnings(validGivenSpeciesParams(sp)),
         "For the following species I will ignore your value for l_max",
         class = "info_about_default"
     )
+    # Both were given at the same time, so the weight wins and `l_max` is set
+    # to match it, as the message above says.
+    expect_warning(validGivenSpeciesParams(sp),
+                   "value of `l_max` is not consistent with the value of `w_max`")
+    out <- suppressWarnings(validGivenSpeciesParams(sp))
+    expect_equal(out$w_max, c(1, 1000), ignore_attr = TRUE)
+    expect_equal(out$l_max, w2l(c(1, 1000), sp), ignore_attr = TRUE)
 })
 
 test_that("validSpeciesParams sets the documented defaults", {

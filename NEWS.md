@@ -48,11 +48,89 @@ stability of steady states.
   detection that `species_params<-()` uses to decide which values to record in
   `given_species_params()`. It is the recording step on its own, without the
   rebuild of the species parameters and the recalculation of all the rates.
-  This is for code that fits a species parameter together with the rate array
-  it determines — an optimiser, say — where that recalculation would be wasted
-  work or would undo the caller's own adjustment. Such code has to record its
-  changes: a species parameter written straight into the `species_params` slot
-  is silently reverted the next time anything triggers a recalculation.
+  This is for code that has already written into the `species_params` slot
+  itself, for example an optimiser that fits a species parameter together with
+  the rate array it determines. Such code has to record its changes: a species
+  parameter written straight into the slot is silently reverted the next time
+  anything triggers a recalculation. If you have a species parameter data frame
+  to hand rather than having written into the slot, use
+  `species_params(params, recalculate = FALSE) <- value` instead.
+
+## Species parameter changes
+
+- `species_params<-()` gains a `recalculate` argument. With
+  `species_params(params, recalculate = FALSE) <- value` mizer records the
+  values you changed in `given_species_params`, so that they are not calculated
+  away later, and stores the parameters you supplied, but does not re-derive
+  the calculated species parameters and does not recalculate any of the
+  size-dependent rates. This is for code that sets a species parameter together
+  with the rate array it determines, where the recalculation would undo the
+  caller's own adjustment. Keeping the object consistent is then the caller's
+  responsibility.
+
+- A size that can be given either as a weight or as the length it converts to
+  (`w_mat` and `l_mat`, and likewise `w_mat25`, `w_repro_max`, `w_inf`, `w_max`
+  and `w_min`) now follows a single rule: **the one given last wins, and if
+  both are given at the same time the weight wins**. The other one is set to
+  match, so the two never disagree.
+
+  Previously the length always won, whenever and however it had been supplied.
+  On a model specified by lengths an assignment like
+  `species_params(params)$w_mat[1] <- 100` was therefore silently replaced by
+  the value calculated from the unchanged `l_mat`, so weights simply could not
+  be set. Setting a length still determines the weight as before.
+
+  This also resolves a contradiction: given both a weight and a length for the
+  same size, mizer would report "I will ignore your value for `l_max`" and then
+  use `l_max` anyway. It now does what it says.
+
+- The conversion between lengths and weights is now applied per species.
+  Previously a single species whose weight and length disagreed caused the
+  whole column to be recalculated from the lengths, which also overwrote the
+  weights of species whose length was not known at all.
+
+- Mizer now warns, naming the species, when a length and a weight for the same
+  size disagree and it changes the length to match the weight. This was
+  previously silent and in the other direction: on a model whose stored `w_mat`
+  had drifted from `a * l_mat^b`, any assignment to `species_params()` rewrote
+  `w_mat` for every species without saying so.
+
+- Editing a `species_params` or `gear_params` data frame on its own no longer
+  validates it on every assignment. The `[<-`, `$<-` and `[[<-` methods that
+  did this have been removed, so such a data frame now behaves like the plain
+  data frame it is: you can leave it in an inconsistent state while you work on
+  it, and no conversion, check or warning happens until you validate it, which
+  is what `species_params()` does to a plain data frame and what
+  `species_params<-()` does to the table it is given. The subclass is still
+  preserved, because the base `data.frame` methods preserve it.
+
+  This makes such an assignment about 13 times faster, and it is what lets the
+  length/weight rule work as intended: `species_params<-()` can see which
+  values you changed relative to the model, so the value you set last wins.
+  Note that a data frame edited on its own carries no such history, so if a
+  length and a weight both differ they count as given at the same time and the
+  weight wins.
+
+- `species_params<-()` no longer errors when the species parameter data frame
+  contains a list column (or a column holding S4/other objects), and no longer
+  mis-handles a matrix column. The old-vs-new diff now compares such columns
+  per species with `identical()` instead of `==`.
+
+- `l2w()` and `w2l()` are about 3 times faster. They were spending about 85% of
+  each call on argument checking rather than on the conversion: `assert_that()`
+  builds its message whether or not it is needed, and `is(species_params,
+  "MizerParams")` consulted the S4 class hierarchy even for a plain data frame.
+  They now do the same checks, in the same order and with the same error
+  messages, more cheaply. Validating a species parameter data frame is also
+  faster, because the length/weight conversion now does the arithmetic inline
+  instead of calling these functions once for each of the six size parameters.
+
+- `matchGrowth()` now records the species parameters it scales (`gamma`, `h`,
+  `ks` and `k`) among the given species parameters. Previously it wrote them
+  straight into the `species_params` slot, so any later species parameter
+  change recalculated them from the unscaled given values and silently undid
+  part of the match: on `NS_params` the growth rate no longer matched after a
+  subsequent assignment to `species_params()`.
 
 ## Other improvements
 
@@ -69,11 +147,6 @@ stability of steady states.
   species is treated as extinct once its reproduction falls below the
   `extinction_threshold` fraction (default `1e-6`) of its value at the start of
   the run.
-
-- `species_params<-()` no longer errors when the species parameter data frame
-  contains a list column (or a column holding S4/other objects), and no longer
-  mis-handles a matrix column. The old-vs-new diff now compares such columns
-  per species with `identical()` instead of `==`.
 
 # mizer 3.2.0
 

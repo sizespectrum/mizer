@@ -499,27 +499,6 @@ check_gear_params <- function(x) {
 }
 
 #' @export
-`[<-.gear_params` <- function(x, i, j, ..., value) {
-    out <- NextMethod("[<-")
-    class(out) <- class(x)
-    check_gear_params(out)
-}
-
-#' @export
-`[[<-.gear_params` <- function(x, i, j, ..., value) {
-    out <- NextMethod("[[<-")
-    class(out) <- class(x)
-    check_gear_params(out)
-}
-
-#' @export
-`$<-.gear_params` <- function(x, name, value) {
-    out <- NextMethod("$<-")
-    class(out) <- class(x)
-    check_gear_params(out)
-}
-
-#' @export
 print.gear_params <- function(x, ...) {
     cat("An object of class \"gear_params\" containing gear parameters for", nrow(x), "gears:\n")
     core_cols <- c("gear", "species", "sel_func", "catchability")
