@@ -219,6 +219,241 @@ test_that("species_params setter handles list and matrix columns", {
                  ignore_attr = TRUE)
 })
 
+test_that("species_params setter with recalculate = FALSE records but does not recalculate", {
+    params <- NS_params_small
+    sp <- species_params(params)
+    new_ks <- sp$ks * 2
+    sp$ks <- new_ks
+
+    quick <- params
+    species_params(quick, recalculate = FALSE) <- sp
+
+    # The new value is stored and recorded among the given parameters
+    expect_equal(species_params(quick)$ks, new_ks, ignore_attr = TRUE)
+    expect_equal(given_species_params(quick)$ks, new_ks, ignore_attr = TRUE)
+    expect_s3_class(species_params(quick), "species_params")
+
+    # ... but the rate it determines is left untouched, whereas the default
+    # `recalculate = TRUE` would have doubled it.
+    expect_identical(quick@metab, params@metab)
+    recalculated <- params
+    species_params(recalculated) <- sp
+    expect_false(isTRUE(all.equal(recalculated@metab, params@metab)))
+})
+
+test_that("species_params setter with recalculate = FALSE does not re-derive calculated params", {
+    params <- NS_params_small
+    sp <- species_params(params)
+    # `w_mat25` is a calculated parameter. Clearing it asks for it to be
+    # derived afresh, which only the recalculation does.
+    sp$w_mat25 <- NA
+
+    quick <- params
+    species_params(quick, recalculate = FALSE) <- sp
+    expect_true(all(is.na(species_params(quick)$w_mat25)))
+
+    recalculated <- params
+    species_params(recalculated) <- sp
+    expect_false(any(is.na(species_params(recalculated)$w_mat25)))
+})
+
+test_that("species_params setter with recalculate = FALSE fills in no defaults", {
+    # Filling in a default would record it as a given value, which would turn a
+    # parameter the model had left calculated into one that no longer responds
+    # to the parameters it is derived from.
+    params <- NS_params_small
+    sp <- species_params(params)
+    sp$a <- NULL
+    sp$b <- NULL
+    params@species_params <- sp
+    params@given_species_params$a <- NULL
+    params@given_species_params$b <- NULL
+
+    sp$w_min <- sp$w_min * 2
+    species_params(params, recalculate = FALSE) <- sp
+    expect_false("a" %in% names(species_params(params)))
+    expect_false("b" %in% names(given_species_params(params)))
+    expect_setequal(names(species_params(params)), names(sp))
+})
+
+test_that("parameters set with recalculate = FALSE survive a later recalculation", {
+    params <- NS_params_small
+    sp <- species_params(params)
+    new_ks <- sp$ks * 2
+    sp$ks <- new_ks
+    species_params(params, recalculate = FALSE) <- sp
+    # The caller sets the matching rate itself
+    params@metab[] <- params@metab * 2
+
+    # Any later parameter change recalculates the rates, but from the recorded
+    # `ks` rather than from a default.
+    species_params(params)$w_mat <- species_params(params)$w_mat
+    expect_equal(species_params(params)$ks, new_ks, ignore_attr = TRUE)
+})
+
+test_that("species_params setter with recalculate = FALSE still validates", {
+    params <- NS_params_small
+    sp <- species_params(params)
+    sp$species <- rev(sp$species)
+    expect_error(species_params(params, recalculate = FALSE) <- sp,
+                 "species names in the new species parameter data frame do not match")
+})
+
+# length and weight parameters -------------------------------------------
+
+# A model in which the maturity size is given as a length
+length_based_params <- function() {
+    params <- NS_params_small
+    sp <- species_params(params)
+    sp$l_mat <- w2l(sp$w_mat, sp)
+    suppressMessages(species_params(params) <- sp)
+    params
+}
+
+test_that("setting a weight parameter is not converted away by its length", {
+    params <- length_based_params()
+    sp <- species_params(params)
+    new_w_mat <- sp$w_mat[[1]] * 1.5
+
+    species_params(params)$w_mat[1] <- new_w_mat
+    expect_equal(species_params(params)$w_mat[[1]], new_w_mat,
+                 ignore_attr = TRUE)
+    # and the length has followed the new weight
+    expect_equal(species_params(params)$l_mat[[1]],
+                 w2l(new_w_mat, species_params(params))[[1]],
+                 ignore_attr = TRUE)
+    # the other species are untouched
+    expect_equal(species_params(params)$w_mat[-1], sp$w_mat[-1],
+                 ignore_attr = TRUE)
+})
+
+test_that("all three assignment forms keep length and weight consistent", {
+    params <- length_based_params()
+    new_w_mat <- species_params(params)$w_mat[[1]] * 1.5
+
+    for (assign in list(function(p) {species_params(p)$w_mat[1] <- new_w_mat; p},
+                        function(p) {species_params(p)[1, "w_mat"] <- new_w_mat; p},
+                        function(p) {species_params(p)[[1, "w_mat"]] <- new_w_mat; p})) {
+        out <- species_params(assign(params))
+        expect_equal(out$w_mat[[1]], new_w_mat, ignore_attr = TRUE)
+        expect_equal(out$l_mat[[1]], w2l(new_w_mat, out)[[1]],
+                     ignore_attr = TRUE)
+    }
+})
+
+test_that("editing a species parameter data frame on its own does not validate", {
+    # The checks and conversions happen when the data frame is validated, which
+    # includes when it is assigned into a model, not on every assignment to it.
+    sp <- species_params(length_based_params())
+    l_mat_before <- sp$l_mat[[1]]
+
+    sp$w_mat[1] <- sp$w_mat[[1]] * 1.5
+    expect_equal(sp$l_mat[[1]], l_mat_before, ignore_attr = TRUE)
+    expect_no_warning(sp$wmin <- 0.1)
+
+    # ... and the class survives all three assignment forms
+    expect_s3_class(sp, "species_params")
+    sp[1, "w_mat"] <- sp$w_mat[[1]]
+    expect_s3_class(sp, "species_params")
+    sp[[1, "w_mat"]] <- sp$w_mat[[1]]
+    expect_s3_class(sp, "species_params")
+})
+
+test_that("setting a length parameter still determines the weight", {
+    params <- length_based_params()
+    sp <- species_params(params)
+    new_l_mat <- sp$l_mat[[1]] * 1.05
+
+    # The weight follows the length, and that is not reported as an
+    # inconsistency because the length is what the caller just set.
+    expect_warning(species_params(params)$l_mat[1] <- new_l_mat, NA)
+    expect_equal(species_params(params)$l_mat[[1]], new_l_mat,
+                 ignore_attr = TRUE)
+    expect_equal(species_params(params)$w_mat[[1]],
+                 l2w(new_l_mat, species_params(params))[[1]],
+                 ignore_attr = TRUE)
+})
+
+test_that("length to weight conversion is per species", {
+    # A species whose length is not known must keep its weight even when
+    # another species has inconsistent values.
+    sp <- species_params(length_based_params())
+    sp <- as.data.frame(sp)
+    sp$l_mat[2] <- NA
+    w_mat_2 <- sp$w_mat[[2]]
+    sp$w_mat[1] <- sp$w_mat[[1]] * 1.1  # now inconsistent with its length
+
+    out <- suppressWarnings(validSpeciesParams(sp))
+    # The species whose length is unknown keeps its weight
+    expect_equal(out$w_mat[[2]], w_mat_2, ignore_attr = TRUE)
+    # The other species keeps its weight too, and its length now matches
+    expect_equal(out$w_mat[[1]], sp$w_mat[[1]], ignore_attr = TRUE)
+    expect_equal(out$l_mat[[1]], w2l(sp$w_mat, sp)[[1]], ignore_attr = TRUE)
+})
+
+test_that("a missing weight is still taken from the length", {
+    sp <- as.data.frame(species_params(length_based_params()))
+    sp$w_mat[2] <- NA
+    out <- expect_warning(validSpeciesParams(sp), NA)
+    expect_equal(out$w_mat[[2]], l2w(sp$l_mat, sp)[[2]], ignore_attr = TRUE)
+})
+
+test_that("when both are given at once the weight wins, with a warning", {
+    # Both supplied together in one data frame, disagreeing: the weight is
+    # authoritative and the length is set to match.
+    sp <- data.frame(species = c("a", "b"), l_max = c(10, 20),
+                     w_max = c(1, 1000), a = 0.01, b = 3)
+    expect_warning(validSpeciesParams(sp),
+                   paste0("the value of `l_max` is not consistent with the ",
+                          "value of `w_max`.*a, b"))
+    out <- suppressWarnings(validSpeciesParams(sp))
+    expect_equal(out$w_max, c(1, 1000), ignore_attr = TRUE)
+    expect_equal(out$l_max, w2l(c(1, 1000), sp), ignore_attr = TRUE)
+
+    # No warning when they agree
+    expect_warning(validSpeciesParams(as.data.frame(
+        species_params(length_based_params()))), NA)
+})
+
+test_that("setting weight and length together lets the weight win", {
+    params <- length_based_params()
+    # Edit a plain data frame so that both changes arrive in the same
+    # assignment rather than being reconciled one at a time.
+    sp <- as.data.frame(species_params(params))
+    new_w_mat <- sp$w_mat[[1]] * 1.5
+    sp$w_mat[1] <- new_w_mat
+    sp$l_mat[1] <- sp$l_mat[[1]] * 1.1
+
+    suppressMessages(species_params(params) <- sp)
+    expect_equal(species_params(params)$w_mat[[1]], new_w_mat,
+                 ignore_attr = TRUE)
+    expect_equal(species_params(params)$l_mat[[1]],
+                 w2l(new_w_mat, species_params(params))[[1]],
+                 ignore_attr = TRUE)
+})
+
+test_that("of two successive changes to the model the later one wins", {
+    # Each of these assignments goes through `species_params<-()`, so the model
+    # sees them one at a time and the rule can tell which came last.
+    params <- length_based_params()
+
+    # weight first, then length: the length is the later information
+    p <- params
+    species_params(p)$w_mat[1] <- species_params(p)$w_mat[[1]] * 1.5
+    species_params(p)$l_mat[1] <- species_params(p)$l_mat[[1]] * 1.05
+    sp <- species_params(p)
+    expect_equal(sp$w_mat[[1]], l2w(sp$l_mat, sp)[[1]], ignore_attr = TRUE)
+
+    # length first, then weight: now the weight is
+    p <- params
+    new_w_mat <- species_params(p)$w_mat[[1]] * 1.5
+    species_params(p)$l_mat[1] <- species_params(p)$l_mat[[1]] * 1.05
+    species_params(p)$w_mat[1] <- new_w_mat
+    sp <- species_params(p)
+    expect_equal(sp$w_mat[[1]], new_w_mat, ignore_attr = TRUE)
+    expect_equal(sp$l_mat[[1]], w2l(new_w_mat, sp)[[1]], ignore_attr = TRUE)
+})
+
 test_that("given_species_params setter can add new explicit columns", {
     params <- NS_params_small
     sp <- given_species_params(params)
@@ -320,36 +555,56 @@ test_that("species_params S3 class properties work", {
     expect_true(is.given_species_params(given_df))
 })
 
-test_that("Reactive validation and conversions work", {
+test_that("Validation and conversions work", {
+    # These happen when a species parameter data frame is validated, which is
+    # what `species_params()` does to a plain data frame and what
+    # `species_params<-()` does to the table it is given.
+
     # 1. Misspelling warnings
     df <- data.frame(species = c("Sprat", "Herring"), w_inf = c(10, 100))
-    sp <- species_params(df)
-    expect_warning(sp$wmin <- 0.1, "very close to standard parameter names")
+    df$wmin <- 0.1
+    # (the misspelling check runs at both validation stages, hence the
+    # `suppressWarnings()` around the expectation to swallow the duplicate)
+    suppressWarnings(
+        expect_warning(species_params(df),
+                       "very close to standard parameter names"))
     # Fuzzy typo of a recognised name is flagged with a suggestion ...
-    expect_warning(sp$w_maxx <- 100, "did you mean `w_max`")
-    # ... but a genuine custom column is not (use a fresh object without the
-    # typo'd columns added above)
-    sp_clean <- species_params(df)
-    expect_no_warning(sp_clean$my_note <- "x")
+    df2 <- data.frame(species = c("Sprat", "Herring"), w_inf = c(10, 100),
+                      w_maxx = 100)
+    suppressWarnings(expect_warning(species_params(df2), "did you mean `w_max`"))
+    # ... but a genuine custom column is not
+    df3 <- data.frame(species = c("Sprat", "Herring"), w_inf = c(10, 100),
+                      my_note = "x")
+    expect_no_warning(species_params(df3))
 
     # 2. Length-to-weight conversion
-    df2 <- data.frame(species = "Sprat", a = 0.01, b = 3, l_mat = 10)
-    sp2 <- species_params(df2)
+    dfl <- data.frame(species = "Sprat", a = 0.01, b = 3, l_mat = 10)
+    sp <- species_params(dfl)
     # Check that w_mat was automatically calculated (0.01 * 10^3 = 10)
-    expect_equal(sp2$w_mat, 10, ignore_attr = TRUE)
+    expect_equal(sp$w_mat, 10, ignore_attr = TRUE)
 
-    # Check conversion updates when l_mat is edited
-    sp2$l_mat <- 20
-    expect_equal(sp2$w_mat, 80, ignore_attr = TRUE)
+    # On a standalone table there is nothing to say which of the pair is the
+    # more recent, so both count as given at once and the weight wins.
+    sp$l_mat <- 20
+    suppressWarnings(expect_warning(out <- species_params(sp),
+                                    "is not consistent with"))
+    expect_equal(out$w_mat, 10, ignore_attr = TRUE)
+    expect_equal(out$l_mat, 10, ignore_attr = TRUE)
+
+    # In a model the change can be attributed, so an edited length wins there
+    params <- suppressMessages(newMultispeciesParams(
+        data.frame(species = "Sprat", w_inf = 100, a = 0.01, b = 3, l_mat = 10)))
+    species_params(params)$l_mat <- 20
+    expect_equal(species_params(params)$w_mat[[1]], 80, ignore_attr = TRUE)
 
     # 3. Consistency checks
-    # Remove l_mat so the length-to-weight conversion does not override w_mat
-    sp2$l_mat <- NULL
-    # Setting w_inf < current w_mat (80) should warn and auto-correct w_mat
-    expect_warning(sp2$w_inf <- 50, "the value for `w_mat` is not smaller than that of `w_inf`")
-    # After auto-correction, w_mat should now be w_inf/4 = 12.5, so setting
-    # w_mat <- 60 (> w_inf=50) should warn again
-    expect_warning(sp2$w_mat <- 60, "the value for `w_mat` is not smaller than that of `w_inf`")
+    sp <- suppressWarnings(
+        species_params(data.frame(species = "Sprat", w_inf = 50, w_mat = 80)))
+    expect_equal(sp$w_mat, 12.5, ignore_attr = TRUE)  # corrected to w_inf / 4
+    sp$w_mat <- 60
+    suppressWarnings(
+        expect_warning(species_params(sp),
+                       "the value for `w_mat` is not smaller than that of `w_inf`"))
 })
 
 test_that("Print and Summary methods work", {

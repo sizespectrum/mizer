@@ -155,9 +155,13 @@ bin_midpoints <- function(params, w_full = FALSE) {
 #' @export
 #' @concept helper
 l2w <- function(l, species_params) {
-    assert_that(is.numeric(l))
+    # The checks avoid `assert_that()`, which builds its message whether or not
+    # it is needed, and only consult the S4 class hierarchy for objects that
+    # are actually S4. Together that is most of the cost of a call, and this
+    # function is short enough that callers may use it inside a loop.
+    if (!is.numeric(l)) stop("l is not a numeric or integer vector")
     sp <- species_params
-    if (is(species_params, "MizerParams")) {
+    if (isS4(species_params) && is(species_params, "MizerParams")) {
         sp <- species_params@species_params
     }
     if (!is.data.frame(sp)) {
@@ -177,9 +181,11 @@ l2w <- function(l, species_params) {
 #' @rdname l2w
 #' @export
 w2l <- function(w, species_params) {
-    assert_that(is.numeric(w))
+    # See the note in `l2w()` about why these checks avoid `assert_that()`
+    # and `is()`.
+    if (!is.numeric(w)) stop("w is not a numeric or integer vector")
     sp <- species_params
-    if (is(species_params, "MizerParams")) {
+    if (isS4(species_params) && is(species_params, "MizerParams")) {
         sp <- species_params@species_params
     }
     if (!is.data.frame(sp)) {

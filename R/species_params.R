@@ -92,6 +92,23 @@
 #' `w_min` by their corresponding length parameters `l_inf`, `l_max`, `l_mat`,
 #' `l_mat25`, `l_repro_max` and `l_min`.
 #'
+#' You can also keep both, and change either of them later. Mizer keeps the two
+#' consistent by the rule that the one you gave last wins, and if you gave both
+#' at the same time the weight wins. So on a model set up with lengths you can
+#' still set `w_mat` with `species_params<-()` and mizer will update `l_mat` to
+#' match, and if you set `l_mat` it will update `w_mat` as always. When you
+#' supply a length and a weight together that do not agree, mizer uses the
+#' weight and warns you that it has changed the length to match.
+#'
+#' The rule is applied when a species parameter data frame is put into a model.
+#' A data frame that you have taken out of a model and are editing on its own
+#' is left exactly as you write it: no conversions, no checks and no warnings
+#' until you assign it back with `species_params<-()`, which is when mizer can
+#' tell which values you changed. A data frame that was never in a model, for
+#' example one you pass to [validSpeciesParams()], carries no such history, so
+#' a length and a weight that disagree there count as given at the same time
+#' and the weight wins.
+#'
 #' The parameters that are only used to calculate default values for other
 #' parameters are:
 #'
@@ -142,15 +159,43 @@
 #' @param object A MizerParams object, a MizerSim object or a data frame
 #' @param params A MizerParams object.
 #' @param value A data frame with the new species parameters.
+#' @param recalculate Whether `species_params<-()` should re-derive the
+#'   calculated species parameters and recalculate all the rates that depend on
+#'   the species parameters. Defaults to `TRUE`. See the section "Setting
+#'   species parameters without recalculation" below before setting it to
+#'   `FALSE`.
 #' @param x An object to test with `is.species_params()` or
 #'   `is.given_species_params()`.
 #' @param ... Other arguments passed to methods.
+#' @section Setting species parameters without recalculation:
+#' `species_params(params, recalculate = FALSE) <- value` records the values you
+#' changed among the given species parameters, so that they are not calculated
+#' away later, and stores `value` as the species parameters. It then stops
+#' there: the calculated species parameters are not re-derived from the given
+#' ones, no missing parameters are filled in with their default values, and none
+#' of the size-dependent rates are recalculated. Your species parameters are
+#' stored as you supplied them, after the same checks and length-to-weight
+#' conversions that writing into the `species_params` slot would trigger.
+#'
+#' This is for code that has worked out a species parameter *together with* the
+#' rate array that the parameter determines, for example an optimiser that fits
+#' `ks` and the matching `metab`, or `z_ext` and the matching `mu_b`. There the
+#' recalculation is not just wasted work but would overwrite the rates the
+#' caller has just set.
+#'
+#' The object you get back is only as consistent as you make it. Mizer will not
+#' check that the species parameters you supplied agree with the rate arrays in
+#' the object, nor that they agree with the other species parameters that are
+#' normally derived from them. Unless you are setting the affected rates
+#' yourself, use the default `recalculate = TRUE`.
 #' @return `species_params()`: Data frame containing all species parameters
 #'   currently stored in the model.
 #'
 #'   `species_params<-()`: Updates the `given_species_params` with any
 #'   parameters you have changed, and then recalculates the full species
-#'   parameter table and the model parameters.
+#'   parameter table and the model parameters. With `recalculate = FALSE` it
+#'   only does the recording and stores the parameters you supplied, see the
+#'   section "Setting species parameters without recalculation" below.
 #'
 #'   `given_species_params()`: Data frame containing the species parameter
 #'   values that were supplied explicitly by the user.
@@ -218,15 +263,32 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
 
 #' @rdname species_params
 #' @export
-`species_params<-` <- function(object, value) {
+`species_params<-` <- function(object, recalculate = TRUE, value) {
     UseMethod("species_params<-")
 }
 
 #' @rdname species_params
 #' @usage NULL
 #' @export
-`species_params<-.MizerParams` <- function(object, value) {
-    value <- validSpeciesParams(value)
+`species_params<-.MizerParams` <- function(object, recalculate = TRUE, value) {
+    # A length parameter whose weight has just been set has to follow the new
+    # weight before anything converts the weight away again.
+    value <- reconcile_length_weight(value, object@species_params)
+    if (recalculate) {
+        value <- validSpeciesParams(value)
+    } else {
+        # Only the checks and conversions that writing into the
+        # `@species_params` slot triggers anyway. In particular no default
+        # values are filled in: a default that is not already in the slot would
+        # look like a change and be recorded as a given species parameter.
+        if (!is.species_params(value)) {
+            class(value) <- c("species_params",
+                              setdiff(class(value),
+                                      c("species_params",
+                                        "given_species_params")))
+        }
+        value <- check_and_convert_species_params(value)
+    }
     if (!all(value$species == object@species_params$species)) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")
     }
@@ -236,6 +298,13 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     object@given_species_params <-
         record_given_species_params(object@given_species_params, value,
                                     object@species_params)
+    if (!recalculate) {
+        # Store the supplied parameters as they are. The calculated species
+        # parameters are not re-derived and the rates are not recalculated, so
+        # it is up to the caller to keep them consistent with the new values.
+        object@species_params <- value
+        return(object)
+    }
     new_sp <- validSpeciesParams(object@given_species_params)
     # Preserve any columns that were present in the supplied species params but
     # are not tracked in `given_species_params` (for example parameters set
@@ -420,6 +489,112 @@ curated_species_params_misspellings <- function() {
       "W_min", "W_max", "W_mat", "e_repro", "Age_mat", "w_max_mat")
 }
 
+# The size parameters that can be given either as a weight or as a length. The
+# first entry of each pair is the weight, the second the length it converts
+# from.
+length_weight_mappings <- function() {
+    list(
+        c("w_mat", "l_mat"),
+        c("w_mat25", "l_mat25"),
+        c("w_repro_max", "l_repro_max"),
+        c("w_inf", "l_inf"),
+        c("w_max", "l_max"),
+        c("w_min", "l_min")
+    )
+}
+
+# Which entries of a species parameter column have changed, comparing entry by
+# entry. A column that did not exist before counts as changed throughout, `NA`
+# is compared as a value rather than as an unknown.
+changed_entries <- function(new, prev, n) {
+    if (is.null(new) || !is.atomic(new) || length(new) != n) {
+        return(rep(FALSE, n))
+    }
+    if (is.null(prev) || !is.atomic(prev) || length(prev) != n) {
+        return(rep(TRUE, n))
+    }
+    ch <- !((new == prev) | (is.na(new) & is.na(prev)))
+    ch[is.na(ch)] <- TRUE
+    ch
+}
+
+# Set a column without triggering the reactive validation
+set_column <- function(x, col, values) {
+    saved_class <- class(x)
+    class(x) <- "data.frame"
+    x[[col]] <- values
+    class(x) <- saved_class
+    x
+}
+
+# Bring a length and weight parameter pair into line after a change
+#
+# A size can be given either as a weight or as the length it converts to. When
+# both are present they have to agree, and which of the two determines the
+# other follows a simple rule: the one that was given last wins, and if both
+# were given at the same time the weight wins.
+#
+# So where the weight has just changed the length is derived from it, whether
+# or not the length changed as well, and where only the length changed the
+# weight is derived from the length as it always was.
+#
+# This is decided when a species parameter data frame is put into a model with
+# `species_params<-()`, which is the only caller: `old` is then the model's
+# species parameters, against which the incoming table is compared. Editing a
+# species parameter data frame on its own changes nothing until it is assigned
+# into a model, and a table that was edited by itself carries no record of the
+# order in which its columns were changed, so a length and a weight that both
+# differ from the model's count as given at the same time and the weight wins.
+#
+# When `old` is `NULL`, or does not line up row by row with `x`, nothing can be
+# said about what changed and nothing is done here; the default of letting the
+# weight win is then applied by `check_and_convert_species_params()`.
+reconcile_length_weight <- function(x, old) {
+    if (is.null(old) || !is.data.frame(old) || nrow(old) != nrow(x) ||
+            !all(c("a", "b") %in% names(x))) {
+        return(x)
+    }
+    changed <- function(new, prev) changed_entries(new, prev, nrow(x))
+    # The conversions are done inline rather than through `l2w()` and `w2l()`,
+    # which would repeat their argument checks for every pair. The guard above
+    # has already established what those checks would look for.
+    a <- x[["a"]]
+    b <- x[["b"]]
+    for (m in length_weight_mappings()) {
+        pw <- m[1]
+        pl <- m[2]
+        if (!all(c(pw, pl) %in% names(x)) || !all(c(pw, pl) %in% names(old))) {
+            next
+        }
+        w_changed <- changed(x[[pw]], old[[pw]])
+        l_changed <- changed(x[[pl]], old[[pl]])
+        # The weight was just set, so the length follows it. This also covers
+        # the case where both were set at the same time, where the weight wins.
+        to_length <- w_changed
+        # Only the length was set, so it determines the weight.
+        to_weight <- l_changed & !w_changed
+        if (any(to_length)) {
+            vl <- (x[[pw]] / a)^(1 / b)
+            sel <- to_length & !is.na(vl)
+            if (any(sel)) {
+                new_l <- x[[pl]]
+                new_l[sel] <- vl[sel]
+                x <- set_column(x, pl, new_l)
+            }
+        }
+        if (any(to_weight)) {
+            vw <- a * x[[pl]]^b
+            sel <- to_weight & !is.na(vw)
+            if (any(sel)) {
+                new_w <- x[[pw]]
+                new_w[sel] <- vw[sel]
+                x <- set_column(x, pw, new_w)
+            }
+        }
+    }
+    x
+}
+
 check_and_convert_species_params <- function(x) {
     check_for_misspellings(names(x), known_species_params_columns(),
                            "species parameter",
@@ -427,27 +602,51 @@ check_and_convert_species_params <- function(x) {
 
     # Auto convert length to weight if allometric parameters exist
     if (all(c("a", "b") %in% names(x))) {
-        mappings <- list(
-            c("w_mat", "l_mat"),
-            c("w_mat25", "l_mat25"),
-            c("w_repro_max", "l_repro_max"),
-            c("w_inf", "l_inf"),
-            c("w_max", "l_max"),
-            c("w_min", "l_min")
-        )
-        for (m in mappings) {
+        # Converted inline rather than through `l2w()` and `w2l()`, whose
+        # argument checks would otherwise be repeated for each of the six
+        # pairs. The guard above covers what they would check for.
+        a <- x[["a"]]
+        b <- x[["b"]]
+        for (m in length_weight_mappings()) {
             pw <- m[1]
             pl <- m[2]
             if (pl %in% names(x)) {
-                # Convert the values
-                vw <- l2w(x[[pl]], x)
-                # If weight is missing or different, update it without
-                # triggering recursive validation
-                if (!(pw %in% names(x)) || any(is.na(x[[pw]])) || any(abs(x[[pw]] - vw) > 1e-10, na.rm = TRUE)) {
-                    saved_class <- class(x)
-                    class(x) <- "data.frame"
-                    x[[pw]] <- vw
-                    class(x) <- saved_class
+                # The weight that the length converts to
+                vw <- a * x[[pl]]^b
+                if (!(pw %in% names(x))) {
+                    x <- set_column(x, pw, vw)
+                    next
+                }
+                # A weight that is not known is taken from its length. This is
+                # done per species, so that one species with no length no
+                # longer loses the weight it does have.
+                fill <- !is.na(vw) & is.na(x[[pw]])
+                if (any(fill)) {
+                    new_w <- x[[pw]]
+                    new_w[fill] <- vw[fill]
+                    x <- set_column(x, pw, new_w)
+                }
+                # Anything still disagreeing was not resolved above, so
+                # neither value was just set, or there was nothing to compare
+                # against. Both were then given at the same time, as far as we
+                # can tell, and the weight wins: the length is brought into
+                # line with it. Say so, because the length the caller gave is
+                # being changed.
+                disagree <- !is.na(vw) & !is.na(x[[pw]]) &
+                    abs(x[[pw]] - vw) > 1e-10
+                if (any(disagree)) {
+                    vl <- (x[[pw]] / a)^(1 / b)
+                    sel <- disagree & !is.na(vl)
+                    if (any(sel)) {
+                        warning("For the following species the value of `", pl,
+                                "` is not consistent with the value of `", pw,
+                                "`, so I am using `", pw, "` and setting `", pl,
+                                "` to match it: ",
+                                paste(x$species[sel], collapse = ", "))
+                        new_l <- x[[pl]]
+                        new_l[sel] <- vl[sel]
+                        x <- set_column(x, pl, new_l)
+                    }
                 }
             }
         }
@@ -483,27 +682,6 @@ check_and_convert_species_params <- function(x) {
         class(out) <- class(x)
     }
     out
-}
-
-#' @export
-`[<-.species_params` <- function(x, i, j, ..., value) {
-    out <- NextMethod("[<-")
-    class(out) <- class(x)
-    check_and_convert_species_params(out)
-}
-
-#' @export
-`[[<-.species_params` <- function(x, i, j, ..., value) {
-    out <- NextMethod("[[<-")
-    class(out) <- class(x)
-    check_and_convert_species_params(out)
-}
-
-#' @export
-`$<-.species_params` <- function(x, name, value) {
-    out <- NextMethod("$<-")
-    class(out) <- class(x)
-    check_and_convert_species_params(out)
 }
 
 #' @export

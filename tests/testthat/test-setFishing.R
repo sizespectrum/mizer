@@ -427,12 +427,18 @@ test_that("gear_params reactive validation works", {
 })
 
 test_that("gear_params selectivity column auto-population works", {
-    df <- data.frame(species = "Sprat", gear = "g")
+    # `sel_func = "sigmoid_length"` should bring the columns l25 and l50 with it
+    df <- data.frame(species = "Sprat", gear = "g", sel_func = "sigmoid_length")
     gp <- gear_params(df)
-    
-    # Setting sel_func to sigmoid_length should add columns l25 and l50
-    gp$sel_func <- "sigmoid_length"
     expect_true(all(c("l25", "l50") %in% colnames(gp)))
     expect_true(all(is.na(gp$l25)))
     expect_true(all(is.na(gp$l50)))
+
+    # Editing a gear parameter data frame on its own does not populate them;
+    # that happens when the table is validated, which includes when it is
+    # assigned into a model.
+    gp2 <- gear_params(data.frame(species = "Sprat", gear = "g"))
+    gp2$sel_func <- "sigmoid_length"
+    expect_false(any(c("l25", "l50") %in% colnames(gp2)))
+    expect_true(all(c("l25", "l50") %in% colnames(gear_params(gp2))))
 })

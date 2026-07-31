@@ -67,14 +67,19 @@ matchGrowth.MizerParams <- function(params, species = NULL,
     params@intake_max[sel, ] <- params@intake_max[sel, ] * factor
     params@metab[sel, ] <- params@metab[sel, ] * factor
     params@ext_encounter[sel] <- params@ext_encounter[sel] * factor
-    params@species_params$gamma[sel] <- sp$gamma[sel] * factor
-    params@species_params[sel, "h"] <- sp[sel, "h"] * factor
+    sp_new <- params@species_params
+    sp_new$gamma[sel] <- sp$gamma[sel] * factor
+    sp_new[sel, "h"] <- sp[sel, "h"] * factor
     if ("ks" %in% names(sp)) {
-        params@species_params$ks[sel] <- sp$ks[sel] * factor
+        sp_new$ks[sel] <- sp$ks[sel] * factor
     }
     if ("k" %in% names(sp)) {
-        params@species_params[sel, "k"] <- sp[sel, "k"] * factor
+        sp_new[sel, "k"] <- sp[sel, "k"] * factor
     }
+    # `recalculate = FALSE` records the scaled parameters, so that a later
+    # recalculation does not undo the match, without recalculating the rates:
+    # they have already been scaled by the same factor above.
+    species_params(params, recalculate = FALSE) <- sp_new
 
     params <- steadySingleSpecies(params, species = sel)
 
