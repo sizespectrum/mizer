@@ -18,9 +18,14 @@ errors on a list, matrix or object column. See NEWS.md for details.
   This is the check tooling failing on the win-builder machine rather than a
   finding about the package: the compiled-code check could not run there
   because `cc` was not on the PATH, so it reported nothing about the package's
-  code. The `src` directory of this release is byte-identical to that of the
-  released version 3.2.0, which checked OK on win-builder. It contains three
-  small Rcpp source files and no `Makevars` or `configure`.
+  code. The same check ran and passed on macbuilder below. The `src` directory
+  of this release is byte-identical to that of the released version 3.2.0,
+  which checked OK on win-builder. It contains three small Rcpp source files
+  and no `Makevars` or `configure`.
+
+### macbuilder, R 4.6.1 Patched, aarch64-apple-darwin23 (macOS Tahoe 26.6)
+
+  Status: OK
 
 ### local Ubuntu, R 4.6.1
 
