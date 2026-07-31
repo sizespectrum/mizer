@@ -81,7 +81,6 @@ summary(nr)
 #>  Min         Mean          Max
 #>    0 7.361221e+33 4.878226e+35
 plot(nr)
-#> Warning: log-10 transformation introduced infinite values.
 
 # }
 ```

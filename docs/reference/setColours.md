@@ -46,9 +46,12 @@ Colours for names that already had a colour set for them will be
 overwritten by the colour you specify. Colours for names that did not
 yet have a colour will be appended to the list of colours.
 
-Do not use this for setting the colours or linetypes of species, because
-those are determined by setting the `linecolour` and `linetype`
-variables in the species parameter data frame.
+If a name coincides with the name of a species, the `linecolour` (for
+`setColours()`) or `linetype` (for `setLinetypes()`) entry for that
+species in `species_params` and `given_species_params` is updated as
+well, so that the choice persists with the species. Alternatively you
+can set the `linecolour` and `linetype` variables in the species
+parameter data frame directly, see the example below.
 
 You can use the same colours in your own ggplot2 plots by adding
 `scale_colour_manual(values = getColours(params))` to your plot.
@@ -60,8 +63,9 @@ Similarly you can use the linetypes with
 ``` r
 params <- setColours(NS_params, list("Resource" = "red","Total" = "#0000ff"))
 params <- setLinetypes(NS_params, list("Total" = "dotted"))
-# Set colours and linetypes for species
-species_params(params)["Cod", "linecolour"] <- "black"
+# Set colours and linetypes for species, either via setColours()/
+# setLinetypes() or directly via the species parameter data frame
+params <- setColours(params, list("Cod" = "black"))
 species_params(params)["Cod", "linetype"] <- "dashed"
 plotSpectra(params, total = TRUE)
 

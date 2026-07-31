@@ -137,7 +137,7 @@ returned.
 
 Other plotting functions:
 [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md),
-[`animate.ArrayTimeBySpeciesBySize()`](https://sizespectrum.org/mizer/reference/animate.md),
+[`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),

@@ -389,6 +389,7 @@ reference:
   - validSim
   - MizerSim
   - print
+  - print.mizer_plot
   - summary
   - str
   - as.data.frame

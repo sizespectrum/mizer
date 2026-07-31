@@ -168,11 +168,11 @@ velocity would be evaluated in the wrong place.
 
 In summary:
 
-| Quantity | How it enters | Discrete representation |
-|----|----|----|
-| \\g\\ | growth velocity at the bin boundary | point value at \\w_j\\ |
-| \\d\\, \\\mu\\; fishing/reproductive investments; predation and encounter integrands | bin properties (a coefficient inside \\\partial(dN)/\partial w\\, or a rate integrated against \\N\\ over a bin) | bin average over \\\[w_j, w\_{j+1}\]\\ |
-| \\e\\ (energy income) | both: growth velocity *and* reproduction integrand | point value for growth; bin-averaged product \\\psi e\\ for reproduction |
+| Quantity                                                                             | How it enters                                                                                                    | Discrete representation                                                  |
+|--------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| \\g\\                                                                                | growth velocity at the bin boundary                                                                              | point value at \\w_j\\                                                   |
+| \\d\\, \\\mu\\; fishing/reproductive investments; predation and encounter integrands | bin properties (a coefficient inside \\\partial(dN)/\partial w\\, or a rate integrated against \\N\\ over a bin) | bin average over \\\[w_j, w\_{j+1}\]\\                                   |
+| \\e\\ (energy income)                                                                | both: growth velocity *and* reproduction integrand                                                               | point value for growth; bin-averaged product \\\psi e\\ for reproduction |
 
 **Plotting follows the same distinction.** A bin average \\N_j\\ does
 not live at the bin boundary \\w_j\\ but at the geometric bin centre
@@ -560,7 +560,6 @@ error on the fixed `NS_params` weight grid.
 Code
 
 ``` r
-
 t_max <- 8
 dt_values <- c(1.6, 0.8,0.4, 0.2, 0.1, 0.05, 0.025)
 reference_dt <- 0.4 / 2^6
@@ -612,7 +611,6 @@ accuracy
 Code
 
 ``` r
-
 plot(
     euler_error ~ dt,
     data = accuracy,
@@ -798,7 +796,6 @@ weight is handled as follows:
 The two types are selected with
 
 ``` r
-
 second_order_w(params)$flux <- "van_leer" # TVD, the default for TRUE
 second_order_w(params)$flux <- "centred"   # unlimited, true 2nd order
 ```

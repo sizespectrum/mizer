@@ -15,7 +15,7 @@ stored in a MizerParams object."><meta property="og:image" content="https://size
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,7 +94,7 @@ stored in a MizerParams object.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">species_params</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">species_params</span><span class="op">(</span><span class="va">object</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span><span class="fu">species_params</span><span class="op">(</span><span class="va">object</span>, recalculate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
 <span></span>
 <span><span class="fu">is.species_params</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span></span>
@@ -119,6 +119,14 @@ stored in a MizerParams object.</p>
 <dd><p>Other arguments passed to methods.</p></dd>
 
 
+<dt id="arg-recalculate">recalculate<a class="anchor" aria-label="anchor" href="#arg-recalculate"></a></dt>
+<dd><p>Whether <code>species_params&lt;-()</code> should re-derive the
+calculated species parameters and recalculate all the rates that depend on
+the species parameters. Defaults to <code>TRUE</code>. See the section "Setting
+species parameters without recalculation" below before setting it to
+<code>FALSE</code>.</p></dd>
+
+
 <dt id="arg-value">value<a class="anchor" aria-label="anchor" href="#arg-value"></a></dt>
 <dd><p>A data frame with the new species parameters.</p></dd>
 
@@ -138,7 +146,9 @@ stored in a MizerParams object.</p>
 currently stored in the model.</p>
 <p><code>species_params&lt;-()</code>: Updates the <code>given_species_params</code> with any
 parameters you have changed, and then recalculates the full species
-parameter table and the model parameters.</p>
+parameter table and the model parameters. With <code>recalculate = FALSE</code> it
+only does the recording and stores the parameters you supplied, see the
+section "Setting species parameters without recalculation" below.</p>
 <p><code>given_species_params()</code>: Data frame containing the species parameter
 values that were supplied explicitly by the user.</p>
 <p><code>given_species_params&lt;-()</code>: An alternative to <code>species_params&lt;-()</code> that
@@ -227,6 +237,21 @@ relationship \(w = a l ^ b\).</p></li>
 parameters like <code>w_inf</code>, <code>w_max</code>, <code>w_mat</code>, <code>w_mat25</code>, <code>w_repro_max</code> and
 <code>w_min</code> by their corresponding length parameters <code>l_inf</code>, <code>l_max</code>, <code>l_mat</code>,
 <code>l_mat25</code>, <code>l_repro_max</code> and <code>l_min</code>.</p>
+<p>You can also keep both, and change either of them later. Mizer keeps the two
+consistent by the rule that the one you gave last wins, and if you gave both
+at the same time the weight wins. So on a model set up with lengths you can
+still set <code>w_mat</code> with <code>species_params&lt;-()</code> and mizer will update <code>l_mat</code> to
+match, and if you set <code>l_mat</code> it will update <code>w_mat</code> as always. When you
+supply a length and a weight together that do not agree, mizer uses the
+weight and warns you that it has changed the length to match.</p>
+<p>The rule is applied when a species parameter data frame is put into a model.
+A data frame that you have taken out of a model and are editing on its own
+is left exactly as you write it: no conversions, no checks and no warnings
+until you assign it back with <code>species_params&lt;-()</code>, which is when mizer can
+tell which values you changed. A data frame that was never in a model, for
+example one you pass to <code><a href="validSpeciesParams.html">validSpeciesParams()</a></code>, carries no such history, so
+a length and a weight that disagree there count as given at the same time
+and the weight wins.</p>
 <p>The parameters that are only used to calculate default values for other
 parameters are:</p><ul><li><p><code>f0</code> is the feeding level and is used to get a default value for the
 coefficient of the search volume <code>gamma</code>, see <code><a href="get_gamma_default.html">get_gamma_default()</a></code>.</p></li>
@@ -262,6 +287,29 @@ will have no effect.</p>
 <p>You are allowed to include additional columns in the species parameter
 data frames. They will simply be ignored by mizer but will be stored in the
 MizerParams object, in case your own code makes use of them.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="setting-species-parameters-without-recalculation">Setting species parameters without recalculation<a class="anchor" aria-label="anchor" href="#setting-species-parameters-without-recalculation"></a></h2>
+
+
+<p><code>species_params(params, recalculate = FALSE) &lt;- value</code> records the values you
+changed among the given species parameters, so that they are not calculated
+away later, and stores <code>value</code> as the species parameters. It then stops
+there: the calculated species parameters are not re-derived from the given
+ones, no missing parameters are filled in with their default values, and none
+of the size-dependent rates are recalculated. Your species parameters are
+stored as you supplied them, after the same checks and length-to-weight
+conversions that writing into the <code>species_params</code> slot would trigger.</p>
+<p>This is for code that has worked out a species parameter <em>together with</em> the
+rate array that the parameter determines, for example an optimiser that fits
+<code>ks</code> and the matching <code>metab</code>, or <code>z_ext</code> and the matching <code>mu_b</code>. There the
+recalculation is not just wasted work but would overwrite the rates the
+caller has just set.</p>
+<p>The object you get back is only as consistent as you make it. Mizer will not
+check that the species parameters you supplied agree with the rate arrays in
+the object, nor that they agree with the other species parameters that are
+normally derived from them. Unless you are setting the affected rates
+yourself, use the default <code>recalculate = TRUE</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
