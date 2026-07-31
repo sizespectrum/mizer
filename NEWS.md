@@ -1,18 +1,11 @@
-# mizer (development version)
+# mizer 3.2.1
 
-## New functions
-
-- New `record_given_species_params()` exports the entry-by-entry change
-  detection that `species_params<-()` uses to decide which values to record in
-  `given_species_params()`. It is the recording step on its own, without the
-  rebuild of the species parameters and the recalculation of all the rates.
-  This is for code that has already written into the `species_params` slot
-  itself, for example an optimiser that fits a species parameter together with
-  the rate array it determines. Such code has to record its changes: a species
-  parameter written straight into the slot is silently reverted the next time
-  anything triggers a recalculation. If you have a species parameter data frame
-  to hand rather than having written into the slot, use
-  `species_params(params, recalculate = FALSE) <- value` instead.
+This patch release fixes how species and gear parameters are handled when they
+are assigned. A size given as a weight can now actually be set on a model
+specified by lengths, editing one of these parameter tables on its own no
+longer validates it on every assignment, and code that sets a species parameter
+together with the rate array it determines can now record its change without
+triggering a recalculation that would undo it.
 
 ## Species parameter changes
 
@@ -25,6 +18,18 @@
   with the rate array it determines, where the recalculation would undo the
   caller's own adjustment. Keeping the object consistent is then the caller's
   responsibility.
+
+- New `record_given_species_params()` exports the entry-by-entry change
+  detection that `species_params<-()` uses to decide which values to record in
+  `given_species_params()`. It is the recording step on its own, without the
+  rebuild of the species parameters and the recalculation of all the rates.
+  This is for code that has already written into the `species_params` slot
+  itself, for example an optimiser that fits a species parameter together with
+  the rate array it determines. Such code has to record its changes: a species
+  parameter written straight into the slot is silently reverted the next time
+  anything triggers a recalculation. If you have a species parameter data frame
+  to hand rather than having written into the slot, use
+  `species_params(params, recalculate = FALSE) <- value` instead.
 
 - A size that can be given either as a weight or as the length it converts to
   (`w_mat` and `l_mat`, and likewise `w_mat25`, `w_repro_max`, `w_inf`, `w_max`
@@ -89,8 +94,6 @@
   change recalculated them from the unscaled given values and silently undid
   part of the match: on `NS_params` the growth rate no longer matched after a
   subsequent assignment to `species_params()`.
-
-## Bug fixes
 
 # mizer 3.2.0
 
