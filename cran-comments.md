@@ -9,7 +9,18 @@ errors on a list, matrix or object column. See NEWS.md for details.
 
 ### devtools::check_win_devel()
 
-  TODO: run before submitting and record the result here.
+  Status: 1 NOTE
+
+  * checking compiled code ... NOTE
+  Error in ccE(lines, flags = new_flags, include = include) :
+    'cc' is not on the path
+
+  This is the check tooling failing on the win-builder machine rather than a
+  finding about the package: the compiled-code check could not run there
+  because `cc` was not on the PATH, so it reported nothing about the package's
+  code. The `src` directory of this release is byte-identical to that of the
+  released version 3.2.0, which checked OK on win-builder. It contains three
+  small Rcpp source files and no `Makevars` or `configure`.
 
 ### local Ubuntu, R 4.6.1
 
