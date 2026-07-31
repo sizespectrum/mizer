@@ -95,6 +95,14 @@ triggering a recalculation that would undo it.
   part of the match: on `NS_params` the growth rate no longer matched after a
   subsequent assignment to `species_params()`.
 
+## Other changes
+
+- The startup message that `library(mizer)` prints when it first sees a new
+  version now only appears when the `major.minor` part of the version changes.
+  It links to the release announcement for the series, and there is one of
+  those per minor release, so a patch release or a development version no
+  longer re-shows an announcement you have already read.
+
 # mizer 3.2.0
 
 This release overhauls how species and resource parameters are set, makes the
