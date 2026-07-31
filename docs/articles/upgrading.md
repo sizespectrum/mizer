@@ -96,7 +96,6 @@ rather than assigning to
 [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md):
 
 ``` r
-
 # Rebuild the capacity from a new coefficient and rebalance the rate,
 # so the steady state is preserved:
 params <- setResource(params, resource_capacity = new_kappa)
@@ -113,7 +112,6 @@ but they now accept a `balance` argument so you can switch balancing
 off:
 
 ``` r
-
 # Set the capacity but leave the rate untouched (do not rebalance):
 resource_capacity(params, balance = FALSE) <- my_capacity
 ```
@@ -154,7 +152,6 @@ object with `$` now returns a vector named by species (or by
 `"species, gear"` for `gear_params`):
 
 ``` r
-
 species_params(params)$w_mat
 #>   Sprat  Herring      Cod
 #>    ...      ...      ...
@@ -175,7 +172,6 @@ automatically adds the argument columns that the function needs (as
 `NA`), ready to be filled in:
 
 ``` r
-
 gp$sel_func <- "sigmoid_length"
 # gp now has l25 and l50 columns, both NA
 ```
@@ -411,14 +407,12 @@ methods, so printing them looks different from a bare matrix.
 is deprecated. Replace
 
 ``` r
-
 params <- setInitialValues(params, sim)
 ```
 
 with
 
 ``` r
-
 params <- finalParams(sim)
 ```
 

@@ -39,14 +39,14 @@ or patching internal mizer functions.
 
 The following table is a quick guide.
 
-| Goal | Use | Notes |
-|:---|:---|:---|
-| Add a non-dynamical external food or mortality source | [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md) or [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) | Simplest route when the extra process does not need its own state variable. |
-| Change one built-in rate calculation | [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) | Best option for time-dependent or alternative rate formulations. |
-| Add a new state variable or ecosystem pool | [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md) | Lets you add component dynamics and optional encounter or mortality contributions. |
-| Extend plots or summaries for a custom model type | S3 subclass + new methods | Advanced route for custom behaviour layered on top of mizer generics. |
-| Store parameters needed by your custom code | [`other_params()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) or `component_params` | Use [`other_params()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) for model-wide parameters and `component_params` for one component. |
-| Replace arbitrary internal mizer code | [`customFunction()`](https://sizespectrum.org/mizer/reference/customFunction.md) | Experimental and fragile. Use only if the standard mechanisms cannot express your change. |
+| Goal                                                  | Use                                                                                                                                                            | Notes                                                                                                                                                   |
+|:------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Add a non-dynamical external food or mortality source | [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md) or [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) | Simplest route when the extra process does not need its own state variable.                                                                             |
+| Change one built-in rate calculation                  | [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)                                                                             | Best option for time-dependent or alternative rate formulations.                                                                                        |
+| Add a new state variable or ecosystem pool            | [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)                                                                                   | Lets you add component dynamics and optional encounter or mortality contributions.                                                                      |
+| Extend plots or summaries for a custom model type     | S3 subclass + new methods                                                                                                                                      | Advanced route for custom behaviour layered on top of mizer generics.                                                                                   |
+| Store parameters needed by your custom code           | [`other_params()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) or `component_params`                                                          | Use [`other_params()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) for model-wide parameters and `component_params` for one component. |
+| Replace arbitrary internal mizer code                 | [`customFunction()`](https://sizespectrum.org/mizer/reference/customFunction.md)                                                                               | Experimental and fragile. Use only if the standard mechanisms cannot express your change.                                                               |
 
 ### `setExtEncounter()` and `setExtMort()`
 
@@ -91,7 +91,6 @@ but one step should be done differently. Examples include:
 Your function is registered by name:
 
 ``` r
-
 params <- setRateFunction(params, "Mort", "myMort")
 ```
 
@@ -164,7 +163,6 @@ For example, suppose each species has a fixed extra food source that
 scales allometrically with body size:
 
 ``` r
-
 params_ext <- NS_params
 extra_food <- outer(rep(0.1, nrow(species_params(params_ext))),
                     w(params_ext)^(3/4))
@@ -174,7 +172,6 @@ ext_encounter(params_ext) <- ext_encounter(params_ext) + extra_food
 This adds `extra_food` directly to the total encounter rate:
 
 ``` r
-
 enc_base <- getEncounter(NS_params)
 enc_ext <- getEncounter(params_ext)
 range(enc_ext - enc_base, na.rm = TRUE)
@@ -184,7 +181,6 @@ range(enc_ext - enc_base, na.rm = TRUE)
 Similarly, you can add a fixed external mortality term:
 
 ``` r
-
 params_mort <- NS_params
 extra_mort <- outer(rep(0.05, nrow(species_params(params_mort))),
                     w(params_mort)^(-1/4))
@@ -205,7 +201,6 @@ most of the work back to the built-in mizer function. The example below
 adds a sinusoidal seasonal multiplier to the standard encounter rate.
 
 ``` r
-
 params <- NS_params
 other_params(params) <- list(
     season_amplitude = 0.2,
@@ -214,7 +209,6 @@ other_params(params) <- list(
 ```
 
 ``` r
-
 seasonalEncounter <- function(params, n, n_pp, n_other, t, ...) {
     p <- other_params(params)
     multiplier <- 1 + p$season_amplitude * sin(2 * pi * t / p$season_period)
@@ -226,12 +220,10 @@ seasonalEncounter <- function(params, n, n_pp, n_other, t, ...) {
 Register the function and inspect the result:
 
 ``` r
-
 params2 <- setRateFunction(params, "Encounter", "seasonalEncounter")
 ```
 
 ``` r
-
 enc0 <- getEncounter(params2, t = 0)
 enc_quarter <- getEncounter(params2, t = 0.25)
 range(enc_quarter / enc0, na.rm = TRUE)
@@ -239,7 +231,6 @@ range(enc_quarter / enc0, na.rm = TRUE)
 ```
 
 ``` r
-
 sim <- project(params2, t_max = 2, t_save = 0.1)
 plotBiomass(sim)
 ```
@@ -276,7 +267,6 @@ on the full resource size grid so that it can be used like an extra prey
 spectrum.
 
 ``` r
-
 detritusEncounter <- function(params, n, n_pp, n_other, component, ...) {
     params2 <- params
     params2@other_encounter[[component]] <- NULL
@@ -295,7 +285,6 @@ detritusDynamics <- function(params, n_other, rates, dt, component, ...) {
 ```
 
 ``` r
-
 detritus_params <- list(
     capacity = initialNResource(params),
     rate = params@rr_pp
@@ -325,7 +314,6 @@ Once the component has been added:
 For example:
 
 ``` r
-
 plotDiet(params3, species = "Cod")
 ```
 
@@ -364,21 +352,21 @@ afterwards where appropriate.
 
 The table below summarises the required inputs and outputs.
 
-| Rate | Signature | Return value |
-|:---|:---|:---|
-| Encounter | function(params, n, n_pp, n_other, t, …) | numeric matrix, species x size |
-| FeedingLevel | function(params, n, n_pp, n_other, t, encounter, …) | numeric matrix, species x size |
-| EReproAndGrowth | function(params, n, n_pp, n_other, t, encounter, feeding_level, …) | numeric matrix, species x size |
-| ERepro | function(params, n, n_pp, n_other, t, e, …) | numeric matrix, species x size |
-| EGrowth | function(params, n, n_pp, n_other, t, e, e_repro, …) | numeric matrix, species x size |
-| PredRate | function(params, n, n_pp, n_other, t, feeding_level, …) | numeric matrix, species x full size grid |
-| PredMort | function(params, n, n_pp, n_other, t, pred_rate, …) | numeric matrix, species x size |
-| FMort | function(params, n, n_pp, n_other, t, effort, e_growth, pred_mort, …) | numeric matrix, species x size |
-| Mort | function(params, n, n_pp, n_other, t, f_mort, pred_mort, …) | numeric matrix, species x size |
-| RDI | function(params, n, n_pp, n_other, t, e_growth, mort, e_repro, …) | numeric vector, one value per species |
-| RDD | function(rdi, species_params, params, t, …) | numeric vector, one value per species |
-| ResourceMort | function(params, n, n_pp, n_other, t, pred_rate, …) | numeric vector, one value per full size bin |
-| Rates | function(params, n, n_pp, n_other, t, effort, rates_fns, …) | named list with all standard rate components |
+| Rate            | Signature                                                             | Return value                                 |
+|:----------------|:----------------------------------------------------------------------|:---------------------------------------------|
+| Encounter       | function(params, n, n_pp, n_other, t, …)                              | numeric matrix, species x size               |
+| FeedingLevel    | function(params, n, n_pp, n_other, t, encounter, …)                   | numeric matrix, species x size               |
+| EReproAndGrowth | function(params, n, n_pp, n_other, t, encounter, feeding_level, …)    | numeric matrix, species x size               |
+| ERepro          | function(params, n, n_pp, n_other, t, e, …)                           | numeric matrix, species x size               |
+| EGrowth         | function(params, n, n_pp, n_other, t, e, e_repro, …)                  | numeric matrix, species x size               |
+| PredRate        | function(params, n, n_pp, n_other, t, feeding_level, …)               | numeric matrix, species x full size grid     |
+| PredMort        | function(params, n, n_pp, n_other, t, pred_rate, …)                   | numeric matrix, species x size               |
+| FMort           | function(params, n, n_pp, n_other, t, effort, e_growth, pred_mort, …) | numeric matrix, species x size               |
+| Mort            | function(params, n, n_pp, n_other, t, f_mort, pred_mort, …)           | numeric matrix, species x size               |
+| RDI             | function(params, n, n_pp, n_other, t, e_growth, mort, e_repro, …)     | numeric vector, one value per species        |
+| RDD             | function(rdi, species_params, params, t, …)                           | numeric vector, one value per species        |
+| ResourceMort    | function(params, n, n_pp, n_other, t, pred_rate, …)                   | numeric vector, one value per full size bin  |
+| Rates           | function(params, n, n_pp, n_other, t, effort, rates_fns, …)           | named list with all standard rate components |
 
 ### Common arguments
 

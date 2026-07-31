@@ -1,10 +1,27 @@
-#' Show a startup message the first time a new mizer version is loaded
+#' Extract the `major.minor` part of a version string
+#'
+#' Returns `""` for anything that does not start with `major.minor`, so that a
+#' missing or malformed record simply counts as "not the current series".
+#'
+#' @param version A character vector of version strings.
+#' @noRd
+minor_version <- function(version) {
+    ifelse(grepl("^[0-9]+\\.[0-9]+", version),
+           sub("^([0-9]+\\.[0-9]+).*$", "\\1", version),
+           "")
+}
+
+#' Show a startup message the first time a new mizer series is loaded
 #'
 #' Compares the installed version against the version last recorded in the
 #' user's mizer config directory (`tools::R_user_dir("mizer", "config")`) and
-#' prints a startup message and updates the record if they differ. Any
-#' failure (e.g. an unwritable config directory) is swallowed so that
-#' `library(mizer)` can never be broken by this.
+#' prints a startup message and updates the record if they differ. Only the
+#' `major.minor` part is compared, because the message links to the release
+#' announcement for the series and there is one of those per minor release.
+#' A patch release or a development version therefore does not re-show an
+#' announcement the user has already seen. Any failure (e.g. an unwritable
+#' config directory) is swallowed so that `library(mizer)` can never be broken
+#' by this.
 #'
 #' @param libname unused
 #' @param pkgname unused
@@ -19,7 +36,7 @@
         } else {
             ""
         }
-        if (!identical(last_seen, current)) {
+        if (!identical(minor_version(last_seen), minor_version(current))) {
             packageStartupMessage(
                 "This is mizer version ", current,
                 ". See https://blog.mizer.sizespectrum.org/posts/2026-07-17-mizer-3-2-announcement/ for what has changed."

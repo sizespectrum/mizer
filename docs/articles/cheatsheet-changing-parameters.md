@@ -15,11 +15,11 @@ gives a rule for each. The guiding principle:
 A mizer model is built in layers. Almost every change you make is really
 a choice of *which layer* to reach into:
 
-| Level | What it is | Change it with |
-|----|----|----|
-| **1. Size-independent parameters** | the high-level inputs: per-species scalars (`w_inf`, `beta`, `gamma`, `h`, `erepro`, …), fishing gears, resource scalars, and interactions | [`species_params(params) <-`](https://sizespectrum.org/mizer/reference/species_params.md), [`gear_params(params) <-`](https://sizespectrum.org/mizer/reference/gear_params.md), [`resource_params(params) <-`](https://sizespectrum.org/mizer/reference/resource_params.md), [`setInteraction()`](https://sizespectrum.org/mizer/reference/setInteraction.md) |
-| **2. Size-dependent parameters** | arrays over size that mizer **calculates** from the parameters (search volume, metabolic rate, predation kernel, resource capacity, selectivity, …) | the [`set…()`](https://sizespectrum.org/mizer/reference/setParams.md) functions |
-| **3. Rate functions** | the functions mizer calls to compute the rates during a simulation | [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) |
+| Level                              | What it is                                                                                                                                          | Change it with                                                                                                                                                                                                                                                                                                                                                |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **1. Size-independent parameters** | the high-level inputs: per-species scalars (`w_inf`, `beta`, `gamma`, `h`, `erepro`, …), fishing gears, resource scalars, and interactions          | [`species_params(params) <-`](https://sizespectrum.org/mizer/reference/species_params.md), [`gear_params(params) <-`](https://sizespectrum.org/mizer/reference/gear_params.md), [`resource_params(params) <-`](https://sizespectrum.org/mizer/reference/resource_params.md), [`setInteraction()`](https://sizespectrum.org/mizer/reference/setInteraction.md) |
+| **2. Size-dependent parameters**   | arrays over size that mizer **calculates** from the parameters (search volume, metabolic rate, predation kernel, resource capacity, selectivity, …) | the [`set…()`](https://sizespectrum.org/mizer/reference/setParams.md) functions                                                                                                                                                                                                                                                                               |
+| **3. Rate functions**              | the functions mizer calls to compute the rates during a simulation                                                                                  | [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)                                                                                                                                                                                                                                                                            |
 
 **Levels 1 and 2 cover almost all everyday work.** The parameters at
 level 1 are the highest level: most of them are used to **calculate**
@@ -71,11 +71,11 @@ Values](https://sizespectrum.org/mizer/articles/default_parameters.md).
 Mizer keeps track of which species parameter values you **gave** and
 which ones it **calculated** (from your values or from defaults).
 
-| Accessor | Returns |
-|----|----|
-| [`given_species_params(params)`](https://sizespectrum.org/mizer/reference/species_params.md) | only the parameters you supplied explicitly |
-| [`calculated_species_params(params)`](https://sizespectrum.org/mizer/reference/species_params.md) | the parameters mizer derived or defaulted |
-| [`species_params(params)`](https://sizespectrum.org/mizer/reference/species_params.md) | everything (given, with calculated filling the gaps) |
+| Accessor                                                                                          | Returns                                              |
+|---------------------------------------------------------------------------------------------------|------------------------------------------------------|
+| [`given_species_params(params)`](https://sizespectrum.org/mizer/reference/species_params.md)      | only the parameters you supplied explicitly          |
+| [`calculated_species_params(params)`](https://sizespectrum.org/mizer/reference/species_params.md) | the parameters mizer derived or defaulted            |
+| [`species_params(params)`](https://sizespectrum.org/mizer/reference/species_params.md)            | everything (given, with calculated filling the gaps) |
 
 There are two replacement functions:
 
@@ -86,7 +86,6 @@ There are two replacement functions:
   often preferred in scripts because it operates silently.
 
   ``` r
-
   species_params(params)$beta <- 150     # updates the predation kernel too
   ```
 
@@ -103,7 +102,6 @@ or `given_species_params(params) <-`.
 Access columns with `$` (they come back as named vectors):
 
 ``` r
-
 species_params(params)$w_mat        # named by species
 given_species_params(params)$gamma  # only if you gave it (NA or NULL otherwise)
 ```
@@ -116,14 +114,14 @@ Many species parameters exist only to *set up* a size-dependent rate.
 When you change one with `species_params(params) <-`, mizer re-runs the
 relevant setter for you:
 
-| Species parameter(s) | Sets up | via |
-|----|----|----|
-| `gamma`, `q` | search volume | [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md) |
-| `h`, `n` | maximum intake rate | [`setMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md) |
-| `k`, `ks`, `p` | metabolic rate | [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md) |
-| `z0`, `z_ext`, `d` | external mortality | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) |
-| `beta`, `sigma`, `pred_kernel_type` | predation kernel | [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md) |
-| `w_mat`, `w_mat25`, `w_repro_max`, `m` | reproduction allocation | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md) |
+| Species parameter(s)                   | Sets up                 | via                                                                                  |
+|----------------------------------------|-------------------------|--------------------------------------------------------------------------------------|
+| `gamma`, `q`                           | search volume           | [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md)   |
+| `h`, `n`                               | maximum intake rate     | [`setMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md) |
+| `k`, `ks`, `p`                         | metabolic rate          | [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md) |
+| `z0`, `z_ext`, `d`                     | external mortality      | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)             |
+| `beta`, `sigma`, `pred_kernel_type`    | predation kernel        | [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)       |
+| `w_mat`, `w_mat25`, `w_repro_max`, `m` | reproduction allocation | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md)   |
 
 Some species parameters are instead used **directly** by the model and
 set up no array — changing them just changes the model: `alpha`
@@ -145,7 +143,6 @@ arrays with
 See the **Fishing** cheatsheet for details.
 
 ``` r
-
 gp <- gear_params(params)
 gp["Cod, Otter", "catchability"] <- 0.8
 gear_params(params) <- gp
@@ -169,7 +166,6 @@ calling
 [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
 
 ``` r
-
 resource_params(params)$kappa  <- 1e11   # rescales the carrying capacity
 resource_params(params)$lambda <- 2.05   # changes the slope of the capacity
 resource_params(params)$r_pp   <- 10     # rebuilds the replenishment rate
@@ -184,15 +180,14 @@ You can also set the size-resolved arrays directly. As with the species
 rate arrays, doing so **freezes** them (“set manually”), so a later
 scalar change no longer touches them:
 
-| Function | Sets (and freezes) |
-|----|----|
-| [`resource_capacity(params) <-`](https://sizespectrum.org/mizer/reference/setResource.md) | the carrying capacity over size |
-| [`resource_rate(params) <-`](https://sizespectrum.org/mizer/reference/setResource.md) | the replenishment (regeneration) rate over size |
-| [`resource_level(params) <-`](https://sizespectrum.org/mizer/reference/setResource.md) | the resource level (fraction of capacity) |
-| [`setResource(params, …)`](https://sizespectrum.org/mizer/reference/setResource.md) | any of the above, plus `lambda`, `n`, `w_pp_cutoff`, `resource_dynamics` |
+| Function                                                                                  | Sets (and freezes)                                                       |
+|-------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| [`resource_capacity(params) <-`](https://sizespectrum.org/mizer/reference/setResource.md) | the carrying capacity over size                                          |
+| [`resource_rate(params) <-`](https://sizespectrum.org/mizer/reference/setResource.md)     | the replenishment (regeneration) rate over size                          |
+| [`resource_level(params) <-`](https://sizespectrum.org/mizer/reference/setResource.md)    | the resource level (fraction of capacity)                                |
+| [`setResource(params, …)`](https://sizespectrum.org/mizer/reference/setResource.md)       | any of the above, plus `lambda`, `n`, `w_pp_cutoff`, `resource_dynamics` |
 
 ``` r
-
 resource_capacity(params) <- my_capacity          # array over size; now frozen
 resource_params(params)$kappa <- 1e11             # ignored: capacity is frozen
 params <- setResource(params, reset = TRUE)       # unfreeze: recompute from the scalars
@@ -223,7 +218,6 @@ and read with
 species-parameter column instead.)
 
 ``` r
-
 inter <- getInteraction(params)
 inter["Cod", "Herring"] <- 0.5
 params <- setInteraction(params, inter)
@@ -245,7 +239,6 @@ getter, e.g. `metab(params)`, reads it back.) This is equivalent to
 passing the array to the corresponding `set…()` function:
 
 ``` r
-
 metab(params) <- my_array                             # direct setter
 params <- setMetabolicRate(params, metab = my_array)  # create new model
 ```
@@ -263,7 +256,6 @@ volume. To hand control back to mizer, recompute the array from the
 parameters:
 
 ``` r
-
 params <- setSearchVolume(params, reset = TRUE)   # drop the manual override, recompute
 ```
 
@@ -278,17 +270,17 @@ and
 The full set of size-dependent rate arrays, each with its direct
 setter/getter and the `set…()` function that recomputes it:
 
-| Rate array | Direct setter / getter | Recompute with |
-|----|----|----|
-| search volume | `search_vol(params) <-` | [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md) |
-| maximum intake rate | `intake_max(params) <-` | [`setMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md) |
-| metabolic rate | `metab(params) <-` | [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md) |
-| external mortality | `ext_mort(params) <-` | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) |
-| external encounter rate | `ext_encounter(params) <-` | [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md) |
-| external diffusion | `ext_diffusion(params) <-` | [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md) |
-| predation kernel | `pred_kernel(params) <-` | [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md) |
-| maturity ogive | `maturity(params) <-` | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md) |
-| reproduction allocation | `repro_prop(params) <-` | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md) |
+| Rate array              | Direct setter / getter     | Recompute with                                                                       |
+|-------------------------|----------------------------|--------------------------------------------------------------------------------------|
+| search volume           | `search_vol(params) <-`    | [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md)   |
+| maximum intake rate     | `intake_max(params) <-`    | [`setMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md) |
+| metabolic rate          | `metab(params) <-`         | [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md) |
+| external mortality      | `ext_mort(params) <-`      | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)             |
+| external encounter rate | `ext_encounter(params) <-` | [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md)   |
+| external diffusion      | `ext_diffusion(params) <-` | [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md)   |
+| predation kernel        | `pred_kernel(params) <-`   | [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)       |
+| maturity ogive          | `maturity(params) <-`      | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md)   |
+| reproduction allocation | `repro_prop(params) <-`    | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md)   |
 
 The fishing arrays (selectivity, catchability) and the resource arrays
 behave the same way but are covered in the
@@ -309,7 +301,6 @@ swaps any one of these for a function of your own, without touching the
 species parameters or the rate arrays:
 
 ``` r
-
 params <- setRateFunction(params, "Mort", "myMort")   # use myMort() for total mortality
 getRateFunction(params)                               # list the current rate functions
 ```
@@ -347,7 +338,6 @@ in years), wrap the default
 and scale its result:
 
 ``` r
-
 seasonalMort <- function(params, t, ...) {
     mizerMort(params, t = t, ...) * (1 + 0.3 * sin(2 * pi * t))
 }
@@ -358,7 +348,6 @@ or to step fishing-independent mortality up permanently from year 30
 onwards:
 
 ``` r
-
 regimeShift <- function(params, t, ...) {
     factor <- if (t >= 30) 1.5 else 1
     mizerMort(params, t = t, ...) * factor
@@ -384,23 +373,22 @@ see
 
 ## Which should I use?
 
-| I want to change… | Use |
-|----|----|
-| a per-species value (`beta`, `w_mat`, `h`, `erepro`, …) | `species_params(params) <- …` |
-| fishing gears / selectivity / catchability | `gear_params(params) <- …` |
-| the resource (kappa, lambda, r_pp, …) | `resource_params(params) <- …` |
-| species interactions | `setInteraction(params, …)` |
-| a size-dependent rate, keeping it tied to the parameters | change the underlying parameter (above) |
-| a size-dependent rate to a bespoke array (freezing it) | the direct setter `metab(params) <- …` (or the matching `set…()` with the array argument) |
-| a size-dependent rate back to default form | call matching `set...()` with `reset = TRUE` |
-| how a rate is *computed* (e.g. to make it time-dependent) | `setRateFunction(params, …)` |
+| I want to change…                                         | Use                                                                                       |
+|-----------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| a per-species value (`beta`, `w_mat`, `h`, `erepro`, …)   | `species_params(params) <- …`                                                             |
+| fishing gears / selectivity / catchability                | `gear_params(params) <- …`                                                                |
+| the resource (kappa, lambda, r_pp, …)                     | `resource_params(params) <- …`                                                            |
+| species interactions                                      | `setInteraction(params, …)`                                                               |
+| a size-dependent rate, keeping it tied to the parameters  | change the underlying parameter (above)                                                   |
+| a size-dependent rate to a bespoke array (freezing it)    | the direct setter `metab(params) <- …` (or the matching `set…()` with the array argument) |
+| a size-dependent rate back to default form                | call matching `set...()` with `reset = TRUE`                                              |
+| how a rate is *computed* (e.g. to make it time-dependent) | `setRateFunction(params, …)`                                                              |
 
 ------------------------------------------------------------------------
 
 ## Quick reference
 
 ``` r
-
 # ── Species parameters (preferred: triggers recalculation) ────────────────────
 species_params(params)$beta <- 150
 species_params(params)                     # view all (given + calculated)

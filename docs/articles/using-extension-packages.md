@@ -56,7 +56,6 @@ the **extension chain**.
 To see the current extension chain, call:
 
 ``` r
-
 getRegisteredExtensions()
 ```
 
@@ -92,7 +91,6 @@ For example, suppose `mizerShelf` adds detritus biomass to
 and `mizerFoo` adds some other component. If you load them as:
 
 ``` r
-
 library(mizerShelf)
 library(mizerFoo)
 ```
@@ -106,7 +104,6 @@ result has both mizerShelf’s and mizerFoo’s additions.
 If instead you load them in the opposite order:
 
 ``` r
-
 library(mizerFoo)
 library(mizerShelf)
 ```
@@ -127,7 +124,6 @@ required load order relative to other packages.
 ### Checking the chain
 
 ``` r
-
 getRegisteredExtensions()
 ```
 
@@ -141,7 +137,6 @@ If you want to start fresh — for instance, because you loaded packages
 in the wrong order — you can clear the session’s extension registry:
 
 ``` r
-
 clearExtensionChain()
 ```
 
@@ -165,7 +160,6 @@ can set it directly with
 [`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md):
 
 ``` r
-
 chain <- c(mizerFoo = "owner/mizerFoo", mizerShelf = "sizespectrum/mizerShelf")
 registerExtensions(chain)
 ```
@@ -192,7 +186,6 @@ object.
 You can inspect it:
 
 ``` r
-
 params@extensions
 ```
 
@@ -215,7 +208,6 @@ and
 [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md):
 
 ``` r
-
 saveParams(params, "my_model.rds")
 params <- readParams("my_model.rds")
 ```
@@ -250,7 +242,6 @@ and
 [`readSim()`](https://sizespectrum.org/mizer/reference/saveParams.md):
 
 ``` r
-
 sim <- project(params, t_max = 10)
 saveSim(sim, "my_simulation.rds")
 sim <- readSim("my_simulation.rds")
@@ -273,7 +264,6 @@ If you want the load step to install missing packages automatically,
 pass `install_extensions = TRUE`:
 
 ``` r
-
 params <- readParams("my_model.rds", install_extensions = TRUE)
 ```
 
@@ -289,7 +279,6 @@ following mizer’s conventions, these objects work correctly as soon as
 you load the package:
 
 ``` r
-
 library(mizerShelf)
 NWMed_params   # already has the correct extension class — no extra steps needed
 ```
@@ -310,14 +299,12 @@ Either install the package manually
 (`pak::pkg_install("sizespectrum/mizerShelf")`) or reload with:
 
 ``` r
-
 params <- readParams("my_model.rds", install_extensions = TRUE)
 ```
 
 ### You want to check what extensions a params object requires
 
 ``` r
-
 params@extensions
 ```
 
@@ -331,7 +318,6 @@ Call
 then reload in the order you want. You do not need to restart R.
 
 ``` r
-
 clearExtensionChain()
 library(mizerShelf)   # innermost (loaded first)
 library(mizerFoo)     # outermost (loaded last)

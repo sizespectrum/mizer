@@ -42,7 +42,7 @@ compareParams(params1, params2)
 #> 
 #> The following given species parameters differ: Component “w_mat”: Mean absolute difference: 3
 #> 
-#> The time_modified slots do not agree: Mean absolute difference: 2174548
+#> The time_modified slots do not agree: Mean absolute difference: 3181166
 #> 
 #> The maturity slots do not agree: Mean absolute difference: 0.04497162
 #>   Max |diff|: Sprat: 0.568

@@ -39,7 +39,6 @@ frame is returned.
 ``` r
 # \donttest{
 plot(NResource(NS_sim))
-#> Warning: log-10 transformation introduced infinite values.
 
 # }
 ```

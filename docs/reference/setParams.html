@@ -35,7 +35,7 @@ See the Details section below for a discussion of how to use this function."><me
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -237,7 +237,7 @@ a vector, must be named by gear.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>If you are not happy with the assumptions that mizer makes by default about
-the shape of the model functions, for example if you want to change one of
+the size-dependence of parameters, for example if you want to change one of
 the allometric scaling assumptions, you can do this by providing your
 choice as an array in the appropriate argument to <code>setParams()</code>. The
 sections below discuss all the model functions that you can change this way.</p>
@@ -245,7 +245,7 @@ sections below discuss all the model functions that you can change this way.</p>
 changes to the <code>params</code> object that you pass to it but instead returns a new
 params object. So to affect the change you call the function in the form
 <code>params &lt;- setParams(params, ...)</code>.</p>
-<p>Usually, if you are happy with the way mizer calculates its model functions
+<p>Usually, if you are happy with the way mizer calculates the size-dependent parameters
 from the species parameters and only want to change the values of some
 species parameters, you would make those changes in the <code>species_params</code> data
 frame contained in the <code>params</code> object using <code><a href="species_params.html">species_params&lt;-()</a></code>.
@@ -256,7 +256,7 @@ the <code>gamma</code> parameter of the third species:</p>
 <p>Internally that will actually call <code>setParams()</code> to recalculate any of the
 other parameters that are affected by the change in the species parameter.</p>
 <p><code>setParams()</code> will use the species parameters in the <code>params</code> object to
-recalculate the values of all the model functions except those for which you
+recalculate the values of all the parameter arrays except those for which you
 have set custom values.</p>
     </div>
     <div class="section level2">

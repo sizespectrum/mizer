@@ -170,7 +170,7 @@ object
 ## Details
 
 If you are not happy with the assumptions that mizer makes by default
-about the shape of the model functions, for example if you want to
+about the size-dependence of parameters, for example if you want to
 change one of the allometric scaling assumptions, you can do this by
 providing your choice as an array in the appropriate argument to
 `setParams()`. The sections below discuss all the model functions that
@@ -181,10 +181,11 @@ changes to the `params` object that you pass to it but instead returns a
 new params object. So to affect the change you call the function in the
 form `params <- setParams(params, ...)`.
 
-Usually, if you are happy with the way mizer calculates its model
-functions from the species parameters and only want to change the values
-of some species parameters, you would make those changes in the
-`species_params` data frame contained in the `params` object using
+Usually, if you are happy with the way mizer calculates the
+size-dependent parameters from the species parameters and only want to
+change the values of some species parameters, you would make those
+changes in the `species_params` data frame contained in the `params`
+object using
 [`species_params<-()`](https://sizespectrum.org/mizer/reference/species_params.md).
 Here is an example which assumes that you have have a MizerParams object
 `params` in which you just want to change the `gamma` parameter of the
@@ -197,8 +198,8 @@ the other parameters that are affected by the change in the species
 parameter.
 
 `setParams()` will use the species parameters in the `params` object to
-recalculate the values of all the model functions except those for which
-you have set custom values.
+recalculate the values of all the parameter arrays except those for
+which you have set custom values.
 
 ## Units in mizer
 

@@ -23,12 +23,23 @@ When assigning back to S4 slots, use `slot[] <- value` (not
 Users should access/modify these tables via S3 generics
 (e.g. `species_params(params)` or `gear_params(params)`), but package
 code and developers can modify slots directly
-(e.g. `params@species_params`) when appropriate. Inline modifications on
-the S3 objects (via `[<-`, `$<-`, `[[<-` S3 methods) preserve the
-subclass and trigger reactive validation checks and conversions
-(e.g. length-to-weight). `given_species_params` holds what the user
-supplied **plus the defaults of any function argument that sets a
-species parameter** (e.g. `n` and `p` from
+(e.g. `params@species_params`) when appropriate. Editing one of these
+tables on its own does nothing but edit it: the subclass is preserved
+(by the base `data.frame` methods — there are deliberately no `[<-`,
+`$<-` or `[[<-` methods), and no validation, conversion or warning
+happens. The checks and conversions (misspelled column names,
+length-to-weight, consistency) run when the table is validated, which is
+what
+[`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)/[`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
+do to a plain data frame and what `species_params<-()`/`gear_params<-()`
+do to the table they are given. This is also what makes the
+length/weight precedence rule work: `species_params<-()` compares the
+incoming table against the model’s, so the value you changed wins; a
+table edited on its own carries no such history, so a length and a
+weight that both differ count as given at the same time and the weight
+wins. `given_species_params` holds what the user supplied **plus the
+defaults of any function argument that sets a species parameter**
+(e.g. `n` and `p` from
 [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)),
 even when the user did not override the argument; defaults that are not
 function arguments stay out of it.

@@ -8,7 +8,7 @@ stored in a MizerParams object.
 ``` r
 species_params(object, ...)
 
-species_params(object) <- value
+species_params(object, recalculate = TRUE) <- value
 
 is.species_params(x)
 
@@ -31,6 +31,13 @@ calculated_species_params(params)
 
   Other arguments passed to methods.
 
+- recalculate:
+
+  Whether `species_params<-()` should re-derive the calculated species
+  parameters and recalculate all the rates that depend on the species
+  parameters. Defaults to `TRUE`. See the section "Setting species
+  parameters without recalculation" below before setting it to `FALSE`.
+
 - value:
 
   A data frame with the new species parameters.
@@ -51,7 +58,9 @@ currently stored in the model.
 
 `species_params<-()`: Updates the `given_species_params` with any
 parameters you have changed, and then recalculates the full species
-parameter table and the model parameters.
+parameter table and the model parameters. With `recalculate = FALSE` it
+only does the recording and stores the parameters you supplied, see the
+section "Setting species parameters without recalculation" below.
 
 `given_species_params()`: Data frame containing the species parameter
 values that were supplied explicitly by the user.
@@ -189,6 +198,25 @@ weight parameters like `w_inf`, `w_max`, `w_mat`, `w_mat25`,
 `w_repro_max` and `w_min` by their corresponding length parameters
 `l_inf`, `l_max`, `l_mat`, `l_mat25`, `l_repro_max` and `l_min`.
 
+You can also keep both, and change either of them later. Mizer keeps the
+two consistent by the rule that the one you gave last wins, and if you
+gave both at the same time the weight wins. So on a model set up with
+lengths you can still set `w_mat` with `species_params<-()` and mizer
+will update `l_mat` to match, and if you set `l_mat` it will update
+`w_mat` as always. When you supply a length and a weight together that
+do not agree, mizer uses the weight and warns you that it has changed
+the length to match.
+
+The rule is applied when a species parameter data frame is put into a
+model. A data frame that you have taken out of a model and are editing
+on its own is left exactly as you write it: no conversions, no checks
+and no warnings until you assign it back with `species_params<-()`,
+which is when mizer can tell which values you changed. A data frame that
+was never in a model, for example one you pass to
+[`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md),
+carries no such history, so a length and a weight that disagree there
+count as given at the same time and the weight wins.
+
 The parameters that are only used to calculate default values for other
 parameters are:
 
@@ -252,6 +280,30 @@ effect.
 You are allowed to include additional columns in the species parameter
 data frames. They will simply be ignored by mizer but will be stored in
 the MizerParams object, in case your own code makes use of them.
+
+## Setting species parameters without recalculation
+
+`species_params(params, recalculate = FALSE) <- value` records the
+values you changed among the given species parameters, so that they are
+not calculated away later, and stores `value` as the species parameters.
+It then stops there: the calculated species parameters are not
+re-derived from the given ones, no missing parameters are filled in with
+their default values, and none of the size-dependent rates are
+recalculated. Your species parameters are stored as you supplied them,
+after the same checks and length-to-weight conversions that writing into
+the `species_params` slot would trigger.
+
+This is for code that has worked out a species parameter *together with*
+the rate array that the parameter determines, for example an optimiser
+that fits `ks` and the matching `metab`, or `z_ext` and the matching
+`mu_b`. There the recalculation is not just wasted work but would
+overwrite the rates the caller has just set.
+
+The object you get back is only as consistent as you make it. Mizer will
+not check that the species parameters you supplied agree with the rate
+arrays in the object, nor that they agree with the other species
+parameters that are normally derived from them. Unless you are setting
+the affected rates yourself, use the default `recalculate = TRUE`.
 
 ## See also
 

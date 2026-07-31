@@ -74,7 +74,6 @@ itself to mizer when it is loaded. Place a `.onLoad` function in a file
 such as `R/mizerMyExtension-package.R`:
 
 ``` r
-
 .onLoad <- function(libname, pkgname) {
   mizer::registerExtension(pkgname, requirement = "owner/mizerMyExtension")
 }
@@ -101,7 +100,6 @@ copy the session’s registered extension chain into the `@extensions`
 slot:
 
 ``` r
-
 setStarvation <- function(params, starv_coef = 10) {
     # ... set up the rate function, species parameters, etc. ...
     params@extensions <- mizer::getRegisteredExtensions()
@@ -216,7 +214,6 @@ label.
 Place these calls in a file such as `R/myextension-class.R`:
 
 ``` r
-
 #' @export
 setClass("mizerShelf", contains = "MizerParams")
 
@@ -235,7 +232,6 @@ If your extension is designed to stack on top of another (say
 `mizerBase`), inherit from that package’s class instead:
 
 ``` r
-
 setClass("mizerOuter", contains = "mizerBase")
 setClass("mizerOuterSim", contains = "mizerBaseSim")
 ```
@@ -246,7 +242,6 @@ The `.onLoad` hook for a dispatching extension is the same as for a
 metadata-only one:
 
 ``` r
-
 .onLoad <- function(libname, pkgname) {
   mizer::registerExtension(pkgname, requirement = "owner/myExtensionPackage")
 }
@@ -289,7 +284,6 @@ loaded after yours.
 Add this to your `.onLoad`, once per bundled params or sim object:
 
 ``` r
-
 .onLoad <- function(libname, pkgname) {
     mizer::registerExtension(pkgname, requirement = "owner/myExtensionPackage")
     if (exists("my_example_params", envir = asNamespace(pkgname), inherits = FALSE)) {
@@ -321,7 +315,6 @@ Here is `getBiomass.mizerShelf` from mizerShelf. It calls
 standard mizer result, then appends the detritus and carrion biomasses:
 
 ``` r
-
 #' @method getBiomass mizerShelf
 #' @export
 getBiomass.mizerShelf <- function(object, ...) {
@@ -350,7 +343,6 @@ Always register S3 methods in your package’s `NAMESPACE` file. The
 roxygen2 `@method` tag does this for you automatically:
 
 ``` r
-
 #' @method getBiomass mizerShelf
 #' @export
 getBiomass.mizerShelf <- function(object, ...) { ... }
@@ -363,7 +355,6 @@ built-in rate functions with
 [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md):
 
 ``` r
-
 myEncounter <- function(params, n, n_pp, n_other, t = 0, ...) {
     enc <- mizerEncounter(params, n = n, n_pp = n_pp, n_other = n_other, t = t, ...)
     enc + extraEncounter(params, n, n_pp, n_other, t, ...)
@@ -389,21 +380,21 @@ extension-aware projections call during
 [`project()`](https://sizespectrum.org/mizer/reference/project.md).
 Define a method for whichever rate your extension modifies:
 
-| [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) key | S3 generic to override |
-|----|----|
-| `"Encounter"` | [`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md) |
-| `"FeedingLevel"` | [`projectFeedingLevel()`](https://sizespectrum.org/mizer/reference/mizerFeedingLevel.md) |
-| `"EReproAndGrowth"` | [`projectEReproAndGrowth()`](https://sizespectrum.org/mizer/reference/mizerEReproAndGrowth.md) |
-| `"ERepro"` | [`projectERepro()`](https://sizespectrum.org/mizer/reference/mizerERepro.md) |
-| `"EGrowth"` | [`projectEGrowth()`](https://sizespectrum.org/mizer/reference/mizerEGrowth.md) |
-| `"Diffusion"` | [`projectDiffusion()`](https://sizespectrum.org/mizer/reference/mizerDiffusion.md) |
-| `"PredRate"` | [`projectPredRate()`](https://sizespectrum.org/mizer/reference/mizerPredRate.md) |
-| `"PredMort"` | [`projectPredMort()`](https://sizespectrum.org/mizer/reference/mizerPredMort.md) |
-| `"FMort"` | [`projectFMort()`](https://sizespectrum.org/mizer/reference/mizerFMort.md) |
-| `"Mort"` | [`projectMort()`](https://sizespectrum.org/mizer/reference/mizerMort.md) |
-| `"RDI"` | [`projectRDI()`](https://sizespectrum.org/mizer/reference/mizerRDI.md) |
-| `"RDD"` | [`projectRDD()`](https://sizespectrum.org/mizer/reference/projectRDD.md) |
-| `"ResourceMort"` | [`projectResourceMort()`](https://sizespectrum.org/mizer/reference/mizerResourceMort.md) |
+| [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) key | S3 generic to override                                                                         |
+|----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| `"Encounter"`                                                                          | [`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)             |
+| `"FeedingLevel"`                                                                       | [`projectFeedingLevel()`](https://sizespectrum.org/mizer/reference/mizerFeedingLevel.md)       |
+| `"EReproAndGrowth"`                                                                    | [`projectEReproAndGrowth()`](https://sizespectrum.org/mizer/reference/mizerEReproAndGrowth.md) |
+| `"ERepro"`                                                                             | [`projectERepro()`](https://sizespectrum.org/mizer/reference/mizerERepro.md)                   |
+| `"EGrowth"`                                                                            | [`projectEGrowth()`](https://sizespectrum.org/mizer/reference/mizerEGrowth.md)                 |
+| `"Diffusion"`                                                                          | [`projectDiffusion()`](https://sizespectrum.org/mizer/reference/mizerDiffusion.md)             |
+| `"PredRate"`                                                                           | [`projectPredRate()`](https://sizespectrum.org/mizer/reference/mizerPredRate.md)               |
+| `"PredMort"`                                                                           | [`projectPredMort()`](https://sizespectrum.org/mizer/reference/mizerPredMort.md)               |
+| `"FMort"`                                                                              | [`projectFMort()`](https://sizespectrum.org/mizer/reference/mizerFMort.md)                     |
+| `"Mort"`                                                                               | [`projectMort()`](https://sizespectrum.org/mizer/reference/mizerMort.md)                       |
+| `"RDI"`                                                                                | [`projectRDI()`](https://sizespectrum.org/mizer/reference/mizerRDI.md)                         |
+| `"RDD"`                                                                                | [`projectRDD()`](https://sizespectrum.org/mizer/reference/projectRDD.md)                       |
+| `"ResourceMort"`                                                                       | [`projectResourceMort()`](https://sizespectrum.org/mizer/reference/mizerResourceMort.md)       |
 
 #### Converting an existing custom rate function
 
@@ -413,7 +404,6 @@ call from your constructor and define a method for your marker class
 instead:
 
 ``` r
-
 #' @method projectEncounter mizerMyExtension
 #' @export
 projectEncounter.mizerMyExtension <- function(params, n, n_pp, n_other,
@@ -469,7 +459,6 @@ A constructor function that returns a `mizerShelf` object must end with
 these two lines:
 
 ``` r
-
 params@extensions <- mizer::getRegisteredExtensions()
 params <- mizer::coerceToExtensionClass(params)
 ```
@@ -477,7 +466,6 @@ params <- mizer::coerceToExtensionClass(params)
 Here is how `newDetritusCarrionParams()` uses them in mizerShelf:
 
 ``` r
-
 newDetritusCarrionParams <- function(species_params, ...) {
     params <- newMultispeciesParams(species_params, ...,
                                     resource_dynamics = "detritus_dynamics")
@@ -555,7 +543,6 @@ automatically.
 This means that after:
 
 ``` r
-
 sim <- project(NWMed_params, t_max = 3)
 ```
 
@@ -567,42 +554,43 @@ dispatched automatically.
 
 When building a dispatching extension package, verify the following:
 
-Define both `setClass("<myExtension>", contains = "MizerParams")` and
-`setClass("<myExtension>Sim", contains = "MizerSim")` with no new slots.
+- Define both `setClass("<myExtension>", contains = "MizerParams")` and
+  `setClass("<myExtension>Sim", contains = "MizerSim")` with no new
+  slots.
 
-Call `mizer::registerExtension(pkgname, requirement = ...)` in
-`.onLoad`.
+- Call `mizer::registerExtension(pkgname, requirement = ...)` in
+  `.onLoad`.
 
-For every `MizerParams` or `MizerSim` object bundled in `data/`, add a
-[`makeActiveBinding()`](https://rdrr.io/r/base/bindenv.html) call in
-`.onLoad` so the object is coerced to the correct extension class on
-access. See [Bundled data objects](#bundled-data-objects).
+- For every `MizerParams` or `MizerSim` object bundled in `data/`, add a
+  [`makeActiveBinding()`](https://rdrr.io/r/base/bindenv.html) call in
+  `.onLoad` so the object is coerced to the correct extension class on
+  access. See [Bundled data objects](#bundled-data-objects).
 
-End every constructor with
-`params@extensions <- getRegisteredExtensions()` and
-`coerceToExtensionClass(params)`.
+- End every constructor with
+  `params@extensions <- getRegisteredExtensions()` and
+  `coerceToExtensionClass(params)`.
 
-Register every S3 method in `NAMESPACE` (via `@method` + `@export`).
+- Register every S3 method in `NAMESPACE` (via `@method` + `@export`).
 
-Call [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) in every
-method override.
+- Call [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) in every
+  method override.
 
-For each rate the package modifies during projection, define a
-`project*` method (e.g. `projectEncounter.mizerMyExtension`) rather than
-calling
-[`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md).
-See [Replacing `setRateFunction()` with method
-dispatch](#replacing-setratefunction-with-method-dispatch).
+- For each rate the package modifies during projection, define a
+  `project*` method (e.g. `projectEncounter.mizerMyExtension`) rather
+  than calling
+  [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md).
+  See [Replacing `setRateFunction()` with method
+  dispatch](#replacing-setratefunction-with-method-dispatch).
 
-Store all extension-specific state in `other_params(params)` or in new
-components created with
-[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
-never in new S4 slots.
+- Store all extension-specific state in `other_params(params)` or in new
+  components created with
+  [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
+  never in new S4 slots.
 
-Run mizer’s own test suite against an object of your subclass to check
-that your overrides do not break core behaviour. See [Running mizer’s
-test suite against your
-subclass](#running-mizers-test-suite-against-your-subclass).
+- Run mizer’s own test suite against an object of your subclass to check
+  that your overrides do not break core behaviour. See [Running mizer’s
+  test suite against your
+  subclass](#running-mizers-test-suite-against-your-subclass).
 
 For metadata-only packages, only the second and third items apply (and
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
@@ -633,7 +621,6 @@ source and check out the tag or commit that matches your installed
 version:
 
 ``` r
-
 packageVersion("mizer")   # note this, then `git checkout` the matching tag
 ```
 
@@ -656,7 +643,6 @@ adds multiple resources) converts the single resource into two resources
 like this:
 
 ``` r
-
 suppressMessages(library(mizerMR))
 local({
     p1 <- NS_params_small
@@ -698,7 +684,6 @@ chain is registered”*. This is an artefact of the shared session, not a
 problem with your extension, so exclude those files before running:
 
 ``` r
-
 chain_tests <- c("test-extension-dispatch.R",
                  "test-registerExtensions.R",
                  "test-io.R")
@@ -717,7 +702,6 @@ it calls `load_all()`, which is required because some mizer tests use
 mizer’s internal (unexported) functions.
 
 ``` r
-
 devtools::test()
 ```
 
@@ -726,7 +710,6 @@ devtools::test()
 The edits above are only for this experiment. Undo them with:
 
 ``` r
-
 # from the mizer source root
 system("git checkout tests/testthat")
 ```
@@ -764,7 +747,6 @@ object); for ordinary modifications call
 without a `version`, so the existing stamp is preserved:
 
 ``` r
-
 # in your setup function, when the component is first created:
 params <- recordExtension(params, "myExtension",
                           version = as.character(packageVersion("myExtension")))
@@ -788,7 +770,6 @@ migration. It must be idempotent, must **not** call
 object after calling your method.
 
 ``` r
-
 #' @exportS3Method utils::upgrade
 upgrade.myExtension <- function(object, ...) {
     # Detect the old layout structurally and migrate it. Safe to run twice.

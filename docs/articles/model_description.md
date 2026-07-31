@@ -48,7 +48,6 @@ Here is a plot of an example size spectrum for two species with
 horizontal axis.
 
 ``` r
-
 library(mizer)
 params <- newTraitParams(no_sp = 2, min_w = 1e-3)
 plotSpectra(params, resource = FALSE, power = 0)

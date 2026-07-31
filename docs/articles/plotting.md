@@ -8,7 +8,6 @@ package](https://ggplot2.tidyverse.org/) and the
 mizer simulations.
 
 ``` r
-
 library(mizer)
 library(ggplot2)
 library(plotly)
@@ -32,14 +31,12 @@ to manipulate data frames is the [dplyr
 package](https://dplyr.tidyverse.org/).
 
 ``` r
-
 library(dplyr)
 ```
 
 We create a simple simulation that we will use for our examples below.
 
 ``` r
-
 params <- newMultispeciesParams(NS_species_params)
 sim <- project(params, t_max = 10, t_save = 0.5, effort = 0)
 ```
@@ -60,7 +57,6 @@ returns a two-dimensional array (matrix) with one dimension
 corresponding to the time and the second dimension to the species.
 
 ``` r
-
 biomass <- getBiomass(sim)
 str(biomass)
 ```
@@ -78,7 +74,6 @@ This array can be converted with the
 data frame that contains one row for each entry in the array.
 
 ``` r
-
 biomass_frame <- melt(biomass)
 str(biomass_frame)
 ```
@@ -95,7 +90,6 @@ In this form the information can be handed to
 to a line plot:
 
 ``` r
-
 pp <- plot_ly(biomass_frame) %>% 
     add_lines(x = ~time, y = ~value, color = ~sp)
 pp
@@ -110,7 +104,6 @@ Alternatively we can do the same thing with
 [`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html):
 
 ``` r
-
 pg <- ggplot(biomass_frame) +
     geom_line(aes(x = time, y = value, colour = sp))
 pg
@@ -132,7 +125,6 @@ through the function
 [`ggplotly()`](https://rdrr.io/pkg/plotly/man/ggplotly.html):
 
 ``` r
-
 ggplotly(pg)
 ```
 
@@ -146,7 +138,6 @@ ggplot this is done with
 [`labs()`](https://ggplot2.tidyverse.org/reference/labs.html).
 
 ``` r
-
 pg + labs(title = "Biomass plot",
           x = "Time [years]",
           y = "Biomass [g]")
@@ -157,7 +148,6 @@ pg + labs(title = "Biomass plot",
 In plotly we use the `layout()` function.
 
 ``` r
-
 pp %>% layout(
     title = "Biomass plot",
     xaxis = list(
@@ -175,14 +165,12 @@ We can use the filter function to filter out some of the data. For
 example we could select only the data for specific species:
 
 ``` r
-
 two_species_biomass <- filter(biomass_frame, sp %in% c("Gurnard", "Herring"))
 ```
 
 Now if we plot this reduced data frame we get
 
 ``` r
-
 ggplot(two_species_biomass) +
     geom_line(aes(x = time, y = value, color = sp))
 ```
@@ -199,7 +187,6 @@ array and then created the data frame with
 resulting smaller array:
 
 ``` r
-
 nfr <- melt(getBiomass(sim)[, c("Gurnard", "Herring")])
 ggplot(nfr) +
     geom_line(aes(x = time, y = value, color = sp))
@@ -216,7 +203,6 @@ If we want to make sure the same species always has the same colour, we
 can use the colours specified by the MizerParams object
 
 ``` r
-
 getColours(params)
 ```
 
@@ -231,7 +217,6 @@ To use these colours in ggplot we add
 [`scale_colour_manual()`](https://ggplot2.tidyverse.org/reference/scale_manual.html):
 
 ``` r
-
 ggplot(biomass_frame) +
     geom_line(aes(x = time, y = value, color = sp)) + 
     scale_colour_manual(values = getColours(params))
@@ -243,7 +228,6 @@ In plotly we add `colors = getColours(params)r` to the
 [`add_lines()`](https://rdrr.io/pkg/plotly/man/add_trace.html) command:
 
 ``` r
-
 plot_ly(biomass_frame) %>% 
     add_lines(x = ~time, y = ~value, color = ~sp,
               colors = getColours(params))
@@ -265,7 +249,6 @@ method that produces a ggplot directly, so no
 [`melt()`](https://rdrr.io/pkg/reshape2/man/melt.html) step is needed:
 
 ``` r
-
 fl <- getFeedingLevel(params)
 plot(fl)
 ```
@@ -280,7 +263,6 @@ object, and it restricts each species’ curve to its natural size range
 You can select a subset of species with the `species` argument:
 
 ``` r
-
 plot(fl, species = c("Cod", "Herring", "Sprat"))
 ```
 
@@ -290,7 +272,6 @@ Because the result is an ordinary ggplot object you can add layers or
 themes in the usual way:
 
 ``` r
-
 plot(fl) +
     geom_hline(yintercept = 0.6, linetype = "dashed", colour = "grey50") +
     labs(title = "Feeding level at steady state")
@@ -304,7 +285,6 @@ with other data — use
 [`as.data.frame()`](https://sizespectrum.org/mizer/reference/as.data.frame.md):
 
 ``` r
-
 fl_df <- as.data.frame(fl)
 str(fl_df)
 ```
@@ -320,7 +300,6 @@ This gives a long-format data frame with columns `w`, `value`, and
 [`plot_ly()`](https://rdrr.io/pkg/plotly/man/plot_ly.html):
 
 ``` r
-
 ggplot(fl_df) +
     geom_line(aes(x = w, y = value, colour = Species)) +
     scale_colour_manual(values = getColours(params)) +
@@ -342,7 +321,6 @@ a three-dimensional array (time x species x size). Let us first look at
 the abundance at the final time.
 
 ``` r
-
 final_n <- N(sim)[idxFinalT(sim), , , drop = FALSE]
 ```
 
@@ -350,7 +328,6 @@ The `drop = FALSE` means that the result will again be a 3 dimensional
 array.
 
 ``` r
-
 str(final_n)
 ```
 
@@ -368,7 +345,6 @@ We use the [`melt()`](https://rdrr.io/pkg/reshape2/man/melt.html)
 function to convert this array into a data frame.
 
 ``` r
-
 nf <- melt(final_n)
 ```
 
@@ -377,7 +353,6 @@ each of the 1200 entries in the `1` x 12 x `rdim(final_n)[3]` matrix
 `final_n`.
 
 ``` r
-
 str(nf)
 ```
 
@@ -397,7 +372,6 @@ There are a lot of entries with value 0, which we are not really
 interested in, so it makes sense to remove them:
 
 ``` r
-
 nf <- filter(nf, value > 0)
 ```
 
@@ -408,7 +382,6 @@ for each species, with a different colour for each, and specify that we
 want both the x axis and the y axis to be on a logarithmic scale.
 
 ``` r
-
 pg <- ggplot(nf) +
     geom_line(aes(x = w, y = value, color = sp)) +
     scale_x_log10() +
@@ -421,7 +394,6 @@ pg
 The corresponding syntax for plotly is
 
 ``` r
-
 p <- plot_ly(nf) %>%
     add_lines(x = ~w, y = ~value, color = ~sp) %>% 
     layout(xaxis = list(type = "log", exponentformat = "power"),
@@ -440,7 +412,6 @@ spectrum. We first convert also the resource abundance at the final time
 into a data frame and filter out the zero values
 
 ``` r
-
 nf_pp <- melt(NResource(sim)[idxFinalT(sim), , drop = FALSE]) %>% 
     filter(value > 0)
 ```
@@ -450,7 +421,6 @@ the `sp` column specifying the species. We add this column with the
 value “Resource”
 
 ``` r
-
 nf_pp$sp <- "Resource"
 ```
 
@@ -458,14 +428,12 @@ Now this new data frame has the same columns as the data frame `nf` and
 the two can be bound together
 
 ``` r
-
 nf <- rbind(nf, nf_pp)
 ```
 
 Using this extended data frame gives the following plot:
 
 ``` r
-
 p <- ggplot(nf) +
     geom_line(aes(x = w, y = value, color = sp)) + 
     scale_colour_manual(values = getColours(params)) +
@@ -487,7 +455,6 @@ filter out all the rows in the data frame that have small w and then
 plot the resulting data frame as usual:
 
 ``` r
-
 nf %>%
     filter(w > 10^-4) %>% 
     ggplot() +
@@ -503,7 +470,6 @@ The second method is to specify limits for the axes. In ggplot this is
 done by adding `limits` to the axis scales:
 
 ``` r
-
 ggplot(nf) +
     geom_line(aes(x = w, y = value, color = sp)) + 
     scale_colour_manual(values = getColours(params)) +
@@ -518,7 +484,6 @@ The `NA` means that the existing limits are kept.
 In plotly we specify the `range` as follows:
 
 ``` r
-
 plot_ly(nf) %>%
     add_lines(x = ~w, y = ~value, color = ~sp,
               colours = getColours(params)) %>% 
@@ -540,7 +505,6 @@ animation showing the changing spectra over time. So we melt the entire
 [`add_lines()`](https://rdrr.io/pkg/plotly/man/add_trace.html):
 
 ``` r
-
 melt(N(sim)) %>% 
     filter(value > 0) %>% 
     plot_ly() %>% 
@@ -567,7 +531,6 @@ simulations, for example with different fishing policies. To illustrate
 this we create two simulations with different fishing effort:
 
 ``` r
-
 sim1 <- project(params, t_max = 10, t_save = 0.2, effort = 2)
 sim2 <- project(params, t_max = 10, t_save = 0.2, effort = 4)
 ```
@@ -579,7 +542,6 @@ function, which returns an array (time x species) that we can convert to
 a data frame
 
 ``` r
-
 yield1 <- melt(getYield(sim1))
 yield2 <- melt(getYield(sim2))
 ```
@@ -587,7 +549,6 @@ yield2 <- melt(getYield(sim2))
 Let’s look at the plot of the yield from the first simulation:
 
 ``` r
-
 ggplot(yield1) +
     geom_line(aes(x = time, y = value, colour = sp))
 ```
@@ -598,7 +559,6 @@ To make the plot less cluttered, we keep only the 4 most important
 species
 
 ``` r
-
 yield1 <- filter(yield1, sp %in% c("Saithe", "Cod", "Haddock", "N.pout"))
 yield2 <- filter(yield2, sp %in% c("Saithe", "Cod", "Haddock", "N.pout"))
 ```
@@ -606,7 +566,6 @@ yield2 <- filter(yield2, sp %in% c("Saithe", "Cod", "Haddock", "N.pout"))
 and plot again
 
 ``` r
-
 p1 <- ggplot(yield1) +
     geom_line(aes(x = time, y = value, colour = sp))
 p1
@@ -617,7 +576,6 @@ p1
 For simulation 2 the plot looks like this:
 
 ``` r
-
 p2 <- ggplot(yield2) +
     geom_line(aes(x = time, y = value, colour = sp))
 p2
@@ -630,7 +588,6 @@ an extra variable to the data frames that allow us to distinguish them
 and then we merge them together.
 
 ``` r
-
 yield1$effort <- as.factor(2)
 yield2$effort <- as.factor(4)
 yield <- rbind(yield1, yield2)
@@ -641,7 +598,6 @@ In ggplot we can now use
 to put the plot for each value of `effort` side-by-side:
 
 ``` r
-
 ggplot(yield) +
     geom_line(aes(x = time, y = value, 
                   colour = sp)) +
@@ -654,7 +610,6 @@ Or we can use the `linetype` aesthetic to represent the different
 `effort` values by different line types:
 
 ``` r
-
 ggplot(yield) +
     geom_line(aes(x = time, y = value, 
                   colour = sp,
@@ -668,7 +623,6 @@ diffviewer package. For that purpose we need to create the two plots
 with the same limits on the axes.
 
 ``` r
-
 p1 <- ggplot(yield1) +
     geom_line(aes(x = time, y = value, colour = sp)) +
     ylim(0,1.75e12)
@@ -682,7 +636,6 @@ files and using
 [`diffviewer::visual_diff()`](https://diffviewer.r-lib.org/reference/visual_diff.html):
 
 ``` r
-
 # Save plots to temporary files
 tmp1 <- tempfile(fileext = ".png")
 tmp2 <- tempfile(fileext = ".png")
@@ -698,7 +651,6 @@ side-by-side (or arrange them into a grid) with
 [`subplot()`](https://rdrr.io/pkg/plotly/man/subplot.html)
 
 ``` r
-
 subplot(p1, p2, shareX = TRUE, shareY = TRUE)
 ```
 
@@ -709,7 +661,6 @@ plots use the same scale on the y axis, and similarly for
 Also in plotly we can now tie the `effort` variable to the line type.
 
 ``` r
-
 plot_ly(yield) %>% 
     add_lines(x = ~time, y = ~value, 
               color = ~sp, linetype = ~effort)

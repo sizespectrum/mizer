@@ -79,7 +79,6 @@ frame is returned.
 plot(getResourceMort(NS_params))
 
 plot(initialNResource(NS_params))
-#> Warning: log-10 transformation introduced infinite values.
 
 # }
 ```

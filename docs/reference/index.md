@@ -80,6 +80,8 @@ for a quick reference.
   [`` `given_species_params<-`() ``](https://sizespectrum.org/mizer/reference/species_params.md)
   [`calculated_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
   : Species parameters
+- [`record_given_species_params()`](https://sizespectrum.org/mizer/reference/record_given_species_params.md)
+  : Record the species parameters that have changed
 - [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
   [`` `gear_params<-`() ``](https://sizespectrum.org/mizer/reference/gear_params.md)
   [`is.gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
@@ -777,6 +779,9 @@ users building extensions or working with model objects directly.
 - [`project_simple()`](https://sizespectrum.org/mizer/reference/project_simple.md)
   : Project abundances by a given number of time steps into the future
 
+- [`record_given_species_params()`](https://sizespectrum.org/mizer/reference/record_given_species_params.md)
+  : Record the species parameters that have changed
+
 - [`set_species_param_default()`](https://sizespectrum.org/mizer/reference/set_species_param_default.md)
   : Set a species parameter to a default value
 
@@ -847,6 +852,9 @@ constructing, inspecting, comparing, and validating them.
   [`print(`*`<summary.ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
   [`print(`*`<summary.ArrayTimeBySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/print.md)
   : Print mizer objects
+
+- [`print(`*`<mizer_plot>`*`)`](https://sizespectrum.org/mizer/reference/print.mizer_plot.md)
+  : Print a mizer plot
 
 - [`as.data.frame(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
   [`as.data.frame(`*`<ArrayTimeBySpecies>`*`)`](https://sizespectrum.org/mizer/reference/as.data.frame.md)

@@ -136,7 +136,7 @@ and defaults:
 
 Other plotting functions:
 [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md),
-[`animate.ArrayTimeBySpeciesBySize()`](https://sizespectrum.org/mizer/reference/animate.md),
+[`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
@@ -178,10 +178,8 @@ plot(getFMort(NS_sim), time = 2010)
 plot(getResourceMort(NS_params))
 
 plot(initialNResource(NS_params))
-#> Warning: log-10 transformation introduced infinite values.
 
 plot(NResource(NS_sim))
-#> Warning: log-10 transformation introduced infinite values.
 
 # }
 ```

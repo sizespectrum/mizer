@@ -116,7 +116,7 @@ A ggplot2 object.
 ## See also
 
 Other plotting functions:
-[`animate.ArrayTimeBySpeciesBySize()`](https://sizespectrum.org/mizer/reference/animate.md),
+[`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
