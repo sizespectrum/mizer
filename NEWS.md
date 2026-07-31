@@ -1,4 +1,4 @@
-# mizer 3.2.0.9000
+# mizer 3.2.1.9000
 
 This development version adds experimental tools for analysing the dynamic
 stability of steady states.
@@ -44,17 +44,30 @@ stability of steady states.
   at which the band opens up. The settling stage runs `projectToSteady()`, whose
   `tol`, `amplitude_tol` and `extinction_threshold` are exposed for tuning.
 
-- New `record_given_species_params()` exports the entry-by-entry change
-  detection that `species_params<-()` uses to decide which values to record in
-  `given_species_params()`. It is the recording step on its own, without the
-  rebuild of the species parameters and the recalculation of all the rates.
-  This is for code that has already written into the `species_params` slot
-  itself, for example an optimiser that fits a species parameter together with
-  the rate array it determines. Such code has to record its changes: a species
-  parameter written straight into the slot is silently reverted the next time
-  anything triggers a recalculation. If you have a species parameter data frame
-  to hand rather than having written into the slot, use
-  `species_params(params, recalculate = FALSE) <- value` instead.
+## Other improvements
+
+- `steady()` and `projectToSteady()` now report the nature of the solution they
+  converged to via a `"convergence"` attribute on the returned object (mirroring
+  the `"stability"` attribute of `steadyNewton()`). It records whether the run
+  settled on a stable steady state, a limit cycle, or neither, together with the
+  cycle period and relative amplitude when a cycle is found. Limit cycles are
+  detected from a per-species biomass series sampled at the new `t_save`
+  resolution (default `dt`), so detection no longer relies on the cycle period
+  being commensurate with `t_per`. The relative-amplitude floor for calling an
+  oscillation a limit cycle is a separate `amplitude_tol` argument (default
+  `0.01`), independent of the fixed-point convergence tolerance `tol`, and a
+  species is treated as extinct once its reproduction falls below the
+  `extinction_threshold` fraction (default `1e-6`) of its value at the start of
+  the run.
+
+# mizer 3.2.1
+
+This patch release fixes how species and gear parameters are handled when they
+are assigned. A size given as a weight can now actually be set on a model
+specified by lengths, editing one of these parameter tables on its own no
+longer validates it on every assignment, and code that sets a species parameter
+together with the rate array it determines can now record its change without
+triggering a recalculation that would undo it.
 
 ## Species parameter changes
 
@@ -67,6 +80,18 @@ stability of steady states.
   with the rate array it determines, where the recalculation would undo the
   caller's own adjustment. Keeping the object consistent is then the caller's
   responsibility.
+
+- New `record_given_species_params()` exports the entry-by-entry change
+  detection that `species_params<-()` uses to decide which values to record in
+  `given_species_params()`. It is the recording step on its own, without the
+  rebuild of the species parameters and the recalculation of all the rates.
+  This is for code that has already written into the `species_params` slot
+  itself, for example an optimiser that fits a species parameter together with
+  the rate array it determines. Such code has to record its changes: a species
+  parameter written straight into the slot is silently reverted the next time
+  anything triggers a recalculation. If you have a species parameter data frame
+  to hand rather than having written into the slot, use
+  `species_params(params, recalculate = FALSE) <- value` instead.
 
 - A size that can be given either as a weight or as the length it converts to
   (`w_mat` and `l_mat`, and likewise `w_mat25`, `w_repro_max`, `w_inf`, `w_max`
@@ -132,21 +157,13 @@ stability of steady states.
   part of the match: on `NS_params` the growth rate no longer matched after a
   subsequent assignment to `species_params()`.
 
-## Other improvements
+## Other changes
 
-- `steady()` and `projectToSteady()` now report the nature of the solution they
-  converged to via a `"convergence"` attribute on the returned object (mirroring
-  the `"stability"` attribute of `steadyNewton()`). It records whether the run
-  settled on a stable steady state, a limit cycle, or neither, together with the
-  cycle period and relative amplitude when a cycle is found. Limit cycles are
-  detected from a per-species biomass series sampled at the new `t_save`
-  resolution (default `dt`), so detection no longer relies on the cycle period
-  being commensurate with `t_per`. The relative-amplitude floor for calling an
-  oscillation a limit cycle is a separate `amplitude_tol` argument (default
-  `0.01`), independent of the fixed-point convergence tolerance `tol`, and a
-  species is treated as extinct once its reproduction falls below the
-  `extinction_threshold` fraction (default `1e-6`) of its value at the start of
-  the run.
+- The startup message that `library(mizer)` prints when it first sees a new
+  version now only appears when the `major.minor` part of the version changes.
+  It links to the release announcement for the series, and there is one of
+  those per minor release, so a patch release or a development version no
+  longer re-shows an announcement you have already read.
 
 # mizer 3.2.0
 

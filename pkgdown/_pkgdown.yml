@@ -150,6 +150,7 @@ reference:
     for a quick reference.
   contents:
   - species_params
+  - record_given_species_params
   - gear_params
   - initialN
   - initialNResource
@@ -393,6 +394,7 @@ reference:
   - validSim
   - MizerSim
   - print
+  - print.mizer_plot
   - summary
   - str
   - as.data.frame
