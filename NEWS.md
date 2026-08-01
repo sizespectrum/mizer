@@ -5,6 +5,10 @@ stability of steady states.
 
 ## New functions
 
+- New `gaussian_mixture_pred_kernel()` supports multimodal feeding preferences
+  represented by mixtures of Gaussian distributions on the log
+  predator/prey mass-ratio scale.
+
 - New experimental `steadyNewton()` finds a steady state by solving the
   steady-state equation directly with a Newton-type root finder (via the
   `nleqslv` package) instead of running the dynamics to convergence. Unlike

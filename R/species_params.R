@@ -55,7 +55,9 @@
 #'   is a "lognormal", for other options see the "Setting predation kernel"
 #'   section in the help for [setPredKernel()].
 #' * `beta` and `sigma` are parameters of the lognormal predation kernel, see
-#'   [lognormal_pred_kernel()]. There will be other parameters if you are
+#'   [lognormal_pred_kernel()]. The Gaussian-mixture kernel instead uses the
+#'   list-columns `kernel_p`, `kernel_mean`, and `kernel_sd`, see
+#'   [gaussian_mixture_pred_kernel()]. There will be other parameters if you are
 #'   using other predation kernel functions.
 #'
 #' When you change one of the above species parameters using
@@ -469,7 +471,8 @@ known_species_params_columns <- function() {
       "ricker_b", "sheperd_b", "sheperd_c",
       # predation kernel
       "pred_kernel_type", "kernel_exp", "kernel_l_l", "kernel_u_l",
-      "kernel_l_r", "kernel_u_r", "ppmr_min", "ppmr_max",
+      "kernel_l_r", "kernel_u_r", "kernel_p", "kernel_mean", "kernel_sd",
+      "ppmr_min", "ppmr_max",
       # fishing
       "gear", "sel_func", "catchability", "knife_edge_size",
       "yield_observed", "catch_observed",

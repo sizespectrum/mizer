@@ -138,7 +138,9 @@ reproduction, see \code{\link[=setReproduction]{setReproduction()}}.
 is a "lognormal", for other options see the "Setting predation kernel"
 section in the help for \code{\link[=setPredKernel]{setPredKernel()}}.
 \item \code{beta} and \code{sigma} are parameters of the lognormal predation kernel, see
-\code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}}. There will be other parameters if you are
+\code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}}. The Gaussian-mixture kernel instead uses the
+list-columns \code{kernel_p}, \code{kernel_mean}, and \code{kernel_sd}, see
+\code{\link[=gaussian_mixture_pred_kernel]{gaussian_mixture_pred_kernel()}}. There will be other parameters if you are
 using other predation kernel functions.
 }
 

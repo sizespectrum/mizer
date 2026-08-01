@@ -47,6 +47,7 @@ plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
 
 Other predation kernel:
 \code{\link[=box_pred_kernel]{box_pred_kernel()}},
+\code{\link[=gaussian_mixture_pred_kernel]{gaussian_mixture_pred_kernel()}},
 \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}},
 \code{\link[=power_law_pred_kernel]{power_law_pred_kernel()}}
 }

@@ -79,6 +79,99 @@ truncated_lognormal_pred_kernel <- function(ppmr, beta, sigma) {
     return(phi)
 }
 
+#' Gaussian-mixture predation kernel
+#'
+#' A predation kernel for which the log predator/prey mass ratio follows a
+#' mixture of Gaussian distributions.
+#'
+#' Writing the predator mass as \eqn{w}, the prey mass as \eqn{w_p}, and
+#' \eqn{x = \ln(w / w_p)}, the feeding kernel is
+#' \deqn{
+#' \phi_i(w, w_p) = \sum_j a_{ij}
+#' \exp\left[-\frac{(x - \mu_{ij})^2}{2\sigma_{ij}^2}\right],
+#' \qquad
+#' a_{ij} = \frac{p_{ij}/\sigma_{ij}}
+#' {\sum_k p_{ik}/\sigma_{ik}}.
+#' }
+#' for predator/prey mass ratios greater than or equal to one, and zero for
+#' smaller ratios.
+#'
+#' This is proportional to the Gaussian-mixture probability density with
+#' mixing proportions \eqn{p_{ij}}, means \eqn{\mu_{ij}}, and standard
+#' deviations \eqn{\sigma_{ij}}. The scaling makes the sum of the component
+#' peak heights equal to one. Consequently the kernel is at most one, and a
+#' one-component mixture is identical to [lognormal_pred_kernel()] with
+#' `beta = exp(kernel_mean)` and `sigma = kernel_sd`.
+#'
+#' The three component parameters are vectors of equal length. When this
+#' function is selected in a species parameter data frame, they should be held
+#' in the list-columns `kernel_p`, `kernel_mean`, and `kernel_sd`. The values in
+#' `kernel_p` must be non-negative with at least one positive value, but they do
+#' not need to sum to one because they are normalised by the function.
+#'
+#' @param ppmr A vector of predator/prey mass ratios.
+#' @param kernel_p A numeric vector of relative component proportions.
+#' @param kernel_mean A numeric vector of component means on the log
+#'   predator/prey mass-ratio scale.
+#' @param kernel_sd A numeric vector of positive component standard deviations.
+#'
+#' @return A vector giving the value of the predation kernel at each of the
+#'   predator/prey mass ratios in the `ppmr` argument.
+#' @export
+#' @family predation kernel
+#' @seealso [setPredKernel()]
+#' @examples
+#' ppmr <- exp(seq(0, 12, length.out = 200))
+#' phi <- gaussian_mixture_pred_kernel(
+#'     ppmr,
+#'     kernel_p = c(0.3, 0.7),
+#'     kernel_mean = c(4, 8),
+#'     kernel_sd = c(0.8, 1.5)
+#' )
+#' plot(ppmr, phi, type = "l", log = "x")
+gaussian_mixture_pred_kernel <- function(ppmr, kernel_p,
+                                         kernel_mean, kernel_sd) {
+    if (!is.numeric(ppmr) || any(!is.finite(ppmr)) || any(ppmr <= 0)) {
+        stop("`ppmr` must contain only positive finite values.")
+    }
+    if (!is.numeric(kernel_p) || !is.numeric(kernel_mean) ||
+            !is.numeric(kernel_sd)) {
+        stop("Gaussian-mixture parameters must be numeric vectors.")
+    }
+    no_components <- length(kernel_p)
+    if (no_components == 0 || length(kernel_mean) != no_components ||
+            length(kernel_sd) != no_components) {
+        stop("`kernel_p`, `kernel_mean`, and `kernel_sd` must have the same ",
+             "positive length.")
+    }
+    if (any(!is.finite(kernel_p)) || any(!is.finite(kernel_mean)) ||
+            any(!is.finite(kernel_sd))) {
+        stop("Gaussian-mixture parameters must contain only finite values.")
+    }
+    if (any(kernel_p < 0) || sum(kernel_p) <= 0) {
+        stop("`kernel_p` must be non-negative with at least one positive ",
+             "value.")
+    }
+    if (any(kernel_sd <= 0)) {
+        stop("`kernel_sd` must contain only positive values.")
+    }
+
+    # A Gaussian density has peak height proportional to p / sd. Normalising
+    # these component heights preserves the mixture-density shape, keeps the
+    # kernel at or below one, and agrees with lognormal_pred_kernel() when
+    # there is only one component.
+    component_height <- kernel_p / sum(kernel_p) / kernel_sd
+    component_height <- component_height / sum(component_height)
+    phi <- numeric(length(ppmr))
+    feeding <- ppmr >= 1
+    log_ppmr <- log(ppmr[feeding])
+    for (j in seq_len(no_components)) {
+        phi[feeding] <- phi[feeding] + component_height[j] *
+            exp(-(log_ppmr - kernel_mean[j])^2 / (2 * kernel_sd[j]^2))
+    }
+    phi
+}
+
 #' Box predation kernel
 #'
 #' A predation kernel where the predator/prey mass ratio is uniformly
