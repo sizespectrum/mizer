@@ -332,15 +332,16 @@ determined by the \code{pred_kernel_type} column in species_params.
 
 The default for \code{pred_kernel_type} is "lognormal". This will call the function
 \code{\link[=lognormal_pred_kernel]{lognormal_pred_kernel()}} to calculate the predation kernel.
-An alternative pred_kernel type is "box", implemented by the function
-\code{\link[=box_pred_kernel]{box_pred_kernel()}}, and "power_law", implemented by the function
-\code{\link[=power_law_pred_kernel]{power_law_pred_kernel()}}. These functions require certain species
-parameters in the species_params data frame. For the lognormal kernel these
-are \code{beta} and \code{sigma}, for the box kernel they are \code{ppmr_min}
-and \code{ppmr_max}. They are explained in the help pages for the kernel
-functions. Except for \code{beta} and \code{sigma}, no defaults are set for
-these parameters. If they are missing from the species_params data frame then
-mizer will issue an error message.
+Alternative pred_kernel types are "box", implemented by \code{\link[=box_pred_kernel]{box_pred_kernel()}},
+"power_law", implemented by \code{\link[=power_law_pred_kernel]{power_law_pred_kernel()}}, and
+"gaussian_mixture", implemented by \code{\link[=gaussian_mixture_pred_kernel]{gaussian_mixture_pred_kernel()}}. These
+functions require certain species parameters in the species_params data
+frame. For the lognormal kernel these are \code{beta} and \code{sigma}, for the box
+kernel they are \code{ppmr_min} and \code{ppmr_max}, and for the Gaussian mixture they
+are the list-columns \code{kernel_p}, \code{kernel_mean}, and \code{kernel_sd}. They are
+explained in the help pages for the kernel functions. Except for \code{beta} and
+\code{sigma}, no defaults are set for these parameters. If they are missing from
+the species_params data frame then mizer will issue an error message.
 
 You can use any other string for \code{pred_kernel_type}. If for example you
 choose "my" then you need to define a function \code{my_pred_kernel} that you can

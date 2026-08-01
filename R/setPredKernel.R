@@ -2,7 +2,7 @@
 #'
 #' You will usually not need to call this function directly. Instead change
 #' the relevant species parameters (`pred_kernel_type`, and, depending on its
-#' value, `beta`/`sigma` or `ppmr_min`/`ppmr_max`) with
+#' value, the parameters required by the selected kernel) with
 #' `given_species_params(params) <-` and let mizer recalculate the predation
 #' kernel for you. Call `setPredKernel()` directly only if you want to supply
 #' the full kernel array yourself. See
@@ -27,15 +27,16 @@
 #'
 #' The default for `pred_kernel_type` is "lognormal". This will call the function
 #' [lognormal_pred_kernel()] to calculate the predation kernel.
-#' An alternative pred_kernel type is "box", implemented by the function
-#' [box_pred_kernel()], and "power_law", implemented by the function
-#' [power_law_pred_kernel()]. These functions require certain species
-#' parameters in the species_params data frame. For the lognormal kernel these
-#' are `beta` and `sigma`, for the box kernel they are `ppmr_min`
-#' and `ppmr_max`. They are explained in the help pages for the kernel
-#' functions. Except for `beta` and `sigma`, no defaults are set for
-#' these parameters. If they are missing from the species_params data frame then
-#' mizer will issue an error message.
+#' Alternative pred_kernel types are "box", implemented by [box_pred_kernel()],
+#' "power_law", implemented by [power_law_pred_kernel()], and
+#' "gaussian_mixture", implemented by [gaussian_mixture_pred_kernel()]. These
+#' functions require certain species parameters in the species_params data
+#' frame. For the lognormal kernel these are `beta` and `sigma`, for the box
+#' kernel they are `ppmr_min` and `ppmr_max`, and for the Gaussian mixture they
+#' are the list-columns `kernel_p`, `kernel_mean`, and `kernel_sd`. They are
+#' explained in the help pages for the kernel functions. Except for `beta` and
+#' `sigma`, no defaults are set for these parameters. If they are missing from
+#' the species_params data frame then mizer will issue an error message.
 #'
 #' You can use any other string for `pred_kernel_type`. If for example you
 #' choose "my" then you need to define a function `my_pred_kernel` that you can
@@ -447,16 +448,26 @@ get_phi <- function(species_params, ppmr) {
                  " are missing from the parameter dataframe: ",
                  toString(args[missing]))
         }
-        if (any(is.na(species_params[i, args]))) {
+        arg_values <- lapply(args, function(arg) {
+            value <- species_params[[arg]]
+            if (is.list(value)) {
+                value[[i]]
+            } else {
+                value[i]
+            }
+        })
+        names(arg_values) <- args
+        args_with_na <- vapply(arg_values, anyNA, logical(1))
+        if (any(args_with_na)) {
             stop("For species ",
                  species_params$species[i],
                  " the following arguments for the predation kernel function ",
                  pred_kernel_func_name,
                  " are NA in the parameter dataframe: ",
-                 toString(args[is.na(species_params[i, args])]))
+                 toString(args[args_with_na]))
         }
-        pars <- c(ppmr = list(ppmr), as.list(species_params[i, args]))
-        phi <- do.call(pred_kernel_func_name, args = pars)
+        pars <- c(ppmr = list(ppmr), arg_values)
+        phi <- do.call(pred_kernel_func, args = pars)
 
         if (any(is.na(phi))) {
             stop("The function ", pred_kernel_func_name,

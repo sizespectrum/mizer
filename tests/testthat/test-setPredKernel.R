@@ -118,6 +118,43 @@ test_that("get_phi throws error if predation kernel parameters are missing", {
                  "arguments for the predation kernel function box_pred_kernel are NA")
 })
 
+test_that("Gaussian-mixture list-column parameters work throughout", {
+    params <- NS_params_small
+    sp <- species_params(params)
+    no_sp <- nrow(sp)
+    sp$pred_kernel_type[] <- "gaussian_mixture"
+    sp$kernel_p <-
+        rep(list(c(0.4, 0.6)), no_sp)
+    sp$kernel_mean <-
+        rep(list(c(log(30), log(300))), no_sp)
+    sp$kernel_sd <-
+        rep(list(c(0.7, 1.2)), no_sp)
+    species_params(params) <- sp
+
+    ppmr <- params@w_full / params@w_full[1]
+    expected <- gaussian_mixture_pred_kernel(
+        ppmr, kernel_p = c(0.4, 0.6),
+        kernel_mean = c(log(30), log(300)), kernel_sd = c(0.7, 1.2)
+    )
+    expected[1] <- 0
+
+    expect_equal(get_phi(species_params(params), ppmr)[1, ],
+                 gaussian_mixture_pred_kernel(
+                     ppmr, kernel_p = c(0.4, 0.6),
+                     kernel_mean = c(log(30), log(300)),
+                     kernel_sd = c(0.7, 1.2)
+                 ))
+    expect_equal(
+        unname(getPredKernel(params)[1, length(params@w), ]),
+        rev(expected)
+    )
+    expect_true(all(is.finite(params@ft_pred_kernel_e)))
+    expect_true(all(is.finite(params@ft_pred_kernel_p)))
+
+    params@species_params$kernel_sd[[2]][1] <- NA_real_
+    expect_error(setPredKernel(params), "kernel_sd")
+})
+
 test_that("default_pred_kernel_params sets defaults for data frames and params", {
     sp <- data.frame(species = c("A", "B"),
                      w_max = c(10, 20),

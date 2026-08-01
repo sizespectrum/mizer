@@ -123,6 +123,57 @@ test_that("lognormal and truncated lognormal peak at beta and truncate on the ri
     expect_equal(tln[ppmr > exp(log(100) + 3)], 0)
 })
 
+test_that("gaussian_mixture_pred_kernel follows the mixture density", {
+    ppmr <- exp(c(-1, 3, 5, 7, 9))
+    kernel_p <- c(0.25, 0.75)
+    kernel_mean <- c(3, 7)
+    kernel_sd <- c(1, 2)
+    component_height <- kernel_p / kernel_sd
+    component_height <- component_height / sum(component_height)
+    expected <- vapply(ppmr, function(ratio) {
+        sum(component_height *
+                exp(-(log(ratio) - kernel_mean)^2 / (2 * kernel_sd^2)))
+    }, numeric(1))
+    expected[ppmr < 1] <- 0
+
+    result <- gaussian_mixture_pred_kernel(
+        ppmr, kernel_p = kernel_p,
+        kernel_mean = kernel_mean, kernel_sd = kernel_sd
+    )
+
+    expect_equal(result, expected)
+    expect_lte(max(result), 1)
+    expect_equal(
+        gaussian_mixture_pred_kernel(ppmr, 10 * kernel_p,
+                                     kernel_mean, kernel_sd),
+        result
+    )
+})
+
+test_that("one Gaussian component is the lognormal predation kernel", {
+    ppmr <- exp(seq(-1, 10, length.out = 100))
+    expect_equal(
+        gaussian_mixture_pred_kernel(ppmr, kernel_p = 1,
+                                     kernel_mean = log(100), kernel_sd = 2),
+        lognormal_pred_kernel(ppmr, beta = 100, sigma = 2)
+    )
+})
+
+test_that("gaussian_mixture_pred_kernel validates its parameters", {
+    expect_error(
+        gaussian_mixture_pred_kernel(1:10, c(0.5, 0.5), 1, c(1, 2)),
+        "same positive length"
+    )
+    expect_error(
+        gaussian_mixture_pred_kernel(1:10, c(0.5, -0.5), c(1, 2), c(1, 2)),
+        "non-negative"
+    )
+    expect_error(
+        gaussian_mixture_pred_kernel(1:10, c(0.5, 0.5), c(1, 2), c(1, 0)),
+        "positive values"
+    )
+})
+
 test_that("power_law_pred_kernel follows its documented formula", {
     ppmr <- c(10, 25, 50, 75, 100)
     result <- power_law_pred_kernel(ppmr,
