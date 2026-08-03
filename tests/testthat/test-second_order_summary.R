@@ -130,3 +130,83 @@ test_that("second-order biomass converges to default as the grid is refined", {
     }
     expect_lt(rel_diff(fine), rel_diff(coarse))
 })
+
+
+# Diet and trophic level must use the encounter quadrature (issue #474) ----
+
+# When second-order bin-averaging is on, the prey-bin integral is folded into
+# the Fourier-transformed kernel by setPredKernel(). A summary function that
+# also bin-averages its prey weight applies that quadrature twice and inflates
+# the result by (1 + beta) / 2. These tests pin the identities that catch it.
+
+custom_kernel_params <- function(params) {
+    pk <- getPredKernel(params)
+    comment(pk) <- "set manually"
+    setPredKernel(params, pred_kernel = pk)
+}
+
+test_that("encounter_kernel reproduces the encounter rate in both modes", {
+    check <- function(params) {
+        no_w <- length(params@w)
+        no_w_full <- length(params@w_full)
+        idx_sp <- (no_w_full - no_w + 1):no_w_full
+        n <- initialN(params)
+        n_pp <- initialNResource(params)
+        kernel <- encounter_kernel(params)
+        n_eff <- sweep(params@interaction %*% n, 2, params@w * params@dw, "*")
+        species <- rowSums(sweep(kernel[, , idx_sp, drop = FALSE], c(1, 3),
+                                 n_eff, "*"), dims = 2)
+        resource <- params@species_params$interaction_resource *
+            rowSums(sweep(kernel, 3, params@w_full * params@dw_full * n_pp,
+                          "*"), dims = 2)
+        direct <- params@search_vol * (species + resource) +
+            params@ext_encounter
+        expect_equal(as.vector(direct), as.vector(getEncounter(params)),
+                     tolerance = 1e-4)
+    }
+    p <- NS_params_small
+    check(p)
+    check(custom_kernel_params(p))
+    second_order_w(p) <- c(bin_average = TRUE)
+    check(p)
+    check(custom_kernel_params(p))
+})
+
+test_that("getDiet summed over prey equals the consumption rate in both modes", {
+    check <- function(params) {
+        total <- rowSums(getDiet(params, proportion = FALSE), dims = 2)
+        consumption <- getEncounter(params) * (1 - getFeedingLevel(params))
+        # Outside a species' size range the diet is set to zero, so compare
+        # only where the abundance is positive.
+        mask <- initialN(params) > 0
+        expect_equal(as.vector(total)[mask], as.vector(consumption)[mask])
+    }
+    p <- NS_params_small
+    check(p)
+    check(custom_kernel_params(p))
+    second_order_w(p) <- c(bin_average = TRUE)
+    check(p)
+    check(custom_kernel_params(p))
+})
+
+test_that("getTrophicLevel gives 2 for a predator whose prey all have level 1", {
+    # At the smallest size on the grid no consumer has yet been assigned a
+    # trophic level above 1, and choosing w_R above the whole grid makes the
+    # resource trophic level 1 as well. The trophic-level-weighted encounter in
+    # the numerator then equals the plain encounter in the denominator, so the
+    # trophic level must come out as exactly 2. It does so only if numerator and
+    # denominator use the same quadrature.
+    check <- function(params) {
+        w_R <- max(params@w_full) * 10
+        tl <- getTrophicLevel(params, w_R = w_R)
+        first <- which(params@w_min_idx == 1)
+        expect_equal(as.vector(tl[first, 1]), rep(2, length(first)),
+                     tolerance = 1e-4)
+    }
+    p <- NS_params_small
+    check(p)
+    check(custom_kernel_params(p))
+    second_order_w(p) <- c(bin_average = TRUE)
+    check(p)
+    check(custom_kernel_params(p))
+})
