@@ -172,3 +172,43 @@ test_that("predation diffusion default path mirrors the encounter kernel (#384)"
     n_pp <- initialNResource(params)
     expect_true(all(is.finite(getDiffusion(params, n, n_pp))))
 })
+
+# getDiffusion with predation diffusion ----
+# The snapshot below was recorded with defaults edition 1, so the params object
+# and the random abundances are reconstructed exactly as they were built in
+# test-project_methods.R, where these tests used to live.
+withr::local_options(mizer_defaults_edition = 1)
+pd_params <- newMultispeciesParams(NS_species_params_gears_small, inter_small,
+                                   n = 2/3, p = 0.7, lambda = 2.8 - 2/3,
+                                   info_level = 0)
+set.seed(0)
+pd_n <- abs(array(rnorm(length(pd_params@w) * nrow(pd_params@species_params)),
+                  dim = c(nrow(pd_params@species_params),
+                          length(pd_params@w)))) * 1e9
+pd_n_full <- abs(rnorm(length(pd_params@w_full))) * 1e9
+drop_params <- function(x) { attr(x, "params") <- NULL; x }
+
+test_that("getDiffusion snapshot with use_predation_diffusion", {
+    params_d <- pd_params
+    params_d@use_predation_diffusion <- TRUE
+    d <- getDiffusion(params_d, pd_n, pd_n_full)
+    expect_snapshot_value(drop_params(d), style = 'json2', tolerance = 1e-5)
+})
+
+test_that("predation diffusion is non-negative and adds to baseline", {
+    params_d <- pd_params
+    params_d@use_predation_diffusion <- TRUE
+    d_pred <- getDiffusion(params_d, pd_n, pd_n_full)
+    d_base <- getDiffusion(pd_params, pd_n, pd_n_full)
+    # predation diffusion is non-negative, so total must not fall below baseline
+    expect_true(all(d_pred >= d_base - .Machine$double.eps))
+    # with non-zero abundances it must be strictly larger somewhere
+    expect_true(any(d_pred > d_base))
+})
+
+test_that("getRates diffusion is nonzero with use_predation_diffusion", {
+    params_d <- pd_params
+    params_d@use_predation_diffusion <- TRUE
+    r_d <- getRates(params_d)
+    expect_true(any(r_d$diffusion > 0))
+})

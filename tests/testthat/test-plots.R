@@ -844,3 +844,102 @@ test_that("plotSpectraRelative shifts x to centres", {
     expect_true(all(p_node$data$w %in% params@w))
     expect_false(all(d_centre$w %in% params@w))
 })
+
+# plotting helpers: log_breaks and plotDataFrame ----
+
+test_that("log_breaks returns monotonic breaks", {
+    f <- log_breaks(5)
+    b <- f(c(1e-3, 1e3))
+    expect_true(is.numeric(b))
+    expect_true(all(diff(b) > 0))
+})
+
+test_that("plotDataFrame builds ggplot with species legend", {
+    params <- NS_params_small
+    sp <- species_params(params)$species[1:2]
+    df <- data.frame(
+        x = c(1, 2, 3, 1, 2, 3),
+        y = c(1, 2, 1, 2, 3, 2),
+        Species = rep(sp, each = 3)
+    )
+    p <- plotDataFrame(
+        df, params,
+        style = "line",
+        xlab = "x", ylab = "y",
+        legend_var = "Species"
+    )
+    expect_true(is_ggplot(p))
+})
+
+test_that("plotDataFrame validates helper arguments", {
+    params <- NS_params_small
+    df <- data.frame(x = 1:3, y = 1:3, Species = species_params(params)$species[1])
+    expect_error(plotDataFrame(df[, 1:2], params),
+                 "at least 3 variables")
+    expect_error(plotDataFrame(df, params, legend_var = "missing"),
+                 "legend_var")
+    expect_error(plotDataFrame(df, params, wrap_var = "missing"),
+                 "wrap_var")
+    expect_error(plotDataFrame(df, params, style = "bogus"),
+                 "unknown style selected")
+})
+
+test_that("plotDataFrame supports area plots, wrapping and log x breaks", {
+    params <- NS_params_small
+    sp <- species_params(params)$species[1:2]
+    df <- data.frame(
+        x = c(1, 10, 100, 1, 10, 100),
+        y = c(1, 2, 3, 2, 3, 4),
+        Species = rep(sp, each = 3),
+        Panel = rep(c("A", "B"), each = 3)
+    )
+    p <- plotDataFrame(df, params,
+                       style = "area",
+                       xtrans = "log10",
+                       legend_var = "Species",
+                       wrap_var = "Panel",
+                       wrap_scale = "free_y")
+    expect_true(is_ggplot(p))
+    expect_true(p$facet$params$free$y)
+    expect_false(p$facet$params$free$x)
+    expect_false(inherits(p$scales$scales[[2]]$breaks, "waiver"))
+})
+
+# plotBiomass cutoff and time range ----
+
+test_that("plotBiomass works with use_cutoff", {
+    params <- NS_params_small
+    species_params(params)$biomass_cutoff <- 10
+    sim <- project(params, t_max = 1, effort = 1)
+
+    sp_name <- species_params(params)$species[3]
+    # Test with return_data = TRUE to check values
+    # Default behavior (use_cutoff = FALSE)
+    p_default <- plotBiomass(sim, return_data = TRUE)
+    bm_default <- getBiomass(sim)
+    # Check total for a species matches
+    expect_equal(p_default$Biomass[p_default$Species == sp_name & p_default$Year == 1],
+                 bm_default["1", sp_name], ignore_attr = TRUE)
+
+    # With use_cutoff = TRUE
+    p_cutoff <- plotBiomass(sim, use_cutoff = TRUE, return_data = TRUE)
+    bm_cutoff <- getBiomass(sim, use_cutoff = TRUE)
+    expect_equal(p_cutoff$Biomass[p_cutoff$Species == sp_name & p_cutoff$Year == 1],
+                 bm_cutoff["1", sp_name], ignore_attr = TRUE)
+
+    # Check that values are different (since cutoff is 10g)
+    expect_true(p_default$Biomass[p_default$Species == sp_name & p_default$Year == 1] >
+                p_cutoff$Biomass[p_cutoff$Species == sp_name & p_cutoff$Year == 1])
+
+    # Test plotlyBiomass accepts the argument
+    expect_error(plotlyBiomass(sim, use_cutoff = TRUE), NA)
+})
+
+test_that("plotBiomass validates time range and can include total", {
+    sim <- project(NS_params_small, t_max = 1, effort = 1, progress_bar = FALSE)
+    expect_error(plotBiomass(sim, tlim = c(1,1)),
+                 "must be less than")
+
+    d <- plotBiomass(sim, species = "Cod", total = TRUE, return_data = TRUE)
+    expect_true("Total" %in% d$Species)
+})

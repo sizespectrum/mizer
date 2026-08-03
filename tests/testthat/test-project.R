@@ -513,3 +513,165 @@ test_that("callback works during simulation", {
     expect_s4_class(sim, "MizerSim")
     expect_equal(counter, 3)
 })
+
+# project_simple ----
+
+test_that("project_simple matches project for one saved step", {
+    params <- NS_params_small
+    dt <- 0.1
+    t_save <- 1
+    steps <- as.integer(t_save / dt)
+    effort <- getInitialEffort(params)
+    res_fn <- get(params@resource_dynamics)
+    other_fns <- lapply(params@other_dynamics, get)
+    rates_fns <- lapply(params@rates_funcs, get)
+    start <- list(
+        n = params@initial_n,
+        n_pp = params@initial_n_pp,
+        n_other = params@initial_n_other
+    )
+    out <- project_simple(
+        params,
+        n = start$n,
+        n_pp = start$n_pp,
+        n_other = start$n_other,
+        t = 0,
+        dt = dt,
+        steps = steps,
+        effort = effort,
+        resource_dynamics_fn = res_fn,
+        other_dynamics_fns = other_fns,
+        rates_fns = rates_fns
+    )
+    sim <- project(params, t_max = t_save, dt = dt, t_save = t_save, progress_bar = FALSE)
+    expected_n <- params@initial_n
+    expected_n[] <- N(sim)[2, , ]
+    expect_equal(out$n, expected_n, tolerance = 1e-12)
+    expect_equal(out$n_pp, NResource(sim)[2, ], tolerance = 1e-12,
+                 ignore_attr = TRUE)
+})
+
+test_that("project_simple returns rates from the final update step", {
+    params <- NS_params_small
+    dt <- 0.1
+    steps <- 2
+    effort <- getInitialEffort(params)
+    res_fn <- get(params@resource_dynamics)
+    other_fns <- lapply(params@other_dynamics, get)
+    rates_fns <- lapply(params@rates_funcs, get)
+    out <- project_simple(
+        params,
+        n = params@initial_n,
+        n_pp = params@initial_n_pp,
+        n_other = params@initial_n_other,
+        t = 0,
+        dt = dt,
+        steps = steps,
+        effort = effort,
+        resource_dynamics_fn = res_fn,
+        other_dynamics_fns = other_fns,
+        rates_fns = rates_fns
+    )
+
+    step1 <- project_simple(
+        params,
+        n = params@initial_n,
+        n_pp = params@initial_n_pp,
+        n_other = params@initial_n_other,
+        t = 0,
+        dt = dt,
+        steps = 1,
+        effort = effort,
+        resource_dynamics_fn = res_fn,
+        other_dynamics_fns = other_fns,
+        rates_fns = rates_fns
+    )
+    expected_rates <- getRates(
+        params,
+        n = step1$n,
+        n_pp = step1$n_pp,
+        n_other = step1$n_other,
+        effort = effort,
+        t = dt
+    )
+
+    expect_identical(names(out$rates), names(expected_rates))
+    expect_equal(out$rates$encounter, expected_rates$encounter)
+    expect_equal(out$rates$rdd, expected_rates$rdd)
+})
+
+test_that("project_simple accepts predictor-corrector method", {
+    params <- NS_params_small
+    effort <- getInitialEffort(params)
+    res_fn <- get(params@resource_dynamics)
+    other_fns <- lapply(params@other_dynamics, get)
+    rates_fns <- lapply(params@rates_funcs, get)
+
+    out <- project_simple(
+        params,
+        n = params@initial_n,
+        n_pp = params@initial_n_pp,
+        n_other = params@initial_n_other,
+        t = 0,
+        dt = 0.1,
+        steps = 1,
+        effort = effort,
+        resource_dynamics_fn = res_fn,
+        other_dynamics_fns = other_fns,
+        rates_fns = rates_fns,
+        method = "predictor_corrector"
+    )
+
+    expect_true(all(is.finite(out$n)))
+    expect_true(all(out$n >= 0))
+})
+
+# time resampling ----
+
+test_that("Time resampling in project behaves as documented", {
+    params <- NS_params_small
+    gear_names <- unique(gear_params(params)$gear)
+
+    # Create effort array with irregular times
+    times <- c(1, 10, 11)
+    effort <- array(1,
+        dim = c(length(times), length(gear_names)),
+        dimnames = list(time = times, gear = gear_names)
+    )
+
+    # Case 1: No t_max or t_save provided
+    # Should preserve original times
+    sim <- project(params, effort = effort, dt = 0.1)
+    expect_equal(as.numeric(dimnames(sim@n)[[1]]), times)
+
+    # Case 2: t_max provided
+    # Should resample based on default t_save (which is 1 or inferred)
+    # Here inferred t_save from first interval is 10 - 1 = 9.
+    # So times would be 1, 10, 19...
+    # Wait, the code says:
+    # if (length(effort_times) > 1) {
+    #     save_freq <- effort_times[2] - effort_times[1]
+    # }
+    # So save_freq becomes 9.
+    # New times: seq(1, 13, by = 9) -> 1, 10.
+    # Time 11 is lost.
+    sim <- project(params, effort = effort, t_max = 13, dt = 1)
+    saved_times <- as.numeric(dimnames(sim@n)[[1]])
+
+    expect_equal(saved_times, c(1, 10))
+    expect_false(11 %in% saved_times)
+
+    # Case 3: t_save provided explicitly
+    # t_save = 1. Should capture 1, 2, ..., 11, ...
+    sim <- project(params, effort = effort, t_max = 13, t_save = 1, dt = 1)
+    saved_times <- as.numeric(dimnames(sim@n)[[1]])
+    expect_true(11 %in% saved_times)
+
+    # Case 4: t_save provided but does not align with irregular time
+    # t_save = 5. Times: 1, 6, 11, 16, 21...
+    # Here 11 IS captured by coincidence (1 + 2*5 = 11).
+    # Let's try t_save = 4. Times: 1, 5, 9, 13... 11 is lost.
+    sim <- project(params, effort = effort, t_max = 13, t_save = 4, dt = 1)
+    saved_times <- as.numeric(dimnames(sim@n)[[1]])
+    expect_false(11 %in% saved_times)
+})

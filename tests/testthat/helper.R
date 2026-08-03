@@ -1,3 +1,30 @@
+# Opt-in gate for tests of experimental features.
+#
+# The direct (Newton) steady-state solver and the limit-cycle finder are both
+# marked `lifecycle::badge("experimental")`, and their test files are by far the
+# slowest in the suite (~74 s and ~62 s, a third of the total). They are
+# therefore skipped unless MIZER_TEST_EXPERIMENTAL is set, so that the everyday
+# `devtools::test()` loop stays quick. Run them with, from the shell,
+#
+#     MIZER_TEST_EXPERIMENTAL=true Rscript -e 'devtools::test()'
+#
+# or, within an R session,
+#
+#     Sys.setenv(MIZER_TEST_EXPERIMENTAL = "true")
+#     devtools::test(filter = "steadyNewton|getLimitCycleSim")
+#
+# The full R CMD check workflows set the variable, so a deliberate check still
+# covers this code. Remove the gate once these functions are no longer
+# experimental.
+testing_experimental <- function() {
+    isTRUE(as.logical(Sys.getenv("MIZER_TEST_EXPERIMENTAL", "false")))
+}
+
+skip_unless_experimental <- function() {
+    skip_if(!testing_experimental(),
+            "Set MIZER_TEST_EXPERIMENTAL=true to test experimental features.")
+}
+
 # Create an example MizerParams object
 example_params <- function() {
     sp <- NS_species_params_small
@@ -54,24 +81,36 @@ NS_params_small@given_species_params$h <- NS_params_small@species_params$h
 NS_params_small@given_species_params$ks <- NS_params_small@species_params$ks
 # Set non-zero initial effort (matches pattern in original NS_params)
 initial_effort(NS_params_small) <- c(Industrial = 0, Pelagic = 1, Otter = 0.5)
-# Create NS_sim_small to match the 3-species NS_params_small
-NS_sim_small <- suppressMessages(project(NS_params_small, t_max = 3, t_save = 1, progress_bar = FALSE))
-
 # Additional cached objects — shared across test files to avoid rebuilding.
 # R's copy-on-modify semantics ensure tests that mutate a local copy do not
 # affect the cached originals.
-single_sp_params <- suppressMessages(newSingleSpeciesParams())
-trait_params_small <- suppressMessages(newTraitParams())
-trait_params_2sp <- suppressMessages(newTraitParams(no_sp = 2))
-community_params_small <- suppressMessages(newCommunityParams())
+#
+# These are always built from scratch rather than loaded from a saved copy, so
+# that every run exercises the constructors and no fixture can go stale against
+# a change to the MizerParams class or to a rate setter's defaults (the problem
+# that upgradeParams() exists to solve for saved objects).
+#
+# Each is built lazily, on first use, because most are needed by only a handful
+# of test files while the whole helper is sourced by every one of them: eagerly
+# they cost ~1.5 s, which is paid once per worker process when the suite runs
+# in parallel. `delayedAssign()` keeps that transparent — test files still refer
+# to the bare name — so a worker only pays for the fixtures its files touch.
+delayedAssign("NS_sim_small",
+    suppressMessages(project(NS_params_small, t_max = 3, t_save = 1,
+                             progress_bar = FALSE)))
+delayedAssign("single_sp_params", suppressMessages(newSingleSpeciesParams()))
+delayedAssign("trait_params_small", suppressMessages(newTraitParams()))
+delayedAssign("trait_params_2sp", suppressMessages(newTraitParams(no_sp = 2)))
+delayedAssign("community_params_small", suppressMessages(newCommunityParams()))
 # 3-species model with default no_w (differs from NS_params_small which uses no_w=20)
-NS_params_default_small <- suppressMessages(
-    newMultispeciesParams(NS_species_params_gears_small, inter_small, info_level = 0)
-)
+delayedAssign("NS_params_default_small", suppressMessages(
+    newMultispeciesParams(NS_species_params_gears_small, inter_small,
+                          info_level = 0)
+))
 # Single-species (Cod) model
-NS_params_cod_small <- suppressMessages(
+delayedAssign("NS_params_cod_small", suppressMessages(
     newMultispeciesParams(NS_species_params_gears_small[3, ], info_level = 0)
-)
+))
 
 # Test that a MizerParams or MizerSim object has not changed except for the
 # time_modified and perhaps a reordering of the species_params columns.

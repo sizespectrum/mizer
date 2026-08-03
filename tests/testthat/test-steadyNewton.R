@@ -1,9 +1,11 @@
 # Tests for the direct (Newton) steady-state solver.
 
 # A steadied model is a good starting guess for the root finder.
-p_steady <- steady(NS_params_small, t_max = 50, progress_bar = FALSE)
+delayedAssign("p_steady",
+               steady(NS_params_small, t_max = 50, progress_bar = FALSE))
 
 test_that("steadyNewton returns a fixed point of the dynamics", {
+    skip_unless_experimental()
     pn <- steadyNewton(p_steady)
     expect_s4_class(pn, "MizerParams")
 
@@ -17,6 +19,7 @@ test_that("steadyNewton returns a fixed point of the dynamics", {
 })
 
 test_that("steadyNewton solves the discrete steady-state equation to tolerance", {
+    skip_unless_experimental()
     # Solve the held-RDD problem directly and check the residual at the root.
     params <- validParams(p_steady)
     rdd_const <- getRDD(params)
@@ -33,6 +36,7 @@ test_that("steadyNewton solves the discrete steady-state equation to tolerance",
 })
 
 test_that("steadyNewton agrees with steady on a stable model", {
+    skip_unless_experimental()
     pn <- steadyNewton(p_steady)
     # Compare where the steady() spectra are well above zero.
     # steadyNewton finds a tighter fixed point than steady() reaches by
@@ -44,6 +48,7 @@ test_that("steadyNewton agrees with steady on a stable model", {
 })
 
 test_that("steadyNewton honours the preserve and reproduction arguments", {
+    skip_unless_experimental()
     pn_level <- steadyNewton(p_steady, preserve = "reproduction_level")
     expect_equal(getReproductionLevel(pn_level),
                  getReproductionLevel(p_steady), tolerance = 1e-5)
@@ -73,6 +78,7 @@ test_that("steadyNewton honours the preserve and reproduction arguments", {
 })
 
 test_that("steadyNewton handles extinctions under reproduction = 'dynamic' with relative floor", {
+    skip_unless_experimental()
     # Make species 3 (Cod) unviable by setting its reproduction efficiency extremely low
     p_extinct <- p_steady
     p_extinct@species_params$erepro[3] <- 1e-12
@@ -88,12 +94,14 @@ test_that("steadyNewton handles extinctions under reproduction = 'dynamic' with 
 })
 
 test_that("steadyNewton errors for unsupported resource dynamics", {
+    skip_unless_experimental()
     p_log <- setResource(NS_params_small,
                          resource_dynamics = "resource_logistic")
     expect_error(steadyNewton(p_log), "semichemostat")
 })
 
 test_that("steadyNewton works with the second-order (van Leer) scheme", {
+    skip_unless_experimental()
     p <- NS_params_small
     sow <- second_order_w(p)
     sow$flux <- "van_leer"
@@ -116,6 +124,7 @@ test_that("steadyNewton works with the second-order (van Leer) scheme", {
 })
 
 test_that("support_top_idx drops the pile-up bin for the second-order scheme", {
+    skip_unless_experimental()
     # First-order upwind feeds a class from the growth of the class below, so the
     # support reaches one bin past w_max; the second-order scheme feeds a class
     # from the growth at its own lower face, so it stops at w_max.
@@ -136,6 +145,7 @@ test_that("support_top_idx drops the pile-up bin for the second-order scheme", {
 })
 
 test_that("steady_active_set always reaches the grid truncation limit", {
+    skip_unless_experimental()
     # Under the new dynamic support design, the active set always reaches
     # the grid truncation limit (support_top_idx) to allow the solver to
     # automatically discover the non-zero region.
@@ -158,6 +168,7 @@ test_that("steady_active_set always reaches the grid truncation limit", {
 })
 
 test_that("support_top_idx is the first class above w_max", {
+    skip_unless_experimental()
     p <- NS_params_small
     g <- getEGrowth(p)
     w_top <- mizer:::support_top_idx(p)
@@ -176,6 +187,7 @@ test_that("support_top_idx is the first class above w_max", {
 })
 
 test_that("the upper boundary condition severs coupling above the growth cutoff", {
+    skip_unless_experimental()
     # The transport coefficients sever the backward coupling from the
     # growth-chain top to the class above it (c = 0 there). Together with the
     # vanishing sub-diagonal (a = 0 at top+1, because growth out of the top
@@ -203,6 +215,7 @@ test_that("the upper boundary condition severs coupling above the growth cutoff"
 })
 
 test_that("the upper boundary condition stops diffusion leaking above w_max", {
+    skip_unless_experimental()
     # On the full model (where the cutoff is a genuine maturity cutoff) a step
     # with diffusion leaves the density exactly zero above the growth-chain top.
     p <- setParams(NS_params, use_predation_diffusion = TRUE)
@@ -218,6 +231,7 @@ test_that("the upper boundary condition stops diffusion leaking above w_max", {
 })
 
 test_that("steadyNewton handles initial guesses that are non-zero at large sizes where steady state is zero", {
+    skip_unless_experimental()
     # Start with the stable model
     p <- p_steady
     # Fill the trailing tail (which is zero in p_steady) with positive numbers
@@ -246,6 +260,7 @@ test_that("steadyNewton handles initial guesses that are non-zero at large sizes
 # Tests for getStability() ---------------------------------------------------
 
 test_that("getStability returns a well-formed list for a stable model", {
+    skip_unless_experimental()
     pn <- steadyNewton(p_steady)
     stab <- getStability(pn)
 
@@ -260,6 +275,7 @@ test_that("getStability returns a well-formed list for a stable model", {
 })
 
 test_that("getStability reports stable = TRUE for the NS model at its steady state", {
+    skip_unless_experimental()
     pn <- steadyNewton(p_steady)
     stab <- getStability(pn)
 
@@ -268,6 +284,7 @@ test_that("getStability reports stable = TRUE for the NS model at its steady sta
 })
 
 test_that("getStability eigenvalues are consistent with spectral_radius", {
+    skip_unless_experimental()
     pn <- steadyNewton(p_steady)
     stab <- getStability(pn)
 
@@ -275,6 +292,7 @@ test_that("getStability eigenvalues are consistent with spectral_radius", {
 })
 
 test_that("steadyNewton attaches stability when stability = TRUE", {
+    skip_unless_experimental()
     pn <- steadyNewton(p_steady, stability = TRUE)
 
     stab <- attr(pn, "stability")
@@ -283,6 +301,7 @@ test_that("steadyNewton attaches stability when stability = TRUE", {
 })
 
 test_that("getStability hopf_period is NULL when all eigenvalues are real", {
+    skip_unless_experimental()
     # For a 1-species model the dominant eigenvalue is typically real.
     # Use a simple single-species model as a proxy: steadyNewton on it,
     # then check that if hopf_period is not NULL it is a positive finite number.
@@ -296,6 +315,7 @@ test_that("getStability hopf_period is NULL when all eigenvalues are real", {
 })
 
 test_that("getStability with include_resource = TRUE returns well-formed list", {
+    skip_unless_experimental()
     pn <- steadyNewton(p_steady)
     stab_full <- getStability(pn, include_resource = TRUE)
 
@@ -311,6 +331,7 @@ test_that("getStability with include_resource = TRUE returns well-formed list", 
 })
 
 test_that("full and reduced stability analyses agree on spectral radius for NS model", {
+    skip_unless_experimental()
     # For a model where the resource dynamics are fast (large rr_pp), the
     # quasi-static reduction should give almost the same dominant eigenvalue.
     pn <- steadyNewton(p_steady)
@@ -323,6 +344,7 @@ test_that("full and reduced stability analyses agree on spectral radius for NS m
 })
 
 test_that("leading_eigenvectors have correct shape and are normalised", {
+    skip_unless_experimental()
     pn   <- steadyNewton(p_steady)
     stab <- getStability(pn)
     lev  <- stab$leading_eigenvectors
