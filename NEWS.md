@@ -85,6 +85,13 @@ stability of steady states.
   and denominator now use the same quadrature, and a predator whose prey all
   have trophic level 1 comes out at exactly 2 in both schemes (#474).
 
+## Documentation
+
+- The "Point values and bin averages" section of `vignette("numerical_details")`
+  now explains where each bin integral is performed and why it must be applied
+  exactly once, and a new "The `second_order_w` switch" section documents what
+  the flag changes and how to make your own diagnostic second-order accurate.
+
 # mizer 3.2.1
 
 This patch release fixes how species and gear parameters are handled when they

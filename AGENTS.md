@@ -14,6 +14,8 @@ mizer is an R package for dynamic multi-species size-spectrum modelling of fish 
 
 **Customisable rate functions**: users replace rate functions by storing a custom function name in `params@rates_funcs`. Dispatch via `get(params@rates_funcs$FunctionName)(params, ...)`.
 
+**Two quadrature schemes**: the `second_order_w` slot selects how the model is discretised on the size grid — `flux` picks the advective reconstruction, and `bin_average` decides whether size-dependent factors are integrated over their bin or point-sampled at the left bin boundary. Both default to the first-order scheme, so previous mizer versions reproduce byte-for-byte. This is invisible in the code you are likely to be reading: a function that ignores `bin_average` still looks correct and still passes its tests on the default path. Anything that integrates over the size grid must handle both schemes and be tested under both.
+
 **Auto-generated files** — never edit `NAMESPACE`, `man/`, `RcppExports.R`, or `RcppExports.cpp` directly.
 
 ## Code Conventions
@@ -23,6 +25,7 @@ mizer is an R package for dynamic multi-species size-spectrum modelling of fish 
 - **Language**: British English (en-GB) — "colour", "behaviour", "modelling"
 - When documenting a mizer S3 generic whose methods share a man page (combined with `@rdname`/`@name`), follow the steps in `.claude/skills/document-s3-generics.md`.
 - When adding, moving or removing a species parameter default, follow `.claude/skills/species-param-defaults.md`. A default belongs to the rate setter that reads the parameter; only parameters that no single rate setter owns are defaulted centrally.
+- When writing anything that integrates over the size grid — a summary or indicator function, a diagnostic derived from a rate, a rate setter with a size-dependent parameter — follow `.claude/skills/size-grid-integrals.md`. Each bin integral is performed in exactly one place, so a size-dependent factor is bin-averaged where its integral is performed and nowhere else; doing it twice is a silent uniform error.
 
 ## Testing
 
