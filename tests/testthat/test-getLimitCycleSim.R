@@ -1,9 +1,11 @@
 # Tests for getLimitCycleSim()
 
 # Use the same steadied model as test-steadyNewton.R
-p_steady_lcs <- steady(NS_params_small, t_max = 50, progress_bar = FALSE)
+delayedAssign("p_steady_lcs",
+               steady(NS_params_small, t_max = 50, progress_bar = FALSE))
 
 test_that("getLimitCycleSim returns a MizerSim for a model with complex eigenvalues", {
+    skip_unless_experimental()
     pn  <- steadyNewton(p_steady_lcs, stability = TRUE)
     stab <- attr(pn, "stability")
 
@@ -18,6 +20,7 @@ test_that("getLimitCycleSim returns a MizerSim for a model with complex eigenval
 })
 
 test_that("getLimitCycleSim time axis spans one period", {
+    skip_unless_experimental()
     pn   <- steadyNewton(p_steady_lcs, stability = TRUE)
     stab <- attr(pn, "stability")
 
@@ -34,6 +37,7 @@ test_that("getLimitCycleSim time axis spans one period", {
 })
 
 test_that("getLimitCycleSim abundances are non-negative", {
+    skip_unless_experimental()
     pn   <- steadyNewton(p_steady_lcs, stability = TRUE)
     stab <- attr(pn, "stability")
 
@@ -46,6 +50,7 @@ test_that("getLimitCycleSim abundances are non-negative", {
 })
 
 test_that("getLimitCycleSim t_save controls the time step spacing", {
+    skip_unless_experimental()
     pn   <- steadyNewton(p_steady_lcs, stability = TRUE)
     stab <- attr(pn, "stability")
 
@@ -62,6 +67,7 @@ test_that("getLimitCycleSim t_save controls the time step spacing", {
 })
 
 test_that("getLimitCycleSim n array has correct species and size dimnames", {
+    skip_unless_experimental()
     pn   <- steadyNewton(p_steady_lcs, stability = TRUE)
     stab <- attr(pn, "stability")
 
@@ -74,6 +80,7 @@ test_that("getLimitCycleSim n array has correct species and size dimnames", {
 })
 
 test_that("getLimitCycleSim respects amplitude: max relative perturbation ~ amplitude", {
+    skip_unless_experimental()
     pn   <- steadyNewton(p_steady_lcs, stability = TRUE)
     stab <- attr(pn, "stability")
 

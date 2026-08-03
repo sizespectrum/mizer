@@ -26,27 +26,16 @@ mizer is an R package for dynamic multi-species size-spectrum modelling of fish 
 
 ## Testing
 
-- Use `expect_doppelganger()` (vdiffr) for plot tests
-- Use snapshot tests for complex outputs
-- Run `devtools::document()` after adding or changing exports
 - Run `devtools::load_all()` before running tests
 - Run only relevant tests with `devtools::test(filter = "pattern")`. Running all tests is too slow.
+- Use `expect_doppelganger()` (vdiffr) for plot tests, and snapshot tests for complex outputs
+- When snapshot tests fail because values legitimately changed, run `testthat::snapshot_accept()` to promote the `.new.md` files into the canonical `.md` snapshots.
+- Run `devtools::document()` after adding or changing exports
 - Lint a file with `lintr::lint()`
-
 - After editing C++ source: `devtools::clean_dll(); devtools::load_all()`
 - After modifying the `MizerParams` or `MizerSim` class (new/removed slots, changes to `@rates_funcs`, etc.), follow the steps in `.claude/skills/upgrade-mizer-data.md`.
-- When snapshot tests fail because values legitimately changed, run `testthat::snapshot_accept()` to promote the `.new.md` files into the canonical `.md` snapshots.
-- Avoid top-level `data()` calls in test files. `testthat 3.x` shares `.GlobalEnv` across all tests. Use the `_small` fixtures from `helper.R` instead.
-
-### Test helper objects
-
-`helper.R` defines small objects used across all test files. All are named with the `_small` suffix to avoid shadowing the built-in package datasets:
-
-- **`NS_params_small`**: 3 species (Sprat=1, Herring=2, Cod=3), 20 size bins, 3 gears (Industrial effort=0, Pelagic effort=1, Otter effort=0.5). Sprat is always unfished (Industrial gear, zero effort).
-- **`NS_sim_small`**: `project(NS_params_small, t_max=3, t_save=1)` — 4 time steps at t=0,1,2,3.
-- **`NS_species_params_small`**, **`NS_species_params_gears_small`**, **`inter_small`**: 3-species subsets of the full package datasets (rows 1, 4, 11 = Sprat, Herring, Cod).
-
-Tests that hardcode species indices (e.g. `[12, ]`) or time indices (e.g. `times[10]`) must use values valid for 3 species and 4 time steps.
+- Tests go in the file named after the R file that **defines** the function under test — not one named after the feature. Before adding a test, or any new test file, follow `.claude/skills/test-organisation.md`.
+- Use the shared `_small` fixtures from `helper.R`; never a top-level `data()` call, as `testthat 3.x` shares `.GlobalEnv` across all tests. The fixtures give **3 species and 4 time steps**, so any hardcoded species or time index must be valid for that. For the full catalogue, for adding a fixture, and for the parallel and experimental-test settings, see `.claude/skills/test-fixtures.md`.
 
 ## Before Submitting
 

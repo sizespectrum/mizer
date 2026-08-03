@@ -326,3 +326,63 @@ test_that("subsetting preserves the representation tag", {
     expect_identical(attr(sub, "representation"), "average")
     expect_equal(get_ArraySpeciesBySize_w(sub), bin_midpoints(p))
 })
+
+# parsePlotLog ----
+
+test_that("parsePlotLog passes the defaults through when `log` is NULL", {
+    expect_identical(parsePlotLog(NULL), list(log_x = FALSE, log_y = FALSE))
+    expect_identical(parsePlotLog(NULL, log_x = TRUE),
+                     list(log_x = TRUE, log_y = FALSE))
+    expect_identical(parsePlotLog(NULL, log_x = TRUE, log_y = TRUE),
+                     list(log_x = TRUE, log_y = TRUE))
+})
+
+test_that("parsePlotLog treats a logical `log` as the legacy y-axis toggle", {
+    expect_identical(parsePlotLog(TRUE), list(log_x = FALSE, log_y = TRUE))
+    expect_identical(parsePlotLog(FALSE), list(log_x = FALSE, log_y = FALSE))
+    # the legacy form overrides the defaults, including log_x
+    expect_identical(parsePlotLog(TRUE, log_x = TRUE, log_y = FALSE),
+                     list(log_x = FALSE, log_y = TRUE))
+})
+
+test_that("parsePlotLog selects axes from a character `log`", {
+    expect_identical(parsePlotLog("x"), list(log_x = TRUE, log_y = FALSE))
+    expect_identical(parsePlotLog("y"), list(log_x = FALSE, log_y = TRUE))
+    expect_identical(parsePlotLog("xy"), list(log_x = TRUE, log_y = TRUE))
+    expect_identical(parsePlotLog("yx"), list(log_x = TRUE, log_y = TRUE))
+    # an empty string switches both axes off, whatever the defaults were
+    expect_identical(parsePlotLog("", log_x = TRUE, log_y = TRUE),
+                     list(log_x = FALSE, log_y = FALSE))
+})
+
+test_that("parsePlotLog rejects malformed `log` arguments", {
+    msg <- "`log` must be a single logical value or a character string"
+    expect_error(parsePlotLog(NA), msg)
+    expect_error(parsePlotLog(c(TRUE, FALSE)), msg)
+    expect_error(parsePlotLog(NA_character_), msg)
+    expect_error(parsePlotLog(c("x", "y")), msg)
+    expect_error(parsePlotLog("z"), msg)
+    expect_error(parsePlotLog("xz"), msg)
+    expect_error(parsePlotLog(1), msg)
+})
+
+# apply_wlim ----
+
+test_that("apply_wlim restricts the data to the weight limits", {
+    data <- data.frame(w = c(1, 2, 5, 10, 20), value = 1:5)
+    expect_identical(apply_wlim(data, c(2, 10)), data[2:4, ])
+    # the limits are inclusive
+    expect_identical(apply_wlim(data, c(1, 20)), data)
+})
+
+test_that("apply_wlim leaves a side unrestricted when its limit is NA", {
+    data <- data.frame(w = c(1, 2, 5, 10, 20), value = 1:5)
+    expect_identical(apply_wlim(data, c(NA, NA)), data)
+    expect_identical(apply_wlim(data, c(5, NA)), data[3:5, ])
+    expect_identical(apply_wlim(data, c(NA, 5)), data[1:3, ])
+})
+
+test_that("apply_wlim can return no rows at all", {
+    data <- data.frame(w = c(1, 2, 5), value = 1:3)
+    expect_identical(nrow(apply_wlim(data, c(100, 200))), 0L)
+})
