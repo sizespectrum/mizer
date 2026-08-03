@@ -81,7 +81,7 @@ The mizer time step applies a backward-Euler transport solve for the fish:
 \deqn{A(N^t, n_{pp}^t)\,N^{t+1} = S(N^t, n_{pp}^t),}
 and an exact semi-chemostat update for the resource:
 \deqn{n_{pp}^{t+1} = n_{pp}^* + (n_{pp}^t - n_{pp}^*)\,e^{-\mu^t\,dt},}
-where \eqn{n_{pp}^*} = r_{pp}\,c_{pp}/\mu^t is the resource steady state
+where \eqn{n_{pp}^* = r_{pp}\,c_{pp}/\mu^t} is the resource steady state
 conditioned on the mortality \eqn{\mu^t} due to consumers at time \eqn{t}.
 Note that this function evaluates the Jacobian of this specific first-order
 backward-Euler time step, regardless of which \code{method} you might later pass
