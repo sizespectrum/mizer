@@ -68,10 +68,13 @@ articles:
 - title: Cheat sheets
   navbar: Cheat sheets
   contents:
-  - cheatsheet-model-setup-and-calibration
+  - cheatsheet-model-setup
+  - cheatsheet-calibration
   - cheatsheet-changing-parameters
   - cheatsheet-fishing
+  - cheatsheet-running-simulations
   - cheatsheet-analysis-and-plotting
+  - cheatsheet-extending-mizer
 - title: Upgrading
   navbar: Upgrading
   contents:
@@ -135,7 +138,7 @@ reference:
     of increasing level of complexity. See
     https://sizespectrum.org/mizer/articles/mizer.html#size-spectrum-models
     for a description of these model types. The
-    [Model setup and calibration cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html)
+    [Model setup cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup.html)
     gives a quick overview of the workflow.
   contents:
   - newSingleSpeciesParams
@@ -169,7 +172,7 @@ reference:
     The first task after creating a multi-species model is to tune
     the model parameters so that in its steady state the model reproduces
     average observed growth rates, abundances and fisheries yields. The
-    [Model setup and calibration cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html)
+    [Steady state and calibration cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-calibration.html)
     walks through this calibration workflow.
 
 
@@ -419,6 +422,8 @@ reference:
   - has_concept("deprecated")
 
 redirects:
+  # Split in 3.2.2 into separate model-setup and calibration cheatsheets.
+  - ["articles/cheatsheet-model-setup-and-calibration.html", "articles/cheatsheet-model-setup.html"]
   - ["articles/a_multispecies_model_of_the_north_sea.html", "https://mizer.course.sizespectrum.org/use/a_multispecies_model_of_the_north_sea.html"]
   - ["articles/running_a_simulation.html", "https://mizer.course.sizespectrum.org/use/running_a_simulation.html"]
   - ["articles/exploring_the_simulation_results.html", "https://mizer.course.sizespectrum.org/use/exploring_the_simulation_results.html"]

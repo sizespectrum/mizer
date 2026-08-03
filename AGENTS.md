@@ -14,7 +14,7 @@ mizer is an R package for dynamic multi-species size-spectrum modelling of fish 
 
 **Customisable rate functions**: users replace rate functions by storing a custom function name in `params@rates_funcs`. Dispatch via `get(params@rates_funcs$FunctionName)(params, ...)`.
 
-**Auto-generated files** — never edit `NAMESPACE`, `man/`, `RcppExports.R`, or `RcppExports.cpp` directly.
+**Auto-generated files** — never edit `NAMESPACE`, `man/`, `RcppExports.R`, or `RcppExports.cpp` directly. The `vignettes/cheatsheet-*.Rmd` articles are also generated: their single source is `inst/skills/<topic>/SKILL.md`, which doubles as the agent skill. Edit the skill and re-run `source("dev_scripts/build_cheatsheets.R"); build_cheatsheets()`.
 
 ## Code Conventions
 

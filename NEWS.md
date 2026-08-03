@@ -50,6 +50,35 @@ stability of steady states.
 
 ## Other improvements
 
+- The cheatsheet articles and the AI-agent skills are now one set of documents
+  rather than two. Each `inst/skills/<topic>/SKILL.md` is shipped as an agent
+  skill and is also the source of the matching `cheatsheet-*` article, built by
+  `dev_scripts/build_cheatsheets.R`. `mizerAgents` (>= 0.3.3) installs the
+  skills from the mizer it finds installed, so the two packages can no longer
+  drift apart.
+
+  There is now one cheatsheet per stage of the workflow, matching the skills one
+  for one. Two are new, covering topics that previously had a skill but no
+  article: **Running Simulations** (the arguments of `project()`, the four ways
+  of giving fishing effort, continuing and comparing runs, and when numerical
+  diffusion in the default upwind scheme can damp a real oscillation) and
+  **Extending mizer** (a short reference companion to the Extending mizer
+  article).
+
+  The former "Model setup and calibration" cheatsheet has been split into
+  **Model setup** and **Steady state and calibration**, which are separate
+  tasks reached for at different times. The old URL redirects to the first.
+
+  The remaining cheatsheets gain the material that had previously only been
+  written on the skill side: the fishing cheatsheet now covers `setFishing()`
+  and how catchability fixes the units of fishing effort; the calibration
+  cheatsheet covers `steadyNewton()` and `getReproductionLevel()`; the model
+  setup cheatsheet covers saving and reloading a model with
+  `saveParams()`/`readParams()`; the changing-parameters cheatsheet explains
+  that the feeding level is set by `f0` rather than by `h`; and the analysis
+  cheatsheet recommends `finalParams()` over indexing a time series with
+  `idxFinalT()`.
+
 - `steady()` and `projectToSteady()` now report the nature of the solution they
   converged to via a `"convergence"` attribute on the returned object (mirroring
   the `"stability"` attribute of `steadyNewton()`). It records whether the run
