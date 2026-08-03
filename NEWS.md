@@ -100,6 +100,27 @@ stability of steady states.
   `extinction_threshold` fraction (default `1e-6`) of its value at the start of
   the run.
 
+## Bug fixes
+
+- `getDiet(proportion = FALSE)` no longer overcounts when second-order
+  bin-averaging is switched on with `second_order_w()`. It was applying the
+  prey-bin quadrature twice — once through its bin-averaged prey weight and
+  again through the bin-integrated predation kernel that `setPredKernel()`
+  builds under `second_order_w` — so the diet was uniformly too large by
+  `(1 + beta) / 2`, where `beta` is the grid ratio (9.7% for `NS_params`).
+  Summing the diet over prey now reproduces
+  `getEncounter() * (1 - getFeedingLevel())` under both schemes, on both the
+  FFT and the custom-kernel path. `getDiet(proportion = TRUE)`, the default,
+  was unaffected because the factor was uniform and divided out (#474).
+
+- `getTrophicLevel()` had the same quadrature mismatch: its
+  trophic-level-weighted numerator was built from the point-sampled
+  `getPredKernel()` and a bin-averaged prey weight, while its denominator came
+  from `getEncounter()`. Under `second_order_w` the two are no longer the same
+  integral, so the reported trophic levels were off by up to 0.06. Numerator
+  and denominator now use the same quadrature, and a predator whose prey all
+  have trophic level 1 comes out at exactly 2 in both schemes (#474).
+
 # mizer 3.2.1
 
 This patch release fixes how species and gear parameters are handled when they

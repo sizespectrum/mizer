@@ -71,7 +71,10 @@ the rate of consumption of biomass from these extra components.
 This function performs the same integration as \code{\link[=getEncounter]{getEncounter()}} but does not
 aggregate over prey species, and multiplies by \eqn{1-f_i(w)} to get the
 consumed biomass rather than the available biomass. Outside the range of
-sizes for a predator species the returned rate is zero.
+sizes for a predator species the returned rate is zero. Summing the result
+of \code{getDiet(proportion = FALSE)} over prey therefore reproduces
+\code{getEncounter(params) * (1 - getFeedingLevel(params))}, whichever quadrature
+scheme the model uses (see \code{\link[=second_order_w]{second_order_w()}}).
 }
 \examples{
 diet <- getDiet(NS_params)
