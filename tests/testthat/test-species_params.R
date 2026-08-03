@@ -189,6 +189,67 @@ test_that("species_params setter validates and recalculates", {
     }
 })
 
+test_that("species_params setter re-derives the calculated species parameters", {
+    # The calculated species parameters that a rate setter owns must not be
+    # carried over from the previous species parameter table, or a value
+    # calculated earlier would look like a given one and stop responding to the
+    # parameters it is derived from.
+    params <- NS_params_small
+    for (par in c("h", "gamma", "ks")) {
+        params@given_species_params[[par]] <- NULL
+    }
+    old_h <- species_params(params)$h
+
+    sp <- species_params(params)
+    # Scaled down by a factor that stays above the calculated `w_mat25`
+    # (`w_mat / 3^(1/10)`), so that `w_mat25` is not invalidated as well.
+    sp$w_mat <- sp$w_mat * 0.95
+    changed <- params
+    species_params(changed) <- sp
+
+    # `h` is derived from `w_mat`, so it has to follow, and `gamma` and `ks`
+    # with it.
+    expect_false(isTRUE(all.equal(species_params(changed)$h, old_h,
+                                  check.attributes = FALSE)))
+
+    # `given_species_params<-()` makes the same change, so both routes must
+    # arrive at the same model.
+    reference <- params
+    given_sp <- given_species_params(reference)
+    given_sp$w_mat <- given_sp$w_mat * 0.95
+    given_species_params(reference) <- given_sp
+    for (par in c("h", "gamma", "ks", "w_mat25")) {
+        expect_equal(species_params(changed)[[par]],
+                     species_params(reference)[[par]],
+                     ignore_attr = TRUE, info = par)
+    }
+    expect_equal(changed@search_vol, reference@search_vol, ignore_attr = TRUE)
+    expect_equal(changed@metab, reference@metab, ignore_attr = TRUE)
+})
+
+test_that("species_params setter keeps a given value of a calculated parameter", {
+    # `NS_params_small` has `gamma` among the given species parameters, so it
+    # must survive a change to a parameter that `gamma` is derived from.
+    params <- NS_params_small
+    old_gamma <- species_params(params)$gamma
+    sp <- species_params(params)
+    sp$w_mat <- sp$w_mat * 0.95
+    species_params(params) <- sp
+    expect_equal(species_params(params)$gamma, old_gamma, ignore_attr = TRUE)
+})
+
+test_that("species_params setter preserves columns mizer does not calculate", {
+    # Columns that mizer knows nothing about are not rebuilt from the given
+    # species parameters, so they have to be carried over.
+    params <- NS_params_small
+    params@species_params$my_own_param <- seq_len(nrow(species_params(params)))
+    sp <- species_params(params)
+    sp$w_mat <- sp$w_mat * 0.95
+    species_params(params) <- sp
+    expect_equal(species_params(params)$my_own_param,
+                 seq_len(nrow(species_params(params))), ignore_attr = TRUE)
+})
+
 test_that("species_params setter handles list and matrix columns", {
     # The old-vs-new diff in `species_params<-()` must not use `==` on columns
     # where it is undefined (list, S4) or does not reduce to one logical per

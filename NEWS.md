@@ -104,6 +104,17 @@ triggering a recalculation that would undo it.
 
 ## Species parameter changes
 
+- Fixed: `species_params<-()` did not re-derive the calculated species
+  parameters that a rate setter owns (`h`, `gamma`, `ks`, `q`, `z0`, `beta`,
+  `w_mat25`, …). It rebuilt the species parameters from
+  `given_species_params()` but then carried the previously calculated values
+  over, so they looked like given values and no longer responded to a change in
+  the parameters they are derived from. For example, in a model where `h` is
+  derived from the age at maturity, changing `w_mat` left `h` (and with it
+  `gamma` and `ks`) at its old value. `species_params<-()` and
+  `given_species_params<-()` now agree. Columns that mizer does not calculate
+  are still preserved, as are values you supplied yourself.
+
 - `species_params<-()` gains a `recalculate` argument. With
   `species_params(params, recalculate = FALSE) <- value` mizer records the
   values you changed in `given_species_params`, so that they are not calculated

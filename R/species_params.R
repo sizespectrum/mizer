@@ -311,8 +311,14 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     # Preserve any columns that were present in the supplied species params but
     # are not tracked in `given_species_params` (for example parameters set
     # directly on the `@species_params` slot) and are therefore not regenerated
-    # when rebuilding from `given_species_params`.
-    extra_cols <- setdiff(names(value), names(new_sp))
+    # when rebuilding from `given_species_params`. The species parameters that a
+    # rate setter owns are excluded: `setParams()` below derives those afresh,
+    # and carrying the previously calculated value over would leave it looking
+    # like a given value and so stop it responding to the change. Where the user
+    # did supply such a parameter it has just been recorded among the given
+    # species parameters and so is already part of `new_sp`.
+    extra_cols <- setdiff(names(value),
+                          c(names(new_sp), setter_owned_species_params()))
     for (col in extra_cols) {
         new_sp[[col]] <- value[[col]]
     }
@@ -482,6 +488,37 @@ known_species_params_columns <- function() {
       "biomass_observed", "biomass_cutoff", "number_observed", "number_cutoff",
       # flags and plotting
       "is_background", "linecolour", "linetype", "legend_name")
+}
+
+# The species parameters that a rate-setting function derives or defaults
+# itself, grouped by the setter that owns each one. See the "Where defaults
+# live" section of the `default_parameters` vignette.
+#
+# `setParams()` fills all of these in again from the given species parameters,
+# so code that rebuilds the species parameters must drop the values calculated
+# last time rather than carry them over. Carrying a calculated value over would
+# make it look like an explicit one and stop it from responding to a change in
+# the parameters it is derived from. A value that the user did supply is
+# recorded among the given species parameters and so is unaffected.
+setter_owned_species_params <- function() {
+    c(# setMaxIntakeRate()
+      "h",
+      # setSearchVolume()
+      "gamma", "q",
+      # setMetabolicRate()
+      "ks", "k", "p",
+      # setExtMort()
+      "z0", "z_ext", "d",
+      # setExtEncounter()
+      "E_ext",
+      # setExtDiffusion()
+      "D_ext",
+      # setInteraction()
+      "interaction_resource",
+      # setPredKernel()
+      "pred_kernel_type", "beta", "sigma",
+      # setReproduction()
+      "w_mat25", "m", "erepro", "R_max")
 }
 
 # Familiar abbreviations / capitalisation mistakes that should always be flagged
