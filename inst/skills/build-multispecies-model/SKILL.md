@@ -13,7 +13,7 @@ description: >-
 
 # Building a multi-species mizer model
 
-Build a model in this order. Each `new…`/`set…` function **returns a new
+Each `new…`/`set…` function **returns a new
 `MizerParams` object** — always reassign (`params <- f(params, ...)`); never
 modify slots in place.
 
@@ -39,8 +39,8 @@ are truly required:
 | `species` | the species name |
 | `w_inf` | von Bertalanffy asymptotic weight (g) — the required maximum-size parameter |
 
-Mizer derives `w_max` (the computational grid boundary, default `1.5 * w_inf`),
-`w_repro_max`, and a default `w_mat` from `w_inf`. Everything else has a
+Mizer derives defaults for `w_max` (the computational grid boundary, default `1.5 * w_inf`),
+`w_repro_max` and `w_mat` from `w_inf`. Everything else has a
 sensible default or is calculated. Commonly supplied:
 
 | Column | Meaning |
@@ -51,9 +51,7 @@ sensible default or is calculated. Commonly supplied:
 | `k_vb` | von Bertalanffy K — used to derive `h` (and then `gamma`) if `h`/`gamma` absent |
 | `h`, `gamma` | Max intake coefficient and search-volume coefficient (alternative to `k_vb`) |
 | `alpha` | Assimilation efficiency (default 0.6) |
-| `R_max` | Beverton–Holt maximum recruitment (density dependence) |
 | `biomass_observed` | Observed biomass, for calibration |
-| `yield_observed` | Observed yield, for calibration |
 
 Units: weights in **grams**, lengths in **cm**, time in **years**. A CSV read
 with `read.csv()` is a fine source; the package ships an example:
@@ -76,7 +74,7 @@ Useful optional arguments to `newMultispeciesParams()`:
 | `interaction` | species × species matrix of dimensionless overlaps in `[0, 1]` (1 = full interaction, the default for every pair); scales encounter and predation mortality |
 | `gear_params` | fishing gear definitions — columns `gear`, `species`, `sel_func`, `catchability` and the selectivity parameters. Omit it and mizer builds a default knife-edge gear catching every species |
 | `no_w`, `min_w`, `max_w` | size-grid resolution and range (`no_w = 100` by default) |
-| `second_order_w` | use the second-order size-advection scheme (see the running-simulations material on numerical diffusion) |
+| `second_order_w` | use the second-order size-advection scheme; see the section "Numerical scheme: watch for numerical diffusion" in the `run-simulation` skill |
 
 Change gears later with `gear_params(params) <- ...` or `setFishing()` — see the
 `set-up-fishing` skill.
@@ -107,6 +105,22 @@ params <- readParams("cod_model.rds")  # read it back
 ```
 
 `saveSim()` and `readSim()` do the same for a `MizerSim` object.
+
+Before saving, record who made the model and what it is for with
+`setMetadata()`. This matters most when you share the model with others, because
+the metadata travels with the object:
+
+```r
+params <- setMetadata(params,
+    title = "Celtic Sea model",
+    description = "A multi-species model of the Celtic Sea fish community.",
+    authors = list(list(name = "Your Name", email = "you@example.com")),
+    url = "https://example.com/celtic-sea-model")
+getMetadata(params)     # read the metadata back
+```
+
+All fields are optional and you can add fields of your own. mizer also fills in
+`mizer_version`, `extensions`, `time_created` and `time_modified` automatically.
 
 ## Common pitfalls
 

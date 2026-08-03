@@ -52,9 +52,7 @@ cheatsheet_topics <- list(
     `cheatsheet-changing-parameters` = list(
         skill  = "change-parameters",
         title  = "Cheatsheet: Changing Model Parameters",
-        lead   = paste("Mizer offers several ways to change a model, and it is",
-                       "easy to be unsure which one to reach for. This cheatsheet",
-                       "explains the distinctions and gives a rule for each."),
+        lead   = "",
         setup  = "params <- NS_params",
         nolink = c("selectivity", "catchability", "maturity")
     ),

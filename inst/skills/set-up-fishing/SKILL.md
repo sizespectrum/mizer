@@ -20,8 +20,6 @@ $w$, its **catchability** $Q_{g,i}$ for species $i$, and its **effort** $E_g$.
 Selectivity and catchability are configured through the `gear_params` data
 frame and `setFishing()`; effort is set at run time.
 
-Setter functions return a new `MizerParams` — always reassign the result.
-
 ## The gear parameter data frame
 
 One row per **gear–species combination** (a gear that catches three species
