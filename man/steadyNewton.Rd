@@ -118,6 +118,14 @@ reconstruction admits an undamped odd-even mode at a steady state with no
 physical diffusion, giving an ill-conditioned steady-state Jacobian for which
 the solver is not expected to converge.
 
+The Newton iteration also needs the residual \eqn{F(N)} to be continuous. A
+custom rate function registered with \code{\link[=setRateFunction]{setRateFunction()}} that jumps as a
+function of the abundances makes \eqn{F} discontinuous, and where the
+equilibrium lies on the switching threshold there is no root at all, because
+neither branch is in equilibrium there. The solver then stalls (\code{nleqslv}
+termination code 3) and returns an iterate pinned to the threshold. See
+\href{https://sizespectrum.org/mizer/articles/discontinuous_rates.html}{Discontinuous rate functions}.
+
 Only the default semichemostat resource dynamics
 (\code{resource_dynamics = "resource_semichemostat"}) are currently supported,
 because the solver substitutes the analytic resource steady state. For other

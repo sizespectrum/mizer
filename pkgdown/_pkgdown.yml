@@ -94,6 +94,7 @@ articles:
   - fft
   - analytic_test
   - dynamic_stability
+  - discontinuous_rates
 - title: internal
   contents:
   - mizer_vignette

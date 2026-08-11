@@ -35,7 +35,9 @@ is evolved with the full resource dynamics function stored in
 \item{extinction_floor}{Relative abundance floor for the dynamic reproduction
 case. Default is \code{1e-6}.}
 
-\item{h}{Relative step size for centred finite differences. Default \code{1e-4}.}
+\item{h}{Relative step size for centred finite differences. Default \code{1e-4}.
+The result should not depend on this choice. If it does, the one-step map
+is not smooth at the state being analysed — see the section below.}
 }
 \value{
 A named list with the following components:
@@ -120,6 +122,22 @@ second-order limiter). The Jacobian is computed numerically using a
 multiplicative (relative) finite-difference step \eqn{h \cdot N^*}.
 }
 }
+\section{Requires a smooth one-step map}{
+
+The finite-difference Jacobian is only meaningful if the one-step map is
+differentiable at \eqn{N^*}. A custom rate function registered with
+\code{\link[=setRateFunction]{setRateFunction()}} that jumps as a function of the abundances breaks this in
+two ways. If the state sits on the switching threshold, some perturbations
+straddle it and pick up the jump, and the reported spectral radius then
+varies wildly with \code{h}. If the state is near but not on the threshold, no
+perturbation crosses it, and the function silently returns the stability of
+the single branch the state happens to lie on — which can read as \code{stable}
+for a model whose simulations never settle.
+
+Re-running with a different \code{h} is the cheapest check: if the answer moves,
+do not trust it. See \href{https://sizespectrum.org/mizer/articles/discontinuous_rates.html}{Discontinuous rate functions}.
+}
+
 \seealso{
 \code{\link[=steadyNewton]{steadyNewton()}}
 }

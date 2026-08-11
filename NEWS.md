@@ -50,6 +50,13 @@ stability of steady states.
 
 ## Other improvements
 
+- New article ["Discontinuous rate functions"](https://sizespectrum.org/mizer/articles/discontinuous_rates.html)
+  explains what goes wrong when a custom rate function registered with
+  `setRateFunction()` depends discontinuously on the abundances — chattering
+  trajectories that keep changing as `dt` is refined, a stalled `steadyNewton()`,
+  and an unreliable `getStability()` — why none of the time-stepping methods can
+  fix it, and how to avoid it by giving the switch a finite width.
+
 - The cheatsheet articles and the AI-agent skills are now one set of documents
   rather than two. Each `inst/skills/<topic>/SKILL.md` is shipped as an agent
   skill and is also the source of the matching `cheatsheet-*` article, built by
