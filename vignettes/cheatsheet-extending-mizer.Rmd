@@ -97,6 +97,25 @@ seasonalMort <- function(params, t, ...) {
 params <- setRateFunction(params, "Mort", "seasonalMort")
 ```
 
+**Never let a rate jump as a function of abundance.** Depending on `t` or `w`
+discontinuously is fine; depending on `n`, `n_pp` or `n_other` discontinuously
+is not. Mizer's time steppers freeze the rates during each density update, so
+they cannot see a threshold being crossed within a step. A rule like
+`if (biomass < threshold) effort <- 0` gives a trajectory that keeps changing as
+`dt` is refined, makes [`steadyNewton()`](../reference/steadyNewton.html) stall, and makes [`getStability()`](../reference/getStability.html) return
+a confident but meaningless answer — with no warning from mizer. Choosing
+`method = "tr_bdf2"` does not help. Give the switch a finite width instead:
+
+```{r eval=FALSE}
+# Bad: jumps. Good: ramps linearly between two thresholds.
+frac <- (biomass - b_lim) / (b_trigger - b_lim)
+effort <- effort * min(1, max(0, frac))
+```
+
+`max()`/`min()` kinks are continuous and much less troublesome — they cost some
+accuracy, not correctness. See the
+[Discontinuous rate functions](discontinuous_rates.html) article.
+
 ---
 
 ## Adding a component
@@ -144,3 +163,6 @@ and its parameters via `component_params`.
   [Creating extension packages](creating-extension-packages.html) article.
 - For the full treatment of everything above, see the
   [Extending mizer](extending-mizer.html) article.
+- If a custom rate depends on the abundances through a threshold, read
+  [Discontinuous rate functions](discontinuous_rates.html) before trusting any
+  results.

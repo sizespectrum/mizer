@@ -75,6 +75,22 @@ NULL
 #' in the params object alongside the steady state rather than being a per-run
 #' argument. See [second_order_w()].
 #'
+#' @section Custom rates must depend continuously on abundance:
+#' All three methods are *semi-implicit*: the densities are solved for
+#' implicitly, but the rates that build the transport operator are frozen at
+#' values computed from earlier states. The second-order methods gain their
+#' extra order by evaluating the rates twice — at the start of the step and from
+#' a provisional prediction of its end — and averaging. That average is only
+#' second order if the rates vary smoothly along the trajectory.
+#'
+#' A custom rate function registered with [setRateFunction()] that depends
+#' discontinuously on the abundances therefore defeats all three methods alike,
+#' including the L-stable `"tr_bdf2"`, whose damping applies to the frozen
+#' linear operator and not to the rates. The result is a trajectory that keeps
+#' changing as `dt` is refined. See the [Discontinuous rate
+#' functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.html)
+#' article for the symptoms and the remedy.
+#'
 #' @note The `effort` argument specifies the level of fishing effort during the
 #'   simulation. If it is not supplied, the initial effort stored in the params
 #'   object is used. The effort can be specified in four different ways:
