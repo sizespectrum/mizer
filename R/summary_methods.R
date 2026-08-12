@@ -61,7 +61,10 @@ NULL
 #' This function performs the same integration as [getEncounter()] but does not
 #' aggregate over prey species, and multiplies by \eqn{1-f_i(w)} to get the
 #' consumed biomass rather than the available biomass. Outside the range of
-#' sizes for a predator species the returned rate is zero.
+#' sizes for a predator species the returned rate is zero. Summing the result
+#' of `getDiet(proportion = FALSE)` over prey therefore reproduces
+#' `getEncounter(params) * (1 - getFeedingLevel(params))`, whichever quadrature
+#' scheme the model uses (see [second_order_w()]).
 #'
 #' @param object A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.
 #' @param proportion If TRUE (default) the function returns the diet as a
@@ -139,17 +142,16 @@ getDiet.MizerParams <- function(object,
     # object@w_full[idx_sp] = object@w
     idx_sp <- (no_w_full - no_w + 1):no_w_full
 
-    # Prey-biomass weight factor K = w. On the default path `w_eff` and
-    # `w_full_eff` are just the grid weights `w` and `w_full`, so the
-    # quadratures below are byte-identical to previous mizer versions. When
-    # second-order is enabled they become the trapezoidal bin-averages of `w`.
-    if (isTRUE(params@second_order_w[["bin_average"]])) {
-        w_eff <- bin_average_weight(params@w)
-        w_full_eff <- bin_average_weight(params@w_full)
-    } else {
-        w_eff <- params@w
-        w_full_eff <- params@w_full
-    }
+    # The prey vectors below carry the plain point weight `w * dw`, exactly as
+    # in mizerEncounter(). This is deliberate also when second-order
+    # bin-averaging is switched on: there the prey-bin integral has already been
+    # folded into the kernel by setPredKernel(), which builds
+    # `ft_pred_kernel_e` as the kernel integrated over the prey bin and divides
+    # out the `w * dw` that the prey vector supplies. Weighting the prey vector
+    # by the bin-averaged `w` as well would apply that quadrature twice and
+    # inflate the diet by (1 + beta) / 2 (issue #474). Summed over prey, the
+    # diet must reproduce `getEncounter() * (1 - getFeedingLevel())` under both
+    # schemes.
 
     # If the user has set a custom kernel we can not use fft.
     if (!is.null(comment(params@pred_kernel))) {
@@ -159,16 +161,16 @@ getDiet.MizerParams <- function(object,
         # multiplication for this. Then we multiply 1st and 3rd
         ae <- matrix(params@pred_kernel[, , idx_sp, drop = FALSE],
                      ncol = no_w) %*%
-            t(sweep(n, 2, w_eff * params@dw, "*"))
+            t(sweep(n, 2, params@w * params@dw, "*"))
         diet[, , 1:no_sp] <- ae
         # Eating the resource
         diet[, , no_sp + 1] <- rowSums(sweep(
-            params@pred_kernel, 3, params@dw_full * w_full_eff * n_pp, "*"),
+            params@pred_kernel, 3, params@dw_full * params@w_full * n_pp, "*"),
             dims = 2)
     } else {
         prey <- matrix(0, nrow = no_sp + 1, ncol = no_w_full)
-        prey[1:no_sp, idx_sp] <- sweep(n, 2, w_eff * params@dw, "*")
-        prey[no_sp + 1, ] <- n_pp * w_full_eff * params@dw_full
+        prey[1:no_sp, idx_sp] <- sweep(n, 2, params@w * params@dw, "*")
+        prey[no_sp + 1, ] <- n_pp * params@w_full * params@dw_full
         ft <- array(rep(params@ft_pred_kernel_e, times = no_sp + 1) *
                         rep(mvfft(t(prey)), each = no_sp),
                     dim = c(no_sp, no_w_full, no_sp + 1))
@@ -356,17 +358,21 @@ getTrophicLevel.MizerParams <- function(params,
     # Total consumption = (1 - f) * E, used for denominator accumulator
     consumption <- (1 - feeding_level) * encounter  # no_sp x no_w
 
-    # Full predation kernel array (no_sp x no_w x no_w_full).
-    # getPredKernel() computes it from species parameters if not explicitly stored.
-    pred_kernel <- getPredKernel(params)
-
-    # Prey-biomass weight K = w. When second-order, replace the left-edge
-    # value w_j by its trapezoidal bin-average.
-    w_ba <- bin_average_summary_weight(params@w, params)
+    # Full predation kernel array (no_sp x no_w x no_w_full). The numerator
+    # below is a trophic-level-weighted copy of the encounter integral, and its
+    # ratio to `consumption` is only a trophic level if the two use the same
+    # quadrature. encounter_kernel() therefore returns the kernel that
+    # mizerEncounter() effectively uses: the point-sampled kernel on the default
+    # path, and the prey-bin-integrated kernel when second-order bin-averaging
+    # is on (issue #474).
+    pred_kernel <- encounter_kernel(params)
 
     # prey_mass_tl[j, p] = N_j(w_p) * T_j(w_p) * w_p * dw_p
+    # The prey-biomass weight is the plain point weight `w * dw`, matching
+    # mizerEncounter(). Under second-order the prey-bin integral lives in
+    # `pred_kernel`, so bin-averaging this weight as well would apply it twice.
     # Initialised with T_j = 1 everywhere; updated as trophic levels are computed
-    prey_mass_tl <- sweep(n, 2, w_ba * params@dw, "*")  # no_sp x no_w
+    prey_mass_tl <- sweep(n, 2, params@w * params@dw, "*")  # no_sp x no_w
 
     # Size-dependent trophic level of the resource:
     #   T_R(w) = max(1, 1 + log(w / w_R) / log(beta_R))
@@ -376,12 +382,9 @@ getTrophicLevel.MizerParams <- function(params,
     # to the numerator can be precomputed before the size loop. This mirrors the
     # `phi_prey_background` term in mizerEncounter().
     tl_R <- pmax(1, 1 + log(params@w_full / w_R) / log(beta_R))  # no_w_full
-    # Full-grid summary weight, consistent with the species weight w_ba and with
-    # the resource weighting in mizerEncounter() (plain w_full on the default
-    # path; trapezoidal bin-average when second_order_w is on).
-    w_full_ba <- bin_average_summary_weight(params@w_full, params)
-    # TL-weighted resource biomass per bin.
-    resource_mass_tl <- tl_R * n_pp * w_full_ba * params@dw_full  # no_w_full
+    # TL-weighted resource biomass per bin (length no_w_full), weighted exactly
+    # as the resource is weighted in mizerEncounter().
+    resource_mass_tl <- tl_R * n_pp * params@w_full * params@dw_full
     # Resource contribution to the TL-weighted encounter for every predator/size:
     #   ae_R[i, k] = sum_p kernel[i, k, p] * resource_mass_tl[p]
     ae_R <- rowSums(sweep(pred_kernel, 3, resource_mass_tl, "*"), dims = 2)
@@ -427,7 +430,7 @@ getTrophicLevel.MizerParams <- function(params,
         tl_k <- tl[, k]
         tl_k[is.na(tl_k)] <- 1
         prey_mass_tl[active_k, k] <-
-            n[active_k, k] * tl_k[active_k] * w_ba[k] * params@dw[k]
+            n[active_k, k] * tl_k[active_k] * params@w[k] * params@dw[k]
     }
 
     return(ArraySpeciesBySize(tl, value_name = "Trophic level", params = params))

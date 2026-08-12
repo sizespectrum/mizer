@@ -341,20 +341,88 @@ getPredKernel.MizerParams <- function(params) {
     phis <- get_phi(species_params, ppmr)
     # Do not allow feeding at own size
     phis[, 1] <- 0
+    expand_kernel_offsets(phis, params, species_params$species)
+}
+
+#' Expand kernel weights indexed by grid offset into a full kernel array
+#'
+#' The predation kernel depends only on the predator/prey mass ratio, so on the
+#' geometric grid it is a function of the offset \eqn{m} between the predator
+#' and prey grid indices alone. `phis[i, m + 1]` holds the weight of species
+#' \eqn{i} at offset \eqn{m}. This helper writes those weights into the
+#' (predator species x predator size x prey size) array that the non-FFT code
+#' paths work with.
+#'
+#' @param phis A species-by-offset matrix of kernel weights, with the offset
+#'   running from 0 to `length(params@w_full) - 1`.
+#' @param params A MizerParams object supplying the grid.
+#' @param species A character vector of species names for the dimnames.
+#' @return An array (predator species x predator size x prey size).
+#' @concept helper
+#' @keywords internal
+expand_kernel_offsets <- function(phis, params, species) {
+    no_sp <- length(species)
+    no_w <- length(params@w)
+    no_w_full <- length(params@w_full)
     pred_kernel <-
         array(0,
               dim = c(no_sp, no_w, no_w_full),
-              dimnames = list(sp = species_params$species,
+              dimnames = list(sp = species,
                               w_pred = signif(params@w, 3),
                               w_prey = signif(params@w_full, 3)))
-    for (i in 1:no_sp) {
-        min_w_idx <- no_w_full - no_w + 1
+    min_w_idx <- no_w_full - no_w + 1
+    for (i in seq_len(no_sp)) {
         for (k in seq_len(no_w)) {
             pred_kernel[i, k, (min_w_idx - 1 + k):1] <-
                 phis[i, 1:(min_w_idx - 1 + k)]
         }
     }
-    return(pred_kernel)
+    pred_kernel
+}
+
+#' The predation kernel as used by the encounter quadrature
+#'
+#' Returns the kernel array \eqn{\Phi_i(w_k, w_p)} for which
+#' \deqn{E_i(w_k) = \gamma_i(w_k) \sum_p \Phi_i(w_k, w_p) N^{eff}_i(w_p)
+#'                  w_p \Delta w_p}
+#' reproduces exactly the available energy computed by [mizerEncounter()],
+#' where \eqn{N^{eff}} is the interaction-weighted prey density. It is the
+#' kernel that any summary function must use if its result is to be consistent
+#' with [getEncounter()].
+#'
+#' On the default first-order path this is just the point-sampled kernel
+#' returned by [getPredKernel()]. When second-order bin-averaging is switched on
+#' (see [second_order_w()]) the two differ: `setPredKernel()` then builds the
+#' Fourier-transformed kernel from the kernel *integrated over the prey bin*,
+#' divided by \eqn{\beta - 1} so that the plain point weight \eqn{w_p \Delta
+#' w_p} carried by the prey vector is cancelled. Those bin-integrated weights
+#' are recovered here from `params@ft_pred_kernel_e` by an inverse Fourier
+#' transform, which costs one FFT and keeps this helper automatically in step
+#' with whatever quadrature `setPredKernel()` used.
+#'
+#' A summary function that instead pairs the point-sampled [getPredKernel()]
+#' with a bin-averaged prey weight double-counts the prey-bin quadrature; that
+#' was the bug behind issue #474.
+#'
+#' @param params A MizerParams object.
+#' @return An array (predator species x predator size x prey size).
+#' @concept helper
+#' @keywords internal
+encounter_kernel <- function(params) {
+    # A kernel that is stored explicitly is used as-is by mizerEncounter(),
+    # which weights it with the plain `w * dw`, so it is already consistent.
+    if (length(dim(params@pred_kernel)) > 1) {
+        return(params@pred_kernel)
+    }
+    if (!isTRUE(params@second_order_w[["bin_average"]])) {
+        return(getPredKernel(params))
+    }
+    no_w_full <- length(params@w_full)
+    # setPredKernel() stores ft_pred_kernel_e[i, ] = fft(phi_e[i, ]), so the
+    # real-space weights come back from the inverse transform.
+    phis <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e),
+                             inverse = TRUE))) / no_w_full
+    expand_kernel_offsets(phis, params, params@species_params$species)
 }
 
 #' @rdname setPredKernel
