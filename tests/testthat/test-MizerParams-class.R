@@ -116,6 +116,104 @@ test_that("validParams checks w_min and w_max", {
     expect_equal(params@w_min_idx[1:3], rep(1, 3), ignore_attr = TRUE)
 })
 
+test_that("validParams skips the repair only for an unchanged object", {
+    clear_validated_params()
+    params <- NS_params_small
+
+    # The first validation does the full work and records the fingerprint.
+    expect_false(is_validated(validation_key(params)))
+    params <- validParams(params)
+    expect_true(is_validated(validation_key(params)))
+
+    # Every change to a slot that the repair or the validity checks depend on
+    # gives a new fingerprint, so the full validation runs again.
+    p <- params
+    p@species_params$w_mat[1] <- p@species_params$w_mat[1] / 2
+    expect_false(is_validated(validation_key(p)))
+    p <- params
+    p@given_species_params$new_column <- 1
+    expect_false(is_validated(validation_key(p)))
+    p <- params
+    p@gear_params$catchability[1] <- 0.5
+    expect_false(is_validated(validation_key(p)))
+    p <- params
+    p@w_min_idx[1] <- p@w_min_idx[1] + 1
+    expect_false(is_validated(validation_key(p)))
+    p <- params
+    p@ft_mask[1, 1] <- !p@ft_mask[1, 1]
+    expect_false(is_validated(validation_key(p)))
+    p <- params
+    p@second_order_w$bin_average <- TRUE
+    expect_false(is_validated(validation_key(p)))
+    p <- params
+    p@mizer_version <- "99.0.0"
+    expect_false(is_validated(validation_key(p)))
+
+    # Changing the shape of a rate array is caught, so that the structural
+    # checks in validObject() cannot be evaded by the fast path.
+    p <- params
+    p@psi <- p@psi[, 1:10]
+    expect_false(is_validated(validation_key(p)))
+    p <- params
+    dimnames(p@interaction)[[1]][1] <- "Wrong"
+    expect_false(is_validated(validation_key(p)))
+
+    # Changing values that the repair does not depend on does not.
+    p <- params
+    p@psi[1, 1] <- 0
+    expect_true(is_validated(validation_key(p)))
+    p@initial_effort[1] <- 100
+    expect_true(is_validated(validation_key(p)))
+})
+
+test_that("validParams repairs and validates an object that is not yet known", {
+    clear_validated_params()
+    params <- NS_params_small
+    # A model whose w_min_idx and ft_mask have been made inconsistent is
+    # invalid, but validParams() recalculates them.
+    params@w_min_idx[] <- 1
+    params@ft_mask[] <- FALSE
+    expect_error(validObject(params))
+    expect_true(validObject(validParams(params)))
+
+    # The repair is not skipped for an object that merely resembles one that
+    # has been validated before.
+    valid <- validParams(NS_params_small)
+    params <- valid
+    params@ft_mask[] <- FALSE
+    expect_error(validObject(params))
+    expect_true(validObject(validParams(params)))
+})
+
+test_that("validParams checks the array values even on the fast path", {
+    clear_validated_params()
+    params <- validParams(NS_params_small)
+    expect_true(is_validated(validation_key(params)))
+    # A bad value does not change the shape of the array and hence not the
+    # fingerprint, so it has to be caught by the unconditional check.
+    params@metab[1, 1] <- NaN
+    expect_true(is_validated(validation_key(params)))
+    expect_error(validParams(params), "metab must not contain non-finite values")
+})
+
+test_that("validParams leaves an already valid object untouched", {
+    clear_validated_params()
+    params <- validParams(NS_params_small)
+    expect_identical(validParams(params), params)
+    clear_validated_params()
+    # The result must not depend on whether the fingerprint is known.
+    expect_identical(validParams(params), params)
+})
+
+test_that("the record of validated params objects is bounded", {
+    clear_validated_params()
+    for (i in 1:3) record_validated(paste0("key", i), max_size = 3)
+    expect_length(ls(validated_params), 3)
+    record_validated("key4", max_size = 3)
+    expect_identical(ls(validated_params), "key4")
+    clear_validated_params()
+})
+
 test_that("validParams rejects non-finite rate arrays and allows infinite intake_max", {
     params <- NS_params_small
     params@search_vol[1, 1] <- NaN

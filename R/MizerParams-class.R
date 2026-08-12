@@ -883,6 +883,21 @@ dw_full <- function(params) {
 #' if any of the rate arrays contain any non-finite numbers (except for the
 #' maximum intake rate that is allowed to be infinite).
 #'
+#' @section Cost of repeated calls:
+#' Because `validParams()` returns an already-valid object unchanged, it is
+#' safe to call it at the start of any function that takes a MizerParams
+#' object. To make that cheap, the repair work (rebuilding the species
+#' parameter tables and the `w_min_idx` and `ft_mask` slots, and checking the
+#' structural validity of the object) is skipped for an object that has already
+#' been through it. Mizer recognises such an object by a fingerprint calculated
+#' from the contents of the slots that the repair and the validity checks
+#' depend on. The fingerprint is recalculated on every call, so it cannot become
+#' stale: any change to any of those slots, made by any route, gives a new
+#' fingerprint and triggers the full validation.
+#'
+#' The checks for non-finite values in the rate arrays are always performed,
+#' because the fingerprint does not cover the values in those arrays.
+#'
 #' Occasionally, during the development of new features for mizer, the
 #' \linkS4class{MizerParams} object gains extra slots. MizerParams objects
 #' created in older versions of mizer are then no longer valid in the new
@@ -928,6 +943,8 @@ validParams <- function(params, info_level = 3) {
 #' @export
 validParams.MizerParams <- function(params, info_level = 3) {
 
+    # 1. Upgrade old objects. This is already cheaply gated on a comparison of
+    #    version strings.
     if (mizer_needs_upgrading(params)) {
         params <- suppressWarnings(upgrade.MizerParams(params))
         if (info_level > 0) {
@@ -938,6 +955,132 @@ validParams.MizerParams <- function(params, info_level = 3) {
         params <- suppressWarnings(runExtensionUpgrades(params))
     }
 
+    # 2. Repair the object and check its structural validity, but only if an
+    #    object with the same fingerprint has not already been through this.
+    #    The fingerprint is calculated from the current slot contents, so it
+    #    cannot be stale.
+    if (!is_validated(validation_key(params))) {
+        params <- repair_params(params)
+        params <- coerceToExtensionClass(params)
+        validObject(params)
+        # The fingerprint has to be recorded after the repair, because the
+        # repair may have changed some of the slots that it covers.
+        record_validated(validation_key(params))
+    } else {
+        params <- coerceToExtensionClass(params)
+    }
+
+    # 3. Check that the arrays hold sensible values. This is cheap and is done
+    #    unconditionally because the fingerprint does not cover array values.
+    check_finite(params)
+
+    params
+}
+
+# An environment used as a set holding the fingerprints (see
+# `validation_key()`) of the MizerParams objects that `validParams()` has
+# already repaired and found structurally valid during this R session.
+# It is deliberately kept outside the MizerParams objects themselves, so that
+# two objects with the same contents stay identical no matter how often either
+# of them has been validated.
+validated_params <- new.env(parent = emptyenv())
+
+# Number of fingerprints to hold on to. A session that builds very many
+# different models would otherwise accumulate them without bound. The record is
+# simply emptied when the limit is reached; the only consequence is that the
+# next validation of each object takes the full path again.
+validated_params_max <- 1000
+
+#' Keep track of which MizerParams objects have been fully validated
+#'
+#' Because the fingerprint returned by [validation_key()] determines the outcome
+#' of [repair_params()] and of the structural validity checks, an object whose
+#' fingerprint has been recorded by a previous call to [validParams()] needs
+#' neither. The record lasts for the R session only.
+#'
+#' @param key A fingerprint as returned by [validation_key()].
+#' @return `is_validated()` returns TRUE if the fingerprint has been recorded.
+#' @keywords internal
+is_validated <- function(key) {
+    exists(key, envir = validated_params, inherits = FALSE)
+}
+
+#' @rdname is_validated
+#' @param max_size The number of fingerprints to keep. When the record has grown
+#'   to this size it is emptied.
+#' @return `record_validated()` returns `NULL`, invisibly.
+#' @keywords internal
+record_validated <- function(key, max_size = validated_params_max) {
+    if (length(validated_params) >= max_size) {
+        clear_validated_params()
+    }
+    assign(key, TRUE, envir = validated_params)
+    invisible(NULL)
+}
+
+#' @rdname is_validated
+#' @return `clear_validated_params()` returns `NULL`, invisibly. The next
+#'   validation of any object then takes the full path again.
+#' @keywords internal
+clear_validated_params <- function() {
+    rm(list = ls(validated_params, all.names = TRUE),
+       envir = validated_params)
+    invisible(NULL)
+}
+
+#' Fingerprint of the slots that determine the outcome of the repair and
+#' structural validity checks in `validParams()`
+#'
+#' The fingerprint covers every slot that [repair_params()] reads or writes and
+#' every slot that the `MizerParams` validity function inspects, except for the
+#' values inside the large rate arrays, of which only the dimensions and
+#' dimension names are included. The values in those arrays are checked
+#' unconditionally by [check_finite()] instead.
+#'
+#' The fingerprint is always calculated afresh from the current contents of the
+#' object, never stored on the object itself, so no change to the object can
+#' escape it.
+#'
+#' @param params A MizerParams object.
+#' @return A string.
+#' @keywords internal
+validation_key <- function(params) {
+    # These are the arrays whose dimensions and dimension names are checked by
+    # the validity function. Their values are not part of the fingerprint.
+    array_slots <- c("initial_n", "psi", "maturity", "intake_max", "search_vol",
+                     "metab", "mu_b", "ext_encounter", "ext_diffusion",
+                     "interaction", "selectivity", "catchability")
+    array_shapes <- lapply(array_slots, function(sl) {
+        a <- slot(params, sl)
+        list(dim(a), dimnames(a))
+    })
+    rlang::hash(list(params@given_species_params,
+                     params@species_params,
+                     params@gear_params,
+                     params@w, params@dw,
+                     params@w_full, params@dw_full,
+                     params@w_min_idx,
+                     params@ft_mask,
+                     params@use_predation_diffusion,
+                     params@second_order_w,
+                     length(params@rr_pp), length(params@cc_pp),
+                     array_shapes,
+                     as.character(params@mizer_version),
+                     params@extensions))
+}
+
+#' Repair a MizerParams object
+#'
+#' Rebuilds the parameter tables and the slots that are derived from them. This
+#' is a deterministic function of a small number of slots and is idempotent: on
+#' an already-repaired object it recomputes identical values. [validParams()]
+#' therefore skips it for an object whose fingerprint has already been recorded,
+#' see [validation_key()] and [is_validated()].
+#'
+#' @param params A MizerParams object.
+#' @return The repaired MizerParams object.
+#' @keywords internal
+repair_params <- function(params) {
     params@given_species_params <-
         validGivenSpeciesParams(params@given_species_params)
     params@species_params <- validSpeciesParams(params@species_params)
@@ -972,6 +1115,24 @@ validParams.MizerParams <- function(params, info_level = 3) {
     params@ft_mask[] <- t(sapply(params@species_params$w_max,
                                function(x) params@w_full < x))
 
+    params
+}
+
+#' Check that the rate arrays hold only finite values
+#'
+#' Gives an error if any of the arrays in the MizerParams object contains
+#' non-finite values, with the exception of the maximum intake rate, which is
+#' allowed to be infinite.
+#'
+#' This check is cheap and is run on every call to [validParams()], also when
+#' the repair work is skipped, because it catches exactly the kind of damage
+#' that the fingerprint in [validation_key()] does not cover: a bad value
+#' written into an array whose shape is unchanged.
+#'
+#' @param params A MizerParams object.
+#' @return `TRUE`, invisibly.
+#' @keywords internal
+check_finite <- function(params) {
     # Check that there are no non-finite values in the arrays
     if (!all(is.finite(params@initial_n))) {
         stop("initial_n must not contain non-finite values")
@@ -1019,9 +1180,7 @@ validParams.MizerParams <- function(params, info_level = 3) {
     if (!all(is.finite(params@intake_max) | is.infinite(params@intake_max))) {
         stop("intake_max must contain finite or infinite numeric values only")
     }
-    params <- coerceToExtensionClass(params)
-    validObject(params)
-    params
+    invisible(TRUE)
 }
 
 # helper function to calculate w_min_idx slot
