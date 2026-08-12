@@ -102,11 +102,138 @@ In summary:
 | $d$, $\mu$; fishing/reproductive investments; predation and encounter integrands | bin properties (a coefficient inside $\partial(dN)/\partial w$, or a rate integrated against $N$ over a bin) | bin average over $[w_j, w_{j+1}]$ |
 | $e$ (energy income) | both: growth velocity *and* reproduction integrand | point value for growth; bin-averaged product $\psi e$ for reproduction |
 
-**Plotting follows the same distinction.** A bin average $N_j$ does not live at the bin boundary $w_j$ but at the geometric bin centre $w^*_j=\sqrt{w_j\,w_{j+1}}=w_j\sqrt\beta$ (the log-midpoint, exact for the community spectrum $N\propto w^{-2}$). So under second-order bin-averaging mizer draws bin-averaged quantities (the abundance and the mortality/reproduction sinks) at $w^*_j$ — a uniform half-bin shift to the right on the log axis — while point-valued quantities (the encounter and growth-type rates) stay on the nodes $w_j$. The size-resolved array classes carry a `representation` tag recording which a quantity is, and the shift is applied only when `second_order_w[["bin_average"]]` is set, so default plots are unchanged.
+### Applying each bin integral exactly once {#sec-one-quadrature}
 
-**Plotting follows the same distinction.** A bin average $N_j$ does not live at the bin boundary $w_j$ but at the geometric bin centre $w^*_j=\sqrt{w_j\,w_{j+1}}=w_j\sqrt\beta$ (the log-midpoint, exact for the community spectrum $N\propto w^{-2}$). So under second-order bin-averaging mizer draws bin-averaged quantities (the abundance and the mortality/reproduction sinks) at $w^*_j$ — a uniform half-bin shift to the right on the log axis — while point-valued quantities (the encounter and growth-type rates) stay on the nodes $w_j$. The size-resolved array classes carry a `representation` tag recording which a quantity is, and the shift is applied only when `second_order_w[["bin_average"]]` is set, so default plots are unchanged.
+Knowing *that* a factor must be bin-averaged is only half of the rule; the other half is *where*. Each bin integral is performed in exactly one place, and a quantity assembled out of parts must not repeat an integral that one of its parts has already done.
+
+The encounter rate is the clearest example. Continuously,
+$$
+E_i(w) = \gamma_i(w)\int \tilde\phi_i\!\left(\frac{w}{w_p}\right) N^{\text{eff}}_i(w_p)\, w_p\, dw_p ,
+$$ {#eq-encounter-integral}
+where $N^{\text{eff}}_i=\sum_j\theta_{ij}N_j+\theta_{iR}N_R$ is the interaction-weighted prey density. The smooth weight multiplying that density is $K(w_p)=\tilde\phi_i(w/w_p)\,w_p$ — the kernel **and** the mass factor $w_p$ together — and it is $K$ that has to be integrated over the prey bin. Mizer does this once, at setup, in `setPredKernel()`, which stores the kernel coefficient for the grid offset $m$ as
+$$
+\Phi^E_i[m] = \frac{\ln\beta}{\beta-1}\int_0^1 \tilde\phi_i(\beta^{\,m-s})\;\beta^{2s}\,ds .
+$$ {#eq-encounter-kernel-weight}
+The Jacobian $\beta^{2s}$ carries the $w_p\,dw_p$ of the integrand, and the division by $\beta-1$ *removes* the factor $w_p\,\Delta w_p=(\beta-1)\,w_p^2$ that the prey vector will supply. At run time the rate function therefore evaluates the plain sum
+$$
+E_i(w_k) = \gamma_i(w_k) \sum_p \Phi^E_i[k-p]\; N^{\text{eff}}_{i,p}\; w_p\,\Delta w_p ,
+$$ {#eq-encounter-sum}
+with the **point** value $w_p$ at the bin boundary. (The [FFT vignette](fft.html) derives @eq-encounter-kernel-weight and its predation and predation-diffusion analogues.)
+
+The factor $w_p\,\Delta w_p$ in @eq-encounter-sum is thus not a quadrature weight that has been left at first order; it is a normalisation the kernel has already divided out. Replacing it by the bin-averaged $\bar w_p\,\Delta w_p$ would apply the prey-bin integral a second time and inflate every encounter by
+$$
+\frac{\bar w_p}{w_p} = \frac{w_p+w_{p+1}}{2\,w_p} = \frac{1+\beta}{2},
+$$ {#eq-double-count}
+uniformly across the grid — 9.7 % for the North Sea model, where $\beta=1.1934$. That is not hypothetical: it is exactly the error `getDiet(proportion = FALSE)` made (issue #474). It went unnoticed for a while precisely because the factor is uniform and so cancels in the default `proportion = TRUE` normalisation.
+
+The table below records which factor of each integral is bin-integrated, and where:
+
+| Integral | Factor that is bin-integrated | Performed in |
+|---|---|---|
+| encounter, predation and predation-diffusion convolutions | the kernel weight, $\tilde\phi\,w_p$, $\tilde\phi$ and $\tilde\phi\,w_p^2$ respectively | `setPredKernel()`, into `ft_pred_kernel_e`/`_p`/`_d` |
+| fishing sink $\int Q\,S(w)\,\text{effort}\,N\,dw$ | the selectivity $S$ | `setFishing()`, into `selectivity` |
+| external mortality and external diffusion sinks | the power laws $z_{ext}w^{d}$ and $D_{ext}w^{n+1}$ | `setExtMort()`, `setExtDiffusion()` |
+| resource semichemostat terms | the power laws $r_{pp}w^{n-1}$ and $\kappa w^{-\lambda}$ | `setResource()`, into `rr_pp` and `cc_pp` |
+| reproduction $\int \psi(w)\,e(w)\,N(w)\,dw$ | the product $\psi e$ | `mizerRDI()` |
+| summary integrals $\int K(w)\,N(w)\,dw$ | the weight $K$: $w$ for biomass, $\psi w$ for SSB, $F w$ for yield | `getBiomass()`, `getSSB()`, `getYield()`, … |
+
+Two corollaries are worth stating explicitly.
+
+**Never bin-average the density or the bin width.** $N_j$ is already a bin average (@eq-bin-average) and $\Delta w_j$ is already exact. It is only the smooth weight multiplying them that is being approximated, so it is the only thing that gets averaged.
+
+**A diagnostic that decomposes a rate must borrow that rate's quadrature rather than rebuild it.** `getDiet()` is `getEncounter()` resolved by prey species, so it uses the same kernel and the same point prey weight $w_p\,\Delta w_p$; summed over prey it then reproduces $(1-f_i(w))\,E_i(w)$ exactly, under both schemes. `getTrophicLevel()` is a *ratio* of a trophic-level-weighted encounter to the plain encounter, so its numerator and denominator must be built from the same kernel. The internal helper `encounter_kernel()` exists for this: it returns the kernel that `mizerEncounter()` is actually using — the point-sampled kernel by default, the bin-integrated one when `bin_average` is on, and the stored array when a custom kernel has been set.
+
+Note that `getPredKernel()` is **not** that kernel when `bin_average` is on. It returns $\tilde\phi_i$ point-sampled on the grid, which is the right object for plotting or inspecting a feeding kernel and the form in which you supply a custom kernel, but it is not the bin-integrated coefficient @eq-encounter-kernel-weight that the convolution consumes.
+
+### Plotting follows the same distinction
+
+A bin average $N_j$ does not live at the bin boundary $w_j$ but at the geometric bin centre $w^*_j=\sqrt{w_j\,w_{j+1}}=w_j\sqrt\beta$ (the log-midpoint, exact for the community spectrum $N\propto w^{-2}$). So under second-order bin-averaging mizer draws bin-averaged quantities (the abundance and the mortality/reproduction sinks) at $w^*_j$ — a uniform half-bin shift to the right on the log axis — while point-valued quantities (the encounter and growth-type rates) stay on the nodes $w_j$. The size-resolved array classes carry a `representation` tag recording which a quantity is, and the shift is applied only when `second_order_w[["bin_average"]]` is set, so default plots are unchanged.
 
 For the `power`-weighted spectrum plots (`plotSpectra()` and friends) the $w^{\text{power}}$ factor must be evaluated where the density value lives, so it too is taken at the bin centre: each marker is the point $\bigl(w^*_j,\,N_j\,(w^*_j)^{\text{power}}\bigr)$ on the continuous $N(w)\,w^{\text{power}}$ curve. (Sampling the weight at the edge would mis-scale it by a factor $\beta^{\text{power}/2}$, largest for the common $\text{power}=2$ Sheldon plot.) A cumulative plot (`plotCDF()`) is the opposite case: a CDF value is cumulative *up to a size*, a boundary quantity, so its increments use the bin-averaged (centre-weighted) density but the cumulative is plotted on the bin **edges**, not the centres. Because the cumulative sum is inclusive — the sum through bin $k$ is the integral over all bins up to and including bin $k$ — each cumulative value is placed on that bin's *upper* edge $w_k+\Delta w_k$ (in both the default and second-order schemes). This makes the inclusive convention explicit and removes a one-bin offset that would otherwise leave the CDF only first-order accurate in its placement.
+
+## The `second_order_w` switch {#sec-second-order-switch}
+
+Everything in @sec-point-values describes the second-order scheme, but mizer does not use it by default: the historical first-order behaviour is preserved so that existing models reproduce their published results exactly. The choice lives in the `second_order_w` slot, which has two independent entries.
+
+* **`flux`** selects the reconstruction of the density at the bin boundary in the advective flux: `"upwind"` (first order, the default), `"van_leer"` (second order, limited, keeps abundances non-negative) or `"centred"` (second order, unlimited). This affects only the transport step; see @sec-reducing-spatial-error.
+* **`bin_average`** is a logical flag selecting whether the size-dependent factors listed in @sec-one-quadrature are integrated over their bin (`TRUE`) or point-sampled at the left bin boundary $w_j$ (`FALSE`, the default).
+
+```r
+second_order_w(params) <- TRUE                   # both: van_leer + bin averaging
+second_order_w(params) <- "centred"              # flux scheme only
+second_order_w(params) <- c(bin_average = TRUE)  # bin averaging only
+second_order_w(params) <- FALSE                  # back to the mizer defaults
+```
+
+The two are independent because they correct different errors: `flux` improves the time evolution of the spectrum, `bin_average` improves the rates that drive it, and either alone leaves the other at first order. Changing `bin_average` re-runs `setParams()`, because all the arrays in the first table of @sec-one-quadrature are precomputed and have to be rebuilt.
+
+### What `bin_average` changes
+
+Write $\beta=w_{j+1}/w_j$ for the (constant) grid ratio. On a geometric grid the exact bin average of a power law $w^{a}$ is
+$$
+\overline{w^{a}}_j = \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} w^{a}\,dw
+   = \frac{w_{j+1}^{\,a+1}-w_j^{\,a+1}}{(a+1)\,\Delta w_j}
+   = w_j^{\,a}\,\frac{\beta^{\,a+1}-1}{(a+1)(\beta-1)},
+$$ {#eq-power-law-bin-average}
+which mizer computes with the internal helper `power_law_bin_average()` and uses wherever the factor is genuinely a power law. Where it is not, the trapezoidal average $\bar K_j=\tfrac12(K_j+K_{j+1})$ is used, which is second order for any smooth $K$ and exact for $K$ linear in $w$ (`bin_average_weight()`). Where the factor is a kernel the bin integral is done by composite quadrature at setup, @eq-encounter-kernel-weight.
+
+| Quantity | `bin_average = FALSE` | `bin_average = TRUE` |
+|---|---|---|
+| kernel coefficients `ft_pred_kernel_e`, `_p`, `_d` | $\tilde\phi_i(\beta^{m})$, point-sampled | bin-integrated, @eq-encounter-kernel-weight |
+| gear selectivity | $S(w_j)$ | $\frac{1}{\Delta w_j}\int S\,dw$, by composite midpoint |
+| external mortality $z_{ext}w^{d}$, external diffusion $D_{ext}w^{n+1}$ | point value at $w_j$ | exact bin average, @eq-power-law-bin-average |
+| resource rate $r_{pp}w^{n-1}$, capacity and initial spectrum $\kappa w^{-\lambda}$ | point value at $w_j$ | exact bin average, @eq-power-law-bin-average |
+| reproduction integrand $\psi\,e$ | point value at $w_j$ | trapezoidal bin average |
+| summary weights in `getBiomass()`, `getSSB()`, `getYield()`, `getYieldGear()` | $K(w_j)$ | trapezoidal bin average of $K$ |
+| plotting position of a bin-averaged quantity | node $w_j$ | bin centre $w_j\sqrt\beta$ |
+| growth rate $g$, encounter rate $E$, feeding level $f$ | point value at $w_j$ | **unchanged** — point value at $w_j$ |
+
+The last two rows are the ones that are easy to get wrong. `getN()` is also unchanged, because its weight is $K\equiv 1$ and the bin average of a constant is the constant. And the growth-type rates stay point values under both settings: they are boundary velocities (@sec-point-values), so bin-averaging them would be an error, not an improvement — what improves them under `bin_average` is that the encounter integral feeding them is now second order, not any averaging of $g$ itself.
+
+Because one setting is first order and the other second, the difference between them is itself $O(\Delta x)$ and is a usable estimate of the discretisation error of the default scheme: if flipping the flag moves a result by more than you are willing to tolerate, the grid is too coarse for that result.
+
+### Making your own quantity second-order accurate {#sec-second-order-recipe}
+
+If you compute a diagnostic of your own — in an extension package, or in analysis code on top of a `MizerParams` object — it falls into one of two cases.
+
+**Case 1: a plain integral against the abundance,** $\int K(w)\,N(w)\,dw$. Discretise it as $\sum_j \bar K_j\,N_j\,\Delta w_j$: keep $N_j$ and $\Delta w_j$ exactly as they are and replace the point weight $K(w_j)$ by its bin average.
+
+```r
+# Trapezoidal bin average of a weight along the size axis. The top bin has no
+# right neighbour, so it is left one-sided; the density there is negligible.
+bin_average <- function(K) {
+    n <- length(K)
+    c(0.5 * (K[-n] + K[-1]), K[n])
+}
+
+my_indicator <- function(params, K) {
+    if (isTRUE(second_order_w(params)$bin_average)) K <- bin_average(K)
+    drop(initialN(params) %*% (K * dw(params)))
+}
+
+# biomass above 10 g, say
+params <- NS_params
+K <- w(params) * (w(params) >= 10)
+my_indicator(params, K)
+```
+
+Gate the averaging on the flag, as above, so that your diagnostic follows the model it is given rather than silently disagreeing with `getBiomass()`. If $K$ is an exact power law, use @eq-power-law-bin-average instead of the trapezoid: it is exact rather than merely second order. If $K$ is a product of a size-dependent rate and a mass factor — $\psi(w)\,w$, or $F(w)\,w$ — average the **product**, not the factors separately.
+
+**Case 2: a quantity built from rates mizer already computes.** Get the rates from the rate functions (`getEncounter()`, `getFeedingLevel()`, `getPredRate()`, `getEGrowth()`, …) and do not re-derive them, because the rate functions already carry the correct quadrature for the current setting. In particular, do not rebuild an encounter or predation convolution out of `getPredKernel()` and a hand-written prey weight: under `bin_average` that kernel is the point-sampled one and will not agree with the rate function. If you genuinely need the resolved convolution — as `getDiet()` and `getTrophicLevel()` do — pair mizer's own encounter kernel with the plain point prey weight $w_p\,\Delta w_p$, and never with a bin-averaged one.
+
+**Check the result against an identity.** Any diagnostic that decomposes a rate should reassemble into it. For a diet-like decomposition:
+
+```r
+params <- NS_params
+second_order_w(params) <- TRUE
+total <- rowSums(getDiet(params, proportion = FALSE), dims = 2)
+ratio <- total / (getEncounter(params) * (1 - getFeedingLevel(params)))
+range(ratio[initialN(params) > 0])
+#> 1 1
+```
+
+If such a ratio comes out as a constant instead of 1, read off its value: $(1+\beta)/2$ means the prey-bin quadrature has been applied twice, and $2/(1+\beta)$ means it is missing. The value is easy to recognise, since $\beta$ is just `w_full(params)[2] / w_full(params)[1]`.
+
 
 ## Semi-Implicit Time Discretisation
 
