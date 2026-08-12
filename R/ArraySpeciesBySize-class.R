@@ -217,7 +217,8 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #'     limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
 #'     refer to the existing minimum or maximum.}
 #'   \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
-#'     length (`"l"`), using the allometric weight-length relationship.}
+#'     length (`"l"`), using the allometric weight-length relationship.
+#'     Densities are transformed to match the chosen axis.}
 #' }
 #'
 #' Additional argument for [plot.ArrayTimeBySpecies()]:
@@ -324,23 +325,24 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
     assert_that(length(wlim) == 2,
                 length(llim) == 2,
                 length(ylim) == 2)
-    value_name <- attr(x, "value_name") %||% "Rate"
-    units_str <- attr(x, "units")
     params <- attr(x, "params")
     plot_dat <- prepare_ArraySpeciesBySize_plot_data(
         x, species = species, all.sizes = all.sizes, wlim = wlim,
         total = total, background = background)
-    plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
+    density_power <- array_spectrum_power(x)
+    if (is.null(density_power)) {
+        plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
+    } else {
+        plot_dat <- convert_plot_spectrum_axis(plot_dat, params, size_axis,
+                                               power = density_power)
+    }
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
 
     if (return_data) return(plot_dat)
 
-    y_label <- value_name
-    if (!is.null(units_str)) {
-        y_label <- paste0(value_name, " [", units_str, "]")
-    }
+    y_label <- array_y_label(x, default = "Rate", size_axis = size_axis)
 
     plotDataFrame(plot_dat, params, xlab = plot_size_xlab(size_axis),
                   ylab = y_label,
@@ -485,7 +487,7 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                 length(ylim) == 2)
 
     params <- attr(x, "params")
-    y_label <- array_y_label(x, default = "Rate")
+    y_label <- array_y_label(x, default = "Rate", size_axis = size_axis)
     plot_dat1 <- prepare_ArraySpeciesBySize_plot_data(
         x, species = species, all.sizes = all.sizes, wlim = wlim,
         total = total, background = background)
@@ -501,7 +503,8 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                             xlim = plot_size_xlim(wlim, size_axis, llim),
                             ylim = ylim,
                             y_ticks = y_ticks, legend_var = "Legend",
-                            size_axis = size_axis)
+                            size_axis = size_axis,
+                            spectrum_power = array_spectrum_power(x))
 }
 
 #' Plot relative difference between two mizer arrays
@@ -630,9 +633,23 @@ compare_array_metadata <- function(x, y) {
     }
 }
 
-array_y_label <- function(x, default = "Value") {
+array_spectrum_power <- function(x) {
+    is_density <- identical(attr(x, "value_name"), "Number density") ||
+        identical(attr(x, "units"), "1/g")
+    if (is_density) 0 else NULL
+}
+
+array_units <- function(x, size_axis = "w") {
+    if (identical(plot_size_axis(size_axis), "l") &&
+            !is.null(array_spectrum_power(x))) {
+        return("1/cm")
+    }
+    attr(x, "units")
+}
+
+array_y_label <- function(x, default = "Value", size_axis = "w") {
     value_name <- attr(x, "value_name") %||% default
-    units_str <- attr(x, "units")
+    units_str <- array_units(x, size_axis)
     if (!is.null(units_str) && nzchar(units_str)) {
         value_name <- paste0(value_name, " [", units_str, "]")
     }
@@ -734,14 +751,20 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
         x, species = species, all.sizes = all.sizes, wlim = wlim,
         total = total, background = background)
     params <- attr(x, "params")
-    plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
+    density_power <- array_spectrum_power(x)
+    if (is.null(density_power)) {
+        plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
+    } else {
+        plot_dat <- convert_plot_spectrum_axis(plot_dat, params, size_axis,
+                                               power = density_power)
+    }
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
     x_var <- plot_size_x_var(size_axis)
     y_var <- names(plot_dat)[2]
     check_addPlot_compatible(plot, x_var = x_var, y_var = y_var,
-                             units = attr(x, "units"))
+                             units = array_units(x, size_axis))
 
     mapping <- aes(x = .data[[x_var]], y = .data[[y_var]],
                    group = .data[["Species"]])

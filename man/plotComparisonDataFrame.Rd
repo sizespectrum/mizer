@@ -19,7 +19,8 @@ plotComparisonDataFrame(
   y_ticks = 6,
   highlight = NULL,
   legend_var = "Legend",
-  size_axis = NULL
+  size_axis = NULL,
+  spectrum_power = NULL
 )
 }
 \arguments{
@@ -48,6 +49,9 @@ line colour.}
 
 \item{size_axis}{Optional. If non-NULL, the x-axis is converted to weight
 (\code{"w"}) or length (\code{"l"}).}
+
+\item{spectrum_power}{Optional power used to weight a number spectrum. When
+supplied, spectrum values are transformed along with a length axis.}
 }
 \value{
 A \code{mizer_plot} (ggplot2) object.

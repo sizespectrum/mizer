@@ -4,10 +4,12 @@
 \alias{spectra_y_label}
 \title{Y-axis label for a size-spectrum plot}
 \usage{
-spectra_y_label(power)
+spectra_y_label(power, size_axis = "w")
 }
 \arguments{
 \item{power}{The power of weight that the abundance was multiplied by.}
+
+\item{size_axis}{Either \code{"w"} (weight) or \code{"l"} (length).}
 }
 \value{
 A character string for the y-axis label.

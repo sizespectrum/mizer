@@ -435,6 +435,51 @@ test_that("size-based plots support length axes", {
                                     size_axis = "l", return_data = TRUE)))
 })
 
+test_that("length-axis spectra transform their densities", {
+    for (bin_average in c(FALSE, TRUE)) {
+        p <- params
+        second_order_w(p) <- c(bin_average = bin_average)
+        for (power in 0:2) {
+            by_weight <- plotSpectra(
+                p, species = species, resource = FALSE, power = power,
+                size_axis = "w", return_data = TRUE)
+            by_length <- plotSpectra(
+                p, species = species, resource = FALSE, power = power,
+                size_axis = "l", return_data = TRUE)
+            sp_idx <- match(by_length$Species, p@species_params$species)
+            b <- p@species_params$b[sp_idx]
+            jacobian <- if (power == 2) {
+                b
+            } else {
+                b * by_weight$w / by_length$l
+            }
+            expect_equal(by_length[[2]], unname(by_weight[[2]] * jacobian))
+        }
+    }
+
+    p <- plotSpectra(params, species = species, resource = FALSE,
+                     power = 1, size_axis = "l")
+    expect_identical(p$scales$get_scales("y")$name,
+                     "Biomass density [g/cm]")
+
+    compared <- plotSpectra2(params, params, species = species,
+                             resource = FALSE, power = 0, size_axis = "l")
+    compared_data <- compared$data[compared$data$Model == "First", ]
+    by_weight <- plotSpectra(params, species = species, resource = FALSE,
+                             power = 0, return_data = TRUE)
+    sp_idx <- match(compared_data$Species, params@species_params$species)
+    jacobian <- params@species_params$b[sp_idx] * by_weight$w /
+        compared_data$l
+    expect_equal(compared_data[[2]], unname(by_weight[[2]] * jacobian))
+
+    limit <- stats::median(compared_data[[2]])
+    limited <- plotSpectra2(params, params, species = species,
+                            resource = FALSE, power = 0, size_axis = "l",
+                            ylim = c(limit, NA))
+    expect_true(any(limited$data[[2]] < limit))
+    expect_equal(limited$scales$get_scales("y")$limits, c(log10(limit), NA))
+})
+
 test_that("yield plotting helpers validate comparison and gear selection", {
     sim_shifted <- sim
     dimnames(sim_shifted@n)$time <- as.character(10:13)

@@ -50,9 +50,8 @@ recorded for limit-cycle detection. Must be a positive multiple of \code{dt} and
 a divisor of \code{t_per}. Smaller values resolve the cycle period more finely at
 a small extra cost. Default is \code{dt}.}
 
-\item{tol}{The run stops when the number returned by \code{distance_func} for two
-states \code{t_per} years apart drops below \code{tol}. Its meaning therefore depends
-on the distance function you supply.}
+\item{tol}{The simulation stops when the relative change in the egg
+production RDI over \code{t_per} years is less than \code{tol} for every species.}
 
 \item{amplitude_tol}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 The minimum relative biomass amplitude for a persistent oscillation to be
@@ -114,103 +113,6 @@ down sufficiently, in the sense that the distance between states at
 successive time steps is less than \code{tol}. You determine how the distance is
 calculated.
 }
-\section{How the run is organised}{
-The simulation is not run in one go but is broken into blocks of \code{t_per}
-years. Within a block the dynamics are advanced with time step \code{dt} exactly
-as in \code{\link[=project]{project()}}. At the end of each block the function decides whether to
-stop, so \code{t_per} sets how often the stopping criteria are evaluated and also
-the interval over which change is measured. The run ends at the latest after
-\code{t_max} years, i.e. after \code{floor(t_max / t_per)} blocks.
-
-Independently of the blocks, a cheap scalar summary of the state (the biomass
-of each species) is recorded every \code{t_save} years. This finely resolved
-series is what the limit-cycle detection works on, so that a cycle can be
-found and its period measured even when that period bears no simple relation
-to \code{t_per}.
-
-At the end of each block the following checks are made, in this order.
-\subsection{1. Extinction}{
-
-If the reproduction rate (RDD) of any species has fallen below
-\code{extinction_threshold} times its value at the start of the run, or has become
-\code{NA}, that species is deemed to be on its way to extinction. A warning naming
-the affected species is issued and the run stops with
-\code{type = "extinction"}. Because the criterion is relative to the initial
-reproduction, a species that starts with zero reproduction is flagged
-immediately, whereas in \code{\link[=steady]{steady()}}, where reproduction is held constant, a
-healthy species is never flagged.
-}
-
-\subsection{2. Convergence to a fixed point}{
-
-\code{distance_func} is called with the state at the end of the previous block and
-the state at the end of the current block, i.e. with two states \code{t_per} years
-apart. If the number it returns is less than \code{tol}, the run stops with
-\code{type = "steady"}. What "distance" means is entirely up to that function:
-the default \code{\link[=distanceSSLogN]{distanceSSLogN()}} uses the sum of squared changes in log
-abundance, while \code{\link[=steady]{steady()}} instead passes \code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}, which uses
-the largest relative change in egg production.
-
-Note that this test only compares two states one \code{t_per} apart; it cannot by
-itself tell a fixed point from a cycle whose period divides \code{t_per}. This is
-why \code{t_per} should be chosen as an \emph{odd} multiple of \code{dt}: a period-2 cycle
-(period \code{2 * dt}), which is the most common numerical oscillation, would
-otherwise be sampled at the same phase in every block and would look
-perfectly converged.
-}
-
-\subsection{3. Limit cycle}{
-
-If the state is still changing more than \code{tol}, the recorded biomass series
-is examined to see whether the run has instead settled onto a limit cycle. If
-it has, the run stops with \code{type = "cycle"} and the period and amplitude of
-the cycle are reported.
-
-If none of the three checks fires before \code{t_max} is reached, the run stops
-with \code{type = "not_converged"}. In every case the outcome is recorded in the
-\code{"convergence"} attribute of the returned object, described under \emph{Value}
-below.
-}
-}
-
-\section{How a limit cycle is detected}{
-The detection uses the community-total biomass, on a log scale and with its
-mean removed, as a scalar signal, sampled every \code{t_save} years. At least 20
-samples are needed before any cycle can be reported.
-\enumerate{
-\item \strong{Candidate period.} The autocorrelation function of the signal is
-computed up to a lag of half the length of the series, and the first local
-maximum with an autocorrelation above \code{0.5} is taken as the candidate
-period. If there is no such peak, or the peak is at a lag of one sample,
-no cycle is reported.
-\item \strong{Enough history.} The series must cover at least three full candidate
-periods. Otherwise the check is deferred to a later block, when more
-history has accumulated.
-\item \strong{Amplitude.} For each of the last three period-long windows, the
-amplitude is measured as the largest over species of the relative
-peak-to-trough biomass range \code{(max - min) / mean}. The amplitude in the
-most recent window must exceed \code{amplitude_tol}; a smaller oscillation is
-considered negligible and the state is left to be treated as a fixed
-point.
-\item \strong{Settled.} The amplitudes of the three successive windows must agree
-with each other to within 10\%, and the most recent amplitude must not be
-smaller than the oldest by more than 10\%.
-}
-
-The last condition is what distinguishes a genuine limit cycle from a slowly
-decaying spiral towards a stable fixed point: the spiral loses amplitude from
-one period to the next, the cycle does not. The distinction is necessarily
-imperfect when the decay is extremely slow, because over any finite run such
-a spiral is indistinguishable from a cycle. If you need a definitive answer,
-use \code{\link[=getStability]{getStability()}} on the fixed point found by \code{\link[=steadyNewton]{steadyNewton()}}, which
-works out the spectral radius of the linearised dynamics instead of watching
-a trajectory.
-
-The reported \code{period} is a multiple of \code{t_save}, so it is only resolved to
-that accuracy; reduce \code{t_save} if you need the period more precisely.
-}
-
 \seealso{
-\code{\link[=distanceSSLogN]{distanceSSLogN()}}, \code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}, \code{\link[=steadyNewton]{steadyNewton()}},
-\code{\link[=getStability]{getStability()}}
+\code{\link[=distanceSSLogN]{distanceSSLogN()}}, \code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}, \code{\link[=steadyNewton]{steadyNewton()}}
 }
