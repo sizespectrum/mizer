@@ -23,6 +23,8 @@ params_t   <- getParams(sim, time_range = 2010:2015) # averaged over a range
 params <- newMultispeciesParams(sp, second_order_w = TRUE)
 second_order_w(params) <- TRUE                       # or on an existing model
 sim    <- project(params, t_max = 200, method = "tr_bdf2")
+second_order_w(params) <- c(flux = "van_leer")       # flux only: summaries unchanged
+second_order_w(params)                               # inspect both entries
 
 # ── Scenario comparison ───────────────────────────────────────────────────────
 sim_low  <- project(params, t_max = 30, effort = 0.5)

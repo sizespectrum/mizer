@@ -128,6 +128,26 @@ Symptom that you needed this: an oscillation that is present with
 default upwind scheme is being killed by numerical diffusion, not by real
 dynamics.
 
+**Expect the numbers to move, and don't read that as a bug.** A bare
+`second_order_w = TRUE` sets two things: the flux scheme above *and*
+`bin_average`, which switches every integral over the size grid from a left-edge
+Riemann sum to a proper bin average. Unnormalised quantities — biomass, yield,
+`getDiet(proportion = FALSE)` — therefore shift by roughly `(1 + beta) / 2`,
+about 10% for a typical grid, where `beta` is the ratio between neighbouring
+grid points. That is the more accurate integral, not a regression. Proportions
+and ratios are largely unaffected because the factor cancels. Set the two
+independently if you want the better flux scheme without moving your summary
+numbers:
+
+```r
+second_order_w(params) <- c(flux = "van_leer")   # leaves bin_average alone
+second_order_w(params)                           # inspect: flux and bin_average
+```
+
+The scheme lives in the `MizerParams`, so a `MizerSim` carries it: comparing a
+run made under one setting with a run made under the other compares two
+discretisations as well as two scenarios. Recalibrate after switching it on.
+
 **Isolating a feedback loop.** To switch off the resource → growth feedback (the
 "phantom jam") while keeping everything else — for example to separate an
 internal instability from a boundary or reproduction one — freeze the resource

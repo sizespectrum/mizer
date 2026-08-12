@@ -102,6 +102,35 @@ effort <- effort * min(1, max(0, frac))
 accuracy, not correctness. See the
 [Discontinuous rate functions](discontinuous_rates.html) article.
 
+## Respecting the model's quadrature scheme
+
+A model may be on either of two quadrature schemes, selected by the
+`bin_average` entry of `second_order_w()` (see the `run-simulation` skill). Code
+that ignores this looks correct and passes its tests, because the default is the
+first-order scheme — and is then silently wrong by around 10% for anyone who has
+switched the second-order scheme on. Three rules:
+
+- **Build derived quantities from the rate functions, don't re-derive them.**
+  `getEncounter()`, `getFeedingLevel()`, `getPredRate()`, `getEGrowth()` already
+  carry the right quadrature for whichever scheme the model is on. Re-deriving a
+  rate from the species parameters is how this goes wrong.
+- **To go inside the encounter convolution, use `encounter_kernel()`, not
+  `getPredKernel()`.** `getPredKernel()` returns the kernel point-sampled on the
+  grid — right for plotting, and the form in which you *supply* a custom kernel,
+  but not the bin-integrated coefficients the convolution consumes. Pair
+  `encounter_kernel()` with the plain point prey weight
+  `params@w_full * params@dw_full`, which is a normalisation the kernel is built
+  to cancel, so it must not itself be bin-averaged.
+- **If your setter precomputes an array from a size-dependent parameter,** gate
+  it on `params@second_order_w[["bin_average"]]` the way `setExtMort()` and
+  `setResource()` do, and do the integral once at setup so projection cost is
+  unchanged.
+
+For a weight in a summary-style integral, `bin_average_weight(K, params)` does
+the gating for you — see "Writing your own indicator" in
+the `analyse-and-plot` skill for the full recipe. Test any new integral with the
+flag **on** as well as off; a test on the default path alone proves nothing.
+
 ## Adding a component
 
 Use `setComponent()` for a new dynamical quantity — any R object: a scalar, a

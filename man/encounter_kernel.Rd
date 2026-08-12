@@ -13,6 +13,7 @@ encounter_kernel(params)
 An array (predator species x predator size x prey size).
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Returns the kernel array \eqn{\Phi_i(w_k, w_p)} for which
 \deqn{E_i(w_k) = \gamma_i(w_k) \sum_p \Phi_i(w_k, w_p) N^{eff}_i(w_p)
                  w_p \Delta w_p}
@@ -32,9 +33,15 @@ are recovered here from \code{params@ft_pred_kernel_e} by an inverse Fourier
 transform, which costs one FFT and keeps this helper automatically in step
 with whatever quadrature \code{setPredKernel()} used.
 
-A summary function that instead pairs the point-sampled \code{\link[=getPredKernel]{getPredKernel()}}
-with a bin-averaged prey weight double-counts the prey-bin quadrature; that
-was the bug behind issue #474.
+Pair it with the \strong{plain point prey weight} \code{params@w_full * params@dw_full}.
+That weight is a normalisation which the kernel construction is built to
+cancel, not a first-order quadrature weight, so it must not be passed through
+\code{\link[=bin_average_weight]{bin_average_weight()}}: doing so applies the prey-bin integral twice. A
+summary function that instead pairs the point-sampled \code{\link[=getPredKernel]{getPredKernel()}} with a
+bin-averaged prey weight double-counts that quadrature; that was the bug
+behind issue #474.
 }
-\concept{helper}
-\keyword{internal}
+\seealso{
+\code{\link[=getPredKernel]{getPredKernel()}} for the point-sampled kernel used for plotting and
+for supplying a custom kernel, \code{\link[=second_order_w]{second_order_w()}}, \code{\link[=bin_average_weight]{bin_average_weight()}}
+}

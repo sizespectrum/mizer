@@ -141,7 +141,7 @@ Two corollaries are worth stating explicitly.
 
 **Never bin-average the density or the bin width.** $N_j$ is already a bin average (@eq-bin-average) and $\Delta w_j$ is already exact. It is only the smooth weight multiplying them that is being approximated, so it is the only thing that gets averaged.
 
-**A diagnostic that decomposes a rate must borrow that rate's quadrature rather than rebuild it.** `getDiet()` is `getEncounter()` resolved by prey species, so it uses the same kernel and the same point prey weight $w_p\,\Delta w_p$; summed over prey it then reproduces $(1-f_i(w))\,E_i(w)$ exactly, under both schemes. `getTrophicLevel()` is a *ratio* of a trophic-level-weighted encounter to the plain encounter, so its numerator and denominator must be built from the same kernel. The internal helper `encounter_kernel()` exists for this: it returns the kernel that `mizerEncounter()` is actually using — the point-sampled kernel by default, the bin-integrated one when `bin_average` is on, and the stored array when a custom kernel has been set.
+**A diagnostic that decomposes a rate must borrow that rate's quadrature rather than rebuild it.** `getDiet()` is `getEncounter()` resolved by prey species, so it uses the same kernel and the same point prey weight $w_p\,\Delta w_p$; summed over prey it then reproduces $(1-f_i(w))\,E_i(w)$ exactly, under both schemes. `getTrophicLevel()` is a *ratio* of a trophic-level-weighted encounter to the plain encounter, so its numerator and denominator must be built from the same kernel. The exported helper `encounter_kernel()` exists for this: it returns the kernel that `mizerEncounter()` is actually using — the point-sampled kernel by default, the bin-integrated one when `bin_average` is on, and the stored array when a custom kernel has been set.
 
 Note that `getPredKernel()` is **not** that kernel when `bin_average` is on. It returns $\tilde\phi_i$ point-sampled on the grid, which is the right object for plotting or inspecting a feeding kernel and the form in which you supply a custom kernel, but it is not the bin-integrated coefficient @eq-encounter-kernel-weight that the convolution consumes.
 
@@ -175,7 +175,7 @@ $$
    = \frac{w_{j+1}^{\,a+1}-w_j^{\,a+1}}{(a+1)\,\Delta w_j}
    = w_j^{\,a}\,\frac{\beta^{\,a+1}-1}{(a+1)(\beta-1)},
 $$ {#eq-power-law-bin-average}
-which mizer computes with the internal helper `power_law_bin_average()` and uses wherever the factor is genuinely a power law. Where it is not, the trapezoidal average $\bar K_j=\tfrac12(K_j+K_{j+1})$ is used, which is second order for any smooth $K$ and exact for $K$ linear in $w$ (`bin_average_weight()`). Where the factor is a kernel the bin integral is done by composite quadrature at setup, @eq-encounter-kernel-weight.
+which mizer computes with the internal helper `power_law_bin_average()` and uses wherever the factor is genuinely a power law. Where it is not, the trapezoidal average $\bar K_j=\tfrac12(K_j+K_{j+1})$ is used, which is second order for any smooth $K$ and exact for $K$ linear in $w$ (`trapezoidal_bin_average()`, reached from user code through the gated, exported `bin_average_weight()`). Where the factor is a kernel the bin integral is done by composite quadrature at setup, @eq-encounter-kernel-weight.
 
 | Quantity | `bin_average = FALSE` | `bin_average = TRUE` |
 |---|---|---|

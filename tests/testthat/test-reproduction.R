@@ -116,7 +116,7 @@ test_that("mizerRDI bin-averages the investment when second_order_w is on", {
     second_order_w(p2) <- c(bin_average = TRUE)
     e_repro <- getERepro(p2)
     # Expected: trapezoidal bin-average of e_repro against the cell-average n.
-    e_bar <- bin_average_weight(e_repro)
+    e_bar <- trapezoidal_bin_average(e_repro)
     expected <- 0.5 * drop((e_bar * p2@initial_n) %*% p2@dw) *
         p2@species_params$erepro / p2@w[p2@w_min_idx]
     got <- mizerRDI(p2, n = p2@initial_n, n_pp = p2@initial_n_pp,

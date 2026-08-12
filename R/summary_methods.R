@@ -524,7 +524,7 @@ getSSB.MizerSim <- function(object) {
     if (isTRUE(sim@params@second_order_w[["bin_average"]])) {
         # Bin-average the full composite weight K = maturity * w, then * dw.
         weight <- sweep(
-            bin_average_weight(sweep(sim@params@maturity, 2, sim@params@w, "*")),
+            trapezoidal_bin_average(sweep(sim@params@maturity, 2, sim@params@w, "*")),
             2, sim@params@dw, "*")
         result <- apply(sweep(sim@n, c(2, 3), weight, "*"), c(1, 2), sum)
     } else {
@@ -539,7 +539,7 @@ getSSB.MizerParams <- function(object) {
     params <- object
     if (isTRUE(params@second_order_w[["bin_average"]])) {
         weight <- sweep(
-            bin_average_weight(sweep(params@maturity, 2, params@w, "*")),
+            trapezoidal_bin_average(sweep(params@maturity, 2, params@w, "*")),
             2, params@dw, "*")
         return(rowSums(params@initial_n * weight))
     }
@@ -611,7 +611,7 @@ getBiomass.MizerSim <- function(object, use_cutoff = FALSE, ...) {
         # Composite weight K[sp, w] = size_range * w. Bin-averaging the whole
         # weight (including the window mask) makes the straddling bin partial.
         weight <- sweep(
-            bin_average_weight(sweep(size_range, 2, sim@params@w, "*")),
+            trapezoidal_bin_average(sweep(size_range, 2, sim@params@w, "*")),
             2, sim@params@dw, "*")
         result <- apply(sweep(sim@n, c(2, 3), weight, "*"), c(1, 2), sum)
     } else {
@@ -636,7 +636,7 @@ getBiomass.MizerParams <- function(object, use_cutoff = FALSE, ...) {
         }
         if (isTRUE(params@second_order_w[["bin_average"]])) {
             weight <- sweep(
-                bin_average_weight(sweep(size_range, 2, params@w, "*")),
+                trapezoidal_bin_average(sweep(size_range, 2, params@w, "*")),
                 2, params@dw, "*")
             return(rowSums(params@initial_n * weight))
         }
@@ -721,7 +721,7 @@ getYieldGear.MizerSim <- function(object) {
     if (isTRUE(sim@params@second_order_w[["bin_average"]])) {
         # Full weight is F * w; bin-average the whole product over the size axis.
         weight <- sweep(
-            bin_average_weight(sweep(f_gear, 4, sim@params@w, "*")),
+            trapezoidal_bin_average(sweep(f_gear, 4, sim@params@w, "*")),
             4, sim@params@dw, "*")
         return(apply(sweep(weight, c(1, 3, 4), sim@n, "*"), c(1, 2, 3), sum))
     }
@@ -734,7 +734,7 @@ getYieldGear.MizerParams <- function(object) {
     f_gear <- getFMortGear(params)  # gear x sp x w
     if (isTRUE(params@second_order_w[["bin_average"]])) {
         weight <- sweep(
-            bin_average_weight(sweep(f_gear, 3, params@w, "*")),
+            trapezoidal_bin_average(sweep(f_gear, 3, params@w, "*")),
             3, params@dw, "*")
         return(apply(sweep(weight, c(2, 3), params@initial_n, "*"),
                      c(1, 2), sum))
@@ -802,7 +802,7 @@ getYield.MizerSim <- function(object) {
         # Full weight is F * w; bin-average the whole product over the
         # size axis.
         weight <- sweep(
-            bin_average_weight(sweep(f, 3, sim@params@w, "*")),
+            trapezoidal_bin_average(sweep(f, 3, sim@params@w, "*")),
             3, sim@params@dw, "*")
         result <- apply(weight * sim@n, c(1, 2), sum)
     } else {
@@ -818,7 +818,7 @@ getYield.MizerParams <- function(object) {
     f <- getFMort(params, drop = FALSE)  # sp x w
     if (isTRUE(params@second_order_w[["bin_average"]])) {
         weight <- sweep(
-            bin_average_weight(sweep(f, 2, params@w, "*")),
+            trapezoidal_bin_average(sweep(f, 2, params@w, "*")),
             2, params@dw, "*")
         return(rowSums(weight * params@initial_n))
     }

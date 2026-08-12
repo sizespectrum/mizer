@@ -29,6 +29,14 @@ getMeanWeight(sim)
 getMeanMaxWeight(sim)
 getCommunitySlope(sim)          # returns data.frame with slope, intercept, R²
 
+# ── Your own indicator: an integral over the size spectrum ────────────────────
+K <- get_size_range_array(params, min_w = 10, max_w = 5000)  # species x size mask
+K <- sweep(K, 2, params@w, "*")     # build the whole weight before averaging
+K <- bin_average_weight(K, params)  # gated on second_order_w(); never average N or dw
+rowSums(sweep(initialN(params) * K, 2, params@dw, "*"))
+ArrayTimeBySpecies(x, value_name = "My index", params = params)  # inherits plot()
+encounter_kernel(params)        # kernel getEncounter() uses; NOT getPredKernel()
+
 # ── Dedicated plot functions ──────────────────────────────────────────────────
 # Each plot*() is a shortcut for plot() on the matching get*() array, and each has
 # an interactive plotly*() twin (plotlyBiomass(), plotlySpectra(), …).
