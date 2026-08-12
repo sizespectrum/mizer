@@ -53,5 +53,6 @@ plot(mort)
 }
 }
 \seealso{
-\code{\link[=print]{print()}}, \code{\link[=summary]{summary()}}, \code{\link[=as.data.frame]{as.data.frame()}}, \code{\link[=plot]{plot()}}
+\code{\link[=print]{print()}}, \code{\link[=summary]{summary()}}, \code{\link[=as.data.frame]{as.data.frame()}}, \code{\link[=plot]{plot()}}, \code{\link[=plot2]{plot2()}},
+\code{\link[=plotRelative]{plotRelative()}}, \code{\link[=addPlot]{addPlot()}}
 }

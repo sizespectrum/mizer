@@ -18,8 +18,14 @@ its units, and a reference to the \code{MizerParams} object that the value was
 computed from. This allows the plots to be automatically labelled and
 coloured appropriately.
 
+The resource classes \code{ArrayResourceBySize} and \code{ArrayTimeByResourceBySize}
+work the same way, except that they hold a single spectrum rather than one
+per species.
+
 To compare two mizer arrays in a single plot, use \code{\link[=plot2]{plot2()}}. To show the
-relative difference between two arrays, use \code{\link[=plotRelative]{plotRelative()}}.
+relative difference between two arrays, use \code{\link[=plotRelative]{plotRelative()}}. To add an array
+to an existing plot, use \code{\link[=addPlot]{addPlot()}}. All three, and \code{\link[=animate]{animate()}}, have
+methods for every mizer array class.
 
 All methods return a ggplot2 object, unless \code{return_data = TRUE}, in
 which case they return the underlying data frame instead. \code{\link[=plotHover]{plotHover()}}
@@ -64,8 +70,8 @@ minimum or maximum.}
 limits for the length (x) axis when \code{size_axis = "l"}. Use \code{NA} to
 refer to the existing minimum or maximum.}
 \item{\code{size_axis}}{Whether to plot size as weight (\code{"w"}, default) or
-length (\code{"l"}), using the allometric weight-length relationship. Number
-densities are transformed to match the chosen axis.}
+length (\code{"l"}), using the allometric weight-length relationship.
+Densities are transformed to match the chosen axis.}
 }
 
 Additional argument for \code{\link[=plot.ArrayTimeBySpecies]{plot.ArrayTimeBySpecies()}}:

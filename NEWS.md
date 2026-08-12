@@ -50,6 +50,20 @@ stability of steady states.
 
 ## Other improvements
 
+- The array-plotting toolkit now covers every mizer array class. The resource
+  classes `ArrayResourceBySize` (as returned by `getResourceMort()`,
+  `resource_rate()`, `resource_capacity()`, `resource_level()` and
+  `initialNResource()`) and `ArrayTimeByResourceBySize` (as returned by
+  `NResource()` on a `MizerSim`) gain `plot2()`, `plotRelative()` and
+  `addPlot()` methods, and `ArrayTimeByResourceBySize` also gains an `animate()`
+  method, so you can now compare resource spectra before and after a model
+  change or play one through a simulation the same way you already could for
+  species rates. `ArrayTimeBySpeciesBySize` gains the `addPlot()` method it was
+  missing. The `species`, `total` and `background` arguments do nothing for a
+  resource array, which holds a single spectrum, so the resource methods warn if
+  they are set; `size_axis = "l"` is unavailable for the resource because the
+  weight-length relationship is a species parameter (#468).
+
 - Fixed: Size-spectrum plots with `size_axis = "l"` now transform number and
   biomass densities from weight to length units using the species-specific
   Jacobian. Biomass density per logarithmic size interval (`power = 2`) uses

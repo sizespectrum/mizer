@@ -294,6 +294,31 @@ plotRelative.ArrayTimeBySpeciesBySize <- function(x, y, species = NULL,
                                     ...)
 }
 
+#' @rdname addPlot
+#' @usage NULL
+#' @export
+addPlot.ArrayTimeBySpeciesBySize <- function(plot, x, species = NULL,
+                                             total = FALSE,
+                                             background = TRUE,
+                                             colour = NULL,
+                                             linetype = "dashed",
+                                             linewidth = 0.8,
+                                             alpha = 1,
+                                             time = NULL,
+                                             all.sizes = FALSE,
+                                             wlim = c(NA, NA),
+                                             llim = c(NA, NA),
+                                             size_axis = c("w", "l"), ...) {
+    slice <- ArrayTimeBySpeciesBySize_slice(x, time = time)
+
+    addPlot.ArraySpeciesBySize(plot, slice, species = species, total = total,
+                               background = background, colour = colour,
+                               linetype = linetype, linewidth = linewidth,
+                               alpha = alpha, all.sizes = all.sizes,
+                               wlim = wlim, llim = llim,
+                               size_axis = size_axis, ...)
+}
+
 ArrayTimeBySpeciesBySize_slice <- function(x, time = NULL) {
     params <- attr(x, "params")
     value_name <- attr(x, "value_name")
