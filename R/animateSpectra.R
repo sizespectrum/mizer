@@ -21,14 +21,22 @@
 #'   Background species and a species total can be added via the `background`
 #'   and `total` arguments.
 #'
+#' * **`ArrayTimeByResourceBySize`** — animates the size-resolved resource
+#'   quantity returned by [NResource()] on a `MizerSim` object. There is only a
+#'   single resource spectrum, so `species`, `total` and `background` do nothing
+#'   and warn if set, and `size_axis = "l"` is an error because the
+#'   weight-length relationship is a species parameter.
+#'
 #' Species linecolours and linetypes follow `params@linecolour` and
 #' `params@linetype`.
 #'
 #' `animateSpectra()` is retained as a backward-compatible alias.
 #'
-#' @param x A `MizerSim` or `ArrayTimeBySpeciesBySize` object.
+#' @param x A `MizerSim`, `ArrayTimeBySpeciesBySize` or
+#'   `ArrayTimeByResourceBySize` object.
 #' @param species Name or vector of names of the species to be plotted. By
-#'   default all species are plotted.
+#'   default all species are plotted. Not used by the
+#'   `ArrayTimeByResourceBySize` method, which warns if it is set.
 #' @param tlim A numeric vector of length two providing lower and upper limits
 #'   for the animated time window, e.g. `c(1997, 2007)`. Use `NA` to apply no
 #'   limit at that end. Default is `c(NA, NA)`.
@@ -39,13 +47,16 @@
 #'   and `log_y`.
 #' @param size_axis Whether to plot size as weight (`"w"`, default) or length
 #'   (`"l"`), using the allometric weight-length relationship. Number and
-#'   biomass densities are transformed to match the chosen axis.
+#'   biomass densities are transformed to match the chosen axis. The
+#'   `ArrayTimeByResourceBySize` method supports only `"w"`.
 #' @param total A boolean value that determines whether the total over all
 #'   selected species is plotted as an additional trace called `"Total"`.
-#'   Default is `FALSE`.
+#'   Default is `FALSE`. Not used by the `ArrayTimeByResourceBySize` method,
+#'   which warns if it is set.
 #' @param background A boolean value that determines whether background species
 #'   are included. Ignored if the model does not contain background species.
-#'   Default is `TRUE`.
+#'   Default is `TRUE`. Not used by the `ArrayTimeByResourceBySize` method,
+#'   which warns if it is set.
 #' @param wlim A numeric vector of length two providing lower and upper limits
 #'   for the body-size (x) axis. Use `NA` to refer to the existing minimum or
 #'   maximum.
@@ -94,6 +105,9 @@
 #'
 #' # Animate feeding level for two species only
 #' animate(getFeedingLevel(NS_sim), species = c("Cod", "Herring"))
+#'
+#' # Animate the resource spectrum
+#' animate(NResource(NS_sim))
 #' }
 animate <- function(x, species = NULL, log_x = TRUE, log_y = TRUE,
                     log = NULL, wlim = c(NA, NA), llim = c(NA, NA),

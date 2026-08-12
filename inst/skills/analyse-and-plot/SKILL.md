@@ -126,7 +126,9 @@ plot(getFeedingLevel(params))  # value vs size, one line per species
 plot(getResourceMort(params))  # plankton resource mortality vs size
 ```
 
-The array plots come with a small toolkit for combining and comparing them:
+The array plots come with a small toolkit for combining and comparing them.
+Every one of these has a method for every array class in the table above,
+including the resource classes:
 
 | Function | What it does |
 |---|---|
@@ -258,6 +260,7 @@ plotCDF2(sim, sim2, "Unfished", "Fished")
 ```r
 animate(sim)                 # abundance spectra over time
 animate(getFMort(sim))       # an ArrayTimeBySpeciesBySize over time
+animate(NResource(sim))      # an ArrayTimeByResourceBySize over time
 ```
 
 ## The plankton resource
@@ -274,10 +277,27 @@ plot(getResourceMort(params))   # resource mortality vs size
 summary(NResource(params))
 ```
 
+The array toolkit works on the resource too:
+
+```r
+plot2(resource_capacity(params), resource_capacity(params2), "Before", "After")
+plotRelative(resource_capacity(params), resource_capacity(params2))
+addPlot(plot(NResource(params)), resource_capacity(params))
+```
+
+A resource array holds a single spectrum, so `species`, `total` and `background`
+do nothing there and warn if you set them, and `size_axis = "l"` is unavailable
+because the weight-length relationship is a species parameter.
+
 Time-resolved resource data (`NResource(sim)`) is an `ArrayTimeByResourceBySize`,
-which `animate()` can play through time. To include the resource in a species
-spectrum plot, pass `resource = TRUE` (supported by `plotSpectra()`, `plotCDF()`,
-and friends).
+which `animate()` can play through time, and which the comparison functions above
+slice at a chosen `time`. To include the resource in a species spectrum plot,
+pass `resource = TRUE` (supported by `plotSpectra()`, `plotCDF()`, and friends).
+
+```r
+animate(NResource(sim))                       # resource spectrum over time
+plot2(NResource(sim), NResource(sim2), time = 1990)
+```
 
 ## Working with ggplot2
 
