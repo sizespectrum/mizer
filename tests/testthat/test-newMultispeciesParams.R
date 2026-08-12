@@ -60,6 +60,24 @@ test_that("Sets given_species_params", {
     expect_unchanged(p2, params)
 })
 
+test_that("w_min survives a given_species_params<- round-trip", {
+    sp <- data.frame(species = c("a", "b"), w_inf = c(100, 200))
+    # min_w smaller than default 0.001
+    params <- newMultispeciesParams(sp, min_w = 1e-4, info_level = 0)
+    expect_true("w_min" %in% names(given_species_params(params)))
+    expect_equal(species_params(params)$w_min[1], 1e-4)
+    given_species_params(params)$alpha <- 0.6
+    expect_equal(species_params(params)$w_min[1], 1e-4,
+                 label = "w_min after round-trip (min_w < 0.001)")
+
+    # min_w larger than default 0.001
+    params2 <- newMultispeciesParams(sp, min_w = 0.01, info_level = 0)
+    expect_equal(species_params(params2)$w_min[1], 0.01)
+    expect_no_warning(given_species_params(params2)$alpha <- 0.6)
+    expect_equal(species_params(params2)$w_min[1], 0.01,
+                 label = "w_min after round-trip (min_w > 0.001)")
+})
+
 test_that("newMultispeciesParams sets initial resource spectrum and cutoff", {
     params <- newMultispeciesParams(NS_species_params_small,
                                     kappa = 10,
