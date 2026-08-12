@@ -1,9 +1,11 @@
-# Generate the cheatsheet vignettes from the agent skills.
+# Generate the cheatsheet vignettes and the upgrading article from the agent
+# skills.
 #
 # Single source of truth: inst/skills/<topic>/SKILL.md. That file is shipped
 # verbatim as a Claude Code / agent skill and is also the source for the
-# corresponding vignettes/cheatsheet-<name>.Rmd article on the pkgdown website.
-# Never edit the cheatsheet vignettes by hand -- edit the skill and re-run
+# corresponding article on the pkgdown website (the cheatsheets, plus
+# vignettes/upgrading.Rmd). Never edit a generated vignette by hand -- edit the
+# skill and re-run
 #
 #     source("dev_scripts/build_cheatsheets.R"); build_cheatsheets()
 #
@@ -22,12 +24,19 @@
 # Code inside fenced blocks, inline code spans that are already links, and
 # `$...$` math are never rewritten.
 
+`%||%` <- function(x, y) if (is.null(x)) y else x
+
 # Topic table -----------------------------------------------------------------
-# One entry per cheatsheet article, keyed by its vignette basename. `skill` names
+# One entry per generated article, keyed by its vignette basename. `skill` names
 # the directory under inst/skills/ whose SKILL.md is the article's source. The
 # mapping is deliberately one-to-one: an article assembled from several skills
 # cannot express a cross-reference to one of them, and collapses references to
 # two different skills into the same link.
+#
+# Optional fields: `lead` is a paragraph inserted under the title; `setup` gives
+# extra lines for the hidden setup chunk; `nolink` lists names never turned into
+# reference links; `link_text` is how *other* articles refer to this one (it
+# defaults to "<name> cheatsheet", which only reads correctly for a cheatsheet).
 cheatsheet_topics <- list(
     `cheatsheet-model-setup` = list(
         skill  = "build-multispecies-model",
@@ -97,19 +106,35 @@ cheatsheet_topics <- list(
                        "components. For the full treatment see the",
                        "[Extending mizer](extending-mizer.html) article."),
         setup  = "params <- NS_params"
+    ),
+    # Not a cheatsheet: the upgrading article is the release-by-release list of
+    # changes that break existing code, and the skill an agent loads when a
+    # user's script stops working after an upgrade. The skill's symptom index,
+    # which is of no use to a human reading by release, is agent-only.
+    upgrading = list(
+        skill     = "upgrade-mizer-code",
+        title     = "Upgrading mizer",
+        link_text = "Upgrading mizer article",
+        # Deliberately no `lead` and no `setup`: the skill body opens with its
+        # own introduction, and nothing in the article is evaluated.
+        nolink    = c("print", "summary", "plot", "as.data.frame")
     )
 )
 
-# Map a skill name to the cheatsheet it becomes, for cross-references.
+# Map a skill name to the article it becomes, and to the words other articles
+# use to refer to it, for cross-references.
 skill_links <- local({
-    out <- character(0)
+    out <- list()
     for (vig in names(cheatsheet_topics)) {
-        out[[cheatsheet_topics[[vig]]$skill]] <- vig
+        spec <- cheatsheet_topics[[vig]]
+        out[[spec$skill]] <- list(
+            vignette = vig,
+            text = spec$link_text %||%
+                paste(sub("^cheatsheet-", "", vig), "cheatsheet")
+        )
     }
     out
 })
-
-`%||%` <- function(x, y) if (is.null(x)) y else x
 
 
 # Alias -> reference page ------------------------------------------------------
@@ -253,12 +278,18 @@ skill_to_cheatsheet <- function(vignette, spec, map, pkg_root = ".") {
             next
         }
         if (grepl("^## ", ln)) out <- c(out, "---", "")
-        # Cross-references to sibling skills become links to their cheatsheets.
+        # Headings are never linked: a link inside a heading nests inside the
+        # table-of-contents entry, which is itself a link. The name keeps its
+        # first-mention link, which lands on the prose below instead.
+        if (grepl("^#{1,6} ", ln)) {
+            out <- c(out, ln)
+            next
+        }
+        # Cross-references to sibling skills become links to their articles.
         for (s in names(skill_links)) {
             target <- skill_links[[s]]
             ln <- gsub(sprintf("`%s` skill", s),
-                       sprintf("[%s cheatsheet](%s.html)",
-                               sub("^cheatsheet-", "", target), target),
+                       sprintf("[%s](%s.html)", target$text, target$vignette),
                        ln, fixed = TRUE)
         }
         res <- link_first_mentions(ln, map, seen,

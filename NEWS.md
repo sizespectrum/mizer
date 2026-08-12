@@ -217,6 +217,17 @@ stability of steady states.
   exactly once, and a new "The `second_order_w` switch" section documents what
   the flag changes and how to make your own diagnostic second-order accurate.
 
+- The ["Upgrading mizer"](https://sizespectrum.org/mizer/articles/upgrading.html)
+  article is now also shipped as an AI-agent skill, `upgrade-mizer-code`, built
+  from `inst/skills/upgrade-mizer-code/SKILL.md` by the same generator as the
+  cheatsheets. Vignettes are not installed with the package, so an agent helping
+  you fix a script that stopped working after an upgrade previously had no
+  access to this information and would debug a deliberate, documented change
+  from first principles. The skill adds an index that maps the symptom you
+  actually see — an "unused argument" error, a deprecation warning, a plot that
+  changed, an `identical()` comparison that now fails — to the release that
+  caused it and the fix.
+
 # mizer 3.2.1
 
 This patch release fixes how species and gear parameters are handled when they
