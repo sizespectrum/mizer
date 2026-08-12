@@ -151,6 +151,10 @@ stability of steady states.
 
 ## Bug fixes
 
+- `compareParams()` now uses relative tolerance when comparing species
+  parameters, so small-magnitude parameters like `gamma` (~1e-8) are no longer
+  silently treated as equal when they differ by up to ~10%.
+
 - `getDiet(proportion = FALSE)` no longer overcounts when second-order
   bin-averaging is switched on with `second_order_w()`. It was applying the
   prey-bin quadrature twice — once through its bin-averaged prey weight and

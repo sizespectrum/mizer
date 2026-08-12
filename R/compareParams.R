@@ -193,7 +193,7 @@ compareSpeciesParams <- function(species_params1,
     # Compare only the species and parameters the two tables share, matched by
     # name, so that extra species or parameters do not clutter the comparison.
     sp_eq <- all.equal(species_params1[species, param_names],
-                       species_params2[species, param_names], scale = 1)
+                       species_params2[species, param_names])
     if (!isTRUE(sp_eq)) {
         msg <- paste("The following", text, "differ:",
                toString(sp_eq))
