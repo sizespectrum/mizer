@@ -165,6 +165,13 @@ stability of steady states.
 
 ## Bug fixes
 
+- `w_min` is now included in `given_species_params`, so the `min_w` argument to
+  `newMultispeciesParams()` and `emptyParams()` is preserved across any operation
+  that rebuilds the species parameters from the given ones. Previously, a
+  `given_species_params<-` round-trip would silently reset `w_min` to 0.001 when
+  `min_w` was smaller than that, and emit a spurious warning when `min_w` was
+  larger (#460).
+  
 - `compareParams()` now uses relative tolerance when comparing species
   parameters, so small-magnitude parameters like `gamma` (~1e-8) are no longer
   silently treated as equal when they differ by up to ~10%.
