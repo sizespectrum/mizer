@@ -296,12 +296,20 @@ test_that("animateSpectra sets the y axis title from power", {
     built_custom <- plotly::plotly_build(animateSpectra(sim, species = "Cod",
                                                          tlim = c(1, 2),
                                                          power = 1.5))
+    built_length <- plotly::plotly_build(animateSpectra(
+        sim, species = "Cod", tlim = c(1, 2), power = 1, size_axis = "l"))
+    built_array_length <- plotly::plotly_build(animate(
+        N(sim), species = "Cod", tlim = c(1, 2), size_axis = "l"))
 
     expect_identical(built0$x$layout$yaxis$title, "Number density [1/g]")
     expect_identical(built1$x$layout$yaxis$title, "Biomass density")
     expect_identical(built2$x$layout$yaxis$title, "Biomass density [g]")
     expect_identical(built_custom$x$layout$yaxis$title,
                      "Number density * w^1.5")
+    expect_identical(built_length$x$layout$yaxis$title,
+                     "Biomass density [g/cm]")
+    expect_identical(built_array_length$x$layout$yaxis$title,
+                     "Number density [1/cm]")
 })
 
 test_that("animate supports the log argument", {

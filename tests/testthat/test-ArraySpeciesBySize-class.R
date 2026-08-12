@@ -120,6 +120,23 @@ test_that("plot.ArraySpeciesBySize returns ggplot", {
     expect_true(is.numeric(df[[2]]))
 })
 
+test_that("length-axis array plots only transform number densities", {
+    density <- initialN(NS_params_small)
+    density_w <- plot(density, size_axis = "w", return_data = TRUE)
+    density_l <- plot(density, size_axis = "l", return_data = TRUE)
+    sp_idx <- match(density_l$Species,
+                    NS_params_small@species_params$species)
+    jacobian <- NS_params_small@species_params$b[sp_idx] * density_w$w /
+        density_l$l
+    expect_equal(density_l[[2]], unname(density_w[[2]] * jacobian))
+    expect_identical(plot(density, size_axis = "l")$scales$get_scales("y")$name,
+                     "Number density [1/cm]")
+
+    rate_w <- plot(enc_small, size_axis = "w", return_data = TRUE)
+    rate_l <- plot(enc_small, size_axis = "l", return_data = TRUE)
+    expect_equal(rate_l[[2]], rate_w[[2]])
+})
+
 test_that("plot.ArraySpeciesBySize supports base plot log argument", {
     p_y <- plot(enc_small, log = "y")
     expect_identical(p_y$scales$get_scales("x")$trans$name, "identity")

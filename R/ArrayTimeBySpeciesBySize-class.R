@@ -418,14 +418,20 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
         df <- rbind(df, total_sums[, names(df)])
     }
 
-    y_label <- value_name
-    if (!is.null(units_str) && nzchar(units_str)) {
-        y_label <- paste0(value_name, " [", units_str, "]")
+    spectrum_power <- array_spectrum_power(x)
+    y_label <- if (identical(size_axis, "l") &&
+                       !is.null(spectrum_power)) {
+        paste0(value_name, " [1/cm]")
+    } else if (!is.null(units_str) && nzchar(units_str)) {
+        paste0(value_name, " [", units_str, "]")
+    } else {
+        value_name
     }
 
     animate_plotly(df, params, log_x, log_y, y_label, wlim, llim,
                    ylim,
                    size_axis = size_axis,
+                   spectrum_power = spectrum_power,
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
                    easing = easing)
