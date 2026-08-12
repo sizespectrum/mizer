@@ -50,6 +50,11 @@ stability of steady states.
 
 ## Other improvements
 
+- Fixed: Size-spectrum plots with `size_axis = "l"` now transform number and
+  biomass densities from weight to length units using the species-specific
+  Jacobian. Biomass density per logarithmic size interval (`power = 2`) uses
+  the corresponding logarithmic Jacobian (#469).
+
 - Fixed: `getStability()` silently dropped any size class sitting at exactly
   zero from its Jacobian. The finite-difference step was floored at an absolute
   `.Machine$double.eps`, so for such a class the step was swamped by the rounding

@@ -62,7 +62,8 @@ for the animated time window, e.g. \code{c(1997, 2007)}. Use \code{NA} to apply 
 limit at that end. Default is \code{c(NA, NA)}.}
 
 \item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
-(\code{"l"}), using the allometric weight-length relationship.}
+(\code{"l"}), using the allometric weight-length relationship. Number and
+biomass densities are transformed to match the chosen axis.}
 
 \item{total}{A boolean value that determines whether the total over all
 selected species is plotted as an additional trace called \code{"Total"}.

@@ -38,7 +38,8 @@
 #'   `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x`
 #'   and `log_y`.
 #' @param size_axis Whether to plot size as weight (`"w"`, default) or length
-#'   (`"l"`), using the allometric weight-length relationship.
+#'   (`"l"`), using the allometric weight-length relationship. Number and
+#'   biomass densities are transformed to match the chosen axis.
 #' @param total A boolean value that determines whether the total over all
 #'   selected species is plotted as an additional trace called `"Total"`.
 #'   Default is `FALSE`.
@@ -184,12 +185,7 @@ animate.MizerSim <- function(x, species = NULL,
     }
 
     # Deal with power argument ----
-    if (power %in% c(0, 1, 2)) {
-        y_label <- c("Number density [1/g]", "Biomass density",
-                     "Biomass density [g]")[power + 1]
-    } else {
-        y_label <- paste0("Number density * w^", power)
-    }
+    y_label <- spectra_y_label(power, size_axis)
     # The animated spectrum is a density, so under second-order bin-averaging
     # we evaluate both the w^power weight and the plotted location at the
     # geometric bin centre w* = w sqrt(beta) (issue #383), matching
@@ -203,6 +199,7 @@ animate.MizerSim <- function(x, species = NULL,
     animate_plotly(nf, sim@params, log_x, log_y, y_label, wlim, llim,
                    ylim,
                    size_axis = size_axis,
+                   spectrum_power = power,
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
                    easing = easing)
@@ -217,10 +214,17 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
                            wlim = c(NA, NA), llim = c(NA, NA),
                            ylim = c(NA, NA),
                            size_axis = "w",
+                           spectrum_power = NULL,
                            frame_duration = 500, transition_duration = 500,
                            easing = "linear") {
     size_axis <- plot_size_axis(size_axis)
-    df <- convert_plot_size_axis(df, params, size_axis)
+    if (is.null(spectrum_power)) {
+        df <- convert_plot_size_axis(df, params, size_axis)
+    } else {
+        df <- convert_plot_spectrum_axis(df, params, size_axis,
+                                         power = spectrum_power,
+                                         value_col = "value")
+    }
     x_var <- plot_size_x_var(size_axis)
     legend_name_order <- intersect(names(params@linecolour),
                                    unique(df$legend_name))

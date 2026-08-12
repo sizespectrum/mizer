@@ -64,7 +64,8 @@ minimum or maximum.}
 limits for the length (x) axis when \code{size_axis = "l"}. Use \code{NA} to
 refer to the existing minimum or maximum.}
 \item{\code{size_axis}}{Whether to plot size as weight (\code{"w"}, default) or
-length (\code{"l"}), using the allometric weight-length relationship.}
+length (\code{"l"}), using the allometric weight-length relationship. Number
+densities are transformed to match the chosen axis.}
 }
 
 Additional argument for \code{\link[=plot.ArrayTimeBySpecies]{plot.ArrayTimeBySpecies()}}:

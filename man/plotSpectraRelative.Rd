@@ -65,7 +65,8 @@ being plotted with thicker lines.}
 \item{log_x}{If \code{TRUE} (default), use a log10 x-axis.}
 
 \item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
-(\code{"l"}), using the allometric weight-length relationship.}
+(\code{"l"}), using the allometric weight-length relationship. Spectrum
+densities and their units are transformed to match the chosen axis.}
 
 \item{...}{Additional arguments passed to \code{\link[=plotSpectra]{plotSpectra()}} for preparing the
 spectra data, for example \code{time_range} or \code{geometric_mean} for \code{MizerSim}

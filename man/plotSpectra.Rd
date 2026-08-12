@@ -87,7 +87,8 @@ in the same form as the base \code{\link[=plot]{plot()}} argument. For example, 
 \code{"y"}, \code{"xy"} or \code{""}. If supplied, this overrides \code{log_x} and \code{log_y}.}
 
 \item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
-(\code{"l"}), using the allometric weight-length relationship.}
+(\code{"l"}), using the allometric weight-length relationship. Spectrum
+densities and their units are transformed to match the chosen axis.}
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default value is FALSE}
@@ -115,8 +116,20 @@ weight, with the power specified by the \code{power} argument. When called with 
 \link{MizerSim} object, the abundance is averaged over the specified time range
 (a single value for the time range can be used to plot a single time step).
 When called with a \link{MizerParams} object the initial abundance is plotted.
+With \code{size_axis = "l"}, densities are converted from per unit weight to per
+unit length. For \code{power = 2}, which represents biomass density per
+logarithmic size interval, the conversion is instead between logarithmic
+weight and length intervals.
 }
 \details{
+The \code{log_x} argument only controls how the size axis is displayed; it does
+not change the density on the y-axis. In particular, showing weight on a
+logarithmic axis does not by itself convert a density per unit weight into a
+density per logarithmic weight interval. That choice is made with \code{power}:
+for example, \code{power = 2} gives biomass density per logarithmic size interval.
+Its conversion from weight to length therefore uses the logarithmic
+Jacobian, irrespective of the value of \code{log_x}.
+
 \code{plotlySpectra()} is the interactive plotly version. To compare spectra from
 two objects use \code{\link[=plotSpectra2]{plotSpectra2()}}. To show relative differences use
 \code{\link[=plotSpectraRelative]{plotSpectraRelative()}}.

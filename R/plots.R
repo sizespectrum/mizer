@@ -403,6 +403,8 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
 #'   line colour.
 #' @param size_axis Optional. If non-NULL, the x-axis is converted to weight
 #'   (`"w"`) or length (`"l"`).
+#' @param spectrum_power Optional power used to weight a number spectrum. When
+#'   supplied, spectrum values are transformed along with a length axis.
 #' @return A `mizer_plot` (ggplot2) object.
 #' @keywords internal
 plotComparisonDataFrame <- function(frame1, frame2, params,
@@ -412,7 +414,8 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     xlim = c(NA, NA), ylim = c(NA, NA),
                                     y_ticks = 6, highlight = NULL,
                                     legend_var = "Legend",
-                                    size_axis = NULL) {
+                                    size_axis = NULL,
+                                    spectrum_power = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -434,8 +437,14 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
     }
     if (!is.null(size_axis)) {
         size_axis <- plot_size_axis(size_axis)
-        frame <- convert_plot_size_axis(frame, params, size_axis,
-                                        species_col = group_var)
+        if (is.null(spectrum_power)) {
+            frame <- convert_plot_size_axis(frame, params, size_axis,
+                                            species_col = group_var)
+        } else {
+            frame <- convert_plot_spectrum_axis(frame, params, size_axis,
+                                                power = spectrum_power,
+                                                species_col = group_var)
+        }
         x_var <- plot_size_x_var(size_axis)
     }
 
@@ -711,6 +720,41 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
     }
     plot_dat[, c("l", "w", setdiff(names(plot_dat), c("l", "w"))),
              drop = FALSE]
+}
+
+#' Convert a weight-based spectrum to a length-based spectrum
+#'
+#' Number density is stored per unit weight. For a length axis it is converted
+#' with the Jacobian `dw/dl = b * w / l`. The `power = 2` spectrum is instead
+#' biomass density per logarithmic size interval, so it uses
+#' `d log(w) / d log(l) = b`.
+#'
+#' @inheritParams convert_plot_size_axis
+#' @param power The power of weight multiplying the number density.
+#' @param value_col Name or index of the spectrum-value column. Defaults to the
+#'   second column.
+#' @return The plotting data with both its size coordinate and spectrum values
+#'   expressed for the requested axis.
+#' @keywords internal
+convert_plot_spectrum_axis <- function(plot_dat, params, size_axis, power,
+                                       species_col = "Species",
+                                       value_col = 2) {
+    size_axis <- plot_size_axis(size_axis)
+    if (identical(size_axis, "w")) {
+        return(plot_dat)
+    }
+    if (is.numeric(value_col)) {
+        value_col <- names(plot_dat)[[value_col]]
+    }
+    plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis,
+                                       species_col = species_col,
+                                       drop_w = FALSE)
+    species_idx <- match(as.character(plot_dat[[species_col]]),
+                         as.character(params@species_params$species))
+    sp <- params@species_params[species_idx, , drop = FALSE]
+    jacobian <- if (power == 2) sp$b else sp$b * plot_dat$w / plot_dat$l
+    plot_dat[[value_col]] <- plot_dat[[value_col]] * jacobian
+    plot_dat[, c("l", setdiff(names(plot_dat), c("l", "w"))), drop = FALSE]
 }
 
 
@@ -1203,6 +1247,18 @@ plotlyYieldGear <- function(object, species = NULL,
 #' [MizerSim] object, the abundance is averaged over the specified time range
 #' (a single value for the time range can be used to plot a single time step).
 #' When called with a [MizerParams] object the initial abundance is plotted.
+#' With `size_axis = "l"`, densities are converted from per unit weight to per
+#' unit length. For `power = 2`, which represents biomass density per
+#' logarithmic size interval, the conversion is instead between logarithmic
+#' weight and length intervals.
+#'
+#' The `log_x` argument only controls how the size axis is displayed; it does
+#' not change the density on the y-axis. In particular, showing weight on a
+#' logarithmic axis does not by itself convert a density per unit weight into a
+#' density per logarithmic weight interval. That choice is made with `power`:
+#' for example, `power = 2` gives biomass density per logarithmic size interval.
+#' Its conversion from weight to length therefore uses the logarithmic
+#' Jacobian, irrespective of the value of `log_x`.
 #'
 #' `plotlySpectra()` is the interactive plotly version. To compare spectra from
 #' two objects use [plotSpectra2()]. To show relative differences use
@@ -1253,7 +1309,8 @@ plotlyYieldGear <- function(object, species = NULL,
 #'   in the same form as the base [plot()] argument. For example, `"x"`,
 #'   `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x` and `log_y`.
 #' @param size_axis Whether to plot size as weight (`"w"`, default) or length
-#'   (`"l"`), using the allometric weight-length relationship.
+#'   (`"l"`), using the allometric weight-length relationship. Spectrum
+#'   densities and their units are transformed to match the chosen axis.
 #' @param return_data A boolean value that determines whether the formatted data
 #' used for the plot is returned instead of the plot itself. Default value is FALSE
 #' @param ... Further arguments used by only some of the methods:
@@ -1457,7 +1514,7 @@ plot_spectra <- function(params, n, n_pp,
     }
     species <- valid_species_arg(params, species)
     # Deal with power argument
-    y_label <- spectra_y_label(power)
+    y_label <- spectra_y_label(power, size_axis)
     n <- sweep(n, 2, w_grid^power, "*")
     # Select only the desired species
     spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
@@ -1505,16 +1562,17 @@ plot_spectra <- function(params, n, n_pp,
     plot_dat <- plot_dat[(plot_dat$value > 0) &
                              (plot_dat$w >= wlim[1]) &
                              (plot_dat$w <= wlim[2]), ]
-    # Impose ylim
+    plot_dat <- convert_plot_spectrum_axis(plot_dat, params, size_axis, power)
+    if (identical(size_axis, "l")) {
+        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    }
+    # Impose limits on the displayed density, after its units have been
+    # converted for a length axis.
     if (!is.na(ylim[2])) {
         plot_dat <- plot_dat[plot_dat$value <= ylim[2], ]
     }
     filter_min <- if (is.na(ylim[1])) 1e-20 else ylim[1]
     plot_dat <- plot_dat[plot_dat$value > filter_min, ]
-    plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
-    if (identical(size_axis, "l")) {
-        plot_dat <- filter_plot_length_limits(plot_dat, llim)
-    }
     names(plot_dat)[2] <- y_label
     if (return_data) return(plot_dat)
 
@@ -1970,11 +2028,14 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
     log_y <- log_axes$log_y
     assert_that(length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
-    sf1 <- plotSpectra(object1, species = species, wlim = wlim, ylim = ylim,
+    data_ylim <- if (identical(size_axis, "l")) c(0, NA) else ylim
+    sf1 <- plotSpectra(object1, species = species, wlim = wlim,
+                       ylim = data_ylim,
                        power = power, total = total, resource = resource,
                        background = background, size_axis = "w",
                        return_data = TRUE, ...)
-    sf2 <- plotSpectra(object2, species = species, wlim = wlim, ylim = ylim,
+    sf2 <- plotSpectra(object2, species = species, wlim = wlim,
+                       ylim = data_ylim,
                        power = power, total = total, resource = resource,
                        background = background, size_axis = "w",
                        return_data = TRUE, ...)
@@ -1983,24 +2044,33 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
     plotComparisonDataFrame(sf1, sf2, validParams(params),
                             name1 = name1, name2 = name2,
                             xlab = plot_size_xlab(size_axis),
-                            ylab = spectra_y_label(power),
+                            ylab = spectra_y_label(power, size_axis),
                             xtrans = if (log_x) "log10" else "identity",
                             ytrans = if (log_y) "log10" else "identity",
                             xlim = plot_size_xlim(wlim, size_axis, llim),
                             ylim = ylim, highlight = highlight,
                             legend_var = "Legend",
-                            size_axis = size_axis)
+                            size_axis = size_axis,
+                            spectrum_power = power)
 }
 
 #' Y-axis label for a size-spectrum plot
 #'
 #' @param power The power of weight that the abundance was multiplied by.
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
 #' @return A character string for the y-axis label.
 #' @keywords internal
-spectra_y_label <- function(power) {
+spectra_y_label <- function(power, size_axis = "w") {
+    size_axis <- plot_size_axis(size_axis)
     if (power %in% c(0, 1, 2)) {
-        return(c("Number density [1/g]", "Biomass density",
-                 "Biomass density [g]")[power + 1])
+        labels <- if (identical(size_axis, "l")) {
+            c("Number density [1/cm]", "Biomass density [g/cm]",
+              "Biomass density [g]")
+        } else {
+            c("Number density [1/g]", "Biomass density",
+              "Biomass density [g]")
+        }
+        return(labels[power + 1])
     }
     paste0("Number density * w^", power)
 }
