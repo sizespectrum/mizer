@@ -26,6 +26,22 @@ attempts to upgrade it to a valid object or gives an error message. If the
 object is valid then it is returned unchanged. The function reports an error
 if any of the rate arrays contain any non-finite numbers (except for the
 maximum intake rate that is allowed to be infinite).
+}
+\section{Cost of repeated calls}{
+
+Because \code{validParams()} returns an already-valid object unchanged, it is
+safe to call it at the start of any function that takes a MizerParams
+object. To make that cheap, the repair work (rebuilding the species
+parameter tables and the \code{w_min_idx} and \code{ft_mask} slots, and checking the
+structural validity of the object) is skipped for an object that has already
+been through it. Mizer recognises such an object by a fingerprint calculated
+from the contents of the slots that the repair and the validity checks
+depend on. The fingerprint is recalculated on every call, so it cannot become
+stale: any change to any of those slots, made by any route, gives a new
+fingerprint and triggers the full validation.
+
+The checks for non-finite values in the rate arrays are always performed,
+because the fingerprint does not cover the values in those arrays.
 
 Occasionally, during the development of new features for mizer, the
 \linkS4class{MizerParams} object gains extra slots. MizerParams objects
@@ -40,6 +56,7 @@ This function uses \code{\link[=newMultispeciesParams]{newMultispeciesParams()}}
 MizerParams object using the parameters extracted from the old MizerParams
 object.
 }
+
 \section{Backwards compatibility}{
 
 The internal numerics in mizer have changed over time, so there may be small

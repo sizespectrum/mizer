@@ -50,6 +50,30 @@ stability of steady states.
 
 ## Other improvements
 
+- Fixed: Size-spectrum plots with `size_axis = "l"` now transform number and
+  biomass densities from weight to length units using the species-specific
+  Jacobian. Biomass density per logarithmic size interval (`power = 2`) uses
+  the corresponding logarithmic Jacobian (#469).
+
+- `validParams()` is now about 15 times faster on an object that is already
+  valid (#461). It used to redo its full work on every call, which made it
+  expensive to apply the "validate at the boundary" principle consistently. The
+  repair work — rebuilding the species parameter tables and the `w_min_idx` and
+  `ft_mask` slots, and checking the structural validity of the object — is now
+  skipped for an object that has already been through it. Mizer recognises such
+  an object by a fingerprint calculated from the contents of the slots that the
+  repair and the structural checks depend on. The fingerprint is recalculated on
+  every call and is not stored on the object, so it cannot go stale: any change
+  to any of those slots, made by any route including a direct slot assignment,
+  gives a new fingerprint and triggers the full validation. The checks for
+  non-finite values in the rate arrays are still made on every call, because
+  they catch what the fingerprint cannot see. `validSim()` benefits
+  automatically, because most of its cost was its nested `validParams()` call.
+  One consequence: any warning or message that the repair issues about a
+  condition it does not itself fix (for example that a species has a maximum
+  size larger than the largest size in the model) is now issued only the first
+  time an object with that content is validated in a session.
+
 - Fixed: `getStability()` silently dropped any size class sitting at exactly
   zero from its Jacobian. The finite-difference step was floored at an absolute
   `.Machine$double.eps`, so for such a class the step was swamped by the rounding
