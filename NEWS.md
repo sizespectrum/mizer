@@ -228,6 +228,14 @@ stability of steady states.
   changed, an `identical()` comparison that now fails — to the release that
   caused it and the fix.
 
+- New `analyse-stability` skill, and the matching "Cheatsheet: Dynamic
+  Stability" article, cover the experimental stability tools added in this
+  version: `getStability()`, `steadyNewton(stability = TRUE)`,
+  `getLimitCycleSim()` and `plotBifurcation()`. Like the other skills it is
+  shipped in `inst/skills/` and picked up by `mizerAgents::setup_mizer_agent()`
+  from the installed mizer, so an agent's guidance describes the version of
+  mizer the project actually runs.
+
 # mizer 3.2.1
 
 This patch release fixes how species and gear parameters are handled when they

@@ -74,6 +74,7 @@ articles:
   - cheatsheet-fishing
   - cheatsheet-running-simulations
   - cheatsheet-analysis-and-plotting
+  - cheatsheet-stability
   - cheatsheet-extending-mizer
 - title: Upgrading
   navbar: Upgrading

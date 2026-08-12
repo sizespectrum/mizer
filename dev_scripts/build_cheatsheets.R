@@ -97,6 +97,16 @@ cheatsheet_topics <- list(
                        "of each function, follow the links."),
         setup  = c("params <- NS_params", "sim <- NS_sim")
     ),
+    `cheatsheet-stability` = list(
+        skill  = "analyse-stability",
+        title  = "Cheatsheet: Dynamic Stability",
+        lead   = paste("This cheatsheet gives a quick overview of the",
+                       "experimental tools for analysing the dynamic stability",
+                       "of a mizer steady state and characterising the limit",
+                       "cycles that can replace it. For full documentation of",
+                       "each function, follow the links."),
+        setup  = "params <- NS_params"
+    ),
     `cheatsheet-extending-mizer` = list(
         skill  = "extend-mizer",
         title  = "Cheatsheet: Extending mizer",
