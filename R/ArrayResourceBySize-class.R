@@ -30,7 +30,8 @@
 #'   size grid in the `plot()` method.
 #'
 #' @return An `ArrayResourceBySize` object (inherits from `numeric`).
-#' @seealso [print()], [summary()], [as.data.frame()], [plot()]
+#' @seealso [print()], [summary()], [as.data.frame()], [plot()], [plot2()],
+#'   [plotRelative()], [addPlot()]
 #' @export
 #' @examples
 #' \donttest{
@@ -206,6 +207,127 @@ prepare_ArrayResourceBySize_plot_data <- function(x, wlim = c(NA, NA)) {
     plot_dat
 }
 
+#' @rdname plot2
+#' @usage NULL
+#' @export
+plot2.ArrayResourceBySize <- function(x, y, name1 = "First", name2 = "Second",
+                                      species = NULL,
+                                      log_x = TRUE, log_y = TRUE, log = NULL,
+                                      ylim = c(NA, NA),
+                                      total = FALSE, background = TRUE,
+                                      y_ticks = 6,
+                                      wlim = c(NA, NA), ...) {
+    check_plot2_compatible(x, y, "ArrayResourceBySize")
+    compare_array_metadata(x, y)
+    warn_unused_resource_args(species, total, background)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
+    assert_that(length(wlim) == 2,
+                length(ylim) == 2)
+
+    params <- attr(x, "params")
+    y_label <- array_y_label(x, default = "Value")
+    plot_dat1 <- prepare_ArrayResourceBySize_plot_data(x, wlim = wlim)
+    plot_dat2 <- prepare_ArrayResourceBySize_plot_data(y, wlim = wlim)
+
+    plotComparisonDataFrame(plot_dat1, plot_dat2, params,
+                            name1 = name1, name2 = name2,
+                            xlab = "Weight (g)", ylab = y_label,
+                            xtrans = if (log_x) "log10" else "identity",
+                            ytrans = if (log_y) "log10" else "identity",
+                            xlim = wlim, ylim = ylim,
+                            y_ticks = y_ticks, legend_var = "Legend")
+}
+
+#' @rdname plotRelative
+#' @usage NULL
+#' @export
+plotRelative.ArrayResourceBySize <- function(x, y, species = NULL,
+                                             log_x = TRUE,
+                                             ylim = c(NA, NA),
+                                             total = FALSE,
+                                             background = TRUE,
+                                             wlim = c(NA, NA), ...) {
+    check_plot2_compatible(x, y, "ArrayResourceBySize")
+    compare_array_metadata(x, y)
+    warn_unused_resource_args(species, total, background)
+    assert_that(length(wlim) == 2,
+                length(ylim) == 2)
+
+    params <- attr(x, "params")
+    plot_dat1 <- prepare_ArrayResourceBySize_plot_data(x, wlim = wlim)
+    plot_dat2 <- prepare_ArrayResourceBySize_plot_data(y, wlim = wlim)
+
+    plotRelativeDataFrame(plot_dat1, plot_dat2, params,
+                          xlab = "Weight (g)",
+                          xtrans = if (log_x) "log10" else "identity",
+                          xlim = wlim, ylim = ylim,
+                          legend_var = "Legend")
+}
+
+#' @rdname addPlot
+#' @usage NULL
+#' @export
+addPlot.ArrayResourceBySize <- function(plot, x, species = NULL,
+                                        total = FALSE,
+                                        background = TRUE,
+                                        colour = NULL,
+                                        linetype = "dashed",
+                                        linewidth = 0.8,
+                                        alpha = 1,
+                                        wlim = c(NA, NA), ...) {
+    if (!inherits(plot, "ggplot")) {
+        stop("The `plot` argument must be a ggplot object.")
+    }
+    assert_that(is.number(linewidth),
+                is.number(alpha),
+                alpha >= 0,
+                alpha <= 1,
+                length(wlim) == 2)
+    warn_unused_resource_args(species, total, background)
+
+    plot <- deep_copy(plot)
+    plot_dat <- prepare_ArrayResourceBySize_plot_data(x, wlim = wlim)
+    y_var <- names(plot_dat)[2]
+    check_addPlot_compatible(plot, x_var = "w", y_var = y_var,
+                             units = attr(x, "units"))
+
+    # A resource array is a single line, so there is nothing to distinguish by
+    # colour. Mapping colour to the "Resource" legend level would rely on the
+    # existing plot's colour scale containing that level, which it does not when
+    # adding the resource to a species plot. Use a fixed colour instead.
+    if (is.null(colour)) {
+        params <- attr(x, "params")
+        colour <- if (!is.null(params) &&
+                          "Resource" %in% names(params@linecolour)) {
+            params@linecolour[["Resource"]]
+        } else {
+            "green"
+        }
+    }
+
+    mapping <- aes(x = .data[["w"]], y = .data[[y_var]],
+                   group = .data[["Species"]])
+    if (is.null(linetype)) {
+        mapping$linetype <- rlang::quo(.data[["Legend"]])
+    }
+
+    layer_args <- list(
+        data = plot_dat,
+        mapping = mapping,
+        colour = colour,
+        linewidth = linewidth,
+        alpha = alpha,
+        inherit.aes = FALSE
+    )
+    if (!is.null(linetype)) {
+        layer_args$linetype <- linetype
+    }
+
+    plot + do.call(geom_line, layer_args)
+}
+
 #' @rdname plotHover
 #' @usage NULL
 #' @examples
@@ -271,6 +393,24 @@ Ops.ArrayResourceBySize <- function(e1, e2) {
     if (missing(e2)) op(e1) else op(e1, e2)
 }
 
+# The plotting generics carry `species`, `total` and `background` because the
+# species classes need them. A resource array holds a single spectrum, so they
+# do nothing here. The methods have to declare them anyway (R CMD check requires
+# a method to have all the arguments of its generic), so say when they are being
+# discarded rather than doing it silently.
+warn_unused_resource_args <- function(species = NULL, total = FALSE,
+                                      background = TRUE) {
+    unused <- c(if (!is.null(species)) "species",
+                if (!isFALSE(total)) "total",
+                if (!isTRUE(background)) "background")
+    if (length(unused) > 0) {
+        warning("The argument", if (length(unused) > 1) "s" else "", " `",
+                paste(unused, collapse = "`, `"), "` ",
+                if (length(unused) > 1) "are" else "is",
+                " not used for resource arrays, which hold a single spectrum.")
+    }
+}
+
 # Helper to strip all ArrayResourceBySize attributes
 unclass_resource <- function(x) {
     x <- unclass(x)
@@ -326,7 +466,8 @@ str.ArrayResourceBySize <- function(object, ...) {
 #'
 #' @return An `ArrayTimeByResourceBySize` object (inherits from `matrix` and
 #'   `array`).
-#' @seealso [print()], [summary()], [as.data.frame()], [plot()]
+#' @seealso [print()], [summary()], [as.data.frame()], [plot()], [plot2()],
+#'   [plotRelative()], [addPlot()], [animate()]
 #' @export
 #' @examples
 #' \donttest{
@@ -471,6 +612,139 @@ ArrayTimeByResourceBySize_slice <- function(x, time = NULL) {
     vec <- unclass(x)[tidx, ]
     ArrayResourceBySize(vec, value_name = value_name,
                         units = units, params = params)
+}
+
+#' @rdname plot2
+#' @usage NULL
+#' @export
+plot2.ArrayTimeByResourceBySize <- function(x, y, name1 = "First",
+                                            name2 = "Second",
+                                            species = NULL,
+                                            log_x = TRUE, log_y = TRUE,
+                                            log = NULL,
+                                            ylim = c(NA, NA),
+                                            total = FALSE, background = TRUE,
+                                            y_ticks = 6,
+                                            time = NULL,
+                                            wlim = c(NA, NA), ...) {
+    check_plot2_compatible(x, y, "ArrayTimeByResourceBySize")
+    slice1 <- ArrayTimeByResourceBySize_slice(x, time = time)
+    slice2 <- ArrayTimeByResourceBySize_slice(y, time = time)
+
+    plot2.ArrayResourceBySize(slice1, slice2, name1 = name1, name2 = name2,
+                              species = species, log_x = log_x, log_y = log_y,
+                              log = log, ylim = ylim, total = total,
+                              background = background, y_ticks = y_ticks,
+                              wlim = wlim, ...)
+}
+
+#' @rdname plotRelative
+#' @usage NULL
+#' @export
+plotRelative.ArrayTimeByResourceBySize <- function(x, y, species = NULL,
+                                                   log_x = TRUE,
+                                                   ylim = c(NA, NA),
+                                                   total = FALSE,
+                                                   background = TRUE,
+                                                   time = NULL,
+                                                   wlim = c(NA, NA), ...) {
+    check_plot2_compatible(x, y, "ArrayTimeByResourceBySize")
+    slice1 <- ArrayTimeByResourceBySize_slice(x, time = time)
+    slice2 <- ArrayTimeByResourceBySize_slice(y, time = time)
+
+    plotRelative.ArrayResourceBySize(slice1, slice2, species = species,
+                                     log_x = log_x, ylim = ylim, total = total,
+                                     background = background, wlim = wlim, ...)
+}
+
+#' @rdname addPlot
+#' @usage NULL
+#' @export
+addPlot.ArrayTimeByResourceBySize <- function(plot, x, species = NULL,
+                                              total = FALSE,
+                                              background = TRUE,
+                                              colour = NULL,
+                                              linetype = "dashed",
+                                              linewidth = 0.8,
+                                              alpha = 1,
+                                              time = NULL,
+                                              wlim = c(NA, NA), ...) {
+    slice <- ArrayTimeByResourceBySize_slice(x, time = time)
+    addPlot.ArrayResourceBySize(plot, slice, species = species, total = total,
+                                background = background, colour = colour,
+                                linetype = linetype, linewidth = linewidth,
+                                alpha = alpha, wlim = wlim, ...)
+}
+
+#' @rdname animate
+#' @usage NULL
+#' @export
+animate.ArrayTimeByResourceBySize <- function(x, species = NULL,
+                                              log_x = TRUE,
+                                              log_y = TRUE,
+                                              log = NULL,
+                                              wlim = c(NA, NA),
+                                              llim = c(NA, NA),
+                                              ylim = c(NA, NA),
+                                              tlim = c(NA, NA),
+                                              size_axis = c("w", "l"),
+                                              total = FALSE,
+                                              background = TRUE,
+                                              frame_duration = 500,
+                                              transition_duration = frame_duration,
+                                              easing = "linear",
+                                              ...) {
+    assert_that(is.number(frame_duration), frame_duration >= 0,
+                is.number(transition_duration), transition_duration >= 0,
+                is.string(easing),
+                length(wlim) == 2, length(ylim) == 2, length(tlim) == 2)
+    warn_unused_resource_args(species, total, background)
+    # The length axis is derived from each species' weight-length parameters,
+    # and the resource is not a species.
+    size_axis <- plot_size_axis(size_axis)
+    if (identical(size_axis, "l")) {
+        stop("A length axis is not available for resource arrays, because the ",
+             "weight-length relationship is a species parameter.")
+    }
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
+
+    params <- attr(x, "params")
+    value_name <- attr(x, "value_name") %||% "Value"
+    units_str <- attr(x, "units")
+
+    times <- as.numeric(dimnames(x)[[1]])
+    arr <- unclass(x)
+    if (!is.na(tlim[1])) {
+        arr <- arr[times >= tlim[1], , drop = FALSE]
+        times <- times[times >= tlim[1]]
+    }
+    if (!is.na(tlim[2])) {
+        arr <- arr[times <= tlim[2], , drop = FALSE]
+        times <- times[times <= tlim[2]]
+    }
+
+    # Any time slice has the same size grid, so take one to reuse the
+    # size-grid lookup of the resource class.
+    w <- get_ArrayResourceBySize_w(ArrayTimeByResourceBySize_slice(x))
+
+    # Time varies fastest, to match c(arr)
+    df <- expand.grid(time = times, w = w, stringsAsFactors = FALSE)
+    df$value <- c(arr)
+    df$Species <- "Resource"
+    df$legend_name <- "Resource"
+
+    y_label <- value_name
+    if (!is.null(units_str) && nzchar(units_str)) {
+        y_label <- paste0(value_name, " [", units_str, "]")
+    }
+
+    animate_plotly(df, params, log_x, log_y, y_label, wlim, llim, ylim,
+                   size_axis = size_axis,
+                   frame_duration = frame_duration,
+                   transition_duration = transition_duration,
+                   easing = easing)
 }
 
 #' @rdname plotHover

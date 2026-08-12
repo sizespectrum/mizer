@@ -7,8 +7,11 @@ test_that("compareParams", {
   # Change a species param
   params2 <- params
   params2@species_params$gamma[[1]] <- 1
-  expect_equal(compareParams(params, params2)[[1]],
-      'The following species parameters differ: Component "gamma": Mean absolute difference: 1')
+  expect_true(grepl('gamma', compareParams(params, params2)[[1]]))
+  # A 10% relative difference in small-magnitude gamma must be detected
+  params3 <- params
+  params3@species_params$gamma[[1]] <- params@species_params$gamma[[1]] * 1.1
+  expect_true(grepl('gamma', compareParams(params, params3)[[1]]))
   # Add a species param
   params1 <- params
   params1@species_params$extra <- 1
@@ -20,8 +23,7 @@ test_that("compareParams", {
   # Change a given species param
   params2 <- params
   params2@given_species_params$gamma[[1]] <- 1
-  expect_equal(compareParams(params, params2)[[1]],
-               'The following given species parameters differ: Component "gamma": Mean absolute difference: 1')
+  expect_true(grepl('gamma', compareParams(params, params2)[[1]]))
   # Add a given species param
   params1 <- params
   params1@given_species_params$extra <- 1

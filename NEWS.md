@@ -50,6 +50,20 @@ stability of steady states.
 
 ## Other improvements
 
+- The array-plotting toolkit now covers every mizer array class. The resource
+  classes `ArrayResourceBySize` (as returned by `getResourceMort()`,
+  `resource_rate()`, `resource_capacity()`, `resource_level()` and
+  `initialNResource()`) and `ArrayTimeByResourceBySize` (as returned by
+  `NResource()` on a `MizerSim`) gain `plot2()`, `plotRelative()` and
+  `addPlot()` methods, and `ArrayTimeByResourceBySize` also gains an `animate()`
+  method, so you can now compare resource spectra before and after a model
+  change or play one through a simulation the same way you already could for
+  species rates. `ArrayTimeBySpeciesBySize` gains the `addPlot()` method it was
+  missing. The `species`, `total` and `background` arguments do nothing for a
+  resource array, which holds a single spectrum, so the resource methods warn if
+  they are set; `size_axis = "l"` is unavailable for the resource because the
+  weight-length relationship is a species parameter (#468).
+
 - Fixed: Size-spectrum plots with `size_axis = "l"` now transform number and
   biomass densities from weight to length units using the species-specific
   Jacobian. Biomass density per logarithmic size interval (`power = 2`) uses
@@ -157,6 +171,10 @@ stability of steady states.
   `given_species_params<-` round-trip would silently reset `w_min` to 0.001 when
   `min_w` was smaller than that, and emit a spurious warning when `min_w` was
   larger (#460).
+  
+- `compareParams()` now uses relative tolerance when comparing species
+  parameters, so small-magnitude parameters like `gamma` (~1e-8) are no longer
+  silently treated as equal when they differ by up to ~10%.
 
 - `getDiet(proportion = FALSE)` no longer overcounts when second-order
   bin-averaging is switched on with `second_order_w()`. It was applying the
