@@ -71,6 +71,100 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' successive time steps is less than `tol`. You determine how the distance is
 #' calculated.
 #'
+#' @details
+#' # How the run is organised
+#'
+#' The simulation is not run in one go but is broken into blocks of `t_per`
+#' years. Within a block the dynamics are advanced with time step `dt` exactly
+#' as in [project()]. At the end of each block the function decides whether to
+#' stop, so `t_per` sets how often the stopping criteria are evaluated and also
+#' the interval over which change is measured. The run ends at the latest after
+#' `t_max` years, i.e. after `floor(t_max / t_per)` blocks.
+#'
+#' Independently of the blocks, a cheap scalar summary of the state (the biomass
+#' of each species) is recorded every `t_save` years. This finely resolved
+#' series is what the limit-cycle detection works on, so that a cycle can be
+#' found and its period measured even when that period bears no simple relation
+#' to `t_per`.
+#'
+#' At the end of each block the following checks are made, in this order.
+#'
+#' ## 1. Extinction
+#'
+#' If the reproduction rate (RDD) of any species has fallen below
+#' `extinction_threshold` times its value at the start of the run, or has become
+#' `NA`, that species is deemed to be on its way to extinction. A warning naming
+#' the affected species is issued and the run stops with
+#' `type = "extinction"`. Because the criterion is relative to the initial
+#' reproduction, a species that starts with zero reproduction is flagged
+#' immediately, whereas in [steady()], where reproduction is held constant, a
+#' healthy species is never flagged.
+#'
+#' ## 2. Convergence to a fixed point
+#'
+#' `distance_func` is called with the state at the end of the previous block and
+#' the state at the end of the current block, i.e. with two states `t_per` years
+#' apart. If the number it returns is less than `tol`, the run stops with
+#' `type = "steady"`. What "distance" means is entirely up to that function:
+#' the default [distanceSSLogN()] uses the sum of squared changes in log
+#' abundance, while [steady()] instead passes [distanceMaxRelRDI()], which uses
+#' the largest relative change in egg production.
+#'
+#' Note that this test only compares two states one `t_per` apart; it cannot by
+#' itself tell a fixed point from a cycle whose period divides `t_per`. This is
+#' why `t_per` should be chosen as an *odd* multiple of `dt`: a period-2 cycle
+#' (period `2 * dt`), which is the most common numerical oscillation, would
+#' otherwise be sampled at the same phase in every block and would look
+#' perfectly converged.
+#'
+#' ## 3. Limit cycle
+#'
+#' If the state is still changing more than `tol`, the recorded biomass series
+#' is examined to see whether the run has instead settled onto a limit cycle. If
+#' it has, the run stops with `type = "cycle"` and the period and amplitude of
+#' the cycle are reported.
+#'
+#' If none of the three checks fires before `t_max` is reached, the run stops
+#' with `type = "not_converged"`. In every case the outcome is recorded in the
+#' `"convergence"` attribute of the returned object, described under *Value*
+#' below.
+#'
+#' # How a limit cycle is detected
+#'
+#' The detection uses the community-total biomass, on a log scale and with its
+#' mean removed, as a scalar signal, sampled every `t_save` years. At least 20
+#' samples are needed before any cycle can be reported.
+#'
+#' 1. **Candidate period.** The autocorrelation function of the signal is
+#'    computed up to a lag of half the length of the series, and the first local
+#'    maximum with an autocorrelation above `0.5` is taken as the candidate
+#'    period. If there is no such peak, or the peak is at a lag of one sample,
+#'    no cycle is reported.
+#' 2. **Enough history.** The series must cover at least three full candidate
+#'    periods. Otherwise the check is deferred to a later block, when more
+#'    history has accumulated.
+#' 3. **Amplitude.** For each of the last three period-long windows, the
+#'    amplitude is measured as the largest over species of the relative
+#'    peak-to-trough biomass range `(max - min) / mean`. The amplitude in the
+#'    most recent window must exceed `amplitude_tol`; a smaller oscillation is
+#'    considered negligible and the state is left to be treated as a fixed
+#'    point.
+#' 4. **Settled.** The amplitudes of the three successive windows must agree
+#'    with each other to within 10%, and the most recent amplitude must not be
+#'    smaller than the oldest by more than 10%.
+#'
+#' The last condition is what distinguishes a genuine limit cycle from a slowly
+#' decaying spiral towards a stable fixed point: the spiral loses amplitude from
+#' one period to the next, the cycle does not. The distinction is necessarily
+#' imperfect when the decay is extremely slow, because over any finite run such
+#' a spiral is indistinguishable from a cycle. If you need a definitive answer,
+#' use [getStability()] on the fixed point found by [steadyNewton()], which
+#' works out the spectral radius of the linearised dynamics instead of watching
+#' a trajectory.
+#'
+#' The reported `period` is a multiple of `t_save`, so it is only resolved to
+#' that accuracy; reduce `t_save` if you need the period more precisely.
+#'
 #' @inheritParams steady
 #' @param effort The fishing effort to be used throughout the simulation.
 #'   This is validated by [validEffortVector()] and can therefore be `NULL`, a
@@ -81,6 +175,9 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   that in some sense measures the distance between the states. By default
 #'   this uses the function [distanceSSLogN()] that you can use as a model for your
 #'   own distance function.
+#' @param tol The run stops when the number returned by `distance_func` for two
+#'   states `t_per` years apart drops below `tol`. Its meaning therefore depends
+#'   on the distance function you supply.
 #' @param info_level Controls the amount of information messages that are shown.
 #'   Higher levels lead to more messages.
 #' @param method The numerical method to use for the consumer density update.
@@ -106,7 +203,8 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'       peak-to-trough biomass amplitude; otherwise `NA`.}
 #'   }
 #'   This mirrors how [steadyNewton()] attaches an `"stability"` attribute.
-#' @seealso [distanceSSLogN()], [distanceMaxRelRDI()], [steadyNewton()]
+#' @seealso [distanceSSLogN()], [distanceMaxRelRDI()], [steadyNewton()],
+#'   [getStability()]
 #' @export
 projectToSteady <- function(params,
                             effort = params@initial_effort,
