@@ -342,6 +342,31 @@ positive_initial_guess <- function(N, w_min_idx, w_top) {
     N
 }
 
+#' Relative finite-difference step scale
+#'
+#' Returns the scale that [getStability()] multiplies by `h` to get the
+#' finite-difference step for each state variable: the variable's own magnitude
+#' where that is nonzero, and otherwise the local scale of the spectrum as
+#' supplied by `positive_initial_guess()` (log-interpolated from the nonzero
+#' neighbours). Cells whose whole row is zero get no local scale from
+#' `positive_initial_guess()`; they fall back to `.Machine$double.eps`, which is
+#' harmless because the one-step map is exactly linear about a zero baseline.
+#'
+#' A step floored at an *absolute* `.Machine$double.eps` instead would be
+#' swamped by the rounding error of the order-`N` outputs it perturbs, and the
+#' column of the Jacobian would come out as noise (in practice exactly zero).
+#'
+#' @param x The state variables (a vector of densities).
+#' @param local_scale A strictly positive local scale for each entry of `x`, or
+#'   zero where none could be determined.
+#' @return A strictly positive vector of step scales, the same length as `x`.
+#' @noRd
+fd_step_scale <- function(x, local_scale) {
+    local_scale[!is.finite(local_scale) | local_scale <= 0] <-
+        .Machine$double.eps
+    pmax(abs(x), local_scale)
+}
+
 #' Analytic semichemostat resource steady state
 #'
 #' Returns the resource number density that is in equilibrium with the consumer
@@ -529,7 +554,21 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #' regular dynamics, evaluating the transport coefficients with the exact
 #' spatial scheme configured in `params` (e.g., first-order upwind or a
 #' second-order limiter). The Jacobian is computed numerically using a
-#' multiplicative (relative) finite-difference step \eqn{h \cdot N^*}.
+#' multiplicative (relative) finite-difference step \eqn{h \cdot N^*}. Where a
+#' cell sits at exactly zero and so has no scale of its own, the step is floored
+#' at the local scale of the spectrum, interpolated from the nonzero neighbours,
+#' so that the cell still gets a resolved derivative rather than a column of
+#' rounding error.
+#'
+#' Every state at which the rate functions are evaluated satisfies
+#' \eqn{N \ge 0}: where a centred step would push a cell negative — which can
+#' only happen for a cell at (or below) the floor described above — the column is
+#' differenced forwards from the unperturbed state instead. At the boundary of
+#' the physical cone the one-sided derivative is the appropriate object anyway,
+#' since the dynamics never visit the states a centred step would sample. A rate
+#' function registered with [setRateFunction()] therefore never has to be defined
+#' at negative abundances. Such columns are first order in `h` rather than
+#' second, so they respond slightly more to a change of `h` than the rest.
 #'
 #' @param params A \linkS4class{MizerParams} object whose `initial_n` holds the
 #'   steady state to analyse. Typically the output of [steadyNewton()].
@@ -617,6 +656,24 @@ getStability <- function(params,
     rates_fns    <- projectRateFunctions(params)
     active_idx   <- which(active$mask)
 
+    # A custom rate function can be non-finite at a state that the differencing
+    # visits. Fail loudly, naming the cell, rather than letting a NaN travel on
+    # into eigen() and come back as a meaningless spectrum.
+    stop_if_not_finite <- function(x, where) {
+        if (!all(is.finite(x))) {
+            stop("getStability(): the one-step map returned non-finite values ",
+                 where, ". Every state it evaluates satisfies N >= 0, so this ",
+                 "points to a rate function that is not finite there.",
+                 call. = FALSE)
+        }
+    }
+    fish_cell <- function(k) {
+        rc <- arrayInd(active_idx[k], dim(params@initial_n))
+        paste0("when perturbing species ",
+               params@species_params$species[rc[1]], " at w = ",
+               signif(params@w[rc[2]], 3))
+    }
+
     # -------------------------------------------------------------------------
     # Shared helper: one step of fish dynamics given N and n_pp.
     # The n_pp here is whatever we choose to pass (quasi-static or actual).
@@ -670,6 +727,25 @@ getStability <- function(params,
     N_vec <- N_ss[active$mask]
     n_fish_active <- length(N_vec)
 
+    # Finite-difference step sizes. The step is relative, `h * N`, so a positive
+    # cell stays positive and its derivative is resolved against its own scale.
+    # A cell sitting at exactly zero has no scale of its own: an absolute floor
+    # would make the step so much smaller than the rounding error of the
+    # (order-`N`) outputs it perturbs that the whole column collapses into
+    # floating-point noise — in practice to exactly zero, which silently drops
+    # the cell from the Jacobian and puts a spurious zero eigenvalue in place of
+    # its true decay rate. Such cells do occur: an isolated negativity-floor
+    # artefact of the second-order schemes, or a tail class that steadyNewton()
+    # zeroed at its structural floor. We therefore floor the step at the local
+    # scale of the spectrum, log-interpolated across the gaps from the nonzero
+    # neighbours exactly as the Newton solve does. A row that is zero throughout
+    # (an extinct species) has no local scale either, but there the one-step map
+    # is exactly linear about a zero baseline, so any step recovers the
+    # derivative and the absolute floor is kept.
+    N_scale <- fd_step_scale(N_vec,
+                             positive_initial_guess(N_ss, params@w_min_idx,
+                                                    active$w_top)[active$mask])
+
     if (!include_resource) {
         # -- Reduced system: resource at quasi-static equilibrium --------------
         if (params@resource_dynamics != "resource_semichemostat") {
@@ -685,12 +761,30 @@ getStability <- function(params,
 
         n_state <- n_fish_active
         L <- matrix(0, nrow = n_state, ncol = n_state)
+        # Baseline for the one-sided columns, shared by all of them. It has to
+        # be evaluated rather than assumed equal to N_ss: the state is a fixed
+        # point only to the tolerance of whatever produced it, and that residual
+        # would otherwise be divided by eps_k into every one-sided column.
+        base <- reduced_step(N_ss)[active$mask]
+        stop_if_not_finite(base, "at the unperturbed steady state")
         for (k in seq_len(n_fish_active)) {
-            eps_k   <- h * pmax(abs(N_vec[k]), .Machine$double.eps)
+            eps_k   <- h * N_scale[k]
             N_plus  <- N_ss; N_plus[active_idx[k]]  <- N_vec[k] + eps_k
-            N_minus <- N_ss; N_minus[active_idx[k]] <- N_vec[k] - eps_k
-            L[, k]  <- (reduced_step(N_plus)[active$mask] -
-                        reduced_step(N_minus)[active$mask]) / (2 * eps_k)
+            if (N_vec[k] - eps_k < 0) {
+                # A centred step would leave the physical cone N >= 0.
+                # Difference forwards instead: at the boundary of the cone the
+                # one-sided derivative is the right object anyway, because the
+                # dynamics never visit the states a centred step would sample.
+                # This keeps every rate function evaluation inside N >= 0, so
+                # extensions need not be defined at negative abundances. The
+                # column is then first order in `h` rather than second.
+                L[, k] <- (reduced_step(N_plus)[active$mask] - base) / eps_k
+            } else {
+                N_minus <- N_ss; N_minus[active_idx[k]] <- N_vec[k] - eps_k
+                L[, k]  <- (reduced_step(N_plus)[active$mask] -
+                            reduced_step(N_minus)[active$mask]) / (2 * eps_k)
+            }
+            stop_if_not_finite(L[, k], fish_cell(k))
         }
 
     } else {
@@ -699,6 +793,14 @@ getStability <- function(params,
         npp_vec <- as.numeric(npp_ss)
         n_npp   <- length(npp_vec)
         n_state <- n_fish_active + n_npp
+
+        # Step scale for the resource, floored the same way as for the fish.
+        # The resource carries structural zeros above `w_pp_cutoff`, where the
+        # capacity vanishes; log-interpolation with flat extrapolation gives
+        # them the scale of the last nonzero class.
+        npp_local <- positive_initial_guess(matrix(npp_vec, nrow = 1),
+                                            w_min_idx = 1L, w_top = n_npp)
+        npp_scale <- fd_step_scale(npp_vec, as.numeric(npp_local))
 
         resource_dyn <- get(params@resource_dynamics)
 
@@ -716,23 +818,40 @@ getStability <- function(params,
         n_state <- n_fish_active + n_npp
         L <- matrix(0, nrow = n_state, ncol = n_state)
 
+        # Baseline for the one-sided columns, fish and resource alike (see the
+        # reduced branch).
+        base <- full_step(N_ss, npp_ss)
+        stop_if_not_finite(base, "at the unperturbed steady state")
+
         # Columns 1..n_fish_active: perturb fish, resource held at n_pp_ss
         for (k in seq_len(n_fish_active)) {
-            eps_k   <- h * pmax(abs(N_vec[k]), .Machine$double.eps)
+            eps_k   <- h * N_scale[k]
             N_plus  <- N_ss; N_plus[active_idx[k]]  <- N_vec[k] + eps_k
-            N_minus <- N_ss; N_minus[active_idx[k]] <- N_vec[k] - eps_k
-            L[, k]  <- (full_step(N_plus,  npp_ss) -
-                        full_step(N_minus, npp_ss)) / (2 * eps_k)
+            if (N_vec[k] - eps_k < 0) {
+                L[, k] <- (full_step(N_plus, npp_ss) - base) / eps_k
+            } else {
+                N_minus <- N_ss; N_minus[active_idx[k]] <- N_vec[k] - eps_k
+                L[, k]  <- (full_step(N_plus,  npp_ss) -
+                            full_step(N_minus, npp_ss)) / (2 * eps_k)
+            }
+            stop_if_not_finite(L[, k], fish_cell(k))
         }
 
         # Columns n_fish_active+1..n_state: perturb resource, fish held at N_ss
         for (j in seq_len(n_npp)) {
             k      <- n_fish_active + j
-            eps_j  <- h * pmax(abs(npp_vec[j]), .Machine$double.eps)
+            eps_j  <- h * npp_scale[j]
             npp_plus  <- npp_ss; npp_plus[j]  <- npp_vec[j] + eps_j
-            npp_minus <- npp_ss; npp_minus[j] <- npp_vec[j] - eps_j
-            L[, k] <- (full_step(N_ss, npp_plus) -
-                       full_step(N_ss, npp_minus)) / (2 * eps_j)
+            if (npp_vec[j] - eps_j < 0) {
+                L[, k] <- (full_step(N_ss, npp_plus) - base) / eps_j
+            } else {
+                npp_minus <- npp_ss; npp_minus[j] <- npp_vec[j] - eps_j
+                L[, k] <- (full_step(N_ss, npp_plus) -
+                           full_step(N_ss, npp_minus)) / (2 * eps_j)
+            }
+            stop_if_not_finite(L[, k],
+                               paste0("when perturbing the resource at w = ",
+                                      signif(params@w_full[j], 3)))
         }
     }
 

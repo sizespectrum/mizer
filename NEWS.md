@@ -50,6 +50,31 @@ stability of steady states.
 
 ## Other improvements
 
+- Fixed: `getStability()` silently dropped any size class sitting at exactly
+  zero from its Jacobian. The finite-difference step was floored at an absolute
+  `.Machine$double.eps`, so for such a class the step was swamped by the rounding
+  error of the abundances it perturbs and the whole column came out as
+  floating-point noise (in practice exactly zero), replacing the class's true
+  decay rate with a spurious zero eigenvalue. The step is now floored at the
+  local scale of the spectrum, interpolated from the nonzero neighbours, as the
+  `steadyNewton()` solve already did. This affects models with an isolated
+  interior zero (a negativity-floor artefact of the second-order schemes) or a
+  tail class that `steadyNewton()` zeroed, and — with `include_resource = TRUE` —
+  the resource classes above `w_pp_cutoff`.
+
+- `getStability()` now evaluates the rate functions only at states satisfying
+  `N >= 0`. Where a centred difference would push a cell negative — which can
+  only happen for a cell at the floor described above — the column is differenced
+  forwards from the unperturbed state instead, which is the appropriate one-sided
+  derivative at the boundary of the physical cone. A custom rate function
+  registered with `setRateFunction()` therefore never has to be defined at
+  negative abundances.
+
+- `getStability()` now stops with an informative error, naming the species and
+  size being perturbed, when the one-step map returns a non-finite value, instead
+  of passing a `NaN` on to the eigenvalue solver and returning a meaningless
+  spectrum.
+
 - New article ["Discontinuous rate functions"](https://sizespectrum.org/mizer/articles/discontinuous_rates.html)
   explains what goes wrong when a custom rate function registered with
   `setRateFunction()` depends discontinuously on the abundances — chattering

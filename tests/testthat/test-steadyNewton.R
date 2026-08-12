@@ -343,6 +343,103 @@ test_that("full and reduced stability analyses agree on spectral radius for NS m
                  tolerance = 0.05)
 })
 
+test_that("fd_step_scale floors the step at the local scale of the spectrum", {
+    x <- c(2, 0, -3, 0)
+    local_scale <- c(1, 5, 1, 0)
+    scale <- mizer:::fd_step_scale(x, local_scale)
+
+    # A cell with a magnitude of its own keeps it, whatever its sign.
+    expect_equal(scale[[1]], 2)
+    expect_equal(scale[[3]], 3)
+    # A cell at zero takes the local scale, not an absolute epsilon.
+    expect_equal(scale[[2]], 5)
+    # With no local scale either (a row that is zero throughout) it falls back
+    # to the absolute floor. The step must never be zero.
+    expect_equal(scale[[4]], .Machine$double.eps)
+    expect_true(all(scale > 0))
+})
+
+test_that("getStability resolves cells sitting at exactly zero", {
+    skip_unless_experimental()
+    pn <- steadyNewton(p_steady)
+    stab <- getStability(pn)
+
+    # Punch an isolated hole in the middle of the second species' spectrum, of
+    # the kind the second-order schemes can leave behind. Its Jacobian column
+    # must still be resolved: a step floored at an absolute `.Machine$double.eps`
+    # would be swamped by the rounding error of the outputs, leaving a zero
+    # column that drops the cell from the Jacobian and contributes a spurious
+    # zero eigenvalue.
+    active <- mizer:::steady_active_set(pn)
+    j <- floor(mean(c(pn@w_min_idx[2], active$w_top[2])))
+    holed <- pn
+    holed@initial_n[2, j] <- 0
+    stab_holed <- getStability(holed)
+
+    expect_equal(stab_holed$n_active, stab$n_active)
+    expect_false(any(Mod(stab_holed$eigenvalues) < 1e-12))
+    # The hole is one cell out of many, so the spectrum barely moves.
+    expect_equal(stab_holed$spectral_radius, stab$spectral_radius,
+                 tolerance = 1e-3)
+    # The step is relative, so the answer must not depend on `h`.
+    expect_equal(getStability(holed, h = 1e-5)$spectral_radius,
+                 stab_holed$spectral_radius, tolerance = 1e-6)
+})
+
+test_that("getStability never evaluates rate functions at negative abundances", {
+    skip_unless_experimental()
+    # A cell at zero has to be perturbed by more than its own (zero) magnitude,
+    # so the column is differenced forwards to keep the state in N >= 0.
+    pn <- steadyNewton(p_steady)
+    active <- mizer:::steady_active_set(pn)
+    j <- floor(mean(c(pn@w_min_idx[2], active$w_top[2])))
+    holed <- pn
+    holed@initial_n[2, j] <- 0
+
+    seen <- new.env()
+    seen$min_n <- Inf
+    seen$min_n_pp <- Inf
+    record_min <- function(params, n, n_pp, n_other, t, ...) {
+        seen$min_n    <- min(seen$min_n, n)
+        seen$min_n_pp <- min(seen$min_n_pp, n_pp)
+        mizerEncounter(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                       ...)
+    }
+    # setRateFunction() looks the function up by name in the global environment.
+    assign("record_min", record_min, envir = globalenv())
+    on.exit(rm("record_min", envir = globalenv()), add = TRUE)
+    spied <- setRateFunction(holed, "Encounter", "record_min")
+
+    getStability(spied)
+    expect_gte(seen$min_n, 0)
+    expect_gte(seen$min_n_pp, 0)
+
+    # The resource carries structural zeros above w_pp_cutoff, so the coupled
+    # analysis exercises the resource columns too.
+    seen$min_n <- Inf
+    seen$min_n_pp <- Inf
+    getStability(spied, include_resource = TRUE)
+    expect_gte(seen$min_n, 0)
+    expect_gte(seen$min_n_pp, 0)
+})
+
+test_that("getStability errors informatively on a non-finite rate function", {
+    skip_unless_experimental()
+    pn <- steadyNewton(p_steady)
+
+    not_finite <- function(params, n, n_pp, n_other, t, ...) {
+        encounter <- mizerEncounter(params, n = n, n_pp = n_pp,
+                                    n_other = n_other, t = t, ...)
+        encounter[1, 1] <- NaN
+        encounter
+    }
+    assign("not_finite", not_finite, envir = globalenv())
+    on.exit(rm("not_finite", envir = globalenv()), add = TRUE)
+
+    expect_error(getStability(setRateFunction(pn, "Encounter", "not_finite")),
+                 "returned non-finite values")
+})
+
 test_that("leading_eigenvectors have correct shape and are normalised", {
     skip_unless_experimental()
     pn   <- steadyNewton(p_steady)
