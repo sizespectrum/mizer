@@ -152,3 +152,17 @@ plotBiomass(lcs)
 ```
 
 This linearised cycle gives a clear picture of the cohort-resonance pattern driving the oscillation — the mode shape that the full nonlinear limit cycle grows out of.
+
+## A caveat: the analysis assumes a smooth model
+
+Everything in this vignette rests on the one-step map being differentiable at
+the steady state, so that the finite-difference Jacobian means something. That
+holds for models built from mizer's own rate functions, but not necessarily for
+a model carrying a custom rate registered with `setRateFunction()`. If such a
+rate jumps as a function of the abundances, `steadyNewton()` may stall and
+`getStability()` can return a plausible-looking number that describes neither
+branch of the dynamics.
+
+The cheapest check is to re-run `getStability()` with a different `h`: on a
+smooth model the spectral radius is unchanged to several figures. See
+[Discontinuous rate functions](discontinuous_rates.html).

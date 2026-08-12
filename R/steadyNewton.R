@@ -57,6 +57,15 @@
 #' physical diffusion, giving an ill-conditioned steady-state Jacobian for which
 #' the solver is not expected to converge.
 #'
+#' The Newton iteration also needs the residual \eqn{F(N)} to be continuous. A
+#' custom rate function registered with [setRateFunction()] that jumps as a
+#' function of the abundances makes \eqn{F} discontinuous, and where the
+#' equilibrium lies on the switching threshold there is no root at all, because
+#' neither branch is in equilibrium there. The solver then stalls (`nleqslv`
+#' termination code 3) and returns an iterate pinned to the threshold. See
+#' [Discontinuous rate
+#' functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.html).
+#'
 #' Only the default semichemostat resource dynamics
 #' (`resource_dynamics = "resource_semichemostat"`) are currently supported,
 #' because the solver substitutes the analytic resource steady state. For other
@@ -193,7 +202,7 @@ steadyNewton.MizerParams <- function(params,
             # A species is considered extinct if its recruitment (the egg class)
             # has dropped to the relative abundance floor. Checking any() would
             # produce false positives when the tail naturally shortens.
-            if (N0_initial[i, lo] > 0 && 
+            if (N0_initial[i, lo] > 0 &&
                 N[i, lo] / N0_initial[i, lo] <= extinct_threshold) {
                 is_extinct[i] <- TRUE
                 N[i, ] <- 0
@@ -484,7 +493,7 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #' \deqn{A(N^t, n_{pp}^t)\,N^{t+1} = S(N^t, n_{pp}^t),}
 #' and an exact semi-chemostat update for the resource:
 #' \deqn{n_{pp}^{t+1} = n_{pp}^* + (n_{pp}^t - n_{pp}^*)\,e^{-\mu^t\,dt},}
-#' where \eqn{n_{pp}^*} = r_{pp}\,c_{pp}/\mu^t is the resource steady state
+#' where \eqn{n_{pp}^* = r_{pp}\,c_{pp}/\mu^t} is the resource steady state
 #' conditioned on the mortality \eqn{\mu^t} due to consumers at time \eqn{t}.
 #' Note that this function evaluates the Jacobian of this specific first-order
 #' backward-Euler time step, regardless of which `method` you might later pass
@@ -539,6 +548,8 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #' @param extinction_floor Relative abundance floor for the dynamic reproduction
 #'   case. Default is `1e-6`.
 #' @param h Relative step size for centred finite differences. Default `1e-4`.
+#'   The result should not depend on this choice. If it does, the one-step map
+#'   is not smooth at the state being analysed — see the section below.
 #' @return A named list with the following components:
 #'   \describe{
 #'     \item{`eigenvalues`}{Complex vector of all eigenvalues of the
@@ -567,6 +578,21 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #'       oscillation plane of the dominant mode; `Mod()` gives the amplitude
 #'       pattern across species and sizes.}
 #'   }
+#' @section Requires a smooth one-step map:
+#' The finite-difference Jacobian is only meaningful if the one-step map is
+#' differentiable at \eqn{N^*}. A custom rate function registered with
+#' [setRateFunction()] that jumps as a function of the abundances breaks this in
+#' two ways. If the state sits on the switching threshold, some perturbations
+#' straddle it and pick up the jump, and the reported spectral radius then
+#' varies wildly with `h`. If the state is near but not on the threshold, no
+#' perturbation crosses it, and the function silently returns the stability of
+#' the single branch the state happens to lie on — which can read as `stable`
+#' for a model whose simulations never settle.
+#'
+#' Re-running with a different `h` is the cheapest check: if the answer moves,
+#' do not trust it. See [Discontinuous rate
+#' functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.html).
+#'
 #' @seealso [steadyNewton()]
 #' @export
 getStability <- function(params,

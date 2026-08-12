@@ -50,6 +50,42 @@ stability of steady states.
 
 ## Other improvements
 
+- New article ["Discontinuous rate functions"](https://sizespectrum.org/mizer/articles/discontinuous_rates.html)
+  explains what goes wrong when a custom rate function registered with
+  `setRateFunction()` depends discontinuously on the abundances — chattering
+  trajectories that keep changing as `dt` is refined, a stalled `steadyNewton()`,
+  and an unreliable `getStability()` — why none of the time-stepping methods can
+  fix it, and how to avoid it by giving the switch a finite width.
+
+- The cheatsheet articles and the AI-agent skills are now one set of documents
+  rather than two. Each `inst/skills/<topic>/SKILL.md` is shipped as an agent
+  skill and is also the source of the matching `cheatsheet-*` article, built by
+  `dev_scripts/build_cheatsheets.R`. `mizerAgents` (>= 0.3.3) installs the
+  skills from the mizer it finds installed, so the two packages can no longer
+  drift apart.
+
+  There is now one cheatsheet per stage of the workflow, matching the skills one
+  for one. Two are new, covering topics that previously had a skill but no
+  article: **Running Simulations** (the arguments of `project()`, the four ways
+  of giving fishing effort, continuing and comparing runs, and when numerical
+  diffusion in the default upwind scheme can damp a real oscillation) and
+  **Extending mizer** (a short reference companion to the Extending mizer
+  article).
+
+  The former "Model setup and calibration" cheatsheet has been split into
+  **Model setup** and **Steady state and calibration**, which are separate
+  tasks reached for at different times. The old URL redirects to the first.
+
+  The remaining cheatsheets gain the material that had previously only been
+  written on the skill side: the fishing cheatsheet now covers `setFishing()`
+  and how catchability fixes the units of fishing effort; the calibration
+  cheatsheet covers `steadyNewton()` and `getReproductionLevel()`; the model
+  setup cheatsheet covers saving and reloading a model with
+  `saveParams()`/`readParams()`; the changing-parameters cheatsheet explains
+  that the feeding level is set by `f0` rather than by `h`; and the analysis
+  cheatsheet recommends `finalParams()` over indexing a time series with
+  `idxFinalT()`.
+
 - `steady()` and `projectToSteady()` now report the nature of the solution they
   converged to via a `"convergence"` attribute on the returned object (mirroring
   the `"stability"` attribute of `steadyNewton()`). It records whether the run
@@ -102,6 +138,17 @@ together with the rate array it determines can now record its change without
 triggering a recalculation that would undo it.
 
 ## Species parameter changes
+
+- Fixed: `species_params<-()` did not re-derive the calculated species
+  parameters that a rate setter owns (`h`, `gamma`, `ks`, `q`, `z0`, `beta`,
+  `w_mat25`, …). It rebuilt the species parameters from
+  `given_species_params()` but then carried the previously calculated values
+  over, so they looked like given values and no longer responded to a change in
+  the parameters they are derived from. For example, in a model where `h` is
+  derived from the age at maturity, changing `w_mat` left `h` (and with it
+  `gamma` and `ks`) at its old value. `species_params<-()` and
+  `given_species_params<-()` now agree. Columns that mizer does not calculate
+  are still preserved, as are values you supplied yourself.
 
 - `species_params<-()` gains a `recalculate` argument. With
   `species_params(params, recalculate = FALSE) <- value` mizer records the

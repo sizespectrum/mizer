@@ -66,6 +66,20 @@ until the central one was removed, at which point the stale `3/4` would silently
 have become the effective default. **If you remove one of two homes, check what
 the other one says before trusting it.**
 
+### A setter-owned default has a second registration
+
+`setter_owned_species_params()` in `R/species_params.R` lists every column that a
+rate setter derives or defaults. `species_params<-()` uses it to decide which
+columns to drop when it rebuilds the table from `given_species_params`, so that
+`setParams()` can derive them afresh. **Add your parameter to that list under its
+owning setter, or the value calculated last time is carried over and stops
+responding to the parameters it is derived from.** Nothing fails loudly if you
+forget: the model just quietly stops propagating that change.
+
+Only put a column there if a setter really refills it on the plain
+`setX(params)` path — check that the default is set *before* the setter's early
+returns for a supplied or commented rate array, not after.
+
 ### The central defaults are an exported contract
 
 `validSpeciesParams()` is exported and its roxygen lists exactly which defaults

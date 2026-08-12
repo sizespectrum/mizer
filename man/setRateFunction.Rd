@@ -94,9 +94,35 @@ Note that your own rate functions need to be defined in the global
 environment or in a package. If they are defined within a function then
 mizer will not find them.
 }
+\section{Avoid rates that jump as a function of abundance}{
+
+Make sure your rate function depends \strong{continuously} on the abundances \code{n},
+\code{n_pp} and \code{n_other}. It is tempting to write a rate that switches abruptly
+on the state of the model — a fishery that closes when a stock falls below a
+limit reference point, a predator that switches diet when its preferred prey
+becomes scarce, a mortality that kicks in below a critical condition. Such a
+rate breaks the assumption underlying every one of mizer's time-stepping
+methods, which freeze the rates during each density update and so cannot see
+a threshold being crossed within a step.
+
+The symptoms are quiet: mizer issues no warning, but the trajectory keeps
+changing as you refine \code{dt}, \code{\link[=steadyNewton]{steadyNewton()}} stalls, and \code{\link[=getStability]{getStability()}}
+reports a confident but meaningless answer. Choosing the L-stable
+\code{method = "tr_bdf2"} in \code{\link[=project]{project()}} does not help, because the difficulty
+lies in the frozen rates rather than in the linear solve.
+
+The remedy is to give the switch a finite width, using a linear ramp between
+two thresholds or a logistic transition, which is usually the more realistic
+model anyway. Rates built with \code{max()} or \code{min()} are continuous but not
+differentiable; these are much less troublesome, costing some accuracy but
+not correctness. See the \href{https://sizespectrum.org/mizer/articles/discontinuous_rates.html}{Discontinuous rate functions}
+article for the full story, the diagnostics and the fix.
+}
+
 \seealso{
 "Extending mizer":
-\code{vignette("extending-mizer", package = "mizer")}
+\code{vignette("extending-mizer", package = "mizer")};
+\href{https://sizespectrum.org/mizer/articles/discontinuous_rates.html}{Discontinuous rate functions}
 
 Other extension tools:
 \code{\link[=NOther]{NOther()}},

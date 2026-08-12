@@ -204,12 +204,38 @@
 #' environment or in a package. If they are defined within a function then
 #' mizer will not find them.
 #'
+#' @section Avoid rates that jump as a function of abundance:
+#' Make sure your rate function depends **continuously** on the abundances `n`,
+#' `n_pp` and `n_other`. It is tempting to write a rate that switches abruptly
+#' on the state of the model — a fishery that closes when a stock falls below a
+#' limit reference point, a predator that switches diet when its preferred prey
+#' becomes scarce, a mortality that kicks in below a critical condition. Such a
+#' rate breaks the assumption underlying every one of mizer's time-stepping
+#' methods, which freeze the rates during each density update and so cannot see
+#' a threshold being crossed within a step.
+#'
+#' The symptoms are quiet: mizer issues no warning, but the trajectory keeps
+#' changing as you refine `dt`, [steadyNewton()] stalls, and [getStability()]
+#' reports a confident but meaningless answer. Choosing the L-stable
+#' `method = "tr_bdf2"` in [project()] does not help, because the difficulty
+#' lies in the frozen rates rather than in the linear solve.
+#'
+#' The remedy is to give the switch a finite width, using a linear ramp between
+#' two thresholds or a logistic transition, which is usually the more realistic
+#' model anyway. Rates built with `max()` or `min()` are continuous but not
+#' differentiable; these are much less troublesome, costing some accuracy but
+#' not correctness. See the [Discontinuous rate
+#' functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.html)
+#' article for the full story, the diagnostics and the fix.
+#'
 #' @param params A MizerParams object
 #' @param rate Name of the rate for which a new function is to be set.
 #' @param fun Name of the function to use to calculate the rate.
 #' @return For `setRateFunction()`: An updated MizerParams object
 #' @seealso "Extending mizer":
-#'   \code{vignette("extending-mizer", package = "mizer")}
+#'   \code{vignette("extending-mizer", package = "mizer")};
+#'   [Discontinuous rate
+#'   functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.html)
 #' @export
 #' @family extension tools
 setRateFunction <- function(params, rate, fun) {

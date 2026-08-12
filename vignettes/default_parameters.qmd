@@ -422,7 +422,12 @@ $$f_{0,i} = \frac{1}{h_i / \text{avail_energy}_i + 1}$$
 
 * **External Mortality ($z_0$)**: Background mortality that is not due to predation or fishing. If not specified, it scales allometrically with the asymptotic size:
   $$z_{0, i} = z_{0\text{pre}} w_{\infty, i}^{z_{0\text{exp}}}$$
-  where $z_{0\text{pre}}$ defaults to $0.6$ and $z_{0\text{exp}}$ defaults to $n - 1$ (typically $-1/4$).
+  where $z_{0\text{pre}}$ defaults to $0.6$ and $z_{0\text{exp}}$ defaults to
+  $n - 1 = -1/3$. The $n$ here is the model-wide allometric exponent — the `n`
+  argument of `newMultispeciesParams()`, which defaults to $2/3$, and which
+  `setExtMort()` reads back as `resource_params(params)$n` when it is called on
+  its own. It is not the per-species `n` column, so overriding `n` for an
+  individual species does not change that species' $z_{0\text{exp}}$.
 * **Predation Kernel**: By default, `mizer` uses a lognormal predation kernel $\phi_i(w, w_p)$ with preferred predator-prey mass ratio $\beta = 30$ and width $\sigma = 2$.
 * **Maturity Ogive**: The proportion of individuals mature at size $w$ is a sigmoidal function:
   $$\text{maturity}(w) = \frac{1}{1 + (w/w_{\text{mat}})^{-10}}$$

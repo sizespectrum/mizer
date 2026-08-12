@@ -116,6 +116,13 @@ The function must be available by name in the global environment or in an
 installed package. mizer stores the function name, not the function object.
 See [Worked example: a custom encounter function](#worked-example-a-custom-encounter-function).
 
+Make sure your rate depends *continuously* on the abundances. A rate that
+switches abruptly on the state of the model — a fishery that closes below a
+biomass threshold, a predator that switches diet when prey run short — breaks an
+assumption shared by all of mizer's time-stepping methods and produces results
+that keep changing as you refine `dt`, without any warning. See
+[Discontinuous rate functions](discontinuous_rates.html).
+
 ## `setComponent()`
 
 Use `setComponent()` when your model needs an additional dynamical quantity that
@@ -469,4 +476,5 @@ committing to an interface.
 
 - [Using mizer extension packages](using-extension-packages.html)
 - [Creating a mizer extension package](creating-extension-packages.html)
+- [Discontinuous rate functions](discontinuous_rates.html)
 

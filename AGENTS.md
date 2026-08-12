@@ -16,7 +16,7 @@ mizer is an R package for dynamic multi-species size-spectrum modelling of fish 
 
 **Two quadrature schemes**: the `second_order_w` slot selects how the model is discretised on the size grid — `flux` picks the advective reconstruction, and `bin_average` decides whether size-dependent factors are integrated over their bin or point-sampled at the left bin boundary. Both default to the first-order scheme, so previous mizer versions reproduce byte-for-byte. This is invisible in the code you are likely to be reading: a function that ignores `bin_average` still looks correct and still passes its tests on the default path. Anything that integrates over the size grid must handle both schemes and be tested under both.
 
-**Auto-generated files** — never edit `NAMESPACE`, `man/`, `RcppExports.R`, or `RcppExports.cpp` directly.
+**Auto-generated files** — never edit `NAMESPACE`, `man/`, `RcppExports.R`, or `RcppExports.cpp` directly. The `vignettes/cheatsheet-*.Rmd` articles are also generated: their single source is `inst/skills/<topic>/SKILL.md`, which doubles as the agent skill. Edit the skill and re-run `source("dev_scripts/build_cheatsheets.R"); build_cheatsheets()`.
 
 ## Code Conventions
 
