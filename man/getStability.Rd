@@ -119,7 +119,21 @@ Both branches use the same \code{project_n_loop()} C++ Thomas solver as the
 regular dynamics, evaluating the transport coefficients with the exact
 spatial scheme configured in \code{params} (e.g., first-order upwind or a
 second-order limiter). The Jacobian is computed numerically using a
-multiplicative (relative) finite-difference step \eqn{h \cdot N^*}.
+multiplicative (relative) finite-difference step \eqn{h \cdot N^*}. Where a
+cell sits at exactly zero and so has no scale of its own, the step is floored
+at the local scale of the spectrum, interpolated from the nonzero neighbours,
+so that the cell still gets a resolved derivative rather than a column of
+rounding error.
+
+Every state at which the rate functions are evaluated satisfies
+\eqn{N \ge 0}: where a centred step would push a cell negative — which can
+only happen for a cell at (or below) the floor described above — the column is
+differenced forwards from the unperturbed state instead. At the boundary of
+the physical cone the one-sided derivative is the appropriate object anyway,
+since the dynamics never visit the states a centred step would sample. A rate
+function registered with \code{\link[=setRateFunction]{setRateFunction()}} therefore never has to be defined
+at negative abundances. Such columns are first order in \code{h} rather than
+second, so they respond slightly more to a change of \code{h} than the rest.
 }
 }
 \section{Requires a smooth one-step map}{
