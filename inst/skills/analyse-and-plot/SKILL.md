@@ -106,6 +106,58 @@ lfi <- getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500
 slope <- getCommunitySlope(sim, min_w = 10, max_w = 5000)
 ```
 
+## Writing your own indicator
+
+First check that a built-in does not already cover it: most custom indicators
+turn out to be `getBiomass()`/`getN()` over a size range, or one of the four
+above with different arguments. If none fits, an indicator is an integral over
+the size spectrum,
+$\int N_i(w)\, K(w)\, dw$, which on mizer's grid is `sum_j N[i,j] K[i,j] dw[j]`:
+
+```r
+K <- get_size_range_array(params, min_w = 10, max_w = 5000)  # species x size, 0/1
+K <- sweep(K, 2, params@w, "*")        # weight by w: numbers -> biomass
+K <- bin_average_weight(K, params)     # use the model's quadrature scheme
+rowSums(sweep(initialN(params) * K, 2, params@dw, "*"))
+```
+
+That is exactly what `getBiomass()` does internally, and it reproduces it to
+machine precision. Four rules make the difference between this and a wrong
+indicator:
+
+- **Select the size range with `get_size_range_array()`**, not by subsetting the
+  grid by hand. It accepts `min_w`/`max_w` or `min_l`/`max_l` (doing the
+  length-weight conversion per species), takes a single number or one value per
+  species, and returns a logical species × size mask with the right dimnames, so
+  the result keeps its shape and every species stays in it.
+- **Pass the weight `K` through `bin_average_weight()`, and nothing else.** The
+  abundance `N` is already a bin average and `dw` is exact, so bin-averaging
+  either of them counts the same integral twice. `bin_average_weight()` is gated
+  on `second_order_w()`, so it leaves `K` untouched on the default scheme and
+  does the right thing when second-order bin-averaging is on — never bin-average
+  unconditionally.
+- **Average the product, not the factors.** If `K` is a product of several
+  size-dependent terms, build the whole product first and pass that in — SSB
+  averages `maturity * w` as one weight, yield averages `F * w`. The average of a
+  product is not the product of the averages.
+- **Wrap the result in a mizer array class** and you inherit the whole toolkit
+  above — `plot()`, `plot2()`, `plotRelative()`, `addPlot()` — for free, with the
+  half-bin plotting shift handled for you:
+
+```r
+ArrayTimeBySpecies(my_indicator, value_name = "My index", params = params)
+ArraySpeciesBySize(my_size_resolved, value_name = "My index", params = params,
+                   representation = "average")
+```
+
+Use `representation = "average"` for a quantity that is a bin average (anything
+integrated over a bin) and `"point"` for one sampled at the bin boundary, such as
+a growth rate.
+
+If your indicator decomposes the encounter rate — a diet or trophic-level style
+quantity — see the note on `encounter_kernel()` in the `extend-mizer` skill
+before pairing `getPredKernel()` with `getEncounter()`.
+
 ## Plotting any array directly with `plot()`
 
 Every static plot mizer produces is a **ggplot2 object** you can extend with `+`.

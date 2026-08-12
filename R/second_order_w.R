@@ -167,7 +167,7 @@ resolve_second_order_w <- function(value) {
 #'   bin-averaged weights.
 #' @concept helper
 #' @keywords internal
-bin_average_weight <- function(K) {
+trapezoidal_bin_average <- function(K) {
     d <- dim(K)
     if (is.null(d)) {
         n <- length(K)
@@ -186,26 +186,64 @@ bin_average_weight <- function(K) {
     Kbar
 }
 
-#' Bin-average a summary-integral weight when second-order is enabled
+#' Bin-average the weight of a size-spectrum integral
 #'
-#' Convenience wrapper around [bin_average_weight()] that is gated on the
-#' `bin_average` entry of the model's `second_order_w` slot. When second-order
-#' bin-averaging is switched off (the default), the weight `K` is returned
-#' unchanged so that the summary functions reproduce the previous left-edge
-#' Riemann sums byte-for-byte. When it is switched on, the trapezoidal
-#' bin-average of the weight is returned.
+#' `r lifecycle::badge("experimental")`
+#' Prepares the weight \eqn{K(w)} of an integral over the size spectrum so that
+#' the integral is evaluated with the quadrature scheme the model is actually
+#' using. Use this when writing your own indicator or diagnostic function; the
+#' built-in summary and indicator functions call it for you.
+#'
+#' An integral \eqn{\int N(w) K(w)\, dw} is discretised on mizer's
+#' finite-volume grid as \eqn{\sum_j N_j \bar K_j \Delta w_j}, where \eqn{N_j}
+#' is the cell average of the density over bin \eqn{[w_j, w_{j+1}]}. Only the
+#' weight is approximated: \eqn{N_j} is already a cell average and \eqn{\Delta
+#' w_j} is exact, so **neither the abundance nor the bin widths should ever be
+#' passed through this function**.
+#'
+#' Whether the point weight \eqn{K(w_j)} is replaced by the bin average
+#' \deqn{\bar K_j = \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} K(w)\,dw
+#'   \approx \tfrac12\big(K(w_j) + K(w_{j+1})\big)}
+#' is controlled by the `bin_average` entry of the model's [second_order_w()]
+#' slot. When it is `FALSE` (the default) `K` is returned unchanged, so an
+#' indicator written with this function reproduces the left-edge Riemann sums of
+#' previous mizer versions byte-for-byte. When it is `TRUE` the trapezoidal bin
+#' average is returned, which is uniformly second order and exact whenever
+#' \eqn{K} is linear in \eqn{w} (e.g. the first moment \eqn{K = w}, for which it
+#' equals \eqn{(w_{j+1}^2 - w_j^2)/(2\Delta w_j)}).
+#'
+#' Because the gating happens inside, always call this rather than averaging
+#' unconditionally: a hard-coded bin average silently changes the results of
+#' models that are on the default scheme.
+#'
+#' If `K` is a product of several size-dependent factors, average the
+#' **product** and not the individual factors — the average of a product is not
+#' the product of the averages. Spawning stock biomass, for example, averages
+#' `maturity * w` as a single weight.
+#'
+#' The top bin has no right-hand neighbour on the grid, so its weight is left
+#' unaveraged (one-sided); the density there is negligible, so this does not
+#' affect the second-order accuracy of the totals.
 #'
 #' @param K A numeric vector of weights indexed over the size grid, or a
-#'   numeric matrix with the size dimension running along the columns.
+#'   numeric array whose last dimension runs over the size grid (e.g. a
+#'   species-by-size matrix or a gear-by-species-by-size array).
 #' @param params A MizerParams object whose `second_order_w` slot controls the
 #'   gating.
 #' @return The weight `K`, bin-averaged when `params@second_order_w[["bin_average"]]`
 #'   is `TRUE`, otherwise returned unchanged.
-#' @concept helper
-#' @keywords internal
-bin_average_summary_weight <- function(K, params) {
+#' @seealso [second_order_w()], [get_size_range_array()], [encounter_kernel()]
+#' @export
+#' @examples
+#' # Biomass of each species above 10g -- what getBiomass() does internally.
+#' params <- NS_params
+#' K <- get_size_range_array(params, min_w = 10)   # species x size, 0/1
+#' K <- sweep(K, 2, params@w, "*")                 # weight by w to get biomass
+#' K <- bin_average_weight(K, params)              # gated on second_order_w
+#' rowSums(sweep(initialN(params) * K, 2, params@dw, "*"))
+bin_average_weight <- function(K, params) {
     if (isTRUE(params@second_order_w[["bin_average"]])) {
-        return(bin_average_weight(K))
+        return(trapezoidal_bin_average(K))
     }
     K
 }

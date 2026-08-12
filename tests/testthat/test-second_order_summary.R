@@ -1,19 +1,19 @@
 # Tests for the second-order (bin-averaged) summary integrals (issue #380)
 
-# bin_average_weight helper ----
-test_that("bin_average_weight trapezoid-averages a vector", {
+# trapezoidal_bin_average helper ----
+test_that("trapezoidal_bin_average trapezoid-averages a vector", {
     K <- c(2, 4, 8, 16)
-    expect_equal(bin_average_weight(K), c(3, 6, 12, 16))
+    expect_equal(trapezoidal_bin_average(K), c(3, 6, 12, 16))
 })
 
-test_that("bin_average_weight averages along the last dimension of an array", {
+test_that("trapezoidal_bin_average averages along the last dimension of an array", {
     # matrix (rows = species, cols = size)
     M <- rbind(c(1, 3, 5), c(2, 4, 8))
-    expect_equal(bin_average_weight(M),
+    expect_equal(trapezoidal_bin_average(M),
                  rbind(c(2, 4, 5), c(3, 6, 8)))
     # 3D array, average over the last (size) axis
     A <- array(1:12, dim = c(2, 2, 3))
-    Abar <- bin_average_weight(A)
+    Abar <- trapezoidal_bin_average(A)
     expect_equal(dim(Abar), dim(A))
     # last bin unchanged (one-sided)
     expect_equal(Abar[, , 3], A[, , 3])
@@ -21,26 +21,26 @@ test_that("bin_average_weight averages along the last dimension of an array", {
     expect_equal(Abar[, , 1], 0.5 * (A[, , 1] + A[, , 2]))
 })
 
-test_that("bin_average_weight is exact for the monomial weight w", {
+test_that("trapezoidal_bin_average is exact for the monomial weight w", {
     p <- NS_params_small
     w <- p@w
     dw <- p@dw
     no_w <- length(w)
-    wbar <- bin_average_weight(w)
+    wbar <- trapezoidal_bin_average(w)
     # interior bins equal (w_{j+1}^2 - w_j^2) / (2 dw_j)
     w_edge <- c(w, w[no_w] + dw[no_w])
     exact <- (w_edge[-1]^2 - w_edge[-(no_w + 1)]^2) / (2 * dw)
     expect_equal(wbar[-no_w], exact[-no_w])
 })
 
-test_that("bin_average_summary_weight is gated on second_order_w", {
+test_that("bin_average_weight is gated on second_order_w", {
     p <- NS_params_small
     K <- p@w
     # default: unchanged
-    expect_identical(bin_average_summary_weight(K, p), K)
+    expect_identical(bin_average_weight(K, p), K)
     # second-order: bin-averaged
     second_order_w(p) <- c(bin_average = TRUE)
-    expect_identical(bin_average_summary_weight(K, p), bin_average_weight(K))
+    expect_identical(bin_average_weight(K, p), trapezoidal_bin_average(K))
 })
 
 # Default path is byte-identical ----
@@ -90,7 +90,7 @@ test_that("second-order getSSB uses the bin-averaged maturity*w weight", {
     p <- NS_params_small
     second_order_w(p) <- c(bin_average = TRUE)
     K <- sweep(p@maturity, 2, p@w, "*")
-    weight <- sweep(bin_average_weight(K), 2, p@dw, "*")
+    weight <- sweep(trapezoidal_bin_average(K), 2, p@dw, "*")
     expect_equal(unname(getSSB(p)),
                  unname(rowSums(p@initial_n * weight)))
 })
@@ -100,7 +100,7 @@ test_that("second-order getYield uses the bin-averaged F*w weight", {
     second_order_w(p) <- c(bin_average = TRUE)
     f <- getFMort(p, drop = FALSE)
     K <- sweep(f, 2, p@w, "*")
-    weight <- sweep(bin_average_weight(K), 2, p@dw, "*")
+    weight <- sweep(trapezoidal_bin_average(K), 2, p@dw, "*")
     expect_equal(unname(getYield(p)),
                  unname(rowSums(weight * p@initial_n)))
 })

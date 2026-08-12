@@ -27,12 +27,13 @@ there are the authoritative inventory and are meant to be kept current.
 Discretise as `sum_j Kbar_j * N_j * dw_j`. Only `K` is approximated:
 
 ```r
-K <- bin_average_summary_weight(K, params)   # gated on the flag
+K <- bin_average_weight(K, params)   # gated on the flag
 drop(n %*% (K * params@dw))
 ```
 
-- **Gate it, don't hard-code it.** `bin_average_summary_weight()` returns `K`
-  untouched on the default path, so the old numbers stay byte-identical.
+- **Gate it, don't hard-code it.** `bin_average_weight()` returns `K`
+  untouched on the default path, so the old numbers stay byte-identical. Use it
+  rather than the ungated `trapezoidal_bin_average()`.
 - **Never bin-average `N` or `dw`.** `N_j` is already a cell average and `dw_j`
   is exact.
 - **Average the product, not the factors.** SSB averages `psi * w`; yield
@@ -72,7 +73,7 @@ at setup, so the projection cost is unchanged.
 
 ### Double-counting is a uniform factor, so normalised outputs hide it
 
-On a geometric grid `bin_average_weight(w) / w` is exactly `(1 + beta) / 2`
+On a geometric grid `trapezoidal_bin_average(w) / w` is exactly `(1 + beta) / 2`
 (1.0967 for `NS_params`). Applying the prey-bin quadrature twice therefore
 scales the result by a constant, which **cancels in any proportion or ratio**.
 `getDiet(proportion = FALSE)` was 9.7% too large for a long time while the
@@ -126,13 +127,21 @@ New tests go in `tests/testthat/test-second_order_summary.R`, using the
 
 ## Helpers
 
-| Helper | Use |
-|---|---|
-| `bin_average_summary_weight(K, params)` | trapezoidal bin average, gated on the flag — the default entry point |
-| `bin_average_weight(K)` | ungated trapezoid; averages along the last dimension of an array |
-| `power_law_bin_average(w, dw, a, w_max)` | exact bin average of `w^a`, with optional cutoff |
-| `encounter_kernel(params)` | the kernel `mizerEncounter()` actually uses, under either scheme |
-| `bin_midpoints(params)` | geometric bin centres, for plotting bin averages |
+| Helper | Exported? | Use |
+|---|---|---|
+| `bin_average_weight(K, params)` | yes | trapezoidal bin average, gated on the flag — the default entry point |
+| `trapezoidal_bin_average(K)` | no | ungated trapezoid; averages along the last dimension of an array |
+| `power_law_bin_average(w, dw, a, w_max)` | no | exact bin average of `w^a`, with optional cutoff |
+| `encounter_kernel(params)` | yes | the kernel `mizerEncounter()` actually uses, under either scheme |
+| `bin_midpoints(params)` | no | geometric bin centres, for plotting bin averages |
+
+`bin_average_weight()` and `encounter_kernel()` are exported (badged
+experimental, to match `second_order_w()`) so that extension authors and users
+writing their own indicators can reach them; the user-facing guidance lives in
+the `analyse-and-plot` and `extend-mizer` skills under `inst/skills/`. Keep those
+two in step with any change here. The other three are internal — prefer
+`ArraySpeciesBySize(..., representation = "average")` over telling a user to call
+`bin_midpoints()` by hand.
 
 Setting `second_order_w(params) <- c(bin_average = TRUE)` re-runs `setParams()`,
 because every array in the inventory table is precomputed.

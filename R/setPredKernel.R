@@ -382,6 +382,7 @@ expand_kernel_offsets <- function(phis, params, species) {
 
 #' The predation kernel as used by the encounter quadrature
 #'
+#' `r lifecycle::badge("experimental")`
 #' Returns the kernel array \eqn{\Phi_i(w_k, w_p)} for which
 #' \deqn{E_i(w_k) = \gamma_i(w_k) \sum_p \Phi_i(w_k, w_p) N^{eff}_i(w_p)
 #'                  w_p \Delta w_p}
@@ -400,14 +401,19 @@ expand_kernel_offsets <- function(phis, params, species) {
 #' transform, which costs one FFT and keeps this helper automatically in step
 #' with whatever quadrature `setPredKernel()` used.
 #'
-#' A summary function that instead pairs the point-sampled [getPredKernel()]
-#' with a bin-averaged prey weight double-counts the prey-bin quadrature; that
-#' was the bug behind issue #474.
+#' Pair it with the **plain point prey weight** `params@w_full * params@dw_full`.
+#' That weight is a normalisation which the kernel construction is built to
+#' cancel, not a first-order quadrature weight, so it must not be passed through
+#' [bin_average_weight()]: doing so applies the prey-bin integral twice. A
+#' summary function that instead pairs the point-sampled [getPredKernel()] with a
+#' bin-averaged prey weight double-counts that quadrature; that was the bug
+#' behind issue #474.
 #'
 #' @param params A MizerParams object.
 #' @return An array (predator species x predator size x prey size).
-#' @concept helper
-#' @keywords internal
+#' @seealso [getPredKernel()] for the point-sampled kernel used for plotting and
+#'   for supplying a custom kernel, [second_order_w()], [bin_average_weight()]
+#' @export
 encounter_kernel <- function(params) {
     # A kernel that is stored explicitly is used as-is by mizerEncounter(),
     # which weights it with the plain `w * dw`, so it is already consistent.

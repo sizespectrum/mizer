@@ -5,6 +5,21 @@ stability of steady states.
 
 ## New functions
 
+- New experimental `bin_average_weight()` prepares the weight of an integral
+  over the size spectrum so that the integral uses the quadrature scheme the
+  model is actually on. Use it when writing your own indicator or diagnostic
+  function: it is gated on the `bin_average` entry of `second_order_w()`, so an
+  indicator written with it is unchanged on the default scheme and correct to
+  second order when second-order bin-averaging is switched on. Previously only
+  available internally as `bin_average_summary_weight()`.
+
+- New experimental `encounter_kernel()` returns the predation kernel that
+  `mizerEncounter()` actually uses under whichever quadrature scheme the model
+  is on, to be paired with the plain point prey weight `w_full * dw_full`. Any
+  diagnostic that decomposes the encounter rate must use this rather than
+  `getPredKernel()`, which is point-sampled on the grid and is intended for
+  plotting and for supplying a custom kernel.
+
 - New `gaussian_mixture_pred_kernel()` supports multimodal feeding preferences
   represented by mixtures of Gaussian distributions on the log
   predator/prey mass-ratio scale.

@@ -244,6 +244,7 @@ reference:
   - has_concept("summary functions")
   - getFeedingLevel
   - getCriticalFeedingLevel
+  - bin_average_weight
   - "w"
 - title: Calculating rates
   description: >
@@ -321,6 +322,7 @@ reference:
   - setParams
   - setPredKernel
   - getPredKernel
+  - encounter_kernel
   - setSearchVolume
   - setInteraction
   - setMaxIntakeRate

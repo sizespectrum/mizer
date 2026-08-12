@@ -2,42 +2,69 @@
 % Please edit documentation in R/second_order_w.R
 \name{bin_average_weight}
 \alias{bin_average_weight}
-\title{Trapezoidal bin-average of a per-bin weight}
+\title{Bin-average the weight of a size-spectrum integral}
 \usage{
-bin_average_weight(K)
+bin_average_weight(K, params)
 }
 \arguments{
 \item{K}{A numeric vector of weights indexed over the size grid, or a
 numeric array whose last dimension runs over the size grid (e.g. a
 species-by-size matrix or a gear-by-species-by-size array).}
+
+\item{params}{A MizerParams object whose \code{second_order_w} slot controls the
+gating.}
 }
 \value{
-An object of the same shape as \code{K} containing the trapezoidal
-bin-averaged weights.
+The weight \code{K}, bin-averaged when \code{params@second_order_w[["bin_average"]]}
+is \code{TRUE}, otherwise returned unchanged.
 }
 \description{
-Internal helper for the second-order summary integrals. A summary
-diagnostic \eqn{\int N(w) K(w)\, dw} is discretised on the finite-volume
-grid as \eqn{\sum_j N_j \bar K_j \Delta w_j}, where \eqn{N_j} is the cell
-average of the density over bin \eqn{[w_j, w_{j+1}]}. To be second order in
-the bin width the point weight \eqn{K(w_j)} must be replaced by the bin
-average
-\deqn{\bar K_j = \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} K(w)\,dw
-  \approx \tfrac12\big(K(w_j) + K(w_{j+1})\big).}
-The trapezoidal average \eqn{\tfrac12(K_j + K_{j+1})} is uniformly second
-order and exact whenever \eqn{K} is linear in \eqn{w} (e.g. the first
-moment \eqn{K = w}, for which it equals \eqn{(w_{j+1}^2 - w_j^2)/(2\Delta
-w_j)}).
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+Prepares the weight \eqn{K(w)} of an integral over the size spectrum so that
+the integral is evaluated with the quadrature scheme the model is actually
+using. Use this when writing your own indicator or diagnostic function; the
+built-in summary and indicator functions call it for you.
 }
 \details{
-The weight \code{K} is supplied already evaluated on the size grid (a vector
-indexed over the bins, or a matrix with the size dimension running along the
-columns). The top bin has no right-hand neighbour on the grid, so its weight
-is left unaveraged (one-sided); the density there is negligible, so this
-does not affect the second-order accuracy of the totals.
+An integral \eqn{\int N(w) K(w)\, dw} is discretised on mizer's
+finite-volume grid as \eqn{\sum_j N_j \bar K_j \Delta w_j}, where \eqn{N_j}
+is the cell average of the density over bin \eqn{[w_j, w_{j+1}]}. Only the
+weight is approximated: \eqn{N_j} is already a cell average and \eqn{\Delta
+w_j} is exact, so \strong{neither the abundance nor the bin widths should ever be
+passed through this function}.
 
-This helper is shared with the reproduction integrals (issue #376), which
-also need the trapezoidal bin-average of a composite weight.
+Whether the point weight \eqn{K(w_j)} is replaced by the bin average
+\deqn{\bar K_j = \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} K(w)\,dw
+  \approx \tfrac12\big(K(w_j) + K(w_{j+1})\big)}
+is controlled by the \code{bin_average} entry of the model's \code{\link[=second_order_w]{second_order_w()}}
+slot. When it is \code{FALSE} (the default) \code{K} is returned unchanged, so an
+indicator written with this function reproduces the left-edge Riemann sums of
+previous mizer versions byte-for-byte. When it is \code{TRUE} the trapezoidal bin
+average is returned, which is uniformly second order and exact whenever
+\eqn{K} is linear in \eqn{w} (e.g. the first moment \eqn{K = w}, for which it
+equals \eqn{(w_{j+1}^2 - w_j^2)/(2\Delta w_j)}).
+
+Because the gating happens inside, always call this rather than averaging
+unconditionally: a hard-coded bin average silently changes the results of
+models that are on the default scheme.
+
+If \code{K} is a product of several size-dependent factors, average the
+\strong{product} and not the individual factors — the average of a product is not
+the product of the averages. Spawning stock biomass, for example, averages
+\code{maturity * w} as a single weight.
+
+The top bin has no right-hand neighbour on the grid, so its weight is left
+unaveraged (one-sided); the density there is negligible, so this does not
+affect the second-order accuracy of the totals.
 }
-\concept{helper}
-\keyword{internal}
+\examples{
+# Biomass of each species above 10g -- what getBiomass() does internally.
+params <- NS_params
+K <- get_size_range_array(params, min_w = 10)   # species x size, 0/1
+K <- sweep(K, 2, params@w, "*")                 # weight by w to get biomass
+K <- bin_average_weight(K, params)              # gated on second_order_w
+rowSums(sweep(initialN(params) * K, 2, params@dw, "*"))
+}
+\seealso{
+\code{\link[=second_order_w]{second_order_w()}}, \code{\link[=get_size_range_array]{get_size_range_array()}}, \code{\link[=encounter_kernel]{encounter_kernel()}}
+}
