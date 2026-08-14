@@ -63,6 +63,26 @@ test_that("setResource gives error", {
     expect_error(setResource(NS_params_small,
                              resource_capacity = 1, resource_rate = 2),
                  "You should only provide either")
+    # An argument that setResource does not have used to be silently ignored
+    expect_error(setResource(NS_params_small, resource_capcity = 1),
+                 "does not have an argument `resource_capcity`")
+    expect_error(setResource(NS_params_small, foo = 1, bar = 2),
+                 "does not have arguments `foo`, `bar`")
+})
+
+test_that("the deprecated resource arguments point at setResource", {
+    rp <- resource_params(NS_params_small)
+    # The replacement used to be given as `setParams(resource_rate)`, which has
+    # no effect at all.
+    expect_warning(setResource(NS_params_small, r_pp = rp$r_pp * 2,
+                               balance = FALSE),
+                   "argument of `setResource\\(\\)` is deprecated")
+    expect_warning(setResource(NS_params_small, r_pp = rp$r_pp * 2,
+                               balance = FALSE),
+                   "use the `resource_rate` argument instead")
+    expect_warning(setResource(NS_params_small, kappa = rp$kappa * 2,
+                               balance = FALSE),
+                   "use the `resource_capacity` argument instead")
 })
 
 

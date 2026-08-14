@@ -9,7 +9,7 @@ params <- setMetabolicRate(params)         # recompute from species params
 metab(params) <- my_array                  # direct setter; freezes the array
 params <- setSearchVolume(params, search_vol = my_array)  # same, via set...()
 params <- setSearchVolume(params, reset = TRUE)  # unfreeze: recompute again
-params <- setParams(params)                # rebuild ALL rate arrays
+params <- setParams(params)                # rebuild ALL rate arrays (not resource)
 
 # ── Fishing ───────────────────────────────────────────────────────────────────
 gear_params(params) <- gp

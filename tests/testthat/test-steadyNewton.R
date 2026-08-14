@@ -218,7 +218,8 @@ test_that("the upper boundary condition stops diffusion leaking above w_max", {
     skip_unless_experimental()
     # On the full model (where the cutoff is a genuine maturity cutoff) a step
     # with diffusion leaves the density exactly zero above the growth-chain top.
-    p <- setParams(NS_params, use_predation_diffusion = TRUE)
+    p <- NS_params
+    use_predation_diffusion(p) <- TRUE
     no_w <- length(p@w)
     w_top <- mizer:::support_top_idx(p)
     sim <- project(p, t_max = 0.5, dt = 0.1, t_save = 0.5)

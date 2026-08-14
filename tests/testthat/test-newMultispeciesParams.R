@@ -112,6 +112,54 @@ test_that("setParams handles change in w_max", {
                  "The maximum weight of a species is larger than")
 })
 
+test_that("setParams rejects arguments it does not use", {
+    params <- NS_params_small
+    # A typo used to be silently ignored
+    expect_error(setParams(params, metabolic = 99),
+                 "does not have an argument `metabolic`")
+    expect_error(setParams(params, metabolic = 99),
+                 "Check for a typo")
+    # Arguments belonging to other setters point at those setters
+    expect_error(setParams(params, resource_rate = 5),
+                 "Use `setResource\\(\\)` to set `resource_rate`")
+    expect_error(setParams(params, kappa = 5),
+                 "Use `setResource\\(\\)` to set `kappa`")
+    expect_error(setParams(params, gear_params = gear_params(params)),
+                 "Use `gear_params<-\\(\\)` to set `gear_params`")
+    # Several at once are all reported
+    expect_error(setParams(params, resource_rate = 5, metabolic = 99),
+                 "does not have arguments `resource_rate`, `metabolic`")
+    # Unnamed arguments beyond `interaction` and `info_level` are rejected
+    expect_error(setParams(params, NULL, 0, 1),
+                 "must be named")
+    # Arguments the setters do accept are fine
+    expect_no_error(setParams(params, z0pre = 0.5, RDD = "BevertonHoltRDD",
+                              info_level = 0))
+})
+
+test_that("setParams passes reset on to all the setters", {
+    params <- NS_params_small
+    # Freeze two of the arrays
+    params <- setSearchVolume(params, search_vol = params@search_vol * 2)
+    params <- setMetabolicRate(params, metab = params@metab * 2)
+    expect_false(is.null(comment(params@search_vol)))
+    expect_false(is.null(comment(params@metab)))
+
+    # Without reset they stay frozen at their custom values
+    unchanged <- setParams(params, info_level = 0)
+    expect_false(different(unchanged@search_vol, params@search_vol))
+    expect_false(different(unchanged@metab, params@metab))
+
+    # With reset they are recalculated from the species parameters
+    thawed <- setParams(params, reset = TRUE, info_level = 0)
+    expect_null(comment(thawed@search_vol))
+    expect_null(comment(thawed@metab))
+    expect_false(different(thawed@search_vol,
+                           setSearchVolume(params, reset = TRUE)@search_vol))
+
+    expect_error(setParams(params, reset = "yes"), "not a flag")
+})
+
 test_that("setParams reapplies line colours and linetypes from species_params", {
     params <- NS_params_small
     params@species_params$linecolour <- rep("#123456", nrow(species_params(params)))

@@ -233,8 +233,9 @@ newMultispeciesParams <- function(
                   maturity = maturity,
                   repro_prop = repro_prop,
                   RDD = RDD,
-                  # setFishing
-                  gear_params = gear_params,
+                  # setFishing. The `gear_params` are not passed here: they are
+                  # already stored in the params object by emptyParams() above
+                  # and setFishing() reads them from there.
                   selectivity = selectivity,
                   catchability = catchability,
                   initial_effort = initial_effort) %>%
@@ -270,10 +271,15 @@ newMultispeciesParams <- function(
 #' \item [setMetabolicRate()]
 #' \item [setExtMort()]
 #' \item [setExtEncounter()]
+#' \item [setExtDiffusion()]
 #' \item [setReproduction()]
 #' \item [setFishing()]
 #' }
-#' See the Details section below for a discussion of how to use this function.
+#' Note that [setResource()] is **not** among them: the resource rate, capacity
+#' and dynamics are not changed by `setParams()` and have to be set with
+#' [setResource()]. Passing a resource argument to `setParams()` gives an error
+#' rather than being silently ignored. See the Details section below for a
+#' discussion of how to use this function.
 #'
 #' @param object A \linkS4class{MizerParams} object
 #' @inheritParams setInteraction
@@ -283,8 +289,15 @@ newMultispeciesParams <- function(
 #' @inheritDotParams setMetabolicRate -reset -p
 #' @inheritDotParams setExtMort -reset
 #' @inheritDotParams setExtEncounter -reset
+#' @inheritDotParams setExtDiffusion -reset
 #' @inheritDotParams setReproduction -reset
 #' @inheritDotParams setFishing -reset
+#' @param reset If set to TRUE then all the rate arrays that `setParams()` sets
+#'   are recalculated from the species parameters, even if they had previously
+#'   been overwritten with custom values. The default is FALSE, in which case
+#'   arrays that have been set manually are left alone. This is passed on to
+#'   each of the setter functions listed above, so it thaws all of them at once.
+#'   To thaw only one of them, call that setter with `reset = TRUE` instead.
 #' @param info_level Controls the amount of information messages that are shown.
 #'   Higher levels lead to more messages, `info_level = 0` gives silence. The
 #'   default is taken from the `mizer_info_level` option, see
@@ -368,29 +381,35 @@ newMultispeciesParams <- function(
 # The reason we list `interaction` explicitly rather than including it in
 # the `...` is for backwards compatibility. It used to be the second argument.
 setParams <- function(object, interaction = NULL,
-                      info_level = default_info_level(), ...) {
+                      info_level = default_info_level(), ..., reset = FALSE) {
     UseMethod("setParams")
 }
 #' @export
 setParams.MizerParams <- function(object, interaction = NULL,
-                                  info_level = default_info_level(), ...) {
+                                  info_level = default_info_level(), ...,
+                                  reset = FALSE) {
+    # The setters below all declare `... Unused`, so without this check any
+    # misspelled or misplaced argument would be silently ignored.
+    check_set_params_dots(match.call(expand.dots = FALSE)[["..."]])
+    assert_that(is.flag(reset))
+
     # Collect the information signals raised by the individual setters and
     # report them together at the end.
     with_info_level(info_level = info_level, {
     params <- validParams(object)
 
     params <- setInteraction(params, interaction)
-    params <- setPredKernel(params, ...)
-    params <- setMaxIntakeRate(params, ...)
-    params <- setMetabolicRate(params, ...)
-    params <- setExtMort(params, ...)
-    params <- setExtEncounter(params, ...)
-    params <- setExtDiffusion(params, ...)
+    params <- setPredKernel(params, ..., reset = reset)
+    params <- setMaxIntakeRate(params, ..., reset = reset)
+    params <- setMetabolicRate(params, ..., reset = reset)
+    params <- setExtMort(params, ..., reset = reset)
+    params <- setExtEncounter(params, ..., reset = reset)
+    params <- setExtDiffusion(params, ..., reset = reset)
     # setSearchVolume() should be called only after
     # setMaxIntakeRate() and setPredKernel()
-    params <- setSearchVolume(params, ...)
-    params <- setReproduction(params, ...)
-    params <- setFishing(params, ...)
+    params <- setSearchVolume(params, ..., reset = reset)
+    params <- setReproduction(params, ..., reset = reset)
+    params <- setFishing(params, ..., reset = reset)
 
     colours <- params@species_params$linecolour
     if (!is.null(colours)) {
@@ -406,4 +425,84 @@ setParams.MizerParams <- function(object, interaction = NULL,
     validObject(params)
     })
     params
+}
+
+# The setter functions that `setParams()` calls. `setInteraction()` is not in
+# the list because its `interaction` argument is a named argument of
+# `setParams()` rather than part of the `...`.
+set_params_setters <- c("setPredKernel", "setMaxIntakeRate", "setMetabolicRate",
+                        "setExtMort", "setExtEncounter", "setExtDiffusion",
+                        "setSearchVolume", "setReproduction", "setFishing")
+
+# Names of the arguments that `setParams()` passes on to its setters. Collected
+# from the formals of the setters themselves so that this stays correct when a
+# setter gains or loses an argument.
+set_params_arg_names <- function() {
+    args <- unlist(lapply(set_params_setters,
+                          function(f) names(formals(get(f)))))
+    # `params` is supplied by `setParams()` and `reset` is one of its own
+    # arguments.
+    setdiff(unique(args), c("params", "object", "reset", "..."))
+}
+
+# Where a user is likely to have meant an argument that `setParams()` does not
+# have. Anything not listed here is reported as an unknown argument.
+set_params_elsewhere <- c(
+    resource_rate     = "`setResource()`",
+    resource_capacity = "`setResource()`",
+    resource_level    = "`setResource()`",
+    resource_dynamics = "`setResource()`",
+    r_pp              = "`setResource()`",
+    kappa             = "`setResource()`",
+    lambda            = "`setResource()`",
+    w_pp_cutoff       = "`setResource()`",
+    balance           = "`setResource()`",
+    n                 = "`species_params<-()` or `setResource()`",
+    gear_params       = "`gear_params<-()`",
+    species_params    = "`species_params<-()`",
+    interaction_resource = "`species_params<-()`",
+    second_order_w    = "`second_order_w<-()`",
+    use_predation_diffusion = "`use_predation_diffusion<-()`"
+)
+
+#' Check the arguments passed to `setParams()` in its `...`
+#'
+#' Each of the setters that [setParams()] calls declares `... Unused`, so an
+#' argument that none of them recognises would otherwise be accepted in silence.
+#'
+#' @param dots The `...` of the call to [setParams()], as returned by
+#'   `match.call(expand.dots = FALSE)[["..."]]`. Using the unevaluated call
+#'   rather than `list(...)` keeps the arguments from being evaluated twice.
+#' @return NULL, invisibly. Called for the error it throws.
+#' @noRd
+check_set_params_dots <- function(dots) {
+    if (length(dots) == 0) {
+        return(invisible(NULL))
+    }
+    names <- names(dots)
+    if (is.null(names) || any(names == "")) {
+        stop("All arguments to `setParams()` after the first must be named.")
+    }
+    unknown <- setdiff(names, set_params_arg_names())
+    if (length(unknown) == 0) {
+        return(invisible(NULL))
+    }
+    elsewhere <- intersect(unknown, names(set_params_elsewhere))
+    unrecognised <- setdiff(unknown, elsewhere)
+    msg <- paste0("`setParams()` does not have ",
+                  if (length(unknown) == 1) "an argument " else "arguments ",
+                  paste0("`", unknown, "`", collapse = ", "), ".")
+    if (length(elsewhere) > 0) {
+        msg <- c(msg,
+                 paste0("Use ", set_params_elsewhere[elsewhere],
+                        " to set `", elsewhere, "`."))
+    }
+    if (length(unrecognised) > 0) {
+        msg <- c(msg,
+                 paste0("Check for a typo in ",
+                        paste0("`", unrecognised, "`", collapse = ", "),
+                        ", or set it as a species parameter with ",
+                        "`species_params<-()`."))
+    }
+    stop(paste(msg, collapse = "\n"))
 }

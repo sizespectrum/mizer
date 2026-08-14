@@ -329,7 +329,12 @@ leaves the manual value in place and warns:
 params <- setSearchVolume(params, reset = TRUE)   # drop the override, recompute
 params <- setMetabolicRate(params)                # recompute, unless frozen
 params <- setParams(params)                       # rebuild ALL rate arrays at once
+params <- setParams(params, reset = TRUE)         # ...and thaw every frozen one
 ```
+
+Note that `setParams()` does not touch the resource: the resource rate,
+capacity, level and dynamics belong to `setResource()`, and passing one of its
+arguments to `setParams()` is an error.
 
 Unlike the direct setters, the `set…()` functions return a **new** object, so
 they must be reassigned. They also accept the array itself, as the argument
@@ -528,6 +533,6 @@ To add a whole new ecosystem component with `setComponent()`, see the
 | a size-dependent rate, keeping it tied to the parameters | change the underlying species parameter |
 | a size-dependent rate to a bespoke array (freezing it) | the direct setter `metab(params) <- …`, or the matching `set…()` with the array argument |
 | a frozen rate back to its default form | `set…(params, reset = TRUE)` |
-| everything after several edits | `setParams(params)` |
+| everything after several edits | `setParams(params)` (not the resource — see `setResource()`) |
 | how a rate is *computed* (e.g. to make it time-dependent) | `setRateFunction(params, …)` |
 | the model's set of dynamical components | `setComponent()` (see the `extend-mizer` skill) |
