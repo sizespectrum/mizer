@@ -286,6 +286,19 @@ about that separately, see "A change that cannot take effect now warns" above.
 Call `setSearchVolume(params, reset = TRUE)` to put the search volume back under
 the control of the species parameters.
 
+### `f0` is always validated
+
+Every non-missing target feeding level `f0` must now be finite and in the
+interval `[0, 1)`, whether or not a search-volume coefficient `gamma` is also
+supplied. Previously `f0 = 1` divided by zero when mizer calculated `gamma`,
+silently creating an infinite `gamma` and a non-finite `search_vol`; values
+above 1 created negative search volumes. If `gamma` was supplied explicitly,
+the same invalid `f0` could instead be accepted and ignored.
+
+If code now errors here, choose a physically attainable feeding level below 1.
+When `gamma` is the parameter you intend to control, omit the `f0` value or use
+a valid value; `gamma` will still take precedence (#517).
+
 ### `setParams()` rejects arguments it does not use
 
 [`setParams()`](../reference/setParams.html) passes its `...` on to the rate setters, each of which declares

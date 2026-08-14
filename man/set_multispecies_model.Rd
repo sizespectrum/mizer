@@ -46,7 +46,7 @@ species by including a \code{n} column in the \code{species_params}.}
 
 \item{f0}{Expected average feeding level. Used to set \code{gamma}, the
 coefficient in the search rate. Ignored if \code{gamma} is given
-explicitly.}
+explicitly, but must still be finite and in the interval (0, 1).}
 
 \item{kappa}{The coefficient \eqn{\kappa} of the resource carrying capacity
 power law \eqn{c_R(w) = \kappa\, w^{-\lambda}}, which also sets the initial

@@ -4,6 +4,8 @@ test_that("Providing gamma overrules f0 in newTraitParams()", {
     params <- newTraitParams(f0 = 0.4, gamma = gamma, info_level = 0)
     expect_identical(params@species_params$gamma,
                      rep(gamma, nrow(params@species_params)), ignore_attr = TRUE)
+    expect_error(newTraitParams(f0 = 1, gamma = gamma, info_level = 0),
+                 "`f0` must be finite and in the interval")
 })
 
 test_that("newTraitParams uses documented gear and resource-cutoff behaviour", {
@@ -158,6 +160,8 @@ test_that("Sets given_species_params", {
 test_that("newCommunityParams works", {
     expect_message(newCommunityParams(z0 = 0.05, f0 = 0.5, info_level = 3),
                    "Using f0, h, lambda, kappa")
+    expect_error(newCommunityParams(f0 = 1, gamma = 1, info_level = 0),
+                 "`f0` must be finite and in the interval")
 })
 
 test_that("newCommunityParams sets constant-reproduction community state", {
