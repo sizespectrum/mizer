@@ -58,6 +58,7 @@ plots) are in the changelog and are not repeated here.
 | Size grid or results changed in a model built with a small `min_w` | `w_min` is no longer reset to 0.001 | `w_min` survives a rebuild (3.3) |
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters (3.3) |
 | A recalculated `gamma` or `f0` is wildly different, in a model whose `search_vol` was set by hand | the frozen array used to block mizer's own unit-gamma calculation | Defaults for `gamma` and `f0` ignore a hand-set search volume (3.3) |
+| Setting `f0 = 1` now errors that `f0` must be in `[0, 1)` | an unattainable feeding level used to create a non-finite search volume | `f0` must be below 1 when `gamma` is calculated (3.3) |
 | `setParams()` or `setResource()` errors that it "does not have an argument" | unknown arguments are no longer silently ignored | `setParams()` rejects arguments it does not use (3.3) |
 | A `setParams(resource_rate = )` / `setParams(kappa = )` call that ran fine now errors | `setParams()` never set the resource; use `setResource()` | `setParams()` rejects arguments it does not use (3.3) |
 | A resource change made via `setParams()` never showed up in the model | the argument was silently dropped in every version before 3.3 | `setParams()` rejects arguments it does not use (3.3) |
@@ -346,6 +347,21 @@ effect on the model while the search volume stays frozen — mizer now warns you
 about that separately, see "A change that cannot take effect now warns" above.
 Call `setSearchVolume(params, reset = TRUE)` to put the search volume back under
 the control of the species parameters.
+
+### `f0` must be below 1 when `gamma` is calculated
+
+The target feeding level `f0` must now be finite and in the interval `[0, 1)`
+when mizer needs to calculate a missing search-volume coefficient `gamma`.
+Previously `f0 = 1` divided by zero in the default calculation, silently
+creating an infinite `gamma` and a non-finite `search_vol`; values above 1
+created negative search volumes. The assignment returned an invalid
+`MizerParams` object and the damage was usually reported only by a later call to
+`validParams()`.
+
+If code now errors here, choose a physically attainable feeding level below 1,
+or supply `gamma` directly when that is the parameter you intend to control.
+An `f0` value that is overruled by an explicitly given `gamma` is unaffected by
+this check (#517).
 
 ### `setParams()` rejects arguments it does not use
 

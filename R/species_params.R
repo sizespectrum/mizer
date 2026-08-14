@@ -1269,6 +1269,15 @@ get_gamma_default <- function(params) {
         assert_that(is.number(params@resource_params$lambda),
                     is.number(params@resource_params$kappa),
                     is.numeric(species_params$f0))
+        f0 <- species_params$f0
+        invalid_f0 <- missing & (!is.finite(f0) | f0 < 0 | f0 >= 1)
+        if (any(invalid_f0)) {
+            stop("The species parameter `f0` must be finite and in the ",
+                 "interval [0, 1) for species where `gamma` is not ",
+                 "supplied. Invalid values for: ",
+                 paste(species_params$species[invalid_f0], collapse = ", "),
+                 ".")
+        }
         signal_info("gamma", "Using f0, h, lambda, kappa and the predation kernel to calculate gamma.")
         if (!"h" %in% names(params@species_params) ||
             any(is.na(species_params[["h"]]))) {
@@ -1299,7 +1308,7 @@ get_gamma_default <- function(params) {
         gamma_default <- (species_params[["h"]] / avail_energy) *
             (species_params$f0 / (1 - species_params$f0))
         # Only overwrite missing gammas with calculated values
-        if (any(is.na(gamma_default[missing]))) {
+        if (any(!is.finite(gamma_default[missing]))) {
             stop("Could not calculate gamma.")
         }
         species_params$gamma[missing] <- gamma_default[missing]

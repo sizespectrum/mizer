@@ -235,6 +235,12 @@ stability of steady states.
 
 ## Bug fixes
 
+- Setting `f0` to a value outside the interval `[0, 1)` when `gamma` needs to
+  be calculated now gives an immediate error. Previously `f0 = 1` silently
+  produced an infinite `gamma` and a non-finite `search_vol`, leaving an
+  invalid `MizerParams` object that failed only on a later call to
+  `validParams()`; values above 1 produced negative search volumes (#517).
+
 - The default values for the `gamma` and `f0` species parameters are no longer
   corrupted by a search volume that you have set by hand. `get_gamma_default()`
   measures the energy available to a predator by giving it a search volume
