@@ -9,6 +9,7 @@ convert_plot_spectrum_axis(
   params,
   size_axis,
   power,
+  per_log_size = power == 2,
   species_col = "Species",
   value_col = 2
 )
@@ -23,6 +24,10 @@ column.}
 
 \item{power}{The power of weight multiplying the number density.}
 
+\item{per_log_size}{Whether the spectrum is a density with respect to
+logarithmic size rather than with respect to size. Defaults to
+\code{power == 2}, the only power for which this used to be the case.}
+
 \item{species_col}{Name of the column identifying the species. Default is
 \code{"Species"}.}
 
@@ -34,9 +39,9 @@ The plotting data with both its size coordinate and spectrum values
 expressed for the requested axis.
 }
 \description{
-Number density is stored per unit weight. For a length axis it is converted
-with the Jacobian \code{dw/dl = b * w / l}. The \code{power = 2} spectrum is instead
-biomass density per logarithmic size interval, so it uses
+A density with respect to weight is converted to a density with respect to
+length with the Jacobian \code{dw/dl = b * w / l}. A density with respect to
+logarithmic weight is instead converted with
 \verb{d log(w) / d log(l) = b}.
 }
 \keyword{internal}

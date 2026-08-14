@@ -293,7 +293,7 @@ community settles onto a steady state.
 
 ```{r}
 cel <- steady(cel)
-plotSpectra(cel, power = 2)
+plotSpectra(cel, per_log_size = TRUE)
 ```
 
 Each curve is now a smooth species spectrum, and together they line up along the

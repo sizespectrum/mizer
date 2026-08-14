@@ -13,6 +13,8 @@ plot_spectra(
   llim,
   ylim,
   power,
+  biomass = power >= 1,
+  per_log_size = power == 2,
   total,
   resource,
   background,
@@ -38,6 +40,13 @@ limits.}
 \item{ylim}{Numeric vector of length two giving the y-axis limits.}
 
 \item{power}{The abundance is multiplied by weight raised to this power.}
+
+\item{biomass}{Whether the resulting quantity is a biomass density rather
+than a number density. Used for the y-axis label.}
+
+\item{per_log_size}{Whether the resulting quantity is a density with respect
+to logarithmic size. Used for the y-axis label and for the Jacobian of the
+conversion to a length axis.}
 
 \item{total}{Whether to include the total community abundance.}
 

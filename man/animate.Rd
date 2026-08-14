@@ -96,10 +96,15 @@ frames. Default is \code{"linear"}. Available options are \code{"linear"}, \code
 
 \strong{For \code{MizerSim} methods:}
 \describe{
+\item{\code{biomass}}{Whether to animate the biomass density (\code{TRUE}, the
+default) or the number density (\code{FALSE}).}
+\item{\code{per_log_size}}{Whether to animate the density with respect to
+logarithmic size (\code{TRUE}) or with respect to size (\code{FALSE}, the
+default).}
 \item{\code{power}}{The abundance is plotted as the number density times the
-weight raised to \code{power}. The default \code{power = 1} gives the
-biomass density, whereas \code{power = 2} gives the biomass density
-with respect to logarithmic size bins.}
+weight raised to \code{power}. An alternative to \code{biomass} and
+\code{per_log_size}, with which it must agree if they are given as well.
+See \code{\link[=plotSpectra]{plotSpectra()}} for details.}
 \item{\code{resource}}{A boolean value that determines whether resource is
 included. If \code{TRUE}, the resource spectrum is plotted as an additional
 trace called \code{"Resource"}. Default is \code{TRUE}.}
@@ -121,9 +126,9 @@ The function dispatches on the class of \code{x}:
 \item \strong{\code{MizerSim}} — animates the community abundance spectra (number density
 or biomass density vs body size). Resource, background species, and a
 community total can be added via the \code{resource}, \code{background}, and \code{total}
-arguments. The \code{power} argument controls whether the y-axis shows number
-density (\code{power = 0}), biomass density (\code{power = 1}, default), or biomass
-density in logarithmic size bins (\code{power = 2}). Both axes are log10 by
+arguments. The \code{biomass} and \code{per_log_size} arguments choose the plotted
+quantity in the same way as in \code{\link[=plotSpectra]{plotSpectra()}}, and the \code{power} argument
+is available as the same alternative to them. Both axes are log10 by
 default and can each be switched to linear with \code{log_x = FALSE} or
 \code{log_y = FALSE}.
 \item \strong{\code{ArrayTimeBySpeciesBySize}} — animates any per-species, size-resolved

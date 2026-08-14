@@ -20,7 +20,8 @@ plotComparisonDataFrame(
   highlight = NULL,
   legend_var = "Legend",
   size_axis = NULL,
-  spectrum_power = NULL
+  spectrum_power = NULL,
+  spectrum_per_log_size = NULL
 )
 }
 \arguments{
@@ -52,6 +53,10 @@ line colour.}
 
 \item{spectrum_power}{Optional power used to weight a number spectrum. When
 supplied, spectrum values are transformed along with a length axis.}
+
+\item{spectrum_per_log_size}{Whether the spectrum is a density with respect
+to logarithmic size, which selects the Jacobian used for a length axis.
+Defaults to \code{spectrum_power == 2}.}
 }
 \value{
 A \code{mizer_plot} (ggplot2) object.

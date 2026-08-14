@@ -14,8 +14,9 @@ plotCDF2(
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
-  power = 1,
-  biomass = TRUE,
+  power = NULL,
+  biomass = NULL,
+  per_log_size = NULL,
   total = FALSE,
   resource = FALSE,
   background = TRUE,
@@ -57,15 +58,15 @@ for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
 are always filtered out from the data regardless of \code{ylim[1]}. Data above
 \code{ylim[2]} is filtered and the upper axis limit is set accordingly.}
 
-\item{power}{The abundance is plotted as the number density times the weight
-raised to \code{power}. The default \code{power = 1} gives the biomass
-density, whereas \code{power = 2} gives the biomass density with respect
-to logarithmic size bins.}
+\item{power}{The number density is multiplied by the weight raised to
+\code{power} before being integrated. An alternative to the \code{biomass}
+argument, with which it must agree if that is given as well. The default
+is \code{power = 1}, the cumulative biomass.}
 
-\item{biomass}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
-Only used if \code{power} argument is missing. Then
-\code{biomass = TRUE} is equivalent to \code{power=1} and
-\code{biomass = FALSE} is equivalent to \code{power=0}}
+\item{biomass}{Whether to plot the cumulative biomass (\code{TRUE}, the default)
+or the cumulative abundance (\code{FALSE}).}
+
+\item{per_log_size}{Only \code{FALSE} (the default) is accepted; see Details.}
 
 \item{total}{A boolean value that determines whether the total over all
 species in the system is plotted as well. Note that even if the plot

@@ -4,12 +4,23 @@
 \alias{spectra_y_label}
 \title{Y-axis label for a size-spectrum plot}
 \usage{
-spectra_y_label(power, size_axis = "w")
+spectra_y_label(
+  power,
+  size_axis = "w",
+  biomass = power >= 1,
+  per_log_size = power == 2
+)
 }
 \arguments{
 \item{power}{The power of weight that the abundance was multiplied by.}
 
 \item{size_axis}{Either \code{"w"} (weight) or \code{"l"} (length).}
+
+\item{biomass}{Whether the quantity is a biomass density rather than a
+number density. Defaults to \code{power >= 1}.}
+
+\item{per_log_size}{Whether the quantity is a density with respect to
+logarithmic size. Defaults to \code{power == 2}.}
 }
 \value{
 A character string for the y-axis label.

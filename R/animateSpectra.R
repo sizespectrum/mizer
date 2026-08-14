@@ -8,9 +8,9 @@
 #' * **`MizerSim`** — animates the community abundance spectra (number density
 #'   or biomass density vs body size). Resource, background species, and a
 #'   community total can be added via the `resource`, `background`, and `total`
-#'   arguments. The `power` argument controls whether the y-axis shows number
-#'   density (`power = 0`), biomass density (`power = 1`, default), or biomass
-#'   density in logarithmic size bins (`power = 2`). Both axes are log10 by
+#'   arguments. The `biomass` and `per_log_size` arguments choose the plotted
+#'   quantity in the same way as in [plotSpectra()], and the `power` argument
+#'   is available as the same alternative to them. Both axes are log10 by
 #'   default and can each be switched to linear with `log_x = FALSE` or
 #'   `log_y = FALSE`.
 #'
@@ -82,10 +82,15 @@
 #'
 #'   **For `MizerSim` methods:**
 #'   \describe{
+#'     \item{`biomass`}{Whether to animate the biomass density (`TRUE`, the
+#'       default) or the number density (`FALSE`).}
+#'     \item{`per_log_size`}{Whether to animate the density with respect to
+#'       logarithmic size (`TRUE`) or with respect to size (`FALSE`, the
+#'       default).}
 #'     \item{`power`}{The abundance is plotted as the number density times the
-#'       weight raised to \code{power}. The default \code{power = 1} gives the
-#'       biomass density, whereas \code{power = 2} gives the biomass density
-#'       with respect to logarithmic size bins.}
+#'       weight raised to \code{power}. An alternative to `biomass` and
+#'       `per_log_size`, with which it must agree if they are given as well.
+#'       See [plotSpectra()] for details.}
 #'     \item{`resource`}{A boolean value that determines whether resource is
 #'       included. If `TRUE`, the resource spectrum is plotted as an additional
 #'       trace called `"Resource"`. Default is `TRUE`.}
@@ -135,19 +140,21 @@ animate.MizerSim <- function(x, species = NULL,
                               transition_duration = frame_duration,
                               easing = "linear",
                               time_range = lifecycle::deprecated(),
-                              power = 1,
+                              power = NULL, biomass = NULL,
+                              per_log_size = NULL,
                               resource = TRUE, ...) {
     if (lifecycle::is_present(time_range)) {
         lifecycle::deprecate_warn("2.6.0", "animate(time_range)", "animate(tlim)")
         tlim <- c(min(time_range), max(time_range))
     }
+    spectrum <- resolve_spectrum_power(power, biomass, per_log_size)
+    power <- spectrum$power
     sim <- x
     size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
     assert_that(is.flag(total), is.flag(resource), is.flag(background),
-                is.number(power),
                 is.number(frame_duration), frame_duration >= 0,
                 is.number(transition_duration), transition_duration >= 0,
                 is.string(easing),
@@ -198,8 +205,9 @@ animate.MizerSim <- function(x, species = NULL,
         nf <- rbind(nf, nf_total)
     }
 
-    # Deal with power argument ----
-    y_label <- spectra_y_label(power, size_axis)
+    y_label <- spectra_y_label(power, size_axis,
+                               biomass = spectrum$biomass,
+                               per_log_size = spectrum$per_log_size)
     # The animated spectrum is a density, so under second-order bin-averaging
     # we evaluate both the w^power weight and the plotted location at the
     # geometric bin centre w* = w sqrt(beta) (issue #383), matching
@@ -214,6 +222,7 @@ animate.MizerSim <- function(x, species = NULL,
                    ylim,
                    size_axis = size_axis,
                    spectrum_power = power,
+                   spectrum_per_log_size = spectrum$per_log_size,
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
                    easing = easing)
@@ -229,14 +238,17 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
                            ylim = c(NA, NA),
                            size_axis = "w",
                            spectrum_power = NULL,
+                           spectrum_per_log_size = NULL,
                            frame_duration = 500, transition_duration = 500,
                            easing = "linear") {
     size_axis <- plot_size_axis(size_axis)
     if (is.null(spectrum_power)) {
         df <- convert_plot_size_axis(df, params, size_axis)
     } else {
+        per_log_size <- spectrum_per_log_size %||% (spectrum_power == 2)
         df <- convert_plot_spectrum_axis(df, params, size_axis,
                                          power = spectrum_power,
+                                         per_log_size = per_log_size,
                                          value_col = "value")
     }
     x_var <- plot_size_x_var(size_axis)

@@ -312,6 +312,25 @@ test_that("animateSpectra sets the y axis title from power", {
                      "Number density [1/cm]")
 })
 
+test_that("animate takes the biomass and per_log_size arguments", {
+    sim <- ns_animate_sim
+
+    built_numbers <- plotly::plotly_build(animateSpectra(
+        sim, species = "Cod", tlim = c(1, 2), biomass = FALSE))
+    expect_identical(built_numbers$x$layout$yaxis$title,
+                     "Number density [1/g]")
+
+    built_per_log <- plotly::plotly_build(animateSpectra(
+        sim, species = "Cod", tlim = c(1, 2), biomass = FALSE,
+        per_log_size = TRUE))
+    expect_identical(built_per_log$x$layout$yaxis$title,
+                     "Number density in log weight")
+
+    expect_error(animateSpectra(sim, species = "Cod", tlim = c(1, 2),
+                                power = 2, biomass = FALSE),
+                 "imply `power = 0`")
+})
+
 test_that("animate supports the log argument", {
     sim <- example_animate_sim
     built_xy <- plotly::plotly_build(

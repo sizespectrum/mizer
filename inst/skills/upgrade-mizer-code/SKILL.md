@@ -42,6 +42,9 @@ plots) are in the changelog and are not repeated here.
 
 | Symptom | Cause | Section |
 |---|---|---|
+| `plotSpectra()` or `plotCDF()` errors that `power` and `biomass` are contradictory | supplying both is no longer silently resolved | `biomass` and `per_log_size` replace `power` (3.3) |
+| A `plotSpectra()` call with both `power` and `biomass`, or any `plotly...()` call with `biomass`, now gives a different plot | `biomass` is no longer ignored | `biomass` and `per_log_size` replace `power` (3.3) |
+| `plotCDF(per_log_size = TRUE)` errors | meaningless for a cumulative distribution | `biomass` and `per_log_size` replace `power` (3.3) |
 | New warning that a change to a species or resource parameter "has not taken effect" | the rate it feeds was set by hand and is no longer calculated | A change that cannot take effect now warns (3.3) |
 | A message that used to appear no longer does, with `info_level = 0` | `info_level = 0` now silences everything | One report, one switch (3.3) |
 | `expect_message()` on a mizer call fails, or `options(warn = 2)` trips | reports are warnings where they were messages, and are collected until the end of the call | One report, one switch (3.3) |
@@ -104,9 +107,43 @@ and are not repeated here.
 
 ## Upgrading from mizer 3.2 to 3.3
 
-All the changes in this release are corrections. Results move only for models
-that had opted in to second-order bin-averaging, that set `min_w` below the
-default, or that specify sizes as lengths.
+Most of the changes in this release are corrections. Results move only for
+models that had opted in to second-order bin-averaging, that set `min_w` below
+the default, or that specify sizes as lengths. The one change to an interface is
+in the spectrum plots.
+
+### `biomass` and `per_log_size` replace `power`
+
+`plotSpectra()`, `plotSpectra2()`, `plotCDF()`, `plotCDF2()` and `animate()`
+now describe the plotted quantity with two independent arguments: `biomass`
+chooses a biomass density rather than a number density, and the new
+`per_log_size` chooses a density with respect to logarithmic size rather than
+with respect to size. The `power` of the weight multiplying the number density
+is the sum of the two:
+
+| | `per_log_size = FALSE` | `per_log_size = TRUE` |
+|---|---|---|
+| `biomass = FALSE` | `power = 0` | `power = 1` |
+| `biomass = TRUE`  | `power = 1` | `power = 2` |
+
+`power` still works and is still the only way to ask for a power that is not
+the sum of the two flags, so calls that pass only `power` are unaffected. Two
+things change:
+
+- Passing `power` together with `biomass` used to ignore `biomass` silently.
+  Now the two must agree, or you get an error (#501). Where they do agree the
+  call is honoured: `plotSpectra(sim, power = 1, biomass = FALSE)` used to plot
+  the biomass density, and now plots the number density with respect to
+  logarithmic size — the same numbers, but labelled correctly and, with
+  `size_axis = "l"`, converted to a length axis with the logarithmic Jacobian
+  rather than the density one. If you meant the biomass density, drop the
+  `biomass` argument. The same applies to `plotlySpectra()`, `plotlyCDF()`,
+  `plotlySpectra2()` and `plotlyCDF2()`, which passed `power` on internally and
+  so ignored `biomass` even when you gave only `biomass`: those calls now plot
+  what they were asked for.
+- `plotCDF()` and `plotCDF2()` do not accept `per_log_size`, because
+  integrating a density over size gives the same cumulative quantity either
+  way. Use `biomass` on its own there.
 
 ### Length and weight parameters follow the one you gave last
 
