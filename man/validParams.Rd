@@ -4,13 +4,15 @@
 \alias{validParams}
 \title{Validate MizerParams object and upgrade if necessary}
 \usage{
-validParams(params, info_level = 3)
+validParams(params, info_level = default_info_level())
 }
 \arguments{
 \item{params}{The MizerParams object to validate}
 
 \item{info_level}{Controls the amount of information messages and warnings
-that are shown. Higher levels lead to more messages.}
+that are shown. Higher levels lead to more messages, \code{info_level = 0}
+gives silence. The default is taken from the \code{mizer_info_level} option,
+see \code{\link[=default_info_level]{default_info_level()}}.}
 }
 \value{
 A valid MizerParams object

@@ -281,7 +281,9 @@ test_that("resource_params<- rebuilds capacity and rate arrays (issue #439)", {
 
     # Modifying kappa now does not overwrite custom cc_pp array and, because
     # resource_params<- no longer balances, the freeze comment survives too.
-    resource_params(p3)$kappa <- 10 * resource_params(p3)$kappa
+    # Mizer warns that the change to kappa cannot take effect (#489).
+    expect_warning(resource_params(p3)$kappa <- 10 * resource_params(p3)$kappa,
+                   "Your change to the resource parameter `kappa`")
     expect_equal(resource_capacity(p3), custom_cc, ignore_attr = TRUE)
     expect_identical(comment(p3@cc_pp), "set manually")
 

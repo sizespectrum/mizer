@@ -166,8 +166,8 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
     if (!is.null(comment(params@mu_b))) {
         # Issue warning but only if a change was actually requested
         if (different(mu_b, params@mu_b)) {
-            message("The external mortality rate has been commented and therefore ",
-                    "will not be recalculated from the species parameters.")
+            signal_not_recalculated("mu_b", "external mortality rate",
+                               "setExtMort(params, reset = TRUE)")
         }
         return(params)
     }

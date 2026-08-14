@@ -57,6 +57,7 @@ Suggests:
 Collate:
     'age_mat.R'
     'helpers.R'
+    'info_signals.R'
     'MizerParams-class.R'
     'MizerSim-class.R'
     'registerExtensions.R'

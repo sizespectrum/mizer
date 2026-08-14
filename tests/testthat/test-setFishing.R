@@ -147,7 +147,7 @@ test_that("Comment works on selectivity", {
     expect_message(setFishing(params), NA)
     # but message when a change is not stored due to comment
     params@gear_params$knife_edge_size <- 0
-    expect_message(setFishing(params),  "has been commented")
+    expect_message(setFishing(params),  "has been set manually")
     # Can reset
     p <- setFishing(params, reset = TRUE)
     expect_equal(p@selectivity[1, 1, 1], 1, ignore_attr = TRUE)
@@ -177,7 +177,7 @@ test_that("Comment works on catchability", {
     expect_message(setFishing(params), NA)
     # but message when a change is not stored due to comment
     params@gear_params$catchability <- 2
-    expect_message(setFishing(params),  "has been commented")
+    expect_message(setFishing(params),  "has been set manually")
     # Can reset
     p <- setFishing(params, reset = TRUE)
     expect_equal(p@catchability[1, 1], 2, ignore_attr = TRUE)

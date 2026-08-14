@@ -118,8 +118,8 @@ setSearchVolume.MizerParams <- function(params, search_vol = NULL, reset = FALSE
     if (!is.null(comment(params@search_vol))) {
         # Issue warning but only if a change was actually requested
         if (different(search_vol, params@search_vol)) {
-            message("The search volume has been commented and therefore will ",
-                    "not be recalculated from the species parameters.")
+            signal_not_recalculated("search_vol", "search volume",
+                               "setSearchVolume(params, reset = TRUE)")
         }
         return(params)
     }

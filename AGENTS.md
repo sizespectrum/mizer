@@ -29,6 +29,7 @@ mizer is an R package for dynamic multi-species size-spectrum modelling of fish 
 - When documenting a mizer S3 generic whose methods share a man page (combined with `@rdname`/`@name`), follow the steps in `.claude/skills/document-s3-generics.md`.
 - When adding, moving or removing a species parameter default, follow `.claude/skills/species-param-defaults.md`. A default belongs to the rate setter that reads the parameter; only parameters that no single rate setter owns are defaulted centrally.
 - When writing anything that integrates over the size grid — a summary or indicator function, a diagnostic derived from a rate, a rate setter with a size-dependent parameter — follow `.claude/skills/size-grid-integrals.md`. Each bin integral is performed in exactly one place, so a size-dependent factor is bin-averaged where its integral is performed and nowhere else; doing it twice is a silent uniform error.
+- When mizer code needs to tell the user something — a default filled in, an input adjusted, an instruction that could not be carried out — follow `.claude/skills/info-signals.md`. Raise it with `signal_info()` and friends, never a plain `message()` or `warning()`: those ignore `info_level`, are not collected with the other reports, and are swallowed by the `suppressMessages()` on the `species_params<-()` path. Progress reports, deprecations and argument errors are the deliberate exceptions.
 
 ## Testing
 

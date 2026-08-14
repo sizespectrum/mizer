@@ -300,9 +300,8 @@ setPredKernel.MizerParams <- function(params,
         if (different(ft_pred_kernel_e, params@ft_pred_kernel_e) ||
             different(ft_pred_kernel_p, params@ft_pred_kernel_p) ||
             different(ft_pred_kernel_d, params@ft_pred_kernel_d)) {
-            message("You have set a custom predation kernel and so it ",
-                    "will not be recalculated from the species parameters ",
-                    "unless you set `reset = TRUE`.")
+            signal_not_recalculated("pred_kernel", "predation kernel",
+                               "setPredKernel(params, reset = TRUE)")
         }
         return(params)
     }

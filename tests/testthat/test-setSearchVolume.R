@@ -29,7 +29,7 @@ test_that("Comment works on search volume", {
     expect_message(setSearchVolume(params), NA)
     # but message when a change is not stored due to comment
     params@species_params$gamma <- 1
-    expect_message(setSearchVolume(params),  "has been commented")
+    expect_message(setSearchVolume(params),  "has been set manually")
     # Can reset
     p <- setSearchVolume(params, reset = TRUE)
     expect_equal(p@search_vol[, 1], params@w[1]^params@species_params$q, ignore_attr = TRUE)

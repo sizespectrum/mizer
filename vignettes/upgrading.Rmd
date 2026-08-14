@@ -32,10 +32,77 @@ and are not repeated here.
 
 ## Upgrading from mizer 3.2 to 3.3
 
-All the changes in this release are corrections. The one that can affect any
-model is that `$` on a parameter table no longer partially matches column names.
-Otherwise results move only for models that had opted in to second-order
-bin-averaging, or that set `min_w` below the default.
+All the changes in this release are corrections. Results move only for models
+that had opted in to second-order bin-averaging, or that set `min_w` below the
+default. One report that mizer used to make quietly is now a warning.
+
+### A change that cannot take effect now warns
+
+If you have set a rate array by hand — [`metab(params) <- ...`](../reference/setMetabolicRate.html), or any setter
+called with an explicit array — mizer no longer calculates that rate from the
+species parameters. Changing one of the species parameters that used to feed it
+therefore changes the species parameter table but not the model. Mizer now
+warns when that happens:
+
+```{r eval=FALSE}
+params <- NS_params
+metab(params) <- metab(params)      # freeze the metabolic rate
+
+sp <- species_params(params)
+sp$ks <- sp$ks * 2
+species_params(params) <- sp
+#> Warning: Your change to the species parameter `ks` has not taken effect
+#> because the metabolic rate has been set manually and so is no longer
+#> calculated from the species parameters. Call
+#> `setMetabolicRate(params, reset = TRUE)` if you want the metabolic rate to
+#> be calculated from the species parameters again.
+```
+
+Previously this was silent: the rate setter did emit a message, but
+`species_params<-()` and `given_species_params<-()` run `suppressMessages()`
+over the recalculation to quieten the routine chatter, so the message never
+reached you (#489).
+
+**How this affects existing code:** nothing about the model changes — the
+change did not take effect before either, you just were not told. But code that
+runs under `options(warn = 2)`, or a test using `expect_message()` where the
+report now arrives as a warning, will need adjusting. To act on the warning,
+either put the rate back under the control of the species parameters with the
+`reset = TRUE` call it names, or set the rate array itself instead of the
+species parameter. To silence it, set `options(mizer_info_level = 0)`, which
+also covers the functions that take no `info_level` argument, or pass
+`info_level = 0` to the one call you want quiet.
+
+The resource works the same way. [`resource_params(params)$kappa <- ...`](../reference/resource_params.html) on a
+model whose [`resource_capacity()`](../reference/setResource.html) you had set by hand used to change the stored
+`kappa` and nothing else, without saying anything at all; it now warns.
+
+`species_params<-()` also now gives the warning that `given_species_params<-()`
+already gave when a change is ignored because another parameter takes
+precedence over it — a change to `f0` when `gamma` has been given, to `fc` when
+`ks` has, or to [`age_mat`](../reference/age_mat.html) when `h` has.
+
+This is the counterpart of the 3.2 change described under *Frozen arrays are
+protected from incidental balancing* below: there, mizer keeps a frozen array
+instead of overwriting it; here, it tells you when a parameter change is
+ignored because an array is frozen.
+
+### One report, one switch
+
+Nearly everything mizer says while building or changing a model now goes
+through the same mechanism, including the reports in [`steady()`](../reference/steady.html),
+[`projectToSteady()`](../reference/projectToSteady.html), [`matchYields()`](../reference/matchYields.html), [`validParams()`](../reference/validParams.html), [`setInteraction()`](../reference/setInteraction.html),
+[`setReproduction()`](../reference/setReproduction.html), [`setResource()`](../reference/setResource.html), [`newTraitParams()`](../reference/newTraitParams.html),
+[`newSingleSpeciesParams()`](../reference/newSingleSpeciesParams.html) and [`plotYieldObservedVsModel()`](../reference/plotYieldObservedVsModel.html). Two consequences
+for existing code:
+
+- **`info_level = 0` now means silence.** Reports that were plain `message()`
+  calls ignored `info_level` altogether and appeared anyway; they no longer do.
+  If your code relied on seeing one of them, drop the `info_level = 0`.
+- **Reports are collected and given at the end of the call**, one message and
+  one warning rather than a stream. A test doing `expect_message()` on an
+  individual report inside a longer call may need adjusting, and the text now
+  arrives with any others in the same message.
 
 ### `$` on a parameter table no longer partially matches
 
@@ -122,10 +189,10 @@ an input, and the size-dependent arrays are computed from it.
 
 #### Assigning to `resource_params()` now updates the resource arrays
 
-Previously, assigning to [`resource_params()`](../reference/resource_params.html) — or to one of its components, such
+Previously, assigning to `resource_params()` — or to one of its components, such
 as `resource_params(params)$kappa <- ...` — only stored the new scalar values.
 The size-dependent carrying capacity (`cc_pp`) and replenishment rate (`rr_pp`)
-were left unchanged until you next called [`setResource()`](../reference/setResource.html).
+were left unchanged until you next called `setResource()`.
 
 Now these assignments immediately rebuild the arrays from the scalars, exactly as
 `species_params()<-` rebuilds the species rates:
@@ -334,7 +401,7 @@ Several fixes correct earlier behaviour and so change output:
   plotted at its bin's *upper* edge, correcting a one-bin offset.
   The curves shift by one bin compared with 3.0 (#383).
 - **[`distanceMaxRelRDI()`](../reference/distanceMaxRelRDI.html).** Now returns `Inf` instead of `NaN` when a previous
-  RDI is zero, so [`projectToSteady()`](../reference/projectToSteady.html) no longer mistakes a `NaN` distance for
+  RDI is zero, so `projectToSteady()` no longer mistakes a `NaN` distance for
   convergence. Convergence behaviour can therefore differ in edge cases.
 
 ### Second-order methods advance the resource at the midpoint

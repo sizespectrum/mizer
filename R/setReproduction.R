@@ -229,10 +229,12 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
         }
         missing <- is.na(species_params$w_mat)
         if (any(missing)) {
-            message("Note: The following species were missing data for ",
-                    "their maturity size w_mat: ",
-                    toString(species_params$species[missing]),
-                    ". These have been set to 1/4 w_inf.")
+            signal_info("w_mat", paste0(
+                "Note: The following species were missing data for their ",
+                "maturity size w_mat: ",
+                toString(species_params$species[missing]),
+                ". These have been set to 1/4 w_inf."),
+                level = 1, unhandled = "show")
             species_params$w_mat[missing] <- species_params$w_inf[missing] / 4
         }
         assert_that(all(species_params$w_mat > species_params$w_min))
@@ -267,8 +269,8 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
         # If maturity is protected by a comment, keep the old value
         if (!is.null(comment(params@maturity))) {
             if (different(params@maturity, maturity)) {
-                message("The maturity ogive has been commented and therefore will ",
-                        "not be recalculated from the species parameters.")
+                signal_not_recalculated("maturity", "maturity ogive",
+                                   "setReproduction(params, reset = TRUE)")
             }
             maturity <- params@maturity
         }
@@ -336,8 +338,8 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
     # a comment.
     if (!is.null(comment(params@psi)) && is.null(comment(repro_prop))) {
         if (different(params@psi, psi)) {
-            message("The reproductive proportion has been commented and therefore ",
-                    "will not be recalculated from the species parameters.")
+            signal_not_recalculated("psi", "reproductive proportion",
+                               "setReproduction(params, reset = TRUE)")
         }
     } else {
         params@psi[] <- psi
@@ -361,7 +363,9 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
         if ("r_max" %in% names(params@species_params)) {
             params@species_params$R_max <- params@species_params$r_max
             params@species_params$r_max <- NULL
-            message("The 'r_max' column has been renamed to 'R_max'.")
+            signal_info("R_max",
+                        "The 'r_max' column has been renamed to 'R_max'.",
+                        level = 1, unhandled = "show")
         }
 
         params <- set_species_param_default(params, "R_max", Inf)

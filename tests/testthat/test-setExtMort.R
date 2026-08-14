@@ -75,7 +75,7 @@ test_that("Comment works on mu_b", {
     expect_message(setExtMort(params), NA)
     # but message when a change is not stored due to comment
     params@species_params$z0 <- 1
-    expect_message(setExtMort(params),  "has been commented")
+    expect_message(setExtMort(params),  "has been set manually")
     # Can reset
     p <- setExtMort(params, reset = TRUE)
     expect_equal(p@mu_b[1, 1], 1, ignore_attr = TRUE)

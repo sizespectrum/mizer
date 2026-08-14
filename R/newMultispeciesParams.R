@@ -43,7 +43,8 @@
 #'   model. Defaults to `FALSE` (the first-order behaviour of previous mizer).
 #' @param info_level Controls the amount of information messages that are shown
 #'   when the function sets default values for parameters. Higher levels lead
-#'   to more messages.
+#'   to more messages, `info_level = 0` gives silence. The default is taken
+#'   from the `mizer_info_level` option, see [default_info_level()].
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #'
@@ -149,7 +150,7 @@ newMultispeciesParams <- function(
     catchability = NULL,
     initial_effort = NULL,
     second_order_w = FALSE,
-    info_level = 3,
+    info_level = default_info_level(),
     z0 = deprecated(),
     r_pp = deprecated()) {
 
@@ -164,18 +165,9 @@ newMultispeciesParams <- function(
         ext_mort <- z0
     }
 
-    # Define a signal handler that collects the information signals
-    # into the `infos` list.
-    infos <- list()
-    collect_info <- function(cnd) {
-        if (cnd$level <= info_level) {
-            infos[[cnd$var]] <<- cnd$message
-            rlang::cnd_muffle(cnd)
-        }
-    }
-    # Register this signal handler
-    withCallingHandlers(
-        info_about_default = collect_info, {
+    # Collect the information signals raised while the model is built and
+    # report them together at the end.
+    with_info_level(info_level = info_level, {
     no_sp <- nrow(species_params)
 
     species_params <- set_species_param_default(species_params, "n", n)
@@ -223,7 +215,6 @@ newMultispeciesParams <- function(
         setParams(
                   # setInteraction
                   interaction = interaction,
-                  info_level = 0,
                   # setPredKernel()
                   pred_kernel = pred_kernel,
                   # setSearchVolume()
@@ -264,9 +255,6 @@ newMultispeciesParams <- function(
     # Now that the initial abundances have been computed with the robust upwind
     # solver, switch on the requested advective-flux scheme for projection.
     params@second_order_w[["flux"]] <- target_second_order_w[["flux"]]
-    if (length(infos) > 0) {
-        message(paste(infos, collapse = "\n"))
-    }
     return(params)
 }
 
@@ -298,7 +286,11 @@ newMultispeciesParams <- function(
 #' @inheritDotParams setReproduction -reset
 #' @inheritDotParams setFishing -reset
 #' @param info_level Controls the amount of information messages that are shown.
-#'   Higher levels lead to more messages.
+#'   Higher levels lead to more messages, `info_level = 0` gives silence. The
+#'   default is taken from the `mizer_info_level` option, see
+#'   [default_info_level()]. Note that the report that a change cannot take
+#'   effect because the rate array it feeds has been set manually is a warning
+#'   rather than a message, but it too is silenced by `info_level = 0`.
 #'
 #' @return A \linkS4class{MizerParams} object
 #'
@@ -375,24 +367,16 @@ newMultispeciesParams <- function(
 #' @family functions for setting parameters
 # The reason we list `interaction` explicitly rather than including it in
 # the `...` is for backwards compatibility. It used to be the second argument.
-setParams <- function(object, interaction = NULL, info_level = 3, ...) {
+setParams <- function(object, interaction = NULL,
+                      info_level = default_info_level(), ...) {
     UseMethod("setParams")
 }
 #' @export
 setParams.MizerParams <- function(object, interaction = NULL,
-                                  info_level = 3, ...) {
-    # Define a signal handler that collects the information signals
-    # into the `infos` list.
-    infos <- list()
-    collect_info <- function(cnd) {
-        if (cnd$level <= info_level) {
-            infos[[cnd$var]] <<- cnd$message
-            rlang::cnd_muffle(cnd)
-        }
-    }
-    # Register this signal handler
-    withCallingHandlers(
-        info_about_default = collect_info, {
+                                  info_level = default_info_level(), ...) {
+    # Collect the information signals raised by the individual setters and
+    # report them together at the end.
+    with_info_level(info_level = info_level, {
     params <- validParams(object)
 
     params <- setInteraction(params, interaction)
@@ -421,8 +405,5 @@ setParams.MizerParams <- function(object, interaction = NULL,
 
     validObject(params)
     })
-    if (length(infos) > 0) {
-        message(paste(infos, collapse = "\n"))
-    }
     params
 }

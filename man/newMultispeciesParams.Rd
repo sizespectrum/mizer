@@ -35,7 +35,7 @@ newMultispeciesParams(
   catchability = NULL,
   initial_effort = NULL,
   second_order_w = FALSE,
-  info_level = 3,
+  info_level = default_info_level(),
   z0 = deprecated(),
   r_pp = deprecated()
 )
@@ -169,7 +169,8 @@ model. Defaults to \code{FALSE} (the first-order behaviour of previous mizer).}
 
 \item{info_level}{Controls the amount of information messages that are shown
 when the function sets default values for parameters. Higher levels lead
-to more messages.}
+to more messages, \code{info_level = 0} gives silence. The default is taken
+from the \code{mizer_info_level} option, see \code{\link[=default_info_level]{default_info_level()}}.}
 
 \item{z0}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
 be confused with the species_parameter \code{z0}.}

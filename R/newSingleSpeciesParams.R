@@ -85,9 +85,11 @@ newSingleSpeciesParams <-
              ext_mort_prop = 0,
              reproduction_level = 0,
              second_order_w = FALSE,
+             info_level = default_info_level(),
              R_factor = deprecated(),
              w_inf = deprecated(),
              k_vb = deprecated()) {
+        with_info_level(info_level = info_level, {
         if (lifecycle::is_present(w_inf)) {
             lifecycle::deprecate_warn(
                 when = "2.4.0.0",
@@ -124,12 +126,15 @@ newSingleSpeciesParams <-
     }
     if (no_w < log10(w_max/w_min)*5) {
         no_w <- round(log10(w_max / w_min) * 5 + 1)
-        message(paste("Increased no_w to", no_w, "so that there are 5 bins ",
-                      "for an interval from w and 10w."))
+        signal_info("no_w", paste("Increased no_w to", no_w,
+                                  "so that there are 5 bins ",
+                                  "for an interval from w and 10w."),
+                    level = 1, unhandled = "show")
     }
     if (no_w > 10000) {
-        message("Running a simulation with ", no_w,
-                " size bins is going to be very slow.")
+        signal_info("no_w", paste0("Running a simulation with ", no_w,
+                                   " size bins is going to be very slow."),
+                    level = 1, unhandled = "show")
     }
     if (w_min >= w_mat) {
         stop("The egg size w_min must be smaller than ",
@@ -185,7 +190,7 @@ newSingleSpeciesParams <-
     # after the construction-time steady-state solve below.
     target_sow <- resolve_second_order_w(second_order_w)
     params <-
-        suppressMessages(newMultispeciesParams(
+        newMultispeciesParams(
             species_params,
             min_w = w_min,
             no_w = no_w,
@@ -196,8 +201,9 @@ newSingleSpeciesParams <-
             n = n,
             p = p,
             resource_dynamics = "resource_constant",
-            second_order_w = c(bin_average = target_sow[["bin_average"]])
-        ))
+            second_order_w = c(bin_average = target_sow[["bin_average"]]),
+            info_level = 0
+        )
     # No cannibalism
     params@interaction[] <- 0
     # No fishing
@@ -222,8 +228,10 @@ newSingleSpeciesParams <-
     }
     pow <- mu0 / hbar / (1 - n)
     if (pow < 1) {
-        message("The ratio of death rate to growth rate is too small, leading to
-                an accumulation of fish at their largest size.")
+        signal_info("mu0", paste0(
+            "The ratio of death rate to growth rate is too small, leading to ",
+            "an accumulation of fish at their largest size."),
+            level = 1, unhandled = "show")
     }
 
     initial_n <- params@psi  # get array with correct dimensions and names
@@ -265,4 +273,5 @@ newSingleSpeciesParams <-
     params@second_order_w[["flux"]] <- target_sow[["flux"]]
 
     return(params)
+    })
 }
