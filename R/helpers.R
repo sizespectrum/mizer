@@ -16,6 +16,41 @@ different <- function(a, b) {
                       tolerance = 10 * .Machine$double.eps))
 }
 
+#' Extract a column from a parameter table without partial matching
+#'
+#' The `$` operator on a data frame partially matches column names, so
+#' `species_params(params)$a` would return the `alpha` column when there is no
+#' `a` column. That silently gives the wrong parameter, so the `$` methods for
+#' the mizer parameter tables use this helper instead, which matches exactly.
+#'
+#' When the name would have partially matched a single column under the old
+#' behaviour we warn, because that is precisely the case where existing user
+#' code changes its meaning. A name that matches nothing at all returns `NULL`
+#' silently, so that `is.null(species_params(params)$foo)` stays a usable way
+#' of testing whether a parameter is present.
+#'
+#' @param x The parameter table.
+#' @param name The name of the column.
+#' @param what The name of the class, used in the warning message.
+#'
+#' @return The column, or `NULL` if there is no column of that name.
+#' @concept helper
+#' @noRd
+exact_column <- function(x, name, what) {
+    out <- .subset2(x, name, exact = TRUE)
+    if (is.null(out)) {
+        partial <- names(x)[startsWith(names(x), name)]
+        if (length(partial) == 1) {
+            warning("There is no `", name, "` column in this `", what,
+                    "` table, so `$", name, "` returns NULL. Earlier versions ",
+                    "of mizer partially matched the column name and returned ",
+                    "the `", partial, "` column instead. Use `$", partial,
+                    "` if that is what you wanted.")
+        }
+    }
+    out
+}
+
 #' Bin average of a power law over geometric bins
 #'
 #' Computes the exact average of the power law \eqn{w^d} over each bin

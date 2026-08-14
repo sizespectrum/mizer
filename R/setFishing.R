@@ -481,7 +481,7 @@ check_gear_params <- function(x) {
 
 #' @export
 `$.gear_params` <- function(x, name) {
-    out <- NextMethod()
+    out <- exact_column(x, name, "gear_params")
     if (!is.null(out) && !is.data.frame(out)) {
         names(out) <- rownames(x)
     }

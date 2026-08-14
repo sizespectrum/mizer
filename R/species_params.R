@@ -169,6 +169,25 @@
 #' @param x An object to test with `is.species_params()` or
 #'   `is.given_species_params()`.
 #' @param ... Other arguments passed to methods.
+#' @section Extracting a column with `$`:
+#' `species_params(params)$w_mat` returns the column as a vector named after the
+#' species. Unlike `$` on an ordinary data frame, it does **not** partially
+#' match the column name. Partial matching is dangerous here because so many
+#' species parameter names are prefixes of others: in a model without
+#' length-weight parameters `species_params(params)$a` used to return the
+#' `alpha` column and `$b` the `beta` column, complete with species names, so
+#' code converting weights to lengths silently got the assimilation efficiency
+#' and the preferred predator/prey mass ratio instead. Writing was never
+#' partially matched, so reads and writes disagreed about which column `$b`
+#' meant.
+#'
+#' A name that is not a column now gives `NULL`, so
+#' `is.null(species_params(params)$foo)` is a reliable way of testing whether a
+#' parameter is present. If the name would have partially matched a column
+#' under the old behaviour you also get a warning naming that column, because
+#' that is exactly the case where existing code changes its meaning. The same
+#' holds for [gear_params()].
+#'
 #' @section Setting species parameters without recalculation:
 #' `species_params(params, recalculate = FALSE) <- value` records the values you
 #' changed among the given species parameters, so that they are not calculated
@@ -707,7 +726,7 @@ check_and_convert_species_params <- function(x) {
 
 #' @export
 `$.species_params` <- function(x, name) {
-    out <- NextMethod()
+    out <- exact_column(x, name, "species_params")
     if (!is.null(out) && !is.data.frame(out) && name != "species") {
         names(out) <- rownames(x)
     }
