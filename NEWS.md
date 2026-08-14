@@ -5,6 +5,11 @@ stability of steady states.
 
 ## New functions
 
+- New `knife_edge_length()` selectivity function that applies a knife-edge cut
+  at a given **length** rather than a weight. Set `sel_func = "knife_edge_length"`
+  and provide a `knife_edge_length` column in `gear_params()`. The length is
+  converted to a cut-off weight via the length–weight parameters `a` and `b`.
+
 - New experimental `bin_average_weight()` prepares the weight of an integral
   over the size spectrum so that the integral uses the quadrature scheme the
   model is actually on. Use it when writing your own indicator or diagnostic

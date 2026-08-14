@@ -133,6 +133,47 @@ double_sigmoid_length <- function(w, l25, l50, l50_right, l25_right,
     return(1 / (1 + exp(s1 - s2 * l)) / (1 + exp(s1_right - s2_right * l)))
 }
 
+#' Length based knife-edge selectivity function
+#'
+#' A knife-edge selectivity function where individuals with a length greater or
+#' equal to `knife_edge_length` are fully selected and no fish shorter than this
+#' length are selected.
+#'
+#' You would not usually call this function directly. Instead, set the `sel_func`
+#' column in [gear_params()] to `"knife_edge_length"` and provide
+#' `knife_edge_length` as an additional column. [setFishing()] will then call
+#' this function automatically when calculating the selectivity array.
+#'
+#' As the mizer model is weight based, and this selectivity function is length
+#' based, it uses the length-weight parameters `a` and `b` to convert the
+#' cut-off length to a weight:
+#' \deqn{w_{\text{cut}} = a \cdot l_{\text{cut}}^b}
+#'
+#' @param w Vector of sizes (weights).
+#' @param knife_edge_length The length at which the knife-edge operates.
+#' @param species_params A list with the species params for the current species.
+#'   Used to get at the length-weight parameters `a` and `b`.
+#' @param ... Unused
+#' @return Vector of selectivities at the given sizes.
+#' @export
+#' @seealso [gear_params()] for setting the `knife_edge_length` parameter.
+#' @family selectivity functions
+#' @examples
+#' # Knife-edge at 20 cm using length-weight parameters a = 0.01, b = 3
+#' sp <- list(a = 0.01, b = 3)
+#' knife_edge_length(w = c(1, 10, 100, 1000), knife_edge_length = 20,
+#'                   species_params = sp)
+knife_edge_length <- function(w, knife_edge_length, species_params, ...) {
+    a <- species_params[["a"]]
+    b <- species_params[["b"]]
+    if (is.null(a) || is.null(b)) {
+        stop("The selectivity function needs the weight-length parameters ",
+             "`a` and `b` to be provided in the species_params data frame.")
+    }
+    w_cut <- a * knife_edge_length ^ b
+    as.numeric(w >= w_cut)
+}
+
 #' Weight based knife-edge selectivity function
 #'
 #' A knife-edge selectivity function where weights greater or equal to
