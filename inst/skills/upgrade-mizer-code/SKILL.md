@@ -58,6 +58,10 @@ plots) are in the changelog and are not repeated here.
 | Size grid or results changed in a model built with a small `min_w` | `w_min` is no longer reset to 0.001 | `w_min` survives a rebuild (3.3) |
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters (3.3) |
 | A recalculated `gamma` or `f0` is wildly different, in a model whose `search_vol` was set by hand | the frozen array used to block mizer's own unit-gamma calculation | Defaults for `gamma` and `f0` ignore a hand-set search volume (3.3) |
+| `setParams()` or `setResource()` errors that it "does not have an argument" | unknown arguments are no longer silently ignored | `setParams()` rejects arguments it does not use (3.3) |
+| A `setParams(resource_rate = )` / `setParams(kappa = )` call that ran fine now errors | `setParams()` never set the resource; use `setResource()` | `setParams()` rejects arguments it does not use (3.3) |
+| A resource change made via `setParams()` never showed up in the model | the argument was silently dropped in every version before 3.3 | `setParams()` rejects arguments it does not use (3.3) |
+| Deprecation warning for `r_pp`/`kappa` now names `setResource()` instead of `setParams()` | the old recommendation pointed at a no-op | `setParams()` rejects arguments it does not use (3.3) |
 | `unused argument (sim = ...)` from `plotBiomass()`, `plotYield()`, `plotYieldGear()` | first argument renamed to `object` | Renamed arguments and changed defaults (3.0) |
 | `unused argument (time_range = ...)` from `plotDiet()` | removed in 3.0, back for `MizerSim` in 3.1 | Renamed arguments and changed defaults (3.0) |
 | `setInitialValues()` warns that it is deprecated | replaced by `finalParams()` | `setInitialValues()` is deprecated (3.0) |
@@ -342,6 +346,52 @@ effect on the model while the search volume stays frozen — mizer now warns you
 about that separately, see "A change that cannot take effect now warns" above.
 Call `setSearchVolume(params, reset = TRUE)` to put the search volume back under
 the control of the species parameters.
+
+### `setParams()` rejects arguments it does not use
+
+`setParams()` passes its `...` on to the rate setters, each of which declares
+its own `...` as unused. Any argument that none of them recognises was
+therefore accepted and ignored without a word. It is now an error, and the
+error says where the argument belongs when it belongs somewhere:
+
+```r
+setParams(params, metabolic = 99)        # was: silently ignored
+setParams(params, resource_rate = 5)     # was: silently ignored
+```
+
+The resource case is the one most likely to have bitten: `setParams()` never
+called `setResource()`, so no resource argument ever reached the model, and the
+deprecation warnings for `setResource(r_pp)` and `setResource(kappa)` used to
+recommend `setParams(resource_rate)` and `setParams(resource_capacity)`, which
+do nothing. Use `setResource()` for all of these:
+
+```r
+params <- setResource(params, resource_rate = 5)
+```
+
+Likewise `gear_params` goes to `gear_params<-()`, and `second_order_w` and
+`use_predation_diffusion` to their own assignment functions. `setResource()`
+itself now applies the same check to its own `...`, so a misspelled resource
+argument errors there too.
+
+If your code errors here, the argument was having no effect before, so removing
+it changes nothing; moving it to the right function changes the model, and that
+is the change you had intended all along.
+
+Two related tidy-ups: `reset` is now a documented argument of `setParams()`
+(it was already forwarded through `...`, undocumented) and still thaws every
+rate array that `setParams()` sets; and `setExtDiffusion()` is now listed
+among the setters that `setParams()` calls, which it always did.
+
+<!-- agent-only -->
+
+Diagnostic: if a user reports that a resource change "did not take", check
+whether they went through `setParams()`. Before this release the call was
+accepted, so there is no error in their logs and the model simply kept its old
+resource. `resource_rate(params)` before and after their call is the quickest
+confirmation.
+
+<!-- /agent-only -->
 
 ## Upgrading from mizer 3.1 to 3.2
 

@@ -267,6 +267,43 @@ about that separately, see "A change that cannot take effect now warns" above.
 Call `setSearchVolume(params, reset = TRUE)` to put the search volume back under
 the control of the species parameters.
 
+### `setParams()` rejects arguments it does not use
+
+[`setParams()`](../reference/setParams.html) passes its `...` on to the rate setters, each of which declares
+its own `...` as unused. Any argument that none of them recognises was
+therefore accepted and ignored without a word. It is now an error, and the
+error says where the argument belongs when it belongs somewhere:
+
+```{r eval=FALSE}
+setParams(params, metabolic = 99)        # was: silently ignored
+setParams(params, resource_rate = 5)     # was: silently ignored
+```
+
+The resource case is the one most likely to have bitten: `setParams()` never
+called `setResource()`, so no resource argument ever reached the model, and the
+deprecation warnings for `setResource(r_pp)` and `setResource(kappa)` used to
+recommend `setParams(resource_rate)` and `setParams(resource_capacity)`, which
+do nothing. Use `setResource()` for all of these:
+
+```{r eval=FALSE}
+params <- setResource(params, resource_rate = 5)
+```
+
+Likewise `gear_params` goes to `gear_params<-()`, and `second_order_w` and
+[`use_predation_diffusion`](../reference/use_predation_diffusion.html) to their own assignment functions. `setResource()`
+itself now applies the same check to its own `...`, so a misspelled resource
+argument errors there too.
+
+If your code errors here, the argument was having no effect before, so removing
+it changes nothing; moving it to the right function changes the model, and that
+is the change you had intended all along.
+
+Two related tidy-ups: `reset` is now a documented argument of `setParams()`
+(it was already forwarded through `...`, undocumented) and still thaws every
+rate array that `setParams()` sets; and [`setExtDiffusion()`](../reference/setExtDiffusion.html) is now listed
+among the setters that `setParams()` calls, which it always did.
+
+
 ---
 
 ## Upgrading from mizer 3.1 to 3.2
@@ -410,7 +447,7 @@ converting lengths to weights. `species_params(df)` fills in the default columns
 `given_species_params(df)` applies the consistency corrections (for example
 clamping `w_mat` below `w_inf`), derives `w_inf` from `w_max`/`w_repro_max` when
 it is absent, and now stops if the frame has duplicate species rows. Models built
-or modified through `newMultispeciesParams()`, [`setParams()`](../reference/setParams.html) and the
+or modified through `newMultispeciesParams()`, `setParams()` and the
 `species_params()<-` / `given_species_params()<-` setters are unaffected, because
 those already ran this validation. Only code that called the two accessors
 directly on a bare data frame will see the extra columns and stricter checks
@@ -638,7 +675,7 @@ interfering with S4 dispatch in other packages, but code that relied on
 ### Predation diffusion is available but off by default
 
 3.0 adds a diffusion term to the growth dynamics, controlled by the new
-[`use_predation_diffusion`](../reference/use_predation_diffusion.html) slot. It defaults to `FALSE`, preserving the behaviour
+`use_predation_diffusion` slot. It defaults to `FALSE`, preserving the behaviour
 of earlier mizer, so existing models are unchanged unless you switch it on with
 `use_predation_diffusion(params) <- TRUE`. Likewise the new species parameters
 `z_ext`, `d`, `E_ext` and `D_ext` for external mortality, encounter and diffusion

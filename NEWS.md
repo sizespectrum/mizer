@@ -276,6 +276,23 @@ stability of steady states.
   precedence over it, for example a change to `f0` when `gamma` has been given.
   Previously only one of the two assignment functions said so.
 
+- `setParams()` now gives an error when it is passed an argument that none of
+  the setter functions it calls accepts. Every one of those setters declares its
+  `...` as unused, so any misspelled or misplaced argument was silently
+  accepted and ignored: `setParams(params, metabolic = 99)` did nothing and said
+  nothing. Arguments that belong to another function are named in the error
+  together with the function that does accept them. In particular
+  `setParams()` never called `setResource()`, so `setParams(params,
+  resource_rate = ...)` had no effect on the model; the error now points at
+  `setResource()`, and the deprecation warnings for `setResource(r_pp)` and
+  `setResource(kappa)`, which used to recommend `setParams()`, now recommend
+  `setResource()` too. `setResource()` likewise now errors on an argument it
+  does not have, instead of ignoring it (#491).
+
+- `setParams(params, reset = TRUE)` is now a documented argument of
+  `setParams()` rather than something that happened to be forwarded through
+  `...`. It thaws every rate array that `setParams()` sets.
+
 - `info_level = 0` now really does silence all the information about default
   values, including the reports that until now were plain messages: the notes
   about the interaction matrix dimnames, about `no_w` being increased, about

@@ -154,18 +154,30 @@ setResource.MizerParams <- function(params,
     }
 
     args <- list(...)
+    # `setResource()` declares its `...` as unused, so without this check any
+    # misspelled argument would be silently ignored. Only the two deprecated
+    # names and the internal flag used by `resource_params<-()` are expected
+    # here.
+    unknown <- setdiff(names(args),
+                       c("r_pp", "kappa", "resource_params_changed"))
+    if (length(unknown) > 0) {
+        stop("`setResource()` does not have ",
+             if (length(unknown) == 1) "an argument " else "arguments ",
+             paste0("`", unknown, "`", collapse = ", "), ".")
+    }
+
     resource_params_changed <- isTRUE(args[["resource_params_changed"]]) ||
         !missing(lambda) || !missing(n) || !missing(w_pp_cutoff) || reset
 
     if ("r_pp" %in% names(args)) {
-        lifecycle::deprecate_warn("1.0.0", "setParams(r_pp)",
-                                  "setParams(resource_rate)")
+        lifecycle::deprecate_warn("1.0.0", "setResource(r_pp)",
+                                  "setResource(resource_rate)")
         resource_rate <- args[["r_pp"]]
         resource_rate_user <- resource_rate
     }
     if ("kappa" %in% names(args)) {
-        lifecycle::deprecate_warn("1.0.0", "setParams(kappa)",
-                                  "setParams(resource_capacity)")
+        lifecycle::deprecate_warn("1.0.0", "setResource(kappa)",
+                                  "setResource(resource_capacity)")
         resource_capacity <- args[["kappa"]]
         resource_capacity_user <- resource_capacity
     }

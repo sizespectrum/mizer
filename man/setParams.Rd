@@ -4,7 +4,13 @@
 \alias{setParams}
 \title{Set or change any model parameters}
 \usage{
-setParams(object, interaction = NULL, info_level = default_info_level(), ...)
+setParams(
+  object,
+  interaction = NULL,
+  info_level = default_info_level(),
+  ...,
+  reset = FALSE
+)
 }
 \arguments{
 \item{object}{A \linkS4class{MizerParams} object}
@@ -21,7 +27,7 @@ effect because the rate array it feeds has been set manually is a warning
 rather than a message, but it too is silenced by \code{info_level = 0}.}
 
 \item{...}{
-  Arguments passed on to \code{\link{setPredKernel}}, \code{\link{setSearchVolume}}, \code{\link{setMaxIntakeRate}}, \code{\link{setMetabolicRate}}, \code{\link{setExtMort}}, \code{\link{setExtEncounter}}, \code{\link{setReproduction}}, \code{\link{setFishing}}
+  Arguments passed on to \code{\link{setPredKernel}}, \code{\link{setSearchVolume}}, \code{\link{setMaxIntakeRate}}, \code{\link{setMetabolicRate}}, \code{\link{setExtMort}}, \code{\link{setExtEncounter}}, \code{\link{setExtDiffusion}}, \code{\link{setReproduction}}, \code{\link{setFishing}}
   \describe{
     \item{\code{params}}{A MizerParams object}
     \item{\code{pred_kernel}}{Optional. An array (species x predator size x prey size)
@@ -53,6 +59,10 @@ be confused with the species_parameter \code{z0}.}
 encounter rate.  If not supplied, a default is calculated from the \code{E_ext}
 and \code{n} species parameters as described in the section "Setting external
 encounter rate".}
+    \item{\code{ext_diffusion}}{Optional. An array (species x size) holding the
+external diffusion rate. If not supplied, a default is calculated from the
+\code{D_ext} and \code{n} species parameters as described in the section "Setting
+external diffusion rate".}
     \item{\code{maturity}}{Optional. An array (species x size) that holds the proportion
 of individuals of each species at size that are mature. If not supplied, a
 default is set as described in the section "Setting reproduction".}
@@ -72,6 +82,13 @@ each species by each gear, \eqn{Q_{g,i}}.}
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
   }}
+
+\item{reset}{If set to TRUE then all the rate arrays that \code{setParams()} sets
+are recalculated from the species parameters, even if they had previously
+been overwritten with custom values. The default is FALSE, in which case
+arrays that have been set manually are left alone. This is passed on to
+each of the setter functions listed above, so it thaws all of them at once.
+To thaw only one of them, call that setter with \code{reset = TRUE} instead.}
 }
 \value{
 A \linkS4class{MizerParams} object
@@ -87,10 +104,15 @@ functions
 \item \code{\link[=setMetabolicRate]{setMetabolicRate()}}
 \item \code{\link[=setExtMort]{setExtMort()}}
 \item \code{\link[=setExtEncounter]{setExtEncounter()}}
+\item \code{\link[=setExtDiffusion]{setExtDiffusion()}}
 \item \code{\link[=setReproduction]{setReproduction()}}
 \item \code{\link[=setFishing]{setFishing()}}
 }
-See the Details section below for a discussion of how to use this function.
+Note that \code{\link[=setResource]{setResource()}} is \strong{not} among them: the resource rate, capacity
+and dynamics are not changed by \code{setParams()} and have to be set with
+\code{\link[=setResource]{setResource()}}. Passing a resource argument to \code{setParams()} gives an error
+rather than being silently ignored. See the Details section below for a
+discussion of how to use this function.
 }
 \details{
 If you are not happy with the assumptions that mizer makes by default about
