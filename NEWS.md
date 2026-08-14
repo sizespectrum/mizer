@@ -247,6 +247,19 @@ triggering a recalculation that would undo it.
 
 ## Species parameter changes
 
+- Fixed: `given_species_params<-()` did not apply the length/weight precedence
+  rule, so it disagreed with `species_params<-()`, which the documentation
+  describes as equivalent apart from its warnings. On a model where a size is
+  given both as a weight and as a length, changing the length through
+  `given_species_params<-()` left the weight at its old value and warned that
+  the length was inconsistent, and it went on warning at every later parameter
+  change because the given species parameters were never brought into line.
+  The same edit made with `species_params<-()` gave a maturity weight up to 73%
+  larger. Both setters now follow the same rule: the one you gave last wins
+  (#490). `given_species_params<-()` also preserves the columns of the
+  `species_params` slot that mizer does not calculate, which
+  `species_params<-()` already did.
+
 - Fixed: `species_params<-()` did not re-derive the calculated species
   parameters that a rate setter owns (`h`, `gamma`, `ks`, `q`, `z0`, `beta`,
   `w_mat25`, …). It rebuilt the species parameters from
