@@ -43,9 +43,8 @@ plots) are in the changelog and are not repeated here.
 | Symptom | Cause | Section |
 |---|---|---|
 | New warning that a change to a species or resource parameter "has not taken effect" | the rate it feeds was set by hand and is no longer calculated | A change that cannot take effect now warns (3.3) |
-| `expect_message()` or `options(warn = 2)` trips on a `species_params<-()` call | the frozen-rate report is a warning now | A change that cannot take effect now warns (3.3) |
 | A message that used to appear no longer does, with `info_level = 0` | `info_level = 0` now silences everything | One report, one switch (3.3) |
-| `expect_message()` on `steady()`, `matchYields()`, `setInteraction()`, `newTraitParams()` fails | those reports are collected and given at the end now | One report, one switch (3.3) |
+| `expect_message()` on a mizer call fails, or `options(warn = 2)` trips | reports are warnings where they were messages, and are collected until the end of the call | One report, one switch (3.3) |
 | Absolute diet values dropped ~10%, only with `second_order_w` bin-averaging | double-counted prey-bin quadrature, now fixed | Quadrature fixes under `second_order_w` (3.3) |
 | Trophic levels moved slightly, only with `second_order_w` | numerator and denominator now use one quadrature | Quadrature fixes under `second_order_w` (3.3) |
 | Size grid or results changed in a model built with a small `min_w` | `w_min` is no longer reset to 0.001 | `w_min` survives a rebuild (3.3) |
@@ -141,11 +140,6 @@ species parameter. To silence it, set `options(mizer_info_level = 0)`, which
 also covers the functions that take no `info_level` argument, or pass
 `info_level = 0` to the one call you want quiet.
 
-The warning is raised only when a parameter that actually feeds the frozen rate
-changed, so a model in which mizer itself froze an array — such as the ones
-built by `newTraitParams()` and `newCommunityParams()` — does not warn about
-unrelated parameter changes.
-
 The resource works the same way. `resource_params(params)$kappa <- ...` on a
 model whose `resource_capacity()` you had set by hand used to change the stored
 `kappa` and nothing else, without saying anything at all; it now warns.
@@ -154,6 +148,11 @@ model whose `resource_capacity()` you had set by hand used to change the stored
 already gave when a change is ignored because another parameter takes
 precedence over it — a change to `f0` when `gamma` has been given, to `fc` when
 `ks` has, or to `age_mat` when `h` has.
+
+This is the counterpart of the 3.2 change described under *Frozen arrays are
+protected from incidental balancing* below: there, mizer keeps a frozen array
+instead of overwriting it; here, it tells you when a parameter change is
+ignored because an array is frozen.
 
 ### One report, one switch
 
@@ -171,10 +170,6 @@ for existing code:
   one warning rather than a stream. A test doing `expect_message()` on an
   individual report inside a longer call may need adjusting, and the text now
   arrives with any others in the same message.
-
-The new `mizer_info_level` option sets the default for every `info_level`
-argument, so `options(mizer_info_level = 0)` quietens mizer as a whole,
-including the functions that have no such argument.
 
 ### Quadrature fixes under `second_order_w`
 

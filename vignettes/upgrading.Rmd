@@ -73,11 +73,6 @@ species parameter. To silence it, set `options(mizer_info_level = 0)`, which
 also covers the functions that take no `info_level` argument, or pass
 `info_level = 0` to the one call you want quiet.
 
-The warning is raised only when a parameter that actually feeds the frozen rate
-changed, so a model in which mizer itself froze an array — such as the ones
-built by [`newTraitParams()`](../reference/newTraitParams.html) and [`newCommunityParams()`](../reference/newCommunityParams.html) — does not warn about
-unrelated parameter changes.
-
 The resource works the same way. [`resource_params(params)$kappa <- ...`](../reference/resource_params.html) on a
 model whose [`resource_capacity()`](../reference/setResource.html) you had set by hand used to change the stored
 `kappa` and nothing else, without saying anything at all; it now warns.
@@ -87,12 +82,17 @@ already gave when a change is ignored because another parameter takes
 precedence over it — a change to `f0` when `gamma` has been given, to `fc` when
 `ks` has, or to [`age_mat`](../reference/age_mat.html) when `h` has.
 
+This is the counterpart of the 3.2 change described under *Frozen arrays are
+protected from incidental balancing* below: there, mizer keeps a frozen array
+instead of overwriting it; here, it tells you when a parameter change is
+ignored because an array is frozen.
+
 ### One report, one switch
 
 Nearly everything mizer says while building or changing a model now goes
 through the same mechanism, including the reports in [`steady()`](../reference/steady.html),
 [`projectToSteady()`](../reference/projectToSteady.html), [`matchYields()`](../reference/matchYields.html), [`validParams()`](../reference/validParams.html), [`setInteraction()`](../reference/setInteraction.html),
-[`setReproduction()`](../reference/setReproduction.html), [`setResource()`](../reference/setResource.html), `newTraitParams()`,
+[`setReproduction()`](../reference/setReproduction.html), [`setResource()`](../reference/setResource.html), [`newTraitParams()`](../reference/newTraitParams.html),
 [`newSingleSpeciesParams()`](../reference/newSingleSpeciesParams.html) and [`plotYieldObservedVsModel()`](../reference/plotYieldObservedVsModel.html). Two consequences
 for existing code:
 
@@ -103,10 +103,6 @@ for existing code:
   one warning rather than a stream. A test doing `expect_message()` on an
   individual report inside a longer call may need adjusting, and the text now
   arrives with any others in the same message.
-
-The new `mizer_info_level` option sets the default for every `info_level`
-argument, so `options(mizer_info_level = 0)` quietens mizer as a whole,
-including the functions that have no such argument.
 
 ### Quadrature fixes under `second_order_w`
 
