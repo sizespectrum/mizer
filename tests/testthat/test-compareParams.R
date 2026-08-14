@@ -12,6 +12,18 @@ test_that("compareParams", {
   params3 <- params
   params3@species_params$gamma[[1]] <- params@species_params$gamma[[1]] * 1.1
   expect_true(grepl('gamma', compareParams(params, params3)[[1]]))
+  # A small-magnitude parameter appearing where the first model has none
+  params4 <- params
+  params4@species_params$z0[] <- 0
+  params5 <- params4
+  params5@species_params$z0[[1]] <- 1e-10
+  expect_true(grepl('z0', compareParams(params4, params5)[[1]]))
+  # A non-numeric species param
+  params4 <- params
+  params4@species_params$habitat <- "pelagic"
+  params5 <- params4
+  params5@species_params$habitat[[1]] <- "demersal"
+  expect_true(grepl('habitat', compareParams(params4, params5)[[1]]))
   # Add a species param
   params1 <- params
   params1@species_params$extra <- 1

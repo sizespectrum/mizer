@@ -192,13 +192,53 @@ compareSpeciesParams <- function(species_params1,
 
     # Compare only the species and parameters the two tables share, matched by
     # name, so that extra species or parameters do not clutter the comparison.
-    sp_eq <- all.equal(species_params1[species, param_names],
-                       species_params2[species, param_names])
-    if (!isTRUE(sp_eq)) {
+    sp_eq <- compareColumns(species_params1[species, param_names],
+                            species_params2[species, param_names])
+    if (length(sp_eq) > 0) {
         msg <- paste("The following", text, "differ:",
                toString(sp_eq))
         result <- c(result, msg)
     }
 
     result
+}
+
+# Compare the columns of two species parameter tables that hold the same
+# species and the same parameters
+#
+# `all.equal()` chooses for itself whether to compare relative or absolute
+# differences: it falls back to absolute differences whenever the values it is
+# given are themselves smaller than its tolerance. Species parameters are not
+# all of order 1, and a naturally tiny one like `gamma` (~1e-11) then has even
+# a doubling of its value reported as no difference at all. Dividing a column
+# by its own mean magnitude before the comparison puts it on the scale where
+# `all.equal()` compares relative differences, whatever the magnitude of the
+# parameter. Columns that are not numeric, and those with nothing to set the
+# scale by, are passed to `all.equal()` as they are.
+#
+# Returns one message per column that differs, in the same form as
+# `all.equal()` uses for the components of a list, or an empty character
+# vector when the tables agree.
+compareColumns <- function(df1, df2) {
+    msgs <- character()
+    for (col in names(df1)) {
+        v1 <- df1[[col]]
+        v2 <- df2[[col]]
+        if (is.numeric(v1) && is.numeric(v2)) {
+            scale <- mean(abs(v1), na.rm = TRUE)
+            if (!isTRUE(is.finite(scale) && scale > 0)) {
+                # The first table gives no scale, so try the second
+                scale <- mean(abs(v2), na.rm = TRUE)
+            }
+            if (isTRUE(is.finite(scale) && scale > 0)) {
+                v1 <- v1 / scale
+                v2 <- v2 / scale
+            }
+        }
+        eq <- all.equal(v1, v2)
+        if (!isTRUE(eq)) {
+            msgs <- c(msgs, paste0("Component \"", col, "\": ", eq))
+        }
+    }
+    msgs
 }
