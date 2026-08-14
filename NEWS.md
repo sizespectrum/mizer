@@ -5,6 +5,11 @@ stability of steady states.
 
 ## New functions
 
+- New `knife_edge_length()` selectivity function that applies a knife-edge cut
+  at a given **length** rather than a weight. Set `sel_func = "knife_edge_length"`
+  and provide a `knife_edge_length` column in `gear_params()`. The length is
+  converted to a cut-off weight via the length–weight parameters `a` and `b`.
+
 - New experimental `bin_average_weight()` prepares the weight of an integral
   over the size spectrum so that the integral uses the quadrature scheme the
   model is actually on. Use it when writing your own indicator or diagnostic
@@ -229,6 +234,19 @@ stability of steady states.
   the run.
 
 ## Bug fixes
+
+- The default values for the `gamma` and `f0` species parameters are no longer
+  corrupted by a search volume that you have set by hand. `get_gamma_default()`
+  measures the energy available to a predator by giving it a search volume
+  coefficient of 1, but it obtained that search volume by calling
+  `setSearchVolume()`, which refuses to recalculate a `search_vol` array you
+  have set yourself. So mizer's own internal calculation was blocked along with
+  yours and the available energy was read off your array instead, making the
+  resulting `gamma` wrong by however much your array differed from the
+  unit-gamma one — many orders of magnitude in realistic models. Both
+  `get_gamma_default()` and `get_f0_default()` now compute the search volume
+  they need directly from the species parameters, so they are unaffected by a
+  frozen `search_vol` and remain exact inverses of each other (#488).
 
 - Changing a species parameter that feeds a rate array you have set by hand now
   warns you that the change has no effect on the model. Previously

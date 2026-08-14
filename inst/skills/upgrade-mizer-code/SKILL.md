@@ -57,6 +57,7 @@ plots) are in the changelog and are not repeated here.
 | Repeated "`l_mat` is not consistent with `w_mat`" warning has stopped | the given species parameters are brought into line | Length and weight follow the one you gave last (3.3) |
 | Size grid or results changed in a model built with a small `min_w` | `w_min` is no longer reset to 0.001 | `w_min` survives a rebuild (3.3) |
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters (3.3) |
+| A recalculated `gamma` or `f0` is wildly different, in a model whose `search_vol` was set by hand | the frozen array used to block mizer's own unit-gamma calculation | Defaults for `gamma` and `f0` ignore a hand-set search volume (3.3) |
 | `setParams()` or `setResource()` errors that it "does not have an argument" | unknown arguments are no longer silently ignored | `setParams()` rejects arguments it does not use (3.3) |
 | A `setParams(resource_rate = )` / `setParams(kappa = )` call that ran fine now errors | `setParams()` never set the resource; use `setResource()` | `setParams()` rejects arguments it does not use (3.3) |
 | A resource change made via `setParams()` never showed up in the model | the argument was silently dropped in every version before 3.3 | `setParams()` rejects arguments it does not use (3.3) |
@@ -312,6 +313,39 @@ the size grid it asked for, and results change accordingly.
 small-magnitude parameters such as `gamma` (~1e-8) are no longer treated as equal
 when they differ by up to ~10%. Comparisons that previously reported two models
 as identical may now report differences — those differences were always there.
+
+### Defaults for `gamma` and `f0` ignore a hand-set search volume
+
+`get_gamma_default()` works out how much energy is available to a predator by
+giving it a search volume coefficient of 1. It used to obtain that search volume
+by calling `setSearchVolume()`, which refuses to recalculate a `search_vol`
+array you have set by hand — so mizer's own internal call was blocked along with
+yours, and the available energy was measured with *your* array. The resulting
+`gamma` was wrong by whatever factor separated your array from the unit-gamma
+one, which in a realistic model is many orders of magnitude. `get_f0_default()`,
+the inverse, had the same problem. Both now build the search volume they need
+directly from the species parameters (#488).
+
+```r
+sv <- search_vol(params)
+search_vol(params) <- sv * 10          # freeze the search volume
+
+sp <- species_params(params)
+sp$gamma <- NA
+species_params(params) <- sp           # ask mizer to recalculate gamma
+
+species_params(params)$gamma
+#> Used to come back ~1e9 times too large; now the same value you would
+#> get without the frozen search volume.
+```
+
+If you have a model in which you set `search_vol` by hand and then let mizer
+fill in a missing `gamma` or `f0`, that model's species parameters were wrong
+and change with this release. Note that the recalculated `gamma` still has no
+effect on the model while the search volume stays frozen — mizer now warns you
+about that separately, see "A change that cannot take effect now warns" above.
+Call `setSearchVolume(params, reset = TRUE)` to put the search volume back under
+the control of the species parameters.
 
 ### `setParams()` rejects arguments it does not use
 

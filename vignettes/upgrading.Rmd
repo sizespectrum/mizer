@@ -234,6 +234,39 @@ small-magnitude parameters such as `gamma` (~1e-8) are no longer treated as equa
 when they differ by up to ~10%. Comparisons that previously reported two models
 as identical may now report differences — those differences were always there.
 
+### Defaults for `gamma` and `f0` ignore a hand-set search volume
+
+[`get_gamma_default()`](../reference/get_gamma_default.html) works out how much energy is available to a predator by
+giving it a search volume coefficient of 1. It used to obtain that search volume
+by calling [`setSearchVolume()`](../reference/setSearchVolume.html), which refuses to recalculate a [`search_vol`](../reference/setSearchVolume.html)
+array you have set by hand — so mizer's own internal call was blocked along with
+yours, and the available energy was measured with *your* array. The resulting
+`gamma` was wrong by whatever factor separated your array from the unit-gamma
+one, which in a realistic model is many orders of magnitude. [`get_f0_default()`](../reference/get_f0_default.html),
+the inverse, had the same problem. Both now build the search volume they need
+directly from the species parameters (#488).
+
+```{r eval=FALSE}
+sv <- search_vol(params)
+search_vol(params) <- sv * 10          # freeze the search volume
+
+sp <- species_params(params)
+sp$gamma <- NA
+species_params(params) <- sp           # ask mizer to recalculate gamma
+
+species_params(params)$gamma
+#> Used to come back ~1e9 times too large; now the same value you would
+#> get without the frozen search volume.
+```
+
+If you have a model in which you set `search_vol` by hand and then let mizer
+fill in a missing `gamma` or `f0`, that model's species parameters were wrong
+and change with this release. Note that the recalculated `gamma` still has no
+effect on the model while the search volume stays frozen — mizer now warns you
+about that separately, see "A change that cannot take effect now warns" above.
+Call `setSearchVolume(params, reset = TRUE)` to put the search volume back under
+the control of the species parameters.
+
 ### `setParams()` rejects arguments it does not use
 
 [`setParams()`](../reference/setParams.html) passes its `...` on to the rate setters, each of which declares
