@@ -181,6 +181,11 @@ params <- setResource(params, resource_dynamics = "resource_constant")
 
 - If a run blows up or oscillates unphysically, first reduce `dt` (e.g. `0.01`);
   a stiff model may also do better with `method = "tr_bdf2"`.
+- With growth diffusion switched on (`D_ext > 0`), diffusion spreads individuals
+  past the asymptotic size and they pile up against the upper edge of the grid.
+  Set `w_max` well above the sizes you actually analyse, so that abundance at the
+  boundary stays negligible; the default `1.5 * w_inf` is usually enough, but
+  raise it if `D_ext` is large.
 - `t_save` controls output resolution, not accuracy — the model always steps at
   `dt` internally.
 - The `MizerSim` stores the `MizerParams` it used, so a sim is self-contained

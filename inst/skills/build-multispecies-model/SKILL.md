@@ -131,3 +131,7 @@ All fields are optional and you can add fields of your own. mizer also fills in
 - Editing a species parameter on a bare data frame instead of through
   `species_params(params) <-` means no dependent quantity is recalculated. See
   the `change-parameters` skill.
+- Passing `max_w = w_inf` to `newMultispeciesParams()` errors, because `w_max`
+  still defaults to `1.5 * w_inf` and the grid then stops below it. To run the
+  grid up to the asymptotic size, give the species parameter data frame a
+  `w_max` column equal to `w_inf` as well.

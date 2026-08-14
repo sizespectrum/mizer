@@ -34,6 +34,7 @@ mizer is an R package for dynamic multi-species size-spectrum modelling of fish 
 
 - Run `devtools::load_all()` before running tests
 - Run only relevant tests with `devtools::test(filter = "pattern")`. Running all tests is too slow.
+- **Never compare two rate arrays with `identical()`.** The freeze mechanism writes a `comment` attribute onto an array that has been set by hand, so two arrays holding the same numbers compare unequal whenever one of them has been through a setter. This reports a difference where there is none and has already produced a wrong conclusion about whether a setter argument works. Compare values: `all.equal()` after stripping attributes down to `dim`, or `all.equal(..., check.attributes = FALSE)`. The internal `different()` (`R/helpers.R:14`) is the in-package form of this.
 - Use `expect_doppelganger()` (vdiffr) for plot tests, and snapshot tests for complex outputs
 - When snapshot tests fail because values legitimately changed, run `testthat::snapshot_accept()` to promote the `.new.md` files into the canonical `.md` snapshots.
 - Run `devtools::document()` after adding or changing exports

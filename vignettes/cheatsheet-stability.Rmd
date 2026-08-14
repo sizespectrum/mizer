@@ -34,9 +34,9 @@ unstable, unlike [`steady()`](../reference/steady.html).
 
 ---
 
-## Is the steady state stable? — [`getStability()`](../reference/getStability.html)
+## Is the steady state stable? — `getStability()`
 
-`getStability(params)` linearises the one-step-ahead map at the fixed point and
+[`getStability(params)`](../reference/getStability.html) linearises the one-step-ahead map at the fixed point and
 returns its leading eigenvalues. The result reports whether the state is stable or
 unstable, the **spectral radius** (modulus of the leading eigenvalue; > 1 means
 unstable), and — when the system is near a Hopf bifurcation — the **period** of
@@ -68,9 +68,9 @@ tolerance `tol`.
 
 ---
 
-## Visualising the limit cycle — [`getLimitCycleSim()`](../reference/getLimitCycleSim.html)
+## Visualising the limit cycle — `getLimitCycleSim()`
 
-`getLimitCycleSim(params)` takes the output of `steadyNewton()` and builds a
+[`getLimitCycleSim(params)`](../reference/getLimitCycleSim.html) takes the output of `steadyNewton()` and builds a
 [`MizerSim`](../reference/MizerSim.html) covering **one period** of the limit cycle in the linear approximation,
 
 \[ N(t) = N^* + A\,\mathrm{Re}\!\left[e^{i\theta t}\,\mathbf v\right], \]
@@ -93,9 +93,9 @@ project the real dynamics with the second-order scheme (see the
 
 ---
 
-## Where does the cycle appear? — [`plotBifurcation()`](../reference/plotBifurcation.html)
+## Where does the cycle appear? — `plotBifurcation()`
 
-`plotBifurcation(params, effort = ...)` draws a bifurcation diagram over fishing
+[`plotBifurcation(params, effort = ...)`](../reference/plotBifurcation.html) draws a bifurcation diagram over fishing
 effort. For each effort value it follows the attractor of the full dynamics and
 plots the long-term **range** of a summary quantity: a stable steady state shows
 as a single line, a limit cycle as a **band** between its minimum and maximum, so
