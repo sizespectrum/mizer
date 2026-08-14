@@ -14,8 +14,9 @@ plotSpectra2(
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
-  power = 1,
-  biomass = TRUE,
+  power = NULL,
+  biomass = NULL,
+  per_log_size = NULL,
   total = FALSE,
   resource = TRUE,
   background = TRUE,
@@ -57,14 +58,15 @@ are always filtered out from the data regardless of \code{ylim[1]}. Data above
 \code{ylim[2]} is filtered and the upper axis limit is set accordingly.}
 
 \item{power}{The abundance is plotted as the number density times the weight
-raised to \code{power}. The default \code{power = 1} gives the biomass
-density, whereas \code{power = 2} gives the biomass density with respect
-to logarithmic size bins.}
+raised to \code{power}. An alternative to the \code{biomass} and \code{per_log_size}
+arguments, with which it must agree if they are given as well; see
+Details. The default is \code{power = 1}, the biomass density.}
 
-\item{biomass}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
-Only used if \code{power} argument is missing. Then
-\code{biomass = TRUE} is equivalent to \code{power=1} and
-\code{biomass = FALSE} is equivalent to \code{power=0}}
+\item{biomass}{Whether to plot the biomass density (\code{TRUE}, the default) or
+the number density (\code{FALSE}).}
+
+\item{per_log_size}{Whether to plot the density with respect to logarithmic
+size (\code{TRUE}) or with respect to size (\code{FALSE}, the default).}
 
 \item{total}{A boolean value that determines whether the total over all
 species in the system is plotted as well. Note that even if the plot

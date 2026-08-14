@@ -405,6 +405,9 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
 #'   (`"w"`) or length (`"l"`).
 #' @param spectrum_power Optional power used to weight a number spectrum. When
 #'   supplied, spectrum values are transformed along with a length axis.
+#' @param spectrum_per_log_size Whether the spectrum is a density with respect
+#'   to logarithmic size, which selects the Jacobian used for a length axis.
+#'   Defaults to `spectrum_power == 2`.
 #' @return A `mizer_plot` (ggplot2) object.
 #' @keywords internal
 plotComparisonDataFrame <- function(frame1, frame2, params,
@@ -415,7 +418,8 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     y_ticks = 6, highlight = NULL,
                                     legend_var = "Legend",
                                     size_axis = NULL,
-                                    spectrum_power = NULL) {
+                                    spectrum_power = NULL,
+                                    spectrum_per_log_size = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -441,8 +445,10 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
             frame <- convert_plot_size_axis(frame, params, size_axis,
                                             species_col = group_var)
         } else {
+            per_log_size <- spectrum_per_log_size %||% (spectrum_power == 2)
             frame <- convert_plot_spectrum_axis(frame, params, size_axis,
                                                 power = spectrum_power,
+                                                per_log_size = per_log_size,
                                                 species_col = group_var)
         }
         x_var <- plot_size_x_var(size_axis)
@@ -724,19 +730,23 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
 
 #' Convert a weight-based spectrum to a length-based spectrum
 #'
-#' Number density is stored per unit weight. For a length axis it is converted
-#' with the Jacobian `dw/dl = b * w / l`. The `power = 2` spectrum is instead
-#' biomass density per logarithmic size interval, so it uses
+#' A density with respect to weight is converted to a density with respect to
+#' length with the Jacobian `dw/dl = b * w / l`. A density with respect to
+#' logarithmic weight is instead converted with
 #' `d log(w) / d log(l) = b`.
 #'
 #' @inheritParams convert_plot_size_axis
 #' @param power The power of weight multiplying the number density.
+#' @param per_log_size Whether the spectrum is a density with respect to
+#'   logarithmic size rather than with respect to size. Defaults to
+#'   `power == 2`, the only power for which this used to be the case.
 #' @param value_col Name or index of the spectrum-value column. Defaults to the
 #'   second column.
 #' @return The plotting data with both its size coordinate and spectrum values
 #'   expressed for the requested axis.
 #' @keywords internal
 convert_plot_spectrum_axis <- function(plot_dat, params, size_axis, power,
+                                       per_log_size = power == 2,
                                        species_col = "Species",
                                        value_col = 2) {
     size_axis <- plot_size_axis(size_axis)
@@ -752,7 +762,7 @@ convert_plot_spectrum_axis <- function(plot_dat, params, size_axis, power,
     species_idx <- match(as.character(plot_dat[[species_col]]),
                          as.character(params@species_params$species))
     sp <- params@species_params[species_idx, , drop = FALSE]
-    jacobian <- if (power == 2) sp$b else sp$b * plot_dat$w / plot_dat$l
+    jacobian <- if (per_log_size) sp$b else sp$b * plot_dat$w / plot_dat$l
     plot_dat[[value_col]] <- plot_dat[[value_col]] * jacobian
     plot_dat[, c("l", setdiff(names(plot_dat), c("l", "w"))), drop = FALSE]
 }
@@ -1242,23 +1252,39 @@ plotlyYieldGear <- function(object, species = NULL,
 
 #' Plot abundance and biomass spectra
 #'
-#' `plotSpectra()` plots the number density multiplied by a power of the
-#' weight, with the power specified by the `power` argument. When called with a
+#' `plotSpectra()` plots either a number density or a biomass density, either
+#' with respect to size or with respect to logarithmic size. Those two choices
+#' are made with the `biomass` and `per_log_size` arguments. When called with a
 #' [MizerSim] object, the abundance is averaged over the specified time range
 #' (a single value for the time range can be used to plot a single time step).
 #' When called with a [MizerParams] object the initial abundance is plotted.
 #' With `size_axis = "l"`, densities are converted from per unit weight to per
-#' unit length. For `power = 2`, which represents biomass density per
-#' logarithmic size interval, the conversion is instead between logarithmic
-#' weight and length intervals.
+#' unit length; densities with respect to logarithmic size are instead
+#' converted between logarithmic weight and logarithmic length intervals.
+#'
+#' The plotted quantity is the number density multiplied by `w^power`, where
+#' the power is the sum of the two choices above: a biomass density carries one
+#' factor of the weight and a density with respect to logarithmic size carries
+#' another:
+#'
+#' | | `per_log_size = FALSE` | `per_log_size = TRUE` |
+#' |---|---|---|
+#' | `biomass = FALSE` | `power = 0` | `power = 1` |
+#' | `biomass = TRUE`  | `power = 1` | `power = 2` |
+#'
+#' The `power` argument can still be given instead, and is the only way to ask
+#' for a power that is not the sum of the two flags. But note that `power` on
+#' its own does not distinguish the two entries with `power = 1`: it is taken
+#' to mean the biomass density with respect to weight, which is what determines
+#' the y-axis label and the Jacobian used for a length axis. Supplying `power`
+#' together with a flag that contradicts it is an error.
 #'
 #' The `log_x` argument only controls how the size axis is displayed; it does
 #' not change the density on the y-axis. In particular, showing weight on a
 #' logarithmic axis does not by itself convert a density per unit weight into a
-#' density per logarithmic weight interval. That choice is made with `power`:
-#' for example, `power = 2` gives biomass density per logarithmic size interval.
-#' Its conversion from weight to length therefore uses the logarithmic
-#' Jacobian, irrespective of the value of `log_x`.
+#' density per logarithmic weight interval. That choice is made with
+#' `per_log_size`, and the conversion from weight to length then uses the
+#' logarithmic Jacobian, irrespective of the value of `log_x`.
 #'
 #' `plotlySpectra()` is the interactive plotly version. To compare spectra from
 #' two objects use [plotSpectra2()]. To show relative differences use
@@ -1284,14 +1310,14 @@ plotlyYieldGear <- function(object, species = NULL,
 #'   for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
 #'   are always filtered out from the data regardless of `ylim[1]`. Data above
 #'   `ylim[2]` is filtered and the upper axis limit is set accordingly.
+#' @param biomass Whether to plot the biomass density (`TRUE`, the default) or
+#'   the number density (`FALSE`).
+#' @param per_log_size Whether to plot the density with respect to logarithmic
+#'   size (`TRUE`) or with respect to size (`FALSE`, the default).
 #' @param power The abundance is plotted as the number density times the weight
-#' raised to `power`. The default \code{power = 1} gives the biomass
-#' density, whereas \code{power = 2} gives the biomass density with respect
-#' to logarithmic size bins.
-#' @param biomass `r lifecycle::badge("deprecated")`
-#'  Only used if `power` argument is missing. Then
-#'   \code{biomass = TRUE} is equivalent to \code{power=1} and
-#'   \code{biomass = FALSE} is equivalent to \code{power=0}
+#'   raised to `power`. An alternative to the `biomass` and `per_log_size`
+#'   arguments, with which it must agree if they are given as well; see
+#'   Details. The default is `power = 1`, the biomass density.
 #' @param total A boolean value that determines whether the total over all
 #'   species in the system is plotted as well. Note that even if the plot
 #'   only shows a selection of species, the total is including all species.
@@ -1336,8 +1362,8 @@ plotlyYieldGear <- function(object, species = NULL,
 #' plotSpectra(sim)
 #' plotSpectra(sim, wlim = c(1e-6, NA))
 #' plotSpectra(sim, time_range = 10:20)
-#' plotSpectra(sim, time_range = 10:20, power = 0)
-#' plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
+#' plotSpectra(sim, time_range = 10:20, biomass = FALSE)
+#' plotSpectra(sim, species = c("Cod", "Herring"), per_log_size = TRUE)
 #' plotSpectra(sim, species = c("Cod", "Herring"), size_axis = "l")
 #'
 #' # Returning the data frame
@@ -1348,7 +1374,8 @@ plotlyYieldGear <- function(object, species = NULL,
 #' @export
 plotSpectra <- function(object, species = NULL,
                         wlim = c(NA, NA), llim = c(NA, NA), ylim = c(NA, NA),
-                        power = 1, biomass = TRUE, total = FALSE,
+                        power = NULL, biomass = NULL, per_log_size = NULL,
+                        total = FALSE,
                         resource = TRUE, background = TRUE, highlight = NULL,
                         log_x = TRUE, log_y = TRUE, log = NULL,
                         size_axis = c("w", "l"), return_data = FALSE, ...) {
@@ -1361,7 +1388,7 @@ plotSpectra <- function(object, species = NULL,
 plotSpectra.MizerSim <- function(object, species = NULL,
                         wlim = c(NA, NA), llim = c(NA, NA),
                         ylim = c(NA, NA),
-                        power = 1, biomass = TRUE,
+                        power = NULL, biomass = NULL, per_log_size = NULL,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
                         highlight = NULL, log_x = TRUE, log_y = TRUE,
@@ -1369,10 +1396,7 @@ plotSpectra.MizerSim <- function(object, species = NULL,
                         return_data = FALSE,
                         time_range,
                         geometric_mean = FALSE, ...) {
-    # to deal with old-type biomass argument
-    if (missing(power)) {
-        power <- as.numeric(biomass)
-    }
+    spectrum <- resolve_spectrum_power(power, biomass, per_log_size)
     size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
@@ -1380,7 +1404,6 @@ plotSpectra.MizerSim <- function(object, species = NULL,
 
     assert_that(is.flag(total), is.flag(resource),
                 is.flag(background),
-                is.number(power),
                 length(wlim) == 2,
                 length(llim) == 2,
                 length(ylim) == 2)
@@ -1403,7 +1426,9 @@ plotSpectra.MizerSim <- function(object, species = NULL,
     plot_spectra(object@params, n = n, n_pp = n_pp,
                  species = species, wlim = wlim, ylim = ylim,
                  llim = llim,
-                 power = power, total = total, resource = resource,
+                 power = spectrum$power, biomass = spectrum$biomass,
+                 per_log_size = spectrum$per_log_size,
+                 total = total, resource = resource,
                  background = background, highlight = highlight,
                  log_x = log_x, log_y = log_y,
                  size_axis = size_axis,
@@ -1416,16 +1441,13 @@ plotSpectra.MizerSim <- function(object, species = NULL,
 plotSpectra.MizerParams <- function(object, species = NULL,
                         wlim = c(NA, NA), llim = c(NA, NA),
                         ylim = c(NA, NA),
-                        power = 1, biomass = TRUE,
+                        power = NULL, biomass = NULL, per_log_size = NULL,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
                         highlight = NULL, log_x = TRUE, log_y = TRUE,
                         log = NULL, size_axis = c("w", "l"),
                         return_data = FALSE, ...) {
-    # to deal with old-type biomass argument
-    if (missing(power)) {
-        power <- as.numeric(biomass)
-    }
+    spectrum <- resolve_spectrum_power(power, biomass, per_log_size)
     size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
@@ -1433,7 +1455,6 @@ plotSpectra.MizerParams <- function(object, species = NULL,
 
     assert_that(is.flag(total), is.flag(resource),
                 is.flag(background),
-                is.number(power),
                 length(wlim) == 2,
                 length(llim) == 2,
                 length(ylim) == 2)
@@ -1445,7 +1466,9 @@ plotSpectra.MizerParams <- function(object, species = NULL,
                  n_pp = object@initial_n_pp,
                  species = species, wlim = wlim, ylim = ylim,
                  llim = llim,
-                 power = power, total = total, resource = resource,
+                 power = spectrum$power, biomass = spectrum$biomass,
+                 per_log_size = spectrum$per_log_size,
+                 total = total, resource = resource,
                  background = background, highlight = highlight,
                  log_x = log_x, log_y = log_y,
                  size_axis = size_axis,
@@ -1468,6 +1491,11 @@ plotSpectra.MizerParams <- function(object, species = NULL,
 #'   limits.
 #' @param ylim Numeric vector of length two giving the y-axis limits.
 #' @param power The abundance is multiplied by weight raised to this power.
+#' @param biomass Whether the resulting quantity is a biomass density rather
+#'   than a number density. Used for the y-axis label.
+#' @param per_log_size Whether the resulting quantity is a density with respect
+#'   to logarithmic size. Used for the y-axis label and for the Jacobian of the
+#'   conversion to a length axis.
 #' @param total Whether to include the total community abundance.
 #' @param resource Whether to include the resource spectrum.
 #' @param background Whether to include background species.
@@ -1481,6 +1509,7 @@ plotSpectra.MizerParams <- function(object, species = NULL,
 #' @keywords internal
 plot_spectra <- function(params, n, n_pp,
                          species, wlim, llim, ylim, power,
+                         biomass = power >= 1, per_log_size = power == 2,
                          total, resource, background,
                          highlight, log_x, log_y, size_axis, return_data) {
     params <- validParams(params)
@@ -1513,8 +1542,8 @@ plot_spectra <- function(params, n, n_pp,
         total_n <- total_n * w_full_grid^power
     }
     species <- valid_species_arg(params, species)
-    # Deal with power argument
-    y_label <- spectra_y_label(power, size_axis)
+    y_label <- spectra_y_label(power, size_axis, biomass = biomass,
+                               per_log_size = per_log_size)
     n <- sweep(n, 2, w_grid^power, "*")
     # Select only the desired species
     spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
@@ -1562,7 +1591,8 @@ plot_spectra <- function(params, n, n_pp,
     plot_dat <- plot_dat[(plot_dat$value > 0) &
                              (plot_dat$w >= wlim[1]) &
                              (plot_dat$w <= wlim[2]), ]
-    plot_dat <- convert_plot_spectrum_axis(plot_dat, params, size_axis, power)
+    plot_dat <- convert_plot_spectrum_axis(plot_dat, params, size_axis, power,
+                                           per_log_size = per_log_size)
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
@@ -1587,10 +1617,16 @@ plot_spectra <- function(params, n, n_pp,
 #' Plot cumulative abundance or biomass distributions
 #'
 #' `plotCDF()` plots the cumulative distribution over body size from small to
-#' large sizes. It uses the same spectra data preparation as [plotSpectra()].
-#' The density is first multiplied by `w^power`, then integrated over size.
+#' large sizes. It uses the same spectra data preparation as [plotSpectra()]:
+#' the number density is multiplied by `w^power` and then integrated over size.
 #' With `normalise = TRUE`, each curve is divided by its final value so that it
 #' ends at 1.
+#'
+#' Unlike for [plotSpectra()], the only choice that matters here is `biomass`:
+#' whether to accumulate numbers or biomass. Whether a density is expressed
+#' with respect to size or with respect to logarithmic size makes no difference
+#' to its integral, because the change of variable cancels the factor of the
+#' weight, and so `plotCDF()` does not accept `per_log_size = TRUE`.
 #'
 #' `plotlyCDF()` is the interactive plotly version. To compare cumulative
 #' distributions from two objects, use [plotCDF2()].
@@ -1615,14 +1651,13 @@ plot_spectra <- function(params, n, n_pp,
 #'   for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
 #'   are always filtered out from the data regardless of `ylim[1]`. Data above
 #'   `ylim[2]` is filtered and the upper axis limit is set accordingly.
-#' @param power The abundance is plotted as the number density times the weight
-#' raised to `power`. The default \code{power = 1} gives the biomass
-#' density, whereas \code{power = 2} gives the biomass density with respect
-#' to logarithmic size bins.
-#' @param biomass `r lifecycle::badge("deprecated")`
-#'  Only used if `power` argument is missing. Then
-#'   \code{biomass = TRUE} is equivalent to \code{power=1} and
-#'   \code{biomass = FALSE} is equivalent to \code{power=0}
+#' @param biomass Whether to plot the cumulative biomass (`TRUE`, the default)
+#'   or the cumulative abundance (`FALSE`).
+#' @param per_log_size Only `FALSE` (the default) is accepted; see Details.
+#' @param power The number density is multiplied by the weight raised to
+#'   `power` before being integrated. An alternative to the `biomass`
+#'   argument, with which it must agree if that is given as well. The default
+#'   is `power = 1`, the cumulative biomass.
 #' @param total A boolean value that determines whether the total over all
 #'   species in the system is plotted as well. Note that even if the plot
 #'   only shows a selection of species, the total is including all species.
@@ -1669,7 +1704,8 @@ plot_spectra <- function(params, n, n_pp,
 #' }
 plotCDF <- function(object, species = NULL,
                     wlim = c(NA, NA), llim = c(NA, NA), ylim = c(NA, NA),
-                    power = 1, biomass = TRUE, total = FALSE,
+                    power = NULL, biomass = NULL, per_log_size = NULL,
+                    total = FALSE,
                     resource = FALSE, background = TRUE, highlight = NULL,
                     normalise = TRUE, log_x = TRUE, log_y = FALSE, log = NULL,
                     size_axis = c("w", "l"), return_data = FALSE, ...) {
@@ -1682,7 +1718,8 @@ plotCDF <- function(object, species = NULL,
 plotCDF.MizerSim <- function(object, species = NULL,
                              wlim = c(NA, NA), llim = c(NA, NA),
                              ylim = c(NA, NA),
-                             power = 1, biomass = TRUE,
+                             power = NULL, biomass = NULL,
+                             per_log_size = NULL,
                              total = FALSE, resource = FALSE,
                              background = TRUE,
                              highlight = NULL, normalise = TRUE,
@@ -1692,13 +1729,10 @@ plotCDF.MizerSim <- function(object, species = NULL,
                              time_range,
                              geometric_mean = FALSE, ...) {
     size_axis <- plot_size_axis(size_axis)
-    if (missing(power)) {
-        power <- as.numeric(biomass)
-    }
+    power <- resolve_cdf_power(power, biomass, per_log_size)$power
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.flag(total), is.flag(resource),
                 is.flag(background), is.flag(normalise),
-                is.number(power),
                 length(wlim) == 2,
                 length(llim) == 2,
                 length(ylim) == 2)
@@ -1727,7 +1761,8 @@ plotCDF.MizerSim <- function(object, species = NULL,
 plotCDF.MizerParams <- function(object, species = NULL,
                                 wlim = c(NA, NA), llim = c(NA, NA),
                                 ylim = c(NA, NA),
-                                power = 1, biomass = TRUE,
+                                power = NULL, biomass = NULL,
+                                per_log_size = NULL,
                                 total = FALSE, resource = FALSE,
                                 background = TRUE,
                                 highlight = NULL, normalise = TRUE,
@@ -1735,13 +1770,10 @@ plotCDF.MizerParams <- function(object, species = NULL,
                                 size_axis = c("w", "l"),
                                 return_data = FALSE, ...) {
     size_axis <- plot_size_axis(size_axis)
-    if (missing(power)) {
-        power <- as.numeric(biomass)
-    }
+    power <- resolve_cdf_power(power, biomass, per_log_size)$power
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.flag(total), is.flag(resource),
                 is.flag(background), is.flag(normalise),
-                is.number(power),
                 length(wlim) == 2,
                 length(llim) == 2,
                 length(ylim) == 2)
@@ -1945,7 +1977,7 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                      species = NULL,
                      wlim = c(NA, NA), llim = c(NA, NA),
                      ylim = c(NA, NA),
-                     power = 1, biomass = TRUE,
+                     power = NULL, biomass = NULL, per_log_size = NULL,
                      total = FALSE, resource = FALSE,
                      background = TRUE,
                      highlight = NULL,
@@ -1953,11 +1985,9 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                      log_x = TRUE, log_y = FALSE,
                      log = NULL, size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
-    if (missing(power)) {
-        power <- as.numeric(biomass)
-    }
+    power <- resolve_cdf_power(power, biomass, per_log_size)$power
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
-    assert_that(is.number(power), is.flag(normalise),
+    assert_that(is.flag(normalise),
                 length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
     cf1 <- plotCDF(object1, species = species, wlim = wlim,
@@ -2013,16 +2043,15 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
                          species = NULL,
                          wlim = c(NA, NA), llim = c(NA, NA),
                          ylim = c(NA, NA),
-                         power = 1, biomass = TRUE,
+                         power = NULL, biomass = NULL, per_log_size = NULL,
                          total = FALSE, resource = TRUE,
                          background = TRUE,
                          highlight = NULL,
                          log_x = TRUE, log_y = TRUE,
                          log = NULL, size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
-    if (missing(power)) {
-        power <- as.numeric(biomass)
-    }
+    spectrum <- resolve_spectrum_power(power, biomass, per_log_size)
+    power <- spectrum$power
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
@@ -2044,33 +2073,138 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
     plotComparisonDataFrame(sf1, sf2, validParams(params),
                             name1 = name1, name2 = name2,
                             xlab = plot_size_xlab(size_axis),
-                            ylab = spectra_y_label(power, size_axis),
+                            ylab = spectra_y_label(
+                                power, size_axis,
+                                biomass = spectrum$biomass,
+                                per_log_size = spectrum$per_log_size),
                             xtrans = if (log_x) "log10" else "identity",
                             ytrans = if (log_y) "log10" else "identity",
                             xlim = plot_size_xlim(wlim, size_axis, llim),
                             ylim = ylim, highlight = highlight,
                             legend_var = "Legend",
                             size_axis = size_axis,
-                            spectrum_power = power)
+                            spectrum_power = power,
+                            spectrum_per_log_size = spectrum$per_log_size)
+}
+
+#' Resolve the power of weight multiplying a spectrum
+#'
+#' The quantity plotted by [plotSpectra()] is the number density multiplied by
+#' `w^power`. That power is the sum of two independent choices: whether the
+#' quantity is a biomass density (a factor of `w`) or a number density, and
+#' whether it is a density with respect to logarithmic size (another factor of
+#' `w`) or with respect to size. The two choices are what determine the y-axis
+#' label and the Jacobian used when converting to a length axis, and they are
+#' not recoverable from `power` alone: `power = 1` is both the biomass density
+#' with respect to weight and the number density with respect to logarithmic
+#' weight.
+#'
+#' Users therefore express the choice with the `biomass` and `per_log_size`
+#' flags. The `power` argument remains available, both for backwards
+#' compatibility and as an escape hatch for powers that are not the sum of two
+#' flags. Each argument is `NULL` when it was not supplied by the user.
+#'
+#' @param power The power of weight multiplying the number density, or `NULL`.
+#' @param biomass Whether to plot a biomass density rather than a number
+#'   density, or `NULL`. The default is `TRUE`.
+#' @param per_log_size Whether to plot a density with respect to logarithmic
+#'   size rather than with respect to size, or `NULL`. The default is `FALSE`.
+#' @return A list with entries `power`, `biomass` and `per_log_size`.
+#' @keywords internal
+resolve_spectrum_power <- function(power = NULL, biomass = NULL,
+                                   per_log_size = NULL) {
+    if (!is.null(biomass)) assert_that(is.flag(biomass), noNA(biomass))
+    if (!is.null(per_log_size)) {
+        assert_that(is.flag(per_log_size), noNA(per_log_size))
+    }
+    if (is.null(power)) {
+        biomass <- biomass %||% TRUE
+        per_log_size <- per_log_size %||% FALSE
+        return(list(power = as.numeric(biomass + per_log_size),
+                    biomass = biomass, per_log_size = per_log_size))
+    }
+    assert_that(is.number(power), noNA(power))
+    if (is.null(biomass) && is.null(per_log_size)) {
+        # Only `power` was given, so infer the flags from it. This reproduces
+        # the interpretation that mizer has always placed on `power`.
+        return(list(power = power,
+                    biomass = power >= 1, per_log_size = power == 2))
+    }
+    # `power` was given together with at least one flag. Deduce the other flag
+    # from it and then insist that the three agree, rather than silently
+    # letting one of them win (issue #501).
+    if (is.null(biomass)) biomass <- (power - per_log_size) == 1
+    if (is.null(per_log_size)) per_log_size <- (power - biomass) == 1
+    if (!isTRUE(all.equal(power, biomass + per_log_size))) {
+        stop("You gave `power = ", power, "` but `biomass = ", biomass,
+             "` and `per_log_size = ", per_log_size, "` imply `power = ",
+             biomass + per_log_size, "`. The power of weight multiplying the ",
+             "number density is `biomass + per_log_size`, so supply either ",
+             "`power` or the flags, but not contradictory values of both.")
+    }
+    list(power = power, biomass = biomass, per_log_size = per_log_size)
+}
+
+#' Resolve the power of weight for a cumulative distribution
+#'
+#' As [resolve_spectrum_power()], except that `per_log_size = TRUE` is
+#' rejected: integrating a density with respect to logarithmic size gives the
+#' same cumulative quantity as integrating the corresponding density with
+#' respect to size, so the flag would be meaningless here.
+#'
+#' @inheritParams resolve_spectrum_power
+#' @return A list with entries `power`, `biomass` and `per_log_size`.
+#' @keywords internal
+resolve_cdf_power <- function(power = NULL, biomass = NULL,
+                              per_log_size = NULL) {
+    if (isTRUE(per_log_size)) {
+        stop("A cumulative distribution does not depend on whether the ",
+             "density is taken with respect to size or with respect to ",
+             "logarithmic size, so `per_log_size = TRUE` is not allowed here. ",
+             "Use `biomass` to choose between the cumulative abundance and ",
+             "the cumulative biomass.")
+    }
+    spectrum <- resolve_spectrum_power(power, biomass, per_log_size)
+    # `power` on its own is still taken at face value, so plotCDF(power = 2)
+    # keeps working. But a `power` that agrees with `biomass` only because the
+    # spectrum is one in logarithmic size cannot be what the user meant.
+    if (!is.null(biomass) && spectrum$per_log_size) {
+        stop("You gave `power = ", power, "` together with `biomass = ",
+             biomass, "`, which describes a density with respect to ",
+             "logarithmic size. A cumulative distribution does not depend on ",
+             "that choice, so use `biomass = ", biomass, "` on its own here. ",
+             "It accumulates ", if (biomass) "biomass." else "numbers.")
+    }
+    spectrum
 }
 
 #' Y-axis label for a size-spectrum plot
 #'
 #' @param power The power of weight that the abundance was multiplied by.
 #' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param biomass Whether the quantity is a biomass density rather than a
+#'   number density. Defaults to `power >= 1`.
+#' @param per_log_size Whether the quantity is a density with respect to
+#'   logarithmic size. Defaults to `power == 2`.
 #' @return A character string for the y-axis label.
 #' @keywords internal
-spectra_y_label <- function(power, size_axis = "w") {
+spectra_y_label <- function(power, size_axis = "w",
+                            biomass = power >= 1,
+                            per_log_size = power == 2) {
     size_axis <- plot_size_axis(size_axis)
     if (power %in% c(0, 1, 2)) {
-        labels <- if (identical(size_axis, "l")) {
-            c("Number density [1/cm]", "Biomass density [g/cm]",
-              "Biomass density [g]")
-        } else {
-            c("Number density [1/g]", "Biomass density",
-              "Biomass density [g]")
+        length_axis <- identical(size_axis, "l")
+        if (biomass) {
+            if (per_log_size) return("Biomass density [g]")
+            return(if (length_axis) "Biomass density [g/cm]" else
+                "Biomass density")
         }
-        return(labels[power + 1])
+        if (per_log_size) {
+            return(if (length_axis) "Number density in log length" else
+                "Number density in log weight")
+        }
+        return(if (length_axis) "Number density [1/cm]" else
+            "Number density [1/g]")
     }
     paste0("Number density * w^", power)
 }
@@ -2083,24 +2217,22 @@ plotlySpectra2 <- function(object1, object2, name1 = "First",
                            species = NULL,
                            wlim = c(NA, NA), llim = c(NA, NA),
                            ylim = c(NA, NA),
-                           power = 1, biomass = TRUE,
+                           power = NULL, biomass = NULL, per_log_size = NULL,
                            total = FALSE, resource = TRUE,
                            background = TRUE,
                            highlight = NULL,
                            log_x = TRUE, log_y = TRUE, log = NULL,
                            size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
-    args <- list(object1 = object1, object2 = object2,
-                 name1 = name1, name2 = name2,
-                 species = species, wlim = wlim, llim = llim,
-                 ylim = ylim, biomass = biomass, total = total,
-                 resource = resource, background = background,
-                 highlight = highlight, log_x = log_x, log_y = log_y,
-                 log = log, size_axis = size_axis, ...)
-    if (!missing(power)) {
-        args$power <- power
-    }
-    plotHover(do.call("plotSpectra2", args))
+    plotHover(plotSpectra2(object1 = object1, object2 = object2,
+                           name1 = name1, name2 = name2,
+                           species = species, wlim = wlim, llim = llim,
+                           ylim = ylim, power = power, biomass = biomass,
+                           per_log_size = per_log_size, total = total,
+                           resource = resource, background = background,
+                           highlight = highlight, log_x = log_x,
+                           log_y = log_y, log = log, size_axis = size_axis,
+                           ...))
 }
 
 #' Plot relative difference between abundance spectra
@@ -2200,7 +2332,7 @@ plotlyCDF <- function(object, species = NULL,
                       time_range, geometric_mean = FALSE,
                       wlim = c(NA, NA), llim = c(NA, NA),
                       ylim = c(NA, NA),
-                      power = 1, biomass = TRUE,
+                      power = NULL, biomass = NULL, per_log_size = NULL,
                       total = FALSE, resource = FALSE,
                       background = TRUE,
                       highlight = NULL, normalise = TRUE,
@@ -2210,16 +2342,14 @@ plotlyCDF <- function(object, species = NULL,
     args <- list(object = object, species = species,
                  geometric_mean = geometric_mean,
                  wlim = wlim, ylim = ylim,
-                 biomass = biomass, total = total,
+                 power = power, biomass = biomass,
+                 per_log_size = per_log_size, total = total,
                  resource = resource, background = background,
                  highlight = highlight, normalise = normalise,
                  log_x = log_x, log_y = log_y, log = log, llim = llim,
                  size_axis = size_axis, ...)
     if (!missing(time_range)) {
         args$time_range <- time_range
-    }
-    if (!missing(power)) {
-        args$power <- power
     }
     plotHover(do.call("plotCDF", args))
 }
@@ -2231,7 +2361,7 @@ plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                        species = NULL,
                        wlim = c(NA, NA), llim = c(NA, NA),
                        ylim = c(NA, NA),
-                       power = 1, biomass = TRUE,
+                       power = NULL, biomass = NULL, per_log_size = NULL,
                        total = FALSE, resource = FALSE,
                        background = TRUE,
                        highlight = NULL,
@@ -2239,18 +2369,15 @@ plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                        log_x = TRUE, log_y = FALSE,
                        log = NULL, size_axis = c("w", "l"), ...) {
     size_axis <- plot_size_axis(size_axis)
-    args <- list(object1 = object1, object2 = object2,
-                 name1 = name1, name2 = name2,
-                 species = species, wlim = wlim, llim = llim,
-                 ylim = ylim, biomass = biomass, total = total,
-                 resource = resource, background = background,
-                 highlight = highlight, normalise = normalise,
-                 log_x = log_x, log_y = log_y,
-                 log = log, size_axis = size_axis, ...)
-    if (!missing(power)) {
-        args$power <- power
-    }
-    plotHover(do.call("plotCDF2", args))
+    plotHover(plotCDF2(object1 = object1, object2 = object2,
+                       name1 = name1, name2 = name2,
+                       species = species, wlim = wlim, llim = llim,
+                       ylim = ylim, power = power, biomass = biomass,
+                       per_log_size = per_log_size, total = total,
+                       resource = resource, background = background,
+                       highlight = highlight, normalise = normalise,
+                       log_x = log_x, log_y = log_y,
+                       log = log, size_axis = size_axis, ...))
 }
 
 #' @rdname plotSpectra
@@ -2260,7 +2387,7 @@ plotlySpectra <- function(object, species = NULL,
                         time_range, geometric_mean = FALSE,
                         wlim = c(NA, NA), llim = c(NA, NA),
                         ylim = c(NA, NA),
-                        power = 1, biomass = TRUE,
+                        power = NULL, biomass = NULL, per_log_size = NULL,
                         total = FALSE, resource = TRUE,
                         background = TRUE,
                         highlight = NULL, log_x = TRUE, log_y = TRUE,

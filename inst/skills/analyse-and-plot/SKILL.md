@@ -257,7 +257,7 @@ instead. See `?plotting_functions`.
 | `plotFeedingLevel(sim)` | same as `plot(getFeedingLevel(sim))` |
 | `plotPredMort(sim)` | same as `plot(getPredMort(sim))` |
 | `plotFMort(sim)` | same as `plot(getFMort(sim))` |
-| `plotSpectra(sim)` | abundance/biomass spectra: additionally overlays the resource spectrum and background species, and `power` rescales the y axis |
+| `plotSpectra(sim)` | abundance/biomass spectra: additionally overlays the resource spectrum and background species, and `biomass`/`per_log_size` choose the plotted density |
 | `plotCDF(sim)` | cumulative version of the spectrum (`normalise` for proportion vs total) |
 | `plotGrowthCurves(sim)` | a distinct plot: size at age rather than a size spectrum |
 | `plotDiet(params)` | a distinct plot: stacked diet composition by prey |
@@ -267,7 +267,7 @@ instead. See `?plotting_functions`.
 
 ```r
 plotBiomass(sim, species = c("Cod", "Herring"), total = TRUE)
-plotSpectra(sim, power = 2, time_range = 1990:2000)
+plotSpectra(sim, per_log_size = TRUE, time_range = 1990:2000)
 plotGrowthCurves(sim, species = "Cod", max_age = 20)
 plotDiet(params, species = "Cod")
 ```
@@ -277,14 +277,16 @@ panels for a model's steady state (without the biomass-through-time panel).
 
 ## Cumulative distributions
 
-`plotCDF(object, species, power, normalise)` plots cumulative abundance or
+`plotCDF(object, species, biomass, normalise)` plots cumulative abundance or
 biomass over size — steadier than a density spectrum for eyeballing where
-biomass sits. `power = 1` (default) gives biomass, `power = 0` gives numbers;
-`normalise = FALSE` plots the cumulative total rather than the proportion.
+biomass sits. `biomass = TRUE` (default) accumulates biomass, `biomass = FALSE`
+accumulates numbers; `normalise = FALSE` plots the cumulative total rather than
+the proportion. Unlike in `plotSpectra()`, `per_log_size` is not accepted: the
+integral does not depend on it.
 
 ```r
 plotCDF(NS_params, species = c("Cod", "Herring"))
-plotCDF(NS_sim, power = 0, normalise = FALSE)
+plotCDF(NS_sim, biomass = FALSE, normalise = FALSE)
 ```
 
 ## Comparing two simulations or models

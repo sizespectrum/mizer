@@ -183,12 +183,12 @@ recalculate the steady-state shape.
 We can plot the size spectrum with the `plotSpectra()` function.
 
 ```{r}
-plotSpectra(params, power = 0)
+plotSpectra(params, biomass = FALSE)
 ```
 
-The `power = 0` argument to the `plotSpectra()` function specifies that
-we want to plot the number density, rather than for example the biomass
-density.
+The `biomass = FALSE` argument to the `plotSpectra()` function specifies
+that we want to plot the number density, rather than the biomass density
+that is plotted by default.
 
 The green line represents the number density of the background
 community, labelled as "Resource" in the plot legend, in which our
@@ -225,7 +225,7 @@ to be fewer fish in larger size classes.
 <summary> Solution </summary>
 ```{r}
 params2 <- newSingleSpeciesParams(lambda = 2.1)
-plotSpectra(params2, power = 0)
+plotSpectra(params2, biomass = FALSE)
 ```
 </details>
 
@@ -299,7 +299,7 @@ sum((n * dw(params))[1, 81:86])
 
 # Biomass spectra
 
-Without the `power` argument (or with `power = 1` which is the default)
+Without any arguments (or with `biomass = TRUE`, which is the default)
 the `plotSpectra()` function plots the biomass density as a function of
 size.
 
@@ -319,10 +319,10 @@ explain the reason for this later when we discuss predation mortality.
 
 We can also plot the Sheldon spectrum, i.e., the biomass density as a
 function of the log weight instead of the weight, by supplying the
-argument `power = 2` to `plotSpectra()`.
+argument `per_log_size = TRUE` to `plotSpectra()`.
 
 ```{r}
-plotSpectra(params, power = 2)
+plotSpectra(params, per_log_size = TRUE)
 ```
 
 This now shows an approximately constant biomass density as a function
@@ -682,7 +682,7 @@ both models on top of each other. We restrict the plot to weights above
 ```{r}
 plotSpectra2(params, name1 = "original",
              params_changed_maturity, name2 = "changed",
-             power = 2, resource = FALSE, wlim = c(10, NA))
+             per_log_size = TRUE, resource = FALSE, wlim = c(10, NA))
 ```
 
 As expected, the bump happens later due to the larger maturity size and
@@ -791,7 +791,7 @@ and compare it to the original spectrum with `plotSpectra2()`
 ```{r}
 plotSpectra2(params, name1 = "original",
              params_starved, name2 = "less prey",
-             power = 2)
+             per_log_size = TRUE)
 ```
 
 As expected, the lack of food and the resulting slow-down in growth
@@ -818,7 +818,7 @@ initialNResource(params_overfed)[size_range] <-
 params_overfed <- steadySingleSpecies(params_overfed)
 plotSpectra2(params, name1 = "original",
              params_overfed, name2 = "more prey",
-             power = 2)
+             per_log_size = TRUE)
 ```
 </details>
 
@@ -924,7 +924,7 @@ initialNResource(params_pk) <- initialNResource(params_starved)
 params_pk <- steadySingleSpecies(params_pk)
 plotSpectra2(params_starved, name1 = "beta = 100",
              params_pk, name2 = "beta = 1000",
-             power = 2)
+             per_log_size = TRUE)
 ```
 
 Yes, as expected: with the larger preferred predator/prey mass ratio the
@@ -981,7 +981,7 @@ initialNResource(params3) <- initialNResource(params_starved)
 params3 <- steadySingleSpecies(params3)
 plotSpectra2(params, name1 = "original",
              params3, name2 = "less prey",
-             power = 2)
+             per_log_size = TRUE)
 ```
 There is no pronounced bump created this time. This is because the
 larvae experience a decreased growth rate already almost from the
@@ -1054,7 +1054,7 @@ and for smaller growth rate coefficient $g_0$ this will be more negative.
 ```{r}
 plotSpectra2(params, name1 = "original",
              params_new_gamma, name2 = "changed",
-             power = 0, resource = FALSE)
+             biomass = FALSE, resource = FALSE)
 ```
 
 

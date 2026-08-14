@@ -65,6 +65,25 @@ stability of steady states.
 
 ## Other improvements
 
+- `plotSpectra()`, `plotSpectra2()`, `plotCDF()`, `plotCDF2()` and `animate()`
+  now let you choose the plotted quantity with two independent arguments
+  instead of the single `power`: `biomass` selects a biomass density rather
+  than a number density and the new `per_log_size` selects a density with
+  respect to logarithmic size rather than with respect to size. The power of
+  the weight is the sum of the two, which is why `power = 1` was ambiguous: it
+  is both the biomass density and the number density in log size, and mizer had
+  to assume the former when choosing the y-axis label and the Jacobian for a
+  length axis. The number density in log size, `plotSpectra(sim, biomass =
+  FALSE, per_log_size = TRUE)`, is therefore now available for the first time
+  with the correct label and length conversion. The `power` argument keeps
+  working as before and remains the only way to ask for a power that is not the
+  sum of the two flags, but supplying it together with a contradictory flag is
+  now an error instead of silently ignoring the flag (#501). `plotCDF()` does
+  not accept `per_log_size`, because the cumulative distribution does not
+  depend on that choice. As a side effect, `plotlySpectra()`, `plotlyCDF()`,
+  `plotlySpectra2()` and `plotlyCDF2()` now honour `biomass`, which they used
+  to drop because they always passed `power` on internally.
+
 - The array-plotting toolkit now covers every mizer array class. The resource
   classes `ArrayResourceBySize` (as returned by `getResourceMort()`,
   `resource_rate()`, `resource_capacity()`, `resource_level()` and

@@ -249,6 +249,145 @@ test_that("plotSpectraRelative plots symmetric relative difference", {
                                         resource = FALSE), "ggplot")
 })
 
+# biomass / per_log_size / power (#501) -------------------------------------
+
+test_that("resolve_spectrum_power splits the power into its two factors", {
+    expect_identical(resolve_spectrum_power(),
+                     list(power = 1, biomass = TRUE, per_log_size = FALSE))
+    expect_identical(resolve_spectrum_power(biomass = FALSE),
+                     list(power = 0, biomass = FALSE, per_log_size = FALSE))
+    expect_identical(resolve_spectrum_power(per_log_size = TRUE),
+                     list(power = 2, biomass = TRUE, per_log_size = TRUE))
+    expect_identical(resolve_spectrum_power(biomass = FALSE,
+                                            per_log_size = TRUE),
+                     list(power = 1, biomass = FALSE, per_log_size = TRUE))
+
+    # `power` on its own keeps the interpretation mizer has always given it
+    expect_identical(resolve_spectrum_power(power = 0),
+                     list(power = 0, biomass = FALSE, per_log_size = FALSE))
+    expect_identical(resolve_spectrum_power(power = 1),
+                     list(power = 1, biomass = TRUE, per_log_size = FALSE))
+    expect_identical(resolve_spectrum_power(power = 2),
+                     list(power = 2, biomass = TRUE, per_log_size = TRUE))
+    # ... including for powers that are not the sum of the two flags
+    expect_identical(resolve_spectrum_power(power = 1.5),
+                     list(power = 1.5, biomass = TRUE, per_log_size = FALSE))
+
+    # `power` together with one flag determines the other
+    expect_identical(resolve_spectrum_power(power = 1, biomass = FALSE),
+                     list(power = 1, biomass = FALSE, per_log_size = TRUE))
+    expect_identical(resolve_spectrum_power(power = 1, per_log_size = TRUE),
+                     list(power = 1, biomass = FALSE, per_log_size = TRUE))
+    expect_identical(resolve_spectrum_power(power = 2, biomass = TRUE),
+                     list(power = 2, biomass = TRUE, per_log_size = TRUE))
+
+    # Contradictions are errors rather than silently ignored arguments
+    expect_error(resolve_spectrum_power(power = 0, biomass = TRUE),
+                 "but `biomass = TRUE` and `per_log_size = FALSE` imply")
+    expect_error(resolve_spectrum_power(power = 1, biomass = TRUE,
+                                        per_log_size = TRUE),
+                 "imply `power = 2`")
+    expect_error(resolve_spectrum_power(power = 1.5, biomass = TRUE),
+                 "imply `power = 1`")
+})
+
+test_that("plotSpectra flags agree with the corresponding powers", {
+    for (flags in list(list(biomass = FALSE, per_log_size = FALSE, power = 0),
+                       list(biomass = TRUE, per_log_size = FALSE, power = 1),
+                       list(biomass = FALSE, per_log_size = TRUE, power = 1),
+                       list(biomass = TRUE, per_log_size = TRUE, power = 2))) {
+        by_flags <- plotSpectra(params, species = species, resource = FALSE,
+                                biomass = flags$biomass,
+                                per_log_size = flags$per_log_size,
+                                return_data = TRUE)
+        by_power <- plotSpectra(params, species = species, resource = FALSE,
+                                power = flags$power, return_data = TRUE)
+        expect_equal(by_flags[[2]], by_power[[2]], ignore_attr = TRUE)
+        expect_equal(by_flags$w, by_power$w)
+    }
+})
+
+test_that("the y-axis label distinguishes the two spectra with power 1", {
+    biomass_density <- plotSpectra(params, species = species,
+                                   resource = FALSE, biomass = TRUE)
+    expect_identical(biomass_density$scales$get_scales("y")$name,
+                     "Biomass density")
+    per_log <- plotSpectra(params, species = species, resource = FALSE,
+                           biomass = FALSE, per_log_size = TRUE)
+    expect_identical(per_log$scales$get_scales("y")$name,
+                     "Number density in log weight")
+})
+
+test_that("a density in log size uses the logarithmic Jacobian on a length axis", {
+    params_len <- params
+    params_len@species_params$a <- 0.01
+    params_len@species_params$b <- 3
+
+    by_weight <- plotSpectra(params_len, species = species, resource = FALSE,
+                             biomass = FALSE, per_log_size = TRUE,
+                             return_data = TRUE)
+    by_length <- plotSpectra(params_len, species = species, resource = FALSE,
+                             biomass = FALSE, per_log_size = TRUE,
+                             size_axis = "l", return_data = TRUE)
+    sp_idx <- match(by_length$Species, params_len@species_params$species)
+    b <- params_len@species_params$b[sp_idx]
+    # d log(w) / d log(l) = b, not the density Jacobian b * w / l that the
+    # same power = 1 spectrum gets when it is a biomass density
+    expect_equal(by_length[[2]], unname(by_weight[[2]] * b))
+    expect_identical(names(by_length)[[2]], "Number density in log length")
+
+    biomass_l <- plotSpectra(params_len, species = species, resource = FALSE,
+                             biomass = TRUE, size_axis = "l",
+                             return_data = TRUE)
+    expect_false(isTRUE(all.equal(biomass_l[[2]], by_length[[2]],
+                                  check.attributes = FALSE)))
+})
+
+test_that("plotSpectra no longer ignores biomass when power is given (#501)", {
+    # Previously `biomass` was silently dropped whenever `power` was supplied
+    numbers_in_log_w <- plotSpectra(params, species = species,
+                                    resource = FALSE, power = 1,
+                                    biomass = FALSE, return_data = TRUE)
+    expect_identical(names(numbers_in_log_w)[[2]],
+                     "Number density in log weight")
+    expect_error(plotSpectra(params, power = 2, biomass = FALSE),
+                 "imply `power = 0`")
+    expect_error(plotCDF(params, power = 1, biomass = FALSE),
+                 "use `biomass = FALSE` on its own")
+
+    # The plotly wrapper passes the flag on rather than swallowing it
+    plotly_numbers <- plotlySpectra(params, species = species,
+                                    resource = FALSE, biomass = FALSE)
+    expect_identical(plotly_numbers$x$layout$yaxis$title$text,
+                     "Number density [1/g]")
+})
+
+test_that("plotSpectra2 honours the biomass and per_log_size flags", {
+    compared <- plotSpectra2(params, params, species = species,
+                             resource = FALSE, biomass = FALSE,
+                             per_log_size = TRUE)
+    expect_identical(compared$scales$get_scales("y")$name,
+                     "Number density in log weight")
+    single <- plotSpectra(params, species = species, resource = FALSE,
+                          biomass = FALSE, per_log_size = TRUE,
+                          return_data = TRUE)
+    first <- compared$data[compared$data$Model == "First", ]
+    expect_equal(first[[2]], single[[2]], ignore_attr = TRUE)
+})
+
+test_that("plotCDF rejects per_log_size and accepts biomass", {
+    expect_error(plotCDF(params, per_log_size = TRUE),
+                 "not allowed here")
+    expect_error(plotCDF2(params, params, per_log_size = TRUE),
+                 "not allowed here")
+    by_flag <- plotCDF(params, species = species, resource = FALSE,
+                       biomass = FALSE, return_data = TRUE)
+    by_power <- plotCDF(params, species = species, resource = FALSE,
+                        power = 0, return_data = TRUE)
+    expect_equal(by_flag[[2]], by_power[[2]], ignore_attr = TRUE)
+    expect_identical(names(by_flag)[[2]], names(by_power)[[2]])
+})
+
 test_that("plotCDF plots cumulative spectra from small to large sizes", {
     p <- plotCDF(params, species = species, resource = FALSE, power = 0,
                  wlim = c(1, NA), return_data = TRUE)

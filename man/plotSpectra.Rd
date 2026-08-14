@@ -13,8 +13,9 @@ plotSpectra(
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
-  power = 1,
-  biomass = TRUE,
+  power = NULL,
+  biomass = NULL,
+  per_log_size = NULL,
   total = FALSE,
   resource = TRUE,
   background = TRUE,
@@ -54,14 +55,15 @@ are always filtered out from the data regardless of \code{ylim[1]}. Data above
 \code{ylim[2]} is filtered and the upper axis limit is set accordingly.}
 
 \item{power}{The abundance is plotted as the number density times the weight
-raised to \code{power}. The default \code{power = 1} gives the biomass
-density, whereas \code{power = 2} gives the biomass density with respect
-to logarithmic size bins.}
+raised to \code{power}. An alternative to the \code{biomass} and \code{per_log_size}
+arguments, with which it must agree if they are given as well; see
+Details. The default is \code{power = 1}, the biomass density.}
 
-\item{biomass}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
-Only used if \code{power} argument is missing. Then
-\code{biomass = TRUE} is equivalent to \code{power=1} and
-\code{biomass = FALSE} is equivalent to \code{power=0}}
+\item{biomass}{Whether to plot the biomass density (\code{TRUE}, the default) or
+the number density (\code{FALSE}).}
+
+\item{per_log_size}{Whether to plot the density with respect to logarithmic
+size (\code{TRUE}) or with respect to size (\code{FALSE}, the default).}
 
 \item{total}{A boolean value that determines whether the total over all
 species in the system is plotted as well. Note that even if the plot
@@ -111,24 +113,40 @@ frame with the four variables 'w' (or 'l' if \code{size_axis = "l"}), 'value',
 'Species', 'Legend' is returned. \code{plotlySpectra()} returns a plotly object.
 }
 \description{
-\code{plotSpectra()} plots the number density multiplied by a power of the
-weight, with the power specified by the \code{power} argument. When called with a
+\code{plotSpectra()} plots either a number density or a biomass density, either
+with respect to size or with respect to logarithmic size. Those two choices
+are made with the \code{biomass} and \code{per_log_size} arguments. When called with a
 \link{MizerSim} object, the abundance is averaged over the specified time range
 (a single value for the time range can be used to plot a single time step).
 When called with a \link{MizerParams} object the initial abundance is plotted.
 With \code{size_axis = "l"}, densities are converted from per unit weight to per
-unit length. For \code{power = 2}, which represents biomass density per
-logarithmic size interval, the conversion is instead between logarithmic
-weight and length intervals.
+unit length; densities with respect to logarithmic size are instead
+converted between logarithmic weight and logarithmic length intervals.
 }
 \details{
+The plotted quantity is the number density multiplied by \code{w^power}, where
+the power is the sum of the two choices above: a biomass density carries one
+factor of the weight and a density with respect to logarithmic size carries
+another. So\tabular{lll}{
+    \tab \code{per_log_size = FALSE} \tab \code{per_log_size = TRUE} \cr
+   \code{biomass = FALSE} \tab \code{power = 0} \tab \code{power = 1} \cr
+   \code{biomass = TRUE} \tab \code{power = 1} \tab \code{power = 2} \cr
+}
+
+
+The \code{power} argument can still be given instead, and is the only way to ask
+for a power that is not the sum of the two flags. But note that \code{power} on
+its own does not distinguish the two entries with \code{power = 1}: it is taken
+to mean the biomass density with respect to weight, which is what determines
+the y-axis label and the Jacobian used for a length axis. Supplying \code{power}
+together with a flag that contradicts it is an error.
+
 The \code{log_x} argument only controls how the size axis is displayed; it does
 not change the density on the y-axis. In particular, showing weight on a
 logarithmic axis does not by itself convert a density per unit weight into a
-density per logarithmic weight interval. That choice is made with \code{power}:
-for example, \code{power = 2} gives biomass density per logarithmic size interval.
-Its conversion from weight to length therefore uses the logarithmic
-Jacobian, irrespective of the value of \code{log_x}.
+density per logarithmic weight interval. That choice is made with
+\code{per_log_size}, and the conversion from weight to length then uses the
+logarithmic Jacobian, irrespective of the value of \code{log_x}.
 
 \code{plotlySpectra()} is the interactive plotly version. To compare spectra from
 two objects use \code{\link[=plotSpectra2]{plotSpectra2()}}. To show relative differences use
@@ -141,8 +159,8 @@ sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
 plotSpectra(sim)
 plotSpectra(sim, wlim = c(1e-6, NA))
 plotSpectra(sim, time_range = 10:20)
-plotSpectra(sim, time_range = 10:20, power = 0)
-plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
+plotSpectra(sim, time_range = 10:20, biomass = FALSE)
+plotSpectra(sim, species = c("Cod", "Herring"), per_log_size = TRUE)
 plotSpectra(sim, species = c("Cod", "Herring"), size_axis = "l")
 
 # Returning the data frame
