@@ -84,7 +84,11 @@ already given.
 > **Version note.** Older guidance said to avoid `species_params(params) <-`
 > because it bypassed the `given_species_params` protection and skipped
 > recalculation. That was fixed in mizer 3.2. On mizer **< 3.2**, still prefer
-> `given_species_params(params) <-` for edits.
+> `given_species_params(params) <-` for edits. On mizer **< 3.3** the two are
+> not interchangeable on a model that specifies sizes as lengths: only
+> `species_params(params) <-` applied the length/weight precedence rule, so a
+> length changed through `given_species_params(params) <-` left the weight at
+> its old value.
 
 Columns come back as named vectors:
 
@@ -328,7 +332,15 @@ feeding species parameter has *no effect* on that rate:
 ```{r eval=FALSE}
 search_vol(params) <- my_array                    # frozen
 given_species_params(params)$gamma <- 2 * gamma   # search volume UNCHANGED now
+#> Warning: Your change to the species parameter `gamma` has not taken effect
+#> because the search volume has been set manually ...
 ```
+
+Since mizer 3.3 that second line warns you that the change did not reach the
+model. The warning names the parameters that were ignored and the
+`set…(params, reset = TRUE)` call that hands the rate back to mizer. The
+species parameter table still records the new value, so the table and the model
+disagree until you do one or the other.
 
 To hand control back to mizer, call the rate's `set…()` function with
 **`reset = TRUE`**. These functions recompute the array from the current species

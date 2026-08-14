@@ -16,7 +16,7 @@ steady(
   return_sim = FALSE,
   preserve = c("reproduction_level", "erepro", "R_max"),
   progress_bar = TRUE,
-  info_level = 3,
+  info_level = default_info_level(),
   method = c("euler", "predictor_corrector", "tr_bdf2")
 )
 }
@@ -70,7 +70,9 @@ of the \code{reproduction_level}.}
 shiny app. Default FALSE.}
 
 \item{info_level}{Controls the amount of information messages that are shown.
-Higher levels lead to more messages.}
+Higher levels lead to more messages, \code{info_level = 0} gives silence. The
+default is taken from the \code{mizer_info_level} option, see
+\code{\link[=default_info_level]{default_info_level()}}.}
 
 \item{method}{The numerical method to use for the consumer density update.
 See \code{\link[=project]{project()}}.}

@@ -213,8 +213,9 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
         selectivity <- calc_selectivity(params)
         if (!is.null(comment(params@selectivity)) &&
             different(selectivity, params@selectivity)) {
-            message("The selectivity has been commented and therefore will ",
-                    "not be recalculated from the gear parameters.")
+            signal_not_recalculated("selectivity", "selectivity",
+                               "setFishing(params, reset = TRUE)",
+                               derived_from = "gear parameters")
         } else {
             params@selectivity <- selectivity
         }
@@ -253,8 +254,9 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
         }
         if (!is.null(comment(params@catchability)) &&
             different(catchability, params@catchability)) {
-            message("The catchability has been commented and therefore will ",
-                    "not be updated from the gear parameters.")
+            signal_not_recalculated("catchability", "catchability",
+                               "setFishing(params, reset = TRUE)",
+                               derived_from = "gear parameters")
         } else {
             params@catchability <- catchability
         }
@@ -481,7 +483,7 @@ check_gear_params <- function(x) {
 
 #' @export
 `$.gear_params` <- function(x, name) {
-    out <- NextMethod()
+    out <- exact_column(x, name, "gear_params")
     if (!is.null(out) && !is.data.frame(out)) {
         names(out) <- rownames(x)
     }

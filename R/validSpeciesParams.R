@@ -110,10 +110,10 @@ set_species_param_from_length <- function(sp, pw, pl) {
         incons <- !is.na(sp[[pw]]) & !is.na(sp[[pl]]) &
             (abs(sp[[pw]] - vw) / pmax(sp[[pw]], vw) > 0.1)
         if (any(incons)) {
-            signal(paste0("For the following species I will ignore your value for ",
-                          pl, " because it is not consistent with your value for ",
-                          pw, ": ", paste(sp$species[incons], collapse = ", ")),
-                   class = "info_about_default", var = pl, level = 3)
+            signal_info(pl, paste0(
+                "For the following species I will ignore your value for ",
+                pl, " because it is not consistent with your value for ",
+                pw, ": ", paste(sp$species[incons], collapse = ", ")))
         }
     }
     sp

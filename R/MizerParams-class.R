@@ -934,22 +934,28 @@ dw_full <- function(params) {
 #'
 #' @param params The MizerParams object to validate
 #' @param info_level Controls the amount of information messages and warnings
-#'   that are shown. Higher levels lead to more messages.
+#'   that are shown. Higher levels lead to more messages, `info_level = 0`
+#'   gives silence. The default is taken from the `mizer_info_level` option,
+#'   see [default_info_level()].
 #' @return A valid MizerParams object
 #' @export
-validParams <- function(params, info_level = 3) {
+validParams <- function(params, info_level = default_info_level()) {
     UseMethod("validParams")
 }
 #' @export
-validParams.MizerParams <- function(params, info_level = 3) {
+validParams.MizerParams <- function(params, info_level = default_info_level()) {
+    with_info_level(info_level = info_level, {
 
     # 1. Upgrade old objects. This is already cheaply gated on a comparison of
     #    version strings.
     if (mizer_needs_upgrading(params)) {
         params <- suppressWarnings(upgrade.MizerParams(params))
-        if (info_level > 0) {
-            warning("Your MizerParams object was created with an earlier version of mizer. You can upgrade it with `params <- validParams(params)` where you should replace `params` by the name of the variable that holds your MizerParams object.")
-        }
+        signal_info("version", paste0(
+            "Your MizerParams object was created with an earlier version of ",
+            "mizer. You can upgrade it with `params <- validParams(params)` ",
+            "where you should replace `params` by the name of the variable ",
+            "that holds your MizerParams object."),
+            level = 1, severity = "warning", unhandled = "show")
     }
     if (extension_needs_upgrading(params)) {
         params <- suppressWarnings(runExtensionUpgrades(params))
@@ -975,6 +981,7 @@ validParams.MizerParams <- function(params, info_level = 3) {
     check_finite(params)
 
     params
+    })
 }
 
 # An environment used as a set holding the fingerprints (see

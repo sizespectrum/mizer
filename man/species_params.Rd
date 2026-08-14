@@ -66,10 +66,13 @@ section "Setting species parameters without recalculation" below.
 values that were supplied explicitly by the user.
 
 \verb{given_species_params<-()}: An alternative to \verb{species_params<-()} that
-also triggers a recalculation of other parameters. The only difference is
-that \verb{given_species_params<-()} issues warnings when a parameter is
-changed whose effect is overridden by another parameter that has already
-been given. This is especially useful during interactive use.
+also triggers a recalculation of other parameters. It arrives at the same
+model, the difference being that \verb{given_species_params<-()} issues
+warnings when a parameter is changed whose effect is overridden by another
+parameter that has already been given. This is especially useful during
+interactive use. It has no \code{recalculate} argument; where you need to
+record values without recalculating, use \verb{species_params<-()} or
+\code{\link[=record_given_species_params]{record_given_species_params()}}.
 
 \code{calculated_species_params()}: Data frame containing only those species
 parameter entries that are not explicit user input. Columns that would
@@ -148,7 +151,10 @@ When you change one of the above species parameters using
 \verb{species_params<-()} or \verb{given_species_params<-()}, the new value will be
 used to update the corresponding size-dependent rates automatically, unless
 you have set those size-dependent rates manually, in which case the
-corresponding species parameters will be ignored.
+corresponding species parameters will be ignored. Mizer warns you when that
+happens, because the value is then in the species parameter table without
+having any effect on the model. The warning names the call that puts the
+rate back under the control of the species parameters.
 
 There are some species parameters that are used directly in the model
 rather than being used for setting up size-dependent parameters:
@@ -191,11 +197,11 @@ weight and warns you that it has changed the length to match.
 The rule is applied when a species parameter data frame is put into a model.
 A data frame that you have taken out of a model and are editing on its own
 is left exactly as you write it: no conversions, no checks and no warnings
-until you assign it back with \verb{species_params<-()}, which is when mizer can
-tell which values you changed. A data frame that was never in a model, for
-example one you pass to \code{\link[=validSpeciesParams]{validSpeciesParams()}}, carries no such history, so
-a length and a weight that disagree there count as given at the same time
-and the weight wins.
+until you assign it back with \verb{species_params<-()} or
+\verb{given_species_params<-()}, which is when mizer can tell which values you
+changed. A data frame that was never in a model, for example one you pass to
+\code{\link[=validSpeciesParams]{validSpeciesParams()}}, carries no such history, so a length and a weight
+that disagree there count as given at the same time and the weight wins.
 
 The parameters that are only used to calculate default values for other
 parameters are:
@@ -247,6 +253,27 @@ You are allowed to include additional columns in the species parameter
 data frames. They will simply be ignored by mizer but will be stored in the
 MizerParams object, in case your own code makes use of them.
 }
+\section{Extracting a column with \code{$}}{
+
+\code{species_params(params)$w_mat} returns the column as a vector named after the
+species. Unlike \code{$} on an ordinary data frame, it does \strong{not} partially
+match the column name. Partial matching is dangerous here because so many
+species parameter names are prefixes of others: in a model without
+length-weight parameters \code{species_params(params)$a} used to return the
+\code{alpha} column and \verb{$b} the \code{beta} column, complete with species names, so
+code converting weights to lengths silently got the assimilation efficiency
+and the preferred predator/prey mass ratio instead. Writing was never
+partially matched, so reads and writes disagreed about which column \verb{$b}
+meant.
+
+A name that is not a column now gives \code{NULL}, so
+\code{is.null(species_params(params)$foo)} is a reliable way of testing whether a
+parameter is present. If the name would have partially matched a column
+under the old behaviour you also get a warning naming that column, because
+that is exactly the case where existing code changes its meaning. The same
+holds for \code{\link[=gear_params]{gear_params()}}.
+}
+
 \section{Setting species parameters without recalculation}{
 
 \code{species_params(params, recalculate = FALSE) <- value} records the values you

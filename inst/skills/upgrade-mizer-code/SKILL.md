@@ -45,8 +45,16 @@ plots) are in the changelog and are not repeated here.
 | `plotSpectra()` or `plotCDF()` errors that `power` and `biomass` are contradictory | supplying both is no longer silently resolved | `biomass` and `per_log_size` replace `power` (3.3) |
 | A `plotSpectra()` call with both `power` and `biomass`, or any `plotly...()` call with `biomass`, now gives a different plot | `biomass` is no longer ignored | `biomass` and `per_log_size` replace `power` (3.3) |
 | `plotCDF(per_log_size = TRUE)` errors | meaningless for a cumulative distribution | `biomass` and `per_log_size` replace `power` (3.3) |
+| New warning that a change to a species or resource parameter "has not taken effect" | the rate it feeds was set by hand and is no longer calculated | A change that cannot take effect now warns (3.3) |
+| A message that used to appear no longer does, with `info_level = 0` | `info_level = 0` now silences everything | One report, one switch (3.3) |
+| `expect_message()` on a mizer call fails, or `options(warn = 2)` trips | reports are warnings where they were messages, and are collected until the end of the call | One report, one switch (3.3) |
+| A column read with `$` is now `NULL`, with a warning naming another column | `$` no longer partially matches column names | `$` no longer partially matches (3.3) |
+| Length-weight conversion via `$a`/`$b` gave `alpha`/`beta` values | partial matching, now fixed | `$` no longer partially matches (3.3) |
 | Absolute diet values dropped ~10%, only with `second_order_w` bin-averaging | double-counted prey-bin quadrature, now fixed | Quadrature fixes under `second_order_w` (3.3) |
 | Trophic levels moved slightly, only with `second_order_w` | numerator and denominator now use one quadrature | Quadrature fixes under `second_order_w` (3.3) |
+| Setting a weight on a length-based model no longer gets undone | length/weight precedence: the one given last wins | Length and weight follow the one you gave last (3.3) |
+| `given_species_params<-()` now changes a weight when you change its length | both setters apply the same precedence rule | Length and weight follow the one you gave last (3.3) |
+| Repeated "`l_mat` is not consistent with `w_mat`" warning has stopped | the given species parameters are brought into line | Length and weight follow the one you gave last (3.3) |
 | Size grid or results changed in a model built with a small `min_w` | `w_min` is no longer reset to 0.001 | `w_min` survives a rebuild (3.3) |
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters (3.3) |
 | `unused argument (sim = ...)` from `plotBiomass()`, `plotYield()`, `plotYieldGear()` | first argument renamed to `object` | Renamed arguments and changed defaults (3.0) |
@@ -100,8 +108,9 @@ and are not repeated here.
 ## Upgrading from mizer 3.2 to 3.3
 
 Most of the changes in this release are corrections. Results move only for
-models that had opted in to second-order bin-averaging, or that set `min_w`
-below the default. The one change to an interface is in the spectrum plots.
+models that had opted in to second-order bin-averaging, that set `min_w` below
+the default, or that specify sizes as lengths. The one change to an interface is
+in the spectrum plots.
 
 ### `biomass` and `per_log_size` replace `power`
 
@@ -135,6 +144,132 @@ things change:
 - `plotCDF()` and `plotCDF2()` do not accept `per_log_size`, because
   integrating a density over size gives the same cumulative quantity either
   way. Use `biomass` on its own there.
+
+### Length and weight parameters follow the one you gave last
+
+A size can be given either as a weight (`w_mat`, `w_max`, …) or as the length it
+converts to (`l_mat`, `l_max`, …). Mizer used to derive the weight from the
+length whenever both were present, so on a model specified by lengths a weight
+could not be set at all: the value you assigned was replaced on the spot by the
+one calculated from the unchanged length.
+
+Both now follow one rule: **the one you gave last wins, and if you gave both at
+the same time the weight wins.** The other is set to match, so the two never
+disagree, and mizer warns, naming the species, when it changes a length to match
+a weight it disagrees with.
+
+```r
+params <- newMultispeciesParams(sp)   # sp specifies l_mat, a and b
+
+# Used to be silently undone, now it takes effect and l_mat follows
+species_params(params)$w_mat[1] <- 100
+```
+
+The rule is applied when a data frame is assigned into a model, which is when
+mizer can tell which values changed. A data frame you have taken out of a model
+and are editing on its own is left exactly as you write it — the conversions,
+checks and warnings happen on assignment. One that was never in a model, for
+example one passed to `validSpeciesParams()`, carries no such history, so a
+length and a weight that disagree there count as given at the same time and the
+weight wins.
+
+`species_params<-()` and `given_species_params<-()` apply the rule identically
+(#490). Previously only `species_params<-()` did, so the same edit made through
+`given_species_params<-()` was discarded — a maturity weight differing by up to
+73% — and the given species parameters were left permanently inconsistent, which
+made mizer repeat the "not consistent" warning at every later parameter change.
+If you worked around this by setting the weight and the length together, you can
+now set either one on its own.
+
+### A change that cannot take effect now warns
+
+If you have set a rate array by hand — `metab(params) <- ...`, or any setter
+called with an explicit array — mizer no longer calculates that rate from the
+species parameters. Changing one of the species parameters that used to feed it
+therefore changes the species parameter table but not the model. Mizer now
+warns when that happens:
+
+```r
+params <- NS_params
+metab(params) <- metab(params)      # freeze the metabolic rate
+
+sp <- species_params(params)
+sp$ks <- sp$ks * 2
+species_params(params) <- sp
+#> Warning: Your change to the species parameter `ks` has not taken effect
+#> because the metabolic rate has been set manually and so is no longer
+#> calculated from the species parameters. Call
+#> `setMetabolicRate(params, reset = TRUE)` if you want the metabolic rate to
+#> be calculated from the species parameters again.
+```
+
+Previously this was silent: the rate setter did emit a message, but
+`species_params<-()` and `given_species_params<-()` run `suppressMessages()`
+over the recalculation to quieten the routine chatter, so the message never
+reached you (#489).
+
+**How this affects existing code:** nothing about the model changes — the
+change did not take effect before either, you just were not told. But code that
+runs under `options(warn = 2)`, or a test using `expect_message()` where the
+report now arrives as a warning, will need adjusting. To act on the warning,
+either put the rate back under the control of the species parameters with the
+`reset = TRUE` call it names, or set the rate array itself instead of the
+species parameter. To silence it, set `options(mizer_info_level = 0)`, which
+also covers the functions that take no `info_level` argument, or pass
+`info_level = 0` to the one call you want quiet.
+
+The resource works the same way. `resource_params(params)$kappa <- ...` on a
+model whose `resource_capacity()` you had set by hand used to change the stored
+`kappa` and nothing else, without saying anything at all; it now warns.
+
+`species_params<-()` also now gives the warning that `given_species_params<-()`
+already gave when a change is ignored because another parameter takes
+precedence over it — a change to `f0` when `gamma` has been given, to `fc` when
+`ks` has, or to `age_mat` when `h` has.
+
+This is the counterpart of the 3.2 change described under *Frozen arrays are
+protected from incidental balancing* below: there, mizer keeps a frozen array
+instead of overwriting it; here, it tells you when a parameter change is
+ignored because an array is frozen.
+
+### One report, one switch
+
+Nearly everything mizer says while building or changing a model now goes
+through the same mechanism, including the reports in `steady()`,
+`projectToSteady()`, `matchYields()`, `validParams()`, `setInteraction()`,
+`setReproduction()`, `setResource()`, `newTraitParams()`,
+`newSingleSpeciesParams()` and `plotYieldObservedVsModel()`. Two consequences
+for existing code:
+
+- **`info_level = 0` now means silence.** Reports that were plain `message()`
+  calls ignored `info_level` altogether and appeared anyway; they no longer do.
+  If your code relied on seeing one of them, drop the `info_level = 0`.
+- **Reports are collected and given at the end of the call**, one message and
+  one warning rather than a stream. A test doing `expect_message()` on an
+  individual report inside a longer call may need adjusting, and the text now
+  arrives with any others in the same message.
+
+### `$` on a parameter table no longer partially matches
+
+`$` on a `species_params` or `gear_params` table now matches column names
+exactly. Partial matching was silently returning the wrong parameter: in a model
+without the length-weight parameters `a` and `b`,
+
+```r
+species_params(NS_params)$a   # used to return the `alpha` column
+species_params(NS_params)$b   # used to return the `beta` column
+```
+
+complete with per-species names, so code converting weights to lengths got the
+assimilation efficiency and the preferred predator/prey mass ratio instead.
+Writing was never partially matched (`sp$b <- 3` always created a new column
+`b`), so reads and writes disagreed about what `$b` meant.
+
+A name that is not a column now gives `NULL`. If the name would have partially
+matched a single column, you also get a warning naming that column. So
+`is.null(species_params(params)$foo)` is now a reliable test for whether a
+parameter is present, and any code that was relying on the abbreviation should
+spell the column out in full (#487).
 
 ### Quadrature fixes under `second_order_w`
 

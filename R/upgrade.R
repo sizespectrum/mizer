@@ -115,7 +115,9 @@ upgrade.MizerParams <- function(object, ...) {
             params@species_params$interaction_resource <-
                 params@species_params$interaction_p
             params@species_params$interaction_p <- NULL
-            message("The 'interaction_p' column has been renamed to 'interaction_resource'.")
+            signal_info("interaction_resource", paste0(
+                "The 'interaction_p' column has been renamed to ",
+                "'interaction_resource'."), level = 1, unhandled = "show")
         }
 
         if (!.hasSlot(params, "gear_params")) {
@@ -139,7 +141,10 @@ upgrade.MizerParams <- function(object, ...) {
                     params@species_params$constant_recruitment <- NULL
                 } else {
                     RDD <- "BevertonHoltRDD"
-                    message('The density-dependent reproduction rate function has been set to "BevertonHoltRDD".')
+                    signal_info("RDD", paste0(
+                        "The density-dependent reproduction rate function ",
+                        'has been set to "BevertonHoltRDD".'),
+                        level = 1, unhandled = "show")
                 }
             } else {
                 RDD <- switch(params@srr,
@@ -162,7 +167,8 @@ upgrade.MizerParams <- function(object, ...) {
             gears <- as.character(unique(gear_params$gear))
             initial_effort <- rep(0, length(gears))
             names(initial_effort) <- gears
-            message("Initial effort has been set to 0.")
+            signal_info("initial_effort", "Initial effort has been set to 0.",
+                        level = 1, unhandled = "show")
         }
 
         if (.hasSlot(params, "metab")) {
@@ -203,7 +209,9 @@ upgrade.MizerParams <- function(object, ...) {
         if ("r_max" %in% names(params@species_params)) {
             params@species_params$R_max <- params@species_params$r_max
             params@species_params$r_max <- NULL
-            message("The 'r_max' column has been renamed to 'R_max'.")
+            signal_info("R_max",
+                        "The 'r_max' column has been renamed to 'R_max'.",
+                        level = 1, unhandled = "show")
         }
 
         if (.hasSlot(params, "p")) {
@@ -299,7 +307,10 @@ upgrade.MizerParams <- function(object, ...) {
         if (.hasSlot(params, "plankton_dynamics")) {
             if (is.function(params@plankton_dynamics)) {
                 pnew@resource_dynamics <- "resource_semichemostat"
-                message('The resource dynamics function has been set to "resource_semichemostat".')
+                signal_info("resource_dynamics", paste0(
+                    "The resource dynamics function has been set to ",
+                    '"resource_semichemostat".'), level = 1,
+                    unhandled = "show")
             } else {
                 if (params@plankton_dynamics == "plankton_semichemostat") {
                     pnew@resource_dynamics <- "resource_semichemostat"
@@ -574,7 +585,11 @@ upgrade.MizerSim <- function(object, ...) {
 
     t_dimnames <- dimnames(sim@n_pp)[[1]]
     no_gears <- dim(sim@effort)[[2]]
-    new_sim <- MizerSim(validParams(sim@params, info_level = 0),
+    # The caller warns about the MizerSim being from an earlier version, so
+    # the same report about the MizerParams inside it is dropped here. The
+    # rest of what the upgrade has to say is still worth hearing.
+    new_sim <- MizerSim(with_info_level(validParams(sim@params),
+                                        except = "version"),
                         t_dimnames = as.numeric(t_dimnames))
 
     new_sim@n <- sim@n

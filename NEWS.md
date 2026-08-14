@@ -65,6 +65,37 @@ stability of steady states.
 
 ## Other improvements
 
+- New `mizer_info_level` option sets how much mizer tells you about the choices
+  it makes, without your having to pass `info_level` to each call.
+  `options(mizer_info_level = 0)` quietens mizer as a whole, including the
+  functions that have no `info_level` argument of their own, such as
+  `species_params<-()` and the rate setters. The `info_level` argument still
+  overrides it for a single call, and its default is now
+  `default_info_level()`, which reads the option.
+
+- The information mizer gives while it sets up or changes a model is now raised
+  through one function, `signal_info()`, which says which quantity the report is
+  about, how important it is, whether it is a message or a warning, and whether
+  it should still be shown when nothing is collecting reports. The collecting
+  handlers now nest by themselves, so a function can report the information
+  raised inside it without having to know whether its caller is already doing
+  so, and two different things said about the same quantity are both reported
+  where previously the second overwrote the first. This is the machinery behind
+  the frozen-rate warning described under Bug fixes, and it is available to
+  packages that extend mizer.
+
+- Nearly every message and warning that mizer gives while building or changing
+  a model now goes through that mechanism, including the ones in `steady()`,
+  `projectToSteady()`, `matchYields()`, `validParams()`, `setInteraction()`,
+  `setReproduction()`, `setResource()`, `newTraitParams()`,
+  `newSingleSpeciesParams()`, `plotYieldObservedVsModel()` and the upgrade of
+  an old object. They are collected into a single report rather than a stream,
+  and `info_level` (or the `mizer_info_level` option) controls all of them
+  alike, where before each function decided for itself. `steady()`,
+  `projectToSteady()`, `matchYields()` and `validParams()` no longer implement
+  their own `info_level` threshold, and `newSingleSpeciesParams()` gains an
+  `info_level` argument.
+
 - `plotSpectra()`, `plotSpectra2()`, `plotCDF()`, `plotCDF2()` and `animate()`
   now let you choose the plotted quantity with two independent arguments
   instead of the single `power`: `biomass` selects a biomass density rather
@@ -199,6 +230,53 @@ stability of steady states.
 
 ## Bug fixes
 
+- Changing a species parameter that feeds a rate array you have set by hand now
+  warns you that the change has no effect on the model. Previously
+  `species_params<-()` and `given_species_params<-()` recorded the new value in
+  the species parameter table but left the model unchanged, and said nothing:
+  the rate setters do emit a message in that situation, but those two functions
+  run `suppressMessages()` over the recalculation to quieten the routine
+  chatter, so the message never reached the user. The report is now a warning,
+  which survives that, and it names the species parameters that were ignored,
+  the quantity that is holding them back, and the call that puts the quantity
+  back under the control of the species parameters, for example
+  `setMetabolicRate(params, reset = TRUE)`. It is raised only when a parameter
+  that actually feeds the frozen quantity changed, so models that mizer itself
+  freezes arrays in, like those from `newTraitParams()` and
+  `newCommunityParams()`, do not warn about unrelated changes (#489).
+
+- Changing a resource parameter that feeds a resource array you have set by
+  hand now warns you that the change has no effect, the same way a species
+  parameter change does. `resource_params(params)$kappa <- ...` with a
+  `resource_capacity()` that was set manually previously changed the stored
+  scalar and nothing else, in complete silence. `setResource()` also now says
+  when it leaves a frozen resource array alone although the resource
+  parameters ask for a different value (#489).
+
+- `species_params<-()` now gives the same warning that `given_species_params<-()`
+  already gave when a change is ignored because another parameter takes
+  precedence over it, for example a change to `f0` when `gamma` has been given.
+  Previously only one of the two assignment functions said so.
+
+- `info_level = 0` now really does silence all the information about default
+  values, including the reports that until now were plain messages: the notes
+  about the interaction matrix dimnames, about `no_w` being increased, about
+  negative resource abundances, about what an upgrade changed, and the
+  consistency corrections to `w_mat`, `w_mat25`, `w_min` and `w_repro_max`.
+  Previously an information signal whose level was above `info_level` was
+  passed on rather than dropped, so it could still be reported by a handler
+  further out, and a plain message ignored `info_level` altogether.
+  
+- `$` on a `species_params` or `gear_params` table no longer partially matches
+  column names. In a model without length-weight parameters,
+  `species_params(params)$a` returned the `alpha` column and `$b` the `beta`
+  column, with the species names attached, so code converting weights to
+  lengths silently got the assimilation efficiency and the preferred
+  predator/prey mass ratio instead. Writing was never partially matched, so
+  reads and writes disagreed about which column `$b` meant. A name that is not
+  a column now gives `NULL`, with a warning naming the column that used to be
+  returned (#487).
+
 - `w_min` is now included in `given_species_params`, so the `min_w` argument to
   `newMultispeciesParams()` and `emptyParams()` is preserved across any operation
   that rebuilds the species parameters from the given ones. Previously, a
@@ -265,6 +343,19 @@ together with the rate array it determines can now record its change without
 triggering a recalculation that would undo it.
 
 ## Species parameter changes
+
+- Fixed: `given_species_params<-()` did not apply the length/weight precedence
+  rule, so it disagreed with `species_params<-()`, which the documentation
+  describes as equivalent apart from its warnings. On a model where a size is
+  given both as a weight and as a length, changing the length through
+  `given_species_params<-()` left the weight at its old value and warned that
+  the length was inconsistent, and it went on warning at every later parameter
+  change because the given species parameters were never brought into line.
+  The same edit made with `species_params<-()` gave a maturity weight up to 73%
+  larger. Both setters now follow the same rule: the one you gave last wins
+  (#490). `given_species_params<-()` also preserves the columns of the
+  `species_params` slot that mizer does not calculate, which
+  `species_params<-()` already did.
 
 - Fixed: `species_params<-()` did not re-derive the calculated species
   parameters that a rate setter owns (`h`, `gamma`, `ks`, `q`, `z0`, `beta`,

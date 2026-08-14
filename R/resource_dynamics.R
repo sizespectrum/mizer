@@ -95,12 +95,16 @@ resource_params <- function(params) {
         assert_that(is.number(value$r_pp), value$r_pp >= 0)
     }
     
-    rp_changed <- !identical(params@resource_params$kappa, value$kappa) ||
-                  !identical(params@resource_params$lambda, value$lambda) ||
-                  !identical(params@resource_params[["n"]], value[["n"]]) ||
-                  !identical(params@resource_params$w_pp_cutoff, value$w_pp_cutoff) ||
-                  !identical(params@resource_params$r_pp, value$r_pp)
-    
+    scalars <- c("kappa", "lambda", "n", "w_pp_cutoff", "r_pp")
+    changed <- scalars[vapply(scalars, function(scalar) {
+        !identical(params@resource_params[[scalar]], value[[scalar]])
+    }, logical(1))]
+    rp_changed <- length(changed) > 0
+
+    # Warn about the changes that cannot take effect because the array they
+    # feed has been set by hand, before the change is applied.
+    with_info_level(signal_frozen_changes(params, changed))
+
     params@resource_params <- value
     params@time_modified <- lubridate::now()
     # Setting the scalar resource parameters only rebuilds the size-dependent

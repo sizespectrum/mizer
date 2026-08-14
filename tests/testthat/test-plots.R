@@ -5,10 +5,11 @@ species_params <- NS_species_params_gears_small
 # Make species names numeric because that created problems in the past
 species_params$species <- seq_len(nrow(species_params))
 species_params$pred_kernel_type <- "truncated_lognormal"
-(params <- newMultispeciesParams(species_params, inter_small, no_w = 30,
+# `info_level = 0` silences the note about the interaction matrix dimnames,
+# which is tested in test-setInteraction.R
+params <- newMultispeciesParams(species_params, inter_small, no_w = 30,
                                 n = 2 / 3, p = 0.7, lambda = 2.8 - 2 / 3,
-                                info_level = 0)) |>
-    expect_message("Note: Dimnames of interaction matrix do not match")
+                                info_level = 0)
 sim <- project(params, effort = 1, t_max = 3, dt = 1, t_save = 1)
 sim0 <- project(params, effort = 0, t_max = 3, dt = 1, t_save = 1)
 species <- c(1, 2)

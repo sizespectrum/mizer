@@ -42,7 +42,7 @@ test_that("Comment works on metab", {
     expect_message(setMetabolicRate(params), NA)
     # but message when a change is not stored due to comment
     params@species_params$ks <- 1
-    expect_message(setMetabolicRate(params),  "has been commented")
+    expect_message(setMetabolicRate(params),  "has been set manually")
     # Can reset
     p <- setMetabolicRate(params, reset = TRUE)
     expect_equal(p@metab[, 1], params@w[1]^params@species_params$p,

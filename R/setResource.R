@@ -308,32 +308,32 @@ setResource.MizerParams <- function(params,
     }
 
     # Recompute capacity from stored scalar kappa if not provided and not commented ----
-    if (is.null(resource_capacity)) {
+    if (is.null(resource_capacity) && resource_params_changed) {
+        capacity <- capacity_from_resource_params(params, lambda)
         if (!is.null(comment(params@cc_pp))) {
-            # cc_pp is commented (frozen)
+            # cc_pp is commented (frozen), so the resource parameters no longer
+            # determine it. Say so, but only if a change was actually requested.
+            if (!is.null(capacity) && different(capacity, params@cc_pp)) {
+                signal_not_recalculated(
+                    "cc_pp", "resource capacity",
+                    "setResource(params, reset = TRUE)",
+                    derived_from = "resource parameters")
+            }
+        } else if (!is.null(capacity)) {
+            resource_capacity <- capacity
             if (!is.null(old_w_pp_cutoff) && w_pp_cutoff < old_w_pp_cutoff) {
-                params@cc_pp[w_full >= w_pp_cutoff] <- 0
                 params@initial_n_pp[w_full >= w_pp_cutoff] <- 0
                 NR <- params@initial_n_pp
             }
-        } else if (resource_params_changed) {
-            kappa <- params@resource_params[["kappa"]]
-            if (!is.null(kappa) && is.numeric(kappa) && length(kappa) == 1) {
-                if (isTRUE(params@second_order_w[["bin_average"]])) {
-                    resource_capacity <- kappa *
-                        power_law_bin_average(
-                            w_full, params@dw_full, -lambda,
-                            w_max = params@resource_params$w_pp_cutoff)
-                } else {
-                    resource_capacity <- kappa * w_full ^ (-lambda)
-                    resource_capacity[w_full >= params@resource_params$w_pp_cutoff] <- 0
-                }
-                if (!is.null(old_w_pp_cutoff) && w_pp_cutoff < old_w_pp_cutoff) {
-                    params@initial_n_pp[w_full >= w_pp_cutoff] <- 0
-                    NR <- params@initial_n_pp
-                }
-            }
         }
+    }
+    # A frozen capacity still has to follow a `w_pp_cutoff` that came down,
+    # because the resource cannot extend beyond the grid the cutoff defines.
+    if (is.null(resource_capacity) && !is.null(comment(params@cc_pp)) &&
+        !is.null(old_w_pp_cutoff) && w_pp_cutoff < old_w_pp_cutoff) {
+        params@cc_pp[w_full >= w_pp_cutoff] <- 0
+        params@initial_n_pp[w_full >= w_pp_cutoff] <- 0
+        NR <- params@initial_n_pp
     }
 
     # Recompute rate from stored scalar r_pp if not provided and not commented ----
@@ -341,16 +341,16 @@ setResource.MizerParams <- function(params,
     # each array is rebuilt from its own scalars so that rate-side parameters
     # (`r_pp`, `n`) take effect even when capacity-side parameters also changed.
     if (is.null(resource_rate) && resource_params_changed) {
-        if (is.null(comment(params@rr_pp))) {
-            r_pp <- params@resource_params[["r_pp"]]
-            if (!is.null(r_pp) && is.numeric(r_pp) && length(r_pp) == 1) {
-                if (isTRUE(params@second_order_w[["bin_average"]])) {
-                    resource_rate <- r_pp *
-                        power_law_bin_average(w_full, params@dw_full, n - 1)
-                } else {
-                    resource_rate <- r_pp * w_full ^ (n - 1)
-                }
+        rate <- rate_from_resource_params(params, n)
+        if (!is.null(comment(params@rr_pp))) {
+            if (!is.null(rate) && different(rate, params@rr_pp)) {
+                signal_not_recalculated(
+                    "rr_pp", "resource rate",
+                    "setResource(params, reset = TRUE)",
+                    derived_from = "resource parameters")
             }
+        } else {
+            resource_rate <- rate
         }
     }
 
@@ -410,21 +410,23 @@ setResource.MizerParams <- function(params,
         freeze_capacity <- num_args_user == 0 && derive_capacity &&
             !is.null(comment(params@cc_pp))
         if (freeze_rate) {
-            warning("The resource rate has been set manually and so it was ",
-                    "not rebalanced. The resource may no longer replenish at ",
-                    "the rate at which it is consumed. Use `reset = TRUE` to ",
-                    "recalculate it from the resource parameters.",
-                    call. = FALSE)
+            signal_info("rr_pp", paste0(
+                "The resource rate has been set manually and so it was not ",
+                "rebalanced. The resource may no longer replenish at the rate ",
+                "at which it is consumed. Use `reset = TRUE` to recalculate ",
+                "it from the resource parameters."),
+                level = 1, severity = "warning", unhandled = "show")
             resource_rate <- NULL
         } else {
             resource_rate <- balance$resource_rate
         }
         if (freeze_capacity) {
-            warning("The resource capacity has been set manually and so it ",
-                    "was not rebalanced. The resource may no longer replenish ",
-                    "at the rate at which it is consumed. Use `reset = TRUE` ",
-                    "to recalculate it from the resource parameters.",
-                    call. = FALSE)
+            signal_info("cc_pp", paste0(
+                "The resource capacity has been set manually and so it was ",
+                "not rebalanced. The resource may no longer replenish at the ",
+                "rate at which it is consumed. Use `reset = TRUE` to ",
+                "recalculate it from the resource parameters."),
+                level = 1, severity = "warning", unhandled = "show")
             resource_capacity <- NULL
         } else {
             resource_capacity <- balance$resource_capacity
@@ -508,4 +510,38 @@ resource_dynamics <- function(params) {
 #' resource_dynamics(params) <- "resource_constant"
 `resource_dynamics<-` <- function(params, balance = NULL, value) {
     setResource(params, resource_dynamics = value, balance = balance)
+}
+
+# The resource capacity that the scalar resource parameters imply, or NULL if
+# they do not determine it. Used both to recompute a capacity that mizer
+# controls and to see whether a frozen one has fallen out of step with the
+# parameters, see `setResource()`.
+capacity_from_resource_params <- function(params, lambda) {
+    kappa <- params@resource_params[["kappa"]]
+    if (is.null(kappa) || !is.numeric(kappa) || length(kappa) != 1) {
+        return(NULL)
+    }
+    w_full <- params@w_full
+    w_pp_cutoff <- params@resource_params$w_pp_cutoff
+    if (isTRUE(params@second_order_w[["bin_average"]])) {
+        return(kappa * power_law_bin_average(w_full, params@dw_full, -lambda,
+                                             w_max = w_pp_cutoff))
+    }
+    capacity <- kappa * w_full ^ (-lambda)
+    capacity[w_full >= w_pp_cutoff] <- 0
+    capacity
+}
+
+# The resource replenishment rate that the scalar resource parameters imply,
+# or NULL if they do not determine it.
+rate_from_resource_params <- function(params, n) {
+    r_pp <- params@resource_params[["r_pp"]]
+    if (is.null(r_pp) || !is.numeric(r_pp) || length(r_pp) != 1) {
+        return(NULL)
+    }
+    if (isTRUE(params@second_order_w[["bin_average"]])) {
+        return(r_pp * power_law_bin_average(params@w_full, params@dw_full,
+                                            n - 1))
+    }
+    r_pp * params@w_full ^ (n - 1)
 }

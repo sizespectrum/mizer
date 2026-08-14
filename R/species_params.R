@@ -64,7 +64,10 @@
 #' `species_params<-()` or `given_species_params<-()`, the new value will be
 #' used to update the corresponding size-dependent rates automatically, unless
 #' you have set those size-dependent rates manually, in which case the
-#' corresponding species parameters will be ignored.
+#' corresponding species parameters will be ignored. Mizer warns you when that
+#' happens, because the value is then in the species parameter table without
+#' having any effect on the model. The warning names the call that puts the
+#' rate back under the control of the species parameters.
 #'
 #' There are some species parameters that are used directly in the model
 #' rather than being used for setting up size-dependent parameters:
@@ -105,11 +108,11 @@
 #' The rule is applied when a species parameter data frame is put into a model.
 #' A data frame that you have taken out of a model and are editing on its own
 #' is left exactly as you write it: no conversions, no checks and no warnings
-#' until you assign it back with `species_params<-()`, which is when mizer can
-#' tell which values you changed. A data frame that was never in a model, for
-#' example one you pass to [validSpeciesParams()], carries no such history, so
-#' a length and a weight that disagree there count as given at the same time
-#' and the weight wins.
+#' until you assign it back with `species_params<-()` or
+#' `given_species_params<-()`, which is when mizer can tell which values you
+#' changed. A data frame that was never in a model, for example one you pass to
+#' [validSpeciesParams()], carries no such history, so a length and a weight
+#' that disagree there count as given at the same time and the weight wins.
 #'
 #' The parameters that are only used to calculate default values for other
 #' parameters are:
@@ -169,6 +172,25 @@
 #' @param x An object to test with `is.species_params()` or
 #'   `is.given_species_params()`.
 #' @param ... Other arguments passed to methods.
+#' @section Extracting a column with `$`:
+#' `species_params(params)$w_mat` returns the column as a vector named after the
+#' species. Unlike `$` on an ordinary data frame, it does **not** partially
+#' match the column name. Partial matching is dangerous here because so many
+#' species parameter names are prefixes of others: in a model without
+#' length-weight parameters `species_params(params)$a` used to return the
+#' `alpha` column and `$b` the `beta` column, complete with species names, so
+#' code converting weights to lengths silently got the assimilation efficiency
+#' and the preferred predator/prey mass ratio instead. Writing was never
+#' partially matched, so reads and writes disagreed about which column `$b`
+#' meant.
+#'
+#' A name that is not a column now gives `NULL`, so
+#' `is.null(species_params(params)$foo)` is a reliable way of testing whether a
+#' parameter is present. If the name would have partially matched a column
+#' under the old behaviour you also get a warning naming that column, because
+#' that is exactly the case where existing code changes its meaning. The same
+#' holds for [gear_params()].
+#'
 #' @section Setting species parameters without recalculation:
 #' `species_params(params, recalculate = FALSE) <- value` records the values you
 #' changed among the given species parameters, so that they are not calculated
@@ -203,10 +225,13 @@
 #'   values that were supplied explicitly by the user.
 #'
 #'   `given_species_params<-()`: An alternative to `species_params<-()` that
-#'   also triggers a recalculation of other parameters. The only difference is
-#'   that `given_species_params<-()` issues warnings when a parameter is
-#'   changed whose effect is overridden by another parameter that has already
-#'   been given. This is especially useful during interactive use.
+#'   also triggers a recalculation of other parameters. It arrives at the same
+#'   model, the difference being that `given_species_params<-()` issues
+#'   warnings when a parameter is changed whose effect is overridden by another
+#'   parameter that has already been given. This is especially useful during
+#'   interactive use. It has no `recalculate` argument; where you need to
+#'   record values without recalculating, use `species_params<-()` or
+#'   [record_given_species_params()].
 #'
 #'   `calculated_species_params()`: Data frame containing only those species
 #'   parameter entries that are not explicit user input. Columns that would
@@ -297,6 +322,8 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
 
     # Find what changed compared to old species_params and record it among the
     # given species parameters
+    changed <- changed_species_params(value, object@species_params)
+    old_given <- object@given_species_params
     object@given_species_params <-
         record_given_species_params(object@given_species_params, value,
                                     object@species_params)
@@ -307,22 +334,39 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
         object@species_params <- value
         return(object)
     }
+    rebuild_from_given(object, value)
+}
+
+# Rebuild the species parameters from the given species parameters and
+# recalculate all rates. This is the tail that `species_params<-()` and
+# `given_species_params<-()` share, so that the two setters cannot drift apart.
+#
+# `keep` is the species parameter table whose columns are carried over where
+# they are not regenerated from the given species parameters: for
+# `species_params<-()` the table the user supplied, for
+# `given_species_params<-()` the model's current species parameters, which the
+# user has not edited. Such columns are for example parameters set directly on
+# the `@species_params` slot. The species parameters that a rate setter owns
+# are excluded: `setParams()` below derives those afresh, and carrying the
+# previously calculated value over would leave it looking like a given value
+# and so stop it responding to the change. Where the user did supply such a
+# parameter it has been recorded among the given species parameters and so is
+# already part of the rebuilt table.
+rebuild_from_given <- function(object, keep) {
     new_sp <- validSpeciesParams(object@given_species_params)
-    # Preserve any columns that were present in the supplied species params but
-    # are not tracked in `given_species_params` (for example parameters set
-    # directly on the `@species_params` slot) and are therefore not regenerated
-    # when rebuilding from `given_species_params`. The species parameters that a
-    # rate setter owns are excluded: `setParams()` below derives those afresh,
-    # and carrying the previously calculated value over would leave it looking
-    # like a given value and so stop it responding to the change. Where the user
-    # did supply such a parameter it has just been recorded among the given
-    # species parameters and so is already part of `new_sp`.
-    extra_cols <- setdiff(names(value),
+    extra_cols <- setdiff(names(keep),
                           c(names(new_sp), setter_owned_species_params()))
     for (col in extra_cols) {
-        new_sp[[col]] <- value[[col]]
+        new_sp[[col]] <- keep[[col]]
     }
     object@species_params <- new_sp
+    # Warn about the changes that will have no impact. This is signalled here
+    # rather than inside `setParams()` because only here do we know what the
+    # user asked to change.
+    with_info_level({
+        signal_ignored_changes(old_given, changed)
+        signal_frozen_changes(object, names(changed))
+    })
     return(suppressMessages(setParams(object)))
 }
 
@@ -567,6 +611,54 @@ set_column <- function(x, col, values) {
     x
 }
 
+# Fill in the length-weight parameters that a given species parameter table
+# leaves out
+#
+# `a` and `b` are defaulted rather than given, so a table of given species
+# parameters need not contain them even though the model always does. Without
+# them none of the length/weight rules can be applied, so the model's values
+# are put in where the table does not supply them. The result is only used
+# while the length and weight parameters are brought into line and is undone by
+# `restore_length_weight_params()` afterwards, so that the values mizer
+# defaulted do not end up recorded as given.
+#
+# Returns `given` unchanged when the model has nothing to contribute.
+fill_length_weight_params <- function(given, sp) {
+    if (!is.data.frame(sp) || !is.data.frame(given) ||
+            nrow(sp) != nrow(given) ||
+            !all(c("a", "b") %in% names(sp))) {
+        return(given)
+    }
+    for (col in c("a", "b")) {
+        model_value <- sp[[col]]
+        given_value <- given[[col]]
+        given <- set_column(given, col,
+                            if (is.null(given_value) ||
+                                    length(given_value) != nrow(given)) {
+                                model_value
+                            } else {
+                                ifelse(is.na(given_value), model_value,
+                                       given_value)
+                            })
+    }
+    given
+}
+
+# Put the length-weight parameters back the way the caller supplied them,
+# undoing `fill_length_weight_params()`. `supplied` is the `a` and `b` columns
+# of the table before they were filled in, or no columns at all where the
+# caller supplied neither.
+restore_length_weight_params <- function(given, supplied) {
+    for (col in c("a", "b")) {
+        if (col %in% names(supplied)) {
+            given <- set_column(given, col, supplied[[col]])
+        } else {
+            given <- set_column(given, col, NULL)
+        }
+    }
+    given
+}
+
 # Bring a length and weight parameter pair into line after a change
 #
 # A size can be given either as a weight or as the length it converts to. When
@@ -578,13 +670,14 @@ set_column <- function(x, col, values) {
 # or not the length changed as well, and where only the length changed the
 # weight is derived from the length as it always was.
 #
-# This is decided when a species parameter data frame is put into a model with
-# `species_params<-()`, which is the only caller: `old` is then the model's
-# species parameters, against which the incoming table is compared. Editing a
-# species parameter data frame on its own changes nothing until it is assigned
-# into a model, and a table that was edited by itself carries no record of the
-# order in which its columns were changed, so a length and a weight that both
-# differ from the model's count as given at the same time and the weight wins.
+# This is decided when a species parameter data frame is put into a model, by
+# `species_params<-()` and `given_species_params<-()`: `old` is then the table
+# of the same kind that the model currently holds, against which the incoming
+# one is compared. Editing a species parameter data frame on its own changes
+# nothing until it is assigned into a model, and a table that was edited by
+# itself carries no record of the order in which its columns were changed, so a
+# length and a weight that both differ from the model's count as given at the
+# same time and the weight wins.
 #
 # When `old` is `NULL`, or does not line up row by row with `x`, nothing can be
 # said about what changed and nothing is done here; the default of letting the
@@ -678,11 +771,14 @@ check_and_convert_species_params <- function(x) {
                     vl <- (x[[pw]] / a)^(1 / b)
                     sel <- disagree & !is.na(vl)
                     if (any(sel)) {
-                        warning("For the following species the value of `", pl,
-                                "` is not consistent with the value of `", pw,
-                                "`, so I am using `", pw, "` and setting `", pl,
-                                "` to match it: ",
-                                paste(x$species[sel], collapse = ", "))
+                        signal_info(pl, paste0(
+                            "For the following species the value of `", pl,
+                            "` is not consistent with the value of `", pw,
+                            "`, so I am using `", pw, "` and setting `", pl,
+                            "` to match it: ",
+                            paste(x$species[sel], collapse = ", ")),
+                            level = 1, severity = "warning",
+                            unhandled = "show")
                         new_l <- x[[pl]]
                         new_l[sel] <- vl[sel]
                         x <- set_column(x, pl, new_l)
@@ -696,9 +792,11 @@ check_and_convert_species_params <- function(x) {
     if (all(c("w_mat", "w_inf") %in% names(x))) {
         wrong <- !is.na(x$w_mat) & !is.na(x$w_inf) & x$w_mat >= x$w_inf
         if (any(wrong)) {
-            warning("For the species ",
-                    paste(x$species[wrong], collapse = ", "),
-                    " the value for `w_mat` is not smaller than that of `w_inf`.")
+            signal_info("w_mat", paste0(
+                "For the species ",
+                paste(x$species[wrong], collapse = ", "),
+                " the value for `w_mat` is not smaller than that of `w_inf`."),
+                level = 1, severity = "warning", unhandled = "show")
         }
     }
 
@@ -707,7 +805,7 @@ check_and_convert_species_params <- function(x) {
 
 #' @export
 `$.species_params` <- function(x, name) {
-    out <- NextMethod()
+    out <- exact_column(x, name, "species_params")
     if (!is.null(out) && !is.data.frame(out) && name != "species") {
         names(out) <- rownames(x)
     }
@@ -827,12 +925,12 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
     if (!("w_inf" %in% names(sp))) {
         if ("w_repro_max" %in% names(sp)) {
             sp$w_inf <- sp$w_repro_max
-            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_repro_max` column instead.",
-                   class = "info_about_default", var = "w_inf", level = 1)
+            signal_info("w_inf", "The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_repro_max` column instead.",
+                        level = 1)
         } else if ("w_max" %in% names(sp)) {
             sp$w_inf <- sp$w_max
-            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_max` column instead. ",
-                   class = "info_about_default", var = "w_inf", level = 1)
+            signal_info("w_inf", "The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_max` column instead. ",
+                        level = 1)
         } else if (strict) {
             stop("You need to specify the asymptotic size `w_inf` for all species.")
         }
@@ -851,10 +949,12 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
     if ("w_mat" %in% names(sp) && "w_inf" %in% names(sp)) {
         wrong <- !is.na(sp$w_mat) & !is.na(sp$w_inf) & sp$w_mat >= sp$w_inf
         if (any(wrong)) {
-            warning("For the species ",
-                    paste(sp$species[wrong], collapse = ", "),
-                    " the value for `w_mat` is not smaller than that of `w_inf`.",
-                    " I have corrected that by setting it to 25% of `w_inf`.")
+            signal_info("w_mat", paste0(
+                "For the species ",
+                paste(sp$species[wrong], collapse = ", "),
+                " the value for `w_mat` is not smaller than that of `w_inf`.",
+                " I have corrected that by setting it to 25% of `w_inf`."),
+                level = 1, severity = "warning", unhandled = "show")
             sp$w_mat[wrong] <- sp$w_inf[wrong] / 4
         }
 
@@ -862,10 +962,12 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
         if ("w_mat25" %in% names(sp)) {
             wrong <- !is.na(sp$w_mat) & !is.na(sp$w_mat25) & sp$w_mat25 >= sp$w_mat
             if (any(wrong)) {
-                warning("For the species ",
-                        paste(sp$species[wrong], collapse = ", "),
-                        " the value for `w_mat25` is not smaller than that of `w_mat`.",
-                        " I have corrected that by setting it to NA.")
+                signal_info("w_mat25", paste0(
+                    "For the species ",
+                    paste(sp$species[wrong], collapse = ", "),
+                    " the value for `w_mat25` is not smaller than that of `w_mat`.",
+                    " I have corrected that by setting it to NA."),
+                    level = 1, severity = "warning", unhandled = "show")
                 sp$w_mat25[wrong] <- NA
             }
         }
@@ -875,10 +977,12 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
             wrong <- !is.na(sp$w_min) & !is.na(sp$w_mat) & sp$w_min >= sp$w_mat
             if (any(wrong)) {
                 sp$w_min[wrong] <- pmin(0.001, sp$w_mat[wrong] / 10)
-                warning("For the species ",
-                        paste(sp$species[wrong], collapse = ", "),
-                        " the value for `w_min` is not smaller than that of `w_mat`.",
-                        " I have reduced the values.")
+                signal_info("w_min", paste0(
+                    "For the species ",
+                    paste(sp$species[wrong], collapse = ", "),
+                    " the value for `w_min` is not smaller than that of `w_mat`.",
+                    " I have reduced the values."),
+                    level = 1, severity = "warning", unhandled = "show")
             }
         }
     }
@@ -887,10 +991,12 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
     if ("w_repro_max" %in% names(sp) && "w_mat" %in% names(sp)) {
         wrong <- !is.na(sp$w_repro_max) & !is.na(sp$w_mat) & sp$w_repro_max <= sp$w_mat
         if (any(wrong)) {
-            warning("For the species ",
-                    paste(sp$species[wrong], collapse = ", "),
-                    " the value for `w_repro_max` is smaller than that of `w_mat`.",
-                    " I have corrected that by setting it to 4 times `w_mat.")
+            signal_info("w_repro_max", paste0(
+                "For the species ",
+                paste(sp$species[wrong], collapse = ", "),
+                " the value for `w_repro_max` is smaller than that of `w_mat`.",
+                " I have corrected that by setting it to 4 times `w_mat."),
+                level = 1, severity = "warning", unhandled = "show")
             sp$w_repro_max[wrong] <- 4 * sp$w_mat[wrong]
         }
     }
@@ -925,11 +1031,26 @@ is.given_species_params <- function(x) {
 #' @export
 `given_species_params<-.MizerParams` <- function(object, value) {
     params <- object
+    # The length/weight rules need `a` and `b`, which the given species
+    # parameters need not contain, so the model's values stand in while they
+    # are applied.
+    supplied_ab <- if (is.data.frame(value)) {
+        value[intersect(c("a", "b"), names(value))]
+    } else {
+        # `validGivenSpeciesParams()` below rejects this with its own message
+        list()
+    }
+    value <- fill_length_weight_params(value, params@species_params)
+    # A length parameter whose weight has just been set has to follow the new
+    # weight before anything converts the weight away again. This is the same
+    # rule that `species_params<-()` applies, here comparing the incoming given
+    # species parameters against the model's.
+    value <- reconcile_length_weight(value, params@given_species_params)
     value <- validGivenSpeciesParams(value)
+    value <- restore_length_weight_params(value, supplied_ab)
     if (!all(value$species == params@species_params$species)) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")
     }
-    old_value <- params@given_species_params
 
     # Create data frame which contains only the values that have changed
     common_columns <- intersect(names(value), names(params@given_species_params))
@@ -941,35 +1062,24 @@ is.given_species_params <- function(x) {
     # Add new columns
     changes <- cbind(changes, value[new_columns])
 
-    # Give warnings when values are changed that will have no impact
-    if ("gamma" %in% names(params@given_species_params) &
-        "f0" %in% names(changes) &
-        any(!is.na(params@given_species_params$gamma[!is.na(changes$f0)]))) {
-        warning("You have specified some values for `f0` that are going to be ignored because values for `gamma` have already been given.")
-    }
-    if ("ks" %in% names(params@given_species_params) &
-        "fc" %in% names(changes) &
-        any(!is.na(params@given_species_params$ks[!is.na(changes$fc)]))) {
-        warning("You have specified some values for `fc` that are going to be ignored because values for `ks` have already been given.")
-    }
-    if ("h" %in% names(params@given_species_params) &
-        "age_mat" %in% names(changes) &
-        any(!is.na(params@given_species_params$h[!is.na(changes$age_mat)]))) {
-        warning("You have specified some values for `age_mat` that are going to be ignored because values for `h` have already been given.")
-    }
+    # Which species changed, for the reports below. In `changes` an entry that
+    # did not change has been set to NA.
+    changed <- lapply(changes, function(col) !is.na(col))
 
-    # Warn when user tries to change gear parameters
-    if (any(c("catchability", "selectivity", "l50", "l25", "sel_func") %in%
-            names(changes))) {
-        warning("To make changes to gears you should use `gear_params()<-`, not `species_params()`.")
-    }
-    if ("yield_observed" %in% names(changes)) {
-        warning("To change the observed yield you should use `gear_params()<-`, not `species_params()`.")
-    }
+    # Warn about the changes that will have no impact, either because another
+    # given parameter takes precedence or because the rate array they feed has
+    # been set by hand.
+    with_info_level({
+        signal_ignored_changes(params@given_species_params, changed)
+        signal_gear_params_changes(changed)
+        signal_frozen_changes(params, names(changes))
+    })
 
     params@given_species_params <- value
-    params@species_params <- validSpeciesParams(value)
-    suppressMessages(setParams(params))
+    # The user has edited the given species parameters and not the full table,
+    # so it is the model's own species parameters whose columns are carried
+    # over where they are not rebuilt from the given ones.
+    rebuild_from_given(params, params@species_params)
 }
 
 #' @rdname species_params
@@ -1031,8 +1141,7 @@ set_species_param_default <- function(object, parname, default,
     assert_that(length(default) == no_sp)
     if (!(parname %in% colnames(species_params))) {
         if (!missing(message)) {
-            signal(message,
-                    class = "info_about_default", var = parname, level = 3)
+            signal_info(parname, message)
         }
         species_params[parname] <- default
     } else {
@@ -1095,12 +1204,11 @@ get_h_default <- function(params) {
         assert_that(is.numeric(species_params$f0),
                     noNA(species_params$alpha),
                     "alpha" %in% names(species_params))
-        signal("No h provided for some species, so using age at maturity to calculate it.",
-                      class = "info_about_default", var = "h", level = 3)
+        signal_info("h", "No h provided for some species, so using age at maturity to calculate it.")
         if (!isTRUE(all.equal(species_params$n[missing], species_params$p[missing],
                               check.attributes = FALSE))) {
-            signal("Because you have n != p, the default value for `h` is not very good.",
-                   class = "info_about_default", var = "h", level = 1)
+            signal_info("h", "Because you have n != p, the default value for `h` is not very good.",
+                        level = 1)
         }
         species_params <- species_params %>%
             set_species_param_default("fc", 0.2) %>%
@@ -1122,8 +1230,7 @@ get_h_default <- function(params) {
         # If no acceptable default could be calculated, set h=30
         missing <- is.na(species_params[["h"]]) | species_params[["h"]] <= 0
         if (any(missing)) {
-            signal("For species where no growth information is available the parameter h has been set to h = 30.",
-                   class = "info_about_default", var = "h", level = 3)
+            signal_info("h", "For species where no growth information is available the parameter h has been set to h = 30.")
             species_params[missing, "h"] <- 30
         }
     }
@@ -1159,8 +1266,7 @@ get_gamma_default <- function(params) {
         assert_that(is.number(params@resource_params$lambda),
                     is.number(params@resource_params$kappa),
                     is.numeric(species_params$f0))
-        signal("Using f0, h, lambda, kappa and the predation kernel to calculate gamma.",
-                class = "info_about_default", var = "gamma", level = 3)
+        signal_info("gamma", "Using f0, h, lambda, kappa and the predation kernel to calculate gamma.")
         if (!"h" %in% names(params@species_params) ||
             any(is.na(species_params[["h"]]))) {
             species_params[["h"]] <- get_h_default(params)

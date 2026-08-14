@@ -79,9 +79,11 @@ plotYieldObservedVsModel.MizerParams <- function(object, species = NULL, ratio =
     species <- valid_species_arg(object, species)
     no_yield <- yield_model[species] == 0
     if (any(no_yield)) {
-        message("The following species are not being fished in your model ",
-                "and will not be included in the plot: ",
-                paste0(species[no_yield], collapse = ", "), ".")
+        signal_info("yield_model", paste0(
+            "The following species are not being fished in your model and ",
+            "will not be included in the plot: ",
+            paste0(species[no_yield], collapse = ", "), "."),
+            level = 1, unhandled = "show")
         species <- species[!no_yield]
     }
     if (length(species) == 0) stop("No species selected, please fix.")

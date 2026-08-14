@@ -23,7 +23,7 @@ newCommunityParams(
   knife_edge_size = 1000,
   reproduction,
   second_order_w = FALSE,
-  info_level = 2
+  info_level = default_info_level(2)
 )
 }
 \arguments{
@@ -90,7 +90,8 @@ model. Defaults to \code{FALSE} (the first-order behaviour of previous mizer).}
 
 \item{info_level}{Controls the amount of information messages that are shown
 when the function sets default values for parameters. Higher levels lead
-to more messages.}
+to more messages, \code{info_level = 0} gives silence. The default is taken
+from the \code{mizer_info_level} option, see \code{\link[=default_info_level]{default_info_level()}}.}
 }
 \value{
 An object of type \code{\linkS4class{MizerParams}}
