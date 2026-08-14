@@ -57,6 +57,31 @@ test_that("default for gamma is correct", {
 })
 
 
+test_that("gamma and f0 defaults ignore a frozen search volume (#488)", {
+    params <- NS_params_small
+    frozen <- params
+    sv <- search_vol(frozen)
+    sv[] <- sv * 10
+    search_vol(frozen) <- sv
+    expect_false(is.null(comment(frozen@search_vol)))
+
+    # `get_gamma_default()` measures the available energy with a search volume
+    # coefficient of 1, so the user's array must not enter the calculation.
+    params@species_params$gamma[] <- NA
+    frozen@species_params$gamma[] <- NA
+    expect_equal(get_gamma_default(frozen), get_gamma_default(params))
+
+    # `get_f0_default()` is the inverse and must use the search volume implied
+    # by `gamma`, not the frozen one.
+    expect_equal(get_f0_default(NS_params_small),
+                 suppressMessages(get_f0_default(
+                     setSearchVolume(NS_params_small, search_vol = sv))))
+
+    # The frozen array itself is left untouched by the default calculations.
+    expect_equal(search_vol(frozen), sv, ignore_attr = TRUE)
+})
+
+
 test_that("Setting species params works", {
     params <- newMultispeciesParams(NS_species_params_small, info_level = 0)
     # changing h changes intake_max
