@@ -217,6 +217,25 @@ Models on the default (first-order) scheme are unchanged. If you have published
 absolute diet values or trophic levels computed under `second_order_w`, they need
 recomputing.
 
+### `getProportionOfLargeFish()` on a `MizerParams` object was wrong
+
+The [`MizerParams`](../reference/MizerParams.html) method multiplied the species x size abundance array by the
+vector of weights, which R recycles down the columns of the array rather than
+along the size axis, so every species but the first was weighted by the wrong
+sizes. Only the `MizerParams` method was affected; the [`MizerSim`](../reference/MizerSim.html) method was
+always right, and the two now agree when applied to the same state (#494). Any
+Large Fish Index computed from a `MizerParams` object in a model with more than
+one species needs recomputing.
+
+### `getN()` respects the quadrature scheme at the ends of the size range
+
+[`getN(params, min_w = ...)`](../reference/getN.html) now bin-averages the size-range window when
+second-order bin-averaging is switched on with `second_order_w()`, so the bin
+straddling `min_w` or `max_w` contributes only partially — as [`getBiomass()`](../reference/getBiomass.html)
+already did. Numbers over a restricted size range therefore change slightly
+under `second_order_w`; over the full size range, and on the default
+first-order scheme, nothing changes (#494).
+
 ### `w_min` survives a rebuild of the species parameters
 
 `w_min` is now part of [`given_species_params`](../reference/species_params.html), so the `min_w` argument to
@@ -457,7 +476,7 @@ directly on a bare data frame will see the extra columns and stricter checks
 
 `print()` on the array objects returned by the rate getters ([`ArraySpeciesBySize`](../reference/ArraySpeciesBySize.html),
 [`ArrayTimeBySpecies`](../reference/ArrayTimeBySpecies.html), [`ArrayResourceBySize`](../reference/ArrayResourceBySize.html), [`ArrayTimeByResourceBySize`](../reference/ArrayTimeByResourceBySize.html) and
-[`ArrayTimeBySpeciesBySize`](../reference/ArrayTimeBySpeciesBySize.html), as returned by `getEncounter()`, [`getBiomass()`](../reference/getBiomass.html),
+[`ArrayTimeBySpeciesBySize`](../reference/ArrayTimeBySpeciesBySize.html), as returned by `getEncounter()`, `getBiomass()`,
 [`getFMort()`](../reference/getFMort.html), [`NResource()`](../reference/N.html) and similar) now truncates the output instead of
 flooding the console with all the array entries. If your code or reports relied
 on the old printed format, use `as.data.frame()` to go back to the full output.
@@ -519,7 +538,7 @@ before. Set the arguments explicitly if you need to reproduce old numbers.
 
 Several fixes correct earlier behaviour and so change output:
 
-- **`summary()` of a [`MizerSim`](../reference/MizerSim.html)** now reports the fishing effort that was used
+- **`summary()` of a `MizerSim`** now reports the fishing effort that was used
   during the simulation, rather than the model's [`initial_effort`](../reference/initial_effort.html). Gears whose
   effort varied over time show the mean, flagged with a note giving the range.
   The printed summary therefore differs for simulations run with time-varying
@@ -617,7 +636,7 @@ params <- finalParams(sim)
 
 or, when averaging over a time range, with
 [`getParams(sim, time_range, geometric_mean)`](../reference/getParams.html). This reflects a shift in
-interpretation: a [`MizerParams`](../reference/MizerParams.html) object now represents not just the model
+interpretation: a `MizerParams` object now represents not just the model
 specification but also its current state (the abundances), which can be
 extracted from a simulation with `getParams()`, [`finalParams()`](../reference/finalParams.html) and
 [`initialParams()`](../reference/initialParams.html).

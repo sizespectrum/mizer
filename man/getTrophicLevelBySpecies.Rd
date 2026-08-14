@@ -67,7 +67,8 @@ Other summary functions:
 \code{\link[=getSSB]{getSSB()}},
 \code{\link[=getTrophicLevel]{getTrophicLevel()}},
 \code{\link[=getYield]{getYield()}},
-\code{\link[=getYieldGear]{getYieldGear()}}
+\code{\link[=getYieldGear]{getYieldGear()}},
+\code{\link[=sizeIntegral]{sizeIntegral()}}
 }
 \concept{summary functions}
 \concept{summary_function}

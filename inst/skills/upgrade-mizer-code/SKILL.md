@@ -52,6 +52,8 @@ plots) are in the changelog and are not repeated here.
 | Length-weight conversion via `$a`/`$b` gave `alpha`/`beta` values | partial matching, now fixed | `$` no longer partially matches (3.3) |
 | Absolute diet values dropped ~10%, only with `second_order_w` bin-averaging | double-counted prey-bin quadrature, now fixed | Quadrature fixes under `second_order_w` (3.3) |
 | Trophic levels moved slightly, only with `second_order_w` | numerator and denominator now use one quadrature | Quadrature fixes under `second_order_w` (3.3) |
+| `getProportionOfLargeFish(params)` gives a different value, or no longer differs from the `MizerSim` value | weights were recycled down the columns for all but the first species | `getProportionOfLargeFish()` on a `MizerParams` object was wrong (3.3) |
+| `getN()` over a size range moved slightly, only with `second_order_w` | the size-range window is now bin-averaged too | `getN()` respects the quadrature scheme at the ends of the size range (3.3) |
 | Setting a weight on a length-based model no longer gets undone | length/weight precedence: the one given last wins | Length and weight follow the one you gave last (3.3) |
 | `given_species_params<-()` now changes a weight when you change its length | both setters apply the same precedence rule | Length and weight follow the one you gave last (3.3) |
 | Repeated "`l_mat` is not consistent with `w_mat`" warning has stopped | the given species parameters are brought into line | Length and weight follow the one you gave last (3.3) |
@@ -296,6 +298,25 @@ with `getEncounter()`:
 Models on the default (first-order) scheme are unchanged. If you have published
 absolute diet values or trophic levels computed under `second_order_w`, they need
 recomputing.
+
+### `getProportionOfLargeFish()` on a `MizerParams` object was wrong
+
+The `MizerParams` method multiplied the species x size abundance array by the
+vector of weights, which R recycles down the columns of the array rather than
+along the size axis, so every species but the first was weighted by the wrong
+sizes. Only the `MizerParams` method was affected; the `MizerSim` method was
+always right, and the two now agree when applied to the same state (#494). Any
+Large Fish Index computed from a `MizerParams` object in a model with more than
+one species needs recomputing.
+
+### `getN()` respects the quadrature scheme at the ends of the size range
+
+`getN(params, min_w = ...)` now bin-averages the size-range window when
+second-order bin-averaging is switched on with `second_order_w()`, so the bin
+straddling `min_w` or `max_w` contributes only partially — as `getBiomass()`
+already did. Numbers over a restricted size range therefore change slightly
+under `second_order_w`; over the full size range, and on the default
+first-order scheme, nothing changes (#494).
 
 ### `w_min` survives a rebuild of the species parameters
 

@@ -22,6 +22,7 @@ Function \tab Returns \tab Description \cr
 \code{\link[=getFMortGear]{getFMortGear()}} \tab Four dimensional array (time x gear x species x size) \tab Fishing mortality on each species by each gear at size through time. \cr
 \code{\link[=getYieldGear]{getYieldGear()}} \tab Three dimensional array (time x gear x species) \tab Total yield by gear and species through time. \cr
 \code{\link[=getYield]{getYield()}} \tab Two dimensional array (time x species) \tab Total yield of each species across all gears through time. \cr
+\code{\link[=sizeIntegral]{sizeIntegral()}} \tab Named vector (species) or two dimensional array (time x species) \tab Any integral over the size spectrum, from which all of the above are built. Use it to write your own summary function. \cr
 }
 }
 \seealso{

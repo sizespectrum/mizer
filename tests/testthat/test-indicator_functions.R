@@ -74,13 +74,25 @@ test_that("getProportionOfLargeFish works for MizerParams", {
         species, , drop = FALSE
     ]
     n <- params@initial_n[species, , drop = FALSE]
-    total_biomass <- sum(n * expected_total * params@w * params@dw)
-    upto_threshold_biomass <- sum(n * expected_large * params@w * params@dw)
+    total_biomass <- sum(sweep(n * expected_total, 2,
+                               params@w * params@dw, "*"))
+    upto_threshold_biomass <- sum(sweep(n * expected_large, 2,
+                                        params@w * params@dw, "*"))
 
     expect_equal(
         getProportionOfLargeFish(params, species = species, min_w = 10,
                                  max_w = 5000, threshold_w = 500),
         1 - upto_threshold_biomass / total_biomass
+    )
+    # The MizerParams method must agree with the MizerSim method applied to
+    # the same state (#494).
+    sim <- project(params, t_max = 0.1, t_save = 0.1, progress_bar = FALSE)
+    expect_equal(
+        getProportionOfLargeFish(params, species = species, min_w = 10,
+                                 max_w = 5000, threshold_w = 500),
+        getProportionOfLargeFish(sim, species = species, min_w = 10,
+                                 max_w = 5000, threshold_w = 500)[[1]],
+        ignore_attr = TRUE
     )
 })
 

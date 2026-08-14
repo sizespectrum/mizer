@@ -24,25 +24,39 @@ there are the authoritative inventory and are meant to be kept current.
 
 ### Case 1 — a plain integral against the abundance, ∫ K(w) N(w) dw
 
-Discretise as `sum_j Kbar_j * N_j * dw_j`. Only `K` is approximated:
+**Call `sizeIntegral()`.** It is the one place this integral is written:
 
 ```r
-K <- bin_average_weight(K, params)   # gated on the flag
-drop(n %*% (K * params@dw))
+sizeIntegral(params, weight = K, min_w = 10, max_w = 5000)
 ```
 
-- **Gate it, don't hard-code it.** `bin_average_weight()` returns `K`
-  untouched on the default path, so the old numbers stay byte-identical. Use it
-  rather than the ungated `trapezoidal_bin_average()`.
+It applies the size-range mask, gates the bin-averaging on the flag, multiplies
+by `dw`, contracts over the size axis and wraps the result. `getBiomass()`,
+`getN()`, `getSSB()`, `getYield()`, `getYieldGear()` and
+`getProportionOfLargeFish()` are all implemented with it; add the next one the
+same way rather than writing the sum again. Do not pass `params@dw` in the
+weight and do not call `bin_average_weight()` before handing the weight over —
+both are done inside.
+
+- **Average the product, not the factors.** Pass the whole product as `weight`:
+  SSB uses `psi * w`; yield uses `F * w`. Averaging separately is a different
+  (wrong) number. The size-range mask counts as one of the factors — it is
+  multiplied in *before* the averaging, which is what makes the bin straddling
+  the boundary contribute partially.
 - **Never bin-average `N` or `dw`.** `N_j` is already a cell average and `dw_j`
   is exact.
-- **Average the product, not the factors.** SSB averages `psi * w`; yield
-  averages `F * w`. Averaging separately is a different (wrong) number.
-- **If `K` is an exact power law `w^a`,** use `power_law_bin_average(w, dw, a)`
-  instead of the trapezoid — it is exact, not merely second order.
-- If the result is size-resolved, tag it: `ArraySpeciesBySize(..., representation
-  = "average")` for a bin average, `"point"` for a boundary quantity. The tag
+- **If `K` is an exact power law `w^a`,** and you are writing a rate setter
+  rather than a summary, use `power_law_bin_average(w, dw, a)` instead of the
+  trapezoid — it is exact, not merely second order.
+- If the result is size-resolved it is not this case, so `sizeIntegral()` does
+  not apply; tag it yourself: `ArraySpeciesBySize(..., representation =
+  "average")` for a bin average, `"point"` for a boundary quantity. The tag
   drives the half-bin plotting shift.
+
+The contraction inside `sizeIntegral()` is a matrix multiplication, chosen so
+that it reproduces mizer's historical `n %*% (K * dw)` to the last bit. Changing
+it to `rowSums()` (long-double accumulation) moves results by ~1e-16 and breaks
+that guarantee.
 
 ### Case 2 — a quantity built from rates mizer already computes
 
@@ -123,25 +137,37 @@ needs a test with the flag on.
 
 New tests go in `tests/testthat/test-second_order_summary.R`, using the
 `NS_params_small` fixture and toggling with
-`second_order_w(p) <- c(bin_average = TRUE)`.
+`second_order_w(p) <- c(bin_average = TRUE)`. Tests of `sizeIntegral()` and its
+helpers themselves belong in `test-sizeIntegral.R`, per the ordinary rule that a
+test lives in the file named after the R file that defines the function.
 
 ## Helpers
 
 | Helper | Exported? | Use |
 |---|---|---|
-| `bin_average_weight(K, params)` | yes | trapezoidal bin average, gated on the flag — the default entry point |
+| `sizeIntegral(object, weight, ...)` | yes | the whole integral ∫ N K dw — the default entry point |
+| `bin_average_weight(K, params)` | yes | trapezoidal bin average, gated on the flag, for a weight you are not integrating |
 | `trapezoidal_bin_average(K)` | no | ungated trapezoid; averages along the last dimension of an array |
 | `power_law_bin_average(w, dw, a, w_max)` | no | exact bin average of `w^a`, with optional cutoff |
 | `encounter_kernel(params)` | yes | the kernel `mizerEncounter()` actually uses, under either scheme |
 | `bin_midpoints(params)` | no | geometric bin centres, for plotting bin averages |
 
-`bin_average_weight()` and `encounter_kernel()` are exported (badged
-experimental, to match `second_order_w()`) so that extension authors and users
-writing their own indicators can reach them; the user-facing guidance lives in
-the `analyse-and-plot` and `extend-mizer` skills under `inst/skills/`. Keep those
-two in step with any change here. The other three are internal — prefer
+`sizeIntegral()`, `bin_average_weight()` and `encounter_kernel()` are exported
+(badged experimental, to match `second_order_w()`) so that extension authors and
+users writing their own indicators can reach them; the user-facing guidance lives
+in the `analyse-and-plot` and `extend-mizer` skills under `inst/skills/`. Keep
+those two in step with any change here. The other three are internal — prefer
 `ArraySpeciesBySize(..., representation = "average")` over telling a user to call
 `bin_midpoints()` by hand.
+
+`sizeIntegral()`'s own helpers (`size_dim_labels()`, `merge_dim_labels()`,
+`broadcast_dims()`, `dim_extents()`, `collect_dimnames()`, all in
+`R/sizeIntegral.R`) identify each dimension of the abundance and the weight by a
+label — `"time"`, `"gear"`, `"sp"`, `"w"` — taken from `names(dimnames())`, and
+merge the two label sets. That is what lets a `time x gear x sp x w` weight line
+its time dimension up with the abundance's instead of multiplying it out. A new
+array shape that needs supporting is a change to `size_dim_labels()`, not a new
+branch in `sizeIntegral()`.
 
 Setting `second_order_w(params) <- c(bin_average = TRUE)` re-runs `setParams()`,
 because every array in the inventory table is precomputed.
