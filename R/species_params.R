@@ -334,6 +334,16 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
         object@species_params <- value
         return(object)
     }
+
+    # Warn about the changes that will have no impact, either because another
+    # given parameter takes precedence or because the rate array they feed has
+    # been set by hand. This is signalled here rather than inside `setParams()`
+    # because only here do we know what the user asked to change.
+    with_info_level({
+        signal_ignored_changes(old_given, changed)
+        signal_frozen_changes(object, names(changed))
+    })
+
     rebuild_from_given(object, value)
 }
 
@@ -360,13 +370,6 @@ rebuild_from_given <- function(object, keep) {
         new_sp[[col]] <- keep[[col]]
     }
     object@species_params <- new_sp
-    # Warn about the changes that will have no impact. This is signalled here
-    # rather than inside `setParams()` because only here do we know what the
-    # user asked to change.
-    with_info_level({
-        signal_ignored_changes(old_given, changed)
-        signal_frozen_changes(object, names(changed))
-    })
     return(suppressMessages(setParams(object)))
 }
 
