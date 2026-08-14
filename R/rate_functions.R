@@ -887,7 +887,7 @@ getMort.MizerParams <- function(object,
                     n = initialN(object),
                     n_pp = initialNResource(object),
                     n_other = initialNOther(object),
-                    effort = getInitialEffort(object),
+                    effort = initial_effort(object),
                     t = 0, ...) {
     params <- validParams(object)
     rates_fns <- projectRateFunctions(params)

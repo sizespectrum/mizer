@@ -323,6 +323,37 @@ rate array that `setParams()` sets; and [`setExtDiffusion()`](../reference/setEx
 among the setters that `setParams()` calls, which it always did.
 
 
+### One name for each stored rate array
+
+Eleven accessors that read a rate array back out of a `MizerParams` object had
+two interchangeable names. The bare name is now the one to use — it is the one
+that also has a replacement function, so the pair reads the same way in both
+directions ([`catchability(params)`](../reference/setFishing.html) and `catchability(params) <- value`). The
+`get`-prefixed names are soft-deprecated and warn:
+
+| Deprecated | Use instead |
+|---|---|
+| [`getCatchability()`](../reference/deprecated_accessors.html) | `catchability()` |
+| [`getSelectivity()`](../reference/deprecated_accessors.html) | [`selectivity()`](../reference/setFishing.html) |
+| [`getInitialEffort()`](../reference/deprecated_accessors.html) | [`initial_effort()`](../reference/initial_effort.html) |
+| [`getPredKernel()`](../reference/deprecated_accessors.html) | [`pred_kernel()`](../reference/setPredKernel.html) |
+| [`getSearchVolume()`](../reference/deprecated_accessors.html) | `search_vol()` |
+| [`getMaxIntakeRate()`](../reference/deprecated_accessors.html) | [`intake_max()`](../reference/setMaxIntakeRate.html) |
+| [`getMetabolicRate()`](../reference/deprecated_accessors.html) | `metab()` |
+| [`getExtMort()`](../reference/deprecated_accessors.html) | [`ext_mort()`](../reference/setExtMort.html) |
+| [`getExtEncounter()`](../reference/deprecated_accessors.html) | [`ext_encounter()`](../reference/setExtEncounter.html) |
+| [`getMaturityProportion()`](../reference/deprecated_accessors.html) | [`maturity()`](../reference/setReproduction.html) |
+| [`getReproductionProportion()`](../reference/deprecated_accessors.html) | [`repro_prop()`](../reference/setReproduction.html) |
+
+Nothing breaks: the old names still return exactly the same value. Renaming is
+a search and replace.
+
+The `get` prefix now means one thing — a function that *calculates* something
+from the current state of a model, like `getEncounter()`, [`getFMort()`](../reference/getFMort.html) or
+`getBiomass()`. The functions above only hand back a value that is already
+stored in the object.
+
+
 ---
 
 ## Upgrading from mizer 3.1 to 3.2
@@ -477,7 +508,7 @@ directly on a bare data frame will see the extra columns and stricter checks
 `print()` on the array objects returned by the rate getters ([`ArraySpeciesBySize`](../reference/ArraySpeciesBySize.html),
 [`ArrayTimeBySpecies`](../reference/ArrayTimeBySpecies.html), [`ArrayResourceBySize`](../reference/ArrayResourceBySize.html), [`ArrayTimeByResourceBySize`](../reference/ArrayTimeByResourceBySize.html) and
 [`ArrayTimeBySpeciesBySize`](../reference/ArrayTimeBySpeciesBySize.html), as returned by `getEncounter()`, `getBiomass()`,
-[`getFMort()`](../reference/getFMort.html), [`NResource()`](../reference/N.html) and similar) now truncates the output instead of
+`getFMort()`, [`NResource()`](../reference/N.html) and similar) now truncates the output instead of
 flooding the console with all the array entries. If your code or reports relied
 on the old printed format, use `as.data.frame()` to go back to the full output.
 
@@ -539,7 +570,7 @@ before. Set the arguments explicitly if you need to reproduce old numbers.
 Several fixes correct earlier behaviour and so change output:
 
 - **`summary()` of a `MizerSim`** now reports the fishing effort that was used
-  during the simulation, rather than the model's [`initial_effort`](../reference/initial_effort.html). Gears whose
+  during the simulation, rather than the model's `initial_effort`. Gears whose
   effort varied over time show the mean, flagged with a note giving the range.
   The printed summary therefore differs for simulations run with time-varying
   effort.

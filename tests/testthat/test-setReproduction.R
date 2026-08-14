@@ -83,7 +83,7 @@ test_that("Comment works on maturity", {
 test_that("Comment works on psi", {
     params <- NS_params_small
     # if no comment, it is set automatically
-    repro_prop <- getReproductionProportion(params)
+    repro_prop <- repro_prop(params)
     params <- setReproduction(params, repro_prop = repro_prop)
     expect_identical(comment(params@psi), "set manually")
 
@@ -112,31 +112,31 @@ test_that("Comment works on psi", {
                    "Because you set `reset = TRUE`, the")
 })
 
-# getMaturityProportion ----
-test_that("getMaturityProportion works", {
+# maturity ----
+test_that("maturity works", {
     params <- setReproduction(NS_params_small)
-    maturity <- getMaturityProportion(params)
+    maturity <- maturity(params)
     expect_identical(maturity(params), maturity)
     params2 <- setReproduction(params, maturity =  maturity)
     comment(params2@maturity) <- NULL
     expect_unchanged(params, params2)
 })
 
-# getReproductionProportion ----
-test_that("getReproductionProportion works", {
+# repro_prop ----
+test_that("repro_prop works", {
     params <- setReproduction(NS_params_small)
-    repro_prop <- getReproductionProportion(params)
+    repro_prop <- repro_prop(params)
     expect_identical(repro_prop(params), repro_prop)
     params2 <- setReproduction(params, repro_prop = repro_prop)
     comment(params2@psi) <- NULL
     expect_unchanged(params, params2)
 })
 
-test_that("getReproductionProportion returns a proportion",{
+test_that("repro_prop returns a proportion",{
     params <- NS_params_small
     # Make extremely wide maturity ogive
     species_params(params)$w_mat25 <- 1
-    repro_prop <- getReproductionProportion(params)
+    repro_prop <- repro_prop(params)
     expect_true(all(repro_prop >= 0))
     expect_true(all(repro_prop <= 1))
 })
@@ -147,7 +147,7 @@ test_that("Can get and set repro_prop", {
     comment(new) <- "test"
     repro_prop(params) <- new
     expect_equal(repro_prop(params)[2, 10], new[2, 10])
-    expect_equal(getReproductionProportion(params)[2, 10], new[2, 10])
+    expect_equal(repro_prop(params)[2, 10], new[2, 10])
 })
 
 test_that("Can get and set maturity", {
@@ -156,6 +156,6 @@ test_that("Can get and set maturity", {
     comment(new) <- "test"
     maturity(params) <- new
     expect_equal(maturity(params), new, ignore_attr = TRUE)
-    expect_equal(getMaturityProportion(params), new, ignore_attr = TRUE)
+    expect_equal(maturity(params), new, ignore_attr = TRUE)
     expect_identical(comment(params@maturity), "test")
 })

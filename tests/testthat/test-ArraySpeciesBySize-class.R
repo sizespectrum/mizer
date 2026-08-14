@@ -36,13 +36,13 @@ test_that("Rate functions return ArraySpeciesBySize", {
     expect_true(is.ArraySpeciesBySize(pred_mort_small))
     expect_true(is.ArraySpeciesBySize(getMort(params)))
     expect_true(is.ArraySpeciesBySize(getFlux(params)))
-    expect_true(is.ArraySpeciesBySize(getMaxIntakeRate(params)))
-    expect_true(is.ArraySpeciesBySize(getMetabolicRate(params)))
-    expect_true(is.ArraySpeciesBySize(getSearchVolume(params)))
-    expect_true(is.ArraySpeciesBySize(getExtMort(params)))
-    expect_true(is.ArraySpeciesBySize(getExtEncounter(params)))
-    expect_true(is.ArraySpeciesBySize(getMaturityProportion(params)))
-    expect_true(is.ArraySpeciesBySize(getReproductionProportion(params)))
+    expect_true(is.ArraySpeciesBySize(intake_max(params)))
+    expect_true(is.ArraySpeciesBySize(metab(params)))
+    expect_true(is.ArraySpeciesBySize(search_vol(params)))
+    expect_true(is.ArraySpeciesBySize(ext_mort(params)))
+    expect_true(is.ArraySpeciesBySize(ext_encounter(params)))
+    expect_true(is.ArraySpeciesBySize(maturity(params)))
+    expect_true(is.ArraySpeciesBySize(repro_prop(params)))
     expect_true(is.ArraySpeciesBySize(ext_diffusion(params)))
 })
 
@@ -297,7 +297,7 @@ test_that("producers tag the representation honestly", {
                      "average")
     expect_identical(attr(getFMort(NS_params_small), "representation"),
                      "average")
-    expect_identical(attr(getExtMort(NS_params_small), "representation"),
+    expect_identical(attr(ext_mort(NS_params_small), "representation"),
                      "average")
     expect_identical(attr(getEncounter(NS_params_small), "representation"),
                      "point")

@@ -37,11 +37,11 @@ predation kernel slots in a MizerParams object.
 }
 \examples{
 params <- NS_params
-plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
+plot(w_full(params), pred_kernel(params)["Cod", 10, ], type="l", log="x")
 # The restriction that the kernel is zero for w/w_p < 1 is more
 # noticeable for larger sigma
 species_params(params)$sigma <- 4
-plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
+plot(w_full(params), pred_kernel(params)["Cod", 10, ], type="l", log="x")
 }
 \seealso{
 \code{\link[=setPredKernel]{setPredKernel()}}

@@ -115,7 +115,7 @@ switched the second-order scheme on. Three rules:
   carry the right quadrature for whichever scheme the model is on. Re-deriving a
   rate from the species parameters is how this goes wrong.
 - **To go inside the encounter convolution, use `encounter_kernel()`, not
-  `getPredKernel()`.** `getPredKernel()` returns the kernel point-sampled on the
+  `pred_kernel()`.** `pred_kernel()` returns the kernel point-sampled on the
   grid — right for plotting, and the form in which you *supply* a custom kernel,
   but not the bin-integrated coefficients the convolution consumes. Pair
   `encounter_kernel()` with the plain point prey weight

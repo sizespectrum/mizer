@@ -139,12 +139,12 @@
 #' @examples
 #' \donttest{
 #' # Plot maturity and reproduction ogives for Cod in North Sea model
-#' maturity <- getMaturityProportion(NS_params)["Cod", ]
-#' repro_prop <- getReproductionProportion(NS_params)["Cod", ]
+#' mat <- maturity(NS_params)["Cod", ]
+#' rp <- repro_prop(NS_params)["Cod", ]
 #' df <- data.frame(Size = w(NS_params),
-#'                  Reproduction = repro_prop,
-#'                  Maturity = maturity,
-#'                  Total = maturity * repro_prop)
+#'                  Reproduction = rp,
+#'                  Maturity = mat,
+#'                  Total = mat * rp)
 #' dff <- reshape2::melt(df, id.vars = "Size",
 #'             variable.name = "Type",
 #'             value.name = "Proportion")
@@ -376,28 +376,18 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
 }
 
 #' @rdname setReproduction
-#' @return `getMaturityProportion()` or equivalently `maturity()`:
-#'   An `ArraySpeciesBySize` object (species x size) that holds the proportion
+#' @return `maturity()`: An `ArraySpeciesBySize` object (species x size) that
+#'   holds the proportion
 #'   of individuals of each species at size that are mature.
-#' @export
-getMaturityProportion <- function(params) {
-    UseMethod("getMaturityProportion")
-}
-#' @export
-getMaturityProportion.MizerParams <- function(params) {
-    ArraySpeciesBySize(params@maturity,
-                       value_name = "Maturity proportion",
-                       params = params)
-}
-
-#' @rdname setReproduction
 #' @export
 maturity <- function(params) {
     UseMethod("maturity")
 }
 #' @export
 maturity.MizerParams <- function(params) {
-    getMaturityProportion(params)
+    ArraySpeciesBySize(params@maturity,
+                       value_name = "Maturity proportion",
+                       params = params)
 }
 
 #' @rdname setReproduction
@@ -411,29 +401,23 @@ maturity.MizerParams <- function(params) {
 }
 
 #' @rdname setReproduction
-#' @return `getReproductionProportion()` or equivalently `repro_prop()`:
-#'   An `ArraySpeciesBySize` object (species x size) that holds the proportion
+#' @return `repro_prop()`: An `ArraySpeciesBySize` object (species x size) that
+#'   holds the proportion
 #'   of the energy available for growth and reproduction that a mature
 #'   individual allocates to reproduction for each species at size. For sizes
 #'   where the maturity proportion is zero, also the reproduction proportion is
 #'   returned as zero.
 #' @export
-getReproductionProportion <- function(params) {
-    UseMethod("getReproductionProportion")
+repro_prop <- function(params) {
+    UseMethod("repro_prop")
 }
 #' @export
-getReproductionProportion.MizerParams <- function(params) {
+repro_prop.MizerParams <- function(params) {
     rp <- params@psi / params@maturity
     rp[is.nan(rp)] <- 0
     rp[rp > 1] <- 1
     ArraySpeciesBySize(rp, value_name = "Reproductive proportion",
                        params = params)
-}
-
-#' @rdname setReproduction
-#' @export
-repro_prop <- function(params) {
-    getReproductionProportion(params)
 }
 
 #' @rdname setReproduction

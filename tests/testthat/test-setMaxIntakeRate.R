@@ -40,16 +40,16 @@ test_that("Comment works on intake_max", {
                    "Because you set `reset = TRUE`, the")
 })
 
-# getMaxIntakeRate ----
-test_that("getMaxIntakeRate works", {
-    expect_true(is.ArraySpeciesBySize(getMaxIntakeRate(NS_params_small)))
-    expect_equal(getMaxIntakeRate(NS_params_small), NS_params_small@intake_max,
+# intake_max ----
+test_that("intake_max works", {
+    expect_true(is.ArraySpeciesBySize(intake_max(NS_params_small)))
+    expect_equal(intake_max(NS_params_small), NS_params_small@intake_max,
                  ignore_attr = TRUE)
 })
 
 test_that("Can get and set slot", {
     params <- NS_params_small
-    intake_max <- getMaxIntakeRate(params)
+    intake_max <- intake_max(params)
     expect_identical(intake_max(params), intake_max)
     new <- 2 * intake_max
     comment(new) <- "test"

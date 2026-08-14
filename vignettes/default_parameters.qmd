@@ -138,7 +138,7 @@ have your own array of values. Every setter function accepts the rate array
 directly, e.g.
 
 ```{r message=FALSE, warning=FALSE}
-sv <- getSearchVolume(params)
+sv <- search_vol(params)
 sv[] <- 2 * sv                      # your own custom values
 params <- setSearchVolume(params, search_vol = sv)
 ```

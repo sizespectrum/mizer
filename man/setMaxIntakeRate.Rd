@@ -2,14 +2,11 @@
 % Please edit documentation in R/setMaxIntakeRate.R
 \name{setMaxIntakeRate}
 \alias{setMaxIntakeRate}
-\alias{getMaxIntakeRate}
 \alias{intake_max}
 \alias{intake_max<-}
 \title{Set maximum intake rate}
 \usage{
 setMaxIntakeRate(params, intake_max = NULL, reset = FALSE, ...)
-
-getMaxIntakeRate(params)
 
 intake_max(params)
 
@@ -36,8 +33,8 @@ custom value has been set.}
 \code{setMaxIntakeRate()}: A MizerParams object with updated maximum
 intake rate.
 
-\code{getMaxIntakeRate()} or equivalently \code{intake_max()}: A
-\code{ArraySpeciesBySize} object (species x size) with the maximum intake rate.
+\code{intake_max()}: An \code{ArraySpeciesBySize} object (species x size) with
+the maximum intake rate.
 }
 \description{
 You will usually not need to call this function directly. Instead change
@@ -73,13 +70,13 @@ issued if the recalculated values would differ from the stored ones.
 
 \examples{
 # Inspect the current maximum intake rate
-getMaxIntakeRate(NS_params)["Cod", 1:5]
+intake_max(NS_params)["Cod", 1:5]
 
 # Increase intake rate for Cod by 50\%
-intake_max <- getMaxIntakeRate(NS_params)
-intake_max["Cod", ] <- intake_max["Cod", ] * 1.5
-params <- setMaxIntakeRate(NS_params, intake_max = intake_max)
-getMaxIntakeRate(params)["Cod", 1:5]
+im <- intake_max(NS_params)
+im["Cod", ] <- im["Cod", ] * 1.5
+params <- setMaxIntakeRate(NS_params, intake_max = im)
+intake_max(params)["Cod", 1:5]
 }
 \seealso{
 Other functions for setting parameters:

@@ -54,12 +54,12 @@
 #' @family functions for setting parameters
 #' @examples
 #' # Inspect the current search volume
-#' getSearchVolume(NS_params)["Cod", 1:5]
+#' search_vol(NS_params)["Cod", 1:5]
 #'
 #' # Double the search volume for all species
-#' sv <- getSearchVolume(NS_params) * 2
+#' sv <- search_vol(NS_params) * 2
 #' params <- setSearchVolume(NS_params, search_vol = sv)
-#' getSearchVolume(params)["Cod", 1:5]
+#' search_vol(params)["Cod", 1:5]
 setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
     UseMethod("setSearchVolume")
 }
@@ -163,24 +163,17 @@ compute_search_vol <- function(params) {
 }
 
 #' @rdname setSearchVolume
-#' @return `getSearchVolume()` or equivalently `search_vol()`: A
-#'   `ArraySpeciesBySize` object (species x size) holding the search volume.
+#' @return `search_vol()`: An `ArraySpeciesBySize` object (species x size)
+#'   holding the search volume.
 #' @export
-getSearchVolume <- function(params) {
-    UseMethod("getSearchVolume")
+search_vol <- function(params) {
+    UseMethod("search_vol")
 }
 #' @export
-getSearchVolume.MizerParams <- function(params) {
+search_vol.MizerParams <- function(params) {
     ArraySpeciesBySize(params@search_vol,
                        value_name = "Search volume",
                        params = params)
-}
-
-
-#' @rdname setSearchVolume
-#' @export
-search_vol <- function(params) {
-    getSearchVolume(params)
 }
 
 #' @rdname setSearchVolume

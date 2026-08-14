@@ -140,7 +140,7 @@ test_that("second-order biomass converges to default as the grid is refined", {
 # the result by (1 + beta) / 2. These tests pin the identities that catch it.
 
 custom_kernel_params <- function(params) {
-    pk <- getPredKernel(params)
+    pk <- pred_kernel(params)
     comment(pk) <- "set manually"
     setPredKernel(params, pred_kernel = pk)
 }

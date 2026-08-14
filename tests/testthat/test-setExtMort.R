@@ -174,15 +174,15 @@ test_that("power_law_bin_average matches numerical integration", {
     }
 })
 
-# getExtMort ----
-test_that("getExtMort works", {
-    expect_true(is.ArraySpeciesBySize(getExtMort(NS_params_small)))
-    expect_equal(getExtMort(NS_params_small), NS_params_small@mu_b, ignore_attr = TRUE)
+# ext_mort ----
+test_that("ext_mort works", {
+    expect_true(is.ArraySpeciesBySize(ext_mort(NS_params_small)))
+    expect_equal(ext_mort(NS_params_small), NS_params_small@mu_b, ignore_attr = TRUE)
 })
 
 test_that("Can get and set slot", {
     params <- NS_params_small
-    ext_mort <- getExtMort(params)
+    ext_mort <- ext_mort(params)
     expect_identical(ext_mort(params), ext_mort)
     new <- 2 * ext_mort
     comment(new) <- "test"

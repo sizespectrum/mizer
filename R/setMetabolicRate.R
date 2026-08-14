@@ -54,11 +54,11 @@
 #' @family functions for setting parameters
 #' @examples
 #' # Inspect the current metabolic rate
-#' getMetabolicRate(NS_params)["Cod", 1:5]
+#' metab(NS_params)["Cod", 1:5]
 #'
 #' # Reset metabolic rate from species parameters
 #' params <- setMetabolicRate(NS_params, reset = TRUE)
-#' getMetabolicRate(params)["Cod", 1:5]
+#' metab(params)["Cod", 1:5]
 setMetabolicRate <- function(object, metab = NULL, p = deprecated(),
                              reset = FALSE, ...) {
     UseMethod("setMetabolicRate")
@@ -140,24 +140,18 @@ setMetabolicRate.MizerParams <- function(object, metab = NULL, p = deprecated(),
 }
 
 #' @rdname setMetabolicRate
-#' @return `getMetabolicRate()` or equivalently `metab()`: A
-#'   `ArraySpeciesBySize` object (species x size) with the metabolic rate.
+#' @return `metab()`: An `ArraySpeciesBySize` object (species x size) with the
+#'   metabolic rate.
 #' @export
-getMetabolicRate <- function(params) {
-    UseMethod("getMetabolicRate")
+metab <- function(params) {
+    UseMethod("metab")
 }
 #' @export
-getMetabolicRate.MizerParams <- function(params) {
+metab.MizerParams <- function(params) {
     ArraySpeciesBySize(params@metab,
                        value_name = "Metabolic rate",
                        units = "g/year",
                        params = params)
-}
-
-#' @rdname setMetabolicRate
-#' @export
-metab <- function(params) {
-    getMetabolicRate(params)
 }
 
 #' @rdname setMetabolicRate

@@ -47,13 +47,13 @@
 #' @family functions for setting parameters
 #' @examples
 #' # Inspect the current maximum intake rate
-#' getMaxIntakeRate(NS_params)["Cod", 1:5]
+#' intake_max(NS_params)["Cod", 1:5]
 #'
 #' # Increase intake rate for Cod by 50%
-#' intake_max <- getMaxIntakeRate(NS_params)
-#' intake_max["Cod", ] <- intake_max["Cod", ] * 1.5
-#' params <- setMaxIntakeRate(NS_params, intake_max = intake_max)
-#' getMaxIntakeRate(params)["Cod", 1:5]
+#' im <- intake_max(NS_params)
+#' im["Cod", ] <- im["Cod", ] * 1.5
+#' params <- setMaxIntakeRate(NS_params, intake_max = im)
+#' intake_max(params)["Cod", 1:5]
 setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ...) {
     UseMethod("setMaxIntakeRate")
 }
@@ -120,25 +120,18 @@ setMaxIntakeRate.MizerParams <- function(params, intake_max = NULL, reset = FALS
 }
 
 #' @rdname setMaxIntakeRate
-#' @return `getMaxIntakeRate()` or equivalently `intake_max()`: A
-#'   `ArraySpeciesBySize` object (species x size) with the maximum intake rate.
+#' @return `intake_max()`: An `ArraySpeciesBySize` object (species x size) with
+#'   the maximum intake rate.
 #' @export
-getMaxIntakeRate <- function(params) {
-    UseMethod("getMaxIntakeRate")
+intake_max <- function(params) {
+    UseMethod("intake_max")
 }
 #' @export
-getMaxIntakeRate.MizerParams <- function(params) {
+intake_max.MizerParams <- function(params) {
     ArraySpeciesBySize(params@intake_max,
                        value_name = "Maximum intake rate",
                        units = "g/year",
                        params = params)
-}
-
-
-#' @rdname setMaxIntakeRate
-#' @export
-intake_max <- function(params) {
-    getMaxIntakeRate(params)
 }
 
 #' @rdname setMaxIntakeRate

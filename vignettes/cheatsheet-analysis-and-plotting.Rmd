@@ -177,7 +177,7 @@ exact, so averaging either counts the same integral twice.
 
 If your indicator decomposes the encounter rate — a diet or trophic-level style
 quantity — see the note on [`encounter_kernel()`](../reference/encounter_kernel.html) in the [extending-mizer cheatsheet](cheatsheet-extending-mizer.html)
-before pairing [`getPredKernel()`](../reference/setPredKernel.html) with [`getEncounter()`](../reference/getEncounter.html).
+before pairing [`pred_kernel()`](../reference/setPredKernel.html) with [`getEncounter()`](../reference/getEncounter.html).
 
 ---
 
@@ -454,7 +454,7 @@ sizeIntegral(sim, weight = sweep(params@maturity, 2, params@w, "*"),  # = getSSB
 # no dw, no bin-averaging by hand, no size-grid subsetting: sizeIntegral does it
 ArraySpeciesBySize(x, params = params, representation = "average")  # size-resolved
 bin_average_weight(K, params)   # the primitive, if you are not doing an integral
-encounter_kernel(params)        # kernel getEncounter() uses; NOT getPredKernel()
+encounter_kernel(params)        # kernel getEncounter() uses; NOT pred_kernel()
 
 # ── Dedicated plot functions ──────────────────────────────────────────────────
 # Each plot*() is a shortcut for plot() on the matching get*() array, and each has

@@ -105,25 +105,25 @@ test_that("Set Fishing works", {
 })
 
 test_that("Setting selectivity works", {
-    selectivity <- getSelectivity(params)
+    selectivity <- selectivity(params)
     expect_identical(selectivity, params@selectivity)
     expect_identical(selectivity(params), selectivity)
     selectivity[1, 1, 1] <- 111
     comment(selectivity) <- "selectivity"
     params <- setFishing(params, selectivity = selectivity)
     expect_identical(params@selectivity[1, 1, 1], 111)
-    expect_identical(comment(getSelectivity(params)), "selectivity")
+    expect_identical(comment(selectivity(params)), "selectivity")
 })
 
 test_that("Setting catchability works", {
-    catchability <- getCatchability(params)
+    catchability <- catchability(params)
     expect_identical(catchability, params@catchability)
     expect_identical(catchability(params), catchability)
     catchability[2, 2] <- 22
     comment(catchability) <- "catchability"
     params <- setFishing(params, catchability = catchability)
     expect_identical(params@catchability[2, 2], 22)
-    expect_identical(comment(getCatchability(params)), "catchability")
+    expect_identical(comment(catchability(params)), "catchability")
 })
 
 test_that("Comment works on selectivity", {
@@ -187,11 +187,11 @@ test_that("Comment works on catchability", {
 })
 
 test_that("We can change gears via catchability and selectivity arrays", {
-    catchability <- getCatchability(params)
+    catchability <- catchability(params)
     sel <- c(1, 2)
     expect_error(setFishing(params, catchability = catchability[sel, ]),
                  "you also need to supply a selectivity array")
-    selectivity <- getSelectivity(params)
+    selectivity <- selectivity(params)
     p2 <- setFishing(params, catchability = catchability[sel, ],
                      selectivity = selectivity[sel, , ])
     comment(p2@selectivity) <- NULL
@@ -205,11 +205,11 @@ test_that("We can change gears via catchability and selectivity arrays", {
 })
 
 test_that("Arguments of wrong dimension throw errors", {
-    catchability <- getCatchability(params)
+    catchability <- catchability(params)
     expect_error(setFishing(params, catchability = catchability[, 1:2]),
                  "not equal to no_sp")
 
-    selectivity <- getSelectivity(params)
+    selectivity <- selectivity(params)
     expect_error(setFishing(params, selectivity = selectivity[1:2, ]),
                  "incorrect number of dimensions")
     expect_error(setFishing(params, selectivity = selectivity[1:2, , ]),
@@ -217,7 +217,7 @@ test_that("Arguments of wrong dimension throw errors", {
 })
 
 test_that("Wrong dimnames throw errors or get fixed", {
-    catchability <- getCatchability(params)
+    catchability <- catchability(params)
     cw <- catchability
     dimnames(cw)[[1]][1] <- "wrong"
     expect_error(setFishing(params, catchability = cw),
@@ -227,7 +227,7 @@ test_that("Wrong dimnames throw errors or get fixed", {
     expect_error(setFishing(params, catchability = cw),
                  "The species dimnames in the catchability array do not match the species names.")
 
-    selectivity <- getSelectivity(params)
+    selectivity <- selectivity(params)
     sw <- selectivity
     dimnames(sw)[[1]][1] <- "wrong"
     expect_error(setFishing(params, selectivity = sw),
@@ -277,7 +277,7 @@ test_that("Can get and set selectivity slot", {
     comment(new) <- "test"
     selectivity(params) <- new
     expect_identical(selectivity(params), new)
-    expect_identical(getSelectivity(params), new)
+    expect_identical(selectivity(params), new)
 })
 test_that("Can get and set catchability slot", {
     params <- NS_params_small
@@ -285,15 +285,15 @@ test_that("Can get and set catchability slot", {
     comment(new) <- "test"
     catchability(params) <- new
     expect_identical(catchability(params), new)
-    expect_identical(getCatchability(params), new)
+    expect_identical(catchability(params), new)
 })
 test_that("Can get and set initial_effort slot", {
     params <- NS_params_small
-    expect_identical(getInitialEffort(params), initial_effort(params))
+    expect_identical(initial_effort(params), initial_effort(params))
     new <- 2 * initial_effort(params)
     initial_effort(params) <- new
     expect_identical(initial_effort(params), new)
-    expect_identical(getInitialEffort(params), new)
+    expect_identical(initial_effort(params), new)
 })
 
 # Bin-averaged (second-order) selectivity ----

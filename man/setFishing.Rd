@@ -2,13 +2,10 @@
 % Please edit documentation in R/setFishing.R
 \name{setFishing}
 \alias{setFishing}
-\alias{getCatchability}
 \alias{catchability}
 \alias{catchability<-}
-\alias{getSelectivity}
 \alias{selectivity}
 \alias{selectivity<-}
-\alias{getInitialEffort}
 \title{Set fishing parameters}
 \usage{
 setFishing(
@@ -20,19 +17,13 @@ setFishing(
   ...
 )
 
-getCatchability(params)
-
 catchability(params)
 
 catchability(params) <- value
 
-getSelectivity(params)
-
 selectivity(params)
 
 selectivity(params) <- value
-
-getInitialEffort(params)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -61,16 +52,13 @@ a vector, must be named by gear.}
 \code{setFishing()}: A MizerParams object with updated fishing
 parameters.
 
-\code{getCatchability()} or equivalently \code{catchability()}: An array (gear
-x species) that holds the catchability of each species by each gear,
+\code{catchability()}: An array (gear x species) that holds the
+catchability of each species by each gear,
 \eqn{Q_{g,i}}. The names of the dimensions are "gear, "sp".
 
-\code{getSelectivity()} or equivalently \code{selectivity()}: An array (gear x
-species x size) that holds the selectivity of each gear for species and
+\code{selectivity()}: An array (gear x species x size) that holds the
+selectivity of each gear for species and
 size, \eqn{S_{g,i,w}}. The names of the dimensions are "gear, "sp", "w".
-
-\code{getInitialEffort()} or equivalently \code{initial_effort()}: A named
-vector with the initial fishing effort for each gear.
 }
 \description{
 Set fishing parameters
@@ -171,10 +159,9 @@ an effort that varies through time.
 \examples{
 # Halve the initial fishing effort for all gears
 params <- setFishing(NS_params, initial_effort = 0.5)
-getInitialEffort(params)
-str(getCatchability(NS_params))
-str(getSelectivity(NS_params))
-str(getInitialEffort(NS_params))
+initial_effort(params)
+str(catchability(NS_params))
+str(selectivity(NS_params))
 }
 \seealso{
 \code{\link[=gear_params]{gear_params()}}

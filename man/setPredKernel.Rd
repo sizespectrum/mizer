@@ -2,14 +2,11 @@
 % Please edit documentation in R/setPredKernel.R
 \name{setPredKernel}
 \alias{setPredKernel}
-\alias{getPredKernel}
 \alias{pred_kernel}
 \alias{pred_kernel<-}
 \title{Set predation kernel}
 \usage{
 setPredKernel(params, pred_kernel = NULL, reset = FALSE, ...)
-
-getPredKernel(params)
 
 pred_kernel(params)
 
@@ -36,8 +33,8 @@ value has been set.}
 \value{
 \code{setPredKernel()}: A MizerParams object with updated predation kernel.
 
-\code{getPredKernel()} or equivalently \code{pred_kernel()}: An array (predator
-species x predator_size x prey_size)
+\code{pred_kernel()}: An array (predator species x predator_size x
+prey_size)
 }
 \description{
 You will usually not need to call this function directly. Instead change
@@ -91,7 +88,7 @@ bins. Instead, mizer only needs to store two two-dimensional arrays that hold
 Fourier transforms of the feeding kernel function that allow the encounter
 rate and the predation rate to be calculated very efficiently. However, if
 you need the full three-dimensional array you can calculate it with the
-\code{\link[=getPredKernel]{getPredKernel()}} function.
+\code{\link[=pred_kernel]{pred_kernel()}} function.
 
 \strong{Kernel dependent on both predator and prey size}
 
@@ -142,14 +139,14 @@ species_params(params)["Cod", "beta"] <- 200
 species_params(params)$ppmr_max <- 4000
 species_params(params)$ppmr_min <- 200
 species_params(params)$pred_kernel_type <- "box"
-plot(w_full(params), getPredKernel(params)["Cod", 100, ], type="l", log="x")
+plot(w_full(params), pred_kernel(params)["Cod", 100, ], type="l", log="x")
 
 ## If you need a kernel that depends also on prey size you need to define
 # it yourself.
-pred_kernel <- getPredKernel(params)
-pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2,
-                                    params@w_full, "*")
-params<- setPredKernel(params, pred_kernel = pred_kernel)
+pk <- pred_kernel(params)
+pk["Herring", , ] <- sweep(pk["Herring", , ], 2,
+                           params@w_full, "*")
+params<- setPredKernel(params, pred_kernel = pk)
 }
 \seealso{
 Other functions for setting parameters:

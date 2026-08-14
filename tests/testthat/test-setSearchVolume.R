@@ -38,12 +38,12 @@ test_that("Comment works on search volume", {
                    "Because you set `reset = TRUE`, the")
 })
 
-# getSearchVolume ----
-test_that("getSearchVolume works", {
-    expect_true(is.ArraySpeciesBySize(getSearchVolume(NS_params_small)))
-    expect_equal(getSearchVolume(NS_params_small), NS_params_small@search_vol,
+# search_vol ----
+test_that("search_vol works", {
+    expect_true(is.ArraySpeciesBySize(search_vol(NS_params_small)))
+    expect_equal(search_vol(NS_params_small), NS_params_small@search_vol,
                  ignore_attr = TRUE)
-    expect_identical(getSearchVolume(NS_params_small),
+    expect_identical(search_vol(NS_params_small),
                      search_vol(NS_params_small))
 })
 

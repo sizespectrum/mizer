@@ -248,5 +248,27 @@ test_that("getPhiPrey deprecates softly and matches encounter over search volume
     phi <- getPhiPrey(params, n = initialN(params), n_pp = initialNResource(params)),
     "deprecated"
   )
-  expect_equal(phi, getEncounter(params) / getSearchVolume(params))
+  expect_equal(phi, getEncounter(params) / search_vol(params))
+})
+
+test_that("the get-prefixed accessors deprecate softly and still work", {
+  params <- NS_params_small
+  # Deprecated name -> surviving name
+  pairs <- c(getCatchability = "catchability",
+             getSelectivity = "selectivity",
+             getInitialEffort = "initial_effort",
+             getPredKernel = "pred_kernel",
+             getSearchVolume = "search_vol",
+             getMaxIntakeRate = "intake_max",
+             getMetabolicRate = "metab",
+             getExtMort = "ext_mort",
+             getExtEncounter = "ext_encounter",
+             getMaturityProportion = "maturity",
+             getReproductionProportion = "repro_prop")
+  for (old in names(pairs)) {
+    new <- pairs[[old]]
+    expect_warning(value <- get(old)(params), "deprecated",
+                   label = old)
+    expect_equal(value, get(new)(params), label = old)
+  }
 })

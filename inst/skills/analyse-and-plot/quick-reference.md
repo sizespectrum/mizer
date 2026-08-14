@@ -36,7 +36,7 @@ sizeIntegral(sim, weight = sweep(params@maturity, 2, params@w, "*"),  # = getSSB
 # no dw, no bin-averaging by hand, no size-grid subsetting: sizeIntegral does it
 ArraySpeciesBySize(x, params = params, representation = "average")  # size-resolved
 bin_average_weight(K, params)   # the primitive, if you are not doing an integral
-encounter_kernel(params)        # kernel getEncounter() uses; NOT getPredKernel()
+encounter_kernel(params)        # kernel getEncounter() uses; NOT pred_kernel()
 
 # ── Dedicated plot functions ──────────────────────────────────────────────────
 # Each plot*() is a shortcut for plot() on the matching get*() array, and each has

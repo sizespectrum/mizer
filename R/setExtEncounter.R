@@ -116,24 +116,18 @@ setExtEncounter.MizerParams <- function(params, ext_encounter = NULL,
 }
 
 #' @rdname setExtEncounter
-#' @return `getExtEncounter()` or equivalently `ext_encounter()`: A
-#'   `ArraySpeciesBySize` object (species x size) with the external encounter rate.
+#' @return `ext_encounter()`: An `ArraySpeciesBySize` object (species x size)
+#'   with the external encounter rate.
 #' @export
-getExtEncounter <- function(params) {
-    UseMethod("getExtEncounter")
+ext_encounter <- function(params) {
+    UseMethod("ext_encounter")
 }
 #' @export
-getExtEncounter.MizerParams <- function(params) {
+ext_encounter.MizerParams <- function(params) {
     ArraySpeciesBySize(params@ext_encounter,
                        value_name = "External encounter rate",
                        units = "g/year",
                        params = params)
-}
-
-#' @rdname setExtEncounter
-#' @export
-ext_encounter <- function(params) {
-    getExtEncounter(params)
 }
 
 #' @rdname setExtEncounter

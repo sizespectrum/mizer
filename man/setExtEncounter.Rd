@@ -2,14 +2,11 @@
 % Please edit documentation in R/setExtEncounter.R
 \name{setExtEncounter}
 \alias{setExtEncounter}
-\alias{getExtEncounter}
 \alias{ext_encounter}
 \alias{ext_encounter<-}
 \title{Set external encounter rate}
 \usage{
 setExtEncounter(params, ext_encounter = NULL, reset = FALSE, ...)
-
-getExtEncounter(params)
 
 ext_encounter(params)
 
@@ -37,8 +34,8 @@ custom value has been set.}
 \code{setExtEncounter()}: A MizerParams object with updated external encounter
 rate.
 
-\code{getExtEncounter()} or equivalently \code{ext_encounter()}: A
-\code{ArraySpeciesBySize} object (species x size) with the external encounter rate.
+\code{ext_encounter()}: An \code{ArraySpeciesBySize} object (species x size)
+with the external encounter rate.
 }
 \description{
 You will usually not need to call this function directly. Instead change

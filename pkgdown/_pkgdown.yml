@@ -256,7 +256,7 @@ reference:
     For readers coming from single-species fisheries assessment, mizer's fish
     mortality rates map onto the standard notation as follows: predation
     mortality `getPredMort()` is the multi-species analogue of *M2*, external
-    mortality `getExtMort()` is the residual natural mortality not resolved by
+    mortality `ext_mort()` is the residual natural mortality not resolved by
     the model, fishing mortality `getFMort()` is *F*, and the total mortality
     `getMort()` is *Z*, the sum of all of these. The older names `getM2()` and
     `getZ()` are retained as deprecated aliases for `getPredMort()` and
@@ -322,7 +322,6 @@ reference:
   contents:
   - setParams
   - setPredKernel
-  - getPredKernel
   - encounter_kernel
   - setSearchVolume
   - setInteraction

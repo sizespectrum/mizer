@@ -50,3 +50,6 @@ An \code{effort} argument will lead to an error if it is either
 \item not numeric
 }
 }
+\examples{
+str(initial_effort(NS_params))
+}

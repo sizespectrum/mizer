@@ -2,14 +2,11 @@
 % Please edit documentation in R/setSearchVolume.R
 \name{setSearchVolume}
 \alias{setSearchVolume}
-\alias{getSearchVolume}
 \alias{search_vol}
 \alias{search_vol<-}
 \title{Set search volume}
 \usage{
 setSearchVolume(params, search_vol = NULL, reset = FALSE, ...)
-
-getSearchVolume(params)
 
 search_vol(params)
 
@@ -35,8 +32,8 @@ value has been set.}
 \value{
 \code{setSearchVolume()}: A MizerParams object with updated search volume.
 
-\code{getSearchVolume()} or equivalently \code{search_vol()}: A
-\code{ArraySpeciesBySize} object (species x size) holding the search volume.
+\code{search_vol()}: An \code{ArraySpeciesBySize} object (species x size)
+holding the search volume.
 }
 \description{
 You will usually not need to call this function directly. Instead change
@@ -80,12 +77,12 @@ issued if the recalculated values would differ from the stored ones.
 
 \examples{
 # Inspect the current search volume
-getSearchVolume(NS_params)["Cod", 1:5]
+search_vol(NS_params)["Cod", 1:5]
 
 # Double the search volume for all species
-sv <- getSearchVolume(NS_params) * 2
+sv <- search_vol(NS_params) * 2
 params <- setSearchVolume(NS_params, search_vol = sv)
-getSearchVolume(params)["Cod", 1:5]
+search_vol(params)["Cod", 1:5]
 }
 \seealso{
 Other functions for setting parameters:

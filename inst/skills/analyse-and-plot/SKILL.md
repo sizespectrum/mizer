@@ -166,7 +166,7 @@ exact, so averaging either counts the same integral twice.
 
 If your indicator decomposes the encounter rate — a diet or trophic-level style
 quantity — see the note on `encounter_kernel()` in the `extend-mizer` skill
-before pairing `getPredKernel()` with `getEncounter()`.
+before pairing `pred_kernel()` with `getEncounter()`.
 
 ## Plotting any array directly with `plot()`
 

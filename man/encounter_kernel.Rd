@@ -24,7 +24,7 @@ with \code{\link[=getEncounter]{getEncounter()}}.
 }
 \details{
 On the default first-order path this is just the point-sampled kernel
-returned by \code{\link[=getPredKernel]{getPredKernel()}}. When second-order bin-averaging is switched on
+returned by \code{\link[=pred_kernel]{pred_kernel()}}. When second-order bin-averaging is switched on
 (see \code{\link[=second_order_w]{second_order_w()}}) the two differ: \code{setPredKernel()} then builds the
 Fourier-transformed kernel from the kernel \emph{integrated over the prey bin},
 divided by \eqn{\beta - 1} so that the plain point weight \eqn{w_p \Delta
@@ -37,11 +37,11 @@ Pair it with the \strong{plain point prey weight} \code{params@w_full * params@d
 That weight is a normalisation which the kernel construction is built to
 cancel, not a first-order quadrature weight, so it must not be passed through
 \code{\link[=bin_average_weight]{bin_average_weight()}}: doing so applies the prey-bin integral twice. A
-summary function that instead pairs the point-sampled \code{\link[=getPredKernel]{getPredKernel()}} with a
+summary function that instead pairs the point-sampled \code{\link[=pred_kernel]{pred_kernel()}} with a
 bin-averaged prey weight double-counts that quadrature; that was the bug
 behind issue #474.
 }
 \seealso{
-\code{\link[=getPredKernel]{getPredKernel()}} for the point-sampled kernel used for plotting and
+\code{\link[=pred_kernel]{pred_kernel()}} for the point-sampled kernel used for plotting and
 for supplying a custom kernel, \code{\link[=second_order_w]{second_order_w()}}, \code{\link[=bin_average_weight]{bin_average_weight()}}
 }

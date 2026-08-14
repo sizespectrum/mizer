@@ -40,7 +40,7 @@ predation kernel slots in a MizerParams object.
 \examples{
 params <- NS_params
 species_params(params)$pred_kernel_type <- "truncated_lognormal"
-plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
+plot(w_full(params), pred_kernel(params)["Cod", 10, ], type="l", log="x")
 }
 \seealso{
 \code{\link[=setPredKernel]{setPredKernel()}}

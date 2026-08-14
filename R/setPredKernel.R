@@ -49,7 +49,7 @@
 #' Fourier transforms of the feeding kernel function that allow the encounter
 #' rate and the predation rate to be calculated very efficiently. However, if
 #' you need the full three-dimensional array you can calculate it with the
-#' [getPredKernel()] function.
+#' [pred_kernel()] function.
 #'
 #' \strong{Kernel dependent on both predator and prey size}
 #'
@@ -114,14 +114,14 @@
 #' species_params(params)$ppmr_max <- 4000
 #' species_params(params)$ppmr_min <- 200
 #' species_params(params)$pred_kernel_type <- "box"
-#' plot(w_full(params), getPredKernel(params)["Cod", 100, ], type="l", log="x")
+#' plot(w_full(params), pred_kernel(params)["Cod", 100, ], type="l", log="x")
 #'
 #' ## If you need a kernel that depends also on prey size you need to define
 #' # it yourself.
-#' pred_kernel <- getPredKernel(params)
-#' pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2,
-#'                                     params@w_full, "*")
-#' params<- setPredKernel(params, pred_kernel = pred_kernel)
+#' pk <- pred_kernel(params)
+#' pk["Herring", , ] <- sweep(pk["Herring", , ], 2,
+#'                            params@w_full, "*")
+#' params<- setPredKernel(params, pred_kernel = pk)
 setPredKernel <- function(params, pred_kernel = NULL, reset = FALSE, ...) {
     UseMethod("setPredKernel")
 }
@@ -314,14 +314,14 @@ setPredKernel.MizerParams <- function(params,
 }
 
 #' @rdname setPredKernel
-#' @return `getPredKernel()` or equivalently `pred_kernel()`: An array (predator
-#'   species x predator_size x prey_size)
+#' @return `pred_kernel()`: An array (predator species x predator_size x
+#'   prey_size)
 #' @export
-getPredKernel <- function(params) {
-    UseMethod("getPredKernel")
+pred_kernel <- function(params) {
+    UseMethod("pred_kernel")
 }
 #' @export
-getPredKernel.MizerParams <- function(params) {
+pred_kernel.MizerParams <- function(params) {
     # This function is more complicated than you might have thought because
     # usually the predation kernel is not stored in the MizerParams object,
     # but rather only the Fourier coefficients needed for fast calculation of
@@ -391,7 +391,7 @@ expand_kernel_offsets <- function(phis, params, species) {
 #' with [getEncounter()].
 #'
 #' On the default first-order path this is just the point-sampled kernel
-#' returned by [getPredKernel()]. When second-order bin-averaging is switched on
+#' returned by [pred_kernel()]. When second-order bin-averaging is switched on
 #' (see [second_order_w()]) the two differ: `setPredKernel()` then builds the
 #' Fourier-transformed kernel from the kernel *integrated over the prey bin*,
 #' divided by \eqn{\beta - 1} so that the plain point weight \eqn{w_p \Delta
@@ -404,13 +404,13 @@ expand_kernel_offsets <- function(phis, params, species) {
 #' That weight is a normalisation which the kernel construction is built to
 #' cancel, not a first-order quadrature weight, so it must not be passed through
 #' [bin_average_weight()]: doing so applies the prey-bin integral twice. A
-#' summary function that instead pairs the point-sampled [getPredKernel()] with a
+#' summary function that instead pairs the point-sampled [pred_kernel()] with a
 #' bin-averaged prey weight double-counts that quadrature; that was the bug
 #' behind issue #474.
 #'
 #' @param params A MizerParams object.
 #' @return An array (predator species x predator size x prey size).
-#' @seealso [getPredKernel()] for the point-sampled kernel used for plotting and
+#' @seealso [pred_kernel()] for the point-sampled kernel used for plotting and
 #'   for supplying a custom kernel, [second_order_w()], [bin_average_weight()]
 #' @export
 encounter_kernel <- function(params) {
@@ -420,7 +420,7 @@ encounter_kernel <- function(params) {
         return(params@pred_kernel)
     }
     if (!isTRUE(params@second_order_w[["bin_average"]])) {
-        return(getPredKernel(params))
+        return(pred_kernel(params))
     }
     no_w_full <- length(params@w_full)
     # setPredKernel() stores ft_pred_kernel_e[i, ] = fft(phi_e[i, ]), so the
@@ -428,12 +428,6 @@ encounter_kernel <- function(params) {
     phis <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e),
                              inverse = TRUE))) / no_w_full
     expand_kernel_offsets(phis, params, params@species_params$species)
-}
-
-#' @rdname setPredKernel
-#' @export
-pred_kernel <- function(params) {
-    getPredKernel(params)
 }
 
 #' @rdname setPredKernel
