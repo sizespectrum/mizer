@@ -61,12 +61,15 @@ resource_constant <- function(params, n_pp, ...) {
 #'
 #' Assigning to `resource_params` only rebuilds the size-dependent resource rate
 #' and capacity arrays from these scalars (leaving any arrays you have set
-#' manually untouched). It does **not** balance the resource, i.e. it does not
-#' adjust one of the rate or capacity to keep the resource at the steady state
-#' where it replenishes at the rate at which it is consumed. This mirrors the
-#' way the species parameters feed the species rates. If you want to preserve
-#' the steady state after changing a resource scalar, call [setResource()] with
-#' the appropriate argument (which balances by default).
+#' manually untouched). Changing `lambda` also recalculates any `q` and `gamma`
+#' species parameters that mizer calculated, and changing `kappa` recalculates
+#' any calculated `gamma`; values you supplied explicitly are preserved. It
+#' does **not** balance the resource, i.e. it does not adjust one of the rate or
+#' capacity to keep the resource at the steady state where it replenishes at
+#' the rate at which it is consumed. This mirrors the way the species
+#' parameters feed the species rates. If you want to preserve the steady state
+#' after changing a resource scalar, call [setResource()] with the appropriate
+#' argument (which balances by default).
 #'
 #' @param params A MizerParams object
 #' @return A named list of resource parameters.
@@ -99,7 +102,6 @@ resource_params <- function(params) {
     changed <- scalars[vapply(scalars, function(scalar) {
         !identical(params@resource_params[[scalar]], value[[scalar]])
     }, logical(1))]
-    rp_changed <- length(changed) > 0
 
     # Warn about the changes that cannot take effect because the array they
     # feed has been set by hand, before the change is applied.
@@ -112,7 +114,7 @@ resource_params <- function(params) {
     # overrides). It does not balance the resource: that is a deliberate action
     # reserved for `setResource()`. This mirrors how `species_params<-` feeds
     # the species-parameter rates.
-    setResource(params, resource_params_changed = rp_changed, balance = FALSE)
+    setResource(params, resource_params_changed = changed, balance = FALSE)
 }
 
 
