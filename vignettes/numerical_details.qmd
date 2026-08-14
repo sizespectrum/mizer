@@ -135,7 +135,7 @@ The table below records which factor of each integral is bin-integrated, and whe
 | external mortality and external diffusion sinks | the power laws $z_{ext}w^{d}$ and $D_{ext}w^{n+1}$ | `setExtMort()`, `setExtDiffusion()` |
 | resource semichemostat terms | the power laws $r_{pp}w^{n-1}$ and $\kappa w^{-\lambda}$ | `setResource()`, into `rr_pp` and `cc_pp` |
 | reproduction $\int \psi(w)\,e(w)\,N(w)\,dw$ | the product $\psi e$ | `mizerRDI()` |
-| summary integrals $\int K(w)\,N(w)\,dw$ | the weight $K$: $w$ for biomass, $\psi w$ for SSB, $F w$ for yield | `getBiomass()`, `getSSB()`, `getYield()`, … |
+| summary integrals $\int K(w)\,N(w)\,dw$ | the weight $K$: $w$ for biomass, $\psi w$ for SSB, $F w$ for yield, together with the size-range window | `sizeIntegral()`, and `getBiomass()`, `getSSB()`, `getYield()`, … through it |
 
 Two corollaries are worth stating explicitly.
 
@@ -184,11 +184,11 @@ which mizer computes with the internal helper `power_law_bin_average()` and uses
 | external mortality $z_{ext}w^{d}$, external diffusion $D_{ext}w^{n+1}$ | point value at $w_j$ | exact bin average, @eq-power-law-bin-average |
 | resource rate $r_{pp}w^{n-1}$, capacity and initial spectrum $\kappa w^{-\lambda}$ | point value at $w_j$ | exact bin average, @eq-power-law-bin-average |
 | reproduction integrand $\psi\,e$ | point value at $w_j$ | trapezoidal bin average |
-| summary weights in `getBiomass()`, `getSSB()`, `getYield()`, `getYieldGear()` | $K(w_j)$ | trapezoidal bin average of $K$ |
+| summary weights in `sizeIntegral()`, and so in `getBiomass()`, `getN()`, `getSSB()`, `getYield()`, `getYieldGear()` | $K(w_j)$ | trapezoidal bin average of $K$ |
 | plotting position of a bin-averaged quantity | node $w_j$ | bin centre $w_j\sqrt\beta$ |
 | growth rate $g$, encounter rate $E$, feeding level $f$ | point value at $w_j$ | **unchanged** — point value at $w_j$ |
 
-The last two rows are the ones that are easy to get wrong. `getN()` is also unchanged, because its weight is $K\equiv 1$ and the bin average of a constant is the constant. And the growth-type rates stay point values under both settings: they are boundary velocities (@sec-point-values), so bin-averaging them would be an error, not an improvement — what improves them under `bin_average` is that the encounter integral feeding them is now second order, not any averaging of $g$ itself.
+The last two rows are the ones that are easy to get wrong. `getN()` over the full size range is also unchanged, because its weight is $K\equiv 1$ and the bin average of a constant is the constant; over a restricted size range the window itself is part of the weight, so the bin straddling the boundary contributes only partially. And the growth-type rates stay point values under both settings: they are boundary velocities (@sec-point-values), so bin-averaging them would be an error, not an improvement — what improves them under `bin_average` is that the encounter integral feeding them is now second order, not any averaging of $g$ itself.
 
 Because one setting is first order and the other second, the difference between them is itself $O(\Delta x)$ and is a usable estimate of the discretisation error of the default scheme: if flipping the flag moves a result by more than you are willing to tolerate, the grid is too coarse for that result.
 
@@ -196,28 +196,15 @@ Because one setting is first order and the other second, the difference between 
 
 If you compute a diagnostic of your own — in an extension package, or in analysis code on top of a `MizerParams` object — it falls into one of two cases.
 
-**Case 1: a plain integral against the abundance,** $\int K(w)\,N(w)\,dw$. Discretise it as $\sum_j \bar K_j\,N_j\,\Delta w_j$: keep $N_j$ and $\Delta w_j$ exactly as they are and replace the point weight $K(w_j)$ by its bin average.
+**Case 1: a plain integral against the abundance,** $\int K(w)\,N(w)\,dw$. Discretise it as $\sum_j \bar K_j\,N_j\,\Delta w_j$: keep $N_j$ and $\Delta w_j$ exactly as they are and replace the point weight $K(w_j)$ by its bin average. `sizeIntegral()` does exactly this, gated on the flag, so you should not write the sum yourself:
 
 ```r
-# Trapezoidal bin average of a weight along the size axis. The top bin has no
-# right neighbour, so it is left one-sided; the density there is negligible.
-bin_average <- function(K) {
-    n <- length(K)
-    c(0.5 * (K[-n] + K[-1]), K[n])
-}
-
-my_indicator <- function(params, K) {
-    if (isTRUE(second_order_w(params)$bin_average)) K <- bin_average(K)
-    drop(initialN(params) %*% (K * dw(params)))
-}
-
 # biomass above 10 g, say
 params <- NS_params
-K <- w(params) * (w(params) >= 10)
-my_indicator(params, K)
+sizeIntegral(params, weight = w(params), min_w = 10)
 ```
 
-Gate the averaging on the flag, as above, so that your diagnostic follows the model it is given rather than silently disagreeing with `getBiomass()`. If $K$ is an exact power law, use @eq-power-law-bin-average instead of the trapezoid: it is exact rather than merely second order. If $K$ is a product of a size-dependent rate and a mass factor — $\psi(w)\,w$, or $F(w)\,w$ — average the **product**, not the factors separately.
+Pass only the weight: the bin widths and the bin-averaging are applied inside, and the size range is an argument rather than something you impose on the grid. Because the gating happens inside, your diagnostic follows the model it is given rather than silently disagreeing with `getBiomass()`. If $K$ is a product of a size-dependent rate and a mass factor — $\psi(w)\,w$, or $F(w)\,w$ — build the product and pass it as one weight; the bin average of a product is not the product of the bin averages. If you need the bin-averaged weight for something other than an integral against the abundance, `bin_average_weight(K, params)` is the same gating on its own, and if $K$ is an exact power law, @eq-power-law-bin-average is exact rather than merely second order.
 
 **Case 2: a quantity built from rates mizer already computes.** Get the rates from the rate functions (`getEncounter()`, `getFeedingLevel()`, `getPredRate()`, `getEGrowth()`, …) and do not re-derive them, because the rate functions already carry the correct quadrature for the current setting. In particular, do not rebuild an encounter or predation convolution out of `getPredKernel()` and a hand-written prey weight: under `bin_average` that kernel is the point-sampled one and will not agree with the rate function. If you genuinely need the resolved convolution — as `getDiet()` and `getTrophicLevel()` do — pair mizer's own encounter kernel with the plain point prey weight $w_p\,\Delta w_p$, and never with a bin-averaged one.
 

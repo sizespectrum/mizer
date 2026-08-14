@@ -126,10 +126,13 @@ switched the second-order scheme on. Three rules:
   `setResource()` do, and do the integral once at setup so projection cost is
   unchanged.
 
-For a weight in a summary-style integral, `bin_average_weight(K, params)` does
-the gating for you — see "Writing your own indicator" in
-the `analyse-and-plot` skill for the full recipe. Test any new integral with the
-flag **on** as well as off; a test on the default path alone proves nothing.
+For a summary-style integral $\int N_i(w) K_i(w) dw$, do not write the sum at
+all: `sizeIntegral(params, weight = K, min_w = ..., max_w = ...)` does the
+integral under whichever scheme the model is on and wraps the result — see
+"Writing your own indicator" in the `analyse-and-plot` skill. If you need the
+gating on its own, for a weight you are not integrating, that is
+`bin_average_weight(K, params)`. Test any new integral with the flag **on** as
+well as off; a test on the default path alone proves nothing.
 
 ## Adding a component
 

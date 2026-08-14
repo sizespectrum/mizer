@@ -102,6 +102,7 @@ Collate:
     'project_methods.R'
     'rate_functions.R'
     'sim_rates.R'
+    'sizeIntegral.R'
     'summary_methods.R'
     'indicator_functions.R'
     'plots.R'

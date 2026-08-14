@@ -10,6 +10,17 @@ stability of steady states.
   and provide a `knife_edge_length` column in `gear_params()`. The length is
   converted to a cut-off weight via the length–weight parameters `a` and `b`.
 
+- New experimental `sizeIntegral()` calculates any integral
+  \eqn{\int N_i(w)K_i(w)dw} over the size spectrum. It is now the recommended
+  way to write your own summary or indicator function: it selects the size
+  range, applies the quadrature scheme the model is actually on and wraps the
+  result in the appropriate mizer array class, so none of those rules need to
+  be remembered. It takes the weight \eqn{K} in any of the shapes mizer's own
+  arrays come in, from a single number to a gear x species x size array, and
+  keeps the extra dimensions in the result. `getBiomass()`, `getN()`,
+  `getSSB()`, `getYield()`, `getYieldGear()` and `getProportionOfLargeFish()`
+  are now all implemented with it (#494).
+
 - New experimental `bin_average_weight()` prepares the weight of an integral
   over the size spectrum so that the integral uses the quadrature scheme the
   model is actually on. Use it when writing your own indicator or diagnostic
@@ -247,6 +258,19 @@ stability of steady states.
   `get_gamma_default()` and `get_f0_default()` now compute the search volume
   they need directly from the species parameters, so they are unaffected by a
   frozen `search_vol` and remain exact inverses of each other (#488).
+
+- `getProportionOfLargeFish()` called on a `MizerParams` object gave a wrong
+  answer. It multiplied the species x size abundance array by the vector of
+  weights, which R recycles down the columns of the array instead of along the
+  size axis, so every species but the first was weighted by the wrong sizes.
+  The `MizerSim` method was unaffected, and the two now agree when applied to
+  the same state (#494).
+
+- `getN()` now applies the model's quadrature scheme to the size range it is
+  given, so that under `second_order_w(params) <- c(bin_average = TRUE)` the
+  bin straddling `min_w` or `max_w` contributes only partially, as it already
+  did in `getBiomass()`. Results on the default first-order scheme are
+  unchanged (#494).
 
 - Changing a species parameter that feeds a rate array you have set by hand now
   warns you that the change has no effect on the model. Previously

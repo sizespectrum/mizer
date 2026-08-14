@@ -47,6 +47,7 @@ Other summary functions:
 \code{\link[=getTrophicLevel]{getTrophicLevel()}},
 \code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
 \code{\link[=getYield]{getYield()}},
-\code{\link[=getYieldGear]{getYieldGear()}}
+\code{\link[=getYieldGear]{getYieldGear()}},
+\code{\link[=sizeIntegral]{sizeIntegral()}}
 }
 \concept{summary functions}

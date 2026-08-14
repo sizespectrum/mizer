@@ -28,6 +28,7 @@
 #'   [getFMortGear()] \tab Four dimensional array (time x gear x species x size) \tab Fishing mortality on each species by each gear at size through time. \cr
 #'   [getYieldGear()] \tab Three dimensional array (time x gear x species) \tab Total yield by gear and species through time. \cr
 #'   [getYield()] \tab Two dimensional array (time x species) \tab Total yield of each species across all gears through time. \cr
+#'   [sizeIntegral()] \tab Named vector (species) or two dimensional array (time x species) \tab Any integral over the size spectrum, from which all of the above are built. Use it to write your own summary function. \cr
 #' }
 #'
 #' @seealso [indicator_functions], [plotting_functions]
@@ -520,31 +521,16 @@ getSSB <- function(object) {
 }
 #' @export
 getSSB.MizerSim <- function(object) {
-    sim <- object
-    if (isTRUE(sim@params@second_order_w[["bin_average"]])) {
-        # Bin-average the full composite weight K = maturity * w, then * dw.
-        weight <- sweep(
-            trapezoidal_bin_average(sweep(sim@params@maturity, 2, sim@params@w, "*")),
-            2, sim@params@dw, "*")
-        result <- apply(sweep(sim@n, c(2, 3), weight, "*"), c(1, 2), sum)
-    } else {
-        result <- apply(sweep(sweep(sim@n, c(2, 3), sim@params@maturity, "*"), 3,
-                              sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
-    }
-    ArrayTimeBySpecies(result, value_name = "Spawning stock biomass",
-                       units = "g", params = sim@params)
+    params <- object@params
+    # The weight is the product maturity * w, which sizeIntegral() bin-averages
+    # as a single weight.
+    sizeIntegral(object, weight = sweep(params@maturity, 2, params@w, "*"),
+                 value_name = "Spawning stock biomass", units = "g")
 }
 #' @export
 getSSB.MizerParams <- function(object) {
-    params <- object
-    if (isTRUE(params@second_order_w[["bin_average"]])) {
-        weight <- sweep(
-            trapezoidal_bin_average(sweep(params@maturity, 2, params@w, "*")),
-            2, params@dw, "*")
-        return(rowSums(params@initial_n * weight))
-    }
-    return(((params@initial_n * params@maturity) %*%
-                (params@w * params@dw))[, , drop = TRUE])
+    sizeIntegral(object,
+                 weight = sweep(object@maturity, 2, object@w, "*"))
 }
 
 
@@ -596,52 +582,41 @@ getBiomass <- function(object, use_cutoff = FALSE, ...) {
 }
 #' @export
 getBiomass.MizerSim <- function(object, use_cutoff = FALSE, ...) {
-    sim <- object
-
-    if (use_cutoff && "biomass_cutoff" %in% names(sim@params@species_params)) {
-            # Use biomass_cutoff as min_w for each species
-            biomass_cutoff <- sim@params@species_params$biomass_cutoff
-            # Replace NA values with the default minimum weight
-            biomass_cutoff[is.na(biomass_cutoff)] <- min(sim@params@w)
-            size_range <- get_size_range_array(sim@params, min_w = biomass_cutoff)
-        } else {
-            size_range <- get_size_range_array(sim@params, ...)
-        }
-    if (isTRUE(sim@params@second_order_w[["bin_average"]])) {
-        # Composite weight K[sp, w] = size_range * w. Bin-averaging the whole
-        # weight (including the window mask) makes the straddling bin partial.
-        weight <- sweep(
-            trapezoidal_bin_average(sweep(size_range, 2, sim@params@w, "*")),
-            2, sim@params@dw, "*")
-        result <- apply(sweep(sim@n, c(2, 3), weight, "*"), c(1, 2), sum)
+    params <- object@params
+    if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
+        sizeIntegral(object, weight = params@w,
+                     min_w = biomass_cutoff_min_w(params),
+                     value_name = "Biomass", units = "g")
     } else {
-        result <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
-                              sim@params@w * sim@params@dw, "*"), c(1, 2), sum)
+        sizeIntegral(object, weight = params@w, ...,
+                     value_name = "Biomass", units = "g")
     }
-    ArrayTimeBySpecies(result, value_name = "Biomass", units = "g",
-                       params = sim@params)
 }
 #' @export
 getBiomass.MizerParams <- function(object, use_cutoff = FALSE, ...) {
     params <- object
-
     if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
-            # Use biomass_cutoff as min_w for each species
-            biomass_cutoff <- params@species_params$biomass_cutoff
-            # Replace NA values with the default minimum weight
-            biomass_cutoff[is.na(biomass_cutoff)] <- min(params@w)
-            size_range <- get_size_range_array(params, min_w = biomass_cutoff)
-        } else {
-            size_range <- get_size_range_array(params, ...)
-        }
-        if (isTRUE(params@second_order_w[["bin_average"]])) {
-            weight <- sweep(
-                trapezoidal_bin_average(sweep(size_range, 2, params@w, "*")),
-                2, params@dw, "*")
-            return(rowSums(params@initial_n * weight))
-        }
-        return(((params@initial_n * size_range) %*%
-                    (params@w * params@dw))[, , drop = TRUE])
+        sizeIntegral(params, weight = params@w,
+                     min_w = biomass_cutoff_min_w(params))
+    } else {
+        sizeIntegral(params, weight = params@w, ...)
+    }
+}
+
+#' The minimum weights given by the `biomass_cutoff` species parameter
+#'
+#' Internal helper for [getBiomass()]. Returns the `biomass_cutoff` column of
+#' the species parameters, with any NAs replaced by the smallest weight in the
+#' model.
+#'
+#' @param params A MizerParams object.
+#' @return A numeric vector with one minimum weight for each species.
+#' @concept helper
+#' @keywords internal
+biomass_cutoff_min_w <- function(params) {
+    min_w <- params@species_params$biomass_cutoff
+    min_w[is.na(min_w)] <- min(params@w)
+    min_w
 }
 
 
@@ -674,18 +649,11 @@ getN <- function(object, ...) {
 }
 #' @export
 getN.MizerSim <- function(object, ...) {
-    sim <- object
-    size_range <- get_size_range_array(sim@params, ...)
-    result <- apply(sweep(sweep(sim@n, c(2, 3), size_range, "*"), 3,
-                          sim@params@dw, "*"), c(1, 2), sum)
-    ArrayTimeBySpecies(result, value_name = "Abundance",
-                       params = sim@params)
+    sizeIntegral(object, ..., value_name = "Abundance")
 }
 #' @export
 getN.MizerParams <- function(object, ...) {
-    params <- object
-    size_range <- get_size_range_array(params, ...)
-    return(((params@initial_n * size_range) %*% params@dw)[, , drop = TRUE])
+    sizeIntegral(object, ...)
 }
 
 
@@ -716,31 +684,18 @@ getYieldGear <- function(object) {
 }
 #' @export
 getYieldGear.MizerSim <- function(object) {
-    sim <- object
-    f_gear <- getFMortGear(sim)  # time x gear x sp x w
-    if (isTRUE(sim@params@second_order_w[["bin_average"]])) {
-        # Full weight is F * w; bin-average the whole product over the size axis.
-        weight <- sweep(
-            trapezoidal_bin_average(sweep(f_gear, 4, sim@params@w, "*")),
-            4, sim@params@dw, "*")
-        return(apply(sweep(weight, c(1, 3, 4), sim@n, "*"), c(1, 2, 3), sum))
-    }
-    biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
-    return(apply(sweep(f_gear, c(1, 3, 4), biomass, "*"), c(1, 2, 3), sum))
+    # The weight is the product F * w (time x gear x sp x w), which
+    # sizeIntegral() bin-averages as a single weight.
+    f_gear <- getFMortGear(object)
+    sizeIntegral(object,
+                 weight = sweep(f_gear, length(dim(f_gear)),
+                                object@params@w, "*"))
 }
 #' @export
 getYieldGear.MizerParams <- function(object) {
-    params <- object
-    f_gear <- getFMortGear(params)  # gear x sp x w
-    if (isTRUE(params@second_order_w[["bin_average"]])) {
-        weight <- sweep(
-            trapezoidal_bin_average(sweep(f_gear, 3, params@w, "*")),
-            3, params@dw, "*")
-        return(apply(sweep(weight, c(2, 3), params@initial_n, "*"),
-                     c(1, 2), sum))
-    }
-    biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
-    return(apply(sweep(f_gear, c(2, 3), biomass, "*"), c(1, 2), sum))
+    f_gear <- getFMortGear(object)  # gear x sp x w
+    sizeIntegral(object,
+                 weight = sweep(f_gear, length(dim(f_gear)), object@w, "*"))
 }
 
 #' Calculate the rate at which biomass of each species is fished
@@ -796,34 +751,18 @@ getYield <- function(object) {
 }
 #' @export
 getYield.MizerSim <- function(object) {
-    sim <- object
-    f <- getFMort(sim, drop = FALSE)  # time x sp x w
-    if (isTRUE(sim@params@second_order_w[["bin_average"]])) {
-        # Full weight is F * w; bin-average the whole product over the
-        # size axis.
-        weight <- sweep(
-            trapezoidal_bin_average(sweep(f, 3, sim@params@w, "*")),
-            3, sim@params@dw, "*")
-        result <- apply(weight * sim@n, c(1, 2), sum)
-    } else {
-        biomass <- sweep(sim@n, 3, sim@params@w * sim@params@dw, "*")
-        result <- apply(f * biomass, c(1, 2), sum)
-    }
-    ArrayTimeBySpecies(result, value_name = "Yield rate", units = "g/year",
-                       params = sim@params)
+    # The weight is the product F * w (time x sp x w), which sizeIntegral()
+    # bin-averages as a single weight.
+    f <- getFMort(object, drop = FALSE)
+    sizeIntegral(object,
+                 weight = sweep(f, length(dim(f)), object@params@w, "*"),
+                 value_name = "Yield rate", units = "g/year")
 }
 #' @export
 getYield.MizerParams <- function(object) {
-    params <- object
-    f <- getFMort(params, drop = FALSE)  # sp x w
-    if (isTRUE(params@second_order_w[["bin_average"]])) {
-        weight <- sweep(
-            trapezoidal_bin_average(sweep(f, 2, params@w, "*")),
-            2, params@dw, "*")
-        return(rowSums(weight * params@initial_n))
-    }
-    biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
-    return(apply(f * biomass, 1, sum))
+    f <- getFMort(object, drop = FALSE)  # sp x w
+    sizeIntegral(object,
+                 weight = sweep(f, length(dim(f)), object@w, "*"))
 }
 
 

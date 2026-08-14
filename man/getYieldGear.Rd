@@ -39,7 +39,8 @@ Other summary functions:
 \code{\link[=getSSB]{getSSB()}},
 \code{\link[=getTrophicLevel]{getTrophicLevel()}},
 \code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
-\code{\link[=getYield]{getYield()}}
+\code{\link[=getYield]{getYield()}},
+\code{\link[=sizeIntegral]{sizeIntegral()}}
 }
 \concept{summary functions}
 \concept{summary_function}

@@ -111,48 +111,58 @@ slope <- getCommunitySlope(sim, min_w = 10, max_w = 5000)
 First check that a built-in does not already cover it: most custom indicators
 turn out to be `getBiomass()`/`getN()` over a size range, or one of the four
 above with different arguments. If none fits, an indicator is an integral over
-the size spectrum,
-$\int N_i(w)\, K(w)\, dw$, which on mizer's grid is `sum_j N[i,j] K[i,j] dw[j]`:
+the size spectrum, $\int N_i(w)\, K_i(w)\, dw$, and **`sizeIntegral()` does that
+integral for you**:
 
 ```r
-K <- get_size_range_array(params, min_w = 10, max_w = 5000)  # species x size, 0/1
-K <- sweep(K, 2, params@w, "*")        # weight by w: numbers -> biomass
-K <- bin_average_weight(K, params)     # use the model's quadrature scheme
-rowSums(sweep(initialN(params) * K, 2, params@dw, "*"))
+# Biomass of each species between 10g and 5kg -- what getBiomass() does
+sizeIntegral(params, weight = params@w, min_w = 10, max_w = 5000)
+
+# The same through time, wrapped ready to plot
+sizeIntegral(sim, weight = params@w, value_name = "Biomass", units = "g")
 ```
 
-That is exactly what `getBiomass()` does internally, and it reproduces it to
-machine precision. Four rules make the difference between this and a wrong
-indicator:
+Give it the abundance and the weight $K$; it selects the size range, uses the
+quadrature scheme the model is actually on and wraps the result in the
+appropriate mizer array class. Doing the sum by hand instead means getting all
+of that right yourself, silently and only for some users. Three things are worth
+knowing:
 
-- **Select the size range with `get_size_range_array()`**, not by subsetting the
-  grid by hand. It accepts `min_w`/`max_w` or `min_l`/`max_l` (doing the
-  length-weight conversion per species), takes a single number or one value per
-  species, and returns a logical species × size mask with the right dimnames, so
-  the result keeps its shape and every species stays in it.
-- **Pass the weight `K` through `bin_average_weight()`, and nothing else.** The
-  abundance `N` is already a bin average and `dw` is exact, so bin-averaging
-  either of them counts the same integral twice. `bin_average_weight()` is gated
-  on `second_order_w()`, so it leaves `K` untouched on the default scheme and
-  does the right thing when second-order bin-averaging is on — never bin-average
-  unconditionally.
-- **Average the product, not the factors.** If `K` is a product of several
-  size-dependent terms, build the whole product first and pass that in — SSB
-  averages `maturity * w` as one weight, yield averages `F * w`. The average of a
-  product is not the product of the averages.
-- **Wrap the result in a mizer array class** and you inherit the whole toolkit
-  above — `plot()`, `plot2()`, `plotRelative()`, `addPlot()` — for free, with the
-  half-bin plotting shift handled for you:
+- **The size range is an argument, not a subsetting step.** `min_w`/`max_w` or
+  `min_l`/`max_l` are passed through to `get_size_range_array()`, which does the
+  length-weight conversion per species and accepts either a single number or one
+  value per species. Never subset the size grid by hand.
+- **Pass the whole product as the weight.** If $K$ is a product of several
+  size-dependent terms, build the product first — SSB uses
+  `sweep(params@maturity, 2, params@w, "*")` as one weight, yield uses `F * w`.
+  Bin-averaging happens inside, on the weight as a whole, and the average of a
+  product is not the product of the averages. Do not include `params@dw` and do
+  not call `bin_average_weight()` yourself: `sizeIntegral()` does both.
+- **Extra dimensions of the weight are kept.** A gear × species × size weight
+  (like `getFMortGear()`) gives a gear × species result; a weight whose first
+  dimension is named `"time"` is lined up with the times of the simulation
+  rather than multiplied out against them.
+
+The result is already an `ArrayTimeBySpecies` when it is one, so you inherit the
+whole toolkit above — `plot()`, `plot2()`, `plotRelative()`, `addPlot()` — for
+free. For a quantity that keeps the size dimension, and so is not an integral
+over sizes, wrap it yourself:
 
 ```r
-ArrayTimeBySpecies(my_indicator, value_name = "My index", params = params)
 ArraySpeciesBySize(my_size_resolved, value_name = "My index", params = params,
                    representation = "average")
 ```
 
 Use `representation = "average"` for a quantity that is a bin average (anything
 integrated over a bin) and `"point"` for one sampled at the bin boundary, such as
-a growth rate.
+a growth rate; the tag drives the half-bin plotting shift.
+
+If you do need the weight itself for something other than an integral over
+sizes, `bin_average_weight(K, params)` is the underlying primitive: it applies
+the model's quadrature scheme to `K` alone and is gated on `second_order_w()`,
+so it leaves `K` untouched on the default scheme. Never bin-average the
+abundance `N` or the bin widths `dw` — `N` is already a bin average and `dw` is
+exact, so averaging either counts the same integral twice.
 
 If your indicator decomposes the encounter rate — a diet or trophic-level style
 quantity — see the note on `encounter_kernel()` in the `extend-mizer` skill

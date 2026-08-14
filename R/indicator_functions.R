@@ -83,31 +83,20 @@ getProportionOfLargeFish.MizerSim <- function(object,
     sim <- object
     species <- valid_species_arg(sim, species)
 
-    total_size_range <- get_size_range_array(sim@params, ...)
-    # This args stuff is pretty ugly - couldn't work out another way of using ...
-    args <- list(...)
-    args[["params"]] <- sim@params
-    args[["max_w"]] <- threshold_w
-    args[["max_l"]] <- threshold_l
-    large_size_range <- do.call("get_size_range_array", args = args)
-
-    total_size_range <- total_size_range[species, , drop = FALSE]
-    large_size_range <- large_size_range[species, , drop = FALSE]
-
     w <- sim@params@w
     if (!biomass_proportion) { # based on abundance numbers
         w[] <- 1
     }
-
-    n <- sim@n[, species, , drop = FALSE]
-    total_measure <-
-        apply(sweep(sweep(n, c(2, 3), total_size_range, "*"),
-                    3, w * sim@params@dw, "*"),
-              1, sum)
+    total_measure <- rowSums(unclass(sizeIntegral(sim, weight = w,
+                                                  ...))[, species, drop = FALSE])
+    # This args stuff is pretty ugly - couldn't work out another way of using ...
+    args <- list(...)
+    args[["max_w"]] <- threshold_w
+    args[["max_l"]] <- threshold_l
+    upto_threshold <- do.call(sizeIntegral,
+                              c(list(sim, weight = w), args))
     upto_threshold_measure <-
-        apply(sweep(sweep(n, c(2, 3), large_size_range, "*"),
-                    3, w * sim@params@dw, "*"),
-              1, sum)
+        rowSums(unclass(upto_threshold)[, species, drop = FALSE])
 
     1 - (upto_threshold_measure / total_measure)
 }
@@ -121,24 +110,16 @@ getProportionOfLargeFish.MizerParams <- function(object,
     params <- object
     species <- valid_species_arg(params, species)
 
-    total_size_range <- get_size_range_array(params, ...)
-    args <- list(...)
-    args[["params"]] <- params
-    args[["max_w"]] <- threshold_w
-    args[["max_l"]] <- threshold_l
-    large_size_range <- do.call("get_size_range_array", args = args)
-
-    total_size_range <- total_size_range[species, , drop = FALSE]
-    large_size_range <- large_size_range[species, , drop = FALSE]
-
     w <- params@w
     if (!biomass_proportion) { # based on abundance numbers
         w[] <- 1
     }
-
-    n <- params@initial_n[species, , drop = FALSE]
-    total_measure <- sum(n * total_size_range * w * params@dw)
-    upto_threshold_measure <- sum(n * large_size_range * w * params@dw)
+    total_measure <- sum(sizeIntegral(params, weight = w, ...)[species])
+    args <- list(...)
+    args[["max_w"]] <- threshold_w
+    args[["max_l"]] <- threshold_l
+    upto_threshold_measure <-
+        sum(do.call(sizeIntegral, c(list(params, weight = w), args))[species])
 
     1 - (upto_threshold_measure / total_measure)
 }
