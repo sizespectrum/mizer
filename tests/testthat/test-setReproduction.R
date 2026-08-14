@@ -70,7 +70,7 @@ test_that("Comment works on maturity", {
     expect_message(setReproduction(params), NA)
     # but message when a change is not stored due to comment
     params@species_params$w_mat <- params@species_params$w_mat * 1.1
-    expect_message(setReproduction(params),  "has been commented")
+    expect_message(setReproduction(params),  "has been set manually")
     # Can reset
     p <- setReproduction(params, reset = TRUE)
     # The increase in w_mat should lower the maturity curve
@@ -102,7 +102,7 @@ test_that("Comment works on psi", {
     # but message when a change is not stored due to comment
     params@species_params$w_max <- params@species_params$w_max / 1.1
     params@species_params$w_repro_max <- params@species_params$w_repro_max / 1.1
-    expect_message(setReproduction(params),  "has been commented")
+    expect_message(setReproduction(params),  "has been set manually")
     # Can reset
     p <- setReproduction(params, reset = TRUE)
     # The decrease in w_repro_max should increase the psi curve

@@ -28,7 +28,9 @@
 #'   with the species indices, or a logical vector indicating for each species
 #'   whether it is to be affected (TRUE) or not.
 #' @param info_level Controls the amount of information messages that are shown.
-#'   Higher levels lead to more messages.
+#'   Higher levels lead to more messages, `info_level = 0` gives silence. The
+#'   default is taken from the `mizer_info_level` option, see
+#'   [default_info_level()].
 #' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object
 #' @export
@@ -40,13 +42,14 @@
 #' params <- calibrateBiomass(params)
 #' params <- matchBiomasses(params)
 #' plotBiomassObservedVsModel(params)
-matchBiomasses <- function(params, species = NULL, info_level = 3, ...) {
+matchBiomasses <- function(params, species = NULL,
+                           info_level = default_info_level(), ...) {
     UseMethod("matchBiomasses")
 }
 
 #' @export
 matchBiomasses.MizerParams <- function(params, species = NULL,
-                                       info_level = 3, ...) {
+                                       info_level = default_info_level(), ...) {
     if (!("biomass_observed" %in% names(params@species_params))) {
         return(params)
     }
@@ -113,7 +116,9 @@ matchBiomasses.MizerParams <- function(params, species = NULL,
 #'   with the species indices, or a logical vector indicating for each species
 #'   whether it is to be affected (TRUE) or not.
 #' @param info_level Controls the amount of information messages that are shown.
-#'   Higher levels lead to more messages.
+#'   Higher levels lead to more messages, `info_level = 0` gives silence. The
+#'   default is taken from the `mizer_info_level` option, see
+#'   [default_info_level()].
 #' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object
 #' @export
@@ -124,13 +129,14 @@ matchBiomasses.MizerParams <- function(params, species = NULL,
 #' species_params(params)$number_cutoff <- 10
 #' params <- calibrateNumber(params)
 #' params <- matchNumbers(params)
-matchNumbers <- function(params, species = NULL, info_level = 3, ...) {
+matchNumbers <- function(params, species = NULL,
+                         info_level = default_info_level(), ...) {
     UseMethod("matchNumbers")
 }
 
 #' @export
 matchNumbers.MizerParams <- function(params, species = NULL,
-                                     info_level = 3, ...) {
+                                     info_level = default_info_level(), ...) {
     if (!("number_observed" %in% names(params@species_params))) {
         return(params)
     }
@@ -201,7 +207,9 @@ matchNumbers.MizerParams <- function(params, species = NULL,
 #'   with the species indices, or a logical vector indicating for each species
 #'   whether it is to be affected (TRUE) or not.
 #' @param info_level Controls the amount of information messages that are shown.
-#'   Higher levels lead to more messages.
+#'   Higher levels lead to more messages, `info_level = 0` gives silence. The
+#'   default is taken from the `mizer_info_level` option, see
+#'   [default_info_level()].
 #' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object
 #' @concept deprecated
@@ -215,13 +223,15 @@ matchNumbers.MizerParams <- function(params, species = NULL,
 #' params <- calibrateYield(params)
 #' params <- matchYields(params)
 #' plotYieldObservedVsModel(params)
-matchYields <- function(params, species = NULL, info_level = 3, ...) {
+matchYields <- function(params, species = NULL,
+                        info_level = default_info_level(), ...) {
     UseMethod("matchYields")
 }
 
 #' @export
 matchYields.MizerParams <- function(params, species = NULL,
-                                    info_level = 3, ...) {
+                                    info_level = default_info_level(), ...) {
+    with_info_level(info_level = info_level, {
     lifecycle::deprecate_warn(
         "2.6.0", "matchYields()", "mizerExperimental::matchYield()",
         details = "This function has not proven useful. If you do have a use case for it, please let the developers know by creating an issue at https://github.com/sizespectrum/mizer/issues"
@@ -241,22 +251,22 @@ matchYields.MizerParams <- function(params, species = NULL,
         (is.na(params@species_params$yield_observed) |
         params@species_params$yield_observed <= 0)
     if (any(no_obs)) {
-        if (info_level >= 3) {
-            message("The following species have no yield observations and ",
-                    "their abundances will not be changed: ",
-                    paste0(all_species[no_obs], collapse = ", "), ".")
-        }
+        signal_info("yield_observed", paste0(
+            "The following species have no yield observations and their ",
+            "abundances will not be changed: ",
+            paste0(all_species[no_obs], collapse = ", "), "."),
+            unhandled = "show")
         include <- include & !no_obs
     }
 
     # ignore species with no model yield
     no_yield <- include & yield_model == 0
     if (any(no_yield)) {
-        if (info_level >= 3) {
-            message("The following species are not being fished in your model ",
-                    "and their abundances will not be changed: ",
-                    paste0(all_species[no_yield], collapse = ", "), ".")
-        }
+        signal_info("yield_model", paste0(
+            "The following species are not being fished in your model and ",
+            "their abundances will not be changed: ",
+            paste0(all_species[no_yield], collapse = ", "), "."),
+            unhandled = "show")
         include <- include & !no_yield
     }
     
@@ -266,4 +276,5 @@ matchYields.MizerParams <- function(params, species = NULL,
         sweep(params@initial_n[include, , drop = FALSE], 1, factors, "*")
     
     setBevertonHolt(params)
+    })
 }

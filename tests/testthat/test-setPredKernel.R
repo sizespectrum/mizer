@@ -45,7 +45,7 @@ test_that("Comment works on pred_kernel", {
     beta <- params@species_params$beta
     params@species_params$beta <- 1
     expect_message(setPredKernel(params),
-                   "You have set a custom predation kernel")
+                   "The predation kernel has been set manually")
     # Can reset
     params@species_params$beta <- beta
     p <- setPredKernel(params, reset = TRUE)

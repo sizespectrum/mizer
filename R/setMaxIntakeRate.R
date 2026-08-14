@@ -108,8 +108,8 @@ setMaxIntakeRate.MizerParams <- function(params, intake_max = NULL, reset = FALS
     if (!is.null(comment(params@intake_max))) {
         # Issue warning but only if a change was actually requested
         if (different(intake_max, params@intake_max)) {
-            message("The max intake rate has been commented and therefore will ",
-                    "not be recalculated from the species parameters.")
+            signal_not_recalculated("intake_max", "maximum intake rate",
+                               "setMaxIntakeRate(params, reset = TRUE)")
         }
         return(params)
     }

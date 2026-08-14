@@ -98,18 +98,10 @@ newCommunityParams <- function(max_w = 1e6,
                                knife_edge_size = 1000,
                                reproduction,
                                second_order_w = FALSE,
-                               info_level = 2) {
-    # Define a signal handler that collects the information signals
-    # into the `infos` list.
-    infos <- list()
-    collect_info <- function(cnd) {
-        if (cnd$level <= info_level) {
-            infos[[cnd$var]] <<- cnd$message
-        }
-    }
-    # Register this signal handler
-    withCallingHandlers(
-        info_about_default = collect_info, {
+                               info_level = default_info_level(2)) {
+    # Collect the information signals raised while the model is built and
+    # report them together at the end.
+    with_info_level(info_level = info_level, {
     w_max <- max_w
     w_pp_cutoff <- min_w
     ks <- 0 # Turn off standard metabolism
@@ -148,8 +140,7 @@ newCommunityParams <- function(max_w = 1e6,
                               resource_rate = r_pp,
                               w_pp_cutoff = w_pp_cutoff,
                               second_order_w =
-                                  c(bin_average = target_sow[["bin_average"]]),
-                              info_level = 0)
+                                  c(bin_average = target_sow[["bin_average"]]))
 
     initial_n <- array(kappa * params@w ^ (-lambda),
                        dim = c(1, length(params@w)))
@@ -169,9 +160,6 @@ newCommunityParams <- function(max_w = 1e6,
     })
     # Activate the chosen advective-flux scheme now construction is done.
     params@second_order_w[["flux"]] <- target_sow[["flux"]]
-    if (length(infos) > 0) {
-        message(paste(infos, collapse = "\n"))
-    }
     return(params)
 }
 
@@ -314,7 +302,9 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param max_w_inf `r lifecycle::badge("deprecated")` The argument has been
 #'   renamed to `max_w_max`.
 #' @param info_level Controls the amount of information messages that are shown.
-#'   Higher levels lead to more messages.
+#'   Higher levels lead to more messages, `info_level = 0` gives silence. The
+#'   default is taken from the `mizer_info_level` option, see
+#'   [default_info_level()].
 #' @export
 #' @importFrom lifecycle deprecated
 #' @return An object of type `MizerParams`
@@ -357,18 +347,10 @@ newTraitParams <- function(no_sp = 11,
                            second_order_w = FALSE,
                            min_w_inf = deprecated(),
                            max_w_inf = deprecated(),
-                           info_level = 2) {
-    # Define a signal handler that collects the information signals
-    # into the `infos` list.
-    infos <- list()
-    collect_info <- function(cnd) {
-        if (cnd$level <= info_level) {
-            infos[[cnd$var]] <<- cnd$message
-        }
-    }
-    # Register this signal handler
-    withCallingHandlers(
-        info_about_default = collect_info, {
+                           info_level = default_info_level(2)) {
+    # Collect the information signals raised while the model is built and
+    # report them together at the end.
+    with_info_level(info_level = info_level, {
     ## Deprecated arguments ----
     if (lifecycle::is_present(min_w_inf)) {
         lifecycle::deprecate_warn(
@@ -402,12 +384,15 @@ newTraitParams <- function(no_sp = 11,
     no_w <- round(no_w)
     if (no_w < log10(max_w_max / min_w)*5) {
         no_w <- round(log10(max_w_max / min_w) * 5 + 1)
-        message(paste("Increased no_w to", no_w, "so that there are 5 bins ",
-                      "for an interval from w and 10w."))
+        signal_info("no_w", paste("Increased no_w to", no_w,
+                                  "so that there are 5 bins ",
+                                  "for an interval from w and 10w."),
+                    level = 1, unhandled = "show")
     }
     if (no_w > 10000) {
-        message("Running a simulation with ", no_w,
-                " size bins is going to be very slow.")
+        signal_info("no_w", paste0("Running a simulation with ", no_w,
+                                   " size bins is going to be very slow."),
+                    level = 1, unhandled = "show")
     }
     if (min_w_max >= max_w_max) {
         stop("The maximum size of the smallest species min_w_max must be ",
@@ -546,8 +531,7 @@ newTraitParams <- function(no_sp = 11,
             p = p,
             min_w_pp = min_w_pp,
             resource_rate = r_pp,
-            second_order_w = c(bin_average = target_sow[["bin_average"]]),
-            info_level = 0
+            second_order_w = c(bin_average = target_sow[["bin_average"]])
         )
 
     w <- params@w
@@ -569,8 +553,10 @@ newTraitParams <- function(no_sp = 11,
     }
     pow <- mu0 / hbar / (1 - n)
     if (pow < 1) {
-        message("The ratio of death rate to growth rate is too small, leading to
-                an accumulation of fish at their largest size.")
+        signal_info("mu0", paste0(
+            "The ratio of death rate to growth rate is too small, leading to ",
+            "an accumulation of fish at their largest size."),
+            level = 1, unhandled = "show")
     }
 
     initial_n <- params@psi  # get array with correct dimensions and names
@@ -622,10 +608,13 @@ newTraitParams <- function(no_sp = 11,
         if (any(resource_vec < 0)) {
             if (!perfect_scaling) {
                 # Do not allow negative resource abundance
-                message("Note: Negative resource abundance values overwritten with zeros")
+                signal_info("resource", paste0(
+                    "Note: Negative resource abundance values overwritten ",
+                    "with zeros"), level = 1, unhandled = "show")
                 resource_vec[resource_vec < 0] <- 0
             } else {
-                message("Note: Negative resource abundances")
+                signal_info("resource", "Note: Negative resource abundances",
+                            level = 1, unhandled = "show")
             }
         }
         params@cc_pp[sum(params@w_full <= w[1]):length(params@cc_pp)] <-
@@ -671,9 +660,6 @@ newTraitParams <- function(no_sp = 11,
     })
     # Activate the chosen advective-flux scheme now construction is done.
     params@second_order_w[["flux"]] <- target_sow[["flux"]]
-    if (length(infos) > 0) {
-        message(paste(infos, collapse = "\n"))
-    }
     return(params)
 }
 

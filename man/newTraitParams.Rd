@@ -39,7 +39,7 @@ newTraitParams(
   second_order_w = FALSE,
   min_w_inf = deprecated(),
   max_w_inf = deprecated(),
-  info_level = 2
+  info_level = default_info_level(2)
 )
 }
 \arguments{
@@ -156,7 +156,9 @@ size of a species not the von Bertalanffy asymptotic size parameter.}
 renamed to \code{max_w_max}.}
 
 \item{info_level}{Controls the amount of information messages that are shown.
-Higher levels lead to more messages.}
+Higher levels lead to more messages, \code{info_level = 0} gives silence. The
+default is taken from the \code{mizer_info_level} option, see
+\code{\link[=default_info_level]{default_info_level()}}.}
 }
 \value{
 An object of type \code{MizerParams}

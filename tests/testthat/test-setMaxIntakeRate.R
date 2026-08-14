@@ -30,7 +30,7 @@ test_that("Comment works on intake_max", {
     expect_message(setMaxIntakeRate(params), NA)
     # but message when a change is not stored due to comment
     params@species_params$h <- 1
-    expect_message(setMaxIntakeRate(params),  "has been commented")
+    expect_message(setMaxIntakeRate(params),  "has been set manually")
     # Can reset
     p <- setMaxIntakeRate(params, reset = TRUE)
     expect_equal(p@intake_max[, 1], params@w[1]^params@species_params[["n"]],

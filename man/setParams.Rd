@@ -4,7 +4,7 @@
 \alias{setParams}
 \title{Set or change any model parameters}
 \usage{
-setParams(object, interaction = NULL, info_level = 3, ...)
+setParams(object, interaction = NULL, info_level = default_info_level(), ...)
 }
 \arguments{
 \item{object}{A \linkS4class{MizerParams} object}
@@ -14,7 +14,11 @@ species x prey species). By default all entries are 1. See "Setting
 interaction matrix" section below.}
 
 \item{info_level}{Controls the amount of information messages that are shown.
-Higher levels lead to more messages.}
+Higher levels lead to more messages, \code{info_level = 0} gives silence. The
+default is taken from the \code{mizer_info_level} option, see
+\code{\link[=default_info_level]{default_info_level()}}. Note that the report that a change cannot take
+effect because the rate array it feeds has been set manually is a warning
+rather than a message, but it too is silenced by \code{info_level = 0}.}
 
 \item{...}{
   Arguments passed on to \code{\link{setPredKernel}}, \code{\link{setSearchVolume}}, \code{\link{setMaxIntakeRate}}, \code{\link{setMetabolicRate}}, \code{\link{setExtMort}}, \code{\link{setExtEncounter}}, \code{\link{setReproduction}}, \code{\link{setFishing}}

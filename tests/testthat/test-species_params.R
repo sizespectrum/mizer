@@ -280,6 +280,46 @@ test_that("species_params setter handles list and matrix columns", {
                  ignore_attr = TRUE)
 })
 
+test_that("species_params setter warns when a frozen rate blocks the change (#489)", {
+    params <- NS_params_small
+    # Freeze the metabolic rate at its current value
+    metab(params) <- metab(params)
+    before <- params@metab
+
+    sp <- species_params(params)
+    sp$ks <- sp$ks * 2
+    # The warning has to get past the `suppressMessages()` that quietens the
+    # routine recalculation chatter, so it must not be a message.
+    expect_no_message(
+        expect_warning(species_params(params) <- sp,
+                       "Your change to the species parameter `ks`.*metabolic rate"))
+    # The table records the change but the model does not, which is what the
+    # warning tells the user.
+    expect_equal(species_params(params)$ks, sp$ks, ignore_attr = TRUE)
+    expect_equal(params@metab, before, ignore_attr = TRUE)
+})
+
+test_that("given_species_params setter warns when a frozen rate blocks the change (#489)", {
+    params <- NS_params_small
+    search_vol(params) <- search_vol(params)
+    before <- params@search_vol
+
+    gsp <- given_species_params(params)
+    gsp$gamma <- gsp$gamma * 2
+    expect_warning(given_species_params(params) <- gsp,
+                   "Your change to the species parameter `gamma`.*search volume")
+    expect_equal(params@search_vol, before, ignore_attr = TRUE)
+})
+
+test_that("species_params setter is quiet when no frozen rate is in the way", {
+    params <- NS_params_small
+    sp <- species_params(params)
+    sp$ks <- sp$ks * 2
+    expect_silent(species_params(params) <- sp)
+    expect_false(isTRUE(all.equal(params@metab, metab(NS_params_small),
+                                  check.attributes = FALSE)))
+})
+
 test_that("species_params setter with recalculate = FALSE records but does not recalculate", {
     params <- NS_params_small
     sp <- species_params(params)
@@ -782,6 +822,45 @@ test_that("$ on species_params returns named vectors for non-character columns",
     # gear_params columns get row names
     gp <- gear_params(params)
     expect_named(gp$catchability, rownames(gp))
+})
+
+test_that("$ on species_params does not partially match column names", {
+    # Without length-weight parameters, `$a` used to return `alpha` and `$b`
+    # used to return `beta`, with the species names attached
+    sp <- species_params(NS_params_small)
+    sp <- sp[, setdiff(names(sp), c("a", "b"))]
+    expect_s3_class(sp, "species_params")
+    expect_true(all(c("alpha", "beta") %in% names(sp)))
+
+    expect_warning(a <- sp$a, "There is no `a` column")
+    expect_null(a)
+    expect_warning(b <- sp$b, "There is no `b` column")
+    expect_null(b)
+    # The warning points at the column that used to be returned
+    expect_warning(sp$a, "`alpha` column")
+
+    # A name matching nothing at all stays silent, so that testing for the
+    # presence of a parameter remains an option
+    expect_silent(out <- sp$no_such_parameter)
+    expect_null(out)
+
+    # An ambiguous prefix was already NULL before, so it stays silent too
+    expect_silent(out <- sp$w_)
+    expect_null(out)
+
+    # Exact matches are unaffected
+    expect_identical(unname(sp$alpha), sp[["alpha"]])
+
+    # Reads and writes now agree about which column `$b` means
+    sp$b <- 3
+    expect_identical(unname(sp$b), rep(3, nrow(sp)))
+
+    # given_species_params inherits the behaviour
+    given <- given_species_params(NS_params_small)
+    given <- given[, setdiff(names(given), c("a", "b"))]
+    expect_s3_class(given, "given_species_params")
+    expect_true("beta" %in% names(given))
+    expect_warning(expect_null(given$b), "There is no `b` column")
 })
 
 test_that("get_h_default accepts MizerParams, species_params and data.frame", {
