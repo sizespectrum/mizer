@@ -41,6 +41,18 @@ test_that("knife-edge selectivity function is working properly", {
                        sim@params@w < 1000] == 0))
 })
 
+# knife_edge_length ----
+test_that("knife_edge_length works", {
+    sp <- list(a = 0.01, b = 3)
+    w_cut <- sp$a * 20 ^ sp$b
+    sel <- knife_edge_length(c(w_cut - 1, w_cut, w_cut + 1),
+                             knife_edge_length = 20, species_params = sp)
+    expect_equal(sel, c(0, 1, 1))
+    expect_error(knife_edge_length(c(1, 10, 100), knife_edge_length = 20,
+                                   species_params = list()),
+                 "The selectivity function needs the weight-length parameters ")
+})
+
 # sigmoid_length ----
 test_that("sigmoid_length works", {
     expect_error(sigmoid_length(w, 20, 30, species_params = species_params),
