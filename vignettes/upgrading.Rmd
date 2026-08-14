@@ -33,8 +33,44 @@ and are not repeated here.
 ## Upgrading from mizer 3.2 to 3.3
 
 All the changes in this release are corrections. Results move only for models
-that had opted in to second-order bin-averaging, or that set `min_w` below the
-default. One report that mizer used to make quietly is now a warning.
+that had opted in to second-order bin-averaging, that set `min_w` below the
+default, or that specify sizes as lengths.
+
+### Length and weight parameters follow the one you gave last
+
+A size can be given either as a weight (`w_mat`, `w_max`, …) or as the length it
+converts to (`l_mat`, `l_max`, …). Mizer used to derive the weight from the
+length whenever both were present, so on a model specified by lengths a weight
+could not be set at all: the value you assigned was replaced on the spot by the
+one calculated from the unchanged length.
+
+Both now follow one rule: **the one you gave last wins, and if you gave both at
+the same time the weight wins.** The other is set to match, so the two never
+disagree, and mizer warns, naming the species, when it changes a length to match
+a weight it disagrees with.
+
+```{r eval=FALSE}
+params <- newMultispeciesParams(sp)   # sp specifies l_mat, a and b
+
+# Used to be silently undone, now it takes effect and l_mat follows
+species_params(params)$w_mat[1] <- 100
+```
+
+The rule is applied when a data frame is assigned into a model, which is when
+mizer can tell which values changed. A data frame you have taken out of a model
+and are editing on its own is left exactly as you write it — the conversions,
+checks and warnings happen on assignment. One that was never in a model, for
+example one passed to [`validSpeciesParams()`](../reference/validSpeciesParams.html), carries no such history, so a
+length and a weight that disagree there count as given at the same time and the
+weight wins.
+
+`species_params<-()` and `given_species_params<-()` apply the rule identically
+(#490). Previously only `species_params<-()` did, so the same edit made through
+`given_species_params<-()` was discarded — a maturity weight differing by up to
+73% — and the given species parameters were left permanently inconsistent, which
+made mizer repeat the "not consistent" warning at every later parameter change.
+If you worked around this by setting the weight and the length together, you can
+now set either one on its own.
 
 ### A change that cannot take effect now warns
 
@@ -300,7 +336,7 @@ column set unchanged, will now see the extra columns (#431).
 ### Passing a data frame to `species_params()` / `given_species_params()` now validates it
 
 Calling `species_params()` or `given_species_params()` on a plain data frame now
-runs the same validation and defaults that [`validSpeciesParams()`](../reference/validSpeciesParams.html) and
+runs the same validation and defaults that `validSpeciesParams()` and
 [`validGivenSpeciesParams()`](../reference/validSpeciesParams.html) apply, rather than only checking for misspellings and
 converting lengths to weights. `species_params(df)` fills in the default columns
 (`w_max`, `alpha`, `n`, `p`, `interaction_resource`, `z_ext`, and the rest), and

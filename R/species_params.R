@@ -108,11 +108,11 @@
 #' The rule is applied when a species parameter data frame is put into a model.
 #' A data frame that you have taken out of a model and are editing on its own
 #' is left exactly as you write it: no conversions, no checks and no warnings
-#' until you assign it back with `species_params<-()`, which is when mizer can
-#' tell which values you changed. A data frame that was never in a model, for
-#' example one you pass to [validSpeciesParams()], carries no such history, so
-#' a length and a weight that disagree there count as given at the same time
-#' and the weight wins.
+#' until you assign it back with `species_params<-()` or
+#' `given_species_params<-()`, which is when mizer can tell which values you
+#' changed. A data frame that was never in a model, for example one you pass to
+#' [validSpeciesParams()], carries no such history, so a length and a weight
+#' that disagree there count as given at the same time and the weight wins.
 #'
 #' The parameters that are only used to calculate default values for other
 #' parameters are:
@@ -225,10 +225,13 @@
 #'   values that were supplied explicitly by the user.
 #'
 #'   `given_species_params<-()`: An alternative to `species_params<-()` that
-#'   also triggers a recalculation of other parameters. The only difference is
-#'   that `given_species_params<-()` issues warnings when a parameter is
-#'   changed whose effect is overridden by another parameter that has already
-#'   been given. This is especially useful during interactive use.
+#'   also triggers a recalculation of other parameters. It arrives at the same
+#'   model, the difference being that `given_species_params<-()` issues
+#'   warnings when a parameter is changed whose effect is overridden by another
+#'   parameter that has already been given. This is especially useful during
+#'   interactive use. It has no `recalculate` argument; where you need to
+#'   record values without recalculating, use `species_params<-()` or
+#'   [record_given_species_params()].
 #'
 #'   `calculated_species_params()`: Data frame containing only those species
 #'   parameter entries that are not explicit user input. Columns that would
@@ -331,20 +334,30 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
         object@species_params <- value
         return(object)
     }
+    rebuild_from_given(object, value)
+}
+
+# Rebuild the species parameters from the given species parameters and
+# recalculate all rates. This is the tail that `species_params<-()` and
+# `given_species_params<-()` share, so that the two setters cannot drift apart.
+#
+# `keep` is the species parameter table whose columns are carried over where
+# they are not regenerated from the given species parameters: for
+# `species_params<-()` the table the user supplied, for
+# `given_species_params<-()` the model's current species parameters, which the
+# user has not edited. Such columns are for example parameters set directly on
+# the `@species_params` slot. The species parameters that a rate setter owns
+# are excluded: `setParams()` below derives those afresh, and carrying the
+# previously calculated value over would leave it looking like a given value
+# and so stop it responding to the change. Where the user did supply such a
+# parameter it has been recorded among the given species parameters and so is
+# already part of the rebuilt table.
+rebuild_from_given <- function(object, keep) {
     new_sp <- validSpeciesParams(object@given_species_params)
-    # Preserve any columns that were present in the supplied species params but
-    # are not tracked in `given_species_params` (for example parameters set
-    # directly on the `@species_params` slot) and are therefore not regenerated
-    # when rebuilding from `given_species_params`. The species parameters that a
-    # rate setter owns are excluded: `setParams()` below derives those afresh,
-    # and carrying the previously calculated value over would leave it looking
-    # like a given value and so stop it responding to the change. Where the user
-    # did supply such a parameter it has just been recorded among the given
-    # species parameters and so is already part of `new_sp`.
-    extra_cols <- setdiff(names(value),
+    extra_cols <- setdiff(names(keep),
                           c(names(new_sp), setter_owned_species_params()))
     for (col in extra_cols) {
-        new_sp[[col]] <- value[[col]]
+        new_sp[[col]] <- keep[[col]]
     }
     object@species_params <- new_sp
     # Warn about the changes that will have no impact. This is signalled here
@@ -598,6 +611,54 @@ set_column <- function(x, col, values) {
     x
 }
 
+# Fill in the length-weight parameters that a given species parameter table
+# leaves out
+#
+# `a` and `b` are defaulted rather than given, so a table of given species
+# parameters need not contain them even though the model always does. Without
+# them none of the length/weight rules can be applied, so the model's values
+# are put in where the table does not supply them. The result is only used
+# while the length and weight parameters are brought into line and is undone by
+# `restore_length_weight_params()` afterwards, so that the values mizer
+# defaulted do not end up recorded as given.
+#
+# Returns `given` unchanged when the model has nothing to contribute.
+fill_length_weight_params <- function(given, sp) {
+    if (!is.data.frame(sp) || !is.data.frame(given) ||
+            nrow(sp) != nrow(given) ||
+            !all(c("a", "b") %in% names(sp))) {
+        return(given)
+    }
+    for (col in c("a", "b")) {
+        model_value <- sp[[col]]
+        given_value <- given[[col]]
+        given <- set_column(given, col,
+                            if (is.null(given_value) ||
+                                    length(given_value) != nrow(given)) {
+                                model_value
+                            } else {
+                                ifelse(is.na(given_value), model_value,
+                                       given_value)
+                            })
+    }
+    given
+}
+
+# Put the length-weight parameters back the way the caller supplied them,
+# undoing `fill_length_weight_params()`. `supplied` is the `a` and `b` columns
+# of the table before they were filled in, or no columns at all where the
+# caller supplied neither.
+restore_length_weight_params <- function(given, supplied) {
+    for (col in c("a", "b")) {
+        if (col %in% names(supplied)) {
+            given <- set_column(given, col, supplied[[col]])
+        } else {
+            given <- set_column(given, col, NULL)
+        }
+    }
+    given
+}
+
 # Bring a length and weight parameter pair into line after a change
 #
 # A size can be given either as a weight or as the length it converts to. When
@@ -609,13 +670,14 @@ set_column <- function(x, col, values) {
 # or not the length changed as well, and where only the length changed the
 # weight is derived from the length as it always was.
 #
-# This is decided when a species parameter data frame is put into a model with
-# `species_params<-()`, which is the only caller: `old` is then the model's
-# species parameters, against which the incoming table is compared. Editing a
-# species parameter data frame on its own changes nothing until it is assigned
-# into a model, and a table that was edited by itself carries no record of the
-# order in which its columns were changed, so a length and a weight that both
-# differ from the model's count as given at the same time and the weight wins.
+# This is decided when a species parameter data frame is put into a model, by
+# `species_params<-()` and `given_species_params<-()`: `old` is then the table
+# of the same kind that the model currently holds, against which the incoming
+# one is compared. Editing a species parameter data frame on its own changes
+# nothing until it is assigned into a model, and a table that was edited by
+# itself carries no record of the order in which its columns were changed, so a
+# length and a weight that both differ from the model's count as given at the
+# same time and the weight wins.
 #
 # When `old` is `NULL`, or does not line up row by row with `x`, nothing can be
 # said about what changed and nothing is done here; the default of letting the
@@ -969,11 +1031,26 @@ is.given_species_params <- function(x) {
 #' @export
 `given_species_params<-.MizerParams` <- function(object, value) {
     params <- object
+    # The length/weight rules need `a` and `b`, which the given species
+    # parameters need not contain, so the model's values stand in while they
+    # are applied.
+    supplied_ab <- if (is.data.frame(value)) {
+        value[intersect(c("a", "b"), names(value))]
+    } else {
+        # `validGivenSpeciesParams()` below rejects this with its own message
+        list()
+    }
+    value <- fill_length_weight_params(value, params@species_params)
+    # A length parameter whose weight has just been set has to follow the new
+    # weight before anything converts the weight away again. This is the same
+    # rule that `species_params<-()` applies, here comparing the incoming given
+    # species parameters against the model's.
+    value <- reconcile_length_weight(value, params@given_species_params)
     value <- validGivenSpeciesParams(value)
+    value <- restore_length_weight_params(value, supplied_ab)
     if (!all(value$species == params@species_params$species)) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")
     }
-    old_value <- params@given_species_params
 
     # Create data frame which contains only the values that have changed
     common_columns <- intersect(names(value), names(params@given_species_params))
@@ -999,8 +1076,10 @@ is.given_species_params <- function(x) {
     })
 
     params@given_species_params <- value
-    params@species_params <- validSpeciesParams(value)
-    suppressMessages(setParams(params))
+    # The user has edited the given species parameters and not the full table,
+    # so it is the model's own species parameters whose columns are carried
+    # over where they are not rebuilt from the given ones.
+    rebuild_from_given(params, params@species_params)
 }
 
 #' @rdname species_params

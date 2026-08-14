@@ -74,7 +74,11 @@ already given.
 > **Version note.** Older guidance said to avoid `species_params(params) <-`
 > because it bypassed the `given_species_params` protection and skipped
 > recalculation. That was fixed in mizer 3.2. On mizer **< 3.2**, still prefer
-> `given_species_params(params) <-` for edits.
+> `given_species_params(params) <-` for edits. On mizer **< 3.3** the two are
+> not interchangeable on a model that specifies sizes as lengths: only
+> `species_params(params) <-` applied the length/weight precedence rule, so a
+> length changed through `given_species_params(params) <-` left the weight at
+> its old value.
 
 Columns come back as named vectors:
 

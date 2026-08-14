@@ -66,10 +66,13 @@ section "Setting species parameters without recalculation" below.
 values that were supplied explicitly by the user.
 
 \verb{given_species_params<-()}: An alternative to \verb{species_params<-()} that
-also triggers a recalculation of other parameters. The only difference is
-that \verb{given_species_params<-()} issues warnings when a parameter is
-changed whose effect is overridden by another parameter that has already
-been given. This is especially useful during interactive use.
+also triggers a recalculation of other parameters. It arrives at the same
+model, the difference being that \verb{given_species_params<-()} issues
+warnings when a parameter is changed whose effect is overridden by another
+parameter that has already been given. This is especially useful during
+interactive use. It has no \code{recalculate} argument; where you need to
+record values without recalculating, use \verb{species_params<-()} or
+\code{\link[=record_given_species_params]{record_given_species_params()}}.
 
 \code{calculated_species_params()}: Data frame containing only those species
 parameter entries that are not explicit user input. Columns that would
@@ -194,11 +197,11 @@ weight and warns you that it has changed the length to match.
 The rule is applied when a species parameter data frame is put into a model.
 A data frame that you have taken out of a model and are editing on its own
 is left exactly as you write it: no conversions, no checks and no warnings
-until you assign it back with \verb{species_params<-()}, which is when mizer can
-tell which values you changed. A data frame that was never in a model, for
-example one you pass to \code{\link[=validSpeciesParams]{validSpeciesParams()}}, carries no such history, so
-a length and a weight that disagree there count as given at the same time
-and the weight wins.
+until you assign it back with \verb{species_params<-()} or
+\verb{given_species_params<-()}, which is when mizer can tell which values you
+changed. A data frame that was never in a model, for example one you pass to
+\code{\link[=validSpeciesParams]{validSpeciesParams()}}, carries no such history, so a length and a weight
+that disagree there count as given at the same time and the weight wins.
 
 The parameters that are only used to calculate default values for other
 parameters are:

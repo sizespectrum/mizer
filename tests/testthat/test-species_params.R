@@ -555,6 +555,90 @@ test_that("of two successive changes to the model the later one wins", {
     expect_equal(sp$l_mat[[1]], w2l(new_w_mat, sp)[[1]], ignore_attr = TRUE)
 })
 
+test_that("the two setters apply the length/weight rule the same way", {
+    # The documentation promises that the only difference between the two
+    # setters is the warnings, so a change made through either has to arrive at
+    # the same model.
+    params <- length_based_params()
+
+    edits <- list(
+        # only the length changes, so it determines the weight
+        l_mat = function(sp) {
+            sp$l_mat <- sp$l_mat * 1.2
+            sp
+        },
+        # only the weight changes, so the length follows it
+        w_mat = function(sp) {
+            sp$w_mat <- sp$w_mat * 0.9
+            sp
+        },
+        # both change at once, so the weight wins
+        both = function(sp) {
+            sp$l_mat <- sp$l_mat * 1.2
+            sp$w_mat <- sp$w_mat * 1.1
+            sp
+        },
+        # neither changes but the conversion does, so the weight wins again
+        a = function(sp) {
+            sp$a <- rep(0.02, nrow(sp))
+            sp
+        }
+    )
+
+    for (edit in names(edits)) {
+        via_sp <- params
+        suppressWarnings(species_params(via_sp) <-
+                             edits[[edit]](species_params(via_sp)))
+        via_given <- params
+        suppressWarnings(given_species_params(via_given) <-
+                             edits[[edit]](given_species_params(via_given)))
+        for (par in c("w_mat", "l_mat", "h", "gamma", "ks", "w_mat25")) {
+            expect_equal(species_params(via_sp)[[par]],
+                         species_params(via_given)[[par]],
+                         ignore_attr = TRUE, info = paste(edit, par))
+        }
+        expect_equal(via_sp@search_vol, via_given@search_vol,
+                     ignore_attr = TRUE, info = edit)
+        expect_equal(via_sp@psi, via_given@psi,
+                     ignore_attr = TRUE, info = edit)
+    }
+})
+
+test_that("given_species_params setter keeps length and weight consistent", {
+    # The given species parameters do not hold `a` and `b`, but the rule still
+    # has to be applied to them, or the model would report the same
+    # inconsistency on every later change.
+    params <- length_based_params()
+    expect_false(any(c("a", "b") %in% names(given_species_params(params))))
+
+    given <- given_species_params(params)
+    given$l_mat <- given$l_mat * 1.2
+    expect_warning(given_species_params(params) <- given, NA)
+    expect_equal(given_species_params(params)$w_mat,
+                 l2w(given$l_mat, species_params(params)),
+                 ignore_attr = TRUE)
+    # `a` and `b` were not given and must not have been recorded as given
+    expect_false(any(c("a", "b") %in% names(given_species_params(params))))
+
+    # A later, unrelated change finds nothing left to complain about
+    given <- given_species_params(params)
+    given$beta <- given$beta * 1.1
+    expect_warning(given_species_params(params) <- given, NA)
+})
+
+test_that("given_species_params setter preserves columns mizer does not calculate", {
+    # Columns that live only in the `@species_params` slot are not rebuilt from
+    # the given species parameters, so they have to be carried over, just as
+    # `species_params<-()` carries them over.
+    params <- NS_params_small
+    params@species_params$my_own_param <- seq_len(nrow(species_params(params)))
+    given <- given_species_params(params)
+    given$beta <- given$beta * 1.1
+    given_species_params(params) <- given
+    expect_equal(species_params(params)$my_own_param,
+                 seq_len(nrow(species_params(params))), ignore_attr = TRUE)
+})
+
 test_that("given_species_params setter can add new explicit columns", {
     params <- NS_params_small
     sp <- given_species_params(params)

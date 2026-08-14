@@ -49,6 +49,9 @@ plots) are in the changelog and are not repeated here.
 | Length-weight conversion via `$a`/`$b` gave `alpha`/`beta` values | partial matching, now fixed | `$` no longer partially matches (3.3) |
 | Absolute diet values dropped ~10%, only with `second_order_w` bin-averaging | double-counted prey-bin quadrature, now fixed | Quadrature fixes under `second_order_w` (3.3) |
 | Trophic levels moved slightly, only with `second_order_w` | numerator and denominator now use one quadrature | Quadrature fixes under `second_order_w` (3.3) |
+| Setting a weight on a length-based model no longer gets undone | length/weight precedence: the one given last wins | Length and weight follow the one you gave last (3.3) |
+| `given_species_params<-()` now changes a weight when you change its length | both setters apply the same precedence rule | Length and weight follow the one you gave last (3.3) |
+| Repeated "`l_mat` is not consistent with `w_mat`" warning has stopped | the given species parameters are brought into line | Length and weight follow the one you gave last (3.3) |
 | Size grid or results changed in a model built with a small `min_w` | `w_min` is no longer reset to 0.001 | `w_min` survives a rebuild (3.3) |
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters (3.3) |
 | `unused argument (sim = ...)` from `plotBiomass()`, `plotYield()`, `plotYieldGear()` | first argument renamed to `object` | Renamed arguments and changed defaults (3.0) |
@@ -102,8 +105,44 @@ and are not repeated here.
 ## Upgrading from mizer 3.2 to 3.3
 
 All the changes in this release are corrections. Results move only for models
-that had opted in to second-order bin-averaging, or that set `min_w` below the
-default. One report that mizer used to make quietly is now a warning.
+that had opted in to second-order bin-averaging, that set `min_w` below the
+default, or that specify sizes as lengths.
+
+### Length and weight parameters follow the one you gave last
+
+A size can be given either as a weight (`w_mat`, `w_max`, …) or as the length it
+converts to (`l_mat`, `l_max`, …). Mizer used to derive the weight from the
+length whenever both were present, so on a model specified by lengths a weight
+could not be set at all: the value you assigned was replaced on the spot by the
+one calculated from the unchanged length.
+
+Both now follow one rule: **the one you gave last wins, and if you gave both at
+the same time the weight wins.** The other is set to match, so the two never
+disagree, and mizer warns, naming the species, when it changes a length to match
+a weight it disagrees with.
+
+```r
+params <- newMultispeciesParams(sp)   # sp specifies l_mat, a and b
+
+# Used to be silently undone, now it takes effect and l_mat follows
+species_params(params)$w_mat[1] <- 100
+```
+
+The rule is applied when a data frame is assigned into a model, which is when
+mizer can tell which values changed. A data frame you have taken out of a model
+and are editing on its own is left exactly as you write it — the conversions,
+checks and warnings happen on assignment. One that was never in a model, for
+example one passed to `validSpeciesParams()`, carries no such history, so a
+length and a weight that disagree there count as given at the same time and the
+weight wins.
+
+`species_params<-()` and `given_species_params<-()` apply the rule identically
+(#490). Previously only `species_params<-()` did, so the same edit made through
+`given_species_params<-()` was discarded — a maturity weight differing by up to
+73% — and the given species parameters were left permanently inconsistent, which
+made mizer repeat the "not consistent" warning at every later parameter change.
+If you worked around this by setting the weight and the length together, you can
+now set either one on its own.
 
 ### A change that cannot take effect now warns
 
