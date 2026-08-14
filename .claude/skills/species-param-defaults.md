@@ -89,6 +89,9 @@ set by hand (#489). A missing entry only costs a warning, so the list is
 deliberately not exhaustive — but **never list a parameter that does not in
 fact feed the array**, because that warns about a change that did take effect.
 
+`.claude/skills/info-signals.md` has the rest of that rule, and covers reporting
+in general.
+
 ### The central defaults are an exported contract
 
 `validSpeciesParams()` is exported and its roxygen lists exactly which defaults
