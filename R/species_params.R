@@ -1275,9 +1275,14 @@ get_gamma_default <- function(params) {
             species_params[["h"]] <- get_h_default(params)
         }
         # Calculate available energy by setting search_volume
-        # coefficient to 1
+        # coefficient to 1. We write the search volume into the slot directly
+        # instead of going through `setSearchVolume()`, because that setter
+        # refuses to recalculate a search volume that the user has set by hand
+        # and would leave us measuring the available energy with the user's
+        # array instead of the unit-gamma one (issue #488).
         params@species_params$gamma <- 1
-        params <- setSearchVolume(params)
+        params <- set_q_default(params)
+        params@search_vol[] <- compute_search_vol(params)
         # and setting a power-law prey spectrum
         params@initial_n[] <- 0
         if (defaults_edition() < 2) {
@@ -1340,6 +1345,14 @@ get_f0_default <- function(params) {
             any(is.na(species_params[["h"]]))) {
             species_params[["h"]] <- get_h_default(params)
         }
+        # This is the inverse of `get_gamma_default()` and so has to measure
+        # the available energy with the search volume implied by the given
+        # `gamma`, not with whatever is in the slot, which the user may have
+        # set by hand (issue #488). Only the species with a given `gamma` get
+        # their search volume replaced, the others keep theirs so that no NAs
+        # enter the calculation.
+        params <- set_q_default(params)
+        params@search_vol[given, ] <- compute_search_vol(params)[given, ]
         # Calculate available energy by setting a power-law prey spectrum
         params@initial_n[] <- 0
         params@species_params$interaction_resource <- 1

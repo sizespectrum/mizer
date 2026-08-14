@@ -104,15 +104,10 @@ setSearchVolume.MizerParams <- function(params, search_vol = NULL, reset = FALSE
     }
 
     # Calculate default for any missing gammas
-    q <- params@resource_params$lambda - 2 + params@species_params[["n"]]
-    params@species_params <-
-        set_species_param_default(params@species_params, "q", q)
+    params <- set_q_default(params)
     params@species_params$gamma <- get_gamma_default(params)
 
-    search_vol <-
-        sweep(outer(params@species_params[["q"]], params@w,
-                    function(x, y) y ^ x),
-              1, params@species_params$gamma, "*")
+    search_vol <- compute_search_vol(params)
 
     # Prevent overwriting slot if it has been commented
     if (!is.null(comment(params@search_vol))) {
@@ -127,6 +122,44 @@ setSearchVolume.MizerParams <- function(params, search_vol = NULL, reset = FALSE
 
     params@time_modified <- lubridate::now()
     return(params)
+}
+
+#' Fill in the default for the `q` species parameter
+#'
+#' The allometric exponent of the search volume defaults to `lambda - 2 + n`.
+#' Factored out of [setSearchVolume()] so that the functions calculating
+#' defaults can rely on `q` being present without having to go through the
+#' setter.
+#'
+#' @param params A MizerParams object
+#' @return The MizerParams object with any missing `q` filled in
+#' @noRd
+set_q_default <- function(params) {
+    q <- params@resource_params$lambda - 2 + params@species_params[["n"]]
+    params@species_params <-
+        set_species_param_default(params@species_params, "q", q)
+    params
+}
+
+#' Calculate the search volume from the species parameters
+#'
+#' Evaluates \eqn{\gamma_i(w) = \gamma_i w^{q_i}} from the `gamma` and `q`
+#' columns of the species parameter data frame, which both have to be present.
+#'
+#' This is the calculation that [setSearchVolume()] performs, factored out so
+#' that internal callers can obtain the search volume implied by the species
+#' parameters without going through the setter. The setter refuses to
+#' recalculate a `search_vol` slot that the user has set by hand, and that
+#' refusal must not extend to mizer's own use of the search volume when deriving
+#' default parameters (issue #488).
+#'
+#' @param params A MizerParams object
+#' @return An array (species x size) with the search volume
+#' @noRd
+compute_search_vol <- function(params) {
+    sweep(outer(params@species_params[["q"]], params@w,
+                function(x, y) y ^ x),
+          1, params@species_params$gamma, "*")
 }
 
 #' @rdname setSearchVolume
