@@ -42,6 +42,8 @@ plots) are in the changelog and are not repeated here.
 
 | Symptom | Cause | Section |
 |---|---|---|
+| A column read with `$` is now `NULL`, with a warning naming another column | `$` no longer partially matches column names | `$` no longer partially matches (3.3) |
+| Length-weight conversion via `$a`/`$b` gave `alpha`/`beta` values | partial matching, now fixed | `$` no longer partially matches (3.3) |
 | Absolute diet values dropped ~10%, only with `second_order_w` bin-averaging | double-counted prey-bin quadrature, now fixed | Quadrature fixes under `second_order_w` (3.3) |
 | Trophic levels moved slightly, only with `second_order_w` | numerator and denominator now use one quadrature | Quadrature fixes under `second_order_w` (3.3) |
 | Size grid or results changed in a model built with a small `min_w` | `w_min` is no longer reset to 0.001 | `w_min` survives a rebuild (3.3) |
@@ -96,9 +98,32 @@ and are not repeated here.
 
 ## Upgrading from mizer 3.2 to 3.3
 
-All the changes in this release are corrections. Results move only for models
-that had opted in to second-order bin-averaging, or that set `min_w` below the
-default.
+All the changes in this release are corrections. The one that can affect any
+model is that `$` on a parameter table no longer partially matches column names.
+Otherwise results move only for models that had opted in to second-order
+bin-averaging, or that set `min_w` below the default.
+
+### `$` on a parameter table no longer partially matches
+
+`$` on a `species_params` or `gear_params` table now matches column names
+exactly. Partial matching was silently returning the wrong parameter: in a model
+without the length-weight parameters `a` and `b`,
+
+```r
+species_params(NS_params)$a   # used to return the `alpha` column
+species_params(NS_params)$b   # used to return the `beta` column
+```
+
+complete with per-species names, so code converting weights to lengths got the
+assimilation efficiency and the preferred predator/prey mass ratio instead.
+Writing was never partially matched (`sp$b <- 3` always created a new column
+`b`), so reads and writes disagreed about what `$b` meant.
+
+A name that is not a column now gives `NULL`. If the name would have partially
+matched a single column, you also get a warning naming that column. So
+`is.null(species_params(params)$foo)` is now a reliable test for whether a
+parameter is present, and any code that was relying on the abbreviation should
+spell the column out in full (#487).
 
 ### Quadrature fixes under `second_order_w`
 

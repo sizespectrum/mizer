@@ -493,3 +493,20 @@ test_that("calc_selectivity errors for missing or NA selectivity parameters", {
     params_na@gear_params$knife_edge_size[1] <- NA
     expect_error(calc_selectivity(params_na), "Some selectivity parameters are NA")
 })
+
+test_that("$ on gear_params does not partially match column names", {
+    gp <- gear_params(NS_params_small)
+    expect_true("catchability" %in% names(gp))
+    expect_false("catch" %in% names(gp))
+
+    expect_warning(out <- gp$catch,
+                   "There is no `catch` column in this `gear_params`")
+    expect_null(out)
+
+    # A name matching nothing at all stays silent
+    expect_silent(out <- gp$no_such_parameter)
+    expect_null(out)
+
+    # Exact matches are unaffected
+    expect_identical(unname(gp$catchability), gp[["catchability"]])
+})
