@@ -107,9 +107,8 @@ setExtDiffusion.MizerParams <- function(params, ext_diffusion = NULL,
     # Prevent overwriting slot if it has been commented
     if (!is.null(comment(params@ext_diffusion))) {
         if (different(ext_diffusion, params@ext_diffusion)) {
-            message("The external diffusion rate has been commented and ",
-                    "therefore will not be recalculated from the species ",
-                    "parameters.")
+            signal_not_recalculated("ext_diffusion", "external diffusion rate",
+                               "setExtDiffusion(params, reset = TRUE)")
         }
         return(params)
     }

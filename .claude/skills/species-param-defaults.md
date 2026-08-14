@@ -80,6 +80,15 @@ Only put a column there if a setter really refills it on the plain
 `setX(params)` path — check that the default is set *before* the setter's early
 returns for a supplied or commented rate array, not after.
 
+### And a third, if the parameter feeds a rate array
+
+`frozen_rate_params()` in `R/info_signals.R` maps each rate array that can be
+frozen to the species parameters that feed it. `species_params<-()` uses it to
+warn the user when a change cannot take effect because the array it feeds was
+set by hand (#489). A missing entry only costs a warning, so the list is
+deliberately not exhaustive — but **never list a parameter that does not in
+fact feed the array**, because that warns about a change that did take effect.
+
 ### The central defaults are an exported contract
 
 `validSpeciesParams()` is exported and its roxygen lists exactly which defaults

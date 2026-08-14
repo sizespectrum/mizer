@@ -169,7 +169,8 @@ model. Defaults to \code{FALSE} (the first-order behaviour of previous mizer).}
 
 \item{info_level}{Controls the amount of information messages that are shown
 when the function sets default values for parameters. Higher levels lead
-to more messages.}
+to more messages. Use \code{info_level = 0} for silence and \code{info_level = NA}
+to leave the reporting to the calling function.}
 
 \item{z0}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ext_mort} instead. Not to
 be confused with the species_parameter \code{z0}.}

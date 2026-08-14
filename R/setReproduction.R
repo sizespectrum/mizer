@@ -267,8 +267,8 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
         # If maturity is protected by a comment, keep the old value
         if (!is.null(comment(params@maturity))) {
             if (different(params@maturity, maturity)) {
-                message("The maturity ogive has been commented and therefore will ",
-                        "not be recalculated from the species parameters.")
+                signal_not_recalculated("maturity", "maturity ogive",
+                                   "setReproduction(params, reset = TRUE)")
             }
             maturity <- params@maturity
         }
@@ -336,8 +336,8 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
     # a comment.
     if (!is.null(comment(params@psi)) && is.null(comment(repro_prop))) {
         if (different(params@psi, psi)) {
-            message("The reproductive proportion has been commented and therefore ",
-                    "will not be recalculated from the species parameters.")
+            signal_not_recalculated("psi", "reproductive proportion",
+                               "setReproduction(params, reset = TRUE)")
         }
     } else {
         params@psi[] <- psi

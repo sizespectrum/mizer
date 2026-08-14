@@ -180,6 +180,27 @@ stability of steady states.
 
 ## Bug fixes
 
+- Changing a species parameter that feeds a rate array you have set by hand now
+  warns you that the change has no effect on the model. Previously
+  `species_params<-()` and `given_species_params<-()` recorded the new value in
+  the species parameter table but left the model unchanged, and said nothing:
+  the rate setters do emit a message in that situation, but those two functions
+  run `suppressMessages()` over the recalculation to quieten the routine
+  chatter, so the message never reached the user. The report is now a warning,
+  which survives that, and it names the species parameters that were ignored,
+  the quantity that is holding them back, and the call that puts the quantity
+  back under the control of the species parameters, for example
+  `setMetabolicRate(params, reset = TRUE)`. It is raised only when a parameter
+  that actually feeds the frozen quantity changed, so models that mizer itself
+  freezes arrays in, like those from `newTraitParams()` and
+  `newCommunityParams()`, do not warn about unrelated changes (#489).
+
+- `info_level = 0` now really does silence all the information about default
+  values. Previously an information signal whose level was above `info_level`
+  was passed on rather than dropped, so it could still be reported by a handler
+  further out. Functions that call another one and report its information
+  themselves now pass `info_level = NA` to say so.
+
 - `w_min` is now included in `given_species_params`, so the `min_w` argument to
   `newMultispeciesParams()` and `emptyParams()` is preserved across any operation
   that rebuilds the species parameters from the given ones. Previously, a

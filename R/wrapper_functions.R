@@ -99,17 +99,9 @@ newCommunityParams <- function(max_w = 1e6,
                                reproduction,
                                second_order_w = FALSE,
                                info_level = 2) {
-    # Define a signal handler that collects the information signals
-    # into the `infos` list.
-    infos <- list()
-    collect_info <- function(cnd) {
-        if (cnd$level <= info_level) {
-            infos[[cnd$var]] <<- cnd$message
-        }
-    }
-    # Register this signal handler
-    withCallingHandlers(
-        info_about_default = collect_info, {
+    # Collect the information signals raised while the model is built and
+    # report them together at the end.
+    with_info_level(info_level = info_level, {
     w_max <- max_w
     w_pp_cutoff <- min_w
     ks <- 0 # Turn off standard metabolism
@@ -149,7 +141,8 @@ newCommunityParams <- function(max_w = 1e6,
                               w_pp_cutoff = w_pp_cutoff,
                               second_order_w =
                                   c(bin_average = target_sow[["bin_average"]]),
-                              info_level = 0)
+                              # We report the information ourselves at the end
+                              info_level = NA)
 
     initial_n <- array(kappa * params@w ^ (-lambda),
                        dim = c(1, length(params@w)))
@@ -169,9 +162,6 @@ newCommunityParams <- function(max_w = 1e6,
     })
     # Activate the chosen advective-flux scheme now construction is done.
     params@second_order_w[["flux"]] <- target_sow[["flux"]]
-    if (length(infos) > 0) {
-        message(paste(infos, collapse = "\n"))
-    }
     return(params)
 }
 
@@ -314,7 +304,7 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param max_w_inf `r lifecycle::badge("deprecated")` The argument has been
 #'   renamed to `max_w_max`.
 #' @param info_level Controls the amount of information messages that are shown.
-#'   Higher levels lead to more messages.
+#'   Higher levels lead to more messages. Use `info_level = 0` for silence.
 #' @export
 #' @importFrom lifecycle deprecated
 #' @return An object of type `MizerParams`
@@ -358,17 +348,9 @@ newTraitParams <- function(no_sp = 11,
                            min_w_inf = deprecated(),
                            max_w_inf = deprecated(),
                            info_level = 2) {
-    # Define a signal handler that collects the information signals
-    # into the `infos` list.
-    infos <- list()
-    collect_info <- function(cnd) {
-        if (cnd$level <= info_level) {
-            infos[[cnd$var]] <<- cnd$message
-        }
-    }
-    # Register this signal handler
-    withCallingHandlers(
-        info_about_default = collect_info, {
+    # Collect the information signals raised while the model is built and
+    # report them together at the end.
+    with_info_level(info_level = info_level, {
     ## Deprecated arguments ----
     if (lifecycle::is_present(min_w_inf)) {
         lifecycle::deprecate_warn(
@@ -547,7 +529,8 @@ newTraitParams <- function(no_sp = 11,
             min_w_pp = min_w_pp,
             resource_rate = r_pp,
             second_order_w = c(bin_average = target_sow[["bin_average"]]),
-            info_level = 0
+            # We report the information ourselves at the end
+            info_level = NA
         )
 
     w <- params@w
@@ -671,9 +654,6 @@ newTraitParams <- function(no_sp = 11,
     })
     # Activate the chosen advective-flux scheme now construction is done.
     params@second_order_w[["flux"]] <- target_sow[["flux"]]
-    if (length(infos) > 0) {
-        message(paste(infos, collapse = "\n"))
-    }
     return(params)
 }
 

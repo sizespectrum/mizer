@@ -156,7 +156,7 @@ size of a species not the von Bertalanffy asymptotic size parameter.}
 renamed to \code{max_w_max}.}
 
 \item{info_level}{Controls the amount of information messages that are shown.
-Higher levels lead to more messages.}
+Higher levels lead to more messages. Use \code{info_level = 0} for silence.}
 }
 \value{
 An object of type \code{MizerParams}

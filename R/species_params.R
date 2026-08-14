@@ -64,7 +64,10 @@
 #' `species_params<-()` or `given_species_params<-()`, the new value will be
 #' used to update the corresponding size-dependent rates automatically, unless
 #' you have set those size-dependent rates manually, in which case the
-#' corresponding species parameters will be ignored.
+#' corresponding species parameters will be ignored. Mizer warns you when that
+#' happens, because the value is then in the species parameter table without
+#' having any effect on the model. The warning names the call that puts the
+#' rate back under the control of the species parameters.
 #'
 #' There are some species parameters that are used directly in the model
 #' rather than being used for setting up size-dependent parameters:
@@ -297,6 +300,7 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
 
     # Find what changed compared to old species_params and record it among the
     # given species parameters
+    changed <- changed_species_params(value, object@species_params)
     object@given_species_params <-
         record_given_species_params(object@given_species_params, value,
                                     object@species_params)
@@ -323,6 +327,10 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
         new_sp[[col]] <- value[[col]]
     }
     object@species_params <- new_sp
+    # Warn about the changes that cannot take effect because the rate array
+    # they feed has been set by hand. This is signalled here rather than inside
+    # `setParams()` because only here do we know what the user asked to change.
+    with_info_level(signal_frozen_changes(object, changed))
     return(suppressMessages(setParams(object)))
 }
 
@@ -966,6 +974,10 @@ is.given_species_params <- function(x) {
     if ("yield_observed" %in% names(changes)) {
         warning("To change the observed yield you should use `gear_params()<-`, not `species_params()`.")
     }
+
+    # Warn about the changes that cannot take effect because the rate array
+    # they feed has been set by hand.
+    with_info_level(signal_frozen_changes(params, names(changes)))
 
     params@given_species_params <- value
     params@species_params <- validSpeciesParams(value)

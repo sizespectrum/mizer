@@ -128,8 +128,8 @@ setMetabolicRate.MizerParams <- function(object, metab = NULL, p = deprecated(),
     if (!is.null(comment(params@metab))) {
         # Issue warning but only if a change was actually requested
         if (different(metab, params@metab)) {
-            message("The metabolic rate has been commented and therefore will ",
-                    "not be recalculated from the species parameters.")
+            signal_not_recalculated("metab", "metabolic rate",
+                               "setMetabolicRate(params, reset = TRUE)")
         }
         return(params)
     }

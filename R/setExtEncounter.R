@@ -104,8 +104,8 @@ setExtEncounter.MizerParams <- function(params, ext_encounter = NULL,
     # Prevent overwriting slot if it has been commented
     if (!is.null(comment(params@ext_encounter))) {
         if (different(ext_encounter, params@ext_encounter)) {
-            message("The external encounter rate has been commented and therefore will ",
-                    "not be recalculated from the species parameters.")
+            signal_not_recalculated("ext_encounter", "external encounter rate",
+                               "setExtEncounter(params, reset = TRUE)")
         }
         return(params)
     }

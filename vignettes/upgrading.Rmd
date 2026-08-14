@@ -34,7 +34,48 @@ and are not repeated here.
 
 All the changes in this release are corrections. Results move only for models
 that had opted in to second-order bin-averaging, or that set `min_w` below the
-default.
+default. One report that mizer used to make quietly is now a warning.
+
+### A change that cannot take effect now warns
+
+If you have set a rate array by hand — [`metab(params) <- ...`](../reference/setMetabolicRate.html), or any setter
+called with an explicit array — mizer no longer calculates that rate from the
+species parameters. Changing one of the species parameters that used to feed it
+therefore changes the species parameter table but not the model. Mizer now
+warns when that happens:
+
+```{r eval=FALSE}
+params <- NS_params
+metab(params) <- metab(params)      # freeze the metabolic rate
+
+sp <- species_params(params)
+sp$ks <- sp$ks * 2
+species_params(params) <- sp
+#> Warning: Your change to the species parameter `ks` has not taken effect
+#> because the metabolic rate has been set manually and so is no longer
+#> calculated from the species parameters. Call
+#> `setMetabolicRate(params, reset = TRUE)` if you want the metabolic rate to
+#> be calculated from the species parameters again.
+```
+
+Previously this was silent: the rate setter did emit a message, but
+`species_params<-()` and `given_species_params<-()` run `suppressMessages()`
+over the recalculation to quieten the routine chatter, so the message never
+reached you (#489).
+
+**How this affects existing code:** nothing about the model changes — the
+change did not take effect before either, you just were not told. But code that
+runs under `options(warn = 2)`, or a test using `expect_message()` where the
+report now arrives as a warning, will need adjusting. To act on the warning,
+either put the rate back under the control of the species parameters with the
+`reset = TRUE` call it names, or set the rate array itself instead of the
+species parameter. To silence it, pass `info_level = 0` to whichever function
+you are calling, if it takes one.
+
+The warning is raised only when a species parameter that actually feeds the
+frozen rate changed, so a model in which mizer itself froze an array — such as
+the ones built by [`newTraitParams()`](../reference/newTraitParams.html) and [`newCommunityParams()`](../reference/newCommunityParams.html) — does not warn
+about unrelated parameter changes.
 
 ### Quadrature fixes under `second_order_w`
 
