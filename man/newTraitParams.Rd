@@ -98,7 +98,7 @@ equal to the exponent \code{n}.}
 
 \item{f0}{Expected average feeding level. Used to set \code{gamma}, the
 coefficient in the search rate. Ignored if \code{gamma} is given
-explicitly.}
+explicitly, but must still be finite and in the interval (0, 1).}
 
 \item{fc}{Critical feeding level. Used to determine \code{ks} if it is not given
 explicitly.}

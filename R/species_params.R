@@ -731,10 +731,35 @@ reconcile_length_weight <- function(x, old) {
     x
 }
 
+check_f0 <- function(f0, species = NULL) {
+    if (is.logical(f0) && all(is.na(f0))) {
+        f0 <- as.numeric(f0)
+    }
+    if (!is.numeric(f0)) {
+        stop("The species parameter `f0` must be numeric.")
+    }
+    invalid_f0 <- is.nan(f0) |
+        (!is.na(f0) & (!is.finite(f0) | f0 < 0 | f0 >= 1))
+    if (any(invalid_f0)) {
+        msg <- paste0("The species parameter `f0` must be finite and in the ",
+                      "interval [0, 1).")
+        if (!is.null(species)) {
+            msg <- paste0(msg, " Invalid values for: ",
+                          paste(species[invalid_f0], collapse = ", "), ".")
+        }
+        stop(msg)
+    }
+    invisible(NULL)
+}
+
 check_and_convert_species_params <- function(x) {
     check_for_misspellings(names(x), known_species_params_columns(),
                            "species parameter",
                            curated_species_params_misspellings())
+
+    if ("f0" %in% names(x)) {
+        check_f0(x[["f0"]], x[["species"]])
+    }
 
     # Auto convert length to weight if allometric parameters exist
     if (all(c("a", "b") %in% names(x))) {
@@ -1264,20 +1289,12 @@ get_gamma_default <- function(params) {
     if (!("gamma" %in% colnames(species_params))) {
         species_params$gamma <- rep(NA, nrow(species_params))
     }
+    check_f0(species_params$f0, species_params$species)
     missing <- is.na(species_params$gamma)
     if (any(missing)) {
         assert_that(is.number(params@resource_params$lambda),
                     is.number(params@resource_params$kappa),
                     is.numeric(species_params$f0))
-        f0 <- species_params$f0
-        invalid_f0 <- missing & (!is.finite(f0) | f0 < 0 | f0 >= 1)
-        if (any(invalid_f0)) {
-            stop("The species parameter `f0` must be finite and in the ",
-                 "interval [0, 1) for species where `gamma` is not ",
-                 "supplied. Invalid values for: ",
-                 paste(species_params$species[invalid_f0], collapse = ", "),
-                 ".")
-        }
         signal_info("gamma", "Using f0, h, lambda, kappa and the predation kernel to calculate gamma.")
         if (!"h" %in% names(params@species_params) ||
             any(is.na(species_params[["h"]]))) {

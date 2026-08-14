@@ -235,11 +235,11 @@ stability of steady states.
 
 ## Bug fixes
 
-- Setting `f0` to a value outside the interval `[0, 1)` when `gamma` needs to
-  be calculated now gives an immediate error. Previously `f0 = 1` silently
-  produced an infinite `gamma` and a non-finite `search_vol`, leaving an
-  invalid `MizerParams` object that failed only on a later call to
-  `validParams()`; values above 1 produced negative search volumes (#517).
+- Setting `f0` to a value outside the interval `[0, 1)` now gives an immediate
+  error, whether or not `gamma` has been supplied. Previously `f0 = 1`
+  silently produced an infinite `gamma` and a non-finite `search_vol` when
+  `gamma` was calculated, while an invalid `f0` supplied alongside `gamma`
+  could be accepted and ignored (#517).
 
 - The default values for the `gamma` and `f0` species parameters are no longer
   corrupted by a search volume that you have set by hand. `get_gamma_default()`

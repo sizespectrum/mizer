@@ -70,7 +70,7 @@ equal to the exponent \code{n}.}
 
 \item{f0}{Expected average feeding level. Used to set \code{gamma}, the
 coefficient in the search rate. Ignored if \code{gamma} is given
-explicitly.}
+explicitly, but must still be finite and in the interval (0, 1).}
 
 \item{fc}{Critical feeding level. Used to determine \code{ks} if it is not given
 explicitly.}
@@ -134,8 +134,9 @@ necessary so that there are at least 5 size bins per factor 10 in body
 size. It requires \verb{w_min < w_mat < w_max}, \code{ext_mort_prop} in \verb{[0, 1)},
 positive values for \code{n}, \code{lambda}, \code{kappa}, \code{alpha}, \code{h}, \code{beta}, \code{sigma}
 and \code{f0}, and \code{fc} between 0 and \code{f0} if \code{fc} is supplied. If \code{gamma} is
-supplied then \code{f0} is ignored. The function stops if the resulting feeding
-level is not sufficient to maintain the species.
+supplied then \code{f0} is ignored after its value has been validated. The
+function stops if the resulting feeding level is not sufficient to maintain
+the species.
 
 The returned model has a single foreground species with cannibalism switched
 off and a fixed power-law background community that provides both food and

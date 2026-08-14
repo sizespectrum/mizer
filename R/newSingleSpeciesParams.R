@@ -22,8 +22,9 @@
 #' size. It requires `w_min < w_mat < w_max`, `ext_mort_prop` in `[0, 1)`,
 #' positive values for `n`, `lambda`, `kappa`, `alpha`, `h`, `beta`, `sigma`
 #' and `f0`, and `fc` between 0 and `f0` if `fc` is supplied. If `gamma` is
-#' supplied then `f0` is ignored. The function stops if the resulting feeding
-#' level is not sufficient to maintain the species.
+#' supplied then `f0` is ignored after its value has been validated. The
+#' function stops if the resulting feeding level is not sufficient to maintain
+#' the species.
 #'
 #' The returned model has a single foreground species with cannibalism switched
 #' off and a fixed power-law background community that provides both food and
@@ -144,6 +145,7 @@ newSingleSpeciesParams <-
         stop("The maturity size w_mat must be ",
              "smaller the maximum size w_max")
     }
+    check_f0(f0) # nolint: object_usage_linter.
     if (!all(c(n, lambda, kappa, alpha, h, beta, sigma, f0) > 0)) {
         stop("The parameters n, lambda, kappa, alpha, h, beta, sigma ",
              "and f0, if supplied, need to be positive.")

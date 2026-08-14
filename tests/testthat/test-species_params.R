@@ -81,7 +81,7 @@ test_that("gamma and f0 defaults ignore a frozen search volume (#488)", {
     expect_equal(search_vol(frozen), sv, ignore_attr = TRUE)
 })
 
-test_that("invalid f0 values do not create non-finite gamma (#517)", {
+test_that("invalid f0 is rejected even when gamma is given (#517)", {
     sp <- data.frame(species = "a", w_inf = 100)
     params <- newMultispeciesParams(sp, info_level = 0)
     expect_false("gamma" %in% names(given_species_params(params)))
@@ -91,6 +91,21 @@ test_that("invalid f0 values do not create non-finite gamma (#517)", {
     expect_error(given_species_params(params)$f0 <- 2,
                  "`f0` must be finite and in the interval")
     expect_error(given_species_params(params)$f0 <- Inf,
+                 "`f0` must be finite and in the interval")
+    expect_error(given_species_params(params)$f0 <- NaN,
+                 "`f0` must be finite and in the interval")
+
+    sp$gamma <- 1
+    params <- newMultispeciesParams(sp, info_level = 0)
+    expect_true("gamma" %in% names(given_species_params(params)))
+    expect_error(given_species_params(params)$f0 <- 1,
+                 "`f0` must be finite and in the interval")
+    sp_invalid <- data.frame(species = "a", w_inf = 100, gamma = 1, f0 = 1)
+    expect_error(given_species_params(sp_invalid),
+                 "`f0` must be finite and in the interval")
+
+    params@species_params$f0 <- 1
+    expect_error(get_gamma_default(params),
                  "`f0` must be finite and in the interval")
 })
 
@@ -166,7 +181,7 @@ test_that("`given_species_params<-()` gives correct warnings", {
     params <- NS_params_small
 
     no_sp <- nrow(params@species_params)
-    expect_warning(given_species_params(params)$f0 <- 1)
+    expect_warning(given_species_params(params)$f0 <- 0.5)
     expect_warning(given_species_params(params)$fc <- 1)
     expect_warning(given_species_params(params)$age_mat <- 1)
     expect_warning(given_species_params(params)$catchability <- 2)

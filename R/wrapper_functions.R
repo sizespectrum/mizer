@@ -46,7 +46,7 @@
 #' @param alpha The assimilation efficiency of the community.
 #' @param f0 The average feeding level of individuals who feed on a power-law
 #'   spectrum. This value is used to calculate the search rate parameter
-#'   `gamma`.
+#'   `gamma`. Must be finite and in the interval [0, 1).
 #' @param h The coefficient of the maximum food intake rate.
 #' @param n The allometric growth exponent. Used as allometric exponent for
 #'   the maximum intake rate of the community as well as the intrinsic growth
@@ -263,7 +263,7 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param sigma Width of prey size preference.
 #' @param f0 Expected average feeding level. Used to set `gamma`, the
 #'   coefficient in the search rate. Ignored if `gamma` is given
-#'   explicitly.
+#'   explicitly, but must still be finite and in the interval (0, 1).
 #' @param gamma Volumetric search rate. If not provided, default is determined
 #'   by [get_gamma_default()] using the value of `f0`.
 #' @param ext_mort_prop The proportion of the total mortality that comes from
@@ -410,6 +410,7 @@ newTraitParams <- function(no_sp = 11,
     if (no_sp < 2) {
         stop("The number of species must be at least 2.")
     }
+    check_f0(f0) # nolint: object_usage_linter.
     if (!all(c(n, r_pp, lambda, kappa, alpha, h, beta, sigma, f0) > 0)) {
         stop("The parameters n, lambda, r_pp, kappa, alpha, h, beta, sigma ",
              "and f0, if supplied, need to be positive.")

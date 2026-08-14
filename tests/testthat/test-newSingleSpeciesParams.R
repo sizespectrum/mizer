@@ -7,6 +7,8 @@ test_that("newSingleSpeciesParams works", {
     expect_equal(params@w[no_w], params@species_params$w_max, ignore_attr = TRUE)
     sim <- project(params, t_max = 1)
     expect_equal(sim@n[1, 1, ], sim@n[2, 1, ])
+    expect_error(newSingleSpeciesParams(f0 = 1, gamma = 1, info_level = 0),
+                 "`f0` must be finite and in the interval")
 })
 
 test_that("newSingleSpeciesParams documents and applies grid and deprecation behaviour", {

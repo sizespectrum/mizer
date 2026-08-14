@@ -43,7 +43,7 @@ is set to the smallest value at which any of the consumers can feed.}
 
 \item{f0}{The average feeding level of individuals who feed on a power-law
 spectrum. This value is used to calculate the search rate parameter
-\code{gamma}.}
+\code{gamma}. Must be finite and in the interval [0, 1).}
 
 \item{h}{The coefficient of the maximum food intake rate.}
 
