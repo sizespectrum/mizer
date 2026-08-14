@@ -1,5 +1,8 @@
 *.html
 *.R
-
 /.quarto/
 **/*.quarto_ipynb
+celtic_gear_params.csv
+celtic_interaction.csv
+celtic_species_params.rds
+celtic_yields.rds
