@@ -246,6 +246,13 @@ stability of steady states.
 
 ## Deprecations
 
+- The `z0pre` and `z0exp` arguments of `setExtMort()` are deprecated. They only
+  supplied a default for missing values of the `z0` species parameter, so they
+  had no effect on a built model, where `z0` is already populated—even with
+  `reset = TRUE`. Set `species_params(params)$z0` instead. The arguments remain
+  available on `newMultispeciesParams()`, where they are meaningful while the
+  model is being constructed (#493).
+
 - Eleven accessors that returned a rate array stored in the MizerParams object
   had two names that did exactly the same thing. The `get`-prefixed name is now
   soft-deprecated in favour of the bare name, which is the one that also has a

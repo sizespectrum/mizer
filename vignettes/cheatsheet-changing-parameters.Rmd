@@ -210,16 +210,17 @@ Defaults fill in `NA`s. Once a column exists in `species_params()` — which,
 after the model is built, is true of every parameter — the machinery that would
 have calculated it is bypassed. Two practical consequences:
 
-**Arguments that only feed a default are dead after construction.**
-`setExtMort()` computes `z0 = z0pre * w_inf^z0exp`, but only for missing `z0`
-values. On a built model `z0` is always present, so `setExtMort(params, z0pre =
-2)` changes nothing at all — not even with `reset = TRUE`, which clears the rate
-array's comment and not the species parameter. Set the species parameter
-instead:
+**Arguments that only feed a default are construction-only.**
+[`newMultispeciesParams()`](../reference/newMultispeciesParams.html) computes `z0 = z0pre * w_inf^z0exp`, but only for
+missing `z0` values while the model is being built. The corresponding
+`setExtMort(z0pre = )` and `setExtMort(z0exp = )` arguments are deprecated:
+on a built model `z0` is already present, so they could not take effect—not
+even with `reset = TRUE`, which clears the rate array's comment and not the
+species parameter. Set the species parameter instead:
 
 ```{r eval=FALSE}
 sp <- species_params(params)
-z0exp <- resource_params(params)$n - 1   # the exponent setExtMort() would use
+z0exp <- resource_params(params)$n - 1   # the construction default
 sp$z0 <- 2 * sp$w_inf^z0exp
 species_params(params) <- sp
 # Setting `sp$z0 <- NA` instead hands it back to the default calculation.

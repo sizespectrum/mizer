@@ -299,9 +299,37 @@ If code now errors here, choose a physically attainable feeding level below 1.
 When `gamma` is the parameter you intend to control, omit the `f0` value or use
 a valid value; `gamma` will still take precedence (#517).
 
+### `z0pre` and `z0exp` are construction-only
+
+The `z0pre` and `z0exp` arguments of [`setExtMort()`](../reference/setExtMort.html) are deprecated, as are the
+same arguments when passed through [`setParams()`](../reference/setParams.html). They were used only to fill
+missing values of the `z0` species parameter. A built model already has `z0`
+for every species, so calls such as
+
+```{r eval=FALSE}
+params <- setExtMort(params, z0pre = 2)
+params <- setParams(params, z0exp = -0.25)
+```
+
+were accepted but changed nothing. `reset = TRUE` did not help: it hands the
+external-mortality array back to the species parameters but does not remove
+the existing `z0` values.
+
+Set `z0` explicitly when changing an existing model:
+
+```{r eval=FALSE}
+sp <- species_params(params)
+sp$z0 <- 2 * sp$w_inf^(-0.25)
+species_params(params) <- sp
+```
+
+The `z0pre` and `z0exp` arguments of `newMultispeciesParams()` are not
+deprecated. There they still calculate missing `z0` values while the model is
+being constructed (#493).
+
 ### `setParams()` rejects arguments it does not use
 
-[`setParams()`](../reference/setParams.html) passes its `...` on to the rate setters, each of which declares
+`setParams()` passes its `...` on to the rate setters, each of which declares
 its own `...` as unused. Any argument that none of them recognises was
 therefore accepted and ignored without a word. It is now an error, and the
 error says where the argument belongs when it belongs somewhere:

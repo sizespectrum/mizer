@@ -29,6 +29,10 @@
 #'   species by including a `n` column in the `species_params`.
 #' @param p The allometric metabolic exponent. This can be overruled for
 #'   individual species by including a `p` column in the `species_params`.
+#' @param z0pre If `z0` is missing from the species parameter data frame,
+#'   calculate it as `z0pre * w_inf ^ z0exp`. Defaults to 0.6.
+#' @param z0exp The exponent used with `z0pre` to calculate a missing `z0`.
+#'   Defaults to `n - 1`.
 #' @param second_order_w `r lifecycle::badge("experimental")` Selects the
 #'   second-order numerical scheme for the new model. Accepts the same values as
 #'   the [second_order_w()] setter: a single logical (`TRUE` switches on both
@@ -169,6 +173,13 @@ newMultispeciesParams <- function(
     # report them together at the end.
     with_info_level(info_level = info_level, {
     no_sp <- nrow(species_params)
+    z0_missing <- if ("z0" %in% names(species_params)) {
+        is.na(species_params$z0)
+    } else {
+        rep(TRUE, no_sp)
+    }
+    assert_that(is.number(z0pre), z0pre >= 0,
+                is.number(z0exp))
 
     species_params <- set_species_param_default(species_params, "n", n)
     species_params <- set_species_param_default(species_params, "p", p)
@@ -209,49 +220,62 @@ newMultispeciesParams <- function(
                                                 w_max = w_pp_cutoff)
     params@resource_params$kappa <- kappa
     params@resource_params$lambda <- lambda
+    # Needed by rate defaults, including the construction default for `z0`,
+    # before `setResource()` installs the complete resource parameters below.
+    params@resource_params$n <- n
     params@resource_params$w_pp_cutoff <- w_pp_cutoff
 
-    params <- params  %>%
-        setParams(
-                  # setInteraction
-                  interaction = interaction,
-                  # setPredKernel()
-                  pred_kernel = pred_kernel,
-                  # setSearchVolume()
-                  search_vol = search_vol,
-                  # setMaxIntakeRate()
-                  intake_max = intake_max,
-                  # setMetabolicRate()
-                  metab = metab,
-                  # setExtMort
-                  ext_mort = ext_mort,
-                  z0pre = z0pre,
-                  z0exp = z0exp,
-                  # setExtEncounter
-                  ext_encounter = ext_encounter,
-                  # setReproduction
-                  maturity = maturity,
-                  repro_prop = repro_prop,
-                  RDD = RDD,
-                  # setFishing. The `gear_params` are not passed here: they are
-                  # already stored in the params object by emptyParams() above
-                  # and setFishing() reads them from there.
-                  selectivity = selectivity,
-                  catchability = catchability,
-                  initial_effort = initial_effort) %>%
-        setResource(
-            # setResource
-            resource_rate = resource_rate,
-            resource_capacity = resource_capacity,
-            resource_dynamics = resource_dynamics,
-            lambda = lambda,
-            n = n,
-            w_pp_cutoff = w_pp_cutoff,
-            balance = FALSE)
+    params <- setParams(
+        params,
+        # setInteraction
+        interaction = interaction,
+        # setPredKernel()
+        pred_kernel = pred_kernel,
+        # setSearchVolume()
+        search_vol = search_vol,
+        # setMaxIntakeRate()
+        intake_max = intake_max,
+        # setMetabolicRate()
+        metab = metab,
+        # setExtMort
+        ext_mort = ext_mort,
+        # setExtEncounter
+        ext_encounter = ext_encounter,
+        # setReproduction
+        maturity = maturity,
+        repro_prop = repro_prop,
+        RDD = RDD,
+        # setFishing. The `gear_params` are not passed here: they are already
+        # stored in the params object by emptyParams() above and setFishing()
+        # reads them from there.
+        selectivity = selectivity,
+        catchability = catchability,
+        initial_effort = initial_effort)
 
-        params@initial_n[] <- get_initial_n(params)
-        # TODO: The next line can be removed after release of mizer 3.0
-        params@A <- rep(1, nrow(species_params))
+    # `z0pre` and `z0exp` are construction arguments. `setParams()` has
+    # installed the ordinary `z0` default at the same point in the species
+    # table as before; now replace only the values that were missing from the
+    # user's table with the requested construction default and update external
+    # mortality. Do not add these calculated values to `given_species_params`.
+    if (is.null(ext_mort) && any(z0_missing)) {
+        z0_default <- z0pre * params@species_params$w_inf^z0exp
+        params@species_params$z0[z0_missing] <- z0_default[z0_missing]
+        params <- setExtMort(params)
+    }
+
+    params <- setResource(
+        params,
+        resource_rate = resource_rate,
+        resource_capacity = resource_capacity,
+        resource_dynamics = resource_dynamics,
+        lambda = lambda,
+        n = n,
+        w_pp_cutoff = w_pp_cutoff,
+        balance = FALSE)
+
+    params@initial_n[] <- get_initial_n(params)
+    # TODO: The next line can be removed after release of mizer 3.0
+    params@A <- rep(1, nrow(species_params))
     })
     # Now that the initial abundances have been computed with the robust upwind
     # solver, switch on the requested advective-flux scheme for projection.

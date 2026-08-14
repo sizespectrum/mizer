@@ -132,9 +132,34 @@ test_that("setParams rejects arguments it does not use", {
     # Unnamed arguments beyond `interaction` and `info_level` are rejected
     expect_error(setParams(params, NULL, 0, 1),
                  "must be named")
-    # Arguments the setters do accept are fine
-    expect_no_error(setParams(params, z0pre = 0.5, RDD = "BevertonHoltRDD",
-                              info_level = 0))
+    # Deprecated setter arguments are still recognised during transition
+    expect_warning(setParams(params, z0pre = 0.5,
+                             RDD = "BevertonHoltRDD", info_level = 0),
+                   "deprecated")
+})
+
+test_that("z0pre and z0exp remain construction arguments", {
+    sp <- data.frame(species = c("a", "b"), w_inf = c(100, 1000))
+
+    expect_no_warning(params <- suppressMessages(
+        newMultispeciesParams(sp, z0pre = 2, z0exp = -0.5, no_w = 20)))
+
+    expected <- 2 * sp$w_inf^(-0.5)
+    expect_equal(species_params(params)$z0, expected, ignore_attr = TRUE)
+    expect_false("z0" %in% names(given_species_params(params)))
+    expect_equal(params@mu_b,
+                 outer(expected, rep(1, length(params@w))),
+                 ignore_attr = TRUE)
+
+    # Explicit z0 values still win, while only missing entries use the
+    # construction arguments.
+    sp$z0 <- c(0.1, NA)
+    params <- suppressMessages(newMultispeciesParams(
+        sp, z0pre = 2, z0exp = -0.5, no_w = 20))
+    expect_equal(species_params(params)$z0, c(0.1, expected[[2]]),
+                 ignore_attr = TRUE)
+    expect_equal(given_species_params(params)$z0, c(0.1, NA),
+                 ignore_attr = TRUE)
 })
 
 test_that("setParams passes reset on to all the setters", {

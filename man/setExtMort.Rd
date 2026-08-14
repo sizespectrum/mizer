@@ -9,8 +9,8 @@
 setExtMort(
   params,
   ext_mort = NULL,
-  z0pre = 0.6,
-  z0exp = params@resource_params$n - 1,
+  z0pre = deprecated(),
+  z0exp = deprecated(),
   reset = FALSE,
   z0 = deprecated(),
   ...
@@ -27,13 +27,13 @@ ext_mort(params) <- value
 mortality rate.  If not supplied, a default is set as described in the
 section "Setting external mortality rate".}
 
-\item{z0pre}{If \code{z0}, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-Default value is 0.6.}
+\item{z0pre}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Set the \code{z0} species
+parameter instead. The argument remains available on
+\code{\link[=newMultispeciesParams]{newMultispeciesParams()}} for use while constructing a model.}
 
-\item{z0exp}{If \code{z0}, the mortality from other sources, is not a column in
-the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
-Default value is \code{n-1}.}
+\item{z0exp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Set the \code{z0} species
+parameter instead. The argument remains available on
+\code{\link[=newMultispeciesParams]{newMultispeciesParams()}} for use while constructing a model.}
 
 \item{reset}{If set to TRUE, then the external mortality rate will be reset
 to the value calculated from the species parameters, even if it was
@@ -80,9 +80,15 @@ If the \code{ext_mort} argument is not supplied, then the external mortality is
 taken from the species parameters as
 \deqn{\mu_{ext.i}(w) = z_{0.i} + z_{ext.i} w^{d_i}.}{mu_ext,i(w) = z0_i + z_ext,i w ^ d_i.}
 The value of the constant \eqn{z_0} for each species is taken from the \code{z0}
-column of the species parameter data frame, if that column exists.
-Otherwise it is calculated as
+column of the species parameter data frame, if that column exists. When a
+model is constructed with \code{\link[=newMultispeciesParams]{newMultispeciesParams()}}, missing values are
+calculated as
 \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
+using that constructor's \code{z0pre} and \code{z0exp} arguments. On an existing model,
+change \code{z0} with \code{\link[=species_params<-]{species_params<-()}} and let mizer recalculate the rate.
+If \code{z0} has been removed from the species parameters entirely,
+\code{setExtMort()} restores the construction defaults \code{z0pre = 0.6} and
+\code{z0exp = n - 1}.
 Missing values of \code{z_ext} are set to 0 and missing values of \code{d} are set to
 \code{n - 1}.
 
