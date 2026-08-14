@@ -2,20 +2,20 @@
 % Please edit documentation in R/info_signals.R
 \name{frozen_rate_params}
 \alias{frozen_rate_params}
-\title{Which species parameters feed which frozen rate array}
+\title{Which parameters feed which frozen array}
 \usage{
 frozen_rate_params()
 }
 \value{
-A named list of lists with entries \code{quantity}, \code{reset_call} and
-\code{params}.
+A named list of lists with entries \code{quantity}, \code{reset_call},
+\code{params} and \code{derived_from}.
 }
 \description{
 A lookup table used by \code{\link[=signal_frozen_changes]{signal_frozen_changes()}} to decide whether a change
-the user made to the species parameters can take effect. Each entry is named
-after a slot of \linkS4class{MizerParams} that can be frozen and gives the
-quantity as the user knows it, the call that unfreezes it, and the species
-parameters that the setter and its default calculations read.
+the user made can take effect. Each entry is named after a slot of
+\linkS4class{MizerParams} that can be frozen and gives the quantity as the
+user knows it, the call that unfreezes it, the parameters that the setter
+and its default calculations read, and what kind of parameters those are.
 }
 \details{
 The list of parameters does not have to be exhaustive, and deliberately is

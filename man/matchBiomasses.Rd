@@ -4,7 +4,7 @@
 \alias{matchBiomasses}
 \title{Match biomasses to observations}
 \usage{
-matchBiomasses(params, species = NULL, info_level = 3, ...)
+matchBiomasses(params, species = NULL, info_level = default_info_level(), ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -15,7 +15,9 @@ with the species indices, or a logical vector indicating for each species
 whether it is to be affected (TRUE) or not.}
 
 \item{info_level}{Controls the amount of information messages that are shown.
-Higher levels lead to more messages.}
+Higher levels lead to more messages, \code{info_level = 0} gives silence. The
+default is taken from the \code{mizer_info_level} option, see
+\code{\link[=default_info_level]{default_info_level()}}.}
 
 \item{...}{Additional arguments passed to the method.}
 }

@@ -84,6 +84,18 @@ stability of steady states.
   the frozen-rate warning described under Bug fixes, and it is available to
   packages that extend mizer.
 
+- Nearly every message and warning that mizer gives while building or changing
+  a model now goes through that mechanism, including the ones in `steady()`,
+  `projectToSteady()`, `matchYields()`, `validParams()`, `setInteraction()`,
+  `setReproduction()`, `setResource()`, `newTraitParams()`,
+  `newSingleSpeciesParams()`, `plotYieldObservedVsModel()` and the upgrade of
+  an old object. They are collected into a single report rather than a stream,
+  and `info_level` (or the `mizer_info_level` option) controls all of them
+  alike, where before each function decided for itself. `steady()`,
+  `projectToSteady()`, `matchYields()` and `validParams()` no longer implement
+  their own `info_level` threshold, and `newSingleSpeciesParams()` gains an
+  `info_level` argument.
+
 - The array-plotting toolkit now covers every mizer array class. The resource
   classes `ArrayResourceBySize` (as returned by `getResourceMort()`,
   `resource_rate()`, `resource_capacity()`, `resource_level()` and
@@ -214,10 +226,27 @@ stability of steady states.
   freezes arrays in, like those from `newTraitParams()` and
   `newCommunityParams()`, do not warn about unrelated changes (#489).
 
+- Changing a resource parameter that feeds a resource array you have set by
+  hand now warns you that the change has no effect, the same way a species
+  parameter change does. `resource_params(params)$kappa <- ...` with a
+  `resource_capacity()` that was set manually previously changed the stored
+  scalar and nothing else, in complete silence. `setResource()` also now says
+  when it leaves a frozen resource array alone although the resource
+  parameters ask for a different value (#489).
+
+- `species_params<-()` now gives the same warning that `given_species_params<-()`
+  already gave when a change is ignored because another parameter takes
+  precedence over it, for example a change to `f0` when `gamma` has been given.
+  Previously only one of the two assignment functions said so.
+
 - `info_level = 0` now really does silence all the information about default
-  values. Previously an information signal whose level was above `info_level`
-  was passed on rather than dropped, so it could still be reported by a handler
-  further out.
+  values, including the reports that until now were plain messages: the notes
+  about the interaction matrix dimnames, about `no_w` being increased, about
+  negative resource abundances, about what an upgrade changed, and the
+  consistency corrections to `w_mat`, `w_mat25`, `w_min` and `w_repro_max`.
+  Previously an information signal whose level was above `info_level` was
+  passed on rather than dropped, so it could still be reported by a handler
+  further out, and a plain message ignored `info_level` altogether.
 
 - `w_min` is now included in `given_species_params`, so the `min_w` argument to
   `newMultispeciesParams()` and `emptyParams()` is preserved across any operation

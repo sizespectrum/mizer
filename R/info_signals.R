@@ -66,21 +66,40 @@ default_info_level <- function(fallback = 3) {
 #' for the rare case where a function wants to leave the reporting to a caller
 #' that has not installed a handler yet.
 #'
+#' The reporting happens on exit, so a function can wrap its whole body even
+#' though it returns from the middle of it.
+#'
+#' Silence is the exception to "the outermost handler decides":
+#' `info_level = 0` drops the reports raised inside it even when a handler
+#' further out is collecting, so that a function can build something quietly
+#' as part of a larger job that does report.
+#'
 #' @param expr The expression to evaluate. It is evaluated in the calling
 #'   environment, so assignments made in it have the same effect as they would
 #'   have without this wrapper.
 #' @param info_level The level of information to report, or `NA` to leave the
 #'   reporting to a handler further out. Defaults to
 #'   [default_info_level()], which consults the `mizer_info_level` option.
+#' @param except A character vector of `var`s not to report on, for a caller
+#'   that is going to say the same thing itself. Everything else raised inside
+#'   `expr` is reported as usual.
 #'
 #' @return The value of `expr`.
 #' @concept helper
-with_info_level <- function(expr, info_level = default_info_level()) {
-    # A handler further out is already collecting, or we were told to leave the
-    # reporting to one: evaluate without collecting or muffling anything.
-    if (info_reporting$active ||
-        !is.numeric(info_level) || length(info_level) != 1 ||
-        is.na(info_level)) {
+with_info_level <- function(expr, info_level = default_info_level(),
+                            except = character()) {
+    # `info_level = 0` silences its expression whatever a handler further out
+    # would have done with the reports, so that a function can build something
+    # quietly inside one that is reporting.
+    silent <- isTRUE(info_level == 0)
+    # Otherwise, if a handler further out is already collecting, or we were
+    # told to leave the reporting to one, evaluate without collecting or
+    # muffling anything. A caller that wants to drop a particular report has
+    # to install a handler for it even so.
+    if (!silent && length(except) == 0 &&
+        (info_reporting$active ||
+         !is.numeric(info_level) || length(info_level) != 1 ||
+         is.na(info_level))) {
         return(expr)
     }
     reports <- list()
@@ -90,7 +109,7 @@ with_info_level <- function(expr, info_level = default_info_level()) {
         # still reported rather than throwing.
         level <- if (is.null(cnd$level)) 3 else cnd$level
         severity <- if (is.null(cnd$severity)) "info" else cnd$severity
-        if (level <= info_level) {
+        if (level <= info_level && !isTRUE(cnd$var %in% except)) {
             key <- paste(severity, cnd$var, cnd$message, sep = "\r")
             reports[[key]] <<- list(severity = severity,
                                     message = cnd$message)
@@ -99,20 +118,25 @@ with_info_level <- function(expr, info_level = default_info_level()) {
         # taken responsibility for them: `info_level = 0` means silence.
         cnd_muffle(cnd)
     }
+    # The reporting is done on exit so that it also happens when `expr` leaves
+    # early. A function can then wrap its whole body in `with_info_level()`
+    # even though it returns from the middle of it, which is what makes this
+    # usable as a wrapper around an existing function.
+    was_active <- info_reporting$active
     info_reporting$active <- TRUE
-    on.exit(info_reporting$active <- FALSE, add = TRUE)
-    result <- withCallingHandlers(expr, info_about_default = collect_info)
-
-    severities <- vapply(reports, `[[`, character(1), "severity")
-    messages <- vapply(reports, `[[`, character(1), "message")
-    if (any(severities == "info")) {
-        message(paste(messages[severities == "info"], collapse = "\n"))
-    }
-    if (any(severities == "warning")) {
-        warning(paste(messages[severities == "warning"], collapse = "\n"),
-                call. = FALSE)
-    }
-    result
+    on.exit({
+        info_reporting$active <- was_active
+        severities <- vapply(reports, `[[`, character(1), "severity")
+        messages <- vapply(reports, `[[`, character(1), "message")
+        if (any(severities == "info")) {
+            message(paste(messages[severities == "info"], collapse = "\n"))
+        }
+        if (any(severities == "warning")) {
+            warning(paste(messages[severities == "warning"], collapse = "\n"),
+                    call. = FALSE)
+        }
+    }, add = TRUE)
+    withCallingHandlers(expr, info_about_default = collect_info)
 }
 
 #' Signal information about a choice mizer made
@@ -122,6 +146,10 @@ with_info_level <- function(expr, info_level = default_info_level()) {
 #' filled in, an input it adjusted or an instruction it could not carry out,
 #' without deciding on its own how loudly to say it: the handler installed by
 #' whichever function the user actually called does that.
+#'
+#' Progress reports are the one thing that does not belong here: they have to
+#' appear while the work is going on, and these are collected and given at the
+#' end.
 #'
 #' @param var A string naming the quantity the report is about.
 #' @param message The message to give the user.
@@ -135,8 +163,9 @@ with_info_level <- function(expr, info_level = default_info_level()) {
 #' @param unhandled What to do when no handler is collecting, for example
 #'   because a rate setter was called directly rather than through
 #'   [setParams()]. `"drop"` says nothing, which suits chatter that only makes
-#'   sense as part of a report about a whole model. `"show"` gives the message
-#'   anyway.
+#'   sense as part of a report about a whole model. `"show"` reports it there
+#'   and then, at the same severity: a message for `"info"` and a warning for
+#'   `"warning"`.
 #' @param class Further classes to give the condition, for code that wants to
 #'   catch a particular kind of report.
 #'
@@ -148,7 +177,13 @@ signal_info <- function(var, message, level = 3,
                         class = character()) {
     severity <- match.arg(severity)
     unhandled <- match.arg(unhandled)
-    emit <- if (unhandled == "show") inform else signal
+    emit <- if (unhandled == "drop") {
+        signal
+    } else if (severity == "warning") {
+        rlang::warn
+    } else {
+        inform
+    }
     emit(message, class = c(class, "info_about_default"),
          var = var, level = level, severity = severity)
 }
@@ -213,13 +248,13 @@ signal_not_recalculated <- function(var, quantity, reset_call,
         level = 1, unhandled = "show")
 }
 
-#' Which species parameters feed which frozen rate array
+#' Which parameters feed which frozen array
 #'
 #' A lookup table used by [signal_frozen_changes()] to decide whether a change
-#' the user made to the species parameters can take effect. Each entry is named
-#' after a slot of \linkS4class{MizerParams} that can be frozen and gives the
-#' quantity as the user knows it, the call that unfreezes it, and the species
-#' parameters that the setter and its default calculations read.
+#' the user made can take effect. Each entry is named after a slot of
+#' \linkS4class{MizerParams} that can be frozen and gives the quantity as the
+#' user knows it, the call that unfreezes it, the parameters that the setter
+#' and its default calculations read, and what kind of parameters those are.
 #'
 #' The list of parameters does not have to be exhaustive, and deliberately is
 #' not: it names the parameters that the setter reads directly together with
@@ -230,8 +265,8 @@ signal_not_recalculated <- function(var, quantity, reset_call,
 #' influence is the worse mistake, because it warns about a change that did
 #' take effect.
 #'
-#' @return A named list of lists with entries `quantity`, `reset_call` and
-#'   `params`.
+#' @return A named list of lists with entries `quantity`, `reset_call`,
+#'   `params` and `derived_from`.
 #' @concept helper
 frozen_rate_params <- function() {
     list(
@@ -272,7 +307,17 @@ frozen_rate_params <- function() {
             quantity = "reproductive proportion",
             reset_call = "setReproduction(params, reset = TRUE)",
             params = c("w_mat", "w_mat25", "l_mat", "l_mat25", "m", "n",
-                       "w_repro_max", "l_repro_max", "w_max", "l_max"))
+                       "w_repro_max", "l_repro_max", "w_max", "l_max")),
+        cc_pp = list(
+            quantity = "resource capacity",
+            reset_call = "setResource(params, reset = TRUE)",
+            params = c("kappa", "lambda", "w_pp_cutoff"),
+            derived_from = "resource parameters"),
+        rr_pp = list(
+            quantity = "resource rate",
+            reset_call = "setResource(params, reset = TRUE)",
+            params = c("r_pp", "n"),
+            derived_from = "resource parameters")
     )
 }
 
@@ -304,15 +349,21 @@ signal_frozen_changes <- function(params, changed) {
         if (length(affected) == 0) {
             next
         }
+        # "species parameters" -> "species parameter" for a single one
+        plural <- if (is.null(entry$derived_from)) {
+            "species parameters"
+        } else {
+            entry$derived_from
+        }
+        singular <- sub("s$", "", plural)
         signal_frozen(var, paste0(
-            "Your change to the species ",
-            ngettext(length(affected), "parameter ", "parameters "),
+            "Your change to the ",
+            ngettext(length(affected), singular, plural), " ",
             paste0("`", affected, "`", collapse = ", "),
             " has not taken effect because the ", entry$quantity,
             " has been set manually and so is no longer calculated from the ",
-            "species parameters. Call `", entry$reset_call, "` if you want ",
-            "the ", entry$quantity, " to be calculated from the species ",
-            "parameters again."))
+            plural, ". Call `", entry$reset_call, "` if you want the ",
+            entry$quantity, " to be calculated from the ", plural, " again."))
     }
     invisible(NULL)
 }
@@ -320,7 +371,7 @@ signal_frozen_changes <- function(params, changed) {
 #' Which species parameters changed
 #'
 #' Compares the columns of two species parameter data frames and returns the
-#' names of those that differ, using the same entry-by-entry comparison as
+#' ones that differ, using the same entry-by-entry comparison as
 #' [record_given_species_params()]: a column that is not present in `old_sp` is
 #' new and therefore counts as changed, and `NA` is compared as a value rather
 #' than as an unknown.
@@ -328,13 +379,85 @@ signal_frozen_changes <- function(params, changed) {
 #' @param value A data frame with the new species parameters.
 #' @param old_sp A data frame with the species parameters as they were before.
 #'
-#' @return A character vector with the names of the changed columns.
+#' @return A named list with one entry per changed column, holding a logical
+#'   vector saying which species changed. Use `names()` on it for the names of
+#'   the changed columns.
 #' @concept helper
 changed_species_params <- function(value, old_sp) {
     no_sp <- nrow(value)
-    cols <- names(value)
-    changed <- vapply(cols, function(col) {
-        any(changed_entries(value[[col]], old_sp[[col]], no_sp))
-    }, logical(1))
-    cols[changed]
+    changed <- lapply(names(value), function(col) {
+        changed_entries(value[[col]], old_sp[[col]], no_sp)
+    })
+    names(changed) <- names(value)
+    changed[vapply(changed, any, logical(1))]
+}
+
+# The species parameters that mizer only uses to calculate a default for
+# another one, and so ignores once that other one has been given. Each entry is
+# named after the parameter that is ignored and gives the parameter that takes
+# precedence over it.
+overridden_species_params <- function() {
+    c(f0 = "gamma", fc = "ks", age_mat = "h")
+}
+
+#' Signal the changes that are ignored because another parameter was given
+#'
+#' Some species parameters are only used to calculate a default for another
+#' one: `f0` for `gamma`, `fc` for `ks` and `age_mat` for `h`. Once the other
+#' one has been given, the model no longer consults them, so changing them has
+#' no effect. This raises a warning about that.
+#'
+#' @param given The given species parameters, as they are before the change.
+#' @param changed A named list with one logical vector per changed column, as
+#'   returned by [changed_species_params()].
+#'
+#' @return `NULL` invisibly. Called for its side effect of signalling.
+#' @concept helper
+signal_ignored_changes <- function(given, changed) {
+    for (par in names(overridden_species_params())) {
+        takes_precedence <- overridden_species_params()[[par]]
+        if (!(par %in% names(changed)) ||
+            !(takes_precedence %in% names(given))) {
+            next
+        }
+        if (any(!is.na(given[[takes_precedence]][changed[[par]]]))) {
+            signal_info(par, paste0(
+                "You have specified some values for `", par, "` that are ",
+                "going to be ignored because values for `", takes_precedence,
+                "` have already been given."),
+                level = 1, severity = "warning", unhandled = "show")
+        }
+    }
+    invisible(NULL)
+}
+
+#' Signal a gear parameter changed through the given species parameters
+#'
+#' Mizer looks for the gear parameters in the gear parameter table, so setting
+#' one of them through [given_species_params<-()] does not reach the model.
+#' Only that assignment reports this, because [species_params<-()] keeps a
+#' column it does not recognise and code that reads it directly, as
+#' [matchYields()] does with `yield_observed`, then still sees it.
+#'
+#' @param changed A named list with one entry per changed column, or a
+#'   character vector of the changed column names.
+#'
+#' @return `NULL` invisibly. Called for its side effect of signalling.
+#' @concept helper
+signal_gear_params_changes <- function(changed) {
+    changed <- if (is.character(changed)) changed else names(changed)
+    gear_pars <- c("catchability", "selectivity", "l50", "l25", "sel_func")
+    if (any(gear_pars %in% changed)) {
+        signal_info("gear_params", paste0(
+            "To make changes to gears you should use `gear_params()<-`, not ",
+            "`species_params()`."),
+            level = 1, severity = "warning", unhandled = "show")
+    }
+    if ("yield_observed" %in% changed) {
+        signal_info("yield_observed", paste0(
+            "To change the observed yield you should use `gear_params()<-`, ",
+            "not `species_params()`."),
+            level = 1, severity = "warning", unhandled = "show")
+    }
+    invisible(NULL)
 }

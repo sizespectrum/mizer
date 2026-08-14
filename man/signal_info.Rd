@@ -30,8 +30,9 @@ happening, because a message can be, and on the
 \item{unhandled}{What to do when no handler is collecting, for example
 because a rate setter was called directly rather than through
 \code{\link[=setParams]{setParams()}}. \code{"drop"} says nothing, which suits chatter that only makes
-sense as part of a report about a whole model. \code{"show"} gives the message
-anyway.}
+sense as part of a report about a whole model. \code{"show"} reports it there
+and then, at the same severity: a message for \code{"info"} and a warning for
+\code{"warning"}.}
 
 \item{class}{Further classes to give the condition, for code that wants to
 catch a particular kind of report.}
@@ -45,5 +46,10 @@ mizer, and for anything extending it, to tell the user about a default it
 filled in, an input it adjusted or an instruction it could not carry out,
 without deciding on its own how loudly to say it: the handler installed by
 whichever function the user actually called does that.
+}
+\details{
+Progress reports are the one thing that does not belong here: they have to
+appear while the work is going on, and these are collected and given at the
+end.
 }
 \concept{helper}

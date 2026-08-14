@@ -58,8 +58,10 @@ setMetadata.MizerParams <- function(params, title = NULL, description = NULL,
     extra <- list(...)
     special <- c("mizer_version", "extensions", "time_modified", "time_created")
     if (any(special %in% names(extra))) {
-        message("The fields ", special, " are set automatically by mizer. ",
-                "The values you supplied will be ignored.")
+        signal_info("metadata", paste0(
+            "The fields ", toString(special), " are set automatically by ",
+            "mizer. The values you supplied will be ignored."),
+            level = 1, unhandled = "show")
         extra <- extra[!(names(extra) %in% special)]
     }
 

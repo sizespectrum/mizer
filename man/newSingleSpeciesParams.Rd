@@ -26,6 +26,7 @@ newSingleSpeciesParams(
   ext_mort_prop = 0,
   reproduction_level = 0,
   second_order_w = FALSE,
+  info_level = default_info_level(),
   R_factor = deprecated(),
   w_inf = deprecated(),
   k_vb = deprecated()
@@ -93,6 +94,11 @@ resource and abundance power laws are constructed so that they are built
 bin-averaged from the start. Accepts the same values as the
 \code{\link[=second_order_w]{second_order_w()}} setter. Defaults to \code{FALSE}. See
 \code{\link[=newMultispeciesParams]{newMultispeciesParams()}}.}
+
+\item{info_level}{Controls the amount of information messages that are shown.
+Higher levels lead to more messages, \code{info_level = 0} gives silence. The
+default is taken from the \code{mizer_info_level} option, see
+\code{\link[=default_info_level]{default_info_level()}}.}
 
 \item{R_factor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
 \code{reproduction_level = 1 / R_factor} instead.}

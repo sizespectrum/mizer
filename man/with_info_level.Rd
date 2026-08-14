@@ -4,7 +4,7 @@
 \alias{with_info_level}
 \title{Collect and report the information signals raised while setting parameters}
 \usage{
-with_info_level(expr, info_level = default_info_level())
+with_info_level(expr, info_level = default_info_level(), except = character())
 }
 \arguments{
 \item{expr}{The expression to evaluate. It is evaluated in the calling
@@ -14,6 +14,10 @@ have without this wrapper.}
 \item{info_level}{The level of information to report, or \code{NA} to leave the
 reporting to a handler further out. Defaults to
 \code{\link[=default_info_level]{default_info_level()}}, which consults the \code{mizer_info_level} option.}
+
+\item{except}{A character vector of \code{var}s not to report on, for a caller
+that is going to say the same thing itself. Everything else raised inside
+\code{expr} is reported as usual.}
 }
 \value{
 The value of \code{expr}.
@@ -54,6 +58,14 @@ its caller has already done so, which is what allows every entry point to
 install a handler. \code{info_level = NA} asks for the same thing explicitly,
 for the rare case where a function wants to leave the reporting to a caller
 that has not installed a handler yet.
+
+The reporting happens on exit, so a function can wrap its whole body even
+though it returns from the middle of it.
+
+Silence is the exception to "the outermost handler decides":
+\code{info_level = 0} drops the reports raised inside it even when a handler
+further out is collecting, so that a function can build something quietly
+as part of a larger job that does report.
 }
 
 \concept{helper}

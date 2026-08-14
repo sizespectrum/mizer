@@ -301,6 +301,7 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     # Find what changed compared to old species_params and record it among the
     # given species parameters
     changed <- changed_species_params(value, object@species_params)
+    old_given <- object@given_species_params
     object@given_species_params <-
         record_given_species_params(object@given_species_params, value,
                                     object@species_params)
@@ -327,10 +328,13 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
         new_sp[[col]] <- value[[col]]
     }
     object@species_params <- new_sp
-    # Warn about the changes that cannot take effect because the rate array
-    # they feed has been set by hand. This is signalled here rather than inside
-    # `setParams()` because only here do we know what the user asked to change.
-    with_info_level(signal_frozen_changes(object, changed))
+    # Warn about the changes that will have no impact. This is signalled here
+    # rather than inside `setParams()` because only here do we know what the
+    # user asked to change.
+    with_info_level({
+        signal_ignored_changes(old_given, changed)
+        signal_frozen_changes(object, names(changed))
+    })
     return(suppressMessages(setParams(object)))
 }
 
@@ -686,11 +690,14 @@ check_and_convert_species_params <- function(x) {
                     vl <- (x[[pw]] / a)^(1 / b)
                     sel <- disagree & !is.na(vl)
                     if (any(sel)) {
-                        warning("For the following species the value of `", pl,
-                                "` is not consistent with the value of `", pw,
-                                "`, so I am using `", pw, "` and setting `", pl,
-                                "` to match it: ",
-                                paste(x$species[sel], collapse = ", "))
+                        signal_info(pl, paste0(
+                            "For the following species the value of `", pl,
+                            "` is not consistent with the value of `", pw,
+                            "`, so I am using `", pw, "` and setting `", pl,
+                            "` to match it: ",
+                            paste(x$species[sel], collapse = ", ")),
+                            level = 1, severity = "warning",
+                            unhandled = "show")
                         new_l <- x[[pl]]
                         new_l[sel] <- vl[sel]
                         x <- set_column(x, pl, new_l)
@@ -704,9 +711,11 @@ check_and_convert_species_params <- function(x) {
     if (all(c("w_mat", "w_inf") %in% names(x))) {
         wrong <- !is.na(x$w_mat) & !is.na(x$w_inf) & x$w_mat >= x$w_inf
         if (any(wrong)) {
-            warning("For the species ",
-                    paste(x$species[wrong], collapse = ", "),
-                    " the value for `w_mat` is not smaller than that of `w_inf`.")
+            signal_info("w_mat", paste0(
+                "For the species ",
+                paste(x$species[wrong], collapse = ", "),
+                " the value for `w_mat` is not smaller than that of `w_inf`."),
+                level = 1, severity = "warning", unhandled = "show")
         }
     }
 
@@ -859,10 +868,12 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
     if ("w_mat" %in% names(sp) && "w_inf" %in% names(sp)) {
         wrong <- !is.na(sp$w_mat) & !is.na(sp$w_inf) & sp$w_mat >= sp$w_inf
         if (any(wrong)) {
-            warning("For the species ",
-                    paste(sp$species[wrong], collapse = ", "),
-                    " the value for `w_mat` is not smaller than that of `w_inf`.",
-                    " I have corrected that by setting it to 25% of `w_inf`.")
+            signal_info("w_mat", paste0(
+                "For the species ",
+                paste(sp$species[wrong], collapse = ", "),
+                " the value for `w_mat` is not smaller than that of `w_inf`.",
+                " I have corrected that by setting it to 25% of `w_inf`."),
+                level = 1, severity = "warning", unhandled = "show")
             sp$w_mat[wrong] <- sp$w_inf[wrong] / 4
         }
 
@@ -870,10 +881,12 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
         if ("w_mat25" %in% names(sp)) {
             wrong <- !is.na(sp$w_mat) & !is.na(sp$w_mat25) & sp$w_mat25 >= sp$w_mat
             if (any(wrong)) {
-                warning("For the species ",
-                        paste(sp$species[wrong], collapse = ", "),
-                        " the value for `w_mat25` is not smaller than that of `w_mat`.",
-                        " I have corrected that by setting it to NA.")
+                signal_info("w_mat25", paste0(
+                    "For the species ",
+                    paste(sp$species[wrong], collapse = ", "),
+                    " the value for `w_mat25` is not smaller than that of `w_mat`.",
+                    " I have corrected that by setting it to NA."),
+                    level = 1, severity = "warning", unhandled = "show")
                 sp$w_mat25[wrong] <- NA
             }
         }
@@ -883,10 +896,12 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
             wrong <- !is.na(sp$w_min) & !is.na(sp$w_mat) & sp$w_min >= sp$w_mat
             if (any(wrong)) {
                 sp$w_min[wrong] <- pmin(0.001, sp$w_mat[wrong] / 10)
-                warning("For the species ",
-                        paste(sp$species[wrong], collapse = ", "),
-                        " the value for `w_min` is not smaller than that of `w_mat`.",
-                        " I have reduced the values.")
+                signal_info("w_min", paste0(
+                    "For the species ",
+                    paste(sp$species[wrong], collapse = ", "),
+                    " the value for `w_min` is not smaller than that of `w_mat`.",
+                    " I have reduced the values."),
+                    level = 1, severity = "warning", unhandled = "show")
             }
         }
     }
@@ -895,10 +910,12 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
     if ("w_repro_max" %in% names(sp) && "w_mat" %in% names(sp)) {
         wrong <- !is.na(sp$w_repro_max) & !is.na(sp$w_mat) & sp$w_repro_max <= sp$w_mat
         if (any(wrong)) {
-            warning("For the species ",
-                    paste(sp$species[wrong], collapse = ", "),
-                    " the value for `w_repro_max` is smaller than that of `w_mat`.",
-                    " I have corrected that by setting it to 4 times `w_mat.")
+            signal_info("w_repro_max", paste0(
+                "For the species ",
+                paste(sp$species[wrong], collapse = ", "),
+                " the value for `w_repro_max` is smaller than that of `w_mat`.",
+                " I have corrected that by setting it to 4 times `w_mat."),
+                level = 1, severity = "warning", unhandled = "show")
             sp$w_repro_max[wrong] <- 4 * sp$w_mat[wrong]
         }
     }
@@ -949,35 +966,18 @@ is.given_species_params <- function(x) {
     # Add new columns
     changes <- cbind(changes, value[new_columns])
 
-    # Give warnings when values are changed that will have no impact
-    if ("gamma" %in% names(params@given_species_params) &
-        "f0" %in% names(changes) &
-        any(!is.na(params@given_species_params$gamma[!is.na(changes$f0)]))) {
-        warning("You have specified some values for `f0` that are going to be ignored because values for `gamma` have already been given.")
-    }
-    if ("ks" %in% names(params@given_species_params) &
-        "fc" %in% names(changes) &
-        any(!is.na(params@given_species_params$ks[!is.na(changes$fc)]))) {
-        warning("You have specified some values for `fc` that are going to be ignored because values for `ks` have already been given.")
-    }
-    if ("h" %in% names(params@given_species_params) &
-        "age_mat" %in% names(changes) &
-        any(!is.na(params@given_species_params$h[!is.na(changes$age_mat)]))) {
-        warning("You have specified some values for `age_mat` that are going to be ignored because values for `h` have already been given.")
-    }
+    # Which species changed, for the reports below. In `changes` an entry that
+    # did not change has been set to NA.
+    changed <- lapply(changes, function(col) !is.na(col))
 
-    # Warn when user tries to change gear parameters
-    if (any(c("catchability", "selectivity", "l50", "l25", "sel_func") %in%
-            names(changes))) {
-        warning("To make changes to gears you should use `gear_params()<-`, not `species_params()`.")
-    }
-    if ("yield_observed" %in% names(changes)) {
-        warning("To change the observed yield you should use `gear_params()<-`, not `species_params()`.")
-    }
-
-    # Warn about the changes that cannot take effect because the rate array
-    # they feed has been set by hand.
-    with_info_level(signal_frozen_changes(params, names(changes)))
+    # Warn about the changes that will have no impact, either because another
+    # given parameter takes precedence or because the rate array they feed has
+    # been set by hand.
+    with_info_level({
+        signal_ignored_changes(params@given_species_params, changed)
+        signal_gear_params_changes(changed)
+        signal_frozen_changes(params, names(changes))
+    })
 
     params@given_species_params <- value
     params@species_params <- validSpeciesParams(value)

@@ -245,7 +245,9 @@ scaleModel.MizerParams <- function(params, factor, ...) {
     if ("r_max" %in% names(params@species_params)) {
         params@species_params$R_max <- params@species_params$r_max
         params@species_params$r_max <- NULL
-        message("The 'r_max' column has been renamed to 'R_max'.")
+        signal_info("R_max",
+                    "The 'r_max' column has been renamed to 'R_max'.",
+                    level = 1, unhandled = "show")
     }
     if ("R_max" %in% names(params@species_params)) {
         params@species_params$R_max <- params@species_params$R_max * factor

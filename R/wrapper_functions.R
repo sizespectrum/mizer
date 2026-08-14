@@ -384,12 +384,15 @@ newTraitParams <- function(no_sp = 11,
     no_w <- round(no_w)
     if (no_w < log10(max_w_max / min_w)*5) {
         no_w <- round(log10(max_w_max / min_w) * 5 + 1)
-        message(paste("Increased no_w to", no_w, "so that there are 5 bins ",
-                      "for an interval from w and 10w."))
+        signal_info("no_w", paste("Increased no_w to", no_w,
+                                  "so that there are 5 bins ",
+                                  "for an interval from w and 10w."),
+                    level = 1, unhandled = "show")
     }
     if (no_w > 10000) {
-        message("Running a simulation with ", no_w,
-                " size bins is going to be very slow.")
+        signal_info("no_w", paste0("Running a simulation with ", no_w,
+                                   " size bins is going to be very slow."),
+                    level = 1, unhandled = "show")
     }
     if (min_w_max >= max_w_max) {
         stop("The maximum size of the smallest species min_w_max must be ",
@@ -550,8 +553,10 @@ newTraitParams <- function(no_sp = 11,
     }
     pow <- mu0 / hbar / (1 - n)
     if (pow < 1) {
-        message("The ratio of death rate to growth rate is too small, leading to
-                an accumulation of fish at their largest size.")
+        signal_info("mu0", paste0(
+            "The ratio of death rate to growth rate is too small, leading to ",
+            "an accumulation of fish at their largest size."),
+            level = 1, unhandled = "show")
     }
 
     initial_n <- params@psi  # get array with correct dimensions and names
@@ -603,10 +608,13 @@ newTraitParams <- function(no_sp = 11,
         if (any(resource_vec < 0)) {
             if (!perfect_scaling) {
                 # Do not allow negative resource abundance
-                message("Note: Negative resource abundance values overwritten with zeros")
+                signal_info("resource", paste0(
+                    "Note: Negative resource abundance values overwritten ",
+                    "with zeros"), level = 1, unhandled = "show")
                 resource_vec[resource_vec < 0] <- 0
             } else {
-                message("Note: Negative resource abundances")
+                signal_info("resource", "Note: Negative resource abundances",
+                            level = 1, unhandled = "show")
             }
         }
         params@cc_pp[sum(params@w_full <= w[1]):length(params@cc_pp)] <-

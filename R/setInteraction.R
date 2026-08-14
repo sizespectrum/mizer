@@ -85,10 +85,12 @@ setInteraction.MizerParams <- function(params,
         if (!is.null(names(dimnames(interaction)))) {
             if (!identical(names(dimnames(interaction)),
                            names(dimnames(params@interaction)))) {
-                message("Note: Your interaction matrix has dimensions called: `",
-                        toString(names(dimnames(interaction))),
-                        "`. I expected 'predator, prey'. ",
-                        "I will now ignore your names.")
+                signal_info("interaction", paste0(
+                    "Note: Your interaction matrix has dimensions called: `",
+                    toString(names(dimnames(interaction))),
+                    "`. I expected 'predator, prey'. ",
+                    "I will now ignore your names."),
+                    level = 1, unhandled = "show")
             }
         }
         names(dimnames(interaction)) <- names(dimnames(params@interaction))
@@ -104,10 +106,12 @@ setInteraction.MizerParams <- function(params,
                        dimnames(interaction)[[1]]) ||
             !identical(make.names(dimnames(params@interaction)[[2]]),
                        make.names(dimnames(interaction)[[2]]))) {
-            message("Note: Dimnames of interaction matrix do not match the ",
-                    "order of species names in the species data.frame. I am ",
-                    "now ignoring your dimnames so your interaction matrix ",
-                    "may be in the wrong order.")
+            signal_info("interaction", paste0(
+                "Note: Dimnames of interaction matrix do not match the order ",
+                "of species names in the species data.frame. I am now ",
+                "ignoring your dimnames so your interaction matrix may be in ",
+                "the wrong order."),
+                level = 1, unhandled = "show")
         }
     }
     params@interaction[] <- interaction

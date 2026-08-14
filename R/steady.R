@@ -179,7 +179,9 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   states `t_per` years apart drops below `tol`. Its meaning therefore depends
 #'   on the distance function you supply.
 #' @param info_level Controls the amount of information messages that are shown.
-#'   Higher levels lead to more messages.
+#'   Higher levels lead to more messages, `info_level = 0` gives silence. The
+#'   default is taken from the `mizer_info_level` option, see
+#'   [default_info_level()].
 #' @param method The numerical method to use for the consumer density update.
 #'   See [project()].
 #' @param ... Further arguments will be passed on to your distance function.
@@ -218,7 +220,7 @@ projectToSteady <- function(params,
                             extinction_threshold = 1e-6,
                             return_sim = FALSE,
                             progress_bar = TRUE,
-                            info_level = 3,
+                            info_level = default_info_level(),
                             method = c("euler", "predictor_corrector", "tr_bdf2"), ...) {
     UseMethod("projectToSteady")
 }
@@ -235,8 +237,9 @@ projectToSteady.MizerParams <- function(params,
                             extinction_threshold = 1e-6,
                             return_sim = FALSE,
                             progress_bar = TRUE,
-                            info_level = 3,
+                            info_level = default_info_level(),
                             method = c("euler", "predictor_corrector", "tr_bdf2"), ...) {
+    with_info_level(info_level = info_level, {
     params <- validParams(params)
     method <- normalise_project_method(method)
     effort <- validEffortVector(effort, params = params)
@@ -371,25 +374,23 @@ projectToSteady.MizerParams <- function(params,
     if (!is.null(cycle)) {
         type <- "cycle"
         converged <- TRUE
-        if (info_level >= 3) {
-            message("Converged to a limit cycle of period ",
-                    signif(cycle$period, 3), " years (relative amplitude ",
-                    signif(cycle$amplitude, 2), ") after ", years, " years.")
-        }
+        signal_info("convergence", paste0(
+            "Converged to a limit cycle of period ",
+            signif(cycle$period, 3), " years (relative amplitude ",
+            signif(cycle$amplitude, 2), ") after ", years, " years."),
+            unhandled = "show")
     } else if (success) {
         type <- "steady"
         converged <- TRUE
-        if (info_level >= 3) {
-            message("Convergence was achieved in ", years, " years.")
-        }
+        signal_info("convergence",
+                    paste0("Convergence was achieved in ", years, " years."),
+                    unhandled = "show")
     } else {
         type <- if (any(extinct)) "extinction" else "not_converged"
-        if (info_level >= 3) {
-            message("Simulation run did not converge after ",
-                    years,
-                    " years. Value returned by the distance function was: ",
-                    distance)
-        }
+        signal_info("convergence", paste0(
+            "Simulation run did not converge after ", years,
+            " years. Value returned by the distance function was: ", distance),
+            unhandled = "show")
     }
 
     convergence <- list(
@@ -419,6 +420,7 @@ projectToSteady.MizerParams <- function(params,
         attr(params, "convergence") <- convergence
         return(params)
     }
+    })
 }
 
 #' Detect a limit cycle from a fine-resolution biomass time series
@@ -561,7 +563,9 @@ find_first_acf_peak <- function(ac, threshold) {
 #' @param progress_bar A shiny progress object to implement a progress bar in a
 #'   shiny app. Default FALSE.
 #' @param info_level Controls the amount of information messages that are shown.
-#'   Higher levels lead to more messages.
+#'   Higher levels lead to more messages, `info_level = 0` gives silence. The
+#'   default is taken from the `mizer_info_level` option, see
+#'   [default_info_level()].
 #' @param method The numerical method to use for the consumer density update.
 #'   See [project()].
 #' @return If `return_sim = FALSE`, a `MizerParams` object with the initial
@@ -583,7 +587,7 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1, t_save = dt,
                    extinction_threshold = 1e-6, return_sim = FALSE,
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE,
-                   info_level = 3,
+                   info_level = default_info_level(),
                    method = c("euler", "predictor_corrector", "tr_bdf2")) {
     UseMethod("steady")
 }
@@ -595,8 +599,9 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    extinction_threshold = 1e-6, return_sim = FALSE,
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE,
-                   info_level = 3,
+                   info_level = default_info_level(),
                    method = c("euler", "predictor_corrector", "tr_bdf2")) {
+    with_info_level(info_level = info_level, {
     method <- normalise_project_method(method)
 
     if (params@rates_funcs$RDD == "BevertonHoltRDD") {
@@ -678,6 +683,7 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
         attr(params, "convergence") <- conv
         return(params)
     }
+    })
 }
 
 

@@ -66,6 +66,20 @@ test_that("with_info_level() handlers nest, the outermost one reporting", {
         with_info_level(info_level = 0, {
             with_info_level(info_level = 3, signal_info("a", "inner"))
         }))
+    # but `info_level = 0` silences its own expression even so
+    expect_silent(
+        with_info_level({
+            with_info_level(info_level = 0, signal_info("a", "inner",
+                                                        level = 1))
+        }))
+    # and the outer handler carries on reporting afterwards
+    expect_message(
+        with_info_level({
+            with_info_level(info_level = 0, signal_info("a", "quiet",
+                                                        level = 1))
+            signal_info("b", "loud", level = 1)
+        }),
+        "^loud\n$")
     # `NA` asks for the same deferral explicitly
     expect_message(
         with_info_level({
@@ -73,6 +87,17 @@ test_that("with_info_level() handlers nest, the outermost one reporting", {
                                                          level = 1))
         }),
         "^inner\n$")
+})
+
+test_that("with_info_level() reports when the expression returns early", {
+    f <- function() {
+        with_info_level({
+            signal_info("a", "early", level = 1)
+            return("returned")
+            signal_info("b", "never", level = 1)  # nocov
+        })
+    }
+    expect_message(expect_identical(f(), "returned"), "^early\n$")
 })
 
 test_that("with_info_level() releases the nesting flag when expr fails", {
@@ -107,6 +132,11 @@ test_that("signal_info() says nothing when unhandled unless asked to", {
     expect_silent(signal_info("a", "chatter"))
     expect_message(signal_info("a", "chatter", unhandled = "show"),
                    "^chatter$")
+    # An unhandled report keeps its severity
+    expect_warning(signal_info("a", "alarm", severity = "warning",
+                               unhandled = "show"),
+                   "^alarm$")
+    expect_silent(signal_info("a", "alarm", severity = "warning"))
 })
 
 test_that("signal_info() reports at the requested severity", {
@@ -157,8 +187,8 @@ test_that("with_info_level() reports frozen signals as a warning", {
         with_info_level(info_level = 0, signal_frozen("metab", "frozen")))
 })
 
-test_that("signal_frozen() surfaces as a message when nobody is listening", {
-    expect_message(signal_frozen("metab", "frozen"), "^frozen$")
+test_that("signal_frozen() surfaces as a warning when nobody is listening", {
+    expect_warning(signal_frozen("metab", "frozen"), "^frozen$")
 })
 
 test_that("signal_not_recalculated() builds a message naming the way back", {
@@ -208,8 +238,54 @@ test_that("signal_frozen_changes() lists all the affected parameters", {
 test_that("changed_species_params() finds the changed columns", {
     sp <- species_params(NS_params_small)
     new <- sp
-    new$ks <- new$ks * 2
+    new$ks[[2]] <- new$ks[[2]] * 2
     new$new_col <- 1
-    expect_setequal(changed_species_params(new, sp), c("ks", "new_col"))
-    expect_identical(changed_species_params(sp, sp), character(0))
+    changed <- changed_species_params(new, sp)
+    expect_setequal(names(changed), c("ks", "new_col"))
+    # and which species they changed for
+    expect_identical(changed$ks, c(FALSE, TRUE, FALSE))
+    expect_true(all(changed$new_col))
+    expect_length(changed_species_params(sp, sp), 0)
+})
+
+# signal_ignored_changes() ----
+
+test_that("signal_ignored_changes() warns about a parameter that is overruled", {
+    given <- given_species_params(NS_params_small)
+    all_sp <- rep(TRUE, nrow(given))
+    # `gamma` is given, so a change to `f0` has no effect
+    expect_true(all(!is.na(given$gamma)))
+    expect_warning(
+        with_info_level(signal_ignored_changes(given, list(f0 = all_sp))),
+        "values for `f0` that are going to be ignored because values for `gamma`")
+    # but not for a species whose `gamma` is not given
+    given$gamma[[1]] <- NA
+    expect_silent(
+        with_info_level(signal_ignored_changes(given, list(f0 = c(TRUE, FALSE, FALSE)))))
+    expect_warning(
+        with_info_level(signal_ignored_changes(given, list(f0 = c(FALSE, TRUE, FALSE)))),
+        "`f0`")
+    # and not at all when the overruling parameter was never given
+    given$gamma <- NULL
+    expect_silent(
+        with_info_level(signal_ignored_changes(given, list(f0 = all_sp))))
+})
+
+test_that("signal_gear_params_changes() warns about gear parameters", {
+    expect_warning(
+        with_info_level(signal_gear_params_changes(list(l50 = TRUE))),
+        "you should use `gear_params\\(\\)<-`")
+    expect_warning(
+        with_info_level(signal_gear_params_changes("yield_observed")),
+        "observed yield")
+    expect_silent(with_info_level(signal_gear_params_changes("gamma")))
+})
+
+test_that("only the given species params report a gear parameter change", {
+    # `species_params<-()` keeps the column, and code that reads it directly
+    # still sees it, so only `given_species_params<-()` reports it.
+    params <- NS_params_small
+    expect_silent(species_params(params)$yield_observed <- c(1, 2, 3))
+    expect_warning(given_species_params(params)$yield_observed <- c(4, 5, 6),
+                   "observed yield")
 })

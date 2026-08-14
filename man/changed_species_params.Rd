@@ -12,11 +12,13 @@ changed_species_params(value, old_sp)
 \item{old_sp}{A data frame with the species parameters as they were before.}
 }
 \value{
-A character vector with the names of the changed columns.
+A named list with one entry per changed column, holding a logical
+vector saying which species changed. Use \code{names()} on it for the names of
+the changed columns.
 }
 \description{
 Compares the columns of two species parameter data frames and returns the
-names of those that differ, using the same entry-by-entry comparison as
+ones that differ, using the same entry-by-entry comparison as
 \code{\link[=record_given_species_params]{record_given_species_params()}}: a column that is not present in \code{old_sp} is
 new and therefore counts as changed, and \code{NA} is compared as a value rather
 than as an unknown.
