@@ -170,7 +170,7 @@ test_that("getDiet works with proportion = FALSE", {
     feeding_level <- getFeedingLevel(params, n, n_pp)
     expect_equal(consumption, encounter * (1 - feeding_level), ignore_attr = TRUE)
     # Check that using pred kernel instead of FFT gives the same result
-    params <- setPredKernel(params, pred_kernel = getPredKernel(params))
+    params <- setPredKernel(params, pred_kernel = pred_kernel(params))
     # Due to problem with fft on M1mac, skip this test on CRAN
     skip_on_cran()
     expect_equal(diet, getDiet(params, n, n_pp, proportion = FALSE),
@@ -254,7 +254,7 @@ test_that("getTrophicLevel returns matrix with correct structure", {
 test_that("getTrophicLevel gives same result with explicit pred_kernel", {
     tl1 <- getTrophicLevel(params, n, n_pp)
     # Force explicit pred_kernel storage
-    params2 <- setPredKernel(params, pred_kernel = getPredKernel(params))
+    params2 <- setPredKernel(params, pred_kernel = pred_kernel(params))
     tl2 <- getTrophicLevel(params2, n, n_pp)
     expect_equal(tl1, tl2, tolerance = 1e-10, ignore_attr = TRUE)
 })

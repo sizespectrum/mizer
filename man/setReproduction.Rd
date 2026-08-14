@@ -2,10 +2,8 @@
 % Please edit documentation in R/setReproduction.R
 \name{setReproduction}
 \alias{setReproduction}
-\alias{getMaturityProportion}
 \alias{maturity}
 \alias{maturity<-}
-\alias{getReproductionProportion}
 \alias{repro_prop}
 \alias{repro_prop<-}
 \alias{psi}
@@ -20,13 +18,9 @@ setReproduction(
   ...
 )
 
-getMaturityProportion(params)
-
 maturity(params)
 
 maturity(params) <- value
-
-getReproductionProportion(params)
 
 repro_prop(params)
 
@@ -65,12 +59,12 @@ reproduction rate from the density-independent rate. Defaults to
 \code{setReproduction()}: A MizerParams object with updated reproduction
 parameters.
 
-\code{getMaturityProportion()} or equivalently \code{maturity()}:
-An \code{ArraySpeciesBySize} object (species x size) that holds the proportion
+\code{maturity()}: An \code{ArraySpeciesBySize} object (species x size) that
+holds the proportion
 of individuals of each species at size that are mature.
 
-\code{getReproductionProportion()} or equivalently \code{repro_prop()}:
-An \code{ArraySpeciesBySize} object (species x size) that holds the proportion
+\code{repro_prop()}: An \code{ArraySpeciesBySize} object (species x size) that
+holds the proportion
 of the energy available for growth and reproduction that a mature
 individual allocates to reproduction for each species at size. For sizes
 where the maturity proportion is zero, also the reproduction proportion is
@@ -194,12 +188,12 @@ these as models for writing your own functions.
 \examples{
 \donttest{
 # Plot maturity and reproduction ogives for Cod in North Sea model
-maturity <- getMaturityProportion(NS_params)["Cod", ]
-repro_prop <- getReproductionProportion(NS_params)["Cod", ]
+mat <- maturity(NS_params)["Cod", ]
+rp <- repro_prop(NS_params)["Cod", ]
 df <- data.frame(Size = w(NS_params),
-                 Reproduction = repro_prop,
-                 Maturity = maturity,
-                 Total = maturity * repro_prop)
+                 Reproduction = rp,
+                 Maturity = mat,
+                 Total = mat * rp)
 dff <- reshape2::melt(df, id.vars = "Size",
             variable.name = "Type",
             value.name = "Proportion")

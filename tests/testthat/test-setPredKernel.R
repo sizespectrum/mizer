@@ -12,20 +12,20 @@ test_that("setPredKernel works", {
                  "missing from the parameter dataframe: ppmr_max")
     params@species_params$ppmr_max <- 4
     p2 <- setPredKernel(params)
-    pred_kernel <- 2 * getPredKernel(params)
+    pred_kernel <- 2 * pred_kernel(params)
     expect_error(setPredKernel(params, pred_kernel[1:2, ]),
                  "incorrect number of dimensions")
     expect_error(setPredKernel(params, pred_kernel - 1),
                  "pred_kernel >= 0 are not true")
     p2 <- setPredKernel(params, pred_kernel)
     expect_equal(p2@pred_kernel, pred_kernel, ignore_attr = TRUE)
-    expect_identical(p2@pred_kernel, getPredKernel(p2))
+    expect_identical(p2@pred_kernel, pred_kernel(p2))
 })
 
 test_that("Comment works on pred_kernel", {
     params <- NS_params_small
     # if no comment, it is set automatically
-    pred_kernel <- getPredKernel(params)
+    pred_kernel <- pred_kernel(params)
     params <- setPredKernel(params, pred_kernel = pred_kernel)
     expect_identical(comment(params@pred_kernel), "set manually")
     
@@ -55,9 +55,9 @@ test_that("Comment works on pred_kernel", {
                    "Because you set `reset = TRUE`, the")
 })
 
-# getPredKernel ----
-test_that("getPredKernel has correct dimnames", {
-    pred_kernel <- getPredKernel(params)
+# pred_kernel ----
+test_that("pred_kernel has correct dimnames", {
+    pred_kernel <- pred_kernel(params)
     expect_identical(dimnames(pred_kernel)$sp, 
                      dimnames(params@initial_n)$sp)
     expect_identical(dimnames(pred_kernel)$w_pred, 
@@ -68,7 +68,7 @@ test_that("getPredKernel has correct dimnames", {
 })
 test_that("getting and setting pred kernel leads to same dynamics", {
     params <- NS_params_small
-    params <- setPredKernel(params, pred_kernel = getPredKernel(params))
+    params <- setPredKernel(params, pred_kernel = pred_kernel(params))
     sim1 <- project(NS_params_small, t_max = 0.1)
     sim2 <- project(params, t_max = 0.1)
     expect_equal(finalN(sim1), finalN(sim2), tolerance = 1e-4, ignore_attr = "params")
@@ -80,7 +80,7 @@ test_that("Can get and set pred_kernel slot", {
     comment(new) <- "test"
     pred_kernel(params) <- new
     expect_identical(pred_kernel(params), new)
-    expect_identical(getPredKernel(params), new)
+    expect_identical(pred_kernel(params), new)
 })
 
 ## get_phi ----
@@ -145,7 +145,7 @@ test_that("Gaussian-mixture list-column parameters work throughout", {
                      kernel_sd = c(0.7, 1.2)
                  ))
     expect_equal(
-        unname(getPredKernel(params)[1, length(params@w), ]),
+        unname(pred_kernel(params)[1, length(params@w), ]),
         rev(expected)
     )
     expect_true(all(is.finite(params@ft_pred_kernel_e)))
@@ -175,7 +175,7 @@ test_that("default_pred_kernel_params sets defaults for data frames and params",
 })
 
 test_that("default_pred_kernel_params leaves manually set full kernels unchanged", {
-    params <- setPredKernel(NS_params_small, pred_kernel = getPredKernel(NS_params_small))
+    params <- setPredKernel(NS_params_small, pred_kernel = pred_kernel(NS_params_small))
     params@species_params$beta[] <- NA
 
     unchanged <- default_pred_kernel_params(params)

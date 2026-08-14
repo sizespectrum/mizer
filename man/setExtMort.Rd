@@ -2,7 +2,6 @@
 % Please edit documentation in R/setExtMort.R
 \name{setExtMort}
 \alias{setExtMort}
-\alias{getExtMort}
 \alias{ext_mort}
 \alias{ext_mort<-}
 \title{Set external mortality rate}
@@ -16,8 +15,6 @@ setExtMort(
   z0 = deprecated(),
   ...
 )
-
-getExtMort(params)
 
 ext_mort(params)
 
@@ -55,8 +52,8 @@ be confused with the species_parameter \code{z0}.}
 \code{setExtMort()}: A MizerParams object with updated external mortality
 rate.
 
-\code{getExtMort()} or equivalently \code{ext_mort()}: An \code{ArraySpeciesBySize}
-object (species x size) with the external mortality.
+\code{ext_mort()}: An \code{ArraySpeciesBySize} object (species x size) with
+the external mortality.
 }
 \description{
 You will usually not need to call this function directly. Instead change

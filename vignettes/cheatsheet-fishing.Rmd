@@ -124,10 +124,10 @@ and — when a `sel_func` cannot express the shape you need — set them by hand
 
 | Function | Returns | Dimensions |
 |---|---|---|
-| `catchability(params)` / [`getCatchability(params)`](../reference/setFishing.html) | $Q_{g,i}$ | gear × species |
-| `selectivity(params)` / [`getSelectivity(params)`](../reference/setFishing.html) | $S_{g,i}(w)$ | gear × species × size |
+| `catchability(params)` | $Q_{g,i}$ | gear × species |
+| `selectivity(params)` | $S_{g,i}(w)$ | gear × species × size |
 
-The bare and `get`-prefixed names are equivalent; use whichever reads better.
+([`getCatchability()`](../reference/deprecated_accessors.html) and [`getSelectivity()`](../reference/deprecated_accessors.html) are deprecated aliases of these.)
 Each has a matching setter that pushes an array straight into the model (this
 routes through `setFishing()`, so validation still runs):
 
@@ -136,7 +136,7 @@ catchability(params)                       # gear × species matrix of Q
 selectivity(params)["Otter", "Cod", ]      # the S curve for one gear–species pair
 
 # Assign a custom selectivity curve that no sel_func produces
-sel <- getSelectivity(params)
+sel <- selectivity(params)
 sel["Otter", "Cod", ] <- my_curve          # length = number of size bins, in [0, 1]
 selectivity(params) <- sel                 # triggers recalculation via setFishing()
 ```

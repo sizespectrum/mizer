@@ -520,11 +520,125 @@ set_community_model <- function(max_w = 1e6,
 #' @param ... Other arguments (currently unused)
 #'
 #' @return A two dimensional array (predator species x predator size)
-#'   equal to `getEncounter(object, n, n_pp) / getSearchVolume(object)`.
+#'   equal to `getEncounter(object, n, n_pp) / search_vol(object)`.
 #' @seealso [project()]
 #' @export
 #' @concept deprecated
 getPhiPrey <- function(object, n, n_pp, ...) {
     lifecycle::deprecate_soft("2.0.0", "getPhiPrey()", "newMultispeciesParams()")
     getEncounter(object, n, n_pp) / object@search_vol
+}
+
+#### get-prefixed rate accessors ####
+#' Deprecated `get`-prefixed accessors for stored rate arrays
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' Each of these functions had a shorter alias returning exactly the same thing.
+#' The shorter name is the one that also has a replacement function
+#' (`catchability(params) <- value` and friends), so that is the name that
+#' survives. Use the replacement given below instead:
+#'
+#' | Deprecated | Use instead |
+#' |---|---|
+#' | `getCatchability()` | [catchability()] |
+#' | `getSelectivity()` | [selectivity()] |
+#' | `getInitialEffort()` | [initial_effort()] |
+#' | `getPredKernel()` | [pred_kernel()] |
+#' | `getSearchVolume()` | [search_vol()] |
+#' | `getMaxIntakeRate()` | [intake_max()] |
+#' | `getMetabolicRate()` | [metab()] |
+#' | `getExtMort()` | [ext_mort()] |
+#' | `getExtEncounter()` | [ext_encounter()] |
+#' | `getMaturityProportion()` | [maturity()] |
+#' | `getReproductionProportion()` | [repro_prop()] |
+#'
+#' The `get` prefix is reserved for the functions that *calculate* a rate from
+#' the current state of a model, like [getEncounter()] or [getFMort()]. The
+#' functions above only read back a value stored in the MizerParams object,
+#' which is what the bare names say.
+#'
+#' @param params A MizerParams object
+#' @return The same as the replacement function it forwards to.
+#' @name deprecated_accessors
+#' @concept deprecated
+NULL
+
+#' @rdname deprecated_accessors
+#' @export
+getCatchability <- function(params) {
+    lifecycle::deprecate_soft("3.3.0", "getCatchability()", "catchability()")
+    catchability(params)
+}
+
+#' @rdname deprecated_accessors
+#' @export
+getSelectivity <- function(params) {
+    lifecycle::deprecate_soft("3.3.0", "getSelectivity()", "selectivity()")
+    selectivity(params)
+}
+
+#' @rdname deprecated_accessors
+#' @export
+getInitialEffort <- function(params) {
+    lifecycle::deprecate_soft("3.3.0", "getInitialEffort()", "initial_effort()")
+    initial_effort(params)
+}
+
+#' @rdname deprecated_accessors
+#' @export
+getPredKernel <- function(params) {
+    lifecycle::deprecate_soft("3.3.0", "getPredKernel()", "pred_kernel()")
+    pred_kernel(params)
+}
+
+#' @rdname deprecated_accessors
+#' @export
+getSearchVolume <- function(params) {
+    lifecycle::deprecate_soft("3.3.0", "getSearchVolume()", "search_vol()")
+    search_vol(params)
+}
+
+#' @rdname deprecated_accessors
+#' @export
+getMaxIntakeRate <- function(params) {
+    lifecycle::deprecate_soft("3.3.0", "getMaxIntakeRate()", "intake_max()")
+    intake_max(params)
+}
+
+#' @rdname deprecated_accessors
+#' @export
+getMetabolicRate <- function(params) {
+    lifecycle::deprecate_soft("3.3.0", "getMetabolicRate()", "metab()")
+    metab(params)
+}
+
+#' @rdname deprecated_accessors
+#' @export
+getExtMort <- function(params) {
+    lifecycle::deprecate_soft("3.3.0", "getExtMort()", "ext_mort()")
+    ext_mort(params)
+}
+
+#' @rdname deprecated_accessors
+#' @export
+getExtEncounter <- function(params) {
+    lifecycle::deprecate_soft("3.3.0", "getExtEncounter()", "ext_encounter()")
+    ext_encounter(params)
+}
+
+#' @rdname deprecated_accessors
+#' @export
+getMaturityProportion <- function(params) {
+    lifecycle::deprecate_soft("3.3.0", "getMaturityProportion()", "maturity()")
+    maturity(params)
+}
+
+#' @rdname deprecated_accessors
+#' @export
+getReproductionProportion <- function(params) {
+    lifecycle::deprecate_soft("3.3.0", "getReproductionProportion()",
+                              "repro_prop()")
+    repro_prop(params)
 }

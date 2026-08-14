@@ -748,7 +748,7 @@ adjustSizeGrid.MizerParams <- function(params,
 
     # Resource low-end truncation: check diet loss of smallest fish
     if (length(truncated_full_low_idx) > 0) {
-        pred_kernel <- getPredKernel(params)
+        pk <- pred_kernel(params)
         encounter_old <- getEncounter(params)
 
         lost_diet_fracs <- sapply(seq_along(params@species_params$species), function(sp_idx) {
@@ -758,7 +758,7 @@ adjustSizeGrid.MizerParams <- function(params,
 
             lost_enc <- params@search_vol[sp_idx, w_egg_idx] *
                 params@species_params$interaction_resource[sp_idx] *
-                sum(pred_kernel[sp_idx, w_egg_idx, truncated_full_low_idx] *
+                sum(pk[sp_idx, w_egg_idx, truncated_full_low_idx] *
                     params@w_full[truncated_full_low_idx] *
                     params@dw_full[truncated_full_low_idx] *
                     params@initial_n_pp[truncated_full_low_idx])
@@ -775,7 +775,7 @@ adjustSizeGrid.MizerParams <- function(params,
 
     # Resource high-end truncation: check diet loss of largest fish
     if (length(truncated_full_high_idx) > 0) {
-        pred_kernel <- getPredKernel(params)
+        pk <- pred_kernel(params)
         encounter_old <- getEncounter(params)
 
         lost_enc_fracs <- sapply(seq_along(params@species_params$species), function(sp_idx) {
@@ -786,7 +786,7 @@ adjustSizeGrid.MizerParams <- function(params,
 
             lost_enc <- params@search_vol[sp_idx, w_top_idx] *
                 params@species_params$interaction_resource[sp_idx] *
-                sum(pred_kernel[sp_idx, w_top_idx, truncated_full_high_idx] *
+                sum(pk[sp_idx, w_top_idx, truncated_full_high_idx] *
                     params@w_full[truncated_full_high_idx] *
                     params@dw_full[truncated_full_high_idx] *
                     params@initial_n_pp[truncated_full_high_idx])

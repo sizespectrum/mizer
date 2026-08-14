@@ -64,6 +64,8 @@ plots) are in the changelog and are not repeated here.
 | A `setParams(resource_rate = )` / `setParams(kappa = )` call that ran fine now errors | `setParams()` never set the resource; use `setResource()` | `setParams()` rejects arguments it does not use (3.3) |
 | A resource change made via `setParams()` never showed up in the model | the argument was silently dropped in every version before 3.3 | `setParams()` rejects arguments it does not use (3.3) |
 | Deprecation warning for `r_pp`/`kappa` now names `setResource()` instead of `setParams()` | the old recommendation pointed at a no-op | `setParams()` rejects arguments it does not use (3.3) |
+| Deprecation warning from `getCatchability()`, `getPredKernel()`, `getMetabolicRate()` or another `get`-prefixed array accessor | the bare name is now the only supported one | One name for each stored rate array (3.3) |
+| `getExtMort.MizerParams` and friends no longer found as S3 methods | the `get` names are plain forwarding functions now; dispatch happens on the bare name | One name for each stored rate array (3.3) |
 | `unused argument (sim = ...)` from `plotBiomass()`, `plotYield()`, `plotYieldGear()` | first argument renamed to `object` | Renamed arguments and changed defaults (3.0) |
 | `unused argument (time_range = ...)` from `plotDiet()` | removed in 3.0, back for `MizerSim` in 3.1 | Renamed arguments and changed defaults (3.0) |
 | `setInitialValues()` warns that it is deprecated | replaced by `finalParams()` | `setInitialValues()` is deprecated (3.0) |
@@ -411,6 +413,51 @@ whether they went through `setParams()`. Before this release the call was
 accepted, so there is no error in their logs and the model simply kept its old
 resource. `resource_rate(params)` before and after their call is the quickest
 confirmation.
+
+<!-- /agent-only -->
+
+### One name for each stored rate array
+
+Eleven accessors that read a rate array back out of a `MizerParams` object had
+two interchangeable names. The bare name is now the one to use — it is the one
+that also has a replacement function, so the pair reads the same way in both
+directions (`catchability(params)` and `catchability(params) <- value`). The
+`get`-prefixed names are soft-deprecated and warn:
+
+| Deprecated | Use instead |
+|---|---|
+| `getCatchability()` | `catchability()` |
+| `getSelectivity()` | `selectivity()` |
+| `getInitialEffort()` | `initial_effort()` |
+| `getPredKernel()` | `pred_kernel()` |
+| `getSearchVolume()` | `search_vol()` |
+| `getMaxIntakeRate()` | `intake_max()` |
+| `getMetabolicRate()` | `metab()` |
+| `getExtMort()` | `ext_mort()` |
+| `getExtEncounter()` | `ext_encounter()` |
+| `getMaturityProportion()` | `maturity()` |
+| `getReproductionProportion()` | `repro_prop()` |
+
+Nothing breaks: the old names still return exactly the same value. Renaming is
+a search and replace.
+
+The `get` prefix now means one thing — a function that *calculates* something
+from the current state of a model, like `getEncounter()`, `getFMort()` or
+`getBiomass()`. The functions above only hand back a value that is already
+stored in the object.
+
+<!-- agent-only -->
+
+The `get` forms are no longer S3 generics; they are plain functions that warn
+and forward. Dispatch still works for a custom class, but on the bare name, so
+an extension that defined `getExtMort.MyClass` must rename its method to
+`ext_mort.MyClass`. A method on the bare name has always worked and keeps
+working through both names.
+
+When a user's `bin_average` diagnostic disagrees with the rate functions, check
+whether they reached for `pred_kernel()` (formerly `getPredKernel()`) rather
+than `encounter_kernel()` — the rename does not change that distinction, but it
+makes the two names look more alike than they used to.
 
 <!-- /agent-only -->
 

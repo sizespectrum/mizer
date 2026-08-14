@@ -115,7 +115,7 @@
 #' @examples
 #' # Halve the initial fishing effort for all gears
 #' params <- setFishing(NS_params, initial_effort = 0.5)
-#' getInitialEffort(params)
+#' initial_effort(params)
 setFishing <- function(params, selectivity = NULL, catchability = NULL,
                        reset = FALSE, initial_effort = NULL, ...) {
     UseMethod("setFishing")
@@ -516,22 +516,12 @@ print.gear_params <- function(x, ...) {
 }
 
 #' @rdname setFishing
-#' @return `getCatchability()` or equivalently `catchability()`: An array (gear
-#'   x species) that holds the catchability of each species by each gear,
+#' @return `catchability()`: An array (gear x species) that holds the
+#'   catchability of each species by each gear,
 #'   \eqn{Q_{g,i}}. The names of the dimensions are "gear, "sp".
 #' @export
 #' @examples
-#' str(getCatchability(NS_params))
-getCatchability <- function(params) {
-    UseMethod("getCatchability")
-}
-#' @export
-getCatchability.MizerParams <- function(params) {
-    params@catchability
-}
-
-#' @rdname setFishing
-#' @export
+#' str(catchability(NS_params))
 catchability <- function(params) {
     UseMethod("catchability")
 }
@@ -552,22 +542,12 @@ catchability.MizerParams <- function(params) {
 }
 
 #' @rdname setFishing
-#' @return `getSelectivity()` or equivalently `selectivity()`: An array (gear x
-#'   species x size) that holds the selectivity of each gear for species and
+#' @return `selectivity()`: An array (gear x species x size) that holds the
+#'   selectivity of each gear for species and
 #'   size, \eqn{S_{g,i,w}}. The names of the dimensions are "gear, "sp", "w".
 #' @export
 #' @examples
-#' str(getSelectivity(NS_params))
-getSelectivity <- function(params) {
-    UseMethod("getSelectivity")
-}
-#' @export
-getSelectivity.MizerParams <- function(params) {
-    params@selectivity
-}
-
-#' @rdname setFishing
-#' @export
+#' str(selectivity(NS_params))
 selectivity <- function(params) {
     UseMethod("selectivity")
 }
@@ -584,20 +564,6 @@ selectivity.MizerParams <- function(params) {
 #' @export
 `selectivity<-.MizerParams` <- function(params, value) {
     setFishing(params, selectivity = value)
-}
-
-#' @rdname setFishing
-#' @return `getInitialEffort()` or equivalently `initial_effort()`: A named
-#'   vector with the initial fishing effort for each gear.
-#' @export
-#' @examples
-#' str(getInitialEffort(NS_params))
-getInitialEffort <- function(params) {
-    UseMethod("getInitialEffort")
-}
-#' @export
-getInitialEffort.MizerParams <- function(params) {
-    params@initial_effort
 }
 
 #' Initial fishing effort
@@ -632,6 +598,8 @@ getInitialEffort.MizerParams <- function(params) {
 #' @param params A MizerParams object
 #' @return A named effort vector ordered by gear.
 #' @export
+#' @examples
+#' str(initial_effort(NS_params))
 initial_effort <- function(params) {
     params@initial_effort
 }

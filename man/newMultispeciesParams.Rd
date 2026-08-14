@@ -355,7 +355,7 @@ bins. Instead, mizer only needs to store two two-dimensional arrays that hold
 Fourier transforms of the feeding kernel function that allow the encounter
 rate and the predation rate to be calculated very efficiently. However, if
 you need the full three-dimensional array you can calculate it with the
-\code{\link[=getPredKernel]{getPredKernel()}} function.
+\code{\link[=pred_kernel]{pred_kernel()}} function.
 
 \strong{Kernel dependent on both predator and prey size}
 

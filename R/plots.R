@@ -29,7 +29,7 @@
 #'
 #' * `plot(<ArraySpeciesBySize>)` plots any species-by-size array, such as
 #'   those returned by [getEncounter()], [getFeedingLevel()], [getPredMort()],
-#'   [getFMort()] and [getSearchVolume()], as lines of value against body size.
+#'   [getFMort()] and [search_vol()], as lines of value against body size.
 #'
 #' * `plot(<ArrayTimeBySpeciesBySize>)` plots a time slice from a
 #'   time-by-species-by-size array, such as those returned by [getFMort()] or

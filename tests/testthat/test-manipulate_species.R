@@ -125,7 +125,7 @@ test_that("addSpecies works when adding a species with a larger w_max", {
                      k_vb = 0.6, gear = 'Whale hunter')
     params <- example_manipulate_params
     # change a slot to test that such changes will be preserved
-    params <- setMaxIntakeRate(params, 2 * getMaxIntakeRate(params))
+    params <- setMaxIntakeRate(params, 2 * intake_max(params))
 
     (p <- addSpecies(params, sp)) |>
         expect_message()
@@ -133,8 +133,8 @@ test_that("addSpecies works when adding a species with a larger w_max", {
     expect_identical(p@w_full[seq_along(params@w_full)], params@w_full)
     expect_lte(5e4, max(p@w))
     # changed rates are preserved
-    expect_equal(getMaxIntakeRate(p)[1:3, 1:100],
-                 getMaxIntakeRate(params), ignore_attr = TRUE)
+    expect_equal(intake_max(p)[1:3, 1:100],
+                 intake_max(params), ignore_attr = TRUE)
 })
 test_that("addSpecies works when adding a species with a smaller w_min", {
     sp <- data.frame(species = "Blue whale", w_max = 5e4, w_min = 1e-5,
@@ -142,7 +142,7 @@ test_that("addSpecies works when adding a species with a smaller w_min", {
                      k_vb = 0.6, gear = 'Whale hunter')
     params <- NS_params_small
     # change a slot to test that such changes will be preserved
-    params <- setMaxIntakeRate(params, 2 * getMaxIntakeRate(params))
+    params <- setMaxIntakeRate(params, 2 * intake_max(params))
 
     (p <- addSpecies(params, sp)) |>
         expect_message()
@@ -154,8 +154,8 @@ test_that("addSpecies works when adding a species with a smaller w_min", {
     expect_equal(p@w_full[seq_along(params@w_full)], params@w_full)
     expect_gte(1e-5, min(p@w))
     # changed rates are preserved
-    expect_equal(getMaxIntakeRate(p)[1:no_sp, w_start:w_end],
-                 getMaxIntakeRate(params), ignore_attr = TRUE)
+    expect_equal(intake_max(p)[1:no_sp, w_start:w_end],
+                 intake_max(params), ignore_attr = TRUE)
 })
 
 test_that("addSpecies has other documented properties", {
@@ -289,11 +289,11 @@ test_that("removeSpecies works with 3d pred kernel", {
     # then remove a species, or the other way around.
     params1 <- example_manipulate_params
     sp_name <- params1@species_params$species[3]
-    params1 <- setPredKernel(params1, pred_kernel = getPredKernel(params1))
+    params1 <- setPredKernel(params1, pred_kernel = pred_kernel(params1))
     params1 <- removeSpecies(params1, sp_name)
     params2 <- example_manipulate_params
     params2 <- removeSpecies(params2, sp_name)
-    params2 <- setPredKernel(params2, pred_kernel = getPredKernel(params2))
+    params2 <- setPredKernel(params2, pred_kernel = pred_kernel(params2))
     expect_unchanged(params1, params2)
 })
 test_that("removeSpecies works correctly on gear_params", {
@@ -372,8 +372,8 @@ test_that("renameSpecies updates linked species names", {
     expect_true(all(replace %in% names(getLinetypes(p))))
     expect_true(all(replace %in% gear_params(p)$species))
     expect_true(all(replace %in% dimnames(initialN(p))$sp))
-    expect_true(all(replace %in% dimnames(getSelectivity(p))$sp))
-    expect_true(all(replace %in% dimnames(getCatchability(p))$sp))
+    expect_true(all(replace %in% dimnames(selectivity(p))$sp))
+    expect_true(all(replace %in% dimnames(catchability(p))$sp))
 })
 test_that("renameSpecies warns on wrong names", {
     expect_error(renameSpecies(example_manipulate_params,

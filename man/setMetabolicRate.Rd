@@ -2,14 +2,11 @@
 % Please edit documentation in R/setMetabolicRate.R
 \name{setMetabolicRate}
 \alias{setMetabolicRate}
-\alias{getMetabolicRate}
 \alias{metab}
 \alias{metab<-}
 \title{Set metabolic rate}
 \usage{
 setMetabolicRate(object, metab = NULL, p = deprecated(), reset = FALSE, ...)
-
-getMetabolicRate(params)
 
 metab(params)
 
@@ -43,8 +40,8 @@ custom value has been set.}
 \value{
 \code{setMetabolicRate()}: A MizerParams object with updated metabolic rate.
 
-\code{getMetabolicRate()} or equivalently \code{metab()}: A
-\code{ArraySpeciesBySize} object (species x size) with the metabolic rate.
+\code{metab()}: An \code{ArraySpeciesBySize} object (species x size) with the
+metabolic rate.
 }
 \description{
 Sets the rate at which energy is used for metabolism and activity. You will
@@ -82,11 +79,11 @@ recalculated values would differ from the stored ones.
 
 \examples{
 # Inspect the current metabolic rate
-getMetabolicRate(NS_params)["Cod", 1:5]
+metab(NS_params)["Cod", 1:5]
 
 # Reset metabolic rate from species parameters
 params <- setMetabolicRate(NS_params, reset = TRUE)
-getMetabolicRate(params)["Cod", 1:5]
+metab(params)["Cod", 1:5]
 }
 \seealso{
 Other functions for setting parameters:

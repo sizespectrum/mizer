@@ -244,6 +244,23 @@ stability of steady states.
   `extinction_threshold` fraction (default `1e-6`) of its value at the start of
   the run.
 
+## Deprecations
+
+- Eleven accessors that returned a rate array stored in the MizerParams object
+  had two names that did exactly the same thing. The `get`-prefixed name is now
+  soft-deprecated in favour of the bare name, which is the one that also has a
+  replacement function (`catchability(params) <- value` and friends):
+  `getCatchability()` → `catchability()`, `getSelectivity()` → `selectivity()`,
+  `getInitialEffort()` → `initial_effort()`, `getPredKernel()` →
+  `pred_kernel()`, `getSearchVolume()` → `search_vol()`, `getMaxIntakeRate()` →
+  `intake_max()`, `getMetabolicRate()` → `metab()`, `getExtMort()` →
+  `ext_mort()`, `getExtEncounter()` → `ext_encounter()`,
+  `getMaturityProportion()` → `maturity()` and `getReproductionProportion()` →
+  `repro_prop()`. The old names keep working; they warn once per session in
+  code you run directly. The `get` prefix is now reserved for the functions
+  that *calculate* something from the current state of a model, like
+  `getEncounter()` or `getFMort()`.
+
 ## Bug fixes
 
 - The default values for the `gamma` and `f0` species parameters are no longer

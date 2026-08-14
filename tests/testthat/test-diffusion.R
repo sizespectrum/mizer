@@ -133,7 +133,7 @@ test_that("getDiffusion works with a custom predation kernel (#373)", {
     params@use_predation_diffusion <- TRUE
     # Make the kernel genuinely depend on predator size (not just the ratio) by
     # scaling each predator species' kernel, then store it as a custom kernel.
-    pk <- getPredKernel(params)
+    pk <- pred_kernel(params)
     pk["Herring", , ] <- pk["Herring", , ] * 1.5
     params <- setPredKernel(params, pred_kernel = pk)
     expect_false(is.null(comment(params@pred_kernel)))

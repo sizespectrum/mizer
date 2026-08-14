@@ -861,10 +861,10 @@ Fish will be particularly good at catching prey in a specific range of
 sizes, smaller than themselves. This is encoded in the size-spectrum
 model by the predation kernel. Let us take a look at the predation
 kernel in our model. We can obtain it with the function
-`getPredKernel()`.
+`pred_kernel()`.
 
 ```{r}
-pred_kernel <- getPredKernel(params)
+pk <- pred_kernel(params)
 ```
 
 This is a large three-dimensional array (predator species x predator
@@ -872,7 +872,7 @@ size x prey size). We extract the kernel of a predator of size 10g
 (using that we remember that this is in size class 81)
 
 ```{r}
-pred_kernel_10 <- pred_kernel[, 81, , drop = FALSE]
+pred_kernel_10 <- pk[, 81, , drop = FALSE]
 ```
 
 The `drop = FALSE` option is there to prevent R from dropping any of the
@@ -908,7 +908,7 @@ given_species_params(params_pk)$beta <- 1000
 Let's make a plot to see that the predation kernel has indeed changed.
 
 ```{r}
-getPredKernel(params_pk)[, 81, , drop = FALSE] %>% 
+pred_kernel(params_pk)[, 81, , drop = FALSE] %>% 
   melt() %>% 
   ggplot() +
   geom_line(aes(x = w_prey, y = value)) +
@@ -959,7 +959,7 @@ estimating the predation kernel from stomach data.
 params3 <- params
 given_species_params(params3)$beta <- 50
 given_species_params(params3)$sigma <- 2
-getPredKernel(params3)[, 61, , drop = FALSE] %>%
+pred_kernel(params3)[, 61, , drop = FALSE] %>%
   melt() %>%
   ggplot() +
   geom_line(aes(x = w_prey, y = value)) +

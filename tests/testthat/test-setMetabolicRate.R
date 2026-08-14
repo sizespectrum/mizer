@@ -52,10 +52,10 @@ test_that("Comment works on metab", {
                    "Because you set `reset = TRUE`, the")
 })
 
-# getMetabolicRate ----
-test_that("getMetabolicRate works", {
-    expect_true(is.ArraySpeciesBySize(getMetabolicRate(NS_params_small)))
-    expect_equal(getMetabolicRate(NS_params_small), NS_params_small@metab,
+# metab ----
+test_that("metab works", {
+    expect_true(is.ArraySpeciesBySize(metab(NS_params_small)))
+    expect_equal(metab(NS_params_small), NS_params_small@metab,
                  ignore_attr = TRUE)
 })
 

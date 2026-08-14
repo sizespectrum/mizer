@@ -24,7 +24,7 @@ those returned by \code{\link[=getBiomass]{getBiomass()}}, \code{\link[=getSSB]{
 a \code{MizerSim}, as lines of value against time.
 \item \verb{plot(<ArraySpeciesBySize>)} plots any species-by-size array, such as
 those returned by \code{\link[=getEncounter]{getEncounter()}}, \code{\link[=getFeedingLevel]{getFeedingLevel()}}, \code{\link[=getPredMort]{getPredMort()}},
-\code{\link[=getFMort]{getFMort()}} and \code{\link[=getSearchVolume]{getSearchVolume()}}, as lines of value against body size.
+\code{\link[=getFMort]{getFMort()}} and \code{\link[=search_vol]{search_vol()}}, as lines of value against body size.
 \item \verb{plot(<ArrayTimeBySpeciesBySize>)} plots a time slice from a
 time-by-species-by-size array, such as those returned by \code{\link[=getFMort]{getFMort()}} or
 \code{\link[=getPredMort]{getPredMort()}} on a \code{MizerSim}.

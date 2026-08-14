@@ -123,7 +123,7 @@ test_that("Test that fft based integrator gives similar result as old code", {
                                         no_w = 30, min_w_pp = 1e-12,
                                         info_level = 0)
     # create a second params object that does not use fft
-    params2 <- setPredKernel(params, pred_kernel = getPredKernel(params))
+    params2 <- setPredKernel(params, pred_kernel = pred_kernel(params))
     # Test encounter rate integral
     efft <- getEncounter(params, params@initial_n, params@initial_n_pp)
     e <- getEncounter(params2, params@initial_n, params@initial_n_pp)

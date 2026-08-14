@@ -67,7 +67,7 @@ bugs in this area were introduced.
 
 ### Case 3 — you need to go inside the encounter or predation convolution
 
-Use **`encounter_kernel(params)`**, not `getPredKernel(params)`, and pair it
+Use **`encounter_kernel(params)`**, not `pred_kernel(params)`, and pair it
 with the **plain point weight** `params@w * params@dw`.
 
 Under `bin_average`, `setPredKernel()` builds `ft_pred_kernel_e` from the kernel
@@ -95,7 +95,7 @@ default `proportion = TRUE` stayed correct (#474). If a consistency ratio comes
 out as a constant, read off its value: `(1 + beta) / 2` means the quadrature was
 applied twice, `2 / (1 + beta)` means it is missing.
 
-### `getPredKernel()` is not the kernel the encounter uses
+### `pred_kernel()` is not the kernel the encounter uses
 
 It returns the kernel point-sampled on the grid — right for plotting, and the
 form you supply a custom kernel in, but not the bin-integrated coefficients the

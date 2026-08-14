@@ -357,7 +357,7 @@ for diffusion rather than paying for a full zero-padded convolution.
 If an exact diffusion (or encounter) integral is needed, the way to get it is to
 supply a custom predation kernel with [setPredKernel()]. When a custom kernel is
 present, `mizerEncounter()` and `projectDiffusion()` fall back to direct
-summation over the full predation kernel returned by [getPredKernel()], which
+summation over the full predation kernel returned by [pred_kernel()], which
 explicitly zeroes prey larger than the predator and so has no wrap-around at all.
 This direct path is what makes [getDiffusion()] correct for a general predation
 kernel that depends on predator and prey size separately rather than only on
