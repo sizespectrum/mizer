@@ -52,6 +52,7 @@ sigmoid_length(w, l25 = 10, l50 = 15, species_params = sp)
 Other selectivity functions:
 \code{\link[=double_sigmoid_length]{double_sigmoid_length()}},
 \code{\link[=knife_edge]{knife_edge()}},
+\code{\link[=knife_edge_length]{knife_edge_length()}},
 \code{\link[=sigmoid_weight]{sigmoid_weight()}}
 }
 \concept{selectivity functions}

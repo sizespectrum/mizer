@@ -127,7 +127,7 @@ converted between logarithmic weight and logarithmic length intervals.
 The plotted quantity is the number density multiplied by \code{w^power}, where
 the power is the sum of the two choices above: a biomass density carries one
 factor of the weight and a density with respect to logarithmic size carries
-another. So\tabular{lll}{
+another:\tabular{lll}{
     \tab \code{per_log_size = FALSE} \tab \code{per_log_size = TRUE} \cr
    \code{biomass = FALSE} \tab \code{power = 0} \tab \code{power = 1} \cr
    \code{biomass = TRUE} \tab \code{power = 1} \tab \code{power = 2} \cr
