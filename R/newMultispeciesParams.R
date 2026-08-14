@@ -43,8 +43,8 @@
 #'   model. Defaults to `FALSE` (the first-order behaviour of previous mizer).
 #' @param info_level Controls the amount of information messages that are shown
 #'   when the function sets default values for parameters. Higher levels lead
-#'   to more messages. Use `info_level = 0` for silence and `info_level = NA`
-#'   to leave the reporting to the calling function.
+#'   to more messages, `info_level = 0` gives silence. The default is taken
+#'   from the `mizer_info_level` option, see [default_info_level()].
 #'
 #' @return An object of type \linkS4class{MizerParams}
 #'
@@ -150,7 +150,7 @@ newMultispeciesParams <- function(
     catchability = NULL,
     initial_effort = NULL,
     second_order_w = FALSE,
-    info_level = 3,
+    info_level = default_info_level(),
     z0 = deprecated(),
     r_pp = deprecated()) {
 
@@ -215,8 +215,6 @@ newMultispeciesParams <- function(
         setParams(
                   # setInteraction
                   interaction = interaction,
-                  # We report the information ourselves at the end
-                  info_level = NA,
                   # setPredKernel()
                   pred_kernel = pred_kernel,
                   # setSearchVolume()
@@ -288,11 +286,11 @@ newMultispeciesParams <- function(
 #' @inheritDotParams setReproduction -reset
 #' @inheritDotParams setFishing -reset
 #' @param info_level Controls the amount of information messages that are shown.
-#'   Higher levels lead to more messages. Use `info_level = 0` for silence and
-#'   `info_level = NA` to leave the reporting to the calling function. Note
-#'   that the report that a change cannot take effect because the rate array it
-#'   feeds has been set manually is a warning rather than a message, but it too
-#'   is silenced by `info_level = 0`.
+#'   Higher levels lead to more messages, `info_level = 0` gives silence. The
+#'   default is taken from the `mizer_info_level` option, see
+#'   [default_info_level()]. Note that the report that a change cannot take
+#'   effect because the rate array it feeds has been set manually is a warning
+#'   rather than a message, but it too is silenced by `info_level = 0`.
 #'
 #' @return A \linkS4class{MizerParams} object
 #'
@@ -369,12 +367,13 @@ newMultispeciesParams <- function(
 #' @family functions for setting parameters
 # The reason we list `interaction` explicitly rather than including it in
 # the `...` is for backwards compatibility. It used to be the second argument.
-setParams <- function(object, interaction = NULL, info_level = 3, ...) {
+setParams <- function(object, interaction = NULL,
+                      info_level = default_info_level(), ...) {
     UseMethod("setParams")
 }
 #' @export
 setParams.MizerParams <- function(object, interaction = NULL,
-                                  info_level = 3, ...) {
+                                  info_level = default_info_level(), ...) {
     # Collect the information signals raised by the individual setters and
     # report them together at the end.
     with_info_level(info_level = info_level, {

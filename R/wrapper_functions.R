@@ -98,7 +98,7 @@ newCommunityParams <- function(max_w = 1e6,
                                knife_edge_size = 1000,
                                reproduction,
                                second_order_w = FALSE,
-                               info_level = 2) {
+                               info_level = default_info_level(2)) {
     # Collect the information signals raised while the model is built and
     # report them together at the end.
     with_info_level(info_level = info_level, {
@@ -140,9 +140,7 @@ newCommunityParams <- function(max_w = 1e6,
                               resource_rate = r_pp,
                               w_pp_cutoff = w_pp_cutoff,
                               second_order_w =
-                                  c(bin_average = target_sow[["bin_average"]]),
-                              # We report the information ourselves at the end
-                              info_level = NA)
+                                  c(bin_average = target_sow[["bin_average"]]))
 
     initial_n <- array(kappa * params@w ^ (-lambda),
                        dim = c(1, length(params@w)))
@@ -304,7 +302,9 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param max_w_inf `r lifecycle::badge("deprecated")` The argument has been
 #'   renamed to `max_w_max`.
 #' @param info_level Controls the amount of information messages that are shown.
-#'   Higher levels lead to more messages. Use `info_level = 0` for silence.
+#'   Higher levels lead to more messages, `info_level = 0` gives silence. The
+#'   default is taken from the `mizer_info_level` option, see
+#'   [default_info_level()].
 #' @export
 #' @importFrom lifecycle deprecated
 #' @return An object of type `MizerParams`
@@ -347,7 +347,7 @@ newTraitParams <- function(no_sp = 11,
                            second_order_w = FALSE,
                            min_w_inf = deprecated(),
                            max_w_inf = deprecated(),
-                           info_level = 2) {
+                           info_level = default_info_level(2)) {
     # Collect the information signals raised while the model is built and
     # report them together at the end.
     with_info_level(info_level = info_level, {
@@ -528,9 +528,7 @@ newTraitParams <- function(no_sp = 11,
             p = p,
             min_w_pp = min_w_pp,
             resource_rate = r_pp,
-            second_order_w = c(bin_average = target_sow[["bin_average"]]),
-            # We report the information ourselves at the end
-            info_level = NA
+            second_order_w = c(bin_average = target_sow[["bin_average"]])
         )
 
     w <- params@w

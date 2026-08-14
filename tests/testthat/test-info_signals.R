@@ -3,59 +3,136 @@
 test_that("with_info_level() collects information into a single message", {
     expect_message(
         with_info_level({
-            signal("first", class = "info_about_default", var = "a", level = 1)
-            signal("second", class = "info_about_default", var = "b", level = 3)
+            signal_info("a", "first", level = 1)
+            signal_info("b", "second")
         }),
         "first\nsecond")
 })
 
-test_that("with_info_level() reports only one message per var", {
+test_that("with_info_level() collapses repeats but keeps distinct reports", {
+    # The same report twice takes up one line ...
     expect_message(
         with_info_level({
-            signal("old", class = "info_about_default", var = "a", level = 1)
-            signal("new", class = "info_about_default", var = "a", level = 1)
+            signal_info("a", "same", level = 1)
+            signal_info("a", "same", level = 1)
         }),
-        "^new\n$")
+        "^same\n$")
+    # ... but two things said about one quantity are both kept.
+    expect_message(
+        with_info_level({
+            signal_info("a", "first", level = 1)
+            signal_info("a", "second", level = 1)
+        }),
+        "^first\nsecond\n$")
 })
 
 test_that("with_info_level() drops information above the info level", {
     expect_message(
         with_info_level(info_level = 1, {
-            signal("important", class = "info_about_default", var = "a",
-                   level = 1)
-            signal("chatter", class = "info_about_default", var = "b",
-                   level = 3)
+            signal_info("a", "important", level = 1)
+            signal_info("b", "chatter", level = 3)
         }),
         "^important\n$")
     # info_level = 0 is silence
     expect_silent(
-        with_info_level(info_level = 0, {
-            signal("important", class = "info_about_default", var = "a",
-                   level = 1)
-        }))
+        with_info_level(info_level = 0, signal_info("a", "important",
+                                                    level = 1)))
+    # even for a signal that shows itself when unhandled
+    expect_silent(
+        with_info_level(info_level = 0,
+                        signal_info("a", "important", level = 1,
+                                    unhandled = "show")))
 })
 
 test_that("with_info_level() evaluates the expression in the calling frame", {
     result <- suppressMessages(with_info_level({
         x <- 2
-        signal("info", class = "info_about_default", var = "a", level = 1)
+        signal_info("a", "info", level = 1)
         x + 1
     }))
     expect_identical(result, 3)
     expect_identical(x, 2)
 })
 
-test_that("with_info_level(info_level = NA) defers to the outer handler", {
-    # The inner call neither reports nor swallows, so the outer one reports.
+test_that("with_info_level() handlers nest, the outermost one reporting", {
+    # The inner handler steps aside, so there is one report, not two.
     expect_message(
         with_info_level({
-            with_info_level(info_level = NA, {
-                signal("inner", class = "info_about_default", var = "a",
-                       level = 1)
-            })
+            with_info_level(signal_info("a", "inner", level = 1))
+        }),
+        "^inner\n$")
+    # The inner info level does not apply, the outer one does
+    expect_silent(
+        with_info_level(info_level = 0, {
+            with_info_level(info_level = 3, signal_info("a", "inner"))
+        }))
+    # `NA` asks for the same deferral explicitly
+    expect_message(
+        with_info_level({
+            with_info_level(info_level = NA, signal_info("a", "inner",
+                                                         level = 1))
         }),
         "^inner\n$")
 })
+
+test_that("with_info_level() releases the nesting flag when expr fails", {
+    expect_error(with_info_level(stop("boom")), "boom")
+    expect_false(info_reporting$active)
+    expect_message(with_info_level(signal_info("a", "after", level = 1)),
+                   "^after\n$")
+})
+
+test_that("the mizer_info_level option sets the default", {
+    withr::local_options(mizer_info_level = 0)
+    expect_identical(default_info_level(), 0)
+    expect_identical(default_info_level(2), 0)
+    expect_silent(with_info_level(signal_info("a", "chatter", level = 1)))
+    # and it reaches the functions that have no info_level argument
+    params <- NS_params_small
+    metab(params) <- metab(params)
+    sp <- species_params(params)
+    sp$ks <- sp$ks * 2
+    expect_silent(species_params(params) <- sp)
+})
+
+test_that("default_info_level() falls back when the option is not set", {
+    withr::local_options(mizer_info_level = NULL)
+    expect_identical(default_info_level(), 3)
+    expect_identical(default_info_level(2), 2)
+})
+
+# signal_info() ----
+
+test_that("signal_info() says nothing when unhandled unless asked to", {
+    expect_silent(signal_info("a", "chatter"))
+    expect_message(signal_info("a", "chatter", unhandled = "show"),
+                   "^chatter$")
+})
+
+test_that("signal_info() reports at the requested severity", {
+    expect_message(with_info_level(signal_info("a", "note", level = 1)),
+                   "^note\n$")
+    expect_warning(
+        with_info_level(signal_info("a", "alarm", level = 1,
+                                    severity = "warning")),
+        "^alarm$")
+})
+
+test_that("signal_info() rejects an unknown severity", {
+    expect_error(signal_info("a", "x", severity = "fatal"), "'arg'")
+})
+
+test_that("with_info_level() copes with a condition that has no fields", {
+    # An extension package may raise the condition itself
+    expect_message(
+        with_info_level(signal("bare", class = "info_about_default")),
+        "^bare\n$")
+    expect_silent(
+        with_info_level(info_level = 0,
+                        signal("bare", class = "info_about_default")))
+})
+
+# signal_frozen() ----
 
 test_that("with_info_level() reports frozen signals as a warning", {
     expect_warning(
@@ -70,8 +147,7 @@ test_that("with_info_level() reports frozen signals as a warning", {
     expect_warning(
         expect_message(
             with_info_level({
-                signal("info", class = "info_about_default", var = "a",
-                       level = 1)
+                signal_info("a", "info", level = 1)
                 signal_frozen("metab", "frozen")
             }),
             "^info\n$"),
@@ -80,8 +156,6 @@ test_that("with_info_level() reports frozen signals as a warning", {
     expect_silent(
         with_info_level(info_level = 0, signal_frozen("metab", "frozen")))
 })
-
-# signal_frozen() ----
 
 test_that("signal_frozen() surfaces as a message when nobody is listening", {
     expect_message(signal_frozen("metab", "frozen"), "^frozen$")

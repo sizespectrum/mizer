@@ -4,7 +4,7 @@
 \alias{with_info_level}
 \title{Collect and report the information signals raised while setting parameters}
 \usage{
-with_info_level(expr, info_level = 3)
+with_info_level(expr, info_level = default_info_level())
 }
 \arguments{
 \item{expr}{The expression to evaluate. It is evaluated in the calling
@@ -12,7 +12,8 @@ environment, so assignments made in it have the same effect as they would
 have without this wrapper.}
 
 \item{info_level}{The level of information to report, or \code{NA} to leave the
-reporting to a handler further out.}
+reporting to a handler further out. Defaults to
+\code{\link[=default_info_level]{default_info_level()}}, which consults the \code{mizer_info_level} option.}
 }
 \value{
 The value of \code{expr}.
@@ -20,29 +21,39 @@ The value of \code{expr}.
 \description{
 While mizer sets up or changes a model it raises conditions of class
 \code{info_about_default} to tell the user about the choices it made on their
-behalf. Each condition carries a \code{var} naming the quantity it is about and a
-\code{level} giving its importance, where a low level means important and a high
-level means chatter. This function evaluates \code{expr} with a calling handler
-that collects those conditions and reports them together once \code{expr} has
-finished, so that the user gets one report rather than a stream of messages,
-with one line per \code{var}.
+behalf and about the instructions it could not carry out. This function
+evaluates \code{expr} with a calling handler that collects those conditions and
+reports them together once \code{expr} has finished, so that the user gets one
+report rather than a stream of messages.
 }
 \details{
-Conditions that also have class \code{info_about_frozen} are reported as a
-\strong{warning} rather than as a message. These say that a change the user made
-had no effect on the model because the rate array it feeds has been set by
-hand, see \code{\link[=signal_frozen]{signal_frozen()}}. That is not chatter about a default but a
-failed instruction, and it has to be a warning so that it survives the
-\code{suppressMessages()} in \code{\link[=species_params<-]{species_params<-()}}, which is there to quieten the
-routine recalculation chatter.
-
-The \code{info_level} argument controls how much is reported:
+Each condition carries three fields, see \code{\link[=signal_info]{signal_info()}}:
 \itemize{
-\item A number: conditions with \code{level} at most \code{info_level} are reported,
-the rest are dropped. So \code{info_level = 0} is silence.
-\item \code{NA}: nothing is reported and nothing is dropped. The conditions are
-passed on to a handler further out, which is what an inner call uses when
-its caller has installed its own handler and will do the reporting.
+\item \code{var} names the quantity the report is about.
+\item \code{level} says how important it is, a low level meaning important and a
+high level meaning chatter. Only conditions with \code{level} at most
+\code{info_level} are reported.
+\item \code{severity} says how to report it: \code{"info"} conditions become a single
+\code{message()} and \code{"warning"} conditions a single \code{warning()}.
 }
+
+The severity matters because \code{\link[=species_params<-]{species_params<-()}} runs \code{suppressMessages()}
+over its recalculation to quieten the routine chatter. A report that the
+user needs to see even there — that an instruction of theirs had no effect —
+must therefore be a warning, see \code{\link[=signal_frozen]{signal_frozen()}}.
+
+Identical reports are collapsed, so a quantity that is reported on twice in
+the same call takes up one line, but two different things said about the
+same quantity are both kept.
 }
+\section{Nesting}{
+Handlers nest by themselves: while one is collecting, any handler installed
+further in steps aside and lets the outer one do the reporting. A function
+can therefore wrap its body in \code{with_info_level()} without knowing whether
+its caller has already done so, which is what allows every entry point to
+install a handler. \code{info_level = NA} asks for the same thing explicitly,
+for the rare case where a function wants to leave the reporting to a caller
+that has not installed a handler yet.
+}
+
 \concept{helper}

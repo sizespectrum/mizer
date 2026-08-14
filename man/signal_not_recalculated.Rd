@@ -28,13 +28,12 @@ have been calculated from.}
 }
 \description{
 Raised by the rate setters when they leave a frozen array alone although the
-species parameters say that it should have a different value. This is a
-plain \code{info_about_default} condition, so it is reported as a message and
-\code{\link[=with_info_level]{with_info_level()}} silences it along with the other information when
-\code{info_level = 0}. Where no handler is installed, for example when a rate
-setter is called directly rather than via \code{\link[=setParams]{setParams()}}, it surfaces as an
-ordinary message. The stronger \code{\link[=signal_frozen]{signal_frozen()}} warning is raised
-elsewhere, by whoever knows that the user asked for a change, see
-\code{\link[=signal_frozen_changes]{signal_frozen_changes()}}.
+species parameters say that it should have a different value. It is reported
+as a message, and \code{info_level = 0} silences it along with the other
+information. Where no handler is collecting, for example when a rate setter
+is called directly rather than via \code{\link[=setParams]{setParams()}}, it is shown anyway,
+because it may then be all the user hears. The stronger \code{\link[=signal_frozen]{signal_frozen()}}
+warning is raised elsewhere, by whoever knows that the user asked for a
+change, see \code{\link[=signal_frozen_changes]{signal_frozen_changes()}}.
 }
 \concept{helper}

@@ -69,8 +69,9 @@ runs under `options(warn = 2)`, or a test using `expect_message()` where the
 report now arrives as a warning, will need adjusting. To act on the warning,
 either put the rate back under the control of the species parameters with the
 `reset = TRUE` call it names, or set the rate array itself instead of the
-species parameter. To silence it, pass `info_level = 0` to whichever function
-you are calling, if it takes one.
+species parameter. To silence it, set `options(mizer_info_level = 0)`, which
+also covers the functions that take no `info_level` argument, or pass
+`info_level = 0` to the one call you want quiet.
 
 The warning is raised only when a species parameter that actually feeds the
 frozen rate changed, so a model in which mizer itself froze an array — such as

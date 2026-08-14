@@ -835,12 +835,12 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
     if (!("w_inf" %in% names(sp))) {
         if ("w_repro_max" %in% names(sp)) {
             sp$w_inf <- sp$w_repro_max
-            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_repro_max` column instead.",
-                   class = "info_about_default", var = "w_inf", level = 1)
+            signal_info("w_inf", "The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_repro_max` column instead.",
+                        level = 1)
         } else if ("w_max" %in% names(sp)) {
             sp$w_inf <- sp$w_max
-            signal("The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_max` column instead. ",
-                   class = "info_about_default", var = "w_inf", level = 1)
+            signal_info("w_inf", "The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_max` column instead. ",
+                        level = 1)
         } else if (strict) {
             stop("You need to specify the asymptotic size `w_inf` for all species.")
         }
@@ -1043,8 +1043,7 @@ set_species_param_default <- function(object, parname, default,
     assert_that(length(default) == no_sp)
     if (!(parname %in% colnames(species_params))) {
         if (!missing(message)) {
-            signal(message,
-                    class = "info_about_default", var = parname, level = 3)
+            signal_info(parname, message)
         }
         species_params[parname] <- default
     } else {
@@ -1107,12 +1106,11 @@ get_h_default <- function(params) {
         assert_that(is.numeric(species_params$f0),
                     noNA(species_params$alpha),
                     "alpha" %in% names(species_params))
-        signal("No h provided for some species, so using age at maturity to calculate it.",
-                      class = "info_about_default", var = "h", level = 3)
+        signal_info("h", "No h provided for some species, so using age at maturity to calculate it.")
         if (!isTRUE(all.equal(species_params$n[missing], species_params$p[missing],
                               check.attributes = FALSE))) {
-            signal("Because you have n != p, the default value for `h` is not very good.",
-                   class = "info_about_default", var = "h", level = 1)
+            signal_info("h", "Because you have n != p, the default value for `h` is not very good.",
+                        level = 1)
         }
         species_params <- species_params %>%
             set_species_param_default("fc", 0.2) %>%
@@ -1134,8 +1132,7 @@ get_h_default <- function(params) {
         # If no acceptable default could be calculated, set h=30
         missing <- is.na(species_params[["h"]]) | species_params[["h"]] <= 0
         if (any(missing)) {
-            signal("For species where no growth information is available the parameter h has been set to h = 30.",
-                   class = "info_about_default", var = "h", level = 3)
+            signal_info("h", "For species where no growth information is available the parameter h has been set to h = 30.")
             species_params[missing, "h"] <- 30
         }
     }
@@ -1171,8 +1168,7 @@ get_gamma_default <- function(params) {
         assert_that(is.number(params@resource_params$lambda),
                     is.number(params@resource_params$kappa),
                     is.numeric(species_params$f0))
-        signal("Using f0, h, lambda, kappa and the predation kernel to calculate gamma.",
-                class = "info_about_default", var = "gamma", level = 3)
+        signal_info("gamma", "Using f0, h, lambda, kappa and the predation kernel to calculate gamma.")
         if (!"h" %in% names(params@species_params) ||
             any(is.na(species_params[["h"]]))) {
             species_params[["h"]] <- get_h_default(params)

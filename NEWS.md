@@ -65,6 +65,25 @@ stability of steady states.
 
 ## Other improvements
 
+- New `mizer_info_level` option sets how much mizer tells you about the choices
+  it makes, without your having to pass `info_level` to each call.
+  `options(mizer_info_level = 0)` quietens mizer as a whole, including the
+  functions that have no `info_level` argument of their own, such as
+  `species_params<-()` and the rate setters. The `info_level` argument still
+  overrides it for a single call, and its default is now
+  `default_info_level()`, which reads the option.
+
+- The information mizer gives while it sets up or changes a model is now raised
+  through one function, `signal_info()`, which says which quantity the report is
+  about, how important it is, whether it is a message or a warning, and whether
+  it should still be shown when nothing is collecting reports. The collecting
+  handlers now nest by themselves, so a function can report the information
+  raised inside it without having to know whether its caller is already doing
+  so, and two different things said about the same quantity are both reported
+  where previously the second overwrote the first. This is the machinery behind
+  the frozen-rate warning described under Bug fixes, and it is available to
+  packages that extend mizer.
+
 - The array-plotting toolkit now covers every mizer array class. The resource
   classes `ArrayResourceBySize` (as returned by `getResourceMort()`,
   `resource_rate()`, `resource_capacity()`, `resource_level()` and
@@ -198,8 +217,7 @@ stability of steady states.
 - `info_level = 0` now really does silence all the information about default
   values. Previously an information signal whose level was above `info_level`
   was passed on rather than dropped, so it could still be reported by a handler
-  further out. Functions that call another one and report its information
-  themselves now pass `info_level = NA` to say so.
+  further out.
 
 - `w_min` is now included in `given_species_params`, so the `min_w` argument to
   `newMultispeciesParams()` and `emptyParams()` is preserved across any operation

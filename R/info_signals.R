@@ -1,70 +1,156 @@
 # Machinery for the information that mizer gives the user while it is setting
 # up or changing a model. See `with_info_level()` for a description.
 
+# Package-local state recording whether a `with_info_level()` handler is
+# already collecting. It is what makes the handlers nest: the outermost one
+# does the reporting and the inner ones step aside, so that a function can wrap
+# its body without having to know whether its caller has done the same. It is
+# always restored on exit, including when the expression throws.
+info_reporting <- new.env(parent = emptyenv())
+info_reporting$active <- FALSE
+
+#' The default level of information that mizer gives
+#'
+#' Returns the `mizer_info_level` option if it is set and `fallback`
+#' otherwise. This is the default of the `info_level` argument of the functions
+#' that report information, so that
+#' `options(mizer_info_level = 0)` quietens mizer as a whole, including the
+#' functions that have no `info_level` argument of their own, such as
+#' [species_params<-()] and the rate setters.
+#'
+#' @param fallback The level to use when the option is not set. Defaults to 3,
+#'   which reports everything.
+#'
+#' @return A single number, or `NA` to leave the reporting to a handler further
+#'   out.
+#' @concept helper
+default_info_level <- function(fallback = 3) {
+    getOption("mizer_info_level", default = fallback)
+}
+
 #' Collect and report the information signals raised while setting parameters
 #'
 #' While mizer sets up or changes a model it raises conditions of class
 #' `info_about_default` to tell the user about the choices it made on their
-#' behalf. Each condition carries a `var` naming the quantity it is about and a
-#' `level` giving its importance, where a low level means important and a high
-#' level means chatter. This function evaluates `expr` with a calling handler
-#' that collects those conditions and reports them together once `expr` has
-#' finished, so that the user gets one report rather than a stream of messages,
-#' with one line per `var`.
+#' behalf and about the instructions it could not carry out. This function
+#' evaluates `expr` with a calling handler that collects those conditions and
+#' reports them together once `expr` has finished, so that the user gets one
+#' report rather than a stream of messages.
 #'
-#' Conditions that also have class `info_about_frozen` are reported as a
-#' **warning** rather than as a message. These say that a change the user made
-#' had no effect on the model because the rate array it feeds has been set by
-#' hand, see [signal_frozen()]. That is not chatter about a default but a
-#' failed instruction, and it has to be a warning so that it survives the
-#' `suppressMessages()` in [species_params<-()], which is there to quieten the
-#' routine recalculation chatter.
-#'
-#' The `info_level` argument controls how much is reported:
+#' Each condition carries three fields, see [signal_info()]:
 #' \itemize{
-#' \item A number: conditions with `level` at most `info_level` are reported,
-#'   the rest are dropped. So `info_level = 0` is silence.
-#' \item `NA`: nothing is reported and nothing is dropped. The conditions are
-#'   passed on to a handler further out, which is what an inner call uses when
-#'   its caller has installed its own handler and will do the reporting.
+#' \item `var` names the quantity the report is about.
+#' \item `level` says how important it is, a low level meaning important and a
+#'   high level meaning chatter. Only conditions with `level` at most
+#'   `info_level` are reported.
+#' \item `severity` says how to report it: `"info"` conditions become a single
+#'   `message()` and `"warning"` conditions a single `warning()`.
 #' }
+#'
+#' The severity matters because [species_params<-()] runs `suppressMessages()`
+#' over its recalculation to quieten the routine chatter. A report that the
+#' user needs to see even there — that an instruction of theirs had no effect —
+#' must therefore be a warning, see [signal_frozen()].
+#'
+#' Identical reports are collapsed, so a quantity that is reported on twice in
+#' the same call takes up one line, but two different things said about the
+#' same quantity are both kept.
+#'
+#' # Nesting
+#'
+#' Handlers nest by themselves: while one is collecting, any handler installed
+#' further in steps aside and lets the outer one do the reporting. A function
+#' can therefore wrap its body in `with_info_level()` without knowing whether
+#' its caller has already done so, which is what allows every entry point to
+#' install a handler. `info_level = NA` asks for the same thing explicitly,
+#' for the rare case where a function wants to leave the reporting to a caller
+#' that has not installed a handler yet.
 #'
 #' @param expr The expression to evaluate. It is evaluated in the calling
 #'   environment, so assignments made in it have the same effect as they would
 #'   have without this wrapper.
 #' @param info_level The level of information to report, or `NA` to leave the
-#'   reporting to a handler further out.
+#'   reporting to a handler further out. Defaults to
+#'   [default_info_level()], which consults the `mizer_info_level` option.
 #'
 #' @return The value of `expr`.
 #' @concept helper
-with_info_level <- function(expr, info_level = 3) {
-    infos <- list()
-    warns <- list()
+with_info_level <- function(expr, info_level = default_info_level()) {
+    # A handler further out is already collecting, or we were told to leave the
+    # reporting to one: evaluate without collecting or muffling anything.
+    if (info_reporting$active ||
+        !is.numeric(info_level) || length(info_level) != 1 ||
+        is.na(info_level)) {
+        return(expr)
+    }
+    reports <- list()
     collect_info <- function(cnd) {
-        # With `NA` we neither collect nor muffle, so that the condition
-        # reaches the handler installed by our caller.
-        if (is.na(info_level)) {
-            return()
-        }
-        if (cnd$level <= info_level) {
-            if (inherits(cnd, "info_about_frozen")) {
-                warns[[cnd$var]] <<- cnd$message
-            } else {
-                infos[[cnd$var]] <<- cnd$message
-            }
+        # The fields are defaulted rather than required, so that a condition
+        # raised by an extension package that does not use `signal_info()` is
+        # still reported rather than throwing.
+        level <- if (is.null(cnd$level)) 3 else cnd$level
+        severity <- if (is.null(cnd$severity)) "info" else cnd$severity
+        if (level <= info_level) {
+            key <- paste(severity, cnd$var, cnd$message, sep = "\r")
+            reports[[key]] <<- list(severity = severity,
+                                    message = cnd$message)
         }
         # Muffle even the conditions that we do not report, because we have
         # taken responsibility for them: `info_level = 0` means silence.
         cnd_muffle(cnd)
     }
+    info_reporting$active <- TRUE
+    on.exit(info_reporting$active <- FALSE, add = TRUE)
     result <- withCallingHandlers(expr, info_about_default = collect_info)
-    if (length(infos) > 0) {
-        message(paste(infos, collapse = "\n"))
+
+    severities <- vapply(reports, `[[`, character(1), "severity")
+    messages <- vapply(reports, `[[`, character(1), "message")
+    if (any(severities == "info")) {
+        message(paste(messages[severities == "info"], collapse = "\n"))
     }
-    if (length(warns) > 0) {
-        warning(paste(warns, collapse = "\n"), call. = FALSE)
+    if (any(severities == "warning")) {
+        warning(paste(messages[severities == "warning"], collapse = "\n"),
+                call. = FALSE)
     }
     result
+}
+
+#' Signal information about a choice mizer made
+#'
+#' Raises the condition that [with_info_level()] collects. This is the way for
+#' mizer, and for anything extending it, to tell the user about a default it
+#' filled in, an input it adjusted or an instruction it could not carry out,
+#' without deciding on its own how loudly to say it: the handler installed by
+#' whichever function the user actually called does that.
+#'
+#' @param var A string naming the quantity the report is about.
+#' @param message The message to give the user.
+#' @param level How important the report is. Level 1 is important enough to
+#'   survive `info_level = 1`, level 3 is chatter that only the default
+#'   `info_level = 3` shows.
+#' @param severity `"info"` to report as a message, `"warning"` to report as a
+#'   warning. Use `"warning"` when the user asked for something that is not
+#'   happening, because a message can be, and on the
+#'   [species_params<-()] path is, suppressed.
+#' @param unhandled What to do when no handler is collecting, for example
+#'   because a rate setter was called directly rather than through
+#'   [setParams()]. `"drop"` says nothing, which suits chatter that only makes
+#'   sense as part of a report about a whole model. `"show"` gives the message
+#'   anyway.
+#' @param class Further classes to give the condition, for code that wants to
+#'   catch a particular kind of report.
+#'
+#' @return `NULL` invisibly. Called for its side effect of signalling.
+#' @concept helper
+signal_info <- function(var, message, level = 3,
+                        severity = c("info", "warning"),
+                        unhandled = c("drop", "show"),
+                        class = character()) {
+    severity <- match.arg(severity)
+    unhandled <- match.arg(unhandled)
+    emit <- if (unhandled == "show") inform else signal
+    emit(message, class = c(class, "info_about_default"),
+         var = var, level = level, severity = severity)
 }
 
 #' Signal that a change the user made cannot take effect
@@ -75,12 +161,10 @@ with_info_level <- function(expr, info_level = 3) {
 #' parameters that feeds it has no effect on the model. This function raises
 #' the condition that tells the user so.
 #'
-#' The condition has class `info_about_frozen`, which is a subclass of
-#' `info_about_default`, so it is collected by the same handler as the
-#' information about default values, see [with_info_level()], but is reported
-#' as a warning rather than as a message. A warning is needed because the
-#' documented way of changing a species parameter, [species_params<-()], runs
-#' `suppressMessages()` over the recalculation.
+#' The condition is raised at severity `"warning"`, see [signal_info()], so
+#' that it survives the `suppressMessages()` that [species_params<-()] runs
+#' over its recalculation. It also carries the class `info_about_frozen` for
+#' code that wants to catch this kind of report in particular.
 #'
 #' Only signal this when the user has actually asked for something that is not
 #' happening. The mere fact that a frozen array differs from what the formula
@@ -89,29 +173,26 @@ with_info_level <- function(expr, info_level = 3) {
 #' for the lifetime of the model. See [signal_frozen_changes()], which decides
 #' this from the species parameters the user changed.
 #'
-#' @param var A string naming the quantity the report is about. Reports are
-#'   collected by `var`, so each quantity is reported only once per call.
+#' @param var A string naming the quantity the report is about.
 #' @param message The message to give the user.
 #'
 #' @return `NULL` invisibly. Called for its side effect of signalling.
 #' @concept helper
 signal_frozen <- function(var, message) {
-    inform(message,
-           class = c("info_about_frozen", "info_about_default"),
-           var = var, level = 1)
+    signal_info(var, message, level = 1, severity = "warning",
+                unhandled = "show", class = "info_about_frozen")
 }
 
 #' Signal that a rate array was not recalculated because it is frozen
 #'
 #' Raised by the rate setters when they leave a frozen array alone although the
-#' species parameters say that it should have a different value. This is a
-#' plain `info_about_default` condition, so it is reported as a message and
-#' [with_info_level()] silences it along with the other information when
-#' `info_level = 0`. Where no handler is installed, for example when a rate
-#' setter is called directly rather than via [setParams()], it surfaces as an
-#' ordinary message. The stronger [signal_frozen()] warning is raised
-#' elsewhere, by whoever knows that the user asked for a change, see
-#' [signal_frozen_changes()].
+#' species parameters say that it should have a different value. It is reported
+#' as a message, and `info_level = 0` silences it along with the other
+#' information. Where no handler is collecting, for example when a rate setter
+#' is called directly rather than via [setParams()], it is shown anyway,
+#' because it may then be all the user hears. The stronger [signal_frozen()]
+#' warning is raised elsewhere, by whoever knows that the user asked for a
+#' change, see [signal_frozen_changes()].
 #'
 #' @param var A string naming the slot that was not recalculated.
 #' @param quantity A string naming the quantity for the user, for example
@@ -125,11 +206,11 @@ signal_frozen <- function(var, message) {
 #' @concept helper
 signal_not_recalculated <- function(var, quantity, reset_call,
                                     derived_from = "species parameters") {
-    inform(paste0(
+    signal_info(var, paste0(
         "The ", quantity, " has been set manually and so is not recalculated ",
         "from the ", derived_from, ". Call `", reset_call, "` if you want the ",
         quantity, " to be calculated from the ", derived_from, " again."),
-        class = "info_about_default", var = var, level = 1)
+        level = 1, unhandled = "show")
 }
 
 #' Which species parameters feed which frozen rate array

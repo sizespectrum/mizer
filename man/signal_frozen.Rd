@@ -7,8 +7,7 @@
 signal_frozen(var, message)
 }
 \arguments{
-\item{var}{A string naming the quantity the report is about. Reports are
-collected by \code{var}, so each quantity is reported only once per call.}
+\item{var}{A string naming the quantity the report is about.}
 
 \item{message}{The message to give the user.}
 }
@@ -23,12 +22,10 @@ parameters that feeds it has no effect on the model. This function raises
 the condition that tells the user so.
 }
 \details{
-The condition has class \code{info_about_frozen}, which is a subclass of
-\code{info_about_default}, so it is collected by the same handler as the
-information about default values, see \code{\link[=with_info_level]{with_info_level()}}, but is reported
-as a warning rather than as a message. A warning is needed because the
-documented way of changing a species parameter, \code{\link[=species_params<-]{species_params<-()}}, runs
-\code{suppressMessages()} over the recalculation.
+The condition is raised at severity \code{"warning"}, see \code{\link[=signal_info]{signal_info()}}, so
+that it survives the \code{suppressMessages()} that \code{\link[=species_params<-]{species_params<-()}} runs
+over its recalculation. It also carries the class \code{info_about_frozen} for
+code that wants to catch this kind of report in particular.
 
 Only signal this when the user has actually asked for something that is not
 happening. The mere fact that a frozen array differs from what the formula
