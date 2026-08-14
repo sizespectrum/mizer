@@ -247,6 +247,16 @@ stability of steady states.
   Previously an information signal whose level was above `info_level` was
   passed on rather than dropped, so it could still be reported by a handler
   further out, and a plain message ignored `info_level` altogether.
+  
+- `$` on a `species_params` or `gear_params` table no longer partially matches
+  column names. In a model without length-weight parameters,
+  `species_params(params)$a` returned the `alpha` column and `$b` the `beta`
+  column, with the species names attached, so code converting weights to
+  lengths silently got the assimilation efficiency and the preferred
+  predator/prey mass ratio instead. Writing was never partially matched, so
+  reads and writes disagreed about which column `$b` meant. A name that is not
+  a column now gives `NULL`, with a warning naming the column that used to be
+  returned (#487).
 
 - `w_min` is now included in `given_species_params`, so the `min_w` argument to
   `newMultispeciesParams()` and `emptyParams()` is preserved across any operation

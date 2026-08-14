@@ -104,6 +104,28 @@ for existing code:
   individual report inside a longer call may need adjusting, and the text now
   arrives with any others in the same message.
 
+### `$` on a parameter table no longer partially matches
+
+`$` on a [`species_params`](../reference/species_params.html) or [`gear_params`](../reference/gear_params.html) table now matches column names
+exactly. Partial matching was silently returning the wrong parameter: in a model
+without the length-weight parameters `a` and `b`,
+
+```{r eval=FALSE}
+species_params(NS_params)$a   # used to return the `alpha` column
+species_params(NS_params)$b   # used to return the `beta` column
+```
+
+complete with per-species names, so code converting weights to lengths got the
+assimilation efficiency and the preferred predator/prey mass ratio instead.
+Writing was never partially matched (`sp$b <- 3` always created a new column
+`b`), so reads and writes disagreed about what `$b` meant.
+
+A name that is not a column now gives `NULL`. If the name would have partially
+matched a single column, you also get a warning naming that column. So
+`is.null(species_params(params)$foo)` is now a reliable test for whether a
+parameter is present, and any code that was relying on the abbreviation should
+spell the column out in full (#487).
+
 ### Quadrature fixes under `second_order_w`
 
 Two diagnostics were applying the prey-bin quadrature twice when second-order
@@ -173,7 +195,7 @@ The size-dependent carrying capacity (`cc_pp`) and replenishment rate (`rr_pp`)
 were left unchanged until you next called `setResource()`.
 
 Now these assignments immediately rebuild the arrays from the scalars, exactly as
-[`species_params()<-`](../reference/species_params.html) rebuilds the species rates:
+`species_params()<-` rebuilds the species rates:
 
 - `kappa`, `lambda` and `w_pp_cutoff` rebuild the carrying capacity;
 - `r_pp` and `n` rebuild the replenishment rate.
@@ -243,7 +265,7 @@ explicitly with `as.data.frame()`.
 
 ### Accessing a column with `$` now returns a named vector
 
-Extracting a single column from a `species_params` or [`gear_params`](../reference/gear_params.html) object with
+Extracting a single column from a `species_params` or `gear_params` object with
 `$` now returns a vector named by species (or by `"species, gear"` for
 `gear_params`):
 

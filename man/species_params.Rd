@@ -250,6 +250,27 @@ You are allowed to include additional columns in the species parameter
 data frames. They will simply be ignored by mizer but will be stored in the
 MizerParams object, in case your own code makes use of them.
 }
+\section{Extracting a column with \code{$}}{
+
+\code{species_params(params)$w_mat} returns the column as a vector named after the
+species. Unlike \code{$} on an ordinary data frame, it does \strong{not} partially
+match the column name. Partial matching is dangerous here because so many
+species parameter names are prefixes of others: in a model without
+length-weight parameters \code{species_params(params)$a} used to return the
+\code{alpha} column and \verb{$b} the \code{beta} column, complete with species names, so
+code converting weights to lengths silently got the assimilation efficiency
+and the preferred predator/prey mass ratio instead. Writing was never
+partially matched, so reads and writes disagreed about which column \verb{$b}
+meant.
+
+A name that is not a column now gives \code{NULL}, so
+\code{is.null(species_params(params)$foo)} is a reliable way of testing whether a
+parameter is present. If the name would have partially matched a column
+under the old behaviour you also get a warning naming that column, because
+that is exactly the case where existing code changes its meaning. The same
+holds for \code{\link[=gear_params]{gear_params()}}.
+}
+
 \section{Setting species parameters without recalculation}{
 
 \code{species_params(params, recalculate = FALSE) <- value} records the values you
