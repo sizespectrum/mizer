@@ -50,3 +50,33 @@ test_that("resource_params<- updates `time_modified`", {
     resource_params(params) <- resource_params(NS_params_small)
     expect_false(identical(params@time_modified, NS_params_small@time_modified))
 })
+
+test_that("resource_params<- refreshes calculated gamma and q (#497)", {
+    params <- newMultispeciesParams(NS_species_params_small, no_w = 20,
+                                    info_level = 0)
+    gamma0 <- species_params(params)$gamma
+    q0 <- species_params(params)$q
+
+    # Protect the first species explicitly. The other entries remain
+    # calculated even though the given columns now exist.
+    params@given_species_params$gamma <- c(gamma0[[1]], NA, NA)
+    params@given_species_params$q <- c(q0[[1]], NA, NA)
+
+    resource_params(params)$lambda <- resource_params(params)$lambda + 0.15
+
+    expect_equal(species_params(params)$gamma[[1]], gamma0[[1]])
+    gamma_ratio <- as.numeric(species_params(params)$gamma[-1] / gamma0[-1])
+    expect_false(isTRUE(all.equal(gamma_ratio, rep(1, 2))))
+    expect_equal(species_params(params)$q[[1]], q0[[1]])
+    expect_equal(species_params(params)$q[-1], q0[-1] + 0.15)
+
+    params2 <- newMultispeciesParams(NS_species_params_small, no_w = 20,
+                                     info_level = 0)
+    gamma0 <- species_params(params2)$gamma
+    q0 <- species_params(params2)$q
+    resource_params(params2)$kappa <- 2 * resource_params(params2)$kappa
+
+    expect_equal(species_params(params2)$gamma, gamma0 / 2,
+                 ignore_attr = TRUE)
+    expect_equal(species_params(params2)$q, q0, ignore_attr = TRUE)
+})

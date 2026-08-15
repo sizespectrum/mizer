@@ -179,6 +179,12 @@ re-used automatically in the future. If you specify \code{resource_rate} or
 \code{resource_capacity} as a single number, that coefficient is likewise stored,
 as \code{r_pp} and \code{kappa} respectively. That list can be accessed with
 \code{\link[=resource_params]{resource_params()}}.
+
+The resource power law also determines defaults for species search volume.
+Changing \code{lambda} recalculates any \code{q} and \code{gamma} values that mizer
+calculated, and changing \code{kappa} (by supplying a scalar
+\code{resource_capacity}) recalculates any calculated \code{gamma}. Species-specific
+values that you supplied explicitly remain unchanged.
 }
 
 \examples{

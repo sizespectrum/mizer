@@ -343,6 +343,27 @@ test_that("resource_params<- does not balance and rate-side scalars take effect"
     expect_equal(as.numeric(resource_capacity(p)), 5 * cc_before)
 })
 
+test_that("setResource refreshes resource-dependent species defaults (#497)", {
+    params <- newMultispeciesParams(NS_species_params_small, no_w = 20,
+                                    info_level = 0)
+    gamma0 <- species_params(params)$gamma
+    q0 <- species_params(params)$q
+
+    lambda <- resource_params(params)$lambda + 0.1
+    by_lambda <- setResource(params, lambda = lambda, balance = FALSE)
+    expect_equal(species_params(by_lambda)$q, q0 + 0.1,
+                 ignore_attr = TRUE)
+    gamma_ratio <- as.numeric(species_params(by_lambda)$gamma / gamma0)
+    expect_false(isTRUE(all.equal(gamma_ratio, rep(1, length(gamma0)))))
+
+    capacity <- 2 * resource_params(params)$kappa
+    by_kappa <- setResource(params, resource_capacity = capacity,
+                            balance = FALSE)
+    expect_equal(species_params(by_kappa)$gamma, gamma0 / 2,
+                 ignore_attr = TRUE)
+    expect_equal(species_params(by_kappa)$q, q0, ignore_attr = TRUE)
+})
+
 test_that("resource setters take a balance argument", {
     p <- NS_params_small
     rr0 <- as.numeric(resource_rate(p))

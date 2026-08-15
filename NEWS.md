@@ -273,6 +273,14 @@ stability of steady states.
 
 ## Bug fixes
 
+- Changing the resource power-law parameters now refreshes the species search
+  volume parameters that mizer calculated from them. Changing `lambda`
+  recalculates calculated `q` and `gamma` entries, while changing `kappa`
+  recalculates calculated `gamma`; explicitly supplied species values remain
+  protected. Previously `resource_params(params)$lambda <- ...` and the
+  corresponding `setResource()` calls rebuilt the resource arrays but silently
+  left these calculated species parameters and `search_vol` stale (#497).
+
 - Setting `f0` to a value outside the interval `[0, 1)` now gives an immediate
   error, whether or not `gamma` has been supplied. Previously `f0 = 1`
   silently produced an infinite `gamma` and a non-finite `search_vol` when

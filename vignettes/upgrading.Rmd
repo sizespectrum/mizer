@@ -34,8 +34,9 @@ and are not repeated here.
 
 Most of the changes in this release are corrections. Results move only for
 models that had opted in to second-order bin-averaging, that set `min_w` below
-the default, or that specify sizes as lengths. The one change to an interface is
-in the spectrum plots.
+the default, that specify sizes as lengths, or that change the resource power
+law after constructing the model. The one change to an interface is in the
+spectrum plots.
 
 ### `biomass` and `per_log_size` replace `power`
 
@@ -253,11 +254,43 @@ small-magnitude parameters such as `gamma` (~1e-8) are no longer treated as equa
 when they differ by up to ~10%. Comparisons that previously reported two models
 as identical may now report differences — those differences were always there.
 
+### Resource scalars refresh calculated `gamma` and `q`
+
+The resource power law is also the reference spectrum used to calculate search
+volume parameters. Changing `lambda` through `resource_params<-()` or
+`setResource()` now recalculates every `q` and `gamma` entry that mizer owns;
+changing `kappa` recalculates every mizer-owned `gamma`. A value you supplied
+explicitly remains protected, including when only some species in a column were
+given (#497).
+
+Previously the resource capacity was rebuilt but the calculated species
+parameters and [`search_vol`](../reference/setSearchVolume.html) were left at the values for the old resource:
+
+```{r eval=FALSE}
+params <- newMultispeciesParams(sp)
+resource_params(params)$lambda <- 2.2
+
+# These now follow the new lambda automatically
+species_params(params)$q
+species_params(params)$gamma
+```
+
+If existing code deliberately wanted to keep the old values, record them as
+given before changing the resource:
+
+```{r eval=FALSE}
+given <- given_species_params(params)
+given$q <- species_params(params)$q
+given$gamma <- species_params(params)$gamma
+given_species_params(params) <- given
+resource_params(params)$lambda <- 2.2
+```
+
 ### Defaults for `gamma` and `f0` ignore a hand-set search volume
 
 [`get_gamma_default()`](../reference/get_gamma_default.html) works out how much energy is available to a predator by
 giving it a search volume coefficient of 1. It used to obtain that search volume
-by calling [`setSearchVolume()`](../reference/setSearchVolume.html), which refuses to recalculate a [`search_vol`](../reference/setSearchVolume.html)
+by calling [`setSearchVolume()`](../reference/setSearchVolume.html), which refuses to recalculate a `search_vol`
 array you have set by hand — so mizer's own internal call was blocked along with
 yours, and the available energy was measured with *your* array. The resulting
 `gamma` was wrong by whatever factor separated your array from the unit-gamma

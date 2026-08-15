@@ -59,6 +59,7 @@ plots) are in the changelog and are not repeated here.
 | Repeated "`l_mat` is not consistent with `w_mat`" warning has stopped | the given species parameters are brought into line | Length and weight follow the one you gave last (3.3) |
 | Size grid or results changed in a model built with a small `min_w` | `w_min` is no longer reset to 0.001 | `w_min` survives a rebuild (3.3) |
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters (3.3) |
+| `gamma`, `q` or feeding levels change after setting resource `kappa` or `lambda` | calculated search-volume parameters now follow the resource power law | Resource scalars refresh calculated `gamma` and `q` (3.3) |
 | A recalculated `gamma` or `f0` is wildly different, in a model whose `search_vol` was set by hand | the frozen array used to block mizer's own unit-gamma calculation | Defaults for `gamma` and `f0` ignore a hand-set search volume (3.3) |
 | Setting `f0 = 1` now errors even though `gamma` is supplied | every supplied target feeding level is now validated | `f0` is always validated (3.3) |
 | `setExtMort(z0pre = ...)`, `setExtMort(z0exp = ...)` or the same arguments to `setParams()` now warns | `z0` was already present in `given_species_params()` for every species, so the arguments were ignored | `setExtMort()` warns when `z0pre` or `z0exp` is ignored (3.3) |
@@ -120,8 +121,9 @@ and are not repeated here.
 
 Most of the changes in this release are corrections. Results move only for
 models that had opted in to second-order bin-averaging, that set `min_w` below
-the default, or that specify sizes as lengths. The one change to an interface is
-in the spectrum plots.
+the default, that specify sizes as lengths, or that change the resource power
+law after constructing the model. The one change to an interface is in the
+spectrum plots.
 
 ### `biomass` and `per_log_size` replace `power`
 
@@ -338,6 +340,38 @@ the size grid it asked for, and results change accordingly.
 small-magnitude parameters such as `gamma` (~1e-8) are no longer treated as equal
 when they differ by up to ~10%. Comparisons that previously reported two models
 as identical may now report differences — those differences were always there.
+
+### Resource scalars refresh calculated `gamma` and `q`
+
+The resource power law is also the reference spectrum used to calculate search
+volume parameters. Changing `lambda` through `resource_params<-()` or
+`setResource()` now recalculates every `q` and `gamma` entry that mizer owns;
+changing `kappa` recalculates every mizer-owned `gamma`. A value you supplied
+explicitly remains protected, including when only some species in a column were
+given (#497).
+
+Previously the resource capacity was rebuilt but the calculated species
+parameters and `search_vol` were left at the values for the old resource:
+
+```r
+params <- newMultispeciesParams(sp)
+resource_params(params)$lambda <- 2.2
+
+# These now follow the new lambda automatically
+species_params(params)$q
+species_params(params)$gamma
+```
+
+If existing code deliberately wanted to keep the old values, record them as
+given before changing the resource:
+
+```r
+given <- given_species_params(params)
+given$q <- species_params(params)$q
+given$gamma <- species_params(params)$gamma
+given_species_params(params) <- given
+resource_params(params)$lambda <- 2.2
+```
 
 ### Defaults for `gamma` and `f0` ignore a hand-set search volume
 

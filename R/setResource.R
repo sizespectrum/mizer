@@ -68,6 +68,12 @@
 #' as `r_pp` and `kappa` respectively. That list can be accessed with
 #' [resource_params()].
 #'
+#' The resource power law also determines defaults for species search volume.
+#' Changing `lambda` recalculates any `q` and `gamma` values that mizer
+#' calculated, and changing `kappa` (by supplying a scalar
+#' `resource_capacity`) recalculates any calculated `gamma`. Species-specific
+#' values that you supplied explicitly remain unchanged.
+#'
 #' @param params A MizerParams object
 #' @param resource_rate Optional. A vector of per-capita resource birth
 #'   rate for each size class or a single number giving the coefficient in the
@@ -166,8 +172,18 @@ setResource.MizerParams <- function(params,
              paste0("`", unknown, "`", collapse = ", "), ".")
     }
 
-    resource_params_changed <- isTRUE(args[["resource_params_changed"]]) ||
+    resource_param_changes <- args[["resource_params_changed"]]
+    changed_resource_params <- if (is.character(resource_param_changes)) {
+        resource_param_changes
+    } else {
+        character()
+    }
+    resource_params_changed <- isTRUE(resource_param_changes) ||
+        length(changed_resource_params) > 0 ||
         !missing(lambda) || !missing(n) || !missing(w_pp_cutoff) || reset
+
+    old_lambda <- params@resource_params[["lambda"]]
+    old_kappa <- params@resource_params[["kappa"]]
 
     if ("r_pp" %in% names(args)) {
         lifecycle::deprecate_warn("1.0.0", "setResource(r_pp)",
@@ -364,6 +380,23 @@ setResource.MizerParams <- function(params,
         } else {
             resource_rate <- rate
         }
+    }
+
+    # `gamma` is calculated against the idealised resource spectrum and `q`
+    # against its slope. Rebuild from the given species parameters, just as the
+    # species-parameter setters do, so that mizer-owned values are recalculated
+    # while explicitly given values remain protected. Do this before balancing
+    # because balancing uses predation mortality, which depends on search
+    # volume.
+    resource_default_changes <- unique(c(
+        intersect(changed_resource_params, c("kappa", "lambda")),
+        if (!identical(old_kappa,
+                       params@resource_params[["kappa"]])) "kappa",
+        if (!identical(old_lambda,
+                       params@resource_params[["lambda"]])) "lambda"
+    ))
+    if (length(resource_default_changes) > 0) {
+        params <- rebuild_from_given(params, params@species_params)
     }
 
     # Balance ----
