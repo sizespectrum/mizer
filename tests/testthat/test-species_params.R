@@ -303,6 +303,37 @@ test_that("species_params setter preserves columns mizer does not calculate", {
                  seq_len(nrow(species_params(params))), ignore_attr = TRUE)
 })
 
+test_that("species_params setter does not record a default it filled in (#496)", {
+    # A model whose species parameters do not carry the length-weight
+    # parameters, as `NS_params` does not. `validSpeciesParams()` fills in
+    # defaults for them, and those must not be mistaken for user input.
+    params <- NS_params_small
+    params@species_params$a <- NULL
+    params@species_params$b <- NULL
+    expect_false(any(c("a", "b") %in% names(given_species_params(params))))
+
+    species_params(params)$beta <- 150
+
+    given <- given_species_params(params)
+    # The change the user made is recorded ...
+    expect_equal(given$beta, rep(150, nrow(given)), ignore_attr = TRUE)
+    # ... but the defaults mizer filled in are not, so that they keep
+    # responding to later changes instead of being frozen as given values.
+    expect_false(any(c("a", "b") %in% names(given)) &&
+                     any(!is.na(given[["a"]])))
+    expect_true(all(c("a", "b") %in% names(species_params(params))))
+})
+
+test_that("species_params setter still records a column the user adds (#496)", {
+    # The counterpart of the test above: a column that is genuinely new to the
+    # model, rather than one mizer filled in, is user input and is recorded.
+    params <- NS_params_small
+    no_sp <- nrow(species_params(params))
+    species_params(params)$my_own_param <- seq_len(no_sp)
+    expect_equal(given_species_params(params)$my_own_param, seq_len(no_sp),
+                 ignore_attr = TRUE)
+})
+
 test_that("species_params setter handles list and matrix columns", {
     # The old-vs-new diff in `species_params<-()` must not use `==` on columns
     # where it is undefined (list, S4) or does not reduce to one logical per
@@ -333,7 +364,7 @@ test_that("species_params setter handles list and matrix columns", {
                  ignore_attr = TRUE)
 })
 
-test_that("species_params setter warns when a frozen rate blocks the change (#489)", {
+test_that("species_params setter is quiet when a frozen rate blocks the change (#496)", {
     params <- NS_params_small
     # Freeze the metabolic rate at its current value
     metab(params) <- metab(params)
@@ -341,15 +372,23 @@ test_that("species_params setter warns when a frozen rate blocks the change (#48
 
     sp <- species_params(params)
     sp$ks <- sp$ks * 2
-    # The warning has to get past the `suppressMessages()` that quietens the
-    # routine recalculation chatter, so it must not be a message.
-    expect_no_message(
-        expect_warning(species_params(params) <- sp,
-                       "Your change to the species parameter `ks`.*metabolic rate"))
-    # The table records the change but the model does not, which is what the
-    # warning tells the user.
+    # The diagnostics belong to `given_species_params<-()`; this setter is the
+    # quiet one, so that scripts written against earlier versions of mizer keep
+    # running clean.
+    expect_silent(species_params(params) <- sp)
+    # The table records the change but the model does not.
     expect_equal(species_params(params)$ks, sp$ks, ignore_attr = TRUE)
     expect_equal(params@metab, before, ignore_attr = TRUE)
+})
+
+test_that("species_params setter is quiet about an overridden parameter (#496)", {
+    params <- NS_params_small
+    expect_false(any(is.na(given_species_params(params)$gamma)))
+    expect_silent(species_params(params)$f0 <- 0.5)
+    # while the given species parameter setter says so
+    params <- NS_params_small
+    expect_warning(given_species_params(params)$f0 <- 0.5,
+                   "values for `f0` that are going to be ignored")
 })
 
 test_that("given_species_params setter warns when a frozen rate blocks the change (#489)", {
@@ -362,6 +401,48 @@ test_that("given_species_params setter warns when a frozen rate blocks the chang
     expect_warning(given_species_params(params) <- gsp,
                    "Your change to the species parameter `gamma`.*search volume")
     expect_equal(params@search_vol, before, ignore_attr = TRUE)
+})
+
+test_that("given_species_params setter ignores a new all-NA column (#524)", {
+    params <- NS_params_small
+    ext_mort(params) <- ext_mort(params)
+    expect_false("z0" %in% names(given_species_params(params)))
+
+    # Nothing acquires a value, so none of the three diagnostics fires.
+    expect_silent(given_species_params(params)$z0 <- NA)
+    expect_false("catchability" %in% names(given_species_params(params)))
+    expect_silent(given_species_params(params)$catchability <- NA)
+})
+
+test_that("given_species_params setter treats clearing to NA as a change (#524)", {
+    params <- NS_params_small
+    search_vol(params) <- search_vol(params)
+    before <- params@search_vol
+    expect_false(any(is.na(given_species_params(params)$gamma)))
+
+    # Handing `gamma` back to mizer's calculation is an instruction that the
+    # frozen search volume cannot carry out, so the user is told.
+    expect_warning(given_species_params(params)$gamma <- NA,
+                   "Your change to the species parameter `gamma`.*search volume")
+    expect_equal(params@search_vol, before, ignore_attr = TRUE)
+})
+
+test_that("the given_species_params diagnostics agree about clearing to NA (#524)", {
+    params <- NS_params_small
+    expect_warning(given_species_params(params)$catchability <- 2,
+                   "you should use `gear_params\\(\\)<-`")
+    # Clearing it again is just as much a change, so it is reported again.
+    expect_warning(given_species_params(params)$catchability <- NA,
+                   "you should use `gear_params\\(\\)<-`")
+
+    # Only a value that is there can be overruled by `gamma`, so clearing `f0`
+    # is a change that `signal_ignored_changes()` has nothing to say about.
+    params <- NS_params_small
+    expect_false(any(is.na(given_species_params(params)$gamma)))
+    expect_false(any(is.na(given_species_params(params)$f0)))
+    expect_warning(given_species_params(params)$f0 <- 0.5,
+                   "values for `f0` that are going to be ignored")
+    expect_silent(given_species_params(params)$f0 <- NA)
 })
 
 test_that("species_params setter is quiet when no frozen rate is in the way", {
@@ -927,6 +1008,41 @@ test_that("get_h_default accepts MizerParams, species_params and data.frame", {
 
     expect_equal(h_params, h_sp)
     expect_equal(h_params, h_df)
+})
+
+# changed_entries ----------------------------------------------------------
+
+test_that("changed_entries compares NA as a value", {
+    expect_identical(changed_entries(c(1, NA, 3), c(1, NA, 4), 3),
+                     c(FALSE, FALSE, TRUE))
+    # A value cleared to NA is a change, an NA that stays NA is not.
+    expect_identical(changed_entries(c(NA, NA), c(1, NA), 2), c(TRUE, FALSE))
+    # As is a value where there was none.
+    expect_identical(changed_entries(c(1, NA), c(NA, NA), 2), c(TRUE, FALSE))
+})
+
+test_that("changed_entries treats a column that did not exist as all NA", {
+    expect_identical(changed_entries(c(1, 2), NULL, 2), c(TRUE, TRUE))
+    expect_identical(changed_entries(c(1, NA), NULL, 2), c(TRUE, FALSE))
+    expect_identical(changed_entries(c(NA, NA), NULL, 2), c(FALSE, FALSE))
+})
+
+test_that("changed_entries handles list and matrix columns", {
+    expect_identical(changed_entries(list(c("a", "b"), "c"),
+                                     list(c("a", "b"), "d"), 2),
+                     c(FALSE, TRUE))
+    expect_identical(changed_entries(matrix(1:4, nrow = 2),
+                                     matrix(c(1L, 9L, 3L, 4L), nrow = 2), 2),
+                     c(FALSE, TRUE))
+    # A list column is new, so every species that has an entry has changed
+    expect_identical(changed_entries(list("a", "b"), NULL, 2), c(TRUE, TRUE))
+})
+
+test_that("changed_entries says nothing about a column of the wrong length", {
+    expect_identical(changed_entries(1, c(1, 2), 2), c(FALSE, FALSE))
+    expect_identical(changed_entries(NULL, c(1, 2), 2), c(FALSE, FALSE))
+    # Nothing to compare against, so everything counts as changed
+    expect_identical(changed_entries(c(1, 2), c(1, 2, 3), 2), c(TRUE, TRUE))
 })
 
 # record_given_species_params ---------------------------------------------

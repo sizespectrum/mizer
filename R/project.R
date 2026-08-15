@@ -49,6 +49,17 @@ NULL
 #'   simulation. The callback function is called with the `MizerSim` object,
 #'   the current time index, and any additional arguments passed to `project()`
 #'   via `...`.
+#' @param check_steady `r lifecycle::badge("experimental")`
+#'   If `TRUE`, warn when the model is not at its steady state before the
+#'   projection starts, which catches the common mistake of forgetting to re-run
+#'   [steady()] after a `match…`/`calibrate…` step. Default `FALSE`, because
+#'   projecting a model away from its steady state is a perfectly normal thing
+#'   to do. It is meant for a `MizerParams` object; when continuing from a
+#'   `MizerSim` the starting state is deliberately wherever the previous run
+#'   ended, so there is nothing to check. The check is made at the effort stored in the params
+#'   object rather than at the `effort` supplied here, so that running a fishing
+#'   scenario at a new effort — which legitimately starts away from the steady
+#'   state of that new effort — does not warn. See [getSteadyResidual()].
 #' @param method The numerical method to use for the consumer density update.
 #'   `"euler"` uses the first-order semi-implicit Euler update.
 #'   `"predictor_corrector"` uses a predictor-corrector Crank-Nicolson update
@@ -182,6 +193,7 @@ project <- function(object, effort,
                     progress_bar = TRUE,
                     callback = NULL,
                     method = c("euler", "predictor_corrector", "tr_bdf2"),
+                    check_steady = FALSE,
                     ...) {
     UseMethod("project")
 }
@@ -208,9 +220,19 @@ project.MizerParams <- function(object, effort,
                                 progress_bar = TRUE,
                                 callback = NULL,
                                 method = c("euler", "predictor_corrector", "tr_bdf2"),
+                                check_steady = FALSE,
                                 ...) {
     params <- validParams(object)
     method <- normalise_project_method(method)
+    assert_that(is.flag(check_steady))
+    if (check_steady) {
+        # Judged at the model's own effort, not at the `effort` supplied here:
+        # see the argument documentation.
+        warn_if_not_steady(
+            params,
+            paste("Projecting from a state that is not a fixed point means",
+                  "the results include that drift."))
+    }
     # The advective-flux scheme is a property of the model, held in the
     # second_order_w slot, not a per-run choice.
     flux_limiter <- flux_limiter_scheme(params)

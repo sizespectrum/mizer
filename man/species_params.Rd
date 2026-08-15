@@ -67,12 +67,16 @@ values that were supplied explicitly by the user.
 
 \verb{given_species_params<-()}: An alternative to \verb{species_params<-()} that
 also triggers a recalculation of other parameters. It arrives at the same
-model, the difference being that \verb{given_species_params<-()} issues
-warnings when a parameter is changed whose effect is overridden by another
-parameter that has already been given. This is especially useful during
-interactive use. It has no \code{recalculate} argument; where you need to
-record values without recalculating, use \verb{species_params<-()} or
-\code{\link[=record_given_species_params]{record_given_species_params()}}.
+model, the difference being that \verb{given_species_params<-()} warns when a
+change you asked for cannot take effect, namely when the parameter is
+overridden by another one you have already given (\code{f0} by \code{gamma}, \code{fc} by
+\code{ks}, \code{age_mat} by \code{h}), when the rate array it feeds has been set by hand
+and so is no longer calculated, or when it is a gear parameter that mizer
+reads from \code{\link[=gear_params]{gear_params()}} instead. This is especially useful during
+interactive use, while \verb{species_params<-()} stays quiet about all three and
+so is the better choice in scripts. It has no \code{recalculate} argument;
+where you need to record values without recalculating, use
+\verb{species_params<-()} or \code{\link[=record_given_species_params]{record_given_species_params()}}.
 
 \code{calculated_species_params()}: Data frame containing only those species
 parameter entries that are not explicit user input. Columns that would

@@ -128,6 +128,7 @@ Collate:
     'matchGrowth.R'
     'steadySingleSpecies.R'
     'steadyNewton.R'
+    'getSteadyResidual.R'
     'getLimitCycleSim.R'
     'defaults_edition.R'
     'validSpeciesParams.R'

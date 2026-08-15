@@ -66,10 +66,25 @@ size-dependent rate arrays that depend on it.
 species_params(params)$beta <- 150   # recorded as given; also rebuilds the predation kernel
 ```
 
-`given_species_params(params) <-` does the same recording and recalculation, and
-is preferable in **interactive** sessions because it additionally *warns* when
-you change a parameter whose effect is overridden by another parameter you have
-already given.
+`given_species_params(params) <-` reaches the same model and is preferable in
+**interactive** sessions, because it additionally *warns* whenever a change you
+asked for cannot take effect: the parameter is overridden by another one you
+have already given, or it feeds a rate array you set by hand, or it is a gear
+parameter that mizer reads from `gear_params()`. `species_params(params) <-`
+stays quiet about all three, which is what makes it the better one for scripts.
+
+When you edit a whole table rather than a single column, read it back from the
+same accessor you assign to:
+
+```r
+gsp <- given_species_params(params)
+gsp$beta <- 150
+given_species_params(params) <- gsp
+```
+
+Handing the **full** `species_params()` table to `given_species_params(params) <-`
+records every calculated value in it as given, freezing parameters you never
+touched — on `NS_params` it turns 312 given entries into 396.
 
 > **Version note.** Older guidance said to avoid `species_params(params) <-`
 > because it bypassed the `given_species_params` protection and skipped
@@ -207,10 +222,8 @@ To hand `z0` back to the calculation, set it to `NA` in
 `given_species_params()`:
 
 ```r
-sp <- species_params(params)
 z0exp <- resource_params(params)$n - 1   # the construction default
-sp$z0 <- 2 * sp$w_inf^z0exp
-species_params(params) <- sp
+given_species_params(params)$z0 <- 2 * species_params(params)$w_inf^z0exp
 
 # Or hand z0 back to the default calculation.
 given_species_params(params)$z0 <- NA
@@ -222,14 +235,15 @@ from the arguments' defaults are not recorded there and will be recalculated
 on the next call.
 
 **Giving a value switches off the calculation that would have used another one.**
-Mizer warns about three of these, but only from `given_species_params<-()` —
-another reason to prefer it interactively:
+`given_species_params<-()` warns about the first three, `species_params<-()`
+about none of them — another reason to prefer the former interactively:
 
-| If you have given… | this is ignored |
-|---|---|
-| `gamma` | `f0` |
-| `ks` | `fc` |
-| `h` | `age_mat`, `k_vb` |
+| If you have given… | this is ignored | warns |
+|---|---|---|
+| `gamma` | `f0` | yes |
+| `ks` | `fc` | yes |
+| `h` | `age_mat` | yes |
+| `h` | `k_vb` | no |
 
 Two more are silent: `h` falls back to **30** when there is no growth
 information at all (no `age_mat`, no `k_vb`), and with `n != p` the derivation

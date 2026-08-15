@@ -50,6 +50,7 @@ matchBiomasses <- function(params, species = NULL,
 #' @export
 matchBiomasses.MizerParams <- function(params, species = NULL,
                                        info_level = default_info_level(), ...) {
+    with_info_level(info_level = info_level, {
     if (!("biomass_observed" %in% names(params@species_params))) {
         return(params)
     }
@@ -78,8 +79,10 @@ matchBiomasses.MizerParams <- function(params, species = NULL,
     }
     factors <- observed_biomass[selected_idx] / model_biomass[selected_idx]
     params@initial_n[selected_idx, ] <- params@initial_n[selected_idx, , drop = FALSE] * factors
-    
+
+    signal_off_steady("matchBiomasses")
     setBevertonHolt(params)
+    })
 }
 
 # The following is a copy of the code for `matchBiomasses()` just with
@@ -137,6 +140,7 @@ matchNumbers <- function(params, species = NULL,
 #' @export
 matchNumbers.MizerParams <- function(params, species = NULL,
                                      info_level = default_info_level(), ...) {
+    with_info_level(info_level = info_level, {
     if (!("number_observed" %in% names(params@species_params))) {
         return(params)
     }
@@ -168,6 +172,8 @@ matchNumbers.MizerParams <- function(params, species = NULL,
     if (error_message != "") {
         stop(error_message)
     }
-    
+
+    signal_off_steady("matchNumbers")
     setBevertonHolt(params)
+    })
 }

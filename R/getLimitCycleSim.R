@@ -58,7 +58,17 @@ getLimitCycleSim <- function(params, amplitude = 0.1, t_save = 0.1, ...) {
     stab <- attr(params, "stability")
     if (is.null(stab) || is.null(stab$leading_eigenvectors)) {
         message("Computing stability analysis ...")
+        # `getStability()` raises the not-at-steady-state warning itself.
         stab <- getStability(params, ...)
+    } else {
+        # A precomputed stability object bypasses that check, so make it here:
+        # the cycle is built by perturbing the stored state along an
+        # eigenvector, which only describes a cycle if that state is a fixed
+        # point.
+        warn_if_not_steady(params, paste(
+            "The limit cycle is constructed by perturbing the stored state",
+            "along an eigenvector, which only traces a cycle if that state is",
+            "a fixed point. Use `steadyNewton()` first."))
     }
 
     if (is.null(stab$hopf_period)) {

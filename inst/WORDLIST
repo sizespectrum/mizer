@@ -10,6 +10,7 @@ Bertalanffy
 Beverton
 BevertonHoltRDD
 Beyer
+Broyden
 CFL
 CLT
 CN
@@ -30,19 +31,23 @@ Deepfishman
 Deepwater
 Defra
 Discretisation
+Discretise
 Drazen
 EBFM
 Ecopath
 Ecosim
 FFTs
+Filippov
 FishBase
 Foerster
 Friedrichs
 Giacomini
 Godunov's
+Gotchas
 Hinzen
 Holling
 Hopf
+Jacobians
 Jefcoats
 Kira
 Lenfest
@@ -54,11 +59,13 @@ MINOUW
 MSY
 Marifish
 McKendrick
+Mizer's
 MizerEvolution
 MizerParams
 MizerSim
 Modeling
 NA's
+Neimark
 Nicolson
 ORCID
 Oceanologica
@@ -89,6 +96,7 @@ Szuwalski
 TR
 TVD
 Trophic
+Unnormalised
 Vb
 Vt
 Wo
@@ -97,6 +105,7 @@ Xue
 addSpecies
 adv
 allometrically
+arg
 artifact
 artifacts
 ax
@@ -106,6 +115,7 @@ bigr
 bycatch
 camelCase
 catchability
+cdot
 cheatsheet
 cheatsheets
 cjfas
@@ -123,6 +133,7 @@ dd
 devtools
 diffviewer
 discretisation
+discretisations
 discretise
 discretised
 doi
@@ -135,6 +146,7 @@ dw
 dx
 eff
 encounter's
+eps
 eq
 eqn
 erroring
@@ -148,12 +160,12 @@ gN
 ge
 getDiffusion
 getEncounter
-getPredKernel
 getPredMort
 gganimate
 ggplot
 ggplots
 gonadic
+gtrsim
 iR
 idx
 ij
@@ -168,6 +180,7 @@ kiraaskaroff
 ks
 ldots
 lifecycle
+lim
 linecolour
 linecolours
 linetype
@@ -209,6 +222,7 @@ nonzero
 num
 offs
 org
+overcounts
 pak
 parameterisations
 parameterise
@@ -229,6 +243,8 @@ rescalings
 roxygen
 selectivities
 semichemostat
+setFishing
+setMetabolicRate
 setParams
 setPredKernel
 setReproduction
@@ -239,6 +255,7 @@ sizespectrum
 sp
 spawners
 st
+steadyNewton
 steadySingleSpecies
 stochasticity
 subassignment
@@ -258,6 +275,7 @@ unaveraged
 undamped
 unfished
 unnormalised
+unphysically
 untruncated
 upgradeParams
 vb
@@ -266,3 +284,5 @@ vol
 www
 zenodo
 zooplanktivorous
+μ
+ℓ

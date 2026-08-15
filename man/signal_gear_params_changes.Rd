@@ -14,10 +14,17 @@ character vector of the changed column names.}
 \code{NULL} invisibly. Called for its side effect of signalling.
 }
 \description{
-Mizer looks for the gear parameters in the gear parameter table, so setting
-one of them through \code{\link[=given_species_params<-]{given_species_params<-()}} does not reach the model.
-Only that assignment reports this, because \code{\link[=species_params<-]{species_params<-()}} keeps a
-column it does not recognise and code that reads it directly, as
-\code{\link[=get_yield_observed]{get_yield_observed()}} does with \code{yield_observed}, then still sees it.
+Mizer looks for the gear parameters in the gear parameter table, which is
+read only when the model is built, so changing one of them through the
+species parameters does not reach the model. This is one of the diagnostics
+that only \code{\link[=given_species_params<-]{given_species_params<-()}} gives; \code{\link[=species_params<-]{species_params<-()}} stays
+quiet, see there.
+}
+\details{
+\code{yield_observed} is the exception. It belongs in \code{\link[=gear_params]{gear_params()}}, which gives
+the observed yield per gear and species, and that is where it should be set,
+which is what this reports. But it feeds no rate, so a value in the species
+parameters is not lost: \code{\link[=get_yield_observed]{get_yield_observed()}} falls back to it for any
+species that has no observation among the gear parameters.
 }
 \concept{helper}

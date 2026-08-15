@@ -962,6 +962,20 @@ summary.MizerParams <- function(object, ...) {
         "\n", sep = "")
     cat("\tno. size bins:\t", length(params@w_full[params@initial_n_pp > 0]),
         "\t(", length(params@w_full), " size bins in total)\n", sep = "")
+    # Whether the model is at its steady state is not visible from any of the
+    # parameters above, and getting it wrong is the most common way a
+    # calibration goes quietly wrong, so it is reported here.
+    residual <- tryCatch(steady_biomass_drift(params),
+                         error = function(e) NA_real_)
+    if (is.finite(residual)) {
+        cat("Steady state:\n")
+        cat("\tbiomass drift:\t", signif(residual, 2), " /year\t",
+            if (residual <= steady_residual_tol()) {
+                "(at steady state)"
+            } else {
+                "(not at steady state - run steady())"
+            }, "\n", sep = "")
+    }
     cat("Species details:\n")
     sel_params <- intersect(c("species", "w_inf", "w_mat", "w_min", "f0", "fc",
                               "age_mat", "beta", "sigma"),

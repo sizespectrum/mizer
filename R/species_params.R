@@ -229,12 +229,16 @@
 #'
 #'   `given_species_params<-()`: An alternative to `species_params<-()` that
 #'   also triggers a recalculation of other parameters. It arrives at the same
-#'   model, the difference being that `given_species_params<-()` issues
-#'   warnings when a parameter is changed whose effect is overridden by another
-#'   parameter that has already been given. This is especially useful during
-#'   interactive use. It has no `recalculate` argument; where you need to
-#'   record values without recalculating, use `species_params<-()` or
-#'   [record_given_species_params()].
+#'   model, the difference being that `given_species_params<-()` warns when a
+#'   change you asked for cannot take effect, namely when the parameter is
+#'   overridden by another one you have already given (`f0` by `gamma`, `fc` by
+#'   `ks`, `age_mat` by `h`), when the rate array it feeds has been set by hand
+#'   and so is no longer calculated, or when it is a gear parameter that mizer
+#'   reads from [gear_params()] instead. This is especially useful during
+#'   interactive use, while `species_params<-()` stays quiet about all three and
+#'   so is the better choice in scripts. It has no `recalculate` argument;
+#'   where you need to record values without recalculating, use
+#'   `species_params<-()` or [record_given_species_params()].
 #'
 #'   `calculated_species_params()`: Data frame containing only those species
 #'   parameter entries that are not explicit user input. Columns that would
@@ -301,6 +305,12 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
 #' @usage NULL
 #' @export
 `species_params<-.MizerParams` <- function(object, recalculate = TRUE, value) {
+    # The columns the user actually handed us. `validSpeciesParams()` below
+    # fills in defaults, and a default that the model does not already carry
+    # would otherwise look like a column the user has just added and be
+    # recorded as a given species parameter, freezing it against every later
+    # recalculation.
+    supplied_cols <- names(value)
     # A length parameter whose weight has just been set has to follow the new
     # weight before anything converts the weight away again.
     value <- reconcile_length_weight(value, object@species_params)
@@ -324,11 +334,14 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     }
 
     # Find what changed compared to old species_params and record it among the
-    # given species parameters
-    changed <- changed_species_params(value, object@species_params)
-    old_given <- object@given_species_params
+    # given species parameters. Columns that mizer itself filled in are hidden
+    # from the recording: they are neither in the model nor in what the user
+    # supplied, so they are defaults, not user input.
+    filled_in <- setdiff(names(value),
+                         c(supplied_cols, names(object@species_params)))
     object@given_species_params <-
-        record_given_species_params(object@given_species_params, value,
+        record_given_species_params(object@given_species_params,
+                                    value[setdiff(names(value), filled_in)],
                                     object@species_params)
     if (!recalculate) {
         # Store the supplied parameters as they are. The calculated species
@@ -338,15 +351,12 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
         return(object)
     }
 
-    # Warn about the changes that will have no impact, either because another
-    # given parameter takes precedence or because the rate array they feed has
-    # been set by hand. This is signalled here rather than inside `setParams()`
-    # because only here do we know what the user asked to change.
-    with_info_level({
-        signal_ignored_changes(old_given, changed)
-        signal_frozen_changes(object, names(changed))
-    })
-
+    # Deliberately quiet about the changes that will have no impact, either
+    # because another given parameter takes precedence or because the rate
+    # array they feed has been set by hand. Only `given_species_params<-()`
+    # reports those, so that this setter stays usable in scripts without
+    # producing diagnostics they did not ask for. See the note on the two
+    # setters in the documentation of `given_species_params<-()`.
     rebuild_from_given(object, value)
 }
 
@@ -450,30 +460,8 @@ record_given_species_params <- function(given, value, old_sp) {
 
     common_cols <- intersect(names(value), names(old_sp))
     for (col in common_cols) {
-        old_vals <- old_sp[[col]]
         new_vals <- value[[col]]
-        # Determine, per species, which values changed. `==` is only reliable
-        # for plain atomic vectors. It is undefined (and errors) for list
-        # columns or columns holding S4/other objects, and for a matrix column
-        # it returns a matrix rather than one logical per species. In those
-        # cases fall back to a per-species `identical()` comparison.
-        simple <- is.atomic(old_vals) && is.atomic(new_vals) &&
-            is.null(dim(old_vals)) && is.null(dim(new_vals)) &&
-            length(old_vals) == no_sp && length(new_vals) == no_sp
-        if (simple) {
-            changed <- !((old_vals == new_vals) |
-                             (is.na(old_vals) & is.na(new_vals)))
-            changed[is.na(changed)] <- TRUE
-        } else {
-            get_row <- function(x, i) {
-                d <- dim(x)
-                if (!is.null(d) && length(d) >= 2) x[i, ] else x[[i]]
-            }
-            changed <- !vapply(
-                seq_len(no_sp),
-                function(i) identical(get_row(old_vals, i), get_row(new_vals, i)),
-                logical(1))
-        }
+        changed <- changed_entries(new_vals, old_sp[[col]], no_sp)
 
         if (any(changed)) {
             if (!col %in% names(given)) {
@@ -594,18 +582,72 @@ length_weight_mappings <- function() {
 }
 
 # Which entries of a species parameter column have changed, comparing entry by
-# entry. A column that did not exist before counts as changed throughout, `NA`
-# is compared as a value rather than as an unknown.
+# entry. This is mizer's single definition of "this species parameter changed":
+# `record_given_species_params()` uses it to decide what to record and
+# `given_species_params<-()` uses it to decide what to report on, so that the
+# two cannot drift apart.
+#
+# `NA` is compared as a value rather than as an unknown: `NA` staying `NA` is
+# no change, but a value replaced by `NA` is one, because that is how the user
+# hands a parameter back to mizer's calculation. A column that did not exist
+# before is compared against `NA`, so adding one that holds only `NA` changes
+# nothing.
+#
+# `new` is the column as it is now and must have one entry per species;
+# anything else is taken to say nothing about what changed. `prev` is the
+# column as it was, `NULL` where there was none.
 changed_entries <- function(new, prev, n) {
-    if (is.null(new) || !is.atomic(new) || length(new) != n) {
+    if (is.null(new) || column_length(new) != n) {
         return(rep(FALSE, n))
     }
-    if (is.null(prev) || !is.atomic(prev) || length(prev) != n) {
+    if (is.null(prev)) {
+        prev <- NA
+    } else if (column_length(prev) != n) {
+        # Nothing to compare against, so everything counts as changed.
         return(rep(TRUE, n))
     }
-    ch <- !((new == prev) | (is.na(new) & is.na(prev)))
-    ch[is.na(ch)] <- TRUE
-    ch
+    # `==` is only reliable for plain atomic vectors. It is undefined (and
+    # errors) for list columns or columns holding S4/other objects, and for a
+    # matrix column it returns a matrix rather than one logical per species. In
+    # those cases fall back to a per-species `identical()` comparison.
+    simple <- is.atomic(new) && is.atomic(prev) &&
+        is.null(dim(new)) && is.null(dim(prev))
+    if (simple) {
+        ch <- !((new == prev) | (is.na(new) & is.na(prev)))
+        ch[is.na(ch)] <- TRUE
+        return(rep_len(ch, n))
+    }
+    get_row <- function(x, i) {
+        d <- dim(x)
+        if (!is.null(d) && length(d) >= 2) {
+            x[i, ]
+        } else if (length(x) == 1) {
+            # The stand-in for a column that did not exist before
+            x[[1]]
+        } else {
+            x[[i]]
+        }
+    }
+    !vapply(seq_len(n),
+            function(i) identical(get_row(new, i), get_row(prev, i)),
+            logical(1))
+}
+
+# The number of species a species parameter column holds values for. A matrix
+# column has one row per species, any other column one entry per species.
+column_length <- function(x) {
+    d <- dim(x)
+    if (!is.null(d) && length(d) >= 2) nrow(x) else length(x)
+}
+
+# Which entries of a species parameter column hold a value. Only a plain atomic
+# column can say that it does not; a list or matrix column is taken to hold a
+# value for every species.
+entry_has_value <- function(x, n) {
+    if (is.atomic(x) && is.null(dim(x)) && length(x) == n) {
+        return(!is.na(x))
+    }
+    rep(TRUE, n)
 }
 
 # Set a column without triggering the reactive validation
@@ -1083,27 +1125,36 @@ is.given_species_params <- function(x) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")
     }
 
-    # Create data frame which contains only the values that have changed
-    common_columns <- intersect(names(value), names(params@given_species_params))
-    new_columns <- setdiff(names(value), names(params@given_species_params))
-    changes <- value[common_columns]
-    changes[changes == params@given_species_params[common_columns]] <- NA
-    # Remove columns that only contain NAs
-    changes <- changes %>% select(where(~ !all(is.na(.))))
-    # Add new columns
-    changes <- cbind(changes, value[new_columns])
+    # Which species changed in which column, for the reports below. All three
+    # reports work from this one list, so they cannot disagree about what
+    # counts as a change. A column that the given species parameters do not
+    # have yet is compared against `NA`, so that adding an all-`NA` column is
+    # no change while clearing a given value to `NA` is one: the user is then
+    # handing that parameter back to mizer's calculation.
+    old_given <- params@given_species_params
+    no_sp <- nrow(value)
+    changed <- lapply(names(value), function(col) {
+        changed_entries(value[[col]], old_given[[col]], no_sp)
+    })
+    names(changed) <- names(value)
+    changed <- changed[vapply(changed, any, logical(1))]
 
-    # Which species changed, for the reports below. In `changes` an entry that
-    # did not change has been set to NA.
-    changed <- lapply(changes, function(col) !is.na(col))
+    # Of those changes, the ones that gave a species a value. Only a value that
+    # is there can be overruled by another parameter, so this is the narrower
+    # question `signal_ignored_changes()` asks: clearing a value to `NA` is a
+    # change, but not one it has anything to say about.
+    specified <- lapply(names(changed), function(col) {
+        changed[[col]] & entry_has_value(value[[col]], no_sp)
+    })
+    names(specified) <- names(changed)
 
     # Warn about the changes that will have no impact, either because another
     # given parameter takes precedence or because the rate array they feed has
     # been set by hand.
     with_info_level({
-        signal_ignored_changes(params@given_species_params, changed)
+        signal_ignored_changes(old_given, specified)
         signal_gear_params_changes(changed)
-        signal_frozen_changes(params, names(changes))
+        signal_frozen_changes(params, names(changed))
     })
 
     params@given_species_params <- value

@@ -51,7 +51,7 @@ Notice that $K$ is related to the standard absolute Jacobian $L$ (with elements 
 
 The stability of the steady state is determined by the eigenvalues $\lambda_i$ of these matrices. The **spectral radius** is the maximum of the absolute values (moduli) of these eigenvalues: $\rho = \max_i |\lambda_i|$. If $\rho < 1$ every perturbation decays and the steady state is stable; if $\rho > 1$ some perturbation grows and it is unstable.
 
-*(Note on numerical implementation: While analyzing the relative Jacobian $K$ is conceptually natural, computing it requires dividing by $N_i^*$, which causes floating-point overflow for structurally zero size classes (e.g., extinct species or truncated tails). Therefore, `getStability()` numerically computes the absolute Jacobian $L$ using finite-difference steps scaled multiplicatively to the local density. This is mathematically equivalent to the relative analysis but avoids dividing by zero, ensuring robust eigenvalue computation.)*
+*(Note on numerical implementation: While analysing the relative Jacobian $K$ is conceptually natural, computing it requires dividing by $N_i^*$, which causes floating-point overflow for structurally zero size classes (e.g., extinct species or truncated tails). Therefore, `getStability()` numerically computes the absolute Jacobian $L$ using finite-difference steps scaled multiplicatively to the local density. This is mathematically equivalent to the relative analysis but avoids dividing by zero, ensuring robust eigenvalue computation.)*
 
 ## Driving the North Sea model unstable
 

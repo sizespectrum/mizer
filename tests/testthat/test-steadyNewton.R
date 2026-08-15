@@ -275,6 +275,22 @@ test_that("getStability returns a well-formed list for a stable model", {
     expect_true(is.logical(stab$stable))
 })
 
+test_that("getStability warns when it is not handed a steady state", {
+    skip_unless_experimental()
+    pn <- steadyNewton(p_steady)
+    # A state that is not a fixed point makes the eigenvalues meaningless, so
+    # the user has to be told rather than handed a stability verdict.
+    off <- pn
+    initialN(off)[1, ] <- initialN(off)[1, ] * 3
+    expect_warning(getStability(off), "not at its steady state")
+    expect_silent(getStability(pn))
+})
+
+test_that("steadyNewton reports the residual it achieved", {
+    skip_unless_experimental()
+    expect_message(steadyNewton(p_steady), "change at up to")
+})
+
 test_that("getStability reports stable = TRUE for the NS model at its steady state", {
     skip_unless_experimental()
     pn <- steadyNewton(p_steady)

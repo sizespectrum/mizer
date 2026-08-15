@@ -5,7 +5,8 @@ description: >-
   whenever the user wants to find the steady state (steady, projectToSteady,
   steadySingleSpecies, steadyNewton), match modelled biomass, yield, or growth to
   observations (calibrateBiomass, matchBiomasses, matchGrowth),
-  set the level of density-dependent reproduction (setBevertonHolt), or diagnose
+  set the level of density-dependent reproduction (setBevertonHolt), check
+  whether a model is at its steady state (getSteadyResidual), or diagnose
   why a model will not settle or reproduce observed values.
 ---
 
@@ -33,6 +34,7 @@ params <- steady(params)
 | `steadySingleSpecies(params)` | set each species to its single-species steady form, births held fixed, without changing the resource — a fast way to get a sensible starting spectrum before `steady()` |
 | `projectToSteady(params)` | the lower-level routine `steady()` builds on, but with **births responding dynamically**; exposes `t_max`, `tol`, `return_sim` if you need to watch convergence |
 | `steadyNewton(params)` | *(experimental)* solve the steady-state equation directly, converging even when the steady state is dynamically unstable |
+| `getSteadyResidual(params)` | *(experimental)* ask whether a model **is** at its steady state, and where it is not |
 
 During setup and calibration you almost always want `steady()` or
 `steadySingleSpecies()`, because holding births constant lets the dynamics settle
@@ -60,14 +62,25 @@ params <- matchGrowth(params)        # 4. rescale h, gamma, ks, k so each specie
 params <- steady(params)             # 5. re-converge after the changes
 ```
 
-Re-run `steady()` after **any** `match…`/`calibrate…` step — those functions move
-parameters off the current steady state.
+Re-run `steady()` after **any `match…` step** — those rescale each species
+separately, which is not a symmetry of the model, so whatever steady state it was
+on it is no longer on. They say so when they do it. The `calibrate…()` functions
+do **not** need it: they apply one overall scaling factor to the whole model,
+which is an exact symmetry and leaves the steady state untouched.
 
-| Function | Adjusts | To match |
-|---|---|---|
-| `calibrateBiomass()` | `kappa` (resource level) | total community biomass |
-| `matchBiomasses()` | per-species abundance | each `biomass_observed` |
-| `matchGrowth()` | `h`, `gamma`, `ks`, `k` | von Bertalanffy growth to `w_mat`/`w_inf` |
+You do not have to remember this. `getSteadyResidual()` answers it, and
+`summary(params)` shows the verdict:
+
+```r
+summary(params)                        # "biomass drift: 3.2e-05 /year (at steady state)"
+plot(getSteadyResidual(params))        # which species, and at which sizes
+```
+
+| Function | Adjusts | To match | Breaks steady state |
+|---|---|---|---|
+| `calibrateBiomass()` | `kappa` (resource level) | total community biomass | no |
+| `matchBiomasses()` | per-species abundance | each `biomass_observed` | yes |
+| `matchGrowth()` | `h`, `gamma`, `ks`, `k` | von Bertalanffy growth to `w_mat`/`w_inf` | yes |
 
 `matchGrowth()` and `matchBiomasses()` pull on different parameters; alternate
 them, re-running `steady()` between, until both are satisfied — usually a few
@@ -100,11 +113,17 @@ changing it.
 ## Verifying the result
 
 ```r
+summary(params)                        # still at the steady state?
 plotSpectra(params)                    # sensible, overlapping spectra?
 plotGrowthCurves(params, species = "Cod")
 plotBiomassObservedVsModel(params)     # points near the 1:1 line?
 plotYieldObservedVsModel(params)
 ```
+
+`project(params, check_steady = TRUE)` makes the same check at the point where it
+matters, warning if the run is about to start from a state that is not a fixed
+point. It is off by default, because projecting a model away from its steady state
+is a normal thing to do.
 
 When the model looks right, project it forward with the `run-simulation` skill
 and analyse the results with the `analyse-and-plot` skill.
@@ -120,6 +139,14 @@ and analyse the results with the `analyse-and-plot` skill.
   interaction matrix, and whether its fishing mortality is too high.
 - **Biomass matches but growth is wrong (or vice versa).** Alternate
   `matchGrowth()` and `matchBiomasses()`, re-running `steady()` between them.
+- **`steady()` said it converged but the results still drift.** Its convergence
+  test is the relative change in egg production over `t_per`, which is a proxy.
+  Check `attr(params, "convergence")$residual`, or `summary(params)`, for how far
+  the state actually is from a fixed point, and reduce `steady()`'s `tol` if it is
+  too large. `steady()` warns when the two disagree.
+- **Results move even though nothing was changed.** The model was not at its
+  steady state to begin with. `plot(getSteadyResidual(params))` shows which
+  species and which sizes are moving.
 
 ## Interactive tuning
 

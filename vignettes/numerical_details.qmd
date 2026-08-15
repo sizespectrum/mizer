@@ -838,7 +838,7 @@ $$ {#eq-jacobian-fd}
 This ensures the numerical precision is maintained across all size classes. A tiny additive floor (the machine epsilon) is kept to allow the solver to gently "poke" classes where the steady-state abundance is exactly zero (like extinct species or the truncated tail above $w_{max}$), capturing their stability against small invasions.
 
 ### Equivalence to Log-Space Analysis
-It might seem conceptually more natural to analyze stability entirely in log-space, by perturbing the relative abundances $x_j(t) = (N_j(t) - N_j^*) / N_j^*$ and computing the relative Jacobian $K$:
+It might seem conceptually more natural to analyse stability entirely in log-space, by perturbing the relative abundances $x_j(t) = (N_j(t) - N_j^*) / N_j^*$ and computing the relative Jacobian $K$:
 $$
 K_{ij} = \frac{\partial \log G_i}{\partial \log N_j}
 $$ {#eq-relative-jacobian}

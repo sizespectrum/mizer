@@ -73,3 +73,37 @@ test_that("matchBiomasses and matchNumbers fail for unreachable cutoff", {
     expect_error(matchNumbers(params, 1),
                  "Sprat does not grow up to the number_cutoff size of 1e\\+20 grams")
 })
+
+# The steady-state notice ----
+
+test_that("the match functions say that they moved the model off steady state", {
+    p <- NS_params_small
+    species_params(p)$biomass_observed <- as.numeric(getBiomass(p)) * 2
+    expect_message(matchBiomasses(p), "moved it off its steady state")
+
+    species_params(p)$number_observed <- as.numeric(getN(p)) * 2
+    expect_message(matchNumbers(p), "moved it off its steady state")
+})
+
+test_that("the steady-state notice is silenced by info_level", {
+    p <- NS_params_small
+    species_params(p)$biomass_observed <- as.numeric(getBiomass(p)) * 2
+    expect_no_message(matchBiomasses(p, info_level = 0))
+    withr::local_options(mizer_info_level = 0)
+    expect_no_message(matchBiomasses(p))
+})
+
+test_that("the calibrate functions do not claim to break the steady state", {
+    # They apply one overall scaling factor, which is an exact symmetry of the
+    # model, so the steady state survives them untouched. If this ever stops
+    # being true they need the notice that the match functions carry.
+    p <- suppressMessages(
+        steady(NS_params_small, tol = 1e-6, t_max = 500,
+               progress_bar = FALSE, info_level = 0))
+    before <- steady_biomass_drift(p)
+    species_params(p)$biomass_observed <- as.numeric(getBiomass(p)) * 2
+    expect_equal(steady_biomass_drift(suppressMessages(calibrateBiomass(p))),
+                 before, tolerance = 1e-6)
+    expect_equal(steady_biomass_drift(suppressMessages(scaleModel(p, 2))),
+                 before, tolerance = 1e-6)
+})
