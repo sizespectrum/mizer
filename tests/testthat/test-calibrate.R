@@ -79,26 +79,6 @@ test_that("calibrateBiomass and calibrateNumber honour cutoffs", {
                  params@initial_n * observed_total / model_total)
 })
 
-test_that("calibrateYield works and warns about deprecation", {
-    params <- NS_params_small
-    expect_warning(expect_identical(calibrateYield(params), params),
-                   "deprecated")
-
-    species_params(params)$yield_observed <- NA
-    expect_warning(expect_identical(calibrateYield(params), params),
-                   "deprecated")
-
-    species_params(params)$yield_observed <-
-        rowSums(sweep(params@initial_n, 2, params@w * params@dw, "*") *
-                    getFMort(params))
-    expect_warning(expect_unchanged(calibrateYield(params), params),
-                   "deprecated")
-
-    species_params(params)$yield_observed <- species_params(params)$yield_observed * 2
-    params2 <- suppressWarnings(calibrateYield(params))
-    expect_equal(params2@initial_n, params@initial_n * 2)
-})
-
 test_that("scaleModel does not change dynamics.", {
     factor <- 10
     sim <- project(NS_params_small, t_max = 1)

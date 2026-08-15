@@ -115,8 +115,8 @@ stability of steady states.
   itself, and `steady()` now says when the two disagree — a run declared
   converged whose biomasses are still visibly moving (#495).
 
-- `matchBiomasses()`, `matchNumbers()`, `matchYields()` and `matchGrowth()` now
-  say that they have moved the model off its steady state, turning an
+- `matchBiomasses()`, `matchNumbers()` and `matchGrowth()` now say that they
+  have moved the model off its steady state, turning an
   instruction the documentation had to keep repeating into something the package
   says at the moment it becomes true. The `calibrate…()` functions and
   `scaleModel()` deliberately do not: they apply one overall scaling factor,
@@ -153,13 +153,13 @@ stability of steady states.
 
 - Nearly every message and warning that mizer gives while building or changing
   a model now goes through that mechanism, including the ones in `steady()`,
-  `projectToSteady()`, `matchYields()`, `validParams()`, `setInteraction()`,
+  `projectToSteady()`, `validParams()`, `setInteraction()`,
   `setReproduction()`, `setResource()`, `newTraitParams()`,
   `newSingleSpeciesParams()`, `plotYieldObservedVsModel()` and the upgrade of
   an old object. They are collected into a single report rather than a stream,
   and `info_level` (or the `mizer_info_level` option) controls all of them
   alike, where before each function decided for itself. `steady()`,
-  `projectToSteady()`, `matchYields()` and `validParams()` no longer implement
+  `projectToSteady()` and `validParams()` no longer implement
   their own `info_level` threshold, and `newSingleSpeciesParams()` gains an
   `info_level` argument.
 
@@ -307,6 +307,13 @@ stability of steady states.
 
 ## Deprecations
 
+- `matchYields()` and `calibrateYield()` have been removed. They were deprecated
+  in mizer 2.6.0 and no use case for them was reported. Both worked by
+  multiplying the abundance of a species at all sizes by a constant factor,
+  which is the wrong lever for a yield: use
+  `mizerExperimental::matchYield()`, which adjusts the catchability instead
+  (#526).
+
 - Eleven accessors that returned a rate array stored in the MizerParams object
   had two names that did exactly the same thing. The `get`-prefixed name is now
   soft-deprecated in favour of the bare name, which is the one that also has a
@@ -323,6 +330,15 @@ stability of steady states.
   `getEncounter()` or `getFMort()`.
 
 ## Bug fixes
+
+- `plotYieldObservedVsModel()` now finds the observed yield where mizer says it
+  belongs. `yield_observed` is documented as a `gear_params()` column, and
+  `given_species_params<-()` tells you to put it there, but the plot read it
+  only from the species parameters, so a model that followed the advice got the
+  error that no `yield_observed` had been provided. The plot now takes the
+  observations from the gear parameters, summed over the gears catching each
+  species, and still accepts them in the species parameters for the species
+  that have no gear observation (#526).
 
 - Changing the resource power-law parameters now refreshes the species search
   volume parameters that mizer calculated from them. Changing `lambda`

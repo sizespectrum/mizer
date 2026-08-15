@@ -423,11 +423,11 @@ signal_ignored_changes <- function(given, changed) {
 #' that only [given_species_params<-()] gives; [species_params<-()] stays
 #' quiet, see there.
 #'
-#' `yield_observed` is one of them. It belongs in [gear_params()], which gives
-#' the observed yield per gear and species, and that is where it should be set.
-#' Some functions still read it out of the species parameters instead, so a
-#' value set there is not simply ignored, but that is a shortcoming of those
-#' functions rather than a second supported home for the parameter.
+#' `yield_observed` is the exception. It belongs in [gear_params()], which gives
+#' the observed yield per gear and species, and that is where it should be set,
+#' which is what this reports. But it feeds no rate, so a value in the species
+#' parameters is not lost: [get_yield_observed()] falls back to it for any
+#' species that has no observation among the gear parameters.
 #'
 #' @param changed A named list with one entry per changed column, or a
 #'   character vector of the changed column names.

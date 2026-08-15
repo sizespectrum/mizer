@@ -74,34 +74,6 @@ test_that("matchBiomasses and matchNumbers fail for unreachable cutoff", {
                  "Sprat does not grow up to the number_cutoff size of 1e\\+20 grams")
 })
 
-test_that("matchYields works", {
-    params <- setBevertonHolt(NS_params_small)
-    initial_effort(params) <- setNames(rep(1, length(initial_effort(params))),
-                                       names(initial_effort(params)))
-    yield_actual <- rowSums(sweep(params@initial_n, 2, params@w * params@dw, "*") *
-                                getFMort(params))
-
-    species_params(params)$yield_observed <- NA_real_
-    expect_message(
-        params_na <- suppressWarnings(matchYields(params, info_level = 3)),
-        "The following species have no yield observations"
-    )
-    expect_equal(params_na@initial_n, params@initial_n)
-
-    species_params(params)$yield_observed <- 0
-    species_params(params)$yield_observed[3] <- 2 * yield_actual[3]
-    expect_warning(params2 <- matchYields(params, 3, info_level = 0), "deprecated")
-    expect_equal(params2@initial_n[3, ], 2 * params@initial_n[3, ])
-    expect_equal(params2@initial_n[-3, ], params@initial_n[-3, ])
-})
-
-test_that("matchYields updates `time_modified`", {
-    p <- NS_params_small
-    species_params(p)$yield_observed <- 1
-    p2 <- suppressWarnings(matchYields(p))
-    expect_false(identical(p2@time_modified, p@time_modified))
-})
-
 # The steady-state notice ----
 
 test_that("the match functions say that they moved the model off steady state", {

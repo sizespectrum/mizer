@@ -7,7 +7,6 @@ params <- steadyNewton(params)          # direct solve (experimental)
 # ── Calibrate to data (re-run steady() after each) ────────────────────────────
 params <- calibrateBiomass(params)      # total biomass  → kappa
 params <- matchBiomasses(params)        # per-species biomass
-params <- calibrateYield(params)        # total yield
 params <- matchGrowth(params)           # growth → h, gamma, ks, k
 params <- steady(params)                # re-converge
 
