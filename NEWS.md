@@ -340,6 +340,13 @@ stability of steady states.
   species, and still accepts them in the species parameters for the species
   that have no gear observation (#526).
 
+- `steadyNewton()`'s analytic resource substitution for the semichemostat
+  resource is now self-consistent when consumers are satiated. The resource
+  is now added to the unknowns during the solver step so that its density and 
+  the resulting consumer feeding levels are updated together. The `getStability()` 
+  quasi-static approximation was similarly updated with a fixed iteration to keep 
+  its numerical Jacobian smooth (#521).
+
 - Changing the resource power-law parameters now refreshes the species search
   volume parameters that mizer calculated from them. Changing `lambda`
   recalculates calculated `q` and `gamma` entries, while changing `kappa`

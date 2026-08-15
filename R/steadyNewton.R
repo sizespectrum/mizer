@@ -176,21 +176,32 @@ steadyNewton.MizerParams <- function(params,
     # overflow. Fill those by log-interpolation from the nonzero neighbours.
     N0 <- positive_initial_guess(params@initial_n, params@w_min_idx,
                                  active$w_top)
-    x0 <- log(N0[active$mask])
+    x0_fish <- log(N0[active$mask])
+    
+    x0_n_pp <- as.numeric(params@initial_n_pp[active$mask_pp])
+    x0_n_pp[x0_n_pp <= 0] <- params@cc_pp[active$mask_pp][x0_n_pp <= 0]
+    x0_pp <- log(x0_n_pp)
+    
+    x0 <- c(x0_fish, x0_pp)
+
+    if (isTRUE(verbose)) {
+        control <- list(maxit = maxit, ftol = tol, xtol = tol, trace = 1)
+    } else {
+        control <- list(maxit = maxit, ftol = tol, xtol = tol, trace = 0)
+    }
+
     sol <- nleqslv::nleqslv(x0, residual_fn, method = method,
-                            global = global,
-                            control = list(maxit = maxit, ftol = tol,
-                                           xtol = tol,
-                                           trace = if (verbose) 1 else 0))
-    # termcd 1 (function convergence) and 2 (x convergence) are successes.
+                            global = global, control = control)
+
     if (sol$termcd > 2) {
         warning("steadyNewton() did not converge (nleqslv termination code ",
                 sol$termcd, ": ", sol$message,
                 "). Returning the best iterate found.", call. = FALSE)
     }
 
-    N <- active$unpack(sol$x)
-
+    unpacked <- active$unpack(sol$x)
+    N <- unpacked$N
+    n_pp <- unpacked$n_pp
     is_extinct <- rep(FALSE, nrow(N))
     names(is_extinct) <- rownames(N)
 
@@ -310,14 +321,20 @@ steady_active_set <- function(params) {
         w_top[i] <- grid_top[i]
         mask[i, lo:w_top[i]] <- TRUE
     }
+    
+    mask_pp <- as.logical(params@cc_pp > 0)
+    n_fish_active <- sum(mask)
 
     dn <- dimnames(params@initial_n)
     unpack <- function(x) {
         N <- matrix(0, nrow = no_sp, ncol = no_w, dimnames = dn)
-        N[mask] <- exp(x)
-        N
+        N[mask] <- exp(x[1:n_fish_active])
+        n_pp <- params@initial_n_pp
+        n_pp[mask_pp] <- exp(x[(n_fish_active + 1):length(x)])
+        list(N = N, n_pp = n_pp)
     }
-    list(mask = mask, w_top = w_top, unpack = unpack)
+    list(mask = mask, w_top = w_top, mask_pp = mask_pp, 
+         n_fish_active = n_fish_active, unpack = unpack)
 }
 
 #' Strictly positive starting guess for the log-space solve
@@ -396,17 +413,19 @@ fd_step_scale <- function(x, local_scale) {
 #' @return The steady-state resource number density vector.
 #' @noRd
 resource_steady_semichemostat <- function(params, N, n_other) {
-    # Resource mortality is predation by consumers and does not depend on the
-    # resource density, so the value of n_pp passed here is irrelevant.
-    mu_R <- as.numeric(getResourceMort(params, n = N,
-                                       n_pp = params@initial_n_pp,
-                                       n_other = n_other, t = 0))
-    mur <- params@rr_pp + mu_R
-    n_pp <- params@rr_pp * params@cc_pp / mur
-    # Where both rate and mortality vanish the steady state is undetermined;
-    # keep the current value, exactly as resource_semichemostat() does.
-    sel <- !is.finite(n_pp)
-    n_pp[sel] <- params@initial_n_pp[sel]
+    n_pp <- params@initial_n_pp
+    for (i in 1:8) {
+        mu_R <- as.numeric(getResourceMort(params, n = N,
+                                           n_pp = n_pp,
+                                           n_other = n_other, t = 0))
+        mur <- params@rr_pp + mu_R
+        n_pp_new <- params@rr_pp * params@cc_pp / mur
+        # Where both rate and mortality vanish the steady state is undetermined;
+        # keep the initial value.
+        sel <- !is.finite(n_pp_new)
+        n_pp_new[sel] <- params@initial_n_pp[sel]
+        n_pp <- n_pp_new
+    }
     n_pp
 }
 
@@ -509,6 +528,8 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
                                   extinction_floor = 1e-6) {
     no_w <- length(params@w)
     mask <- active$mask
+    mask_pp <- active$mask_pp
+    n_fish_active <- active$n_fish_active
     flux_limiter <- flux_limiter_scheme(params)
     rates_fns <- projectRateFunctions(params)
     x0_initial <- params@initial_n
@@ -528,8 +549,9 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
     }
 
     function(x) {
-        N <- active$unpack(x)
-        n_pp <- resource_steady_semichemostat(params, N, n_other)
+        unpacked <- active$unpack(x)
+        N <- unpacked$N
+        n_pp <- unpacked$n_pp
 
         res <- consumer_residual(params, n = N, n_pp = n_pp, n_other = n_other,
                                  effort = effort, rdd = rdd_const,
@@ -544,12 +566,19 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
         }
 
         if (!is.null(x_floor)) {
-            y <- x - x_floor
+            y <- x[1:n_fish_active] - x_floor
             delta <- 0.001
             penalty <- 0.5 * (y - sqrt(y^2 + delta^2))
             r_ss <- r_ss + penalty
         }
-        r_ss
+        
+        # Resource residual
+        mu_R <- as.numeric(getResourceMort(params, n = N,
+                                           n_pp = n_pp,
+                                           n_other = n_other, t = 0))
+        r_pp_ss <- (params@rr_pp * params@cc_pp / n_pp - (params@rr_pp + mu_R))[mask_pp]
+
+        c(r_ss, as.numeric(r_pp_ss))
     }
 }
 
