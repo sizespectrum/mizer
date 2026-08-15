@@ -14,7 +14,9 @@
 #     title from `cheatsheet_topics` below)
 #   * turns ```r into ```{r eval=FALSE}
 #   * auto-links the first mention of each documented function to its pkgdown
-#     reference page, using the alias -> .Rd mapping read from man/
+#     reference page, using the alias -> .Rd mapping read from man/. In the
+#     first column of a table the link is repeated on every row, since a table
+#     is read as a lookup rather than in order.
 #   * rewrites "the `foo` skill" cross-references into links to the matching
 #     cheatsheet
 #   * drops <!-- agent-only --> ... <!-- /agent-only --> blocks
@@ -181,8 +183,13 @@ rd_alias_map <- function(man_dir = "man") {
 #' characters such as `gear_params`. Short bare names (`w`, `N`) read as prose
 #' rather than as cross-references and are skipped, as are the bare names listed
 #' in `nolink`, which double as data-frame column names.
+#'
+#' `force_to` suspends the first-mention rule up to that character position: a
+#' name is linked there even if it was linked earlier in the article. It is used
+#' for the first column of a table, which is read as a lookup, out of order and
+#' without the prose that introduced the name.
 link_first_mentions <- function(line, map, seen, nolink = character(0),
-                                min_bare = 3L) {
+                                min_bare = 3L, force_to = 0L) {
     m <- gregexpr("`[^`]+`", line, perl = TRUE)[[1]]
     if (m[1] == -1) return(list(line = line, seen = seen))
     starts <- as.integer(m)
@@ -212,7 +219,8 @@ link_first_mentions <- function(line, map, seen, nolink = character(0),
             if (nchar(name) < min_bare) next           # e.g. `w`, `N`
         }
 
-        if (is.null(map[[name]]) || isTRUE(seen[[name]])) next
+        if (is.null(map[[name]])) next
+        if (isTRUE(seen[[name]]) && en > force_to) next
         seen[[name]] <- TRUE
         todo <- c(todo, i)
     }
@@ -230,6 +238,21 @@ link_first_mentions <- function(line, map, seen, nolink = character(0),
                       if (en < nchar(out)) substr(out, en + 1L, nchar(out)) else "")
     }
     list(line = out, seen = seen)
+}
+
+
+#' Character position at which a table row's first cell ends
+#'
+#' Returns 0 for anything that is not a markdown table row, so the caller can
+#' pass the result straight to `link_first_mentions(force_to = )`. The
+#' delimiter row is excluded; a header row needs no special case, as it names
+#' the column ("Function") in prose rather than holding a code span.
+table_key_cell <- function(line) {
+    if (!grepl("^\\s*\\|", line)) return(0L)
+    if (grepl("^\\s*\\|[-: |]+\\|\\s*$", line)) return(0L)
+    close <- regexpr("\\|[^|]*\\|", line, perl = TRUE)
+    if (close == -1L) return(0L)
+    close + attr(close, "match.length") - 1L
 }
 
 
@@ -303,7 +326,8 @@ skill_to_cheatsheet <- function(vignette, spec, map, pkg_root = ".") {
                        ln, fixed = TRUE)
         }
         res <- link_first_mentions(ln, map, seen,
-                                   nolink = spec$nolink %||% character(0))
+                                   nolink = spec$nolink %||% character(0),
+                                   force_to = table_key_cell(ln))
         seen <- res$seen
         out <- c(out, res$line)
     }

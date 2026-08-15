@@ -3,8 +3,9 @@ name: calibrate-model
 description: >-
   Bring a mizer model to steady state and calibrate it to observed data. Use
   whenever the user wants to find the steady state (steady, projectToSteady,
-  steadySingleSpecies, steadyNewton), match modelled biomass, yield, or growth to
-  observations (calibrateBiomass, matchBiomasses, matchGrowth),
+  steadySingleSpecies, steadyNewton), match modelled biomass, abundance, yield,
+  or growth to observations (calibrateBiomass, matchBiomasses, calibrateNumber,
+  matchNumbers, matchGrowth),
   set the level of density-dependent reproduction (reproduction_level<-), check
   whether a model is at its steady state (getSteadyResidual), or diagnose
   why a model will not settle or reproduce observed values.
@@ -85,6 +86,28 @@ plot(getSteadyResidual(params))        # which species, and at which sizes
 `matchGrowth()` and `matchBiomasses()` pull on different parameters; alternate
 them, re-running `steady()` between, until both are satisfied — usually a few
 passes.
+
+**If your observations are numbers rather than weights**, use `calibrateNumber()`
+and `matchNumbers()` in place of the two biomass functions. They are the same
+functions with the factor of the weight taken out of the size integral, and they
+read `number_observed` and `number_cutoff` instead of `biomass_observed` and
+`biomass_cutoff`. Mixing the two — matching some species on biomass and others
+on numbers — works, because each function ignores the species for which its own
+observation column is `NA`.
+
+```r
+species_params(params)$number_observed <- c(Cod = 1e6, Herring = 4e8, ...)
+params <- calibrateNumber(params)
+params <- matchNumbers(params)
+params <- steady(params)
+```
+
+Whichever pair you use, a `<to>_cutoff` value is the **smallest size the
+observation counts**, in grams: a survey that misses fish under 10 g is
+`biomass_cutoff = 10`, and the model is then integrated over the same range
+rather than over the whole spectrum. Leave it out and the whole size range is
+counted, which is the usual reason a model looks like it over-predicts a
+species by a wide margin.
 
 **Yields** are not a calibration target in mizer itself: put the observed
 annual yield of each gear-species pair into the `yield_observed` column of

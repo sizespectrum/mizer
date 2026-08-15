@@ -23,20 +23,23 @@ function, follow the links.
 
 Tools for asking whether a mizer steady state is dynamically **stable** — and,
 when it is not, characterising the **limit cycle** that replaces it. These are
-**experimental**: their interface may still change. All treat the resource as a
-quasi-static fast variable by default (valid for the standard semichemostat
-resource dynamics).
+**experimental**: their interface may still change. All assume the standard
+semichemostat resource dynamics. [`steadyNewton()`](../reference/steadyNewton.html) solves for the resource
+alongside the fish, so the resource density and the feeding levels it implies
+are self-consistent even where consumers are satiated; [`getStability()`](../reference/getStability.html) instead
+treats the resource as a quasi-static fast variable, and
+`include_resource = TRUE` turns that approximation off.
 
 Distinct from calibration: the [calibration cheatsheet](cheatsheet-calibration.html) gets you *onto* a fixed
 point; what follows analyses the *dynamics around* it. The natural entry point
-is [`steadyNewton()`](../reference/steadyNewton.html), which converges even when the fixed point is dynamically
+is `steadyNewton()`, which converges even when the fixed point is dynamically
 unstable, unlike [`steady()`](../reference/steady.html).
 
 ---
 
 ## Is the steady state stable? — `getStability()`
 
-[`getStability(params)`](../reference/getStability.html) linearises the one-step-ahead map at the fixed point and
+`getStability(params)` linearises the one-step-ahead map at the fixed point and
 returns its leading eigenvalues. The result reports whether the state is stable or
 unstable, the **spectral radius** (modulus of the leading eigenvalue; > 1 means
 unstable), and — when the system is near a Hopf bifurcation — the **period** of
@@ -58,6 +61,13 @@ stab                                     # stable/unstable, spectral radius, cyc
 - `effort` / `reproduction` set the fishing effort and reproduction handling used
   when forming the map.
 
+**Both `getStability()` and [`getLimitCycleSim()`](../reference/getLimitCycleSim.html) linearise at the state stored in
+the object**, so a model that is not on a fixed point gets eigenvalues for the
+neighbourhood of a point it is not sitting at. Both now warn when handed one;
+the fix is to run `steadyNewton()` (or `steady()`) first, not to ignore the
+warning. [`plot(getSteadyResidual(params))`](../reference/plot.html) shows how far off it is — see the
+[calibration cheatsheet](cheatsheet-calibration.html).
+
 `steady()` and [`projectToSteady()`](../reference/projectToSteady.html) attach a related `"convergence"` attribute
 recording whether the run settled on a **steady state, a limit cycle, or
 neither**, together with the cycle period and relative amplitude when a cycle is
@@ -70,7 +80,7 @@ tolerance `tol`.
 
 ## Visualising the limit cycle — `getLimitCycleSim()`
 
-[`getLimitCycleSim(params)`](../reference/getLimitCycleSim.html) takes the output of `steadyNewton()` and builds a
+`getLimitCycleSim(params)` takes the output of `steadyNewton()` and builds a
 [`MizerSim`](../reference/MizerSim.html) covering **one period** of the limit cycle in the linear approximation,
 
 \[ N(t) = N^* + A\,\mathrm{Re}\!\left[e^{i\theta t}\,\mathbf v\right], \]

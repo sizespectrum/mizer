@@ -14,9 +14,12 @@ description: >-
 
 Tools for asking whether a mizer steady state is dynamically **stable** — and,
 when it is not, characterising the **limit cycle** that replaces it. These are
-**experimental**: their interface may still change. All treat the resource as a
-quasi-static fast variable by default (valid for the standard semichemostat
-resource dynamics).
+**experimental**: their interface may still change. All assume the standard
+semichemostat resource dynamics. `steadyNewton()` solves for the resource
+alongside the fish, so the resource density and the feeding levels it implies
+are self-consistent even where consumers are satiated; `getStability()` instead
+treats the resource as a quasi-static fast variable, and
+`include_resource = TRUE` turns that approximation off.
 
 Distinct from calibration: the `calibrate-model` skill gets you *onto* a fixed
 point; what follows analyses the *dynamics around* it. The natural entry point
@@ -46,6 +49,13 @@ stab                                     # stable/unstable, spectral radius, cyc
   approximation makes little difference.
 - `effort` / `reproduction` set the fishing effort and reproduction handling used
   when forming the map.
+
+**Both `getStability()` and `getLimitCycleSim()` linearise at the state stored in
+the object**, so a model that is not on a fixed point gets eigenvalues for the
+neighbourhood of a point it is not sitting at. Both now warn when handed one;
+the fix is to run `steadyNewton()` (or `steady()`) first, not to ignore the
+warning. `plot(getSteadyResidual(params))` shows how far off it is — see the
+`calibrate-model` skill.
 
 `steady()` and `projectToSteady()` attach a related `"convergence"` attribute
 recording whether the run settled on a **steady state, a limit cycle, or

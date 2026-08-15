@@ -54,10 +54,10 @@ These extract raw arrays from a `MizerSim` object.
 | [`finalN(sim)`](../reference/finalN.html) | species abundance at last time | species × size |
 | [`finalNResource(sim)`](../reference/finalN.html) | resource abundance at last time | size |
 | [`getEffort(sim)`](../reference/getEffort.html) | fishing effort | time × gear |
-| [`getTimes(sim)`](../reference/getTimes.html) | saved time steps | vector |
+| [`getTimes(sim)`](../reference/getTimes.html) | saved time steps | time |
 
 ```{r eval=FALSE}
-N(sim)[, "Cod", ]          # time × size for Cod
+N(sim)[, , 1]              # time × species in smallest size class
 N(sim)["2010", "Cod", ]    # size vector for Cod in year 2010
 finalN(sim)["Cod", ]       # size vector for Cod at the final time step
 ```
@@ -66,12 +66,14 @@ finalN(sim)["Cod", ]       # size vector for Cod at the final time step
 
 ## Summary functions
 
-These compute derived quantities from abundances. All accept `MizerSim` or
-`MizerParams`. See `?summary_functions` for the full list.
+These functions compute derived quantities from abundances. All accept `MizerSim` or
+`MizerParams`. 
+The result is a classed array that can be plotted directly with [`plot()`](../reference/plot.html) — see
+below.
 
 | Function | Returns | Dimensions |
 |---|---|---|
-| `getBiomass(sim, min_w, max_w)` | total biomass | time × species |
+| [`getBiomass(sim, min_w, max_w)`](../reference/getBiomass.html) | total biomass | time × species |
 | [`getSSB(sim)`](../reference/getSSB.html) | spawning stock biomass | time × species |
 | [`getN(sim, min_w, max_w)`](../reference/getN.html) | total abundance | time × species |
 | [`getYield(sim)`](../reference/getYield.html) | total yield across gears | time × species |
@@ -92,9 +94,6 @@ getSSB(sim)                              # SSB of all species over time
 getBiomass(sim, min_w = 10, max_w = 1e4) # biomass of 10g–10kg fish
 getYield(sim)["2010", ]                  # yield in year 2010
 ```
-
-The result is a classed array that can be plotted directly with [`plot()`](../reference/plot.html) — see
-below.
 
 ---
 
@@ -190,7 +189,7 @@ without a dedicated plot function or custom ggplot code.
 
 | Class | Typical source | `plot()` shows |
 |---|---|---|
-| `ArrayTimeBySpecies` | `getBiomass(sim)`, `getSSB(sim)`, `getYield(sim)`, `getN(sim)` | value vs time, one line per species |
+| [`ArrayTimeBySpecies`](../reference/ArrayTimeBySpecies.html) | `getBiomass(sim)`, `getSSB(sim)`, `getYield(sim)`, `getN(sim)` | value vs time, one line per species |
 | [`ArraySpeciesBySize`](../reference/ArraySpeciesBySize.html) | `getFeedingLevel(params)`, `getPredMort(params)`, `getEncounter(params)` | value vs size, one line per species |
 | [`ArrayTimeBySpeciesBySize`](../reference/ArrayTimeBySpeciesBySize.html) | `getFMort(sim)`, `getPredMort(sim)` | one time slice vs size (set with `time`) |
 | [`ArrayResourceBySize`](../reference/ArrayResourceBySize.html) | `NResource(params)`, [`getResourceMort(params)`](../reference/getResourceMort.html), [`resource_rate(params)`](../reference/setResource.html), [`resource_capacity(params)`](../reference/setResource.html) | resource quantity vs size |
@@ -207,9 +206,9 @@ including the resource classes:
 
 | Function | What it does |
 |---|---|
-| `addPlot()` | adds a compatible array as extra lines on an existing plot |
-| `plot2()` | compares two compatible arrays (colour = species, linetype = which object) |
-| `plotRelative()` | shows the relative difference `2 (y - x) / (x + y)` between two compatible arrays |
+| [`addPlot()`](../reference/addPlot.html) | adds a compatible array as extra lines on an existing plot |
+| [`plot2()`](../reference/plot2.html) | compares two compatible arrays (colour = species, linetype = which object) |
+| [`plotRelative()`](../reference/plotRelative.html) | shows the relative difference `2 (y - x) / (x + y)` between two compatible arrays |
 | [`plotHover()`](../reference/plotHover.html) | turns any of these ggplots into a hover-enabled plotly plot |
 
 ```{r eval=FALSE}
@@ -241,6 +240,7 @@ dedicated `plot…()` functions below — share these optional arguments:
 | `highlight` | character vector — draw named species with thicker lines |
 | `total` | logical — add a line for the community total |
 | `log_x`, `log_y` | logical — log-scale the x or y axis |
+| `size_axis` | `"w"` (default) or `"l"` — plot against weight or against length |
 
 `tlim` replaces the deprecated `start_time`/`end_time`, and `log_x`/`log_y`
 replace the older single `log`.
@@ -251,12 +251,42 @@ the underlying numbers — for example the size range that a biomass is summed
 over — pass `min_w`/`max_w` (or `min_l`/`max_l`) to the `get…()` function
 instead, e.g. [`plotBiomass(sim, min_w = 10)`](../reference/plotBiomass.html).
 
+`size_axis = "l"` converts the axis with the length–weight parameters `a` and
+`b`, so it is unavailable for the resource, which has no species to take them
+from. For a *density* it converts the y-axis too, via the appropriate Jacobian —
+see the next section.
+
+### Which density a spectrum plot shows
+
+[`plotSpectra()`](../reference/plotSpectra.html), [`plotSpectra2()`](../reference/plotSpectra2.html), [`plotCDF()`](../reference/plotCDF.html), [`plotCDF2()`](../reference/plotCDF2.html) and [`animate()`](../reference/animate.html)
+describe the plotted quantity with two independent logical arguments, each of
+which contributes one factor of the weight:
+
+| | `per_log_size = FALSE` | `per_log_size = TRUE` |
+|---|---|---|
+| `biomass = FALSE` | number density | number density per log size |
+| `biomass = TRUE` | biomass density | biomass density per log size |
+
+The older single `power` argument is the sum of the two (0, 1, 1, 2 across that
+table) and is still accepted, but it cannot tell the two `power = 1` cells
+apart — it is read as the biomass density with respect to weight, which is what
+picks the y-axis label and the length-axis Jacobian. Supplying `power` together
+with a flag that contradicts it is an error, so express the choice with the
+flags. `plotCDF()` accepts only `per_log_size = FALSE`: a cumulative total does
+not depend on the density it was accumulated from.
+
+**`log_x` does not change the y-axis.** Showing weight on a logarithmic axis is
+a display choice; converting a density per unit weight into a density per
+logarithmic weight interval is `per_log_size`. Conflating the two is the usual
+reason a spectrum looks like it has the wrong slope.
+
 Which arguments apply depends on the array's shape:
 
 - `plot(<ArrayTimeBySpecies>)` accepts `species`, `tlim`, `total`, `background`,
   `highlight`, `log_x`, `log_y`, `ylim`.
 - `plot(<ArraySpeciesBySize>)` accepts `species`, `highlight`, `log_x`, `log_y`,
-  `wlim`, `ylim`, `all.sizes`.
+  `wlim`, `llim`, `ylim`, `size_axis`, `all.sizes`. `size_axis` and `llim`
+  belong to this shape only — a plot against time has no size axis to convert.
 
 ---
 
@@ -272,7 +302,7 @@ instead. See `?plotting_functions`.
 
 | Function | How it relates to plotting the array directly |
 |---|---|
-| `plotBiomass(sim)` | same as `plot(getBiomass(sim))` |
+| [`plotBiomass(sim)`](../reference/plotBiomass.html) | same as `plot(getBiomass(sim))` |
 | [`plotYield(sim)`](../reference/plotYield.html) | same as `plot(getYield(sim))` |
 | [`plotYieldGear(sim)`](../reference/plotYieldGear.html) | like `plotYield()` but keeps the gear dimension, one panel per gear |
 
@@ -284,13 +314,15 @@ instead. See `?plotting_functions`.
 | [`plotFeedingLevel(sim)`](../reference/plotFeedingLevel.html) | same as `plot(getFeedingLevel(sim))` |
 | [`plotPredMort(sim)`](../reference/plotPredMort.html) | same as `plot(getPredMort(sim))` |
 | [`plotFMort(sim)`](../reference/plotFMort.html) | same as `plot(getFMort(sim))` |
-| [`plotSpectra(sim)`](../reference/plotSpectra.html) | abundance/biomass spectra: additionally overlays the resource spectrum and background species, and `biomass`/`per_log_size` choose the plotted density |
+| [`plotSpectra(sim)`](../reference/plotSpectra.html) | abundance/biomass spectra: additionally overlays the resource spectrum and background species, and `biomass`/`per_log_size` choose the plotted density (see [above](#which-density-a-spectrum-plot-shows)) |
 | [`plotCDF(sim)`](../reference/plotCDF.html) | cumulative version of the spectrum (`normalise` for proportion vs total) |
 | [`plotGrowthCurves(sim)`](../reference/plotGrowthCurves.html) | a distinct plot: size at age rather than a size spectrum |
 | [`plotDiet(params)`](../reference/plotDiet.html) | a distinct plot: stacked diet composition by prey |
 
-**Calibration:** [`plotBiomassObservedVsModel(params)`](../reference/plotBiomassObservedVsModel.html),
-[`plotYieldObservedVsModel(params)`](../reference/plotYieldObservedVsModel.html).
+**Calibration:** [`plotBiomassObservedVsModel(params)`](../reference/plotBiomassObservedVsModel.html) and
+[`plotYieldObservedVsModel(params)`](../reference/plotYieldObservedVsModel.html); the latter takes a `gear` argument that
+restricts both the modelled and the observed catch to the named gears. See the
+[calibration cheatsheet](cheatsheet-calibration.html).
 
 ```{r eval=FALSE}
 plotBiomass(sim, species = c("Cod", "Herring"), total = TRUE)
@@ -310,8 +342,8 @@ panels for a model's steady state (without the biomass-through-time panel).
 biomass over size — steadier than a density spectrum for eyeballing where
 biomass sits. `biomass = TRUE` (default) accumulates biomass, `biomass = FALSE`
 accumulates numbers; `normalise = FALSE` plots the cumulative total rather than
-the proportion. Unlike in `plotSpectra()`, `per_log_size` is not accepted: the
-integral does not depend on it.
+the proportion. Unlike in `plotSpectra()`, only `per_log_size = FALSE` is
+accepted: the integral does not depend on it.
 
 ```{r eval=FALSE}
 plotCDF(NS_params, species = c("Cod", "Herring"))
@@ -341,7 +373,7 @@ plotCDF2(sim, sim2, "Unfished", "Fished")
 
 ## Animating spectra through time
 
-[`animate()`](../reference/animate.html) plays a spectrum or rate array through the course of a simulation
+`animate()` plays a spectrum or rate array through the course of a simulation
 ([`animateSpectra()`](../reference/animate.html) is a retained alias).
 
 ```{r eval=FALSE}
@@ -470,6 +502,12 @@ plotFMort(sim)          # fishing mortality vs size
 plotGrowthCurves(sim)   # size vs age
 plotDiet(params, species = "Cod")  # diet composition vs size
 plotCDF(sim)            # cumulative biomass/abundance over size
+
+# ── Choosing what a spectrum plot shows ───────────────────────────────────────
+plotSpectra(sim, biomass = TRUE)                     # biomass rather than number
+plotSpectra(sim, per_log_size = TRUE)                # density per log size
+plotSpectra(sim, size_axis = "l")                    # x axis in length, not weight
+plotSpectra(sim, log_x = TRUE)   # display only: does NOT change the y density
 
 # ── Plot any array directly, plus combine / compare tools ─────────────────────
 plot(getResourceMort(params))   # any get*() array plots directly

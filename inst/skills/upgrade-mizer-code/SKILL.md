@@ -76,6 +76,9 @@ plots) are in the changelog and are not repeated here.
 | `getStability()` or `getLimitCycleSim()` now warns about the steady state | they linearise at the stored state | `getStability()` checks that it was given a steady state (3.3) |
 | `summary(params)` has an extra "Steady state" block | new steadiness verdict | `summary()` reports the steady state (3.3) |
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters (3.3) |
+| `steady()` now converges on a `van_leer` model where it used to report a limit cycle, or never settle | the flux limiter is relaxed between iterations | `steady()` converges under the `van_leer` flux scheme (3.3) |
+| A steady state found with `steadyNewton()` moved, in a model whose consumers are satiated | the resource is now solved for alongside the fish | `steadyNewton()` solves for the resource (3.3) |
+| `getStability()` eigenvalues, a limit-cycle period or a bifurcation diagram shifted | they inherit the corrected `steadyNewton()` fixed point | `steadyNewton()` solves for the resource (3.3) |
 | `gamma`, `q` or feeding levels change after setting resource `kappa` or `lambda` | calculated search-volume parameters now follow the resource power law | Resource scalars refresh calculated `gamma` and `q` (3.3) |
 | A recalculated `gamma` or `f0` is wildly different, in a model whose `search_vol` was set by hand | the frozen array used to block mizer's own unit-gamma calculation | Defaults for `gamma` and `f0` ignore a hand-set search volume (3.3) |
 | Setting `f0 = 1` now errors even though `gamma` is supplied | every supplied target feeding level is now validated | `f0` is always validated (3.3) |
@@ -139,10 +142,11 @@ and are not repeated here.
 ## Upgrading from mizer 3.2 to 3.3
 
 Most of the changes in this release are corrections. Results move only for
-models that had opted in to second-order bin-averaging, that set `min_w` below
-the default, that specify sizes as lengths, or that change the resource power
-law after constructing the model. The one change to an interface is in the
-spectrum plots.
+models that had opted in to second-order bin-averaging or to the `van_leer`
+flux, that set `min_w` below the default, that specify sizes as lengths, that
+change the resource power law after constructing the model, or that were brought
+to steady state with `steadyNewton()` while their consumers were satiated. The
+one change to an interface is in the spectrum plots.
 
 ### `biomass` and `per_log_size` replace `power`
 
@@ -493,6 +497,38 @@ Both `getStability()` and `getLimitCycleSim()` linearise the dynamics *at*
 the neighbourhood of a point the model is not sitting at and the verdict on
 stability is meaningless. Both now warn in that case. Run `steadyNewton()` first,
 or silence with `options(mizer_info_level = 0)` if you know what you are doing.
+
+### `steady()` converges under the `van_leer` flux scheme
+
+On a model whose `second_order_w()` selects the `"van_leer"` flux, `steady()`
+used to fall into a limit cycle instead of converging: the flux limiter weights
+flipped from one cell to the next between iterations, and the iteration chased
+itself. The limiter is now relaxed with an exponential moving average, and the
+run converges (#522).
+
+Code that worked around this — a `steady()` call wrapped in `try()`, a hand-set
+`t_max`, a fall-back to the default upwind flux, or a `steadyNewton()`
+substituted for `steady()` — is no longer needed. The steady state it now
+reaches is the one the `van_leer` discretisation actually has, so it differs
+from the upwind steady state the workaround was settling on; recalibrate rather
+than treat the difference as a regression.
+
+### `steadyNewton()` solves for the resource
+
+`steadyNewton()`'s analytic substitution for the semichemostat resource assumed
+that consumer feeding levels were fixed while the resource adjusted, which is not
+self-consistent once consumers are satiated: the resource density and the feeding
+level it produces determine each other. The resource is now carried among the
+solver's unknowns, so the two are updated together (#521).
+
+The fixed point this converges on is the correct one, so **steady states found
+with `steadyNewton()` on a model with satiated consumers move**, and anything
+downstream of them — `getStability()`'s spectral radius, `getLimitCycleSim()`'s
+period, a `plotBifurcation()` diagram — moves with them. Models whose consumers
+are far from satiation are unaffected. `getStability()`'s quasi-static
+approximation gained a fixed iteration for the same reason, which also makes its
+numerical Jacobian smoother; small changes in the reported eigenvalues are
+expected.
 
 ### `compareParams()` compares small parameters properly
 

@@ -33,10 +33,11 @@ and are not repeated here.
 ## Upgrading from mizer 3.2 to 3.3
 
 Most of the changes in this release are corrections. Results move only for
-models that had opted in to second-order bin-averaging, that set `min_w` below
-the default, that specify sizes as lengths, or that change the resource power
-law after constructing the model. The one change to an interface is in the
-spectrum plots.
+models that had opted in to second-order bin-averaging or to the `van_leer`
+flux, that set `min_w` below the default, that specify sizes as lengths, that
+change the resource power law after constructing the model, or that were brought
+to steady state with [`steadyNewton()`](../reference/steadyNewton.html) while their consumers were satiated. The
+one change to an interface is in the spectrum plots.
 
 ### `biomass` and `per_log_size` replace `power`
 
@@ -385,8 +386,40 @@ are still moving. It is a message, not a warning, because convergence at the
 Both [`getStability()`](../reference/getStability.html) and [`getLimitCycleSim()`](../reference/getLimitCycleSim.html) linearise the dynamics *at*
 [`initialN(params)`](../reference/initialN-set.html). If that state is not a fixed point, the eigenvalues describe
 the neighbourhood of a point the model is not sitting at and the verdict on
-stability is meaningless. Both now warn in that case. Run [`steadyNewton()`](../reference/steadyNewton.html) first,
+stability is meaningless. Both now warn in that case. Run `steadyNewton()` first,
 or silence with `options(mizer_info_level = 0)` if you know what you are doing.
+
+### `steady()` converges under the `van_leer` flux scheme
+
+On a model whose `second_order_w()` selects the `"van_leer"` flux, `steady()`
+used to fall into a limit cycle instead of converging: the flux limiter weights
+flipped from one cell to the next between iterations, and the iteration chased
+itself. The limiter is now relaxed with an exponential moving average, and the
+run converges (#522).
+
+Code that worked around this — a `steady()` call wrapped in `try()`, a hand-set
+`t_max`, a fall-back to the default upwind flux, or a `steadyNewton()`
+substituted for `steady()` — is no longer needed. The steady state it now
+reaches is the one the `van_leer` discretisation actually has, so it differs
+from the upwind steady state the workaround was settling on; recalibrate rather
+than treat the difference as a regression.
+
+### `steadyNewton()` solves for the resource
+
+`steadyNewton()`'s analytic substitution for the semichemostat resource assumed
+that consumer feeding levels were fixed while the resource adjusted, which is not
+self-consistent once consumers are satiated: the resource density and the feeding
+level it produces determine each other. The resource is now carried among the
+solver's unknowns, so the two are updated together (#521).
+
+The fixed point this converges on is the correct one, so **steady states found
+with `steadyNewton()` on a model with satiated consumers move**, and anything
+downstream of them — `getStability()`'s spectral radius, `getLimitCycleSim()`'s
+period, a [`plotBifurcation()`](../reference/plotBifurcation.html) diagram — moves with them. Models whose consumers
+are far from satiation are unaffected. `getStability()`'s quasi-static
+approximation gained a fixed iteration for the same reason, which also makes its
+numerical Jacobian smoother; small changes in the reported eigenvalues are
+expected.
 
 ### `compareParams()` compares small parameters properly
 

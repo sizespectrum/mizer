@@ -53,6 +53,12 @@ plotGrowthCurves(sim)   # size vs age
 plotDiet(params, species = "Cod")  # diet composition vs size
 plotCDF(sim)            # cumulative biomass/abundance over size
 
+# ── Choosing what a spectrum plot shows ───────────────────────────────────────
+plotSpectra(sim, biomass = TRUE)                     # biomass rather than number
+plotSpectra(sim, per_log_size = TRUE)                # density per log size
+plotSpectra(sim, size_axis = "l")                    # x axis in length, not weight
+plotSpectra(sim, log_x = TRUE)   # display only: does NOT change the y density
+
 # ── Plot any array directly, plus combine / compare tools ─────────────────────
 plot(getResourceMort(params))   # any get*() array plots directly
 p <- plot(getBiomass(sim), species = "Cod")
