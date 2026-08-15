@@ -101,7 +101,9 @@ passes.
 **Yields** are not a calibration target in mizer itself: put the observed
 annual yield of each gear-species pair into the `yield_observed` column of
 [`gear_params()`](../reference/gear_params.html) and compare it with the model using
-[`plotYieldObservedVsModel()`](../reference/plotYieldObservedVsModel.html), which sums the observations over the gears. Use
+[`plotYieldObservedVsModel()`](../reference/plotYieldObservedVsModel.html), which sums the observations over the gears. Pass
+`gear = ` a subset of the gear names to compare only their catch against only
+their observations. Use
 `mizerExperimental::matchYield()` to adjust the catchability so that the yields
 match. Yields depend on the fishing setup, so make sure gears and effort are
 right first — see the [fishing cheatsheet](cheatsheet-fishing.html).

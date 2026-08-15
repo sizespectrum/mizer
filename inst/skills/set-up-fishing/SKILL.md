@@ -40,7 +40,9 @@ the function's argument (see below). Row names follow the pattern
 There is one optional column, `yield_observed`, holding the observed annual
 yield of that gear–species pair in grams per year. It is not used by any rate
 calculation; `plotYieldObservedVsModel()` sums it over the gears to compare the
-observations with the model.
+observations with the model, and its `gear` argument restricts that comparison
+to the catch of selected gears, for example
+`plotYieldObservedVsModel(params, gear = "Otter")`.
 
 **Editing an existing gear table.** Pull it out, change what you need, and
 assign it back — the assignment triggers recalculation of the selectivity and

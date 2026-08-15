@@ -13,6 +13,7 @@ plotYieldObservedVsModel(
   return_data = FALSE,
   labels = TRUE,
   show_unobserved = FALSE,
+  gear = NULL,
   ...
 )
 }
@@ -42,6 +43,10 @@ not (FALSE). Default is FALSE.}
 yield observation is available. If TRUE, these species will be
 shown as if their observed yield was equal to the model yield.}
 
+\item{gear}{The gears to be included. Optional. By default the catch of all
+gears is included. A vector of gear names. Only species caught by the
+selected gears are shown.}
+
 \item{...}{For \code{\link[=plotlyYieldObservedVsModel]{plotlyYieldObservedVsModel()}}, additional arguments passed
 to \code{\link[=plotHover]{plotHover()}}. Otherwise unused.}
 }
@@ -69,6 +74,13 @@ accepted, see \code{\link[=get_yield_observed]{get_yield_observed()}}. For speci
 observed yield, you should set the value in the \code{yield_observed} column to
 0 or NA.
 
+If a species is caught by several gears, both the model yield and the
+observed yield are summed over the gears. With the \code{gear} argument you can
+restrict the comparison to a subset of the gears, in which case only the
+catch of those gears enters on both axes. Because the species parameter
+data frame only holds the yield summed over all gears, the observations
+then have to come from the gear parameters.
+
 The total relative error is shown in the caption of the plot, calculated by
 \deqn{TRE = \sum_i|1-\rm{ratio_i}|}{TRE = sum_i |1-ratio_i|} where
 \eqn{\rm{ratio_i}}{ratio_i} is the ratio of model yield / observed
@@ -91,4 +103,16 @@ plotYieldObservedVsModel(params, show_unobserved = TRUE)
 
 # Show the ratio instead
 plotYieldObservedVsModel(params, ratio = TRUE)
+
+# If several gears catch the same species, their yields are added up.
+# Give Cod a second gear that takes a quarter of the observed yield.
+gp <- gear_params(params)
+gp["Cod, Otter", "yield_observed"] <- 3e11 * 0.75
+extra <- gp["Cod, Otter", ]
+extra$gear <- "Gillnet"
+extra$yield_observed <- 3e11 * 0.25
+gear_params(params) <- rbind(gp, extra)
+
+# Compare only the catch of the Otter gear against its observation
+plotYieldObservedVsModel(params, gear = "Otter")
 }

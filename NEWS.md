@@ -98,6 +98,15 @@ stability of steady states.
 
 ## Other improvements
 
+- `plotYieldObservedVsModel()` gains a `gear` argument that restricts the
+  comparison to the catch of the selected gears. Both the model yield and the
+  observed yield are then taken from those gears only, so in a model where
+  several gears catch the same species you can check the gears against their
+  own observations instead of only their total. Without the argument the plot
+  keeps comparing the yield summed over all gears. Because the species
+  parameter `yield_observed` is a total over all the gears, per-gear
+  observations have to be given in `gear_params()` (#286).
+
 - `summary()` of a `MizerParams` object now reports the model's biomass drift
   and whether that counts as being at a steady state. Whether a model is settled
   is not visible from any of the other parameters shown, and getting it wrong is
