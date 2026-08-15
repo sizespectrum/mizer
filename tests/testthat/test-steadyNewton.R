@@ -27,7 +27,11 @@ test_that("steadyNewton solves the discrete steady-state equation to tolerance",
     resfn <- mizer:::steady_state_residual(params, rdd_const,
                                            params@initial_n_other,
                                            params@initial_effort, active)
-    x0 <- log(params@initial_n[active$mask])
+    x0_fish <- log(params@initial_n[active$mask])
+    x0_n_pp <- as.numeric(params@initial_n_pp[active$mask_pp])
+    x0_n_pp[x0_n_pp <= 0] <- params@cc_pp[active$mask_pp][x0_n_pp <= 0]
+    x0 <- c(x0_fish, log(x0_n_pp))
+    
     sol <- nleqslv::nleqslv(x0, resfn, method = "Newton", global = "dbldog",
                             control = list(maxit = 100, ftol = 1e-10,
                                            xtol = 1e-10))
