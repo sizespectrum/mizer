@@ -51,7 +51,7 @@ During setup and calibration you almost always want `steady()` or
 reliably onto *a* steady state. Afterwards both re-tune the reproduction
 parameters so that density-dependent reproduction reproduces exactly that birth
 rate at the new steady state — use the `preserve` argument to choose whether
-`reproduction_level` (default), `R_max`, or `erepro` is held fixed during that
+[`reproduction_level`](../reference/setBevertonHolt.html) (default), `R_max`, or `erepro` is held fixed during that
 re-tuning.
 
 ---
@@ -121,7 +121,7 @@ params <- setBevertonHolt(params, reproduction_level = 0.25)
 Alternatively pass `R_max`, `erepro`, or a per-species named vector. This does
 not change the steady state itself — it sets how the model responds to
 perturbations away from it. Read the current values back with
-[`getReproductionLevel(params)`](../reference/getReproductionLevel.html), useful to check what a model was tuned to before
+[`getReproductionLevel(params)`](../reference/deprecated_accessors.html), useful to check what a model was tuned to before
 changing it.
 
 ---

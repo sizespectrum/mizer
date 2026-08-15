@@ -368,7 +368,7 @@ reference:
     energy invested in reproduction and the actual egg production rate.
   contents:
   - has_concept("functions calculating density-dependent reproduction rate")
-  - getReproductionLevel
+  - reproduction_level
   - getRequiredRDD
 - title: Internal rate functions
   description: These functions are used by `project()` to calculate

@@ -13,6 +13,7 @@
 \alias{getExtEncounter}
 \alias{getMaturityProportion}
 \alias{getReproductionProportion}
+\alias{getReproductionLevel}
 \title{Deprecated \code{get}-prefixed accessors for stored rate arrays}
 \usage{
 getCatchability(params)
@@ -36,6 +37,8 @@ getExtEncounter(params)
 getMaturityProportion(params)
 
 getReproductionProportion(params)
+
+getReproductionLevel(params)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -62,6 +65,7 @@ survives. Use the replacement given below instead:\tabular{ll}{
    \code{getExtEncounter()} \tab \code{\link[=ext_encounter]{ext_encounter()}} \cr
    \code{getMaturityProportion()} \tab \code{\link[=maturity]{maturity()}} \cr
    \code{getReproductionProportion()} \tab \code{\link[=repro_prop]{repro_prop()}} \cr
+   \code{getReproductionLevel()} \tab \code{\link[=reproduction_level]{reproduction_level()}} \cr
 }
 
 

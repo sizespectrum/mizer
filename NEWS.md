@@ -9,6 +9,12 @@ stability of steady states.
 
 ## New functions
 
+- New `reproduction_level()` and `reproduction_level<-` accessor and replacement
+  functions allow reading and changing the reproduction level while preserving
+  the steady state, matching the syntax of `resource_level()` and
+  `resource_level<-`. `getReproductionLevel()` is deprecated in favour of
+  `reproduction_level()`.
+
 - New experimental `getSteadyResidual()` answers the question every calibration
   workflow otherwise has to remember to ask: *is this model still at its steady
   state?* It returns the rate at which each species' abundance would change if

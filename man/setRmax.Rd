@@ -24,6 +24,9 @@ the initial state is \code{R_max * reproduction_level}.}
 }
 \value{
 A MizerParams object
+
+\code{reproduction_level()}: A named vector with the reproduction level
+for each species.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
@@ -118,5 +121,12 @@ t(species_params(params)[, c("erepro", "R_max")])
 # Setting reproduction_level
 params <- setBevertonHolt(params, reproduction_level = 0.3)
 t(species_params(params)[, c("erepro", "R_max")])
+
+# Inspecting reproduction level
+reproduction_level(NS_params)
+
+# The reproduction level can be changed without changing the steady state:
+reproduction_level(params) <- 0.9
+reproduction_level(params)
 }
 \concept{deprecated}

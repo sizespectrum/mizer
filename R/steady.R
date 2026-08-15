@@ -638,7 +638,7 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
 
     if (params@rates_funcs$RDD == "BevertonHoltRDD") {
         preserve <- match.arg(preserve)
-        old_reproduction_level <- getReproductionLevel(params)
+        old_reproduction_level <- reproduction_level(params)
         old_R_max <- params@species_params$R_max
         old_erepro <- params@species_params$erepro
     }

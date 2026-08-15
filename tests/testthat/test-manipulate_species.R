@@ -168,7 +168,7 @@ test_that("addSpecies has other documented properties", {
         expect_message()
 
     # New species have 0 reproduction level
-    expect_equal(getReproductionLevel(p)[4:5],
+    expect_equal(reproduction_level(p)[4:5],
                  c(new1 = 1 / 4, new2 = 1 / 4))
 
     # Maximum of ratio between new species density and Sheldon density is 1/100

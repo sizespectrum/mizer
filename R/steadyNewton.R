@@ -151,7 +151,7 @@ steadyNewton.MizerParams <- function(params,
     params@initial_effort <- effort
 
     if (params@rates_funcs$RDD == "BevertonHoltRDD" && reproduction == "fixed") {
-        old_reproduction_level <- getReproductionLevel(params)
+        old_reproduction_level <- reproduction_level(params)
         old_R_max <- params@species_params$R_max
         old_erepro <- params@species_params$erepro
     }

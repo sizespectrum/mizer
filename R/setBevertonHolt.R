@@ -297,34 +297,36 @@ setBevertonHolt.MizerParams <- function(params, erepro,
 }
 
 
-#' Get reproduction level
-#'
-#' The reproduction level is the ratio between the density-dependent
-#' reproduction rate and the maximal reproduction rate.
-#'
-#' @param params A MizerParams object
-#'
-#' @return A named vector with the reproduction level for each species.
+#' @rdname setBevertonHolt
+#' @return `reproduction_level()`: A named vector with the reproduction level
+#'   for each species.
 #' @export
 #' @examples
-#' getReproductionLevel(NS_params)
+#'
+#' # Inspecting reproduction level
+#' reproduction_level(NS_params)
 #'
 #' # The reproduction level can be changed without changing the steady state:
-#' params <- setBevertonHolt(NS_params, reproduction_level = 0.9)
-#' getReproductionLevel(params)
-#'
-#' # The result is the ratio of RDD and R_max
-#' identical(getRDD(params) / species_params(params)$R_max,
-#'           getReproductionLevel(params))
-getReproductionLevel <- function(params) {
-    UseMethod("getReproductionLevel")
+#' reproduction_level(params) <- 0.9
+#' reproduction_level(params)
+reproduction_level <- function(params) {
+    UseMethod("reproduction_level")
 }
 #' @export
-getReproductionLevel.MizerParams <- function(params) {
+reproduction_level.MizerParams <- function(params) {
     if (!"R_max" %in% names(params@species_params)) {
         stop("No `R_max` is included in the species parameters.")
     }
     getRDD(params) / params@species_params$R_max
+}
+
+
+#' @rdname setBevertonHolt
+#' @param value A number between 0 and 1, or a vector of numbers, giving the
+#'   reproduction level for each species.
+#' @export
+`reproduction_level<-` <- function(params, value) {
+    setBevertonHolt(params, reproduction_level = value)
 }
 
 
