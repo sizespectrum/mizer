@@ -46,6 +46,9 @@ plots) are in the changelog and are not repeated here.
 | A `plotSpectra()` call with both `power` and `biomass`, or any `plotly...()` call with `biomass`, now gives a different plot | `biomass` is no longer ignored | `biomass` and `per_log_size` replace `power` (3.3) |
 | `plotCDF(per_log_size = TRUE)` errors | meaningless for a cumulative distribution | `biomass` and `per_log_size` replace `power` (3.3) |
 | New warning that a change to a species or resource parameter "has not taken effect" | the rate it feeds was set by hand and is no longer calculated | A change that cannot take effect now warns (3.3) |
+| That warning appears with `given_species_params<-()` but not with `species_params<-()` | the diagnostics belong to the given species parameter setter | The two species parameter setters divide the diagnostics between them (3.3) |
+| `given_species_params()` no longer lists `a` and `b`, or another default, after an unrelated `species_params<-()` call | a filled-in default was mistaken for user input and frozen as given | `species_params<-()` no longer freezes the defaults it fills in (3.3) |
+| A species parameter that used to keep its value now moves when you change another one | it was silently recorded as given and is now calculated again | `species_params<-()` no longer freezes the defaults it fills in (3.3) |
 | A message that used to appear no longer does, with `info_level = 0` | `info_level = 0` now silences everything | One report, one switch (3.3) |
 | `expect_message()` on a mizer call fails, or `options(warn = 2)` trips | reports are warnings where they were messages, and are collected until the end of the call | One report, one switch (3.3) |
 | A column read with `$` is now `NULL`, with a warning naming another column | `$` no longer partially matches column names | `$` no longer partially matches (3.3) |
@@ -204,16 +207,14 @@ now set either one on its own.
 If you have set a rate array by hand — `metab(params) <- ...`, or any setter
 called with an explicit array — mizer no longer calculates that rate from the
 species parameters. Changing one of the species parameters that used to feed it
-therefore changes the species parameter table but not the model. Mizer now
-warns when that happens:
+therefore changes the species parameter table but not the model.
+`given_species_params<-()` now warns when that happens:
 
 ```r
 params <- NS_params
 metab(params) <- metab(params)      # freeze the metabolic rate
 
-sp <- species_params(params)
-sp$ks <- sp$ks * 2
-species_params(params) <- sp
+given_species_params(params)$ks <- 2 * species_params(params)$ks
 #> Warning: Your change to the species parameter `ks` has not taken effect
 #> because the metabolic rate has been set manually and so is no longer
 #> calculated from the species parameters. Call
@@ -222,9 +223,10 @@ species_params(params) <- sp
 ```
 
 Previously this was silent: the rate setter did emit a message, but
-`species_params<-()` and `given_species_params<-()` run `suppressMessages()`
-over the recalculation to quieten the routine chatter, so the message never
-reached you (#489).
+`given_species_params<-()` runs `suppressMessages()` over the recalculation to
+quieten the routine chatter, so the message never reached you (#489). The same
+change made through `species_params<-()` stays silent — see *The two species
+parameter setters divide the diagnostics between them* below.
 
 **How this affects existing code:** nothing about the model changes — the
 change did not take effect before either, you just were not told. But code that
@@ -240,15 +242,51 @@ The resource works the same way. `resource_params(params)$kappa <- ...` on a
 model whose `resource_capacity()` you had set by hand used to change the stored
 `kappa` and nothing else, without saying anything at all; it now warns.
 
-`species_params<-()` also now gives the warning that `given_species_params<-()`
-already gave when a change is ignored because another parameter takes
-precedence over it — a change to `f0` when `gamma` has been given, to `fc` when
-`ks` has, or to `age_mat` when `h` has.
-
 This is the counterpart of the 3.2 change described under *Frozen arrays are
 protected from incidental balancing* below: there, mizer keeps a frozen array
 instead of overwriting it; here, it tells you when a parameter change is
 ignored because an array is frozen.
+
+### The two species parameter setters divide the diagnostics between them
+
+`species_params<-()` and `given_species_params<-()` reach the same model. The
+difference is that `given_species_params<-()` tells you when a change you asked
+for cannot take effect, and `species_params<-()` does not. There are three such
+diagnostics, and they all sit on the same side of the line:
+
+| You change | and it is ignored because |
+|---|---|
+| `f0`, `fc`, `age_mat` | you have already given `gamma`, `ks`, `h` |
+| any parameter feeding a rate array you set by hand | the array is frozen |
+| `catchability`, `selectivity`, `l50`, `l25`, `sel_func`, `yield_observed` | these belong in `gear_params()` |
+
+**How this affects existing code:** nothing, which is the point — a script that
+ran clean on 3.2 using `species_params<-()` still runs clean. Use
+`given_species_params<-()` interactively, where the diagnostics are worth
+having, and `species_params<-()` in scripts.
+
+### `species_params<-()` no longer freezes the defaults it fills in
+
+`species_params<-()` records what you changed among the given species
+parameters. It used to also record any default that `validSpeciesParams()`
+filled in and that the model did not already carry, because such a column is
+indistinguishable from one you have just added. The usual victims are the
+length-weight parameters `a` and `b`, which a model built without length data
+does not have:
+
+```r
+params <- NS_params
+species_params(params)$beta <- 150     # nothing to do with a or b
+given_species_params(params)$a         # used to come back as 0.01 for every
+                                       # species; now absent, as it should be
+```
+
+**How this affects existing code:** a parameter that was silently frozen this
+way now stays calculated, so it responds to later changes and shows up in
+`calculated_species_params()` rather than `given_species_params()`. If you were
+relying on the frozen value, set it explicitly — a value you supply yourself is
+recorded as given exactly as before, including in a column that is new to the
+model (#496).
 
 ### One report, one switch
 
@@ -446,9 +484,7 @@ directly from the species parameters (#488).
 sv <- search_vol(params)
 search_vol(params) <- sv * 10          # freeze the search volume
 
-sp <- species_params(params)
-sp$gamma <- NA
-species_params(params) <- sp           # ask mizer to recalculate gamma
+given_species_params(params)$gamma <- NA   # ask mizer to recalculate gamma
 
 species_params(params)$gamma
 #> Used to come back ~1e9 times too large; now the same value you would
@@ -495,9 +531,7 @@ given `z0` values.
 Set `z0` explicitly when changing an existing model:
 
 ```r
-sp <- species_params(params)
-sp$z0 <- 2 * sp$w_inf^(-0.25)
-species_params(params) <- sp
+given_species_params(params)$z0 <- 2 * species_params(params)$w_inf^(-0.25)
 ```
 
 The arguments still work wherever `z0` is not given. A `z0` value present only

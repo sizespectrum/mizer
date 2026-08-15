@@ -226,12 +226,16 @@
 #'
 #'   `given_species_params<-()`: An alternative to `species_params<-()` that
 #'   also triggers a recalculation of other parameters. It arrives at the same
-#'   model, the difference being that `given_species_params<-()` issues
-#'   warnings when a parameter is changed whose effect is overridden by another
-#'   parameter that has already been given. This is especially useful during
-#'   interactive use. It has no `recalculate` argument; where you need to
-#'   record values without recalculating, use `species_params<-()` or
-#'   [record_given_species_params()].
+#'   model, the difference being that `given_species_params<-()` warns when a
+#'   change you asked for cannot take effect, namely when the parameter is
+#'   overridden by another one you have already given (`f0` by `gamma`, `fc` by
+#'   `ks`, `age_mat` by `h`), when the rate array it feeds has been set by hand
+#'   and so is no longer calculated, or when it is a gear parameter that mizer
+#'   reads from [gear_params()] instead. This is especially useful during
+#'   interactive use, while `species_params<-()` stays quiet about all three and
+#'   so is the better choice in scripts. It has no `recalculate` argument;
+#'   where you need to record values without recalculating, use
+#'   `species_params<-()` or [record_given_species_params()].
 #'
 #'   `calculated_species_params()`: Data frame containing only those species
 #'   parameter entries that are not explicit user input. Columns that would
@@ -298,6 +302,12 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
 #' @usage NULL
 #' @export
 `species_params<-.MizerParams` <- function(object, recalculate = TRUE, value) {
+    # The columns the user actually handed us. `validSpeciesParams()` below
+    # fills in defaults, and a default that the model does not already carry
+    # would otherwise look like a column the user has just added and be
+    # recorded as a given species parameter, freezing it against every later
+    # recalculation.
+    supplied_cols <- names(value)
     # A length parameter whose weight has just been set has to follow the new
     # weight before anything converts the weight away again.
     value <- reconcile_length_weight(value, object@species_params)
@@ -321,11 +331,14 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     }
 
     # Find what changed compared to old species_params and record it among the
-    # given species parameters
-    changed <- changed_species_params(value, object@species_params)
-    old_given <- object@given_species_params
+    # given species parameters. Columns that mizer itself filled in are hidden
+    # from the recording: they are neither in the model nor in what the user
+    # supplied, so they are defaults, not user input.
+    filled_in <- setdiff(names(value),
+                         c(supplied_cols, names(object@species_params)))
     object@given_species_params <-
-        record_given_species_params(object@given_species_params, value,
+        record_given_species_params(object@given_species_params,
+                                    value[setdiff(names(value), filled_in)],
                                     object@species_params)
     if (!recalculate) {
         # Store the supplied parameters as they are. The calculated species
@@ -335,15 +348,12 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
         return(object)
     }
 
-    # Warn about the changes that will have no impact, either because another
-    # given parameter takes precedence or because the rate array they feed has
-    # been set by hand. This is signalled here rather than inside `setParams()`
-    # because only here do we know what the user asked to change.
-    with_info_level({
-        signal_ignored_changes(old_given, changed)
-        signal_frozen_changes(object, names(changed))
-    })
-
+    # Deliberately quiet about the changes that will have no impact, either
+    # because another given parameter takes precedence or because the rate
+    # array they feed has been set by hand. Only `given_species_params<-()`
+    # reports those, so that this setter stays usable in scripts without
+    # producing diagnostics they did not ask for. See the note on the two
+    # setters in the documentation of `given_species_params<-()`.
     rebuild_from_given(object, value)
 }
 
