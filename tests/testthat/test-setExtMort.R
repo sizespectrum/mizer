@@ -54,25 +54,42 @@ test_that("setExtMort defaults z_ext to 0 and d to n - 1", {
     expect_equal(p2@species_params$d, p2@species_params$n - 1)
 })
 
-test_that("setExtMort construction arguments are deprecated", {
+test_that("setExtMort warns when z0pre or z0exp is ignored", {
     params <- NS_params_small
 
-    expect_warning(p2 <- setExtMort(params, z0pre = 2), "deprecated")
+    expect_warning(p2 <- setExtMort(params, z0pre = 2),
+                   "ignored because the `z0` species parameter is already set")
     expect_equal(p2@mu_b, params@mu_b, ignore_attr = TRUE)
-    expect_warning(setExtMort(params, z0exp = -0.5), "deprecated")
+    expect_warning(setExtMort(params, z0exp = -0.5),
+                   "ignored because the `z0` species parameter is already set")
+    expect_warning(setExtMort(params, ext_mort = params@mu_b, z0pre = 2),
+                   "ignored because `ext_mort` was supplied")
+})
 
-    # Setting the species parameter is the replacement and does work.
-    species_params(params)$z0 <-
-        2 * species_params(params)$w_inf^(-0.5)
-    expect_false(isTRUE(all.equal(c(params@mu_b), c(NS_params_small@mu_b))))
-
-    # The deprecated arguments still supply the default if package code calls
-    # the setter with an incomplete species parameter table during transition.
+test_that("setExtMort records z0 calculated from explicit arguments", {
     params <- NS_params_small
     params@species_params$z0 <- NULL
-    p3 <- suppressWarnings(setExtMort(params, z0pre = 2, z0exp = -0.5))
-    expect_equal(p3@species_params$z0,
-                 2 * p3@species_params$w_inf^(-0.5), ignore_attr = TRUE)
+    params@given_species_params$z0 <- NULL
+
+    p2 <- setExtMort(params, z0pre = 2, z0exp = -0.5)
+    expected <- 2 * p2@species_params$w_inf^(-0.5)
+    expect_equal(p2@species_params$z0, expected, ignore_attr = TRUE)
+    expect_equal(p2@given_species_params$z0, expected, ignore_attr = TRUE)
+
+    # Values calculated from the argument defaults are not given parameters.
+    p3 <- setExtMort(params)
+    expect_false("z0" %in% names(p3@given_species_params))
+
+    # Only missing entries are calculated and recorded.
+    params <- NS_params_small
+    original_z0 <- params@species_params$z0
+    params@species_params$z0[[2]] <- NA
+    params@given_species_params$z0 <- NULL
+    p4 <- setExtMort(params, z0pre = 2, z0exp = -0.5)
+    expect_equal(p4@species_params$z0[[1]], original_z0[[1]])
+    expect_equal(p4@given_species_params$z0,
+                 c(NA, 2 * p4@species_params$w_inf[[2]]^(-0.5), NA),
+                 ignore_attr = TRUE)
 })
 
 test_that("Comment works on mu_b", {

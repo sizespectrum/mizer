@@ -29,10 +29,6 @@
 #'   species by including a `n` column in the `species_params`.
 #' @param p The allometric metabolic exponent. This can be overruled for
 #'   individual species by including a `p` column in the `species_params`.
-#' @param z0pre If `z0` is missing from the species parameter data frame,
-#'   calculate it as `z0pre * w_inf ^ z0exp`. Defaults to 0.6.
-#' @param z0exp The exponent used with `z0pre` to calculate a missing `z0`.
-#'   Defaults to `n - 1`.
 #' @param second_order_w `r lifecycle::badge("experimental")` Selects the
 #'   second-order numerical scheme for the new model. Accepts the same values as
 #'   the [second_order_w()] setter: a single logical (`TRUE` switches on both
@@ -168,18 +164,13 @@ newMultispeciesParams <- function(
                                   "newMultispeciesParams(ext_mort)")
         ext_mort <- z0
     }
+    z0pre_given <- !missing(z0pre)
+    z0exp_given <- !missing(z0exp)
 
     # Collect the information signals raised while the model is built and
     # report them together at the end.
     with_info_level(info_level = info_level, {
     no_sp <- nrow(species_params)
-    z0_missing <- if ("z0" %in% names(species_params)) {
-        is.na(species_params$z0)
-    } else {
-        rep(TRUE, no_sp)
-    }
-    assert_that(is.number(z0pre), z0pre >= 0,
-                is.number(z0exp))
 
     species_params <- set_species_param_default(species_params, "n", n)
     species_params <- set_species_param_default(species_params, "p", p)
@@ -225,8 +216,8 @@ newMultispeciesParams <- function(
     params@resource_params$n <- n
     params@resource_params$w_pp_cutoff <- w_pp_cutoff
 
-    params <- setParams(
-        params,
+    set_params_args <- list(
+        object = params,
         # setInteraction
         interaction = interaction,
         # setPredKernel()
@@ -251,17 +242,16 @@ newMultispeciesParams <- function(
         selectivity = selectivity,
         catchability = catchability,
         initial_effort = initial_effort)
-
-    # `z0pre` and `z0exp` are construction arguments. `setParams()` has
-    # installed the ordinary `z0` default at the same point in the species
-    # table as before; now replace only the values that were missing from the
-    # user's table with the requested construction default and update external
-    # mortality. Do not add these calculated values to `given_species_params`.
-    if (is.null(ext_mort) && any(z0_missing)) {
-        z0_default <- z0pre * params@species_params$w_inf^z0exp
-        params@species_params$z0[z0_missing] <- z0_default[z0_missing]
-        params <- setExtMort(params)
+    # Preserve whether these arguments were actually supplied. This lets
+    # setExtMort() record z0 derived from an explicit argument while leaving
+    # z0 derived from the argument defaults out of given_species_params.
+    if (z0pre_given) {
+        set_params_args$z0pre <- z0pre
     }
+    if (z0exp_given) {
+        set_params_args$z0exp <- z0exp
+    }
+    params <- do.call(setParams, set_params_args)
 
     params <- setResource(
         params,

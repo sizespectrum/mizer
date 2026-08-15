@@ -23,15 +23,15 @@
 #' taken from the species parameters as
 #' \deqn{\mu_{ext.i}(w) = z_{0.i} + z_{ext.i} w^{d_i}.}{mu_ext,i(w) = z0_i + z_ext,i w ^ d_i.}
 #' The value of the constant \eqn{z_0} for each species is taken from the `z0`
-#' column of the species parameter data frame, if that column exists. When a
-#' model is constructed with [newMultispeciesParams()], missing values are
-#' calculated as
+#' column of the species parameter data frame, if that column exists. Missing
+#' values are calculated as
 #' \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
-#' using that constructor's `z0pre` and `z0exp` arguments. On an existing model,
-#' change `z0` with [species_params<-()] and let mizer recalculate the rate.
-#' If `z0` has been removed from the species parameters entirely,
-#' `setExtMort()` restores the construction defaults `z0pre = 0.6` and
-#' `z0exp = n - 1`.
+#' When `z0pre` or `z0exp` is supplied explicitly and used to fill missing
+#' `z0`, the resulting values are recorded in [given_species_params()]. Values
+#' calculated from the defaults `z0pre = 0.6` and `z0exp = n - 1` are not
+#' recorded there. If either argument is supplied but cannot be used because
+#' `z0` is already complete or because `ext_mort` was supplied, a warning is
+#' issued.
 #' Missing values of `z_ext` are set to 0 and missing values of `d` are set to
 #' `n - 1`.
 #'
@@ -57,12 +57,11 @@
 #'   previously overwritten with a custom value. If set to FALSE (default) then
 #'   a recalculation from the species parameters will take place only if no
 #'   custom value has been set.
-#' @param z0pre `r lifecycle::badge("deprecated")` Set the `z0` species
-#'   parameter instead. The argument remains available on
-#'   [newMultispeciesParams()] for use while constructing a model.
-#' @param z0exp `r lifecycle::badge("deprecated")` Set the `z0` species
-#'   parameter instead. The argument remains available on
-#'   [newMultispeciesParams()] for use while constructing a model.
+#' @param z0pre If `z0`, the mortality from other sources, is missing from the
+#'   species parameter data frame, it is calculated as
+#'   `z0pre * w_inf ^ z0exp`. Default value is 0.6.
+#' @param z0exp The exponent used with `z0pre` to calculate missing `z0`.
+#'   Default value is `n - 1`.
 #' @param z0 `r lifecycle::badge("deprecated")` Use `ext_mort` instead. Not to
 #'   be confused with the species_parameter `z0`.
 #' @param ... Unused
@@ -85,43 +84,27 @@
 #'
 #' # Change the external mortality rate in the params object
 #' ext_mort(params) <- allo_mort
-setExtMort <- function(params, ext_mort = NULL, z0pre = deprecated(),
-                       z0exp = deprecated(), reset = FALSE,
+setExtMort <- function(params, ext_mort = NULL, z0pre = 0.6,
+                       z0exp = params@resource_params$n - 1, reset = FALSE,
                        z0 = deprecated(), ...) {
     UseMethod("setExtMort")
 }
 #' @export
 setExtMort.MizerParams <- function(params, ext_mort = NULL,
-                                   z0pre = deprecated(),
-                                   z0exp = deprecated(), reset = FALSE,
+                                   z0pre = 0.6,
+                                   z0exp = params@resource_params$n - 1,
+                                   reset = FALSE,
                                    z0 = deprecated(), ...) {
-    z0pre_default <- 0.6
-    z0exp_default <- NULL
-    if (lifecycle::is_present(z0pre)) {
-        details <- paste0("Set the `z0` species parameter instead. The ",
-                          "`z0pre` argument remains available on ",
-                          "`newMultispeciesParams()` for use while ",
-                          "constructing a model.")
-        lifecycle::deprecate_warn("3.3.0", "setExtMort(z0pre)",
-                                  details = details)
-        assert_that(is.number(z0pre), z0pre >= 0)
-        z0pre_default <- z0pre
-    }
-    if (lifecycle::is_present(z0exp)) {
-        details <- paste0("Set the `z0` species parameter instead. The ",
-                          "`z0exp` argument remains available on ",
-                          "`newMultispeciesParams()` for use while ",
-                          "constructing a model.")
-        lifecycle::deprecate_warn("3.3.0", "setExtMort(z0exp)",
-                                  details = details)
-        assert_that(is.number(z0exp))
-        z0exp_default <- z0exp
-    }
+    z0pre_given <- !missing(z0pre)
+    z0exp_given <- !missing(z0exp)
+    z0_args_given <- z0pre_given || z0exp_given
     if (lifecycle::is_present(z0)) {
         lifecycle::deprecate_warn("2.2.3", "setExtMort(z0)", "setExtMort(ext_mort)")
         ext_mort <- z0
     }
-    assert_that(is.flag(reset))
+    assert_that(is.flag(reset),
+                is.number(z0pre), z0pre >= 0,
+                is.number(z0exp))
 
     if (reset) {
         if (!is.null(ext_mort)) {
@@ -134,6 +117,10 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
     }
 
     if (!is.null(ext_mort)) {
+        if (z0_args_given) {
+            signal_ignored_z0_args(z0pre_given, z0exp_given,
+                                   "`ext_mort` was supplied")
+        }
         if (is.null(comment(ext_mort))) {
             if (is.null(comment(params@mu_b))) {
                 comment(ext_mort) <- "set manually"
@@ -153,14 +140,24 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
     species_params <- params@species_params
     assert_that(noNA(species_params$w_inf))
     # Sort out z0 (external mortality)
-    missing_z0 <- !("z0" %in% names(species_params)) ||
-        any(is.na(species_params$z0))
-    if (missing_z0) {
-        if (is.null(z0exp_default)) {
-            z0exp_default <- params@resource_params$n - 1
+    missing_z0 <- if ("z0" %in% names(species_params)) {
+        is.na(species_params$z0)
+    } else {
+        rep(TRUE, nrow(species_params))
+    }
+    if (any(missing_z0)) {
+        params <- set_z0_default(params, z0pre = z0pre, z0exp = z0exp)
+        if (z0_args_given) {
+            if (!"z0" %in% names(params@given_species_params)) {
+                params@given_species_params$z0 <-
+                    rep(NA_real_, nrow(params@given_species_params))
+            }
+            params@given_species_params$z0[missing_z0] <-
+                params@species_params$z0[missing_z0]
         }
-        params <- set_z0_default(params, z0pre = z0pre_default,
-                                 z0exp = z0exp_default)
+    } else if (z0_args_given) {
+        signal_ignored_z0_args(z0pre_given, z0exp_given,
+                               "the `z0` species parameter is already set")
     }
     params <- set_species_param_default(params, "z_ext", 0)
     params <- set_species_param_default(params, "d",
@@ -206,6 +203,16 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
 
     params@time_modified <- lubridate::now()
     return(params)
+}
+
+signal_ignored_z0_args <- function(z0pre_given, z0exp_given, reason) {
+    args <- c(if (z0pre_given) "`z0pre`", if (z0exp_given) "`z0exp`")
+    message <- paste0(
+        paste(args, collapse = " and "),
+        if (length(args) == 1) " was" else " were",
+        " ignored because ", reason, ".")
+    signal_info("z0", message, level = 1, severity = "warning",
+                unhandled = "show")
 }
 
 # Fill in missing constant external mortality parameters. This remains in the

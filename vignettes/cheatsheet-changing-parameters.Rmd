@@ -210,13 +210,12 @@ Defaults fill in `NA`s. Once a column exists in `species_params()` — which,
 after the model is built, is true of every parameter — the machinery that would
 have calculated it is bypassed. Two practical consequences:
 
-**Arguments that only feed a default are construction-only.**
-[`newMultispeciesParams()`](../reference/newMultispeciesParams.html) computes `z0 = z0pre * w_inf^z0exp`, but only for
-missing `z0` values while the model is being built. The corresponding
-`setExtMort(z0pre = )` and `setExtMort(z0exp = )` arguments are deprecated:
-on a built model `z0` is already present, so they could not take effect—not
-even with `reset = TRUE`, which clears the rate array's comment and not the
-species parameter. Set the species parameter instead:
+**Arguments that only feed a default work only while values are missing.**
+`setExtMort()` computes `z0 = z0pre * w_inf^z0exp`, but only for missing `z0`
+values. On a built model `z0` is already present, so supplying `z0pre` or
+`z0exp` normally cannot take effect and now gives a warning. `reset = TRUE`
+does not help: it clears the rate array's comment, not the species parameter.
+Set the species parameter instead:
 
 ```{r eval=FALSE}
 sp <- species_params(params)
@@ -225,6 +224,11 @@ sp$z0 <- 2 * sp$w_inf^z0exp
 species_params(params) <- sp
 # Setting `sp$z0 <- NA` instead hands it back to the default calculation.
 ```
+
+If you do remove or set some `z0` values to `NA`, an explicitly supplied
+`z0pre` or `z0exp` is used and the resulting values are recorded in
+`given_species_params()`. Values filled from the arguments' defaults are not
+recorded there.
 
 **Giving a value switches off the calculation that would have used another one.**
 Mizer warns about three of these, but only from `given_species_params<-()` —

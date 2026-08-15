@@ -244,14 +244,14 @@ stability of steady states.
   `extinction_threshold` fraction (default `1e-6`) of its value at the start of
   the run.
 
-## Deprecations
+- `setExtMort()` now warns when explicitly supplied `z0pre` or `z0exp`
+  arguments are ignored because `z0` is already complete or because
+  `ext_mort` was supplied. When either argument is explicitly supplied and is
+  used to fill missing `z0`, the resulting values are now recorded in
+  `given_species_params()`. Values calculated from the arguments' defaults
+  remain calculated parameters and are not recorded there (#493).
 
-- The `z0pre` and `z0exp` arguments of `setExtMort()` are deprecated. They only
-  supplied a default for missing values of the `z0` species parameter, so they
-  had no effect on a built model, where `z0` is already populated—even with
-  `reset = TRUE`. Set `species_params(params)$z0` instead. The arguments remain
-  available on `newMultispeciesParams()`, where they are meaningful while the
-  model is being constructed (#493).
+## Deprecations
 
 - Eleven accessors that returned a rate array stored in the MizerParams object
   had two names that did exactly the same thing. The `get`-prefixed name is now
