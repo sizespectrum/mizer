@@ -2,9 +2,15 @@
 % Please edit documentation in R/setBevertonHolt.R
 \name{setBevertonHolt}
 \alias{setBevertonHolt}
+\alias{reproduction_level}
+\alias{reproduction_level<-}
 \title{Set Beverton-Holt reproduction without changing the steady state}
 \usage{
 setBevertonHolt(params, erepro, R_max, reproduction_level, ...)
+
+reproduction_level(params)
+
+reproduction_level(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -21,9 +27,15 @@ the initial state is \code{R_max * reproduction_level}.}
 \item \code{R_factor}: Legacy alternative for specifying
 \code{reproduction_level = 1 / R_factor}.
 }}
+
+\item{value}{A number between 0 and 1, or a vector of numbers, giving the
+reproduction level for each species.}
 }
 \value{
 A MizerParams object
+
+\code{reproduction_level()}: A named vector with the reproduction level
+for each species.
 }
 \description{
 Takes a MizerParams object \code{params} with arbitrary density dependence in
@@ -126,4 +138,11 @@ t(species_params(params)[, c("erepro", "R_max")])
 # Setting reproduction_level
 params <- setBevertonHolt(params, reproduction_level = 0.3)
 t(species_params(params)[, c("erepro", "R_max")])
+
+# Inspecting reproduction level
+reproduction_level(NS_params)
+
+# The reproduction level can be changed without changing the steady state:
+reproduction_level(params) <- 0.9
+reproduction_level(params)
 }

@@ -708,7 +708,8 @@ reproduction parameters. So it does not by itself tell us what
 reproductive efficiency would be needed to actually sustain the
 population at this steady state.
 
-To work that out we use the `setBevertonHolt()` function. This function
+To work that out we can set the reproduction level using
+`reproduction_level(params) <- 0`. This
 adjusts the reproduction parameters so that the energy that the mature
 individuals invest into reproduction produces exactly the reproduction
 rate required to maintain the egg abundance at its steady-state value —
@@ -718,7 +719,7 @@ rate, so that the reproductive efficiency `erepro` alone has to do the
 job.
 
 ```{r}
-params <- setBevertonHolt(params, reproduction_level = 0)
+reproduction_level(params) <- 0
 species_params(params)$erepro
 ```
 
@@ -737,12 +738,11 @@ this point still the same as in the original model:
 species_params(params_changed_maturity)$erepro
 ```
 
-Calling `setBevertonHolt()` on the changed model retunes it to the value
+Setting `reproduction_level` on the changed model retunes it to the value
 required for its own steady state:
 
 ```{r}
-params_changed_maturity <- setBevertonHolt(params_changed_maturity,
-                                           reproduction_level = 0)
+reproduction_level(params_changed_maturity) <- 0
 species_params(params_changed_maturity)$erepro
 ```
 

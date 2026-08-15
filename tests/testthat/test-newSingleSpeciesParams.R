@@ -19,7 +19,7 @@ test_that("newSingleSpeciesParams documents and applies grid and deprecation beh
     expect_equal(length(w(params)), 26)
 
     expect_snapshot_warning(params2 <- newSingleSpeciesParams(R_factor = Inf))
-    expect_equal(unname(getReproductionLevel(params2)), rep(0, nrow(species_params(params2))))
+    expect_equal(unname(reproduction_level(params2)), rep(0, nrow(species_params(params2))))
 })
 
 test_that("Sets given_species_params", {

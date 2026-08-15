@@ -54,8 +54,8 @@ test_that("steadyNewton agrees with steady on a stable model", {
 test_that("steadyNewton honours the preserve and reproduction arguments", {
     skip_unless_experimental()
     pn_level <- steadyNewton(p_steady, preserve = "reproduction_level")
-    expect_equal(getReproductionLevel(pn_level),
-                 getReproductionLevel(p_steady), tolerance = 1e-5)
+    expect_equal(reproduction_level(pn_level),
+                 reproduction_level(p_steady), tolerance = 1e-5)
 
     pn_rmax <- steadyNewton(p_steady, preserve = "R_max")
     expect_equal(pn_rmax@species_params$R_max,

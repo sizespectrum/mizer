@@ -654,10 +654,11 @@ confirmation.
 
 ### One name for each stored rate array
 
-Eleven accessors that read a rate array back out of a `MizerParams` object had
+Twelve accessors that read a parameter or rate array back out of a `MizerParams` object had
 two interchangeable names. The bare name is now the one to use — it is the one
 that also has a replacement function, so the pair reads the same way in both
-directions (`catchability(params)` and `catchability(params) <- value`). The
+directions (`catchability(params)` and `catchability(params) <- value`,
+`reproduction_level(params)` and `reproduction_level(params) <- value`). The
 `get`-prefixed names are soft-deprecated and warn:
 
 | Deprecated | Use instead |
@@ -673,6 +674,7 @@ directions (`catchability(params)` and `catchability(params) <- value`). The
 | `getExtEncounter()` | `ext_encounter()` |
 | `getMaturityProportion()` | `maturity()` |
 | `getReproductionProportion()` | `repro_prop()` |
+| `getReproductionLevel()` | `reproduction_level()` |
 
 Nothing breaks: the old names still return exactly the same value. Renaming is
 a search and replace.

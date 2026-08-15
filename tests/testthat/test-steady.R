@@ -122,7 +122,7 @@ test_that("steady() preserves parameters", {
     expect_equal(p_erepro@species_params$erepro, params_rmax@species_params$erepro)
     p_rl <- steady(params_rmax, t_per = 1, t_max = 1, dt = 1, tol = 10,
                    preserve = "reproduction_level") |> suppressMessages()
-    expect_equal(getReproductionLevel(p_rl), getReproductionLevel(params_rmax))
+    expect_equal(reproduction_level(p_rl), reproduction_level(params_rmax))
 
     params_erepro <- params
     species_params(params_erepro)$erepro <- 1.01 * species_params(params_erepro)$erepro

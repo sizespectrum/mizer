@@ -106,19 +106,32 @@ test_that("setBevertonHolt issues warning when an R_max leads to an erepro > 1",
 })
 
 # reproduction_level ----
-test_that("setBevertonHolt sets reproduction_level correctly", {
+test_that("setBevertonHolt and reproduction_level<- set reproduction_level correctly", {
     sp_name <- NS_params_small@species_params$species[3]
     expect_warning(params <- setBevertonHolt(NS_params_small, reproduction_level = 0.8),
                    paste0("The following species require an unrealistic value greater than 1 for `erepro`: ", sp_name))
     rdd <- getRDD(params)
     expect_equal(rdd, params@species_params$R_max * 0.8, ignore_attr = TRUE)
     expect_equal(getRequiredRDD(params), rdd)
-    expect_equal(getReproductionLevel(params)[[1]], 0.8)
+    expect_equal(reproduction_level(params)[[1]], 0.8)
+
+    # Test reproduction_level<-
+    params2 <- NS_params_small
+    expect_warning(reproduction_level(params2) <- 0.8,
+                   paste0("The following species require an unrealistic value greater than 1 for `erepro`: ", sp_name))
+    expect_equal(species_params(params2)$erepro, species_params(params)$erepro)
+    expect_equal(species_params(params2)$R_max, species_params(params)$R_max)
 })
 
-test_that("getReproductionLevel is getRDD divided by R_max", {
-    expect_equal(getReproductionLevel(NS_params_small),
+test_that("reproduction_level is getRDD divided by R_max", {
+    expect_equal(reproduction_level(NS_params_small),
                  NS_rdd / NS_params_small@species_params$R_max)
+})
+
+test_that("getReproductionLevel warns and returns reproduction_level", {
+    expect_warning(rl <- getReproductionLevel(NS_params_small),
+                   "deprecated")
+    expect_equal(rl, reproduction_level(NS_params_small))
 })
 
 # R_factor ----
@@ -136,7 +149,7 @@ test_that("setRmax is an exact alias for setBevertonHolt", {
     p2 <- suppressWarnings(setBevertonHolt(NS_params_small, reproduction_level = 0.3))
     expect_equal(species_params(p1)$erepro, species_params(p2)$erepro)
     expect_equal(species_params(p1)$R_max, species_params(p2)$R_max)
-    expect_identical(getReproductionLevel(p1), getReproductionLevel(p2))
+    expect_identical(reproduction_level(p1), reproduction_level(p2))
 })
 
 # special values ----

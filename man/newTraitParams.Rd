@@ -114,7 +114,7 @@ external mortality, i.e., from sources not explicitly modelled. A number in
 the interval [0, 1).}
 
 \item{reproduction_level}{A number between 0 and 1 that determines the
-level of density dependence in reproduction, see \code{\link[=setBevertonHolt]{setBevertonHolt()}}.}
+level of density dependence in reproduction, see \code{\link[=reproduction_level<-]{reproduction_level<-()}}.}
 
 \item{R_factor}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
 \code{reproduction_level = 1 / R_factor} instead.}

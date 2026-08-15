@@ -366,13 +366,13 @@ its gear selectivity or catchability, which you would adjust next (see the
 
 Calibrating the steady state fixes *where* the community sits, but not *how
 sensitively* it responds when we change fishing. That sensitivity is governed by
-the strength of density dependence in reproduction. `setBevertonHolt()` sets it
+the strength of density dependence in reproduction. We set it
 through the `reproduction_level` — the fraction of the maximum recruitment that
 is realised at the steady state. A value of 0.5 gives moderate density
 dependence, a common default in the absence of stock-specific information.
 
 ```{r}
-cel <- setBevertonHolt(cel, reproduction_level = 0.5)
+reproduction_level(cel) <- 0.5
 ```
 
 This changes the reproduction parameters without moving the steady state, so the

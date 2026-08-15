@@ -553,6 +553,7 @@ getPhiPrey <- function(object, n, n_pp, ...) {
 #' | `getExtEncounter()` | [ext_encounter()] |
 #' | `getMaturityProportion()` | [maturity()] |
 #' | `getReproductionProportion()` | [repro_prop()] |
+#' | `getReproductionLevel()` | [reproduction_level()] |
 #'
 #' The `get` prefix is reserved for the functions that *calculate* a rate from
 #' the current state of a model, like [getEncounter()] or [getFMort()]. The
@@ -641,4 +642,12 @@ getReproductionProportion <- function(params) {
     lifecycle::deprecate_soft("3.3.0", "getReproductionProportion()",
                               "repro_prop()")
     repro_prop(params)
+}
+
+#' @rdname deprecated_accessors
+#' @export
+getReproductionLevel <- function(params) {
+    lifecycle::deprecate_soft("3.3.0", "getReproductionLevel()",
+                              "reproduction_level()")
+    reproduction_level(params)
 }
