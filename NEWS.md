@@ -244,6 +244,16 @@ stability of steady states.
   `extinction_threshold` fraction (default `1e-6`) of its value at the start of
   the run.
 
+- `setExtMort()` now warns when explicitly supplied `z0pre` or `z0exp`
+  arguments are ignored because `z0` is already present in
+  `given_species_params()` for every species or because `ext_mort` was
+  supplied. A `z0` value that is present only in `species_params()` is now
+  recognised as calculated and is recalculated from `z0pre`, `w_inf` and
+  `z0exp`. When either argument is explicitly supplied and used, the resulting
+  values are recorded in `given_species_params()`. Values calculated from the
+  arguments' defaults remain calculated parameters and are not recorded there
+  (#493).
+
 ## Deprecations
 
 - Eleven accessors that returned a rate array stored in the MizerParams object

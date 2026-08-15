@@ -23,9 +23,16 @@
 #' taken from the species parameters as
 #' \deqn{\mu_{ext.i}(w) = z_{0.i} + z_{ext.i} w^{d_i}.}{mu_ext,i(w) = z0_i + z_ext,i w ^ d_i.}
 #' The value of the constant \eqn{z_0} for each species is taken from the `z0`
-#' column of the species parameter data frame, if that column exists.
-#' Otherwise it is calculated as
+#' column of [given_species_params()] if it is present there. Otherwise it is
+#' recalculated, even if a value from an earlier calculation is still present
+#' in `species_params`, as
 #' \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
+#' When `z0pre` or `z0exp` is supplied explicitly and used to calculate
+#' non-given `z0`, the resulting values are recorded in
+#' [given_species_params()]. Values calculated from the defaults
+#' `z0pre = 0.6` and `z0exp = n - 1` are not recorded there. If either argument
+#' is supplied but cannot be used because `z0` is given for every species or
+#' because `ext_mort` was supplied, a warning is issued.
 #' Missing values of `z_ext` are set to 0 and missing values of `d` are set to
 #' `n - 1`.
 #'
@@ -51,12 +58,11 @@
 #'   previously overwritten with a custom value. If set to FALSE (default) then
 #'   a recalculation from the species parameters will take place only if no
 #'   custom value has been set.
-#' @param z0pre If `z0`, the mortality from other sources, is not a column
-#'   in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-#'   Default value is 0.6.
-#' @param z0exp If `z0`, the mortality from other sources, is not a column in
-#'   the species data frame, it is calculated as \code{z0pre * w_inf ^ z0exp}.
-#'   Default value is \code{n-1}.
+#' @param z0pre If `z0`, the mortality from other sources, is not present in
+#'   [given_species_params()], it is calculated as
+#'   `z0pre * w_inf ^ z0exp`. Default value is 0.6.
+#' @param z0exp The exponent used with `z0pre` to calculate non-given `z0`.
+#'   Default value is `n - 1`.
 #' @param z0 `r lifecycle::badge("deprecated")` Use `ext_mort` instead. Not to
 #'   be confused with the species_parameter `z0`.
 #' @param ... Unused
@@ -86,14 +92,20 @@ setExtMort <- function(params, ext_mort = NULL, z0pre = 0.6,
 }
 #' @export
 setExtMort.MizerParams <- function(params, ext_mort = NULL,
-                       z0pre = 0.6, z0exp = params@resource_params$n - 1,
-                       reset = FALSE, z0 = deprecated(), ...) {
+                                   z0pre = 0.6,
+                                   z0exp = params@resource_params$n - 1,
+                                   reset = FALSE,
+                                   z0 = deprecated(), ...) {
+    z0pre_given <- !missing(z0pre)
+    z0exp_given <- !missing(z0exp)
+    z0_args_given <- z0pre_given || z0exp_given
     if (lifecycle::is_present(z0)) {
         lifecycle::deprecate_warn("2.2.3", "setExtMort(z0)", "setExtMort(ext_mort)")
         ext_mort <- z0
     }
     assert_that(is.flag(reset),
-                is.number(z0pre), is.number(z0exp))
+                is.number(z0pre), z0pre >= 0,
+                is.number(z0exp))
 
     if (reset) {
         if (!is.null(ext_mort)) {
@@ -106,6 +118,10 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
     }
 
     if (!is.null(ext_mort)) {
+        if (z0_args_given) {
+            signal_ignored_z0_args(z0pre_given, z0exp_given,
+                                   "`ext_mort` was supplied")
+        }
         if (is.null(comment(ext_mort))) {
             if (is.null(comment(params@mu_b))) {
                 comment(ext_mort) <- "set manually"
@@ -122,15 +138,32 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
         return(params)
     }
 
-    assert_that(is.number(z0pre), z0pre >= 0,
-                is.number(z0exp))
-    species_params <- params@species_params
-    assert_that(noNA(species_params$w_inf))
-    # Sort out z0 (external mortality)
-    message <- ("Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.")
-    params <- set_species_param_default(params, "z0",
-                                        z0pre * species_params$w_inf^z0exp,
-                                        message)
+    assert_that(noNA(params@species_params$w_inf))
+    # A z0 value is fixed only if it is present in given_species_params. A
+    # value found only in species_params was calculated previously and must be
+    # recalculated so that changes to its inputs propagate.
+    z0_is_given <- if ("z0" %in% names(params@given_species_params)) {
+        !is.na(params@given_species_params$z0)
+    } else {
+        rep(FALSE, nrow(params@species_params))
+    }
+    calculate_z0 <- !z0_is_given
+    params <- set_z0_default(params, z0pre = z0pre, z0exp = z0exp)
+    if (any(calculate_z0)) {
+        if (z0_args_given) {
+            if (!"z0" %in% names(params@given_species_params)) {
+                params@given_species_params$z0 <-
+                    rep(NA_real_, nrow(params@given_species_params))
+            }
+            params@given_species_params$z0[calculate_z0] <-
+                params@species_params$z0[calculate_z0]
+        }
+    } else if (z0_args_given) {
+        signal_ignored_z0_args(z0pre_given, z0exp_given,
+                               paste0("`z0` is already present in ",
+                                      "`given_species_params` for every ",
+                                      "species"))
+    }
     params <- set_species_param_default(params, "z_ext", 0)
     params <- set_species_param_default(params, "d",
                                         params@species_params$n - 1)
@@ -175,6 +208,45 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
 
     params@time_modified <- lubridate::now()
     return(params)
+}
+
+signal_ignored_z0_args <- function(z0pre_given, z0exp_given, reason) {
+    args <- c(if (z0pre_given) "`z0pre`", if (z0exp_given) "`z0exp`")
+    argument_names <- paste(args, collapse = " and ")
+    verb <- if (length(args) == 1) " was" else " were"
+    message <- paste0(argument_names, verb, " ignored because ", reason, ".")
+    signal_info("z0", message, level = 1, severity = "warning",
+                unhandled = "show")
+}
+
+# Recalculate non-given constant external mortality parameters. This remains in
+# the external-mortality setter's file because `z0` is owned by `setExtMort()`.
+set_z0_default <- function(params, z0pre = 0.6,
+                           z0exp = params@resource_params$n - 1) {
+    assert_that(is(params, "MizerParams"),
+                is.number(z0pre), z0pre >= 0,
+                is.number(z0exp))
+    no_sp <- nrow(params@species_params)
+    given_z0 <- if ("z0" %in% names(params@given_species_params)) {
+        params@given_species_params$z0
+    } else {
+        rep(NA_real_, no_sp)
+    }
+    calculate_z0 <- is.na(given_z0)
+    default <- z0pre * params@species_params$w_inf^z0exp
+    z0_was_missing <- !"z0" %in% names(params@species_params)
+    if (z0_was_missing) {
+        params@species_params$z0 <- rep(NA_real_, no_sp)
+    }
+    z0_is_given <- !calculate_z0
+    params@species_params$z0[z0_is_given] <- given_z0[z0_is_given]
+    params@species_params$z0[calculate_z0] <- default[calculate_z0]
+    if (z0_was_missing && any(calculate_z0)) {
+        message <- paste0("Using z0 = z0pre * w_inf ^ z0exp for calculated ",
+                          "z0 values.")
+        signal_info("z0", message)
+    }
+    params
 }
 
 #' @rdname setExtMort

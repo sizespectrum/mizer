@@ -132,9 +132,65 @@ test_that("setParams rejects arguments it does not use", {
     # Unnamed arguments beyond `interaction` and `info_level` are rejected
     expect_error(setParams(params, NULL, 0, 1),
                  "must be named")
-    # Arguments the setters do accept are fine
-    expect_no_error(setParams(params, z0pre = 0.5, RDD = "BevertonHoltRDD",
-                              info_level = 0))
+    # Setter arguments are still recognised and warn when they are ignored.
+    params@given_species_params$z0 <- params@species_params$z0
+    expect_warning(setParams(params, z0pre = 0.5,
+                             RDD = "BevertonHoltRDD", info_level = 0),
+                   NA)
+    expect_warning(setParams(params, z0pre = 0.5,
+                             RDD = "BevertonHoltRDD", info_level = 1),
+                   "already present in `given_species_params` for every species")
+})
+
+test_that("constructor records z0 only when z0 arguments are explicit", {
+    sp <- data.frame(species = c("a", "b"), w_inf = c(100, 1000))
+
+    defaults <- suppressMessages(newMultispeciesParams(sp, no_w = 20))
+    expect_false("z0" %in% names(given_species_params(defaults)))
+
+    # Each argument is forwarded independently to setExtMort().
+    pre_only <- suppressMessages(newMultispeciesParams(
+        sp, z0pre = 2, no_w = 20))
+    expected_pre <- 2 * sp$w_inf^(2 / 3 - 1)
+    expect_equal(species_params(pre_only)$z0, expected_pre,
+                 ignore_attr = TRUE)
+    expect_equal(given_species_params(pre_only)$z0, expected_pre,
+                 ignore_attr = TRUE)
+
+    exp_only <- suppressMessages(newMultispeciesParams(
+        sp, z0exp = -0.5, no_w = 20))
+    expected_exp <- 0.6 * sp$w_inf^(-0.5)
+    expect_equal(species_params(exp_only)$z0, expected_exp,
+                 ignore_attr = TRUE)
+    expect_equal(given_species_params(exp_only)$z0, expected_exp,
+                 ignore_attr = TRUE)
+
+    expect_no_warning(params <- suppressMessages(
+        newMultispeciesParams(sp, z0pre = 2, z0exp = -0.5, no_w = 20)))
+
+    expected <- 2 * sp$w_inf^(-0.5)
+    expect_equal(species_params(params)$z0, expected, ignore_attr = TRUE)
+    expect_equal(given_species_params(params)$z0, expected,
+                 ignore_attr = TRUE)
+    expect_equal(params@mu_b,
+                 outer(expected, rep(1, length(params@w))),
+                 ignore_attr = TRUE)
+
+    # Explicit z0 values still win, while only missing entries use the
+    # construction arguments.
+    sp$z0 <- c(0.1, NA)
+    params <- suppressMessages(newMultispeciesParams(
+        sp, z0pre = 2, z0exp = -0.5, no_w = 20))
+    expect_equal(species_params(params)$z0, c(0.1, expected[[2]]),
+                 ignore_attr = TRUE)
+    expect_equal(given_species_params(params)$z0, c(0.1, expected[[2]]),
+                 ignore_attr = TRUE)
+
+    # Explicit default arguments are still given arguments.
+    params <- suppressMessages(newMultispeciesParams(
+        sp[c("species", "w_inf")], z0pre = 0.6, no_w = 20))
+    expect_equal(given_species_params(params)$z0,
+                 species_params(params)$z0, ignore_attr = TRUE)
 })
 
 test_that("setParams passes reset on to all the setters", {

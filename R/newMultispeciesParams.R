@@ -164,6 +164,8 @@ newMultispeciesParams <- function(
                                   "newMultispeciesParams(ext_mort)")
         ext_mort <- z0
     }
+    z0pre_given <- !missing(z0pre)
+    z0exp_given <- !missing(z0exp)
 
     # Collect the information signals raised while the model is built and
     # report them together at the end.
@@ -209,49 +211,61 @@ newMultispeciesParams <- function(
                                                 w_max = w_pp_cutoff)
     params@resource_params$kappa <- kappa
     params@resource_params$lambda <- lambda
+    # Needed by rate defaults, including the construction default for `z0`,
+    # before `setResource()` installs the complete resource parameters below.
+    params@resource_params$n <- n
     params@resource_params$w_pp_cutoff <- w_pp_cutoff
 
-    params <- params  %>%
-        setParams(
-                  # setInteraction
-                  interaction = interaction,
-                  # setPredKernel()
-                  pred_kernel = pred_kernel,
-                  # setSearchVolume()
-                  search_vol = search_vol,
-                  # setMaxIntakeRate()
-                  intake_max = intake_max,
-                  # setMetabolicRate()
-                  metab = metab,
-                  # setExtMort
-                  ext_mort = ext_mort,
-                  z0pre = z0pre,
-                  z0exp = z0exp,
-                  # setExtEncounter
-                  ext_encounter = ext_encounter,
-                  # setReproduction
-                  maturity = maturity,
-                  repro_prop = repro_prop,
-                  RDD = RDD,
-                  # setFishing. The `gear_params` are not passed here: they are
-                  # already stored in the params object by emptyParams() above
-                  # and setFishing() reads them from there.
-                  selectivity = selectivity,
-                  catchability = catchability,
-                  initial_effort = initial_effort) %>%
-        setResource(
-            # setResource
-            resource_rate = resource_rate,
-            resource_capacity = resource_capacity,
-            resource_dynamics = resource_dynamics,
-            lambda = lambda,
-            n = n,
-            w_pp_cutoff = w_pp_cutoff,
-            balance = FALSE)
+    set_params_args <- list(
+        object = params,
+        # setInteraction
+        interaction = interaction,
+        # setPredKernel()
+        pred_kernel = pred_kernel,
+        # setSearchVolume()
+        search_vol = search_vol,
+        # setMaxIntakeRate()
+        intake_max = intake_max,
+        # setMetabolicRate()
+        metab = metab,
+        # setExtMort
+        ext_mort = ext_mort,
+        # setExtEncounter
+        ext_encounter = ext_encounter,
+        # setReproduction
+        maturity = maturity,
+        repro_prop = repro_prop,
+        RDD = RDD,
+        # setFishing. The `gear_params` are not passed here: they are already
+        # stored in the params object by emptyParams() above and setFishing()
+        # reads them from there.
+        selectivity = selectivity,
+        catchability = catchability,
+        initial_effort = initial_effort)
+    # Preserve whether these arguments were actually supplied. This lets
+    # setExtMort() record z0 derived from an explicit argument while leaving
+    # z0 derived from the argument defaults out of given_species_params.
+    if (z0pre_given) {
+        set_params_args$z0pre <- z0pre
+    }
+    if (z0exp_given) {
+        set_params_args$z0exp <- z0exp
+    }
+    params <- do.call(setParams, set_params_args)
 
-        params@initial_n[] <- get_initial_n(params)
-        # TODO: The next line can be removed after release of mizer 3.0
-        params@A <- rep(1, nrow(species_params))
+    params <- setResource(
+        params,
+        resource_rate = resource_rate,
+        resource_capacity = resource_capacity,
+        resource_dynamics = resource_dynamics,
+        lambda = lambda,
+        n = n,
+        w_pp_cutoff = w_pp_cutoff,
+        balance = FALSE)
+
+    params@initial_n[] <- get_initial_n(params)
+    # TODO: The next line can be removed after release of mizer 3.0
+    params@A <- rep(1, nrow(species_params))
     })
     # Now that the initial abundances have been computed with the robust upwind
     # solver, switch on the requested advective-flux scheme for projection.
