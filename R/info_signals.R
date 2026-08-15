@@ -417,10 +417,11 @@ signal_ignored_changes <- function(given, changed) {
 #' that only [given_species_params<-()] gives; [species_params<-()] stays
 #' quiet, see there.
 #'
-#' `yield_observed` is deliberately not among them. It looks like a gear
-#' parameter but is read straight out of the species parameters by
-#' [matchYields()], [calibrateYield()] and [plotYieldObservedVsModel()], and
-#' both setters put it there, so a change to it does take effect.
+#' `yield_observed` is one of them. It belongs in [gear_params()], which gives
+#' the observed yield per gear and species, and that is where it should be set.
+#' Some functions still read it out of the species parameters instead, so a
+#' value set there is not simply ignored, but that is a shortcoming of those
+#' functions rather than a second supported home for the parameter.
 #'
 #' @param changed A named list with one entry per changed column, or a
 #'   character vector of the changed column names.
@@ -434,6 +435,12 @@ signal_gear_params_changes <- function(changed) {
         signal_info("gear_params", paste0(
             "To make changes to gears you should use `gear_params()<-`, not ",
             "`species_params()`."),
+            level = 1, severity = "warning", unhandled = "show")
+    }
+    if ("yield_observed" %in% changed) {
+        signal_info("yield_observed", paste0(
+            "To change the observed yield you should use `gear_params()<-`, ",
+            "not `species_params()`."),
             level = 1, severity = "warning", unhandled = "show")
     }
     invisible(NULL)

@@ -163,19 +163,12 @@ diagnostics, and they all sit on the same side of the line:
 |---|---|
 | `f0`, `fc`, [`age_mat`](../reference/age_mat.html) | you have already given `gamma`, `ks`, `h` |
 | any parameter feeding a rate array you set by hand | the array is frozen |
-| [`catchability`](../reference/setFishing.html), [`selectivity`](../reference/setFishing.html), `l50`, `l25`, `sel_func` | mizer reads these from [`gear_params()`](../reference/gear_params.html) |
+| [`catchability`](../reference/setFishing.html), [`selectivity`](../reference/setFishing.html), `l50`, `l25`, `sel_func`, `yield_observed` | these belong in [`gear_params()`](../reference/gear_params.html) |
 
 **How this affects existing code:** nothing, which is the point — a script that
 ran clean on 3.2 using `species_params<-()` still runs clean. Use
 `given_species_params<-()` interactively, where the diagnostics are worth
 having, and `species_params<-()` in scripts.
-
-One warning has gone away in both setters: setting `yield_observed` no longer
-tells you to use `gear_params()<-` instead. Despite its name it is not a gear
-parameter — [`matchYields()`](../reference/matchYields.html), [`calibrateYield()`](../reference/calibrateYield.html) and
-[`plotYieldObservedVsModel()`](../reference/plotYieldObservedVsModel.html) read it straight out of the species parameters,
-where both setters put it, so the change took effect all along and the warning
-was wrong (#496).
 
 ### `species_params<-()` no longer freezes the defaults it fills in
 
@@ -204,9 +197,9 @@ model (#496).
 
 Nearly everything mizer says while building or changing a model now goes
 through the same mechanism, including the reports in [`steady()`](../reference/steady.html),
-[`projectToSteady()`](../reference/projectToSteady.html), `matchYields()`, [`validParams()`](../reference/validParams.html), [`setInteraction()`](../reference/setInteraction.html),
+[`projectToSteady()`](../reference/projectToSteady.html), [`matchYields()`](../reference/matchYields.html), [`validParams()`](../reference/validParams.html), [`setInteraction()`](../reference/setInteraction.html),
 [`setReproduction()`](../reference/setReproduction.html), [`setResource()`](../reference/setResource.html), [`newTraitParams()`](../reference/newTraitParams.html),
-[`newSingleSpeciesParams()`](../reference/newSingleSpeciesParams.html) and `plotYieldObservedVsModel()`. Two consequences
+[`newSingleSpeciesParams()`](../reference/newSingleSpeciesParams.html) and [`plotYieldObservedVsModel()`](../reference/plotYieldObservedVsModel.html). Two consequences
 for existing code:
 
 - **`info_level = 0` now means silence.** Reports that were plain `message()`

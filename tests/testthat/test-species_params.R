@@ -185,6 +185,7 @@ test_that("`given_species_params<-()` gives correct warnings", {
     expect_warning(given_species_params(params)$fc <- 1)
     expect_warning(given_species_params(params)$age_mat <- 1)
     expect_warning(given_species_params(params)$catchability <- 2)
+    expect_warning(given_species_params(params)$yield_observed <- 1)
 
     # No warning if NA
     params@given_species_params$gamma[-1] <- NA

@@ -356,12 +356,6 @@ stability of steady states.
   including in a column that is new to the model, are recorded as before
   (#496).
 
-- `given_species_params<-()` no longer warns when you set `yield_observed`. The
-  warning said to use `gear_params()<-` instead, but `yield_observed` is not a
-  gear parameter: `matchYields()`, `calibrateYield()` and
-  `plotYieldObservedVsModel()` read it straight out of the species parameters,
-  where both setters put it, so the change did take effect all along (#496).
-
 - `setParams()` now gives an error when it is passed an argument that none of
   the setter functions it calls accepts. Every one of those setters declares its
   `...` as unused, so any misspelled or misplaced argument was silently

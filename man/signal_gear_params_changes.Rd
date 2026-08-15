@@ -21,9 +21,10 @@ that only \code{\link[=given_species_params<-]{given_species_params<-()}} gives;
 quiet, see there.
 }
 \details{
-\code{yield_observed} is deliberately not among them. It looks like a gear
-parameter but is read straight out of the species parameters by
-\code{\link[=matchYields]{matchYields()}}, \code{\link[=calibrateYield]{calibrateYield()}} and \code{\link[=plotYieldObservedVsModel]{plotYieldObservedVsModel()}}, and
-both setters put it there, so a change to it does take effect.
+\code{yield_observed} is one of them. It belongs in \code{\link[=gear_params]{gear_params()}}, which gives
+the observed yield per gear and species, and that is where it should be set.
+Some functions still read it out of the species parameters instead, so a
+value set there is not simply ignored, but that is a shortcoming of those
+functions rather than a second supported home for the parameter.
 }
 \concept{helper}
