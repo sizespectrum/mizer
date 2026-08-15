@@ -136,6 +136,16 @@ stability of steady states.
   it. `plot(getFeedingLevel(params))` therefore now shows the same y range that
   `plotFeedingLevel()` always has.
 
+- `plot()`, `plot2()`, `addPlot()` and `animate()` on an array that holds a
+  density gain a `per_log_size` argument, which expresses the values per
+  logarithmic size rather than per size. This is the same change of measure that
+  `size_axis` makes — both rescale the density by a Jacobian — so the two now
+  sit side by side, and `plotSpectra()` is no longer the only way to see a
+  spectrum per log size. Unlike `size_axis` it needs no weight-length
+  relationship, so the resource classes take it too. Asking for it on an array
+  that does not hold a density is now an error; it used to be swallowed silently
+  by `...`.
+
 - `plotYieldObservedVsModel()` gains a `gear` argument that restricts the
   comparison to the catch of the selected gears. Both the model yield and the
   observed yield are then taken from those gears only, so in a model where

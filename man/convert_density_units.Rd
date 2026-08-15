@@ -15,8 +15,15 @@ convert_density_units(units, from, to)
 The units expressed in the \code{to} measure.
 }
 \description{
-The size unit is swapped inside the two spellings mizer uses for a per-size
-factor, \code{1/g} and \code{g^-1}. Units that state no per-size factor are returned
-unchanged, since there is then nothing to identify as the size unit.
+The per-size factor is found in either of the two spellings mizer uses for
+it, \code{1/g} and \code{g^-1}, and is then swapped for the size unit of the target
+measure. A density per \emph{logarithmic} size carries no size unit at all — a
+number per log weight interval is just a number — so converting to one
+removes the factor instead: \code{1/g} becomes dimensionless and \code{g^-1/year}
+becomes \code{1/year}.
+}
+\details{
+Units that state no per-size factor are returned unchanged, since there is
+then nothing to identify as the size unit.
 }
 \keyword{internal}

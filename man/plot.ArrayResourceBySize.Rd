@@ -12,6 +12,7 @@
   log = NULL,
   wlim = c(NA, NA),
   ylim = c(NA, NA),
+  per_log_size = NULL,
   y_ticks = 6,
   ...
 )
@@ -38,6 +39,11 @@ minimum or maximum.}
 \item{ylim}{A numeric vector of length two providing lower and upper
 limits for the value (y) axis. Use \code{NA} to refer to the existing
 minimum or maximum.}
+
+\item{per_log_size}{For an array that holds a density, whether to plot it
+per logarithmic size (\code{TRUE}) rather than per size (\code{FALSE}). The default,
+\code{NULL}, plots the density as it stands. An error for an array that does not
+hold a density.}
 
 \item{y_ticks}{The approximate number of ticks desired on the y axis.}
 

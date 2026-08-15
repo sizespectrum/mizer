@@ -78,6 +78,12 @@ refer to the existing minimum or maximum.}
 length (\code{"l"}), using the allometric weight-length relationship. Not
 available for the resource classes, because the weight-length
 relationship is a species parameter.}
+\item{\code{per_log_size}}{For an array that holds a density, whether to plot
+it per logarithmic size (\code{TRUE}) rather than per size (\code{FALSE}). The
+default, \code{NULL}, plots the density as it stands. Unlike \code{size_axis}
+this needs no weight-length relationship, so it is available for the
+resource classes too. An error for an array that does not hold a
+density.}
 }
 
 \strong{For \code{ArrayTimeBySpecies} methods:}

@@ -192,6 +192,10 @@ print.summary.ArrayTimeBySpeciesBySize <- function(x, ...) {
 #' @param ylim A numeric vector of length two providing lower and upper
 #'   limits for the value (y) axis. Use `NA` to refer to the existing
 #'   minimum or maximum.
+#' @param per_log_size For an array that holds a density, whether to plot it
+#'   per logarithmic size (`TRUE`) rather than per size (`FALSE`). The default,
+#'   `NULL`, plots the density as it stands. An error for an array that does not
+#'   hold a density.
 #' @param size_axis Whether to plot size as weight (`"w"`, default) or
 #'   length (`"l"`), using the allometric weight-length relationship.
 #' @param total A boolean value that determines whether the total over
@@ -217,6 +221,7 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
                                           wlim = c(NA, NA), llim = c(NA, NA),
                                           ylim = c(NA, NA),
                                           size_axis = c("w", "l"),
+                                          per_log_size = NULL,
                                           total = FALSE, background = TRUE,
                                           y_ticks = 6, ...) {
     params <- attr(x, "params")
@@ -243,6 +248,7 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
                             log_x = log_x, log_y = log_y, log = log,
                             wlim = wlim, ylim = ylim, llim = llim,
                             size_axis = size_axis,
+                            per_log_size = per_log_size,
                             total = total, background = background,
                             y_ticks = y_ticks, ...)
 }
@@ -373,6 +379,7 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                                              ylim = c(NA, NA),
                                              tlim = c(NA, NA),
                                              size_axis = c("w", "l"),
+                                             per_log_size = NULL,
                                              total = FALSE,
                                              background = TRUE,
                                              frame_duration = 500,
@@ -385,6 +392,7 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                 is.string(easing),
                 length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
     size_axis <- plot_size_axis(size_axis)
+    check_per_log_size(x, per_log_size)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
@@ -449,12 +457,14 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
         df <- rbind(df, total_sums[, names(df)])
     }
 
-    y_label <- array_y_label(x, default = "Value", size_axis = size_axis)
+    y_label <- array_y_label(x, default = "Value", size_axis = size_axis,
+                             per_log_size = per_log_size)
 
     animate_plotly(df, params, log_x, log_y, y_label, wlim, llim,
                    ylim,
                    size_axis = size_axis,
                    density_wrt = array_density_wrt(x),
+                   per_log_size = per_log_size,
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
                    easing = easing)

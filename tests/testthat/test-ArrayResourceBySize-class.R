@@ -226,3 +226,23 @@ test_that("animate dispatches on ArrayTimeByResourceBySize", {
     expect_error(animate(n_resource_small, size_axis = "l"),
                  "length axis is not available")
 })
+
+test_that("plot() can express a resource density per logarithmic size", {
+    resource <- initialNResource(NS_params_small)
+    expect_identical(array_type(resource), "density")
+    by_weight <- plot(resource, return_data = TRUE)
+
+    # The resource has no length axis, but per log weight needs no
+    # weight-length relationship and so is available
+    per_log <- plot(resource, per_log_size = TRUE, return_data = TRUE)
+    expect_equal(per_log[[2]], by_weight[[2]] * by_weight$w)
+    expect_identical(plot(resource, per_log_size = TRUE)$scales$
+                         get_scales("y")$name,
+                     "Number density in log weight")
+    expect_identical(plot(resource)$scales$get_scales("y")$name,
+                     "Number density [1/g]")
+
+    # A length axis is still refused, and so is per_log_size on a non-density
+    expect_error(plot(resource_level(NS_params_small), per_log_size = TRUE),
+                 "only applies to an array that holds a density")
+})

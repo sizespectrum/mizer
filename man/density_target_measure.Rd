@@ -2,25 +2,29 @@
 % Please edit documentation in R/plots.R
 \name{density_target_measure}
 \alias{density_target_measure}
-\title{The density measure a plot against a given size axis calls for}
+\title{The density measure a plot calls for}
 \usage{
-density_target_measure(density_wrt, size_axis)
+density_target_measure(density_wrt, size_axis, per_log_size = NULL)
 }
 \arguments{
 \item{density_wrt}{The measure the values are a density with respect to, see
 \link{density_measures}.}
 
 \item{size_axis}{Either \code{"w"} (weight) or \code{"l"} (length).}
+
+\item{per_log_size}{Whether to express the values per logarithmic size.
+\code{NULL} (the default) keeps whichever the values already are.}
 }
 \value{
 The density measure to express the values in, or \code{NA_character_} if
 the values are not a density.
 }
 \description{
-Plotting against a length axis turns a density with respect to weight into a
-density with respect to length, and a density with respect to logarithmic
-weight into one with respect to logarithmic length. Whether the density is
-per size or per logarithmic size is a property of the values and is left
-alone; only the size variable follows the axis.
+A density is expressed with respect to two independent choices: the size
+variable, which follows \code{size_axis}, and whether it is per size or per
+logarithmic size, which follows \code{per_log_size}. Plotting against a length
+axis therefore turns a density with respect to weight into one with respect
+to length, and a density with respect to logarithmic weight into one with
+respect to logarithmic length.
 }
 \keyword{internal}

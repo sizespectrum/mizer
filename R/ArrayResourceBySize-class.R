@@ -152,6 +152,10 @@ print.summary.ArrayResourceBySize <- function(x, ...) {
 #' @param ylim A numeric vector of length two providing lower and upper
 #'   limits for the value (y) axis. Use `NA` to refer to the existing
 #'   minimum or maximum.
+#' @param per_log_size For an array that holds a density, whether to plot it
+#'   per logarithmic size (`TRUE`) rather than per size (`FALSE`). The default,
+#'   `NULL`, plots the density as it stands. An error for an array that does not
+#'   hold a density.
 #' @param y_ticks The approximate number of ticks desired on the y axis.
 #' @param ... Unused.
 #'
@@ -167,7 +171,9 @@ print.summary.ArrayResourceBySize <- function(x, ...) {
 plot.ArrayResourceBySize <- function(x, return_data = FALSE,
                                      log_x = TRUE, log_y = TRUE, log = NULL,
                                      wlim = c(NA, NA), ylim = c(NA, NA),
+                                     per_log_size = NULL,
                                      y_ticks = 6, ...) {
+    check_per_log_size(x, per_log_size)
     log_y <- array_log_y(x, log_y, log, !missing(log_y))
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
@@ -175,18 +181,19 @@ plot.ArrayResourceBySize <- function(x, return_data = FALSE,
 
     assert_that(length(wlim) == 2,
                 length(ylim) == 2)
-    value_name <- attr(x, "value_name") %||% "value"
-    units_str <- attr(x, "units")
     params <- attr(x, "params")
 
     plot_dat <- prepare_ArrayResourceBySize_plot_data(x, wlim = wlim)
+    # The resource has no weight-length relationship, so it has no length axis.
+    # Expressing a density per logarithmic weight needs no such relationship,
+    # though, so that much is available here.
+    plot_dat <- convert_plot_density_axis(plot_dat, params, "w",
+                                          density_wrt = array_density_wrt(x),
+                                          per_log_size = per_log_size)
 
     if (return_data) return(plot_dat)
 
-    y_label <- value_name
-    if (!is.null(units_str) && nzchar(units_str)) {
-        y_label <- paste0(value_name, " [", units_str, "]")
-    }
+    y_label <- array_y_label(x, default = "value", per_log_size = per_log_size)
 
     ylim <- array_ylim(x, ylim, log_y, plot_dat[[2]])
     plotDataFrame(plot_dat, params, xlab = "Weight (g)",
@@ -701,6 +708,7 @@ animate.ArrayTimeByResourceBySize <- function(x, species = NULL,
                                               ylim = c(NA, NA),
                                               tlim = c(NA, NA),
                                               size_axis = c("w", "l"),
+                                              per_log_size = NULL,
                                               total = FALSE,
                                               background = TRUE,
                                               frame_duration = 500,
@@ -712,6 +720,7 @@ animate.ArrayTimeByResourceBySize <- function(x, species = NULL,
                 is.string(easing),
                 length(wlim) == 2, length(ylim) == 2, length(tlim) == 2)
     warn_unused_resource_args(species, total, background)
+    check_per_log_size(x, per_log_size)
     # The length axis is derived from each species' weight-length parameters,
     # and the resource is not a species.
     size_axis <- plot_size_axis(size_axis)
@@ -724,8 +733,6 @@ animate.ArrayTimeByResourceBySize <- function(x, species = NULL,
     log_y <- log_axes$log_y
 
     params <- attr(x, "params")
-    value_name <- attr(x, "value_name") %||% "Value"
-    units_str <- attr(x, "units")
 
     times <- as.numeric(dimnames(x)[[1]])
     arr <- unclass(x)
@@ -748,13 +755,12 @@ animate.ArrayTimeByResourceBySize <- function(x, species = NULL,
     df$Species <- "Resource"
     df$legend_name <- "Resource"
 
-    y_label <- value_name
-    if (!is.null(units_str) && nzchar(units_str)) {
-        y_label <- paste0(value_name, " [", units_str, "]")
-    }
+    y_label <- array_y_label(x, default = "Value", per_log_size = per_log_size)
 
     animate_plotly(df, params, log_x, log_y, y_label, wlim, llim, ylim,
                    size_axis = size_axis,
+                   density_wrt = array_density_wrt(x),
+                   per_log_size = per_log_size,
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
                    easing = easing)

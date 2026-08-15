@@ -45,6 +45,12 @@
 #' @param log A character string specifying which axes to log-transform:
 #'   `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x`
 #'   and `log_y`.
+#' @param per_log_size For an array that holds a density, whether to animate it
+#'   per logarithmic size (`TRUE`) rather than per size (`FALSE`). The default,
+#'   `NULL`, animates the density as it stands. Unlike `size_axis` this needs no
+#'   weight-length relationship, so the `ArrayTimeByResourceBySize` method takes
+#'   it too. An error for an array that does not hold a density. The `MizerSim`
+#'   method has its own `per_log_size`, described below.
 #' @param size_axis Whether to plot size as weight (`"w"`, default) or length
 #'   (`"l"`), using the allometric weight-length relationship. Number and
 #'   biomass densities are transformed to match the chosen axis. The
@@ -237,11 +243,13 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
                            ylim = c(NA, NA),
                            size_axis = "w",
                            density_wrt = NA_character_,
+                           per_log_size = NULL,
                            frame_duration = 500, transition_duration = 500,
                            easing = "linear") {
     size_axis <- plot_size_axis(size_axis)
     df <- convert_plot_density_axis(df, params, size_axis,
                                     density_wrt = density_wrt,
+                                    per_log_size = per_log_size,
                                     value_col = "value")
     x_var <- plot_size_x_var(size_axis)
     legend_name_order <- intersect(names(params@linecolour),

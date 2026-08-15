@@ -9,6 +9,7 @@ convert_plot_density_axis(
   params,
   size_axis,
   density_wrt = NA_character_,
+  per_log_size = NULL,
   species_col = "Species",
   value_col = 2
 )
@@ -23,6 +24,9 @@ column.}
 
 \item{density_wrt}{The measure the values are a density with respect to, see
 \link{density_measures}. \code{NA} (the default) means the values are not a density.}
+
+\item{per_log_size}{Whether to express the values per logarithmic size.
+\code{NULL} (the default) keeps whichever the values already are.}
 
 \item{species_col}{Name of the column identifying the species. Default is
 \code{"Species"}.}
@@ -42,8 +46,10 @@ them in the density measure that axis calls for (see
 \code{\link[=density_target_measure]{density_target_measure()}}). Values that are not a density are left alone.
 }
 \details{
-The Jacobian is a per-species quantity, so rows whose species is not one of
-the model's species — the "Total" row, for instance — cannot be converted and
-are dropped whenever a conversion is needed.
+Anything involving a length is a per-species quantity, because the
+weight-length relationship is, so rows whose species is not one of the
+model's species — the "Total" row, for instance — are dropped when a length
+is needed. Going from a density per size to one per logarithmic size needs no
+length, and keeps those rows.
 }
 \keyword{internal}

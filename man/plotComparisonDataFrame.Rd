@@ -20,7 +20,8 @@ plotComparisonDataFrame(
   highlight = NULL,
   legend_var = "Legend",
   size_axis = NULL,
-  density_wrt = NA_character_
+  density_wrt = NA_character_,
+  per_log_size = NULL
 )
 }
 \arguments{
@@ -53,6 +54,9 @@ line colour.}
 \item{density_wrt}{The measure the values are a density with respect to, see
 \link{density_measures}. \code{NA} (the default) means the values are not a density
 and are left alone when the size axis changes.}
+
+\item{per_log_size}{Whether to express a density per logarithmic size.
+\code{NULL} (the default) keeps whichever the values already are.}
 }
 \value{
 A \code{mizer_plot} (ggplot2) object.

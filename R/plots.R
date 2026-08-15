@@ -406,6 +406,8 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
 #' @param density_wrt The measure the values are a density with respect to, see
 #'   [density_measures]. `NA` (the default) means the values are not a density
 #'   and are left alone when the size axis changes.
+#' @param per_log_size Whether to express a density per logarithmic size.
+#'   `NULL` (the default) keeps whichever the values already are.
 #' @return A `mizer_plot` (ggplot2) object.
 #' @keywords internal
 plotComparisonDataFrame <- function(frame1, frame2, params,
@@ -416,7 +418,8 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     y_ticks = 6, highlight = NULL,
                                     legend_var = "Legend",
                                     size_axis = NULL,
-                                    density_wrt = NA_character_) {
+                                    density_wrt = NA_character_,
+                                    per_log_size = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -440,6 +443,7 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
         size_axis <- plot_size_axis(size_axis)
         frame <- convert_plot_density_axis(frame, params, size_axis,
                                            density_wrt = density_wrt,
+                                           per_log_size = per_log_size,
                                            species_col = group_var,
                                            value_col = y_var)
         x_var <- plot_size_x_var(size_axis)
@@ -825,25 +829,29 @@ validate_density_wrt <- function(density_wrt) {
     density_wrt
 }
 
-#' The density measure a plot against a given size axis calls for
+#' The density measure a plot calls for
 #'
-#' Plotting against a length axis turns a density with respect to weight into a
-#' density with respect to length, and a density with respect to logarithmic
-#' weight into one with respect to logarithmic length. Whether the density is
-#' per size or per logarithmic size is a property of the values and is left
-#' alone; only the size variable follows the axis.
+#' A density is expressed with respect to two independent choices: the size
+#' variable, which follows `size_axis`, and whether it is per size or per
+#' logarithmic size, which follows `per_log_size`. Plotting against a length
+#' axis therefore turns a density with respect to weight into one with respect
+#' to length, and a density with respect to logarithmic weight into one with
+#' respect to logarithmic length.
 #'
 #' @param density_wrt The measure the values are a density with respect to, see
 #'   [density_measures].
 #' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param per_log_size Whether to express the values per logarithmic size.
+#'   `NULL` (the default) keeps whichever the values already are.
 #' @return The density measure to express the values in, or `NA_character_` if
 #'   the values are not a density.
 #' @keywords internal
-density_target_measure <- function(density_wrt, size_axis) {
+density_target_measure <- function(density_wrt, size_axis,
+                                   per_log_size = NULL) {
     density_wrt <- validate_density_wrt(density_wrt)
     if (is.na(density_wrt)) return(NA_character_)
-    paste0(if (startsWith(density_wrt, "log_")) "log_" else "",
-           plot_size_axis(size_axis))
+    per_log_size <- per_log_size %||% startsWith(density_wrt, "log_")
+    paste0(if (isTRUE(per_log_size)) "log_" else "", plot_size_axis(size_axis))
 }
 
 #' Factor relating a density measure to a density with respect to weight
@@ -892,9 +900,15 @@ density_size_unit <- function(measure) {
 
 #' Restate the units of a density in a different density measure
 #'
-#' The size unit is swapped inside the two spellings mizer uses for a per-size
-#' factor, `1/g` and `g^-1`. Units that state no per-size factor are returned
-#' unchanged, since there is then nothing to identify as the size unit.
+#' The per-size factor is found in either of the two spellings mizer uses for
+#' it, `1/g` and `g^-1`, and is then swapped for the size unit of the target
+#' measure. A density per *logarithmic* size carries no size unit at all — a
+#' number per log weight interval is just a number — so converting to one
+#' removes the factor instead: `1/g` becomes dimensionless and `g^-1/year`
+#' becomes `1/year`.
+#'
+#' Units that state no per-size factor are returned unchanged, since there is
+#' then nothing to identify as the size unit.
 #'
 #' @param units The units of the values, possibly `NULL`.
 #' @param from,to Density measures, see [density_measures].
@@ -908,9 +922,14 @@ convert_density_units <- function(units, from, to) {
         return(if (is.na(to_sym)) units else paste0("1/", to_sym))
     }
     from_sym <- density_size_unit(from)
-    if (is.na(from_sym) || is.na(to_sym)) return(units)
-    units <- sub(paste0("\\b1/", from_sym, "\\b"), paste0("1/", to_sym), units)
-    sub(paste0("\\b", from_sym, "\\^-1"), paste0(to_sym, "^-1"), units)
+    if (is.na(from_sym)) return(units)
+    # Replacing the per-size factor by "1" removes it; a units string that is
+    # then nothing but "1" is better shown as no units at all.
+    replacement <- if (is.na(to_sym)) "1" else paste0("1/", to_sym)
+    units <- sub(paste0("\\b1/", from_sym, "\\b"), replacement, units)
+    replacement <- if (is.na(to_sym)) "1" else paste0(to_sym, "^-1")
+    units <- sub(paste0("\\b", from_sym, "\\^-1"), replacement, units)
+    if (identical(units, "1")) "" else units
 }
 
 #' Express plotting data on the requested size axis
@@ -920,13 +939,17 @@ convert_density_units <- function(units, from, to) {
 #' them in the density measure that axis calls for (see
 #' [density_target_measure()]). Values that are not a density are left alone.
 #'
-#' The Jacobian is a per-species quantity, so rows whose species is not one of
-#' the model's species — the "Total" row, for instance — cannot be converted and
-#' are dropped whenever a conversion is needed.
+#' Anything involving a length is a per-species quantity, because the
+#' weight-length relationship is, so rows whose species is not one of the
+#' model's species — the "Total" row, for instance — are dropped when a length
+#' is needed. Going from a density per size to one per logarithmic size needs no
+#' length, and keeps those rows.
 #'
 #' @inheritParams convert_plot_size_axis
 #' @param density_wrt The measure the values are a density with respect to, see
 #'   [density_measures]. `NA` (the default) means the values are not a density.
+#' @param per_log_size Whether to express the values per logarithmic size.
+#'   `NULL` (the default) keeps whichever the values already are.
 #' @param value_col Name or index of the value column. Defaults to the second
 #'   column.
 #' @return The plotting data with its size coordinate, and where called for its
@@ -935,11 +958,12 @@ convert_density_units <- function(units, from, to) {
 #' @keywords internal
 convert_plot_density_axis <- function(plot_dat, params, size_axis,
                                       density_wrt = NA_character_,
+                                      per_log_size = NULL,
                                       species_col = "Species",
                                       value_col = 2) {
     size_axis <- plot_size_axis(size_axis)
     density_wrt <- validate_density_wrt(density_wrt)
-    target <- density_target_measure(density_wrt, size_axis)
+    target <- density_target_measure(density_wrt, size_axis, per_log_size)
     needs_jacobian <- !is.na(target) && !identical(target, density_wrt)
     if (identical(size_axis, "w") && !needs_jacobian) {
         return(plot_dat)
@@ -947,18 +971,29 @@ convert_plot_density_axis <- function(plot_dat, params, size_axis,
     if (is.numeric(value_col)) {
         value_col <- names(plot_dat)[[value_col]]
     }
-    # Both a length axis and the Jacobian need the lengths, and the Jacobian
-    # needs the weights as well.
-    plot_dat <- convert_plot_size_axis(plot_dat, params, "l",
-                                       species_col = species_col,
-                                       drop_w = FALSE)
+    # A length axis needs the lengths, and so does any Jacobian that involves
+    # one. The weights are kept because the Jacobians are written in terms of
+    # both.
+    needs_length <- identical(size_axis, "l") ||
+        isTRUE(density_wrt %in% c("l", "log_l"))
+    if (needs_length) {
+        plot_dat <- convert_plot_size_axis(plot_dat, params, "l",
+                                           species_col = species_col,
+                                           drop_w = FALSE)
+    }
     if (needs_jacobian && nrow(plot_dat) > 0) {
-        species_idx <- match(as.character(plot_dat[[species_col]]),
-                             as.character(params@species_params$species))
+        if (needs_length) {
+            species_idx <- match(as.character(plot_dat[[species_col]]),
+                                 as.character(params@species_params$species))
+            l <- plot_dat$l
+            b <- params@species_params$b[species_idx]
+        } else {
+            # Unused by a Jacobian between two weight-based measures. Passing
+            # NA rather than a placeholder keeps a mistake here loud.
+            l <- b <- rep(NA_real_, nrow(plot_dat))
+        }
         plot_dat[[value_col]] <- plot_dat[[value_col]] *
-            density_measure_jacobian(density_wrt, target,
-                                     plot_dat$w, plot_dat$l,
-                                     params@species_params$b[species_idx])
+            density_measure_jacobian(density_wrt, target, plot_dat$w, l, b)
     }
     x_var <- plot_size_x_var(size_axis)
     plot_dat[, c(x_var, setdiff(names(plot_dat), c("l", "w"))), drop = FALSE]

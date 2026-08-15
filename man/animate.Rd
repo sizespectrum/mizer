@@ -69,6 +69,13 @@ limit at that end. Default is \code{c(NA, NA)}.}
 biomass densities are transformed to match the chosen axis. The
 \code{ArrayTimeByResourceBySize} method supports only \code{"w"}.}
 
+\item{per_log_size}{For an array that holds a density, whether to animate it
+per logarithmic size (\code{TRUE}) rather than per size (\code{FALSE}). The default,
+\code{NULL}, animates the density as it stands. Unlike \code{size_axis} this needs no
+weight-length relationship, so the \code{ArrayTimeByResourceBySize} method takes
+it too. An error for an array that does not hold a density. The \code{MizerSim}
+method has its own \code{per_log_size}, described below.}
+
 \item{total}{A boolean value that determines whether the total over all
 selected species is plotted as an additional trace called \code{"Total"}.
 Default is \code{FALSE}. Not used by the \code{ArrayTimeByResourceBySize} method,

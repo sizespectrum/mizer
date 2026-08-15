@@ -771,6 +771,74 @@ test_that("convert_plot_density_axis converts in both directions", {
                      nrow(plot_dat))
 })
 
+test_that("per_log_size chooses the measure independently of the size axis", {
+    # The size variable follows the axis, the log-ness follows per_log_size
+    expect_identical(density_target_measure("w", "w", TRUE), "log_w")
+    expect_identical(density_target_measure("w", "l", TRUE), "log_l")
+    expect_identical(density_target_measure("log_w", "w", FALSE), "w")
+    expect_identical(density_target_measure("log_w", "l", FALSE), "l")
+    # NULL keeps whichever the values already are
+    expect_identical(density_target_measure("w", "l", NULL), "l")
+    expect_identical(density_target_measure("log_w", "l", NULL), "log_l")
+    # Still nothing to do for values that are not a density
+    expect_identical(density_target_measure(NA, "w", TRUE), NA_character_)
+})
+
+test_that("convert_plot_density_axis expresses a density per logarithmic size", {
+    sp <- params@species_params
+    w <- params@w[1:5]
+    plot_dat <- data.frame(w = rep(w, 2), value = seq_len(10),
+                           Species = rep(sp$species[1:2], each = 5))
+    sp_idx <- match(as.character(plot_dat$Species), as.character(sp$species))
+    b <- unname(sp$b[sp_idx])
+    l <- w2l(plot_dat$w, sp[sp_idx, ])
+
+    # Per log weight is the density times the weight
+    per_log_w <- convert_plot_density_axis(plot_dat, params, "w",
+                                           density_wrt = "w",
+                                           per_log_size = TRUE)
+    expect_identical(names(per_log_w), c("w", "value", "Species"))
+    expect_equal(per_log_w$value, plot_dat$value * plot_dat$w)
+
+    # Per log length is the density per length times the length
+    per_log_l <- convert_plot_density_axis(plot_dat, params, "l",
+                                           density_wrt = "w",
+                                           per_log_size = TRUE)
+    expect_identical(names(per_log_l), c("l", "value", "Species"))
+    expect_equal(per_log_l$value, plot_dat$value * b * plot_dat$w)
+    per_l <- convert_plot_density_axis(plot_dat, params, "l",
+                                       density_wrt = "w")
+    expect_equal(per_log_l$value, per_l$value * l)
+
+    # per_log_size = FALSE undoes it again
+    log_dat <- plot_dat
+    log_dat$value <- per_log_w$value
+    expect_equal(convert_plot_density_axis(log_dat, params, "w",
+                                           density_wrt = "log_w",
+                                           per_log_size = FALSE)$value,
+                 plot_dat$value)
+
+    # Going to a logarithmic measure on a weight axis needs no length, so it
+    # keeps rows whose species has no weight-length relationship
+    with_total <- rbind(plot_dat,
+                        data.frame(w = w, value = 1, Species = "Total"))
+    kept <- convert_plot_density_axis(with_total, params, "w",
+                                      density_wrt = "w", per_log_size = TRUE)
+    expect_identical(nrow(kept), nrow(with_total))
+    expect_equal(kept$value, with_total$value * with_total$w)
+})
+
+test_that("convert_density_units drops the size unit for a logarithmic measure", {
+    # A number per log weight interval is just a number
+    expect_identical(convert_density_units("1/g", "w", "log_w"), "")
+    expect_identical(convert_density_units("1/cm", "l", "log_l"), "")
+    # and the rest of a compound unit survives
+    expect_identical(convert_density_units("g^-1/year", "w", "log_w"),
+                     "1/year")
+    # Units with no per-size factor to remove are left alone
+    expect_identical(convert_density_units("g/year", "w", "log_w"), "g/year")
+})
+
 test_that("convert_plot_spectrum_axis agrees with the density conversion", {
     plot_dat <- data.frame(w = params@w[1:5], value = seq_len(5),
                            Species = params@species_params$species[[1]])

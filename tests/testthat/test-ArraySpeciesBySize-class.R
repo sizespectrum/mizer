@@ -234,6 +234,48 @@ test_that("array plots use the declared type", {
                  by_weight[[2]])
 })
 
+test_that("plot() can express a density per logarithmic size", {
+    density <- initialN(NS_params_small)
+    sp <- NS_params_small@species_params
+    by_weight <- plot(density, size_axis = "w", return_data = TRUE)
+
+    # Per log weight is the density times the weight
+    per_log <- plot(density, per_log_size = TRUE, return_data = TRUE)
+    expect_identical(names(per_log)[[1]], "w")
+    expect_equal(per_log[[2]], by_weight[[2]] * by_weight$w)
+
+    # Per log length is the density per length times the length
+    per_log_l <- plot(density, size_axis = "l", per_log_size = TRUE,
+                      return_data = TRUE)
+    by_length <- plot(density, size_axis = "l", return_data = TRUE)
+    expect_identical(names(per_log_l)[[1]], "l")
+    expect_equal(per_log_l[[2]], by_length[[2]] * by_length$l)
+
+    # per_log_size = FALSE is the density itself, the same as not asking
+    expect_equal(plot(density, per_log_size = FALSE, return_data = TRUE)[[2]],
+                 by_weight[[2]])
+
+    # The label says which quantity is shown, since the units no longer do
+    expect_identical(plot(density, per_log_size = TRUE)$scales$
+                         get_scales("y")$name,
+                     "Number density in log weight")
+    expect_identical(plot(density, size_axis = "l", per_log_size = TRUE)$scales$
+                         get_scales("y")$name,
+                     "Number density in log length")
+
+    # Asking for it on something that is not a density is an error, where it
+    # used to be swallowed by `...`
+    expect_error(plot(enc_small, per_log_size = TRUE),
+                 "only applies to an array that holds a density")
+    expect_error(plot(density, per_log_size = "yes"), "not a flag")
+
+    # No weight-length relationship is needed on a weight axis, so the total
+    # survives there
+    with_total <- plot(density, total = TRUE, per_log_size = TRUE,
+                       return_data = TRUE)
+    expect_true(any(with_total$Species == "Total"))
+})
+
 test_that("a proportion is plotted against the whole of [0, 1]", {
     feeding_level <- getFeedingLevel(NS_params_small)
     expect_identical(array_type(feeding_level), "proportion")

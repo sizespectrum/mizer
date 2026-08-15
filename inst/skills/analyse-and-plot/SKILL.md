@@ -294,10 +294,14 @@ that declare themselves densities:
 | `initialN(params)`, `finalN(sim)`, `N(sim)`, `get_initial_n(params)` | consumer number density, per gram |
 | `initialNResource(params)`, `finalNResource(sim)`, `NResource(sim)` | resource number density, per gram |
 | `resource_capacity(params)` | resource carrying capacity, per gram |
-| `getFluxGradient(params)` | rate of change of the number density, per gram per year |
+| `getFluxGradient(params)` | rate of change of the flux, per gram per year |
 
-The factors are built from the length-weight relationship $w = a\, l^b$ of each
-species, taken from the `a` and `b` columns of `species_params`:
+Which density you get is set by two independent arguments, accepted by `plot()`,
+`plot2()`, `addPlot()` and `animate()` as well as by the spectrum plots:
+`size_axis` chooses the size variable and `per_log_size` chooses whether the
+values are per size or per logarithmic size. The factors are built from the
+length-weight relationship $w = a\, l^b$ of each species, taken from the `a` and
+`b` columns of `species_params`:
 
 | Argument | Factor |
 |---|---|---|
@@ -305,16 +309,15 @@ species, taken from the `a` and `b` columns of `species_params`:
 | `size_axis = "l"`, `per_log_size = FALSE` | $dw/dl = b\, w / l$ |
 | `size_axis = "l"`, `per_log_size = TRUE` | $dw / d\log l = b\, w$ |
 
-Two things to watch:
+```r
+plot(initialN(params), per_log_size = TRUE)                 # per log weight
+plot(initialN(params), size_axis = "l", per_log_size = TRUE) # per log length
+plot(initialNResource(params), per_log_size = TRUE)          # resource too
+```
 
-- **The resource is dropped from a length axis.** The resource spectrum has no
-  length-weight relationship, so `plotSpectra(params, size_axis = "l")` shows the
-  species only. Use `size_axis = "w"` to see the resource.
-- **`plot()` on a density array has no `per_log_size` argument.** Mizer arrays
-  are indexed by the weight grid, so an array that holds a density holds one per
-  gram; `plot()` honours `size_axis` but nothing switches an array between per
-  size and per log size. Use `plotSpectra()` when you want a per-log-size
-  spectrum.
+`per_log_size` needs no weight-length relationship, only `size_axis` does, so
+unlike a length axis it is available for the resource classes. Asking for it on
+an array that does not hold a density is an error rather than being ignored.
 
 ### Plotting proportions
 
@@ -351,6 +354,10 @@ plotSpectra(sim, species = c("Cod", "Herring"), resource = FALSE)
 plotSpectra(sim, biomass = TRUE, size_axis = "l")     # biomass density against length
 ```
 
+**The resource is dropped from a length axis.** The resource spectrum has no
+  length-weight relationship, so `plotSpectra(params, size_axis = "l")` shows the
+  species only. Use `size_axis = "w"` to see the resource.
+
 ### Which density a spectrum plot shows
 
 `plotSpectra()`, `plotSpectra2()`, `plotCDF()`, `plotCDF2()` and `animate()`
@@ -386,9 +393,6 @@ plotCDF(NS_sim, biomass = FALSE, normalise = FALSE)
 
 ### Comparing two size distributions
 
-For whole spectra use the functions in the table below; for any other rate array
-use `plot2()` and `plotRelative()` from the array toolkit above.
-
 | Function | Shows |
 |---|---|
 | `plotSpectra2(object1, object2, name1, name2)` | two abundance spectra overlaid |
@@ -401,9 +405,9 @@ plotSpectraRelative(params, params2)         # 2 (N2 - N1) / (N1 + N2)
 plotCDF2(sim, sim2, "Unfished", "Fished")
 ```
 
-### Animating spectra through time
+## Animating through time
 
-`animate()` plays a spectrum or rate array through the course of a simulation
+`animate()` plays a spectrum or array through the course of a simulation
 (`animateSpectra()` is a retained alias).
 
 ```r
@@ -411,6 +415,8 @@ animate(sim)                 # abundance spectra over time
 animate(getFMort(sim))       # an ArrayTimeBySpeciesBySize over time
 animate(NResource(sim))      # an ArrayTimeByResourceBySize over time
 ```
+
+`animate()` accepts most of the common arguments from `plot()`.
 
 ## Dedicated plot functions
 
