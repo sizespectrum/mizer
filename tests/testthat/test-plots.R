@@ -508,14 +508,14 @@ test_that("size-based plots support length axes", {
     expect_true(all(spectra_l_limited$l >= llim[1]))
     expect_true(all(spectra_l_limited$l <= llim[2]))
 
-    # The resource has its own weight-length relationship and so appears on a
-    # length axis; the total still does not, because it is a sum over lines
-    # that each have their own.
+    # The resource and the total both appear on a length axis: the resource
+    # has its own weight-length relationship, and the total is summed after
+    # the conversion, at equal length.
     spectra_all <- plotSpectra(params_len, species = species,
                                resource = TRUE, total = TRUE,
                                size_axis = "l", return_data = TRUE)
     expect_true("Resource" %in% spectra_all$Legend)
-    expect_false("Total" %in% spectra_all$Legend)
+    expect_true("Total" %in% spectra_all$Legend)
 
     p <- plotSpectra(params_len, species = species, resource = FALSE,
                      size_axis = "l")
@@ -640,6 +640,94 @@ test_that("proportion_ylim widens to [0, 1] without ever hiding data", {
     # Non-finite values are ignored rather than swallowing the range
     expect_identical(proportion_ylim(c(NA, NA), FALSE, c(0.2, NA, Inf)),
                      c(0, 1))
+})
+
+test_that("add_total_line sums series on a shared grid exactly", {
+    plot_dat <- data.frame(w = rep(c(1, 2, 4), 2), value = 1:6,
+                           Species = rep(c("a", "b"), each = 3))
+    out <- add_total_line(plot_dat)
+    total <- out[out$Species == "Total", ]
+    expect_identical(total$w, c(1, 2, 4))
+    expect_equal(total$value, c(1 + 4, 2 + 5, 3 + 6))
+    # The original rows are untouched
+    expect_equal(out[out$Species != "Total", names(plot_dat)], plot_dat,
+                 ignore_attr = TRUE)
+})
+
+test_that("add_total_line interpolates series that do not share a grid", {
+    # `b` lives on a shifted grid, so the total is evaluated on the union and
+    # each series is interpolated onto it, contributing nothing outside its own
+    # range.
+    plot_dat <- rbind(
+        data.frame(w = c(1, 4), value = c(1, 4), Species = "a"),
+        data.frame(w = c(2, 8), value = c(10, 40), Species = "b"))
+    total <- add_total_line(plot_dat)
+    total <- total[total$Species == "Total", ]
+    expect_identical(total$w, c(1, 2, 4, 8))
+    # At w = 1 only `a`; at w = 8 only `b`
+    expect_equal(total$value[[1]], 1)
+    expect_equal(total$value[[4]], 40)
+    # At w = 2, `a` interpolated linearly in log w between (1, 1) and (4, 4)
+    a_at_2 <- stats::approx(log(c(1, 4)), c(1, 4), xout = log(2))$y
+    expect_equal(total$value[[2]], a_at_2 + 10)
+    # At w = 4, `b` interpolated between (2, 10) and (8, 40)
+    b_at_4 <- stats::approx(log(c(2, 8)), c(10, 40), xout = log(4))$y
+    expect_equal(total$value[[3]], 4 + b_at_4)
+})
+
+test_that("add_total_line groups by the columns it is told to", {
+    plot_dat <- data.frame(w = rep(c(1, 2), 4), value = 1:8,
+                           Species = rep(c("a", "b"), each = 2),
+                           time = rep(c(1, 1, 2, 2), each = 2))
+    out <- add_total_line(plot_dat, by = "time")
+    totals <- out[out$Species == "Total", ]
+    expect_identical(nrow(totals), 4L)
+    # time 1 holds a = (1, 2) and b = (3, 4); time 2 holds a = (5, 6) and
+    # b = (7, 8)
+    expect_equal(totals$value[totals$time == 1], c(1 + 3, 2 + 4))
+    expect_equal(totals$value[totals$time == 2], c(5 + 7, 6 + 8))
+})
+
+test_that("the spectrum total is unchanged on a weight axis", {
+    # The total is now summed after the size axis is converted rather than
+    # before, which on a weight axis must make no difference at all.
+    for (power in 0:2) {
+        d <- plotSpectra(params, total = TRUE, power = power,
+                         return_data = TRUE)
+        total <- d[d$Legend == "Total", ]
+        fish_idx <- (length(params@w_full) - length(params@w) +
+                         1):length(params@w_full)
+        expected <- params@initial_n_pp
+        expected[fish_idx] <- expected[fish_idx] + colSums(params@initial_n)
+        expected <- expected * params@w_full^power
+        keep <- expected > 0 & params@w_full >= min(params@w) / 100
+        expect_equal(total[[2]], unname(expected[keep]))
+    }
+})
+
+test_that("the spectrum total appears on a length axis", {
+    on_l <- plotSpectra(params, total = TRUE, size_axis = "l",
+                        return_data = TRUE)
+    total <- on_l[on_l$Legend == "Total", ]
+    expect_gt(nrow(total), 0)
+
+    # All the species here share one weight-length relationship, so at each
+    # length the total is exactly the sum of the series drawn there
+    contributors <- on_l[on_l$Legend != "Total", ]
+    at <- total$l[[which.max(total$l)]]
+    expect_equal(total[[2]][total$l == at],
+                 sum(contributors[[2]][contributors$l == at]))
+
+    # The resource is in the total when it is shown and not when it is not,
+    # where it used to be counted either way
+    with_resource <- plotSpectra(params, total = TRUE, resource = TRUE,
+                                 return_data = TRUE)
+    without <- plotSpectra(params, total = TRUE, resource = FALSE,
+                           return_data = TRUE)
+    small <- min(params@w)
+    expect_gt(with_resource[[2]][with_resource$Legend == "Total" &
+                                     with_resource$w == small],
+              without[[2]][without$Legend == "Total" & without$w == small])
 })
 
 test_that("validate_density_wrt accepts only the known measures", {

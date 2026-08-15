@@ -408,6 +408,8 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
 #'   and are left alone when the size axis changes.
 #' @param per_log_size Whether to express a density per logarithmic size.
 #'   `NULL` (the default) keeps whichever the values already are.
+#' @param total Whether to add a line for the total over the series, formed
+#'   after the size axis has been converted, see [add_total_line()].
 #' @return A `mizer_plot` (ggplot2) object.
 #' @keywords internal
 plotComparisonDataFrame <- function(frame1, frame2, params,
@@ -419,7 +421,8 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     legend_var = "Legend",
                                     size_axis = NULL,
                                     density_wrt = NA_character_,
-                                    per_log_size = NULL) {
+                                    per_log_size = NULL,
+                                    total = FALSE) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -447,6 +450,10 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                            species_col = group_var,
                                            value_col = y_var)
         x_var <- plot_size_x_var(size_axis)
+    }
+    if (total) {
+        frame <- add_total_line(frame, x_var, y_var, by = "Model")
+        frame$Model <- factor(frame$Model, levels = c(name1, name2))
     }
 
     legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
@@ -508,7 +515,8 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                                   ylim = c(NA, NA),
                                   highlight = NULL,
                                   legend_var = "Legend",
-                                  size_axis = NULL) {
+                                  size_axis = NULL,
+                                  total = FALSE) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -524,18 +532,28 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
              "in the data frame.")
     }
 
+    # The size axis is converted before the two frames are joined, so that a
+    # total can be formed on the axis it is plotted against. The relative
+    # difference itself is unaffected: a common Jacobian cancels.
+    if (!is.null(size_axis)) {
+        size_axis <- plot_size_axis(size_axis)
+        frame1 <- convert_plot_size_axis(frame1, params, size_axis,
+                                         species_col = group_var)
+        frame2 <- convert_plot_size_axis(frame2, params, size_axis,
+                                         species_col = group_var)
+        x_var <- plot_size_x_var(size_axis)
+    }
+    if (total) {
+        frame1 <- add_total_line(frame1, x_var, y_var)
+        frame2 <- add_total_line(frame2, x_var, y_var)
+    }
+
     by_vars <- c(x_var, group_var, legend_var)
     frame <- dplyr::inner_join(frame1, frame2, by = by_vars,
                                suffix = c(".x", ".y"))
     frame$rel_diff <- relative_difference(frame[[paste0(y_var, ".x")]],
                                           frame[[paste0(y_var, ".y")]])
     frame <- frame[is.finite(frame$rel_diff), ]
-    if (!is.null(size_axis)) {
-        size_axis <- plot_size_axis(size_axis)
-        frame <- convert_plot_size_axis(frame, params, size_axis,
-                                        species_col = group_var)
-        x_var <- plot_size_x_var(size_axis)
-    }
 
     legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
     frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
@@ -724,6 +742,72 @@ array_log_y <- function(x, log_y, log, given) {
         return(FALSE)
     }
     log_y
+}
+
+#' Add a total line to plotting data by summing over its series
+#'
+#' The total has to be formed *after* the size coordinate has been converted,
+#' not before. On a weight axis every series shares the model's weight grid, so
+#' summing at equal weight and summing at equal position are the same thing. On
+#' a length axis they are not: each species, and the resource, converts weight
+#' to length with its own allometric relationship, so at a given length the
+#' series sit at different weights and their grids no longer coincide. The sum
+#' that means something there is the sum at equal *length* — the number of
+#' organisms per unit length, whatever they are — which is what this computes.
+#'
+#' Each series is interpolated onto the sorted union of all the size
+#' coordinates, linearly in the logarithm of size, since the grid is
+#' logarithmic. A series contributes nothing outside its own range. When the
+#' series already share a grid — always on a weight axis, and on a length axis
+#' whenever the weight-length parameters agree — the union is that grid and the
+#' interpolation reproduces the values exactly, so nothing is approximated in
+#' the cases where nothing needs to be.
+#'
+#' @param plot_dat A data frame of plotting data with a size column, a value
+#'   column and a `Species` column.
+#' @param x_var Name of the size column. Defaults to the first column.
+#' @param value_col Name or index of the value column. Defaults to the second.
+#' @param by Names of further columns identifying separate plots, such as the
+#'   time of an animation frame or the model of a comparison. A total is formed
+#'   within each of their combinations.
+#' @return `plot_dat` with the total appended as a series named `"Total"`.
+#' @keywords internal
+add_total_line <- function(plot_dat, x_var = names(plot_dat)[[1]],
+                           value_col = 2, by = NULL) {
+    if (nrow(plot_dat) == 0) return(plot_dat)
+    if (is.numeric(value_col)) value_col <- names(plot_dat)[[value_col]]
+    if (length(by) > 0) {
+        groups <- split(plot_dat, plot_dat[, by, drop = FALSE], drop = TRUE)
+        out <- lapply(groups, add_total_line, x_var = x_var,
+                      value_col = value_col)
+        out <- do.call(rbind, unname(out))
+        rownames(out) <- NULL
+        return(out)
+    }
+    x_all <- sort(unique(plot_dat[[x_var]]))
+    total <- numeric(length(x_all))
+    for (series in split(plot_dat, plot_dat$Species)) {
+        series <- series[order(series[[x_var]]), , drop = FALSE]
+        x <- series[[x_var]]
+        y <- series[[value_col]]
+        if (length(x) < 2) {
+            # `approx()` needs two points; a single one contributes only where
+            # it sits.
+            hit <- match(x, x_all)
+            total[hit] <- total[hit] + y
+            next
+        }
+        contribution <- stats::approx(log(x), y, xout = log(x_all))$y
+        contribution[is.na(contribution)] <- 0
+        total <- total + contribution
+    }
+    total_dat <- plot_dat[rep(1, length(x_all)), , drop = FALSE]
+    total_dat[[x_var]] <- x_all
+    total_dat[[value_col]] <- total
+    total_dat$Species <- "Total"
+    if ("Legend" %in% names(total_dat)) total_dat$Legend <- "Total"
+    rownames(total_dat) <- NULL
+    rbind(plot_dat, total_dat)
 }
 
 #' The weight-length parameters to plot each row of plotting data with
@@ -1833,13 +1917,6 @@ plot_spectra <- function(params, n, n_pp,
         wlim[2] <- max(w_full_grid)
     }
 
-    if (total) {
-        # Calculate total community abundance
-        fish_idx <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
-        total_n <- n_pp
-        total_n[fish_idx] <- total_n[fish_idx] + colSums(n)
-        total_n <- total_n * w_full_grid^power
-    }
     species <- valid_species_arg(params, species)
     y_label <- spectra_y_label(power, size_axis, biomass = biomass,
                                per_log_size = per_log_size)
@@ -1867,14 +1944,6 @@ plot_spectra <- function(params, n, n_pp,
             )
         }
     }
-    if (total) {
-        plot_dat <- rbind(plot_dat,
-                          data.frame(w = w_full_grid,
-                                     value = c(total_n),
-                                     Species = "Total",
-                                     Legend = "Total")
-                          )
-    }
     if (background && any(params@species_params$is_background)) {
         back_n <- n[params@species_params$is_background, , drop = FALSE]
         plot_dat <-
@@ -1892,6 +1961,37 @@ plot_spectra <- function(params, n, n_pp,
                              (plot_dat$w <= wlim[2]), ]
     plot_dat <- convert_plot_spectrum_axis(plot_dat, params, size_axis, power,
                                            per_log_size = per_log_size)
+    if (total) {
+        # The total is summed over the series as they are plotted, which on a
+        # length axis means at equal length rather than at equal weight. It is
+        # built from every species, whether or not it was selected for display,
+        # and from the resource when the resource is shown.
+        # `n` has already been multiplied by the power of weight above.
+        total_dat <- data.frame(w = rep(w_grid, each = nrow(n)),
+                                value = c(unclass(n)),
+                                Species = rep(dimnames(n)[[1]],
+                                              times = length(w_grid)),
+                                Legend = "Total")
+        if (resource) {
+            resource_dat <- data.frame(w = w_full_grid,
+                                       value = c(n_pp * w_full_grid^power),
+                                       Species = "Resource",
+                                       Legend = "Total")
+            total_dat <- rbind(total_dat, resource_dat)
+        }
+        # Zeros are kept here, unlike in the plotted data: they are part of
+        # each series and dropping them would let the interpolation bridge a
+        # gap that is really empty.
+        total_dat <- total_dat[total_dat$w >= wlim[1] &
+                                   total_dat$w <= wlim[2], ]
+        total_dat <- convert_plot_spectrum_axis(total_dat, params, size_axis,
+                                                power,
+                                                per_log_size = per_log_size)
+        total_dat <- add_total_line(total_dat)
+        total_dat <- total_dat[total_dat$Species == "Total" &
+                                   total_dat$value > 0, ]
+        plot_dat <- rbind(plot_dat, total_dat[, names(plot_dat), drop = FALSE])
+    }
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }

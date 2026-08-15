@@ -364,6 +364,7 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
     plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
                                           density_wrt = array_density_wrt(x),
                                           per_log_size = per_log_size)
+    if (total) plot_dat <- add_total_line(plot_dat)
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
@@ -557,7 +558,8 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                             y_ticks = y_ticks, legend_var = "Legend",
                             size_axis = size_axis,
                             density_wrt = array_density_wrt(x),
-                            per_log_size = per_log_size)
+                            per_log_size = per_log_size,
+                            total = total)
 }
 
 #' Plot relative difference between two mizer arrays
@@ -675,7 +677,8 @@ plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
                           xtrans = if (log_x) "log10" else "identity",
                           xlim = plot_size_xlim(wlim, size_axis, llim),
                           ylim = ylim,
-                          legend_var = "Legend", size_axis = size_axis)
+                          legend_var = "Legend", size_axis = size_axis,
+                          total = total)
 }
 
 check_plot2_compatible <- function(x, y, class) {
@@ -973,6 +976,7 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
     plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
                                           density_wrt = array_density_wrt(x),
                                           per_log_size = per_log_size)
+    if (total) plot_dat <- add_total_line(plot_dat)
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
@@ -1127,11 +1131,6 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
     sel <- all_species %in% species
     mat <- unclass(x)[sel, , drop = FALSE]
 
-    # Compute total across all selected species before size-range trimming
-    if (total) {
-        total_row <- colSums(mat, na.rm = TRUE)
-    }
-
     plot_dat <- data.frame(
         w = rep(w, each = sum(sel)),
         value = c(mat),
@@ -1165,19 +1164,13 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
         }
     }
 
-    # Add total line
-    if (total) {
-        total_dat <- data.frame(
-            w = w,
-            value = total_row,
-            Species = "Total",
-            Legend = "Total"
-        )
-        total_dat <- apply_wlim(total_dat, wlim)
-        plot_dat <- rbind(plot_dat, total_dat)
-    }
-
     names(plot_dat)[2] <- value_name
+
+    # The total is deliberately not added here. It has to be formed after the
+    # size coordinate has been converted, because on a length axis the series
+    # no longer share a grid; see `add_total_line()`. The `total` argument is
+    # kept so that the callers can see what was asked for.
+    attr(plot_dat, "total") <- isTRUE(total)
 
     plot_dat
 }

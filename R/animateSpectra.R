@@ -197,17 +197,20 @@ animate.MizerSim <- function(x, species = NULL,
         nf <- rbind(nf, nf_back)
     }
     # Add total ----
+    # The contributors are assembled here but summed only after the size axis
+    # has been converted, inside `animate_plotly()`. Every species counts,
+    # whether or not it was selected for display, and the resource counts when
+    # it is shown, matching `plotSpectra()`.
+    total_dat <- NULL
     if (total) {
-        # Calculate total community abundance
-        fish_idx <- (length(sim@params@w_full) -
-                         length(sim@params@w) + 1):length(sim@params@w_full)
-        total_n <- sim@n_pp
-        total_n[, fish_idx] <- total_n[, fish_idx] +
-            rowSums(aperm(sim@n, c(1, 3, 2)), dims = 2)
-        nf_total <- melt(total_n[time_elements, , drop = FALSE])
-        nf_total$Species <- "Total"
-        nf_total$legend_name <- "Total"
-        nf <- rbind(nf, nf_total)
+        total_dat <- melt(sim@n[time_elements, , , drop = FALSE])
+        names(total_dat)[names(total_dat) == "sp"] <- "Species"
+        if (resource) {
+            nf_pp_total <- melt(sim@n_pp[time_elements, , drop = FALSE])
+            nf_pp_total$Species <- "Resource"
+            total_dat <- rbind(total_dat, nf_pp_total)
+        }
+        total_dat$legend_name <- "Total"
     }
 
     y_label <- spectra_y_label(power, size_axis,
@@ -220,13 +223,18 @@ animate.MizerSim <- function(x, species = NULL,
     if (isTRUE(sim@params@second_order_w[["bin_average"]])) {
         beta <- sim@params@w_full[2] / sim@params@w_full[1]
         nf$w <- nf$w * sqrt(beta)
+        if (!is.null(total_dat)) total_dat$w <- total_dat$w * sqrt(beta)
     }
     nf <- mutate(nf, value = value * w^power)
+    if (!is.null(total_dat)) {
+        total_dat <- mutate(total_dat, value = value * w^power)
+    }
 
     animate_plotly(nf, sim@params, log_x, log_y, y_label, wlim, llim,
                    ylim,
                    size_axis = size_axis,
                    density_wrt = spectrum_density_wrt(spectrum$per_log_size),
+                   total_dat = total_dat,
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
                    easing = easing)
@@ -243,14 +251,27 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
                            size_axis = "w",
                            density_wrt = NA_character_,
                            per_log_size = NULL,
+                           total_dat = NULL,
                            frame_duration = 500, transition_duration = 500,
                            easing = "linear") {
     size_axis <- plot_size_axis(size_axis)
-    df <- convert_plot_density_axis(df, params, size_axis,
-                                    density_wrt = density_wrt,
-                                    per_log_size = per_log_size,
-                                    value_col = "value")
+    convert <- function(d) {
+        convert_plot_density_axis(d, params, size_axis,
+                                  density_wrt = density_wrt,
+                                  per_log_size = per_log_size,
+                                  value_col = "value")
+    }
+    df <- convert(df)
     x_var <- plot_size_x_var(size_axis)
+    # The total is summed over the converted series, so that on a length axis
+    # it is a sum at equal length rather than at equal weight.
+    if (!is.null(total_dat)) {
+        total_dat <- add_total_line(convert(total_dat), x_var, "value",
+                                    by = "time")
+        total_dat <- total_dat[total_dat$Species == "Total", ]
+        total_dat$legend_name <- "Total"
+        df <- rbind(df, total_dat[, names(df), drop = FALSE])
+    }
     legend_name_order <- intersect(names(params@linecolour),
                                    unique(df$legend_name))
     sp_order <- unlist(lapply(legend_name_order, function(ln) {

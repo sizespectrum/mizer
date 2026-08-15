@@ -434,13 +434,11 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                       stringsAsFactors = FALSE)
     df$value <- c(sub)
 
-    # Compute total across ALL selected species (including background) before
-    # any background filtering, matching the behaviour of plot.ArraySpeciesBySize
-    if (total) {
-        total_sums <- stats::aggregate(value ~ time + w, data = df, FUN = sum,
-                                       na.rm = TRUE)
-        total_sums$Species <- "Total"
-    }
+    # The contributors to the total are taken across ALL selected species
+    # (including background), before any background filtering, matching the
+    # behaviour of plot.ArraySpeciesBySize. They are summed only after the size
+    # axis has been converted, inside `animate_plotly()`.
+    total_dat <- if (total) df else NULL
 
     # Now handle background: exclude rows or group under "Background" legend
     df$legend_name <- df$Species
@@ -452,10 +450,7 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
         }
     }
 
-    if (total) {
-        total_sums$legend_name <- "Total"
-        df <- rbind(df, total_sums[, names(df)])
-    }
+    if (!is.null(total_dat)) total_dat$legend_name <- "Total"
 
     y_label <- array_y_label(x, default = "Value", size_axis = size_axis,
                              per_log_size = per_log_size)
@@ -465,6 +460,7 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                    size_axis = size_axis,
                    density_wrt = array_density_wrt(x),
                    per_log_size = per_log_size,
+                   total_dat = total_dat,
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
                    easing = easing)

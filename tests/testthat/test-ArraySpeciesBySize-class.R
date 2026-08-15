@@ -276,6 +276,55 @@ test_that("plot() can express a density per logarithmic size", {
     expect_true(any(with_total$Species == "Total"))
 })
 
+test_that("the total is shown on a length axis and matches the lines drawn", {
+    density <- initialN(NS_params_small)
+
+    on_w <- plot(density, total = TRUE, return_data = TRUE)
+    on_l <- plot(density, total = TRUE, size_axis = "l", return_data = TRUE)
+    expect_true("Total" %in% on_w$Species)
+    expect_true("Total" %in% on_l$Species)
+
+    # The species here share one weight-length relationship, so the total is
+    # the plain sum of the converted lines at each length
+    total_l <- on_l[on_l$Species == "Total", ]
+    lines_l <- on_l[on_l$Species != "Total", ]
+    summed <- vapply(total_l$l, function(len) {
+        sum(lines_l[[2]][lines_l$l == len])
+    }, numeric(1))
+    expect_equal(total_l[[2]], summed)
+
+    # The total is the sum of what is drawn, so trimming to each species' size
+    # range is respected; `all.sizes = TRUE` sums the whole array
+    all_sizes <- plot(density, total = TRUE, all.sizes = TRUE,
+                      return_data = TRUE)
+    expect_equal(all_sizes[[2]][all_sizes$Species == "Total"],
+                 unname(colSums(unclass(density))))
+})
+
+test_that("the total on a length axis interpolates onto a common grid", {
+    # Give two species their own weight-length relationships so that their
+    # length grids no longer coincide
+    params <- NS_params_small
+    species_params(params)$a <- c(0.008, 0.012, 0.01)
+    species_params(params)$b <- c(3.1, 2.9, 3)
+    density <- initialN(params)
+
+    on_w <- plot(density, total = TRUE, return_data = TRUE)
+    on_l <- plot(density, total = TRUE, size_axis = "l", return_data = TRUE)
+    # The weight axis still has one point per size, the length axis needs the
+    # union of the three grids
+    expect_identical(sum(on_w$Species == "Total"), length(params@w))
+    expect_gt(sum(on_l$Species == "Total"), length(params@w))
+
+    # At the largest length only the largest species is present, so the total
+    # is exactly that species there
+    total_l <- on_l[on_l$Species == "Total", ]
+    lines_l <- on_l[on_l$Species != "Total", ]
+    at <- max(total_l$l)
+    expect_identical(sum(lines_l$l == at), 1L)
+    expect_equal(total_l[[2]][total_l$l == at], lines_l[[2]][lines_l$l == at])
+})
+
 test_that("a proportion is plotted against the whole of [0, 1]", {
     feeding_level <- getFeedingLevel(NS_params_small)
     expect_identical(array_type(feeding_level), "proportion")

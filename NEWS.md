@@ -159,6 +159,25 @@ stability of steady states.
   copepod really is shorter than a 1 mg fish larva — but it does mean the
   resource and the species are measured differently.
 
+- The total line is now shown on length-based plots, where it used to be
+  dropped. A total can only be formed once every line sits on the same
+  coordinate, and on a length axis the lines do not: each species, and the
+  resource, converts weight to length with its own allometric relationship, so
+  at a given length they sit at different weights. The total is therefore
+  summed *after* the conversion — at equal length rather than at equal weight —
+  interpolating each series onto the union of all the size coordinates,
+  logarithmically in size, with a series contributing nothing outside its own
+  range. Where the series already share a grid, which is always the case on a
+  weight axis, the union is that grid and nothing is approximated: the
+  weight-axis total is unchanged.
+
+  Two consequences on the weight axis. `plotSpectra(total = TRUE,
+  resource = FALSE)` now leaves the resource out of the total, where the
+  `resource` argument used to control only whether the resource was drawn. And
+  the total of a mizer array is now the sum of the lines that are drawn, so it
+  no longer counts abundance outside a species' size range; pass
+  `all.sizes = TRUE` for the old sum over the whole array.
+
 - `plotYieldObservedVsModel()` gains a `gear` argument that restricts the
   comparison to the catch of the selected gears. Both the model yield and the
   observed yield are then taken from those gears only, so in a model where

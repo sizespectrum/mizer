@@ -21,7 +21,8 @@ plotComparisonDataFrame(
   legend_var = "Legend",
   size_axis = NULL,
   density_wrt = NA_character_,
-  per_log_size = NULL
+  per_log_size = NULL,
+  total = FALSE
 )
 }
 \arguments{
@@ -57,6 +58,9 @@ and are left alone when the size axis changes.}
 
 \item{per_log_size}{Whether to express a density per logarithmic size.
 \code{NULL} (the default) keeps whichever the values already are.}
+
+\item{total}{Whether to add a line for the total over the series, formed
+after the size axis has been converted, see \code{\link[=add_total_line]{add_total_line()}}.}
 }
 \value{
 A \code{mizer_plot} (ggplot2) object.

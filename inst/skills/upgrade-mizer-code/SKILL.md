@@ -52,6 +52,9 @@ plots) are in the changelog and are not repeated here.
 | A custom array plotted with `size_axis = "l"` is not transformed, or is transformed when it should not be | an array declares what it holds with `type` now | Arrays say what kind of value they hold (3.3) |
 | `array_spectrum_power()`, or `spectrum_power =` in an internal plot helper, is no longer found | replaced by the `type` metadata | Arrays say what kind of value they hold (3.3) |
 | New warning that two arrays hold "a value of type" different things in `plot2()` or `plotRelative()` | the two arrays disagree about what they hold | Arrays say what kind of value they hold (3.3) |
+| A `Total` line appears on a plot with `size_axis = "l"` where there used to be none | the total is now summed after the length conversion | The total is summed on the axis it is plotted against (3.3) |
+| `plotSpectra(total = TRUE, resource = FALSE)` gives a smaller total than before | the `resource` argument now controls the total as well as the line | The total is summed on the axis it is plotted against (3.3) |
+| `plot(<array>, total = TRUE)` gives a smaller total at some sizes | the total is now the sum of the lines drawn, not of the whole array | The total is summed on the axis it is plotted against (3.3) |
 | New warning that a change to a species or resource parameter "has not taken effect" | the rate it feeds was set by hand and is no longer calculated | A change that cannot take effect now warns (3.3) |
 | That warning appears with `given_species_params<-()` but not with `species_params<-()` | the diagnostics belong to the given species parameter setter | The two species parameter setters divide the diagnostics between them (3.3) |
 | Setting a given species parameter to `NA` now warns that the change has not taken effect | clearing a value counts as a change, and a frozen array blocks it | The two species parameter setters divide the diagnostics between them (3.3) |
@@ -238,6 +241,35 @@ note that `plotComparisonDataFrame()` and the internal `animate_plotly()` take a
 single `density_wrt` argument in place of `spectrum_power` and
 `spectrum_per_log_size`, and that the internal `array_spectrum_power()` is gone.
 The `power`-based interface of `plotSpectra()` and friends is unchanged.
+
+### The total is summed on the axis it is plotted against
+
+A total can only be formed once every line sits on the same coordinate. On a
+weight axis they do: every species shares the model's weight grid. On a length
+axis they do not, because each species — and now the resource — converts weight
+to length with its own allometric relationship, so at a given length the lines
+sit at different weights. That is why the `Total` line used to be dropped from
+length-based plots.
+
+It is now summed *after* the conversion, at equal length rather than at equal
+weight, interpolating each line onto the union of all the size coordinates
+(logarithmically in size, with a line contributing nothing outside its own
+range). Where the lines already share a grid — always on a weight axis, and on
+a length axis whenever the weight-length parameters agree — the union is that
+grid and the interpolation reproduces the values exactly. **The weight-axis
+total is unchanged**, for every power.
+
+Two things do change on the weight axis, both of them corrections:
+
+- `plotSpectra(total = TRUE, resource = FALSE)` now leaves the resource out of
+  the total. The `resource` argument used to control only whether the resource
+  line was drawn; the total counted it either way, so a "consumers only" total
+  was not available.
+- `plot(<array>, total = TRUE)` now sums the lines that are drawn rather than
+  the whole array, so it no longer counts abundance outside a species' size
+  range. On the North Sea model this moves the total at about 2% of sizes, by up
+  to a factor of three where a species holds abundance beyond its `w_max`. Pass
+  `all.sizes = TRUE` to sum the whole array as before.
 
 ### Length and weight parameters follow the one you gave last
 
