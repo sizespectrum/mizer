@@ -24,6 +24,10 @@
 #'   choices are "egg" which keeps the egg density constant, "biomass" which
 #'   keeps the total biomass of the species constant and "number" which keeps
 #'   the total number of individuals constant.
+#' @param info_level Controls the amount of information messages that are shown.
+#'   Higher levels lead to more messages, `info_level = 0` gives silence. The
+#'   default is taken from the `mizer_info_level` option, see
+#'   [default_info_level()].
 #' @param ... Additional arguments passed to the method.
 #'
 #' @return A modified MizerParams object with rescaled search volume, maximum
@@ -38,12 +42,15 @@
 #' species_params(params)["Cod", "gamma"]
 #' age_mat(params)["Cod"]
 matchGrowth <- function(params, species = NULL,
-                        keep = c("egg", "biomass", "number"), ...)
+                        keep = c("egg", "biomass", "number"),
+                        info_level = default_info_level(), ...)
     UseMethod("matchGrowth")
 
 #' @export
 matchGrowth.MizerParams <- function(params, species = NULL,
-                                    keep = c("egg", "biomass", "number"), ...) {
+                                    keep = c("egg", "biomass", "number"),
+                                    info_level = default_info_level(), ...) {
+    with_info_level(info_level = info_level, {
     sel <- valid_species_arg(params, species = species,
                                  return.logical = TRUE)
     sp <- params@species_params
@@ -92,5 +99,7 @@ matchGrowth.MizerParams <- function(params, species = NULL,
         params@initial_n <- params@initial_n * factor
     }
 
+    signal_off_steady("matchGrowth")
     setBevertonHolt(params)
+    })
 }

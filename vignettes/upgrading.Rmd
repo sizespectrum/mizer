@@ -247,6 +247,58 @@ a spurious warning when it was larger (#460). Code that set a small `min_w` and
 worked around the reset — or that unknowingly ran on the reset grid — now gets
 the size grid it asked for, and results change accordingly.
 
+### The `match…()` functions announce that they broke the steady state
+
+[`matchBiomasses()`](../reference/matchBiomasses.html), [`matchNumbers()`](../reference/matchNumbers.html), `matchYields()` and [`matchGrowth()`](../reference/matchGrowth.html) now
+report that they have moved the model off its steady state. This is a message,
+so `info_level = 0` or `options(mizer_info_level = 0)` silences it, as does the
+`info_level` argument, which `matchGrowth()` gains and which `matchBiomasses()`
+and `matchNumbers()` previously accepted but ignored.
+
+The `calibrate…()` functions and [`scaleModel()`](../reference/scaleModel.html) say nothing, because they do not
+break the steady state: they apply one overall scaling factor, which is an exact
+symmetry of the model. If your workflow re-ran `steady()` after every
+`calibrate…()` step, that step was never necessary.
+
+### `summary()` reports the steady state
+
+`summary()` of a `MizerParams` object has a new block:
+
+```
+Steady state:
+	biomass drift:	3.2e-05 /year	(at steady state)
+```
+
+Code that parses the output of `summary()` by line position needs updating. The
+same number is available directly as [`getSteadyResidual()`](../reference/getSteadyResidual.html).
+
+### The convergence attribute gained a `residual` field
+
+The `"convergence"` attribute attached by `projectToSteady()` and `steady()` has
+a new `residual` entry, so `expect_named()` or `names()` checks on it need
+updating. It reports how far the state reached actually is from a fixed point,
+which the existing `distance` field only approximates — `distance` compares two
+states `t_per` apart on whatever scale the distance function uses.
+
+When the two disagree, `steady()` now appends to its convergence message:
+
+```
+#> Convergence was achieved in 12 years. A biomass is still changing at up to
+#> 0.42 per year. Reduce `tol` to converge further.
+```
+
+This is the case where the relative-RDI criterion is satisfied while the spectra
+are still moving. It is a message, not a warning, because convergence at the
+`tol` you asked for did happen.
+
+### `getStability()` checks that it was given a steady state
+
+Both [`getStability()`](../reference/getStability.html) and [`getLimitCycleSim()`](../reference/getLimitCycleSim.html) linearise the dynamics *at*
+[`initialN(params)`](../reference/initialN-set.html). If that state is not a fixed point, the eigenvalues describe
+the neighbourhood of a point the model is not sitting at and the verdict on
+stability is meaningless. Both now warn in that case. Run [`steadyNewton()`](../reference/steadyNewton.html) first,
+or silence with `options(mizer_info_level = 0)` if you know what you are doing.
+
 ### `compareParams()` compares small parameters properly
 
 [`compareParams()`](../reference/compareParams.html) now uses a relative tolerance for species parameters, so

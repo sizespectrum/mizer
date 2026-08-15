@@ -4,7 +4,13 @@
 \alias{matchGrowth}
 \title{Adjust model to produce observed growth}
 \usage{
-matchGrowth(params, species = NULL, keep = c("egg", "biomass", "number"), ...)
+matchGrowth(
+  params,
+  species = NULL,
+  keep = c("egg", "biomass", "number"),
+  info_level = default_info_level(),
+  ...
+)
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -19,6 +25,11 @@ not.}
 choices are "egg" which keeps the egg density constant, "biomass" which
 keeps the total biomass of the species constant and "number" which keeps
 the total number of individuals constant.}
+
+\item{info_level}{Controls the amount of information messages that are shown.
+Higher levels lead to more messages, \code{info_level = 0} gives silence. The
+default is taken from the \code{mizer_info_level} option, see
+\code{\link[=default_info_level]{default_info_level()}}.}
 
 \item{...}{Additional arguments passed to the method.}
 }

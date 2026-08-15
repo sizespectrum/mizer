@@ -44,6 +44,7 @@ Other summary functions:
 \code{\link[=getDiet]{getDiet()}},
 \code{\link[=getN]{getN()}},
 \code{\link[=getSSB]{getSSB()}},
+\code{\link[=getSteadyResidual]{getSteadyResidual()}},
 \code{\link[=getTrophicLevel]{getTrophicLevel()}},
 \code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
 \code{\link[=getYield]{getYield()}},

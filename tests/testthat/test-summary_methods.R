@@ -470,3 +470,18 @@ test_that("str works", {
     expect_match(out_sim, "Formal class 'MizerSim'")
 })
 
+test_that("summary of MizerParams reports the steady-state verdict", {
+    p <- suppressMessages(
+        steady(NS_params_small, tol = 1e-6, t_max = 500,
+               progress_bar = FALSE, info_level = 0))
+    line <- grep("biomass drift", capture.output(summary(p)), value = TRUE)
+    expect_length(line, 1)
+    expect_match(line, "/year")
+    expect_match(line, "\\(at steady state\\)")
+
+    # Knocking it off its steady state flips the verdict.
+    initialN(p)[1, ] <- initialN(p)[1, ] * 3
+    line <- grep("biomass drift", capture.output(summary(p)), value = TRUE)
+    expect_match(line, "not at steady state")
+})
+

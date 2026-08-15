@@ -199,6 +199,11 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'       `"extinction"` (a species died out).}
 #'     \item{`converged`}{Logical, `TRUE` for `"steady"` and `"cycle"`.}
 #'     \item{`distance`}{The final value returned by `distance_func`.}
+#'     \item{`residual`}{The largest per-capita rate of change, in 1/year, at the
+#'       state that was reached, as returned by [getSteadyResidual()]. Unlike
+#'       `distance`, which compares two states `t_per` apart on whatever scale
+#'       the distance function uses, this measures how far the state actually is
+#'       from being a fixed point.}
 #'     \item{`years`}{The number of years simulated.}
 #'     \item{`period`}{For a limit cycle, its period in years; otherwise `NA`.}
 #'     \item{`amplitude`}{For a limit cycle, the largest per-species relative
@@ -371,6 +376,24 @@ projectToSteady.MizerParams <- function(params,
 
     years <- (i - 1) * t_per
     converged <- FALSE
+
+    params@initial_n[] <- current$n
+    params@initial_n_pp[] <- current$n_pp
+    params@initial_n_other[] <- current$n_other
+
+    # How far the state that was reached actually is from a fixed point. The
+    # distance function above only compares two states `t_per` apart, which is a
+    # proxy; this is the thing itself. It is recorded even for a cycle or a
+    # non-converged run, where it says how far off the run stopped.
+    residual <- tryCatch(steady_biomass_drift(params, effort = effort),
+                         error = function(e) NA_real_)
+    residual_txt <- if (is.finite(residual)) {
+        paste0(" A biomass is still changing at up to ",
+               signif(residual, 2), " per year.")
+    } else {
+        ""
+    }
+
     if (!is.null(cycle)) {
         type <- "cycle"
         converged <- TRUE
@@ -382,8 +405,20 @@ projectToSteady.MizerParams <- function(params,
     } else if (success) {
         type <- "steady"
         converged <- TRUE
+        # The distance function being satisfied only says that the state stopped
+        # moving on that function's own scale. Report the residual alongside it,
+        # and flag the case where the two disagree — a run declared converged
+        # whose biomasses are still visibly moving, which would otherwise be
+        # invisible. This stays an "info": the user asked for convergence at
+        # their `tol` and got it, so nothing they asked for failed to happen.
+        caveat <- if (is.finite(residual) && residual > steady_residual_tol()) {
+            paste0(residual_txt, " Reduce `tol` to converge further.")
+        } else {
+            ""
+        }
         signal_info("convergence",
-                    paste0("Convergence was achieved in ", years, " years."),
+                    paste0("Convergence was achieved in ", years, " years.",
+                           caveat),
                     unhandled = "show")
     } else {
         type <- if (any(extinct)) "extinction" else "not_converged"
@@ -397,14 +432,11 @@ projectToSteady.MizerParams <- function(params,
         type = type,
         converged = converged,
         distance = distance,
+        residual = residual,
         years = years,
         period = if (type == "cycle") cycle$period else NA_real_,
         amplitude = if (type == "cycle") cycle$amplitude else NA_real_
     )
-
-    params@initial_n[] <- current$n
-    params@initial_n_pp[] <- current$n_pp
-    params@initial_n_other[] <- current$n_other
 
     if (return_sim) {
         sim@params <- params
@@ -673,6 +705,13 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
             params <- setBevertonHolt(params, erepro = old_erepro)
         }
     }
+
+    # The residual recorded by projectToSteady() was measured on the model it
+    # was handed, which had reproduction, the resource and the other components
+    # pinned. Restoring the real dynamics above changes the model, so the
+    # residual is measured again on what is actually being returned.
+    conv$residual <- tryCatch(steady_biomass_drift(params),
+                              error = function(e) NA_real_)
 
     if (return_sim) {
         object@params <- params

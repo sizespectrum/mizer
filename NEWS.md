@@ -5,6 +5,19 @@ stability of steady states.
 
 ## New functions
 
+- New experimental `getSteadyResidual()` answers the question every calibration
+  workflow otherwise has to remember to ask: *is this model still at its steady
+  state?* It returns the rate at which each species' abundance would change if
+  the model were projected forward, as a per-capita rate in 1/year, so zero
+  means the model is on a fixed point. For the consumers the value is exact
+  rather than a finite difference: the backward-Euler transport coefficients
+  used by `project()` satisfy `A N - S = -dt dN/dt` identically. Everything is
+  evaluated with the model's own reproduction function and its own
+  `resource_dynamics`, so unlike `steadyNewton()` it works whatever the resource
+  dynamics are. The result is an `ArraySpeciesBySize`, so
+  `plot(getSteadyResidual(params))` shows which species and which sizes have
+  moved (#495).
+
 - New `knife_edge_length()` selectivity function that applies a knife-edge cut
   at a given **length** rather than a weight. Set `sel_func = "knife_edge_length"`
   and provide a `knife_edge_length` column in `gear_params()`. The length is
@@ -80,6 +93,44 @@ stability of steady states.
   `tol`, `amplitude_tol` and `extinction_threshold` are exposed for tuning.
 
 ## Other improvements
+
+- `summary()` of a `MizerParams` object now reports the model's biomass drift
+  and whether that counts as being at a steady state. Whether a model is settled
+  is not visible from any of the other parameters shown, and getting it wrong is
+  the most common way a calibration goes quietly wrong (#495).
+
+- `project()` gains an experimental `check_steady` argument. With
+  `check_steady = TRUE` it warns when it is handed a model that is not at its
+  steady state, which catches the mistake of forgetting to re-run `steady()`
+  after a `match…()` step. It defaults to `FALSE`, because projecting a model
+  away from its steady state is a perfectly normal thing to do. The check is
+  made at the effort stored in the params object rather than at the effort
+  passed to `project()`, so running a fishing scenario at a new effort does not
+  warn (#495).
+
+- The `"convergence"` attribute attached by `projectToSteady()` and `steady()`
+  gains a `residual` field giving how far the state reached actually is from a
+  fixed point. The `distance` field only compares two states `t_per` apart on
+  whatever scale the distance function uses; `residual` measures the thing
+  itself, and `steady()` now says when the two disagree — a run declared
+  converged whose biomasses are still visibly moving (#495).
+
+- `matchBiomasses()`, `matchNumbers()`, `matchYields()` and `matchGrowth()` now
+  say that they have moved the model off its steady state, turning an
+  instruction the documentation had to keep repeating into something the package
+  says at the moment it becomes true. The `calibrate…()` functions and
+  `scaleModel()` deliberately do not: they apply one overall scaling factor,
+  which is an exact symmetry of the model and leaves the steady state untouched
+  (#495).
+
+- `getStability()` and `getLimitCycleSim()` now warn when they are handed a model
+  that is not at a steady state. Both linearise the dynamics *at* the stored
+  state, so on a state that is not a fixed point their eigenvalues describe the
+  neighbourhood of a point the model is not sitting at (#495).
+
+- `matchGrowth()` gains the `info_level` argument that the other `match…()`
+  functions already had, and `matchBiomasses()` and `matchNumbers()` now
+  actually honour theirs.
 
 - New `mizer_info_level` option sets how much mizer tells you about the choices
   it makes, without your having to pass `info_level` to each call.

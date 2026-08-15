@@ -48,6 +48,7 @@ Other summary functions:
 \code{\link[=getDiet]{getDiet()}},
 \code{\link[=getGrowthCurves]{getGrowthCurves()}},
 \code{\link[=getSSB]{getSSB()}},
+\code{\link[=getSteadyResidual]{getSteadyResidual()}},
 \code{\link[=getTrophicLevel]{getTrophicLevel()}},
 \code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
 \code{\link[=getYield]{getYield()}},

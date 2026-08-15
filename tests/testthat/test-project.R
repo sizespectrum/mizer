@@ -675,3 +675,40 @@ test_that("Time resampling in project behaves as documented", {
     saved_times <- as.numeric(dimnames(sim@n)[[1]])
     expect_false(11 %in% saved_times)
 })
+
+# check_steady ----
+
+# A settled model and a copy that has been knocked off its steady state.
+steady_small <- suppressMessages(
+    steady(NS_params_small, tol = 1e-6, t_max = 500,
+           progress_bar = FALSE, info_level = 0))
+off_steady_small <- local({
+    p <- steady_small
+    initialN(p)[1, ] <- initialN(p)[1, ] * 3
+    p
+})
+
+test_that("project() checks the steady state only when asked", {
+    # Off by default, however far off steady state the model is.
+    expect_silent(project(off_steady_small, t_max = 0.1, progress_bar = FALSE))
+    # On when asked.
+    expect_warning(project(off_steady_small, t_max = 0.1, progress_bar = FALSE,
+                           check_steady = TRUE),
+                   "not at its steady state")
+    # And silent on a model that is at its steady state.
+    expect_silent(project(steady_small, t_max = 0.1, progress_bar = FALSE,
+                          check_steady = TRUE))
+})
+
+test_that("project(check_steady) judges at the model's own effort", {
+    # Running a scenario at a new effort legitimately starts away from the
+    # steady state of that new effort, and must not warn for it.
+    expect_silent(project(steady_small, effort = initial_effort(steady_small) + 1,
+                          t_max = 0.1, progress_bar = FALSE, check_steady = TRUE))
+})
+
+test_that("project(check_steady) is silenced by info_level 0", {
+    withr::local_options(mizer_info_level = 0)
+    expect_silent(project(off_steady_small, t_max = 0.1, progress_bar = FALSE,
+                          check_steady = TRUE))
+})

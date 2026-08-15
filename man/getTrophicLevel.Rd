@@ -114,6 +114,7 @@ Other summary functions:
 \code{\link[=getGrowthCurves]{getGrowthCurves()}},
 \code{\link[=getN]{getN()}},
 \code{\link[=getSSB]{getSSB()}},
+\code{\link[=getSteadyResidual]{getSteadyResidual()}},
 \code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
 \code{\link[=getYield]{getYield()}},
 \code{\link[=getYieldGear]{getYieldGear()}},
