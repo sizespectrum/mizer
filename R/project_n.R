@@ -57,7 +57,9 @@ project_n <- function(params, r, n, dt, a, b, c, S, idx, w_min_idx_array_ref,
     # Upper boundary condition: hold abundance at zero above w_max. The operator
     # decouples the active spectrum from the tail (see apply_upper_cutoff());
     # this enforces N = 0 there on the result.
-    zero_above_support(n, support_top_idx(params))
+    n <- zero_above_support(n, support_top_idx(params))
+    attr(n, "chi") <- coefs$chi
+    n
 }
 
 # Average the start-of-step rates `r` with the provisional end-of-step rates
@@ -151,7 +153,9 @@ project_n_2 <- function(params, r, n, dt, a, b, c, S, idx,
         n_new[n_new < 0] <- 0
     }
     # Hold abundance at zero above w_max (the upper boundary; see project_n()).
-    zero_above_support(n_new, support_top_idx(params))
+    n_new <- zero_above_support(n_new, support_top_idx(params))
+    attr(n_new, "chi") <- coefs$chi
+    n_new
 }
 
 project_n_2_rhs <- function(params, n, a, b, c, dt, recruitment_flux) {
@@ -277,7 +281,9 @@ project_n_tr_bdf2 <- function(params, r, n, dt, a, b, c, S, idx,
         n_new[n_new < 0] <- 0
     }
     # Hold abundance at zero above w_max (the upper boundary; see project_n()).
-    zero_above_support(n_new, support_top_idx(params))
+    n_new <- zero_above_support(n_new, support_top_idx(params))
+    attr(n_new, "chi") <- coefs$chi
+    n_new
 }
 
 project_n_tr_bdf2_rhs <- function(params, n, n_gamma, dt_eff, recruitment_flux,

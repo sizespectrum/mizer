@@ -241,7 +241,7 @@ get_transport_coefs_logfv <- function(params, n, g, mu, dt, recruitment_flux,
         S[mask_below] <- 0
     }
 
-    list(a = a, b = b, c = c, S = S)
+    list(a = a, b = b, c = c, S = S, chi = chi)
 }
 
 #' First-order upwind transport coefficients (legacy default scheme)
@@ -366,5 +366,10 @@ flux_limiter_chi <- function(params, n, g, flux_limiter) {
     j_start <- params@w_min_idx
     w_idx_mat <- matrix(1:no_w, nrow = no_sp, ncol = no_w, byrow = TRUE)
     chi[w_idx_mat <= j_start + 2] <- 0
+    
+    chi_prev <- attr(n, "chi")
+    if (!is.null(chi_prev)) {
+        chi <- 0.5 * chi + 0.5 * chi_prev
+    }
     chi
 }
