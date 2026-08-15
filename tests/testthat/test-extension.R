@@ -346,7 +346,10 @@ test_that("Other components get a corrector step under second-order methods", {
         project(make_p(), t_max = 2, t_save = 2, dt = dt, method = method,
                 progress_bar = FALSE)@n_other[[2, "accum"]]
     }
-    ref <- accum("euler", 0.0005)            # fine-step reference
+    # Fine-step reference. dt = 0.002 is 50x smaller than the step compared
+    # against it, which leaves the margins below essentially where a much
+    # finer reference puts them at four times the cost.
+    ref <- accum("euler", 0.002)
 
     euler_err <- abs(accum("euler", 0.1) - ref)
     for (method in c("predictor_corrector", "tr_bdf2")) {

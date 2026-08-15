@@ -203,7 +203,7 @@ test_that("tr_bdf2 runs and keeps densities finite and non-negative", {
 })
 
 test_that("tr_bdf2 preserves a steady state", {
-    ps <- suppressMessages(steady(NS_params_small, progress_bar = FALSE))
+    ps <- NS_params_steady_small
     sim_t <- project(ps, t_max = 5, dt = 0.1, method = "tr_bdf2",
                      progress_bar = FALSE)
     sim_e <- project(ps, t_max = 5, dt = 0.1, method = "euler",

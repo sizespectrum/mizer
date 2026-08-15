@@ -471,9 +471,7 @@ test_that("str works", {
 })
 
 test_that("summary of MizerParams reports the steady-state verdict", {
-    p <- suppressMessages(
-        steady(NS_params_small, tol = 1e-6, t_max = 500,
-               progress_bar = FALSE, info_level = 0))
+    p <- NS_params_steady_small
     line <- grep("biomass drift", capture.output(summary(p)), value = TRUE)
     expect_length(line, 1)
     expect_match(line, "/year")

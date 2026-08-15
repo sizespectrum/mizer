@@ -911,7 +911,7 @@ test_that("getFluxGradient balances mortality at a steady state", {
     # The McKendrick-von Foerster equation is
     #     dN/dt = -dJ/dw - mu N,
     # so at a steady state the flux gradient must cancel the mortality loss.
-    params <- suppressMessages(steady(NS_params_small, tol = 1e-10))
+    params <- NS_params_steady_small
     fg <- getFluxGradient(params)
     loss <- getMort(params) * initialN(params)
     expect_equal(unclass(fg), -unclass(loss), ignore_attr = TRUE,

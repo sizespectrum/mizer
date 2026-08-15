@@ -97,9 +97,7 @@ test_that("the calibrate functions do not claim to break the steady state", {
     # They apply one overall scaling factor, which is an exact symmetry of the
     # model, so the steady state survives them untouched. If this ever stops
     # being true they need the notice that the match functions carry.
-    p <- suppressMessages(
-        steady(NS_params_small, tol = 1e-6, t_max = 500,
-               progress_bar = FALSE, info_level = 0))
+    p <- NS_params_steady_small
     before <- steady_biomass_drift(p)
     species_params(p)$biomass_observed <- as.numeric(getBiomass(p)) * 2
     expect_equal(steady_biomass_drift(suppressMessages(calibrateBiomass(p))),

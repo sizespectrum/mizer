@@ -111,6 +111,16 @@ delayedAssign("NS_params_default_small", suppressMessages(
 delayedAssign("NS_params_cod_small", suppressMessages(
     newMultispeciesParams(NS_species_params_gears_small[3, ], info_level = 0)
 ))
+# NS_params_small settled onto its steady state, for the many tests that need
+# *a* model at steady state rather than to test steady() itself. The tolerance
+# is the tightest any consumer needs (test-rate_functions.R checks the flux
+# gradient against the mortality loss to 1e-8), and converging once to 1e-10 is
+# cheaper than the several looser calls it replaces. Tests of steady() itself
+# belong in test-steady.R and must of course keep calling it.
+delayedAssign("NS_params_steady_small", suppressMessages(
+    steady(NS_params_small, tol = 1e-10, t_max = 500,
+           progress_bar = FALSE, info_level = 0)
+))
 
 # Test that a MizerParams or MizerSim object has not changed except for the
 # time_modified and perhaps a reordering of the species_params columns.
