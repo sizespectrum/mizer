@@ -3,6 +3,10 @@
 This development version adds experimental tools for analysing the dynamic
 stability of steady states.
 
+## Bug fixes
+
+- `steady()` now successfully converges when the advective flux scheme is set to `"van_leer"` (via `second_order_w`). Previously, the time-stepping iteration would fall into a limit cycle because the flux limiter weights flipped wildly across cells. We resolved this by introducing an exponential moving average relaxation to the limiter `chi` (#522).
+
 ## New functions
 
 - New experimental `getSteadyResidual()` answers the question every calibration
