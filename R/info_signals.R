@@ -327,7 +327,8 @@ frozen_rate_params <- function() {
 #' and raises a [signal_frozen()] condition for each frozen array that one of
 #' the changed species parameters feeds. This is what turns "the model no
 #' longer follows the species parameters" into a warning the user sees at the
-#' moment they make the change, see [species_params<-()].
+#' moment they make the change. It is one of the diagnostics that only
+#' [given_species_params<-()] gives, see there.
 #'
 #' @param params A \linkS4class{MizerParams} object, holding the rate arrays as
 #'   they are, that is, before the change is applied.
@@ -368,30 +369,6 @@ signal_frozen_changes <- function(params, changed) {
     invisible(NULL)
 }
 
-#' Which species parameters changed
-#'
-#' Compares the columns of two species parameter data frames and returns the
-#' ones that differ, using the same entry-by-entry comparison as
-#' [record_given_species_params()]: a column that is not present in `old_sp` is
-#' new and therefore counts as changed, and `NA` is compared as a value rather
-#' than as an unknown.
-#'
-#' @param value A data frame with the new species parameters.
-#' @param old_sp A data frame with the species parameters as they were before.
-#'
-#' @return A named list with one entry per changed column, holding a logical
-#'   vector saying which species changed. Use `names()` on it for the names of
-#'   the changed columns.
-#' @concept helper
-changed_species_params <- function(value, old_sp) {
-    no_sp <- nrow(value)
-    changed <- lapply(names(value), function(col) {
-        changed_entries(value[[col]], old_sp[[col]], no_sp)
-    })
-    names(changed) <- names(value)
-    changed[vapply(changed, any, logical(1))]
-}
-
 # The species parameters that mizer only uses to calculate a default for
 # another one, and so ignores once that other one has been given. Each entry is
 # named after the parameter that is ignored and gives the parameter that takes
@@ -405,11 +382,12 @@ overridden_species_params <- function() {
 #' Some species parameters are only used to calculate a default for another
 #' one: `f0` for `gamma`, `fc` for `ks` and `age_mat` for `h`. Once the other
 #' one has been given, the model no longer consults them, so changing them has
-#' no effect. This raises a warning about that.
+#' no effect. This raises a warning about that. It is one of the diagnostics
+#' that only [given_species_params<-()] gives, see there.
 #'
 #' @param given The given species parameters, as they are before the change.
-#' @param changed A named list with one logical vector per changed column, as
-#'   returned by [changed_species_params()].
+#' @param changed A named list with one logical vector per changed column,
+#'   saying which species changed, as built by [given_species_params<-()].
 #'
 #' @return `NULL` invisibly. Called for its side effect of signalling.
 #' @concept helper
@@ -433,11 +411,16 @@ signal_ignored_changes <- function(given, changed) {
 
 #' Signal a gear parameter changed through the given species parameters
 #'
-#' Mizer looks for the gear parameters in the gear parameter table, so setting
-#' one of them through [given_species_params<-()] does not reach the model.
-#' Only that assignment reports this, because [species_params<-()] keeps a
-#' column it does not recognise and code that reads it directly, as
-#' [matchYields()] does with `yield_observed`, then still sees it.
+#' Mizer looks for the gear parameters in the gear parameter table, which is
+#' read only when the model is built, so changing one of them through the
+#' species parameters does not reach the model. This is one of the diagnostics
+#' that only [given_species_params<-()] gives; [species_params<-()] stays
+#' quiet, see there.
+#'
+#' `yield_observed` is deliberately not among them. It looks like a gear
+#' parameter but is read straight out of the species parameters by
+#' [matchYields()], [calibrateYield()] and [plotYieldObservedVsModel()], and
+#' both setters put it there, so a change to it does take effect.
 #'
 #' @param changed A named list with one entry per changed column, or a
 #'   character vector of the changed column names.
@@ -451,12 +434,6 @@ signal_gear_params_changes <- function(changed) {
         signal_info("gear_params", paste0(
             "To make changes to gears you should use `gear_params()<-`, not ",
             "`species_params()`."),
-            level = 1, severity = "warning", unhandled = "show")
-    }
-    if ("yield_observed" %in% changed) {
-        signal_info("yield_observed", paste0(
-            "To change the observed yield you should use `gear_params()<-`, ",
-            "not `species_params()`."),
             level = 1, severity = "warning", unhandled = "show")
     }
     invisible(NULL)

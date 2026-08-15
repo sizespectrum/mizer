@@ -185,7 +185,6 @@ test_that("`given_species_params<-()` gives correct warnings", {
     expect_warning(given_species_params(params)$fc <- 1)
     expect_warning(given_species_params(params)$age_mat <- 1)
     expect_warning(given_species_params(params)$catchability <- 2)
-    expect_warning(given_species_params(params)$yield_observed <- 1)
 
     # No warning if NA
     params@given_species_params$gamma[-1] <- NA
@@ -303,6 +302,37 @@ test_that("species_params setter preserves columns mizer does not calculate", {
                  seq_len(nrow(species_params(params))), ignore_attr = TRUE)
 })
 
+test_that("species_params setter does not record a default it filled in (#496)", {
+    # A model whose species parameters do not carry the length-weight
+    # parameters, as `NS_params` does not. `validSpeciesParams()` fills in
+    # defaults for them, and those must not be mistaken for user input.
+    params <- NS_params_small
+    params@species_params$a <- NULL
+    params@species_params$b <- NULL
+    expect_false(any(c("a", "b") %in% names(given_species_params(params))))
+
+    species_params(params)$beta <- 150
+
+    given <- given_species_params(params)
+    # The change the user made is recorded ...
+    expect_equal(given$beta, rep(150, nrow(given)), ignore_attr = TRUE)
+    # ... but the defaults mizer filled in are not, so that they keep
+    # responding to later changes instead of being frozen as given values.
+    expect_false(any(c("a", "b") %in% names(given)) &&
+                     any(!is.na(given[["a"]])))
+    expect_true(all(c("a", "b") %in% names(species_params(params))))
+})
+
+test_that("species_params setter still records a column the user adds (#496)", {
+    # The counterpart of the test above: a column that is genuinely new to the
+    # model, rather than one mizer filled in, is user input and is recorded.
+    params <- NS_params_small
+    no_sp <- nrow(species_params(params))
+    species_params(params)$my_own_param <- seq_len(no_sp)
+    expect_equal(given_species_params(params)$my_own_param, seq_len(no_sp),
+                 ignore_attr = TRUE)
+})
+
 test_that("species_params setter handles list and matrix columns", {
     # The old-vs-new diff in `species_params<-()` must not use `==` on columns
     # where it is undefined (list, S4) or does not reduce to one logical per
@@ -333,7 +363,7 @@ test_that("species_params setter handles list and matrix columns", {
                  ignore_attr = TRUE)
 })
 
-test_that("species_params setter warns when a frozen rate blocks the change (#489)", {
+test_that("species_params setter is quiet when a frozen rate blocks the change (#496)", {
     params <- NS_params_small
     # Freeze the metabolic rate at its current value
     metab(params) <- metab(params)
@@ -341,15 +371,23 @@ test_that("species_params setter warns when a frozen rate blocks the change (#48
 
     sp <- species_params(params)
     sp$ks <- sp$ks * 2
-    # The warning has to get past the `suppressMessages()` that quietens the
-    # routine recalculation chatter, so it must not be a message.
-    expect_no_message(
-        expect_warning(species_params(params) <- sp,
-                       "Your change to the species parameter `ks`.*metabolic rate"))
-    # The table records the change but the model does not, which is what the
-    # warning tells the user.
+    # The diagnostics belong to `given_species_params<-()`; this setter is the
+    # quiet one, so that scripts written against earlier versions of mizer keep
+    # running clean.
+    expect_silent(species_params(params) <- sp)
+    # The table records the change but the model does not.
     expect_equal(species_params(params)$ks, sp$ks, ignore_attr = TRUE)
     expect_equal(params@metab, before, ignore_attr = TRUE)
+})
+
+test_that("species_params setter is quiet about an overridden parameter (#496)", {
+    params <- NS_params_small
+    expect_false(any(is.na(given_species_params(params)$gamma)))
+    expect_silent(species_params(params)$f0 <- 0.5)
+    # while the given species parameter setter says so
+    params <- NS_params_small
+    expect_warning(given_species_params(params)$f0 <- 0.5,
+                   "values for `f0` that are going to be ignored")
 })
 
 test_that("given_species_params setter warns when a frozen rate blocks the change (#489)", {

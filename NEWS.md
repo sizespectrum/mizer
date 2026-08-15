@@ -315,18 +315,18 @@ stability of steady states.
 
 - Changing a species parameter that feeds a rate array you have set by hand now
   warns you that the change has no effect on the model. Previously
-  `species_params<-()` and `given_species_params<-()` recorded the new value in
-  the species parameter table but left the model unchanged, and said nothing:
-  the rate setters do emit a message in that situation, but those two functions
-  run `suppressMessages()` over the recalculation to quieten the routine
-  chatter, so the message never reached the user. The report is now a warning,
-  which survives that, and it names the species parameters that were ignored,
-  the quantity that is holding them back, and the call that puts the quantity
-  back under the control of the species parameters, for example
-  `setMetabolicRate(params, reset = TRUE)`. It is raised only when a parameter
-  that actually feeds the frozen quantity changed, so models that mizer itself
-  freezes arrays in, like those from `newTraitParams()` and
-  `newCommunityParams()`, do not warn about unrelated changes (#489).
+  `given_species_params<-()` recorded the new value in the species parameter
+  table but left the model unchanged, and said nothing: the rate setters do
+  emit a message in that situation, but the setter runs `suppressMessages()`
+  over the recalculation to quieten the routine chatter, so the message never
+  reached the user. The report is now a warning, which survives that, and it
+  names the species parameters that were ignored, the quantity that is holding
+  them back, and the call that puts the quantity back under the control of the
+  species parameters, for example `setMetabolicRate(params, reset = TRUE)`. It
+  is raised only when a parameter that actually feeds the frozen quantity
+  changed, so models that mizer itself freezes arrays in, like those from
+  `newTraitParams()` and `newCommunityParams()`, do not warn about unrelated
+  changes (#489).
 
 - Changing a resource parameter that feeds a resource array you have set by
   hand now warns you that the change has no effect, the same way a species
@@ -336,10 +336,31 @@ stability of steady states.
   when it leaves a frozen resource array alone although the resource
   parameters ask for a different value (#489).
 
-- `species_params<-()` now gives the same warning that `given_species_params<-()`
-  already gave when a change is ignored because another parameter takes
-  precedence over it, for example a change to `f0` when `gamma` has been given.
-  Previously only one of the two assignment functions said so.
+- The division of labour between the two species parameter setters is now
+  clear-cut: `given_species_params<-()` is the one that warns when a change you
+  asked for cannot take effect, and `species_params<-()` stays quiet. That
+  covers all three such diagnostics — a parameter overridden by another one you
+  have given, a parameter feeding a rate array you have set by hand, and a gear
+  parameter that mizer reads from `gear_params()`. Use `species_params<-()` in
+  scripts and `given_species_params<-()` interactively, where the diagnostics
+  are worth having (#496).
+
+- `species_params<-()` no longer records a default that mizer filled in as a
+  given species parameter. A parameter that the model does not yet carry and
+  that `validSpeciesParams()` supplies a default for — most commonly the
+  length-weight parameters `a` and `b`, which a model built without length data
+  does not have — looked like a column the user had just added, and so was
+  recorded as given and frozen against every later recalculation. On
+  `NS_params` any assignment to `species_params()`, even one setting an
+  unrelated parameter, added 24 given entries this way. Values you do supply,
+  including in a column that is new to the model, are recorded as before
+  (#496).
+
+- `given_species_params<-()` no longer warns when you set `yield_observed`. The
+  warning said to use `gear_params()<-` instead, but `yield_observed` is not a
+  gear parameter: `matchYields()`, `calibrateYield()` and
+  `plotYieldObservedVsModel()` read it straight out of the species parameters,
+  where both setters put it, so the change did take effect all along (#496).
 
 - `setParams()` now gives an error when it is passed an argument that none of
   the setter functions it calls accepts. Every one of those setters declares its

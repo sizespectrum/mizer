@@ -9,8 +9,8 @@ signal_ignored_changes(given, changed)
 \arguments{
 \item{given}{The given species parameters, as they are before the change.}
 
-\item{changed}{A named list with one logical vector per changed column, as
-returned by \code{\link[=changed_species_params]{changed_species_params()}}.}
+\item{changed}{A named list with one logical vector per changed column,
+saying which species changed, as built by \code{\link[=given_species_params<-]{given_species_params<-()}}.}
 }
 \value{
 \code{NULL} invisibly. Called for its side effect of signalling.
@@ -19,6 +19,7 @@ returned by \code{\link[=changed_species_params]{changed_species_params()}}.}
 Some species parameters are only used to calculate a default for another
 one: \code{f0} for \code{gamma}, \code{fc} for \code{ks} and \code{age_mat} for \code{h}. Once the other
 one has been given, the model no longer consults them, so changing them has
-no effect. This raises a warning about that.
+no effect. This raises a warning about that. It is one of the diagnostics
+that only \code{\link[=given_species_params<-]{given_species_params<-()}} gives, see there.
 }
 \concept{helper}

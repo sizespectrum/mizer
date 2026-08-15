@@ -21,6 +21,7 @@ Goes through the rate arrays that can be frozen, see \code{\link[=frozen_rate_pa
 and raises a \code{\link[=signal_frozen]{signal_frozen()}} condition for each frozen array that one of
 the changed species parameters feeds. This is what turns "the model no
 longer follows the species parameters" into a warning the user sees at the
-moment they make the change, see \code{\link[=species_params<-]{species_params<-()}}.
+moment they make the change. It is one of the diagnostics that only
+\code{\link[=given_species_params<-]{given_species_params<-()}} gives, see there.
 }
 \concept{helper}

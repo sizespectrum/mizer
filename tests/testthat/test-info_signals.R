@@ -233,21 +233,6 @@ test_that("signal_frozen_changes() lists all the affected parameters", {
         "species parameters `ks`, `p` has not taken effect")
 })
 
-# changed_species_params() ----
-
-test_that("changed_species_params() finds the changed columns", {
-    sp <- species_params(NS_params_small)
-    new <- sp
-    new$ks[[2]] <- new$ks[[2]] * 2
-    new$new_col <- 1
-    changed <- changed_species_params(new, sp)
-    expect_setequal(names(changed), c("ks", "new_col"))
-    # and which species they changed for
-    expect_identical(changed$ks, c(FALSE, TRUE, FALSE))
-    expect_true(all(changed$new_col))
-    expect_length(changed_species_params(sp, sp), 0)
-})
-
 # signal_ignored_changes() ----
 
 test_that("signal_ignored_changes() warns about a parameter that is overruled", {
@@ -275,17 +260,26 @@ test_that("signal_gear_params_changes() warns about gear parameters", {
     expect_warning(
         with_info_level(signal_gear_params_changes(list(l50 = TRUE))),
         "you should use `gear_params\\(\\)<-`")
-    expect_warning(
-        with_info_level(signal_gear_params_changes("yield_observed")),
-        "observed yield")
     expect_silent(with_info_level(signal_gear_params_changes("gamma")))
+    # `yield_observed` looks like a gear parameter but is read straight out of
+    # the species parameters, so a change to it does take effect.
+    expect_silent(with_info_level(signal_gear_params_changes("yield_observed")))
 })
 
 test_that("only the given species params report a gear parameter change", {
-    # `species_params<-()` keeps the column, and code that reads it directly
-    # still sees it, so only `given_species_params<-()` reports it.
+    quiet <- NS_params_small
+    expect_silent(species_params(quiet)$catchability <- 2)
+    loud <- NS_params_small
+    expect_warning(given_species_params(loud)$catchability <- 2,
+                   "you should use `gear_params\\(\\)<-`")
+})
+
+test_that("a `yield_observed` change is not reported by either setter (#496)", {
+    # It reaches `matchYields()` and friends through `species_params`, whichever
+    # setter put it there.
     params <- NS_params_small
     expect_silent(species_params(params)$yield_observed <- c(1, 2, 3))
-    expect_warning(given_species_params(params)$yield_observed <- c(4, 5, 6),
-                   "observed yield")
+    expect_silent(given_species_params(params)$yield_observed <- c(4, 5, 6))
+    expect_equal(species_params(params)$yield_observed, c(4, 5, 6),
+                 ignore_attr = TRUE)
 })
