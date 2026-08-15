@@ -58,6 +58,11 @@ plots) are in the changelog and are not repeated here.
 | `given_species_params<-()` now changes a weight when you change its length | both setters apply the same precedence rule | Length and weight follow the one you gave last (3.3) |
 | Repeated "`l_mat` is not consistent with `w_mat`" warning has stopped | the given species parameters are brought into line | Length and weight follow the one you gave last (3.3) |
 | Size grid or results changed in a model built with a small `min_w` | `w_min` is no longer reset to 0.001 | `w_min` survives a rebuild (3.3) |
+| A `match…()` call now prints that it "moved it off its steady state" | the functions say so themselves now | The `match…()` functions announce that they broke the steady state (3.3) |
+| `expect_named()` on `attr(params, "convergence")` fails | new `residual` field | The convergence attribute gained a `residual` field (3.3) |
+| `steady()` adds "Reduce `tol` to converge further" to its convergence message | the state reached is not a fixed point | The convergence attribute gained a `residual` field (3.3) |
+| `getStability()` or `getLimitCycleSim()` now warns about the steady state | they linearise at the stored state | `getStability()` checks that it was given a steady state (3.3) |
+| `summary(params)` has an extra "Steady state" block | new steadiness verdict | `summary()` reports the steady state (3.3) |
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters (3.3) |
 | `gamma`, `q` or feeding levels change after setting resource `kappa` or `lambda` | calculated search-volume parameters now follow the resource power law | Resource scalars refresh calculated `gamma` and `q` (3.3) |
 | A recalculated `gamma` or `f0` is wildly different, in a model whose `search_vol` was set by hand | the frozen array used to block mizer's own unit-gamma calculation | Defaults for `gamma` and `f0` ignore a hand-set search volume (3.3) |
@@ -333,6 +338,58 @@ round-trip silently reset `w_min` to 0.001 when `min_w` was smaller, and emitted
 a spurious warning when it was larger (#460). Code that set a small `min_w` and
 worked around the reset — or that unknowingly ran on the reset grid — now gets
 the size grid it asked for, and results change accordingly.
+
+### The `match…()` functions announce that they broke the steady state
+
+`matchBiomasses()`, `matchNumbers()`, `matchYields()` and `matchGrowth()` now
+report that they have moved the model off its steady state. This is a message,
+so `info_level = 0` or `options(mizer_info_level = 0)` silences it, as does the
+`info_level` argument, which `matchGrowth()` gains and which `matchBiomasses()`
+and `matchNumbers()` previously accepted but ignored.
+
+The `calibrate…()` functions and `scaleModel()` say nothing, because they do not
+break the steady state: they apply one overall scaling factor, which is an exact
+symmetry of the model. If your workflow re-ran `steady()` after every
+`calibrate…()` step, that step was never necessary.
+
+### `summary()` reports the steady state
+
+`summary()` of a `MizerParams` object has a new block:
+
+```
+Steady state:
+	biomass drift:	3.2e-05 /year	(at steady state)
+```
+
+Code that parses the output of `summary()` by line position needs updating. The
+same number is available directly as `getSteadyResidual()`.
+
+### The convergence attribute gained a `residual` field
+
+The `"convergence"` attribute attached by `projectToSteady()` and `steady()` has
+a new `residual` entry, so `expect_named()` or `names()` checks on it need
+updating. It reports how far the state reached actually is from a fixed point,
+which the existing `distance` field only approximates — `distance` compares two
+states `t_per` apart on whatever scale the distance function uses.
+
+When the two disagree, `steady()` now appends to its convergence message:
+
+```
+#> Convergence was achieved in 12 years. A biomass is still changing at up to
+#> 0.42 per year. Reduce `tol` to converge further.
+```
+
+This is the case where the relative-RDI criterion is satisfied while the spectra
+are still moving. It is a message, not a warning, because convergence at the
+`tol` you asked for did happen.
+
+### `getStability()` checks that it was given a steady state
+
+Both `getStability()` and `getLimitCycleSim()` linearise the dynamics *at*
+`initialN(params)`. If that state is not a fixed point, the eigenvalues describe
+the neighbourhood of a point the model is not sitting at and the verdict on
+stability is meaningless. Both now warn in that case. Run `steadyNewton()` first,
+or silence with `options(mizer_info_level = 0)` if you know what you are doing.
 
 ### `compareParams()` compares small parameters properly
 

@@ -241,6 +241,20 @@ steadyNewton.MizerParams <- function(params,
 
     params@time_modified <- lubridate::now()
 
+    # Report how close to a fixed point the solver actually got. This is the
+    # honest measure of the result: with the van Leer reconstruction the
+    # residual is only Lipschitz and cannot reach machine precision, and the
+    # analytic resource substitution used during the solve is not quite
+    # self-consistent, so the number is not always as small as `tol` suggests.
+    residual <- tryCatch(steady_biomass_drift(params, effort = effort),
+                         error = function(e) NA_real_)
+    if (is.finite(residual)) {
+        signal_info("convergence", paste0(
+            "The biomasses of the solution change at up to ",
+            signif(residual, 2), " per year."),
+            level = 3, unhandled = "show")
+    }
+
     if (stability) {
         attr(params, "stability") <- getStability(params,
                                                    reproduction = reproduction,
@@ -396,19 +410,85 @@ resource_steady_semichemostat <- function(params, N, n_other) {
     n_pp
 }
 
+#' Unscaled residual of the discrete steady-state equation
+#'
+#' Evaluates the growth, mortality and diffusion rates at the given state,
+#' assembles the steady-state tridiagonal coefficients with
+#' `get_transport_coefs()` at `dt = 1` and returns
+#' \deqn{F_j = a_j N_{j-1} + b_j N_j + c_j N_{j+1} - S_j.}
+#' Since `S = N + recruitment source`, the `+N` cancels the backward-Euler
+#' `N^t` term, leaving exactly the steady-state equation
+#' \eqn{\tilde A N_{j-1} + \tilde B N_j + \tilde C N_{j+1} - \tilde S = 0}.
+#'
+#' Because the backward-Euler coefficients are `A = I - dt L`, this residual is
+#' \eqn{-dt\,dN/dt} exactly, so at `dt = 1` its negative is the instantaneous
+#' rate of change of the density. That is what makes it usable both as the
+#' function whose root [steadyNewton()] seeks and as the diagnostic
+#' [getSteadyResidual()] reports.
+#'
+#' This is the single implementation of the transport residual; both callers go
+#' through it.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @param n Consumer densities (species x size) to evaluate the residual at.
+#' @param n_pp Resource density to evaluate the rates at.
+#' @param n_other Abundances of other components.
+#' @param effort The fishing effort vector.
+#' @param rdd Per-species reproduction rate to use. If `NULL`, it is calculated
+#'   from the model's own RDI and RDD functions at the given state.
+#' @param rates_fns The rate functions, from `projectRateFunctions()`. Passed in
+#'   so that a caller evaluating the residual many times need only look them up
+#'   once.
+#' @param flux_limiter The flux limiter scheme, from `flux_limiter_scheme()`.
+#' @return The unscaled residual matrix (species x size).
+#' @noRd
+consumer_residual <- function(params, n, n_pp, n_other, effort, rdd = NULL,
+                              rates_fns = projectRateFunctions(params),
+                              flux_limiter = flux_limiter_scheme(params)) {
+    no_w <- length(params@w)
+
+    r <- mizer_rates_subset(params, n = n, n_pp = n_pp, n_other = n_other,
+                            t = 0, effort = effort, rates_fns = rates_fns,
+                            targets = c("EGrowth", "Mort", "Diffusion"))
+
+    if (is.null(rdd)) {
+        if (usesExtensionDispatch(params)) {
+            rdi <- projectRDI(params, n = n, n_pp = n_pp, n_other = n_other, t = 0,
+                              e_repro = r$e_repro, e_growth = r$e_growth, mort = r$mort,
+                              diffusion = r$diffusion)
+            rdd <- projectRDD(params, rdi = rdi, species_params = params@species_params,
+                              t = 0)
+        } else {
+            f_rdi <- get(params@rates_funcs$RDI)
+            rdi <- f_rdi(params, n = n, n_pp = n_pp, n_other = n_other, t = 0,
+                         e_repro = r$e_repro, e_growth = r$e_growth, mort = r$mort,
+                         diffusion = r$diffusion)
+            f_rdd <- get(params@rates_funcs$RDD)
+            rdd <- f_rdd(rdi = rdi, species_params = params@species_params,
+                         params = params, t = 0)
+        }
+    }
+
+    coefs <- get_transport_coefs(params, n = n, g = r$e_growth,
+                                 mu = r$mort, dt = 1,
+                                 recruitment_flux = rdd,
+                                 d = r$diffusion,
+                                 flux_limiter = flux_limiter)
+
+    Nm <- cbind(0, n[, -no_w, drop = FALSE])   # N_{j-1}
+    Np <- cbind(n[, -1, drop = FALSE], 0)      # N_{j+1}
+    coefs$a * Nm + coefs$b * n + coefs$c * Np - coefs$S
+}
+
 #' Residual of the discrete steady-state equation
 #'
 #' Returns a closure `f(x)` suitable for [nleqslv::nleqslv()]. The argument `x`
 #' is the vector of log-densities of the active size classes (see
 #' `steady_active_set()`). The closure rebuilds the full density matrix,
-#' substitutes the analytic resource steady state, evaluates the growth,
-#' mortality and diffusion rates, assembles the steady-state tridiagonal
-#' coefficients with `get_transport_coefs()` at `dt = 1`, and returns the
-#' steady-state residual
-#' \deqn{F_j = a_j N_{j-1} + b_j N_j + c_j N_{j+1} - S_j}
-#' (since `S = N + recruitment source`, the `+N` cancels the backward-Euler
-#' `N^t` term, leaving exactly the steady-state equation
-#' \eqn{\tilde A N_{j-1} + \tilde B N_j + \tilde C N_{j+1} - \tilde S = 0}).
+#' substitutes the analytic resource steady state, and calls
+#' `consumer_residual()` for the steady-state residual
+#' \eqn{F_j = a_j N_{j-1} + b_j N_j + c_j N_{j+1} - S_j}, to which it adds the
+#' scaling, masking and penalty floor that the root finder needs.
 #' The residual is divided by `N`, turning it into a per-capita rate of change
 #' that is dimensionless and O(1) across the many orders of magnitude spanned by
 #' the densities — the natural scaling to pair with the log-space unknowns.
@@ -451,39 +531,10 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
         N <- active$unpack(x)
         n_pp <- resource_steady_semichemostat(params, N, n_other)
 
-        r <- mizer_rates_subset(params, n = N, n_pp = n_pp, n_other = n_other,
-                                t = 0, effort = effort, rates_fns = rates_fns,
-                                targets = c("EGrowth", "Mort", "Diffusion"))
-
-        if (is.null(rdd_const)) {
-            if (usesExtensionDispatch(params)) {
-                rdi <- projectRDI(params, n = N, n_pp = n_pp, n_other = n_other, t = 0,
-                                  e_repro = r$e_repro, e_growth = r$e_growth, mort = r$mort,
-                                  diffusion = r$diffusion)
-                rdd <- projectRDD(params, rdi = rdi, species_params = params@species_params,
-                                  t = 0)
-            } else {
-                f_rdi <- get(params@rates_funcs$RDI)
-                rdi <- f_rdi(params, n = N, n_pp = n_pp, n_other = n_other, t = 0,
-                             e_repro = r$e_repro, e_growth = r$e_growth, mort = r$mort,
-                             diffusion = r$diffusion)
-                f_rdd <- get(params@rates_funcs$RDD)
-                rdd <- f_rdd(rdi = rdi, species_params = params@species_params,
-                             params = params, t = 0)
-            }
-        } else {
-            rdd <- rdd_const
-        }
-
-        coefs <- get_transport_coefs(params, n = N, g = r$e_growth,
-                                     mu = r$mort, dt = 1,
-                                     recruitment_flux = rdd,
-                                     d = r$diffusion,
-                                     flux_limiter = flux_limiter)
-
-        Nm <- cbind(0, N[, -no_w, drop = FALSE])   # N_{j-1}
-        Np <- cbind(N[, -1, drop = FALSE], 0)      # N_{j+1}
-        res <- coefs$a * Nm + coefs$b * N + coefs$c * Np - coefs$S
+        res <- consumer_residual(params, n = N, n_pp = n_pp, n_other = n_other,
+                                 effort = effort, rdd = rdd_const,
+                                 rates_fns = rates_fns,
+                                 flux_limiter = flux_limiter)
 
         # Scale to a per-capita rate of change (N > 0 on the active set).
         if (is.null(rdd_const)) {
@@ -644,6 +695,15 @@ getStability <- function(params,
     params <- validParams(params)
     effort <- validEffortVector(effort, params = params)
     params@initial_effort <- effort
+
+    # The whole calculation linearises the dynamics *at* the stored state. If
+    # that state is not a fixed point, the eigenvalues describe the neighbourhood
+    # of a point the model is not sitting at, and the verdict on stability means
+    # nothing.
+    warn_if_not_steady(params, paste(
+        "The eigenvalues below describe the dynamics near a fixed point, so on",
+        "a state that is not one they are not meaningful. Use `steadyNewton()`",
+        "first."))
 
     if (reproduction == "dynamic") {
         rdd_const <- NULL

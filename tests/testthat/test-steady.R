@@ -391,12 +391,16 @@ test_that("steady() attaches a 'convergence' attribute for a steady state", {
     p <- suppressWarnings(suppressMessages(steady(cd_params, progress_bar = FALSE)))
     conv <- attr(p, "convergence")
     expect_type(conv, "list")
-    expect_named(conv, c("type", "converged", "distance", "years",
+    expect_named(conv, c("type", "converged", "distance", "residual", "years",
                          "period", "amplitude"))
     expect_identical(conv$type, "steady")
     expect_true(conv$converged)
     expect_true(is.na(conv$period))
     expect_true(is.na(conv$amplitude))
+    # The residual measures how far the state actually is from a fixed point,
+    # which the distance function only approximates.
+    expect_true(is.finite(conv$residual))
+    expect_lt(conv$residual, steady_residual_tol())
 })
 
 test_that("the 'convergence' attribute survives return_sim = TRUE", {

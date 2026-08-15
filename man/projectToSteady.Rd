@@ -101,6 +101,11 @@ limit cycle), \code{"not_converged"} (still changing at \code{t_max}) or
 \code{"extinction"} (a species died out).}
 \item{\code{converged}}{Logical, \code{TRUE} for \code{"steady"} and \code{"cycle"}.}
 \item{\code{distance}}{The final value returned by \code{distance_func}.}
+\item{\code{residual}}{The largest per-capita rate of change, in 1/year, at the
+state that was reached, as returned by \code{\link[=getSteadyResidual]{getSteadyResidual()}}. Unlike
+\code{distance}, which compares two states \code{t_per} apart on whatever scale
+the distance function uses, this measures how far the state actually is
+from being a fixed point.}
 \item{\code{years}}{The number of years simulated.}
 \item{\code{period}}{For a limit cycle, its period in years; otherwise \code{NA}.}
 \item{\code{amplitude}}{For a limit cycle, the largest per-species relative

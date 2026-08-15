@@ -80,3 +80,8 @@ test_that("matchGrowth survives a later recalculation", {
     # the values only.
     expect_equal(getEGrowth(matched), growth, ignore_attr = TRUE)
 })
+
+test_that("matchGrowth says that it moved the model off steady state", {
+    expect_message(matchGrowth(NS_params_small), "moved it off its steady state")
+    expect_no_message(matchGrowth(NS_params_small, info_level = 0))
+})
