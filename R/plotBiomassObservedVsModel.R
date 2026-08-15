@@ -77,7 +77,6 @@ plotBiomassObservedVsModel.MizerParams <- function(object, species = NULL, ratio
                                       labels = TRUE, show_unobserved = FALSE, ...) {
     # preliminary checks
     params <- object # params object is just input
-    n <- initialN(params) # we want initial numbers
     sp_params <- params@species_params # get species_params data frame
     
     # Select appropriate species
@@ -96,25 +95,17 @@ plotBiomassObservedVsModel.MizerParams <- function(object, species = NULL, ratio
         biomass_observed <- sp_params$biomass_observed
     }
     
-    # Check if cutoff exists
-    cutoff <- sp_params$biomass_cutoff[row_select]
-    # When no cutoff known, set it to 0 for all species
-    # (so all sizes are included)
-    if (is.null(cutoff)) {
-        cutoff <- rep(0, length(species))
-    } else if (!is.numeric(cutoff)) {
-        stop('params@species_params$biomass_cutoff is not numeric, ",
-                 "please fix.')
+    # Check the cutoff, if there is one. Species without a cutoff are counted
+    # over their whole size range.
+    if (!is.null(sp_params$biomass_cutoff) &&
+        !is.numeric(sp_params$biomass_cutoff)) {
+        stop("params@species_params$biomass_cutoff is not numeric, ",
+             "please fix.")
     }
-    cutoff[is.na(cutoff)] <- 0
-    
+
     # pull out biomasses from params object
-    sim_biomass <- rep(0, length(species))
-    for (j in seq_along(species)) {
-        sim_biomass[j] <- sum((n[row_select[j], ] * params@w * params@dw)
-                             [params@w >= cutoff[j]])
-    }
-    
+    sim_biomass <- unname(model_observation(params, "biomass")[row_select])
+
     # Build dataframe
     dummy <- data.frame(species = species, 
                        model = sim_biomass, 

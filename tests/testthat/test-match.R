@@ -34,7 +34,7 @@ test_that("matchNumbers works", {
     # Does nothing when no observed numbers
     expect_identical(matchNumbers(params), params)
     species_params(params)$number_observed <- NA
-    expect_unchanged(matchNumbers(params), params)
+    expect_identical(matchNumbers(params), params)
     # Does nothing if observed already equals model
     species_params(params)$number_cutoff <- 1e-4
     number_actual <-

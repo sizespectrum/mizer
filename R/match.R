@@ -50,44 +50,10 @@ matchBiomasses <- function(params, species = NULL,
 #' @export
 matchBiomasses.MizerParams <- function(params, species = NULL,
                                        info_level = default_info_level(), ...) {
-    with_info_level(info_level = info_level, {
-    if (!("biomass_observed" %in% names(params@species_params))) {
-        return(params)
-    }
-    species_sel <- valid_species_arg(params, species = species, 
-                                 return.logical = TRUE) &
-        !is.na(params@species_params$biomass_observed) &
-        params@species_params$biomass_observed > 0
-    if (!any(species_sel)) {
-        return(params)
-    }
-    
-    model_biomass <- getBiomass(params, use_cutoff = TRUE)
-    observed_biomass <- params@species_params$biomass_observed
-    
-    # Only consider selected species
-    selected_idx <- which(species_sel)
-    zero_biomass <- model_biomass[selected_idx] <= 0 | is.na(model_biomass[selected_idx])
-    if (any(zero_biomass)) {
-        cutoff <- params@species_params$biomass_cutoff[selected_idx][zero_biomass]
-        error_species <- params@species_params$species[selected_idx][zero_biomass]
-        stop(paste(
-            paste(error_species, "does not grow up to the biomass_cutoff size of",
-                  cutoff, "grams."),
-            collapse = "\n"
-        ))
-    }
-    factors <- observed_biomass[selected_idx] / model_biomass[selected_idx]
-    params@initial_n[selected_idx, ] <- params@initial_n[selected_idx, , drop = FALSE] * factors
-
-    signal_off_steady("matchBiomasses")
-    setBevertonHolt(params)
-    })
+    with_info_level(info_level = info_level,
+                    match_to(params, species = species, to = "biomass",
+                             fname = "matchBiomasses"))
 }
-
-# The following is a copy of the code for `matchBiomasses()` just with
-# the text replacements "Biomass" -> "Number" and "biomass" to "number" and
-# the removal of the `params@w` factor in the calculations.
 
 #' Match numbers to observations
 #'
@@ -140,40 +106,57 @@ matchNumbers <- function(params, species = NULL,
 #' @export
 matchNumbers.MizerParams <- function(params, species = NULL,
                                      info_level = default_info_level(), ...) {
-    with_info_level(info_level = info_level, {
-    if (!("number_observed" %in% names(params@species_params))) {
+    with_info_level(info_level = info_level,
+                    match_to(params, species = species, to = "number",
+                             fname = "matchNumbers"))
+}
+
+#' Match a quantity to observations species by species
+#'
+#' Internal implementation shared by [matchBiomasses()] and [matchNumbers()].
+#' Multiplies the abundance density of each selected species at all sizes by
+#' the factor that brings the modelled quantity onto the observation. Species
+#' that were not selected, or that have no positive observation, are left
+#' alone.
+#'
+#' @param params A MizerParams object.
+#' @param species The species to be affected, in any of the forms accepted by
+#'   [valid_species_arg()].
+#' @param to The type of observation, either "biomass" or "number".
+#' @param fname The name of the calling function, used when reporting that the
+#'   model has been moved off its steady state.
+#' @return A MizerParams object.
+#' @concept helper
+#' @keywords internal
+match_to <- function(params, species = NULL, to = c("biomass", "number"),
+                     fname) {
+    cols <- observation_columns(to)
+    observed <- params@species_params[[cols$observed]]
+    if (is.null(observed)) {
         return(params)
     }
-    species <- valid_species_arg(params, species = species,
-                                 return.logical = TRUE) &
-        !is.na(params@species_params$number_observed) &
-        params@species_params$number_observed > 0
-    if (length(species) == 0) {
+    selected <- valid_species_arg(params, species = species,
+                                  return.logical = TRUE) &
+        !is.na(observed) & observed > 0
+    if (!any(selected)) {
         return(params)
-    }
-    
-    error_message <- ""
-    for (sp in seq_len(nrow(params@species_params))[species]) {
-        cutoff <- params@species_params$number_cutoff[[sp]]
-        if (is.null(cutoff) || is.na(cutoff)) {
-            cutoff <- 0
-        }
-        total <- sum((params@initial_n[sp, ] * params@dw)
-                     [params@w >= cutoff])
-        if (!(total > 0)) {
-            error_message <- paste(
-                error_message, params@species_params$species[[sp]],
-                "does not grow up to the number_cutoff size of",
-                cutoff, "grams.\n")
-        }
-        factor <- params@species_params$number_observed[[sp]] / total
-        params@initial_n[sp, ] <- params@initial_n[sp, ] * factor
-    }
-    if (error_message != "") {
-        stop(error_message)
     }
 
-    signal_off_steady("matchNumbers")
+    model <- model_observation(params, cols$to)[selected]
+    unreachable <- is.na(model) | model <= 0
+    if (any(unreachable)) {
+        cutoff <- cutoff_min_w(params, cols$to)[selected][unreachable]
+        error_species <- params@species_params$species[selected][unreachable]
+        stop(paste(
+            paste(error_species, "does not grow up to the",
+                  cols$cutoff, "size of", cutoff, "grams."),
+            collapse = "\n"
+        ))
+    }
+    factors <- observed[selected] / model
+    params@initial_n[selected, ] <-
+        params@initial_n[selected, , drop = FALSE] * factors
+
+    signal_off_steady(fname)
     setBevertonHolt(params)
-    })
 }

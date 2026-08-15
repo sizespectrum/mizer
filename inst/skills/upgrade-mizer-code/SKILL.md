@@ -59,6 +59,13 @@ plots) are in the changelog and are not repeated here.
 | Trophic levels moved slightly, only with `second_order_w` | numerator and denominator now use one quadrature | Quadrature fixes under `second_order_w` (3.3) |
 | `getProportionOfLargeFish(params)` gives a different value, or no longer differs from the `MizerSim` value | weights were recycled down the columns for all but the first species | `getProportionOfLargeFish()` on a `MizerParams` object was wrong (3.3) |
 | `getN()` over a size range moved slightly, only with `second_order_w` | the size-range window is now bin-averaged too | `getN()` respects the quadrature scheme at the ends of the size range (3.3) |
+| A model calibrated or matched to observations moved slightly, only with `second_order_w` | the calibration functions hand-rolled a first-order sum and now use the model's own quadrature | The calibration and matching functions respect the quadrature scheme (3.3) |
+| `matchBiomasses()` and `matchNumbers()` used to leave the model at different biomasses than `getBiomass()`/`getN()` reported, only with `second_order_w` | the match and the check used different quadratures | The calibration and matching functions respect the quadrature scheme (3.3) |
+| `plotBiomassObservedVsModel()` shows a matched species off the 1:1 line, only with `second_order_w` | the plot hand-rolled its own biomass integral | The calibration and matching functions respect the quadrature scheme (3.3) |
+| `plotYieldObservedVsModel()` model yields rose by 10-20%, or its total relative error fell, only with `second_order_w` | the plot hand-rolled a first-order yield integral instead of calling `getYield()` | The calibration and matching functions respect the quadrature scheme (3.3) |
+| A model looked like it under-predicted yields by 10-20% but `getYield()` disagreed | the plot and `getYield()` used different quadratures | The calibration and matching functions respect the quadrature scheme (3.3) |
+| `matchNumbers()` no longer says it moved the model off its steady state, or no longer updates `time_modified` | it now returns early when it has nothing to match | The calibration and matching functions respect the quadrature scheme (3.3) |
+| `getReproductionLevel()` changed after a `matchNumbers()` call that matched nothing | that call no longer re-tunes the reproduction parameters | The calibration and matching functions respect the quadrature scheme (3.3) |
 | Setting a weight on a length-based model no longer gets undone | length/weight precedence: the one given last wins | Length and weight follow the one you gave last (3.3) |
 | `given_species_params<-()` now changes a weight when you change its length | both setters apply the same precedence rule | Length and weight follow the one you gave last (3.3) |
 | Repeated "`l_mat` is not consistent with `w_mat`" warning has stopped | the given species parameters are brought into line | Length and weight follow the one you gave last (3.3) |
@@ -393,6 +400,37 @@ straddling `min_w` or `max_w` contributes only partially — as `getBiomass()`
 already did. Numbers over a restricted size range therefore change slightly
 under `second_order_w`; over the full size range, and on the default
 first-order scheme, nothing changes (#494).
+
+### The calibration and matching functions respect the quadrature scheme
+
+`calibrateBiomass()`, `calibrateNumber()`, `matchNumbers()`,
+`plotBiomassObservedVsModel()` and `plotYieldObservedVsModel()` each wrote out
+their own sum over the size grid rather than using mizer's size integral, so
+they stayed on the first-order quadrature and cut the size range at a bin
+boundary even in a model with second-order bin-averaging switched on with
+`second_order_w()`. In such a model the calibration functions left the
+abundances at values that disagreed with the `getBiomass()` or `getN()` you
+would check them against, and a species matched to its observed biomass was
+then plotted off the 1:1 line. All five now integrate the same way
+`getBiomass()`, `getN()` and `getYield()` do, so a matched species really does
+come out at its observation. On the default first-order scheme nothing changes
+(#504, #529).
+
+`plotYieldObservedVsModel()` is the one where the size of the error matters.
+Its model yields were 10-20% below `getYield()` for a model on the
+second-order scheme, and the total relative error in the plot caption is
+computed from them, so it told you the model under-predicted the yields when it
+did not. If you have read a yield calibration off that plot under
+`second_order_w()`, re-read it.
+
+`matchNumbers()` also gains the empty-selection guard that `matchBiomasses()`
+already had. Its own guard could never fire, so when it had nothing to match —
+no `number_observed` values, or none for the species you asked for — it left the
+abundances alone but still called `setBevertonHolt()`, updated `time_modified`
+and announced that it had moved the model off its steady state. It now returns
+the model unchanged, as `matchBiomasses()` always did. Code that relied on the
+incidental re-tuning of the reproduction parameters should call
+`setBevertonHolt()` itself.
 
 ### `w_min` survives a rebuild of the species parameters
 

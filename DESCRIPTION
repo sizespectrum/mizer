@@ -122,6 +122,7 @@ Collate:
     'compareParams.R'
     'customFunction.R'
     'manipulate_species.R'
+    'observations.R'
     'calibrate.R'
     'scaleRates.R'
     'match.R'

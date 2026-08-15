@@ -36,31 +36,8 @@ calibrateBiomass <- function(params, ...)
 
 #' @export
 calibrateBiomass.MizerParams <- function(params, ...) {
-    if ((!("biomass_observed" %in% names(params@species_params))) ||
-        all(is.na(params@species_params$biomass_observed))) {
-        return(params)
-    }
-    no_sp <- nrow(params@species_params)
-    cutoff <- params@species_params$biomass_cutoff
-    # When no cutoff known, set it to 0
-    if (is.null(cutoff)) cutoff <- rep(0, no_sp)
-    cutoff[is.na(cutoff)] <- 0
-    observed <- params@species_params$biomass_observed
-    observed_total <- sum(observed, na.rm = TRUE)
-    sp_observed <- which(!is.na(observed))
-    model_total <- 0
-    for (sp_idx in sp_observed) {
-        model_total <- 
-            model_total + 
-            sum((params@initial_n[sp_idx, ] * params@w * params@dw)
-                [params@w >= cutoff[[sp_idx]]])
-    }
-    scaleModel(params, factor = observed_total / model_total)
+    calibrate_to(params, to = "biomass")
 }
-
-# The following is a copy of the code for `calibrateBiomass()` just with
-# the text replacements "Biomass" -> "Number" and "biomass" to "number" and
-# the removal of the `params@w` factor in the calculations.
 
 #' Calibrate the model scale to match total observed number
 #'
@@ -99,26 +76,33 @@ calibrateNumber <- function(params, ...)
 
 #' @export
 calibrateNumber.MizerParams <- function(params, ...) {
-    if ((!("number_observed" %in% names(params@species_params))) ||
-        all(is.na(params@species_params$number_observed))) {
+    calibrate_to(params, to = "number")
+}
+
+#' Calibrate the model scale to match a total observation
+#'
+#' Internal implementation shared by [calibrateBiomass()] and
+#' [calibrateNumber()]. Rescales the model with [scaleModel()] so that the
+#' total over all observed species of the modelled quantity agrees with the
+#' total of the observations. Species with no observation are left out of both
+#' totals.
+#'
+#' @param params A MizerParams object.
+#' @param to The type of observation, either "biomass" or "number".
+#' @return A MizerParams object. If no non-missing observations are provided,
+#'   the original object is returned unchanged.
+#' @concept helper
+#' @keywords internal
+calibrate_to <- function(params, to = c("biomass", "number")) {
+    cols <- observation_columns(to)
+    observed <- params@species_params[[cols$observed]]
+    if (is.null(observed) || all(is.na(observed))) {
         return(params)
     }
-    no_sp <- nrow(params@species_params)
-    cutoff <- params@species_params$number_cutoff
-    # When no cutoff known, set it to 0
-    if (is.null(cutoff)) cutoff <- rep(0, no_sp)
-    cutoff[is.na(cutoff)] <- 0
-    observed <- params@species_params$number_observed
-    observed_total <- sum(observed, na.rm = TRUE)
-    sp_observed <- which(!is.na(observed))
-    model_total <- 0
-    for (sp_idx in sp_observed) {
-        model_total <-
-            model_total +
-            sum((params@initial_n[sp_idx, ] * params@dw)
-                [params@w >= cutoff[[sp_idx]]])
-    }
-    scaleModel(params, factor = observed_total / model_total)
+    observed_sel <- !is.na(observed)
+    model <- model_observation(params, cols$to)
+    scaleModel(params, factor = sum(observed[observed_sel]) /
+                   sum(model[observed_sel]))
 }
 
 #' Change scale of the model
