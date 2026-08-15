@@ -396,6 +396,16 @@ stability of steady states.
   scripts and `given_species_params<-()` interactively, where the diagnostics
   are worth having (#496).
 
+- Those three diagnostics now agree about what counts as a change. Clearing a
+  given species parameter to `NA` is one: it hands the parameter back to
+  mizer's calculation, and if the rate array that calculation feeds has been
+  frozen, that instruction cannot be carried out and you are now told so.
+  Adding a column that holds only `NA` is not a change, and no longer draws a
+  warning that nothing else agreed with. Previously each of the three
+  diagnostics answered the question differently, so an all-`NA` new column
+  warned about a frozen array while clearing a value that was actually given
+  was reported by none of them (#524).
+
 - `species_params<-()` no longer records a default that mizer filled in as a
   given species parameter. A parameter that the model does not yet carry and
   that `validSpeciesParams()` supplies a default for — most commonly the

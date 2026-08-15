@@ -47,6 +47,8 @@ plots) are in the changelog and are not repeated here.
 | `plotCDF(per_log_size = TRUE)` errors | meaningless for a cumulative distribution | `biomass` and `per_log_size` replace `power` (3.3) |
 | New warning that a change to a species or resource parameter "has not taken effect" | the rate it feeds was set by hand and is no longer calculated | A change that cannot take effect now warns (3.3) |
 | That warning appears with `given_species_params<-()` but not with `species_params<-()` | the diagnostics belong to the given species parameter setter | The two species parameter setters divide the diagnostics between them (3.3) |
+| Setting a given species parameter to `NA` now warns that the change has not taken effect | clearing a value counts as a change, and a frozen array blocks it | The two species parameter setters divide the diagnostics between them (3.3) |
+| Adding an all-`NA` species parameter column used to warn and no longer does | nothing acquires a value, so it is not a change | The two species parameter setters divide the diagnostics between them (3.3) |
 | `given_species_params()` no longer lists `a` and `b`, or another default, after an unrelated `species_params<-()` call | a filled-in default was mistaken for user input and frozen as given | `species_params<-()` no longer freezes the defaults it fills in (3.3) |
 | A species parameter that used to keep its value now moves when you change another one | it was silently recorded as given and is now calculated again | `species_params<-()` no longer freezes the defaults it fills in (3.3) |
 | A message that used to appear no longer does, with `info_level = 0` | `info_level = 0` now silences everything | One report, one switch (3.3) |
@@ -259,6 +261,29 @@ diagnostics, and they all sit on the same side of the line:
 | `f0`, `fc`, `age_mat` | you have already given `gamma`, `ks`, `h` |
 | any parameter feeding a rate array you set by hand | the array is frozen |
 | `catchability`, `selectivity`, `l50`, `l25`, `sel_func`, `yield_observed` | these belong in `gear_params()` |
+
+All three ask the same question about what changed, and setting a value to `NA`
+is part of the answer:
+
+```r
+params <- NS_params
+search_vol(params) <- search_vol(params)   # freeze the search volume
+
+given_species_params(params)$gamma <- NA   # hand `gamma` back to mizer
+#> Warning: Your change to the species parameter `gamma` has not taken effect
+#> because the search volume has been set manually …
+
+given_species_params(params)$z0 <- NA      # a column that was not given
+                                           # anyway: nothing changes, no warning
+```
+
+Clearing a parameter that *was* given is a change, because it asks mizer to go
+back to calculating it, and that instruction is blocked by a frozen array just
+as a new value would be. Adding a column that holds only `NA` is not a change:
+nothing acquires a value. The one thing none of the three reports is a value
+handed back to mizer being overruled by another given parameter — only a value
+that is there can be overruled, so setting `f0` to `NA` on a model that gives
+`gamma` stays silent.
 
 **How this affects existing code:** nothing, which is the point — a script that
 ran clean on 3.2 using `species_params<-()` still runs clean. Use

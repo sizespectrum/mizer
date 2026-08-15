@@ -385,9 +385,15 @@ overridden_species_params <- function() {
 #' no effect. This raises a warning about that. It is one of the diagnostics
 #' that only [given_species_params<-()] gives, see there.
 #'
+#' Only a value that is there can be ignored, so this is asked about the
+#' species that were *given* a value, not about every species whose value
+#' changed: clearing a value to `NA` is a change, but not one this has anything
+#' to say about.
+#'
 #' @param given The given species parameters, as they are before the change.
 #' @param changed A named list with one logical vector per changed column,
-#'   saying which species changed, as built by [given_species_params<-()].
+#'   saying which species were given a value, as built by
+#'   [given_species_params<-()].
 #'
 #' @return `NULL` invisibly. Called for its side effect of signalling.
 #' @concept helper
