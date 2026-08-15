@@ -11,7 +11,9 @@
   log_y = TRUE,
   log = NULL,
   wlim = c(NA, NA),
+  llim = c(NA, NA),
   ylim = c(NA, NA),
+  size_axis = c("w", "l"),
   per_log_size = NULL,
   y_ticks = 6,
   ...
@@ -36,9 +38,16 @@ scales, in the same form as the base \code{\link[=plot]{plot()}} argument. For e
 limits for the weight (x) axis. Use \code{NA} to refer to the existing
 minimum or maximum.}
 
+\item{llim}{A numeric vector of length two providing lower and upper limits
+for the length (x) axis when \code{size_axis = "l"}. Use \code{NA} to refer to the
+existing minimum or maximum.}
+
 \item{ylim}{A numeric vector of length two providing lower and upper
 limits for the value (y) axis. Use \code{NA} to refer to the existing
 minimum or maximum.}
+
+\item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
+(\code{"l"}), using the weight-length relationship in \code{\link[=resource_params]{resource_params()}}.}
 
 \item{per_log_size}{For an array that holds a density, whether to plot it
 per logarithmic size (\code{TRUE}) rather than per size (\code{FALSE}). The default,

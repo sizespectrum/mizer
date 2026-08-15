@@ -207,6 +207,13 @@ setResource.MizerParams <- function(params,
     params@resource_params[["lambda"]] <- lambda
     params@resource_params[["n"]] <- n
     params@resource_params[["w_pp_cutoff"]] <- w_pp_cutoff
+    # The weight-length parameters feed no rate, so they are not arguments
+    # here; they are filled in so that `resource_params()` shows them and the
+    # user can change them there.
+    params@resource_params[["a"]] <-
+        params@resource_params[["a"]] %||% resource_length_defaults$a
+    params@resource_params[["b"]] <-
+        params@resource_params[["b"]] %||% resource_length_defaults$b
 
     if (!is.null(resource_capacity) && !is.null(resource_level)) {
         stop("You should specify only either 'resource_level' or 'resource_capacity'.")
@@ -555,6 +562,45 @@ resource_dynamics <- function(params) {
 #' resource_dynamics(params) <- "resource_constant"
 `resource_dynamics<-` <- function(params, balance = NULL, value) {
     setResource(params, resource_dynamics = value, balance = balance)
+}
+
+#' Default weight-length parameters for the resource
+#'
+#' The resource is a composite of everything from bacteria to
+#' macrozooplankton, so it has no taxonomic length-weight relationship. The
+#' default is the geometric one that plankton ecology uses instead: the
+#' **equivalent spherical diameter** of an organism with the density of water,
+#' \deqn{w = \frac{\pi}{6} l^3,}
+#' with \eqn{w} in grams and \eqn{l} in centimetres. On a mizer size grid this
+#' puts the smallest resource sizes at a fraction of a micrometre and a
+#' milligram organism at about a millimetre, which is the right order for
+#' bacteria and copepods respectively.
+#'
+#' Note that this is a different convention from the one the species use: a fish
+#' of a given weight is longer than a sphere of the same weight, by a factor
+#' \eqn{(a_{fish}/a_{resource})^{-1/3}}, about 3.7 for the mizer default
+#' `a = 0.01`. That difference is real rather than an artefact — a 1 mg copepod
+#' really is shorter than a 1 mg fish larva — but it does mean the resource and
+#' the species sit on the plot at their own conventions.
+#'
+#' @format A list with entries `a` and `b`.
+#' @seealso [resource_params()]
+#' @keywords internal
+resource_length_defaults <- list(a = pi / 6, b = 3)
+
+#' The weight-length parameters of the resource
+#'
+#' Reads `a` and `b` from [resource_params()], falling back to
+#' [resource_length_defaults] for a model that does not set them — which is
+#' every model built before these parameters existed.
+#'
+#' @param params A MizerParams object.
+#' @return A list with entries `a` and `b`.
+#' @keywords internal
+resource_length_params <- function(params) {
+    rp <- params@resource_params
+    list(a = rp[["a"]] %||% resource_length_defaults$a,
+         b = rp[["b"]] %||% resource_length_defaults$b)
 }
 
 # The resource capacity that the scalar resource parameters imply, or NULL if

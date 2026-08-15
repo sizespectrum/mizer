@@ -354,9 +354,13 @@ plotSpectra(sim, species = c("Cod", "Herring"), resource = FALSE)
 plotSpectra(sim, biomass = TRUE, size_axis = "l")     # biomass density against length
 ```
 
-**The resource is dropped from a length axis.** The resource spectrum has no
-  length-weight relationship, so `plotSpectra(params, size_axis = "l")` shows the
-  species only. Use `size_axis = "w"` to see the resource.
+**The resource has its own length convention.** It is a composite of many taxa,
+so instead of a taxonomic weight-length relationship it uses the equivalent
+spherical diameter of an organism with the density of water (`a = pi/6`,
+`b = 3`, in `resource_params()`). It therefore appears on a length axis, but
+measured differently from the fish: a fish of a given weight is about 3.7 times
+longer than a sphere of that weight. That gap at the resource-consumer boundary
+is real biology, not an artefact.
 
 ### Which density a spectrum plot shows
 

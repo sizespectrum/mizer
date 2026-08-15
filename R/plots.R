@@ -726,10 +726,43 @@ array_log_y <- function(x, log_y, log, given) {
     log_y
 }
 
+#' The weight-length parameters to plot each row of plotting data with
+#'
+#' A length axis needs an allometric weight-length relationship for every line
+#' on the plot. The species take theirs from their species parameters and the
+#' resource takes its from [resource_params()], where it defaults to the
+#' equivalent spherical diameter (see [resource_length_params()]). Anything else
+#' — the "Total" row, for instance — has none, and is reported as `NA` so that
+#' the caller can leave it out.
+#'
+#' @param species A vector of the species names in the plotting data.
+#' @param params A MizerParams object providing the weight-length parameters.
+#' @return A data frame with columns `a` and `b`, one row for each element of
+#'   `species`, holding `NA` where no relationship is known.
+#' @keywords internal
+plot_length_params <- function(species, params) {
+    sp <- params@species_params
+    if (!all(c("a", "b") %in% names(sp))) {
+        stop("The species parameter data frame must contain columns ",
+             "'a' and 'b'.")
+    }
+    species <- as.character(species)
+    idx <- match(species, as.character(sp$species))
+    out <- data.frame(a = sp[["a"]][idx], b = sp[["b"]][idx])
+    is_resource <- species == "Resource"
+    if (any(is_resource)) {
+        rp <- resource_length_params(params)
+        out$a[is_resource] <- rp$a
+        out$b[is_resource] <- rp$b
+    }
+    out
+}
+
 #' Convert plotting data from weight to length
 #'
 #' When `size_axis = "l"`, adds a length column `l` computed from the weight
-#' column `w` using each species' weight-length relationship. For
+#' column `w` using the weight-length relationship of each line, see
+#' [plot_length_params()]. Rows with no such relationship are dropped. For
 #' `size_axis = "w"` the data is returned unchanged.
 #'
 #' @param plot_dat A data frame of plotting data with a `w` column and a species
@@ -761,10 +794,10 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
              "` column.")
     }
 
-    species <- as.character(plot_dat[[species_col]])
-    species_idx <- match(species, as.character(params@species_params$species))
-    plot_dat <- plot_dat[!is.na(species_idx), , drop = FALSE]
-    species_idx <- species_idx[!is.na(species_idx)]
+    ab <- plot_length_params(plot_dat[[species_col]], params)
+    known <- !is.na(ab$a) & !is.na(ab$b)
+    plot_dat <- plot_dat[known, , drop = FALSE]
+    ab <- ab[known, , drop = FALSE]
     if (nrow(plot_dat) == 0) {
         if (!drop_w) {
             plot_dat$l <- numeric(0)
@@ -774,8 +807,7 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
         }
         return(plot_dat[, setdiff(names(plot_dat), "w"), drop = FALSE])
     }
-    sp <- params@species_params[species_idx, , drop = FALSE]
-    plot_dat$l <- w2l(plot_dat$w, sp)
+    plot_dat$l <- (plot_dat$w / ab$a)^(1 / ab$b)
     if (drop_w) {
         return(plot_dat[, c("l", setdiff(names(plot_dat), c("l", "w"))),
                         drop = FALSE])
@@ -983,10 +1015,8 @@ convert_plot_density_axis <- function(plot_dat, params, size_axis,
     }
     if (needs_jacobian && nrow(plot_dat) > 0) {
         if (needs_length) {
-            species_idx <- match(as.character(plot_dat[[species_col]]),
-                                 as.character(params@species_params$species))
             l <- plot_dat$l
-            b <- params@species_params$b[species_idx]
+            b <- plot_length_params(plot_dat[[species_col]], params)$b
         } else {
             # Unused by a Jacobian between two weight-based measures. Passing
             # NA rather than a placeholder keeps a mistake here loud.

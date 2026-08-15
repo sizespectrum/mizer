@@ -473,9 +473,8 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
 #'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
 #'       refer to the existing minimum or maximum.}
 #'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
-#'       length (`"l"`), using the allometric weight-length relationship. Not
-#'       available for the resource classes, because the weight-length
-#'       relationship is a species parameter.}
+#'       length (`"l"`), using the allometric weight-length relationship of
+#'       each species, or of the resource, see [resource_params()].}
 #'     \item{`per_log_size`}{For an array that holds a density, whether to plot
 #'       it per logarithmic size (`TRUE`) rather than per size (`FALSE`). The
 #'       default, `NULL`, plots the density as it stands. Unlike `size_axis`
@@ -605,9 +604,8 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
 #'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
 #'       refer to the existing minimum or maximum.}
 #'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
-#'       length (`"l"`), using the allometric weight-length relationship. Not
-#'       available for the resource classes, because the weight-length
-#'       relationship is a species parameter.}
+#'       length (`"l"`), using the allometric weight-length relationship of
+#'       each species, or of the resource, see [resource_params()].}
 #'   }
 #'
 #'   **For `ArrayTimeBySpecies` methods:**
@@ -895,9 +893,8 @@ check_per_log_size <- function(x, per_log_size) {
 #'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
 #'       refer to the existing minimum or maximum.}
 #'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
-#'       length (`"l"`), using the allometric weight-length relationship. Not
-#'       available for the resource classes, because the weight-length
-#'       relationship is a species parameter.}
+#'       length (`"l"`), using the allometric weight-length relationship of
+#'       each species, or of the resource, see [resource_params()].}
 #'     \item{`per_log_size`}{For an array that holds a density, whether to plot
 #'       it per logarithmic size (`TRUE`) rather than per size (`FALSE`). The
 #'       default, `NULL`, plots the density as it stands. Unlike `size_axis`

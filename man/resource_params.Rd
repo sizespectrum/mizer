@@ -48,6 +48,17 @@ created: \deqn{N_R(w) = \kappa\, w^{-\lambda}.}{N_R(w) = \kappa w^{-\lambda}.}
 Unlike the carrying capacity, however, the initial resource abundance is
 \strong{not} updated when you subsequently change \code{kappa} (or call \code{\link[=setResource]{setResource()}}).
 
+The resource parameters \code{a} and \code{b} give the allometric weight-length
+relationship \eqn{w = a l^b} of the resource, with \eqn{w} in grams and
+\eqn{l} in centimetres. They feed none of the rates; they exist so that the
+resource can be shown on the length-based plots (\code{size_axis = "l"}) alongside
+the species. They default to the equivalent spherical diameter of an organism
+with the density of water, \eqn{a = \pi/6} and \eqn{b = 3}, which is the
+convention plankton ecology uses for a composite of many taxa. This is a
+different convention from the one the species use, so the resource and the
+species each sit on the length axis at their own; see
+\link{resource_length_defaults}.
+
 Assigning to \code{resource_params} only rebuilds the size-dependent resource rate
 and capacity arrays from these scalars (leaving any arrays you have set
 manually untouched). Changing \code{lambda} also recalculates any \code{q} and \code{gamma}

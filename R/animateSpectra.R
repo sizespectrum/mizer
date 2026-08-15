@@ -24,8 +24,7 @@
 #' * **`ArrayTimeByResourceBySize`** — animates the size-resolved resource
 #'   quantity returned by [NResource()] on a `MizerSim` object. There is only a
 #'   single resource spectrum, so `species`, `total` and `background` do nothing
-#'   and warn if set, and `size_axis = "l"` is an error because the
-#'   weight-length relationship is a species parameter.
+#'   and warn if set.
 #'
 #' Species linecolours and linetypes follow `params@linecolour` and
 #' `params@linetype`.
@@ -52,9 +51,9 @@
 #'   it too. An error for an array that does not hold a density. The `MizerSim`
 #'   method has its own `per_log_size`, described below.
 #' @param size_axis Whether to plot size as weight (`"w"`, default) or length
-#'   (`"l"`), using the allometric weight-length relationship. Number and
-#'   biomass densities are transformed to match the chosen axis. The
-#'   `ArrayTimeByResourceBySize` method supports only `"w"`.
+#'   (`"l"`), using the allometric weight-length relationship of each species,
+#'   or of the resource, see [resource_params()]. Number and biomass densities
+#'   are transformed to match the chosen axis.
 #' @param total A boolean value that determines whether the total over all
 #'   selected species is plotted as an additional trace called `"Total"`.
 #'   Default is `FALSE`. Not used by the `ArrayTimeByResourceBySize` method,

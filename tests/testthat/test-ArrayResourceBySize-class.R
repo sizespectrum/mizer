@@ -223,8 +223,9 @@ test_that("animate dispatches on ArrayTimeByResourceBySize", {
     expect_length(frames(animate(n_resource_small,
                                  tlim = c(times[2], times[3]))), 2)
 
-    expect_error(animate(n_resource_small, size_axis = "l"),
-                 "length axis is not available")
+    # A length axis is now available, using the resource weight-length
+    # parameters rather than a species'
+    expect_s3_class(animate(n_resource_small, size_axis = "l"), "plotly")
 })
 
 test_that("plot() can express a resource density per logarithmic size", {
@@ -245,4 +246,49 @@ test_that("plot() can express a resource density per logarithmic size", {
     # A length axis is still refused, and so is per_log_size on a non-density
     expect_error(plot(resource_level(NS_params_small), per_log_size = TRUE),
                  "only applies to an array that holds a density")
+})
+
+test_that("the resource can be plotted against length", {
+    params <- setResource(NS_params_small)
+    resource <- initialNResource(params)
+    rp <- resource_params(params)
+
+    by_weight <- plot(resource, return_data = TRUE)
+    by_length <- plot(resource, size_axis = "l", return_data = TRUE)
+    expect_identical(names(by_length)[[1]], "l")
+    expect_equal(by_length$l, (by_weight$w / rp$a)^(1 / rp$b))
+
+    # It is a density, so the values are converted as well as the axis
+    expect_equal(by_length[[2]],
+                 by_weight[[2]] * rp$b * by_weight$w / by_length$l)
+    p <- plot(resource, size_axis = "l")
+    expect_identical(p$scales$get_scales("x")$name, "Length [cm]")
+    expect_identical(p$scales$get_scales("y")$name, "Number density [1/cm]")
+
+    # llim trims the length axis
+    expect_lt(nrow(plot(resource, size_axis = "l", llim = c(0.1, 1),
+                        return_data = TRUE)),
+              nrow(by_length))
+
+    # A quantity that is not a density keeps its values
+    mort_w <- plot(getResourceMort(params), return_data = TRUE)
+    mort_l <- plot(getResourceMort(params), size_axis = "l",
+                   return_data = TRUE)
+    expect_equal(mort_l[[2]], mort_w[[2]])
+
+    # and animate() no longer refuses a length axis
+    expect_s3_class(animate(NResource(NS_sim_small), size_axis = "l"), "plotly")
+})
+
+test_that("the resource joins the species on a length-axis spectrum", {
+    params <- setResource(NS_params_small)
+    on_l <- plotSpectra(params, size_axis = "l", return_data = TRUE)
+    expect_true("Resource" %in% on_l$Legend)
+    # The resource sits at its own convention, shorter than a fish of the same
+    # weight by the ratio of the two `a` values
+    on_w <- plotSpectra(params, return_data = TRUE)
+    res_w <- on_w[on_w$Legend == "Resource", ]
+    res_l <- on_l[on_l$Legend == "Resource", ]
+    rp <- resource_params(params)
+    expect_equal(res_l$l, (res_w$w / rp$a)^(1 / rp$b))
 })

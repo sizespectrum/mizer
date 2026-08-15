@@ -65,9 +65,9 @@ for the animated time window, e.g. \code{c(1997, 2007)}. Use \code{NA} to apply 
 limit at that end. Default is \code{c(NA, NA)}.}
 
 \item{size_axis}{Whether to plot size as weight (\code{"w"}, default) or length
-(\code{"l"}), using the allometric weight-length relationship. Number and
-biomass densities are transformed to match the chosen axis. The
-\code{ArrayTimeByResourceBySize} method supports only \code{"w"}.}
+(\code{"l"}), using the allometric weight-length relationship of each species,
+or of the resource, see \code{\link[=resource_params]{resource_params()}}. Number and biomass densities
+are transformed to match the chosen axis.}
 
 \item{per_log_size}{For an array that holds a density, whether to animate it
 per logarithmic size (\code{TRUE}) rather than per size (\code{FALSE}). The default,
@@ -147,8 +147,7 @@ and \code{total} arguments.
 \item \strong{\code{ArrayTimeByResourceBySize}} — animates the size-resolved resource
 quantity returned by \code{\link[=NResource]{NResource()}} on a \code{MizerSim} object. There is only a
 single resource spectrum, so \code{species}, \code{total} and \code{background} do nothing
-and warn if set, and \code{size_axis = "l"} is an error because the
-weight-length relationship is a species parameter.
+and warn if set.
 }
 
 Species linecolours and linetypes follow \code{params@linecolour} and

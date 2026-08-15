@@ -146,6 +146,19 @@ stability of steady states.
   that does not hold a density is now an error; it used to be swallowed silently
   by `...`.
 
+- The resource can now be shown on length-based plots. `resource_params()`
+  gains the weight-length parameters `a` and `b`, defaulting to the equivalent
+  spherical diameter of an organism with the density of water, `a = pi/6` and
+  `b = 3`, which is the convention plankton ecology uses for a composite of many
+  taxa. `plotSpectra(params, size_axis = "l")` therefore includes the resource
+  spectrum, where it used to drop it silently, and the resource array plots and
+  `animate()` gain `size_axis` and `llim`. The parameters feed none of the
+  rates. Note that the resource then sits on the length axis at its own
+  convention: a fish of a given weight is about 3.7 times longer than a sphere
+  of that weight. That difference is real rather than an artefact — a 1 mg
+  copepod really is shorter than a 1 mg fish larva — but it does mean the
+  resource and the species are measured differently.
+
 - `plotYieldObservedVsModel()` gains a `gear` argument that restricts the
   comparison to the catch of the selected gears. Both the model yield and the
   observed yield are then taken from those gears only, so in a model where

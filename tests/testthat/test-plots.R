@@ -508,10 +508,14 @@ test_that("size-based plots support length axes", {
     expect_true(all(spectra_l_limited$l >= llim[1]))
     expect_true(all(spectra_l_limited$l <= llim[2]))
 
-    spectra_hidden <- plotSpectra(params_len, species = species,
-                                  resource = TRUE, total = TRUE,
-                                  size_axis = "l", return_data = TRUE)
-    expect_false(any(spectra_hidden$Legend %in% c("Resource", "Total")))
+    # The resource has its own weight-length relationship and so appears on a
+    # length axis; the total still does not, because it is a sum over lines
+    # that each have their own.
+    spectra_all <- plotSpectra(params_len, species = species,
+                               resource = TRUE, total = TRUE,
+                               size_axis = "l", return_data = TRUE)
+    expect_true("Resource" %in% spectra_all$Legend)
+    expect_false("Total" %in% spectra_all$Legend)
 
     p <- plotSpectra(params_len, species = species, resource = FALSE,
                      size_axis = "l")
