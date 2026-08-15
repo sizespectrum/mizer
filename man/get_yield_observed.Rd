@@ -4,28 +4,36 @@
 \alias{get_yield_observed}
 \title{Observed yield of each species}
 \usage{
-get_yield_observed(params)
+get_yield_observed(params, gear = NULL)
 }
 \arguments{
 \item{params}{A MizerParams object}
+
+\item{gear}{The gears whose observations are to be added up. Optional. By
+default all gears are included. A vector of gear names.}
 }
 \value{
 A numeric vector with one entry for each species, named by species,
 holding the observed yield in grams per year, or \code{NA} for species without
-an observation. \code{NULL} if neither the gear parameters nor the species
-parameters have a \code{yield_observed} column.
+an observation. \code{NULL} if the observations are not available: if neither
+the gear parameters nor the species parameters have a \code{yield_observed}
+column, or, when \code{gear} is given, if the gear parameters have no such
+column.
 }
 \description{
 The observed yield lives in the \code{yield_observed} column of the gear
 parameter data frame, see \code{\link[=gear_params]{gear_params()}}, where it is given for each
 gear-species pair. This function adds the observations up over the gears to
-give the total observed yield of each species.
+give the total observed yield of each species. With the \code{gear} argument you
+can restrict the sum to a subset of the gears.
 }
 \details{
 Older models, and the examples in older versions of mizer, put
 \code{yield_observed} into the species parameter data frame instead. That is
 still accepted: a species that has no observation among the gear parameters
 takes its value from the species parameters. Where both tables give a value
-for a species, the gear parameters win.
+for a species, the gear parameters win. The species parameter observation is
+a total over all gears, so it is ignored when \code{gear} selects only some of
+the gears.
 }
 \concept{helper}

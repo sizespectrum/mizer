@@ -17,6 +17,13 @@
 #' observed yield, you should set the value in the `yield_observed` column to
 #' 0 or NA.
 #'
+#' If a species is caught by several gears, both the model yield and the
+#' observed yield are summed over the gears. With the `gear` argument you can
+#' restrict the comparison to a subset of the gears, in which case only the
+#' catch of those gears enters on both axes. Because the species parameter
+#' data frame only holds the yield summed over all gears, the observations
+#' then have to come from the gear parameters.
+#'
 #' The total relative error is shown in the caption of the plot, calculated by
 #'   \deqn{TRE = \sum_i|1-\rm{ratio_i}|}{TRE = sum_i |1-ratio_i|} where
 #'   \eqn{\rm{ratio_i}}{ratio_i} is the ratio of model yield / observed
@@ -36,8 +43,11 @@
 #' @param labels Whether to show text labels for each species (TRUE) or not
 #'   (FALSE). Default is TRUE.
 #' @param show_unobserved Whether to include also species for which no
-#'   yield observation is available. If TRUE, these species will be 
+#'   yield observation is available. If TRUE, these species will be
 #'   shown as if their observed yield was equal to the model yield.
+#' @param gear The gears to be included. Optional. By default the catch of all
+#'   gears is included. A vector of gear names. Only species caught by the
+#'   selected gears are shown.
 #' @param return_data Whether to return the data frame for the plot (TRUE) or
 #'   not (FALSE). Default is FALSE.
 #' @param ... For [plotlyYieldObservedVsModel()], additional arguments passed
@@ -66,41 +76,72 @@
 #'
 #' # Show the ratio instead
 #' plotYieldObservedVsModel(params, ratio = TRUE)
+#'
+#' # If several gears catch the same species, their yields are added up.
+#' # Give Cod a second gear that takes a quarter of the observed yield.
+#' gp <- gear_params(params)
+#' gp["Cod, Otter", "yield_observed"] <- 3e11 * 0.75
+#' extra <- gp["Cod, Otter", ]
+#' extra$gear <- "Gillnet"
+#' extra$yield_observed <- 3e11 * 0.25
+#' gear_params(params) <- rbind(gp, extra)
+#'
+#' # Compare only the catch of the Otter gear against its observation
+#' plotYieldObservedVsModel(params, gear = "Otter")
 plotYieldObservedVsModel <- function(object, species = NULL, ratio = FALSE,
-                                     log_scale = TRUE, return_data = FALSE, 
-                                     labels = TRUE, show_unobserved = FALSE, ...) {
+                                     log_scale = TRUE, return_data = FALSE,
+                                     labels = TRUE, show_unobserved = FALSE,
+                                     gear = NULL, ...) {
     UseMethod("plotYieldObservedVsModel")
 }
 #' @export
 plotYieldObservedVsModel.MizerParams <- function(object, species = NULL, ratio = FALSE,
-                                     log_scale = TRUE, return_data = FALSE, 
-                                     labels = TRUE, show_unobserved = FALSE, ...) {
-    
+                                     log_scale = TRUE, return_data = FALSE,
+                                     labels = TRUE, show_unobserved = FALSE,
+                                     gear = NULL, ...) {
+
     params <- object
     sp_params <- params@species_params
-    
-    yield_model <- getYield(params)
+
+    if (is.null(gear)) {
+        yield_model <- getYield(params)
+    } else {
+        gear <- valid_gears_arg(params, gear, error_on_empty = TRUE)
+        yield_gear <- getYieldGear(params)  # gear x species
+        yield_model <- colSums(yield_gear[gear, , drop = FALSE])
+    }
 
     # Select appropriate species
     species <- valid_species_arg(object, species)
     no_yield <- yield_model[species] == 0
     if (any(no_yield)) {
+        reason <- if (is.null(gear)) {
+            "are not being fished in your model"
+        } else {
+            paste0("are not being caught by the selected ",
+                   ngettext(length(gear), "gear", "gears"))
+        }
         signal_info("yield_model", paste0(
-            "The following species are not being fished in your model and ",
+            "The following species ", reason, " and ",
             "will not be included in the plot: ",
             paste0(species[no_yield], collapse = ", "), "."),
             level = 1, unhandled = "show")
         species <- species[!no_yield]
     }
     if (length(species) == 0) stop("No species selected, please fix.")
-    
+
     # find rows corresponding to species selected
     row_select <- match(species, sp_params$species)
-    yield_observed <- get_yield_observed(params)
+    yield_observed <- get_yield_observed(params, gear = gear)
     if (is.null(yield_observed)) {
+        if (is.null(gear)) {
+            stop("You have not provided values for the column ",
+                 "'yield_observed' in either the gear parameters or the ",
+                 "species parameters of the mizerParams/mizerSim object.")
+        }
         stop("You have not provided values for the column 'yield_observed' ",
-             "in either the gear parameters or the species parameters of the ",
-             "mizerParams/mizerSim object.")
+             "in the gear parameters of the mizerParams/mizerSim object. ",
+             "Observations for individual gears have to be given there.")
     }
 
     # Build dataframe
@@ -129,6 +170,12 @@ plotYieldObservedVsModel.MizerParams <- function(object, species = NULL, ratio =
     tre <- round(sum(abs(1 - dummy$ratio)), digits = 3)
     
     caption <- paste0("Total relative error = ", tre)
+    if (!is.null(gear)) {
+        caption <- paste(caption,
+                         paste0("\n Only the catch by the following ",
+                                ngettext(length(gear), "gear", "gears"),
+                                " is included: ", toString(gear), "."))
+    }
     if (any(!dummy$is_observed)) {
         caption <- paste(caption,
                          "\n Open circles represent species without yield observation.")
@@ -179,12 +226,14 @@ plotYieldObservedVsModel.MizerParams <- function(object, species = NULL, ratio =
 }
 #' @export
 plotYieldObservedVsModel.MizerSim <- function(object, species = NULL, ratio = FALSE,
-                                     log_scale = TRUE, return_data = FALSE, 
-                                     labels = TRUE, show_unobserved = FALSE, ...) {
+                                     log_scale = TRUE, return_data = FALSE,
+                                     labels = TRUE, show_unobserved = FALSE,
+                                     gear = NULL, ...) {
     params <- finalParams(object)
     plotYieldObservedVsModel(params, species = species, ratio = ratio,
                              log_scale = log_scale, return_data = return_data,
-                             labels = labels, show_unobserved = show_unobserved)
+                             labels = labels, show_unobserved = show_unobserved,
+                             gear = gear)
 }
 
 
@@ -193,7 +242,8 @@ plotYieldObservedVsModel.MizerSim <- function(object, species = NULL, ratio = FA
 #' @export
 plotlyYieldObservedVsModel <- function(object, species = NULL, ratio = FALSE,
                                          log_scale = TRUE,
-                                         show_unobserved = FALSE, ...) {
+                                         show_unobserved = FALSE,
+                                         gear = NULL, ...) {
     argg <- as.list(environment())
     argg$labels <- FALSE
     plotHover(do.call("plotYieldObservedVsModel", argg), ...)
@@ -205,26 +255,40 @@ plotlyYieldObservedVsModel <- function(object, species = NULL, ratio = FALSE,
 #' The observed yield lives in the `yield_observed` column of the gear
 #' parameter data frame, see [gear_params()], where it is given for each
 #' gear-species pair. This function adds the observations up over the gears to
-#' give the total observed yield of each species.
+#' give the total observed yield of each species. With the `gear` argument you
+#' can restrict the sum to a subset of the gears.
 #'
 #' Older models, and the examples in older versions of mizer, put
 #' `yield_observed` into the species parameter data frame instead. That is
 #' still accepted: a species that has no observation among the gear parameters
 #' takes its value from the species parameters. Where both tables give a value
-#' for a species, the gear parameters win.
+#' for a species, the gear parameters win. The species parameter observation is
+#' a total over all gears, so it is ignored when `gear` selects only some of
+#' the gears.
 #'
 #' @param params A MizerParams object
+#' @param gear The gears whose observations are to be added up. Optional. By
+#'   default all gears are included. A vector of gear names.
 #' @return A numeric vector with one entry for each species, named by species,
 #'   holding the observed yield in grams per year, or `NA` for species without
-#'   an observation. `NULL` if neither the gear parameters nor the species
-#'   parameters have a `yield_observed` column.
+#'   an observation. `NULL` if the observations are not available: if neither
+#'   the gear parameters nor the species parameters have a `yield_observed`
+#'   column, or, when `gear` is given, if the gear parameters have no such
+#'   column.
 #' @concept helper
-get_yield_observed <- function(params) {
+get_yield_observed <- function(params, gear = NULL) {
     species <- as.character(params@species_params$species)
     gp <- params@gear_params
     sp <- params@species_params
     in_gear <- "yield_observed" %in% names(gp)
     in_species <- "yield_observed" %in% names(sp)
+    if (!is.null(gear)) {
+        gear <- valid_gears_arg(params, gear, error_on_empty = TRUE)
+        # The species parameter column holds the yield summed over all gears,
+        # so it is no help when only some of the gears are selected.
+        in_species <- FALSE
+        gp <- gp[as.character(gp$gear) %in% gear, , drop = FALSE]
+    }
     if (!in_gear && !in_species) return(NULL)
 
     yield <- rep(NA_real_, length(species))

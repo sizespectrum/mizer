@@ -106,6 +106,84 @@ test_that("get_yield_observed sums over gears", {
                  c(Sprat = 1, Herring = 5, Cod = 7))
 })
 
+test_that("get_yield_observed selects gears", {
+    params <- NS_params_small
+    # Give Cod a second gear
+    gp <- gear_params(params)
+    gp2 <- rbind(gp, gp["Cod, Otter", ])
+    gp2$gear[[4]] <- "Extra"
+    gear_params(params) <- gp2
+    gear_params(params)$yield_observed <- c(NA, 5, 3, 4)
+
+    expect_equal(get_yield_observed(params, gear = "Otter"),
+                 c(Sprat = NA, Herring = NA, Cod = 3))
+    expect_equal(get_yield_observed(params, gear = c("Otter", "Extra")),
+                 c(Sprat = NA, Herring = NA, Cod = 7))
+    expect_equal(get_yield_observed(params, gear = c("Pelagic", "Otter")),
+                 c(Sprat = NA, Herring = 5, Cod = 3))
+
+    # The species parameters hold totals over all gears and so are ignored
+    species_params(params)$yield_observed <- c(1, 2, 3)
+    expect_equal(get_yield_observed(params, gear = "Otter"),
+                 c(Sprat = NA, Herring = NA, Cod = 3))
+
+    # Without observations in the gear parameters there is nothing to select
+    params2 <- NS_params_small
+    species_params(params2)$yield_observed <- c(1, 2, 3)
+    expect_null(get_yield_observed(params2, gear = "Otter"))
+
+    # Invalid gears are reported
+    expect_warning(expect_error(get_yield_observed(params, gear = "Trawl"),
+                                "No gears have been selected"),
+                   "The following gears do not exist: Trawl")
+})
+
+test_that("plotYieldObservedVsModel selects gears", {
+    params <- NS_params_small
+    # Give Cod a second gear that catches as much as the first
+    gp <- gear_params(params)
+    gp2 <- rbind(gp, gp["Cod, Otter", ])
+    gp2$gear[[4]] <- "Extra"
+    gear_params(params) <- gp2
+    initial_effort(params)["Extra"] <- initial_effort(params)[["Otter"]]
+    yield_gear <- getYieldGear(params)
+
+    gear_params(params)$yield_observed <- c(NA, 5, 3, 4)
+
+    # Only Cod is caught by the Otter gear
+    expect_message(dummy <- plotYieldObservedVsModel(params, gear = "Otter",
+                                                    return_data = TRUE),
+                   "not being caught by the selected gear")
+    expect_equal(as.character(dummy$species), "Cod")
+    expect_equal(dummy$observed, 3)
+    expect_equal(dummy$model, yield_gear[["Otter", "Cod"]])
+
+    # Selecting both of Cod's gears doubles model and observed yield
+    expect_message(dummy2 <- plotYieldObservedVsModel(params,
+                                                     gear = c("Otter", "Extra"),
+                                                     return_data = TRUE))
+    expect_equal(dummy2$observed, 7)
+    expect_equal(dummy2$model,
+                 yield_gear[["Otter", "Cod"]] + yield_gear[["Extra", "Cod"]])
+    # which is the same as the total over all gears for Cod
+    expect_message(dummy_all <- plotYieldObservedVsModel(params,
+                                                        return_data = TRUE))
+    expect_equal(dummy_all[dummy_all$species == "Cod", "model"],
+                 dummy2$model)
+
+    # Per-gear observations have to be in the gear parameters
+    params2 <- NS_params_small
+    species_params(params2)$yield_observed <- c(1, 2, 3)
+    expect_message(
+        expect_error(plotYieldObservedVsModel(params2, gear = "Otter"),
+                     "Observations for individual gears have to be given there"))
+
+    # The plot mentions the selected gear
+    expect_message(p <- plotYieldObservedVsModel(params, gear = "Otter",
+                                                 show_unobserved = TRUE))
+    expect_match(p$labels$caption, "gear is included: Otter")
+})
+
 test_that("get_yield_observed reads the species parameters", {
     params <- NS_params_small
     species_params(params)$yield_observed <- c(1, NA, 3)
