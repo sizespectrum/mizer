@@ -720,8 +720,10 @@ test_that("tlim filters time axis correctly", {
                                        tlim = c(1, 3), return_data = TRUE))
     expect_lt(limited_rows, all_rows)
 
-    # animate: deprecated time_range triggers warning
-    expect_warning(animate(sim, time_range = 1:3), "deprecated")
+    # The deprecation of animate(time_range) is tested in
+    # test-animateSpectra.R, where animate() is defined. It cannot be tested
+    # here as well: lifecycle warns only once per session, so whichever file
+    # ran second would see no warning.
 })
 
 # Legends have the correct entries ----

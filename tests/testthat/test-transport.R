@@ -184,7 +184,11 @@ test_that("the second-order scheme is second order in the size step", {
              sum(ana[mask]^2 * pr@dw[mask]))
     }
 
-    no_ws <- c(200, 400, 800)
+    # Three grids an octave apart. This is the most expensive test in the
+    # suite, so the triple is kept as coarse as the fit allows: on 100/200/400
+    # the measured orders are 0.75 and 2.07, further from the thresholds below
+    # than the finer 200/400/800 triple manages, at a third of the cost.
+    no_ws <- c(100, 200, 400)
     dx <- log(1000 / 1e-3) / no_ws
     slope <- function(e) coef(lm(log(e) ~ log(dx)))[2]
     ord_upwind <- slope(sapply(no_ws, err, second_order = FALSE))

@@ -679,9 +679,7 @@ test_that("Time resampling in project behaves as documented", {
 # check_steady ----
 
 # A settled model and a copy that has been knocked off its steady state.
-steady_small <- suppressMessages(
-    steady(NS_params_small, tol = 1e-6, t_max = 500,
-           progress_bar = FALSE, info_level = 0))
+steady_small <- NS_params_steady_small
 off_steady_small <- local({
     p <- steady_small
     initialN(p)[1, ] <- initialN(p)[1, ] * 3
