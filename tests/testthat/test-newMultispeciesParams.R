@@ -148,6 +148,23 @@ test_that("constructor records z0 only when z0 arguments are explicit", {
     defaults <- suppressMessages(newMultispeciesParams(sp, no_w = 20))
     expect_false("z0" %in% names(given_species_params(defaults)))
 
+    # Each argument is forwarded independently to setExtMort().
+    pre_only <- suppressMessages(newMultispeciesParams(
+        sp, z0pre = 2, no_w = 20))
+    expected_pre <- 2 * sp$w_inf^(2 / 3 - 1)
+    expect_equal(species_params(pre_only)$z0, expected_pre,
+                 ignore_attr = TRUE)
+    expect_equal(given_species_params(pre_only)$z0, expected_pre,
+                 ignore_attr = TRUE)
+
+    exp_only <- suppressMessages(newMultispeciesParams(
+        sp, z0exp = -0.5, no_w = 20))
+    expected_exp <- 0.6 * sp$w_inf^(-0.5)
+    expect_equal(species_params(exp_only)$z0, expected_exp,
+                 ignore_attr = TRUE)
+    expect_equal(given_species_params(exp_only)$z0, expected_exp,
+                 ignore_attr = TRUE)
+
     expect_no_warning(params <- suppressMessages(
         newMultispeciesParams(sp, z0pre = 2, z0exp = -0.5, no_w = 20)))
 
