@@ -11,8 +11,8 @@ params <- matchGrowth(params)           # growth → h, gamma, ks, k
 params <- steady(params)                # re-converge
 
 # ── Reproduction ──────────────────────────────────────────────────────────────
-params <- setBevertonHolt(params, reproduction_level = 0.25)
-getReproductionLevel(params)            # what the model is currently tuned to
+reproduction_level(params) <- 0.25
+reproduction_level(params)              # what the model is currently tuned to
 
 # ── Verify ────────────────────────────────────────────────────────────────────
 plotSpectra(params)

@@ -270,7 +270,7 @@ newCommunityParams <- function(max_w = 1e6,
 #'   external mortality, i.e., from sources not explicitly modelled. A number in
 #'   the interval [0, 1).
 #' @param reproduction_level A number between 0 and 1 that determines the
-#'   level of density dependence in reproduction, see [setBevertonHolt()].
+#'   level of density dependence in reproduction, see [reproduction_level<-()].
 #' @param R_factor `r lifecycle::badge("deprecated")` Use
 #'   `reproduction_level = 1 / R_factor` instead.
 #' @param gear_names The names of the fishing gears for each species. Either a
@@ -655,9 +655,7 @@ newTraitParams <- function(no_sp = 11,
 
 
     ## Set reproduction to meet boundary condition ----
-    params@species_params$erepro <- params@species_params$erepro *
-        getRequiredRDD(params) / getRDI(params)
-    params <- setBevertonHolt(params, reproduction_level = reproduction_level)
+    reproduction_level(params) <- reproduction_level
     })
     # Activate the chosen advective-flux scheme now construction is done.
     params@second_order_w[["flux"]] <- target_sow[["flux"]]

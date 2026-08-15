@@ -51,7 +51,7 @@
 #'   After adding the new species, the background species are not retuned and
 #'   the system is not run to steady state. This could be done with [steady()].
 #'   The new species will have a reproduction level of 1/4, this can then be
-#'   changed with [setBevertonHolt()]
+#'   changed with [reproduction_level<-()].
 #'
 #' @examples
 #' params <- newTraitParams()
@@ -351,7 +351,7 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
         # Retune reproductive efficiencies of new species
         repro_level <- rep(1 / 4, length(new_sp))
         names(repro_level) <- p@species_params$species[new_sp]
-        p <- setBevertonHolt(p, reproduction_level = repro_level)
+        reproduction_level(p) <- repro_level
     }
 
     p <- restoreParamsClass(p, target_class)

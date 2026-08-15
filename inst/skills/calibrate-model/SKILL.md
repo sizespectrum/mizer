@@ -5,7 +5,7 @@ description: >-
   whenever the user wants to find the steady state (steady, projectToSteady,
   steadySingleSpecies, steadyNewton), match modelled biomass, yield, or growth to
   observations (calibrateBiomass, matchBiomasses, matchGrowth),
-  set the level of density-dependent reproduction (setBevertonHolt), check
+  set the level of density-dependent reproduction (reproduction_level<-), check
   whether a model is at its steady state (getSteadyResidual), or diagnose
   why a model will not settle or reproduce observed values.
 ---
@@ -101,13 +101,13 @@ fraction of maximum recruitment realised at steady state (0 = density
 independent, closer to 1 = strongly limited):
 
 ```r
-params <- setBevertonHolt(params, reproduction_level = 0.25)
+reproduction_level(params) <- 0.25
 ```
 
-Alternatively pass `R_max`, `erepro`, or a per-species named vector. This does
-not change the steady state itself — it sets how the model responds to
-perturbations away from it. Read the current values back with
-`getReproductionLevel(params)`, useful to check what a model was tuned to before
+Alternatively use `setBevertonHolt()` to specify `R_max`, `erepro`, or a per-species
+named vector. This does not change the steady state itself — it sets how the
+model responds to perturbations away from it. Read the current values back with
+`reproduction_level(params)`, useful to check what a model was tuned to before
 changing it.
 
 ## Verifying the result

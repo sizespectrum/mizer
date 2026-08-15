@@ -115,13 +115,13 @@ fraction of maximum recruitment realised at steady state (0 = density
 independent, closer to 1 = strongly limited):
 
 ```{r eval=FALSE}
-params <- setBevertonHolt(params, reproduction_level = 0.25)
+reproduction_level(params) <- 0.25
 ```
 
-Alternatively pass `R_max`, `erepro`, or a per-species named vector. This does
-not change the steady state itself — it sets how the model responds to
-perturbations away from it. Read the current values back with
-[`getReproductionLevel(params)`](../reference/deprecated_accessors.html), useful to check what a model was tuned to before
+Alternatively use [`setBevertonHolt()`](../reference/setBevertonHolt.html) to specify `R_max`, `erepro`, or a per-species
+named vector. This does not change the steady state itself — it sets how the
+model responds to perturbations away from it. Read the current values back with
+`reproduction_level(params)`, useful to check what a model was tuned to before
 changing it.
 
 ---
@@ -192,8 +192,8 @@ params <- matchGrowth(params)           # growth → h, gamma, ks, k
 params <- steady(params)                # re-converge
 
 # ── Reproduction ──────────────────────────────────────────────────────────────
-params <- setBevertonHolt(params, reproduction_level = 0.25)
-getReproductionLevel(params)            # what the model is currently tuned to
+reproduction_level(params) <- 0.25
+reproduction_level(params)              # what the model is currently tuned to
 
 # ── Verify ────────────────────────────────────────────────────────────────────
 plotSpectra(params)

@@ -86,7 +86,7 @@ external mortality, i.e., from sources not explicitly modelled. A number in
 the interval [0, 1).}
 
 \item{reproduction_level}{A number between 0 and 1 that determines the
-level of density dependence in reproduction, see \code{\link[=setBevertonHolt]{setBevertonHolt()}}.}
+level of density dependence in reproduction, see \code{\link[=reproduction_level<-]{reproduction_level<-()}}.}
 
 \item{second_order_w}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}} Selects the
 second-order numerical scheme for the new model, applied before the

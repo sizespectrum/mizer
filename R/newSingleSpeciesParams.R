@@ -269,7 +269,7 @@ newSingleSpeciesParams <-
         getRequiredRDD(params) / getRDI(params)
     params@given_species_params$erepro <- params@species_params$erepro
 
-    params <- setBevertonHolt(params, reproduction_level = reproduction_level)
+    reproduction_level(params) <- reproduction_level
 
     # Activate the chosen advective-flux scheme now construction is done.
     params@second_order_w[["flux"]] <- target_sow[["flux"]]

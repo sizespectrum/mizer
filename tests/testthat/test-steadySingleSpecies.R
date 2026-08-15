@@ -53,9 +53,9 @@ test_that("steadySingleSpecies produces steady state with diffusion", {
 
     params <- steadySingleSpecies(params, species = species)
 
-    # Now that we have the steady state, we can use setBevertonHolt() to
+    # Now that we have the steady state, we can use `reproduction_level<-` to
     # set the reproduction parameters to values that are consistent with it.
-    suppressWarnings(params <- setBevertonHolt(params, reproduction_level = 0.5))
+    suppressWarnings(reproduction_level(params) <- 0.5)
 
     # And then the steady state should be preserved by project()
     sim <- project(params, t_max = 5)

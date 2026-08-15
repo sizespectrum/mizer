@@ -241,8 +241,7 @@ steadyNewton.MizerParams <- function(params,
     # Restore density-dependent reproduction, just as steady() does.
     if (params@rates_funcs$RDD == "BevertonHoltRDD" && reproduction == "fixed") {
         if (preserve == "reproduction_level") {
-            params <- setBevertonHolt(params,
-                                      reproduction_level = old_reproduction_level)
+            reproduction_level(params) <- old_reproduction_level
         } else if (preserve == "R_max") {
             params <- setBevertonHolt(params, R_max = old_R_max)
         } else if (preserve == "erepro") {
