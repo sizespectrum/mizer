@@ -9,6 +9,7 @@ ArraySpeciesBySize(
   x,
   value_name = NULL,
   units = NULL,
+  type = NULL,
   params = NULL,
   representation = c("point", "average")
 )
@@ -22,6 +23,15 @@ object to test.}
 \item{value_name}{A string giving the human-readable name for the value.}
 
 \item{units}{A string giving the units (e.g. "g/year", "1/year").}
+
+\item{type}{The kind of quantity the values are, see \link{array_types}:
+\code{"value"} (the default) for a rate or an amount, \code{"density"} for an amount
+per gram of body weight, \code{"proportion"} for a fraction. This is what tells
+\code{plot()} to multiply a density by the appropriate Jacobian when it is
+plotted against a length axis (\code{size_axis = "l"}), and to show a proportion
+against the whole of the interval from 0 to 1. The default, \code{NULL}, treats
+a \code{value_name} of \code{"Number density"} or units of \code{"1/g"} as a density, the
+way mizer recognised one before this attribute existed.}
 
 \item{params}{A \code{MizerParams} object. Used for species colours, linetypes,
 and size ranges in the \code{plot()} method.}
@@ -46,11 +56,13 @@ The \code{ArraySpeciesBySize} class wraps these arrays to provide convenient
 }
 \details{
 An \code{ArraySpeciesBySize} object behaves just like a regular matrix for
-arithmetic operations and subsetting. It carries two lightweight attributes:
+arithmetic operations and subsetting. It carries a few lightweight
+attributes:
 \itemize{
 \item \code{value_name} – a human-readable name for the value
 (e.g. "Encounter rate").
 \item \code{units} – the units of the rate (e.g. "g/year").
+\item \code{type} – the kind of quantity the values are.
 }
 }
 \examples{

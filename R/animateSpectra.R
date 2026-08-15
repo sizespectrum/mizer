@@ -221,8 +221,7 @@ animate.MizerSim <- function(x, species = NULL,
     animate_plotly(nf, sim@params, log_x, log_y, y_label, wlim, llim,
                    ylim,
                    size_axis = size_axis,
-                   spectrum_power = power,
-                   spectrum_per_log_size = spectrum$per_log_size,
+                   density_wrt = spectrum_density_wrt(spectrum$per_log_size),
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
                    easing = easing)
@@ -237,20 +236,13 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
                            wlim = c(NA, NA), llim = c(NA, NA),
                            ylim = c(NA, NA),
                            size_axis = "w",
-                           spectrum_power = NULL,
-                           spectrum_per_log_size = NULL,
+                           density_wrt = NA_character_,
                            frame_duration = 500, transition_duration = 500,
                            easing = "linear") {
     size_axis <- plot_size_axis(size_axis)
-    if (is.null(spectrum_power)) {
-        df <- convert_plot_size_axis(df, params, size_axis)
-    } else {
-        per_log_size <- spectrum_per_log_size %||% (spectrum_power == 2)
-        df <- convert_plot_spectrum_axis(df, params, size_axis,
-                                         power = spectrum_power,
-                                         per_log_size = per_log_size,
-                                         value_col = "value")
-    }
+    df <- convert_plot_density_axis(df, params, size_axis,
+                                    density_wrt = density_wrt,
+                                    value_col = "value")
     x_var <- plot_size_x_var(size_axis)
     legend_name_order <- intersect(names(params@linecolour),
                                    unique(df$legend_name))

@@ -20,8 +20,7 @@ plotComparisonDataFrame(
   highlight = NULL,
   legend_var = "Legend",
   size_axis = NULL,
-  spectrum_power = NULL,
-  spectrum_per_log_size = NULL
+  density_wrt = NA_character_
 )
 }
 \arguments{
@@ -51,12 +50,9 @@ line colour.}
 \item{size_axis}{Optional. If non-NULL, the x-axis is converted to weight
 (\code{"w"}) or length (\code{"l"}).}
 
-\item{spectrum_power}{Optional power used to weight a number spectrum. When
-supplied, spectrum values are transformed along with a length axis.}
-
-\item{spectrum_per_log_size}{Whether the spectrum is a density with respect
-to logarithmic size, which selects the Jacobian used for a length axis.
-Defaults to \code{spectrum_power == 2}.}
+\item{density_wrt}{The measure the values are a density with respect to, see
+\link{density_measures}. \code{NA} (the default) means the values are not a density
+and are left alone when the size axis changes.}
 }
 \value{
 A \code{mizer_plot} (ggplot2) object.

@@ -387,7 +387,7 @@ maturity <- function(params) {
 maturity.MizerParams <- function(params) {
     ArraySpeciesBySize(params@maturity,
                        value_name = "Maturity proportion",
-                       params = params)
+                       type = "proportion", params = params)
 }
 
 #' @rdname setReproduction
@@ -417,7 +417,7 @@ repro_prop.MizerParams <- function(params) {
     rp[is.nan(rp)] <- 0
     rp[rp > 1] <- 1
     ArraySpeciesBySize(rp, value_name = "Reproductive proportion",
-                       params = params)
+                       type = "proportion", params = params)
 }
 
 #' @rdname setReproduction
@@ -431,5 +431,5 @@ repro_prop.MizerParams <- function(params) {
 psi <- function(params) {
     ArraySpeciesBySize(params@psi,
                        value_name = "Population-level reproductive proportion",
-                       params = params)
+                       type = "proportion", params = params)
 }

@@ -72,12 +72,15 @@ get_sim_rate_slice <- function(sim, time_idx) {
 #'   `get_sim_rate_slice()`.
 #' @param value_name Name of the value stored in the returned array.
 #' @param units Optional units of the value stored in the returned array.
+#' @param type The kind of quantity the values are, see [ArraySpeciesBySize()]
+#'   and [array_types].
 #'
 #' @return A time x species x size array, possibly with dimensions dropped.
 #' @keywords internal
 get_species_size_rate_from_sim <- function(sim, time_range, drop,
                                            rate_fun, value_name,
                                            units = NULL,
+                                           type = NULL,
                                            representation = "point") {
     time_elements <- get_sim_rate_time_elements(sim, time_range)
 
@@ -98,12 +101,14 @@ get_species_size_rate_from_sim <- function(sim, time_range, drop,
         result <- ArrayTimeBySpeciesBySize(result,
                                           value_name = value_name,
                                           units = units,
+                                          type = type,
                                           params = sim@params,
                                           representation = representation)
     } else if (is.matrix(result) &&
                names(dimnames(result))[[1]] == "sp") {
         result <- ArraySpeciesBySize(result, value_name = value_name,
-                                     units = units, params = sim@params,
+                                     units = units, type = type,
+                                     params = sim@params,
                                      representation = representation)
     }
     result
@@ -288,7 +293,7 @@ mizer_rates_subset <- function(params, n, n_pp, n_other, t, effort,
 #' @return An `ArrayTimeBySpeciesBySize` object (or a reduced array if `drop`).
 #' @keywords internal
 sim_size_rate <- function(sim, time_range, drop, target, slot,
-                          value_name, units = NULL,
+                          value_name, units = NULL, type = NULL,
                           use_sim_effort = FALSE,
                           representation = "point", ...) {
     params <- validParams(sim@params)
@@ -316,7 +321,7 @@ sim_size_rate <- function(sim, time_range, drop, target, slot,
             }
             m
         },
-        value_name = value_name, units = units,
+        value_name = value_name, units = units, type = type,
         representation = representation)
 }
 

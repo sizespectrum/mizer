@@ -512,7 +512,7 @@ resource_rate <- function(params) {
 #' @export
 resource_capacity <- function(params) {
     ArrayResourceBySize(params@cc_pp, value_name = "Resource capacity",
-                        units = "1/g", params = params)
+                        units = "1/g", type = "density", params = params)
 }
 
 #' @rdname setResource
@@ -529,7 +529,7 @@ resource_capacity <- function(params) {
 resource_level <- function(params) {
     ArrayResourceBySize(params@initial_n_pp / params@cc_pp,
                         value_name = "Resource level", units = "",
-                        params = params)
+                        type = "proportion", params = params)
 }
 
 #' @rdname setResource

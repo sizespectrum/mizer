@@ -5,7 +5,13 @@
 \alias{is.ArrayResourceBySize}
 \title{S3 class for resource size spectra}
 \usage{
-ArrayResourceBySize(x, value_name = NULL, units = NULL, params = NULL)
+ArrayResourceBySize(
+  x,
+  value_name = NULL,
+  units = NULL,
+  type = NULL,
+  params = NULL
+)
 
 is.ArrayResourceBySize(x)
 }
@@ -16,6 +22,9 @@ is.ArrayResourceBySize(x)
 \item{value_name}{A string giving the human-readable name for the value.}
 
 \item{units}{A string giving the units (e.g. "1/year").}
+
+\item{type}{The kind of quantity the values are, see \code{\link[=ArraySpeciesBySize]{ArraySpeciesBySize()}}
+and \link{array_types}.}
 
 \item{params}{A \code{MizerParams} object. Used for the resource colour and the
 size grid in the \code{plot()} method.}

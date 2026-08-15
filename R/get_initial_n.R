@@ -47,7 +47,7 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
                          )
                   ] <- 0
         return(ArraySpeciesBySize(initial_n, value_name = "Number density",
-                                  params = params))
+                                  type = "density", params = params))
     }
 
     p <- params
@@ -83,5 +83,5 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
     }
     p <- matchBiomasses(p)
     return(ArraySpeciesBySize(p@initial_n, value_name = "Number density",
-                             params = p))
+                              type = "density", params = p))
 }

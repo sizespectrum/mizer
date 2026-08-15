@@ -5,7 +5,13 @@
 \alias{is.ArrayTimeByResourceBySize}
 \title{S3 class for time x resource-size arrays}
 \usage{
-ArrayTimeByResourceBySize(x, value_name = NULL, units = NULL, params = NULL)
+ArrayTimeByResourceBySize(
+  x,
+  value_name = NULL,
+  units = NULL,
+  type = NULL,
+  params = NULL
+)
 
 is.ArrayTimeByResourceBySize(x)
 }
@@ -16,6 +22,9 @@ object to test.}
 \item{value_name}{A string giving the human-readable name for the value.}
 
 \item{units}{A string giving the units (e.g. "1/g").}
+
+\item{type}{The kind of quantity the values are, see \code{\link[=ArraySpeciesBySize]{ArraySpeciesBySize()}}
+and \link{array_types}.}
 
 \item{params}{A \code{MizerParams} object. Used for the resource colour and the
 size grid in the \code{plot()} method.}

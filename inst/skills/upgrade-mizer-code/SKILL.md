@@ -45,6 +45,13 @@ plots) are in the changelog and are not repeated here.
 | `plotSpectra()` or `plotCDF()` errors that `power` and `biomass` are contradictory | supplying both is no longer silently resolved | `biomass` and `per_log_size` replace `power` (3.3) |
 | A `plotSpectra()` call with both `power` and `biomass`, or any `plotly...()` call with `biomass`, now gives a different plot | `biomass` is no longer ignored | `biomass` and `per_log_size` replace `power` (3.3) |
 | `plotCDF(per_log_size = TRUE)` errors | meaningless for a cumulative distribution | `biomass` and `per_log_size` replace `power` (3.3) |
+| `plot(getFluxGradient(...), size_axis = "l")` gives different values, or a `cm^-1/year` label where it used to say `g^-1/year` | the flux gradient is a density and was not recognised as one | Arrays say what kind of value they hold (3.3) |
+| `plot()` of a feeding level, maturity, `psi()` or resource level has a y axis running from 0 to 1 where it used to fit the data | these arrays now declare themselves proportions | Arrays say what kind of value they hold (3.3) |
+| `plot(resource_level(params))` has a linear y axis where it used to be logarithmic | a proportion is plotted on a linear axis by default | Arrays say what kind of value they hold (3.3) |
+| `plotFeedingLevel(include_critical = TRUE)` shows a critical feeding level peak that used to be cut off at 1 | the fixed [0, 1] window is now widened to fit the data | Arrays say what kind of value they hold (3.3) |
+| A custom array plotted with `size_axis = "l"` is not transformed, or is transformed when it should not be | an array declares what it holds with `type` now | Arrays say what kind of value they hold (3.3) |
+| `array_spectrum_power()`, or `spectrum_power =` in an internal plot helper, is no longer found | replaced by the `type` metadata | Arrays say what kind of value they hold (3.3) |
+| New warning that two arrays hold "a value of type" different things in `plot2()` or `plotRelative()` | the two arrays disagree about what they hold | Arrays say what kind of value they hold (3.3) |
 | New warning that a change to a species or resource parameter "has not taken effect" | the rate it feeds was set by hand and is no longer calculated | A change that cannot take effect now warns (3.3) |
 | That warning appears with `given_species_params<-()` but not with `species_params<-()` | the diagnostics belong to the given species parameter setter | The two species parameter setters divide the diagnostics between them (3.3) |
 | Setting a given species parameter to `NA` now warns that the change has not taken effect | clearing a value counts as a change, and a frozen array blocks it | The two species parameter setters divide the diagnostics between them (3.3) |
@@ -180,6 +187,57 @@ things change:
 - `plotCDF()` and `plotCDF2()` do not accept `per_log_size`, because
   integrating a density over size gives the same cumulative quantity either
   way. Use `biomass` on its own there.
+
+### Arrays say what kind of value they hold
+
+Mizer arrays now carry a `type` attribute saying what kind of quantity their
+values are: `"value"` (the default) for a rate or an amount, `"density"` for an
+amount per gram of body weight, `"proportion"` for a fraction. Two kinds of
+plotting behaviour follow from it, and both used to be decided some other way.
+
+**Densities.** Plotting a density against a length axis (`size_axis = "l"`) has
+to multiply the values by a Jacobian, because a density per gram is not a
+density per centimetre. mizer used to decide which arrays those were by looking
+at their metadata strings, treating an array as a density if it was named
+`"Number density"` or had units `"1/g"`. For mizer's own number spectra —
+`initialN()`, `N()`, `finalN()`, `NResource()`, `resource_capacity()` — nothing
+changes; they were recognised before and are tagged now. What changes is
+`getFluxGradient()`: it is a rate of change of a number density, with units
+`g^-1/year`, and neither of the old string tests recognised it, so on a length
+axis its values were left as densities per gram and were mislabelled as such.
+They are now converted with the `dw/dl = b w / l` Jacobian and labelled
+`cm^-1/year`. The new curve is the right one; if you were reading values off the
+old one, they were per gram plotted against length.
+
+**Proportions.** `getFeedingLevel()`, `getCriticalFeedingLevel()`, `maturity()`,
+`repro_prop()`, `psi()` and `resource_level()` now declare themselves
+proportions, and a plot of one shows the whole of the interval from 0 to 1 on a
+linear y axis, so the value can be read against the scale it belongs to. Three
+consequences:
+
+- `plot(getFeedingLevel(params))` and the other array plots gain that y range,
+  where they used to fit the axis to the data. This is the range
+  `plotFeedingLevel()` has always shown, so the dedicated function and the array
+  plot now agree.
+- `plot(resource_level(params))` gets a linear y axis instead of a logarithmic
+  one. Pass `log_y = TRUE` to get the old axis back; any explicit `log_y` or
+  `log` you already pass is respected.
+- The range is only ever *widened* to include the data, never narrowed to the
+  interval from 0 to 1. So `plotFeedingLevel(include_critical = TRUE)` now shows
+  a critical feeding level above 1, which the old fixed window drew off the top
+  of the plot. Nothing is ever hidden, and an explicit `ylim` still wins.
+
+**Declaring it yourself.** An array of your own is taken to be a density or a
+proportion only if you say so, by passing `type` to the array constructor. If
+you do not pass it, the old string tests still run as a fallback, so existing
+code that named an array `"Number density"` or gave it units `"1/g"` keeps
+working, and arrays saved by earlier versions keep working when they are loaded.
+
+Extension packages that called the unexported plotting helpers directly should
+note that `plotComparisonDataFrame()` and the internal `animate_plotly()` take a
+single `density_wrt` argument in place of `spectrum_power` and
+`spectrum_per_log_size`, and that the internal `array_spectrum_power()` is gone.
+The `power`-based interface of `plotSpectra()` and friends is unchanged.
 
 ### Length and weight parameters follow the one you gave last
 

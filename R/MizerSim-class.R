@@ -343,7 +343,8 @@ N <- function(sim) {
 N.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     ArrayTimeBySpeciesBySize(sim@n, value_name = "Number density",
-                             units = "1/g", params = sim@params)
+                             units = "1/g", type = "density",
+                             params = sim@params)
 }
 
 #' @rdname N
@@ -359,7 +360,8 @@ NResource <- function(sim) {
 NResource.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     ArrayTimeByResourceBySize(sim@n_pp, value_name = "Number density",
-                              units = "1/g", params = sim@params)
+                              units = "1/g", type = "density",
+                              params = sim@params)
 }
 
 
@@ -384,7 +386,7 @@ finalN.MizerSim <- function(sim) {
     n <- sim@params@initial_n  # Needed to get the right dimnames
     n[] <- sim@n[dim(sim@n)[[1]], , ]
     ArraySpeciesBySize(n, value_name = "Number density",
-                       params = sim@params)
+                       type = "density", params = sim@params)
 }
 
 #' @rdname finalN
@@ -402,7 +404,7 @@ finalNResource.MizerSim <- function(sim) {
     assert_that(is(sim, "MizerSim"))
     ArrayResourceBySize(sim@n_pp[dim(sim@n_pp)[[1]], ],
                         value_name = "Number density", units = "1/g",
-                        params = sim@params)
+                        type = "density", params = sim@params)
 }
 
 #' @rdname finalN

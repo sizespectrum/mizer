@@ -26,6 +26,8 @@
 #'   `is.ArrayResourceBySize()`, any object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "1/year").
+#' @param type The kind of quantity the values are, see [ArraySpeciesBySize()]
+#'   and [array_types].
 #' @param params A `MizerParams` object. Used for the resource colour and the
 #'   size grid in the `plot()` method.
 #'
@@ -41,10 +43,11 @@
 #' plot(mort)
 #' }
 ArrayResourceBySize <- function(x, value_name = NULL, units = NULL,
-                                params = NULL) {
+                                type = NULL, params = NULL) {
     if (!is.numeric(x) || !is.null(dim(x))) {
         stop("`x` must be a numeric vector.")
     }
+    type <- resolve_array_type(type, value_name, units)
     if (!is.null(params) && length(x) == length(params@initial_n_pp) &&
             is.null(names(x))) {
         names(x) <- names(params@initial_n_pp)
@@ -53,6 +56,7 @@ ArrayResourceBySize <- function(x, value_name = NULL, units = NULL,
         class = c("ArrayResourceBySize", "numeric"),
         value_name = value_name,
         units = units,
+        type = type,
         params = params
     )
 }
@@ -164,6 +168,7 @@ plot.ArrayResourceBySize <- function(x, return_data = FALSE,
                                      log_x = TRUE, log_y = TRUE, log = NULL,
                                      wlim = c(NA, NA), ylim = c(NA, NA),
                                      y_ticks = 6, ...) {
+    log_y <- array_log_y(x, log_y, log, !missing(log_y))
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
@@ -183,6 +188,7 @@ plot.ArrayResourceBySize <- function(x, return_data = FALSE,
         y_label <- paste0(value_name, " [", units_str, "]")
     }
 
+    ylim <- array_ylim(x, ylim, log_y, plot_dat[[2]])
     plotDataFrame(plot_dat, params, xlab = "Weight (g)",
                   ylab = y_label,
                   xtrans = if (log_x) "log10" else "identity",
@@ -379,6 +385,7 @@ get_ArrayResourceBySize_w <- function(x) {
     result <- NextMethod()
     attr(result, "value_name") <- attr(x, "value_name")
     attr(result, "units") <- attr(x, "units")
+    attr(result, "type") <- attr(x, "type")
     attr(result, "params") <- attr(x, "params")
     class(result) <- c("ArrayResourceBySize", "numeric")
     result
@@ -416,6 +423,7 @@ unclass_resource <- function(x) {
     x <- unclass(x)
     attr(x, "value_name") <- NULL
     attr(x, "units") <- NULL
+    attr(x, "type") <- NULL
     attr(x, "params") <- NULL
     x
 }
@@ -461,6 +469,8 @@ str.ArrayResourceBySize <- function(object, ...) {
 #'   object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "1/g").
+#' @param type The kind of quantity the values are, see [ArraySpeciesBySize()]
+#'   and [array_types].
 #' @param params A `MizerParams` object. Used for the resource colour and the
 #'   size grid in the `plot()` method.
 #'
@@ -477,14 +487,16 @@ str.ArrayResourceBySize <- function(object, ...) {
 #' plot(nr)
 #' }
 ArrayTimeByResourceBySize <- function(x, value_name = NULL, units = NULL,
-                                      params = NULL) {
+                                      type = NULL, params = NULL) {
     if (!is.matrix(x)) {
         stop("`x` must be a matrix.")
     }
+    type <- resolve_array_type(type, value_name, units)
     structure(x,
         class = c("ArrayTimeByResourceBySize", "matrix", "array"),
         value_name = value_name,
         units = units,
+        type = type,
         params = params
     )
 }
@@ -611,7 +623,8 @@ ArrayTimeByResourceBySize_slice <- function(x, time = NULL) {
 
     vec <- unclass(x)[tidx, ]
     ArrayResourceBySize(vec, value_name = value_name,
-                        units = units, params = params)
+                        units = units, type = attr(x, "type"),
+                        params = params)
 }
 
 #' @rdname plot2
@@ -780,6 +793,7 @@ as.data.frame.ArrayTimeByResourceBySize <- function(x, row.names = NULL,
     if (is.matrix(result) && length(dim(result)) == 2) {
         attr(result, "value_name") <- attr(x, "value_name")
         attr(result, "units") <- attr(x, "units")
+        attr(result, "type") <- attr(x, "type")
         attr(result, "params") <- attr(x, "params")
         class(result) <- c("ArrayTimeByResourceBySize", "matrix", "array")
     } else if (is.null(dim(result)) && !is.null(names(result)) &&
@@ -788,6 +802,7 @@ as.data.frame.ArrayTimeByResourceBySize <- function(x, row.names = NULL,
         result <- ArrayResourceBySize(result,
                                       value_name = attr(x, "value_name"),
                                       units = attr(x, "units"),
+                                      type = attr(x, "type"),
                                       params = attr(x, "params"))
     }
     result

@@ -9,6 +9,7 @@ ArrayTimeBySpeciesBySize(
   x,
   value_name = NULL,
   units = NULL,
+  type = NULL,
   params = NULL,
   representation = c("point", "average")
 )
@@ -22,6 +23,9 @@ is.ArrayTimeBySpeciesBySize(x)
 \item{value_name}{A string giving the human-readable name for the value.}
 
 \item{units}{A string giving the units (e.g. "1/year").}
+
+\item{type}{The kind of quantity the values are, see \code{\link[=ArraySpeciesBySize]{ArraySpeciesBySize()}}
+and \link{array_types}.}
 
 \item{params}{A \code{MizerParams} object. Used for species colours, linetypes,
 and size ranges in the \code{plot()} and \code{animateSpectra()} methods.}
@@ -52,6 +56,7 @@ arithmetic operations and subsetting. It carries these lightweight attributes:
 \item \code{value_name} – a human-readable name for the value
 (e.g. "Fishing mortality").
 \item \code{units} – the units of the value (e.g. "1/year").
+\item \code{type} – the kind of quantity the values are.
 \item \code{params} – the \code{MizerParams} object that the value was computed from.
 }
 }

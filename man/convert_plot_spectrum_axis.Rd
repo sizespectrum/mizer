@@ -31,8 +31,8 @@ logarithmic size rather than with respect to size. Defaults to
 \item{species_col}{Name of the column identifying the species. Default is
 \code{"Species"}.}
 
-\item{value_col}{Name or index of the spectrum-value column. Defaults to the
-second column.}
+\item{value_col}{Name or index of the value column. Defaults to the second
+column.}
 }
 \value{
 The plotting data with both its size coordinate and spectrum values
@@ -42,6 +42,8 @@ expressed for the requested axis.
 A density with respect to weight is converted to a density with respect to
 length with the Jacobian \code{dw/dl = b * w / l}. A density with respect to
 logarithmic weight is instead converted with
-\verb{d log(w) / d log(l) = b}.
+\verb{d log(w) / d log(l) = b}. This is the interface used by the \code{power}-based
+spectrum plots; arrays carry their density measure explicitly and use
+\code{\link[=convert_plot_density_axis]{convert_plot_density_axis()}} instead.
 }
 \keyword{internal}

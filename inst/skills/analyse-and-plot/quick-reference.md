@@ -38,27 +38,6 @@ ArraySpeciesBySize(x, params = params, representation = "average")  # size-resol
 bin_average_weight(K, params)   # the primitive, if you are not doing an integral
 encounter_kernel(params)        # kernel getEncounter() uses; NOT pred_kernel()
 
-# ── Dedicated plot functions ──────────────────────────────────────────────────
-# Each plot*() is a shortcut for plot() on the matching get*() array, and each has
-# an interactive plotly*() twin (plotlyBiomass(), plotlySpectra(), …).
-plot(sim)               # 5-panel summary
-plotBiomass(sim)        # biomass vs time
-plotYield(sim)          # yield vs time
-plotYieldGear(sim)      # yield vs time, faceted by gear
-plotSpectra(sim)        # abundance spectra vs size (+ resource & background)
-plotFeedingLevel(sim)   # feeding level vs size
-plotPredMort(sim)       # predation mortality vs size
-plotFMort(sim)          # fishing mortality vs size
-plotGrowthCurves(sim)   # size vs age
-plotDiet(params, species = "Cod")  # diet composition vs size
-plotCDF(sim)            # cumulative biomass/abundance over size
-
-# ── Choosing what a spectrum plot shows ───────────────────────────────────────
-plotSpectra(sim, biomass = TRUE)                     # biomass rather than number
-plotSpectra(sim, per_log_size = TRUE)                # density per log size
-plotSpectra(sim, size_axis = "l")                    # x axis in length, not weight
-plotSpectra(sim, log_x = TRUE)   # display only: does NOT change the y density
-
 # ── Plot any array directly, plus combine / compare tools ─────────────────────
 plot(getResourceMort(params))   # any get*() array plots directly
 p <- plot(getBiomass(sim), species = "Cod")
@@ -66,10 +45,31 @@ addPlot(p, getBiomass(sim), species = "Herring", linetype = "dashed")  # add lin
 plot2(getFMort(params), getFMort(params2), "Before", "After")  # compare arrays
 plotRelative(getEGrowth(params), getEGrowth(params2))          # relative diff
 plotHover(getBiomass(sim))      # interactive (hover) version of an array plot
-animate(sim)                    # animate spectra through time
+
+# ── Size spectra and other densities ──────────────────────────────────────────
+plotSpectra(sim)        # abundance spectra vs size (+ resource & background)
+plotCDF(sim)            # cumulative biomass/abundance over size
+animate(sim)            # animate spectra through time
+plotSpectra(sim, biomass = TRUE)                     # biomass rather than number
+plotSpectra(sim, per_log_size = TRUE)                # density per log size
+plotSpectra(sim, size_axis = "l")                    # x axis in length, not weight
+plotSpectra(sim, log_x = TRUE)   # display only: does NOT change the y density
 
 # ── Compare two simulations or models ─────────────────────────────────────────
 plotSpectra2(params, params2, "Before", "After")
 plotSpectraRelative(params, params2)      # relative difference of spectra
 plotCDF2(sim, sim2, "Unfished", "Fished")
+
+# ── Dedicated plot functions ──────────────────────────────────────────────────
+# Each plot*() is a shortcut for plot() on the matching get*() array, and each has
+# an interactive plotly*() twin (plotlyBiomass(), plotlySpectra(), …).
+plot(sim)               # 5-panel summary
+plotBiomass(sim)        # biomass vs time
+plotYield(sim)          # yield vs time
+plotYieldGear(sim)      # yield vs time, faceted by gear
+plotFeedingLevel(sim)   # feeding level vs size
+plotPredMort(sim)       # predation mortality vs size
+plotFMort(sim)          # fishing mortality vs size
+plotGrowthCurves(sim)   # size vs age
+plotDiet(params, species = "Cod")  # diet composition vs size
 ```

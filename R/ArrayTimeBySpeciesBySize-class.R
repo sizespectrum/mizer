@@ -17,6 +17,7 @@
 #'   \item `value_name` – a human-readable name for the value
 #'       (e.g. "Fishing mortality").
 #'   \item `units` – the units of the value (e.g. "1/year").
+#'   \item `type` – the kind of quantity the values are.
 #'   \item `params` – the `MizerParams` object that the value was computed from.
 #' }
 #'
@@ -24,6 +25,8 @@
 #'   `is.ArrayTimeBySpeciesBySize()`, any object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "1/year").
+#' @param type The kind of quantity the values are, see [ArraySpeciesBySize()]
+#'   and [array_types].
 #' @param params A `MizerParams` object. Used for species colours, linetypes,
 #'   and size ranges in the `plot()` and `animateSpectra()` methods.
 #' @param representation Either `"point"` (the default) for a quantity sampled
@@ -44,16 +47,19 @@
 #' plot(fmort, time = 2007)
 #' }
 ArrayTimeBySpeciesBySize <- function(x, value_name = NULL, units = NULL,
+                                     type = NULL,
                                      params = NULL,
                                      representation = c("point", "average")) {
     if (!is.array(x) || length(dim(x)) != 3) {
         stop("`x` must be a 3D array.")
     }
     representation <- match.arg(representation)
+    type <- resolve_array_type(type, value_name, units)
     structure(x,
         class = c("ArrayTimeBySpeciesBySize", "array"),
         value_name = value_name,
         units = units,
+        type = type,
         params = params,
         representation = representation
     )
@@ -229,7 +235,8 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
                     nrow = dim(arr)[2],
                     dimnames = dimnames(arr)[2:3])
     slice <- ArraySpeciesBySize(slice, value_name = value_name,
-                                units = units, params = params)
+                                units = units, type = array_type(x),
+                                params = params)
 
     plot.ArraySpeciesBySize(slice, species = species, all.sizes = all.sizes,
                             highlight = highlight, return_data = return_data,
@@ -337,7 +344,8 @@ ArrayTimeBySpeciesBySize_slice <- function(x, time = NULL) {
                     nrow = dim(arr)[2],
                     dimnames = dimnames(arr)[2:3])
     ArraySpeciesBySize(slice, value_name = value_name,
-                       units = units, params = params,
+                       units = units, type = array_type(x),
+                       params = params,
                        representation = representation)
 }
 
@@ -382,8 +390,6 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
     log_y <- log_axes$log_y
 
     params <- attr(x, "params")
-    value_name <- attr(x, "value_name") %||% "Value"
-    units_str <- attr(x, "units")
 
     all_species <- dimnames(x)[[2]]
 
@@ -443,20 +449,12 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
         df <- rbind(df, total_sums[, names(df)])
     }
 
-    spectrum_power <- array_spectrum_power(x)
-    y_label <- if (identical(size_axis, "l") &&
-                       !is.null(spectrum_power)) {
-        paste0(value_name, " [1/cm]")
-    } else if (!is.null(units_str) && nzchar(units_str)) {
-        paste0(value_name, " [", units_str, "]")
-    } else {
-        value_name
-    }
+    y_label <- array_y_label(x, default = "Value", size_axis = size_axis)
 
     animate_plotly(df, params, log_x, log_y, y_label, wlim, llim,
                    ylim,
                    size_axis = size_axis,
-                   spectrum_power = spectrum_power,
+                   density_wrt = array_density_wrt(x),
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
                    easing = easing)
@@ -485,6 +483,7 @@ as.data.frame.ArrayTimeBySpeciesBySize <- function(x, row.names = NULL,
     if (is.array(result) && length(dim(result)) == 3) {
         attr(result, "value_name") <- attr(x, "value_name")
         attr(result, "units") <- attr(x, "units")
+        attr(result, "type") <- attr(x, "type")
         attr(result, "params") <- attr(x, "params")
         attr(result, "representation") <- attr(x, "representation")
         class(result) <- c("ArrayTimeBySpeciesBySize", "array")
@@ -492,18 +491,21 @@ as.data.frame.ArrayTimeBySpeciesBySize <- function(x, row.names = NULL,
         dim_names <- names(dimnames(result))
         attrs <- list(value_name = attr(x, "value_name"),
                       units = attr(x, "units"),
+                      type = array_type(x),
                       params = attr(x, "params"),
                       representation = attr(x, "representation") %||% "point")
         if (identical(dim_names, c("sp", "w"))) {
             result <- ArraySpeciesBySize(result,
                                          value_name = attrs$value_name,
                                          units = attrs$units,
+                                         type = attrs$type,
                                          params = attrs$params,
                                          representation = attrs$representation)
         } else if (identical(dim_names, c("time", "sp"))) {
             result <- ArrayTimeBySpecies(result,
                                          value_name = attrs$value_name,
                                          units = attrs$units,
+                                         type = attrs$type,
                                          params = attrs$params)
         }
     }
@@ -523,6 +525,7 @@ unclass_tss <- function(x) {
     x <- unclass(x)
     attr(x, "value_name") <- NULL
     attr(x, "units") <- NULL
+    attr(x, "type") <- NULL
     attr(x, "params") <- NULL
     attr(x, "representation") <- NULL
     x

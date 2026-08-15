@@ -188,6 +188,35 @@ test_that("[.ArrayTimeBySpeciesBySize returns ArrayTimeBySpecies when size is dr
     expect_identical(attr(slice, "value_name"), "Fishing mortality")
 })
 
+test_that("the type survives subsetting, slicing and plotting", {
+    n <- N(NS_sim_small)
+    expect_identical(array_type(n), "density")
+    expect_identical(array_type(n[1:2, , ]), "density")
+    expect_identical(array_type(n[1, , ]), "density")
+    expect_identical(array_type(ArrayTimeBySpeciesBySize_slice(n)), "density")
+    expect_identical(array_type(fmort_small), "value")
+
+    # Dropping the size dimension leaves a time series of the same quantity
+    feeding_level <- getFeedingLevel(NS_sim_small)
+    expect_identical(array_type(feeding_level), "proportion")
+    expect_identical(array_type(feeding_level[, , 3]), "proportion")
+
+    # The slice that plot() takes is a density, so a length axis transforms it
+    sp <- NS_params_small@species_params
+    by_weight <- plot(n, size_axis = "w", return_data = TRUE)
+    by_length <- plot(n, size_axis = "l", return_data = TRUE)
+    sp_idx <- match(by_length$Species, sp$species)
+    jacobian <- unname(sp$b[sp_idx]) * by_weight$w / by_length$l
+    expect_equal(by_length[[2]], by_weight[[2]] * jacobian)
+    expect_identical(plot(n, size_axis = "l")$scales$get_scales("y")$name,
+                     "Number density [1/cm]")
+
+    # A rate is left alone
+    rate_w <- plot(fmort_small, size_axis = "w", return_data = TRUE)
+    rate_l <- plot(fmort_small, size_axis = "l", return_data = TRUE)
+    expect_equal(rate_l[[2]], rate_w[[2]])
+})
+
 test_that("[.ArrayTimeBySpeciesBySize leaves time by size matrices plain", {
     slice <- fmort_small[, 1, ]
     expect_false(is.ArrayTimeBySpeciesBySize(slice))

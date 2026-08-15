@@ -215,8 +215,8 @@ test_that("species-size rate getters work for MizerSim", {
 test_that("getCriticalFeedingLevel matches metab over intake_max times alpha", {
     expected <- params@metab / params@intake_max / params@species_params$alpha
     expect_equal(getCriticalFeedingLevel(params), expected,
-                 ignore_attr = c("value_name", "units", "class", "params",
-                                 "representation"))
+                 ignore_attr = c("value_name", "units", "type", "class",
+                                 "params", "representation"))
 })
 
 # getPredRate -------------------------------------------------------------
@@ -865,6 +865,19 @@ test_that("getFluxGradient returns an ArraySpeciesBySize with the right metadata
     expect_identical(dimnames(fg), dimnames(NS_params_small@metab))
     expect_identical(attr(fg, "value_name"), "Flux gradient")
     expect_identical(attr(fg, "units"), "g^-1/year")
+    # The flux gradient is a rate of change of a number density, so it is a
+    # density with respect to weight and needs the Jacobian on a length axis
+    expect_identical(array_type(fg), "density")
+    expect_identical(array_type(getFluxGradient(NS_sim_small)), "density")
+    by_weight <- plot(fg, size_axis = "w", return_data = TRUE)
+    by_length <- plot(fg, size_axis = "l", return_data = TRUE)
+    sp <- NS_params_small@species_params
+    sp_idx <- match(by_length$Species, sp$species)
+    expect_equal(by_length[[2]],
+                 by_weight[[2]] * unname(sp$b[sp_idx]) * by_weight$w /
+                     by_length$l)
+    expect_identical(plot(fg, size_axis = "l")$scales$get_scales("y")$name,
+                     "Flux gradient [cm^-1/year]")
 })
 
 test_that("getFluxGradient is the discrete divergence of getFlux in the interior", {

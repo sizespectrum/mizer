@@ -5,6 +5,16 @@ stability of steady states.
 
 ## Bug fixes
 
+- `plot(getFluxGradient(params), size_axis = "l")` now converts its values to a
+  density with respect to length, and labels them `cm^-1/year`. The flux
+  gradient is a rate of change of a number density, but it was not recognised as
+  a density, so its values were plotted per gram against a length axis and
+  labelled `g^-1/year`.
+
+- `plotFeedingLevel(include_critical = TRUE)` no longer draws a critical feeding
+  level above 1 off the top of the plot. The y axis was fixed to the interval
+  from 0 to 1, and now widens when the data need it.
+
 - `steady()` now successfully converges when the advective flux scheme is set to `"van_leer"` (via `second_order_w`). Previously, the time-stepping iteration would fall into a limit cycle because the flux limiter weights flipped wildly across cells. We resolved this by introducing an exponential moving average relaxation to the limiter `chi` (#522).
 
 ## New functions
@@ -103,6 +113,28 @@ stability of steady states.
   `tol`, `amplitude_tol` and `extinction_threshold` are exposed for tuning.
 
 ## Other improvements
+
+- Mizer arrays now state what kind of quantity they hold. Every array
+  constructor gains a `type` argument: `"value"` (the default) for a rate or an
+  amount, `"density"` for an amount per gram of body weight, `"proportion"` for
+  a fraction. Two things follow from it.
+
+  A `"density"` is multiplied by the appropriate Jacobian when it is plotted
+  against a length axis (`size_axis = "l"`), and its units are restated from
+  `1/g` to `1/cm`. This replaces the guess mizer used to make from the array's
+  name and units, which recognised only densities that happened to be called
+  "Number density" or to have units "1/g" — and so missed `getFluxGradient()`.
+  Arrays that declare no type still fall back to that guess, so existing code
+  and saved objects are unaffected.
+
+  A `"proportion"` — `getFeedingLevel()`, `getCriticalFeedingLevel()`,
+  `maturity()`, `repro_prop()`, `psi()`, `resource_level()` — is plotted on a
+  linear y axis showing the whole of the interval from 0 to 1, so the value can
+  be read against the scale it belongs to. The range is only ever widened to
+  include the data, never narrowed to that interval: the critical feeding level
+  and the resource level can both legitimately exceed 1, and their plots show
+  it. `plot(getFeedingLevel(params))` therefore now shows the same y range that
+  `plotFeedingLevel()` always has.
 
 - `plotYieldObservedVsModel()` gains a `gear` argument that restricts the
   comparison to the catch of the selected gears. Both the model yield and the

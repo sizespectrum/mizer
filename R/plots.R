@@ -403,11 +403,9 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
 #'   line colour.
 #' @param size_axis Optional. If non-NULL, the x-axis is converted to weight
 #'   (`"w"`) or length (`"l"`).
-#' @param spectrum_power Optional power used to weight a number spectrum. When
-#'   supplied, spectrum values are transformed along with a length axis.
-#' @param spectrum_per_log_size Whether the spectrum is a density with respect
-#'   to logarithmic size, which selects the Jacobian used for a length axis.
-#'   Defaults to `spectrum_power == 2`.
+#' @param density_wrt The measure the values are a density with respect to, see
+#'   [density_measures]. `NA` (the default) means the values are not a density
+#'   and are left alone when the size axis changes.
 #' @return A `mizer_plot` (ggplot2) object.
 #' @keywords internal
 plotComparisonDataFrame <- function(frame1, frame2, params,
@@ -418,8 +416,7 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     y_ticks = 6, highlight = NULL,
                                     legend_var = "Legend",
                                     size_axis = NULL,
-                                    spectrum_power = NULL,
-                                    spectrum_per_log_size = NULL) {
+                                    density_wrt = NA_character_) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -441,16 +438,10 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
     }
     if (!is.null(size_axis)) {
         size_axis <- plot_size_axis(size_axis)
-        if (is.null(spectrum_power)) {
-            frame <- convert_plot_size_axis(frame, params, size_axis,
-                                            species_col = group_var)
-        } else {
-            per_log_size <- spectrum_per_log_size %||% (spectrum_power == 2)
-            frame <- convert_plot_spectrum_axis(frame, params, size_axis,
-                                                power = spectrum_power,
-                                                per_log_size = per_log_size,
-                                                species_col = group_var)
-        }
+        frame <- convert_plot_density_axis(frame, params, size_axis,
+                                           density_wrt = density_wrt,
+                                           species_col = group_var,
+                                           value_col = y_var)
         x_var <- plot_size_x_var(size_axis)
     }
 
@@ -670,6 +661,67 @@ plot_size_tooltip <- function(size_axis, before = NULL, after = NULL) {
     c(before, plot_size_x_var(size_axis), after)
 }
 
+#' Y-axis limits for a plot of a proportion
+#'
+#' A proportion is easiest to read against the whole of the interval from 0 to
+#' 1, so that is the range a plot of one shows by default. The range is only
+#' ever *widened* to include the data, never narrowed to the interval: a
+#' critical feeding level or a resource level above 1 is a real feature of the
+#' model and must stay visible.
+#'
+#' Only the ends of `ylim` that the caller left as `NA` are filled in, so an
+#' explicit limit always wins. A logarithmic axis is left alone, having no place
+#' for the 0.
+#'
+#' @param ylim Numeric vector of length two, the limits the caller asked for.
+#' @param log_y Whether the y axis is logarithmic.
+#' @param values The values being plotted.
+#' @return A numeric vector of length two.
+#' @keywords internal
+proportion_ylim <- function(ylim, log_y, values) {
+    if (isTRUE(log_y)) return(ylim)
+    values <- values[is.finite(values)]
+    full <- range(c(0, 1, values))
+    if (is.na(ylim[1])) ylim[1] <- full[1]
+    if (is.na(ylim[2])) ylim[2] <- full[2]
+    ylim
+}
+
+#' Y-axis limits an array's type calls for
+#'
+#' Only a `"proportion"` has an opinion. A `"density"` is handled where the size
+#' axis is converted, and a `"value"` needs nothing.
+#'
+#' @param x A mizer array object.
+#' @inheritParams proportion_ylim
+#' @return A numeric vector of length two.
+#' @keywords internal
+array_ylim <- function(x, ylim, log_y, values) {
+    if (identical(array_type(x), "proportion")) {
+        return(proportion_ylim(ylim, log_y, values))
+    }
+    ylim
+}
+
+#' The logarithmic y axis an array's type calls for
+#'
+#' A proportion belongs on a linear axis, so a plot of one turns `log_y` off
+#' unless the caller asked for a particular axis. Called before
+#' [parsePlotLog()], which is why it also has to check `log`.
+#'
+#' @param x A mizer array object.
+#' @param log_y The `log_y` argument of the plot method.
+#' @param log The `log` argument of the plot method.
+#' @param given Whether the caller supplied `log_y` (i.e. `!missing(log_y)`).
+#' @return The `log_y` to use.
+#' @keywords internal
+array_log_y <- function(x, log_y, log, given) {
+    if (!given && is.null(log) && identical(array_type(x), "proportion")) {
+        return(FALSE)
+    }
+    log_y
+}
+
 #' Convert plotting data from weight to length
 #'
 #' When `size_axis = "l"`, adds a length column `l` computed from the weight
@@ -728,20 +780,204 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
              drop = FALSE]
 }
 
+#' Density measures a spectrum can be expressed in
+#'
+#' A size spectrum is a density, and a density only has a meaning together with
+#' the variable it is a density with respect to. That variable is one of
+#' \describe{
+#'   \item{`"w"`}{a density with respect to weight, e.g. numbers per gram.}
+#'   \item{`"log_w"`}{a density with respect to logarithmic weight, e.g.
+#'     numbers per log weight interval.}
+#'   \item{`"l"`}{a density with respect to length, e.g. numbers per cm.}
+#'   \item{`"log_l"`}{a density with respect to logarithmic length.}
+#'   \item{`NA`}{not a density, e.g. a rate or a dimensionless quantity. Such
+#'     values are left alone when the size axis changes.}
+#' }
+#'
+#' Mizer arrays are indexed by the model's weight grid, so an array that holds
+#' a density (`type = "density"`, see [array_types]) always holds one with
+#' respect to weight. The other measures arise for quantities the spectrum plots
+#' compute on the fly: `plotSpectra(per_log_size = TRUE)` shows a density with
+#' respect to logarithmic weight, and either can be restated per unit length by
+#' `size_axis = "l"`.
+#'
+#' @format A character vector of the four density measures.
+#' @keywords internal
+density_measures <- c("w", "log_w", "l", "log_l")
+
+#' Validate a density measure
+#'
+#' @param density_wrt A density measure, see [density_measures]. `NULL` and `NA`
+#'   both stand for "not a density".
+#' @return The validated measure, or `NA_character_` when the values are not a
+#'   density.
+#' @keywords internal
+validate_density_wrt <- function(density_wrt) {
+    if (is.null(density_wrt)) return(NA_character_)
+    if (length(density_wrt) == 1 && all(is.na(density_wrt))) {
+        return(NA_character_)
+    }
+    if (!is.character(density_wrt) || length(density_wrt) != 1 ||
+            !density_wrt %in% density_measures) {
+        stop("`density_wrt` must be NA or one of ",
+             paste0("\"", density_measures, "\"", collapse = ", "), ".")
+    }
+    density_wrt
+}
+
+#' The density measure a plot against a given size axis calls for
+#'
+#' Plotting against a length axis turns a density with respect to weight into a
+#' density with respect to length, and a density with respect to logarithmic
+#' weight into one with respect to logarithmic length. Whether the density is
+#' per size or per logarithmic size is a property of the values and is left
+#' alone; only the size variable follows the axis.
+#'
+#' @param density_wrt The measure the values are a density with respect to, see
+#'   [density_measures].
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @return The density measure to express the values in, or `NA_character_` if
+#'   the values are not a density.
+#' @keywords internal
+density_target_measure <- function(density_wrt, size_axis) {
+    density_wrt <- validate_density_wrt(density_wrt)
+    if (is.na(density_wrt)) return(NA_character_)
+    paste0(if (startsWith(density_wrt, "log_")) "log_" else "",
+           plot_size_axis(size_axis))
+}
+
+#' Factor relating a density measure to a density with respect to weight
+#'
+#' Writing \eqn{N_w} for the density with respect to weight, the density with
+#' respect to measure \eqn{m} is \eqn{N_w} times the factor returned here. With
+#' the allometric weight-length relationship \eqn{w = a l^b} these factors are
+#' \eqn{1} for `"w"`, \eqn{w} for `"log_w"`, \eqn{dw/dl = b w / l} for `"l"`
+#' and \eqn{l\,dw/dl = b w} for `"log_l"`.
+#'
+#' @param measure One of [density_measures].
+#' @param w,l,b Numeric vectors of the same length giving the weight, the
+#'   corresponding length, and the exponent of the weight-length relationship.
+#' @return A numeric vector of factors.
+#' @keywords internal
+density_measure_weight <- function(measure, w, l, b) {
+    switch(measure,
+           w = rep(1, length(w)),
+           log_w = w,
+           l = b * w / l,
+           log_l = b * w,
+           stop("Unknown density measure `", measure, "`."))
+}
+
+#' Jacobian converting between two density measures
+#'
+#' @param from,to Density measures, see [density_measures].
+#' @inheritParams density_measure_weight
+#' @return A numeric vector by which to multiply a density with respect to
+#'   `from` to obtain the density with respect to `to`.
+#' @keywords internal
+density_measure_jacobian <- function(from, to, w, l, b) {
+    if (identical(from, to)) return(rep(1, length(w)))
+    density_measure_weight(to, w, l, b) / density_measure_weight(from, w, l, b)
+}
+
+#' The size unit appearing in the units of a density
+#'
+#' @param measure One of [density_measures].
+#' @return `"g"` or `"cm"`, or `NA_character_` for a density with respect to a
+#'   logarithmic size, whose units carry no size unit.
+#' @keywords internal
+density_size_unit <- function(measure) {
+    switch(measure, w = "g", l = "cm", NA_character_)
+}
+
+#' Restate the units of a density in a different density measure
+#'
+#' The size unit is swapped inside the two spellings mizer uses for a per-size
+#' factor, `1/g` and `g^-1`. Units that state no per-size factor are returned
+#' unchanged, since there is then nothing to identify as the size unit.
+#'
+#' @param units The units of the values, possibly `NULL`.
+#' @param from,to Density measures, see [density_measures].
+#' @return The units expressed in the `to` measure.
+#' @keywords internal
+convert_density_units <- function(units, from, to) {
+    if (is.na(from) || is.na(to) || identical(from, to)) return(units)
+    to_sym <- density_size_unit(to)
+    if (is.null(units) || !nzchar(units)) {
+        # Nothing was declared, so fall back to the canonical density units
+        return(if (is.na(to_sym)) units else paste0("1/", to_sym))
+    }
+    from_sym <- density_size_unit(from)
+    if (is.na(from_sym) || is.na(to_sym)) return(units)
+    units <- sub(paste0("\\b1/", from_sym, "\\b"), paste0("1/", to_sym), units)
+    sub(paste0("\\b", from_sym, "\\^-1"), paste0(to_sym, "^-1"), units)
+}
+
+#' Express plotting data on the requested size axis
+#'
+#' Converts the size coordinate of the plotting data to the requested axis and,
+#' when the values are a density, multiplies them by the Jacobian that restates
+#' them in the density measure that axis calls for (see
+#' [density_target_measure()]). Values that are not a density are left alone.
+#'
+#' The Jacobian is a per-species quantity, so rows whose species is not one of
+#' the model's species — the "Total" row, for instance — cannot be converted and
+#' are dropped whenever a conversion is needed.
+#'
+#' @inheritParams convert_plot_size_axis
+#' @param density_wrt The measure the values are a density with respect to, see
+#'   [density_measures]. `NA` (the default) means the values are not a density.
+#' @param value_col Name or index of the value column. Defaults to the second
+#'   column.
+#' @return The plotting data with its size coordinate, and where called for its
+#'   values, expressed for the requested axis. The size coordinate is the first
+#'   column.
+#' @keywords internal
+convert_plot_density_axis <- function(plot_dat, params, size_axis,
+                                      density_wrt = NA_character_,
+                                      species_col = "Species",
+                                      value_col = 2) {
+    size_axis <- plot_size_axis(size_axis)
+    density_wrt <- validate_density_wrt(density_wrt)
+    target <- density_target_measure(density_wrt, size_axis)
+    needs_jacobian <- !is.na(target) && !identical(target, density_wrt)
+    if (identical(size_axis, "w") && !needs_jacobian) {
+        return(plot_dat)
+    }
+    if (is.numeric(value_col)) {
+        value_col <- names(plot_dat)[[value_col]]
+    }
+    # Both a length axis and the Jacobian need the lengths, and the Jacobian
+    # needs the weights as well.
+    plot_dat <- convert_plot_size_axis(plot_dat, params, "l",
+                                       species_col = species_col,
+                                       drop_w = FALSE)
+    if (needs_jacobian && nrow(plot_dat) > 0) {
+        species_idx <- match(as.character(plot_dat[[species_col]]),
+                             as.character(params@species_params$species))
+        plot_dat[[value_col]] <- plot_dat[[value_col]] *
+            density_measure_jacobian(density_wrt, target,
+                                     plot_dat$w, plot_dat$l,
+                                     params@species_params$b[species_idx])
+    }
+    x_var <- plot_size_x_var(size_axis)
+    plot_dat[, c(x_var, setdiff(names(plot_dat), c("l", "w"))), drop = FALSE]
+}
+
 #' Convert a weight-based spectrum to a length-based spectrum
 #'
 #' A density with respect to weight is converted to a density with respect to
 #' length with the Jacobian `dw/dl = b * w / l`. A density with respect to
 #' logarithmic weight is instead converted with
-#' `d log(w) / d log(l) = b`.
+#' `d log(w) / d log(l) = b`. This is the interface used by the `power`-based
+#' spectrum plots; arrays carry their density measure explicitly and use
+#' [convert_plot_density_axis()] instead.
 #'
-#' @inheritParams convert_plot_size_axis
+#' @inheritParams convert_plot_density_axis
 #' @param power The power of weight multiplying the number density.
 #' @param per_log_size Whether the spectrum is a density with respect to
 #'   logarithmic size rather than with respect to size. Defaults to
 #'   `power == 2`, the only power for which this used to be the case.
-#' @param value_col Name or index of the spectrum-value column. Defaults to the
-#'   second column.
 #' @return The plotting data with both its size coordinate and spectrum values
 #'   expressed for the requested axis.
 #' @keywords internal
@@ -749,22 +985,20 @@ convert_plot_spectrum_axis <- function(plot_dat, params, size_axis, power,
                                        per_log_size = power == 2,
                                        species_col = "Species",
                                        value_col = 2) {
-    size_axis <- plot_size_axis(size_axis)
-    if (identical(size_axis, "w")) {
-        return(plot_dat)
-    }
-    if (is.numeric(value_col)) {
-        value_col <- names(plot_dat)[[value_col]]
-    }
-    plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis,
-                                       species_col = species_col,
-                                       drop_w = FALSE)
-    species_idx <- match(as.character(plot_dat[[species_col]]),
-                         as.character(params@species_params$species))
-    sp <- params@species_params[species_idx, , drop = FALSE]
-    jacobian <- if (per_log_size) sp$b else sp$b * plot_dat$w / plot_dat$l
-    plot_dat[[value_col]] <- plot_dat[[value_col]] * jacobian
-    plot_dat[, c("l", setdiff(names(plot_dat), c("l", "w"))), drop = FALSE]
+    convert_plot_density_axis(plot_dat, params, size_axis,
+                              density_wrt = spectrum_density_wrt(per_log_size),
+                              species_col = species_col,
+                              value_col = value_col)
+}
+
+#' The density measure of a `power`-based spectrum
+#'
+#' @param per_log_size Whether the spectrum is a density with respect to
+#'   logarithmic size.
+#' @return `"log_w"` or `"w"`.
+#' @keywords internal
+spectrum_density_wrt <- function(per_log_size) {
+    if (isTRUE(per_log_size)) "log_w" else "w"
 }
 
 
@@ -2069,6 +2303,7 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
                        background = background, size_axis = "w",
                        return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
+    density_wrt <- spectrum_density_wrt(spectrum$per_log_size)
 
     plotComparisonDataFrame(sf1, sf2, validParams(params),
                             name1 = name1, name2 = name2,
@@ -2083,8 +2318,7 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
                             ylim = ylim, highlight = highlight,
                             legend_var = "Legend",
                             size_axis = size_axis,
-                            spectrum_power = power,
-                            spectrum_per_log_size = spectrum$per_log_size)
+                            density_wrt = density_wrt)
 }
 
 #' Resolve the power of weight multiplying a spectrum
@@ -2623,6 +2857,12 @@ plot_feeding_level <- function(params, feed, species, highlight,
     plot_dat$Legend <- factor(plot_dat$Species, levels = legend_levels)
     linesize <- make_linesize(legend_levels, highlight)
 
+    # The feeding level array declares itself a proportion, so show the whole
+    # of [0, 1] — widened if the critical feeding level rises above it, which
+    # it can. A logarithmic axis is left to the data.
+    feeding_level_ylim <- if (log_y) NULL else
+        array_ylim(feed, c(NA, NA), log_y, plot_dat[["Feeding level"]])
+
     # We do not use `plotDataFrame()` to create the plot because it would not
     # handle the alpha transparency for the critical feeding level.
 
@@ -2646,8 +2886,7 @@ plot_feeding_level <- function(params, feed, species, highlight,
                                limits = plot_size_xlim(wlim, size_axis, llim)) +
             scale_y_continuous(name = "Feeding Level",
                                trans = if (log_y) "log10" else "identity") +
-            # Feeding level is naturally bounded in [0, 1] on linear scale.
-            coord_cartesian(ylim = if (log_y) NULL else c(0, 1)) +
+            coord_cartesian(ylim = feeding_level_ylim) +
             scale_colour_manual(values = params@linecolour[legend_levels]) +
             scale_linetype_manual(values = params@linetype[legend_levels]) +
             scale_discrete_manual("linewidth", values = linesize),
