@@ -18,6 +18,6 @@ Mizer looks for the gear parameters in the gear parameter table, so setting
 one of them through \code{\link[=given_species_params<-]{given_species_params<-()}} does not reach the model.
 Only that assignment reports this, because \code{\link[=species_params<-]{species_params<-()}} keeps a
 column it does not recognise and code that reads it directly, as
-\code{\link[=matchYields]{matchYields()}} does with \code{yield_observed}, then still sees it.
+\code{\link[=get_yield_observed]{get_yield_observed()}} does with \code{yield_observed}, then still sees it.
 }
 \concept{helper}

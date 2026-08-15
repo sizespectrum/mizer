@@ -162,7 +162,7 @@ ignored because an array is frozen.
 
 Nearly everything mizer says while building or changing a model now goes
 through the same mechanism, including the reports in [`steady()`](../reference/steady.html),
-[`projectToSteady()`](../reference/projectToSteady.html), [`matchYields()`](../reference/matchYields.html), [`validParams()`](../reference/validParams.html), [`setInteraction()`](../reference/setInteraction.html),
+[`projectToSteady()`](../reference/projectToSteady.html), [`validParams()`](../reference/validParams.html), [`setInteraction()`](../reference/setInteraction.html),
 [`setReproduction()`](../reference/setReproduction.html), [`setResource()`](../reference/setResource.html), [`newTraitParams()`](../reference/newTraitParams.html),
 [`newSingleSpeciesParams()`](../reference/newSingleSpeciesParams.html) and [`plotYieldObservedVsModel()`](../reference/plotYieldObservedVsModel.html). Two consequences
 for existing code:
@@ -430,6 +430,45 @@ from the current state of a model, like `getEncounter()`, [`getFMort()`](../refe
 `getBiomass()`. The functions above only hand back a value that is already
 stored in the object.
 
+
+### `yield_observed` belongs to the gear parameters
+
+`plotYieldObservedVsModel()` now takes the observed yield from the
+`yield_observed` column of `gear_params()`, where the yield is given for each
+gear-species pair and the plot adds it up over the gears:
+
+```{r eval=FALSE}
+gear_params(params)["Cod, Otter", "yield_observed"] <- 3e11
+plotYieldObservedVsModel(params)
+```
+
+Nothing breaks if your model keeps `yield_observed` among the species
+parameters: a species that has no observation in the gear parameters takes its
+value from there. What changes is that a model following mizer's own advice —
+`given_species_params<-()` has been telling you to use `gear_params()<-` —
+now works, where before the plot stopped with "You have not provided values for
+the column 'yield_observed'".
+
+### `matchYields()` and `calibrateYield()` have been removed
+
+Both were deprecated in mizer 2.6.0 and nobody reported a use for them. They
+adjusted the *abundance* of a species to move its yield, which is the wrong
+lever: the yield is what the model predicts from the abundance and the fishing.
+Replace `matchYields()` with `mizerExperimental::matchYield()`, which adjusts
+the catchability instead:
+
+```{r eval=FALSE}
+# Old
+params <- calibrateYield(params)
+params <- matchYields(params)
+# New
+params <- mizerExperimental::matchYield(params)
+```
+
+`calibrateYield()` has no replacement. It rescaled the whole model so that the
+total yield summed over all species matched the total observation. If you were
+using it to set the scale of your model, use [`calibrateBiomass()`](../reference/calibrateBiomass.html) with observed
+biomasses, or [`scaleModel()`](../reference/scaleModel.html) with a factor of your own choosing.
 
 ---
 

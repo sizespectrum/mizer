@@ -53,16 +53,21 @@ create the plot is returned instead of the plot.
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 If yield observations are available for at least some species via the
-\code{yield_observed} column in the species parameter data frame, this function
-plots the yield of each species in the model against the observed
-yields. When called with a MizerSim object, the plot will use the model
-yields predicted for the final time step in the simulation.
+\code{yield_observed} column, this function plots the yield of each species in
+the model against the observed yields. When called with a MizerSim object,
+the plot will use the model yields predicted for the final time step in the
+simulation.
 }
 \details{
 Before you can use this function you will need to have added a
 \code{yield_observed} column to your model which gives the observed yield in
-grams per year.  For species for which you have no observed yield, you should set
-the value in the \code{yield_observed} column to 0 or NA.
+grams per year. Its home is the gear parameter data frame, see
+\code{\link[=gear_params]{gear_params()}}, where you give the yield for each gear-species pair and
+this function adds them up over the gears. For backwards compatibility a
+\code{yield_observed} column in the species parameter data frame is also
+accepted, see \code{\link[=get_yield_observed]{get_yield_observed()}}. For species for which you have no
+observed yield, you should set the value in the \code{yield_observed} column to
+0 or NA.
 
 The total relative error is shown in the caption of the plot, calculated by
 \deqn{TRE = \sum_i|1-\rm{ratio_i}|}{TRE = sum_i |1-ratio_i|} where
@@ -72,9 +77,11 @@ yield for species i.
 \examples{
 # create an example
 params <- NS_params
-species_params(params)$yield_observed <-
-    c(0.8, 61, 12, 35, 1.6, NA, 10, 7.6, 135, 60, 30, NA)
-params <- calibrateYield(params)
+# In this model each species is caught by a single gear, so there is one
+# row in the gear parameters for each species, in the same order.
+# Species without an observation get NA.
+gear_params(params)$yield_observed <-
+    c(NA, NA, NA, 3e11, 4e9, 4e10, 5e10, NA, 2e11, 6e10, 3e11, NA)
 
 # Plot with default options
 plotYieldObservedVsModel(params)

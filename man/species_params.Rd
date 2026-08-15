@@ -228,10 +228,13 @@ observations:
 \item \code{biomass_observed} and \code{biomass_cutoff} allow you to specify for each
 species the total observed biomass above some cutoff size. This is
 used by \code{\link[=calibrateBiomass]{calibrateBiomass()}} and \code{\link[=matchBiomasses]{matchBiomasses()}}.
-\item \code{yield_observed} allows you to specify for each
-species the total annual fisheries yield. This is
-used by \code{\link[=calibrateYield]{calibrateYield()}} and \code{\link[=matchYields]{matchYields()}}.
 }
+
+The total annual fisheries yield is not a species parameter but a gear
+parameter, because it is observed for each gear separately, see
+\code{\link[=gear_params]{gear_params()}}. For backwards compatibility mizer still accepts a
+\code{yield_observed} column in the species parameter data frame, see
+\code{\link[=get_yield_observed]{get_yield_observed()}}.
 
 Finally there are two species parameters that control the way the species are
 represented in plots:

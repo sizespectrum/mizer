@@ -18,10 +18,7 @@
 #' having biomasses that are too high and others too low. So after this
 #' function you may want to use [matchBiomasses()]. This is described in the
 #' blog post at \url{https://blog.mizer.sizespectrum.org/posts/2021-08-20-a-5-step-recipe-for-tuning-the-model-steady-state/}.
-#' 
-#' If you have observations of the yearly yield instead of biomasses, you can
-#' use [calibrateYield()] instead of this function.
-#' 
+#'
 #' @param params A MizerParams object
 #' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object. If no non-missing observed biomass values are
@@ -86,9 +83,6 @@ calibrateBiomass.MizerParams <- function(params, ...) {
 #' function you may want to use [matchNumbers()]. This is described in the
 #' blog post at \url{https://blog.mizer.sizespectrum.org/posts/2021-08-20-a-5-step-recipe-for-tuning-the-model-steady-state/}.
 #'
-#' If you have observations of the yearly yield instead of numbers, you can
-#' use [calibrateYield()] instead of this function.
-#'
 #' @param params A MizerParams object
 #' @param ... Additional arguments passed to the method.
 #' @return A MizerParams object. If no non-missing observed number values are
@@ -127,67 +121,6 @@ calibrateNumber.MizerParams <- function(params, ...) {
     scaleModel(params, factor = observed_total / model_total)
 }
 
-#' Calibrate the model scale to match total observed yield
-#' 
-#' `r lifecycle::badge("deprecated")`
-#' 
-#' This function has been deprecated and will be removed in the future unless
-#' you have a use case for it. If you do have a use case for it, please let the
-#' developers know by creating an issue at
-#' <https://github.com/sizespectrum/mizer/issues>.
-#' 
-#' Given a MizerParams object `params` for which yield observations are
-#' available for at least some species via the `yield_observed` column in the
-#' species_params data frame, this function returns an updated MizerParams
-#' object which is rescaled with [scaleModel()] so that the total yield in
-#' the model agrees with the total observed yield.
-#' 
-#' After using this function the total yield in the model will match the
-#' total observed yield, summed over all species. However the yields of the
-#' individual species will not match observations yet, with some species
-#' having yields that are too high and others too low. So after this
-#' function you may want to use [matchYields()].
-#' 
-#' If you have observations of species biomasses instead of yields, you can
-#' use [calibrateBiomass()] instead of this function.
-#' 
-#' @param params A MizerParams object
-#' @param ... Additional arguments passed to the method.
-#' @return A MizerParams object. If no non-missing observed yield values are
-#'   provided, the original object is returned unchanged.
-#' @concept deprecated
-#' @export
-#' @examples 
-#' params <- NS_params
-#' species_params(params)$yield_observed <-
-#'     c(0.8, 61, 12, 35, 1.6, 20, 10, 7.6, 135, 60, 30, 78)
-#' gear_params(params)$catchability <-
-#'     c(1.3, 0.065, 0.31, 0.18, 0.98, 0.24, 0.37, 0.46, 0.18, 0.30, 0.27, 0.39)
-#' params2 <- calibrateYield(params)
-#' plotYieldObservedVsModel(params2)
-calibrateYield <- function(params, ...)
-    UseMethod("calibrateYield")
-
-#' @export
-calibrateYield.MizerParams <- function(params, ...) {
-    lifecycle::deprecate_warn(
-        "2.6.0", "calibrateYield()",
-        details = "This function has not proven useful. If you do have a use case for it, please let the developers know by creating an issue at https://github.com/sizespectrum/mizer/issues"
-    )
-    if ((!("yield_observed" %in% names(params@species_params))) ||
-        all(is.na(params@species_params$yield_observed))) {
-        return(params)
-    }
-    observed <- params@species_params$yield_observed
-    observed_total <- sum(observed, na.rm = TRUE)
-    sp_observed <- which(!is.na(observed))
-    biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
-    yield_model <- rowSums(biomass * getFMort(params))[sp_observed]
-    model_total <- sum(yield_model)
-    scaleModel(params, factor = observed_total / model_total)
-}
-
-
 #' Change scale of the model
 #'
 #' @description
@@ -220,7 +153,7 @@ calibrateYield.MizerParams <- function(params, ...) {
 #' 
 #' In practice you will need to use some observations to set the scale for your
 #' model. If you have biomass observations you can use [calibrateBiomass()],
-#' if you have yearly yields you can use [calibrateYield()].
+#' if you have observed numbers you can use [calibrateNumber()].
 #'
 #' @param params A MizerParams object
 #' @param factor The factor by which the scale is multiplied

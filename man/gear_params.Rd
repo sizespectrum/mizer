@@ -53,7 +53,10 @@ functions.
 For the details see \code{\link[=setFishing]{setFishing()}}.
 
 There can optionally also be a column \code{yield_observed} that allows you to
-specify for each gear and species the total annual fisheries yield.
+specify for each gear and species the total annual fisheries yield in grams
+per year. This is used by \code{\link[=plotYieldObservedVsModel]{plotYieldObservedVsModel()}}, which adds the
+yields up over the gears to get the observed yield of each species, see
+\code{\link[=get_yield_observed]{get_yield_observed()}}.
 
 The fishing effort, which is also needed to determine the fishing mortality
 exerted by a gear is not set via the \code{gear_params} data frame but is set

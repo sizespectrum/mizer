@@ -4,7 +4,7 @@ description: >-
   Bring a mizer model to steady state and calibrate it to observed data. Use
   whenever the user wants to find the steady state (steady, projectToSteady,
   steadySingleSpecies, steadyNewton), match modelled biomass, yield, or growth to
-  observations (calibrateBiomass, matchBiomasses, calibrateYield, matchGrowth),
+  observations (calibrateBiomass, matchBiomasses, matchGrowth),
   set the level of density-dependent reproduction (setBevertonHolt), or diagnose
   why a model will not settle or reproduce observed values.
 ---
@@ -44,10 +44,11 @@ re-tuning.
 
 ## The calibration loop
 
-Do this only if you have observations. They live in the species-parameter
-columns `biomass_observed` and/or `yield_observed`, optionally with
-`biomass_cutoff` / `yield_cutoff` size thresholds below which observations are
-not counted. The usual order:
+Do this only if you have observations. Observed biomasses live in the
+species-parameter column `biomass_observed`, optionally with a
+`biomass_cutoff` size threshold below which observations are not counted.
+Observed yields live in the gear-parameter column `yield_observed`, which
+gives the annual yield of each gear-species pair. The usual order:
 
 ```r
 params <- steady(params)             # 1. settle onto the steady state
@@ -66,16 +67,19 @@ parameters off the current steady state.
 |---|---|---|
 | `calibrateBiomass()` | `kappa` (resource level) | total community biomass |
 | `matchBiomasses()` | per-species abundance | each `biomass_observed` |
-| `calibrateYield()` | overall abundance scale | total community yield |
 | `matchGrowth()` | `h`, `gamma`, `ks`, `k` | von Bertalanffy growth to `w_mat`/`w_inf` |
 
 `matchGrowth()` and `matchBiomasses()` pull on different parameters; alternate
 them, re-running `steady()` between, until both are satisfied — usually a few
 passes.
 
-**Yield instead of biomass:** use `calibrateYield()`, which reads
-`yield_observed`. Yield calibration depends on the fishing setup, so make sure
-gears and effort are right first — see the `set-up-fishing` skill.
+**Yields** are not a calibration target in mizer itself: put the observed
+annual yield of each gear-species pair into the `yield_observed` column of
+`gear_params()` and compare it with the model using
+`plotYieldObservedVsModel()`, which sums the observations over the gears. Use
+`mizerExperimental::matchYield()` to adjust the catchability so that the yields
+match. Yields depend on the fishing setup, so make sure gears and effort are
+right first — see the `set-up-fishing` skill.
 
 ## Density-dependent reproduction
 

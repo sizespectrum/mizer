@@ -69,6 +69,8 @@ plots) are in the changelog and are not repeated here.
 | Deprecation warning for `r_pp`/`kappa` now names `setResource()` instead of `setParams()` | the old recommendation pointed at a no-op | `setParams()` rejects arguments it does not use (3.3) |
 | Deprecation warning from `getCatchability()`, `getPredKernel()`, `getMetabolicRate()` or another `get`-prefixed array accessor | the bare name is now the only supported one | One name for each stored rate array (3.3) |
 | `getExtMort.MizerParams` and friends no longer found as S3 methods | the `get` names are plain forwarding functions now; dispatch happens on the bare name | One name for each stored rate array (3.3) |
+| `plotYieldObservedVsModel()` errors that no `yield_observed` was provided, but `gear_params()` has the column | the plot used to read only the species parameters | `yield_observed` belongs to the gear parameters (3.3) |
+| `could not find function "matchYields"` or `"calibrateYield"` | both removed after deprecation in 2.6.0 | `matchYields()` and `calibrateYield()` have been removed (3.3) |
 | `unused argument (sim = ...)` from `plotBiomass()`, `plotYield()`, `plotYieldGear()` | first argument renamed to `object` | Renamed arguments and changed defaults (3.0) |
 | `unused argument (time_range = ...)` from `plotDiet()` | removed in 3.0, back for `MizerSim` in 3.1 | Renamed arguments and changed defaults (3.0) |
 | `setInitialValues()` warns that it is deprecated | replaced by `finalParams()` | `setInitialValues()` is deprecated (3.0) |
@@ -249,7 +251,7 @@ ignored because an array is frozen.
 
 Nearly everything mizer says while building or changing a model now goes
 through the same mechanism, including the reports in `steady()`,
-`projectToSteady()`, `matchYields()`, `validParams()`, `setInteraction()`,
+`projectToSteady()`, `validParams()`, `setInteraction()`,
 `setReproduction()`, `setResource()`, `newTraitParams()`,
 `newSingleSpeciesParams()` and `plotYieldObservedVsModel()`. Two consequences
 for existing code:
@@ -540,6 +542,45 @@ than `encounter_kernel()` — the rename does not change that distinction, but i
 makes the two names look more alike than they used to.
 
 <!-- /agent-only -->
+
+### `yield_observed` belongs to the gear parameters
+
+`plotYieldObservedVsModel()` now takes the observed yield from the
+`yield_observed` column of `gear_params()`, where the yield is given for each
+gear-species pair and the plot adds it up over the gears:
+
+```r
+gear_params(params)["Cod, Otter", "yield_observed"] <- 3e11
+plotYieldObservedVsModel(params)
+```
+
+Nothing breaks if your model keeps `yield_observed` among the species
+parameters: a species that has no observation in the gear parameters takes its
+value from there. What changes is that a model following mizer's own advice —
+`given_species_params<-()` has been telling you to use `gear_params()<-` —
+now works, where before the plot stopped with "You have not provided values for
+the column 'yield_observed'".
+
+### `matchYields()` and `calibrateYield()` have been removed
+
+Both were deprecated in mizer 2.6.0 and nobody reported a use for them. They
+adjusted the *abundance* of a species to move its yield, which is the wrong
+lever: the yield is what the model predicts from the abundance and the fishing.
+Replace `matchYields()` with `mizerExperimental::matchYield()`, which adjusts
+the catchability instead:
+
+```r
+# Old
+params <- calibrateYield(params)
+params <- matchYields(params)
+# New
+params <- mizerExperimental::matchYield(params)
+```
+
+`calibrateYield()` has no replacement. It rescaled the whole model so that the
+total yield summed over all species matched the total observation. If you were
+using it to set the scale of your model, use `calibrateBiomass()` with observed
+biomasses, or `scaleModel()` with a factor of your own choosing.
 
 ## Upgrading from mizer 3.1 to 3.2
 

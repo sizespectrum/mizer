@@ -49,6 +49,11 @@ Plus **one column per parameter of the chosen `sel_func`**, named exactly like
 the function's argument (see below). Row names follow the pattern
 `"species, gear"`.
 
+There is one optional column, `yield_observed`, holding the observed annual
+yield of that gear–species pair in grams per year. It is not used by any rate
+calculation; [`plotYieldObservedVsModel()`](../reference/plotYieldObservedVsModel.html) sums it over the gears to compare the
+observations with the model.
+
 **Editing an existing gear table.** Pull it out, change what you need, and
 assign it back — the assignment triggers recalculation of the selectivity and
 catchability arrays:
@@ -220,8 +225,8 @@ gives two common conventions:
   to it.
 
 Either way, if you rescale catchability you must rescale effort inversely to
-keep the same $F$. This is why yield calibration with [`calibrateYield()`](../reference/calibrateYield.html) depends
-on the fishing setup being fixed first.
+keep the same $F$. This is why comparing modelled to observed yields with
+`plotYieldObservedVsModel()` depends on the fishing setup being fixed first.
 
 ---
 

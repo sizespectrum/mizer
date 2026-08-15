@@ -349,7 +349,10 @@ the model.
 
 ```{r}
 celtic_yields <- readRDS("celtic_yields.rds")
-species_params(cel)$yield_observed <- as.numeric(celtic_yields)
+# The observed yield is a gear parameter, given for each gear-species pair.
+# Here each species is caught by a single gear, in the same order as the
+# species, so we can assign the yields directly.
+gear_params(cel)$yield_observed <- as.numeric(celtic_yields)
 plotYieldObservedVsModel(cel)
 ```
 

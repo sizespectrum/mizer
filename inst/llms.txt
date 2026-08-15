@@ -933,10 +933,6 @@ versions of mizer
   Alias for
   [`set_multispecies_model()`](https://sizespectrum.org/mizer/reference/set_multispecies_model.md)
 
-- [`calibrateYield()`](https://sizespectrum.org/mizer/reference/calibrateYield.md)
-  **\[deprecated\]** : Calibrate the model scale to match total observed
-  yield
-
 - [`completeSpeciesParams()`](https://sizespectrum.org/mizer/reference/completeSpeciesParams.md)
   **\[deprecated\]** :
 
@@ -977,9 +973,6 @@ versions of mizer
   **\[deprecated\]** :
 
   Alias for `NS_interaction`
-
-- [`matchYields()`](https://sizespectrum.org/mizer/reference/matchYields.md)
-  **\[deprecated\]** : Match yields to observations
 
 - [`plotM2()`](https://sizespectrum.org/mizer/reference/plotM2.md)
   **\[deprecated\]** :

@@ -437,7 +437,7 @@ signal_ignored_changes <- function(given, changed) {
 #' one of them through [given_species_params<-()] does not reach the model.
 #' Only that assignment reports this, because [species_params<-()] keeps a
 #' column it does not recognise and code that reads it directly, as
-#' [matchYields()] does with `yield_observed`, then still sees it.
+#' [get_yield_observed()] does with `yield_observed`, then still sees it.
 #'
 #' @param changed A named list with one entry per changed column, or a
 #'   character vector of the changed column names.

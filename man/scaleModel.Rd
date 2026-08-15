@@ -46,5 +46,5 @@ you may need to rescale additional parameters that appear in those dynamics.
 
 In practice you will need to use some observations to set the scale for your
 model. If you have biomass observations you can use \code{\link[=calibrateBiomass]{calibrateBiomass()}},
-if you have yearly yields you can use \code{\link[=calibrateYield]{calibrateYield()}}.
+if you have observed numbers you can use \code{\link[=calibrateNumber]{calibrateNumber()}}.
 }
