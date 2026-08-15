@@ -83,11 +83,11 @@ individual species by including a \code{p} column in the \code{species_params}.}
 mortality rate.  If not supplied, a default is set as described in the
 section "Setting external mortality rate".}
 
-\item{z0pre}{If \code{z0}, the mortality from other sources, is missing from the
-species parameter data frame, it is calculated as
+\item{z0pre}{If \code{z0}, the mortality from other sources, is not present in
+\code{\link[=given_species_params]{given_species_params()}}, it is calculated as
 \code{z0pre * w_inf ^ z0exp}. Default value is 0.6.}
 
-\item{z0exp}{The exponent used with \code{z0pre} to calculate missing \code{z0}.
+\item{z0exp}{The exponent used with \code{z0pre} to calculate non-given \code{z0}.
 Default value is \code{n - 1}.}
 
 \item{ext_encounter}{Optional. An array (species x size) holding the external
@@ -468,15 +468,16 @@ If the \code{ext_mort} argument is not supplied, then the external mortality is
 taken from the species parameters as
 \deqn{\mu_{ext.i}(w) = z_{0.i} + z_{ext.i} w^{d_i}.}{mu_ext,i(w) = z0_i + z_ext,i w ^ d_i.}
 The value of the constant \eqn{z_0} for each species is taken from the \code{z0}
-column of the species parameter data frame, if that column exists. Missing
-values are calculated as
+column of \code{\link[=given_species_params]{given_species_params()}} if it is present there. Otherwise it is
+recalculated, even if a value from an earlier calculation is still present
+in \code{species_params}, as
 \deqn{z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.}{z_{0.i} = z0pre_i w_{inf}^{z0exp}.}
-When \code{z0pre} or \code{z0exp} is supplied explicitly and used to fill missing
-\code{z0}, the resulting values are recorded in \code{\link[=given_species_params]{given_species_params()}}. Values
-calculated from the defaults \code{z0pre = 0.6} and \code{z0exp = n - 1} are not
-recorded there. If either argument is supplied but cannot be used because
-\code{z0} is already complete or because \code{ext_mort} was supplied, a warning is
-issued.
+When \code{z0pre} or \code{z0exp} is supplied explicitly and used to calculate
+non-given \code{z0}, the resulting values are recorded in
+\code{\link[=given_species_params]{given_species_params()}}. Values calculated from the defaults
+\code{z0pre = 0.6} and \code{z0exp = n - 1} are not recorded there. If either argument
+is supplied but cannot be used because \code{z0} is given for every species or
+because \code{ext_mort} was supplied, a warning is issued.
 Missing values of \code{z_ext} are set to 0 and missing values of \code{d} are set to
 \code{n - 1}.
 

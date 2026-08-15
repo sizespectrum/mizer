@@ -301,9 +301,9 @@ a valid value; `gamma` will still take precedence (#517).
 
 ### `setExtMort()` warns when `z0pre` or `z0exp` is ignored
 
-The `z0pre` and `z0exp` arguments of [`setExtMort()`](../reference/setExtMort.html) are used only to fill
-missing values of the `z0` species parameter. A built model normally already
-has `z0` for every species, so calls such as
+The `z0pre` and `z0exp` arguments of [`setExtMort()`](../reference/setExtMort.html) are used only to calculate
+values of the `z0` species parameter that are not present in
+`given_species_params()`. If `z0` is given for every species, calls such as
 
 ```{r eval=FALSE}
 params <- setExtMort(params, z0pre = 2)
@@ -313,7 +313,7 @@ params <- setParams(params, z0exp = -0.25)
 were accepted but changed nothing. They now warn that the arguments were
 ignored. `reset = TRUE` does not make them applicable: it hands the
 external-mortality array back to the species parameters but does not remove the
-existing `z0` values.
+given `z0` values.
 
 Set `z0` explicitly when changing an existing model:
 
@@ -323,11 +323,12 @@ sp$z0 <- 2 * sp$w_inf^(-0.25)
 species_params(params) <- sp
 ```
 
-The arguments still work whenever `z0` is missing. If either argument was
-supplied explicitly, the calculated `z0` values are recorded in
-`given_species_params()` so that they survive later rebuilds. Values calculated
-from the default `z0pre = 0.6` and `z0exp = n - 1` remain calculated parameters
-and are not recorded there (#493).
+The arguments still work wherever `z0` is not given. A `z0` value present only
+in `species_params()` is the cached result of an earlier calculation and is
+recalculated. If either argument was supplied explicitly, the newly calculated
+`z0` values are recorded in `given_species_params()` so that they survive later
+rebuilds. Values calculated from the default `z0pre = 0.6` and
+`z0exp = n - 1` remain calculated parameters and are not recorded there (#493).
 
 ### `setParams()` rejects arguments it does not use
 

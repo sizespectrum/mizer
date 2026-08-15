@@ -61,7 +61,7 @@ plots) are in the changelog and are not repeated here.
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters (3.3) |
 | A recalculated `gamma` or `f0` is wildly different, in a model whose `search_vol` was set by hand | the frozen array used to block mizer's own unit-gamma calculation | Defaults for `gamma` and `f0` ignore a hand-set search volume (3.3) |
 | Setting `f0 = 1` now errors even though `gamma` is supplied | every supplied target feeding level is now validated | `f0` is always validated (3.3) |
-| `setExtMort(z0pre = ...)`, `setExtMort(z0exp = ...)` or the same arguments to `setParams()` now warns | `z0` was already complete, so the arguments were ignored | `setExtMort()` warns when `z0pre` or `z0exp` is ignored (3.3) |
+| `setExtMort(z0pre = ...)`, `setExtMort(z0exp = ...)` or the same arguments to `setParams()` now warns | `z0` was already present in `given_species_params()` for every species, so the arguments were ignored | `setExtMort()` warns when `z0pre` or `z0exp` is ignored (3.3) |
 | `setParams()` or `setResource()` errors that it "does not have an argument" | unknown arguments are no longer silently ignored | `setParams()` rejects arguments it does not use (3.3) |
 | A `setParams(resource_rate = )` / `setParams(kappa = )` call that ran fine now errors | `setParams()` never set the resource; use `setResource()` | `setParams()` rejects arguments it does not use (3.3) |
 | A resource change made via `setParams()` never showed up in the model | the argument was silently dropped in every version before 3.3 | `setParams()` rejects arguments it does not use (3.3) |
@@ -387,9 +387,9 @@ a valid value; `gamma` will still take precedence (#517).
 
 ### `setExtMort()` warns when `z0pre` or `z0exp` is ignored
 
-The `z0pre` and `z0exp` arguments of `setExtMort()` are used only to fill
-missing values of the `z0` species parameter. A built model normally already
-has `z0` for every species, so calls such as
+The `z0pre` and `z0exp` arguments of `setExtMort()` are used only to calculate
+values of the `z0` species parameter that are not present in
+`given_species_params()`. If `z0` is given for every species, calls such as
 
 ```r
 params <- setExtMort(params, z0pre = 2)
@@ -399,7 +399,7 @@ params <- setParams(params, z0exp = -0.25)
 were accepted but changed nothing. They now warn that the arguments were
 ignored. `reset = TRUE` does not make them applicable: it hands the
 external-mortality array back to the species parameters but does not remove the
-existing `z0` values.
+given `z0` values.
 
 Set `z0` explicitly when changing an existing model:
 
@@ -409,11 +409,12 @@ sp$z0 <- 2 * sp$w_inf^(-0.25)
 species_params(params) <- sp
 ```
 
-The arguments still work whenever `z0` is missing. If either argument was
-supplied explicitly, the calculated `z0` values are recorded in
-`given_species_params()` so that they survive later rebuilds. Values calculated
-from the default `z0pre = 0.6` and `z0exp = n - 1` remain calculated parameters
-and are not recorded there (#493).
+The arguments still work wherever `z0` is not given. A `z0` value present only
+in `species_params()` is the cached result of an earlier calculation and is
+recalculated. If either argument was supplied explicitly, the newly calculated
+`z0` values are recorded in `given_species_params()` so that they survive later
+rebuilds. Values calculated from the default `z0pre = 0.6` and
+`z0exp = n - 1` remain calculated parameters and are not recorded there (#493).
 
 ### `setParams()` rejects arguments it does not use
 

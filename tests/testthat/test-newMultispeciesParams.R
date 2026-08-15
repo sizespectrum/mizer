@@ -133,12 +133,13 @@ test_that("setParams rejects arguments it does not use", {
     expect_error(setParams(params, NULL, 0, 1),
                  "must be named")
     # Setter arguments are still recognised and warn when they are ignored.
+    params@given_species_params$z0 <- params@species_params$z0
     expect_warning(setParams(params, z0pre = 0.5,
                              RDD = "BevertonHoltRDD", info_level = 0),
                    NA)
     expect_warning(setParams(params, z0pre = 0.5,
                              RDD = "BevertonHoltRDD", info_level = 1),
-                   "ignored because the `z0` species parameter is already set")
+                   "already present in `given_species_params` for every species")
 })
 
 test_that("constructor records z0 only when z0 arguments are explicit", {

@@ -4,6 +4,7 @@ params <- NS_params_small
 test_that("setExtMort works", {
     params <- NS_params_small
     params@species_params$z0 <- 2 * params@species_params$z0
+    params@given_species_params$z0 <- params@species_params$z0
     p2 <- setExtMort(params)
     expect_equal(p2@mu_b, 2 * params@mu_b, ignore_attr = TRUE)
     # only mu_b changed
@@ -26,6 +27,7 @@ test_that("setExtMort works", {
 test_that("setExtMort uses z_ext and d species parameters", {
     params <- NS_params_small
     params@species_params$z0 <- rep(0.2, nrow(params@species_params))
+    params@given_species_params$z0 <- params@species_params$z0
     params@species_params$z_ext <- seq_len(nrow(params@species_params)) / 10
     params@species_params$d <- seq(-0.25, by = 0.01,
                                    length.out = nrow(params@species_params))
@@ -56,14 +58,27 @@ test_that("setExtMort defaults z_ext to 0 and d to n - 1", {
 
 test_that("setExtMort warns when z0pre or z0exp is ignored", {
     params <- NS_params_small
+    params@given_species_params$z0 <- params@species_params$z0
 
     expect_warning(p2 <- setExtMort(params, z0pre = 2),
-                   "ignored because the `z0` species parameter is already set")
+                   "already present in `given_species_params` for every species")
     expect_equal(p2@mu_b, params@mu_b, ignore_attr = TRUE)
     expect_warning(setExtMort(params, z0exp = -0.5),
-                   "ignored because the `z0` species parameter is already set")
+                   "already present in `given_species_params` for every species")
     expect_warning(setExtMort(params, ext_mort = params@mu_b, z0pre = 2),
                    "ignored because `ext_mort` was supplied")
+})
+
+test_that("setExtMort recalculates z0 that is not given", {
+    params <- NS_params_small
+    expect_false("z0" %in% names(params@given_species_params))
+    params@species_params$z0 <- 99
+
+    p2 <- setExtMort(params)
+    expected <- 0.6 * p2@species_params$w_inf^(
+        p2@resource_params$n - 1)
+    expect_equal(p2@species_params$z0, expected, ignore_attr = TRUE)
+    expect_false("z0" %in% names(p2@given_species_params))
 })
 
 test_that("setExtMort records z0 calculated from explicit arguments", {
@@ -84,11 +99,14 @@ test_that("setExtMort records z0 calculated from explicit arguments", {
     params <- NS_params_small
     original_z0 <- params@species_params$z0
     params@species_params$z0[[2]] <- NA
-    params@given_species_params$z0 <- NULL
+    params@given_species_params$z0 <- original_z0
+    params@given_species_params$z0[[2]] <- NA
     p4 <- setExtMort(params, z0pre = 2, z0exp = -0.5)
     expect_equal(p4@species_params$z0[[1]], original_z0[[1]])
     expect_equal(p4@given_species_params$z0,
-                 c(NA, 2 * p4@species_params$w_inf[[2]]^(-0.5), NA),
+                 c(original_z0[[1]],
+                   2 * p4@species_params$w_inf[[2]]^(-0.5),
+                   original_z0[[3]]),
                  ignore_attr = TRUE)
 })
 
@@ -113,6 +131,7 @@ test_that("Comment works on mu_b", {
     expect_message(setExtMort(params), NA)
     # but message when a change is not stored due to comment
     params@species_params$z0 <- 1
+    params@given_species_params$z0 <- params@species_params$z0
     expect_message(setExtMort(params),  "has been set manually")
     # Can reset
     p <- setExtMort(params, reset = TRUE)
@@ -126,6 +145,7 @@ test_that("Comment works on mu_b", {
 test_that("setExtMort bin_average path matches the analytic closed form", {
     params <- NS_params_small
     params@species_params$z0 <- rep(0.2, nrow(params@species_params))
+    params@given_species_params$z0 <- params@species_params$z0
     params@species_params$z_ext <- seq_len(nrow(params@species_params)) / 10
     params@species_params$d <- seq(-1, by = 0.3,
                                    length.out = nrow(params@species_params))
@@ -155,6 +175,7 @@ test_that("setExtMort bin_average path matches the analytic closed form", {
 test_that("setExtMort default (point-sampling) path is unchanged", {
     params <- NS_params_small
     params@species_params$z0 <- rep(0.2, nrow(params@species_params))
+    params@given_species_params$z0 <- params@species_params$z0
     params@species_params$z_ext <- seq_len(nrow(params@species_params)) / 10
     params@species_params$d <- seq(-0.25, by = 0.01,
                                    length.out = nrow(params@species_params))
