@@ -457,30 +457,8 @@ record_given_species_params <- function(given, value, old_sp) {
 
     common_cols <- intersect(names(value), names(old_sp))
     for (col in common_cols) {
-        old_vals <- old_sp[[col]]
         new_vals <- value[[col]]
-        # Determine, per species, which values changed. `==` is only reliable
-        # for plain atomic vectors. It is undefined (and errors) for list
-        # columns or columns holding S4/other objects, and for a matrix column
-        # it returns a matrix rather than one logical per species. In those
-        # cases fall back to a per-species `identical()` comparison.
-        simple <- is.atomic(old_vals) && is.atomic(new_vals) &&
-            is.null(dim(old_vals)) && is.null(dim(new_vals)) &&
-            length(old_vals) == no_sp && length(new_vals) == no_sp
-        if (simple) {
-            changed <- !((old_vals == new_vals) |
-                             (is.na(old_vals) & is.na(new_vals)))
-            changed[is.na(changed)] <- TRUE
-        } else {
-            get_row <- function(x, i) {
-                d <- dim(x)
-                if (!is.null(d) && length(d) >= 2) x[i, ] else x[[i]]
-            }
-            changed <- !vapply(
-                seq_len(no_sp),
-                function(i) identical(get_row(old_vals, i), get_row(new_vals, i)),
-                logical(1))
-        }
+        changed <- changed_entries(new_vals, old_sp[[col]], no_sp)
 
         if (any(changed)) {
             if (!col %in% names(given)) {
@@ -601,18 +579,72 @@ length_weight_mappings <- function() {
 }
 
 # Which entries of a species parameter column have changed, comparing entry by
-# entry. A column that did not exist before counts as changed throughout, `NA`
-# is compared as a value rather than as an unknown.
+# entry. This is mizer's single definition of "this species parameter changed":
+# `record_given_species_params()` uses it to decide what to record and
+# `given_species_params<-()` uses it to decide what to report on, so that the
+# two cannot drift apart.
+#
+# `NA` is compared as a value rather than as an unknown: `NA` staying `NA` is
+# no change, but a value replaced by `NA` is one, because that is how the user
+# hands a parameter back to mizer's calculation. A column that did not exist
+# before is compared against `NA`, so adding one that holds only `NA` changes
+# nothing.
+#
+# `new` is the column as it is now and must have one entry per species;
+# anything else is taken to say nothing about what changed. `prev` is the
+# column as it was, `NULL` where there was none.
 changed_entries <- function(new, prev, n) {
-    if (is.null(new) || !is.atomic(new) || length(new) != n) {
+    if (is.null(new) || column_length(new) != n) {
         return(rep(FALSE, n))
     }
-    if (is.null(prev) || !is.atomic(prev) || length(prev) != n) {
+    if (is.null(prev)) {
+        prev <- NA
+    } else if (column_length(prev) != n) {
+        # Nothing to compare against, so everything counts as changed.
         return(rep(TRUE, n))
     }
-    ch <- !((new == prev) | (is.na(new) & is.na(prev)))
-    ch[is.na(ch)] <- TRUE
-    ch
+    # `==` is only reliable for plain atomic vectors. It is undefined (and
+    # errors) for list columns or columns holding S4/other objects, and for a
+    # matrix column it returns a matrix rather than one logical per species. In
+    # those cases fall back to a per-species `identical()` comparison.
+    simple <- is.atomic(new) && is.atomic(prev) &&
+        is.null(dim(new)) && is.null(dim(prev))
+    if (simple) {
+        ch <- !((new == prev) | (is.na(new) & is.na(prev)))
+        ch[is.na(ch)] <- TRUE
+        return(rep_len(ch, n))
+    }
+    get_row <- function(x, i) {
+        d <- dim(x)
+        if (!is.null(d) && length(d) >= 2) {
+            x[i, ]
+        } else if (length(x) == 1) {
+            # The stand-in for a column that did not exist before
+            x[[1]]
+        } else {
+            x[[i]]
+        }
+    }
+    !vapply(seq_len(n),
+            function(i) identical(get_row(new, i), get_row(prev, i)),
+            logical(1))
+}
+
+# The number of species a species parameter column holds values for. A matrix
+# column has one row per species, any other column one entry per species.
+column_length <- function(x) {
+    d <- dim(x)
+    if (!is.null(d) && length(d) >= 2) nrow(x) else length(x)
+}
+
+# Which entries of a species parameter column hold a value. Only a plain atomic
+# column can say that it does not; a list or matrix column is taken to hold a
+# value for every species.
+entry_has_value <- function(x, n) {
+    if (is.atomic(x) && is.null(dim(x)) && length(x) == n) {
+        return(!is.na(x))
+    }
+    rep(TRUE, n)
 }
 
 # Set a column without triggering the reactive validation
@@ -1090,27 +1122,36 @@ is.given_species_params <- function(x) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")
     }
 
-    # Create data frame which contains only the values that have changed
-    common_columns <- intersect(names(value), names(params@given_species_params))
-    new_columns <- setdiff(names(value), names(params@given_species_params))
-    changes <- value[common_columns]
-    changes[changes == params@given_species_params[common_columns]] <- NA
-    # Remove columns that only contain NAs
-    changes <- changes %>% select(where(~ !all(is.na(.))))
-    # Add new columns
-    changes <- cbind(changes, value[new_columns])
+    # Which species changed in which column, for the reports below. All three
+    # reports work from this one list, so they cannot disagree about what
+    # counts as a change. A column that the given species parameters do not
+    # have yet is compared against `NA`, so that adding an all-`NA` column is
+    # no change while clearing a given value to `NA` is one: the user is then
+    # handing that parameter back to mizer's calculation.
+    old_given <- params@given_species_params
+    no_sp <- nrow(value)
+    changed <- lapply(names(value), function(col) {
+        changed_entries(value[[col]], old_given[[col]], no_sp)
+    })
+    names(changed) <- names(value)
+    changed <- changed[vapply(changed, any, logical(1))]
 
-    # Which species changed, for the reports below. In `changes` an entry that
-    # did not change has been set to NA.
-    changed <- lapply(changes, function(col) !is.na(col))
+    # Of those changes, the ones that gave a species a value. Only a value that
+    # is there can be overruled by another parameter, so this is the narrower
+    # question `signal_ignored_changes()` asks: clearing a value to `NA` is a
+    # change, but not one it has anything to say about.
+    specified <- lapply(names(changed), function(col) {
+        changed[[col]] & entry_has_value(value[[col]], no_sp)
+    })
+    names(specified) <- names(changed)
 
     # Warn about the changes that will have no impact, either because another
     # given parameter takes precedence or because the rate array they feed has
     # been set by hand.
     with_info_level({
-        signal_ignored_changes(params@given_species_params, changed)
+        signal_ignored_changes(old_given, specified)
         signal_gear_params_changes(changed)
-        signal_frozen_changes(params, names(changes))
+        signal_frozen_changes(params, names(changed))
     })
 
     params@given_species_params <- value

@@ -165,6 +165,29 @@ diagnostics, and they all sit on the same side of the line:
 | any parameter feeding a rate array you set by hand | the array is frozen |
 | [`catchability`](../reference/setFishing.html), [`selectivity`](../reference/setFishing.html), `l50`, `l25`, `sel_func`, `yield_observed` | these belong in [`gear_params()`](../reference/gear_params.html) |
 
+All three ask the same question about what changed, and setting a value to `NA`
+is part of the answer:
+
+```{r eval=FALSE}
+params <- NS_params
+search_vol(params) <- search_vol(params)   # freeze the search volume
+
+given_species_params(params)$gamma <- NA   # hand `gamma` back to mizer
+#> Warning: Your change to the species parameter `gamma` has not taken effect
+#> because the search volume has been set manually …
+
+given_species_params(params)$z0 <- NA      # a column that was not given
+                                           # anyway: nothing changes, no warning
+```
+
+Clearing a parameter that *was* given is a change, because it asks mizer to go
+back to calculating it, and that instruction is blocked by a frozen array just
+as a new value would be. Adding a column that holds only `NA` is not a change:
+nothing acquires a value. The one thing none of the three reports is a value
+handed back to mizer being overruled by another given parameter — only a value
+that is there can be overruled, so setting `f0` to `NA` on a model that gives
+`gamma` stays silent.
+
 **How this affects existing code:** nothing, which is the point — a script that
 ran clean on 3.2 using `species_params<-()` still runs clean. Use
 `given_species_params<-()` interactively, where the diagnostics are worth

@@ -403,6 +403,48 @@ test_that("given_species_params setter warns when a frozen rate blocks the chang
     expect_equal(params@search_vol, before, ignore_attr = TRUE)
 })
 
+test_that("given_species_params setter ignores a new all-NA column (#524)", {
+    params <- NS_params_small
+    ext_mort(params) <- ext_mort(params)
+    expect_false("z0" %in% names(given_species_params(params)))
+
+    # Nothing acquires a value, so none of the three diagnostics fires.
+    expect_silent(given_species_params(params)$z0 <- NA)
+    expect_false("catchability" %in% names(given_species_params(params)))
+    expect_silent(given_species_params(params)$catchability <- NA)
+})
+
+test_that("given_species_params setter treats clearing to NA as a change (#524)", {
+    params <- NS_params_small
+    search_vol(params) <- search_vol(params)
+    before <- params@search_vol
+    expect_false(any(is.na(given_species_params(params)$gamma)))
+
+    # Handing `gamma` back to mizer's calculation is an instruction that the
+    # frozen search volume cannot carry out, so the user is told.
+    expect_warning(given_species_params(params)$gamma <- NA,
+                   "Your change to the species parameter `gamma`.*search volume")
+    expect_equal(params@search_vol, before, ignore_attr = TRUE)
+})
+
+test_that("the given_species_params diagnostics agree about clearing to NA (#524)", {
+    params <- NS_params_small
+    expect_warning(given_species_params(params)$catchability <- 2,
+                   "you should use `gear_params\\(\\)<-`")
+    # Clearing it again is just as much a change, so it is reported again.
+    expect_warning(given_species_params(params)$catchability <- NA,
+                   "you should use `gear_params\\(\\)<-`")
+
+    # Only a value that is there can be overruled by `gamma`, so clearing `f0`
+    # is a change that `signal_ignored_changes()` has nothing to say about.
+    params <- NS_params_small
+    expect_false(any(is.na(given_species_params(params)$gamma)))
+    expect_false(any(is.na(given_species_params(params)$f0)))
+    expect_warning(given_species_params(params)$f0 <- 0.5,
+                   "values for `f0` that are going to be ignored")
+    expect_silent(given_species_params(params)$f0 <- NA)
+})
+
 test_that("species_params setter is quiet when no frozen rate is in the way", {
     params <- NS_params_small
     sp <- species_params(params)
@@ -966,6 +1008,41 @@ test_that("get_h_default accepts MizerParams, species_params and data.frame", {
 
     expect_equal(h_params, h_sp)
     expect_equal(h_params, h_df)
+})
+
+# changed_entries ----------------------------------------------------------
+
+test_that("changed_entries compares NA as a value", {
+    expect_identical(changed_entries(c(1, NA, 3), c(1, NA, 4), 3),
+                     c(FALSE, FALSE, TRUE))
+    # A value cleared to NA is a change, an NA that stays NA is not.
+    expect_identical(changed_entries(c(NA, NA), c(1, NA), 2), c(TRUE, FALSE))
+    # As is a value where there was none.
+    expect_identical(changed_entries(c(1, NA), c(NA, NA), 2), c(TRUE, FALSE))
+})
+
+test_that("changed_entries treats a column that did not exist as all NA", {
+    expect_identical(changed_entries(c(1, 2), NULL, 2), c(TRUE, TRUE))
+    expect_identical(changed_entries(c(1, NA), NULL, 2), c(TRUE, FALSE))
+    expect_identical(changed_entries(c(NA, NA), NULL, 2), c(FALSE, FALSE))
+})
+
+test_that("changed_entries handles list and matrix columns", {
+    expect_identical(changed_entries(list(c("a", "b"), "c"),
+                                     list(c("a", "b"), "d"), 2),
+                     c(FALSE, TRUE))
+    expect_identical(changed_entries(matrix(1:4, nrow = 2),
+                                     matrix(c(1L, 9L, 3L, 4L), nrow = 2), 2),
+                     c(FALSE, TRUE))
+    # A list column is new, so every species that has an entry has changed
+    expect_identical(changed_entries(list("a", "b"), NULL, 2), c(TRUE, TRUE))
+})
+
+test_that("changed_entries says nothing about a column of the wrong length", {
+    expect_identical(changed_entries(1, c(1, 2), 2), c(FALSE, FALSE))
+    expect_identical(changed_entries(NULL, c(1, 2), 2), c(FALSE, FALSE))
+    # Nothing to compare against, so everything counts as changed
+    expect_identical(changed_entries(c(1, 2), c(1, 2, 3), 2), c(TRUE, TRUE))
 })
 
 # record_given_species_params ---------------------------------------------
