@@ -585,7 +585,7 @@ getBiomass.MizerSim <- function(object, use_cutoff = FALSE, ...) {
     params <- object@params
     if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
         sizeIntegral(object, weight = params@w,
-                     min_w = biomass_cutoff_min_w(params),
+                     min_w = cutoff_min_w(params),
                      value_name = "Biomass", units = "g")
     } else {
         sizeIntegral(object, weight = params@w, ...,
@@ -597,26 +597,10 @@ getBiomass.MizerParams <- function(object, use_cutoff = FALSE, ...) {
     params <- object
     if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
         sizeIntegral(params, weight = params@w,
-                     min_w = biomass_cutoff_min_w(params))
+                     min_w = cutoff_min_w(params))
     } else {
         sizeIntegral(params, weight = params@w, ...)
     }
-}
-
-#' The minimum weights given by the `biomass_cutoff` species parameter
-#'
-#' Internal helper for [getBiomass()]. Returns the `biomass_cutoff` column of
-#' the species parameters, with any NAs replaced by the smallest weight in the
-#' model.
-#'
-#' @param params A MizerParams object.
-#' @return A numeric vector with one minimum weight for each species.
-#' @concept helper
-#' @keywords internal
-biomass_cutoff_min_w <- function(params) {
-    min_w <- params@species_params$biomass_cutoff
-    min_w[is.na(min_w)] <- min(params@w)
-    min_w
 }
 
 

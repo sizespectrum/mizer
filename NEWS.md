@@ -136,6 +136,15 @@ stability of steady states.
   functions already had, and `matchBiomasses()` and `matchNumbers()` now
   actually honour theirs.
 
+- The biomass and the number variants of the calibration and matching functions
+  now share one implementation each. `calibrateBiomass()` and
+  `calibrateNumber()` differ only in whether the size integral carries a factor
+  of the weight, as do `matchBiomasses()` and `matchNumbers()`, but each was a
+  separate copy of the code, and the copies had drifted apart. The four
+  functions behave exactly as before on the default quadrature scheme; what
+  changes is that a correction to how an observation is compared with the model
+  is now made once instead of once per variant (#504).
+
 - New `mizer_info_level` option sets how much mizer tells you about the choices
   it makes, without your having to pass `info_level` to each call.
   `options(mizer_info_level = 0)` quietens mizer as a whole, including the
@@ -334,6 +343,25 @@ stability of steady states.
   `getEncounter()` or `getFMort()`.
 
 ## Bug fixes
+
+- `calibrateBiomass()`, `calibrateNumber()`, `matchNumbers()`,
+  `plotBiomassObservedVsModel()` and `plotYieldObservedVsModel()` now integrate
+  over the size grid with `sizeIntegral()` like everything else in mizer. They
+  had each hand-rolled the sum, so they stayed on the first-order quadrature and
+  cut the size range at a bin boundary even in a model with
+  `second_order_w(params)["bin_average"]` switched on. In such a model a species
+  matched to its observed biomass was then plotted off the 1:1 line, because the
+  match and the plot measured the biomass differently, and the model yields in
+  `plotYieldObservedVsModel()` came out 10-20% below `getYield()`, so the plot
+  and its total-relative-error caption reported an under-prediction of the
+  yields that was not there. Results on the default quadrature scheme are
+  unchanged (#504, #529).
+
+- `matchNumbers()` no longer reports having moved the model off its steady state
+  when it had nothing to match. Its guard against an empty selection of species
+  never fired, so with no observations, or none for the species asked for, it
+  left the abundances alone but still re-tuned the reproduction parameters and
+  announced a rescaling that had not happened (#504).
 
 - `plotYieldObservedVsModel()` now finds the observed yield where mizer says it
   belongs. `yield_observed` is documented as a `gear_params()` column, and

@@ -81,3 +81,21 @@ expect_identical(dummy_sim, dummy_params)
     pp <- plotlyBiomassObservedVsModel(params)
     expect_s3_class(pp, "plotly")
 })
+
+test_that("plotBiomassObservedVsModel agrees with getBiomass in both modes", {
+    check <- function(params) {
+        species_params(params)$biomass_cutoff <- params@w[10]
+        species_params(params)$biomass_observed <- c(0.8, 61, 12)
+        dummy <- plotBiomassObservedVsModel(params, return_data = TRUE)
+        expect_equal(dummy$model,
+                     unname(getBiomass(params, use_cutoff = TRUE)))
+        # so a matched model plots on the 1:1 line
+        matched <- suppressMessages(matchBiomasses(params))
+        dummy <- plotBiomassObservedVsModel(matched, return_data = TRUE)
+        expect_equal(dummy$model, dummy$observed, ignore_attr = TRUE)
+    }
+    p <- NS_params_small
+    check(p)
+    second_order_w(p) <- c(bin_average = TRUE)
+    check(p)
+})

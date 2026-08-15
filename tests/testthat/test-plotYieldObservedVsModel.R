@@ -123,3 +123,17 @@ test_that("get_yield_observed rejects non-numeric gear observations", {
     expect_error(get_yield_observed(params),
                  "The column 'yield_observed' in the gear parameter data frame is not numeric")
 })
+
+test_that("plotYieldObservedVsModel agrees with getYield in both modes", {
+    check <- function(params) {
+        # Sprat is not fished in this fixture, so it is dropped from the plot
+        gear_params(params)$yield_observed <- c(NA, 1.2, 0.8) * getYield(params)
+        expect_message(dummy <- plotYieldObservedVsModel(params,
+                                                        return_data = TRUE))
+        expect_equal(dummy$model, unname(getYield(params)[c(2, 3)]))
+    }
+    p <- NS_params_small
+    check(p)
+    second_order_w(p) <- c(bin_average = TRUE)
+    check(p)
+})

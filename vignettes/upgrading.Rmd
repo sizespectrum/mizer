@@ -295,6 +295,37 @@ already did. Numbers over a restricted size range therefore change slightly
 under `second_order_w`; over the full size range, and on the default
 first-order scheme, nothing changes (#494).
 
+### The calibration and matching functions respect the quadrature scheme
+
+[`calibrateBiomass()`](../reference/calibrateBiomass.html), [`calibrateNumber()`](../reference/calibrateNumber.html), [`matchNumbers()`](../reference/matchNumbers.html),
+[`plotBiomassObservedVsModel()`](../reference/plotBiomassObservedVsModel.html) and `plotYieldObservedVsModel()` each wrote out
+their own sum over the size grid rather than using mizer's size integral, so
+they stayed on the first-order quadrature and cut the size range at a bin
+boundary even in a model with second-order bin-averaging switched on with
+`second_order_w()`. In such a model the calibration functions left the
+abundances at values that disagreed with the `getBiomass()` or `getN()` you
+would check them against, and a species matched to its observed biomass was
+then plotted off the 1:1 line. All five now integrate the same way
+`getBiomass()`, `getN()` and [`getYield()`](../reference/getYield.html) do, so a matched species really does
+come out at its observation. On the default first-order scheme nothing changes
+(#504, #529).
+
+`plotYieldObservedVsModel()` is the one where the size of the error matters.
+Its model yields were 10-20% below `getYield()` for a model on the
+second-order scheme, and the total relative error in the plot caption is
+computed from them, so it told you the model under-predicted the yields when it
+did not. If you have read a yield calibration off that plot under
+`second_order_w()`, re-read it.
+
+`matchNumbers()` also gains the empty-selection guard that [`matchBiomasses()`](../reference/matchBiomasses.html)
+already had. Its own guard could never fire, so when it had nothing to match —
+no `number_observed` values, or none for the species you asked for — it left the
+abundances alone but still called [`setBevertonHolt()`](../reference/setBevertonHolt.html), updated `time_modified`
+and announced that it had moved the model off its steady state. It now returns
+the model unchanged, as `matchBiomasses()` always did. Code that relied on the
+incidental re-tuning of the reproduction parameters should call
+`setBevertonHolt()` itself.
+
 ### `w_min` survives a rebuild of the species parameters
 
 `w_min` is now part of `given_species_params`, so the `min_w` argument to
@@ -307,7 +338,7 @@ the size grid it asked for, and results change accordingly.
 
 ### The `match…()` functions announce that they broke the steady state
 
-[`matchBiomasses()`](../reference/matchBiomasses.html), [`matchNumbers()`](../reference/matchNumbers.html) and [`matchGrowth()`](../reference/matchGrowth.html) now
+`matchBiomasses()`, `matchNumbers()` and [`matchGrowth()`](../reference/matchGrowth.html) now
 report that they have moved the model off its steady state. This is a message,
 so `info_level = 0` or `options(mizer_info_level = 0)` silences it, as does the
 `info_level` argument, which `matchGrowth()` gains and which `matchBiomasses()`
@@ -573,7 +604,7 @@ params <- mizerExperimental::matchYield(params)
 
 `calibrateYield()` has no replacement. It rescaled the whole model so that the
 total yield summed over all species matched the total observation. If you were
-using it to set the scale of your model, use [`calibrateBiomass()`](../reference/calibrateBiomass.html) with observed
+using it to set the scale of your model, use `calibrateBiomass()` with observed
 biomasses, or `scaleModel()` with a factor of your own choosing.
 
 ---
@@ -850,7 +881,7 @@ changes that can affect existing code.
   `object`, for consistency with the other plot generics. Calls that passed the
   simulation by name, `plotBiomass(sim = my_sim)`, must become
   `plotBiomass(object = my_sim)`. Positional calls are unaffected.
-- **[`plotBiomassObservedVsModel()`](../reference/plotBiomassObservedVsModel.html) / [`plotlyBiomassObservedVsModel()`](../reference/plotBiomassObservedVsModel.html)** now
+- **`plotBiomassObservedVsModel()` / [`plotlyBiomassObservedVsModel()`](../reference/plotBiomassObservedVsModel.html)** now
   default to `ratio = FALSE` for all object types. Calls that relied on the
   previous ratio plot must set `ratio = TRUE` explicitly.
 - **`plotDiet()` no longer accepts a `time_range` argument.** Remove it from your

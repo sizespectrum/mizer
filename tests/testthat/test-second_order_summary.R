@@ -210,3 +210,40 @@ test_that("getTrophicLevel gives 2 for a predator whose prey all have level 1", 
     check(p)
     check(custom_kernel_params(p))
 })
+
+# Calibration and matching ----
+
+test_that("the calibration and matching functions integrate in both modes", {
+    check <- function(params) {
+        cutoff <- params@w[10]
+        species_params(params)$biomass_cutoff <- cutoff
+        species_params(params)$number_cutoff <- cutoff
+        biomass <- getBiomass(params, use_cutoff = TRUE)
+        number <- getN(params, min_w = cutoff)
+        species_params(params)$biomass_observed <- as.numeric(biomass) *
+            c(0.5, 2, 4)
+        species_params(params)$number_observed <- as.numeric(number) *
+            c(4, 0.5, 2)
+        observed_biomass <- species_params(params)$biomass_observed
+        observed_number <- species_params(params)$number_observed
+
+        # Calibrating brings the total onto the total of the observations
+        expect_equal(sum(getBiomass(calibrateBiomass(params),
+                                    use_cutoff = TRUE)),
+                     sum(observed_biomass))
+        expect_equal(sum(getN(calibrateNumber(params), min_w = cutoff)),
+                     sum(observed_number))
+
+        # Matching brings each species onto its own observation
+        matched <- suppressMessages(matchBiomasses(params))
+        expect_equal(unname(getBiomass(matched, use_cutoff = TRUE)),
+                     unname(observed_biomass))
+        matched <- suppressMessages(matchNumbers(params))
+        expect_equal(unname(getN(matched, min_w = cutoff)),
+                     unname(observed_number))
+    }
+    p <- NS_params_small
+    check(p)
+    second_order_w(p) <- c(bin_average = TRUE)
+    check(p)
+})

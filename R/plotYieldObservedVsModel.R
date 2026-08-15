@@ -79,9 +79,8 @@ plotYieldObservedVsModel.MizerParams <- function(object, species = NULL, ratio =
     params <- object
     sp_params <- params@species_params
     
-    biomass <- sweep(params@initial_n, 2, params@w * params@dw, "*")
-    yield_model <- rowSums(biomass * getFMort(params))
-    
+    yield_model <- getYield(params)
+
     # Select appropriate species
     species <- valid_species_arg(object, species)
     no_yield <- yield_model[species] == 0
