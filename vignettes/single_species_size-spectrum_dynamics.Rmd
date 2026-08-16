@@ -1003,7 +1003,7 @@ needs to consume prey at a rate that scales with its body size to the
 power $p$, with $p$ about $3/4$. We also know that the prey density will
 be approximately described by the Sheldon power law, i.e., that
 $N(w) = N_0\ w^{-\lambda}$. A bit of maths then says that
-$$q = 2 - \lambda + n.$$ This explains the message you got when you
+$$q = \lambda -2 + n.$$ This explains the message you got when you
 created the params object with a certain choice of $\lambda$: mizer
 chose the search volume exponent automatically according to this formula.
 In the real world, evolution will have made sure that the fish will have
