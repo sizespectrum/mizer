@@ -2,12 +2,14 @@
 name: analyse-stability
 description: >-
   Analyse the dynamic stability of a mizer steady state and characterise limit
-  cycles (experimental). Use whenever the
-  user wants to know whether a steady state is stable or unstable, find the
-  spectral radius or the period of an emergent oscillation, detect a Hopf
-  bifurcation, build or plot a limit cycle, or draw a bifurcation diagram over
-  fishing effort — via getStability(), steadyNewton(stability = TRUE),
-  getLimitCycleSim(), and plotBifurcation().
+  cycles (experimental). Use whenever the user asks whether a steady state is
+  stable or unstable, wants the spectral radius or leading eigenvalue, the period
+  of an emergent oscillation, a Hopf bifurcation, a limit cycle to build or plot,
+  or a bifurcation diagram over fishing effort — via getStability(),
+  steadyNewton(stability = TRUE), getLimitCycleSim() and plotBifurcation(). This
+  skill and calibrate-model share steadyNewton() and getSteadyResidual(): use
+  calibrate-model to find a steady state, this skill to ask whether the state you
+  found is stable. Assumes the standard semichemostat resource dynamics.
 ---
 
 # Analysing dynamic stability

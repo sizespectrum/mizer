@@ -3,12 +3,15 @@ name: calibrate-model
 description: >-
   Bring a mizer model to steady state and calibrate it to observed data. Use
   whenever the user wants to find the steady state (steady, projectToSteady,
-  steadySingleSpecies, steadyNewton), match modelled biomass, abundance, yield,
-  or growth to observations (calibrateBiomass, matchBiomasses, calibrateNumber,
-  matchNumbers, matchGrowth),
-  set the level of density-dependent reproduction (reproduction_level<-), check
-  whether a model is at its steady state (getSteadyResidual), or diagnose
-  why a model will not settle or reproduce observed values.
+  steadySingleSpecies, steadyNewton), match modelled biomass, numbers, yield or
+  growth to observations (calibrateBiomass, matchBiomasses, calibrateNumber,
+  matchNumbers, matchGrowth), supply those observations (the
+  biomass_observed/biomass_cutoff or number_observed species-parameter columns,
+  the yield_observed gear-parameter column), set the level of density-dependent
+  reproduction (reproduction_level<-), check convergence (getSteadyResidual), or
+  diagnose a model that collapses, explodes or will not settle. To ask whether
+  the steady state you found is dynamically stable, see the analyse-stability
+  skill.
 ---
 
 # Bringing a model to steady state and calibrating it

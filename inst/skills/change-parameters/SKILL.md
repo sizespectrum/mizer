@@ -1,13 +1,17 @@
 ---
 name: change-parameters
 description: >-
-  Change parameters of an existing mizer model correctly. Use whenever the user
-  wants to modify species parameters, size-dependent rates, fishing, the
-  resource, or interactions — and especially when unsure which accessor to use:
-  given_species_params() vs species_params(), changing a species parameter vs
-  setting a rate array directly (setSearchVolume, setPredKernel, setParams…), or
-  gear_params() vs the resource setters. Follow these rules to avoid changes
-  that silently fail to propagate or get overwritten.
+  Change parameters of an existing mizer model correctly, so that the change
+  propagates downwards and is not silently overwritten. Use whenever the user
+  wants to modify species parameters, size-dependent rates, the resource or the
+  interaction matrix — and especially when unsure which level to work at:
+  given_species_params() vs species_params(), or changing a species parameter vs
+  setting a rate array directly (setSearchVolume, setPredKernel, setParams…).
+  Covers which values get recalculated and which stay put, the freeze trap when a
+  rate array is set by hand, length-vs-weight precedence (l_mat vs w_mat),
+  resource balancing (balance =), and warnings that a change could not take
+  effect. Fishing gears are covered by the set-up-fishing skill, custom rate
+  functions by the extend-mizer skill.
 ---
 
 # Changing model parameters

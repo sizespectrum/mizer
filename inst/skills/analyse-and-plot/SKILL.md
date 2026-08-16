@@ -2,12 +2,15 @@
 name: analyse-and-plot
 description: >-
   Analyse and visualise the results of a mizer simulation or the state of a
-  MizerParams object. Use whenever the user wants to extract, summarise, or plot
-  size spectra, biomass, yield, SSB, abundance, feeding level, mortality, diet,
-  trophic level, community indicators, growth curves, or the plankton resource —
-  including comparing two simulations or animating spectra through time. Prefer
-  the built-in mizer functions described here over writing custom extraction or
-  ggplot code.
+  MizerParams object. Use whenever the user wants to extract, summarise or plot
+  size spectra, biomass, numbers, yield, SSB, feeding level, mortality, diet,
+  trophic level, community indicators, growth curves or the resource — including
+  comparing two models and animating spectra through time. Also covers choosing
+  what a density plot shows (biomass, per_log_size, size_axis), the
+  ArraySpeciesBySize/ArrayTimeBySpecies wrappers the getters return, and writing
+  a custom indicator with sizeIntegral(). Prefer these functions over
+  hand-written array wrangling or custom ggplot code. If a plotting argument that
+  used to work now errors (power=), see the upgrade-mizer-code skill.
 ---
 
 # Analysing and plotting mizer results

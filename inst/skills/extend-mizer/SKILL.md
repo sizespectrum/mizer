@@ -1,12 +1,17 @@
 ---
 name: extend-mizer
 description: >-
-  Extend or customise mizer's dynamics — add external food/mortality, replace a
-  built-in rate calculation, or add a new ecosystem component. Use whenever the
+  Extend or customise mizer's dynamics — add external food or mortality, replace
+  a built-in rate calculation, or add a new ecosystem component. Use whenever the
   user wants a custom encounter/growth/mortality/reproduction formulation
-  (setRateFunction), a background food or predation source (setExtEncounter,
-  setExtMort), a new dynamical pool like detritus or carrion (setComponent), or
-  asks how to make mizer do something its standard setters do not cover.
+  (setRateFunction() wrapping or replacing mizerEncounter, mizerPredRate,
+  mizerMort, mizerEReproAndGrowth), a background food, diffusion or predation
+  source needing no new state variable (setExtEncounter, setExtMort,
+  setExtDiffusion), a new dynamical pool such as detritus or carrion
+  (setComponent), or asks how to make mizer do something its standard setters do
+  not cover — including how a custom rate must respect the second_order_w
+  quadrature scheme. Pick the lightest mechanism that works: to change an
+  existing rate's parameters see the change-parameters skill.
 ---
 
 # Extending mizer

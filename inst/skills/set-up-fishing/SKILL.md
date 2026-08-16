@@ -2,11 +2,15 @@
 name: set-up-fishing
 description: >-
   Set up or change fishing in a mizer model — gears, selectivity curves,
-  catchability, and effort. Use whenever the user wants to define fishing gears,
-  choose or configure a selectivity function (knife_edge, sigmoid_length,
-  double_sigmoid_length, sigmoid_weight), set which gear catches which species,
-  change catchability, or set the fishing effort with setFishing() and the
-  gear_params data frame.
+  catchability and effort. Use whenever the user wants to define fishing gears in
+  the gear_params data frame (sel_func, catchability, yield_observed), choose and
+  parameterise a selectivity function (knife_edge with knife_edge_size,
+  knife_edge_length, sigmoid_length and double_sigmoid_length with
+  l50/l25/l50_right/l25_right, sigmoid_weight), set which gear catches which
+  species, apply the result with setFishing(), or set the fishing effort
+  (initial_effort<-). Note that catchability sets the units in which effort is
+  measured. Matching modelled yields to observed ones is covered by the
+  calibrate-model skill.
 ---
 
 # Setting up fishing

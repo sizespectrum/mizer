@@ -2,12 +2,15 @@
 name: upgrade-mizer-code
 description: >-
   Diagnose and fix user code or models that broke, changed results, or started
-  warning after a mizer upgrade. Use whenever a script that "used to work" now
+  warning after a mizer upgrade — every documented change from 2.5.4 through 3.3,
+  release by release, with the fix. Use whenever a script that "used to work" now
   errors, a deprecation warning appears, plots or numbers differ from a previous
-  run, an argument is suddenly "unused" (sim=, time_range=), an identical()
-  comparison against a saved rate array fails, or the user asks how to move code
-  from mizer 2.5/3.0/3.1 to a later version. Lists every documented change in
-  behaviour, release by release, with the fix.
+  run, an argument is suddenly unused or rejected (power=, sim=, time_range=,
+  setParams() rejecting an argument it does not use), a function has gone
+  (matchYields, calibrateYield), a parameter change warns that it cannot take
+  effect, an identical() comparison against a saved rate array fails, or `$` on a
+  parameter table stopped matching partially. Starts from a symptom index, so
+  search it by the message the user actually saw.
 ---
 
 # Upgrading mizer

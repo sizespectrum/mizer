@@ -2,11 +2,14 @@
 name: run-simulation
 description: >-
   Project a mizer model forward in time and set up fishing-effort scenarios. Use
-  whenever the user wants to run a simulation with project(), specify constant or
-  time-varying fishing effort, choose a projection method or time step, run to a
-  new steady state after a change, continue an existing MizerSim, or set up
-  scenario comparisons. For extracting and plotting the results, see the
-  analyse-and-plot skill.
+  whenever the user wants to run a simulation with project(), choose the time
+  stepping (t_max, dt, t_save, t_start), give constant, time-varying or per-gear
+  fishing effort, continue an existing MizerSim (append = TRUE), carry a
+  simulation's end state into a new run (setInitialValues, finalParams), run to a
+  new steady state after a change, or set up scenario comparisons — including
+  what to do about numerical diffusion and the second_order_w scheme when growth
+  looks smeared. For extracting and plotting the results see the analyse-and-plot
+  skill; for reaching steady state first see the calibrate-model skill.
 ---
 
 # Running a mizer simulation

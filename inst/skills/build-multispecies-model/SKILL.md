@@ -1,15 +1,16 @@
 ---
 name: build-multispecies-model
 description: >-
-  Build a multi-species mizer model from a species-parameter data frame. Use
+  Build a new multi-species mizer model from a species-parameter data frame. Use
   whenever the user wants to create a MizerParams object with
   newMultispeciesParams() (or newTraitParams, newCommunityParams,
-  newSingleSpeciesParams), set up an interaction matrix, choose the size grid,
-  or save and reload a finished model. Follow this ordered workflow rather than
-  guessing at parameters or writing the dynamics by hand. Once the object
-  exists, setting up fishing is covered by the set-up-fishing skill, and
-  bringing it to steady state and calibrating it to data is covered by the
-  calibrate-model skill.
+  newSingleSpeciesParams), decide which species-parameter columns to supply and
+  which to leave to mizer's allometric defaults, set up an interaction matrix,
+  choose the size grid (no_w, min_w, max_w, min_w_pp), or save and reload a
+  finished model. Follow this ordered workflow rather than guessing at parameters
+  or writing the dynamics by hand. To change a model that already exists see the
+  change-parameters skill; fishing is covered by the set-up-fishing skill and
+  steady state and calibration by the calibrate-model skill.
 ---
 
 # Building a multi-species mizer model
