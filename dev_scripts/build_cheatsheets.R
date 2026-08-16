@@ -241,18 +241,15 @@ link_first_mentions <- function(line, map, seen, nolink = character(0),
 }
 
 
-#' Character position at which a table row's first cell ends
+#' Character position up to which linking is forced (all table rows)
 #'
-#' Returns 0 for anything that is not a markdown table row, so the caller can
-#' pass the result straight to `link_first_mentions(force_to = )`. The
-#' delimiter row is excluded; a header row needs no special case, as it names
-#' the column ("Function") in prose rather than holding a code span.
+#' Returns 0 for anything that is not a markdown table row, and nchar(line) for
+#' a table row, so all cells in a table are always linked. The delimiter row is
+#' excluded.
 table_key_cell <- function(line) {
     if (!grepl("^\\s*\\|", line)) return(0L)
     if (grepl("^\\s*\\|[-: |]+\\|\\s*$", line)) return(0L)
-    close <- regexpr("\\|[^|]*\\|", line, perl = TRUE)
-    if (close == -1L) return(0L)
-    close + attr(close, "match.length") - 1L
+    nchar(line)
 }
 
 

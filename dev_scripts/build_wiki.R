@@ -172,9 +172,7 @@ link_first_mentions <- function(line, map, seen, nolink = character(0),
 table_key_cell <- function(line) {
     if (!grepl("^\\s*\\|", line)) return(0L)
     if (grepl("^\\s*\\|[-: |]+\\|\\s*$", line)) return(0L)
-    close <- regexpr("\\|[^|]*\\|", line, perl = TRUE)
-    if (close == -1L) return(0L)
-    close + attr(close, "match.length") - 1L
+    nchar(line)
 }
 
 # Conversion logic -------------------------------------------------------------
