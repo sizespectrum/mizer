@@ -41,8 +41,8 @@ params <- steady(params)
 | Function | Use |
 |---|---|
 | [`steady(params)`](../reference/steady.html) | run the dynamics to convergence **with births held fixed**, then store the result as the initial state (the default choice) |
-| [`steadySingleSpecies(params)`](../reference/steadySingleSpecies.html) | set each species to its single-species steady form, births held fixed, without changing the resource — a fast way to get a sensible starting spectrum before `steady()` |
-| [`projectToSteady(params)`](../reference/projectToSteady.html) | the lower-level routine `steady()` builds on, but with **births responding dynamically**; exposes `t_max`, `tol`, `return_sim` if you need to watch convergence |
+| [`steadySingleSpecies(params)`](../reference/steadySingleSpecies.html) | set each species to its single-species steady form, births held fixed, without changing the resource — a fast way to get a sensible starting spectrum before [`steady()`](../reference/steady.html) |
+| [`projectToSteady(params)`](../reference/projectToSteady.html) | the lower-level routine [`steady()`](../reference/steady.html) builds on, but with **births responding dynamically**; exposes `t_max`, `tol`, `return_sim` if you need to watch convergence |
 | [`steadyNewton(params)`](../reference/steadyNewton.html) | *(experimental)* solve the steady-state equation directly, converging even when the steady state is dynamically unstable |
 | [`getSteadyResidual(params)`](../reference/getSteadyResidual.html) | *(experimental)* ask whether a model **is** at its steady state, and where it is not |
 

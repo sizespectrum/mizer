@@ -104,7 +104,7 @@ in `[0, 1]` at each size. Its other arguments must appear as columns in
 | `sel_func` | Parameter column(s) | Shape |
 |---|---|---|
 | [`knife_edge`](../reference/knife_edge.html) (default) | `knife_edge_size` | step from 0 to 1 at that **weight** (default `w_mat`) |
-| [`knife_edge_length`](../reference/knife_edge_length.html) | `knife_edge_length` | step from 0 to 1 at that **length** |
+| [`knife_edge_length`](../reference/knife_edge_length.html) | [`knife_edge_length`](../reference/knife_edge_length.html) | step from 0 to 1 at that **length** |
 | [`sigmoid_length`](../reference/sigmoid_length.html) | `l50`, `l25` | smooth; lengths (cm) at 50% and 25% selection |
 | [`double_sigmoid_length`](../reference/double_sigmoid_length.html) | `l50`, `l25`, `l50_right`, `l25_right` | dome-shaped (selects a length band) |
 | [`sigmoid_weight`](../reference/sigmoid_weight.html) | `sigmoidal_weight`, `sigmoidal_sigma` | smooth transition in weight |

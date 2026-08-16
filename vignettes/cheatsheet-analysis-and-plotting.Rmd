@@ -186,13 +186,13 @@ without a dedicated plot function or custom ggplot code. They also carry a
 `value_name`, `type`, `units` and their `params`, and have `print()`, [`summary()`](../reference/summary.html) and
 `as.data.frame()` methods.
 
-| Class | Typical source | `plot()` shows |
+| Class | Typical source | [`plot()`](../reference/plot.html) shows |
 |---|---|---|
-| [`ArrayTimeBySpecies`](../reference/ArrayTimeBySpecies.html) | `getBiomass(sim)`, `getSSB(sim)`, `getYield(sim)`, `getN(sim)` | value vs time, one line per species |
-| [`ArraySpeciesBySize`](../reference/ArraySpeciesBySize.html) | `getFeedingLevel(params)`, `getPredMort(params)`, `getEncounter(params)` | value vs size, one line per species |
-| [`ArrayTimeBySpeciesBySize`](../reference/ArrayTimeBySpeciesBySize.html) | `getFMort(sim)`, `getPredMort(sim)` | one time slice vs size (set with `time`) |
-| [`ArrayResourceBySize`](../reference/ArrayResourceBySize.html) | `NResource(params)`, `finalNResource(sim)`, [`getResourceMort(params)`](../reference/getResourceMort.html), [`resource_rate(params)`](../reference/setResource.html), [`resource_capacity(params)`](../reference/setResource.html), [`resource_level(params)`](../reference/setResource.html) | resource quantity vs size |
-| [`ArrayTimeByResourceBySize`](../reference/ArrayTimeByResourceBySize.html) | `NResource(sim)` | one time slice vs size (set with `time`) |
+| [`ArrayTimeBySpecies`](../reference/ArrayTimeBySpecies.html) | [`getBiomass(sim)`](../reference/getBiomass.html), [`getSSB(sim)`](../reference/getSSB.html), [`getYield(sim)`](../reference/getYield.html), [`getN(sim)`](../reference/getN.html) | value vs time, one line per species |
+| [`ArraySpeciesBySize`](../reference/ArraySpeciesBySize.html) | [`getFeedingLevel(params)`](../reference/getFeedingLevel.html), [`getPredMort(params)`](../reference/getPredMort.html), [`getEncounter(params)`](../reference/getEncounter.html) | value vs size, one line per species |
+| [`ArrayTimeBySpeciesBySize`](../reference/ArrayTimeBySpeciesBySize.html) | [`getFMort(sim)`](../reference/getFMort.html), [`getPredMort(sim)`](../reference/getPredMort.html) | one time slice vs size (set with `time`) |
+| [`ArrayResourceBySize`](../reference/ArrayResourceBySize.html) | [`NResource(params)`](../reference/N.html), [`finalNResource(sim)`](../reference/finalN.html), [`getResourceMort(params)`](../reference/getResourceMort.html), [`resource_rate(params)`](../reference/setResource.html), [`resource_capacity(params)`](../reference/setResource.html), [`resource_level(params)`](../reference/setResource.html) | resource quantity vs size |
+| [`ArrayTimeByResourceBySize`](../reference/ArrayTimeByResourceBySize.html) | [`NResource(sim)`](../reference/N.html) | one time slice vs size (set with `time`) |
 
 ```{r eval=FALSE}
 plot(getBiomass(sim))          # value vs time, one line per species

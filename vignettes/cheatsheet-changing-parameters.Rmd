@@ -186,7 +186,7 @@ suppressed because that other parameter has been given explicitly.
 |---|---|---|
 | `gamma` | `f0` |
 | `ks` | `fc` |
-| `h` | `age_mat`, `k_vb` |
+| `h` | [`age_mat`](../reference/age_mat.html), `k_vb` |
 | [`age_mat`](../reference/age_mat.html) | `k_vb` |
 
 To let mizer re-calculate a parameter you previously supplied, clear it by setting
@@ -444,15 +444,15 @@ and the `set…()` function that recomputes it:
 
 | Rate array | Direct setter / getter | Recompute with |
 |---|---|---|
-| search volume | `search_vol(params) <-` | `setSearchVolume()` |
-| maximum intake rate | [`intake_max(params) <-`](../reference/setMaxIntakeRate.html) | `setMaxIntakeRate()` |
-| metabolic rate | `metab(params) <-` | `setMetabolicRate()` |
-| external mortality | [`ext_mort(params) <-`](../reference/setExtMort.html) | `setExtMort()` |
+| search volume | [`search_vol(params) <-`](../reference/setSearchVolume.html) | [`setSearchVolume()`](../reference/setSearchVolume.html) |
+| maximum intake rate | [`intake_max(params) <-`](../reference/setMaxIntakeRate.html) | [`setMaxIntakeRate()`](../reference/setMaxIntakeRate.html) |
+| metabolic rate | [`metab(params) <-`](../reference/setMetabolicRate.html) | [`setMetabolicRate()`](../reference/setMetabolicRate.html) |
+| external mortality | [`ext_mort(params) <-`](../reference/setExtMort.html) | [`setExtMort()`](../reference/setExtMort.html) |
 | external encounter rate | [`ext_encounter(params) <-`](../reference/setExtEncounter.html) | [`setExtEncounter()`](../reference/setExtEncounter.html) |
 | external diffusion | [`ext_diffusion(params) <-`](../reference/setExtDiffusion.html) | [`setExtDiffusion()`](../reference/setExtDiffusion.html) |
-| predation kernel | [`pred_kernel(params) <-`](../reference/setPredKernel.html) | `setPredKernel()` |
-| maturity ogive | `maturity(params) <-` | `setReproduction()` |
-| reproduction allocation | [`repro_prop(params) <-`](../reference/setReproduction.html) | `setReproduction()` |
+| predation kernel | [`pred_kernel(params) <-`](../reference/setPredKernel.html) | [`setPredKernel()`](../reference/setPredKernel.html) |
+| maturity ogive | `maturity(params) <-` | [`setReproduction()`](../reference/setReproduction.html) |
+| reproduction allocation | [`repro_prop(params) <-`](../reference/setReproduction.html) | [`setReproduction()`](../reference/setReproduction.html) |
 
 The fishing arrays (selectivity, catchability) behave the same way; see the
 fishing section above and the [fishing cheatsheet](cheatsheet-fishing.html).
@@ -615,17 +615,17 @@ To add a whole new ecosystem component with `setComponent()`, see the
 
 | I want to change… | Use |
 |---|---|
-| a per-species value (`beta`, `w_mat`, `h`, `erepro`, …) | `species_params(params) <- …` (mizer ≥ 3.2; `given_species_params(params) <-` interactively or on older mizer) |
-| fishing gears / selectivity / catchability | `gear_params(params) <- …` |
-| baseline effort or selectivity/catchability arrays | `setFishing(params, …)` |
-| the resource (`kappa`, `lambda`, `r_pp`, …) | `resource_params(params) <- …` |
-| species interactions | `setInteraction(params, …)` |
+| a per-species value (`beta`, `w_mat`, `h`, `erepro`, …) | [`species_params(params) <- …`](../reference/species_params.html) (mizer ≥ 3.2; [`given_species_params(params) <-`](../reference/species_params.html) interactively or on older mizer) |
+| fishing gears / selectivity / catchability | [`gear_params(params) <- …`](../reference/gear_params.html) |
+| baseline effort or selectivity/catchability arrays | [`setFishing(params, …)`](../reference/setFishing.html) |
+| the resource (`kappa`, `lambda`, `r_pp`, …) | [`resource_params(params) <- …`](../reference/resource_params.html) |
+| species interactions | [`setInteraction(params, …)`](../reference/setInteraction.html) |
 | a size-dependent rate, keeping it tied to the parameters | change the underlying species parameter |
-| a size-dependent rate to a bespoke array (freezing it) | the direct setter `metab(params) <- …`, or the matching `set…()` with the array argument |
+| a size-dependent rate to a bespoke array (freezing it) | the direct setter [`metab(params) <- …`](../reference/setMetabolicRate.html), or the matching `set…()` with the array argument |
 | a frozen rate back to its default form | `set…(params, reset = TRUE)` |
-| everything after several edits | `setParams(params)` (not the resource — see `setResource()`) |
-| how a rate is *computed* (e.g. to make it time-dependent) | `setRateFunction(params, …)` |
-| the model's set of dynamical components | `setComponent()` (see the [extending-mizer cheatsheet](cheatsheet-extending-mizer.html)) |
+| everything after several edits | [`setParams(params)`](../reference/setParams.html) (not the resource — see [`setResource()`](../reference/setResource.html)) |
+| how a rate is *computed* (e.g. to make it time-dependent) | [`setRateFunction(params, …)`](../reference/setRateFunction.html) |
+| the model's set of dynamical components | [`setComponent()`](../reference/setComponent.html) (see the [extending-mizer cheatsheet](cheatsheet-extending-mizer.html)) |
 
 ---
 

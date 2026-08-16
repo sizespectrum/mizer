@@ -676,18 +676,18 @@ directions (`catchability(params)` and `catchability(params) <- value`,
 
 | Deprecated | Use instead |
 |---|---|
-| [`getCatchability()`](../reference/deprecated_accessors.html) | `catchability()` |
-| [`getSelectivity()`](../reference/deprecated_accessors.html) | `selectivity()` |
+| [`getCatchability()`](../reference/deprecated_accessors.html) | [`catchability()`](../reference/setFishing.html) |
+| [`getSelectivity()`](../reference/deprecated_accessors.html) | [`selectivity()`](../reference/setFishing.html) |
 | [`getInitialEffort()`](../reference/deprecated_accessors.html) | [`initial_effort()`](../reference/initial_effort.html) |
 | [`getPredKernel()`](../reference/deprecated_accessors.html) | [`pred_kernel()`](../reference/setPredKernel.html) |
-| [`getSearchVolume()`](../reference/deprecated_accessors.html) | `search_vol()` |
+| [`getSearchVolume()`](../reference/deprecated_accessors.html) | [`search_vol()`](../reference/setSearchVolume.html) |
 | [`getMaxIntakeRate()`](../reference/deprecated_accessors.html) | [`intake_max()`](../reference/setMaxIntakeRate.html) |
-| [`getMetabolicRate()`](../reference/deprecated_accessors.html) | `metab()` |
+| [`getMetabolicRate()`](../reference/deprecated_accessors.html) | [`metab()`](../reference/setMetabolicRate.html) |
 | [`getExtMort()`](../reference/deprecated_accessors.html) | [`ext_mort()`](../reference/setExtMort.html) |
 | [`getExtEncounter()`](../reference/deprecated_accessors.html) | [`ext_encounter()`](../reference/setExtEncounter.html) |
-| [`getMaturityProportion()`](../reference/deprecated_accessors.html) | `maturity()` |
-| [`getReproductionProportion()`](../reference/deprecated_accessors.html) | `repro_prop()` |
-| [`getReproductionLevel()`](../reference/deprecated_accessors.html) | `reproduction_level()` |
+| [`getMaturityProportion()`](../reference/deprecated_accessors.html) | [`maturity()`](../reference/setReproduction.html) |
+| [`getReproductionProportion()`](../reference/deprecated_accessors.html) | [`repro_prop()`](../reference/setReproduction.html) |
+| [`getReproductionLevel()`](../reference/deprecated_accessors.html) | [`reproduction_level()`](../reference/setBevertonHolt.html) |
 
 Nothing breaks: the old names still return exactly the same value. Renaming is
 a search and replace.

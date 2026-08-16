@@ -35,7 +35,7 @@ sim <- project(params, t_max = 20, effort = 1)
 
 | Argument | Meaning |
 |---|---|
-| `object` | a `MizerParams` (fresh run) or a `MizerSim` (continue from its end) |
+| `object` | a [`MizerParams`](../reference/MizerParams.html) (fresh run) or a [`MizerSim`](../reference/MizerSim.html) (continue from its end) |
 | `effort` | fishing effort — see the four forms below |
 | `t_max` | number of years to simulate (default 100) |
 | `dt` | integration time step (default 0.1); reduce if the run is unstable |
