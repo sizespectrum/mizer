@@ -15,13 +15,13 @@ description: >-
 
 Mizer models fish communities structured by **individual body size** rather than
 age or fixed trophic levels. To diagnose model behaviour you have to reason from
-size-structured principles, not from age-based or biomass-pool intuition. The
-single most useful habit is knowing which side of the line a quantity sits on:
-what you set, and what the model works out for itself.
+size-structured principles, not from age-based or biomass-pool intuition. 
 
 ## What you impose vs. what the model produces
 
-This is the distinction that explains most surprises.
+The single most useful habit is knowing which side of the line a quantity sits
+on: what you set, and what the model works out for itself. This is the
+distinction that explains most surprises.
 
 **What you impose** is never an outcome. It is:
 
@@ -93,11 +93,13 @@ Further consequences worth internalising:
   is the view in which the Sheldon spectrum is flat.
 * **Sheldon's size spectrum**: across an aquatic ecosystem, biomass density is
   roughly uniform across logarithmic size octaves, so abundance scales as
-  $N(w) \propto w^{-\lambda}$ with $\lambda \approx 2.05$ (mizer's `lambda`
-  default).
-* **Community vs species spectra**: the *combined* community spectrum is a
-  steady downward power law, but each *species* forms a **dome** spanning from
-  its egg size `w_min` up to `w_max`. A species spectrum that looks like a
+  $N(w) \propto w^{-\lambda}$ with $\lambda \approx 2.05$. In mizer this is an
+  *input*, not a prediction: `lambda` sets the resource spectrum the fish feed
+  against. See "The community slope" below.
+* **Community vs species spectra** — keep these apart, they behave differently
+  and have different slopes: the *combined* community spectrum is a steady
+  downward power law, but each *species* forms a **dome** spanning from its egg
+  size `w_min` up to `w_max`. A species spectrum that looks like a
   power law over its whole range is a species that is not experiencing the
   maturity-driven growth slowdown — usually a sign something is wrong.
 
@@ -181,7 +183,7 @@ Two knobs decide how tightly the loops are coupled:
 Energy flows through an individual in three stages.
 
 **1 — Encounter and feeding level.** A predator of size $w$ searches volume
-$\gamma_i w^q$ and encounters prey according to the kernel and the interaction
+$\gamma_i w^q$ and encounters prey according to the predation kernel and the interaction
 matrix. Encountered food is turned into a dimensionless **feeding level**
 $f_i(w) \in [0,1]$ by a Holling type II response — $f = 0$ is starvation, $f = 1$
 is complete satiation. Mizer targets $f_0 \approx 0.6$ by default.
@@ -190,7 +192,7 @@ Feeding level is the first thing to look at in almost every diagnosis, because
 it is dimensionless and has an absolute scale: you can tell at a glance whether
 a number is wrong. $f < 0.2$ anywhere in the juvenile range means the species is
 starving; $f > 0.9$ everywhere means the species is satiated and effectively
-decoupled from its prey — its growth will not respond to food at all, and
+decoupled from its prey — its growth will not respond to food very much, and
 neither will it exert much predation mortality (see below).
 
 **2 — Net available energy.** Assimilated intake ($\alpha$, default 0.6) minus
@@ -206,8 +208,16 @@ them.
 
 ## What sets the slope
 
-This is the bookkeeping above, made quantitative. Setting "in − out − deaths" to
-zero and solving gives the spectrum's local log-log slope, ignoring diffusion:
+Two different slopes get called "the slope", and they are not the same object.
+The **species** slope is the one that follows from the bookkeeping, and it is
+what this equation gives. The **community** slope, $-\lambda$, is a property of
+the sum over all species and the resource; it is discussed after.
+
+### The species slope
+
+This is the bookkeeping above, made quantitative. For one species $i$, setting
+"in − out − deaths" to zero and solving gives the local log-log slope of *that
+species'* spectrum, ignoring diffusion:
 
 $$\frac{d \ln N_i}{d \ln w} = -\frac{\mu_i(w)}{g_i(w)/w} - \frac{d \ln g_i}{d \ln w}$$
 
@@ -216,19 +226,48 @@ growth**, minus how fast growth itself is accelerating. With allometric rates
 $g \propto w^n$ the second term is just $n$ (the `n` species parameter;
 `newMultispeciesParams()` sets 2/3 by default).
 
-This one ratio explains most spectrum shapes. High mortality or stunted growth ⇒
-steep drop, few fish survive to large size. Fast growth relative to mortality ⇒
-shallow spectrum.
+This one ratio explains most species-spectrum shapes. High mortality or stunted
+growth ⇒ steep drop, few fish survive to large size. Fast growth relative to
+mortality ⇒ shallow spectrum. Note that nothing here mentions $\lambda$: a
+species' slope is set by its own mortality and growth, whatever the community
+around it is doing.
 
-**Why $\lambda \approx 2.05$ falls out.** Mizer defaults `q` to
-$\lambda - 2 + n$, and that choice is not arbitrary: it is exactly the exponent
-that makes encountered food scale as $w^n$ against a $w^{-\lambda}$ background,
-so that **the feeding level comes out independent of size**. With $f$ constant,
-growth is $\propto w^n$ and mortality $\propto w^{n-1}$, so $\mu/(g/w)$ is a
-constant — and a constant slope is a power law. The community spectrum is a
-power law because the physiology and the background spectrum are tuned to each
-other. Break that tuning (change `lambda` without `q`, say) and the spectrum
-curves.
+### The community slope, and where $\lambda$ actually comes from
+
+$\lambda$ is **not derived by the model**. It is a parameter you set (`lambda`,
+default 2.05): the exponent of the resource spectrum the fish feed against. What
+mizer does is not to predict $\lambda$ but to keep the model **self-consistent**
+with it, in four steps:
+
+1. **Assume** the prey a fish sees is distributed as $N(w) \propto w^{-\lambda}$.
+2. **Choose $q$ to match it.** Mizer defaults `q` to $\lambda - 2 + n$. Against a
+   $w^{-\lambda}$ background, a predator searching at rate $\gamma w^q$
+   encounters food scaling as $w^{q + 2 - \lambda}$; that default is exactly the
+   $q$ making it $w^n$ — the same power as maximum intake $h w^n$. Numerator and
+   denominator of the feeding level then scale together, so **$f$ comes out
+   independent of size**. (Verify on any fresh model: [`getFeedingLevel()`](../reference/getFeedingLevel.html) is flat
+   at `f0` across the juvenile range.)
+3. **Each species' slope therefore goes constant.** This is the equation above.
+   With $f$ size-independent, $g \propto w^n$ and $\mu \propto w^{n-1}$, so
+   $\mu/(g/w)$ is constant — a constant slope, i.e. a straight line on log-log
+   axes over each species' juvenile range.
+4. **The community reproduces the assumption.** Sum those species spectra —
+   overlapping domes staggered by `w_max` — together with the resource, and you
+   get back approximately $w^{-\lambda}$. The loop closes.
+
+Step 4 is exact only in the idealised scaling model, where many species are
+spread evenly over a wide range of `w_max`. In a model with a handful of real
+species it is approximate: the resource carries the small-size end, and the
+community spectrum is bumpy where species domes overlap unevenly. Do not expect
+a fitted community slope to come out at exactly `lambda`.
+
+The practical value of this is diagnostic. **The consistency is a chain, and
+breaking any link shows up in the feeding level first.** Change `lambda` without
+letting `q` follow, set `q` by hand, or deplete the resource away from its
+assumed power law, and $f$ acquires a trend in size; species spectra then curve
+instead of running straight, and the community spectrum stops being a power law.
+So when a spectrum looks curved, check `plotFeedingLevel()` for a size trend
+before touching anything structural.
 
 ## What sets the timescales
 
@@ -316,7 +355,8 @@ Check emergent properties before changing structural parameters.
 | **Growth is not what `matchGrowth()` asked for** | Growth is emergent — the food to support it is not there | `plotFeedingLevel()`, then the `calibrate-model` skill |
 | **Tuning one species drops another** | Predation overlap or resource competition in shared juvenile size bins | `interaction_matrix()`, `plotDiet()` |
 | **Species insensitive to fishing** | Strong imposed density dependence ($r_i$ low), or an effectively infinite resource | `reproduction_level()`, `resource_level()` |
-| **Spectrum curves instead of being straight** | `lambda`, `q` and `n` no longer mutually consistent, so feeding level is size-dependent | `plotFeedingLevel()` — is it flat in size? |
+| **Species spectrum curves instead of running straight** | `lambda`, `q` and `n` no longer mutually consistent, so feeding level is size-dependent | [`plotFeedingLevel()`](../reference/plotFeedingLevel.html) — is it flat in size? |
+| **Community slope isn't `lambda`** | Expected only in the idealised scaling model; with few species the domes don't sum to a clean power law | [`getCommunitySlope()`](../reference/getCommunitySlope.html), [`plotSpectra()`](../reference/plotSpectra.html) — compare against species domes, not against `lambda` |
 | **Species won't stay at steady state** | Fixed point is dynamically unstable, not a numerical failure | `getSteadyResidual()`, `steadyNewton()` |
 
 <!-- agent-only -->
