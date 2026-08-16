@@ -229,8 +229,8 @@ them.
 ## What sets the slope
 
 Two different slopes get called "the slope", and they are not the same object.
-The **species** slope is the one that follows from the bookkeeping, and it is
-what this equation gives. The **community** slope, $-\lambda$, is a property of
+The **species** slope is the one that follows from the bookkeeping.
+The **community** slope, $-\lambda$, is a property of
 the sum over all species and the resource; it is discussed after.
 
 ### The species slope
@@ -322,30 +322,45 @@ Practical consequences:
 This distinction decides how a model responds to fishing, and confusing the two
 is a common source of wrong conclusions.
 
-**1 — Imposed, via `R_max`.** Egg production $R_p$ is converted to realised
-recruitment by a Beverton–Holt relation, summarised by the **reproduction
-level** $r_i = R_i/R_{\max,i} \in [0,1]$ ([`reproduction_level()`](../reference/setBevertonHolt.html)).
+**1 — Imposed, via `R_max`.** Egg production $R_{p}$ is converted to realised
+recruitment $R$ by a Beverton–Holt relation, summarised by the **reproduction
+level** $r_i = R_i/R_{\max,i} \in [0,1)$ ([`reproduction_level()`](../reference/setBevertonHolt.html)) — the fraction
+of its ceiling that a species' recruitment is currently running at.
 
-* **Low $r_i$ (< 0.5), strong density dependence**: recruitment is held well
-  below capacity. Fishing that halves adult biomass barely moves recruitment —
-  the stock is buffered. Very stable, and *insensitive to fishing* in a way that
-  is imposed by assumption rather than earned by the dynamics.
-* **High $r_i$ (> 0.85), weak density dependence**: recruitment tracks egg
-  production almost proportionally. Susceptible to cohort blooms and persistent
-  limit cycles.
+The number that matters is how much of a change in egg production survives into
+recruitment. For Beverton–Holt that elasticity works out to exactly
+$$\frac{d \ln R_i}{d \ln R_{p,i}} = 1 - r_i$$
+so the reproduction level reads directly as the fraction of the response that
+gets *suppressed*. This makes the direction easy to keep straight:
 
-**2 — Emergent, via the two feedback loops.** Even with $R_{\max} = \infty$
-(mizer's default) a species is still regulated: more juveniles deplete the shared
-resource (food loop) and attract predation (predation loop). This regulation is
-*produced* by the model, is size-structured, and spills over onto other species.
+* **Low $r_i$ (→ 0), weak density dependence**: recruitment sits far below its
+  ceiling, so it tracks egg production almost proportionally ($1 - r_i \approx
+  1$). The species responds strongly to anything that changes adult biomass —
+  responsive to fishing, and susceptible to cohort blooms and persistent limit
+  cycles. **This is mizer's default**: `R_max` defaults to $\infty$, which is
+  $r_i = 0$ and no imposed density dependence at all.
+* **High $r_i$ (→ 1), strong density dependence**: recruitment is pressed up
+  against $R_{\max}$, so almost none of a change in egg production gets through
+  ($1 - r_i \approx 0$). Fishing that halves adult biomass barely moves
+  recruitment — the stock is buffered. Very stable, and *insensitive to fishing*
+  in a way that is imposed by assumption rather than earned by the dynamics.
 
-Why it matters: both give a stable model, but they respond to fishing completely
-differently. Imposed density dependence is species-local and unmoved by
-ecosystem change; emergent density dependence weakens when you fish down the
-predators supplying it. **A model tuned to stability with a high `R_max` is a
-different ecosystem from one that is stable on its own.** If a species seems
-inert to fishing, check `reproduction_level()` first — you may be looking at an
-assumption, not a result.
+Sanity check if you ever doubt the direction: $R_{\max} = \infty$ must mean *no*
+density dependence, and it gives $r_i = 0$. Low means weak.
+
+**2 — Emergent, via the two feedback loops.** With $R_{\max} = \infty$ a species
+still is not unregulated: more juveniles deplete the shared resource (food loop)
+and attract predation (predation loop). This regulation is *produced* by the
+model, is size-structured, and spills over onto other species. In a default
+mizer model it is the **only** density dependence there is.
+
+Why it matters: both can stabilise a model, but they respond to fishing
+completely differently. Imposed density dependence is species-local and unmoved
+by ecosystem change; emergent density dependence weakens when you fish down the
+predators supplying it. **A model made stable by a low `R_max` is a different
+ecosystem from one that is stable on its own.** If a species seems inert to
+fishing, check [`reproduction_level()`](../reference/setBevertonHolt.html) first — a high value means you are looking
+at an assumption, not a result.
 
 ---
 
@@ -378,11 +393,11 @@ Check emergent properties before changing structural parameters.
 | Symptom | Likely cause | What to inspect |
 |---|---|---|
 | **Species collapses during [`project()`](../reference/project.html)** | Starving larvae, intense juvenile predation, or too little egg production | [`plotFeedingLevel()`](../reference/plotFeedingLevel.html), [`plotDiet()`](../reference/plotDiet.html), [`getPredMort()`](../reference/getPredMort.html) |
-| **Biomass oscillates in regular cycles** | Reproduction level near 1, narrow kernel (`sigma` too small), or knife-edge fishing | [`reproduction_level()`](../reference/setBevertonHolt.html), [`getStability()`](../reference/getStability.html) (see the [stability cheatsheet](cheatsheet-stability.html)) |
+| **Biomass oscillates in regular cycles** | Reproduction level near 0 (little recruitment damping — mizer's default), narrow kernel (`sigma` too small), or knife-edge fishing | [`reproduction_level()`](../reference/setBevertonHolt.html), [`getStability()`](../reference/getStability.html) (see the [stability cheatsheet](cheatsheet-stability.html)) |
 | **Growth slows before `w_mat`** | Food limitation at intermediate sizes; resource depleted or `w_pp_cutoff` too low | [`plotGrowthCurves()`](../reference/plotGrowthCurves.html), [`resource_level()`](../reference/setResource.html), [`plotSpectra()`](../reference/plotSpectra.html) |
 | **Growth is not what [`matchGrowth()`](../reference/matchGrowth.html) asked for** | Growth is emergent — the food to support it is not there | [`plotFeedingLevel()`](../reference/plotFeedingLevel.html), then the [calibration cheatsheet](cheatsheet-calibration.html) |
 | **Tuning one species drops another** | Predation overlap or resource competition in shared juvenile size bins | [`interaction_matrix()`](../reference/setInteraction.html), [`plotDiet()`](../reference/plotDiet.html) |
-| **Species insensitive to fishing** | Strong imposed density dependence ($r_i$ low), or an effectively infinite resource | [`reproduction_level()`](../reference/setBevertonHolt.html), [`resource_level()`](../reference/setResource.html) |
+| **Species insensitive to fishing** | Strong imposed density dependence ($r_i$ **high**, near 1 — only $1-r_i$ of any change in egg production gets through), or an effectively infinite resource | [`reproduction_level()`](../reference/setBevertonHolt.html), [`resource_level()`](../reference/setResource.html) |
 | **Species spectrum curves instead of running straight** | `lambda`, `q` and `n` no longer mutually consistent, so feeding level is size-dependent | [`plotFeedingLevel()`](../reference/plotFeedingLevel.html) — is it flat in size? |
 | **Community slope isn't `lambda`** | Expected only in the idealised scaling model; with few species the domes don't sum to a clean power law | [`getCommunitySlope()`](../reference/getCommunitySlope.html), [`plotSpectra()`](../reference/plotSpectra.html) — compare against species domes, not against `lambda` |
 | **Species won't stay at steady state** | Fixed point is dynamically unstable, not a numerical failure | [`getSteadyResidual()`](../reference/getSteadyResidual.html), [`steadyNewton()`](../reference/steadyNewton.html) |
