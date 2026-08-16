@@ -111,7 +111,7 @@ test_that("validParams checks w_min and w_max", {
     # w_min
     params <- NS_params_small
     params@species_params$w_min[1:3] <- 1e-6
-    expect_warning(params <- validParams(params), "smaller than the minimum")
+    expect_warning(params <- validParams(params), "adjustSizeGrid")
     expect_true(validObject(params))
     expect_equal(params@w_min_idx[1:3], rep(1, 3), ignore_attr = TRUE)
 })

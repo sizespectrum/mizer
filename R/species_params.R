@@ -1376,6 +1376,9 @@ get_gamma_default <- function(params) {
             params@w[length(params@w)] ^
             (2 + params@species_params[["q"]] - params@resource_params$lambda)
         # Now set gamma so that this available energy leads to f0
+        if (any(is.infinite(species_params[["h"]][missing]))) {
+            stop("Cannot calculate default `gamma` for species with `h = Inf`. Please supply `gamma` explicitly.")
+        }
         gamma_default <- (species_params[["h"]] / avail_energy) *
             (species_params$f0 / (1 - species_params$f0))
         # Only overwrite missing gammas with calculated values
@@ -1435,7 +1438,9 @@ get_f0_default <- function(params) {
         params@search_vol[given, ] <- compute_search_vol(params)[given, ]
         # Calculate available energy by setting a power-law prey spectrum
         params@initial_n[] <- 0
-        params@species_params$interaction_resource <- 1
+        if (defaults_edition() < 2) {
+            params@species_params$interaction_resource <- 1
+        }
         params@initial_n_pp[] <- resource_power_law(
             params, params@resource_params$kappa,
             params@resource_params$lambda)
@@ -1480,6 +1485,13 @@ get_ks_default <- function(params) {
     }
     params <- set_species_param_default(params, "fc", 0.2)
     sp <- params@species_params
+    if (!"ks" %in% names(sp)) {
+        sp$ks <- rep(NA_real_, nrow(sp))
+    }
+    missing_ks <- is.na(sp$ks)
+    if (any(missing_ks) && any(is.infinite(sp[["h"]][missing_ks]))) {
+        stop("Cannot calculate default `ks` for species with `h = Inf`. Please supply `ks` explicitly.")
+    }
     ks_default <- sp$fc * sp$alpha * sp[["h"]] * sp$w_mat^(sp[["n"]] - sp[["p"]])
 
     message <- ("No ks column so calculating from critical feeding level.")

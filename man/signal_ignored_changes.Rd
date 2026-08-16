@@ -18,10 +18,11 @@ saying which species were given a value, as built by
 }
 \description{
 Some species parameters are only used to calculate a default for another
-one: \code{f0} for \code{gamma}, \code{fc} for \code{ks} and \code{age_mat} for \code{h}. Once the other
-one has been given, the model no longer consults them, so changing them has
-no effect. This raises a warning about that. It is one of the diagnostics
-that only \code{\link[=given_species_params<-]{given_species_params<-()}} gives, see there.
+one: \code{f0} for \code{gamma}, \code{fc} for \code{ks}, \code{age_mat} for \code{h}, and \code{k_vb} for
+\code{h} or \code{age_mat}. Once the other one has been given, the model no longer
+consults them, so changing them has no effect. This raises a warning about
+that. It is one of the diagnostics that only \code{\link[=given_species_params<-]{given_species_params<-()}}
+gives, see there.
 }
 \details{
 Only a value that is there can be ignored, so this is asked about the

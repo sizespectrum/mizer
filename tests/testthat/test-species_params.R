@@ -818,6 +818,37 @@ test_that("get_h_default, get_f0_default and get_ks_default follow documented de
         fc * alpha * h * w_mat^(n - p)
     )
     expect_equal(unname(get_ks_default(params3)), unname(expected_ks))
+
+    # Error message when h = Inf
+    params_inf <- params
+    params_inf@species_params$gamma[] <- NA
+    params_inf@species_params$h[1] <- Inf
+    expect_error(get_gamma_default(params_inf),
+                 "Cannot calculate default `gamma` for species with `h = Inf`")
+    params_inf2 <- params
+    params_inf2@species_params$ks[] <- NA
+    params_inf2@species_params$h[1] <- Inf
+    expect_error(get_ks_default(params_inf2),
+                 "Cannot calculate default `ks` for species with `h = Inf`")
+
+    # get_f0_default under edition 2 matches get_gamma_default with interaction_resource != 1
+    params_ed2 <- params
+    species_params(params_ed2)$interaction_resource <- 0.5
+    params_ed2@species_params$gamma[] <- NA
+    defaults_edition(2)
+    on.exit(defaults_edition(1), add = TRUE)
+    gamma_ed2 <- get_gamma_default(params_ed2)
+    params_ed2@species_params$gamma <- gamma_ed2
+    f0_ed2 <- get_f0_default(params_ed2)
+    expect_equal(unname(f0_ed2), rep(0.6, nrow(species_params(params_ed2))))
+
+    # get_h_default informs when n != p
+    sp_np <- species_params(params)
+    sp_np$h[] <- NA
+    sp_np$n[1] <- 0.7
+    sp_np$p[1] <- 0.8
+    expect_message(with_info_level(get_h_default(sp_np), info_level = 1),
+                   "Because you have n != p")
 })
 
 test_that("species_params S3 class properties work", {

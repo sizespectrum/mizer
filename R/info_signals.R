@@ -371,19 +371,20 @@ signal_frozen_changes <- function(params, changed) {
 
 # The species parameters that mizer only uses to calculate a default for
 # another one, and so ignores once that other one has been given. Each entry is
-# named after the parameter that is ignored and gives the parameter that takes
+# named after the parameter that is ignored and gives the parameter(s) that take
 # precedence over it.
 overridden_species_params <- function() {
-    c(f0 = "gamma", fc = "ks", age_mat = "h")
+    list(f0 = "gamma", fc = "ks", age_mat = "h", k_vb = c("h", "age_mat"))
 }
 
 #' Signal the changes that are ignored because another parameter was given
 #'
 #' Some species parameters are only used to calculate a default for another
-#' one: `f0` for `gamma`, `fc` for `ks` and `age_mat` for `h`. Once the other
-#' one has been given, the model no longer consults them, so changing them has
-#' no effect. This raises a warning about that. It is one of the diagnostics
-#' that only [given_species_params<-()] gives, see there.
+#' one: `f0` for `gamma`, `fc` for `ks`, `age_mat` for `h`, and `k_vb` for
+#' `h` or `age_mat`. Once the other one has been given, the model no longer
+#' consults them, so changing them has no effect. This raises a warning about
+#' that. It is one of the diagnostics that only [given_species_params<-()]
+#' gives, see there.
 #'
 #' Only a value that is there can be ignored, so this is asked about the
 #' species that were *given* a value, not about every species whose value
@@ -399,17 +400,24 @@ overridden_species_params <- function() {
 #' @concept helper
 signal_ignored_changes <- function(given, changed) {
     for (par in names(overridden_species_params())) {
-        takes_precedence <- overridden_species_params()[[par]]
-        if (!(par %in% names(changed)) ||
-            !(takes_precedence %in% names(given))) {
+        if (!(par %in% names(changed))) {
             next
         }
-        if (any(!is.na(given[[takes_precedence]][changed[[par]]]))) {
-            signal_info(par, paste0(
-                "You have specified some values for `", par, "` that are ",
-                "going to be ignored because values for `", takes_precedence,
-                "` have already been given."),
-                level = 1, severity = "warning", unhandled = "show")
+        takes_precedence_list <- overridden_species_params()[[par]]
+        active_changes <- changed[[par]]
+        for (takes_precedence in takes_precedence_list) {
+            if (!(takes_precedence %in% names(given))) {
+                next
+            }
+            overridden <- active_changes & !is.na(given[[takes_precedence]])
+            if (any(overridden)) {
+                signal_info(par, paste0(
+                    "You have specified some values for `", par, "` that are ",
+                    "going to be ignored because values for `", takes_precedence,
+                    "` have already been given."),
+                    level = 1, severity = "warning", unhandled = "show")
+                active_changes[overridden] <- FALSE
+            }
         }
     }
     invisible(NULL)

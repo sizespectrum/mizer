@@ -254,6 +254,16 @@ test_that("signal_ignored_changes() warns about a parameter that is overruled", 
     given$gamma <- NULL
     expect_silent(
         with_info_level(signal_ignored_changes(given, list(f0 = all_sp))))
+
+    # `k_vb` is overruled by `h` or `age_mat`
+    given$h <- c(20, NA, 30)
+    given$age_mat <- c(NA, 5, NA)
+    expect_warning(
+        with_info_level(signal_ignored_changes(given, list(k_vb = c(TRUE, FALSE, FALSE)))),
+        "values for `k_vb` that are going to be ignored because values for `h`")
+    expect_warning(
+        with_info_level(signal_ignored_changes(given, list(k_vb = c(FALSE, TRUE, FALSE)))),
+        "values for `k_vb` that are going to be ignored because values for `age_mat`")
 })
 
 test_that("signal_gear_params_changes() warns about gear parameters", {

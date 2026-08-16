@@ -4,11 +4,12 @@ description: >-
   Build a multi-species mizer model from a species-parameter data frame. Use
   whenever the user wants to create a MizerParams object with
   newMultispeciesParams() (or newTraitParams, newCommunityParams,
-  newSingleSpeciesParams), set up an interaction matrix or fishing gears, choose
-  the size grid, or save and reload a finished model. Follow this ordered
-  workflow rather than guessing at parameters or writing the dynamics by hand.
-  Once the object exists, bringing it to steady state and calibrating it to data
-  is covered by the calibrate-model skill.
+  newSingleSpeciesParams), set up an interaction matrix, choose the size grid,
+  or save and reload a finished model. Follow this ordered workflow rather than
+  guessing at parameters or writing the dynamics by hand. Once the object
+  exists, setting up fishing is covered by the set-up-fishing skill, and
+  bringing it to steady state and calibrating it to data is covered by the
+  calibrate-model skill.
 ---
 
 # Building a multi-species mizer model
@@ -53,11 +54,13 @@ Commonly supplied:
 
 | Column | Meaning |
 |---|---|
+| `w_min` | Egg size (g, default 0.001) |
 | `w_mat` | Maturity weight (g) |
 | `beta` | Preferred predator/prey mass ratio (default 30) |
 | `sigma` | Width of the lognormal predation kernel (default 2) |
 | `k_vb` | von Bertalanffy K — used to derive `h` (and then `gamma`) if `h`/`gamma` absent |
 | `h`, `gamma` | Max intake coefficient and search-volume coefficient (alternative to `k_vb`) |
+| `a`, `b` | Length–weight conversion parameters ($w = a l^b$, defaults 0.006 and 3) |
 | `alpha` | Assimilation efficiency (default 0.6) |
 | `biomass_observed` | Observed biomass, for calibration |
 
@@ -80,8 +83,9 @@ Useful optional arguments to `newMultispeciesParams()`:
 | Argument | Effect |
 |---|---|
 | `interaction` | species × species matrix of dimensionless overlaps in `[0, 1]` (1 = full interaction, the default for every pair); scales encounter and predation mortality |
-| `gear_params` | fishing gear definitions — columns `gear`, `species`, `sel_func`, `catchability` and the selectivity parameters. Omit it and mizer builds a default knife-edge gear catching every species |
-| `no_w`, `min_w`, `max_w` | size-grid resolution and range (`no_w = 100` by default) |
+| `kappa`, `lambda`, `w_pp_cutoff` | resource spectrum coefficient, exponent, and cutoff size |
+| `no_w` | number of size bins on the logarithmic grid (default 100; the size range is determined automatically from the species parameters) |
+| `gear_params` | fishing gear definitions (usually omitted and configured later with the `set-up-fishing` skill; defaults to a knife-edge gear catching every species) |
 | `second_order_w` | use the second-order size-advection scheme; see the section "Numerical scheme: watch for numerical diffusion" in the `run-simulation` skill |
 
 Change gears later with `gear_params(params) <- ...` or `setFishing()` — see the
@@ -92,7 +96,7 @@ Change gears later with `gear_params(params) <- ...` or `setFishing()` — see t
 ```r
 summary(params)
 species_params(params)     # given + calculated, one row per species
-getInteraction(params)     # the interaction matrix
+interaction_matrix(params) # the interaction matrix
 gear_params(params)        # the fishing gears
 resource_params(params)    # the resource scalars
 ```
@@ -129,17 +133,3 @@ getMetadata(params)     # read the metadata back
 
 All fields are optional and you can add fields of your own. mizer also fills in
 `mizer_version`, `extensions`, `time_created` and `time_modified` automatically.
-
-## Common pitfalls
-
-- Forgetting to reassign the return value (`steady(params)` without `params <-`)
-  silently discards the work.
-- Skipping `steady()` after a `match…`/`calibrate…` step leaves the model off
-  its steady state.
-- Editing a species parameter on a bare data frame instead of through
-  `species_params(params) <-` means no dependent quantity is recalculated. See
-  the `change-parameters` skill.
-- Passing `max_w = w_inf` to `newMultispeciesParams()` errors, because `w_max`
-  still defaults to `1.5 * w_inf` and the grid then stops below it. To run the
-  grid up to the asymptotic size, give the species parameter data frame a
-  `w_max` column equal to `w_inf` as well.

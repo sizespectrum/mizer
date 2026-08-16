@@ -5,6 +5,19 @@ stability of steady states.
 
 ## Bug fixes
 
+- `get_f0_default()` now respects `interaction_resource` under `defaults_edition() >= 2`,
+  making it the exact inverse of `get_gamma_default()`.
+
+- `get_gamma_default()` and `get_ks_default()` now provide informative error messages
+  when called on a model with `h = Inf`, indicating that `gamma` or `ks` must be
+  supplied explicitly.
+
+- `given_species_params<-()` now warns when `k_vb` is specified on a model where
+  `h` or `age_mat` is already given and will override `k_vb`.
+
+- `repair_params()` now suggests `adjustSizeGrid()` instead of the deprecated `expandSizeGrid()`
+  when `w_min` is smaller than the grid minimum.
+
 - `plotCDF()`, `plotCDF2()`, `plotSpectra2()`, and `plotSpectraRelative()` now
   support `size_axis = "l"` together with `total = TRUE`. The total spectrum and
   cumulative distributions are summed across species on the length axis.
