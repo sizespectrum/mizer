@@ -522,15 +522,15 @@ getSSB <- function(object) {
 #' @export
 getSSB.MizerSim <- function(object) {
     params <- object@params
-    # The weight is the product maturity * w, which sizeIntegral() bin-averages
-    # as a single weight.
-    sizeIntegral(object, weight = sweep(params@maturity, 2, params@w, "*"),
+    # The weighting is the product maturity * w, which sizeIntegral() bin-averages
+    # as a single weighting factor.
+    sizeIntegral(object, weighting = sweep(params@maturity, 2, params@w, "*"),
                  value_name = "Spawning stock biomass", units = "g")
 }
 #' @export
 getSSB.MizerParams <- function(object) {
     sizeIntegral(object,
-                 weight = sweep(object@maturity, 2, object@w, "*"))
+                 weighting = sweep(object@maturity, 2, object@w, "*"))
 }
 
 
@@ -584,11 +584,11 @@ getBiomass <- function(object, use_cutoff = FALSE, ...) {
 getBiomass.MizerSim <- function(object, use_cutoff = FALSE, ...) {
     params <- object@params
     if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
-        sizeIntegral(object, weight = params@w,
+        sizeIntegral(object, weighting = params@w,
                      min_w = cutoff_min_w(params),
                      value_name = "Biomass", units = "g")
     } else {
-        sizeIntegral(object, weight = params@w, ...,
+        sizeIntegral(object, weighting = params@w, ...,
                      value_name = "Biomass", units = "g")
     }
 }
@@ -596,10 +596,10 @@ getBiomass.MizerSim <- function(object, use_cutoff = FALSE, ...) {
 getBiomass.MizerParams <- function(object, use_cutoff = FALSE, ...) {
     params <- object
     if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
-        sizeIntegral(params, weight = params@w,
+        sizeIntegral(params, weighting = params@w,
                      min_w = cutoff_min_w(params))
     } else {
-        sizeIntegral(params, weight = params@w, ...)
+        sizeIntegral(params, weighting = params@w, ...)
     }
 }
 
@@ -668,18 +668,18 @@ getYieldGear <- function(object) {
 }
 #' @export
 getYieldGear.MizerSim <- function(object) {
-    # The weight is the product F * w (time x gear x sp x w), which
-    # sizeIntegral() bin-averages as a single weight.
+    # The weighting is the product F * w (time x gear x sp x w), which
+    # sizeIntegral() bin-averages as a single weighting factor.
     f_gear <- getFMortGear(object)
     sizeIntegral(object,
-                 weight = sweep(f_gear, length(dim(f_gear)),
-                                object@params@w, "*"))
+                 weighting = sweep(f_gear, length(dim(f_gear)),
+                                   object@params@w, "*"))
 }
 #' @export
 getYieldGear.MizerParams <- function(object) {
     f_gear <- getFMortGear(object)  # gear x sp x w
     sizeIntegral(object,
-                 weight = sweep(f_gear, length(dim(f_gear)), object@w, "*"))
+                 weighting = sweep(f_gear, length(dim(f_gear)), object@w, "*"))
 }
 
 #' Calculate the rate at which biomass of each species is fished
@@ -735,18 +735,18 @@ getYield <- function(object) {
 }
 #' @export
 getYield.MizerSim <- function(object) {
-    # The weight is the product F * w (time x sp x w), which sizeIntegral()
-    # bin-averages as a single weight.
+    # The weighting is the product F * w (time x sp x w), which sizeIntegral()
+    # bin-averages as a single weighting factor.
     f <- getFMort(object, drop = FALSE)
     sizeIntegral(object,
-                 weight = sweep(f, length(dim(f)), object@params@w, "*"),
+                 weighting = sweep(f, length(dim(f)), object@params@w, "*"),
                  value_name = "Yield rate", units = "g/year")
 }
 #' @export
 getYield.MizerParams <- function(object) {
     f <- getFMort(object, drop = FALSE)  # sp x w
     sizeIntegral(object,
-                 weight = sweep(f, length(dim(f)), object@w, "*"))
+                 weighting = sweep(f, length(dim(f)), object@w, "*"))
 }
 
 

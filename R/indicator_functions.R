@@ -87,14 +87,14 @@ getProportionOfLargeFish.MizerSim <- function(object,
     if (!biomass_proportion) { # based on abundance numbers
         w[] <- 1
     }
-    total_measure <- rowSums(unclass(sizeIntegral(sim, weight = w,
+    total_measure <- rowSums(unclass(sizeIntegral(sim, weighting = w,
                                                   ...))[, species, drop = FALSE])
     # This args stuff is pretty ugly - couldn't work out another way of using ...
     args <- list(...)
     args[["max_w"]] <- threshold_w
     args[["max_l"]] <- threshold_l
     upto_threshold <- do.call(sizeIntegral,
-                              c(list(sim, weight = w), args))
+                              c(list(sim, weighting = w), args))
     upto_threshold_measure <-
         rowSums(unclass(upto_threshold)[, species, drop = FALSE])
 
@@ -114,12 +114,12 @@ getProportionOfLargeFish.MizerParams <- function(object,
     if (!biomass_proportion) { # based on abundance numbers
         w[] <- 1
     }
-    total_measure <- sum(sizeIntegral(params, weight = w, ...)[species])
+    total_measure <- sum(sizeIntegral(params, weighting = w, ...)[species])
     args <- list(...)
     args[["max_w"]] <- threshold_w
     args[["max_l"]] <- threshold_l
     upto_threshold_measure <-
-        sum(do.call(sizeIntegral, c(list(params, weight = w), args))[species])
+        sum(do.call(sizeIntegral, c(list(params, weighting = w), args))[species])
 
     1 - (upto_threshold_measure / total_measure)
 }

@@ -65,11 +65,11 @@ stability of steady states.
   way to write your own summary or indicator function: it selects the size
   range, applies the quadrature scheme the model is actually on and wraps the
   result in the appropriate mizer array class, so none of those rules need to
-  be remembered. It takes the weight \eqn{K} in any of the shapes mizer's own
-  arrays come in, from a single number to a gear x species x size array, and
-  keeps the extra dimensions in the result. `getBiomass()`, `getN()`,
-  `getSSB()`, `getYield()`, `getYieldGear()` and `getProportionOfLargeFish()`
-  are now all implemented with it (#494).
+  be remembered. It takes the weighting factor \eqn{K} via the `weighting`
+  argument in any of the shapes mizer's own arrays come in, from a single
+  number to a gear x species x size array, and keeps the extra dimensions in the
+  result. `getBiomass()`, `getN()`, `getSSB()`, `getYield()`, `getYieldGear()`
+  and `getProportionOfLargeFish()` are now all implemented with it (#494).
 
 - New experimental `bin_average_weight()` prepares the weight of an integral
   over the size spectrum so that the integral uses the quadrature scheme the

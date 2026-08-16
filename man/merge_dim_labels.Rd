@@ -17,9 +17,9 @@ once.
 Internal helper for \code{\link[=sizeIntegral]{sizeIntegral()}}. Interleaves the labels of two arrays
 into the labels of the array holding their product, keeping the relative
 order of the labels within each of the two inputs. Labels that occur in both
-inputs occur once in the result, which is how a weight with a \code{"time"}
-dimension is lined up with the times of the abundance rather than multiplied
-out against them.
+inputs occur once in the result, which is how a weighting array with a
+\code{"time"} dimension is lined up with the times of the abundance rather than
+multiplied out against them.
 }
 \concept{helper}
 \keyword{internal}

@@ -6,7 +6,7 @@
 \usage{
 sizeIntegral(
   object,
-  weight = 1,
+  weighting = 1,
   n = NULL,
   ...,
   value_name = NULL,
@@ -16,8 +16,8 @@ sizeIntegral(
 \arguments{
 \item{object}{A \code{MizerParams} or a \code{MizerSim} object.}
 
-\item{weight}{The weight \eqn{K(w)} of the integral, evaluated on the size
-grid. See the section "The weight" below. Defaults to 1.}
+\item{weighting}{The weighting factor \eqn{K(w)} of the integral, evaluated
+on the size grid. See the section "The weighting factor" below. Defaults to 1.}
 
 \item{n}{The abundance density. Either a species x size matrix or a time x
 species x size array. Defaults to the initial abundance \code{initialN(object)}
@@ -49,12 +49,12 @@ the appropriate mizer array class, so that none of those rules need to be
 remembered. The built-in summary functions like \code{\link[=getBiomass]{getBiomass()}}, \code{\link[=getN]{getN()}},
 \code{\link[=getSSB]{getSSB()}} and \code{\link[=getYield]{getYield()}} are all implemented with it.
 }
-\section{The weight}{
+\section{The weighting factor}{
 
-The weight \eqn{K(w)} is supplied already evaluated on the size grid. It can
-be
+The weighting factor \eqn{K(w)} is supplied already evaluated on the size
+grid. It can be
 \itemize{
-\item a single number (the default \code{weight = 1} integrates the abundance
+\item a single number (the default \code{weighting = 1} integrates the abundance
 density itself, giving numbers),
 \item a vector with one value for each size bin, which is then used for all
 species,
@@ -64,49 +64,49 @@ species x size array returned by \code{\link[=getFMortGear]{getFMortGear()}} or 
 size array returned by \code{getFMort(sim)}. Those extra dimensions are
 carried through to the result.
 }
-If the weight is a product of several size-dependent factors, pass the whole
-product: bin-averaging is applied to the product as a single weight, which is
-not the same as averaging the factors separately.
+If the weighting factor is a product of several size-dependent factors, pass
+the whole product: bin-averaging is applied to the product as a single
+weighting factor, which is not the same as averaging the factors separately.
 
-Do \strong{not} include the bin widths \code{params@dw} in the weight and do not
-bin-average the weight yourself; \code{sizeIntegral()} does both.
+Do \strong{not} include the bin widths \code{params@dw} in the weighting factor and do
+not bin-average it yourself; \code{sizeIntegral()} does both.
 }
 
 \section{Shape of the result}{
 
 The size dimension is integrated out. The remaining dimensions are those of
-\code{n} together with any extra dimensions of \code{weight}, so
+\code{n} together with any extra dimensions of \code{weighting}, so
 \itemize{
-\item with a \code{MizerParams} object and a species x size weight the result is
+\item with a \code{MizerParams} object and a species x size weighting the result is
 a named vector with one value per species,
 \item with a \code{MizerSim} object it is an \link{ArrayTimeBySpecies} object (time x
 species),
-\item with a gear x species x size weight the extra \code{gear} dimension is
+\item with a gear x species x size weighting the extra \code{gear} dimension is
 kept, giving a gear x species array (or time x gear x species for a
 \code{MizerSim}).
 }
-Dimensions of \code{weight} other than the last two are matched to the dimensions
-of \code{n} by the names of their dimnames, so a weight whose first dimension is
+Dimensions of \code{weighting} other than the last two are matched to the dimensions
+of \code{n} by the names of their dimnames, so a weighting whose first dimension is
 named \code{"time"} is lined up with the times of the simulation rather than
 producing an outer product.
 }
 
 \examples{
 # The biomass of each species, i.e. what getBiomass() does
-sizeIntegral(NS_params, weight = NS_params@w)
+sizeIntegral(NS_params, weighting = NS_params@w)
 
 # ... restricted to a size range
-sizeIntegral(NS_params, weight = NS_params@w, min_w = 10, max_w = 1000)
+sizeIntegral(NS_params, weighting = NS_params@w, min_w = 10, max_w = 1000)
 
 # The numbers of individuals larger than 10g
 sizeIntegral(NS_params, min_w = 10)
 
-# Spawning stock biomass: the weight is the product maturity * w
+# Spawning stock biomass: the weighting is the product maturity * w
 K <- sweep(NS_params@maturity, 2, NS_params@w, "*")
-sizeIntegral(NS_params, weight = K)
+sizeIntegral(NS_params, weighting = K)
 
 # An indicator through time, ready to plot
-biomass <- sizeIntegral(NS_sim, weight = NS_params@w,
+biomass <- sizeIntegral(NS_sim, weighting = NS_params@w,
                         value_name = "Biomass", units = "g")
 biomass[c("1972", "2010"), c("Herring", "Cod")]
 }

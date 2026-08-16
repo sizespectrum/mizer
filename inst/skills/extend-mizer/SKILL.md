@@ -127,7 +127,7 @@ switched the second-order scheme on. Three rules:
   unchanged.
 
 For a summary-style integral $\int N_i(w) K_i(w) dw$, do not write the sum at
-all: `sizeIntegral(params, weight = K, min_w = ..., max_w = ...)` does the
+all: `sizeIntegral(params, weighting = K, min_w = ..., max_w = ...)` does the
 integral under whichever scheme the model is on and wraps the result — see
 "Writing your own indicator" in the `analyse-and-plot` skill. If you need the
 gating on its own, for a weight you are not integrating, that is

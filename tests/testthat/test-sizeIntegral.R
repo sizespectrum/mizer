@@ -5,32 +5,32 @@ test_that("size_dim_labels labels the dimensions of the usual arrays", {
     p <- NS_params_small
     no_sp <- nrow(p@species_params)
     no_w <- length(p@w)
-    expect_identical(size_dim_labels(1, "weight", no_sp, no_w), character(0))
-    expect_identical(size_dim_labels(p@w, "weight", no_sp, no_w), "w")
+    expect_identical(size_dim_labels(1, "weighting", no_sp, no_w), character(0))
+    expect_identical(size_dim_labels(p@w, "weighting", no_sp, no_w), "w")
     expect_identical(size_dim_labels(p@initial_n, "n", no_sp, no_w),
                      c("sp", "w"))
-    expect_identical(size_dim_labels(getFMortGear(p), "weight", no_sp, no_w),
+    expect_identical(size_dim_labels(getFMortGear(p), "weighting", no_sp, no_w),
                      c("gear", "sp", "w"))
     # An unnamed extra dimension gets a label of its own
     A <- array(0, dim = c(2, no_sp, no_w))
-    expect_identical(size_dim_labels(A, "weight", no_sp, no_w),
-                     c("weight.dim1", "sp", "w"))
+    expect_identical(size_dim_labels(A, "weighting", no_sp, no_w),
+                     c("weighting.dim1", "sp", "w"))
     # "species" and "size" are normalised to mizer's "sp" and "w"
     B <- array(0, dim = c(no_sp, no_w),
                dimnames = list(species = NULL, size = NULL))
-    expect_identical(size_dim_labels(B, "weight", no_sp, no_w), c("sp", "w"))
+    expect_identical(size_dim_labels(B, "weighting", no_sp, no_w), c("sp", "w"))
 })
 
 test_that("size_dim_labels rejects arrays of the wrong shape", {
     p <- NS_params_small
     no_sp <- nrow(p@species_params)
     no_w <- length(p@w)
-    expect_error(size_dim_labels(1:3, "weight", no_sp, no_w),
-                 "last dimension of `weight` must run over")
-    expect_error(size_dim_labels(array(0, dim = c(2, no_w)), "weight",
+    expect_error(size_dim_labels(1:3, "weighting", no_sp, no_w),
+                 "last dimension of `weighting` must run over")
+    expect_error(size_dim_labels(array(0, dim = c(2, no_w)), "weighting",
                                  no_sp, no_w),
-                 "second-to-last dimension of `weight` must run over")
-    expect_error(size_dim_labels("a", "weight", no_sp, no_w),
+                 "second-to-last dimension of `weighting` must run over")
+    expect_error(size_dim_labels("a", "weighting", no_sp, no_w),
                  "must be numeric")
 })
 
@@ -79,27 +79,27 @@ test_that("dim_extents catches inconsistent dimensions", {
 # sizeIntegral ----
 test_that("sizeIntegral reproduces the built-in summary functions", {
     p <- NS_params_small
-    expect_identical(sizeIntegral(p, weight = p@w), getBiomass(p))
+    expect_identical(sizeIntegral(p, weighting = p@w), getBiomass(p))
     expect_identical(sizeIntegral(p), getN(p))
-    expect_identical(sizeIntegral(p, weight = p@w, min_w = 10, max_w = 1000),
+    expect_identical(sizeIntegral(p, weighting = p@w, min_w = 10, max_w = 1000),
                      getBiomass(p, min_w = 10, max_w = 1000))
-    expect_equal(sizeIntegral(p, weight = sweep(p@maturity, 2, p@w, "*")),
+    expect_equal(sizeIntegral(p, weighting = sweep(p@maturity, 2, p@w, "*")),
                  getSSB(p))
     f <- getFMort(p, drop = FALSE)
-    expect_equal(sizeIntegral(p, weight = sweep(f, 2, p@w, "*")),
+    expect_equal(sizeIntegral(p, weighting = sweep(f, 2, p@w, "*")),
                  getYield(p))
     fg <- getFMortGear(p)
-    expect_equal(sizeIntegral(p, weight = sweep(fg, 3, p@w, "*")),
+    expect_equal(sizeIntegral(p, weighting = sweep(fg, 3, p@w, "*")),
                  getYieldGear(p))
 })
 
 test_that("sizeIntegral integrates against a supplied abundance", {
     p <- NS_params_small
     n <- initialN(p)
-    expect_identical(sizeIntegral(p, weight = p@w, n = 2 * n),
+    expect_identical(sizeIntegral(p, weighting = p@w, n = 2 * n),
                      2 * getBiomass(p))
-    # A single number for the weight integrates the abundance density
-    expect_identical(sizeIntegral(p, weight = 1), getN(p))
+    # A single number for the weighting factor integrates the abundance density
+    expect_identical(sizeIntegral(p, weighting = 1), getN(p))
 })
 
 test_that("sizeIntegral gets the shape of the result right", {
@@ -108,43 +108,43 @@ test_that("sizeIntegral gets the shape of the result right", {
     no_sp <- nrow(p@species_params)
     no_gear <- length(dimnames(getFMortGear(p))$gear)
 
-    # MizerParams, weight over species and size -> vector over species
-    b <- sizeIntegral(p, weight = p@w)
+    # MizerParams, weighting over species and size -> vector over species
+    b <- sizeIntegral(p, weighting = p@w)
     expect_null(dim(b))
     expect_identical(names(b), as.character(p@species_params$species))
 
     # MizerSim -> ArrayTimeBySpecies
-    bs <- sizeIntegral(sim, weight = p@w, value_name = "Biomass", units = "g")
+    bs <- sizeIntegral(sim, weighting = p@w, value_name = "Biomass", units = "g")
     expect_true(is.ArrayTimeBySpecies(bs))
     expect_identical(dim(bs), c(length(getTimes(sim)), no_sp))
     expect_identical(attr(bs, "value_name"), "Biomass")
     expect_identical(attr(bs, "units"), "g")
 
-    # An extra dimension of the weight is carried through
-    yg <- sizeIntegral(p, weight = getFMortGear(p))
+    # An extra dimension of the weighting is carried through
+    yg <- sizeIntegral(p, weighting = getFMortGear(p))
     expect_identical(dim(yg), c(no_gear, no_sp))
     expect_identical(names(dimnames(yg)), c("gear", "sp"))
 
     # ... also when the abundance has a time dimension
-    ygs <- sizeIntegral(sim, weight = getFMortGear(sim))
+    ygs <- sizeIntegral(sim, weighting = getFMortGear(sim))
     expect_identical(dim(ygs), c(length(getTimes(sim)), no_gear, no_sp))
     expect_identical(names(dimnames(ygs)), c("time", "gear", "sp"))
     # and the time dimension is matched, not multiplied out
-    expect_equal(ygs[1, , ], sizeIntegral(p, weight = getFMortGear(sim)[1, , , ],
+    expect_equal(ygs[1, , ], sizeIntegral(p, weighting = getFMortGear(sim)[1, , , ],
                                           n = sim@n[1, , ]))
 })
 
 test_that("sizeIntegral respects the size range", {
     p <- NS_params_small
-    full <- sizeIntegral(p, weight = p@w)
-    part <- sizeIntegral(p, weight = p@w, min_w = 10)
+    full <- sizeIntegral(p, weighting = p@w)
+    part <- sizeIntegral(p, weighting = p@w, min_w = 10)
     expect_true(all(part < full))
     # min_l is converted to a weight with the species' a and b
     sp <- p@species_params
-    expect_equal(sizeIntegral(p, weight = p@w, min_l = 10),
-                 sizeIntegral(p, weight = p@w, min_w = sp$a * 10^sp$b))
+    expect_equal(sizeIntegral(p, weighting = p@w, min_l = 10),
+                 sizeIntegral(p, weighting = p@w, min_w = sp$a * 10^sp$b))
     # An empty size range gives zero
-    expect_equal(unname(sizeIntegral(p, weight = p@w,
+    expect_equal(unname(sizeIntegral(p, weighting = p@w,
                                      min_w = 2 * max(p@w))),
                  rep(0, nrow(sp)))
 })
@@ -152,8 +152,8 @@ test_that("sizeIntegral respects the size range", {
 test_that("sizeIntegral rejects invalid input", {
     p <- NS_params_small
     expect_error(sizeIntegral(1), "must be a MizerParams or a MizerSim object")
-    expect_error(sizeIntegral(p, weight = 1:3),
-                 "last dimension of `weight` must run over")
+    expect_error(sizeIntegral(p, weighting = 1:3),
+                 "last dimension of `weighting` must run over")
     expect_error(sizeIntegral(p, n = 1:3), "last dimension of `n` must run over")
     expect_error(sizeIntegral(p, n = p@w),
                  "`n` must have a dimension running over the species")
@@ -162,21 +162,21 @@ test_that("sizeIntegral rejects invalid input", {
 # The quadrature scheme ----
 test_that("sizeIntegral is unchanged by the default scheme", {
     p <- NS_params_small
-    # Explicitly first order: the weight is used as given
+    # Explicitly first order: the weighting factor is used as given
     K <- p@w
-    expect_identical(unname(sizeIntegral(p, weight = K)),
+    expect_identical(unname(sizeIntegral(p, weighting = K)),
                      unname(drop(initialN(p) %*% (K * p@dw))))
 })
 
-test_that("sizeIntegral bin-averages the whole weight when asked to", {
+test_that("sizeIntegral bin-averages the whole weighting factor when asked to", {
     p <- NS_params_small
     second_order_w(p) <- c(bin_average = TRUE)
-    # The product maturity * w is averaged as a single weight, which is not
+    # The product maturity * w is averaged as a single weighting factor, which is not
     # the same as averaging the two factors separately.
     K <- sweep(p@maturity, 2, p@w, "*")
     expected <- drop(rowSums(initialN(p) *
                                  sweep(trapezoidal_bin_average(K), 2, p@dw, "*")))
-    expect_equal(unname(sizeIntegral(p, weight = K)), unname(expected))
+    expect_equal(unname(sizeIntegral(p, weighting = K)), unname(expected))
     wrong <- drop(rowSums(initialN(p) *
         sweep(trapezoidal_bin_average(p@maturity) *
                   rep(trapezoidal_bin_average(p@w), each = nrow(p@maturity)),
@@ -184,13 +184,13 @@ test_that("sizeIntegral bin-averages the whole weight when asked to", {
     expect_false(isTRUE(all.equal(unname(expected), unname(wrong))))
 })
 
-test_that("sizeIntegral bin-averages the size range mask with the weight", {
+test_that("sizeIntegral bin-averages the size range mask with the weighting", {
     p <- NS_params_small
     p2 <- p
     second_order_w(p2) <- c(bin_average = TRUE)
     # With a restricted size range the bin straddling the boundary contributes
     # only partially, so the second-order value differs from the first-order
-    # one even for the constant weight of getN().
+    # one even for the constant weighting of getN().
     expect_false(isTRUE(all.equal(unname(sizeIntegral(p, min_w = 10)),
                                   unname(sizeIntegral(p2, min_w = 10)))))
     # Over the full size range the mask is all ones and nothing changes.
@@ -204,8 +204,8 @@ test_that("the two schemes converge as the grid is refined", {
             newMultispeciesParams(sp, inter_small, no_w = no_w, info_level = 0))
         p2 <- p1
         second_order_w(p2) <- c(bin_average = TRUE)
-        b1 <- sizeIntegral(p1, weight = p1@w)
-        b2 <- sizeIntegral(p2, weight = p2@w)
+        b1 <- sizeIntegral(p1, weighting = p1@w)
+        b2 <- sizeIntegral(p2, weighting = p2@w)
         max(abs(b2 - b1) / b1)
     }, numeric(1))
     expect_true(all(diff(diffs) < 0))

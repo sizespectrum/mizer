@@ -68,7 +68,7 @@ cutoff_min_w <- function(params, to = c("biomass", "number")) {
 #' @keywords internal
 model_observation <- function(params, to = c("biomass", "number")) {
     cols <- observation_columns(to)
-    weight <- if (cols$to == "biomass") params@w else 1
-    sizeIntegral(params, weight = weight,
+    weighting <- if (cols$to == "biomass") params@w else 1
+    sizeIntegral(params, weighting = weighting,
                  min_w = cutoff_min_w(params, cols$to))
 }

@@ -16,11 +16,11 @@
 #' remembered. The built-in summary functions like [getBiomass()], [getN()],
 #' [getSSB()] and [getYield()] are all implemented with it.
 #'
-#' @section The weight:
-#' The weight \eqn{K(w)} is supplied already evaluated on the size grid. It can
-#' be
+#' @section The weighting factor:
+#' The weighting factor \eqn{K(w)} is supplied already evaluated on the size
+#' grid. It can be
 #' \itemize{
-#'   \item a single number (the default `weight = 1` integrates the abundance
+#'   \item a single number (the default `weighting = 1` integrates the abundance
 #'     density itself, giving numbers),
 #'   \item a vector with one value for each size bin, which is then used for all
 #'     species,
@@ -30,33 +30,33 @@
 #'     size array returned by `getFMort(sim)`. Those extra dimensions are
 #'     carried through to the result.
 #' }
-#' If the weight is a product of several size-dependent factors, pass the whole
-#' product: bin-averaging is applied to the product as a single weight, which is
-#' not the same as averaging the factors separately.
+#' If the weighting factor is a product of several size-dependent factors, pass
+#' the whole product: bin-averaging is applied to the product as a single
+#' weighting factor, which is not the same as averaging the factors separately.
 #'
-#' Do **not** include the bin widths `params@dw` in the weight and do not
-#' bin-average the weight yourself; `sizeIntegral()` does both.
+#' Do **not** include the bin widths `params@dw` in the weighting factor and do
+#' not bin-average it yourself; `sizeIntegral()` does both.
 #'
 #' @section Shape of the result:
 #' The size dimension is integrated out. The remaining dimensions are those of
-#' `n` together with any extra dimensions of `weight`, so
+#' `n` together with any extra dimensions of `weighting`, so
 #' \itemize{
-#'   \item with a `MizerParams` object and a species x size weight the result is
+#'   \item with a `MizerParams` object and a species x size weighting the result is
 #'     a named vector with one value per species,
 #'   \item with a `MizerSim` object it is an [ArrayTimeBySpecies] object (time x
 #'     species),
-#'   \item with a gear x species x size weight the extra `gear` dimension is
+#'   \item with a gear x species x size weighting the extra `gear` dimension is
 #'     kept, giving a gear x species array (or time x gear x species for a
 #'     `MizerSim`).
 #' }
-#' Dimensions of `weight` other than the last two are matched to the dimensions
-#' of `n` by the names of their dimnames, so a weight whose first dimension is
+#' Dimensions of `weighting` other than the last two are matched to the dimensions
+#' of `n` by the names of their dimnames, so a weighting whose first dimension is
 #' named `"time"` is lined up with the times of the simulation rather than
 #' producing an outer product.
 #'
 #' @param object A `MizerParams` or a `MizerSim` object.
-#' @param weight The weight \eqn{K(w)} of the integral, evaluated on the size
-#'   grid. See the section "The weight" below. Defaults to 1.
+#' @param weighting The weighting factor \eqn{K(w)} of the integral, evaluated
+#'   on the size grid. See the section "The weighting factor" below. Defaults to 1.
 #' @param n The abundance density. Either a species x size matrix or a time x
 #'   species x size array. Defaults to the initial abundance `initialN(object)`
 #'   for a `MizerParams` object and to the saved abundances `object@n` for a
@@ -77,23 +77,23 @@
 #'   [second_order_w()]
 #' @examples
 #' # The biomass of each species, i.e. what getBiomass() does
-#' sizeIntegral(NS_params, weight = NS_params@w)
+#' sizeIntegral(NS_params, weighting = NS_params@w)
 #'
 #' # ... restricted to a size range
-#' sizeIntegral(NS_params, weight = NS_params@w, min_w = 10, max_w = 1000)
+#' sizeIntegral(NS_params, weighting = NS_params@w, min_w = 10, max_w = 1000)
 #'
 #' # The numbers of individuals larger than 10g
 #' sizeIntegral(NS_params, min_w = 10)
 #'
-#' # Spawning stock biomass: the weight is the product maturity * w
+#' # Spawning stock biomass: the weighting is the product maturity * w
 #' K <- sweep(NS_params@maturity, 2, NS_params@w, "*")
-#' sizeIntegral(NS_params, weight = K)
+#' sizeIntegral(NS_params, weighting = K)
 #'
 #' # An indicator through time, ready to plot
-#' biomass <- sizeIntegral(NS_sim, weight = NS_params@w,
+#' biomass <- sizeIntegral(NS_sim, weighting = NS_params@w,
 #'                         value_name = "Biomass", units = "g")
 #' biomass[c("1972", "2010"), c("Herring", "Cod")]
-sizeIntegral <- function(object, weight = 1, n = NULL, ...,
+sizeIntegral <- function(object, weighting = 1, n = NULL, ...,
                          value_name = NULL, units = NULL) {
     if (is(object, "MizerSim")) {
         params <- object@params
@@ -111,23 +111,23 @@ sizeIntegral <- function(object, weight = 1, n = NULL, ...,
     if (!("sp" %in% n_labels)) {
         stop("`n` must have a dimension running over the species.")
     }
-    weight_labels <- size_dim_labels(weight, "weight", no_sp, no_w)
+    weighting_labels <- size_dim_labels(weighting, "weighting", no_sp, no_w)
 
-    # The size-range mask is part of the weight: bin-averaging the mask
-    # together with the rest of the weight is what makes the bin straddling
+    # The size-range mask is part of the weighting: bin-averaging the mask
+    # together with the rest of the weighting is what makes the bin straddling
     # the boundary of the size range contribute only partially.
     mask <- get_size_range_array(params, ...)
     storage.mode(mask) <- "double"
     mask_labels <- c("sp", "w")
 
-    # Build the full weight, then do the bin integral on it. The abundance is
+    # Build the full weighting, then do the bin integral on it. The abundance is
     # already a bin average and the bin widths are exact, so neither of them is
     # ever bin-averaged.
-    K_labels <- merge_dim_labels(mask_labels, weight_labels)
-    extent <- dim_extents(list(mask, weight, n),
-                          list(mask_labels, weight_labels, n_labels))
+    K_labels <- merge_dim_labels(mask_labels, weighting_labels)
+    extent <- dim_extents(list(mask, weighting, n),
+                          list(mask_labels, weighting_labels, n_labels))
     K <- broadcast_dims(mask, mask_labels, K_labels, extent) *
-        broadcast_dims(weight, weight_labels, K_labels, extent)
+        broadcast_dims(weighting, weighting_labels, K_labels, extent)
     K <- bin_average_weight(K, params)
     K <- sweep(K, length(K_labels), params@dw, "*")
 
@@ -139,8 +139,8 @@ sizeIntegral <- function(object, weight = 1, n = NULL, ...,
         broadcast_dims(K, K_labels, labels, extent)
     result_labels <- labels[-length(labels)]
     result <- matrix(integrand, ncol = no_w) %*% rep(1, no_w)
-    dn <- collect_dimnames(result_labels, list(n, weight, mask),
-                           list(n_labels, weight_labels, mask_labels))
+    dn <- collect_dimnames(result_labels, list(n, weighting, mask),
+                           list(n_labels, weighting_labels, mask_labels))
     if (length(result_labels) == 1) {
         result <- drop(result)
         if (!is.null(dn)) names(result) <- dn[[1]]
@@ -225,9 +225,9 @@ size_dim_labels <- function(x, arg, no_sp, no_w) {
 #' Internal helper for [sizeIntegral()]. Interleaves the labels of two arrays
 #' into the labels of the array holding their product, keeping the relative
 #' order of the labels within each of the two inputs. Labels that occur in both
-#' inputs occur once in the result, which is how a weight with a `"time"`
-#' dimension is lined up with the times of the abundance rather than multiplied
-#' out against them.
+#' inputs occur once in the result, which is how a weighting array with a
+#' `"time"` dimension is lined up with the times of the abundance rather than
+#' multiplied out against them.
 #'
 #' @param a,b Character vectors of dimension labels.
 #' @return A character vector of labels containing each label of `a` and `b`

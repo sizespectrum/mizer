@@ -263,8 +263,8 @@ steady_biomass_drift <- function(params, ...) {
     params <- rates$params
 
     # Consumers: (dB_i/dt) / B_i, with both integrals taken the same way.
-    biomass <- as.numeric(sizeIntegral(params, weight = params@w, n = rates$n))
-    dBdt <- as.numeric(sizeIntegral(params, weight = params@w, n = rates$dNdt))
+    biomass <- as.numeric(sizeIntegral(params, weighting = params@w, n = rates$n))
+    dBdt <- as.numeric(sizeIntegral(params, weighting = params@w, n = rates$dNdt))
     consumers <- dBdt[biomass > 0] / biomass[biomass > 0]
 
     # Resource: the same, over the full grid it lives on.

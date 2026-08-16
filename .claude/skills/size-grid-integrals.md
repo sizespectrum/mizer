@@ -27,7 +27,7 @@ there are the authoritative inventory and are meant to be kept current.
 **Call `sizeIntegral()`.** It is the one place this integral is written:
 
 ```r
-sizeIntegral(params, weight = K, min_w = 10, max_w = 5000)
+sizeIntegral(params, weighting = K, min_w = 10, max_w = 5000)
 ```
 
 It applies the size-range mask, gates the bin-averaging on the flag, multiplies
@@ -35,10 +35,10 @@ by `dw`, contracts over the size axis and wraps the result. `getBiomass()`,
 `getN()`, `getSSB()`, `getYield()`, `getYieldGear()` and
 `getProportionOfLargeFish()` are all implemented with it; add the next one the
 same way rather than writing the sum again. Do not pass `params@dw` in the
-weight and do not call `bin_average_weight()` before handing the weight over —
-both are done inside.
+weighting factor and do not call `bin_average_weight()` before handing the
+weighting factor over — both are done inside.
 
-- **Average the product, not the factors.** Pass the whole product as `weight`:
+- **Average the product, not the factors.** Pass the whole product as `weighting`:
   SSB uses `psi * w`; yield uses `F * w`. Averaging separately is a different
   (wrong) number. The size-range mask counts as one of the factors — it is
   multiplied in *before* the averaging, which is what makes the bin straddling
@@ -145,7 +145,7 @@ test lives in the file named after the R file that defines the function.
 
 | Helper | Exported? | Use |
 |---|---|---|
-| `sizeIntegral(object, weight, ...)` | yes | the whole integral ∫ N K dw — the default entry point |
+| `sizeIntegral(object, weighting, ...)` | yes | the whole integral ∫ N K dw — the default entry point |
 | `bin_average_weight(K, params)` | yes | trapezoidal bin average, gated on the flag, for a weight you are not integrating |
 | `trapezoidal_bin_average(K)` | no | ungated trapezoid; averages along the last dimension of an array |
 | `power_law_bin_average(w, dw, a, w_max)` | no | exact bin average of `w^a`, with optional cutoff |
