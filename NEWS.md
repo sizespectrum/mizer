@@ -667,6 +667,17 @@ while building or changing a model through a single mechanism controlled by
   from the installed mizer, so an agent's guidance describes the version of
   mizer the project actually runs.
 
+- New `understand-size-spectrum-dynamics` skill, and the matching "Cheatsheet:
+  Size-Spectrum Dynamics" article, explain how mizer models behave rather than
+  which function to call: which quantities you impose and which the model
+  produces for itself, the food and predation feedback loops that couple
+  species, what sets the slope of the steady-state spectrum and the timescales
+  of its dynamics, and the difference between density dependence imposed through
+  `R_max` and the density dependence that emerges from the feedback loops. It
+  closes with a table mapping a symptom you actually see — a species that
+  collapses, oscillates, stops growing before `w_mat`, or refuses to respond to
+  fishing — to what to inspect.
+
 - The ["Upgrading mizer"](https://sizespectrum.org/mizer/articles/upgrading.html)
   article is now also shipped as an AI-agent skill, `upgrade-mizer-code`, built
   from `inst/skills/upgrade-mizer-code/SKILL.md` by the same generator as the
