@@ -55,6 +55,7 @@ plots) are in the changelog and are not repeated here.
 | A `Total` line appears on a plot with `size_axis = "l"` where there used to be none | the total is now summed after the length conversion | The total is summed on the axis it is plotted against (3.3) |
 | `plot(<array>, species = ..., total = TRUE)` gives a bigger total than before | the total is the total of the whole array, not of the selected species | The total is summed on the axis it is plotted against (3.3) |
 | `plotSpectra2()` or `plotSpectraRelative()` with `size_axis = "l"` shows a `Total` line where it used to show none | the total is now formed on the axis being plotted | The total is summed on the axis it is plotted against (3.3) |
+| `plotSpectra2(size_axis = "l", ylim = ..., return_data = TRUE)` returns fewer rows | `ylim` now filters the data there as it does for `plotSpectra()` | The total is summed on the axis it is plotted against (3.3) |
 | New warning that a change to a species or resource parameter "has not taken effect" | the rate it feeds was set by hand and is no longer calculated | A change that cannot take effect now warns (3.3) |
 | That warning appears with `given_species_params<-()` but not with `species_params<-()` | the diagnostics belong to the given species parameter setter | The two species parameter setters divide the diagnostics between them (3.3) |
 | Setting a given species parameter to `NA` now warns that the change has not taken effect | clearing a value counts as a change, and a frozen array blocks it | The two species parameter setters divide the diagnostics between them (3.3) |
@@ -265,6 +266,15 @@ total they had been handed — already summed at equal weight — reached the
 conversion with no species to convert it by and was silently dropped. They now
 let `plotSpectra()` do the conversion, so the total they receive is the total
 on the axis being plotted.
+
+That also settles what `ylim` does there. `plotSpectra()` applies it both as
+the axis limits and as a filter on the data, with a hard floor at 1e-20.
+`plotSpectra2()` could not do the same on a length axis, because the values it
+was filtering were a Jacobian away from the ones the limits described, so it
+skipped the filter. Now that it converts first, the filter applies as it does
+everywhere else. The plot is unchanged — the axis limits hid those points
+anyway — but `return_data = TRUE` no longer hands back values outside the
+limits.
 
 One thing does change on the weight axis. `total = TRUE` now means the same
 thing everywhere: **the total of everything the object holds**, whatever is

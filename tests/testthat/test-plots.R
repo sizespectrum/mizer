@@ -616,12 +616,20 @@ test_that("length-axis spectra transform their densities", {
         compared_data$l
     expect_equal(compared_data[[2]], unname(by_weight[[2]] * jacobian))
 
+    # `ylim` is applied to the converted values, not to the weight-axis ones it
+    # would be off by a Jacobian from, and it filters the data exactly as it
+    # does for a single spectrum plot.
     limit <- stats::median(compared_data[[2]])
     limited <- plotSpectra2(params, params, species = species,
                             resource = FALSE, power = 0, size_axis = "l",
                             ylim = c(limit, NA))
-    expect_true(any(limited$data[[2]] < limit))
+    expect_true(all(limited$data[[2]] >= limit))
     expect_equal(limited$scales$get_scales("y")$limits, c(log10(limit), NA))
+    single <- plotSpectra(params, species = species, resource = FALSE,
+                          power = 0, size_axis = "l", ylim = c(limit, NA),
+                          return_data = TRUE)
+    expect_equal(sort(limited$data[[2]][limited$data$Model == "First"]),
+                 sort(single[[2]]))
 })
 
 test_that("proportion_ylim widens to [0, 1] without ever hiding data", {

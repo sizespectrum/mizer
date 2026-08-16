@@ -2504,15 +2504,14 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
     # The size axis is converted by `plotSpectra()` rather than afterwards, so
     # that the total it forms is the total on the axis being plotted. A total
     # summed at equal weight cannot be converted to a length axis afterwards:
-    # it is a sum over species that each convert differently.
-    data_ylim <- if (identical(size_axis, "l")) c(0, NA) else ylim
-    sf1 <- plotSpectra(object1, species = species, wlim = wlim,
-                       ylim = data_ylim,
+    # it is a sum over species that each convert differently. It also means
+    # `ylim` can be handed straight over, because the values it is applied to
+    # are then the values it describes.
+    sf1 <- plotSpectra(object1, species = species, wlim = wlim, ylim = ylim,
                        power = power, total = total, resource = resource,
                        background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
-    sf2 <- plotSpectra(object2, species = species, wlim = wlim,
-                       ylim = data_ylim,
+    sf2 <- plotSpectra(object2, species = species, wlim = wlim, ylim = ylim,
                        power = power, total = total, resource = resource,
                        background = background, size_axis = size_axis,
                        return_data = TRUE, ...)

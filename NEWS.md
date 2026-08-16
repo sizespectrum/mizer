@@ -176,7 +176,11 @@ stability of steady states.
   the total they had been given — summed at equal weight — arrived at the
   conversion with no species to convert it by and was dropped. They now let
   `plotSpectra()` convert, so the total they receive is already the total on
-  the axis being plotted.
+  the axis being plotted. As a result `plotSpectra2()` also applies `ylim` the
+  way `plotSpectra()` does on a length axis: it could not before, because the
+  values it was filtering were a Jacobian away from the ones the limits
+  described, so with `return_data = TRUE` it returned values outside the limits
+  that a single spectrum plot would have dropped.
 
   `total = TRUE` also now means the same thing everywhere: the total of
   everything the object holds. For `plotSpectra()` that was already so — the

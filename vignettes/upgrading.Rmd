@@ -147,6 +147,15 @@ conversion with no species to convert it by and was silently dropped. They now
 let `plotSpectra()` do the conversion, so the total they receive is the total
 on the axis being plotted.
 
+That also settles what `ylim` does there. `plotSpectra()` applies it both as
+the axis limits and as a filter on the data, with a hard floor at 1e-20.
+`plotSpectra2()` could not do the same on a length axis, because the values it
+was filtering were a Jacobian away from the ones the limits described, so it
+skipped the filter. Now that it converts first, the filter applies as it does
+everywhere else. The plot is unchanged — the axis limits hid those points
+anyway — but `return_data = TRUE` no longer hands back values outside the
+limits.
+
 One thing does change on the weight axis. `total = TRUE` now means the same
 thing everywhere: **the total of everything the object holds**, whatever is
 drawn. `plotSpectra()` always worked that way — the resource and every species
