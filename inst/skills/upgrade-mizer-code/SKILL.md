@@ -54,6 +54,7 @@ plots) are in the changelog and are not repeated here.
 | New warning that two arrays hold "a value of type" different things in `plot2()` or `plotRelative()` | the two arrays disagree about what they hold | Arrays say what kind of value they hold (3.3) |
 | A `Total` line appears on a plot with `size_axis = "l"` where there used to be none | the total is now summed after the length conversion | The total is summed on the axis it is plotted against (3.3) |
 | `plot(<array>, species = ..., total = TRUE)` gives a bigger total than before | the total is the total of the whole array, not of the selected species | The total is summed on the axis it is plotted against (3.3) |
+| `plotSpectra2()` or `plotSpectraRelative()` with `size_axis = "l"` shows a `Total` line where it used to show none | the total is now formed on the axis being plotted | The total is summed on the axis it is plotted against (3.3) |
 | New warning that a change to a species or resource parameter "has not taken effect" | the rate it feeds was set by hand and is no longer calculated | A change that cannot take effect now warns (3.3) |
 | That warning appears with `given_species_params<-()` but not with `species_params<-()` | the diagnostics belong to the given species parameter setter | The two species parameter setters divide the diagnostics between them (3.3) |
 | Setting a given species parameter to `NA` now warns that the change has not taken effect | clearing a value counts as a change, and a frozen array blocks it | The two species parameter setters divide the diagnostics between them (3.3) |
@@ -257,6 +258,13 @@ range). Where the lines already share a grid — always on a weight axis, and on
 a length axis whenever the weight-length parameters agree — the union is that
 grid and the interpolation reproduces the values exactly. **The weight-axis
 total is unchanged**, for every power.
+
+`plotSpectra2()` and `plotSpectraRelative()` are fixed by the same change.
+They used to convert the size axis after assembling the two spectra, so the
+total they had been handed — already summed at equal weight — reached the
+conversion with no species to convert it by and was silently dropped. They now
+let `plotSpectra()` do the conversion, so the total they receive is the total
+on the axis being plotted.
 
 One thing does change on the weight axis. `total = TRUE` now means the same
 thing everywhere: **the total of everything the object holds**, whatever is

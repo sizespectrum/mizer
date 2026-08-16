@@ -171,6 +171,13 @@ stability of steady states.
   weight axis, the union is that grid and nothing is approximated: the
   weight-axis total is unchanged.
 
+  `plotSpectra2()` and `plotSpectraRelative()` keep their total on a length
+  axis too. They used to convert the axis after assembling the two spectra, so
+  the total they had been given — summed at equal weight — arrived at the
+  conversion with no species to convert it by and was dropped. They now let
+  `plotSpectra()` convert, so the total they receive is already the total on
+  the axis being plotted.
+
   `total = TRUE` also now means the same thing everywhere: the total of
   everything the object holds. For `plotSpectra()` that was already so — the
   resource and every species, whatever is drawn — and it stays so. The array

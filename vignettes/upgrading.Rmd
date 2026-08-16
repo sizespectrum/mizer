@@ -140,6 +140,13 @@ a length axis whenever the weight-length parameters agree — the union is that
 grid and the interpolation reproduces the values exactly. **The weight-axis
 total is unchanged**, for every power.
 
+`plotSpectra2()` and [`plotSpectraRelative()`](../reference/plotSpectraRelative.html) are fixed by the same change.
+They used to convert the size axis after assembling the two spectra, so the
+total they had been handed — already summed at equal weight — reached the
+conversion with no species to convert it by and was silently dropped. They now
+let `plotSpectra()` do the conversion, so the total they receive is the total
+on the axis being plotted.
+
 One thing does change on the weight axis. `total = TRUE` now means the same
 thing everywhere: **the total of everything the object holds**, whatever is
 drawn. `plotSpectra()` always worked that way — the resource and every species

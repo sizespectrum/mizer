@@ -730,6 +730,37 @@ test_that("the spectrum total appears on a length axis", {
     expect_equal(total_at(species = species), total_at())
 })
 
+test_that("the comparison spectra keep their total on a length axis", {
+    params2 <- params
+    species_params(params2)$gamma <- species_params(params2)$gamma * 1.1
+
+    for (size_axis in c("w", "l")) {
+        compared <- plotSpectra2(params, params2, total = TRUE,
+                                 size_axis = size_axis)$data
+        expect_true("Total" %in% compared$Legend)
+        relative <- plotSpectraRelative(params, params2, total = TRUE,
+                                        size_axis = size_axis)$data
+        expect_true("Total" %in% relative$Legend)
+    }
+
+    # Each model in the comparison holds exactly what plotSpectra() draws for
+    # it on its own, total included, on either axis
+    for (size_axis in c("w", "l")) {
+        for (power in 0:2) {
+            compared <- plotSpectra2(params, params, total = TRUE,
+                                     power = power,
+                                     size_axis = size_axis)$data
+            single <- plotSpectra(params, total = TRUE, power = power,
+                                  size_axis = size_axis, return_data = TRUE)
+            expect_equal(sort(compared[[2]][compared$Model == "First"]),
+                         sort(single[[2]]))
+            expect_equal(sort(compared[[2]][compared$Legend == "Total" &
+                                                compared$Model == "First"]),
+                         sort(single[[2]][single$Legend == "Total"]))
+        }
+    }
+})
+
 test_that("validate_density_wrt accepts only the known measures", {
     expect_identical(validate_density_wrt(NULL), NA_character_)
     expect_identical(validate_density_wrt(NA), NA_character_)

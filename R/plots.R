@@ -2501,19 +2501,22 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
     log_y <- log_axes$log_y
     assert_that(length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
+    # The size axis is converted by `plotSpectra()` rather than afterwards, so
+    # that the total it forms is the total on the axis being plotted. A total
+    # summed at equal weight cannot be converted to a length axis afterwards:
+    # it is a sum over species that each convert differently.
     data_ylim <- if (identical(size_axis, "l")) c(0, NA) else ylim
     sf1 <- plotSpectra(object1, species = species, wlim = wlim,
                        ylim = data_ylim,
                        power = power, total = total, resource = resource,
-                       background = background, size_axis = "w",
+                       background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
     sf2 <- plotSpectra(object2, species = species, wlim = wlim,
                        ylim = data_ylim,
                        power = power, total = total, resource = resource,
-                       background = background, size_axis = "w",
+                       background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
-    density_wrt <- spectrum_density_wrt(spectrum$per_log_size)
 
     plotComparisonDataFrame(sf1, sf2, validParams(params),
                             name1 = name1, name2 = name2,
@@ -2526,9 +2529,7 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
                             ytrans = if (log_y) "log10" else "identity",
                             xlim = plot_size_xlim(wlim, size_axis, llim),
                             ylim = ylim, highlight = highlight,
-                            legend_var = "Legend",
-                            size_axis = size_axis,
-                            density_wrt = density_wrt)
+                            legend_var = "Legend")
 }
 
 #' Resolve the power of weight multiplying a spectrum
@@ -2726,13 +2727,15 @@ plotSpectraRelative <- function(object1, object2,
     size_axis <- plot_size_axis(size_axis)
     assert_that(length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
+    # As in `plotSpectra2()`, the conversion is left to `plotSpectra()` so that
+    # the total is summed on the axis being plotted.
     sf1 <- plotSpectra(object1, species = species, wlim = wlim,
                        power = 1, total = total, resource = resource,
-                       background = background, size_axis = "w",
+                       background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
     sf2 <- plotSpectra(object2, species = species, wlim = wlim,
                        power = 1, total = total, resource = resource,
-                       background = background, size_axis = "w",
+                       background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
@@ -2742,7 +2745,7 @@ plotSpectraRelative <- function(object1, object2,
                           xlim = plot_size_xlim(wlim, size_axis, llim),
                           ylim = ylim,
                           highlight = highlight,
-                          legend_var = "Legend", size_axis = size_axis)
+                          legend_var = "Legend")
 }
 
 #' @rdname plotSpectraRelative
