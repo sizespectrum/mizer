@@ -24,11 +24,11 @@ gives biomass now.
 To get the single value **at one time step** of a simulation, extract a
 `MizerParams` snapshot with `finalParams(sim)` (last step), `initialParams(sim)`
 (first step), or `getParams(sim, time_range = ...)` (averaged over a range) and
-pass that in. Prefer this over indexing the time series with `idxFinalT(sim)`:
+pass that in:
 
 ```r
-getMeanMaxWeight(finalParams(sim))          # equilibrium value at the last step
-getMeanMaxWeight(sim)[idxFinalT(sim), ]     # older equivalent
+getMeanMaxWeight(finalParams(sim))             # value at the last time step
+getSSB(getParams(sim, time_range = 1990:2000)) # averaged over a period
 ```
 
 <!-- agent-only -->
@@ -110,42 +110,47 @@ slope <- getCommunitySlope(sim, min_w = 10, max_w = 5000)
 First check that a built-in does not already cover it: most custom indicators
 turn out to be `getBiomass()`/`getN()` over a size range, or one of the four
 above with different arguments. If none fits, an indicator is an integral over
-the size spectrum, $\int N_i(w)\, K_i(w)\, dw$, and **`sizeIntegral()` does that
-integral for you**:
+the size spectrum, $\int N_i(w)\, K_i(w)\, dw$, where $K_i(w)$ is a **weighting
+factor** (supplied to the `weighting` argument of `sizeIntegral()`).
+**`sizeIntegral()` does that integral for you**:
 
 ```r
-# Biomass of each species between 10g and 5kg -- what getBiomass() does
-sizeIntegral(params, weight = params@w, min_w = 10, max_w = 5000)
+# Abundance between 10g and 5kg (default weighting factor weighting = 1)
+sizeIntegral(params, min_w = 10, max_w = 5000)
 
-# The same through time, wrapped ready to plot
-sizeIntegral(sim, weight = params@w, value_name = "Biomass", units = "g")
+# Biomass between 10g and 5kg (weighting factor is body weight: weighting = params@w)
+sizeIntegral(params, weighting = params@w, min_w = 10, max_w = 5000)
+
+# Biomass through time, wrapped ready to plot
+sizeIntegral(sim, weighting = params@w, value_name = "Biomass", units = "g")
 ```
 
-Give it the abundance and the weight $K$; it selects the size range, uses the
-quadrature scheme the model is actually on and wraps the result in the
-appropriate mizer array class. Doing the sum by hand instead means getting all
-of that right yourself, silently and only for some users. Three things are worth
-knowing:
+Give it the object and the weighting factor $K$ (e.g. body weight `params@w` for
+biomass, or 1 for numbers); it selects the size range, uses the quadrature
+scheme the model is actually on and wraps the result in the appropriate mizer
+array class. Doing the sum by hand instead means getting all of that right
+yourself, silently and only for some users. Three things are worth knowing:
 
 - **The size range is an argument, not a subsetting step.** `min_w`/`max_w` or
   `min_l`/`max_l` are passed through to `get_size_range_array()`, which does the
   length-weight conversion per species and accepts either a single number or one
   value per species. Never subset the size grid by hand.
-- **Pass the whole product as the weight.** If $K$ is a product of several
-  size-dependent terms, build the product first — SSB uses
-  `sweep(params@maturity, 2, params@w, "*")` as one weight, yield uses `F * w`.
-  Bin-averaging happens inside, on the weight as a whole, and the average of a
-  product is not the product of the averages. Do not include `params@dw` and do
-  not call `bin_average_weight()` yourself: `sizeIntegral()` does both.
-- **Extra dimensions of the weight are kept.** A gear × species × size weight
-  (like `getFMortGear()`) gives a gear × species result; a weight whose first
-  dimension is named `"time"` is lined up with the times of the simulation
-  rather than multiplied out against them.
+- **Pass the whole product to `weighting`.** If $K$ is a product of several
+  size-dependent terms, build the combined product first — SSB uses
+  `sweep(params@maturity, 2, params@w, "*")` (maturity $\times$ body weight),
+  yield uses fishing mortality $\times$ body weight. Bin-averaging happens
+  inside on the weighting array as a whole, and the average of a product is not
+  the product of the averages. Do not include `params@dw`: `sizeIntegral()`
+  handles bin widths and bin-averaging automatically.
+- **Extra dimensions in `weighting` are kept.** A gear × species × size weighting
+  array (like `getFMortGear()`) gives a gear × species result; a weighting array
+  whose first dimension is named `"time"` is lined up with the times of the
+  simulation rather than multiplied out against them.
 
 The result is already an `ArrayTimeBySpecies` when it is one, so you inherit the
-whole toolkit above — `plot()`, `plot2()`, `plotRelative()`, `addPlot()` — for
-free. For a quantity that keeps the size dimension, and so is not an integral
-over sizes, wrap it yourself:
+whole toolkit described below — `plot()`, `plot2()`, `plotRelative()`,
+`addPlot()` — for free. For a quantity that keeps the size dimension, and so is
+not an integral over sizes, wrap it yourself:
 
 ```r
 ArraySpeciesBySize(my_size_resolved, value_name = "My index", params = params,
@@ -156,13 +161,6 @@ Use `representation = "average"` for a quantity that is a bin average (anything
 integrated over a bin) and `"point"` for one sampled at the bin boundary, such as
 a growth rate; the tag drives the half-bin plotting shift.
 
-If you do need the weight itself for something other than an integral over
-sizes, `bin_average_weight(K, params)` is the underlying primitive: it applies
-the model's quadrature scheme to `K` alone and is gated on `second_order_w()`,
-so it leaves `K` untouched on the default scheme. Never bin-average the
-abundance `N` or the bin widths `dw` — `N` is already a bin average and `dw` is
-exact, so averaging either counts the same integral twice.
-
 If your indicator decomposes the encounter rate — a diet or trophic-level style
 quantity — see the note on `encounter_kernel()` in the `extend-mizer` skill
 before pairing `pred_kernel()` with `getEncounter()`.
@@ -172,7 +170,7 @@ before pairing `pred_kernel()` with `getEncounter()`.
 The arrays returned by the summary and rate functions carry a mizer array class
 and have their own `plot()` method, so you can visualise **any** quantity
 without a dedicated plot function or custom ggplot code. They also carry a
-`value_name`, `units` and their `params`, and have `print()`, `summary()` and
+`value_name`, `type`, `units` and their `params`, and have `print()`, `summary()` and
 `as.data.frame()` methods.
 
 | Class | Typical source | `plot()` shows |
@@ -228,9 +226,6 @@ dedicated `plot…()` functions below — share these optional arguments:
 | `log_x`, `log_y` | logical — log-scale the x or y axis |
 | `size_axis` | `"w"` (default) or `"l"` — plot against weight or against length |
 
-`tlim` replaces the deprecated `start_time`/`end_time`, and `log_x`/`log_y`
-replace the older single `log`.
-
 `wlim`/`llim` (size axis) and `ylim` (value axis) only set the **visible
 window**: data outside the range is hidden but nothing is recomputed. To change
 the underlying numbers — for example the size range that a biomass is summed
@@ -243,8 +238,8 @@ Which arguments apply depends on the array's shape:
   `highlight`, `log_x`, `log_y`, `ylim`.
 - `plot(<ArraySpeciesBySize>)` accepts `species`, `highlight`, `total`,
   `background`, `log_x`, `log_y`, `wlim`, `llim`, `ylim`, `size_axis`,
-  `all.sizes`. `size_axis` and `llim` belong to the size shapes only — a plot
-  against time has no size axis to convert.
+  `per_log_size`, `all.sizes`. `size_axis`, `llim` and `per_log_size` belong to
+  the size shapes only — a plot against time has no size axis to convert.
 - `plot(<ArrayTimeBySpeciesBySize>)` takes one time slice and hands it to the
   `ArraySpeciesBySize` method, so it accepts everything that method does plus
   `time` (default: the last time step). It has no `tlim`: only one time is
@@ -276,10 +271,6 @@ ArraySpeciesBySize(x, value_name = "Number density", units = "1/g",
                    type = "density", params = params)
 ```
 
-An array that declares nothing is taken to be a density if it is named
-`"Number density"` or has units `"1/g"`, which is how mizer recognised densities
-before the attribute existed.
-
 ### Plotting densities
 
 A density is an amount *per unit size*, so its numerical value depends on which
@@ -295,8 +286,7 @@ that declare themselves densities:
 | `resource_capacity(params)` | resource carrying capacity, per gram |
 | `getFluxGradient(params)` | rate of change of the flux, per gram per year |
 
-Which density you get is set by two independent arguments, accepted by `plot()`,
-`plot2()`, `addPlot()` and `animate()` as well as by the spectrum plots:
+Which density you get is set by two independent arguments:
 `size_axis` chooses the size variable and `per_log_size` chooses whether the
 values are per size or per logarithmic size. The factors are built from the
 length-weight relationship $w = a\, l^b$ of each species, taken from the `a` and
@@ -308,39 +298,24 @@ length-weight relationship $w = a\, l^b$ of each species, taken from the `a` and
 | `size_axis = "l"`, `per_log_size = FALSE` | $dw/dl = b\, w / l$ |
 | `size_axis = "l"`, `per_log_size = TRUE` | $dw / d\log l = b\, w$ |
 
+**`log_x` does not change the y-axis.** Showing size on a logarithmic axis is
+a display choice; you need to use `per_log_size` to convert a density per unit
+size into a density per logarithmic size interval. Conflating the two is the
+usual reason a spectrum looks like it has the wrong slope.
+
 ```r
 plot(initialN(params), per_log_size = TRUE)                 # per log weight
 plot(initialN(params), size_axis = "l", per_log_size = TRUE) # per log length
 plot(initialNResource(params), per_log_size = TRUE)          # resource too
 ```
 
-Both `size_axis` and `per_log_size` are available for the resource classes as
-well, using the resource's weight-length relationship from `resource_params()`.
-Asking for `per_log_size` on an array that does not hold a density is an error
-rather than being ignored.
-
-### Plotting proportions
-
-A proportion is easiest to read against the whole of the scale it belongs to, so
-`plot()` of one uses a linear y axis running from 0 to 1. The arrays that
-declare themselves proportions are `getFeedingLevel()`,
-`getCriticalFeedingLevel()`, `maturity()`, `repro_prop()`, `psi()` and
-`resource_level()`.
-
-The range is only ever *widened* to include the data, never narrowed to that
-interval — a critical feeding level or a resource level above 1 is a real
-feature of the model, and stays visible. An explicit `ylim` or `log_y` always
-wins.
-
 ## Plotting size spectra
 
-"Size spectrum" is just a different name for "density as a function of size".
-`plotSpectra()` is the function you want for the plot size spectra. It
-plots the abundance or biomass density against size, one line per species, and
-unlike a plain `plot()` of a density array it also overlays the resource
-spectrum (`resource = TRUE`, the default) and any background species
-(`background =TRUE`). Which density it shows is set by `biomass` and 
-`per_log_size`, described below.
+`plotSpectra()` is the function you want for plots of the abundance or biomass
+density against size, one line per species. Unlike a plain `plot()` of a
+species density array it also overlays the resource spectrum (`resource = TRUE`,
+the default). Which density it shows is set by `biomass` and `per_log_size`,
+described below.
 
 By default it shows the final time step of a simulation; pass `time_range` to
 average over a period, or give it a `MizerParams` object to see the current
@@ -364,8 +339,8 @@ is real biology, not an artefact.
 
 ### Which density a spectrum plot shows
 
-`plotSpectra()`, `plotSpectra2()`, `plotCDF()`, `plotCDF2()` and `animate()`
-describe the plotted quantity with two independent logical arguments:
+`plotSpectra()`, `plotSpectra2()` and `animate()` describe the plotted quantity
+with two independent logical arguments:
 
 | | `per_log_size = FALSE` | `per_log_size = TRUE` |
 |---|---|---|
@@ -374,12 +349,6 @@ describe the plotted quantity with two independent logical arguments:
 
 The older single `power` argument is the sum of the two (0, 1, 1, 2 across that
 table) and is still accepted.
-
-**`log_x` does not change the y-axis.** Showing weight on a logarithmic axis is
-a display choice; you need to use `per_log_size` to convert a density per unit
-weight into a density per
-logarithmic weight interval. Conflating the two is the usual
-reason a spectrum looks like it has the wrong slope.
 
 ### Cumulative distributions
 
@@ -425,45 +394,25 @@ animate(NResource(sim))      # an ArrayTimeByResourceBySize over time
 ## Dedicated plot functions
 
 Besides the spectrum plots above, mizer has a dedicated `plot…()` function for
-each of the common summary quantities. Each is essentially `plot()` applied to
-the matching `get…()` array, so `plotBiomass(sim)` is `plot(getBiomass(sim))`.
+each of the common summary quantities. Each is a shortcut for `plot()` applied
+to the matching `get…()` array (e.g. `plotBiomass(sim)` is `plot(getBiomass(sim))`).
 They accept the common arguments above, and each has a `plotly…()` counterpart
 (e.g. `plotlyBiomass()`) for interactive use — the array `plot()`s use
 `plotHover()` instead.
 
-**Against time:**
-
-| Function | How it relates to plotting the array directly |
-|---|---|
-| `plotBiomass(sim)` | same as `plot(getBiomass(sim))` |
-| `plotYield(sim)` | same as `plot(getYield(sim))` |
-| `plotYieldGear(sim)` | like `plotYield()` but keeps the gear dimension, one panel per gear |
-
-**Against body size.** By default these show the final time step; use
-`time_range` to average over a period.
-
-| Function | How it relates to plotting the array directly |
-|---|---|
-| `plotFeedingLevel(sim)` | same as `plot(getFeedingLevel(sim))` |
-| `plotPredMort(sim)` | same as `plot(getPredMort(sim))` |
-| `plotFMort(sim)` | same as `plot(getFMort(sim))` |
-| `plotGrowthCurves(sim)` | a distinct plot: size at age rather than a size spectrum |
-| `plotDiet(params)` | a distinct plot: stacked diet composition by prey |
-
-**Calibration:** `plotBiomassObservedVsModel(params)` and
-`plotYieldObservedVsModel(params)`; the latter takes a `gear` argument that
-restricts both the modelled and the observed catch to the named gears. See the
-`calibrate-model` skill.
-
-```r
-plotBiomass(sim, species = c("Cod", "Herring"), total = TRUE)
-plotFMort(sim, time_range = 1990:2000)
-plotGrowthCurves(sim, species = "Cod", max_age = 20)
-plotDiet(params, species = "Cod")
-```
-
-**Overview:** `plot(sim)` combines several panels; `plot(params)` shows the same
-panels for a model's steady state (without the biomass-through-time panel).
+- **Against time**: `plotBiomass(sim)`, `plotYield(sim)`
+- **Against body size** (final time step by default, or pass `time_range`):
+  `plotFeedingLevel(sim)`, `plotPredMort(sim)`, `plotFMort(sim)`
+- **Distinct plots**:
+  - `plotYieldGear(sim)` — yield vs time faceted by gear (one panel per gear)
+  - `plotGrowthCurves(sim)` — size at age rather than a size spectrum
+  - `plotDiet(params)` — stacked diet composition by prey
+- **Calibration**: `plotBiomassObservedVsModel(params)` and
+  `plotYieldObservedVsModel(params)`; the latter takes a `gear` argument that
+  restricts both the modelled and the observed catch to the named gears. See the
+  `calibrate-model` skill.
+- **Overview**: `plot(sim)` combines several panels; `plot(params)` shows the
+  same panels for a model's steady state (without the biomass-through-time panel).
 
 ## Working with ggplot2
 
