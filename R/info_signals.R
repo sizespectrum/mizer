@@ -412,9 +412,9 @@ signal_ignored_changes <- function(given, changed) {
             overridden <- active_changes & !is.na(given[[takes_precedence]])
             if (any(overridden)) {
                 signal_info(par, paste0(
-                    "You have specified some values for `", par, "` that are ",
-                    "going to be ignored because values for `", takes_precedence,
-                    "` have already been given."),
+                    "The values you specified for `", par, "` will not lead ",
+                    "to a re-calculation of `", takes_precedence,
+                    "` because its value was explicitly given."),
                     level = 1, severity = "warning", unhandled = "show")
                 active_changes[overridden] <- FALSE
             }

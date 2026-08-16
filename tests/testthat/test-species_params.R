@@ -388,7 +388,7 @@ test_that("species_params setter is quiet about an overridden parameter (#496)",
     # while the given species parameter setter says so
     params <- NS_params_small
     expect_warning(given_species_params(params)$f0 <- 0.5,
-                   "values for `f0` that are going to be ignored")
+                   "will not lead to a re-calculation of `gamma`")
 })
 
 test_that("given_species_params setter warns when a frozen rate blocks the change (#489)", {
@@ -441,7 +441,7 @@ test_that("the given_species_params diagnostics agree about clearing to NA (#524
     expect_false(any(is.na(given_species_params(params)$gamma)))
     expect_false(any(is.na(given_species_params(params)$f0)))
     expect_warning(given_species_params(params)$f0 <- 0.5,
-                   "values for `f0` that are going to be ignored")
+                   "will not lead to a re-calculation of `gamma`")
     expect_silent(given_species_params(params)$f0 <- NA)
 })
 
