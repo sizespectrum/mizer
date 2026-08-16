@@ -249,10 +249,9 @@ Which arguments apply depends on the array's shape:
   `ArraySpeciesBySize` method, so it accepts everything that method does plus
   `time` (default: the last time step). It has no `tlim`: only one time is
   shown.
-- `plot(<ArrayResourceBySize>)` accepts `log_x`, `log_y`, `wlim`, `ylim` only.
-  The resource is a single spectrum, so there is nothing for `species`,
-  `highlight`, `total` or `background` to select, and no `size_axis`/`llim`
-  because the resource has no length-weight relationship.
+- `plot(<ArrayResourceBySize>)` accepts `log_x`, `log_y`, `wlim`, `llim`, `ylim`,
+  `size_axis`, `per_log_size`. The resource is a single spectrum, so there is
+  nothing for `species`, `highlight`, `total` or `background` to select.
 - `plot(<ArrayTimeByResourceBySize>)` accepts the same as
   `ArrayResourceBySize` plus `time`.
 
@@ -315,9 +314,10 @@ plot(initialN(params), size_axis = "l", per_log_size = TRUE) # per log length
 plot(initialNResource(params), per_log_size = TRUE)          # resource too
 ```
 
-`per_log_size` needs no weight-length relationship, only `size_axis` does, so
-unlike a length axis it is available for the resource classes. Asking for it on
-an array that does not hold a density is an error rather than being ignored.
+Both `size_axis` and `per_log_size` are available for the resource classes as
+well, using the resource's weight-length relationship from `resource_params()`.
+Asking for `per_log_size` on an array that does not hold a density is an error
+rather than being ignored.
 
 ### Plotting proportions
 
