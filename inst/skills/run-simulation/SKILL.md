@@ -16,7 +16,7 @@ description: >-
 
 `project()` advances a `MizerParams` object through time and returns a
 `MizerSim`. The params object must already be set up and (usually) at steady
-state — see the `build-multispecies-model` skill and the `calibrate-model` skill.
+state — see the `build-model` skill and the `calibrate-model` skill.
 
 ```r
 sim <- project(params, t_max = 20, effort = 1)

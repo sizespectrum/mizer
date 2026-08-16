@@ -79,7 +79,7 @@ need to call this function directly. Instead change the \code{w_mat},
 \verb{given_species_params(params) <-} and let mizer recalculate the maturity
 ogive and reproduction allocation for you. Call \code{setReproduction()}
 directly only if you want to impose different functional forms for these.
-See \code{vignette("cheatsheet-changing-parameters")} for a full explanation of
+See \code{vignette("guide-change-parameters")} for a full explanation of
 when to reach for which level of the model.
 }
 \section{Setting reproduction}{

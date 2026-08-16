@@ -5,7 +5,7 @@
 #' `given_species_params(params) <-` and let mizer recalculate the external
 #' encounter rate for you. Call `setExtEncounter()` directly only if you want
 #' to impose a different functional form for the size dependence of the
-#' external encounter rate. See `vignette("cheatsheet-changing-parameters")`
+#' external encounter rate. See `vignette("guide-change-parameters")`
 #' for a full explanation of when to reach for which level of the model.
 #'
 #' @section Setting external encounter rate:

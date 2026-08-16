@@ -6,7 +6,7 @@
 #' let mizer recalculate the metabolic rate for you. Call `setMetabolicRate()`
 #' directly only if you want to impose a different functional form for the
 #' size dependence of the metabolic rate. See
-#' `vignette("cheatsheet-changing-parameters")` for a full explanation of when
+#' `vignette("guide-change-parameters")` for a full explanation of when
 #' to reach for which level of the model.
 #'
 #' @section Setting metabolic rate:

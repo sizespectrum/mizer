@@ -61,45 +61,21 @@ wiki_topics <- list(
     )
 )
 
-# User skill links (on pkgdown site)
-user_skill_links <- list(
-    `build-multispecies-model` = list(
-        text = "Model Setup cheatsheet",
-        url = "https://sizespectrum.org/mizer/articles/cheatsheet-model-setup.html"
-    ),
-    `calibrate-model` = list(
-        text = "Calibration cheatsheet",
-        url = "https://sizespectrum.org/mizer/articles/cheatsheet-calibration.html"
-    ),
-    `change-parameters` = list(
-        text = "Changing Parameters cheatsheet",
-        url = "https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.html"
-    ),
-    `set-up-fishing` = list(
-        text = "Fishing cheatsheet",
-        url = "https://sizespectrum.org/mizer/articles/cheatsheet-fishing.html"
-    ),
-    `run-simulation` = list(
-        text = "Running Simulations cheatsheet",
-        url = "https://sizespectrum.org/mizer/articles/cheatsheet-running-simulations.html"
-    ),
-    `analyse-and-plot` = list(
-        text = "Analysis and Plotting cheatsheet",
-        url = "https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html"
-    ),
-    `analyse-stability` = list(
-        text = "Dynamic Stability cheatsheet",
-        url = "https://sizespectrum.org/mizer/articles/cheatsheet-stability.html"
-    ),
-    `extend-mizer` = list(
-        text = "Extending mizer cheatsheet",
-        url = "https://sizespectrum.org/mizer/articles/cheatsheet-extending-mizer.html"
-    ),
-    `upgrade-mizer-code` = list(
-        text = "Upgrading mizer guide",
-        url = "https://sizespectrum.org/mizer/articles/upgrading.html"
-    )
-)
+# User skill links (on pkgdown site) ------------------------------------------
+# Derived from the guide generator rather than restated here, so a skill and its
+# article can never end up under two different names. `guide_index()` returns,
+# per skill, the article basename and the words other documents use to link to
+# it; the wiki needs the same words against an absolute URL.
+user_skill_links <- function(pkg_root = ".") {
+    source(file.path(pkg_root, "dev_scripts", "build_guides.R"), local = TRUE)
+    index <- guide_index(pkg_root)
+    lapply(index, function(entry) {
+        list(text = entry$text,
+             url = paste0("https://sizespectrum.org/mizer/articles/",
+                          entry$vignette, ".html"))
+    })
+}
+
 
 # Alias -> reference page ------------------------------------------------------
 
@@ -177,7 +153,7 @@ table_key_cell <- function(line) {
 
 # Conversion logic -------------------------------------------------------------
 
-skill_to_wiki <- function(page_name, spec, map, pkg_root = ".") {
+skill_to_wiki <- function(page_name, spec, map, user_links, pkg_root = ".") {
     skill_file <- file.path(pkg_root, ".claude", "skills", paste0(spec$skill, ".md"))
     if (!file.exists(skill_file)) {
         stop("Skill file not found: ", skill_file)
@@ -232,8 +208,8 @@ skill_to_wiki <- function(page_name, spec, map, pkg_root = ".") {
         }
 
         # Rewrite user skill cross-references
-        for (u_name in names(user_skill_links)) {
-            u_spec <- user_skill_links[[u_name]]
+        for (u_name in names(user_links)) {
+            u_spec <- user_links[[u_name]]
             ln <- gsub(sprintf("`%s` skill", u_name),
                        sprintf("[%s](%s)", u_spec$text, u_spec$url),
                        ln, fixed = TRUE)
@@ -301,7 +277,7 @@ generate_home <- function() {
         "",
         "This wiki contains technical architecture documentation and guides for developers, maintainers, and contributors to the [mizer](https://github.com/sizespectrum/mizer) R package.",
         "",
-        "For user guides, cheatsheets, and function references, visit the [mizer website](https://sizespectrum.org/mizer/).",
+        "For topic guides and function references, visit the [mizer website](https://sizespectrum.org/mizer/).",
         "",
         "---",
         "",
@@ -322,7 +298,7 @@ generate_home <- function() {
         "- **[Upgrading Mizer Data Objects](Upgrading-Mizer-Data-Objects)**: Steps for adding slots to `MizerParams` / `MizerSim`, updating `upgradeParams()`, and bumping version gating.",
         "- **[Test Organisation](Test-Organisation)**: Test file naming conventions (`test-<file>.R`) and snapshot rules.",
         "- **[Test Fixtures and Keeping the Suite Fast](Test-Fixtures)**: Shared `_small` fixtures in `helper.R`, `delayedAssign()`, and parallel test execution.",
-        "- **[Building Documentation and Website](Building-Documentation-and-Website)**: Generating cheatsheets, maintaining `llms.txt`, and configuring `_pkgdown.yml`."
+        "- **[Building Documentation and Website](Building-Documentation-and-Website)**: Generating the guide articles, maintaining `llms.txt`, and configuring `_pkgdown.yml`."
     )
 }
 
@@ -354,7 +330,7 @@ generate_developer_guide_overview <- function() {
         "| **[Upgrading Mizer Data](Upgrading-Mizer-Data-Objects)** | Class changes, new slots, updating `upgradeParams()`, and updating stored fixtures |",
         "| **[Test Organisation](Test-Organisation)** | Naming conventions for test files, snapshots, and splitting files |",
         "| **[Test Fixtures & Speed](Test-Fixtures)** | Shared `_small` fixtures, parallel workers, and experimental test gating |",
-        "| **[Building Documentation & Website](Building-Documentation-and-Website)** | Cheatsheet generation, `llms.txt`, `_pkgdown.yml`, and navbar syncing |"
+        "| **[Building Documentation & Website](Building-Documentation-and-Website)** | Guide-article generation, `llms.txt`, `_pkgdown.yml`, and navbar syncing |"
     )
 }
 
@@ -367,11 +343,12 @@ build_wiki <- function(pkg_root = ".", wiki_root = "../mizer.wiki") {
     }
 
     map <- rd_alias_map(man_dir)
+    user_links <- user_skill_links(pkg_root)
     message("Building wiki pages from .claude/skills/ into ", wiki_root, "...")
 
     for (page_name in names(wiki_topics)) {
         spec <- wiki_topics[[page_name]]
-        txt <- skill_to_wiki(page_name, spec, map, pkg_root)
+        txt <- skill_to_wiki(page_name, spec, map, user_links, pkg_root)
         dest <- file.path(wiki_root, paste0(page_name, ".md"))
         writeLines(txt, dest)
         message("  Wrote ", basename(dest), " (from .claude/skills/", spec$skill, ".md)")

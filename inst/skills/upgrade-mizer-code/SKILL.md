@@ -105,6 +105,8 @@ plots) are in the changelog and are not repeated here.
 | `getExtMort.MizerParams` and friends no longer found as S3 methods | the `get` names are plain forwarding functions now; dispatch happens on the bare name | One name for each stored rate array (3.3) |
 | `plotYieldObservedVsModel()` errors that no `yield_observed` was provided, but `gear_params()` has the column | the plot used to read only the species parameters | `yield_observed` belongs to the gear parameters (3.3) |
 | `could not find function "matchYields"` or `"calibrateYield"` | both removed after deprecation in 2.6.0 | `matchYields()` and `calibrateYield()` have been removed (3.3) |
+| `vignette("cheatsheet-fishing")` (or any other `cheatsheet-…`) finds nothing | the cheatsheet articles were renamed after the skills they come from | The cheatsheet articles are now called guides (3.3) |
+| The `build-multispecies-model` skill is not found | renamed to **build-model** | The cheatsheet articles are now called guides (3.3) |
 | `unused argument (sim = ...)` from `plotBiomass()`, `plotYield()`, `plotYieldGear()` | first argument renamed to `object` | Renamed arguments and changed defaults (3.0) |
 | `unused argument (time_range = ...)` from `plotDiet()` | removed in 3.0, back for `MizerSim` in 3.1 | Renamed arguments and changed defaults (3.0) |
 | `setInitialValues()` warns that it is deprecated | replaced by `finalParams()` | `setInitialValues()` is deprecated (3.0) |
@@ -882,6 +884,43 @@ params <- mizerExperimental::matchYield(params)
 total yield summed over all species matched the total observation. If you were
 using it to set the scale of your model, use `calibrateBiomass()` with observed
 biomasses, or `scaleModel()` with a factor of your own choosing.
+
+### The cheatsheet articles are now called guides
+
+The topic articles that used to be called cheatsheets are called guides. A
+cheatsheet reminds you of something you already know; these articles assume no
+prior knowledge, so the name was wrong. Each article is now named after the
+agent skill it is generated from, so that a topic has one name rather than
+three, and its title is that skill's own heading:
+
+| Old article | New article | New title |
+|---|---|---|
+| `cheatsheet-size-spectrum-dynamics` | `guide-understand-size-spectrum-dynamics` | Guide: Understanding size-spectrum dynamics |
+| `cheatsheet-model-setup` | `guide-build-model` | Guide: Building a mizer model |
+| `cheatsheet-calibration` | `guide-calibrate-model` | Guide: Reaching steady state and calibrating |
+| `cheatsheet-changing-parameters` | `guide-change-parameters` | Guide: Changing model parameters |
+| `cheatsheet-fishing` | `guide-set-up-fishing` | Guide: Setting up fishing |
+| `cheatsheet-running-simulations` | `guide-run-simulation` | Guide: Running a mizer simulation |
+| `cheatsheet-analysis-and-plotting` | `guide-analyse-and-plot` | Guide: Analysing and plotting mizer results |
+| `cheatsheet-stability` | `guide-analyse-stability` | Guide: Analysing dynamic stability |
+| `cheatsheet-extending-mizer` | `guide-extend-mizer` | Guide: Extending mizer |
+
+On the website the old addresses redirect, so a bookmark or a link in your own
+writing still works. In R the old name does not resolve, because a vignette is
+looked up by exactly its file name:
+
+```r
+# Old
+vignette("cheatsheet-fishing")
+# New
+vignette("guide-set-up-fishing")
+```
+
+The `build-multispecies-model` skill was renamed to **build-model** in the same
+pass: it covers `newTraitParams()`, `newCommunityParams()` and
+`newSingleSpeciesParams()` as well, so its name claimed a narrower scope than it
+has. If you install mizer's skills with `mizerAgents::setup_mizer_agent()`,
+re-run it to pick up the new name.
 
 ## Upgrading from mizer 3.1 to 3.2
 

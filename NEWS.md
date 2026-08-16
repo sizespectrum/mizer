@@ -630,14 +630,26 @@ while building or changing a model through a single mechanism controlled by
   and an unreliable `getStability()` — why none of the time-stepping methods can
   fix it, and how to avoid it by giving the switch a finite width.
 
-- The cheatsheet articles and the AI-agent skills are now one set of documents
+- The topic articles and the AI-agent skills are now one set of documents
   rather than two. Each `inst/skills/<topic>/SKILL.md` is shipped as an agent
-  skill and is also the source of the matching `cheatsheet-*` article, built by
-  `dev_scripts/build_cheatsheets.R`. `mizerAgents` (>= 0.3.3) installs the
+  skill and is also the source of the matching `guide-*` article, built by
+  `dev_scripts/build_guides.R`. `mizerAgents` (>= 0.3.3) installs the
   skills from the mizer it finds installed, so the two packages can no longer
   drift apart.
 
-  There is now one cheatsheet per stage of the workflow, matching the skills one
+  These articles are no longer called cheatsheets. A cheatsheet reminds you of
+  something you already know, whereas these assume no prior knowledge, so each
+  is now a **guide**. Each is also named after the skill it comes from, and
+  titled with that skill's own heading, so a topic has one name instead of
+  three: `cheatsheet-fishing` has become `guide-set-up-fishing`, titled "Guide:
+  Setting up fishing", from the `set-up-fishing` skill. Every old address
+  redirects, but `vignette("cheatsheet-fishing")` does not — see the
+  ["Upgrading mizer"](https://sizespectrum.org/mizer/articles/upgrading.html)
+  article for the full table of old and new names. The `build-multispecies-model`
+  skill was renamed to `build-model` at the same time, since it covers the
+  single-species, community and trait constructors too.
+
+  There is now one guide per stage of the workflow, matching the skills one
   for one. Two are new, covering topics that previously had a skill but no
   article: **Running Simulations** (the arguments of `project()`, the four ways
   of giving fishing effort, continuing and comparing runs, and when numerical
@@ -645,21 +657,21 @@ while building or changing a model through a single mechanism controlled by
   **Extending mizer** (a short reference companion to the Extending mizer
   article).
 
-  The former "Model setup and calibration" cheatsheet has been split into
+  The former "Model setup and calibration" article has been split into
   **Model setup** and **Steady state and calibration**, which are separate
   tasks reached for at different times. The old URL redirects to the first.
 
-  The remaining cheatsheets gain the material that had previously only been
-  written on the skill side: the fishing cheatsheet now covers `setFishing()`
+  The remaining guides gain the material that had previously only been
+  written on the skill side: the fishing guide now covers `setFishing()`
   and how catchability fixes the units of fishing effort; the calibration
-  cheatsheet covers `steadyNewton()` and `reproduction_level()`; the model
-  setup cheatsheet covers saving and reloading a model with
-  `saveParams()`/`readParams()`; the changing-parameters cheatsheet explains
+  guide covers `steadyNewton()` and `reproduction_level()`; the model
+  setup guide covers saving and reloading a model with
+  `saveParams()`/`readParams()`; the changing-parameters guide explains
   that the feeding level is set by `f0` rather than by `h`; and the analysis
-  cheatsheet recommends `finalParams()` over indexing a time series with
+  guide recommends `finalParams()` over indexing a time series with
   `idxFinalT()`.
 
-- New `analyse-stability` skill, and the matching "Cheatsheet: Dynamic
+- New `analyse-stability` skill, and the matching "Guide: Dynamic
   Stability" article, cover the experimental stability tools added in this
   version: `getStability()`, `steadyNewton(stability = TRUE)`,
   `getLimitCycleSim()` and `plotBifurcation()`. Like the other skills it is
@@ -667,7 +679,7 @@ while building or changing a model through a single mechanism controlled by
   from the installed mizer, so an agent's guidance describes the version of
   mizer the project actually runs.
 
-- New `understand-size-spectrum-dynamics` skill, and the matching "Cheatsheet:
+- New `understand-size-spectrum-dynamics` skill, and the matching "Guide:
   Size-Spectrum Dynamics" article, explain how mizer models behave rather than
   which function to call: which quantities you impose and which the model
   produces for itself, the food and predation feedback loops that couple
@@ -681,7 +693,7 @@ while building or changing a model through a single mechanism controlled by
 - The ["Upgrading mizer"](https://sizespectrum.org/mizer/articles/upgrading.html)
   article is now also shipped as an AI-agent skill, `upgrade-mizer-code`, built
   from `inst/skills/upgrade-mizer-code/SKILL.md` by the same generator as the
-  cheatsheets. Vignettes are not installed with the package, so an agent helping
+  guides. Vignettes are not installed with the package, so an agent helping
   you fix a script that stopped working after an upgrade previously had no
   access to this information and would debug a deliberate, documented change
   from first principles. The skill adds an index that maps the symptom you

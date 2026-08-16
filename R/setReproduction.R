@@ -8,7 +8,7 @@
 #' `given_species_params(params) <-` and let mizer recalculate the maturity
 #' ogive and reproduction allocation for you. Call `setReproduction()`
 #' directly only if you want to impose different functional forms for these.
-#' See `vignette("cheatsheet-changing-parameters")` for a full explanation of
+#' See `vignette("guide-change-parameters")` for a full explanation of
 #' when to reach for which level of the model.
 #'
 #' @section Setting reproduction:

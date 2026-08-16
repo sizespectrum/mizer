@@ -43,7 +43,7 @@ value, the parameters required by the selected kernel) with
 \verb{given_species_params(params) <-} and let mizer recalculate the predation
 kernel for you. Call \code{setPredKernel()} directly only if you want to supply
 the full kernel array yourself. See
-\code{vignette("cheatsheet-changing-parameters")} for a full explanation of when
+\code{vignette("guide-change-parameters")} for a full explanation of when
 to reach for which level of the model.
 }
 \details{

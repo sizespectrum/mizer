@@ -128,5 +128,5 @@ withr::local_options(mizer_info_level = 0)
 A new report that can appear on code a user has already written is a behaviour
 change: add it to `NEWS.md` and to `inst/skills/upgrade-mizer-code/SKILL.md`
 under the release being prepared, with a symptom-index row, then regenerate with
-`build_cheatsheets()`. Keep the entry to what an upgrader needs — the design
+`build_guides()`. Keep the entry to what an upgrader needs — the design
 rationale belongs in `NEWS.md` alone.

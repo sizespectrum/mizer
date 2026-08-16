@@ -365,7 +365,7 @@ Check emergent properties before changing structural parameters.
 | Symptom | Likely cause | What to inspect |
 |---|---|---|
 | **Species collapses during `project()`** | Starving larvae, intense juvenile predation, or too little egg production | `plotFeedingLevel()`, `plotDiet()`, `getPredMort()` |
-| **Biomass oscillates in regular cycles** | Reproduction level near 0 (little recruitment damping — mizer's default), narrow kernel (`sigma` too small), or knife-edge fishing | [`reproduction_level()`](../reference/setBevertonHolt.html), [`getStability()`](../reference/getStability.html) (see the [stability cheatsheet](cheatsheet-stability.html)) |
+| **Biomass oscillates in regular cycles** | Reproduction level near 0 (little recruitment damping — mizer's default), narrow kernel (`sigma` too small), or knife-edge fishing | [`reproduction_level()`](../reference/setBevertonHolt.html), [`getStability()`](../reference/getStability.html) (see the `analyse-stability` skill) |
 | **Growth slows before `w_mat`** | Food limitation at intermediate sizes; resource depleted or `w_pp_cutoff` too low | `plotGrowthCurves()`, `resource_level()`, `plotSpectra()` |
 | **Growth is not what `matchGrowth()` asked for** | Growth is emergent — the food to support it is not there | `plotFeedingLevel()`, then the `calibrate-model` skill |
 | **Tuning one species drops another** | Predation overlap or resource competition in shared juvenile size bins | `interaction_matrix()`, `plotDiet()` |

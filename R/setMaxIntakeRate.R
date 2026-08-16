@@ -5,7 +5,7 @@
 #' and let mizer recalculate the maximum intake rate for you. Call
 #' `setMaxIntakeRate()` directly only if you want to impose a different
 #' functional form for the size dependence of the intake rate. See
-#' `vignette("cheatsheet-changing-parameters")` for a full explanation of when
+#' `vignette("guide-change-parameters")` for a full explanation of when
 #' to reach for which level of the model.
 #'
 #' @section Setting maximum intake rate:

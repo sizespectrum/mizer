@@ -14,10 +14,10 @@ description: >-
   skill.
 ---
 
-# Bringing a model to steady state and calibrating it
+# Reaching steady state and calibrating
 
 This covers the tune-to-data loop for an existing `MizerParams` object. To build
-the object from scratch first, see the `build-multispecies-model` skill.
+the object from scratch first, see the `build-model` skill.
 
 Every function here **returns a new `MizerParams`** — always reassign
 (`params <- f(params, ...)`). Change species parameters through

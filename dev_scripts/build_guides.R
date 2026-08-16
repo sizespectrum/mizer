@@ -1,24 +1,24 @@
-# Generate the cheatsheet vignettes and the upgrading article from the agent
+# Generate the guide vignettes and the upgrading article from the agent
 # skills.
 #
 # Single source of truth: inst/skills/<topic>/SKILL.md. That file is shipped
 # verbatim as a Claude Code / agent skill and is also the source for the
-# corresponding article on the pkgdown website (the cheatsheets, plus
+# corresponding article on the pkgdown website (the guides, plus
 # vignettes/upgrading.Rmd). Never edit a generated vignette by hand -- edit the
 # skill and re-run
 #
-#     source("dev_scripts/build_cheatsheets.R"); build_cheatsheets()
+#     source("dev_scripts/build_guides.R"); build_guides()
 #
 # What the generator does:
 #   * strips the YAML frontmatter and the leading H1 (replaced by the vignette
-#     title from `cheatsheet_topics` below)
+#     title from `guide_topics` below)
 #   * turns ```r into ```{r eval=FALSE}
 #   * auto-links the first mention of each documented function to its pkgdown
 #     reference page, using the alias -> .Rd mapping read from man/. In the
 #     first column of a table the link is repeated on every row, since a table
 #     is read as a lookup rather than in order.
 #   * rewrites "the `foo` skill" cross-references into links to the matching
-#     cheatsheet
+#     guide
 #   * drops <!-- agent-only --> ... <!-- /agent-only --> blocks
 #   * inserts a horizontal rule before each level-2 heading
 #   * appends inst/skills/<topic>/quick-reference.md as a final section
@@ -29,58 +29,50 @@
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
 # Topic table -----------------------------------------------------------------
-# One entry per generated article, keyed by its vignette basename. `skill` names
-# the directory under inst/skills/ whose SKILL.md is the article's source. The
-# mapping is deliberately one-to-one: an article assembled from several skills
-# cannot express a cross-reference to one of them, and collapses references to
-# two different skills into the same link.
+# One entry per generated article, keyed by the directory under inst/skills/
+# whose SKILL.md is its source. That skill name is the one name for the topic:
+# the article is `guide-<skill>.Rmd` and its title is "Guide: " followed by the
+# skill's own H1, so neither can drift from the skill. The mapping is
+# deliberately one-to-one: an article assembled from several skills cannot
+# express a cross-reference to one of them, and collapses references to two
+# different skills into the same link.
 #
 # Optional fields: `lead` is a paragraph inserted under the title; `setup` gives
 # extra lines for the hidden setup chunk; `nolink` lists names never turned into
-# reference links; `link_text` is how *other* articles refer to this one (it
-# defaults to "<name> cheatsheet", which only reads correctly for a cheatsheet).
-cheatsheet_topics <- list(
-    `cheatsheet-size-spectrum-dynamics` = list(
-        skill  = "understand-size-spectrum-dynamics",
-        title  = "Cheatsheet: Size-Spectrum Dynamics",
-        lead   = paste("This cheatsheet gives a concise overview of the core",
+# reference links. `vignette`, `title` and `link_text` override the derived
+# values and should be needed only for an article that is not a guide.
+guide_topics <- list(
+    `understand-size-spectrum-dynamics` = list(
+        lead   = paste("This guide gives a concise overview of the core",
                        "principles of size-spectrum modelling in mizer: physiology,",
                        "emergent growth and mortality, density dependence, and",
                        "trophic feedbacks. For the full mathematical formulation,",
                        "see the [model description](model_description.html) article."),
         setup  = "params <- NS_params"
     ),
-    `cheatsheet-model-setup` = list(
-        skill  = "build-multispecies-model",
-        title  = "Cheatsheet: Model Setup",
+    `build-model` = list(
         nolink = "catchability",
-        lead   = paste("This cheatsheet gives a quick overview of the functions",
+        lead   = paste("This guide gives an overview of the functions",
                        "used to build a mizer model from a species parameter",
                        "data frame. For bringing the model to steady state and",
                        "calibrating it, see the",
-                       "[calibration cheatsheet](cheatsheet-calibration.html)."),
+                       "[guide to reaching steady state and calibrating](guide-calibrate-model.html)."),
         setup  = "params <- NS_params"
     ),
-    `cheatsheet-calibration` = list(
-        skill  = "calibrate-model",
-        title  = "Cheatsheet: Steady State and Calibration",
-        lead   = paste("This cheatsheet gives a quick overview of the functions",
+    `calibrate-model` = list(
+        lead   = paste("This guide gives an overview of the functions",
                        "used to bring a mizer model to steady state and calibrate",
                        "it to observed biomasses, yields and growth.",
                        "For full documentation of each function, follow the links."),
         setup  = "params <- NS_params"
     ),
-    `cheatsheet-changing-parameters` = list(
-        skill  = "change-parameters",
-        title  = "Cheatsheet: Changing Model Parameters",
+    `change-parameters` = list(
         lead   = "",
         setup  = "params <- NS_params",
         nolink = c("selectivity", "catchability", "maturity")
     ),
-    `cheatsheet-fishing` = list(
-        skill  = "set-up-fishing",
-        title  = "Cheatsheet: Fishing",
-        lead   = paste("This cheatsheet gives a quick overview of how fishing",
+    `set-up-fishing` = list(
+        lead   = paste("This guide gives an overview of how fishing",
                        "is set up in mizer: gears, selectivity, catchability,",
                        "and effort. For full documentation of each function,",
                        "follow the links."),
@@ -89,52 +81,45 @@ cheatsheet_topics <- list(
         # the bare mention would point at a function the reader did not mean.
         nolink = c("catchability", "selectivity")
     ),
-    `cheatsheet-running-simulations` = list(
-        skill  = "run-simulation",
-        title  = "Cheatsheet: Running Simulations",
-        lead   = paste("This cheatsheet covers projecting a model forward with",
+    `run-simulation` = list(
+        lead   = paste("This guide covers projecting a model forward with",
                        "project(): its arguments, the four ways of specifying",
                        "fishing effort, continuing and comparing runs, and the",
                        "choice of numerical scheme."),
         setup  = c("params <- NS_params", "sim <- NS_sim")
     ),
-    `cheatsheet-analysis-and-plotting` = list(
-        skill  = "analyse-and-plot",
-        title  = "Cheatsheet: Analysis and Plotting",
+    `analyse-and-plot` = list(
         # Base generics: a reader clicking these expects base R, not mizer.
         nolink = c("print", "as.data.frame"),
-        lead   = paste("This cheatsheet gives a quick overview of the functions",
+        lead   = paste("This guide gives an overview of the functions",
                        "available in mizer for analysing the results of",
                        "simulations and creating plots. For full documentation",
                        "of each function, follow the links."),
         setup  = c("params <- NS_params", "sim <- NS_sim")
     ),
-    `cheatsheet-stability` = list(
-        skill  = "analyse-stability",
-        title  = "Cheatsheet: Dynamic Stability",
-        lead   = paste("This cheatsheet gives a quick overview of the",
+    `analyse-stability` = list(
+        lead   = paste("This guide gives an overview of the",
                        "experimental tools for analysing the dynamic stability",
                        "of a mizer steady state and characterising the limit",
                        "cycles that can replace it. For full documentation of",
                        "each function, follow the links."),
         setup  = "params <- NS_params"
     ),
-    `cheatsheet-extending-mizer` = list(
-        skill  = "extend-mizer",
-        title  = "Cheatsheet: Extending mizer",
-        lead   = paste("This cheatsheet gives a quick overview of the mechanisms",
+    `extend-mizer` = list(
+        lead   = paste("This guide gives an overview of the mechanisms",
                        "for customising mizer's dynamics, from external",
                        "encounter and mortality through to whole new ecosystem",
                        "components. For the full treatment see the",
                        "[Extending mizer](extending-mizer.html) article."),
         setup  = "params <- NS_params"
     ),
-    # Not a cheatsheet: the upgrading article is the release-by-release list of
-    # changes that break existing code, and the skill an agent loads when a
-    # user's script stops working after an upgrade. The skill's symptom index,
-    # which is of no use to a human reading by release, is agent-only.
-    upgrading = list(
-        skill     = "upgrade-mizer-code",
+    # Not a guide, so it overrides all three derived names: the upgrading
+    # article is the release-by-release list of changes that break existing
+    # code, and the skill an agent loads when a user's script stops working
+    # after an upgrade. The skill's symptom index, which is of no use to a
+    # human reading by release, is agent-only.
+    `upgrade-mizer-code` = list(
+        vignette  = "upgrading",
         title     = "Upgrading mizer",
         link_text = "Upgrading mizer article",
         # Deliberately no `lead` and no `setup`: the skill body opens with its
@@ -143,20 +128,39 @@ cheatsheet_topics <- list(
     )
 )
 
-# Map a skill name to the article it becomes, and to the words other articles
-# use to refer to it, for cross-references.
-skill_links <- local({
+#' Lowercase the first character, leaving the rest alone
+#'
+#' Turns a heading into something that can follow "the guide to" in a sentence
+#' without lowercasing a proper noun later in the phrase.
+lcfirst <- function(x) paste0(tolower(substr(x, 1L, 1L)), substr(x, 2L, nchar(x)))
+
+#' The H1 of a skill, which names the topic in prose
+skill_h1 <- function(skill, pkg_root = ".") {
+    lines <- readLines(file.path(pkg_root, "inst", "skills", skill, "SKILL.md"),
+                       warn = FALSE)
+    h1 <- grep("^# ", lines, value = TRUE)
+    if (!length(h1)) stop("no H1 heading in the ", skill, " skill", call. = FALSE)
+    trimws(sub("^# ", "", h1[1]))
+}
+
+#' Resolve every topic's three names from its skill
+#'
+#' Returns a list keyed by skill name with the article's `vignette` basename,
+#' its `title`, and the `text` other articles use when linking to it. All three
+#' derive from the skill unless the topic overrides them.
+guide_index <- function(pkg_root = ".", topics = guide_topics) {
     out <- list()
-    for (vig in names(cheatsheet_topics)) {
-        spec <- cheatsheet_topics[[vig]]
-        out[[spec$skill]] <- list(
-            vignette = vig,
-            text = spec$link_text %||%
-                paste(sub("^cheatsheet-", "", vig), "cheatsheet")
+    for (skill in names(topics)) {
+        spec <- topics[[skill]]
+        h1 <- skill_h1(skill, pkg_root)
+        out[[skill]] <- list(
+            vignette = spec$vignette %||% paste0("guide-", skill),
+            title    = spec$title %||% paste0("Guide: ", h1),
+            text     = spec$link_text %||% paste("guide to", lcfirst(h1))
         )
     }
     out
-})
+}
 
 
 # Alias -> reference page ------------------------------------------------------
@@ -285,8 +289,8 @@ skill_body <- function(skill, pkg_root = ".") {
     lines
 }
 
-skill_to_cheatsheet <- function(vignette, spec, map, pkg_root = ".") {
-    lines <- skill_body(spec$skill, pkg_root)
+skill_to_guide <- function(skill, spec, index, map, pkg_root = ".") {
+    lines <- skill_body(skill, pkg_root)
 
     # Drop agent-only blocks.
     keep <- rep(TRUE, length(lines))
@@ -326,8 +330,8 @@ skill_to_cheatsheet <- function(vignette, spec, map, pkg_root = ".") {
             next
         }
         # Cross-references to sibling skills become links to their articles.
-        for (s in names(skill_links)) {
-            target <- skill_links[[s]]
+        for (s in names(index)) {
+            target <- index[[s]]
             ln <- gsub(sprintf("`%s` skill", s),
                        sprintf("[%s](%s.html)", target$text, target$vignette),
                        ln, fixed = TRUE)
@@ -340,7 +344,7 @@ skill_to_cheatsheet <- function(vignette, spec, map, pkg_root = ".") {
     }
 
     # Append the quick reference section, if the skill ships one.
-    qr_path <- file.path(pkg_root, "inst", "skills", spec$skill,
+    qr_path <- file.path(pkg_root, "inst", "skills", skill,
                          "quick-reference.md")
     if (file.exists(qr_path)) {
         qr <- readLines(qr_path, warn = FALSE)
@@ -348,10 +352,10 @@ skill_to_cheatsheet <- function(vignette, spec, map, pkg_root = ".") {
         out <- c(out, "", "---", "", "## Quick reference", "", qr)
     }
 
-    sources <- paste0("inst/skills/", spec$skill, "/SKILL.md")
+    sources <- paste0("inst/skills/", skill, "/SKILL.md")
     header <- c(
         "---",
-        sprintf("title: \"%s\"", spec$title),
+        sprintf("title: \"%s\"", index[[skill]]$title),
         "output:",
         "  html_document:",
         "    toc: yes",
@@ -361,7 +365,7 @@ skill_to_cheatsheet <- function(vignette, spec, map, pkg_root = ".") {
         "---",
         "",
         paste0("<!-- Generated from ", sources,
-               " by dev_scripts/build_cheatsheets.R."),
+               " by dev_scripts/build_guides.R."),
         "     Do not edit this file by hand -- edit the skill and re-run the generator. -->",
         "",
         "```{r include=FALSE}",
@@ -386,7 +390,7 @@ skill_to_cheatsheet <- function(vignette, spec, map, pkg_root = ".") {
 #' links, so nothing else validates them); and a leftover `` `<skill>` `` code
 #' span, meaning the source phrased the cross-reference in some way other than
 #' "`<skill>` skill" and a reader is being sent to a skill they cannot see.
-check_output <- function(txt, vignette, man_dir, vig_dir) {
+check_output <- function(txt, vignette, index, man_dir, vig_dir) {
     pat <- "\\.\\./reference/[A-Za-z0-9_.]+\\.html"
     hits <- unlist(regmatches(txt, gregexpr(pat, txt)))
     targets <- unique(sub("\\.html$", "",
@@ -412,10 +416,10 @@ check_output <- function(txt, vignette, man_dir, vig_dir) {
     }
 
     body <- paste(txt, collapse = "\n")
-    is_stray <- vapply(names(skill_links), function(s) {
+    is_stray <- vapply(names(index), function(s) {
         grepl(paste0("`", s, "`"), body, fixed = TRUE)
     }, logical(1))
-    stray <- names(skill_links)[is_stray]
+    stray <- names(index)[is_stray]
     if (length(stray)) {
         warning(vignette, ": unconverted skill reference(s): ",
                 paste(stray, collapse = ", "),
@@ -425,19 +429,21 @@ check_output <- function(txt, vignette, man_dir, vig_dir) {
     length(dead) + length(stray)
 }
 
-build_cheatsheets <- function(pkg_root = ".",
-                              vignettes = names(cheatsheet_topics)) {
+build_guides <- function(pkg_root = ".",
+                         skills = names(guide_topics)) {
     man_dir <- file.path(pkg_root, "man")
     vig_dir <- file.path(pkg_root, "vignettes")
     map <- rd_alias_map(man_dir)
+    index <- guide_index(pkg_root)
     bad <- 0L
-    for (vig in vignettes) {
-        spec <- cheatsheet_topics[[vig]]
-        txt <- skill_to_cheatsheet(vig, spec, map, pkg_root)
-        bad <- bad + check_output(txt, vig, man_dir, vig_dir)
+    for (skill in skills) {
+        spec <- guide_topics[[skill]]
+        vig <- index[[skill]]$vignette
+        txt <- skill_to_guide(skill, spec, index, map, pkg_root)
+        bad <- bad + check_output(txt, vig, index, man_dir, vig_dir)
         dest <- file.path(pkg_root, "vignettes", paste0(vig, ".Rmd"))
         writeLines(txt, dest)
-        message("Wrote ", dest, " from ", spec$skill)
+        message("Wrote ", dest, " from ", skill)
     }
     if (bad == 0L) {
         message("All links resolve, all skill references converted.")

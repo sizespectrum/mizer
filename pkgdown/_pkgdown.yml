@@ -65,18 +65,18 @@ articles:
   - trait_model
   - multispecies_model
   - model_description
-- title: Cheat sheets
-  navbar: Cheat sheets
+- title: Guides
+  navbar: Guides
   contents:
-  - cheatsheet-size-spectrum-dynamics
-  - cheatsheet-model-setup
-  - cheatsheet-calibration
-  - cheatsheet-changing-parameters
-  - cheatsheet-fishing
-  - cheatsheet-running-simulations
-  - cheatsheet-analysis-and-plotting
-  - cheatsheet-stability
-  - cheatsheet-extending-mizer
+  - guide-understand-size-spectrum-dynamics
+  - guide-build-model
+  - guide-calibrate-model
+  - guide-change-parameters
+  - guide-set-up-fishing
+  - guide-run-simulation
+  - guide-analyse-and-plot
+  - guide-analyse-stability
+  - guide-extend-mizer
 - title: Upgrading
   navbar: Upgrading
   contents:
@@ -132,7 +132,7 @@ reference:
 
     New users should start with the
     [Get started guide](https://sizespectrum.org/mizer/articles/mizer.html) and
-    the topic [cheat sheets](https://sizespectrum.org/mizer/articles/index.html),
+    the topic [guides](https://sizespectrum.org/mizer/articles/index.html),
     or open the package overview page below.
   contents:
   - mizer-package
@@ -141,8 +141,8 @@ reference:
     of increasing level of complexity. See
     https://sizespectrum.org/mizer/articles/mizer.html#size-spectrum-models
     for a description of these model types. The
-    [Model setup cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup.html)
-    gives a quick overview of the workflow.
+    [guide to building a mizer model](https://sizespectrum.org/mizer/articles/guide-build-model.html)
+    walks through the workflow.
   contents:
   - newSingleSpeciesParams
   - newCommunityParams
@@ -152,8 +152,8 @@ reference:
   description: After you have created a model, you will want to make changes to it
     while tuning the model and for investigating the impact of changes in parameters.
     See the
-    [Changing model parameters cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.html)
-    for a quick reference.
+    [guide to changing model parameters](https://sizespectrum.org/mizer/articles/guide-change-parameters.html)
+    for how to do this.
   contents:
   - species_params
   - record_given_species_params
@@ -175,7 +175,7 @@ reference:
     The first task after creating a multi-species model is to tune
     the model parameters so that in its steady state the model reproduces
     average observed growth rates, abundances and fisheries yields. The
-    [Steady state and calibration cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-calibration.html)
+    [guide to reaching steady state and calibrating](https://sizespectrum.org/mizer/articles/guide-calibrate-model.html)
     walks through this calibration workflow.
 
 
@@ -240,8 +240,8 @@ reference:
   description: Calculate summary quantities from a `MizerSim` object, such as
     biomass, yield, growth, and feeding level, averaged or disaggregated over
     time, species, or size. The
-    [Analysis and plotting cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html)
-    gives a quick reference to these functions.
+    [guide to analysing and plotting results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.html)
+    introduces these functions.
   contents:
   - summary_functions
   - has_concept("summary functions")
@@ -278,8 +278,8 @@ reference:
   description: >
     Visualise size spectra, biomass and yield trajectories, growth
     curves, and comparisons of model output with observations. See the
-    [Analysis and plotting cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html)
-    for a quick reference.
+    [guide to analysing and plotting results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.html)
+    for an introduction to them.
 
 
     Several plots come in related variants. A plain plot such as
@@ -353,8 +353,8 @@ reference:
 - title: Fishing selectivity functions
   description: Functions that determine the size-selectivity of fishing gears,
     i.e. the proportion of fish of a given size that are retained by a gear.
-    The [Fishing cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-fishing.html)
-    gives a quick reference to setting up gears, selectivity and effort.
+    The [guide to setting up fishing](https://sizespectrum.org/mizer/articles/guide-set-up-fishing.html)
+    explains how to set up gears, selectivity and effort.
   contents:
   - has_concept("selectivity functions")
 - title: Resource dynamics
@@ -427,8 +427,19 @@ reference:
   - has_concept("deprecated")
 
 redirects:
-  # Split in 3.2.2 into separate model-setup and calibration cheatsheets.
-  - ["articles/cheatsheet-model-setup-and-calibration.html", "articles/cheatsheet-model-setup.html"]
+  # Renamed: these articles do not assume prior knowledge, so they are guides
+  # rather than cheatsheets.
+  - ["articles/cheatsheet-size-spectrum-dynamics.html", "articles/guide-understand-size-spectrum-dynamics.html"]
+  - ["articles/cheatsheet-model-setup.html", "articles/guide-build-model.html"]
+  - ["articles/cheatsheet-calibration.html", "articles/guide-calibrate-model.html"]
+  - ["articles/cheatsheet-changing-parameters.html", "articles/guide-change-parameters.html"]
+  - ["articles/cheatsheet-fishing.html", "articles/guide-set-up-fishing.html"]
+  - ["articles/cheatsheet-running-simulations.html", "articles/guide-run-simulation.html"]
+  - ["articles/cheatsheet-analysis-and-plotting.html", "articles/guide-analyse-and-plot.html"]
+  - ["articles/cheatsheet-stability.html", "articles/guide-analyse-stability.html"]
+  - ["articles/cheatsheet-extending-mizer.html", "articles/guide-extend-mizer.html"]
+  # Split in 3.2.2 into separate model-setup and calibration guides.
+  - ["articles/cheatsheet-model-setup-and-calibration.html", "articles/guide-build-model.html"]
   - ["articles/a_multispecies_model_of_the_north_sea.html", "https://mizer.course.sizespectrum.org/use/a_multispecies_model_of_the_north_sea.html"]
   - ["articles/running_a_simulation.html", "https://mizer.course.sizespectrum.org/use/running_a_simulation.html"]
   - ["articles/exploring_the_simulation_results.html", "https://mizer.course.sizespectrum.org/use/exploring_the_simulation_results.html"]

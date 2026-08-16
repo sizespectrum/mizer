@@ -50,7 +50,7 @@ usually not need to call this function directly. Instead change the \code{k},
 let mizer recalculate the metabolic rate for you. Call \code{setMetabolicRate()}
 directly only if you want to impose a different functional form for the
 size dependence of the metabolic rate. See
-\code{vignette("cheatsheet-changing-parameters")} for a full explanation of when
+\code{vignette("guide-change-parameters")} for a full explanation of when
 to reach for which level of the model.
 }
 \section{Setting metabolic rate}{

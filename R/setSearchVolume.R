@@ -4,7 +4,7 @@
 #' the `gamma` and `q` species parameters with `given_species_params(params) <-`
 #' and let mizer recalculate the search volume for you. Call `setSearchVolume()`
 #' directly only if you want to impose a different functional form for the size
-#' dependence of the search volume. See `vignette("cheatsheet-changing-parameters")`
+#' dependence of the search volume. See `vignette("guide-change-parameters")`
 #' for a full explanation of when to reach for which level of the model.
 #'
 #' @section Setting search volume:

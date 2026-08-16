@@ -6,7 +6,7 @@
 #' `given_species_params(params) <-` and let mizer recalculate the predation
 #' kernel for you. Call `setPredKernel()` directly only if you want to supply
 #' the full kernel array yourself. See
-#' `vignette("cheatsheet-changing-parameters")` for a full explanation of when
+#' `vignette("guide-change-parameters")` for a full explanation of when
 #' to reach for which level of the model.
 #'
 #' The predation kernel determines the distribution of prey sizes that a

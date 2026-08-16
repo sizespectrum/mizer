@@ -5,7 +5,7 @@
 #' `given_species_params(params) <-` and let mizer recalculate the external
 #' mortality rate for you. Call `setExtMort()` directly only if you want to
 #' impose a different functional form for the size dependence of the external
-#' mortality. See `vignette("cheatsheet-changing-parameters")` for a full
+#' mortality. See `vignette("guide-change-parameters")` for a full
 #' explanation of when to reach for which level of the model.
 #'
 #' @section Setting external mortality rate:
