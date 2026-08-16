@@ -40,6 +40,16 @@
 # reference links; `link_text` is how *other* articles refer to this one (it
 # defaults to "<name> cheatsheet", which only reads correctly for a cheatsheet).
 cheatsheet_topics <- list(
+    `cheatsheet-size-spectrum-dynamics` = list(
+        skill  = "understand-size-spectrum-dynamics",
+        title  = "Cheatsheet: Size-Spectrum Dynamics",
+        lead   = paste("This cheatsheet gives a concise overview of the core",
+                       "principles of size-spectrum modelling in mizer: physiology,",
+                       "emergent growth and mortality, density dependence, and",
+                       "trophic feedbacks. For the full mathematical formulation,",
+                       "see the [model description](model_description.html) article."),
+        setup  = "params <- NS_params"
+    ),
     `cheatsheet-model-setup` = list(
         skill  = "build-multispecies-model",
         title  = "Cheatsheet: Model Setup",

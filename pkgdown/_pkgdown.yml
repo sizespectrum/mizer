@@ -68,6 +68,7 @@ articles:
 - title: Cheat sheets
   navbar: Cheat sheets
   contents:
+  - cheatsheet-size-spectrum-dynamics
   - cheatsheet-model-setup
   - cheatsheet-calibration
   - cheatsheet-changing-parameters

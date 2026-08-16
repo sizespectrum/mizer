@@ -164,7 +164,9 @@ and analyse the results with the `analyse-and-plot` skill.
   re-run. Persistent instability is a case for `steadyNewton()`.
 - **A species collapses to near-zero.** Its mortality exceeds the growth it can
   fund. Check its predation-kernel parameters `beta` and `sigma`, its row of the
-  interaction matrix, and whether its fishing mortality is too high.
+  interaction matrix, and whether its fishing mortality is too high. See the
+  `understand-size-spectrum-dynamics` skill for the underlying physiological
+  and trophic mechanics.
 - **Biomass matches but growth is wrong (or vice versa).** Alternate
   `matchGrowth()` and `matchBiomasses()`, re-running `steady()` between them.
 - **`steady()` said it converged but the results still drift.** Its convergence
