@@ -11,6 +11,7 @@ get_species_size_rate_from_sim(
   rate_fun,
   value_name,
   units = NULL,
+  type = NULL,
   representation = "point"
 )
 }
@@ -27,6 +28,9 @@ get_species_size_rate_from_sim(
 \item{value_name}{Name of the value stored in the returned array.}
 
 \item{units}{Optional units of the value stored in the returned array.}
+
+\item{type}{The kind of quantity the values are, see \code{\link[=ArraySpeciesBySize]{ArraySpeciesBySize()}}
+and \link{array_types}.}
 }
 \value{
 A time x species x size array, possibly with dimensions dropped.

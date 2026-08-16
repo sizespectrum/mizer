@@ -137,6 +137,239 @@ test_that("length-axis array plots only transform number densities", {
     expect_equal(rate_l[[2]], rate_w[[2]])
 })
 
+test_that("ArraySpeciesBySize records the type of its values", {
+    mat <- matrix(1:30, nrow = 3, ncol = 10,
+                  dimnames = list(NS_params_small@species_params$species,
+                                  signif(NS_params_small@w[1:10], 3)))
+
+    # An explicit type is used as given
+    for (type in array_types) {
+        expect_identical(array_type(ArraySpeciesBySize(mat, type = type)), type)
+    }
+    expect_error(ArraySpeciesBySize(mat, type = "rate"), "must be one of")
+    expect_error(ArraySpeciesBySize(mat, type = NA), "must be one of")
+    expect_error(ArraySpeciesBySize(mat, type = c("density", "value")),
+                 "must be one of")
+
+    # Without one, a density is recognised from the other metadata, so that
+    # arrays built before the attribute existed keep behaving as they did
+    expect_identical(array_type(
+        ArraySpeciesBySize(mat, value_name = "Number density")), "density")
+    expect_identical(array_type(
+        ArraySpeciesBySize(mat, value_name = "Resource capacity",
+                           units = "1/g")), "density")
+    expect_identical(array_type(
+        ArraySpeciesBySize(mat, value_name = "Encounter rate",
+                           units = "g/year")), "value")
+
+    # An explicit type overrides that guess in both directions
+    expect_identical(array_type(
+        ArraySpeciesBySize(mat, value_name = "Number density",
+                           type = "value")), "value")
+    expect_identical(array_type(
+        ArraySpeciesBySize(mat, value_name = "Flux", units = "1/year",
+                           type = "density")), "density")
+
+    # An array from before the attribute existed carries no attribute at all
+    legacy <- ArraySpeciesBySize(mat, value_name = "Number density")
+    attr(legacy, "type") <- NULL
+    expect_identical(array_type(legacy), "density")
+
+    # Subsetting preserves the type, arithmetic strips it with the class
+    tagged <- ArraySpeciesBySize(mat, type = "proportion")
+    expect_identical(array_type(tagged[1:2, ]), "proportion")
+    expect_null(attr(tagged * 2, "type"))
+})
+
+test_that("only a density array is converted onto a length axis", {
+    mat <- matrix(1, nrow = 3, ncol = 10,
+                  dimnames = list(NS_params_small@species_params$species,
+                                  signif(NS_params_small@w[1:10], 3)))
+    # Mizer arrays live on the weight grid, so a density in one is always a
+    # density with respect to weight
+    expect_identical(array_density_wrt(ArraySpeciesBySize(mat,
+                                                          type = "density")),
+                     "w")
+    for (type in c("value", "proportion")) {
+        expect_identical(array_density_wrt(ArraySpeciesBySize(mat,
+                                                              type = type)),
+                         NA_character_)
+    }
+})
+
+test_that("array_units restates the units on the plotted axis", {
+    mat <- matrix(1, nrow = 3, ncol = 10,
+                  dimnames = list(NS_params_small@species_params$species,
+                                  signif(NS_params_small@w[1:10], 3)))
+    density <- ArraySpeciesBySize(mat, value_name = "Number density",
+                                  units = "1/g", type = "density")
+    expect_identical(array_units(density, "w"), "1/g")
+    expect_identical(array_units(density, "l"), "1/cm")
+
+    # Compound units keep the rest of the unit string
+    rate_density <- ArraySpeciesBySize(mat, units = "g^-1/year",
+                                       type = "density")
+    expect_identical(array_units(rate_density, "l"), "cm^-1/year")
+
+    # Values that are not a density keep their units on either axis
+    rate <- ArraySpeciesBySize(mat, units = "g/year")
+    expect_identical(array_units(rate, "l"), "g/year")
+    proportion <- ArraySpeciesBySize(mat, units = "", type = "proportion")
+    expect_identical(array_units(proportion, "l"), "")
+})
+
+test_that("array plots use the declared type", {
+    density <- initialN(NS_params_small)
+    sp <- NS_params_small@species_params
+    by_weight <- plot(density, size_axis = "w", return_data = TRUE)
+    by_length <- plot(density, size_axis = "l", return_data = TRUE)
+    sp_idx <- match(by_length$Species, sp$species)
+    jacobian <- unname(sp$b[sp_idx]) * by_weight$w / by_length$l
+    expect_equal(by_length[[2]], by_weight[[2]] * jacobian)
+
+    # Declaring the same values not to be a density leaves them alone
+    not_density <- density
+    attr(not_density, "type") <- "value"
+    expect_equal(plot(not_density, size_axis = "l", return_data = TRUE)[[2]],
+                 by_weight[[2]])
+})
+
+test_that("plot() can express a density per logarithmic size", {
+    density <- initialN(NS_params_small)
+    sp <- NS_params_small@species_params
+    by_weight <- plot(density, size_axis = "w", return_data = TRUE)
+
+    # Per log weight is the density times the weight
+    per_log <- plot(density, per_log_size = TRUE, return_data = TRUE)
+    expect_identical(names(per_log)[[1]], "w")
+    expect_equal(per_log[[2]], by_weight[[2]] * by_weight$w)
+
+    # Per log length is the density per length times the length
+    per_log_l <- plot(density, size_axis = "l", per_log_size = TRUE,
+                      return_data = TRUE)
+    by_length <- plot(density, size_axis = "l", return_data = TRUE)
+    expect_identical(names(per_log_l)[[1]], "l")
+    expect_equal(per_log_l[[2]], by_length[[2]] * by_length$l)
+
+    # per_log_size = FALSE is the density itself, the same as not asking
+    expect_equal(plot(density, per_log_size = FALSE, return_data = TRUE)[[2]],
+                 by_weight[[2]])
+
+    # The label says which quantity is shown, since the units no longer do
+    expect_identical(plot(density, per_log_size = TRUE)$scales$
+                         get_scales("y")$name,
+                     "Number density in log weight")
+    expect_identical(plot(density, size_axis = "l", per_log_size = TRUE)$scales$
+                         get_scales("y")$name,
+                     "Number density in log length")
+
+    # Asking for it on something that is not a density is an error, where it
+    # used to be swallowed by `...`
+    expect_error(plot(enc_small, per_log_size = TRUE),
+                 "only applies to an array that holds a density")
+    expect_error(plot(density, per_log_size = "yes"), "not a flag")
+
+    # No weight-length relationship is needed on a weight axis, so the total
+    # survives there
+    with_total <- plot(density, total = TRUE, per_log_size = TRUE,
+                       return_data = TRUE)
+    expect_true(any(with_total$Species == "Total"))
+})
+
+test_that("the total is shown on a length axis and matches the lines drawn", {
+    density <- initialN(NS_params_small)
+
+    on_w <- plot(density, total = TRUE, return_data = TRUE)
+    on_l <- plot(density, total = TRUE, size_axis = "l", return_data = TRUE)
+    expect_true("Total" %in% on_w$Species)
+    expect_true("Total" %in% on_l$Species)
+
+    # The species here share one weight-length relationship, so the total is
+    # the plain sum of the converted lines at each length
+    total_l <- on_l[on_l$Species == "Total", ]
+    lines_l <- on_l[on_l$Species != "Total", ]
+    summed <- vapply(total_l$l, function(len) {
+        sum(lines_l[[2]][lines_l$l == len])
+    }, numeric(1))
+    expect_equal(total_l[[2]], summed)
+
+    # The total is the total of everything in the array, so it depends on
+    # neither the species selection nor the size trimming
+    full <- unname(colSums(unclass(density)))
+    expect_equal(on_w[[2]][on_w$Species == "Total"], full)
+    for (args in list(list(all.sizes = TRUE), list(species = "Cod"),
+                      list(background = FALSE))) {
+        d <- do.call(plot, c(list(density, total = TRUE, return_data = TRUE),
+                             args))
+        expect_equal(d[[2]][d$Species == "Total"], full)
+    }
+})
+
+test_that("the total on a length axis interpolates onto a common grid", {
+    # Give two species their own weight-length relationships so that their
+    # length grids no longer coincide
+    params <- NS_params_small
+    species_params(params)$a <- c(0.008, 0.012, 0.01)
+    species_params(params)$b <- c(3.1, 2.9, 3)
+    density <- initialN(params)
+
+    on_w <- plot(density, total = TRUE, return_data = TRUE)
+    on_l <- plot(density, total = TRUE, size_axis = "l", return_data = TRUE)
+    # The weight axis still has one point per size, the length axis needs the
+    # union of the three grids
+    expect_identical(sum(on_w$Species == "Total"), length(params@w))
+    expect_gt(sum(on_l$Species == "Total"), length(params@w))
+
+    # At the largest length only one species reaches, so the total is exactly
+    # that species there. The total covers the whole array, so compare it
+    # against the untrimmed lines.
+    total_l <- on_l[on_l$Species == "Total", ]
+    all_l <- plot(density, all.sizes = TRUE, size_axis = "l",
+                  return_data = TRUE)
+    lines_l <- all_l[all_l$Species != "Total", ]
+    at <- max(total_l$l)
+    expect_identical(sum(lines_l$l == at), 1L)
+    expect_equal(total_l[[2]][total_l$l == at], lines_l[[2]][lines_l$l == at])
+})
+
+test_that("a proportion is plotted against the whole of [0, 1]", {
+    feeding_level <- getFeedingLevel(NS_params_small)
+    expect_identical(array_type(feeding_level), "proportion")
+    expect_identical(plot(feeding_level)$scales$get_scales("y")$limits,
+                     c(0, 1))
+
+    # A value above 1 is a real feature of the model and stays visible
+    above_one <- ArraySpeciesBySize(unclass_rate(feeding_level) * 3,
+                                    value_name = "Test proportion",
+                                    type = "proportion",
+                                    params = NS_params_small)
+    limits <- plot(above_one)$scales$get_scales("y")$limits
+    expect_identical(limits[[1]], 0)
+    # The sizes outside a species' size range are not plotted, so compare
+    # against the values that are
+    expect_gte(limits[[2]], max(plot(above_one, return_data = TRUE)[[2]]))
+
+    # An explicit limit always wins, and a log axis is left alone
+    expect_identical(plot(feeding_level, ylim = c(0.1, 0.5))$scales$
+                         get_scales("y")$limits,
+                     c(0.1, 0.5))
+    expect_identical(plot(feeding_level, ylim = c(NA, 0.5))$scales$
+                         get_scales("y")$limits,
+                     c(0, 0.5))
+    expect_equal(plot(feeding_level, log_y = TRUE)$scales$get_scales("y")$limits,
+                 c(NA_real_, NA_real_))
+
+    # Values that are not a proportion are unaffected
+    expect_true(all(is.na(plot(enc_small)$scales$get_scales("y")$limits)))
+})
+
+test_that("plot2 warns when the two arrays hold different types of value", {
+    density <- initialN(NS_params_small)
+    as_value <- density
+    attr(as_value, "type") <- "value"
+    expect_warning(plot2(density, as_value), "type")
+})
+
 test_that("plot.ArraySpeciesBySize supports base plot log argument", {
     p_y <- plot(enc_small, log = "y")
     expect_identical(p_y$scales$get_scales("x")$trans$name, "identity")

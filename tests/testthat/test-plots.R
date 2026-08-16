@@ -508,10 +508,14 @@ test_that("size-based plots support length axes", {
     expect_true(all(spectra_l_limited$l >= llim[1]))
     expect_true(all(spectra_l_limited$l <= llim[2]))
 
-    spectra_hidden <- plotSpectra(params_len, species = species,
-                                  resource = TRUE, total = TRUE,
-                                  size_axis = "l", return_data = TRUE)
-    expect_false(any(spectra_hidden$Legend %in% c("Resource", "Total")))
+    # The resource and the total both appear on a length axis: the resource
+    # has its own weight-length relationship, and the total is summed after
+    # the conversion, at equal length.
+    spectra_all <- plotSpectra(params_len, species = species,
+                               resource = TRUE, total = TRUE,
+                               size_axis = "l", return_data = TRUE)
+    expect_true("Resource" %in% spectra_all$Legend)
+    expect_true("Total" %in% spectra_all$Legend)
 
     p <- plotSpectra(params_len, species = species, resource = FALSE,
                      size_axis = "l")
@@ -612,12 +616,374 @@ test_that("length-axis spectra transform their densities", {
         compared_data$l
     expect_equal(compared_data[[2]], unname(by_weight[[2]] * jacobian))
 
+    # `ylim` is applied to the converted values, not to the weight-axis ones it
+    # would be off by a Jacobian from, and it filters the data exactly as it
+    # does for a single spectrum plot.
     limit <- stats::median(compared_data[[2]])
     limited <- plotSpectra2(params, params, species = species,
                             resource = FALSE, power = 0, size_axis = "l",
                             ylim = c(limit, NA))
-    expect_true(any(limited$data[[2]] < limit))
+    expect_true(all(limited$data[[2]] >= limit))
     expect_equal(limited$scales$get_scales("y")$limits, c(log10(limit), NA))
+    single <- plotSpectra(params, species = species, resource = FALSE,
+                          power = 0, size_axis = "l", ylim = c(limit, NA),
+                          return_data = TRUE)
+    expect_equal(sort(limited$data[[2]][limited$data$Model == "First"]),
+                 sort(single[[2]]))
+})
+
+test_that("proportion_ylim widens to [0, 1] without ever hiding data", {
+    # The whole of [0, 1] is shown even for values that use little of it
+    expect_identical(proportion_ylim(c(NA, NA), FALSE, c(0.2, 0.3)), c(0, 1))
+    # and the range is widened, never narrowed, for values outside it
+    expect_identical(proportion_ylim(c(NA, NA), FALSE, c(0.2, 2.5)), c(0, 2.5))
+    expect_identical(proportion_ylim(c(NA, NA), FALSE, c(-0.5, 0.3)), c(-0.5, 1))
+    # An explicit limit always wins, end by end
+    expect_identical(proportion_ylim(c(0.1, 0.5), FALSE, c(0.2, 0.3)),
+                     c(0.1, 0.5))
+    expect_identical(proportion_ylim(c(NA, 0.5), FALSE, c(0.2, 0.3)), c(0, 0.5))
+    expect_identical(proportion_ylim(c(0.1, NA), FALSE, c(0.2, 0.3)), c(0.1, 1))
+    # A logarithmic axis has no place for the 0, so it is left alone
+    expect_identical(proportion_ylim(c(NA, NA), TRUE, c(0.2, 0.3)), c(NA, NA))
+    # Non-finite values are ignored rather than swallowing the range
+    expect_identical(proportion_ylim(c(NA, NA), FALSE, c(0.2, NA, Inf)),
+                     c(0, 1))
+})
+
+test_that("add_total_line sums series on a shared grid exactly", {
+    plot_dat <- data.frame(w = rep(c(1, 2, 4), 2), value = 1:6,
+                           Species = rep(c("a", "b"), each = 3))
+    out <- add_total_line(plot_dat)
+    total <- out[out$Species == "Total", ]
+    expect_identical(total$w, c(1, 2, 4))
+    expect_equal(total$value, c(1 + 4, 2 + 5, 3 + 6))
+    # The original rows are untouched
+    expect_equal(out[out$Species != "Total", names(plot_dat)], plot_dat,
+                 ignore_attr = TRUE)
+})
+
+test_that("add_total_line interpolates series that do not share a grid", {
+    # `b` lives on a shifted grid, so the total is evaluated on the union and
+    # each series is interpolated onto it, contributing nothing outside its own
+    # range.
+    plot_dat <- rbind(
+        data.frame(w = c(1, 4), value = c(1, 4), Species = "a"),
+        data.frame(w = c(2, 8), value = c(10, 40), Species = "b"))
+    total <- add_total_line(plot_dat)
+    total <- total[total$Species == "Total", ]
+    expect_identical(total$w, c(1, 2, 4, 8))
+    # At w = 1 only `a`; at w = 8 only `b`
+    expect_equal(total$value[[1]], 1)
+    expect_equal(total$value[[4]], 40)
+    # At w = 2, `a` interpolated linearly in log w between (1, 1) and (4, 4)
+    a_at_2 <- stats::approx(log(c(1, 4)), c(1, 4), xout = log(2))$y
+    expect_equal(total$value[[2]], a_at_2 + 10)
+    # At w = 4, `b` interpolated between (2, 10) and (8, 40)
+    b_at_4 <- stats::approx(log(c(2, 8)), c(10, 40), xout = log(4))$y
+    expect_equal(total$value[[3]], 4 + b_at_4)
+})
+
+test_that("add_total_line groups by the columns it is told to", {
+    plot_dat <- data.frame(w = rep(c(1, 2), 4), value = 1:8,
+                           Species = rep(c("a", "b"), each = 2),
+                           time = rep(c(1, 1, 2, 2), each = 2))
+    out <- add_total_line(plot_dat, by = "time")
+    totals <- out[out$Species == "Total", ]
+    expect_identical(nrow(totals), 4L)
+    # time 1 holds a = (1, 2) and b = (3, 4); time 2 holds a = (5, 6) and
+    # b = (7, 8)
+    expect_equal(totals$value[totals$time == 1], c(1 + 3, 2 + 4))
+    expect_equal(totals$value[totals$time == 2], c(5 + 7, 6 + 8))
+})
+
+test_that("the spectrum total is unchanged on a weight axis", {
+    # The total is now summed after the size axis is converted rather than
+    # before, which on a weight axis must make no difference at all.
+    for (power in 0:2) {
+        d <- plotSpectra(params, total = TRUE, power = power,
+                         return_data = TRUE)
+        total <- d[d$Legend == "Total", ]
+        fish_idx <- (length(params@w_full) - length(params@w) +
+                         1):length(params@w_full)
+        expected <- params@initial_n_pp
+        expected[fish_idx] <- expected[fish_idx] + colSums(params@initial_n)
+        expected <- expected * params@w_full^power
+        keep <- expected > 0 & params@w_full >= min(params@w) / 100
+        expect_equal(total[[2]], unname(expected[keep]))
+    }
+})
+
+test_that("the spectrum total appears on a length axis", {
+    on_l <- plotSpectra(params, total = TRUE, size_axis = "l",
+                        return_data = TRUE)
+    total <- on_l[on_l$Legend == "Total", ]
+    expect_gt(nrow(total), 0)
+
+    # All the species here share one weight-length relationship, so at each
+    # length the total is exactly the sum of the series drawn there
+    contributors <- on_l[on_l$Legend != "Total", ]
+    at <- total$l[[which.max(total$l)]]
+    expect_equal(total[[2]][total$l == at],
+                 sum(contributors[[2]][contributors$l == at]))
+
+    # The total is the total of everything the model holds, so it does not
+    # depend on what is drawn: neither hiding the resource nor selecting
+    # species changes it
+    small <- min(params@w)
+    total_at <- function(...) {
+        d <- plotSpectra(params, total = TRUE, return_data = TRUE, ...)
+        d[[2]][d$Legend == "Total" & d$w == small]
+    }
+    expect_equal(total_at(resource = FALSE), total_at(resource = TRUE))
+    expect_equal(total_at(species = species), total_at())
+})
+
+test_that("the comparison spectra keep their total on a length axis", {
+    params2 <- params
+    species_params(params2)$gamma <- species_params(params2)$gamma * 1.1
+
+    for (size_axis in c("w", "l")) {
+        compared <- plotSpectra2(params, params2, total = TRUE,
+                                 size_axis = size_axis)$data
+        expect_true("Total" %in% compared$Legend)
+        relative <- plotSpectraRelative(params, params2, total = TRUE,
+                                        size_axis = size_axis)$data
+        expect_true("Total" %in% relative$Legend)
+    }
+
+    # Each model in the comparison holds exactly what plotSpectra() draws for
+    # it on its own, total included, on either axis
+    for (size_axis in c("w", "l")) {
+        for (power in 0:2) {
+            compared <- plotSpectra2(params, params, total = TRUE,
+                                     power = power,
+                                     size_axis = size_axis)$data
+            single <- plotSpectra(params, total = TRUE, power = power,
+                                  size_axis = size_axis, return_data = TRUE)
+            expect_equal(sort(compared[[2]][compared$Model == "First"]),
+                         sort(single[[2]]))
+            expect_equal(sort(compared[[2]][compared$Legend == "Total" &
+                                                compared$Model == "First"]),
+                         sort(single[[2]][single$Legend == "Total"]))
+        }
+    }
+})
+
+test_that("validate_density_wrt accepts only the known measures", {
+    expect_identical(validate_density_wrt(NULL), NA_character_)
+    expect_identical(validate_density_wrt(NA), NA_character_)
+    expect_identical(validate_density_wrt(NA_character_), NA_character_)
+    for (measure in density_measures) {
+        expect_identical(validate_density_wrt(measure), measure)
+    }
+    expect_error(validate_density_wrt("weight"), "must be NA or one of")
+    expect_error(validate_density_wrt(c("w", "l")), "must be NA or one of")
+    expect_error(validate_density_wrt(1), "must be NA or one of")
+})
+
+test_that("the target density measure follows the size axis", {
+    # The size variable follows the axis, but whether the values are per size
+    # or per logarithmic size is a property of the values and is preserved.
+    expect_identical(density_target_measure("w", "l"), "l")
+    expect_identical(density_target_measure("l", "w"), "w")
+    expect_identical(density_target_measure("log_w", "l"), "log_l")
+    expect_identical(density_target_measure("log_l", "w"), "log_w")
+    expect_identical(density_target_measure("w", "w"), "w")
+    expect_identical(density_target_measure("log_l", "l"), "log_l")
+    # Values that are not a density have no target measure
+    expect_identical(density_target_measure(NA, "l"), NA_character_)
+    expect_identical(density_target_measure(NULL, "l"), NA_character_)
+})
+
+test_that("density Jacobians are correct, reciprocal and transitive", {
+    w <- c(1, 10, 100)
+    l <- c(2, 5, 20)
+    b <- c(3, 3.1, 2.9)
+    expect_equal(density_measure_jacobian("w", "l", w, l, b), b * w / l)
+    expect_equal(density_measure_jacobian("l", "w", w, l, b), l / (b * w))
+    expect_equal(density_measure_jacobian("log_w", "log_l", w, l, b), b)
+    expect_equal(density_measure_jacobian("log_l", "log_w", w, l, b), 1 / b)
+    for (measure in density_measures) {
+        expect_equal(density_measure_jacobian(measure, measure, w, l, b),
+                     rep(1, 3))
+    }
+    # Converting there and back is the identity
+    for (from in density_measures) {
+        for (to in density_measures) {
+            expect_equal(density_measure_jacobian(from, to, w, l, b) *
+                             density_measure_jacobian(to, from, w, l, b),
+                         rep(1, 3))
+        }
+    }
+    # A density per log size is the size times the density per size
+    expect_equal(density_measure_jacobian("w", "log_w", w, l, b), w)
+    expect_equal(density_measure_jacobian("l", "log_l", w, l, b), l)
+})
+
+test_that("convert_density_units swaps the size unit", {
+    expect_identical(convert_density_units("1/g", "w", "l"), "1/cm")
+    expect_identical(convert_density_units("g^-1/year", "w", "l"),
+                     "cm^-1/year")
+    expect_identical(convert_density_units("1/cm", "l", "w"), "1/g")
+    expect_identical(convert_density_units("cm^-1/year", "l", "w"),
+                     "g^-1/year")
+    # No conversion, so no change
+    expect_identical(convert_density_units("1/g", "w", "w"), "1/g")
+    expect_identical(convert_density_units("g/year", NA_character_,
+                                           NA_character_), "g/year")
+    # Nothing declared falls back to the canonical units of the target
+    expect_identical(convert_density_units(NULL, "w", "l"), "1/cm")
+    expect_identical(convert_density_units("", "l", "w"), "1/g")
+    expect_null(convert_density_units(NULL, "log_w", "log_l"))
+    # A per log size density carries no size unit, so nothing is swapped
+    expect_identical(convert_density_units("1/year", "log_w", "log_l"),
+                     "1/year")
+    # Units with no per-size factor to identify are left alone
+    expect_identical(convert_density_units("g/year", "w", "l"), "g/year")
+})
+
+test_that("convert_plot_density_axis converts in both directions", {
+    sp <- params@species_params
+    w <- params@w[1:5]
+    plot_dat <- data.frame(w = rep(w, 2), value = seq_len(10),
+                           Species = rep(sp$species[1:2], each = 5))
+    sp_idx <- match(as.character(plot_dat$Species), as.character(sp$species))
+    l <- w2l(plot_dat$w, sp[sp_idx, ])
+    b <- unname(sp$b[sp_idx])
+    jacobian <- b * plot_dat$w / l
+
+    # A density with respect to weight, plotted against length
+    converted <- convert_plot_density_axis(plot_dat, params, "l",
+                                           density_wrt = "w")
+    expect_identical(names(converted), c("l", "value", "Species"))
+    expect_equal(converted$l, l)
+    expect_equal(converted$value, plot_dat$value * jacobian)
+
+    # A density with respect to length, plotted against weight, is the inverse
+    length_dat <- plot_dat
+    length_dat$value <- converted$value
+    back <- convert_plot_density_axis(length_dat, params, "w",
+                                      density_wrt = "l")
+    expect_identical(names(back), c("w", "value", "Species"))
+    expect_equal(back$value, plot_dat$value)
+
+    # Densities per logarithmic size use the b Jacobian
+    log_converted <- convert_plot_density_axis(plot_dat, params, "l",
+                                               density_wrt = "log_w")
+    expect_equal(log_converted$value, plot_dat$value * b)
+    log_dat <- plot_dat
+    log_dat$value <- log_converted$value
+    log_back <- convert_plot_density_axis(log_dat, params, "w",
+                                          density_wrt = "log_l")
+    expect_equal(log_back$value, plot_dat$value)
+
+    # Values that are not a density only have their size coordinate converted
+    not_density <- convert_plot_density_axis(plot_dat, params, "l")
+    expect_equal(not_density$value, plot_dat$value)
+    expect_equal(not_density$l, l)
+    # and are untouched on a weight axis
+    expect_identical(convert_plot_density_axis(plot_dat, params, "w"),
+                     plot_dat)
+    expect_identical(convert_plot_density_axis(plot_dat, params, "w",
+                                               density_wrt = "log_w"),
+                     plot_dat)
+
+    # The value column can be named or indexed
+    expect_equal(convert_plot_density_axis(plot_dat, params, "l",
+                                           density_wrt = "w",
+                                           value_col = "value"),
+                 converted)
+
+    # The Jacobian is a species property, so rows with no species are dropped
+    with_total <- rbind(plot_dat,
+                        data.frame(w = w, value = 1, Species = "Total"))
+    expect_identical(nrow(convert_plot_density_axis(with_total, params, "w",
+                                                    density_wrt = "l")),
+                     nrow(plot_dat))
+})
+
+test_that("per_log_size chooses the measure independently of the size axis", {
+    # The size variable follows the axis, the log-ness follows per_log_size
+    expect_identical(density_target_measure("w", "w", TRUE), "log_w")
+    expect_identical(density_target_measure("w", "l", TRUE), "log_l")
+    expect_identical(density_target_measure("log_w", "w", FALSE), "w")
+    expect_identical(density_target_measure("log_w", "l", FALSE), "l")
+    # NULL keeps whichever the values already are
+    expect_identical(density_target_measure("w", "l", NULL), "l")
+    expect_identical(density_target_measure("log_w", "l", NULL), "log_l")
+    # Still nothing to do for values that are not a density
+    expect_identical(density_target_measure(NA, "w", TRUE), NA_character_)
+})
+
+test_that("convert_plot_density_axis expresses a density per logarithmic size", {
+    sp <- params@species_params
+    w <- params@w[1:5]
+    plot_dat <- data.frame(w = rep(w, 2), value = seq_len(10),
+                           Species = rep(sp$species[1:2], each = 5))
+    sp_idx <- match(as.character(plot_dat$Species), as.character(sp$species))
+    b <- unname(sp$b[sp_idx])
+    l <- w2l(plot_dat$w, sp[sp_idx, ])
+
+    # Per log weight is the density times the weight
+    per_log_w <- convert_plot_density_axis(plot_dat, params, "w",
+                                           density_wrt = "w",
+                                           per_log_size = TRUE)
+    expect_identical(names(per_log_w), c("w", "value", "Species"))
+    expect_equal(per_log_w$value, plot_dat$value * plot_dat$w)
+
+    # Per log length is the density per length times the length
+    per_log_l <- convert_plot_density_axis(plot_dat, params, "l",
+                                           density_wrt = "w",
+                                           per_log_size = TRUE)
+    expect_identical(names(per_log_l), c("l", "value", "Species"))
+    expect_equal(per_log_l$value, plot_dat$value * b * plot_dat$w)
+    per_l <- convert_plot_density_axis(plot_dat, params, "l",
+                                       density_wrt = "w")
+    expect_equal(per_log_l$value, per_l$value * l)
+
+    # per_log_size = FALSE undoes it again
+    log_dat <- plot_dat
+    log_dat$value <- per_log_w$value
+    expect_equal(convert_plot_density_axis(log_dat, params, "w",
+                                           density_wrt = "log_w",
+                                           per_log_size = FALSE)$value,
+                 plot_dat$value)
+
+    # Going to a logarithmic measure on a weight axis needs no length, so it
+    # keeps rows whose species has no weight-length relationship
+    with_total <- rbind(plot_dat,
+                        data.frame(w = w, value = 1, Species = "Total"))
+    kept <- convert_plot_density_axis(with_total, params, "w",
+                                      density_wrt = "w", per_log_size = TRUE)
+    expect_identical(nrow(kept), nrow(with_total))
+    expect_equal(kept$value, with_total$value * with_total$w)
+})
+
+test_that("convert_density_units drops the size unit for a logarithmic measure", {
+    # A number per log weight interval is just a number
+    expect_identical(convert_density_units("1/g", "w", "log_w"), "")
+    expect_identical(convert_density_units("1/cm", "l", "log_l"), "")
+    # and the rest of a compound unit survives
+    expect_identical(convert_density_units("g^-1/year", "w", "log_w"),
+                     "1/year")
+    # Units with no per-size factor to remove are left alone
+    expect_identical(convert_density_units("g/year", "w", "log_w"), "g/year")
+})
+
+test_that("convert_plot_spectrum_axis agrees with the density conversion", {
+    plot_dat <- data.frame(w = params@w[1:5], value = seq_len(5),
+                           Species = params@species_params$species[[1]])
+    expect_identical(convert_plot_spectrum_axis(plot_dat, params, "l",
+                                                power = 0),
+                     convert_plot_density_axis(plot_dat, params, "l",
+                                               density_wrt = "w"))
+    expect_identical(convert_plot_spectrum_axis(plot_dat, params, "l",
+                                                power = 2),
+                     convert_plot_density_axis(plot_dat, params, "l",
+                                               density_wrt = "log_w"))
+    expect_identical(spectrum_density_wrt(TRUE), "log_w")
+    expect_identical(spectrum_density_wrt(FALSE), "w")
+    expect_identical(spectrum_density_wrt(NULL), "w")
 })
 
 test_that("yield plotting helpers validate comparison and gear selection", {
@@ -632,8 +998,8 @@ test_that("yield plotting helpers validate comparison and gear selection", {
 })
 
 test_that("yield plotly wrappers return plotly objects", {
-    expect_s3_class(plotlyYield(sim, species = species, ylim = c(1e-5, 1)), "plotly")
-    expect_s3_class(plotlyYieldGear(sim, species = species, ylim = c(1e-5, 1)), "plotly")
+    expect_s3_class(plotlyYield(sim, species = species, ylim = c(1e5, 1e12)), "plotly")
+    expect_s3_class(plotlyYieldGear(sim, species = species, ylim = c(1e5, 1e12)), "plotly")
 })
 
 test_that("yield plotting helpers accept ylim", {
@@ -675,7 +1041,7 @@ test_that("return_data is identical",{
                                  return_data = TRUE)), c(22, 4))
 
     expect_equal(dim(plotFeedingLevel(sim, species = species,
-                                      return_data = TRUE)), c(40, 3))
+                                      return_data = TRUE)), c(40, 4))
 
     expect_equal(dim(plotPredMort(sim, species = species,
                                   return_data = TRUE)), c(40, 4))
@@ -813,6 +1179,25 @@ test_that("plotFeedingLevel trims by size and can include critical levels", {
                                     include_critical = TRUE,
                                     return_data = TRUE)
     expect_setequal(unique(fl_critical$Type), c("actual", "critical"))
+})
+
+test_that("plotFeedingLevel shows the whole of [0, 1] without hiding data", {
+    expect_identical(plotFeedingLevel(params)$coordinates$limits$y, c(0, 1))
+
+    # A critical feeding level above 1 stays visible, where the fixed [0, 1]
+    # window used to draw it off the top of the plot
+    params_hungry <- params
+    params_hungry@metab[] <- params@metab * 5
+    plotted <- plotFeedingLevel(params_hungry, include_critical = TRUE,
+                                return_data = TRUE)[["Feeding level"]]
+    expect_gt(max(plotted), 1)
+    limits <- plotFeedingLevel(params_hungry,
+                               include_critical = TRUE)$coordinates$limits$y
+    expect_identical(limits[[1]], 0)
+    expect_gte(limits[[2]], max(plotted))
+
+    # A logarithmic axis is left to the data, as before
+    expect_null(plotFeedingLevel(params, log_y = TRUE)$coordinates$limits$y)
 })
 
 test_that("plotGrowthCurves validates size_at_age input", {
@@ -1130,3 +1515,60 @@ test_that("plotBiomass validates time range and can include total", {
     d <- plotBiomass(sim, species = "Cod", total = TRUE, return_data = TRUE)
     expect_true("Total" %in% d$Species)
 })
+
+test_that("plotCDF and comparisons work with length axis and total", {
+    params <- NS_params_small
+    sim <- NS_sim_small
+
+    # plotCDF on length axis with total
+    cdf_l <- plotCDF(params, size_axis = "l", total = TRUE, return_data = TRUE)
+    expect_identical(names(cdf_l)[[1]], "l")
+    expect_true("Total" %in% cdf_l$Species)
+    expect_equal(max(cdf_l[["Cumulative proportion of biomass"]][cdf_l$Species == "Total"]), 1)
+
+    # plotCDF2 with size_axis = "l" and total = TRUE
+    p2 <- plotCDF2(params, params, size_axis = "l", total = TRUE)
+    expect_s3_class(p2, "ggplot")
+    expect_identical(p2$scales$get_scales("x")$name, "Length [cm]")
+    expect_true("Total" %in% levels(p2$data$Legend))
+
+    # plotSpectra2 with size_axis = "l" and total = TRUE
+    s2 <- plotSpectra2(params, params, size_axis = "l", total = TRUE)
+    expect_s3_class(s2, "ggplot")
+    expect_identical(s2$scales$get_scales("x")$name, "Length [cm]")
+    expect_true("Total" %in% levels(s2$data$Legend))
+
+    # plotSpectraRelative with size_axis = "l" and total = TRUE
+    sr <- plotSpectraRelative(params, params, size_axis = "l", total = TRUE)
+    expect_s3_class(sr, "ggplot")
+    expect_identical(sr$scales$get_scales("x")$name, "Length [cm]")
+    expect_true("Total" %in% levels(sr$data$Legend))
+})
+
+test_that("plotFeedingLevel and plotlyFeedingLevel with include_critical", {
+    params <- NS_params_small
+
+    p <- plotFeedingLevel(params, include_critical = TRUE)
+    expect_s3_class(p, "ggplot")
+    expect_equal(length(p$layers), 2)
+
+    df <- plotFeedingLevel(params, include_critical = TRUE, return_data = TRUE)
+    expect_true(all(c("actual", "critical") %in% df$Type))
+
+    pl <- plotlyFeedingLevel(params, include_critical = TRUE)
+    expect_s3_class(pl, "plotly")
+})
+
+test_that("plotYield delegates to plot(getYield()) and warns on sim2", {
+    sim <- NS_sim_small
+
+    # Single sim plot
+    p <- plotYield(sim)
+    expect_s3_class(p, "ggplot")
+    expect_identical(p$scales$get_scales("x")$name, "Year")
+    expect_identical(p$scales$get_scales("y")$name, "Yield [g/year]")
+
+    # sim2 deprecation warning
+    lifecycle::expect_deprecated(plotYield(sim, sim))
+})
+

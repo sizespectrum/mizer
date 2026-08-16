@@ -85,9 +85,14 @@ range (\code{w_min} to \code{w_max}) are removed.}
 limits for the length (x) axis when \code{size_axis = "l"}. Use \code{NA} to
 refer to the existing minimum or maximum.}
 \item{\code{size_axis}}{Whether to plot size as weight (\code{"w"}, default) or
-length (\code{"l"}), using the allometric weight-length relationship. Not
-available for the resource classes, because the weight-length
-relationship is a species parameter.}
+length (\code{"l"}), using the allometric weight-length relationship of
+each species, or of the resource, see \code{\link[=resource_params]{resource_params()}}.}
+\item{\code{per_log_size}}{For an array that holds a density, whether to plot
+it per logarithmic size (\code{TRUE}) rather than per size (\code{FALSE}). The
+default, \code{NULL}, plots the density as it stands. Unlike \code{size_axis}
+this needs no weight-length relationship, so it is available for the
+resource classes too. An error for an array that does not hold a
+density.}
 }
 
 \strong{For \code{ArrayTimeBySpecies} methods:}

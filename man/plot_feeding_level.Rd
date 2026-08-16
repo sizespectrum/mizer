@@ -11,12 +11,14 @@ plot_feeding_level(
   highlight,
   all.sizes,
   include_critical,
-  log_x,
-  log_y,
   wlim,
   llim,
   size_axis,
-  return_data
+  return_data,
+  log_x = TRUE,
+  log_y = FALSE,
+  log = NULL,
+  ...
 )
 }
 \arguments{
@@ -33,8 +35,6 @@ are removed.}
 
 \item{include_critical}{Whether to also plot the critical feeding level.}
 
-\item{log_x, log_y}{Logical flags for log10 axes.}
-
 \item{wlim, llim}{Numeric vectors of length two giving the weight and length
 limits.}
 
@@ -42,6 +42,12 @@ limits.}
 
 \item{return_data}{If \code{TRUE}, return the plotting data frame instead of the
 plot.}
+
+\item{log_x, log_y}{Logical flags for log10 axes.}
+
+\item{log}{Optional base-R log argument string or boolean.}
+
+\item{...}{Additional arguments passed to \code{\link[=plot.ArraySpeciesBySize]{plot.ArraySpeciesBySize()}}.}
 }
 \value{
 A \code{mizer_plot} (ggplot2) object, or the plotting data frame if

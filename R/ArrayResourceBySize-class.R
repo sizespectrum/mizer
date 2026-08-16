@@ -26,6 +26,8 @@
 #'   `is.ArrayResourceBySize()`, any object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "1/year").
+#' @param type The kind of quantity the values are, see [ArraySpeciesBySize()]
+#'   and [array_types].
 #' @param params A `MizerParams` object. Used for the resource colour and the
 #'   size grid in the `plot()` method.
 #'
@@ -41,10 +43,11 @@
 #' plot(mort)
 #' }
 ArrayResourceBySize <- function(x, value_name = NULL, units = NULL,
-                                params = NULL) {
+                                type = NULL, params = NULL) {
     if (!is.numeric(x) || !is.null(dim(x))) {
         stop("`x` must be a numeric vector.")
     }
+    type <- resolve_array_type(type, value_name, units)
     if (!is.null(params) && length(x) == length(params@initial_n_pp) &&
             is.null(names(x))) {
         names(x) <- names(params@initial_n_pp)
@@ -53,6 +56,7 @@ ArrayResourceBySize <- function(x, value_name = NULL, units = NULL,
         class = c("ArrayResourceBySize", "numeric"),
         value_name = value_name,
         units = units,
+        type = type,
         params = params
     )
 }
@@ -145,9 +149,18 @@ print.summary.ArrayResourceBySize <- function(x, ...) {
 #' @param wlim A numeric vector of length two providing lower and upper
 #'   limits for the weight (x) axis. Use `NA` to refer to the existing
 #'   minimum or maximum.
+#' @param llim A numeric vector of length two providing lower and upper limits
+#'   for the length (x) axis when `size_axis = "l"`. Use `NA` to refer to the
+#'   existing minimum or maximum.
 #' @param ylim A numeric vector of length two providing lower and upper
 #'   limits for the value (y) axis. Use `NA` to refer to the existing
 #'   minimum or maximum.
+#' @param size_axis Whether to plot size as weight (`"w"`, default) or length
+#'   (`"l"`), using the weight-length relationship in [resource_params()].
+#' @param per_log_size For an array that holds a density, whether to plot it
+#'   per logarithmic size (`TRUE`) rather than per size (`FALSE`). The default,
+#'   `NULL`, plots the density as it stands. An error for an array that does not
+#'   hold a density.
 #' @param y_ticks The approximate number of ticks desired on the y axis.
 #' @param ... Unused.
 #'
@@ -162,32 +175,42 @@ print.summary.ArrayResourceBySize <- function(x, ...) {
 #' }
 plot.ArrayResourceBySize <- function(x, return_data = FALSE,
                                      log_x = TRUE, log_y = TRUE, log = NULL,
-                                     wlim = c(NA, NA), ylim = c(NA, NA),
+                                     wlim = c(NA, NA), llim = c(NA, NA),
+                                     ylim = c(NA, NA),
+                                     size_axis = c("w", "l"),
+                                     per_log_size = NULL,
                                      y_ticks = 6, ...) {
+    size_axis <- plot_size_axis(size_axis)
+    check_per_log_size(x, per_log_size)
+    log_y <- array_log_y(x, log_y, log, !missing(log_y))
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
 
     assert_that(length(wlim) == 2,
+                length(llim) == 2,
                 length(ylim) == 2)
-    value_name <- attr(x, "value_name") %||% "value"
-    units_str <- attr(x, "units")
     params <- attr(x, "params")
 
     plot_dat <- prepare_ArrayResourceBySize_plot_data(x, wlim = wlim)
+    plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
+                                          density_wrt = array_density_wrt(x),
+                                          per_log_size = per_log_size)
+    if (identical(size_axis, "l")) {
+        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    }
 
     if (return_data) return(plot_dat)
 
-    y_label <- value_name
-    if (!is.null(units_str) && nzchar(units_str)) {
-        y_label <- paste0(value_name, " [", units_str, "]")
-    }
+    y_label <- array_y_label(x, default = "value", size_axis = size_axis,
+                             per_log_size = per_log_size)
 
-    plotDataFrame(plot_dat, params, xlab = "Weight (g)",
+    ylim <- array_ylim(x, ylim, log_y, plot_dat[[2]])
+    plotDataFrame(plot_dat, params, xlab = plot_size_xlab(size_axis),
                   ylab = y_label,
                   xtrans = if (log_x) "log10" else "identity",
                   ytrans = if (log_y) "log10" else "identity",
-                  xlim = wlim, ylim = ylim,
+                  xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
                   y_ticks = y_ticks, legend_var = "Legend")
 }
 
@@ -216,28 +239,41 @@ plot2.ArrayResourceBySize <- function(x, y, name1 = "First", name2 = "Second",
                                       ylim = c(NA, NA),
                                       total = FALSE, background = TRUE,
                                       y_ticks = 6,
-                                      wlim = c(NA, NA), ...) {
+                                      wlim = c(NA, NA), llim = c(NA, NA),
+                                      size_axis = c("w", "l"),
+                                      per_log_size = NULL, ...) {
     check_plot2_compatible(x, y, "ArrayResourceBySize")
     compare_array_metadata(x, y)
     warn_unused_resource_args(species, total, background)
+    size_axis <- plot_size_axis(size_axis)
+    check_per_log_size(x, per_log_size)
+    log_y <- array_log_y(x, log_y, log, !missing(log_y))
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
     assert_that(length(wlim) == 2,
+                length(llim) == 2,
                 length(ylim) == 2)
 
     params <- attr(x, "params")
-    y_label <- array_y_label(x, default = "Value")
+    y_label <- array_y_label(x, default = "Value", size_axis = size_axis,
+                             per_log_size = per_log_size)
     plot_dat1 <- prepare_ArrayResourceBySize_plot_data(x, wlim = wlim)
     plot_dat2 <- prepare_ArrayResourceBySize_plot_data(y, wlim = wlim)
 
+    ylim <- array_ylim(x, ylim, log_y, c(plot_dat1[[2]], plot_dat2[[2]]))
+
     plotComparisonDataFrame(plot_dat1, plot_dat2, params,
                             name1 = name1, name2 = name2,
-                            xlab = "Weight (g)", ylab = y_label,
+                            xlab = plot_size_xlab(size_axis), ylab = y_label,
                             xtrans = if (log_x) "log10" else "identity",
                             ytrans = if (log_y) "log10" else "identity",
-                            xlim = wlim, ylim = ylim,
-                            y_ticks = y_ticks, legend_var = "Legend")
+                            xlim = plot_size_xlim(wlim, size_axis, llim),
+                            ylim = ylim,
+                            y_ticks = y_ticks, legend_var = "Legend",
+                            size_axis = size_axis,
+                            density_wrt = array_density_wrt(x),
+                            per_log_size = per_log_size)
 }
 
 #' @rdname plotRelative
@@ -248,11 +284,15 @@ plotRelative.ArrayResourceBySize <- function(x, y, species = NULL,
                                              ylim = c(NA, NA),
                                              total = FALSE,
                                              background = TRUE,
-                                             wlim = c(NA, NA), ...) {
+                                             wlim = c(NA, NA),
+                                             llim = c(NA, NA),
+                                             size_axis = c("w", "l"), ...) {
     check_plot2_compatible(x, y, "ArrayResourceBySize")
     compare_array_metadata(x, y)
     warn_unused_resource_args(species, total, background)
+    size_axis <- plot_size_axis(size_axis)
     assert_that(length(wlim) == 2,
+                length(llim) == 2,
                 length(ylim) == 2)
 
     params <- attr(x, "params")
@@ -260,10 +300,11 @@ plotRelative.ArrayResourceBySize <- function(x, y, species = NULL,
     plot_dat2 <- prepare_ArrayResourceBySize_plot_data(y, wlim = wlim)
 
     plotRelativeDataFrame(plot_dat1, plot_dat2, params,
-                          xlab = "Weight (g)",
+                          xlab = plot_size_xlab(size_axis),
                           xtrans = if (log_x) "log10" else "identity",
-                          xlim = wlim, ylim = ylim,
-                          legend_var = "Legend")
+                          xlim = plot_size_xlim(wlim, size_axis, llim),
+                          ylim = ylim,
+                          legend_var = "Legend", size_axis = size_axis)
 }
 
 #' @rdname addPlot
@@ -276,7 +317,10 @@ addPlot.ArrayResourceBySize <- function(plot, x, species = NULL,
                                         linetype = "dashed",
                                         linewidth = 0.8,
                                         alpha = 1,
-                                        wlim = c(NA, NA), ...) {
+                                        wlim = c(NA, NA),
+                                        llim = c(NA, NA),
+                                        size_axis = c("w", "l"),
+                                        per_log_size = NULL, ...) {
     if (!inherits(plot, "ggplot")) {
         stop("The `plot` argument must be a ggplot object.")
     }
@@ -284,14 +328,25 @@ addPlot.ArrayResourceBySize <- function(plot, x, species = NULL,
                 is.number(alpha),
                 alpha >= 0,
                 alpha <= 1,
-                length(wlim) == 2)
+                length(wlim) == 2,
+                length(llim) == 2)
     warn_unused_resource_args(species, total, background)
+    size_axis <- plot_size_axis(size_axis)
+    check_per_log_size(x, per_log_size)
 
     plot <- deep_copy(plot)
     plot_dat <- prepare_ArrayResourceBySize_plot_data(x, wlim = wlim)
+    params <- attr(x, "params")
+    plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
+                                          density_wrt = array_density_wrt(x),
+                                          per_log_size = per_log_size)
+    if (identical(size_axis, "l")) {
+        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    }
+    x_var <- plot_size_x_var(size_axis)
     y_var <- names(plot_dat)[2]
-    check_addPlot_compatible(plot, x_var = "w", y_var = y_var,
-                             units = attr(x, "units"))
+    check_addPlot_compatible(plot, x_var = x_var, y_var = y_var,
+                             units = array_units(x, size_axis, per_log_size))
 
     # A resource array is a single line, so there is nothing to distinguish by
     # colour. Mapping colour to the "Resource" legend level would rely on the
@@ -307,7 +362,7 @@ addPlot.ArrayResourceBySize <- function(plot, x, species = NULL,
         }
     }
 
-    mapping <- aes(x = .data[["w"]], y = .data[[y_var]],
+    mapping <- aes(x = .data[[x_var]], y = .data[[y_var]],
                    group = .data[["Species"]])
     if (is.null(linetype)) {
         mapping$linetype <- rlang::quo(.data[["Legend"]])
@@ -379,6 +434,7 @@ get_ArrayResourceBySize_w <- function(x) {
     result <- NextMethod()
     attr(result, "value_name") <- attr(x, "value_name")
     attr(result, "units") <- attr(x, "units")
+    attr(result, "type") <- attr(x, "type")
     attr(result, "params") <- attr(x, "params")
     class(result) <- c("ArrayResourceBySize", "numeric")
     result
@@ -416,6 +472,7 @@ unclass_resource <- function(x) {
     x <- unclass(x)
     attr(x, "value_name") <- NULL
     attr(x, "units") <- NULL
+    attr(x, "type") <- NULL
     attr(x, "params") <- NULL
     x
 }
@@ -461,6 +518,8 @@ str.ArrayResourceBySize <- function(object, ...) {
 #'   object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "1/g").
+#' @param type The kind of quantity the values are, see [ArraySpeciesBySize()]
+#'   and [array_types].
 #' @param params A `MizerParams` object. Used for the resource colour and the
 #'   size grid in the `plot()` method.
 #'
@@ -477,14 +536,16 @@ str.ArrayResourceBySize <- function(object, ...) {
 #' plot(nr)
 #' }
 ArrayTimeByResourceBySize <- function(x, value_name = NULL, units = NULL,
-                                      params = NULL) {
+                                      type = NULL, params = NULL) {
     if (!is.matrix(x)) {
         stop("`x` must be a matrix.")
     }
+    type <- resolve_array_type(type, value_name, units)
     structure(x,
         class = c("ArrayTimeByResourceBySize", "matrix", "array"),
         value_name = value_name,
         units = units,
+        type = type,
         params = params
     )
 }
@@ -611,7 +672,8 @@ ArrayTimeByResourceBySize_slice <- function(x, time = NULL) {
 
     vec <- unclass(x)[tidx, ]
     ArrayResourceBySize(vec, value_name = value_name,
-                        units = units, params = params)
+                        units = units, type = attr(x, "type"),
+                        params = params)
 }
 
 #' @rdname plot2
@@ -626,7 +688,10 @@ plot2.ArrayTimeByResourceBySize <- function(x, y, name1 = "First",
                                             total = FALSE, background = TRUE,
                                             y_ticks = 6,
                                             time = NULL,
-                                            wlim = c(NA, NA), ...) {
+                                            wlim = c(NA, NA),
+                                            llim = c(NA, NA),
+                                            size_axis = c("w", "l"),
+                                            per_log_size = NULL, ...) {
     check_plot2_compatible(x, y, "ArrayTimeByResourceBySize")
     slice1 <- ArrayTimeByResourceBySize_slice(x, time = time)
     slice2 <- ArrayTimeByResourceBySize_slice(y, time = time)
@@ -635,7 +700,8 @@ plot2.ArrayTimeByResourceBySize <- function(x, y, name1 = "First",
                               species = species, log_x = log_x, log_y = log_y,
                               log = log, ylim = ylim, total = total,
                               background = background, y_ticks = y_ticks,
-                              wlim = wlim, ...)
+                              wlim = wlim, llim = llim, size_axis = size_axis,
+                              per_log_size = per_log_size, ...)
 }
 
 #' @rdname plotRelative
@@ -647,14 +713,17 @@ plotRelative.ArrayTimeByResourceBySize <- function(x, y, species = NULL,
                                                    total = FALSE,
                                                    background = TRUE,
                                                    time = NULL,
-                                                   wlim = c(NA, NA), ...) {
+                                                   wlim = c(NA, NA),
+                                                   llim = c(NA, NA),
+                                                   size_axis = c("w", "l"), ...) {
     check_plot2_compatible(x, y, "ArrayTimeByResourceBySize")
     slice1 <- ArrayTimeByResourceBySize_slice(x, time = time)
     slice2 <- ArrayTimeByResourceBySize_slice(y, time = time)
 
     plotRelative.ArrayResourceBySize(slice1, slice2, species = species,
                                      log_x = log_x, ylim = ylim, total = total,
-                                     background = background, wlim = wlim, ...)
+                                     background = background, wlim = wlim,
+                                     llim = llim, size_axis = size_axis, ...)
 }
 
 #' @rdname addPlot
@@ -668,12 +737,17 @@ addPlot.ArrayTimeByResourceBySize <- function(plot, x, species = NULL,
                                               linewidth = 0.8,
                                               alpha = 1,
                                               time = NULL,
-                                              wlim = c(NA, NA), ...) {
+                                              wlim = c(NA, NA),
+                                              llim = c(NA, NA),
+                                              size_axis = c("w", "l"),
+                                              per_log_size = NULL, ...) {
     slice <- ArrayTimeByResourceBySize_slice(x, time = time)
     addPlot.ArrayResourceBySize(plot, slice, species = species, total = total,
                                 background = background, colour = colour,
                                 linetype = linetype, linewidth = linewidth,
-                                alpha = alpha, wlim = wlim, ...)
+                                alpha = alpha, wlim = wlim, llim = llim,
+                                size_axis = size_axis,
+                                per_log_size = per_log_size, ...)
 }
 
 #' @rdname animate
@@ -688,6 +762,7 @@ animate.ArrayTimeByResourceBySize <- function(x, species = NULL,
                                               ylim = c(NA, NA),
                                               tlim = c(NA, NA),
                                               size_axis = c("w", "l"),
+                                              per_log_size = NULL,
                                               total = FALSE,
                                               background = TRUE,
                                               frame_duration = 500,
@@ -699,20 +774,13 @@ animate.ArrayTimeByResourceBySize <- function(x, species = NULL,
                 is.string(easing),
                 length(wlim) == 2, length(ylim) == 2, length(tlim) == 2)
     warn_unused_resource_args(species, total, background)
-    # The length axis is derived from each species' weight-length parameters,
-    # and the resource is not a species.
+    check_per_log_size(x, per_log_size)
     size_axis <- plot_size_axis(size_axis)
-    if (identical(size_axis, "l")) {
-        stop("A length axis is not available for resource arrays, because the ",
-             "weight-length relationship is a species parameter.")
-    }
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
 
     params <- attr(x, "params")
-    value_name <- attr(x, "value_name") %||% "Value"
-    units_str <- attr(x, "units")
 
     times <- as.numeric(dimnames(x)[[1]])
     arr <- unclass(x)
@@ -735,13 +803,12 @@ animate.ArrayTimeByResourceBySize <- function(x, species = NULL,
     df$Species <- "Resource"
     df$legend_name <- "Resource"
 
-    y_label <- value_name
-    if (!is.null(units_str) && nzchar(units_str)) {
-        y_label <- paste0(value_name, " [", units_str, "]")
-    }
+    y_label <- array_y_label(x, default = "Value", per_log_size = per_log_size)
 
     animate_plotly(df, params, log_x, log_y, y_label, wlim, llim, ylim,
                    size_axis = size_axis,
+                   density_wrt = array_density_wrt(x),
+                   per_log_size = per_log_size,
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
                    easing = easing)
@@ -780,6 +847,7 @@ as.data.frame.ArrayTimeByResourceBySize <- function(x, row.names = NULL,
     if (is.matrix(result) && length(dim(result)) == 2) {
         attr(result, "value_name") <- attr(x, "value_name")
         attr(result, "units") <- attr(x, "units")
+        attr(result, "type") <- attr(x, "type")
         attr(result, "params") <- attr(x, "params")
         class(result) <- c("ArrayTimeByResourceBySize", "matrix", "array")
     } else if (is.null(dim(result)) && !is.null(names(result)) &&
@@ -788,6 +856,7 @@ as.data.frame.ArrayTimeByResourceBySize <- function(x, row.names = NULL,
         result <- ArrayResourceBySize(result,
                                       value_name = attr(x, "value_name"),
                                       units = attr(x, "units"),
+                                      type = attr(x, "type"),
                                       params = attr(x, "params"))
     }
     result

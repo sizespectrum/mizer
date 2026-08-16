@@ -5,6 +5,33 @@ stability of steady states.
 
 ## Bug fixes
 
+- `plotCDF()`, `plotCDF2()`, `plotSpectra2()`, and `plotSpectraRelative()` now
+  support `size_axis = "l"` together with `total = TRUE`. The total spectrum and
+  cumulative distributions are summed across species on the length axis.
+
+- `ArrayResourceBySize` and `ArrayTimeByResourceBySize` plotting methods
+  (`plot2()`, `plotRelative()`, `addPlot()`) now support `size_axis = "l"` and
+  `per_log_size`, providing symmetry with species size-spectrum plotting methods.
+
+- `plotFeedingLevel()` and `plotlyFeedingLevel()` have been refactored to
+  delegate directly to `plot()` / `plotHover()` on `ArraySpeciesBySize` while
+  maintaining full support for `include_critical = TRUE` and non-clipping
+  proportion coordinate scaling.
+
+- `plotYield()` for a single simulation now delegates directly to
+  `plot(getYield(object))`. The `sim2` argument of `plotYield()` is deprecated in
+  favour of `plot2(getYield(sim1), getYield(sim2))`.
+
+- `plot(getFluxGradient(params), size_axis = "l")` now converts its values to a
+  density with respect to length, and labels them `cm^-1/year`. The flux
+  gradient is a rate of change of a number density, but it was not recognised as
+  a density, so its values were plotted per gram against a length axis and
+  labelled `g^-1/year`.
+
+- `plotFeedingLevel(include_critical = TRUE)` no longer draws a critical feeding
+  level above 1 off the top of the plot. The y axis was fixed to the interval
+  from 0 to 1, and now widens when the data need it.
+
 - `steady()` now successfully converges when the advective flux scheme is set to `"van_leer"` (via `second_order_w`). Previously, the time-stepping iteration would fall into a limit cycle because the flux limiter weights flipped wildly across cells. We resolved this by introducing an exponential moving average relaxation to the limiter `chi` (#522).
 
 ## New functions
@@ -103,6 +130,81 @@ stability of steady states.
   `tol`, `amplitude_tol` and `extinction_threshold` are exposed for tuning.
 
 ## Other improvements
+
+- Mizer arrays now state what kind of quantity they hold. Every array
+  constructor gains a `type` argument: `"value"` (the default) for a rate or an
+  amount, `"density"` for an amount per gram of body weight, `"proportion"` for
+  a fraction. Two things follow from it.
+
+  A `"density"` is multiplied by the appropriate Jacobian when it is plotted
+  against a length axis (`size_axis = "l"`), and its units are restated from
+  `1/g` to `1/cm`. This replaces the guess mizer used to make from the array's
+  name and units, which recognised only densities that happened to be called
+  "Number density" or to have units "1/g" — and so missed `getFluxGradient()`.
+  Arrays that declare no type still fall back to that guess, so existing code
+  and saved objects are unaffected.
+
+  A `"proportion"` — `getFeedingLevel()`, `getCriticalFeedingLevel()`,
+  `maturity()`, `repro_prop()`, `psi()`, `resource_level()` — is plotted on a
+  linear y axis showing the whole of the interval from 0 to 1, so the value can
+  be read against the scale it belongs to. The range is only ever widened to
+  include the data, never narrowed to that interval: the critical feeding level
+  and the resource level can both legitimately exceed 1, and their plots show
+  it. `plot(getFeedingLevel(params))` therefore now shows the same y range that
+  `plotFeedingLevel()` always has.
+
+- `plot()`, `plot2()`, `addPlot()` and `animate()` on an array that holds a
+  density gain a `per_log_size` argument, which expresses the values per
+  logarithmic size rather than per size. This is the same change of measure that
+  `size_axis` makes — both rescale the density by a Jacobian — so the two now
+  sit side by side, and `plotSpectra()` is no longer the only way to see a
+  spectrum per log size. Unlike `size_axis` it needs no weight-length
+  relationship, so the resource classes take it too. Asking for it on an array
+  that does not hold a density is now an error; it used to be swallowed silently
+  by `...`.
+
+- The resource can now be shown on length-based plots. `resource_params()`
+  gains the weight-length parameters `a` and `b`, defaulting to the equivalent
+  spherical diameter of an organism with the density of water, `a = pi/6` and
+  `b = 3`, which is the convention plankton ecology uses for a composite of many
+  taxa. `plotSpectra(params, size_axis = "l")` therefore includes the resource
+  spectrum, where it used to drop it silently, and the resource array plots and
+  `animate()` gain `size_axis` and `llim`. The parameters feed none of the
+  rates. Note that the resource then sits on the length axis at its own
+  convention: a fish of a given weight is about 3.7 times longer than a sphere
+  of that weight. That difference is real rather than an artefact — a 1 mg
+  copepod really is shorter than a 1 mg fish larva — but it does mean the
+  resource and the species are measured differently.
+
+- The total line is now shown on length-based plots, where it used to be
+  dropped. A total can only be formed once every line sits on the same
+  coordinate, and on a length axis the lines do not: each species, and the
+  resource, converts weight to length with its own allometric relationship, so
+  at a given length they sit at different weights. The total is therefore
+  summed *after* the conversion — at equal length rather than at equal weight —
+  interpolating each series onto the union of all the size coordinates,
+  logarithmically in size, with a series contributing nothing outside its own
+  range. Where the series already share a grid, which is always the case on a
+  weight axis, the union is that grid and nothing is approximated: the
+  weight-axis total is unchanged.
+
+  `plotSpectra2()` and `plotSpectraRelative()` keep their total on a length
+  axis too. They used to convert the axis after assembling the two spectra, so
+  the total they had been given — summed at equal weight — arrived at the
+  conversion with no species to convert it by and was dropped. They now let
+  `plotSpectra()` convert, so the total they receive is already the total on
+  the axis being plotted. As a result `plotSpectra2()` also applies `ylim` the
+  way `plotSpectra()` does on a length axis: it could not before, because the
+  values it was filtering were a Jacobian away from the ones the limits
+  described, so with `return_data = TRUE` it returned values outside the limits
+  that a single spectrum plot would have dropped.
+
+  `total = TRUE` also now means the same thing everywhere: the total of
+  everything the object holds. For `plotSpectra()` that was already so — the
+  resource and every species, whatever is drawn — and it stays so. The array
+  plots have been brought into line: `plot(<array>, total = TRUE)` used to sum
+  only the species that were selected for display, and now sums the whole
+  array, so a plot of two species can be read against the community total.
 
 - `plotYieldObservedVsModel()` gains a `gear` argument that restricts the
   comparison to the catch of the selected gears. Both the model yield and the

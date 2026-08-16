@@ -73,6 +73,24 @@ have already given, or it feeds a rate array you set by hand, or it is a gear
 parameter that mizer reads from `gear_params()`. `species_params(params) <-`
 stays quiet about all three, which is what makes it the better one for scripts.
 
+**Turning the commentary up or down.** Mizer reports the choices it makes —
+defaults it filled in, inputs it adjusted, instructions it could not carry out —
+at a level set by `info_level`. Most `set…()` and `new…()` functions take it as
+an argument; for the ones that do not, including `species_params(params) <-` and
+the rate setters, set the option instead:
+
+```r
+options(mizer_info_level = 1)   # only what matters: warnings and adjustments
+options(mizer_info_level = 0)   # complete silence
+params <- setExtMort(params, info_level = 0)   # just this one call
+```
+
+The default is 3 — every default mizer filled in. Level 1 keeps the reports that
+tell you something went differently from how you asked, such as the "has not
+taken effect" warnings above. **Level 0 is silence, not "warnings only"**: it
+drops those too, so reach for 1 rather than 0 while you are still finding out
+what a model does.
+
 When you edit a whole table rather than a single column, read it back from the
 same accessor you assign to:
 
@@ -118,6 +136,20 @@ the relevant setter automatically:
 | `z0`, `z_ext`, `d` | external mortality | `setExtMort()` |
 | `beta`, `sigma`, `pred_kernel_type` | predation kernel | `setPredKernel()` |
 | `w_mat`, `w_mat25`, `w_repro_max`, `m` | reproduction allocation | `setReproduction()` |
+
+`pred_kernel_type` chooses the *shape* of the kernel, and each shape reads its
+own parameter columns. Changing it therefore also changes which columns matter:
+
+| `pred_kernel_type` | Parameter columns |
+|---|---|
+| `"lognormal"` (default) | `beta`, `sigma` |
+| `"truncated_lognormal"` | `beta`, `sigma` (cut off at `beta * exp(3 * sigma)`) |
+| `"box"` | `ppmr_min`, `ppmr_max` |
+| `"power_law"` | `kernel_exp`, `kernel_l_l`, `kernel_u_l`, `kernel_l_r`, `kernel_u_r` |
+| `"gaussian_mixture"` | `kernel_p`, `kernel_mean`, `kernel_sd` (multimodal preferences) |
+
+Any function `<name>_pred_kernel(ppmr, ...)` you define yourself can be named in
+`pred_kernel_type` too; its arguments become the required columns.
 
 Other species parameters are used **directly** and build no array (changing them
 just changes the model): `alpha` (assimilation), `w_min` (egg size), `erepro`
@@ -192,18 +224,32 @@ forced to 1. So `f0` is the feeding level a species *would* have in that world.
 - Setting `interaction_resource` to anything other than 1 leaves `gamma`
   untouched under edition 1, so the reduction falls straight through to the
   realised feeding level and can starve a species outright.
-- The resource scalars that enter the calibration do **not** trigger a
-  re-derivation. Changing `kappa` or `lambda` with `resource_params(params) <-`
-  rebuilds the resource arrays but leaves `gamma` and `q` alone, so the
-  feeding level moves, and the condition `q = n + lambda - 2` that makes the
-  feeding level size-independent silently breaks. After changing `lambda`,
-  reset `q` and `gamma` so they are derived afresh:
+- The resource scalars that enter the calibration **do** trigger a
+  re-derivation, but only of the values mizer owns. Since mizer 3.3, changing
+  `lambda` recalculates every `q` and `gamma` that mizer calculated, and
+  changing `kappa` recalculates every calculated `gamma`; the condition
+  `q = n + lambda - 2` that makes the feeding level size-independent is
+  maintained for you. A value you **gave** is protected, as everywhere else —
+  so on a model that supplies `gamma` in its species parameters (`NS_params`
+  does) nothing moves, and the realised feeding level shifts with the new
+  resource. To let mizer re-derive a given value, clear it first:
 
 ```r
-resource_params(params)$lambda <- 2.2
-given_species_params(params)$q <- NA       # let mizer re-derive q ...
-given_species_params(params)$gamma <- NA   # ... and gamma with it
+resource_params(params)$lambda <- 2.2       # calculated q and gamma follow
+given_species_params(params)$gamma <- NA    # hand a *given* gamma back to mizer
 ```
+
+Conversely, to hold calculated values against a resource change, record them as
+given before you make it:
+
+```r
+given_species_params(params)$q <- species_params(params)$q
+resource_params(params)$lambda <- 2.2       # q now stays put
+```
+
+On mizer **< 3.3** neither refresh happened: the resource arrays were rebuilt but
+`gamma` and `q` were left at the values for the old resource, and had to be set
+to `NA` by hand.
 
 ### Whether a value is given determines whether it is recalculated
 
@@ -289,6 +335,12 @@ resource_params(params)$r_pp   <- 10       # rebuilds the replenishment rate (rr
 |---|---|
 | `kappa`, `lambda`, `w_pp_cutoff` | resource carrying capacity (`cc_pp`) |
 | `r_pp`, `n` | resource replenishment rate (`rr_pp`) |
+| `kappa`, `lambda` | *also* the calculated `gamma` (and, for `lambda`, `q`) and hence the search volume |
+
+That last row is easy to miss: the resource power law is the reference spectrum
+against which the search volume is calibrated, so a resource change reaches the
+species too. See ["`f0` and `fc` are calibration targets"](#f0-and-fc-are-calibration-targets-not-model-outputs)
+above.
 
 The size-resolved resource arrays themselves can also be set directly; that is a
 level-2 change and is covered under

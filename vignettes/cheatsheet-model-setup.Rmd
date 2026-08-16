@@ -49,17 +49,25 @@ are truly required:
 | Column | Meaning |
 |---|---|
 | `species` | the species name |
-| `w_inf` | von Bertalanffy asymptotic weight (g) — the required maximum-size parameter |
+| `w_inf` | von Bertalanffy asymptotic weight (g) — the maximum-size parameter |
 
 Mizer derives defaults for `w_max` (the computational grid boundary, default `1.5 * w_inf`),
 `w_repro_max` and `w_mat` from `w_inf`. Everything else has a
-sensible default or is calculated. Commonly supplied:
+sensible default or is calculated.
+
+`w_inf` is the parameter to supply, but it need not be the one you *have*: a
+table giving only `w_max`, or only lengths (`l_inf` or `l_max`, with the
+length–weight parameters `a` and `b`), is accepted, and mizer fills `w_inf` in
+from it and says so. Note that when `w_inf` is taken from `w_max` the two are
+equal, so the `1.5 *` headroom above the asymptotic size is not there.
+
+Commonly supplied:
 
 | Column | Meaning |
 |---|---|
 | `w_mat` | Maturity weight (g) |
-| `beta` | Preferred predator/prey mass ratio (default ~100) |
-| `sigma` | Width of the lognormal predation kernel (default ~1.3) |
+| `beta` | Preferred predator/prey mass ratio (default 30) |
+| `sigma` | Width of the lognormal predation kernel (default 2) |
 | `k_vb` | von Bertalanffy K — used to derive `h` (and then `gamma`) if `h`/`gamma` absent |
 | `h`, `gamma` | Max intake coefficient and search-volume coefficient (alternative to `k_vb`) |
 | `alpha` | Assimilation efficiency (default 0.6) |

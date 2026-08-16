@@ -32,7 +32,8 @@ dropped) when \code{size_axis = "l"}.
 }
 \description{
 When \code{size_axis = "l"}, adds a length column \code{l} computed from the weight
-column \code{w} using each species' weight-length relationship. For
+column \code{w} using the weight-length relationship of each line, see
+\code{\link[=plot_length_params]{plot_length_params()}}. Rows with no such relationship are dropped. For
 \code{size_axis = "w"} the data is returned unchanged.
 }
 \keyword{internal}

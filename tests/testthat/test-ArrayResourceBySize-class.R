@@ -223,6 +223,114 @@ test_that("animate dispatches on ArrayTimeByResourceBySize", {
     expect_length(frames(animate(n_resource_small,
                                  tlim = c(times[2], times[3]))), 2)
 
-    expect_error(animate(n_resource_small, size_axis = "l"),
-                 "length axis is not available")
+    # A length axis is now available, using the resource weight-length
+    # parameters rather than a species'
+    expect_s3_class(animate(n_resource_small, size_axis = "l"), "plotly")
 })
+
+test_that("plot() can express a resource density per logarithmic size", {
+    resource <- initialNResource(NS_params_small)
+    expect_identical(array_type(resource), "density")
+    by_weight <- plot(resource, return_data = TRUE)
+
+    # The resource has no length axis, but per log weight needs no
+    # weight-length relationship and so is available
+    per_log <- plot(resource, per_log_size = TRUE, return_data = TRUE)
+    expect_equal(per_log[[2]], by_weight[[2]] * by_weight$w)
+    expect_identical(plot(resource, per_log_size = TRUE)$scales$
+                         get_scales("y")$name,
+                     "Number density in log weight")
+    expect_identical(plot(resource)$scales$get_scales("y")$name,
+                     "Number density [1/g]")
+
+    # A length axis is still refused, and so is per_log_size on a non-density
+    expect_error(plot(resource_level(NS_params_small), per_log_size = TRUE),
+                 "only applies to an array that holds a density")
+})
+
+test_that("the resource can be plotted against length", {
+    params <- setResource(NS_params_small)
+    resource <- initialNResource(params)
+    rp <- resource_params(params)
+
+    by_weight <- plot(resource, return_data = TRUE)
+    by_length <- plot(resource, size_axis = "l", return_data = TRUE)
+    expect_identical(names(by_length)[[1]], "l")
+    expect_equal(by_length$l, (by_weight$w / rp$a)^(1 / rp$b))
+
+    # It is a density, so the values are converted as well as the axis
+    expect_equal(by_length[[2]],
+                 by_weight[[2]] * rp$b * by_weight$w / by_length$l)
+    p <- plot(resource, size_axis = "l")
+    expect_identical(p$scales$get_scales("x")$name, "Length [cm]")
+    expect_identical(p$scales$get_scales("y")$name, "Number density [1/cm]")
+
+    # llim trims the length axis
+    expect_lt(nrow(plot(resource, size_axis = "l", llim = c(0.1, 1),
+                        return_data = TRUE)),
+              nrow(by_length))
+
+    # A quantity that is not a density keeps its values
+    mort_w <- plot(getResourceMort(params), return_data = TRUE)
+    mort_l <- plot(getResourceMort(params), size_axis = "l",
+                   return_data = TRUE)
+    expect_equal(mort_l[[2]], mort_w[[2]])
+
+    # and animate() no longer refuses a length axis
+    expect_s3_class(animate(NResource(NS_sim_small), size_axis = "l"), "plotly")
+})
+
+test_that("the resource joins the species on a length-axis spectrum", {
+    params <- setResource(NS_params_small)
+    on_l <- plotSpectra(params, size_axis = "l", return_data = TRUE)
+    expect_true("Resource" %in% on_l$Legend)
+    # The resource sits at its own convention, shorter than a fish of the same
+    # weight by the ratio of the two `a` values
+    on_w <- plotSpectra(params, return_data = TRUE)
+    res_w <- on_w[on_w$Legend == "Resource", ]
+    res_l <- on_l[on_l$Legend == "Resource", ]
+    rp <- resource_params(params)
+    expect_equal(res_l$l, (res_w$w / rp$a)^(1 / rp$b))
+})
+
+test_that("plot2, plotRelative and addPlot support length axis and per_log_size for resource arrays", {
+    params <- setResource(NS_params_small)
+    r1 <- initialNResource(params)
+    r2 <- r1
+    r2[] <- r1 * 1.5
+
+    # ArrayResourceBySize methods
+    p2_l <- plot2(r1, r2, size_axis = "l")
+    expect_s3_class(p2_l, "ggplot")
+    expect_identical(p2_l$scales$get_scales("x")$name, "Length [cm]")
+    expect_identical(p2_l$scales$get_scales("y")$name, "Number density [1/cm]")
+
+    p2_log <- plot2(r1, r2, per_log_size = TRUE)
+    expect_s3_class(p2_log, "ggplot")
+    expect_identical(p2_log$scales$get_scales("y")$name, "Number density in log weight")
+
+    pr_l <- plotRelative(r1, r2, size_axis = "l")
+    expect_s3_class(pr_l, "ggplot")
+    expect_identical(pr_l$scales$get_scales("x")$name, "Length [cm]")
+
+    pa_l <- addPlot(plot(r1, size_axis = "l"), r2, size_axis = "l")
+    expect_s3_class(pa_l, "ggplot")
+    expect_equal(length(pa_l$layers), 2)
+
+    # ArrayTimeByResourceBySize methods
+    nr1 <- NResource(NS_sim_small)
+    nr2 <- nr1
+    nr2[] <- nr1 * 1.2
+    t2_l <- plot2(nr1, nr2, size_axis = "l")
+    expect_s3_class(t2_l, "ggplot")
+    expect_identical(t2_l$scales$get_scales("x")$name, "Length [cm]")
+
+    tr_l <- plotRelative(nr1, nr2, size_axis = "l")
+    expect_s3_class(tr_l, "ggplot")
+    expect_identical(tr_l$scales$get_scales("x")$name, "Length [cm]")
+
+    ta_l <- addPlot(plot(nr1, size_axis = "l"), nr2, size_axis = "l")
+    expect_s3_class(ta_l, "ggplot")
+    expect_equal(length(ta_l$layers), 2)
+})
+

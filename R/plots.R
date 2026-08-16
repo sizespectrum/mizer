@@ -218,9 +218,8 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
     if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
 
     # Set up axis limits. NA values mean auto-scale to data range.
-    # The reason why below `group = species` is included in `ggplot()`
-    # rather than in `geom_line` is because that puts it first in the
-    # plotly tooltips, due to a bug in plotly.
+    # The reason why below `group = species` is included first in `ggplot()`
+    # is because that puts it first in the plotly tooltips, due to a bug in plotly.
     p <- ggplot(frame, aes(group = .data[[group_var]])) +
         scale_y_continuous(trans = ytrans, breaks = ybreaks,
                            labels = prettyNum, name = ylab,
@@ -403,11 +402,15 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
 #'   line colour.
 #' @param size_axis Optional. If non-NULL, the x-axis is converted to weight
 #'   (`"w"`) or length (`"l"`).
-#' @param spectrum_power Optional power used to weight a number spectrum. When
-#'   supplied, spectrum values are transformed along with a length axis.
-#' @param spectrum_per_log_size Whether the spectrum is a density with respect
-#'   to logarithmic size, which selects the Jacobian used for a length axis.
-#'   Defaults to `spectrum_power == 2`.
+#' @param density_wrt The measure the values are a density with respect to, see
+#'   [density_measures]. `NA` (the default) means the values are not a density
+#'   and are left alone when the size axis changes.
+#' @param per_log_size Whether to express a density per logarithmic size.
+#'   `NULL` (the default) keeps whichever the values already are.
+#' @param total_dat Optional data frame of the contributors to a total, with a
+#'   `Model` column identifying which of the two they belong to. The total is
+#'   summed from them after the size axis has been converted, see
+#'   [add_total_line()].
 #' @return A `mizer_plot` (ggplot2) object.
 #' @keywords internal
 plotComparisonDataFrame <- function(frame1, frame2, params,
@@ -418,8 +421,9 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     y_ticks = 6, highlight = NULL,
                                     legend_var = "Legend",
                                     size_axis = NULL,
-                                    spectrum_power = NULL,
-                                    spectrum_per_log_size = NULL) {
+                                    density_wrt = NA_character_,
+                                    per_log_size = NULL,
+                                    total_dat = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -441,17 +445,25 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
     }
     if (!is.null(size_axis)) {
         size_axis <- plot_size_axis(size_axis)
-        if (is.null(spectrum_power)) {
-            frame <- convert_plot_size_axis(frame, params, size_axis,
-                                            species_col = group_var)
-        } else {
-            per_log_size <- spectrum_per_log_size %||% (spectrum_power == 2)
-            frame <- convert_plot_spectrum_axis(frame, params, size_axis,
-                                                power = spectrum_power,
-                                                per_log_size = per_log_size,
-                                                species_col = group_var)
-        }
+        frame <- convert_plot_density_axis(frame, params, size_axis,
+                                           density_wrt = density_wrt,
+                                           per_log_size = per_log_size,
+                                           species_col = group_var,
+                                           value_col = y_var)
         x_var <- plot_size_x_var(size_axis)
+    }
+    if (!is.null(total_dat)) {
+        # The contributors arrive unconverted and are put on the same axis as
+        # the data they join before being summed there.
+        total_dat <- convert_plot_density_axis(total_dat, params, size_axis,
+                                               density_wrt = density_wrt,
+                                               per_log_size = per_log_size,
+                                               species_col = group_var,
+                                               value_col = y_var)
+        total_dat <- add_total_line(total_dat, x_var, y_var, by = "Model")
+        total_dat <- total_dat[total_dat[[group_var]] == "Total", ]
+        frame <- rbind(frame, total_dat[, names(frame), drop = FALSE])
+        frame$Model <- factor(frame$Model, levels = c(name1, name2))
     }
 
     legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
@@ -513,7 +525,8 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                                   ylim = c(NA, NA),
                                   highlight = NULL,
                                   legend_var = "Legend",
-                                  size_axis = NULL) {
+                                  size_axis = NULL,
+                                  total_dat1 = NULL, total_dat2 = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -529,18 +542,38 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
              "in the data frame.")
     }
 
+    # The size axis is converted before the two frames are joined, so that a
+    # total can be formed on the axis it is plotted against. The relative
+    # difference itself is unaffected: a common Jacobian cancels.
+    if (!is.null(size_axis)) {
+        size_axis <- plot_size_axis(size_axis)
+        frame1 <- convert_plot_size_axis(frame1, params, size_axis,
+                                         species_col = group_var)
+        frame2 <- convert_plot_size_axis(frame2, params, size_axis,
+                                         species_col = group_var)
+        x_var <- plot_size_x_var(size_axis)
+    }
+    if (!is.null(total_dat1) && !is.null(total_dat2)) {
+        add_total <- function(frame, total_dat) {
+            if (!is.null(size_axis)) {
+                total_dat <- convert_plot_size_axis(total_dat, params,
+                                                    size_axis,
+                                                    species_col = group_var)
+            }
+            total_dat <- add_total_line(total_dat, x_var, y_var)
+            total_dat <- total_dat[total_dat[[group_var]] == "Total", ]
+            rbind(frame, total_dat[, names(frame), drop = FALSE])
+        }
+        frame1 <- add_total(frame1, total_dat1)
+        frame2 <- add_total(frame2, total_dat2)
+    }
+
     by_vars <- c(x_var, group_var, legend_var)
     frame <- dplyr::inner_join(frame1, frame2, by = by_vars,
                                suffix = c(".x", ".y"))
     frame$rel_diff <- relative_difference(frame[[paste0(y_var, ".x")]],
                                           frame[[paste0(y_var, ".y")]])
     frame <- frame[is.finite(frame$rel_diff), ]
-    if (!is.null(size_axis)) {
-        size_axis <- plot_size_axis(size_axis)
-        frame <- convert_plot_size_axis(frame, params, size_axis,
-                                        species_col = group_var)
-        x_var <- plot_size_x_var(size_axis)
-    }
 
     legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
     frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
@@ -670,10 +703,195 @@ plot_size_tooltip <- function(size_axis, before = NULL, after = NULL) {
     c(before, plot_size_x_var(size_axis), after)
 }
 
+#' Y-axis limits for a plot of a proportion
+#'
+#' A proportion is easiest to read against the whole of the interval from 0 to
+#' 1, so that is the range a plot of one shows by default. The range is only
+#' ever *widened* to include the data, never narrowed to the interval: a
+#' critical feeding level or a resource level above 1 is a real feature of the
+#' model and must stay visible.
+#'
+#' Only the ends of `ylim` that the caller left as `NA` are filled in, so an
+#' explicit limit always wins. A logarithmic axis is left alone, having no place
+#' for the 0.
+#'
+#' @param ylim Numeric vector of length two, the limits the caller asked for.
+#' @param log_y Whether the y axis is logarithmic.
+#' @param values The values being plotted.
+#' @return A numeric vector of length two.
+#' @keywords internal
+proportion_ylim <- function(ylim, log_y, values) {
+    if (isTRUE(log_y)) return(ylim)
+    values <- values[is.finite(values)]
+    full <- range(c(0, 1, values))
+    if (is.na(ylim[1])) ylim[1] <- full[1]
+    if (is.na(ylim[2])) ylim[2] <- full[2]
+    ylim
+}
+
+#' Y-axis limits an array's type calls for
+#'
+#' Only a `"proportion"` has an opinion. A `"density"` is handled where the size
+#' axis is converted, and a `"value"` needs nothing.
+#'
+#' @param x A mizer array object.
+#' @inheritParams proportion_ylim
+#' @return A numeric vector of length two.
+#' @keywords internal
+array_ylim <- function(x, ylim, log_y, values) {
+    if (identical(array_type(x), "proportion")) {
+        return(proportion_ylim(ylim, log_y, values))
+    }
+    ylim
+}
+
+#' The logarithmic y axis an array's type calls for
+#'
+#' A proportion belongs on a linear axis, so a plot of one turns `log_y` off
+#' unless the caller asked for a particular axis. Called before
+#' [parsePlotLog()], which is why it also has to check `log`.
+#'
+#' @param x A mizer array object.
+#' @param log_y The `log_y` argument of the plot method.
+#' @param log The `log` argument of the plot method.
+#' @param given Whether the caller supplied `log_y` (i.e. `!missing(log_y)`).
+#' @return The `log_y` to use.
+#' @keywords internal
+array_log_y <- function(x, log_y, log, given) {
+    if (!given && is.null(log) && identical(array_type(x), "proportion")) {
+        return(FALSE)
+    }
+    log_y
+}
+
+#' Add a total line to plotting data by summing over its series
+#'
+#' The total has to be formed *after* the size coordinate has been converted,
+#' not before. On a weight axis every series shares the model's weight grid, so
+#' summing at equal weight and summing at equal position are the same thing. On
+#' a length axis they are not: each species, and the resource, converts weight
+#' to length with its own allometric relationship, so at a given length the
+#' series sit at different weights and their grids no longer coincide. The sum
+#' that means something there is the sum at equal *length* — the number of
+#' organisms per unit length, whatever they are — which is what this computes.
+#'
+#' Each series is interpolated onto the sorted union of all the size
+#' coordinates, linearly in the logarithm of size, since the grid is
+#' logarithmic. A series contributes nothing outside its own range. When the
+#' series already share a grid — always on a weight axis, and on a length axis
+#' whenever the weight-length parameters agree — the union is that grid and the
+#' interpolation reproduces the values exactly, so nothing is approximated in
+#' the cases where nothing needs to be.
+#'
+#' @param plot_dat A data frame of plotting data with a size column, a value
+#'   column and a `Species` column.
+#' @param x_var Name of the size column. Defaults to the first column.
+#' @param value_col Name or index of the value column. Defaults to the second.
+#' @param by Names of further columns identifying separate plots, such as the
+#'   time of an animation frame or the model of a comparison. A total is formed
+#'   within each of their combinations.
+#' @return `plot_dat` with the total appended as a series named `"Total"`.
+#' @keywords internal
+add_total_line <- function(plot_dat, x_var = names(plot_dat)[[1]],
+                           value_col = 2, by = NULL) {
+    if (nrow(plot_dat) == 0) return(plot_dat)
+    if (is.numeric(value_col)) value_col <- names(plot_dat)[[value_col]]
+    if (length(by) > 0) {
+        groups <- split(plot_dat, plot_dat[, by, drop = FALSE], drop = TRUE)
+        out <- lapply(groups, add_total_line, x_var = x_var,
+                      value_col = value_col)
+        out <- do.call(rbind, unname(out))
+        rownames(out) <- NULL
+        return(out)
+    }
+    x_all <- sort(unique(plot_dat[[x_var]]))
+    total <- numeric(length(x_all))
+    for (series in split(plot_dat, plot_dat$Species)) {
+        series <- series[order(series[[x_var]]), , drop = FALSE]
+        x <- series[[x_var]]
+        y <- series[[value_col]]
+        if (length(x) < 2) {
+            # `approx()` needs two points; a single one contributes only where
+            # it sits.
+            hit <- match(x, x_all)
+            total[hit] <- total[hit] + y
+            next
+        }
+        contribution <- stats::approx(log(x), y, xout = log(x_all))$y
+        contribution[is.na(contribution)] <- 0
+        total <- total + contribution
+    }
+    total_dat <- plot_dat[rep(1, length(x_all)), , drop = FALSE]
+    total_dat[[x_var]] <- x_all
+    total_dat[[value_col]] <- total
+    total_dat$Species <- "Total"
+    if ("Legend" %in% names(total_dat)) total_dat$Legend <- "Total"
+    rownames(total_dat) <- NULL
+    rbind(plot_dat, total_dat)
+}
+
+#' Convert the contributors to a total and append the total line
+#'
+#' Wraps the two steps that every plot of an array with `total = TRUE` needs:
+#' the contributors are put on the same size axis as the data they will join,
+#' and then summed there, see [add_total_line()].
+#'
+#' @param plot_dat The converted plotting data to append the total to.
+#' @param total_dat The unconverted contributors, see [total_contributors()].
+#' @param params A MizerParams object.
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param x The mizer array the data came from, which says whether the values
+#'   are a density.
+#' @param per_log_size Whether to express a density per logarithmic size.
+#' @return `plot_dat` with the total appended as a series named `"Total"`.
+#' @keywords internal
+append_total_line <- function(plot_dat, total_dat, params, size_axis, x,
+                              per_log_size = NULL) {
+    total_dat <- convert_plot_density_axis(total_dat, params, size_axis,
+                                           density_wrt = array_density_wrt(x),
+                                           per_log_size = per_log_size)
+    total_dat <- add_total_line(total_dat)
+    total_dat <- total_dat[total_dat$Species == "Total", , drop = FALSE]
+    rbind(plot_dat, total_dat[, names(plot_dat), drop = FALSE])
+}
+
+#' The weight-length parameters to plot each row of plotting data with
+#'
+#' A length axis needs an allometric weight-length relationship for every line
+#' on the plot. The species take theirs from their species parameters and the
+#' resource takes its from [resource_params()], where it defaults to the
+#' equivalent spherical diameter (see [resource_length_params()]). Anything else
+#' — the "Total" row, for instance — has none, and is reported as `NA` so that
+#' the caller can leave it out.
+#'
+#' @param species A vector of the species names in the plotting data.
+#' @param params A MizerParams object providing the weight-length parameters.
+#' @return A data frame with columns `a` and `b`, one row for each element of
+#'   `species`, holding `NA` where no relationship is known.
+#' @keywords internal
+plot_length_params <- function(species, params) {
+    sp <- params@species_params
+    if (!all(c("a", "b") %in% names(sp))) {
+        stop("The species parameter data frame must contain columns ",
+             "'a' and 'b'.")
+    }
+    species <- as.character(species)
+    idx <- match(species, as.character(sp$species))
+    out <- data.frame(a = sp[["a"]][idx], b = sp[["b"]][idx])
+    is_resource <- species == "Resource"
+    if (any(is_resource)) {
+        rp <- resource_length_params(params)
+        out$a[is_resource] <- rp$a
+        out$b[is_resource] <- rp$b
+    }
+    out
+}
+
 #' Convert plotting data from weight to length
 #'
 #' When `size_axis = "l"`, adds a length column `l` computed from the weight
-#' column `w` using each species' weight-length relationship. For
+#' column `w` using the weight-length relationship of each line, see
+#' [plot_length_params()]. Rows with no such relationship are dropped. For
 #' `size_axis = "w"` the data is returned unchanged.
 #'
 #' @param plot_dat A data frame of plotting data with a `w` column and a species
@@ -705,10 +923,10 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
              "` column.")
     }
 
-    species <- as.character(plot_dat[[species_col]])
-    species_idx <- match(species, as.character(params@species_params$species))
-    plot_dat <- plot_dat[!is.na(species_idx), , drop = FALSE]
-    species_idx <- species_idx[!is.na(species_idx)]
+    ab <- plot_length_params(plot_dat[[species_col]], params)
+    known <- !is.na(ab$a) & !is.na(ab$b)
+    plot_dat <- plot_dat[known, , drop = FALSE]
+    ab <- ab[known, , drop = FALSE]
     if (nrow(plot_dat) == 0) {
         if (!drop_w) {
             plot_dat$l <- numeric(0)
@@ -718,8 +936,7 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
         }
         return(plot_dat[, setdiff(names(plot_dat), "w"), drop = FALSE])
     }
-    sp <- params@species_params[species_idx, , drop = FALSE]
-    plot_dat$l <- w2l(plot_dat$w, sp)
+    plot_dat$l <- (plot_dat$w / ab$a)^(1 / ab$b)
     if (drop_w) {
         return(plot_dat[, c("l", setdiff(names(plot_dat), c("l", "w"))),
                         drop = FALSE])
@@ -728,20 +945,233 @@ convert_plot_size_axis <- function(plot_dat, params, size_axis,
              drop = FALSE]
 }
 
+#' Density measures a spectrum can be expressed in
+#'
+#' A size spectrum is a density, and a density only has a meaning together with
+#' the variable it is a density with respect to. That variable is one of
+#' \describe{
+#'   \item{`"w"`}{a density with respect to weight, e.g. numbers per gram.}
+#'   \item{`"log_w"`}{a density with respect to logarithmic weight, e.g.
+#'     numbers per log weight interval.}
+#'   \item{`"l"`}{a density with respect to length, e.g. numbers per cm.}
+#'   \item{`"log_l"`}{a density with respect to logarithmic length.}
+#'   \item{`NA`}{not a density, e.g. a rate or a dimensionless quantity. Such
+#'     values are left alone when the size axis changes.}
+#' }
+#'
+#' Mizer arrays are indexed by the model's weight grid, so an array that holds
+#' a density (`type = "density"`, see [array_types]) always holds one with
+#' respect to weight. The other measures arise for quantities the spectrum plots
+#' compute on the fly: `plotSpectra(per_log_size = TRUE)` shows a density with
+#' respect to logarithmic weight, and either can be restated per unit length by
+#' `size_axis = "l"`.
+#'
+#' @format A character vector of the four density measures.
+#' @keywords internal
+density_measures <- c("w", "log_w", "l", "log_l")
+
+#' Validate a density measure
+#'
+#' @param density_wrt A density measure, see [density_measures]. `NULL` and `NA`
+#'   both stand for "not a density".
+#' @return The validated measure, or `NA_character_` when the values are not a
+#'   density.
+#' @keywords internal
+validate_density_wrt <- function(density_wrt) {
+    if (is.null(density_wrt)) return(NA_character_)
+    if (length(density_wrt) == 1 && all(is.na(density_wrt))) {
+        return(NA_character_)
+    }
+    if (!is.character(density_wrt) || length(density_wrt) != 1 ||
+            !density_wrt %in% density_measures) {
+        stop("`density_wrt` must be NA or one of ",
+             paste0("\"", density_measures, "\"", collapse = ", "), ".")
+    }
+    density_wrt
+}
+
+#' The density measure a plot calls for
+#'
+#' A density is expressed with respect to two independent choices: the size
+#' variable, which follows `size_axis`, and whether it is per size or per
+#' logarithmic size, which follows `per_log_size`. Plotting against a length
+#' axis therefore turns a density with respect to weight into one with respect
+#' to length, and a density with respect to logarithmic weight into one with
+#' respect to logarithmic length.
+#'
+#' @param density_wrt The measure the values are a density with respect to, see
+#'   [density_measures].
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param per_log_size Whether to express the values per logarithmic size.
+#'   `NULL` (the default) keeps whichever the values already are.
+#' @return The density measure to express the values in, or `NA_character_` if
+#'   the values are not a density.
+#' @keywords internal
+density_target_measure <- function(density_wrt, size_axis,
+                                   per_log_size = NULL) {
+    density_wrt <- validate_density_wrt(density_wrt)
+    if (is.na(density_wrt)) return(NA_character_)
+    per_log_size <- per_log_size %||% startsWith(density_wrt, "log_")
+    paste0(if (isTRUE(per_log_size)) "log_" else "", plot_size_axis(size_axis))
+}
+
+#' Factor relating a density measure to a density with respect to weight
+#'
+#' Writing \eqn{N_w} for the density with respect to weight, the density with
+#' respect to measure \eqn{m} is \eqn{N_w} times the factor returned here. With
+#' the allometric weight-length relationship \eqn{w = a l^b} these factors are
+#' \eqn{1} for `"w"`, \eqn{w} for `"log_w"`, \eqn{dw/dl = b w / l} for `"l"`
+#' and \eqn{l\,dw/dl = b w} for `"log_l"`.
+#'
+#' @param measure One of [density_measures].
+#' @param w,l,b Numeric vectors of the same length giving the weight, the
+#'   corresponding length, and the exponent of the weight-length relationship.
+#' @return A numeric vector of factors.
+#' @keywords internal
+density_measure_weight <- function(measure, w, l, b) {
+    switch(measure,
+           w = rep(1, length(w)),
+           log_w = w,
+           l = b * w / l,
+           log_l = b * w,
+           stop("Unknown density measure `", measure, "`."))
+}
+
+#' Jacobian converting between two density measures
+#'
+#' @param from,to Density measures, see [density_measures].
+#' @inheritParams density_measure_weight
+#' @return A numeric vector by which to multiply a density with respect to
+#'   `from` to obtain the density with respect to `to`.
+#' @keywords internal
+density_measure_jacobian <- function(from, to, w, l, b) {
+    if (identical(from, to)) return(rep(1, length(w)))
+    density_measure_weight(to, w, l, b) / density_measure_weight(from, w, l, b)
+}
+
+#' The size unit appearing in the units of a density
+#'
+#' @param measure One of [density_measures].
+#' @return `"g"` or `"cm"`, or `NA_character_` for a density with respect to a
+#'   logarithmic size, whose units carry no size unit.
+#' @keywords internal
+density_size_unit <- function(measure) {
+    switch(measure, w = "g", l = "cm", NA_character_)
+}
+
+#' Restate the units of a density in a different density measure
+#'
+#' The per-size factor is found in either of the two spellings mizer uses for
+#' it, `1/g` and `g^-1`, and is then swapped for the size unit of the target
+#' measure. A density per *logarithmic* size carries no size unit at all — a
+#' number per log weight interval is just a number — so converting to one
+#' removes the factor instead: `1/g` becomes dimensionless and `g^-1/year`
+#' becomes `1/year`.
+#'
+#' Units that state no per-size factor are returned unchanged, since there is
+#' then nothing to identify as the size unit.
+#'
+#' @param units The units of the values, possibly `NULL`.
+#' @param from,to Density measures, see [density_measures].
+#' @return The units expressed in the `to` measure.
+#' @keywords internal
+convert_density_units <- function(units, from, to) {
+    if (is.na(from) || is.na(to) || identical(from, to)) return(units)
+    to_sym <- density_size_unit(to)
+    if (is.null(units) || !nzchar(units)) {
+        # Nothing was declared, so fall back to the canonical density units
+        return(if (is.na(to_sym)) units else paste0("1/", to_sym))
+    }
+    from_sym <- density_size_unit(from)
+    if (is.na(from_sym)) return(units)
+    # Replacing the per-size factor by "1" removes it; a units string that is
+    # then nothing but "1" is better shown as no units at all.
+    replacement <- if (is.na(to_sym)) "1" else paste0("1/", to_sym)
+    units <- sub(paste0("\\b1/", from_sym, "\\b"), replacement, units)
+    replacement <- if (is.na(to_sym)) "1" else paste0(to_sym, "^-1")
+    units <- sub(paste0("\\b", from_sym, "\\^-1"), replacement, units)
+    if (identical(units, "1")) "" else units
+}
+
+#' Express plotting data on the requested size axis
+#'
+#' Converts the size coordinate of the plotting data to the requested axis and,
+#' when the values are a density, multiplies them by the Jacobian that restates
+#' them in the density measure that axis calls for (see
+#' [density_target_measure()]). Values that are not a density are left alone.
+#'
+#' Anything involving a length is a per-species quantity, because the
+#' weight-length relationship is, so rows whose species is not one of the
+#' model's species — the "Total" row, for instance — are dropped when a length
+#' is needed. Going from a density per size to one per logarithmic size needs no
+#' length, and keeps those rows.
+#'
+#' @inheritParams convert_plot_size_axis
+#' @param density_wrt The measure the values are a density with respect to, see
+#'   [density_measures]. `NA` (the default) means the values are not a density.
+#' @param per_log_size Whether to express the values per logarithmic size.
+#'   `NULL` (the default) keeps whichever the values already are.
+#' @param value_col Name or index of the value column. Defaults to the second
+#'   column.
+#' @return The plotting data with its size coordinate, and where called for its
+#'   values, expressed for the requested axis. The size coordinate is the first
+#'   column.
+#' @keywords internal
+convert_plot_density_axis <- function(plot_dat, params, size_axis,
+                                      density_wrt = NA_character_,
+                                      per_log_size = NULL,
+                                      species_col = "Species",
+                                      value_col = 2) {
+    size_axis <- plot_size_axis(size_axis)
+    density_wrt <- validate_density_wrt(density_wrt)
+    target <- density_target_measure(density_wrt, size_axis, per_log_size)
+    needs_jacobian <- !is.na(target) && !identical(target, density_wrt)
+    if (identical(size_axis, "w") && !needs_jacobian) {
+        return(plot_dat)
+    }
+    if (is.numeric(value_col)) {
+        value_col <- names(plot_dat)[[value_col]]
+    }
+    # A length axis needs the lengths, and so does any Jacobian that involves
+    # one. The weights are kept because the Jacobians are written in terms of
+    # both.
+    needs_length <- identical(size_axis, "l") ||
+        isTRUE(density_wrt %in% c("l", "log_l"))
+    if (needs_length) {
+        plot_dat <- convert_plot_size_axis(plot_dat, params, "l",
+                                           species_col = species_col,
+                                           drop_w = FALSE)
+    }
+    if (needs_jacobian && nrow(plot_dat) > 0) {
+        if (needs_length) {
+            l <- plot_dat$l
+            b <- plot_length_params(plot_dat[[species_col]], params)$b
+        } else {
+            # Unused by a Jacobian between two weight-based measures. Passing
+            # NA rather than a placeholder keeps a mistake here loud.
+            l <- b <- rep(NA_real_, nrow(plot_dat))
+        }
+        plot_dat[[value_col]] <- plot_dat[[value_col]] *
+            density_measure_jacobian(density_wrt, target, plot_dat$w, l, b)
+    }
+    x_var <- plot_size_x_var(size_axis)
+    plot_dat[, c(x_var, setdiff(names(plot_dat), c("l", "w"))), drop = FALSE]
+}
+
 #' Convert a weight-based spectrum to a length-based spectrum
 #'
 #' A density with respect to weight is converted to a density with respect to
 #' length with the Jacobian `dw/dl = b * w / l`. A density with respect to
 #' logarithmic weight is instead converted with
-#' `d log(w) / d log(l) = b`.
+#' `d log(w) / d log(l) = b`. This is the interface used by the `power`-based
+#' spectrum plots; arrays carry their density measure explicitly and use
+#' [convert_plot_density_axis()] instead.
 #'
-#' @inheritParams convert_plot_size_axis
+#' @inheritParams convert_plot_density_axis
 #' @param power The power of weight multiplying the number density.
 #' @param per_log_size Whether the spectrum is a density with respect to
 #'   logarithmic size rather than with respect to size. Defaults to
 #'   `power == 2`, the only power for which this used to be the case.
-#' @param value_col Name or index of the spectrum-value column. Defaults to the
-#'   second column.
 #' @return The plotting data with both its size coordinate and spectrum values
 #'   expressed for the requested axis.
 #' @keywords internal
@@ -749,22 +1179,20 @@ convert_plot_spectrum_axis <- function(plot_dat, params, size_axis, power,
                                        per_log_size = power == 2,
                                        species_col = "Species",
                                        value_col = 2) {
-    size_axis <- plot_size_axis(size_axis)
-    if (identical(size_axis, "w")) {
-        return(plot_dat)
-    }
-    if (is.numeric(value_col)) {
-        value_col <- names(plot_dat)[[value_col]]
-    }
-    plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis,
-                                       species_col = species_col,
-                                       drop_w = FALSE)
-    species_idx <- match(as.character(plot_dat[[species_col]]),
-                         as.character(params@species_params$species))
-    sp <- params@species_params[species_idx, , drop = FALSE]
-    jacobian <- if (per_log_size) sp$b else sp$b * plot_dat$w / plot_dat$l
-    plot_dat[[value_col]] <- plot_dat[[value_col]] * jacobian
-    plot_dat[, c("l", setdiff(names(plot_dat), c("l", "w"))), drop = FALSE]
+    convert_plot_density_axis(plot_dat, params, size_axis,
+                              density_wrt = spectrum_density_wrt(per_log_size),
+                              species_col = species_col,
+                              value_col = value_col)
+}
+
+#' The density measure of a `power`-based spectrum
+#'
+#' @param per_log_size Whether the spectrum is a density with respect to
+#'   logarithmic size.
+#' @return `"log_w"` or `"w"`.
+#' @keywords internal
+spectrum_density_wrt <- function(per_log_size) {
+    if (isTRUE(per_log_size)) "log_w" else "w"
 }
 
 
@@ -866,7 +1294,7 @@ plotBiomass.MizerSim <- function(object, species = NULL,
         lifecycle::deprecate_warn("2.6.0", "plotBiomass(end_time)", "plotBiomass(tlim)")
         tlim[[2]] <- end_time
     }
-    log_axes <- parseTimePlotLog(log, log_x = log_x, log_y = log_y)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     bm <- getBiomass(object, use_cutoff = use_cutoff,
                      min_w = min_w, max_w = max_w,
                      min_l = min_l, max_l = max_l)
@@ -985,83 +1413,59 @@ plotYield.MizerSim <- function(object, sim2 = NULL,
                       ylim = c(NA, NA), tlim = c(NA, NA),
                       highlight = NULL, return_data = FALSE,
                       ...) {
-    log_axes <- parseTimePlotLog(log, log_x = log_x, log_y = log_y)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is(object, "MizerSim"),
                 is.flag(total),
                 is.flag(log_axes$log_x),
                 is.flag(log_axes$log_y),
                 is.flag(return_data))
-    params <- object@params
-    species <- valid_species_arg(object, species, error_on_empty = TRUE)
     if (is.null(sim2)) {
         y <- getYield(object, ...)
-        times <- as.numeric(rownames(y))
-        if (!is.na(tlim[1])) {
-            y <- y[times >= tlim[1], , drop = FALSE]
-            times <- as.numeric(rownames(y))
-        }
-        if (!is.na(tlim[2])) {
-            y <- y[times <= tlim[2], , drop = FALSE]
-        }
-        y_total <- rowSums(y)
-        y <- y[, (as.character(dimnames(y)[[2]]) %in% species),
-               drop = FALSE]
-        if (total) {
-            # Include total
-            y <- cbind(y, "Total" = y_total)
-        }
-        plot_dat <- reshape2::melt(y, varnames = c("Year", "Species"),
-                                   value.name = "Yield")
-        plot_dat <- subset(plot_dat, plot_dat$Yield > 0)
-        # plotDataFrame() needs the columns in a particular order
-        plot_dat <- plot_dat[, c(1, 3, 2)]
-
-        if (nrow(plot_dat) == 0) {
-            warning("There is no yield to include.")
-        }
-        if (return_data) return(plot_dat)
-
-        plotDataFrame(plot_dat, params,
-                      ylab = "Yield [g/year]",
-                      xtrans = ifelse(log_axes$log_x, "log10", "identity"),
-                      ytrans = ifelse(log_axes$log_y, "log10", "identity"),
-                      ylim = ylim,
-                      highlight = highlight)
-    } else {
-        # We need to combine two plots
-        if (!all(dimnames(object@n)$time == dimnames(sim2@n)$time)) {
-            stop("The two simulations do not have the same times")
-        }
-        ym <- plotYield(object, species = species,
-                            tlim = tlim, total = total,
-                            log_x = log_axes$log_x, log_y = log_axes$log_y,
-                            ylim = ylim,
-                            highlight = highlight, return_data = TRUE, ...)
-        ym2 <- plotYield(sim2, species = species,
-                            tlim = tlim, total = total,
-                            log_x = log_axes$log_x, log_y = log_axes$log_y,
-                            ylim = ylim,
-                            highlight = highlight, return_data = TRUE, ...)
-        ym$Simulation <- rep(1, nrow(ym)) # We don't use recycling because that
-                                          # fails when there are zero rows.
-        ym2$Simulation <- rep(2, nrow(ym2))
-        ym <- rbind(ym, ym2)
-
-        if (return_data) return(ym)
-
-        plotDataFrame(ym, params,
-                      ylab = "Yield [g/year]",
-                      xtrans = ifelse(log_axes$log_x, "log10", "identity"),
-                      ytrans = ifelse(log_axes$log_y, "log10", "identity"),
-                      ylim = ylim,
-                      highlight = highlight, wrap_var = "Simulation")
+        attr(y, "value_name") <- "Yield"
+        return(plot(y, species = species,
+                    tlim = tlim, ylim = ylim,
+                    total = total, highlight = highlight,
+                    log_x = log_axes$log_x, log_y = log_axes$log_y,
+                    return_data = return_data))
     }
+    lifecycle::deprecate_warn("2.6.0", "plotYield(sim2)", "plot2()",
+                              details = "Use plot2(getYield(sim1), getYield(sim2)) instead.")
+    params <- object@params
+    # We need to combine two plots
+    if (!all(dimnames(object@n)$time == dimnames(sim2@n)$time)) {
+        stop("The two simulations do not have the same times")
+    }
+    ym <- plotYield(object, species = species,
+                    tlim = tlim, total = total,
+                    log_x = log_axes$log_x, log_y = log_axes$log_y,
+                    ylim = ylim,
+                    highlight = highlight, return_data = TRUE, ...)
+    ym2 <- plotYield(sim2, species = species,
+                     tlim = tlim, total = total,
+                     log_x = log_axes$log_x, log_y = log_axes$log_y,
+                     ylim = ylim,
+                     highlight = highlight, return_data = TRUE, ...)
+    ym$Simulation <- rep(1, nrow(ym))
+    ym2$Simulation <- rep(2, nrow(ym2))
+    ym <- rbind(ym, ym2)
+
+    if (return_data) {
+        ym$Legend <- NULL
+        return(ym)
+    }
+
+    plotDataFrame(ym, params,
+                  ylab = "Yield [g/year]",
+                  xtrans = ifelse(log_axes$log_x, "log10", "identity"),
+                  ytrans = ifelse(log_axes$log_y, "log10", "identity"),
+                  ylim = ylim,
+                  highlight = highlight, wrap_var = "Simulation")
 }
 
 #' @rdname plotYield
 #' @usage NULL
 #' @export
-plotlyYield <- function(object, sim2,
+plotlyYield <- function(object, sim2 = NULL,
                         species = NULL,
                         total = FALSE,
                         log_x = FALSE, log_y = TRUE, log = NULL,
@@ -1070,39 +1474,7 @@ plotlyYield <- function(object, sim2,
                         ...) {
     argg <- as.list(environment())
     plotHover(do.call("plotYield", argg),
-             tooltip = c("Species", "Year", "Yield"))
-}
-
-# For time-series plots, keep backward compatibility with the historical
-# logical `log` argument while supporting the newer `log_x` / `log_y` form.
-#' Parse the `log` argument for time-series plots
-#'
-#' Translates the `log` argument of the time-series plotting functions into a
-#' list of logical flags for the x and y axes, falling back to `log_x` and
-#' `log_y` when `log` is `NULL`. For backwards compatibility a single logical
-#' `log` value sets only `log_y`.
-#'
-#' @param log `NULL`, a single logical value, or a character string containing
-#'   only `"x"` and/or `"y"`.
-#' @param log_x,log_y Default logical flags used when `log` is `NULL`.
-#' @return A list with logical elements `log_x` and `log_y`.
-#' @keywords internal
-parseTimePlotLog <- function(log, log_x, log_y) {
-    if (is.null(log)) {
-        return(list(log_x = log_x, log_y = log_y))
-    }
-    if (is.logical(log)) {
-        if (length(log) != 1 || is.na(log)) {
-            stop("`log` must be `NULL`, a single logical value, or a ",
-                 "character string containing only \"x\" and/or \"y\".")
-        }
-        return(list(log_x = FALSE, log_y = isTRUE(log)))
-    }
-    if (!is.character(log)) {
-        stop("`log` must be `NULL`, a single logical value, or a ",
-             "character string containing only \"x\" and/or \"y\".")
-    }
-    parsePlotLog(log, log_x = log_x, log_y = log_y)
+              tooltip = c("Species", "Year", "Yield"))
 }
 
 
@@ -1180,7 +1552,7 @@ plotYieldGear.MizerSim <- function(object,
                           ylim = c(NA, NA), tlim = c(NA, NA),
                           highlight = NULL, return_data = FALSE,
                           ...) {
-    log_axes <- parseTimePlotLog(log, log_x = log_x, log_y = log_y)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is(object, "MizerSim"),
                 is.flag(total),
                 is.flag(log_axes$log_x),
@@ -1534,13 +1906,6 @@ plot_spectra <- function(params, n, n_pp,
         wlim[2] <- max(w_full_grid)
     }
 
-    if (total) {
-        # Calculate total community abundance
-        fish_idx <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
-        total_n <- n_pp
-        total_n[fish_idx] <- total_n[fish_idx] + colSums(n)
-        total_n <- total_n * w_full_grid^power
-    }
     species <- valid_species_arg(params, species)
     y_label <- spectra_y_label(power, size_axis, biomass = biomass,
                                per_log_size = per_log_size)
@@ -1568,14 +1933,6 @@ plot_spectra <- function(params, n, n_pp,
             )
         }
     }
-    if (total) {
-        plot_dat <- rbind(plot_dat,
-                          data.frame(w = w_full_grid,
-                                     value = c(total_n),
-                                     Species = "Total",
-                                     Legend = "Total")
-                          )
-    }
     if (background && any(params@species_params$is_background)) {
         back_n <- n[params@species_params$is_background, , drop = FALSE]
         plot_dat <-
@@ -1593,6 +1950,36 @@ plot_spectra <- function(params, n, n_pp,
                              (plot_dat$w <= wlim[2]), ]
     plot_dat <- convert_plot_spectrum_axis(plot_dat, params, size_axis, power,
                                            per_log_size = per_log_size)
+    if (total) {
+        # The total is the total of everything the model holds: every species,
+        # whether or not it was selected for display, and the resource, whether
+        # or not it is drawn. It is summed over the series as they are plotted,
+        # which on a length axis means at equal length rather than at equal
+        # weight.
+        # `n` has already been multiplied by the power of weight above.
+        resource_dat <- data.frame(w = w_full_grid,
+                                   value = c(n_pp * w_full_grid^power),
+                                   Species = "Resource",
+                                   Legend = "Total")
+        total_dat <- rbind(data.frame(w = rep(w_grid, each = nrow(n)),
+                                      value = c(unclass(n)),
+                                      Species = rep(dimnames(n)[[1]],
+                                                    times = length(w_grid)),
+                                      Legend = "Total"),
+                           resource_dat)
+        # Zeros are kept here, unlike in the plotted data: they are part of
+        # each series and dropping them would let the interpolation bridge a
+        # gap that is really empty.
+        total_dat <- total_dat[total_dat$w >= wlim[1] &
+                                   total_dat$w <= wlim[2], ]
+        total_dat <- convert_plot_spectrum_axis(total_dat, params, size_axis,
+                                                power,
+                                                per_log_size = per_log_size)
+        total_dat <- add_total_line(total_dat)
+        total_dat <- total_dat[total_dat$Species == "Total" &
+                                   total_dat$value > 0, ]
+        plot_dat <- rbind(plot_dat, total_dat[, names(plot_dat), drop = FALSE])
+    }
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
@@ -1817,7 +2204,9 @@ plotCDF.MizerParams <- function(object, species = NULL,
 #' @keywords internal
 plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim, llim,
                      ylim, highlight, size_axis, return_data) {
+    params <- validParams(params)
     size_axis <- plot_size_axis(size_axis)
+    had_total <- "Total" %in% plot_dat$Species
     # A CDF value is cumulative *up to a size* — a boundary quantity — so it
     # belongs on the bin edges, not the bin centres. Under second-order
     # bin-averaging `plot_spectra()` returns its density on the geometric bin
@@ -1838,16 +2227,29 @@ plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim, lli
                                              drop_w = FALSE)
         plot_dat_l <- filter_plot_length_limits(plot_dat_l, llim)
         plot_dat <- plot_dat_l[, setdiff(names(plot_dat_l), "l"),
-                               drop = FALSE]
+                                drop = FALSE]
+        cdf_dat <- prepare_spectra_cdf_data(plot_dat, params,
+                                            normalise = FALSE)
+        cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
+        if (had_total) {
+            cdf_dat <- add_total_line(cdf_dat, x_var = "l",
+                                      value_col = names(cdf_dat)[2])
+        }
+        if (normalise) {
+            totals <- stats::ave(cdf_dat[[names(cdf_dat)[2]]],
+                                 cdf_dat$Species, FUN = max)
+            cdf_dat[[names(cdf_dat)[2]]] <- cdf_dat[[names(cdf_dat)[2]]] / totals
+        }
+    } else {
+        cdf_dat <- prepare_spectra_cdf_data(plot_dat, params,
+                                            normalise = normalise)
+        cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
     }
-    cdf_dat <- prepare_spectra_cdf_data(plot_dat, params,
-                                        normalise = normalise)
-    cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
     cdf_y <- cdf_y_label(power, normalise)
     names(cdf_dat)[2] <- cdf_y
     if (return_data) return(cdf_dat)
 
-    plotDataFrame(cdf_dat, validParams(params),
+    plotDataFrame(cdf_dat, params,
                   xlab = plot_size_xlab(size_axis),
                   ylab = cdf_y,
                   xtrans = if (log_x) "log10" else "identity",
@@ -1993,14 +2395,14 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
     cf1 <- plotCDF(object1, species = species, wlim = wlim,
                    power = power, total = total, resource = resource,
                    background = background, normalise = normalise,
-                   size_axis = "w", return_data = TRUE, ...)
+                   size_axis = size_axis, return_data = TRUE, ...)
     cf2 <- plotCDF(object2, species = species, wlim = wlim,
                    power = power, total = total, resource = resource,
                    background = background, normalise = normalise,
-                   size_axis = "w", return_data = TRUE, ...)
+                   size_axis = size_axis, return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
-    plotComparisonDataFrame(cf1, cf2, validParams(params),
+    plotComparisonDataFrame(cf1, cf2, params,
                             name1 = name1, name2 = name2,
                             xlab = plot_size_xlab(size_axis),
                             ylab = cdf_y_label(power, normalise),
@@ -2008,8 +2410,7 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                             ytrans = if (log_axes$log_y) "log10" else "identity",
                             xlim = plot_size_xlim(wlim, size_axis, llim),
                             ylim = ylim, highlight = highlight,
-                            legend_var = "Legend",
-                            size_axis = size_axis)
+                            legend_var = "Legend")
 }
 
 #' Compare abundance and biomass spectra from two objects
@@ -2057,20 +2458,23 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
     log_y <- log_axes$log_y
     assert_that(length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
-    data_ylim <- if (identical(size_axis, "l")) c(0, NA) else ylim
-    sf1 <- plotSpectra(object1, species = species, wlim = wlim,
-                       ylim = data_ylim,
+    # The size axis is converted by `plotSpectra()` rather than afterwards, so
+    # that the total it forms is the total on the axis being plotted. A total
+    # summed at equal weight cannot be converted to a length axis afterwards:
+    # it is a sum over species that each convert differently. It also means
+    # `ylim` can be handed straight over, because the values it is applied to
+    # are then the values it describes.
+    sf1 <- plotSpectra(object1, species = species, wlim = wlim, ylim = ylim,
                        power = power, total = total, resource = resource,
-                       background = background, size_axis = "w",
+                       background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
-    sf2 <- plotSpectra(object2, species = species, wlim = wlim,
-                       ylim = data_ylim,
+    sf2 <- plotSpectra(object2, species = species, wlim = wlim, ylim = ylim,
                        power = power, total = total, resource = resource,
-                       background = background, size_axis = "w",
+                       background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
-    plotComparisonDataFrame(sf1, sf2, validParams(params),
+    plotComparisonDataFrame(sf1, sf2, params,
                             name1 = name1, name2 = name2,
                             xlab = plot_size_xlab(size_axis),
                             ylab = spectra_y_label(
@@ -2081,10 +2485,7 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
                             ytrans = if (log_y) "log10" else "identity",
                             xlim = plot_size_xlim(wlim, size_axis, llim),
                             ylim = ylim, highlight = highlight,
-                            legend_var = "Legend",
-                            size_axis = size_axis,
-                            spectrum_power = power,
-                            spectrum_per_log_size = spectrum$per_log_size)
+                            legend_var = "Legend")
 }
 
 #' Resolve the power of weight multiplying a spectrum
@@ -2282,23 +2683,26 @@ plotSpectraRelative <- function(object1, object2,
     size_axis <- plot_size_axis(size_axis)
     assert_that(length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
+    # As in `plotSpectra2()`, the conversion is left to `plotSpectra()` so that
+    # the total is summed on the axis being plotted.
     sf1 <- plotSpectra(object1, species = species, wlim = wlim,
                        power = 1, total = total, resource = resource,
-                       background = background, size_axis = "w",
+                       background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
     sf2 <- plotSpectra(object2, species = species, wlim = wlim,
                        power = 1, total = total, resource = resource,
-                       background = background, size_axis = "w",
+                       background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
+    params <- validParams(params)
 
-    plotRelativeDataFrame(sf1, sf2, validParams(params),
+    plotRelativeDataFrame(sf1, sf2, params,
                           xlab = plot_size_xlab(size_axis),
                           xtrans = if (log_x) "log10" else "identity",
                           xlim = plot_size_xlim(wlim, size_axis, llim),
                           ylim = ylim,
                           highlight = highlight,
-                          legend_var = "Legend", size_axis = size_axis)
+                          legend_var = "Legend")
 }
 
 #' @rdname plotSpectraRelative
@@ -2490,29 +2894,24 @@ plotFeedingLevel.MizerSim <- function(object, species = NULL,
             return_data = FALSE,
             log_x = TRUE, log_y = FALSE, log = NULL,
             time_range, ...) {
-    size_axis <- plot_size_axis(size_axis)
-    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
-    assert_that(is.flag(all.sizes),
-                is.flag(include_critical),
-                length(wlim) == 2,
-                length(llim) == 2,
-                is.flag(return_data))
     if (missing(time_range)) {
         time_range  <- max(as.numeric(dimnames(object@n)$time))
     }
     params <- validParams(object@params)
     feed <- getFeedingLevel(object, time_range = time_range, drop = FALSE)
-    # If a time range was returned, average over it
     if (length(dim(feed)) == 3) {
         feed <- apply(feed, c(2, 3), mean)
     }
+    feed <- ArraySpeciesBySize(feed, value_name = "Feeding level",
+                               units = "", params = params,
+                               type = "proportion", representation = "average")
     plot_feeding_level(params, feed, species = species,
                        highlight = highlight, all.sizes = all.sizes,
                        include_critical = include_critical,
-                       log_x = log_axes$log_x, log_y = log_axes$log_y,
                        wlim = wlim, llim = llim,
                        size_axis = size_axis,
-                       return_data = return_data)
+                       return_data = return_data,
+                       log_x = log_x, log_y = log_y, log = log, ...)
 }
 
 #' @rdname plotFeedingLevel
@@ -2525,22 +2924,15 @@ plotFeedingLevel.MizerParams <- function(object, species = NULL,
             size_axis = c("w", "l"),
             return_data = FALSE,
             log_x = TRUE, log_y = FALSE, log = NULL, ...) {
-    size_axis <- plot_size_axis(size_axis)
-    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
-    assert_that(is.flag(all.sizes),
-                is.flag(include_critical),
-                length(wlim) == 2,
-                length(llim) == 2,
-                is.flag(return_data))
     params <- validParams(object)
-    feed <- getFeedingLevel(params, drop = FALSE)
+    feed <- getFeedingLevel(params)
     plot_feeding_level(params, feed, species = species,
                        highlight = highlight, all.sizes = all.sizes,
                        include_critical = include_critical,
-                       log_x = log_axes$log_x, log_y = log_axes$log_y,
                        wlim = wlim, llim = llim,
                        size_axis = size_axis,
-                       return_data = return_data)
+                       return_data = return_data,
+                       log_x = log_x, log_y = log_y, log = log, ...)
 }
 
 #' Build the feeding-level plot
@@ -2558,184 +2950,74 @@ plotFeedingLevel.MizerParams <- function(object, species = NULL,
 #'   are removed.
 #' @param include_critical Whether to also plot the critical feeding level.
 #' @param log_x,log_y Logical flags for log10 axes.
+#' @param log Optional base-R log argument string or boolean.
 #' @param wlim,llim Numeric vectors of length two giving the weight and length
 #'   limits.
 #' @param size_axis Either `"w"` (weight) or `"l"` (length).
 #' @param return_data If `TRUE`, return the plotting data frame instead of the
 #'   plot.
+#' @param ... Additional arguments passed to [plot.ArraySpeciesBySize()].
 #' @return A `mizer_plot` (ggplot2) object, or the plotting data frame if
 #'   `return_data = TRUE`.
 #' @keywords internal
 plot_feeding_level <- function(params, feed, species, highlight,
                                all.sizes, include_critical,
-                               log_x, log_y,
-                               wlim, llim, size_axis, return_data) {
+                               wlim, llim, size_axis, return_data,
+                               log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
 
-    # selector for desired species
-    sel_sp <- valid_species_arg(params, species, return.logical = TRUE,
-                                error_on_empty = TRUE)
-    species <- dimnames(params@initial_n)$sp[sel_sp]
-    feed <- feed[sel_sp, , drop = FALSE]
-
-    plot_dat <- data.frame(w = rep(params@w, each = length(species)),
-                           value = c(feed),
-                           Species = species)
-
-    if (include_critical) {
-        feed_crit <- getCriticalFeedingLevel(params)[sel_sp, , drop = FALSE]
-        plot_dat_crit <- data.frame(
-            w = rep(params@w, each = length(species)),
-            value = c(feed_crit),
-            Species = species)
-        plot_dat$Type <- "actual"
-        plot_dat_crit$Type <- "critical"
-        plot_dat <- rbind(plot_dat, plot_dat_crit)
-    }
-
-    if (!all.sizes) {
-        # Remove feeding level for sizes outside a species' size range
-        for (sp in species) {
-            plot_dat$value[plot_dat$Species == sp &
-                               (plot_dat$w < params@species_params[sp, "w_min"] |
-                                    plot_dat$w > params@species_params[sp, "w_max"])] <- NA
+    if (!include_critical) {
+        if (return_data) {
+            return(plot(feed, species = species, all.sizes = all.sizes,
+                        highlight = highlight, wlim = wlim, llim = llim,
+                        size_axis = size_axis, return_data = TRUE,
+                        log_x = log_x, log_y = log_y, ...))
         }
-        plot_dat <- plot_dat[complete.cases(plot_dat), ]
+        p <- plot(feed, species = species, all.sizes = all.sizes,
+                  highlight = highlight, wlim = wlim, llim = llim,
+                  size_axis = size_axis, log_x = log_x, log_y = log_y, ...)
+        if (!log_y) {
+            p <- p + coord_cartesian(ylim = c(0, 1))
+        }
+        return(p)
     }
-    if (!is.na(wlim[1])) plot_dat <- plot_dat[plot_dat$w >= wlim[1], ]
-    if (!is.na(wlim[2])) plot_dat <- plot_dat[plot_dat$w <= wlim[2], ]
-    plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
-    if (identical(size_axis, "l")) {
-        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    crit <- getCriticalFeedingLevel(params)
+    df_actual <- plot(feed, species = species, all.sizes = all.sizes,
+                      wlim = wlim, llim = llim, size_axis = size_axis,
+                      log_x = log_x, log_y = log_y,
+                      return_data = TRUE, ...)
+    df_crit <- plot(crit, species = species, all.sizes = all.sizes,
+                    wlim = wlim, llim = llim, size_axis = size_axis,
+                    log_x = log_x, log_y = log_y,
+                    return_data = TRUE, ...)
+    names(df_crit)[2] <- names(df_actual)[2]
+    df_actual$Type <- "actual"
+    df_crit$Type <- "critical"
+    if (return_data) {
+        return(rbind(df_actual, df_crit))
     }
-    if (log_y) {
-        # Remove non-positive values because log scales cannot represent them.
-        plot_dat <- subset(plot_dat, value > 0)
+    p <- plot(feed, species = species, all.sizes = all.sizes,
+              highlight = highlight, wlim = wlim, llim = llim,
+              size_axis = size_axis, log_x = log_x, log_y = log_y, ...)
+    p <- addPlot(p, crit, species = species, all.sizes = all.sizes,
+                 wlim = wlim, llim = llim, size_axis = size_axis,
+                 alpha = 0.5)
+    if (!log_y) {
+        feeding_level_ylim <- array_ylim(feed, c(NA, NA), log_y,
+                                         c(df_actual[[2]], df_crit[[2]]))
+        p <- p + coord_cartesian(ylim = feeding_level_ylim)
     }
-
-    names(plot_dat)[2] <- "Feeding level"
-    if (return_data) return(plot_dat)
-    x_var <- plot_size_x_var(size_axis)
-
-    # Need to keep species in order for legend
-    legend_levels <-
-        intersect(names(params@linecolour), plot_dat$Species)
-    plot_dat$Legend <- factor(plot_dat$Species, levels = legend_levels)
-    linesize <- make_linesize(legend_levels, highlight)
-
-    # We do not use `plotDataFrame()` to create the plot because it would not
-    # handle the alpha transparency for the critical feeding level.
-
-    # The reason why below `group = species` is included in `ggplot()`
-    # rather than in `geom_line` is because that puts it first in the
-    # plotly tooltips, due to a bug in plotly.
-    if (include_critical) {
-        plot_dat$Species <- interaction(plot_dat$Species, plot_dat$Type)
-        p <- ggplot(plot_dat, aes(group = Species,
-                                  alpha = Type)) +
-            scale_discrete_manual("alpha", name = "Feeding Level",
-                                  values = c(actual = 1, critical = 0.5))
-    } else {
-        p <- ggplot(plot_dat, aes(group = Species))
-    }
-    make_mizer_plot(
-        p + geom_line(aes(x = .data[[x_var]], y = .data[["Feeding level"]],
-                          colour = Legend, linetype = Legend, linewidth = Legend)) +
-            scale_x_continuous(name = plot_size_xlab(size_axis),
-                               trans = if (log_x) "log10" else "identity",
-                               limits = plot_size_xlim(wlim, size_axis, llim)) +
-            scale_y_continuous(name = "Feeding Level",
-                               trans = if (log_y) "log10" else "identity") +
-            # Feeding level is naturally bounded in [0, 1] on linear scale.
-            coord_cartesian(ylim = if (log_y) NULL else c(0, 1)) +
-            scale_colour_manual(values = params@linecolour[legend_levels]) +
-            scale_linetype_manual(values = params@linetype[legend_levels]) +
-            scale_discrete_manual("linewidth", values = linesize),
-        plot_size_tooltip(size_axis, before = "Species", after = "Feeding level")
-    )
+    p
 }
 
 #' @rdname plotFeedingLevel
 #' @usage NULL
 #' @export
-plotlyFeedingLevel <- function(object,
-                             species = NULL,
-                             time_range,
-                             all.sizes = FALSE,
-                             highlight = NULL,
-                             include_critical = FALSE,
-                             wlim = c(NA, NA), llim = c(NA, NA),
-                             size_axis = c("w", "l"),
-                             log_x = TRUE, log_y = FALSE, log = NULL, ...) {
-    size_axis <- plot_size_axis(size_axis)
-    argg <- as.list(environment())
-    p <- plotHover(do.call("plotFeedingLevel", argg))
-
-    # When critical feeding level is included, ggplotly creates traces split by the
-    # interaction of Species and Type, which produces a very long combined legend.
-    # The code below reshapes the legend to mirror the ggplot output:
-    # - Species appear once under a "Legend" group
-    # - A separate "Feeding Level" group shows "actual" and "critical"
-    if (isTRUE(include_critical)) {
-        species_seen <- character(0)
-        for (i in seq_along(p$x$data)) {
-            tr <- p$x$data[[i]]
-            # Only adjust line traces with names like "(actual, Cod)"
-            if (!identical(tr$type, "scatter") ||
-                is.null(tr$mode) || !grepl("lines", tr$mode)) next
-            nm <- tr$name
-            if (!is.null(nm) && grepl("^\\(", nm)) {
-                nm_clean <- gsub("^\\(|\\)$", "", nm)
-                parts <- strsplit(nm_clean, ",\\s*")[[1]]
-                if (length(parts) >= 2) {
-                    typ <- parts[[1]]
-                    sp <- paste(parts[-1], collapse = ",")
-                    # Rename the trace to species name and group under "Legend"
-                    p$x$data[[i]]$name <- sp
-                    p$x$data[[i]]$legendgroup <- "Legend"
-                    # Add group title once
-                    if (length(species_seen) == 0) {
-                        p$x$data[[i]]$legendgrouptitle <- list(text = "Legend")
-                    }
-                    # Hide duplicate legend entries for "critical" traces
-                    if (identical(typ, "critical")) {
-                        p$x$data[[i]]$showlegend <- FALSE
-                    }
-                    species_seen <- unique(c(species_seen, sp))
-                }
-            }
-        }
-
-        # Add two legend-only traces to show the "Feeding Level" group
-        p <- plotly::add_trace(
-            p,
-            x = c(0, 1), y = c(0, 1),
-            type = "scatter", mode = "lines",
-            name = "actual",
-            legendgroup = "Feeding Level",
-            legendgrouptitle = list(text = "Feeding Level"),
-            line = list(color = "blue"),
-            opacity = 1,
-            hoverinfo = "skip",
-            visible = "legendonly",
-            showlegend = TRUE,
-            inherit = FALSE
-        )
-        p <- plotly::add_trace(
-            p,
-            x = c(0, 1), y = c(0, 1),
-            type = "scatter", mode = "lines",
-            name = "critical",
-            legendgroup = "Feeding Level",
-            line = list(color = "blue"),
-            opacity = 0.5,
-            hoverinfo = "skip",
-            visible = "legendonly",
-            showlegend = TRUE,
-            inherit = FALSE
-        )
-    }
-    p
+plotlyFeedingLevel <- function(object, ...) {
+    plotHover(plotFeedingLevel(object, ...))
 }
 
 #' Plot predation mortality rate of each species against size

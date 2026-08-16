@@ -144,7 +144,7 @@ initialN <- function(object) {
 initialN.MizerParams <- function(object) {
     params <- validParams(object)
     ArraySpeciesBySize(params@initial_n, value_name = "Number density",
-                       params = params)
+                       type = "density", params = params)
 }
 #' @rdname initialN-set
 #' @usage NULL
@@ -152,7 +152,7 @@ initialN.MizerParams <- function(object) {
 initialN.MizerSim <- function(object) {
     ArraySpeciesBySize(object@params@initial_n,
                        value_name = "Number density",
-                       params = object@params)
+                       type = "density", params = object@params)
 }
 
 #' Initial value for resource spectrum
@@ -199,7 +199,7 @@ initialNResource <- function(object) {
 initialNResource.MizerParams <- function(object) {
     params <- validParams(object)
     ArrayResourceBySize(params@initial_n_pp, value_name = "Number density",
-                        units = "1/g", params = params)
+                        units = "1/g", type = "density", params = params)
 }
 #' @rdname initialNResource-set
 #' @usage NULL
@@ -207,5 +207,5 @@ initialNResource.MizerParams <- function(object) {
 initialNResource.MizerSim <- function(object) {
     ArrayResourceBySize(object@params@initial_n_pp,
                         value_name = "Number density", units = "1/g",
-                        params = object@params)
+                        type = "density", params = object@params)
 }

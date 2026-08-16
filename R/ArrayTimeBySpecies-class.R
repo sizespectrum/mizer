@@ -23,6 +23,8 @@
 #'   object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "g", "g/year").
+#' @param type The kind of quantity the values are, see [ArraySpeciesBySize()]
+#'   and [array_types].
 #' @param params A `MizerParams` object holding the model that created the
 #'   values.
 #'
@@ -37,14 +39,16 @@
 #' summary(bio)
 #' }
 ArrayTimeBySpecies <- function(x, value_name = NULL, units = NULL,
-                               params = NULL) {
+                               type = NULL, params = NULL) {
     if (!is.matrix(x)) {
         stop("`x` must be a matrix.")
     }
+    type <- resolve_array_type(type, value_name, units)
     structure(x,
         class = c("ArrayTimeBySpecies", "matrix", "array"),
         value_name = value_name,
         units = units,
+        type = type,
         params = params
     )
 }
@@ -182,6 +186,7 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
                                     log_y = TRUE, log = NULL,
                                     return_data = FALSE,
                                     ...) {
+    log_y <- array_log_y(x, log_y, log, !missing(log_y))
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
@@ -201,6 +206,7 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
 
     if (return_data) return(plot_dat)
 
+    ylim <- array_ylim(x, ylim, log_y, plot_dat[[2]])
     plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label,
                   xtrans = if (log_x) "log10" else "identity",
                   ytrans = if (log_y) "log10" else "identity",
@@ -275,6 +281,7 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
                                      tlim = c(NA, NA), ...) {
     check_plot2_compatible(x, y, "ArrayTimeBySpecies")
     compare_array_metadata(x, y)
+    log_y <- array_log_y(x, log_y, log, !missing(log_y))
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
@@ -287,6 +294,8 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
     plot_dat2 <- prepare_ArrayTimeBySpecies_plot_data(
         y, species = species, tlim = tlim,
         ylim = ylim, total = total, background = background)
+
+    ylim <- array_ylim(x, ylim, log_y, c(plot_dat1[[2]], plot_dat2[[2]]))
 
     plotComparisonDataFrame(plot_dat1, plot_dat2, params,
                             name1 = name1, name2 = name2,
@@ -423,6 +432,7 @@ as.data.frame.ArrayTimeBySpecies <- function(x, row.names = NULL,
     if (is.matrix(result) && length(dim(result)) == 2) {
         attr(result, "value_name") <- attr(x, "value_name")
         attr(result, "units") <- attr(x, "units")
+        attr(result, "type") <- attr(x, "type")
         attr(result, "params") <- attr(x, "params")
         class(result) <- c("ArrayTimeBySpecies", "matrix", "array")
     }
@@ -443,6 +453,7 @@ unclass_time <- function(x) {
     x <- unclass(x)
     attr(x, "value_name") <- NULL
     attr(x, "units") <- NULL
+    attr(x, "type") <- NULL
     attr(x, "params") <- NULL
     x
 }

@@ -11,17 +11,27 @@
 #' `print()`, `summary()`, `plot()`, and `as.data.frame()` methods.
 #'
 #' An `ArraySpeciesBySize` object behaves just like a regular matrix for
-#' arithmetic operations and subsetting. It carries two lightweight attributes:
+#' arithmetic operations and subsetting. It carries a few lightweight
+#' attributes:
 #' \itemize{
 #'   \item `value_name` – a human-readable name for the value
 #'       (e.g. "Encounter rate").
 #'   \item `units` – the units of the rate (e.g. "g/year").
+#'   \item `type` – the kind of quantity the values are.
 #' }
 #'
 #' @param x A matrix (species x size). For `is.ArraySpeciesBySize()`, any
 #'   object to test.
 #' @param value_name A string giving the human-readable name for the value.
 #' @param units A string giving the units (e.g. "g/year", "1/year").
+#' @param type The kind of quantity the values are, see [array_types]:
+#'   `"value"` (the default) for a rate or an amount, `"density"` for an amount
+#'   per gram of body weight, `"proportion"` for a fraction. This is what tells
+#'   `plot()` to multiply a density by the appropriate Jacobian when it is
+#'   plotted against a length axis (`size_axis = "l"`), and to show a proportion
+#'   against the whole of the interval from 0 to 1. The default, `NULL`, treats
+#'   a `value_name` of `"Number density"` or units of `"1/g"` as a density, the
+#'   way mizer recognised one before this attribute existed.
 #' @param params A `MizerParams` object. Used for species colours, linetypes,
 #'   and size ranges in the `plot()` method.
 #' @param representation Either `"point"` (the default) for a quantity sampled
@@ -40,12 +50,14 @@
 #' summary(enc)
 #' }
 ArraySpeciesBySize <- function(x, value_name = NULL, units = NULL,
+                               type = NULL,
                                params = NULL,
                                representation = c("point", "average")) {
     if (!is.matrix(x)) {
         stop("`x` must be a matrix.")
     }
     representation <- match.arg(representation)
+    type <- resolve_array_type(type, value_name, units)
     if (!is.null(params) && identical(dim(x), dim(params@metab))) {
         dimnames(x) <- dimnames(params@metab)
     }
@@ -53,6 +65,7 @@ ArraySpeciesBySize <- function(x, value_name = NULL, units = NULL,
         class = c("ArraySpeciesBySize", "matrix", "array"),
         value_name = value_name,
         units = units,
+        type = type,
         params = params,
         representation = representation
     )
@@ -225,6 +238,11 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #'   \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
 #'     length (`"l"`), using the allometric weight-length relationship.
 #'     Densities are transformed to match the chosen axis.}
+#'   \item{`per_log_size`}{For an array that holds a density, whether to plot it
+#'     per logarithmic size (`TRUE`) rather than per size (`FALSE`). The
+#'     default, `NULL`, plots the density as it stands. Unlike `size_axis` this
+#'     needs no weight-length relationship, so it is available for the resource
+#'     classes too. An error for an array that does not hold a density.}
 #' }
 #'
 #' Additional argument for [plot.ArrayTimeBySpecies()]:
@@ -295,6 +313,11 @@ NULL
 #'   minimum or maximum.
 #' @param size_axis Whether to plot size as weight (`"w"`, default) or
 #'   length (`"l"`), using the allometric weight-length relationship.
+#' @param per_log_size For an array that holds a density, whether to plot it per
+#'   logarithmic size (`TRUE`) rather than per size (`FALSE`). The default,
+#'   `NULL`, plots the density as it stands. Unlike `size_axis` this needs no
+#'   weight-length relationship, so it is available for the resource classes
+#'   too. An error for an array that does not hold a density.
 #' @param total A boolean value that determines whether the total over
 #'   all selected species is plotted as well. Default is `FALSE`.
 #' @param background A boolean value that determines whether background
@@ -321,9 +344,12 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
                             wlim = c(NA, NA), llim = c(NA, NA),
                             ylim = c(NA, NA),
                             size_axis = c("w", "l"),
+                            per_log_size = NULL,
                             total = FALSE, background = TRUE,
                             y_ticks = 6, ...) {
     size_axis <- plot_size_axis(size_axis)
+    check_per_log_size(x, per_log_size)
+    log_y <- array_log_y(x, log_y, log, !missing(log_y))
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
@@ -335,12 +361,12 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
     plot_dat <- prepare_ArraySpeciesBySize_plot_data(
         x, species = species, all.sizes = all.sizes, wlim = wlim,
         total = total, background = background)
-    density_power <- array_spectrum_power(x)
-    if (is.null(density_power)) {
-        plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
-    } else {
-        plot_dat <- convert_plot_spectrum_axis(plot_dat, params, size_axis,
-                                               power = density_power)
+    plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
+                                          density_wrt = array_density_wrt(x),
+                                          per_log_size = per_log_size)
+    if (total) {
+        plot_dat <- append_total_line(plot_dat, total_contributors(x, wlim),
+                                      params, size_axis, x, per_log_size)
     }
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
@@ -348,7 +374,9 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
 
     if (return_data) return(plot_dat)
 
-    y_label <- array_y_label(x, default = "Rate", size_axis = size_axis)
+    ylim <- array_ylim(x, ylim, log_y, plot_dat[[2]])
+    y_label <- array_y_label(x, default = "Rate", size_axis = size_axis,
+                             per_log_size = per_log_size)
 
     plotDataFrame(plot_dat, params, xlab = plot_size_xlab(size_axis),
                   ylab = y_label,
@@ -449,9 +477,14 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
 #'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
 #'       refer to the existing minimum or maximum.}
 #'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
-#'       length (`"l"`), using the allometric weight-length relationship. Not
-#'       available for the resource classes, because the weight-length
-#'       relationship is a species parameter.}
+#'       length (`"l"`), using the allometric weight-length relationship of
+#'       each species, or of the resource, see [resource_params()].}
+#'     \item{`per_log_size`}{For an array that holds a density, whether to plot
+#'       it per logarithmic size (`TRUE`) rather than per size (`FALSE`). The
+#'       default, `NULL`, plots the density as it stands. Unlike `size_axis`
+#'       this needs no weight-length relationship, so it is available for the
+#'       resource classes too. An error for an array that does not hold a
+#'       density.}
 #'   }
 #'
 #'   **For `ArrayTimeBySpecies` methods:**
@@ -495,10 +528,13 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                                      y_ticks = 6,
                                      all.sizes = FALSE,
                                      wlim = c(NA, NA), llim = c(NA, NA),
-                                     size_axis = c("w", "l"), ...) {
+                                     size_axis = c("w", "l"),
+                                     per_log_size = NULL, ...) {
     check_plot2_compatible(x, y, "ArraySpeciesBySize")
     compare_array_metadata(x, y)
     size_axis <- plot_size_axis(size_axis)
+    check_per_log_size(x, per_log_size)
+    log_y <- array_log_y(x, log_y, log, !missing(log_y))
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
@@ -507,13 +543,16 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                 length(ylim) == 2)
 
     params <- attr(x, "params")
-    y_label <- array_y_label(x, default = "Rate", size_axis = size_axis)
+    y_label <- array_y_label(x, default = "Rate", size_axis = size_axis,
+                             per_log_size = per_log_size)
     plot_dat1 <- prepare_ArraySpeciesBySize_plot_data(
         x, species = species, all.sizes = all.sizes, wlim = wlim,
         total = total, background = background)
     plot_dat2 <- prepare_ArraySpeciesBySize_plot_data(
         y, species = species, all.sizes = all.sizes, wlim = wlim,
         total = total, background = background)
+
+    ylim <- array_ylim(x, ylim, log_y, c(plot_dat1[[2]], plot_dat2[[2]]))
 
     plotComparisonDataFrame(plot_dat1, plot_dat2, params,
                             name1 = name1, name2 = name2,
@@ -524,7 +563,14 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                             ylim = ylim,
                             y_ticks = y_ticks, legend_var = "Legend",
                             size_axis = size_axis,
-                            spectrum_power = array_spectrum_power(x))
+                            density_wrt = array_density_wrt(x),
+                            per_log_size = per_log_size,
+                            total_dat = if (total) {
+                                rbind(cbind(total_contributors(x, wlim),
+                                            Model = name1),
+                                      cbind(total_contributors(y, wlim),
+                                            Model = name2))
+                            })
 }
 
 #' Plot relative difference between two mizer arrays
@@ -571,9 +617,8 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
 #'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
 #'       refer to the existing minimum or maximum.}
 #'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
-#'       length (`"l"`), using the allometric weight-length relationship. Not
-#'       available for the resource classes, because the weight-length
-#'       relationship is a species parameter.}
+#'       length (`"l"`), using the allometric weight-length relationship of
+#'       each species, or of the resource, see [resource_params()].}
 #'   }
 #'
 #'   **For `ArrayTimeBySpecies` methods:**
@@ -643,7 +688,9 @@ plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
                           xtrans = if (log_x) "log10" else "identity",
                           xlim = plot_size_xlim(wlim, size_axis, llim),
                           ylim = ylim,
-                          legend_var = "Legend", size_axis = size_axis)
+                          legend_var = "Legend", size_axis = size_axis,
+                          total_dat1 = if (total) total_contributors(x, wlim),
+                          total_dat2 = if (total) total_contributors(y, wlim))
 }
 
 check_plot2_compatible <- function(x, y, class) {
@@ -668,29 +715,147 @@ compare_array_metadata <- function(x, y) {
         warning("The first array has y units `", units1,
                 "`, but the second array has y units `", units2, "`.")
     }
-}
-
-array_spectrum_power <- function(x) {
-    is_density <- identical(attr(x, "value_name"), "Number density") ||
-        identical(attr(x, "units"), "1/g")
-    if (is_density) 0 else NULL
-}
-
-array_units <- function(x, size_axis = "w") {
-    if (identical(plot_size_axis(size_axis), "l") &&
-            !is.null(array_spectrum_power(x))) {
-        return("1/cm")
+    type1 <- array_type(x)
+    type2 <- array_type(y)
+    if (!identical(type1, type2)) {
+        warning("The first array holds a value of type `", type1,
+                "`, but the second array holds a value of type `", type2,
+                "`. Only the first is used to decide how the values are ",
+                "plotted.")
     }
-    attr(x, "units")
 }
 
-array_y_label <- function(x, default = "Value", size_axis = "w") {
+#' Kinds of quantity a mizer array can hold
+#'
+#' Mizer arrays record what kind of quantity their values are in their `type`
+#' attribute, because some kinds need handling that the numbers alone do not
+#' reveal:
+#' \describe{
+#'   \item{`"value"`}{the default: a rate, an amount, anything that needs no
+#'     special handling.}
+#'   \item{`"density"`}{an amount per gram of body weight, like a number
+#'     density. Plotting a density against a length axis restates it per
+#'     centimetre, which changes the values and not just the axis.}
+#'   \item{`"proportion"`}{a fraction, like the feeding level. Plotted on a
+#'     linear y axis showing the whole of the interval from 0 to 1, so that the
+#'     value can be read against the scale it belongs to.}
+#' }
+#'
+#' A `"proportion"` is not *restricted* to the interval from 0 to 1: the
+#' critical feeding level and the resource level can both exceed 1, and their
+#' plots show it. The type is a statement about what the number means, not a
+#' bound that mizer enforces.
+#'
+#' @format A character vector of the three types.
+#' @keywords internal
+array_types <- c("value", "density", "proportion")
+
+#' Validate the type of a mizer array
+#'
+#' @param type One of [array_types].
+#' @return The validated type.
+#' @keywords internal
+validate_array_type <- function(type) {
+    if (!is.character(type) || length(type) != 1 || is.na(type) ||
+            !type %in% array_types) {
+        stop("`type` must be one of ",
+             paste0("\"", array_types, "\"", collapse = ", "), ".")
+    }
+    type
+}
+
+#' Resolve the type of a mizer array
+#'
+#' Called by the array constructors. An explicit `type` is validated and used as
+#' given; `NULL` means the constructor was called without the argument, in which
+#' case a density is recognised from the other metadata, the way mizer
+#' recognised one before the `type` attribute existed. That keeps arrays built
+#' by extension packages, and arrays saved by earlier versions, behaving as they
+#' did.
+#'
+#' @param type The type supplied to the constructor, or `NULL`.
+#' @param value_name The `value_name` of the array.
+#' @param units The `units` of the array.
+#' @return One of [array_types].
+#' @keywords internal
+resolve_array_type <- function(type, value_name = NULL, units = NULL) {
+    if (!is.null(type)) {
+        return(validate_array_type(type))
+    }
+    if (identical(value_name, "Number density") || identical(units, "1/g")) {
+        return("density")
+    }
+    "value"
+}
+
+#' The type of a mizer array
+#'
+#' @param x A mizer array object.
+#' @return One of [array_types].
+#' @keywords internal
+array_type <- function(x) {
+    resolve_array_type(attr(x, "type"),
+                       attr(x, "value_name"), attr(x, "units"))
+}
+
+#' The density measure of a mizer array
+#'
+#' The bridge from the array metadata into the density machinery of the plots.
+#' Mizer arrays are indexed by the model's weight grid, so a stored density is
+#' always a density with respect to weight; the other measures in
+#' [density_measures] arise only for quantities that the spectrum plots compute
+#' on the fly, such as a density per logarithmic weight.
+#'
+#' @param x A mizer array object.
+#' @return `"w"` if the array holds a density, otherwise `NA_character_`.
+#' @keywords internal
+array_density_wrt <- function(x) {
+    if (identical(array_type(x), "density")) "w" else NA_character_
+}
+
+array_units <- function(x, size_axis = "w", per_log_size = NULL) {
+    density_wrt <- array_density_wrt(x)
+    target <- density_target_measure(density_wrt, size_axis, per_log_size)
+    convert_density_units(attr(x, "units"), density_wrt, target)
+}
+
+array_y_label <- function(x, default = "Value", size_axis = "w",
+                          per_log_size = NULL) {
     value_name <- attr(x, "value_name") %||% default
-    units_str <- array_units(x, size_axis)
+    # A density per logarithmic size is a different quantity from the density
+    # itself and has to say so, since its units no longer distinguish it.
+    if (isTRUE(per_log_size) && !is.na(array_density_wrt(x))) {
+        value_name <- paste0(value_name,
+                             if (identical(plot_size_axis(size_axis), "l"))
+                                 " in log length" else " in log weight")
+    }
+    units_str <- array_units(x, size_axis, per_log_size)
     if (!is.null(units_str) && nzchar(units_str)) {
         value_name <- paste0(value_name, " [", units_str, "]")
     }
     value_name
+}
+
+#' Check that `per_log_size` applies to a mizer array
+#'
+#' Expressing values per logarithmic size only means anything for a density,
+#' so asking for it on anything else is an argument error rather than something
+#' to be quietly ignored — which is what `...` used to do with it.
+#'
+#' @param x A mizer array object.
+#' @param per_log_size The `per_log_size` argument of the plot method.
+#' @return `per_log_size`, invisibly, if it applies.
+#' @keywords internal
+check_per_log_size <- function(x, per_log_size) {
+    if (!is.null(per_log_size)) {
+        assert_that(is.flag(per_log_size), noNA(per_log_size))
+        if (is.na(array_density_wrt(x))) {
+            stop("`per_log_size` only applies to an array that holds a ",
+                 "density, but this one holds a value of type `",
+                 array_type(x), "`.")
+        }
+    }
+    invisible(per_log_size)
 }
 
 #' Add lines to an existing plot
@@ -743,9 +908,14 @@ array_y_label <- function(x, default = "Value", size_axis = "w") {
 #'       limits for the length (x) axis when `size_axis = "l"`. Use `NA` to
 #'       refer to the existing minimum or maximum.}
 #'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
-#'       length (`"l"`), using the allometric weight-length relationship. Not
-#'       available for the resource classes, because the weight-length
-#'       relationship is a species parameter.}
+#'       length (`"l"`), using the allometric weight-length relationship of
+#'       each species, or of the resource, see [resource_params()].}
+#'     \item{`per_log_size`}{For an array that holds a density, whether to plot
+#'       it per logarithmic size (`TRUE`) rather than per size (`FALSE`). The
+#'       default, `NULL`, plots the density as it stands. Unlike `size_axis`
+#'       this needs no weight-length relationship, so it is available for the
+#'       resource classes too. An error for an array that does not hold a
+#'       density.}
 #'   }
 #'
 #'   **For `ArrayTimeBySpecies` methods:**
@@ -796,6 +966,7 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
                                        wlim = c(NA, NA),
                                        llim = c(NA, NA),
                                        size_axis = c("w", "l"),
+                                       per_log_size = NULL,
                                        ...) {
     if (!inherits(plot, "ggplot")) {
         stop("The `plot` argument must be a ggplot object.")
@@ -805,6 +976,7 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
                 alpha >= 0,
                 alpha <= 1)
     size_axis <- plot_size_axis(size_axis)
+    check_per_log_size(x, per_log_size)
     assert_that(length(wlim) == 2,
                 length(llim) == 2)
 
@@ -813,12 +985,12 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
         x, species = species, all.sizes = all.sizes, wlim = wlim,
         total = total, background = background)
     params <- attr(x, "params")
-    density_power <- array_spectrum_power(x)
-    if (is.null(density_power)) {
-        plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
-    } else {
-        plot_dat <- convert_plot_spectrum_axis(plot_dat, params, size_axis,
-                                               power = density_power)
+    plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
+                                          density_wrt = array_density_wrt(x),
+                                          per_log_size = per_log_size)
+    if (total) {
+        plot_dat <- append_total_line(plot_dat, total_contributors(x, wlim),
+                                      params, size_axis, x, per_log_size)
     }
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
@@ -826,7 +998,7 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
     x_var <- plot_size_x_var(size_axis)
     y_var <- names(plot_dat)[2]
     check_addPlot_compatible(plot, x_var = x_var, y_var = y_var,
-                             units = array_units(x, size_axis))
+                             units = array_units(x, size_axis, per_log_size))
 
     mapping <- aes(x = .data[[x_var]], y = .data[[y_var]],
                    group = .data[["Species"]])
@@ -974,11 +1146,6 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
     sel <- all_species %in% species
     mat <- unclass(x)[sel, , drop = FALSE]
 
-    # Compute total across all selected species before size-range trimming
-    if (total) {
-        total_row <- colSums(mat, na.rm = TRUE)
-    }
-
     plot_dat <- data.frame(
         w = rep(w, each = sum(sel)),
         value = c(mat),
@@ -1012,21 +1179,30 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
         }
     }
 
-    # Add total line
-    if (total) {
-        total_dat <- data.frame(
-            w = w,
-            value = total_row,
-            Species = "Total",
-            Legend = "Total"
-        )
-        total_dat <- apply_wlim(total_dat, wlim)
-        plot_dat <- rbind(plot_dat, total_dat)
-    }
-
     names(plot_dat)[2] <- value_name
 
     plot_dat
+}
+
+#' Assemble the contributors to the total of a species-by-size array
+#'
+#' The total is the total of everything the array holds: every species, whether
+#' or not it was selected for display, and every size, whether or not it falls
+#' in a species' own size range. It is a property of the array rather than of
+#' the plot, so that a plot of two species can still be read against the
+#' community total.
+#'
+#' The rows are returned unsummed, because the sum has to be taken after the
+#' size coordinate has been converted — on a length axis the species no longer
+#' share a grid; see [add_total_line()].
+#'
+#' @param x An `ArraySpeciesBySize` object.
+#' @param wlim Numeric vector of length two giving the weight limits.
+#' @return A data frame of plotting data holding every value in the array.
+#' @keywords internal
+total_contributors <- function(x, wlim = c(NA, NA)) {
+    prepare_ArraySpeciesBySize_plot_data(x, species = NULL, all.sizes = TRUE,
+                                         wlim = wlim, background = TRUE)
 }
 
 #' @rdname plotHover
@@ -1102,6 +1278,7 @@ get_ArraySpeciesBySize_w <- function(x) {
     if (is.matrix(result) && length(dim(result)) == 2) {
         attr(result, "value_name") <- attr(x, "value_name")
         attr(result, "units") <- attr(x, "units")
+        attr(result, "type") <- attr(x, "type")
         attr(result, "params") <- attr(x, "params")
         attr(result, "representation") <- attr(x, "representation")
         class(result) <- c("ArraySpeciesBySize", "matrix", "array")
@@ -1124,6 +1301,7 @@ unclass_rate <- function(x) {
     x <- unclass(x)
     attr(x, "value_name") <- NULL
     attr(x, "units") <- NULL
+    attr(x, "type") <- NULL
     attr(x, "params") <- NULL
     attr(x, "representation") <- NULL
     x

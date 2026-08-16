@@ -5,7 +5,13 @@
 \alias{is.ArrayTimeBySpecies}
 \title{S3 class for time x species arrays}
 \usage{
-ArrayTimeBySpecies(x, value_name = NULL, units = NULL, params = NULL)
+ArrayTimeBySpecies(
+  x,
+  value_name = NULL,
+  units = NULL,
+  type = NULL,
+  params = NULL
+)
 
 is.ArrayTimeBySpecies(x)
 }
@@ -16,6 +22,9 @@ object to test.}
 \item{value_name}{A string giving the human-readable name for the value.}
 
 \item{units}{A string giving the units (e.g. "g", "g/year").}
+
+\item{type}{The kind of quantity the values are, see \code{\link[=ArraySpeciesBySize]{ArraySpeciesBySize()}}
+and \link{array_types}.}
 
 \item{params}{A \code{MizerParams} object holding the model that created the
 values.}

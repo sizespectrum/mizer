@@ -103,7 +103,7 @@ in `[0, 1]` at each size. Its other arguments must appear as columns in
 
 | `sel_func` | Parameter column(s) | Shape |
 |---|---|---|
-| `knife_edge` (default) | `knife_edge_size` | step from 0 to 1 at that **weight** (default `w_mat`) |
+| [`knife_edge`](../reference/knife_edge.html) (default) | `knife_edge_size` | step from 0 to 1 at that **weight** (default `w_mat`) |
 | [`knife_edge_length`](../reference/knife_edge_length.html) | `knife_edge_length` | step from 0 to 1 at that **length** |
 | [`sigmoid_length`](../reference/sigmoid_length.html) | `l50`, `l25` | smooth; lengths (cm) at 50% and 25% selection |
 | [`double_sigmoid_length`](../reference/double_sigmoid_length.html) | `l50`, `l25`, `l50_right`, `l25_right` | dome-shaped (selects a length band) |
@@ -180,7 +180,7 @@ without an explicit `effort` argument.
 | Function | Use |
 |---|---|
 | [`initial_effort(params)`](../reference/initial_effort.html) | read baseline effort (a named vector) |
-| `initial_effort(params) <-` | set baseline effort |
+| [`initial_effort(params) <-`](../reference/initial_effort.html) | set baseline effort |
 | [`getEffort(sim)`](../reference/getEffort.html) | effort actually used over time in a simulation |
 
 ```{r eval=FALSE}

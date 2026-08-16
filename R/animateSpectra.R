@@ -24,8 +24,7 @@
 #' * **`ArrayTimeByResourceBySize`** — animates the size-resolved resource
 #'   quantity returned by [NResource()] on a `MizerSim` object. There is only a
 #'   single resource spectrum, so `species`, `total` and `background` do nothing
-#'   and warn if set, and `size_axis = "l"` is an error because the
-#'   weight-length relationship is a species parameter.
+#'   and warn if set.
 #'
 #' Species linecolours and linetypes follow `params@linecolour` and
 #' `params@linetype`.
@@ -45,10 +44,16 @@
 #' @param log A character string specifying which axes to log-transform:
 #'   `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x`
 #'   and `log_y`.
+#' @param per_log_size For an array that holds a density, whether to animate it
+#'   per logarithmic size (`TRUE`) rather than per size (`FALSE`). The default,
+#'   `NULL`, animates the density as it stands. Unlike `size_axis` this needs no
+#'   weight-length relationship, so the `ArrayTimeByResourceBySize` method takes
+#'   it too. An error for an array that does not hold a density. The `MizerSim`
+#'   method has its own `per_log_size`, described below.
 #' @param size_axis Whether to plot size as weight (`"w"`, default) or length
-#'   (`"l"`), using the allometric weight-length relationship. Number and
-#'   biomass densities are transformed to match the chosen axis. The
-#'   `ArrayTimeByResourceBySize` method supports only `"w"`.
+#'   (`"l"`), using the allometric weight-length relationship of each species,
+#'   or of the resource, see [resource_params()]. Number and biomass densities
+#'   are transformed to match the chosen axis.
 #' @param total A boolean value that determines whether the total over all
 #'   selected species is plotted as an additional trace called `"Total"`.
 #'   Default is `FALSE`. Not used by the `ArrayTimeByResourceBySize` method,
@@ -192,17 +197,19 @@ animate.MizerSim <- function(x, species = NULL,
         nf <- rbind(nf, nf_back)
     }
     # Add total ----
+    # The contributors are assembled here but summed only after the size axis
+    # has been converted, inside `animate_plotly()`. The total is the total of
+    # everything the model holds: every species, whether or not it was selected
+    # for display, and the resource, whether or not it is drawn — matching
+    # `plotSpectra()`.
+    total_dat <- NULL
     if (total) {
-        # Calculate total community abundance
-        fish_idx <- (length(sim@params@w_full) -
-                         length(sim@params@w) + 1):length(sim@params@w_full)
-        total_n <- sim@n_pp
-        total_n[, fish_idx] <- total_n[, fish_idx] +
-            rowSums(aperm(sim@n, c(1, 3, 2)), dims = 2)
-        nf_total <- melt(total_n[time_elements, , drop = FALSE])
-        nf_total$Species <- "Total"
-        nf_total$legend_name <- "Total"
-        nf <- rbind(nf, nf_total)
+        total_dat <- melt(sim@n[time_elements, , , drop = FALSE])
+        names(total_dat)[names(total_dat) == "sp"] <- "Species"
+        nf_pp_total <- melt(sim@n_pp[time_elements, , drop = FALSE])
+        nf_pp_total$Species <- "Resource"
+        total_dat <- rbind(total_dat, nf_pp_total)
+        total_dat$legend_name <- "Total"
     }
 
     y_label <- spectra_y_label(power, size_axis,
@@ -215,14 +222,18 @@ animate.MizerSim <- function(x, species = NULL,
     if (isTRUE(sim@params@second_order_w[["bin_average"]])) {
         beta <- sim@params@w_full[2] / sim@params@w_full[1]
         nf$w <- nf$w * sqrt(beta)
+        if (!is.null(total_dat)) total_dat$w <- total_dat$w * sqrt(beta)
     }
     nf <- mutate(nf, value = value * w^power)
+    if (!is.null(total_dat)) {
+        total_dat <- mutate(total_dat, value = value * w^power)
+    }
 
     animate_plotly(nf, sim@params, log_x, log_y, y_label, wlim, llim,
                    ylim,
                    size_axis = size_axis,
-                   spectrum_power = power,
-                   spectrum_per_log_size = spectrum$per_log_size,
+                   density_wrt = spectrum_density_wrt(spectrum$per_log_size),
+                   total_dat = total_dat,
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
                    easing = easing)
@@ -237,21 +248,29 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
                            wlim = c(NA, NA), llim = c(NA, NA),
                            ylim = c(NA, NA),
                            size_axis = "w",
-                           spectrum_power = NULL,
-                           spectrum_per_log_size = NULL,
+                           density_wrt = NA_character_,
+                           per_log_size = NULL,
+                           total_dat = NULL,
                            frame_duration = 500, transition_duration = 500,
                            easing = "linear") {
     size_axis <- plot_size_axis(size_axis)
-    if (is.null(spectrum_power)) {
-        df <- convert_plot_size_axis(df, params, size_axis)
-    } else {
-        per_log_size <- spectrum_per_log_size %||% (spectrum_power == 2)
-        df <- convert_plot_spectrum_axis(df, params, size_axis,
-                                         power = spectrum_power,
-                                         per_log_size = per_log_size,
-                                         value_col = "value")
+    convert <- function(d) {
+        convert_plot_density_axis(d, params, size_axis,
+                                  density_wrt = density_wrt,
+                                  per_log_size = per_log_size,
+                                  value_col = "value")
     }
+    df <- convert(df)
     x_var <- plot_size_x_var(size_axis)
+    # The total is summed over the converted series, so that on a length axis
+    # it is a sum at equal length rather than at equal weight.
+    if (!is.null(total_dat)) {
+        total_dat <- add_total_line(convert(total_dat), x_var, "value",
+                                    by = "time")
+        total_dat <- total_dat[total_dat$Species == "Total", ]
+        total_dat$legend_name <- "Total"
+        df <- rbind(df, total_dat[, names(df), drop = FALSE])
+    }
     legend_name_order <- intersect(names(params@linecolour),
                                    unique(df$legend_name))
     sp_order <- unlist(lapply(legend_name_order, function(ln) {

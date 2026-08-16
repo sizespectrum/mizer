@@ -187,7 +187,7 @@ getFeedingLevel.MizerParams <- function(object, n, n_pp, n_other,
                            encounter = encounter, t = t)
     }
     return(ArraySpeciesBySize(feeding_level, value_name = "Feeding level",
-                     params = params))
+                              type = "proportion", params = params))
 }
 
 #' @export
@@ -195,7 +195,8 @@ getFeedingLevel.MizerSim <- function(object, n, n_pp, n_other,
                             time_range, drop = FALSE, ...) {
     sim <- object
     sim_size_rate(sim, time_range, drop, target = "FeedingLevel",
-                  slot = "feeding_level", value_name = "Feeding level", ...)
+                  slot = "feeding_level", value_name = "Feeding level",
+                  type = "proportion", ...)
 }
 
 
@@ -220,7 +221,7 @@ getCriticalFeedingLevel.MizerParams <- function(params) {
     params <- validParams(params)
     result <- params@metab / params@intake_max / params@species_params$alpha
     ArraySpeciesBySize(result, value_name = "Critical feeding level",
-             params = params)
+                       type = "proportion", params = params)
 }
 
 
@@ -1478,7 +1479,8 @@ getFluxGradient.MizerParams <- function(object,
     dimnames(gradient) <- dimnames(params@metab)
 
     ArraySpeciesBySize(gradient, value_name = "Flux gradient",
-                       units = "g^-1/year", params = params)
+                       units = "g^-1/year", type = "density",
+                       params = params)
 }
 
 #' @rdname getFluxGradient
@@ -1523,5 +1525,6 @@ getFluxGradient.MizerSim <- function(object, n, n_pp, n_other, t, ...,
             dimnames(gradient) <- dimnames(params@metab)
             gradient
         },
-        value_name = "Flux gradient", units = "g^-1/year")
+        value_name = "Flux gradient", units = "g^-1/year",
+        type = "density")
 }

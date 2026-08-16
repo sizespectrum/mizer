@@ -45,6 +45,17 @@ plots) are in the changelog and are not repeated here.
 | `plotSpectra()` or `plotCDF()` errors that `power` and `biomass` are contradictory | supplying both is no longer silently resolved | `biomass` and `per_log_size` replace `power` (3.3) |
 | A `plotSpectra()` call with both `power` and `biomass`, or any `plotly...()` call with `biomass`, now gives a different plot | `biomass` is no longer ignored | `biomass` and `per_log_size` replace `power` (3.3) |
 | `plotCDF(per_log_size = TRUE)` errors | meaningless for a cumulative distribution | `biomass` and `per_log_size` replace `power` (3.3) |
+| `plot(getFluxGradient(...), size_axis = "l")` gives different values, or a `cm^-1/year` label where it used to say `g^-1/year` | the flux gradient is a density and was not recognised as one | Arrays say what kind of value they hold (3.3) |
+| `plot()` of a feeding level, maturity, `psi()` or resource level has a y axis running from 0 to 1 where it used to fit the data | these arrays now declare themselves proportions | Arrays say what kind of value they hold (3.3) |
+| `plot(resource_level(params))` has a linear y axis where it used to be logarithmic | a proportion is plotted on a linear axis by default | Arrays say what kind of value they hold (3.3) |
+| `plotFeedingLevel(include_critical = TRUE)` shows a critical feeding level peak that used to be cut off at 1 | the fixed [0, 1] window is now widened to fit the data | Arrays say what kind of value they hold (3.3) |
+| A custom array plotted with `size_axis = "l"` is not transformed, or is transformed when it should not be | an array declares what it holds with `type` now | Arrays say what kind of value they hold (3.3) |
+| `array_spectrum_power()`, or `spectrum_power =` in an internal plot helper, is no longer found | replaced by the `type` metadata | Arrays say what kind of value they hold (3.3) |
+| New warning that two arrays hold "a value of type" different things in `plot2()` or `plotRelative()` | the two arrays disagree about what they hold | Arrays say what kind of value they hold (3.3) |
+| A `Total` line appears on a plot with `size_axis = "l"` where there used to be none | the total is now summed after the length conversion | The total is summed on the axis it is plotted against (3.3) |
+| `plot(<array>, species = ..., total = TRUE)` gives a bigger total than before | the total is the total of the whole array, not of the selected species | The total is summed on the axis it is plotted against (3.3) |
+| `plotSpectra2()` or `plotSpectraRelative()` with `size_axis = "l"` shows a `Total` line where it used to show none | the total is now formed on the axis being plotted | The total is summed on the axis it is plotted against (3.3) |
+| `plotSpectra2(size_axis = "l", ylim = ..., return_data = TRUE)` returns fewer rows | `ylim` now filters the data there as it does for `plotSpectra()` | The total is summed on the axis it is plotted against (3.3) |
 | New warning that a change to a species or resource parameter "has not taken effect" | the rate it feeds was set by hand and is no longer calculated | A change that cannot take effect now warns (3.3) |
 | That warning appears with `given_species_params<-()` but not with `species_params<-()` | the diagnostics belong to the given species parameter setter | The two species parameter setters divide the diagnostics between them (3.3) |
 | Setting a given species parameter to `NA` now warns that the change has not taken effect | clearing a value counts as a change, and a frozen array blocks it | The two species parameter setters divide the diagnostics between them (3.3) |
@@ -76,6 +87,9 @@ plots) are in the changelog and are not repeated here.
 | `getStability()` or `getLimitCycleSim()` now warns about the steady state | they linearise at the stored state | `getStability()` checks that it was given a steady state (3.3) |
 | `summary(params)` has an extra "Steady state" block | new steadiness verdict | `summary()` reports the steady state (3.3) |
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters (3.3) |
+| `steady()` now converges on a `van_leer` model where it used to report a limit cycle, or never settle | the flux limiter is relaxed between iterations | `steady()` converges under the `van_leer` flux scheme (3.3) |
+| A steady state found with `steadyNewton()` moved, in a model whose consumers are satiated | the resource is now solved for alongside the fish | `steadyNewton()` solves for the resource (3.3) |
+| `getStability()` eigenvalues, a limit-cycle period or a bifurcation diagram shifted | they inherit the corrected `steadyNewton()` fixed point | `steadyNewton()` solves for the resource (3.3) |
 | `gamma`, `q` or feeding levels change after setting resource `kappa` or `lambda` | calculated search-volume parameters now follow the resource power law | Resource scalars refresh calculated `gamma` and `q` (3.3) |
 | A recalculated `gamma` or `f0` is wildly different, in a model whose `search_vol` was set by hand | the frozen array used to block mizer's own unit-gamma calculation | Defaults for `gamma` and `f0` ignore a hand-set search volume (3.3) |
 | Setting `f0 = 1` now errors even though `gamma` is supplied | every supplied target feeding level is now validated | `f0` is always validated (3.3) |
@@ -139,10 +153,11 @@ and are not repeated here.
 ## Upgrading from mizer 3.2 to 3.3
 
 Most of the changes in this release are corrections. Results move only for
-models that had opted in to second-order bin-averaging, that set `min_w` below
-the default, that specify sizes as lengths, or that change the resource power
-law after constructing the model. The one change to an interface is in the
-spectrum plots.
+models that had opted in to second-order bin-averaging or to the `van_leer`
+flux, that set `min_w` below the default, that specify sizes as lengths, that
+change the resource power law after constructing the model, or that were brought
+to steady state with `steadyNewton()` while their consumers were satiated. The
+one change to an interface is in the spectrum plots.
 
 ### `biomass` and `per_log_size` replace `power`
 
@@ -176,6 +191,101 @@ things change:
 - `plotCDF()` and `plotCDF2()` do not accept `per_log_size`, because
   integrating a density over size gives the same cumulative quantity either
   way. Use `biomass` on its own there.
+
+### Arrays say what kind of value they hold
+
+Mizer arrays now carry a `type` attribute saying what kind of quantity their
+values are: `"value"` (the default) for a rate or an amount, `"density"` for an
+amount per gram of body weight, `"proportion"` for a fraction. Two kinds of
+plotting behaviour follow from it, and both used to be decided some other way.
+
+**Densities.** Plotting a density against a length axis (`size_axis = "l"`) has
+to multiply the values by a Jacobian, because a density per gram is not a
+density per centimetre. mizer used to decide which arrays those were by looking
+at their metadata strings, treating an array as a density if it was named
+`"Number density"` or had units `"1/g"`. For mizer's own number spectra —
+`initialN()`, `N()`, `finalN()`, `NResource()`, `resource_capacity()` — nothing
+changes; they were recognised before and are tagged now. What changes is
+`getFluxGradient()`: it is a rate of change of a number density, with units
+`g^-1/year`, and neither of the old string tests recognised it, so on a length
+axis its values were left as densities per gram and were mislabelled as such.
+They are now converted with the `dw/dl = b w / l` Jacobian and labelled
+`cm^-1/year`. The new curve is the right one; if you were reading values off the
+old one, they were per gram plotted against length.
+
+**Proportions.** `getFeedingLevel()`, `getCriticalFeedingLevel()`, `maturity()`,
+`repro_prop()`, `psi()` and `resource_level()` now declare themselves
+proportions, and a plot of one shows the whole of the interval from 0 to 1 on a
+linear y axis, so the value can be read against the scale it belongs to. Three
+consequences:
+
+- `plot(getFeedingLevel(params))` and the other array plots gain that y range,
+  where they used to fit the axis to the data. This is the range
+  `plotFeedingLevel()` has always shown, so the dedicated function and the array
+  plot now agree.
+- `plot(resource_level(params))` gets a linear y axis instead of a logarithmic
+  one. Pass `log_y = TRUE` to get the old axis back; any explicit `log_y` or
+  `log` you already pass is respected.
+- The range is only ever *widened* to include the data, never narrowed to the
+  interval from 0 to 1. So `plotFeedingLevel(include_critical = TRUE)` now shows
+  a critical feeding level above 1, which the old fixed window drew off the top
+  of the plot. Nothing is ever hidden, and an explicit `ylim` still wins.
+
+**Declaring it yourself.** An array of your own is taken to be a density or a
+proportion only if you say so, by passing `type` to the array constructor. If
+you do not pass it, the old string tests still run as a fallback, so existing
+code that named an array `"Number density"` or gave it units `"1/g"` keeps
+working, and arrays saved by earlier versions keep working when they are loaded.
+
+Extension packages that called the unexported plotting helpers directly should
+note that `plotComparisonDataFrame()` and the internal `animate_plotly()` take a
+single `density_wrt` argument in place of `spectrum_power` and
+`spectrum_per_log_size`, and that the internal `array_spectrum_power()` is gone.
+The `power`-based interface of `plotSpectra()` and friends is unchanged.
+
+### The total is summed on the axis it is plotted against
+
+A total can only be formed once every line sits on the same coordinate. On a
+weight axis they do: every species shares the model's weight grid. On a length
+axis they do not, because each species — and now the resource — converts weight
+to length with its own allometric relationship, so at a given length the lines
+sit at different weights. That is why the `Total` line used to be dropped from
+length-based plots.
+
+It is now summed *after* the conversion, at equal length rather than at equal
+weight, interpolating each line onto the union of all the size coordinates
+(logarithmically in size, with a line contributing nothing outside its own
+range). Where the lines already share a grid — always on a weight axis, and on
+a length axis whenever the weight-length parameters agree — the union is that
+grid and the interpolation reproduces the values exactly. **The weight-axis
+total is unchanged**, for every power.
+
+`plotSpectra2()` and `plotSpectraRelative()` are fixed by the same change.
+They used to convert the size axis after assembling the two spectra, so the
+total they had been handed — already summed at equal weight — reached the
+conversion with no species to convert it by and was silently dropped. They now
+let `plotSpectra()` do the conversion, so the total they receive is the total
+on the axis being plotted.
+
+That also settles what `ylim` does there. `plotSpectra()` applies it both as
+the axis limits and as a filter on the data, with a hard floor at 1e-20.
+`plotSpectra2()` could not do the same on a length axis, because the values it
+was filtering were a Jacobian away from the ones the limits described, so it
+skipped the filter. Now that it converts first, the filter applies as it does
+everywhere else. The plot is unchanged — the axis limits hid those points
+anyway — but `return_data = TRUE` no longer hands back values outside the
+limits.
+
+One thing does change on the weight axis. `total = TRUE` now means the same
+thing everywhere: **the total of everything the object holds**, whatever is
+drawn. `plotSpectra()` always worked that way — the resource and every species
+count, whether or not the resource is shown and whichever species were
+selected — and it still does. The array plots did not: `plot(<array>,
+total = TRUE)` summed only the species selected for display, and only the sizes
+inside each species' own range. It now sums the whole array, so the total no
+longer moves when you change `species`, `all.sizes` or `background`, and a plot
+of two species can be read against the community total. If you were relying on
+the total of a selection, sum the selection yourself.
 
 ### Length and weight parameters follow the one you gave last
 
@@ -493,6 +603,38 @@ Both `getStability()` and `getLimitCycleSim()` linearise the dynamics *at*
 the neighbourhood of a point the model is not sitting at and the verdict on
 stability is meaningless. Both now warn in that case. Run `steadyNewton()` first,
 or silence with `options(mizer_info_level = 0)` if you know what you are doing.
+
+### `steady()` converges under the `van_leer` flux scheme
+
+On a model whose `second_order_w()` selects the `"van_leer"` flux, `steady()`
+used to fall into a limit cycle instead of converging: the flux limiter weights
+flipped from one cell to the next between iterations, and the iteration chased
+itself. The limiter is now relaxed with an exponential moving average, and the
+run converges (#522).
+
+Code that worked around this — a `steady()` call wrapped in `try()`, a hand-set
+`t_max`, a fall-back to the default upwind flux, or a `steadyNewton()`
+substituted for `steady()` — is no longer needed. The steady state it now
+reaches is the one the `van_leer` discretisation actually has, so it differs
+from the upwind steady state the workaround was settling on; recalibrate rather
+than treat the difference as a regression.
+
+### `steadyNewton()` solves for the resource
+
+`steadyNewton()`'s analytic substitution for the semichemostat resource assumed
+that consumer feeding levels were fixed while the resource adjusted, which is not
+self-consistent once consumers are satiated: the resource density and the feeding
+level it produces determine each other. The resource is now carried among the
+solver's unknowns, so the two are updated together (#521).
+
+The fixed point this converges on is the correct one, so **steady states found
+with `steadyNewton()` on a model with satiated consumers move**, and anything
+downstream of them — `getStability()`'s spectral radius, `getLimitCycleSim()`'s
+period, a `plotBifurcation()` diagram — moves with them. Models whose consumers
+are far from satiation are unaffected. `getStability()`'s quasi-static
+approximation gained a fixed iteration for the same reason, which also makes its
+numerical Jacobian smoother; small changes in the reported eigenvalues are
+expected.
 
 ### `compareParams()` compares small parameters properly
 

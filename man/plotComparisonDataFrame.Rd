@@ -20,8 +20,9 @@ plotComparisonDataFrame(
   highlight = NULL,
   legend_var = "Legend",
   size_axis = NULL,
-  spectrum_power = NULL,
-  spectrum_per_log_size = NULL
+  density_wrt = NA_character_,
+  per_log_size = NULL,
+  total_dat = NULL
 )
 }
 \arguments{
@@ -51,12 +52,17 @@ line colour.}
 \item{size_axis}{Optional. If non-NULL, the x-axis is converted to weight
 (\code{"w"}) or length (\code{"l"}).}
 
-\item{spectrum_power}{Optional power used to weight a number spectrum. When
-supplied, spectrum values are transformed along with a length axis.}
+\item{density_wrt}{The measure the values are a density with respect to, see
+\link{density_measures}. \code{NA} (the default) means the values are not a density
+and are left alone when the size axis changes.}
 
-\item{spectrum_per_log_size}{Whether the spectrum is a density with respect
-to logarithmic size, which selects the Jacobian used for a length axis.
-Defaults to \code{spectrum_power == 2}.}
+\item{per_log_size}{Whether to express a density per logarithmic size.
+\code{NULL} (the default) keeps whichever the values already are.}
+
+\item{total_dat}{Optional data frame of the contributors to a total, with a
+\code{Model} column identifying which of the two they belong to. The total is
+summed from them after the size axis has been converted, see
+\code{\link[=add_total_line]{add_total_line()}}.}
 }
 \value{
 A \code{mizer_plot} (ggplot2) object.

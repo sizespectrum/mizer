@@ -59,6 +59,17 @@ resource_constant <- function(params, n_pp, ...) {
 #' Unlike the carrying capacity, however, the initial resource abundance is
 #' **not** updated when you subsequently change `kappa` (or call [setResource()]).
 #'
+#' The resource parameters `a` and `b` give the allometric weight-length
+#' relationship \eqn{w = a l^b} of the resource, with \eqn{w} in grams and
+#' \eqn{l} in centimetres. They feed none of the rates; they exist so that the
+#' resource can be shown on the length-based plots (`size_axis = "l"`) alongside
+#' the species. They default to the equivalent spherical diameter of an organism
+#' with the density of water, \eqn{a = \pi/6} and \eqn{b = 3}, which is the
+#' convention plankton ecology uses for a composite of many taxa. This is a
+#' different convention from the one the species use, so the resource and the
+#' species each sit on the length axis at their own; see
+#' [resource_length_defaults].
+#'
 #' Assigning to `resource_params` only rebuilds the size-dependent resource rate
 #' and capacity arrays from these scalars (leaving any arrays you have set
 #' manually untouched). Changing `lambda` also recalculates any `q` and `gamma`
@@ -96,6 +107,12 @@ resource_params <- function(params) {
     )
     if (!is.null(value$r_pp)) {
         assert_that(is.number(value$r_pp), value$r_pp >= 0)
+    }
+    if (!is.null(value[["a"]])) {
+        assert_that(is.number(value[["a"]]), value[["a"]] > 0)
+    }
+    if (!is.null(value[["b"]])) {
+        assert_that(is.number(value[["b"]]), value[["b"]] > 0)
     }
     
     scalars <- c("kappa", "lambda", "n", "w_pp_cutoff", "r_pp")

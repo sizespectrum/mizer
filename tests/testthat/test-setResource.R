@@ -418,3 +418,39 @@ test_that("explicit balancing overrides a frozen complementary array", {
                       balance = FALSE)
     expect_equal(resource_rate(p3), resource_rate(p), ignore_attr = TRUE)
 })
+
+test_that("the resource carries weight-length parameters with an ESD default", {
+    params <- setResource(NS_params_small)
+    rp <- resource_params(params)
+    # The default is the equivalent spherical diameter at the density of water
+    expect_equal(rp$a, pi / 6)
+    expect_equal(rp$b, 3)
+    expect_equal(mizer:::resource_length_params(params), list(a = pi / 6, b = 3))
+
+    # A model that predates the parameters falls back to the same default
+    old <- NS_params_small
+    old@resource_params$a <- NULL
+    old@resource_params$b <- NULL
+    expect_equal(mizer:::resource_length_params(old), list(a = pi / 6, b = 3))
+
+    # A value the user set is kept, not overwritten by a later setResource()
+    resource_params(params)$a <- 0.02
+    resource_params(params)$b <- 2.9
+    expect_equal(resource_params(setResource(params))$a, 0.02)
+    expect_equal(mizer:::resource_length_params(params), list(a = 0.02, b = 2.9))
+
+    # and is validated
+    expect_error({resource_params(params)$a <- -1; params}, "not greater than 0")
+    expect_error({resource_params(params)$b <- "3"; params}, "not a number")
+})
+
+test_that("the ESD default puts the resource at plausible lengths", {
+    # A sanity check on the convention rather than on the code: the smallest
+    # resource sizes should be micrometres and a milligram organism about a
+    # millimetre.
+    esd <- function(w) (w / (pi / 6))^(1 / 3)
+    expect_equal(esd(1e-12) * 1e4, 1.241, tolerance = 1e-3)   # micrometres
+    expect_equal(esd(1e-3) * 10, 1.241, tolerance = 1e-3)     # millimetres
+    # A fish of the same weight is longer, by a fixed factor
+    expect_equal(((1e-3 / 0.01)^(1 / 3)) / esd(1e-3), 3.741, tolerance = 1e-3)
+})
