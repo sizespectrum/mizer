@@ -292,3 +292,45 @@ test_that("the resource joins the species on a length-axis spectrum", {
     rp <- resource_params(params)
     expect_equal(res_l$l, (res_w$w / rp$a)^(1 / rp$b))
 })
+
+test_that("plot2, plotRelative and addPlot support length axis and per_log_size for resource arrays", {
+    params <- setResource(NS_params_small)
+    r1 <- initialNResource(params)
+    r2 <- r1
+    r2[] <- r1 * 1.5
+
+    # ArrayResourceBySize methods
+    p2_l <- plot2(r1, r2, size_axis = "l")
+    expect_s3_class(p2_l, "ggplot")
+    expect_identical(p2_l$scales$get_scales("x")$name, "Length [cm]")
+    expect_identical(p2_l$scales$get_scales("y")$name, "Number density [1/cm]")
+
+    p2_log <- plot2(r1, r2, per_log_size = TRUE)
+    expect_s3_class(p2_log, "ggplot")
+    expect_identical(p2_log$scales$get_scales("y")$name, "Number density in log weight")
+
+    pr_l <- plotRelative(r1, r2, size_axis = "l")
+    expect_s3_class(pr_l, "ggplot")
+    expect_identical(pr_l$scales$get_scales("x")$name, "Length [cm]")
+
+    pa_l <- addPlot(plot(r1, size_axis = "l"), r2, size_axis = "l")
+    expect_s3_class(pa_l, "ggplot")
+    expect_equal(length(pa_l$layers), 2)
+
+    # ArrayTimeByResourceBySize methods
+    nr1 <- NResource(NS_sim_small)
+    nr2 <- nr1
+    nr2[] <- nr1 * 1.2
+    t2_l <- plot2(nr1, nr2, size_axis = "l")
+    expect_s3_class(t2_l, "ggplot")
+    expect_identical(t2_l$scales$get_scales("x")$name, "Length [cm]")
+
+    tr_l <- plotRelative(nr1, nr2, size_axis = "l")
+    expect_s3_class(tr_l, "ggplot")
+    expect_identical(tr_l$scales$get_scales("x")$name, "Length [cm]")
+
+    ta_l <- addPlot(plot(nr1, size_axis = "l"), nr2, size_axis = "l")
+    expect_s3_class(ta_l, "ggplot")
+    expect_equal(length(ta_l$layers), 2)
+})
+

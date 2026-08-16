@@ -5,6 +5,23 @@ stability of steady states.
 
 ## Bug fixes
 
+- `plotCDF()`, `plotCDF2()`, `plotSpectra2()`, and `plotSpectraRelative()` now
+  support `size_axis = "l"` together with `total = TRUE`. The total spectrum and
+  cumulative distributions are summed across species on the length axis.
+
+- `ArrayResourceBySize` and `ArrayTimeByResourceBySize` plotting methods
+  (`plot2()`, `plotRelative()`, `addPlot()`) now support `size_axis = "l"` and
+  `per_log_size`, providing symmetry with species size-spectrum plotting methods.
+
+- `plotFeedingLevel()` and `plotlyFeedingLevel()` have been refactored to
+  delegate directly to `plot()` / `plotHover()` on `ArraySpeciesBySize` while
+  maintaining full support for `include_critical = TRUE` and non-clipping
+  proportion coordinate scaling.
+
+- `plotYield()` for a single simulation now delegates directly to
+  `plot(getYield(object))`. The `sim2` argument of `plotYield()` is deprecated in
+  favour of `plot2(getYield(sim1), getYield(sim2))`.
+
 - `plot(getFluxGradient(params), size_axis = "l")` now converts its values to a
   density with respect to length, and labels them `cm^-1/year`. The flux
   gradient is a rate of change of a number density, but it was not recognised as

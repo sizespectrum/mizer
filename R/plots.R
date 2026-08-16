@@ -218,9 +218,8 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
     if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
 
     # Set up axis limits. NA values mean auto-scale to data range.
-    # The reason why below `group = species` is included in `ggplot()`
-    # rather than in `geom_line` is because that puts it first in the
-    # plotly tooltips, due to a bug in plotly.
+    # The reason why below `group = species` is included first in `ggplot()`
+    # is because that puts it first in the plotly tooltips, due to a bug in plotly.
     p <- ggplot(frame, aes(group = .data[[group_var]])) +
         scale_y_continuous(trans = ytrans, breaks = ybreaks,
                            labels = prettyNum, name = ylab,
@@ -421,10 +420,7 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     xlim = c(NA, NA), ylim = c(NA, NA),
                                     y_ticks = 6, highlight = NULL,
                                     legend_var = "Legend",
-                                    size_axis = NULL,
-                                    density_wrt = NA_character_,
-                                    per_log_size = NULL,
-                                    total_dat = NULL) {
+                                    size_axis = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -447,24 +443,9 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
     if (!is.null(size_axis)) {
         size_axis <- plot_size_axis(size_axis)
         frame <- convert_plot_density_axis(frame, params, size_axis,
-                                           density_wrt = density_wrt,
-                                           per_log_size = per_log_size,
                                            species_col = group_var,
                                            value_col = y_var)
         x_var <- plot_size_x_var(size_axis)
-    }
-    if (!is.null(total_dat)) {
-        # The contributors arrive unconverted and are put on the same axis as
-        # the data they join before being summed there.
-        total_dat <- convert_plot_density_axis(total_dat, params, size_axis,
-                                               density_wrt = density_wrt,
-                                               per_log_size = per_log_size,
-                                               species_col = group_var,
-                                               value_col = y_var)
-        total_dat <- add_total_line(total_dat, x_var, y_var, by = "Model")
-        total_dat <- total_dat[total_dat[[group_var]] == "Total", ]
-        frame <- rbind(frame, total_dat[, names(frame), drop = FALSE])
-        frame$Model <- factor(frame$Model, levels = c(name1, name2))
     }
 
     legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
@@ -491,7 +472,7 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                            limits = xlim) +
         geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
                       linetype = .data[["Model"]],
-                      linewidth = .data[["LineSpec"]])) +
+                      linewidth = .data[[legend_var]])) +
         scale_colour_manual(values = linecolour) +
         scale_linetype_discrete(drop = FALSE) +
         scale_discrete_manual("linewidth", values = linesize, guide = "none")
@@ -526,8 +507,7 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                                   ylim = c(NA, NA),
                                   highlight = NULL,
                                   legend_var = "Legend",
-                                  size_axis = NULL,
-                                  total_dat1 = NULL, total_dat2 = NULL) {
+                                  size_axis = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -553,20 +533,6 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
         frame2 <- convert_plot_size_axis(frame2, params, size_axis,
                                          species_col = group_var)
         x_var <- plot_size_x_var(size_axis)
-    }
-    if (!is.null(total_dat1) && !is.null(total_dat2)) {
-        add_total <- function(frame, total_dat) {
-            if (!is.null(size_axis)) {
-                total_dat <- convert_plot_size_axis(total_dat, params,
-                                                    size_axis,
-                                                    species_col = group_var)
-            }
-            total_dat <- add_total_line(total_dat, x_var, y_var)
-            total_dat <- total_dat[total_dat[[group_var]] == "Total", ]
-            rbind(frame, total_dat[, names(frame), drop = FALSE])
-        }
-        frame1 <- add_total(frame1, total_dat1)
-        frame2 <- add_total(frame2, total_dat2)
     }
 
     by_vars <- c(x_var, group_var, legend_var)
@@ -1295,7 +1261,7 @@ plotBiomass.MizerSim <- function(object, species = NULL,
         lifecycle::deprecate_warn("2.6.0", "plotBiomass(end_time)", "plotBiomass(tlim)")
         tlim[[2]] <- end_time
     }
-    log_axes <- parseTimePlotLog(log, log_x = log_x, log_y = log_y)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     bm <- getBiomass(object, use_cutoff = use_cutoff,
                      min_w = min_w, max_w = max_w,
                      min_l = min_l, max_l = max_l)
@@ -1414,83 +1380,59 @@ plotYield.MizerSim <- function(object, sim2 = NULL,
                       ylim = c(NA, NA), tlim = c(NA, NA),
                       highlight = NULL, return_data = FALSE,
                       ...) {
-    log_axes <- parseTimePlotLog(log, log_x = log_x, log_y = log_y)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is(object, "MizerSim"),
                 is.flag(total),
                 is.flag(log_axes$log_x),
                 is.flag(log_axes$log_y),
                 is.flag(return_data))
-    params <- object@params
-    species <- valid_species_arg(object, species, error_on_empty = TRUE)
     if (is.null(sim2)) {
         y <- getYield(object, ...)
-        times <- as.numeric(rownames(y))
-        if (!is.na(tlim[1])) {
-            y <- y[times >= tlim[1], , drop = FALSE]
-            times <- as.numeric(rownames(y))
-        }
-        if (!is.na(tlim[2])) {
-            y <- y[times <= tlim[2], , drop = FALSE]
-        }
-        y_total <- rowSums(y)
-        y <- y[, (as.character(dimnames(y)[[2]]) %in% species),
-               drop = FALSE]
-        if (total) {
-            # Include total
-            y <- cbind(y, "Total" = y_total)
-        }
-        plot_dat <- reshape2::melt(y, varnames = c("Year", "Species"),
-                                   value.name = "Yield")
-        plot_dat <- subset(plot_dat, plot_dat$Yield > 0)
-        # plotDataFrame() needs the columns in a particular order
-        plot_dat <- plot_dat[, c(1, 3, 2)]
-
-        if (nrow(plot_dat) == 0) {
-            warning("There is no yield to include.")
-        }
-        if (return_data) return(plot_dat)
-
-        plotDataFrame(plot_dat, params,
-                      ylab = "Yield [g/year]",
-                      xtrans = ifelse(log_axes$log_x, "log10", "identity"),
-                      ytrans = ifelse(log_axes$log_y, "log10", "identity"),
-                      ylim = ylim,
-                      highlight = highlight)
-    } else {
-        # We need to combine two plots
-        if (!all(dimnames(object@n)$time == dimnames(sim2@n)$time)) {
-            stop("The two simulations do not have the same times")
-        }
-        ym <- plotYield(object, species = species,
-                            tlim = tlim, total = total,
-                            log_x = log_axes$log_x, log_y = log_axes$log_y,
-                            ylim = ylim,
-                            highlight = highlight, return_data = TRUE, ...)
-        ym2 <- plotYield(sim2, species = species,
-                            tlim = tlim, total = total,
-                            log_x = log_axes$log_x, log_y = log_axes$log_y,
-                            ylim = ylim,
-                            highlight = highlight, return_data = TRUE, ...)
-        ym$Simulation <- rep(1, nrow(ym)) # We don't use recycling because that
-                                          # fails when there are zero rows.
-        ym2$Simulation <- rep(2, nrow(ym2))
-        ym <- rbind(ym, ym2)
-
-        if (return_data) return(ym)
-
-        plotDataFrame(ym, params,
-                      ylab = "Yield [g/year]",
-                      xtrans = ifelse(log_axes$log_x, "log10", "identity"),
-                      ytrans = ifelse(log_axes$log_y, "log10", "identity"),
-                      ylim = ylim,
-                      highlight = highlight, wrap_var = "Simulation")
+        attr(y, "value_name") <- "Yield"
+        return(plot(y, species = species,
+                    tlim = tlim, ylim = ylim,
+                    total = total, highlight = highlight,
+                    log_x = log_axes$log_x, log_y = log_axes$log_y,
+                    return_data = return_data))
     }
+    lifecycle::deprecate_warn("2.6.0", "plotYield(sim2)", "plot2()",
+                              details = "Use plot2(getYield(sim1), getYield(sim2)) instead.")
+    params <- object@params
+    # We need to combine two plots
+    if (!all(dimnames(object@n)$time == dimnames(sim2@n)$time)) {
+        stop("The two simulations do not have the same times")
+    }
+    ym <- plotYield(object, species = species,
+                    tlim = tlim, total = total,
+                    log_x = log_axes$log_x, log_y = log_axes$log_y,
+                    ylim = ylim,
+                    highlight = highlight, return_data = TRUE, ...)
+    ym2 <- plotYield(sim2, species = species,
+                     tlim = tlim, total = total,
+                     log_x = log_axes$log_x, log_y = log_axes$log_y,
+                     ylim = ylim,
+                     highlight = highlight, return_data = TRUE, ...)
+    ym$Simulation <- rep(1, nrow(ym))
+    ym2$Simulation <- rep(2, nrow(ym2))
+    ym <- rbind(ym, ym2)
+
+    if (return_data) {
+        ym$Legend <- NULL
+        return(ym)
+    }
+
+    plotDataFrame(ym, params,
+                  ylab = "Yield [g/year]",
+                  xtrans = ifelse(log_axes$log_x, "log10", "identity"),
+                  ytrans = ifelse(log_axes$log_y, "log10", "identity"),
+                  ylim = ylim,
+                  highlight = highlight, wrap_var = "Simulation")
 }
 
 #' @rdname plotYield
 #' @usage NULL
 #' @export
-plotlyYield <- function(object, sim2,
+plotlyYield <- function(object, sim2 = NULL,
                         species = NULL,
                         total = FALSE,
                         log_x = FALSE, log_y = TRUE, log = NULL,
@@ -1499,39 +1441,7 @@ plotlyYield <- function(object, sim2,
                         ...) {
     argg <- as.list(environment())
     plotHover(do.call("plotYield", argg),
-             tooltip = c("Species", "Year", "Yield"))
-}
-
-# For time-series plots, keep backward compatibility with the historical
-# logical `log` argument while supporting the newer `log_x` / `log_y` form.
-#' Parse the `log` argument for time-series plots
-#'
-#' Translates the `log` argument of the time-series plotting functions into a
-#' list of logical flags for the x and y axes, falling back to `log_x` and
-#' `log_y` when `log` is `NULL`. For backwards compatibility a single logical
-#' `log` value sets only `log_y`.
-#'
-#' @param log `NULL`, a single logical value, or a character string containing
-#'   only `"x"` and/or `"y"`.
-#' @param log_x,log_y Default logical flags used when `log` is `NULL`.
-#' @return A list with logical elements `log_x` and `log_y`.
-#' @keywords internal
-parseTimePlotLog <- function(log, log_x, log_y) {
-    if (is.null(log)) {
-        return(list(log_x = log_x, log_y = log_y))
-    }
-    if (is.logical(log)) {
-        if (length(log) != 1 || is.na(log)) {
-            stop("`log` must be `NULL`, a single logical value, or a ",
-                 "character string containing only \"x\" and/or \"y\".")
-        }
-        return(list(log_x = FALSE, log_y = isTRUE(log)))
-    }
-    if (!is.character(log)) {
-        stop("`log` must be `NULL`, a single logical value, or a ",
-             "character string containing only \"x\" and/or \"y\".")
-    }
-    parsePlotLog(log, log_x = log_x, log_y = log_y)
+              tooltip = c("Species", "Year", "Yield"))
 }
 
 
@@ -1609,7 +1519,7 @@ plotYieldGear.MizerSim <- function(object,
                           ylim = c(NA, NA), tlim = c(NA, NA),
                           highlight = NULL, return_data = FALSE,
                           ...) {
-    log_axes <- parseTimePlotLog(log, log_x = log_x, log_y = log_y)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is(object, "MizerSim"),
                 is.flag(total),
                 is.flag(log_axes$log_x),
@@ -2261,7 +2171,9 @@ plotCDF.MizerParams <- function(object, species = NULL,
 #' @keywords internal
 plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim, llim,
                      ylim, highlight, size_axis, return_data) {
+    params <- validParams(params)
     size_axis <- plot_size_axis(size_axis)
+    had_total <- "Total" %in% plot_dat$Species
     # A CDF value is cumulative *up to a size* — a boundary quantity — so it
     # belongs on the bin edges, not the bin centres. Under second-order
     # bin-averaging `plot_spectra()` returns its density on the geometric bin
@@ -2282,16 +2194,29 @@ plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim, lli
                                              drop_w = FALSE)
         plot_dat_l <- filter_plot_length_limits(plot_dat_l, llim)
         plot_dat <- plot_dat_l[, setdiff(names(plot_dat_l), "l"),
-                               drop = FALSE]
+                                drop = FALSE]
+        cdf_dat <- prepare_spectra_cdf_data(plot_dat, params,
+                                            normalise = FALSE)
+        cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
+        if (had_total) {
+            cdf_dat <- add_total_line(cdf_dat, x_var = "l",
+                                      value_col = names(cdf_dat)[2])
+        }
+        if (normalise) {
+            totals <- stats::ave(cdf_dat[[names(cdf_dat)[2]]],
+                                 cdf_dat$Species, FUN = max)
+            cdf_dat[[names(cdf_dat)[2]]] <- cdf_dat[[names(cdf_dat)[2]]] / totals
+        }
+    } else {
+        cdf_dat <- prepare_spectra_cdf_data(plot_dat, params,
+                                            normalise = normalise)
+        cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
     }
-    cdf_dat <- prepare_spectra_cdf_data(plot_dat, params,
-                                        normalise = normalise)
-    cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
     cdf_y <- cdf_y_label(power, normalise)
     names(cdf_dat)[2] <- cdf_y
     if (return_data) return(cdf_dat)
 
-    plotDataFrame(cdf_dat, validParams(params),
+    plotDataFrame(cdf_dat, params,
                   xlab = plot_size_xlab(size_axis),
                   ylab = cdf_y,
                   xtrans = if (log_x) "log10" else "identity",
@@ -2437,14 +2362,14 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
     cf1 <- plotCDF(object1, species = species, wlim = wlim,
                    power = power, total = total, resource = resource,
                    background = background, normalise = normalise,
-                   size_axis = "w", return_data = TRUE, ...)
+                   size_axis = size_axis, return_data = TRUE, ...)
     cf2 <- plotCDF(object2, species = species, wlim = wlim,
                    power = power, total = total, resource = resource,
                    background = background, normalise = normalise,
-                   size_axis = "w", return_data = TRUE, ...)
+                   size_axis = size_axis, return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
-    plotComparisonDataFrame(cf1, cf2, validParams(params),
+    plotComparisonDataFrame(cf1, cf2, params,
                             name1 = name1, name2 = name2,
                             xlab = plot_size_xlab(size_axis),
                             ylab = cdf_y_label(power, normalise),
@@ -2452,8 +2377,7 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                             ytrans = if (log_axes$log_y) "log10" else "identity",
                             xlim = plot_size_xlim(wlim, size_axis, llim),
                             ylim = ylim, highlight = highlight,
-                            legend_var = "Legend",
-                            size_axis = size_axis)
+                            legend_var = "Legend")
 }
 
 #' Compare abundance and biomass spectra from two objects
@@ -2517,7 +2441,7 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
                        return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
-    plotComparisonDataFrame(sf1, sf2, validParams(params),
+    plotComparisonDataFrame(sf1, sf2, params,
                             name1 = name1, name2 = name2,
                             xlab = plot_size_xlab(size_axis),
                             ylab = spectra_y_label(
@@ -2737,8 +2661,9 @@ plotSpectraRelative <- function(object1, object2,
                        background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
+    params <- validParams(params)
 
-    plotRelativeDataFrame(sf1, sf2, validParams(params),
+    plotRelativeDataFrame(sf1, sf2, params,
                           xlab = plot_size_xlab(size_axis),
                           xtrans = if (log_x) "log10" else "identity",
                           xlim = plot_size_xlim(wlim, size_axis, llim),
@@ -2936,29 +2861,24 @@ plotFeedingLevel.MizerSim <- function(object, species = NULL,
             return_data = FALSE,
             log_x = TRUE, log_y = FALSE, log = NULL,
             time_range, ...) {
-    size_axis <- plot_size_axis(size_axis)
-    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
-    assert_that(is.flag(all.sizes),
-                is.flag(include_critical),
-                length(wlim) == 2,
-                length(llim) == 2,
-                is.flag(return_data))
     if (missing(time_range)) {
         time_range  <- max(as.numeric(dimnames(object@n)$time))
     }
     params <- validParams(object@params)
     feed <- getFeedingLevel(object, time_range = time_range, drop = FALSE)
-    # If a time range was returned, average over it
     if (length(dim(feed)) == 3) {
         feed <- apply(feed, c(2, 3), mean)
     }
+    feed <- ArraySpeciesBySize(feed, value_name = "Feeding level",
+                               units = "", params = params,
+                               type = "proportion", representation = "average")
     plot_feeding_level(params, feed, species = species,
                        highlight = highlight, all.sizes = all.sizes,
                        include_critical = include_critical,
-                       log_x = log_axes$log_x, log_y = log_axes$log_y,
                        wlim = wlim, llim = llim,
                        size_axis = size_axis,
-                       return_data = return_data)
+                       return_data = return_data,
+                       log_x = log_x, log_y = log_y, log = log, ...)
 }
 
 #' @rdname plotFeedingLevel
@@ -2971,22 +2891,15 @@ plotFeedingLevel.MizerParams <- function(object, species = NULL,
             size_axis = c("w", "l"),
             return_data = FALSE,
             log_x = TRUE, log_y = FALSE, log = NULL, ...) {
-    size_axis <- plot_size_axis(size_axis)
-    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
-    assert_that(is.flag(all.sizes),
-                is.flag(include_critical),
-                length(wlim) == 2,
-                length(llim) == 2,
-                is.flag(return_data))
     params <- validParams(object)
-    feed <- getFeedingLevel(params, drop = FALSE)
+    feed <- getFeedingLevel(params)
     plot_feeding_level(params, feed, species = species,
                        highlight = highlight, all.sizes = all.sizes,
                        include_critical = include_critical,
-                       log_x = log_axes$log_x, log_y = log_axes$log_y,
                        wlim = wlim, llim = llim,
                        size_axis = size_axis,
-                       return_data = return_data)
+                       return_data = return_data,
+                       log_x = log_x, log_y = log_y, log = log, ...)
 }
 
 #' Build the feeding-level plot
@@ -3004,189 +2917,74 @@ plotFeedingLevel.MizerParams <- function(object, species = NULL,
 #'   are removed.
 #' @param include_critical Whether to also plot the critical feeding level.
 #' @param log_x,log_y Logical flags for log10 axes.
+#' @param log Optional base-R log argument string or boolean.
 #' @param wlim,llim Numeric vectors of length two giving the weight and length
 #'   limits.
 #' @param size_axis Either `"w"` (weight) or `"l"` (length).
 #' @param return_data If `TRUE`, return the plotting data frame instead of the
 #'   plot.
+#' @param ... Additional arguments passed to [plot.ArraySpeciesBySize()].
 #' @return A `mizer_plot` (ggplot2) object, or the plotting data frame if
 #'   `return_data = TRUE`.
 #' @keywords internal
 plot_feeding_level <- function(params, feed, species, highlight,
                                all.sizes, include_critical,
-                               log_x, log_y,
-                               wlim, llim, size_axis, return_data) {
+                               wlim, llim, size_axis, return_data,
+                               log_x = TRUE, log_y = FALSE, log = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
+    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
+    log_x <- log_axes$log_x
+    log_y <- log_axes$log_y
 
-    # selector for desired species
-    sel_sp <- valid_species_arg(params, species, return.logical = TRUE,
-                                error_on_empty = TRUE)
-    species <- dimnames(params@initial_n)$sp[sel_sp]
-    feed <- feed[sel_sp, , drop = FALSE]
-
-    plot_dat <- data.frame(w = rep(params@w, each = length(species)),
-                           value = c(feed),
-                           Species = species)
-
-    if (include_critical) {
-        feed_crit <- getCriticalFeedingLevel(params)[sel_sp, , drop = FALSE]
-        plot_dat_crit <- data.frame(
-            w = rep(params@w, each = length(species)),
-            value = c(feed_crit),
-            Species = species)
-        plot_dat$Type <- "actual"
-        plot_dat_crit$Type <- "critical"
-        plot_dat <- rbind(plot_dat, plot_dat_crit)
-    }
-
-    if (!all.sizes) {
-        # Remove feeding level for sizes outside a species' size range
-        for (sp in species) {
-            plot_dat$value[plot_dat$Species == sp &
-                               (plot_dat$w < params@species_params[sp, "w_min"] |
-                                    plot_dat$w > params@species_params[sp, "w_max"])] <- NA
+    if (!include_critical) {
+        if (return_data) {
+            return(plot(feed, species = species, all.sizes = all.sizes,
+                        highlight = highlight, wlim = wlim, llim = llim,
+                        size_axis = size_axis, return_data = TRUE,
+                        log_x = log_x, log_y = log_y, ...))
         }
-        plot_dat <- plot_dat[complete.cases(plot_dat), ]
+        p <- plot(feed, species = species, all.sizes = all.sizes,
+                  highlight = highlight, wlim = wlim, llim = llim,
+                  size_axis = size_axis, log_x = log_x, log_y = log_y, ...)
+        if (!log_y) {
+            p <- p + coord_cartesian(ylim = c(0, 1))
+        }
+        return(p)
     }
-    if (!is.na(wlim[1])) plot_dat <- plot_dat[plot_dat$w >= wlim[1], ]
-    if (!is.na(wlim[2])) plot_dat <- plot_dat[plot_dat$w <= wlim[2], ]
-    plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis)
-    if (identical(size_axis, "l")) {
-        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    crit <- getCriticalFeedingLevel(params)
+    df_actual <- plot(feed, species = species, all.sizes = all.sizes,
+                      wlim = wlim, llim = llim, size_axis = size_axis,
+                      log_x = log_x, log_y = log_y,
+                      return_data = TRUE, ...)
+    df_crit <- plot(crit, species = species, all.sizes = all.sizes,
+                    wlim = wlim, llim = llim, size_axis = size_axis,
+                    log_x = log_x, log_y = log_y,
+                    return_data = TRUE, ...)
+    names(df_crit)[2] <- names(df_actual)[2]
+    df_actual$Type <- "actual"
+    df_crit$Type <- "critical"
+    if (return_data) {
+        return(rbind(df_actual, df_crit))
     }
-    if (log_y) {
-        # Remove non-positive values because log scales cannot represent them.
-        plot_dat <- subset(plot_dat, value > 0)
+    p <- plot(feed, species = species, all.sizes = all.sizes,
+              highlight = highlight, wlim = wlim, llim = llim,
+              size_axis = size_axis, log_x = log_x, log_y = log_y, ...)
+    p <- addPlot(p, crit, species = species, all.sizes = all.sizes,
+                 wlim = wlim, llim = llim, size_axis = size_axis,
+                 alpha = 0.5)
+    if (!log_y) {
+        feeding_level_ylim <- array_ylim(feed, c(NA, NA), log_y,
+                                         c(df_actual[[2]], df_crit[[2]]))
+        p <- p + coord_cartesian(ylim = feeding_level_ylim)
     }
-
-    names(plot_dat)[2] <- "Feeding level"
-    if (return_data) return(plot_dat)
-    x_var <- plot_size_x_var(size_axis)
-
-    # Need to keep species in order for legend
-    legend_levels <-
-        intersect(names(params@linecolour), plot_dat$Species)
-    plot_dat$Legend <- factor(plot_dat$Species, levels = legend_levels)
-    linesize <- make_linesize(legend_levels, highlight)
-
-    # The feeding level array declares itself a proportion, so show the whole
-    # of [0, 1] — widened if the critical feeding level rises above it, which
-    # it can. A logarithmic axis is left to the data.
-    feeding_level_ylim <- if (log_y) NULL else
-        array_ylim(feed, c(NA, NA), log_y, plot_dat[["Feeding level"]])
-
-    # We do not use `plotDataFrame()` to create the plot because it would not
-    # handle the alpha transparency for the critical feeding level.
-
-    # The reason why below `group = species` is included in `ggplot()`
-    # rather than in `geom_line` is because that puts it first in the
-    # plotly tooltips, due to a bug in plotly.
-    if (include_critical) {
-        plot_dat$Species <- interaction(plot_dat$Species, plot_dat$Type)
-        p <- ggplot(plot_dat, aes(group = Species,
-                                  alpha = Type)) +
-            scale_discrete_manual("alpha", name = "Feeding Level",
-                                  values = c(actual = 1, critical = 0.5))
-    } else {
-        p <- ggplot(plot_dat, aes(group = Species))
-    }
-    make_mizer_plot(
-        p + geom_line(aes(x = .data[[x_var]], y = .data[["Feeding level"]],
-                          colour = Legend, linetype = Legend, linewidth = Legend)) +
-            scale_x_continuous(name = plot_size_xlab(size_axis),
-                               trans = if (log_x) "log10" else "identity",
-                               limits = plot_size_xlim(wlim, size_axis, llim)) +
-            scale_y_continuous(name = "Feeding Level",
-                               trans = if (log_y) "log10" else "identity") +
-            coord_cartesian(ylim = feeding_level_ylim) +
-            scale_colour_manual(values = params@linecolour[legend_levels]) +
-            scale_linetype_manual(values = params@linetype[legend_levels]) +
-            scale_discrete_manual("linewidth", values = linesize),
-        plot_size_tooltip(size_axis, before = "Species", after = "Feeding level")
-    )
+    p
 }
 
 #' @rdname plotFeedingLevel
 #' @usage NULL
 #' @export
-plotlyFeedingLevel <- function(object,
-                             species = NULL,
-                             time_range,
-                             all.sizes = FALSE,
-                             highlight = NULL,
-                             include_critical = FALSE,
-                             wlim = c(NA, NA), llim = c(NA, NA),
-                             size_axis = c("w", "l"),
-                             log_x = TRUE, log_y = FALSE, log = NULL, ...) {
-    size_axis <- plot_size_axis(size_axis)
-    argg <- as.list(environment())
-    p <- plotHover(do.call("plotFeedingLevel", argg))
-
-    # When critical feeding level is included, ggplotly creates traces split by the
-    # interaction of Species and Type, which produces a very long combined legend.
-    # The code below reshapes the legend to mirror the ggplot output:
-    # - Species appear once under a "Legend" group
-    # - A separate "Feeding Level" group shows "actual" and "critical"
-    if (isTRUE(include_critical)) {
-        species_seen <- character(0)
-        for (i in seq_along(p$x$data)) {
-            tr <- p$x$data[[i]]
-            # Only adjust line traces with names like "(actual, Cod)"
-            if (!identical(tr$type, "scatter") ||
-                is.null(tr$mode) || !grepl("lines", tr$mode)) next
-            nm <- tr$name
-            if (!is.null(nm) && grepl("^\\(", nm)) {
-                nm_clean <- gsub("^\\(|\\)$", "", nm)
-                parts <- strsplit(nm_clean, ",\\s*")[[1]]
-                if (length(parts) >= 2) {
-                    typ <- parts[[1]]
-                    sp <- paste(parts[-1], collapse = ",")
-                    # Rename the trace to species name and group under "Legend"
-                    p$x$data[[i]]$name <- sp
-                    p$x$data[[i]]$legendgroup <- "Legend"
-                    # Add group title once
-                    if (length(species_seen) == 0) {
-                        p$x$data[[i]]$legendgrouptitle <- list(text = "Legend")
-                    }
-                    # Hide duplicate legend entries for "critical" traces
-                    if (identical(typ, "critical")) {
-                        p$x$data[[i]]$showlegend <- FALSE
-                    }
-                    species_seen <- unique(c(species_seen, sp))
-                }
-            }
-        }
-
-        # Add two legend-only traces to show the "Feeding Level" group
-        p <- plotly::add_trace(
-            p,
-            x = c(0, 1), y = c(0, 1),
-            type = "scatter", mode = "lines",
-            name = "actual",
-            legendgroup = "Feeding Level",
-            legendgrouptitle = list(text = "Feeding Level"),
-            line = list(color = "blue"),
-            opacity = 1,
-            hoverinfo = "skip",
-            visible = "legendonly",
-            showlegend = TRUE,
-            inherit = FALSE
-        )
-        p <- plotly::add_trace(
-            p,
-            x = c(0, 1), y = c(0, 1),
-            type = "scatter", mode = "lines",
-            name = "critical",
-            legendgroup = "Feeding Level",
-            line = list(color = "blue"),
-            opacity = 0.5,
-            hoverinfo = "skip",
-            visible = "legendonly",
-            showlegend = TRUE,
-            inherit = FALSE
-        )
-    }
-    p
+plotlyFeedingLevel <- function(object, ...) {
+    plotHover(plotFeedingLevel(object, ...))
 }
 
 #' Plot predation mortality rate of each species against size

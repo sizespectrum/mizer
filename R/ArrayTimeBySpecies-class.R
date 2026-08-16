@@ -281,6 +281,7 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
                                      tlim = c(NA, NA), ...) {
     check_plot2_compatible(x, y, "ArrayTimeBySpecies")
     compare_array_metadata(x, y)
+    log_y <- array_log_y(x, log_y, log, !missing(log_y))
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
@@ -293,6 +294,8 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
     plot_dat2 <- prepare_ArrayTimeBySpecies_plot_data(
         y, species = species, tlim = tlim,
         ylim = ylim, total = total, background = background)
+
+    ylim <- array_ylim(x, ylim, log_y, c(plot_dat1[[2]], plot_dat2[[2]]))
 
     plotComparisonDataFrame(plot_dat1, plot_dat2, params,
                             name1 = name1, name2 = name2,

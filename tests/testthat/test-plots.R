@@ -998,8 +998,8 @@ test_that("yield plotting helpers validate comparison and gear selection", {
 })
 
 test_that("yield plotly wrappers return plotly objects", {
-    expect_s3_class(plotlyYield(sim, species = species, ylim = c(1e-5, 1)), "plotly")
-    expect_s3_class(plotlyYieldGear(sim, species = species, ylim = c(1e-5, 1)), "plotly")
+    expect_s3_class(plotlyYield(sim, species = species, ylim = c(1e5, 1e12)), "plotly")
+    expect_s3_class(plotlyYieldGear(sim, species = species, ylim = c(1e5, 1e12)), "plotly")
 })
 
 test_that("yield plotting helpers accept ylim", {
@@ -1041,7 +1041,7 @@ test_that("return_data is identical",{
                                  return_data = TRUE)), c(22, 4))
 
     expect_equal(dim(plotFeedingLevel(sim, species = species,
-                                      return_data = TRUE)), c(40, 3))
+                                      return_data = TRUE)), c(40, 4))
 
     expect_equal(dim(plotPredMort(sim, species = species,
                                   return_data = TRUE)), c(40, 4))
@@ -1515,3 +1515,60 @@ test_that("plotBiomass validates time range and can include total", {
     d <- plotBiomass(sim, species = "Cod", total = TRUE, return_data = TRUE)
     expect_true("Total" %in% d$Species)
 })
+
+test_that("plotCDF and comparisons work with length axis and total", {
+    params <- NS_params_small
+    sim <- NS_sim_small
+
+    # plotCDF on length axis with total
+    cdf_l <- plotCDF(params, size_axis = "l", total = TRUE, return_data = TRUE)
+    expect_identical(names(cdf_l)[[1]], "l")
+    expect_true("Total" %in% cdf_l$Species)
+    expect_equal(max(cdf_l[["Cumulative proportion of biomass"]][cdf_l$Species == "Total"]), 1)
+
+    # plotCDF2 with size_axis = "l" and total = TRUE
+    p2 <- plotCDF2(params, params, size_axis = "l", total = TRUE)
+    expect_s3_class(p2, "ggplot")
+    expect_identical(p2$scales$get_scales("x")$name, "Length [cm]")
+    expect_true("Total" %in% levels(p2$data$Legend))
+
+    # plotSpectra2 with size_axis = "l" and total = TRUE
+    s2 <- plotSpectra2(params, params, size_axis = "l", total = TRUE)
+    expect_s3_class(s2, "ggplot")
+    expect_identical(s2$scales$get_scales("x")$name, "Length [cm]")
+    expect_true("Total" %in% levels(s2$data$Legend))
+
+    # plotSpectraRelative with size_axis = "l" and total = TRUE
+    sr <- plotSpectraRelative(params, params, size_axis = "l", total = TRUE)
+    expect_s3_class(sr, "ggplot")
+    expect_identical(sr$scales$get_scales("x")$name, "Length [cm]")
+    expect_true("Total" %in% levels(sr$data$Legend))
+})
+
+test_that("plotFeedingLevel and plotlyFeedingLevel with include_critical", {
+    params <- NS_params_small
+
+    p <- plotFeedingLevel(params, include_critical = TRUE)
+    expect_s3_class(p, "ggplot")
+    expect_equal(length(p$layers), 2)
+
+    df <- plotFeedingLevel(params, include_critical = TRUE, return_data = TRUE)
+    expect_true(all(c("actual", "critical") %in% df$Type))
+
+    pl <- plotlyFeedingLevel(params, include_critical = TRUE)
+    expect_s3_class(pl, "plotly")
+})
+
+test_that("plotYield delegates to plot(getYield()) and warns on sim2", {
+    sim <- NS_sim_small
+
+    # Single sim plot
+    p <- plotYield(sim)
+    expect_s3_class(p, "ggplot")
+    expect_identical(p$scales$get_scales("x")$name, "Year")
+    expect_identical(p$scales$get_scales("y")$name, "Yield [g/year]")
+
+    # sim2 deprecation warning
+    lifecycle::expect_deprecated(plotYield(sim, sim))
+})
+

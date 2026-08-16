@@ -393,6 +393,7 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                 length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
     size_axis <- plot_size_axis(size_axis)
     check_per_log_size(x, per_log_size)
+    log_y <- array_log_y(x, log_y, log, !missing(log_y))
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
