@@ -80,3 +80,7 @@ is.ArraySpeciesBySize(enc * 2)         # FALSE (arithmetic returns plain matrix)
 ### 5. `str()` safety
 
 The `str()` method for these wrapper classes strips the `params` attribute before displaying the summary. This prevents `str(object)` from dumping all slots of the entire `MizerParams` model object to the console.
+
+### 6. User-facing plotting and summaries
+
+For how these wrapped arrays are plotted, summarized, and extracted in user workflows (including Jacobian adjustments, size axis conversions, and ggplot methods), consult `inst/skills/analyse-and-plot/SKILL.md`.

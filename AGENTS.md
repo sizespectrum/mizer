@@ -21,6 +21,22 @@ mizer is an R package for dynamic multi-species size-spectrum modelling of fish 
 
 **Auto-generated files** — never edit `NAMESPACE`, `man/`, `RcppExports.R`, or `RcppExports.cpp` directly. The `vignettes/cheatsheet-*.Rmd` articles are also generated: their single source is `inst/skills/<topic>/SKILL.md`, which doubles as the agent skill. Edit the skill and re-run `source("dev_scripts/build_cheatsheets.R"); build_cheatsheets()`. Content that belongs in the skill but not in the article (an agent's diagnostic procedure, a lookup table keyed by symptom rather than by topic) goes in an `<!-- agent-only -->` block, which the generator drops. Likewise `docs/llms.txt` and `inst/llms.txt` are generated: pkgdown writes a raw `docs/llms.txt` during `build_site()`, and `source("dev_scripts/build_llms.R"); build_llms()` then swaps its README-derived preamble for `pkgdown/llms-header.md` — the file to edit — and copies the result to `inst/llms.txt`. That installed copy is how `mizerAgents::setup_mizer_agent()` points an agent at the API index for the mizer it has, so it must ship: do not add it to `.Rbuildignore`. Follow `.claude/skills/build-documentation.md`.
 
+## Domain Architecture & Workflows
+
+Before modifying, designing, or debugging core features, consult the design intent, mathematical formulations, and user-facing workflows documented in `inst/skills/`:
+
+| When working on... | Consult skill |
+|---|---|
+| Modifying parameter accessors, downward propagation, rate setters, or freeze mechanisms | `inst/skills/change-parameters/SKILL.md` |
+| Calibration functions (`steady`, `calibrateBiomass`, `matchGrowth`), steady states, or reproduction levels | `inst/skills/calibrate-model/SKILL.md` |
+| Extension points (`setExtEncounter`, `setExtMort`, `setComponent`, `setRateFunction`) | `inst/skills/extend-mizer/SKILL.md` |
+| Model constructors (`newMultispeciesParams`, etc.), size grids, or allometric defaults | `inst/skills/build-multispecies-model/SKILL.md` |
+| Fishing gears, selectivity functions, catchability, or `gear_params` | `inst/skills/set-up-fishing/SKILL.md` |
+| Simulation stepping, projection methods, or effort scenarios | `inst/skills/run-simulation/SKILL.md` |
+| Stability analysis, limit cycles, `steadyNewton`, or `getStability` | `inst/skills/analyse-stability/SKILL.md` |
+| Summary or plotting functions | `inst/skills/analyse-and-plot/SKILL.md` |
+| Renaming/deprecating arguments, changing defaults, or investigating breaking changes | `inst/skills/upgrade-mizer-code/SKILL.md` |
+
 ## Code Conventions
 
 - **Indentation**: 4 spaces

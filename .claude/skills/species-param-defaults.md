@@ -116,6 +116,8 @@ parameter table and rebuilds it with `validSpeciesParams(value)` followed by
 re-supplied by a setter is **lost on that round trip**. `w_min` is a known
 violation of the rule — see issue #460.
 
+For the full user-facing conceptual model of parameter tiers, `given_species_params` vs `species_params`, and downward propagation, consult `inst/skills/change-parameters/SKILL.md` and `inst/skills/build-multispecies-model/SKILL.md`.
+
 ## Verifying a change to defaults
 
 Moving a default between homes should be numerically inert on the standard

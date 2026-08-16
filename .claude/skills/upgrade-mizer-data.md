@@ -64,3 +64,7 @@ Tests load `NS_params` and `NS_sim` from the `data/` directory. If those
 objects predate the class change they will be missing new slots or list
 entries, causing errors that look like rate-function or projection failures
 rather than the real cause (stale stored objects).
+
+## User code and behavioural upgrades
+
+This skill only covers upgrading saved S4 data structures. If the change also alters user-facing function signatures, deprecates arguments, renames functions, or changes numerical results, also record the change and its user symptoms in `inst/skills/upgrade-mizer-code/SKILL.md` and rebuild the cheatsheets (`source("dev_scripts/build_cheatsheets.R"); build_cheatsheets()`).

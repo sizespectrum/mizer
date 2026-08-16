@@ -155,7 +155,7 @@ test lives in the file named after the R file that defines the function.
 `sizeIntegral()`, `bin_average_weight()` and `encounter_kernel()` are exported
 (badged experimental, to match `second_order_w()`) so that extension authors and
 users writing their own indicators can reach them; the user-facing guidance lives
-in the `analyse-and-plot` and `extend-mizer` skills under `inst/skills/`. Keep
+in `inst/skills/analyse-and-plot/SKILL.md` and `inst/skills/extend-mizer/SKILL.md`. Keep
 those two in step with any change here. The other three are internal — prefer
 `ArraySpeciesBySize(..., representation = "average")` over telling a user to call
 `bin_midpoints()` by hand.
