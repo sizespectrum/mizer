@@ -420,7 +420,10 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     xlim = c(NA, NA), ylim = c(NA, NA),
                                     y_ticks = 6, highlight = NULL,
                                     legend_var = "Legend",
-                                    size_axis = NULL) {
+                                    size_axis = NULL,
+                                    density_wrt = NA_character_,
+                                    per_log_size = NULL,
+                                    total_dat = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -443,9 +446,24 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
     if (!is.null(size_axis)) {
         size_axis <- plot_size_axis(size_axis)
         frame <- convert_plot_density_axis(frame, params, size_axis,
+                                           density_wrt = density_wrt,
+                                           per_log_size = per_log_size,
                                            species_col = group_var,
                                            value_col = y_var)
         x_var <- plot_size_x_var(size_axis)
+    }
+    if (!is.null(total_dat)) {
+        # The contributors arrive unconverted and are put on the same axis as
+        # the data they join before being summed there.
+        total_dat <- convert_plot_density_axis(total_dat, params, size_axis,
+                                               density_wrt = density_wrt,
+                                               per_log_size = per_log_size,
+                                               species_col = group_var,
+                                               value_col = y_var)
+        total_dat <- add_total_line(total_dat, x_var, y_var, by = "Model")
+        total_dat <- total_dat[total_dat[[group_var]] == "Total", ]
+        frame <- rbind(frame, total_dat[, names(frame), drop = FALSE])
+        frame$Model <- factor(frame$Model, levels = c(name1, name2))
     }
 
     legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
@@ -472,7 +490,7 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                            limits = xlim) +
         geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
                       linetype = .data[["Model"]],
-                      linewidth = .data[[legend_var]])) +
+                      linewidth = .data[["LineSpec"]])) +
         scale_colour_manual(values = linecolour) +
         scale_linetype_discrete(drop = FALSE) +
         scale_discrete_manual("linewidth", values = linesize, guide = "none")
@@ -507,7 +525,8 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                                   ylim = c(NA, NA),
                                   highlight = NULL,
                                   legend_var = "Legend",
-                                  size_axis = NULL) {
+                                  size_axis = NULL,
+                                  total_dat1 = NULL, total_dat2 = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -533,6 +552,20 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
         frame2 <- convert_plot_size_axis(frame2, params, size_axis,
                                          species_col = group_var)
         x_var <- plot_size_x_var(size_axis)
+    }
+    if (!is.null(total_dat1) && !is.null(total_dat2)) {
+        add_total <- function(frame, total_dat) {
+            if (!is.null(size_axis)) {
+                total_dat <- convert_plot_size_axis(total_dat, params,
+                                                    size_axis,
+                                                    species_col = group_var)
+            }
+            total_dat <- add_total_line(total_dat, x_var, y_var)
+            total_dat <- total_dat[total_dat[[group_var]] == "Total", ]
+            rbind(frame, total_dat[, names(frame), drop = FALSE])
+        }
+        frame1 <- add_total(frame1, total_dat1)
+        frame2 <- add_total(frame2, total_dat2)
     }
 
     by_vars <- c(x_var, group_var, legend_var)
