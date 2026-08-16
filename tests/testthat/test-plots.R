@@ -718,16 +718,16 @@ test_that("the spectrum total appears on a length axis", {
     expect_equal(total[[2]][total$l == at],
                  sum(contributors[[2]][contributors$l == at]))
 
-    # The resource is in the total when it is shown and not when it is not,
-    # where it used to be counted either way
-    with_resource <- plotSpectra(params, total = TRUE, resource = TRUE,
-                                 return_data = TRUE)
-    without <- plotSpectra(params, total = TRUE, resource = FALSE,
-                           return_data = TRUE)
+    # The total is the total of everything the model holds, so it does not
+    # depend on what is drawn: neither hiding the resource nor selecting
+    # species changes it
     small <- min(params@w)
-    expect_gt(with_resource[[2]][with_resource$Legend == "Total" &
-                                     with_resource$w == small],
-              without[[2]][without$Legend == "Total" & without$w == small])
+    total_at <- function(...) {
+        d <- plotSpectra(params, total = TRUE, return_data = TRUE, ...)
+        d[[2]][d$Legend == "Total" & d$w == small]
+    }
+    expect_equal(total_at(resource = FALSE), total_at(resource = TRUE))
+    expect_equal(total_at(species = species), total_at())
 })
 
 test_that("validate_density_wrt accepts only the known measures", {

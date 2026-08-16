@@ -408,8 +408,10 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
 #'   and are left alone when the size axis changes.
 #' @param per_log_size Whether to express a density per logarithmic size.
 #'   `NULL` (the default) keeps whichever the values already are.
-#' @param total Whether to add a line for the total over the series, formed
-#'   after the size axis has been converted, see [add_total_line()].
+#' @param total_dat Optional data frame of the contributors to a total, with a
+#'   `Model` column identifying which of the two they belong to. The total is
+#'   summed from them after the size axis has been converted, see
+#'   [add_total_line()].
 #' @return A `mizer_plot` (ggplot2) object.
 #' @keywords internal
 plotComparisonDataFrame <- function(frame1, frame2, params,
@@ -422,7 +424,7 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     size_axis = NULL,
                                     density_wrt = NA_character_,
                                     per_log_size = NULL,
-                                    total = FALSE) {
+                                    total_dat = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -451,8 +453,17 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                            value_col = y_var)
         x_var <- plot_size_x_var(size_axis)
     }
-    if (total) {
-        frame <- add_total_line(frame, x_var, y_var, by = "Model")
+    if (!is.null(total_dat)) {
+        # The contributors arrive unconverted and are put on the same axis as
+        # the data they join before being summed there.
+        total_dat <- convert_plot_density_axis(total_dat, params, size_axis,
+                                               density_wrt = density_wrt,
+                                               per_log_size = per_log_size,
+                                               species_col = group_var,
+                                               value_col = y_var)
+        total_dat <- add_total_line(total_dat, x_var, y_var, by = "Model")
+        total_dat <- total_dat[total_dat[[group_var]] == "Total", ]
+        frame <- rbind(frame, total_dat[, names(frame), drop = FALSE])
         frame$Model <- factor(frame$Model, levels = c(name1, name2))
     }
 
@@ -516,7 +527,7 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                                   highlight = NULL,
                                   legend_var = "Legend",
                                   size_axis = NULL,
-                                  total = FALSE) {
+                                  total_dat1 = NULL, total_dat2 = NULL) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -543,9 +554,19 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                                          species_col = group_var)
         x_var <- plot_size_x_var(size_axis)
     }
-    if (total) {
-        frame1 <- add_total_line(frame1, x_var, y_var)
-        frame2 <- add_total_line(frame2, x_var, y_var)
+    if (!is.null(total_dat1) && !is.null(total_dat2)) {
+        add_total <- function(frame, total_dat) {
+            if (!is.null(size_axis)) {
+                total_dat <- convert_plot_size_axis(total_dat, params,
+                                                    size_axis,
+                                                    species_col = group_var)
+            }
+            total_dat <- add_total_line(total_dat, x_var, y_var)
+            total_dat <- total_dat[total_dat[[group_var]] == "Total", ]
+            rbind(frame, total_dat[, names(frame), drop = FALSE])
+        }
+        frame1 <- add_total(frame1, total_dat1)
+        frame2 <- add_total(frame2, total_dat2)
     }
 
     by_vars <- c(x_var, group_var, legend_var)
@@ -808,6 +829,31 @@ add_total_line <- function(plot_dat, x_var = names(plot_dat)[[1]],
     if ("Legend" %in% names(total_dat)) total_dat$Legend <- "Total"
     rownames(total_dat) <- NULL
     rbind(plot_dat, total_dat)
+}
+
+#' Convert the contributors to a total and append the total line
+#'
+#' Wraps the two steps that every plot of an array with `total = TRUE` needs:
+#' the contributors are put on the same size axis as the data they will join,
+#' and then summed there, see [add_total_line()].
+#'
+#' @param plot_dat The converted plotting data to append the total to.
+#' @param total_dat The unconverted contributors, see [total_contributors()].
+#' @param params A MizerParams object.
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param x The mizer array the data came from, which says whether the values
+#'   are a density.
+#' @param per_log_size Whether to express a density per logarithmic size.
+#' @return `plot_dat` with the total appended as a series named `"Total"`.
+#' @keywords internal
+append_total_line <- function(plot_dat, total_dat, params, size_axis, x,
+                              per_log_size = NULL) {
+    total_dat <- convert_plot_density_axis(total_dat, params, size_axis,
+                                           density_wrt = array_density_wrt(x),
+                                           per_log_size = per_log_size)
+    total_dat <- add_total_line(total_dat)
+    total_dat <- total_dat[total_dat$Species == "Total", , drop = FALSE]
+    rbind(plot_dat, total_dat[, names(plot_dat), drop = FALSE])
 }
 
 #' The weight-length parameters to plot each row of plotting data with
@@ -1962,23 +2008,22 @@ plot_spectra <- function(params, n, n_pp,
     plot_dat <- convert_plot_spectrum_axis(plot_dat, params, size_axis, power,
                                            per_log_size = per_log_size)
     if (total) {
-        # The total is summed over the series as they are plotted, which on a
-        # length axis means at equal length rather than at equal weight. It is
-        # built from every species, whether or not it was selected for display,
-        # and from the resource when the resource is shown.
+        # The total is the total of everything the model holds: every species,
+        # whether or not it was selected for display, and the resource, whether
+        # or not it is drawn. It is summed over the series as they are plotted,
+        # which on a length axis means at equal length rather than at equal
+        # weight.
         # `n` has already been multiplied by the power of weight above.
-        total_dat <- data.frame(w = rep(w_grid, each = nrow(n)),
-                                value = c(unclass(n)),
-                                Species = rep(dimnames(n)[[1]],
-                                              times = length(w_grid)),
-                                Legend = "Total")
-        if (resource) {
-            resource_dat <- data.frame(w = w_full_grid,
-                                       value = c(n_pp * w_full_grid^power),
-                                       Species = "Resource",
-                                       Legend = "Total")
-            total_dat <- rbind(total_dat, resource_dat)
-        }
+        resource_dat <- data.frame(w = w_full_grid,
+                                   value = c(n_pp * w_full_grid^power),
+                                   Species = "Resource",
+                                   Legend = "Total")
+        total_dat <- rbind(data.frame(w = rep(w_grid, each = nrow(n)),
+                                      value = c(unclass(n)),
+                                      Species = rep(dimnames(n)[[1]],
+                                                    times = length(w_grid)),
+                                      Legend = "Total"),
+                           resource_dat)
         # Zeros are kept here, unlike in the plotted data: they are part of
         # each series and dropping them would let the interpolation bridge a
         # gap that is really empty.

@@ -140,17 +140,16 @@ a length axis whenever the weight-length parameters agree — the union is that
 grid and the interpolation reproduces the values exactly. **The weight-axis
 total is unchanged**, for every power.
 
-Two things do change on the weight axis, both of them corrections:
-
-- `plotSpectra(total = TRUE, resource = FALSE)` now leaves the resource out of
-  the total. The `resource` argument used to control only whether the resource
-  line was drawn; the total counted it either way, so a "consumers only" total
-  was not available.
-- `plot(<array>, total = TRUE)` now sums the lines that are drawn rather than
-  the whole array, so it no longer counts abundance outside a species' size
-  range. On the North Sea model this moves the total at about 2% of sizes, by up
-  to a factor of three where a species holds abundance beyond its `w_max`. Pass
-  `all.sizes = TRUE` to sum the whole array as before.
+One thing does change on the weight axis. `total = TRUE` now means the same
+thing everywhere: **the total of everything the object holds**, whatever is
+drawn. `plotSpectra()` always worked that way — the resource and every species
+count, whether or not the resource is shown and whichever species were
+selected — and it still does. The array plots did not: `plot(<array>,
+total = TRUE)` summed only the species selected for display, and only the sizes
+inside each species' own range. It now sums the whole array, so the total no
+longer moves when you change `species`, `all.sizes` or `background`, and a plot
+of two species can be read against the community total. If you were relying on
+the total of a selection, sum the selection yourself.
 
 ### Length and weight parameters follow the one you gave last
 

@@ -364,7 +364,10 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
     plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
                                           density_wrt = array_density_wrt(x),
                                           per_log_size = per_log_size)
-    if (total) plot_dat <- add_total_line(plot_dat)
+    if (total) {
+        plot_dat <- append_total_line(plot_dat, total_contributors(x, wlim),
+                                      params, size_axis, x, per_log_size)
+    }
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
@@ -559,7 +562,12 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                             size_axis = size_axis,
                             density_wrt = array_density_wrt(x),
                             per_log_size = per_log_size,
-                            total = total)
+                            total_dat = if (total) {
+                                rbind(cbind(total_contributors(x, wlim),
+                                            Model = name1),
+                                      cbind(total_contributors(y, wlim),
+                                            Model = name2))
+                            })
 }
 
 #' Plot relative difference between two mizer arrays
@@ -678,7 +686,8 @@ plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
                           xlim = plot_size_xlim(wlim, size_axis, llim),
                           ylim = ylim,
                           legend_var = "Legend", size_axis = size_axis,
-                          total = total)
+                          total_dat1 = if (total) total_contributors(x, wlim),
+                          total_dat2 = if (total) total_contributors(y, wlim))
 }
 
 check_plot2_compatible <- function(x, y, class) {
@@ -976,7 +985,10 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
     plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
                                           density_wrt = array_density_wrt(x),
                                           per_log_size = per_log_size)
-    if (total) plot_dat <- add_total_line(plot_dat)
+    if (total) {
+        plot_dat <- append_total_line(plot_dat, total_contributors(x, wlim),
+                                      params, size_axis, x, per_log_size)
+    }
     if (identical(size_axis, "l")) {
         plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
@@ -1166,13 +1178,28 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
 
     names(plot_dat)[2] <- value_name
 
-    # The total is deliberately not added here. It has to be formed after the
-    # size coordinate has been converted, because on a length axis the series
-    # no longer share a grid; see `add_total_line()`. The `total` argument is
-    # kept so that the callers can see what was asked for.
-    attr(plot_dat, "total") <- isTRUE(total)
-
     plot_dat
+}
+
+#' Assemble the contributors to the total of a species-by-size array
+#'
+#' The total is the total of everything the array holds: every species, whether
+#' or not it was selected for display, and every size, whether or not it falls
+#' in a species' own size range. It is a property of the array rather than of
+#' the plot, so that a plot of two species can still be read against the
+#' community total.
+#'
+#' The rows are returned unsummed, because the sum has to be taken after the
+#' size coordinate has been converted — on a length axis the species no longer
+#' share a grid; see [add_total_line()].
+#'
+#' @param x An `ArraySpeciesBySize` object.
+#' @param wlim Numeric vector of length two giving the weight limits.
+#' @return A data frame of plotting data holding every value in the array.
+#' @keywords internal
+total_contributors <- function(x, wlim = c(NA, NA)) {
+    prepare_ArraySpeciesBySize_plot_data(x, species = NULL, all.sizes = TRUE,
+                                         wlim = wlim, background = TRUE)
 }
 
 #' @rdname plotHover

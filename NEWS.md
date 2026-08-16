@@ -171,12 +171,12 @@ stability of steady states.
   weight axis, the union is that grid and nothing is approximated: the
   weight-axis total is unchanged.
 
-  Two consequences on the weight axis. `plotSpectra(total = TRUE,
-  resource = FALSE)` now leaves the resource out of the total, where the
-  `resource` argument used to control only whether the resource was drawn. And
-  the total of a mizer array is now the sum of the lines that are drawn, so it
-  no longer counts abundance outside a species' size range; pass
-  `all.sizes = TRUE` for the old sum over the whole array.
+  `total = TRUE` also now means the same thing everywhere: the total of
+  everything the object holds. For `plotSpectra()` that was already so — the
+  resource and every species, whatever is drawn — and it stays so. The array
+  plots have been brought into line: `plot(<array>, total = TRUE)` used to sum
+  only the species that were selected for display, and now sums the whole
+  array, so a plot of two species can be read against the community total.
 
 - `plotYieldObservedVsModel()` gains a `gear` argument that restricts the
   comparison to the catch of the selected gears. Both the model yield and the

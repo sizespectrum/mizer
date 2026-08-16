@@ -224,7 +224,7 @@ dedicated `plot…()` functions below — share these optional arguments:
 | `wlim`/`llim` | numeric vector `c(min, max)` — restrict the size (x) axis |
 | `ylim` | numeric vector `c(min, max)` — restrict the value (y) axis |
 | `highlight` | character vector — draw named species with thicker lines |
-| `total` | logical — add a line for the community total |
+| `total` | logical — add a line for the community total. The total of *everything the object holds*, so it does not change when you select species or hide the resource; on a length axis it is summed at equal length |
 | `log_x`, `log_y` | logical — log-scale the x or y axis |
 | `size_axis` | `"w"` (default) or `"l"` — plot against weight or against length |
 

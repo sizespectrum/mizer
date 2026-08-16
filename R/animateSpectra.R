@@ -198,18 +198,17 @@ animate.MizerSim <- function(x, species = NULL,
     }
     # Add total ----
     # The contributors are assembled here but summed only after the size axis
-    # has been converted, inside `animate_plotly()`. Every species counts,
-    # whether or not it was selected for display, and the resource counts when
-    # it is shown, matching `plotSpectra()`.
+    # has been converted, inside `animate_plotly()`. The total is the total of
+    # everything the model holds: every species, whether or not it was selected
+    # for display, and the resource, whether or not it is drawn — matching
+    # `plotSpectra()`.
     total_dat <- NULL
     if (total) {
         total_dat <- melt(sim@n[time_elements, , , drop = FALSE])
         names(total_dat)[names(total_dat) == "sp"] <- "Species"
-        if (resource) {
-            nf_pp_total <- melt(sim@n_pp[time_elements, , drop = FALSE])
-            nf_pp_total$Species <- "Resource"
-            total_dat <- rbind(total_dat, nf_pp_total)
-        }
+        nf_pp_total <- melt(sim@n_pp[time_elements, , drop = FALSE])
+        nf_pp_total$Species <- "Resource"
+        total_dat <- rbind(total_dat, nf_pp_total)
         total_dat$legend_name <- "Total"
     }
 

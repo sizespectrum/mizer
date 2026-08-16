@@ -15,7 +15,8 @@ plotRelativeDataFrame(
   highlight = NULL,
   legend_var = "Legend",
   size_axis = NULL,
-  total = FALSE
+  total_dat1 = NULL,
+  total_dat2 = NULL
 )
 }
 \arguments{

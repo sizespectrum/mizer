@@ -293,12 +293,16 @@ test_that("the total is shown on a length axis and matches the lines drawn", {
     }, numeric(1))
     expect_equal(total_l[[2]], summed)
 
-    # The total is the sum of what is drawn, so trimming to each species' size
-    # range is respected; `all.sizes = TRUE` sums the whole array
-    all_sizes <- plot(density, total = TRUE, all.sizes = TRUE,
-                      return_data = TRUE)
-    expect_equal(all_sizes[[2]][all_sizes$Species == "Total"],
-                 unname(colSums(unclass(density))))
+    # The total is the total of everything in the array, so it depends on
+    # neither the species selection nor the size trimming
+    full <- unname(colSums(unclass(density)))
+    expect_equal(on_w[[2]][on_w$Species == "Total"], full)
+    for (args in list(list(all.sizes = TRUE), list(species = "Cod"),
+                      list(background = FALSE))) {
+        d <- do.call(plot, c(list(density, total = TRUE, return_data = TRUE),
+                             args))
+        expect_equal(d[[2]][d$Species == "Total"], full)
+    }
 })
 
 test_that("the total on a length axis interpolates onto a common grid", {
@@ -316,10 +320,13 @@ test_that("the total on a length axis interpolates onto a common grid", {
     expect_identical(sum(on_w$Species == "Total"), length(params@w))
     expect_gt(sum(on_l$Species == "Total"), length(params@w))
 
-    # At the largest length only the largest species is present, so the total
-    # is exactly that species there
+    # At the largest length only one species reaches, so the total is exactly
+    # that species there. The total covers the whole array, so compare it
+    # against the untrimmed lines.
     total_l <- on_l[on_l$Species == "Total", ]
-    lines_l <- on_l[on_l$Species != "Total", ]
+    all_l <- plot(density, all.sizes = TRUE, size_axis = "l",
+                  return_data = TRUE)
+    lines_l <- all_l[all_l$Species != "Total", ]
     at <- max(total_l$l)
     expect_identical(sum(lines_l$l == at), 1L)
     expect_equal(total_l[[2]][total_l$l == at], lines_l[[2]][lines_l$l == at])

@@ -434,11 +434,16 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                       stringsAsFactors = FALSE)
     df$value <- c(sub)
 
-    # The contributors to the total are taken across ALL selected species
-    # (including background), before any background filtering, matching the
-    # behaviour of plot.ArraySpeciesBySize. They are summed only after the size
-    # axis has been converted, inside `animate_plotly()`.
-    total_dat <- if (total) df else NULL
+    # The total is the total of everything the array holds, so its contributors
+    # are every species rather than the selected ones, matching
+    # `plot.ArraySpeciesBySize()`. They are summed only after the size axis has
+    # been converted, inside `animate_plotly()`.
+    total_dat <- NULL
+    if (total) {
+        total_dat <- expand.grid(time = times, Species = all_species, w = w,
+                                 stringsAsFactors = FALSE)
+        total_dat$value <- c(arr)
+    }
 
     # Now handle background: exclude rows or group under "Background" legend
     df$legend_name <- df$Species
