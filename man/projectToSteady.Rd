@@ -14,6 +14,7 @@ projectToSteady(
   t_save = dt,
   tol = 0.1 * t_per,
   amplitude_tol = 0.01,
+  amp_rel_tol = 0.1,
   extinction_threshold = 1e-06,
   return_sim = FALSE,
   progress_bar = TRUE,
@@ -60,6 +61,10 @@ reported as a limit cycle rather than treated as an (effectively steady)
 fixed point. This is a fraction of mean biomass and is kept separate from
 \code{tol} (which measures convergence to a fixed point on a different scale).
 Default \code{0.01}.}
+
+\item{amp_rel_tol}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+Maximum relative change of amplitude between successive periods for the
+cycle to count as settled. Default \code{0.01}.}
 
 \item{extinction_threshold}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 A species is treated as going extinct, stopping the run, once its
@@ -200,8 +205,8 @@ most recent window must exceed \code{amplitude_tol}; a smaller oscillation is
 considered negligible and the state is left to be treated as a fixed
 point.
 \item \strong{Settled.} The amplitudes of the three successive windows must agree
-with each other to within 10\%, and the most recent amplitude must not be
-smaller than the oldest by more than 10\%.
+with each other to within \code{amp_rel_tol}, and the most recent amplitude must not be
+smaller than the oldest by more than \code{amp_rel_tol}.
 }
 
 The last condition is what distinguishes a genuine limit cycle from a slowly

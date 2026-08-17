@@ -45,6 +45,7 @@ plots) are in the changelog and are not repeated here.
 
 | Symptom | Cause | Section |
 |---|---|---|
+| `projectToSteady()` finds a limit cycle much earlier, or one it used to miss | ignores the first half of the simulation | `projectToSteady()` ignores initial transients (3.3) |
 | `plotSpectra()` or `plotCDF()` errors that `power` and `biomass` are contradictory | supplying both is no longer silently resolved | `biomass` and `per_log_size` replace `power` (3.3) |
 | A `plotSpectra()` call with both `power` and `biomass`, or any `plotly...()` call with `biomass`, now gives a different plot | `biomass` is no longer ignored | `biomass` and `per_log_size` replace `power` (3.3) |
 | `plotCDF(per_log_size = TRUE)` errors | meaningless for a cumulative distribution | `biomass` and `per_log_size` replace `power` (3.3) |
@@ -939,6 +940,19 @@ pass: it covers `newTraitParams()`, `newCommunityParams()` and
 `newSingleSpeciesParams()` as well, so its name claimed a narrower scope than it
 has. If you install mizer's skills with `mizerAgents::setup_mizer_agent()`,
 re-run it to pick up the new name.
+
+### `projectToSteady()` ignores initial transients
+
+To decide whether a simulation has settled onto a limit cycle,
+`projectToSteady()` calculates the autocorrelation of a fine-resolution biomass
+series. Previously it used the entire history from the start of the run. A large
+initial transient could therefore dominate the autocorrelation and obscure a
+cycle that had settled more recently.
+In mizer 3.3, the autocorrelation step uses only the second half of the series
+(or the most recent 20 samples if the series is shorter). This allows it to
+ignore the initial transient. A cycle will now be found earlier (because the
+check does not wait for the long-settled cycle to outweigh the transient), and
+some cycles that were previously missed entirely will now be correctly reported.
 
 ## Upgrading from mizer 3.1 to 3.2
 

@@ -12,6 +12,7 @@ steady(
   t_save = dt,
   tol = 0.1 * dt,
   amplitude_tol = 0.01,
+  amp_rel_tol = 0.01,
   extinction_threshold = 1e-06,
   return_sim = FALSE,
   preserve = c("reproduction_level", "erepro", "R_max"),
@@ -46,6 +47,10 @@ reported as a limit cycle rather than treated as an (effectively steady)
 fixed point. This is a fraction of mean biomass and is kept separate from
 \code{tol} (which measures convergence to a fixed point on a different scale).
 Default \code{0.01}.}
+
+\item{amp_rel_tol}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+Maximum relative change of amplitude between successive periods for the
+cycle to count as settled. Default \code{0.01}.}
 
 \item{extinction_threshold}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 A species is treated as going extinct, stopping the run, once its

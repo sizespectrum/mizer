@@ -452,6 +452,17 @@ while building or changing a model through a single mechanism controlled by
 
 ## Bug fixes
 
+- `projectToSteady()` limit-cycle detection now uses only the second half of the
+  series (or the most recent 20 samples if the series is short) for its
+  autocorrelation step, instead of the entire run. This stops large initial
+  transients from drowning out a cycle that settles later.
+
+- Setting `f0` to a value outside the interval `[0, 1)` now gives an immediate
+  error, whether or not `gamma` has been supplied. Previously `f0 = 1`
+  silently produced an infinite `gamma` and a non-finite `search_vol` when
+  `gamma` was calculated, while an invalid `f0` supplied alongside `gamma`
+  could be accepted and ignored (#517).
+
 - The default values for the `gamma` and `f0` species parameters are no longer
   corrupted by a search volume that you have set by hand. `get_gamma_default()`
   measures the energy available to a predator by giving it a search volume

@@ -150,8 +150,8 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'    considered negligible and the state is left to be treated as a fixed
 #'    point.
 #' 4. **Settled.** The amplitudes of the three successive windows must agree
-#'    with each other to within 10%, and the most recent amplitude must not be
-#'    smaller than the oldest by more than 10%.
+#'    with each other to within `amp_rel_tol`, and the most recent amplitude must not be
+#'    smaller than the oldest by more than `amp_rel_tol`.
 #'
 #' The last condition is what distinguishes a genuine limit cycle from a slowly
 #' decaying spiral towards a stable fixed point: the spiral loses amplitude from
@@ -222,6 +222,7 @@ projectToSteady <- function(params,
                             t_save = dt,
                             tol = 0.1 * t_per,
                             amplitude_tol = 0.01,
+                            amp_rel_tol = 0.1,
                             extinction_threshold = 1e-6,
                             return_sim = FALSE,
                             progress_bar = TRUE,
@@ -239,6 +240,7 @@ projectToSteady.MizerParams <- function(params,
                             t_save = dt,
                             tol = 0.1 * t_per,
                             amplitude_tol = 0.01,
+                            amp_rel_tol = 0.1,
                             extinction_threshold = 1e-6,
                             return_sim = FALSE,
                             progress_bar = TRUE,
@@ -367,7 +369,7 @@ projectToSteady.MizerParams <- function(params,
         }
         # Not settling to a fixed point: check whether we are on a limit cycle.
         cycle <- detect_limit_cycle(bio_series[seq_len(save_idx), , drop = FALSE],
-                                    t_save, amplitude_tol)
+                                    t_save, amplitude_tol, amp_rel_tol = amp_rel_tol)
         if (!is.null(cycle)) {
             break
         }
@@ -488,10 +490,15 @@ detect_limit_cycle <- function(bio, t_save, amplitude_tol,
                                amp_rel_tol = 0.1) {
     n <- nrow(bio)
     if (n < 20) return(NULL)
-    s <- log(rowSums(bio))
+    
+    window_length <- max(20, ceiling(n / 2))
+    recent_bio <- bio[(n - window_length + 1):n, , drop = FALSE]
+    
+    s <- log(rowSums(recent_bio))
     s <- s - mean(s)
     if (all(abs(s) < .Machine$double.eps)) return(NULL)
-    lag_max <- floor(n / 2)
+    
+    lag_max <- floor(window_length / 2)
     ac <- stats::acf(s, lag.max = lag_max, plot = FALSE, demean = TRUE)$acf[, 1, 1]
     w <- find_first_acf_peak(ac, acf_threshold)
     # Need three full periods of history to confirm a settled cycle.
@@ -576,6 +583,9 @@ find_first_acf_peak <- function(ac, threshold) {
 #'   fixed point. This is a fraction of mean biomass and is kept separate from
 #'   `tol` (which measures convergence to a fixed point on a different scale).
 #'   Default `0.01`.
+#' @param amp_rel_tol `r lifecycle::badge("experimental")`
+#'   Maximum relative change of amplitude between successive periods for the
+#'   cycle to count as settled. Default `0.01`.
 #' @param extinction_threshold `r lifecycle::badge("experimental")`
 #'   A species is treated as going extinct, stopping the run, once its
 #'   reproduction rate (RDD) falls below this fraction of its value at the start
@@ -615,7 +625,7 @@ find_first_acf_peak <- function(ac, threshold) {
 #' plotSpectra(params)
 #' }
 steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1, t_save = dt,
-                   tol = 0.1 * dt, amplitude_tol = 0.01,
+                   tol = 0.1 * dt, amplitude_tol = 0.01, amp_rel_tol = 0.01,
                    extinction_threshold = 1e-6, return_sim = FALSE,
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE,
@@ -627,7 +637,7 @@ steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1, t_save = dt,
 #' @export
 steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                    t_save = dt,
-                   tol = 0.1 * dt, amplitude_tol = 0.01,
+                   tol = 0.1 * dt, amplitude_tol = 0.01, amp_rel_tol = 0.01,
                    extinction_threshold = 1e-6, return_sim = FALSE,
                    preserve = c("reproduction_level", "erepro", "R_max"),
                    progress_bar = TRUE,
@@ -666,6 +676,7 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                               t_save = t_save,
                               tol = tol,
                               amplitude_tol = amplitude_tol,
+                              amp_rel_tol = amp_rel_tol,
                               extinction_threshold = extinction_threshold,
                               return_sim = return_sim,
                               progress_bar = progress_bar,
