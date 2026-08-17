@@ -36,39 +36,33 @@
 #' The returned \linkS4class{MizerSim} has times running from 0 to \eqn{T}
 #' (the period in time steps, typically years).
 #'
-#' @param params A \linkS4class{MizerParams} object at a steady state,
-#'   typically the output of [steadyNewton()].  If `attr(params, "stability")`
-#'   exists and contains `leading_eigenvectors` it is used directly; otherwise
-#'   [getStability()] is called.
+#' @param x A \linkS4class{MizerParams} object at a steady state,
+#'   typically the output of [steadyNewton()], or the list returned by
+#'   [getStability()].
 #' @param amplitude Maximum relative perturbation
 #'   \eqn{\max_w |\delta N(t,w)|/N^*(w)} across the limit cycle.  Default
 #'   `0.1`.
 #' @param t_save The time interval between saved time steps in the returned
 #'   \linkS4class{MizerSim}.  Defaults to `0.1`.
-#' @param ... Additional arguments forwarded to [getStability()] when
-#'   stability has not already been computed and cached on `params`.
+#' @param ... Additional arguments forwarded to [getStability()] when `x` is a
+#'   `MizerParams` object.
 #' @return A \linkS4class{MizerSim} object whose time axis spans one period
 #'   \eqn{[0, T]} of the linearised limit cycle.
 #' @seealso [getStability()], [steadyNewton()]
 #' @export
-getLimitCycleSim <- function(params, amplitude = 0.1, t_save = 0.1, ...) {
+getLimitCycleSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
     # ------------------------------------------------------------------
     # 1. Get (or compute) stability analysis
     # ------------------------------------------------------------------
-    stab <- attr(params, "stability")
-    if (is.null(stab) || is.null(stab$leading_eigenvectors)) {
-        message("Computing stability analysis ...")
+    if (is(x, "MizerParams")) {
+        params <- x
         # `getStability()` raises the not-at-steady-state warning itself.
         stab <- getStability(params, ...)
+    } else if (is.list(x) && !is.null(x$eigenvalues) && is(x$params, "MizerParams")) {
+        stab <- x
+        params <- stab$params
     } else {
-        # A precomputed stability object bypasses that check, so make it here:
-        # the cycle is built by perturbing the stored state along an
-        # eigenvector, which only describes a cycle if that state is a fixed
-        # point.
-        warn_if_not_steady(params, paste(
-            "The limit cycle is constructed by perturbing the stored state",
-            "along an eigenvector, which only traces a cycle if that state is",
-            "a fixed point. Use `steadyNewton()` first."))
+        stop("The first argument must be a MizerParams object or the stability list returned by getStability().")
     }
 
     if (is.null(stab$hopf_period)) {

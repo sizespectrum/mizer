@@ -18,7 +18,6 @@ steadyNewton(params, ...)
   maxit = 200,
   method = c("Broyden", "Newton"),
   global = "dbldog",
-  stability = FALSE,
   ...
 )
 }
@@ -61,16 +60,10 @@ iteration. '"Broyden"' is the default.}
 
 \item{global}{The globalisation strategy passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}}.
 The default \code{"dbldog"} (double dogleg) is a robust trust-region method.}
-
-\item{stability}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-If \code{TRUE}, \code{\link[=getStability]{getStability()}} is called after convergence and its result is
-stored as the attribute \code{"stability"} on the returned
-\linkS4class{MizerParams} object. Default is \code{FALSE}.}
 }
 \value{
 A \linkS4class{MizerParams} object with the initial state set to the
-steady state. If \code{stability = TRUE}, the object carries the attribute
-\code{"stability"} containing the list returned by \code{\link[=getStability]{getStability()}}.
+steady state.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -135,8 +128,6 @@ resource dynamics the function stops with an error.
 \donttest{
 params <- steadyNewton(NS_params)
 plotSpectra(params)
-params <- steadyNewton(NS_params, stability = TRUE)
-attr(params, "stability")$stable
 }
 }
 \seealso{

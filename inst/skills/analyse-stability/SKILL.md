@@ -6,7 +6,7 @@ description: >-
   stable or unstable, wants the spectral radius or leading eigenvalue, the period
   of an emergent oscillation, a Hopf bifurcation, a limit cycle to build or plot,
   or a bifurcation diagram over fishing effort — via getStability(),
-  steadyNewton(stability = TRUE), getLimitCycleSim() and plotBifurcation(). This
+  steadyNewton(), getLimitCycleSim() and plotBifurcation(). This
   skill and calibrate-model share steadyNewton() and getSteadyResidual(): use
   calibrate-model to find a steady state, this skill to ask whether the state you
   found is stable. Assumes the standard semichemostat resource dynamics.
@@ -44,8 +44,6 @@ stab   <- getStability(params)
 stab                                     # stable/unstable, spectral radius, cycle period
 ```
 
-- `steadyNewton(params, stability = TRUE)` runs `getStability()` for you and
-  attaches the result as the `"stability"` attribute of the returned object.
 - `include_resource = TRUE` computes the full coupled (fish + resource) Jacobian
   instead of the quasi-static approximation — mainly to verify that the
   approximation makes little difference.
@@ -80,7 +78,7 @@ scaled so the maximum relative perturbation equals the `amplitude` argument
 tools (see the `analyse-and-plot` skill):
 
 ```r
-params <- steadyNewton(params, stability = TRUE)
+params <- steadyNewton(params)
 sim    <- getLimitCycleSim(params, amplitude = 0.1)
 plotBiomass(sim)                         # biomass oscillation over one period
 animate(plotSpectra(sim))               # the travelling wave in the spectrum

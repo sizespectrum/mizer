@@ -4,13 +4,12 @@
 \alias{getLimitCycleSim}
 \title{Construct a MizerSim of the linearised limit cycle}
 \usage{
-getLimitCycleSim(params, amplitude = 0.1, t_save = 0.1, ...)
+getLimitCycleSim(x, amplitude = 0.1, t_save = 0.1, ...)
 }
 \arguments{
-\item{params}{A \linkS4class{MizerParams} object at a steady state,
-typically the output of \code{\link[=steadyNewton]{steadyNewton()}}.  If \code{attr(params, "stability")}
-exists and contains \code{leading_eigenvectors} it is used directly; otherwise
-\code{\link[=getStability]{getStability()}} is called.}
+\item{x}{A \linkS4class{MizerParams} object at a steady state,
+typically the output of \code{\link[=steadyNewton]{steadyNewton()}}, or the list returned by
+\code{\link[=getStability]{getStability()}}.}
 
 \item{amplitude}{Maximum relative perturbation
 \eqn{\max_w |\delta N(t,w)|/N^*(w)} across the limit cycle.  Default
@@ -19,8 +18,8 @@ exists and contains \code{leading_eigenvectors} it is used directly; otherwise
 \item{t_save}{The time interval between saved time steps in the returned
 \linkS4class{MizerSim}.  Defaults to \code{0.1}.}
 
-\item{...}{Additional arguments forwarded to \code{\link[=getStability]{getStability()}} when
-stability has not already been computed and cached on \code{params}.}
+\item{...}{Additional arguments forwarded to \code{\link[=getStability]{getStability()}} when \code{x} is a
+\code{MizerParams} object.}
 }
 \value{
 A \linkS4class{MizerSim} object whose time axis spans one period

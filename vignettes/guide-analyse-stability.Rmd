@@ -53,8 +53,6 @@ stab   <- getStability(params)
 stab                                     # stable/unstable, spectral radius, cycle period
 ```
 
-- `steadyNewton(params, stability = TRUE)` runs `getStability()` for you and
-  attaches the result as the `"stability"` attribute of the returned object.
 - `include_resource = TRUE` computes the full coupled (fish + resource) Jacobian
   instead of the quasi-static approximation — mainly to verify that the
   approximation makes little difference.
@@ -91,7 +89,7 @@ scaled so the maximum relative perturbation equals the `amplitude` argument
 tools (see the [guide to analysing and plotting mizer results](guide-analyse-and-plot.html)):
 
 ```{r eval=FALSE}
-params <- steadyNewton(params, stability = TRUE)
+params <- steadyNewton(params)
 sim    <- getLimitCycleSim(params, amplitude = 0.1)
 plotBiomass(sim)                         # biomass oscillation over one period
 animate(plotSpectra(sim))               # the travelling wave in the spectrum

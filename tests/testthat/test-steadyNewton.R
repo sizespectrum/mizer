@@ -312,14 +312,7 @@ test_that("getStability eigenvalues are consistent with spectral_radius", {
     expect_equal(stab$spectral_radius, max(Mod(stab$eigenvalues)))
 })
 
-test_that("steadyNewton attaches stability when stability = TRUE", {
-    skip_unless_experimental()
-    pn <- steadyNewton(p_steady, stability = TRUE)
 
-    stab <- attr(pn, "stability")
-    expect_type(stab, "list")
-    expect_true(stab$stable)
-})
 
 test_that("getStability hopf_period is NULL when all eigenvalues are real", {
     skip_unless_experimental()

@@ -25,9 +25,7 @@ while building or changing a model through a single mechanism controlled by
   quasi-static fast variable (valid for semichemostat dynamics); setting
   `include_resource = TRUE` gives the full coupled (fish + resource) Jacobian,
   useful for verifying that the quasi-static approximation makes little difference.
-  `steadyNewton()` gains a `stability = TRUE` argument that calls `getStability()`
-  automatically and attaches the result as the attribute `"stability"` on the
-  returned `MizerParams` object. The stability list also includes
+  The stability list also includes
   `leading_eigenvectors`: a complex array `(n_species, n_sizes, 2)` of the
   top two eigenvectors reshaped into the fish abundance space, normalised to
   maximum modulus 1. The rate functions are only ever evaluated at states
@@ -716,7 +714,7 @@ while building or changing a model through a single mechanism controlled by
 
 - New `analyse-stability` skill, and the matching "Guide: Dynamic
   Stability" article, cover the experimental stability tools added in this
-  version: `getStability()`, `steadyNewton(stability = TRUE)`,
+  version: `getStability()`, `steadyNewton()`,
   `getLimitCycleSim()` and `plotBifurcation()`. Like the other skills it is
   shipped in `inst/skills/` and picked up by `mizerAgents::setup_mizer_agent()`
   from the installed mizer, so an agent's guidance describes the version of

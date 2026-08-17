@@ -97,23 +97,17 @@
 #'   calculates the full Jacobian only once and then only updates it on each
 #'   iteration. '"Broyden"' is the default.
 #' @param global The globalisation strategy passed to [nleqslv::nleqslv()].
+#' @param global The globalisation strategy passed to [nleqslv::nleqslv()].
 #'   The default `"dbldog"` (double dogleg) is a robust trust-region method.
-#' @param stability `r lifecycle::badge("experimental")`
-#'   If `TRUE`, [getStability()] is called after convergence and its result is
-#'   stored as the attribute `"stability"` on the returned
-#'   \linkS4class{MizerParams} object. Default is `FALSE`.
 #' @param ... Unused.
 #' @return A \linkS4class{MizerParams} object with the initial state set to the
-#'   steady state. If `stability = TRUE`, the object carries the attribute
-#'   `"stability"` containing the list returned by [getStability()].
+#'   steady state.
 #' @seealso [steady()], [steadySingleSpecies()], [getStability()]
 #' @export
 #' @examples
 #' \donttest{
 #' params <- steadyNewton(NS_params)
 #' plotSpectra(params)
-#' params <- steadyNewton(NS_params, stability = TRUE)
-#' attr(params, "stability")$stable
 #' }
 steadyNewton <- function(params, ...) {
     UseMethod("steadyNewton")
@@ -130,8 +124,7 @@ steadyNewton.MizerParams <- function(params,
                                      verbose = FALSE,
                                      tol = 1e-6, maxit = 200,
                                      method = c("Broyden", "Newton"),
-                                     global = "dbldog",
-                                     stability = FALSE, ...) {
+                                     global = "dbldog", ...) {
     reproduction <- match.arg(reproduction)
     if (reproduction == "fixed") {
         preserve <- match.arg(preserve)
@@ -266,13 +259,6 @@ steadyNewton.MizerParams <- function(params,
             "The biomasses of the solution change at up to ",
             signif(residual, 2), " per year."),
             level = 3, unhandled = "show")
-    }
-
-    if (stability) {
-        attr(params, "stability") <- getStability(params,
-                                                   reproduction = reproduction,
-                                                   effort = effort,
-                                                   extinction_floor = extinction_floor)
     }
 
     params
@@ -1033,6 +1019,7 @@ getStability <- function(params,
         dominant_period      = dominant_period,
         hopf_period          = hopf_period,
         n_active             = n_state,
-        leading_eigenvectors = leading_eigenvectors
+        leading_eigenvectors = leading_eigenvectors,
+        params               = params
     )
 }

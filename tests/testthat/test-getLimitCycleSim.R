@@ -6,8 +6,8 @@ delayedAssign("p_steady_lcs",
 
 test_that("getLimitCycleSim returns a MizerSim for a model with complex eigenvalues", {
     skip_unless_experimental()
-    pn  <- steadyNewton(p_steady_lcs, stability = TRUE)
-    stab <- attr(pn, "stability")
+    pn  <- steadyNewton(p_steady_lcs)
+    stab <- getStability(pn)
 
     # Only run test when the dominant eigenvalue is complex (Hopf mode dominant)
     skip_if(is.null(stab$hopf_period),
@@ -15,19 +15,19 @@ test_that("getLimitCycleSim returns a MizerSim for a model with complex eigenval
     skip_if(abs(Im(stab$eigenvalues[1])) <= 1e-8,
             "Dominant eigenvalue is real; limit cycle test not applicable.")
 
-    lcs <- getLimitCycleSim(pn)
+    lcs <- getLimitCycleSim(stab)
     expect_s4_class(lcs, "MizerSim")
 })
 
 test_that("getLimitCycleSim time axis spans one period", {
     skip_unless_experimental()
-    pn   <- steadyNewton(p_steady_lcs, stability = TRUE)
-    stab <- attr(pn, "stability")
+    pn   <- steadyNewton(p_steady_lcs)
+    stab <- getStability(pn)
 
     skip_if(is.null(stab$hopf_period))
     skip_if(abs(Im(stab$eigenvalues[1])) <= 1e-8)
 
-    lcs   <- getLimitCycleSim(pn)
+    lcs   <- getLimitCycleSim(stab)
     times <- getTimes(lcs)
     T_period <- stab$dominant_period
 
@@ -38,21 +38,21 @@ test_that("getLimitCycleSim time axis spans one period", {
 
 test_that("getLimitCycleSim abundances are non-negative", {
     skip_unless_experimental()
-    pn   <- steadyNewton(p_steady_lcs, stability = TRUE)
-    stab <- attr(pn, "stability")
+    pn   <- steadyNewton(p_steady_lcs)
+    stab <- getStability(pn)
 
     skip_if(is.null(stab$hopf_period))
     skip_if(abs(Im(stab$eigenvalues[1])) <= 1e-8)
 
-    lcs <- getLimitCycleSim(pn, amplitude = 0.5)   # large amplitude stress test
+    lcs <- getLimitCycleSim(stab, amplitude = 0.5)   # large amplitude stress test
     expect_true(all(lcs@n >= 0))
     expect_true(all(lcs@n_pp >= 0))
 })
 
 test_that("getLimitCycleSim t_save controls the time step spacing", {
     skip_unless_experimental()
-    pn   <- steadyNewton(p_steady_lcs, stability = TRUE)
-    stab <- attr(pn, "stability")
+    pn   <- steadyNewton(p_steady_lcs)
+    stab <- getStability(pn)
 
     skip_if(is.null(stab$hopf_period))
     skip_if(abs(Im(stab$eigenvalues[1])) <= 1e-8)
@@ -68,27 +68,27 @@ test_that("getLimitCycleSim t_save controls the time step spacing", {
 
 test_that("getLimitCycleSim n array has correct species and size dimnames", {
     skip_unless_experimental()
-    pn   <- steadyNewton(p_steady_lcs, stability = TRUE)
-    stab <- attr(pn, "stability")
+    pn   <- steadyNewton(p_steady_lcs)
+    stab <- getStability(pn)
 
     skip_if(is.null(stab$hopf_period))
     skip_if(abs(Im(stab$eigenvalues[1])) <= 1e-8)
 
-    lcs <- getLimitCycleSim(pn)
+    lcs <- getLimitCycleSim(stab)
     expect_equal(dimnames(lcs@n)$sp, dimnames(pn@initial_n)[[1]])
     expect_equal(dimnames(lcs@n)$w,  dimnames(pn@initial_n)[[2]])
 })
 
 test_that("getLimitCycleSim respects amplitude: max relative perturbation ~ amplitude", {
     skip_unless_experimental()
-    pn   <- steadyNewton(p_steady_lcs, stability = TRUE)
-    stab <- attr(pn, "stability")
+    pn   <- steadyNewton(p_steady_lcs)
+    stab <- getStability(pn)
 
     skip_if(is.null(stab$hopf_period))
     skip_if(abs(Im(stab$eigenvalues[1])) <= 1e-8)
 
     amp <- 0.1
-    lcs <- getLimitCycleSim(pn, amplitude = amp, t_save = stab$dominant_period / 200)
+    lcs <- getLimitCycleSim(stab, amplitude = amp, t_save = stab$dominant_period / 200)
     N_ss <- pn@initial_n
     active <- N_ss > 0
     max_rel <- max(abs(lcs@n - rep(N_ss, each = dim(lcs@n)[1])) /
