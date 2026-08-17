@@ -44,7 +44,8 @@ params <- steady(params)
 | [`steadySingleSpecies(params)`](../reference/steadySingleSpecies.html) | set each species to its single-species steady form, births held fixed, without changing the resource — a fast way to get a sensible starting spectrum before [`steady()`](../reference/steady.html) |
 | [`projectToSteady(params)`](../reference/projectToSteady.html) | the lower-level routine [`steady()`](../reference/steady.html) builds on, but with **births responding dynamically**; exposes `t_max`, `tol`, `return_sim` if you need to watch convergence |
 | [`steadyNewton(params)`](../reference/steadyNewton.html) | *(experimental)* solve the steady-state equation directly, converging even when the steady state is dynamically unstable |
-| [`getSteadyResidual(params)`](../reference/getSteadyResidual.html) | *(experimental)* ask whether a model **is** at its steady state, and where it is not |
+| [`isSteady(params)`](../reference/isSteady.html) | *(experimental)* ask whether a model **is** at its steady state (boolean) |
+| [`getSteadyResidual(params)`](../reference/getSteadyResidual.html) | *(experimental)* per-capita rates of change across species and sizes, showing where it is not |
 
 During setup and calibration you almost always want `steady()` or
 `steadySingleSpecies()`, because holding births constant lets the dynamics settle
@@ -153,6 +154,7 @@ changing it.
 ## Verifying the result
 
 ```{r eval=FALSE}
+isSteady(params)                       # TRUE if settled within tolerance
 summary(params)                        # still at the steady state?
 plotSpectra(params)                    # sensible, overlapping spectra?
 plotGrowthCurves(params, species = "Cod")
@@ -224,6 +226,7 @@ reproduction_level(params) <- 0.25
 reproduction_level(params)              # what the model is currently tuned to
 
 # ── Verify ────────────────────────────────────────────────────────────────────
+isSteady(params)                        # TRUE if settled within tolerance
 summary(params)                         # includes the biomass-drift verdict
 plot(getSteadyResidual(params))         # which species and sizes are still moving
 plotSpectra(params)

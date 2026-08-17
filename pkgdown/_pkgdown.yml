@@ -188,6 +188,7 @@ reference:
   - steady
   - steadyNewton
   - getSteadyResidual
+  - isSteady
   - getStability
   - getLimitCycleSim
   - steadySingleSpecies

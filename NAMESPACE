@@ -135,6 +135,7 @@ S3method(initialN,MizerSim)
 S3method(initialNResource,MizerParams)
 S3method(initialNResource,MizerSim)
 S3method(intake_max,MizerParams)
+S3method(isSteady,MizerParams)
 S3method(matchBiomasses,MizerParams)
 S3method(matchGrowth,MizerParams)
 S3method(matchNumbers,MizerParams)
@@ -447,6 +448,7 @@ export(is.ArrayTimeBySpeciesBySize)
 export(is.gear_params)
 export(is.given_species_params)
 export(is.species_params)
+export(isSteady)
 export(knife_edge)
 export(knife_edge_length)
 export(l2w)
@@ -620,25 +622,33 @@ import(methods)
 importFrom(Rcpp,sourceCpp)
 importFrom(grDevices,col2rgb)
 importFrom(lifecycle,deprecated)
-importFrom(plotly,ggplotly)
-importFrom(plotly,plotlyOutput)
-importFrom(plotly,renderPlotly)
+importFrom(plotly,
+  ggplotly,
+  plotlyOutput,
+  renderPlotly
+)
 importFrom(reshape2,melt)
-importFrom(rlang,cnd_muffle)
-importFrom(rlang,inform)
-importFrom(rlang,signal)
-importFrom(stats,complete.cases)
-importFrom(stats,cor.test)
-importFrom(stats,fft)
-importFrom(stats,lm)
-importFrom(stats,mvfft)
-importFrom(stats,pnorm)
-importFrom(stats,runif)
-importFrom(stats,setNames)
-importFrom(utils,adist)
-importFrom(utils,data)
-importFrom(utils,getS3method)
-importFrom(utils,globalVariables)
-importFrom(utils,modifyList)
-importFrom(utils,packageVersion)
+importFrom(rlang,
+  cnd_muffle,
+  inform,
+  signal
+)
+importFrom(stats,
+  complete.cases,
+  cor.test,
+  fft,
+  lm,
+  mvfft,
+  pnorm,
+  runif,
+  setNames
+)
+importFrom(utils,
+  adist,
+  data,
+  getS3method,
+  globalVariables,
+  modifyList,
+  packageVersion
+)
 useDynLib(mizer)

@@ -17,6 +17,7 @@ reproduction_level(params) <- 0.25
 reproduction_level(params)              # what the model is currently tuned to
 
 # ── Verify ────────────────────────────────────────────────────────────────────
+isSteady(params)                        # TRUE if settled within tolerance
 summary(params)                         # includes the biomass-drift verdict
 plot(getSteadyResidual(params))         # which species and sizes are still moving
 plotSpectra(params)

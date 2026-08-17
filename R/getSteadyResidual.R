@@ -122,7 +122,7 @@ steady_residual_tol <- function() {
 #'       its per-capita rate of change, or `NA` for a component whose state is
 #'       not numeric.}
 #'   }
-#' @seealso [steady()], [steadyNewton()], [getStability()]
+#' @seealso [isSteady()], [steady()], [steadyNewton()], [getStability()]
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -155,6 +155,53 @@ getSteadyResidual <- function(params, effort = params@initial_effort,
     attr(residual, "resource") <- resource
     attr(residual, "other") <- rates$other
     residual
+}
+
+#' Check whether a model is at steady state
+#'
+#' `r lifecycle::badge("experimental")`
+#' Returns `TRUE` if the model is at its steady state (within a specified
+#' tolerance), `FALSE` otherwise.
+#'
+#' Steadiness is judged by computing the relative rate of change of biomass
+#' across all consumer species, resource, and other components (see
+#' [getSteadyResidual()]). If the largest biomass drift is less than or equal to
+#' `tol`, the model is considered to be at steady state.
+#'
+#' @param params A \linkS4class{MizerParams} object or an extension thereof.
+#' @param tol Tolerance for the relative rate of biomass change in 1/year.
+#'   Defaults to `0.05` (5% change per year).
+#' @param effort The fishing effort at which to evaluate steadiness. By default
+#'   the initial effort stored in `params`.
+#' @param ... Additional arguments passed to methods.
+#' @return `TRUE` if the model's biomass drift is within `tol`, `FALSE`
+#'   otherwise.
+#' @seealso [getSteadyResidual()], [steady()], [steadyNewton()]
+#' @export
+#' @family summary functions
+#' @concept summary_function
+#' @examples
+#' isSteady(NS_params)
+#'
+#' \donttest{
+#' # Moving a species abundance off its steady state makes isSteady() FALSE
+#' params <- NS_params
+#' initialN(params)[1, ] <- initialN(params)[1, ] * 2
+#' isSteady(params)
+#' }
+isSteady <- function(params, tol = 0.05, effort = params@initial_effort, ...) {
+    UseMethod("isSteady")
+}
+
+#' @rdname isSteady
+#' @usage NULL
+#' @export
+isSteady.MizerParams <- function(params, tol = 0.05,
+                                 effort = params@initial_effort, ...) {
+    params <- validParams(params)
+    drift <- tryCatch(steady_biomass_drift(params, effort = effort, ...),
+                      error = function(e) NA_real_)
+    is.finite(drift) && drift <= tol
 }
 
 #' The absolute rates of change of every state variable
