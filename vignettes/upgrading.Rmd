@@ -1,5 +1,5 @@
 ---
-title: "Upgrading mizer"
+title: "Upgrading your mizer code"
 output:
   html_document:
     toc: yes

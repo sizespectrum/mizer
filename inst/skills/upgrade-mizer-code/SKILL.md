@@ -13,7 +13,7 @@ description: >-
   search it by the message the user actually saw.
 ---
 
-# Upgrading mizer
+# Upgrading your mizer code
 
 <!-- agent-only -->
 

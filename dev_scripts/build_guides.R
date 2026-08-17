@@ -133,8 +133,8 @@ guide_topics <- list(
     # human reading by release, is agent-only.
     `upgrade-mizer-code` = list(
         vignette  = "upgrading",
-        title     = "Upgrading mizer",
-        link_text = "Upgrading mizer article",
+        title     = "Upgrading your mizer code",
+        link_text = "Upgrading your mizer code article",
         # Deliberately no `lead` and no `setup`: the skill body opens with its
         # own introduction, and nothing in the article is evaluated.
         nolink    = c("print", "summary", "plot", "as.data.frame")

@@ -21,7 +21,7 @@ Agent skills in `inst/skills/<topic>/SKILL.md` serve as the single source of tru
 
 The skill's directory name is the one name for the topic. Everything else is derived from it by `guide_index()` in `dev_scripts/build_guides.R` and must not be restated anywhere: the article is `vignettes/guide-<skill>.Rmd`, its title is `"Guide: "` followed by the skill's own H1, and other documents link to it as "the guide to \<H1 lowercased\>". So renaming a skill directory renames the article, and rewording its H1 rewords the title and every cross-reference to it. `dev_scripts/build_wiki.R` sources the same function rather than keeping its own copy of the mapping.
 
-The one exception is `upgrade-mizer-code`, which is not a guide: it overrides all three names in the `guide_topics` table so that it stays `vignettes/upgrading.Rmd`, titled "Upgrading mizer". Nothing else should use those overrides. An article that renames because its skill is named differently is a rename like any other: add a `redirects:` entry in `pkgdown/_pkgdown.yml` and a row to the table in `inst/skills/upgrade-mizer-code/SKILL.md`, rather than pinning the old name.
+The one exception is `upgrade-mizer-code`, which is not a guide: it overrides all three names in the `guide_topics` table so that it stays `vignettes/upgrading.Rmd`, titled "Upgrading your mizer code". Nothing else should use those overrides. An article that renames because its skill is named differently is a rename like any other: add a `redirects:` entry in `pkgdown/_pkgdown.yml` and a row to the table in `inst/skills/upgrade-mizer-code/SKILL.md`, rather than pinning the old name.
 
 ### Adding or modifying a skill
 
