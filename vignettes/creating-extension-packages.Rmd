@@ -693,9 +693,10 @@ method and does not run the full chain — `validParams(params)` (or
 - `vignette("extending-mizer", package = "mizer")` for the full menu of
   extension mechanisms (custom rate functions, components, subclassing, and
   more).
-- `vignette("using-extension-packages", package = "mizer")` which explains the
-  extension chaining from the package user's perspective, and how to check or
-  change which extensions are active in a session or in a model object.
+- the [guide to using mizer extension
+  packages](guide-use-extension-packages.html), which explains the extension
+  chaining from the package user's perspective, and how to check or change
+  which extensions are active in a session or in a model object.
 - `?registerExtension`
 - `?getRegisteredExtensions`
 - `?coerceToExtensionClass`

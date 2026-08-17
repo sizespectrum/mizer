@@ -757,6 +757,22 @@ three, and its title is that skill's own heading:
 | `cheatsheet-stability` | `guide-analyse-stability` | Guide: Analysing dynamic stability |
 | `cheatsheet-extending-mizer` | `guide-extend-mizer` | Guide: Extending mizer |
 
+"Using mizer extension packages" is now generated from a skill too, so it is
+named after that skill like the rest:
+
+| Old article | New article | New title |
+|---|---|---|
+| `using-extension-packages` | `guide-use-extension-packages` | Guide: Using mizer extension packages |
+
+"Extending mizer" and "Guide: Extending mizer" were two articles on one topic,
+the guide a short companion to the article. They are now a single guide,
+generated from the [guide to extending mizer](guide-extend-mizer.html), holding both the article's worked
+examples and the guide's rules on quadrature schemes and discontinuous rates:
+
+| Old article | New article | New title |
+|---|---|---|
+| `extending-mizer` | `guide-extend-mizer` | Guide: Extending mizer |
+
 On the website the old addresses redirect, so a bookmark or a link in your own
 writing still works. In R the old name does not resolve, because a vignette is
 looked up by exactly its file name:

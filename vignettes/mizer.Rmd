@@ -61,6 +61,7 @@ Click on this preview to open a mizer cheat sheet.
 We also provide topic-based guides, one for each stage of the workflow. Each
 starts from scratch, so you can read one without having read the others:
 
+-   [Understanding size-spectrum dynamics](https://sizespectrum.org/mizer/articles/guide-understand-size-spectrum-dynamics.html)
 -   [Building a mizer model](https://sizespectrum.org/mizer/articles/guide-build-model.html)
 -   [Reaching steady state and calibrating](https://sizespectrum.org/mizer/articles/guide-calibrate-model.html)
 -   [Changing model parameters](https://sizespectrum.org/mizer/articles/guide-change-parameters.html)
@@ -68,6 +69,7 @@ starts from scratch, so you can read one without having read the others:
 -   [Running a simulation](https://sizespectrum.org/mizer/articles/guide-run-simulation.html)
 -   [Analysing and plotting results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.html)
 -   [Extending mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html)
+-   [Using mizer extension packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
 
 There is a [series of YouTube videos](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B) 
 by Richard Southwell about mizer which are however no longer entirely up-to-date.

@@ -14,8 +14,7 @@ registered for this R session.
 Get the registered mizer extension chain
 }
 \seealso{
-"Using mizer extension packages":
-\code{vignette("using-extension-packages", package = "mizer")}
+The \href{https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html}{guide to using mizer extension packages}
 
 Other extension tools:
 \code{\link[=NOther]{NOther()}},

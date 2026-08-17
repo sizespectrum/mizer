@@ -36,7 +36,7 @@
 #' @param fun The custom function to use as replacement
 #' @return No return value, called for side effects
 #' @seealso "Extending mizer":
-#'   \code{vignette("extending-mizer", package = "mizer")}
+#'   [guide to extending mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html)
 #' @export
 #' @examples
 #' \dontrun{

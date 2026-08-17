@@ -556,58 +556,26 @@ params <- setRateFunction(params, "Mort", "myMort")   # use myMort() for total m
 getRateFunction(params)                               # list the current rate functions
 ```
 
-The first argument names the rate to replace. The available names are the
-components mizer computes internally: `Encounter`, `FeedingLevel`, `PredRate`,
-`PredMort`, `FMort`, `Mort`, `EReproAndGrowth`, `ERepro`, `EGrowth`,
-`Diffusion`, `ResourceMort`, `RDI`, `RDD` — and `Rates` itself, if you need to
-replace the whole bundle. Each has a default `mizer…()` implementation (e.g.
-[`mizerMort()`](../reference/mizerMort.html)) that you can call, wrap, or ignore.
-
-Your function must accept the same arguments as the mizer function it replaces
-and **return an array of the same shape**. The signature always includes the
-current simulation time `t`:
-
-```{r eval=FALSE}
-myRate <- function(params, n, n_pp, n_other, t, ...) { … }
-```
-
-### Time-dependent rates
-
-This is the key reason to reach for `setRateFunction()`: **species parameters
-and rate arrays are fixed for the whole simulation, but a rate *function*
-receives the current time `t` and can therefore change as the simulation runs.**
-That lets you express things the parameters cannot — seasonal forcing, a warming
-trend, a management measure that switches on in a given year, and so on.
-
-For example, to give total mortality an annual cycle (with `t` measured in
-years), wrap the default `mizerMort()` and scale its result:
+Reach for this when the change cannot be expressed as a number at all. The
+clearest case is **time dependence**: species parameters and rate arrays are
+fixed for the whole simulation, but a rate *function* receives the current time
+`t` and can therefore change as the run proceeds — seasonal forcing, a warming
+trend, a management measure that switches on in a given year.
 
 ```{r eval=FALSE}
 seasonalMort <- function(params, t, ...) {
-    mizerMort(params, t = t, ...) * (1 + 0.3 * sin(2 * pi * t))
+    mizerMort(params, t = t, ...) * (1 + 0.3 * sin(2 * pi * t))   # t in years
 }
 params <- setRateFunction(params, "Mort", "seasonalMort")
 ```
 
-or to step fishing-independent mortality up permanently from year 30 onwards:
-
-```{r eval=FALSE}
-regimeShift <- function(params, t, ...) {
-    factor <- if (t >= 30) 1.5 else 1
-    mizerMort(params, t = t, ...) * factor
-}
-params <- setRateFunction(params, "Mort", "regimeShift")
-```
-
-Two practical points:
-
-- **Extra parameters** your function needs go in [`other_params(params)`](../reference/setRateFunction.html), e.g.
-  `other_params(params)$warming_rate <- 0.02`.
-- Your functions must be defined in the **global environment or in a package** —
-  mizer cannot find a function defined inside another function.
-
-To add a whole new ecosystem component with `setComponent()`, see the
-[guide to extending mizer](guide-extend-mizer.html).
+Two things to know before writing one: extra parameters your function needs go
+in [`other_params(params)`](../reference/setRateFunction.html), and the function must be defined in the **global
+environment or in a package**, because mizer stores its name rather than the
+function itself. For which rates can be replaced, the signature and return shape
+each one requires, and the rule that a rate must never jump as a function of
+abundance, see the [guide to extending mizer](guide-extend-mizer.html) — as for `setComponent()`, which adds a
+whole new ecosystem component.
 
 ---
 

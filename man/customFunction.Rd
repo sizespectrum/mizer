@@ -60,5 +60,5 @@ mizer::project(NS_params) # This will again use the old project()
 }
 \seealso{
 "Extending mizer":
-\code{vignette("extending-mizer", package = "mizer")}
+\href{https://sizespectrum.org/mizer/articles/guide-extend-mizer.html}{guide to extending mizer}
 }

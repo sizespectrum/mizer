@@ -106,12 +106,25 @@ guide_topics <- list(
         setup  = "params <- NS_params"
     ),
     `extend-mizer` = list(
-        lead   = paste("This guide gives an overview of the mechanisms",
-                       "for customising mizer's dynamics, from external",
-                       "encounter and mortality through to whole new ecosystem",
-                       "components. For the full treatment see the",
-                       "[Extending mizer](extending-mizer.html) article."),
+        lead   = paste("This guide covers the mechanisms for customising",
+                       "mizer's dynamics without editing the package source,",
+                       "from external encounter and mortality through to whole",
+                       "new ecosystem components, with worked examples of each.",
+                       "To package an extension up for others to use, see",
+                       "[Creating a mizer extension package](creating-extension-packages.html)."),
         setup  = "params <- NS_params"
+    ),
+    `use-extension-packages` = list(
+        lead   = paste("This guide explains what happens when you load one or",
+                       "more mizer extension packages, why the order in which",
+                       "you load them can matter, and how to save and share",
+                       "models that use extensions. To write an extension",
+                       "rather than use one, see the",
+                       "[Creating a mizer extension package](creating-extension-packages.html)",
+                       "article."),
+        # `extensions` is the params slot here, not setExtEncounter()'s page;
+        # `library` is base R.
+        nolink = c("extensions", "library")
     ),
     # Not a guide, so it overrides all three derived names: the upgrading
     # article is the release-by-release list of changes that break existing
@@ -269,8 +282,7 @@ table_key_cell <- function(line) {
 
 # Main conversion --------------------------------------------------------------
 
-#' Read one SKILL.md and return its body: frontmatter, H1 and agent-only
-#' blocks removed.
+#' Read one SKILL.md and return its body: frontmatter and H1 removed.
 skill_body <- function(skill, pkg_root = ".") {
     lines <- readLines(file.path(pkg_root, "inst", "skills", skill, "SKILL.md"),
                        warn = FALSE)
@@ -301,6 +313,14 @@ skill_to_guide <- function(skill, spec, index, map, pkg_root = ".") {
         if (grepl("<!--\\s*/agent-only\\s*-->", lines[i])) inside <- FALSE
     }
     lines <- lines[keep]
+
+    # Keep article-only blocks but drop their markers: this is the half of the
+    # skill that only the article gets, so here it is simply body text.
+    # `mizerAgents::setup_mizer_agent()` does the opposite, dropping the block
+    # as it installs the skill. The content is knitr source -- a ```{r label}
+    # fence inside such a block is evaluated when the article is built, which
+    # is the point of keeping it away from an agent, who cannot see the output.
+    lines <- lines[!grepl("^\\s*<!--\\s*/?article-only\\s*-->\\s*$", lines)]
 
     # Walk the body: convert fences, link prose, add rules before H2s.
     out <- character(0)

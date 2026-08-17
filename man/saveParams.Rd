@@ -96,6 +96,5 @@ sim <- readSim(tmp2)
 identical(sim, NS_sim)
 }
 \seealso{
-"Using mizer extension packages":
-\code{vignette("using-extension-packages", package = "mizer")}
+The \href{https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html}{guide to using mizer extension packages}
 }

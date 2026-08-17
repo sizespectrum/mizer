@@ -117,7 +117,10 @@ saveParams(params, "cod_model.rds")    # write a MizerParams to disk
 params <- readParams("cod_model.rds")  # read it back
 ```
 
-`saveSim()` and `readSim()` do the same for a `MizerSim` object.
+`saveSim()` and `readSim()` do the same for a `MizerSim` object. If the model
+needs an extension package, these are the only safe way to persist it — a bare
+`readRDS()` silently strips the extension class. See the
+`use-extension-packages` skill.
 
 Before saving, record who made the model and what it is for with
 `setMetadata()`. This matters most when you share the model with others, because

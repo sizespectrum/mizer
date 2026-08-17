@@ -7,8 +7,10 @@ description: >-
   its dynamics, and the two distinct kinds of density dependence. Use whenever
   reasoning about why a species collapses, explodes, or oscillates, why growth or
   mortality is not what you asked for, why changing one species moved another,
-  why a model is insensitive to fishing, or what the Sheldon spectrum, feeding
-  level, reproduction level (R_max) and trophic cascades mean in a mizer model.
+  why a model is insensitive to fishing, why feeding levels drift when the
+  resource is eaten down, or what the Sheldon spectrum, feeding level,
+  reproduction level (R_max), resource level and trophic cascades mean in a
+  mizer model.
 ---
 
 # Understanding size-spectrum dynamics
@@ -33,14 +35,19 @@ distinction that explains most surprises.
   $k_{s,i} w^p$, assimilation efficiency $\alpha$, and the split between growth
   and reproduction (`w_mat`, `w_repro_max`).
 * **Everything outside predation among the modelled fish** — the resource
-  (`kappa`, `lambda`, `w_pp_cutoff`, resource rate), external mortality `z0`,
-  fishing effort and selectivity, `erepro` and `R_max`.
+  *capacity* and *replenishment rate* (`kappa`, `lambda`, `w_pp_cutoff`,
+  `r_pp`), external mortality `z0`, fishing effort and selectivity, `erepro`
+  and `R_max`.
 
 **What the model produces** is everything you would actually want to observe:
 the feeding level $f_i(w)$, the growth rate $g_i(w)$ (including whether a fish
 reaches `w_mat` at all), the predation mortality $\mu_p(w)$, the abundance
 spectra $N_i(w)$ and their slope, the realised recruitment $R_i$ and reproduction
-level $r_i$ — and the steady state itself.
+level $r_i$, the resource abundance $N_R(w)$ — and the steady state itself.
+
+Note where the resource sits: you impose the ceiling it grows towards and the
+speed at which it grows there, but the standing resource abundance is emergent,
+because the fish eat it. See "The resource is a state variable too" below.
 
 ### Growth and mortality are one process seen from two ends
 
@@ -177,6 +184,80 @@ Two knobs decide how tightly the loops are coupled:
   ratio 1 (nothing eats prey larger than itself). A **narrow** kernel couples
   narrow size bands tightly and is a classic cause of limit cycles; a wide one
   averages over many prey sizes and damps oscillations.
+
+## The resource is a state variable too
+
+The food loop bottoms out in the resource spectrum, and the resource is **not a
+fixed food supply**: by default it has dynamics of its own and gets eaten down.
+What you impose is a **capacity** $c_R(w) = \kappa w^{-\lambda}$ (up to
+`w_pp_cutoff`, zero above) and a **replenishment rate**
+$r_R(w) = r_{pp} w^{n-1}$; the standing abundance $N_R(w)$ that fish actually
+feed on is emergent. The default dynamics
+([`resource_semichemostat()`](../reference/resource_semichemostat.html)) let
+each size replenish towards its capacity and be consumed at the rate
+$\mu_R(w)$ that the fish impose ([`getResourceMort()`](../reference/getResourceMort.html)).
+
+Note what is *absent*: there is no flux along the size axis. Resource sizes do
+not grow into one another, so a hole eaten in the resource at one size stays at
+that size and can spread only through fish that feed across it.
+
+### The resource level is the mirror of the reproduction level
+
+The dimensionless diagnostic is the **resource level**
+$L(w) = N_R(w)/c_R(w)$ ([`resource_level()`](../reference/setResource.html)) —
+how close the resource is running to its ceiling. At the semichemostat steady
+state $N_R = r_R c_R/(r_R + \mu_R)$, so $L = r_R/(r_R + \mu_R)$ and
+
+$$\frac{d \ln N_R}{d \ln \mu_R} = -(1 - L)$$
+
+Read exactly like $1 - r_i$ for recruitment: **$1 - L$ is the fraction of a
+change in consumption pressure that actually shows up in food availability.**
+
+* **$L \to 1$**: replenishment overwhelms consumption, the resource sits at its
+  ceiling and barely notices being eaten. The food loop is effectively switched
+  off — an infinite pantry. Species compete for food only weakly, growth does
+  not respond to abundance, and one route to emergent density dependence is gone.
+* **$L \to 0$**: consumption is winning, the standing stock is far below
+  capacity, and every change in consumption passes almost undamped into food
+  availability. Strong competition, strong bottom-up regulation, and a
+  candidate source of oscillations.
+
+Because $L$ is a ratio at a *given* abundance, it is the dial to turn after
+calibration: `setResource()` with `resource_level = 0.5` sets the capacity from
+the current abundance, leaving the steady state exactly where it was and
+changing only how stiff the food supply is around it. `resource_dynamics =
+"resource_constant"` is the limit $L \to 1$ taken exactly, and is the clean way
+to switch the food loop off deliberately when isolating a feedback (see the
+`run-simulation` skill).
+
+### Two things that surprise people
+
+* **A freshly built model has its resource at capacity.**
+  `newMultispeciesParams()` sets $c_R = \kappa w^{-\lambda}$, which is also the
+  initial abundance, so $L = 1$ everywhere and the resource is *not* at a fixed
+  point: replenishment is zero while consumption is not. Project such a model
+  and the resource is drawn down, feeding levels fall, and growth slows — with
+  nothing having been changed. This is normal, and it is why calibration comes
+  before interpretation.
+* **`steady()` rebalances the resource at the end.** It holds the resource fixed
+  while converging the fish, then recomputes the capacity from the (preserved)
+  rate so that the converged state is a steady state of the resource too. The
+  abundance you calibrated against is kept; the capacity moves above it. So
+  after `steady()` the resource level is an emergent, size-dependent quantity —
+  lowest where the fish feed hardest, near 1 where consumption is negligible.
+
+### The resource runs on its own clock
+
+$r_R \propto w^{n-1}$, the same $w^{-1/3}$ gradient as everything else, but
+spread over far more orders of magnitude: with the default `r_pp` of 10, the
+smallest resource sizes replenish tens of thousands of times a year, while at
+the `w_pp_cutoff` of 10 g the rate is under 5 per year — comparable to fish
+rates, and precisely at the sizes fish eat most. So the resource is a fast,
+quasi-static variable at the bottom (which is what `getStability()` assumes by
+default; see the `analyse-stability` skill) and a genuinely dynamical one at the
+top. Raising `r_pp` makes the resource stiffer and the model less sensitive to
+competition for food; lowering it makes the resource a slow variable that can
+carry oscillations of its own.
 
 ## Individual energetics
 
@@ -330,6 +411,10 @@ and attract predation (predation loop). This regulation is *produced* by the
 model, is size-structured, and spills over onto other species. In a default
 mizer model it is the **only** density dependence there is.
 
+How much of it there is at the resource end is set by the resource level: at
+$L \to 1$ the shared resource cannot be depleted, so that half of the emergent
+regulation is missing, whatever `R_max` says.
+
 Why it matters: both can stabilise a model, but they respond to fishing
 completely differently. Imposed density dependence is species-local and unmoved
 by ecosystem change; emergent density dependence weakens when you fish down the
@@ -367,6 +452,7 @@ Check emergent properties before changing structural parameters.
 | **Species collapses during `project()`** | Starving larvae, intense juvenile predation, or too little egg production | `plotFeedingLevel()`, `plotDiet()`, `getPredMort()` |
 | **Biomass oscillates in regular cycles** | Reproduction level near 0 (little recruitment damping — mizer's default), narrow kernel (`sigma` too small), or knife-edge fishing | [`reproduction_level()`](../reference/setBevertonHolt.html), [`getStability()`](../reference/getStability.html) (see the `analyse-stability` skill) |
 | **Growth slows before `w_mat`** | Food limitation at intermediate sizes; resource depleted or `w_pp_cutoff` too low | `plotGrowthCurves()`, `resource_level()`, `plotSpectra()` |
+| **Feeding levels drift down during `project()` although nothing was changed** | The resource was left at its capacity ($L = 1$, as freshly built) and is being eaten down towards its true fixed point | [`resource_level()`](../reference/setResource.html), `plot(initialNResource(params))`; run `steady()` first |
 | **Growth is not what `matchGrowth()` asked for** | Growth is emergent — the food to support it is not there | `plotFeedingLevel()`, then the `calibrate-model` skill |
 | **Tuning one species drops another** | Predation overlap or resource competition in shared juvenile size bins | `interaction_matrix()`, `plotDiet()` |
 | **Species insensitive to fishing** | Strong imposed density dependence ($r_i$ **high**, near 1 — only $1-r_i$ of any change in egg production gets through), or an effectively infinite resource | [`reproduction_level()`](../reference/setBevertonHolt.html), [`resource_level()`](../reference/setResource.html) |
@@ -386,7 +472,10 @@ step 2 or 3.
 2. **Feeding level first.** `plotFeedingLevel(params)`. It is dimensionless with
    an absolute scale, so it is the fastest read. Flat near 0.6 is healthy; near 0
    is starvation; near 1 is decoupling; sloping in size means the
-   `lambda`/`q`/`n` consistency is broken.
+   `lambda`/`q`/`n` consistency is broken. If it is low, separate "the food is
+   not there" from "the fish is not catching it": `resource_level(params)` well
+   below 1 over the sizes in question means the resource is being eaten down,
+   and a level of exactly 1 everywhere means the model was never calibrated.
 3. **Then growth.** `plotGrowthCurves(params)`. Does the fish reach `w_mat` in a
    plausible time? Growth failure downstream of a feeding-level problem is not a
    separate bug.
@@ -401,7 +490,8 @@ step 2 or 3.
 Before concluding that dynamics are absent, check whether the default
 first-order scheme is damping them (`second_order_w`; see the `run-simulation`
 skill). Before concluding a state is unstable, check it is actually a fixed
-point (`getSteadyResidual()`).
+point (`getSteadyResidual()`) — an unbalanced resource, still sitting at its
+capacity, is the commonest reason a state is not one.
 <!-- /agent-only -->
 
 ## Reference formulas
@@ -457,6 +547,19 @@ $\text{ppmr} = w/w_p \ge 1$ and zero below:
 
 $$\phi_i(\text{ppmr}) = \exp\!\left[\frac{-\big(\ln(\text{ppmr}/\beta_i)\big)^2}{2\sigma_i^2}\right]$$
 
+**Resource dynamics** — the default semichemostat, applied to each size
+independently (no transport along the size axis):
+
+$$\frac{\partial N_R(w,t)}{\partial t} = r_R(w)\big[c_R(w) - N_R(w,t)\big] - \mu_R(w,t) N_R(w,t)$$
+
+with replenishment rate $r_R(w) = r_{pp} w^{n-1}$, capacity
+$c_R(w) = \kappa w^{-\lambda}$ below `w_pp_cutoff` and zero above, and $\mu_R$
+the consumption by the fish. The steady state is
+$N_R = r_R c_R/(r_R + \mu_R)$, i.e. resource level
+$L = N_R/c_R = r_R/(r_R + \mu_R)$. [`resource_logistic()`](../reference/resource_logistic.html)
+replaces the bracket by $N_R(1 - N_R/c_R)$ and
+[`resource_constant()`](../reference/resource_constant.html) holds $N_R$ fixed.
+
 **Egg production** and Beverton–Holt density dependence:
 
 $$R_{p,i} = \frac{\epsilon_i}{2 w_{\min}} \int \psi_i(w)\, E_{\text{net},i}(w)\, N_i(w)\, dw,
@@ -464,7 +567,9 @@ $$R_{p,i} = \frac{\epsilon_i}{2 w_{\min}} \int \psi_i(w)\, E_{\text{net},i}(w)\,
 R_i = \frac{R_{\max,i} R_{p,i}}{R_{\max,i} + R_{p,i}}$$
 
 **Defaults worth remembering**: `beta` 30, `sigma` 2, `lambda` 2.05,
-`w_pp_cutoff` 10 g, `alpha` 0.6, `f0` 0.6, `n` 2/3, `p` 0.7,
+`w_pp_cutoff` 10 g, `kappa` 1e11, `r_pp` 10,
+`resource_dynamics` `"resource_semichemostat"`,
+`alpha` 0.6, `f0` 0.6, `n` 2/3, `p` 0.7,
 `q` $= \lambda - 2 + n$, `erepro` 1, `R_max` $\infty$, `w_min` 0.001 g,
 `w_mat` $= w_{\inf}/4$, `z0` $= 0.6\,w_{\inf}^{\,n-1}$.
 

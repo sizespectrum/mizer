@@ -20,4 +20,4 @@ sim <- project(params, t_max = 10, effort = 0)
 plot(sim)
 ```
 
-See the [Get started](https://sizespectrum.org/mizer/articles/mizer.md) article for a full walkthrough. Extension packages add new biology (temperature dependence, starvation mortality, seasonal dynamics) — see [Using extension packages](https://sizespectrum.org/mizer/articles/using-extension-packages.md).
+See the [Get started](https://sizespectrum.org/mizer/articles/mizer.md) article for a full walkthrough. Extension packages add new biology (temperature dependence, starvation mortality, seasonal dynamics) — see [Using extension packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.md).

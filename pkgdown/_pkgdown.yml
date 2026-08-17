@@ -77,16 +77,11 @@ articles:
   - guide-analyse-and-plot
   - guide-analyse-stability
   - guide-extend-mizer
+  - guide-use-extension-packages
 - title: Upgrading
   navbar: Upgrading
   contents:
   - upgrading
-- title: Extending mizer
-  navbar: Extending mizer
-  contents:
-  - extending-mizer
-  - using-extension-packages
-  - creating-extension-packages
 - title: Technical articles
   navbar: Technical articles
   contents:
@@ -97,6 +92,7 @@ articles:
   - analytic_test
   - dynamic_stability
   - discontinuous_rates
+  - creating-extension-packages
 - title: internal
   contents:
   - mizer_vignette
@@ -335,8 +331,8 @@ reference:
   - setReproduction
   - setFishing
 - title: Extending Mizer
-  desc: See [Extending mizer](https://sizespectrum.org/mizer/articles/extending-mizer.html),
-   [Using mizer extension packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html)
+  desc: See the [guide to extending mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html),
+   [Using mizer extension packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
     and [Creating a mizer extension package](https://sizespectrum.org/mizer/articles/creating-extension-packages.html) for more details.
   contents:
   - setRateFunction
@@ -438,6 +434,11 @@ redirects:
   - ["articles/cheatsheet-analysis-and-plotting.html", "articles/guide-analyse-and-plot.html"]
   - ["articles/cheatsheet-stability.html", "articles/guide-analyse-stability.html"]
   - ["articles/cheatsheet-extending-mizer.html", "articles/guide-extend-mizer.html"]
+  # Renamed in 3.2.2: now generated from the use-extension-packages skill, so
+  # it is named after that skill like every other guide.
+  - ["articles/using-extension-packages.html", "articles/guide-use-extension-packages.html"]
+  # Merged in 3.2.2 into the guide, which was until then a short companion to it.
+  - ["articles/extending-mizer.html", "articles/guide-extend-mizer.html"]
   # Split in 3.2.2 into separate model-setup and calibration guides.
   - ["articles/cheatsheet-model-setup-and-calibration.html", "articles/guide-build-model.html"]
   - ["articles/a_multispecies_model_of_the_north_sea.html", "https://mizer.course.sizespectrum.org/use/a_multispecies_model_of_the_north_sea.html"]

@@ -29,8 +29,8 @@
 #'
 #' @return The updated extension chain, invisibly.
 #' @seealso [registerExtensions()] for registering an explicit full chain.
-#'   "Using mizer extension packages":
-#'   \code{vignette("using-extension-packages", package = "mizer")}.
+#'   The [guide to using mizer extension
+#'   packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html).
 #'   "Creating a mizer extension package":
 #'   \code{vignette("creating-extension-packages", package = "mizer")}
 #' @export
@@ -82,8 +82,8 @@ registerExtension <- function(name, requirement = NA_character_, install = FALSE
 #'
 #' @return The active maximal extension chain, invisibly.
 #' @seealso [registerExtension()] for the incremental per-package variant.
-#'   "Using mizer extension packages":
-#'   \code{vignette("using-extension-packages", package = "mizer")}.
+#'   The [guide to using mizer extension
+#'   packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html).
 #'   "Creating a mizer extension package":
 #'   \code{vignette("creating-extension-packages", package = "mizer")}
 #' @export
@@ -115,8 +115,8 @@ registerExtensions <- function(extensions, install = FALSE) {
 #'
 #' @return A named character vector giving the maximal extension chain
 #'   registered for this R session.
-#' @seealso "Using mizer extension packages":
-#'   \code{vignette("using-extension-packages", package = "mizer")}
+#' @seealso The [guide to using mizer extension
+#'   packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
 #' @export
 #' @family extension tools
 getRegisteredExtensions <- function() {
@@ -753,8 +753,8 @@ baseMizerClass <- function(object) {
 #' extension chain with [registerExtensions()].
 #'
 #' @return Invisibly, an empty character vector.
-#' @seealso "Using mizer extension packages":
-#'   \code{vignette("using-extension-packages", package = "mizer")}
+#' @seealso The [guide to using mizer extension
+#'   packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
 #' @family extension tools
 #' @export
 clearExtensionChain <- function() {

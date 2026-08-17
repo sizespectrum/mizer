@@ -21,12 +21,17 @@ Agent skills in `inst/skills/<topic>/SKILL.md` serve as the single source of tru
 
 The skill's directory name is the one name for the topic. Everything else is derived from it by `guide_index()` in `dev_scripts/build_guides.R` and must not be restated anywhere: the article is `vignettes/guide-<skill>.Rmd`, its title is `"Guide: "` followed by the skill's own H1, and other documents link to it as "the guide to \<H1 lowercased\>". So renaming a skill directory renames the article, and rewording its H1 rewords the title and every cross-reference to it. `dev_scripts/build_wiki.R` sources the same function rather than keeping its own copy of the mapping.
 
-The one exception is `upgrade-mizer-code`, which is not a guide: it overrides all three names in the `guide_topics` table so that it stays `vignettes/upgrading.Rmd`, titled "Upgrading mizer".
+The one exception is `upgrade-mizer-code`, which is not a guide: it overrides all three names in the `guide_topics` table so that it stays `vignettes/upgrading.Rmd`, titled "Upgrading mizer". Nothing else should use those overrides. An article that renames because its skill is named differently is a rename like any other: add a `redirects:` entry in `pkgdown/_pkgdown.yml` and a row to the table in `inst/skills/upgrade-mizer-code/SKILL.md`, rather than pinning the old name.
 
 ### Adding or modifying a skill
 
 1. Edit the markdown file at `inst/skills/<topic>/SKILL.md`.
 2. Content intended strictly for AI agents (such as diagnostic decision trees or symptom tables) must be wrapped in `<!-- agent-only --> ... <!-- /agent-only -->`. The guide builder drops these blocks.
+2b. Content intended strictly for the article, the mirror of the above, is wrapped in `<!-- article-only --> ... <!-- /article-only -->`. The guide builder keeps the content and drops the markers; `mizerAgents::setup_mizer_agent()` drops the whole block as it installs the skill, so each side of the fence takes the half it wants and a topic still lives in one file. What belongs in one is a **demonstration**, not a definition: the chunk whose value is the output it produces — a plot, a printed range — which an agent cannot see and would only read past. The code being demonstrated stays in the skill, where an agent asked to write something similar will actually find it. Splitting the other way hides the function signatures an extension has to get right.
+
+Fence style is independent of this and purely mechanical: ```` ```r ```` becomes `eval=FALSE` in the article, and ```` ```{r label} ```` passes through and *is* evaluated, wherever either appears. So a definition the article's demonstrations depend on is written as an evaluated chunk in the skill body — that is what keeps the demonstration runnable without duplicating the definition into the block. Keep evaluated chunks cheap, and remember they have to keep working.
+
+   The stripping lives in mizerAgents (`.strip_article_only()`), so a mizer newer than the installed mizerAgents will hand an agent the blocks intact — noise, not breakage, and it clears when mizerAgents is updated.
 3. Regenerate all guide vignettes:
    ```r
    source("dev_scripts/build_guides.R")

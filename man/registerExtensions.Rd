@@ -41,8 +41,7 @@ use \code{\link[=registerExtension]{registerExtension()}} instead.
 }
 \seealso{
 \code{\link[=registerExtension]{registerExtension()}} for the incremental per-package variant.
-"Using mizer extension packages":
-\code{vignette("using-extension-packages", package = "mizer")}.
+The \href{https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html}{guide to using mizer extension packages}.
 "Creating a mizer extension package":
 \code{vignette("creating-extension-packages", package = "mizer")}
 

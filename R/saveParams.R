@@ -51,8 +51,8 @@
 #' @return `saveParams()` and `saveSim()` return NULL invisibly.
 #'   `readParams()` returns a MizerParams object. `readSim()` returns a MizerSim
 #'   object.
-#' @seealso "Using mizer extension packages":
-#'   \code{vignette("using-extension-packages", package = "mizer")}
+#' @seealso The [guide to using mizer extension
+#'   packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
 #' @export
 #' @examples
 #' # Save params to a temporary file and read them back

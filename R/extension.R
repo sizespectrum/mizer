@@ -233,7 +233,7 @@
 #' @param fun Name of the function to use to calculate the rate.
 #' @return For `setRateFunction()`: An updated MizerParams object
 #' @seealso "Extending mizer":
-#'   \code{vignette("extending-mizer", package = "mizer")};
+#'   [guide to extending mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html);
 #'   [Discontinuous rate
 #'   functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.html)
 #' @export
@@ -335,7 +335,7 @@ other_params <- function(params) {
 #'   `"solid"`.
 #' @return The updated MizerParams object
 #' @seealso "Extending mizer":
-#'   \code{vignette("extending-mizer", package = "mizer")}
+#'   [guide to extending mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html)
 #' @export
 #' @family extension tools
 setComponent <- function(params, component, initial_value,

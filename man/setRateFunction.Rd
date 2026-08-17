@@ -121,7 +121,7 @@ article for the full story, the diagnostics and the fix.
 
 \seealso{
 "Extending mizer":
-\code{vignette("extending-mizer", package = "mizer")};
+\href{https://sizespectrum.org/mizer/articles/guide-extend-mizer.html}{guide to extending mizer};
 \href{https://sizespectrum.org/mizer/articles/discontinuous_rates.html}{Discontinuous rate functions}
 
 Other extension tools:

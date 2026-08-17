@@ -618,6 +618,33 @@ while building or changing a model through a single mechanism controlled by
 
 ## Documentation
 
+- "Extending mizer" and "Guide: Extending mizer" have been merged into a single
+  guide at `guide-extend-mizer`, generated from the `extend-mizer` skill; the old
+  address redirects. The topic had been split across three documents that each
+  explained `setRateFunction()` in full — the two articles and the "Level 3"
+  section of the `change-parameters` skill, which is now a pointer. Each half had
+  something the other lacked, and both are now in one place for readers and
+  agents alike: the table of the signature and return shape required of every
+  replaceable rate, and the rules on respecting the `second_order_w` quadrature
+  scheme and on never letting a rate jump as a function of abundance.
+
+  A skill can now keep material out of the agent's copy and in the article, which
+  is what lets the worked examples stay evaluated: an `<!-- article-only -->`
+  block, the mirror of the existing `<!-- agent-only -->` one. The guide builder
+  keeps its content and drops the markers, and `mizerAgents` (>= 0.4.0) drops the
+  block as it installs the skill, so a topic still lives in a single file.
+
+- "Using mizer extension packages" is now a guide like the others, generated
+  from a new `use-extension-packages` skill, so an agent working in a project
+  that loads mizerEcopath, mizerShelf, therMizer or any other extension knows how
+  the extension chain works. Being named after its skill, the article moved from
+  `using-extension-packages` to `guide-use-extension-packages`; the old address
+  redirects. It gains a statement of the two rules that cover almost every
+  problem — load the packages before using a model that needs them, and persist
+  models with `saveParams()` and `readParams()` rather than `saveRDS()`, since
+  the file deliberately holds a base-class object and only `readParams()` puts
+  the extension class back.
+
 - The "Point values and bin averages" section of `vignette("numerical_details")`
   now explains where each bin integral is performed and why it must be applied
   exactly once, and a new "The `second_order_w` switch" section documents what

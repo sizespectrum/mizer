@@ -75,7 +75,7 @@ corresponding arguments are supplied. You can remove a component with
 }
 \seealso{
 "Extending mizer":
-\code{vignette("extending-mizer", package = "mizer")}
+\href{https://sizespectrum.org/mizer/articles/guide-extend-mizer.html}{guide to extending mizer}
 
 Other extension tools:
 \code{\link[=NOther]{NOther()}},

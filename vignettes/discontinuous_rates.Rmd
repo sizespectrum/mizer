@@ -450,7 +450,7 @@ on itself.
 - [The numerical scheme used in mizer](numerical_details.html) — how the rates
   are frozen and the densities updated, and the CFL condition for the
   second-order spatial scheme.
-- [Extending mizer](extending-mizer.html) — the full set of extension
+- [Extending mizer](guide-extend-mizer.html) — the full set of extension
   mechanisms.
 - [Dynamic stability and Hopf bifurcations](dynamic_stability.html) —
   `getStability()` and `steadyNewton()` applied to smooth models.

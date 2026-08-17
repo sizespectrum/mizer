@@ -56,7 +56,7 @@ welcome. There is a sister package called
 contributions can be checked out and receive feedback from the community.
 A growing number of other extension packages add new biology such as
 temperature dependence, starvation mortality, seasonal dynamics, and more —
-see the [list of extension packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html).
+see the [list of extension packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html).
 Example mizer models can be contributed to
 [mizerExamples](https://sizespectrum.org/mizerExamples/). Follow us on
 [twitter](https://x.com/mizer_model) and read our 

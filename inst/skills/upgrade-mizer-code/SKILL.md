@@ -107,6 +107,8 @@ plots) are in the changelog and are not repeated here.
 | `could not find function "matchYields"` or `"calibrateYield"` | both removed after deprecation in 2.6.0 | `matchYields()` and `calibrateYield()` have been removed (3.3) |
 | `vignette("cheatsheet-fishing")` (or any other `cheatsheet-…`) finds nothing | the cheatsheet articles were renamed after the skills they come from | The cheatsheet articles are now called guides (3.3) |
 | The `build-multispecies-model` skill is not found | renamed to **build-model** | The cheatsheet articles are now called guides (3.3) |
+| A link to `articles/using-extension-packages.html` | renamed to **guide-use-extension-packages** when it became a generated guide; the old address redirects | The cheatsheet articles are now called guides (3.3) |
+| A link to `articles/extending-mizer.html` | merged into **guide-extend-mizer**, which was previously a separate shorter guide; the old address redirects | The cheatsheet articles are now called guides (3.3) |
 | `unused argument (sim = ...)` from `plotBiomass()`, `plotYield()`, `plotYieldGear()` | first argument renamed to `object` | Renamed arguments and changed defaults (3.0) |
 | `unused argument (time_range = ...)` from `plotDiet()` | removed in 3.0, back for `MizerSim` in 3.1 | Renamed arguments and changed defaults (3.0) |
 | `setInitialValues()` warns that it is deprecated | replaced by `finalParams()` | `setInitialValues()` is deprecated (3.0) |
@@ -904,6 +906,22 @@ three, and its title is that skill's own heading:
 | `cheatsheet-analysis-and-plotting` | `guide-analyse-and-plot` | Guide: Analysing and plotting mizer results |
 | `cheatsheet-stability` | `guide-analyse-stability` | Guide: Analysing dynamic stability |
 | `cheatsheet-extending-mizer` | `guide-extend-mizer` | Guide: Extending mizer |
+
+"Using mizer extension packages" is now generated from a skill too, so it is
+named after that skill like the rest:
+
+| Old article | New article | New title |
+|---|---|---|
+| `using-extension-packages` | `guide-use-extension-packages` | Guide: Using mizer extension packages |
+
+"Extending mizer" and "Guide: Extending mizer" were two articles on one topic,
+the guide a short companion to the article. They are now a single guide,
+generated from the `extend-mizer` skill, holding both the article's worked
+examples and the guide's rules on quadrature schemes and discontinuous rates:
+
+| Old article | New article | New title |
+|---|---|---|
+| `extending-mizer` | `guide-extend-mizer` | Guide: Extending mizer |
 
 On the website the old addresses redirect, so a bookmark or a link in your own
 writing still works. In R the old name does not resolve, because a vignette is
