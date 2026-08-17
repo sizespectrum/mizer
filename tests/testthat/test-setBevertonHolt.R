@@ -197,4 +197,33 @@ test_that("R_max is increased when needed", {
     expect_gt(p@species_params$R_max[2], 2)
 })
 
+# info_level ----
+test_that("info_level controls warnings in setBevertonHolt", {
+    # info_level = 0 silences warnings
+    expect_silent(setBevertonHolt(NS_params_small, reproduction_level = 0.8,
+                                 info_level = 0))
+    expect_silent(setBevertonHolt(NS_params_small, erepro = 0.1,
+                                 info_level = 0))
+    expect_silent(setBevertonHolt(NS_params_small, R_max = c(1, 2, NA),
+                                 info_level = 0))
+
+    # global option mizer_info_level = 0 silences warnings
+    withr::with_options(list(mizer_info_level = 0), {
+        expect_silent(setBevertonHolt(NS_params_small, reproduction_level = 0.8))
+        p <- NS_params_small
+        expect_silent(reproduction_level(p) <- 0.8)
+    })
+
+    # with_info_level deduplicates warnings
+    sp_name <- NS_params_small@species_params$species[3]
+    expect_warning(
+        with_info_level({
+            p <- setBevertonHolt(NS_params_small, reproduction_level = 0.8)
+            setBevertonHolt(p, reproduction_level = 0.8)
+        }),
+        paste0("The following species require an unrealistic value greater than 1 for `erepro`: ", sp_name)
+    )
+})
+
+
 

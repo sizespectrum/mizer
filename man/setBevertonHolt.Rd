@@ -6,7 +6,14 @@
 \alias{reproduction_level<-}
 \title{Set Beverton-Holt reproduction without changing the steady state}
 \usage{
-setBevertonHolt(params, erepro, R_max, reproduction_level, ...)
+setBevertonHolt(
+  params,
+  erepro,
+  R_max,
+  reproduction_level,
+  info_level = default_info_level(),
+  ...
+)
 
 reproduction_level(params)
 
@@ -21,6 +28,11 @@ reproduction_level(params) <- value
 
 \item{reproduction_level}{Sets \code{R_max} so that the reproduction rate at
 the initial state is \code{R_max * reproduction_level}.}
+
+\item{info_level}{Controls the amount of information messages and warnings
+that are shown. Higher levels lead to more messages, \code{info_level = 0}
+gives silence. The default is taken from the \code{mizer_info_level} option,
+see \code{\link[=default_info_level]{default_info_level()}}.}
 
 \item{...}{Unused
 \itemize{

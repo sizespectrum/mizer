@@ -272,7 +272,7 @@ test_that("getStability returns a well-formed list for a stable model", {
     expect_type(stab, "list")
     expect_named(stab, c("eigenvalues", "spectral_radius", "stable",
                          "dominant_period", "hopf_period", "n_active",
-                         "leading_eigenvectors"))
+                         "leading_eigenvectors", "params"))
     expect_true(is.complex(stab$eigenvalues))
     expect_length(stab$eigenvalues, stab$n_active)
     expect_true(is.numeric(stab$spectral_radius))
@@ -336,7 +336,7 @@ test_that("getStability with include_resource = TRUE returns well-formed list", 
     expect_type(stab_full, "list")
     expect_named(stab_full, c("eigenvalues", "spectral_radius", "stable",
                               "dominant_period", "hopf_period", "n_active",
-                              "leading_eigenvectors"))
+                              "leading_eigenvectors", "params"))
     # n_active must equal n_fish_active + n_resource (always strictly larger)
     stab_red <- getStability(pn, include_resource = FALSE)
     expect_gt(stab_full$n_active, stab_red$n_active)
@@ -471,4 +471,9 @@ test_that("leading_eigenvectors have correct shape and are normalised", {
 
     # Dimnames match initial_n
     expect_equal(dimnames(lev)[1:2], dimnames(pn@initial_n))
+})
+
+test_that("steadyNewton respects info_level", {
+    skip_unless_experimental()
+    expect_silent(steadyNewton(p_steady, info_level = 0))
 })

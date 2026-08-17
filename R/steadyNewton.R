@@ -95,10 +95,12 @@
 #' @param method The [nleqslv::nleqslv()] method, either `"Newton"` (with a
 #'   numerical Jacobian calculated at each iteration) or `"Broyden"` (which
 #'   calculates the full Jacobian only once and then only updates it on each
-#'   iteration. '"Broyden"' is the default.
-#' @param global The globalisation strategy passed to [nleqslv::nleqslv()].
 #' @param global The globalisation strategy passed to [nleqslv::nleqslv()].
 #'   The default `"dbldog"` (double dogleg) is a robust trust-region method.
+#' @param info_level Controls the amount of information messages and warnings
+#'   that are shown. Higher levels lead to more messages, `info_level = 0`
+#'   gives silence. The default is taken from the `mizer_info_level` option,
+#'   see [default_info_level()].
 #' @param ... Unused.
 #' @return A \linkS4class{MizerParams} object with the initial state set to the
 #'   steady state.
@@ -124,7 +126,9 @@ steadyNewton.MizerParams <- function(params,
                                      verbose = FALSE,
                                      tol = 1e-6, maxit = 200,
                                      method = c("Broyden", "Newton"),
-                                     global = "dbldog", ...) {
+                                     global = "dbldog",
+                                     info_level = default_info_level(), ...) {
+    with_info_level(info_level = info_level, {
     reproduction <- match.arg(reproduction)
     if (reproduction == "fixed") {
         preserve <- match.arg(preserve)
@@ -262,6 +266,7 @@ steadyNewton.MizerParams <- function(params,
     }
 
     params
+    })
 }
 
 #' The set of size classes solved for by steadyNewton()
