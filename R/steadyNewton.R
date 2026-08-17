@@ -164,8 +164,6 @@ steadyNewton.MizerParams <- function(params,
     n_other <- params@initial_n_other
 
     active <- steady_active_set(params)
-    residual_fn <- steady_state_residual(params, rdd_const, n_other, effort,
-                                         active, extinction_floor = extinction_floor)
 
     # Save initial state for relative floor checks
     N0_initial <- params@initial_n
@@ -176,6 +174,11 @@ steadyNewton.MizerParams <- function(params,
     # overflow. Fill those by log-interpolation from the nonzero neighbours.
     N0 <- positive_initial_guess(params@initial_n, params@w_min_idx,
                                  active$w_top)
+
+    residual_fn <- steady_state_residual(params, rdd_const, n_other, effort,
+                                         active, extinction_floor = extinction_floor,
+                                         N0 = N0)
+
     x0_fish <- log(N0[active$mask])
     
     x0_n_pp <- as.numeric(params@initial_n_pp[active$mask_pp])
@@ -524,14 +527,19 @@ consumer_residual <- function(params, n, n_pp, n_other, effort, rdd = NULL,
 #'   scaled residual.
 #' @noRd
 steady_state_residual <- function(params, rdd_const, n_other, effort, active,
-                                  extinction_floor = 1e-6) {
+                                  extinction_floor = 1e-6, N0 = NULL) {
     no_w <- length(params@w)
     mask <- active$mask
     mask_pp <- active$mask_pp
     n_fish_active <- active$n_fish_active
     flux_limiter <- flux_limiter_scheme(params)
     rates_fns <- projectRateFunctions(params)
-    x0_initial <- params@initial_n
+    
+    if (is.null(N0)) {
+        x0_initial <- params@initial_n
+    } else {
+        x0_initial <- N0
+    }
 
     # A floor is always active to handle zero-abundance tail classes smoothly
     # and prevent singular Jacobians.

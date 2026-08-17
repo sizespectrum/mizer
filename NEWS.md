@@ -452,6 +452,11 @@ while building or changing a model through a single mechanism controlled by
 
 ## Bug fixes
 
+- `steadyNewton()` no longer fails with a non-finite residual error when the
+  initial guess contains exactly zero abundance in the active size range (as
+  can happen when averaging a simulation over a limit cycle). It now scales the
+  residual by a strictly positive initial guess instead.
+
 - `projectToSteady()` limit-cycle detection now uses only the second half of the
   series (or the most recent 20 samples if the series is short) for its
   autocorrelation step, instead of the entire run. This stops large initial
