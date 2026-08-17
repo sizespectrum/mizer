@@ -47,11 +47,20 @@ where $K$ is the relative Jacobian matrix. The elements of $K$ describe the prop
 
 $$ K_{ij} = \frac{\partial \log G_i}{\partial \log N_j}(N^*) = \frac{N_j^*}{N_i^*} \frac{\partial G_i}{\partial N_j}(N^*) $$
 
-Notice that $K$ is related to the standard absolute Jacobian $L$ (with elements $L_{ij} = \frac{\partial G_i}{\partial N_j}$) by a similarity transform $K = D^{-1} L D$, where $D$ is a diagonal matrix of the steady-state abundances $N^*$. Because $K$ and $L$ are similar matrices, **they have exactly the same eigenvalues**. 
+Notice that $K$ is related to the standard absolute Jacobian $L$ (with elements $L_{ij} = \frac{\partial G_i}{\partial N_j}$) by a similarity transform $K = D^{-1} L D$, where $D$ is a diagonal matrix of the steady-state abundances $N^*$. Because $K$ and $L$ are similar matrices, **they have exactly the same eigenvalues** $\mu_i$. 
 
-The stability of the steady state is determined by the eigenvalues $\lambda_i$ of these matrices. The **spectral radius** is the maximum of the absolute values (moduli) of these eigenvalues: $\rho = \max_i |\lambda_i|$. If $\rho < 1$ every perturbation decays and the steady state is stable; if $\rho > 1$ some perturbation grows and it is unstable.
+While a pure discrete-time stability analysis would check if the spectral radius $\max_i |\mu_i| < 1$, doing so evaluates the stability of the numerical scheme rather than the underlying mathematical model. Implicit numerical schemes like the one mizer uses introduce severe "temporal numerical diffusion" that artificially damps oscillations. To evaluate the true continuous-time stability, `getStability()` maps these discrete eigenvalues back to the exact continuous-time eigenvalues $\lambda_i$ using the algebraic relation $\lambda_i = 1 - 1/\mu_i$.
 
-*(Note on numerical implementation: While analysing the relative Jacobian $K$ is conceptually natural, computing it requires dividing by $N_i^*$, which causes floating-point overflow for structurally zero size classes (e.g., extinct species or truncated tails). Therefore, `getStability()` numerically computes the absolute Jacobian $L$ using finite-difference steps scaled multiplicatively to the local density. This is mathematically equivalent to the relative analysis but avoids dividing by zero, ensuring robust eigenvalue computation.)*
+**Why does this exact mapping work?**
+Mizer solves the continuous PDEs of the size spectrum using a fully implicit backward Euler step:
+$$ N(t+\Delta t) = N(t) + \Delta t \, \frac{dN}{dt}(t+\Delta t) $$
+If we define the continuous Jacobian as $J = \partial(dN/dt)/\partial N$ and the discrete Jacobian of the one-step map as $L = \partial N(t+\Delta t)/\partial N(t)$, differentiating the implicit step yields:
+$$ L = I + \Delta t \, J \, L \quad \implies \quad (I - \Delta t \, J) L = I \quad \implies \quad J = \frac{1}{\Delta t}(I - L^{-1}) $$
+Because mizer computes the discrete map $L$ for a time step of $\Delta t = 1$ year, their eigenvalues are perfectly related by $\lambda_i = 1 - 1/\mu_i$. By applying this mapping, we analytically strip away the temporal numerical diffusion of the implicit solver and recover the exact continuous-time stability.
+
+The stability of the steady state is determined by the real parts of these continuous eigenvalues. If the maximum real part is negative ($\max_i \text{Re}(\lambda_i) < 0$), every perturbation decays and the steady state is stable; if any real part is positive, some perturbation grows and it is unstable. For backwards compatibility, `getStability()` returns an equivalent continuous **spectral radius** defined as $\rho = \exp(\max_i \text{Re}(\lambda_i))$. If $\rho < 1$, the state is stable.
+
+*(Note on numerical implementation: While analysing the relative Jacobian $K$ is conceptually natural, computing it requires dividing by $N_i^*$, which causes floating-point overflow for structurally zero size classes (e.g., extinct species or truncated tails). Therefore, `getStability()` numerically computes the absolute Jacobian $L$ using finite-difference steps scaled multiplicatively to the local density. This is mathematically equivalent to the relative analysis but avoids dividing by zero, ensuring robust eigenvalue computation. Fast decaying modes map to $\mu \approx 0$, which can amplify numerical noise during the $1/\mu$ inversion, so mizer safely filters these out to isolate the dominant continuous eigenvalues.)*
 
 ## Driving the North Sea model unstable
 
@@ -92,9 +101,9 @@ The spectral radius now exceeds 1: the steady state is unstable. To see *how* it
 stab$eigenvalues[1]
 ```
 
-It is **complex** with modulus greater than 1. A real eigenvalue above 1 would signal monotone growth, but a complex pair crossing the unit circle means the perturbation grows *while oscillating* — a Hopf (or Neimark–Sacker) bifurcation. The period of this oscillation is set by the argument of the eigenvalue,
+It is **complex** with a positive real part. A purely real, positive eigenvalue would signal monotone growth, but a complex pair with a positive real part means the perturbation grows *while oscillating* — a Hopf (or Neimark–Sacker) bifurcation. The period of this oscillation is set by the imaginary part of the eigenvalue,
 
-$$ \text{Period} = \frac{2\pi}{|\arg(\lambda)|} \text{ time steps}, $$
+$$ \text{Period} = \frac{2\pi}{|\text{Im}(\lambda)|} \text{ years}, $$
 
 which mizer reports as `dominant_period`:
 

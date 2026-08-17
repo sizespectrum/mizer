@@ -81,9 +81,9 @@ getLimitCycleSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
              "bifurcation, where a complex pair exists.")
     }
 
-    # Find the complex eigenvalue closest to the unit circle
+    # Find the complex eigenvalue with the most positive real part
     complex_idx <- which(is_complex)
-    idx <- complex_idx[which.min(abs(Mod(stab$eigenvalues[complex_idx]) - 1))]
+    idx <- complex_idx[which.max(Re(stab$eigenvalues[complex_idx]))]
     lam1 <- stab$eigenvalues[idx]
 
     # Leading eigenvectors are stored as (sp × w × 2) array, or as a list
@@ -94,7 +94,7 @@ getLimitCycleSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
     safe_idx <- if (idx <= dim(if (is.array(lev)) lev else lev$fish)[3]) idx else 1
     v_use <- if (is.array(lev)) lev[, , safe_idx] else lev$fish[, , safe_idx]
 
-    theta    <- Arg(lam1)               # angular frequency per time step
+    theta    <- Im(lam1)               # angular frequency per time step
     T_period <- 2 * pi / abs(theta)    # period in time steps
 
     # ------------------------------------------------------------------

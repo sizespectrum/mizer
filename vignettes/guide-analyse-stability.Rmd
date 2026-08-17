@@ -39,11 +39,7 @@ unstable, unlike [`steady()`](../reference/steady.html).
 
 ## Is the steady state stable? — `getStability()`
 
-`getStability(params)` linearises the one-step-ahead map at the fixed point and
-returns its leading eigenvalues. The result reports whether the state is stable or
-unstable, the **spectral radius** (modulus of the leading eigenvalue; > 1 means
-unstable), and — when the system is near a Hopf bifurcation — the **period** of
-the emergent limit cycle. It also returns `leading_eigenvectors`, a complex array
+`getStability(params)` computes the exact continuous-time eigenvalues (by linearising the one-step map and analytically removing the temporal numerical diffusion). The result reports whether the state is stable or unstable, an equivalent continuous **spectral radius** (`exp(max_real_part)`; > 1 means unstable), and — when the system is near a Hopf bifurcation — the **period** of the emergent limit cycle. It also returns `leading_eigenvectors`, a complex array
 `(n_species, n_sizes, 2)` of the top two eigenvectors in fish-abundance space,
 normalised to maximum modulus 1 (the spatial shape of the oscillation).
 
@@ -124,8 +120,6 @@ plotBifurcation(params, effort = seq(0, 1.5, 0.05), value = "yield")
 
 ## Numerical caveat
 
-An oscillation is only trustworthy if it survives the second-order numerical
-scheme: the default first-order upwind flux carries numerical diffusion that can
-**damp a real limit cycle to a flat line**. Build the model with
-`second_order_w = TRUE` and project with `method = "tr_bdf2"` before concluding a
-state is stable. See the [guide to running a mizer simulation](guide-run-simulation.html).
+While `getStability()` is now exact for the continuous-time dynamics (by analytically removing the temporal numerical diffusion of the underlying implicit map), the *spatial* numerical diffusion from the default first-order upwind scheme remains. A real limit cycle can still be damped to a flat line by the spatial scheme alone!
+
+To accurately simulate the fully nonlinear oscillation and confirm a stable cycle, build the model with `second_order_w = TRUE` and project with `method = "tr_bdf2"`. See the [guide to running a mizer simulation](guide-run-simulation.html).

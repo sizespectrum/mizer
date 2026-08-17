@@ -272,7 +272,7 @@ test_that("getStability returns a well-formed list for a stable model", {
     expect_type(stab, "list")
     expect_named(stab, c("eigenvalues", "spectral_radius", "stable",
                          "dominant_period", "hopf_period", "n_active",
-                         "leading_eigenvectors"))
+                         "leading_eigenvectors", "params"))
     expect_true(is.complex(stab$eigenvalues))
     expect_length(stab$eigenvalues, stab$n_active)
     expect_true(is.numeric(stab$spectral_radius))
@@ -309,7 +309,7 @@ test_that("getStability eigenvalues are consistent with spectral_radius", {
     pn <- steadyNewton(p_steady)
     stab <- getStability(pn)
 
-    expect_equal(stab$spectral_radius, max(Mod(stab$eigenvalues)))
+    expect_equal(stab$spectral_radius, exp(max(Re(stab$eigenvalues))))
 })
 
 
@@ -336,7 +336,7 @@ test_that("getStability with include_resource = TRUE returns well-formed list", 
     expect_type(stab_full, "list")
     expect_named(stab_full, c("eigenvalues", "spectral_radius", "stable",
                               "dominant_period", "hopf_period", "n_active",
-                              "leading_eigenvectors"))
+                              "leading_eigenvectors", "params"))
     # n_active must equal n_fish_active + n_resource (always strictly larger)
     stab_red <- getStability(pn, include_resource = FALSE)
     expect_gt(stab_full$n_active, stab_red$n_active)

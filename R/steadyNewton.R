@@ -941,33 +941,41 @@ getStability <- function(params,
     # Eigenvalue analysis (shared by both branches)
     # -------------------------------------------------------------------------
     eig       <- eigen(L)
-    evals_map <- eig$values
+    mu_map    <- eig$values
     evecs     <- eig$vectors          # columns are eigenvectors
 
-    # Sort by decreasing eigenvalue modulus.
-    ord       <- order(Mod(evals_map), decreasing = TRUE)
-    evals_map <- evals_map[ord]
+    # Map the discrete eigenvalues of the dt=1 map to continuous time
+    # to avoid the massive temporal numerical diffusion of the implicit scheme.
+    # Fast decaying modes map to mu near 0, where 1/mu amplifies numerical noise,
+    # so we only map modes with |mu| > 1e-4.
+    valid_idx <- Mod(mu_map) > 1e-4
+    evals_cont <- rep(-Inf + 0i, length(mu_map))
+    evals_cont[valid_idx] <- 1 - 1 / mu_map[valid_idx]
+
+    # Sort by decreasing real part (most unstable first)
+    ord       <- order(Re(evals_cont), decreasing = TRUE)
+    evals_cont <- evals_cont[ord]
     evecs     <- evecs[, ord, drop = FALSE]
 
-    spectral_radius <- max(Mod(evals_map))
-    stable          <- spectral_radius < 1
+    max_re <- Re(evals_cont[1])
+    stable <- max_re < 0
+    # Map back to a continuous per-year multiplier for backwards compatibility
+    spectral_radius <- exp(max_re)
 
-    lam1   <- evals_map[1]
-    theta1 <- Arg(lam1)
-    if (abs(theta1) < 1e-10) {
+    lam1   <- evals_cont[1]
+    omega1 <- Im(lam1)
+    if (abs(omega1) < 1e-10) {
         dominant_period <- Inf
-    } else if (abs(abs(theta1) - pi) < 1e-10) {
-        dominant_period <- NA
     } else {
-        dominant_period <- 2 * pi / abs(theta1)
+        dominant_period <- 2 * pi / abs(omega1)
     }
 
-    is_complex <- abs(Im(evals_map)) > 1e-8
+    is_complex <- abs(Im(evals_cont)) > 1e-8
     if (any(is_complex)) {
-        complex_evals <- evals_map[is_complex]
-        closest_idx   <- which.min(abs(Mod(complex_evals) - 1))
+        complex_evals <- evals_cont[is_complex]
+        closest_idx   <- which.max(Re(complex_evals))
         lam_hopf      <- complex_evals[closest_idx]
-        hopf_period   <- 2 * pi / abs(Arg(lam_hopf))
+        hopf_period   <- 2 * pi / abs(Im(lam_hopf))
     } else {
         hopf_period <- NULL
     }
@@ -1013,7 +1021,7 @@ getStability <- function(params,
     }
 
     list(
-        eigenvalues          = evals_map,
+        eigenvalues          = evals_cont,
         spectral_radius      = spectral_radius,
         stable               = stable,
         dominant_period      = dominant_period,
