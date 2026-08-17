@@ -270,13 +270,21 @@ test_that("getStability returns a well-formed list for a stable model", {
     stab <- getStability(pn)
 
     expect_type(stab, "list")
-    expect_named(stab, c("eigenvalues", "spectral_radius", "stable",
+    expect_named(stab, c("eigenvalues", "discrete_eigenvalues", "max_real_part", "stable",
                          "dominant_period", "hopf_period", "n_active",
                          "leading_eigenvectors", "params"))
     expect_true(is.complex(stab$eigenvalues))
-    expect_length(stab$eigenvalues, stab$n_active)
-    expect_true(is.numeric(stab$spectral_radius))
-    expect_true(is.logical(stab$stable))
+    expect_true(is.complex(stab$discrete_eigenvalues))
+    expect_type(stab$max_real_part, "double")
+    expect_type(stab$stable, "logical")
+    expect_type(stab$dominant_period, "double")
+
+    # Re(evals) are sorted descending
+    expect_equal(order(Re(stab$eigenvalues), decreasing = TRUE),
+                 seq_along(stab$eigenvalues))
+
+    expect_equal(stab$max_real_part, max(Re(stab$eigenvalues)))
+    expect_equal(stab$stable, stab$max_real_part < 0)
 })
 
 test_that("getStability warns when it is not handed a steady state", {
@@ -301,15 +309,15 @@ test_that("getStability reports stable = TRUE for the NS model at its steady sta
     stab <- getStability(pn)
 
     expect_true(stab$stable)
-    expect_lt(stab$spectral_radius, 1)
+    expect_lt(stab$max_real_part, 0)
 })
 
-test_that("getStability eigenvalues are consistent with spectral_radius", {
+test_that("getStability eigenvalues are consistent with max_real_part", {
     skip_unless_experimental()
     pn <- steadyNewton(p_steady)
     stab <- getStability(pn)
 
-    expect_equal(stab$spectral_radius, exp(max(Re(stab$eigenvalues))))
+    expect_equal(stab$max_real_part, max(Re(stab$eigenvalues)))
 })
 
 
@@ -334,17 +342,16 @@ test_that("getStability with include_resource = TRUE returns well-formed list", 
     stab_full <- getStability(pn, include_resource = TRUE)
 
     expect_type(stab_full, "list")
-    expect_named(stab_full, c("eigenvalues", "spectral_radius", "stable",
+    expect_named(stab_full, c("eigenvalues", "discrete_eigenvalues", "max_real_part", "stable",
                               "dominant_period", "hopf_period", "n_active",
                               "leading_eigenvectors", "params"))
     # n_active must equal n_fish_active + n_resource (always strictly larger)
     stab_red <- getStability(pn, include_resource = FALSE)
     expect_gt(stab_full$n_active, stab_red$n_active)
-    expect_length(stab_full$eigenvalues, stab_full$n_active)
     expect_true(stab_full$stable)
 })
 
-test_that("full and reduced stability analyses agree on spectral radius for NS model", {
+test_that("full and reduced stability analyses agree on max_real_part for NS model", {
     skip_unless_experimental()
     # For a model where the resource dynamics are fast (large rr_pp), the
     # quasi-static reduction should give almost the same dominant eigenvalue.
@@ -353,7 +360,7 @@ test_that("full and reduced stability analyses agree on spectral radius for NS m
     stab_full <- getStability(pn, include_resource = TRUE)
 
     # Dominant eigenvalue moduli should match to within a loose tolerance.
-    expect_equal(stab_full$spectral_radius, stab_red$spectral_radius,
+    expect_equal(stab_full$max_real_part, stab_red$max_real_part,
                  tolerance = 0.05)
 })
 

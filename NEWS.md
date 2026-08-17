@@ -23,7 +23,7 @@ while building or changing a model through a single mechanism controlled by
   introduced by the implicit solver, it maps the discrete numerical eigenvalues
   back to their exact continuous-time equivalents via $\lambda = 1 - 1/\mu$.
   It reports whether the steady state is stable or unstable (based on the real
-  parts of the continuous eigenvalues), an equivalent continuous spectral radius,
+  parts of the continuous eigenvalues), the maximum real part,
   and — when the system approaches a Hopf bifurcation — the exact period of the
   emergent limit cycle. By default the resource is treated as a
   quasi-static fast variable (valid for semichemostat dynamics); setting

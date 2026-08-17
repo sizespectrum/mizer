@@ -81,21 +81,21 @@ params_f2 <- steadyNewton(params, effort = 2)
 
 ## Diagnosing the instability
 
-Is this steady state stable? We compute the spectral radius with `getStability()`.
+Is this steady state stable? We compute its maximum real part with `getStability()`.
 
 ```{r default_stability}
-getStability(params_f2, effort = 2)$spectral_radius
+getStability(params_f2, effort = 2)$max_real_part
 ```
 
-This is below 1, which would suggest stability — but by default `getStability()` treats the resource spectrum as a *quasi-static* fast variable that instantly equilibrates to the fish. The instability here is driven by the two-way coupling between the fish and their resource, which that approximation suppresses. Analysing the full coupled fish–resource system with `include_resource = TRUE` reveals it:
+This is below 0, which would suggest stability — but by default `getStability()` treats the resource spectrum as a *quasi-static* fast variable that instantly equilibrates to the fish. The instability here is driven by the two-way coupling between the fish and their resource, which that approximation suppresses. Analysing the full coupled fish–resource system with `include_resource = TRUE` reveals it:
 
 ```{r coupled_stability}
 stab <- getStability(params_f2, effort = 2, include_resource = TRUE)
-stab$spectral_radius
+stab$max_real_part
 stab$stable
 ```
 
-The spectral radius now exceeds 1: the steady state is unstable. To see *how* it is unstable, we look at the dominant eigenvalue (the one with the largest modulus).
+The maximum real part now exceeds 0: the steady state is unstable. To see *how* it is unstable, we look at the dominant eigenvalue (the one with the largest real part).
 
 ```{r dominant_mode}
 stab$eigenvalues[1]

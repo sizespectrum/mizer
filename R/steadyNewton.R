@@ -615,13 +615,16 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #' Comparing the dominant eigenvalues of the two analyses shows how much the
 #' quasi-static approximation affects the stability conclusion.
 #'
-#' The steady state is **stable** when all eigenvalues satisfy
-#' \eqn{|\lambda_i| < 1} and **unstable** when at least one exceeds 1.
+#' The discrete eigenvalues \eqn{\mu_i} of the numerical Jacobian are mapped back
+#' to their exact continuous-time equivalents \eqn{\lambda_i = 1 - 1/\mu_i} to
+#' remove the artificial temporal numerical diffusion introduced by the backward
+#' Euler solver. The steady state is **stable** when all continuous-time
+#' eigenvalues satisfy \eqn{\text{Re}(\lambda_i) < 0} and **unstable** when at
+#' least one exceeds 0.
 #'
 #' A **Hopf bifurcation** occurs when a complex-conjugate pair of eigenvalues
-#' crosses the unit circle, giving a limit-cycle period
-#' \deqn{T = \frac{2\pi}{|\arg(\lambda)|} \text{ time steps.}}
-#' For the default mizer time step of one year this is in years.
+#' crosses the imaginary axis, giving a limit-cycle period
+#' \deqn{T = \frac{2\pi}{|\text{Im}(\lambda)|} \text{ years.}}
 #'
 #' Both branches use the same `project_n_loop()` C++ Thomas solver as the
 #' regular dynamics, evaluating the transport coefficients with the exact
@@ -664,15 +667,20 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #'   is not smooth at the state being analysed — see the section below.
 #' @return A named list with the following components:
 #'   \describe{
-#'     \item{`eigenvalues`}{Complex vector of all eigenvalues of the
-#'       linearised Jacobian, sorted by decreasing modulus.}
-#'     \item{`spectral_radius`}{The largest modulus \eqn{\max_i|\lambda_i|}.}
-#'     \item{`stable`}{Logical: `TRUE` when `spectral_radius < 1`.}
-#'     \item{`dominant_period`}{The period (in time steps) of the dominant
-#'       eigenvalue: `2*pi / abs(Arg(lambda_1))`. `Inf` for a real positive
-#'       dominant eigenvalue (monotone dynamics); `NA` for a period-2 flip.}
-#'     \item{`hopf_period`}{Period (in time steps) of the complex eigenvalue
-#'       whose modulus is closest to 1; `NULL` when no complex eigenvalue
+#'     \item{`eigenvalues`}{Complex vector of the valid continuous-time
+#'       eigenvalues (\eqn{\lambda_i = 1 - 1/\mu_i}), sorted by decreasing real part.
+#'       These describe the stability of the underlying continuous ODEs/PDEs.}
+#'     \item{`discrete_eigenvalues`}{Complex vector of the raw discrete eigenvalues
+#'       \eqn{\mu_i} of the numerical one-step map, sorted by decreasing real part
+#'       of their continuous counterparts.}
+#'     \item{`max_real_part`}{The largest real part of the continuous eigenvalues:
+#'       \eqn{\max_i \text{Re}(\lambda_i)}. Greater than 0 means unstable.}
+#'     \item{`stable`}{Logical: `TRUE` when `max_real_part < 0`.}
+#'     \item{`dominant_period`}{The period (in years) of the dominant
+#'       continuous eigenvalue: `2*pi / abs(Im(lambda_1))`. `Inf` for a real positive
+#'       dominant eigenvalue (monotone dynamics).}
+#'     \item{`hopf_period`}{Period (in years) of the complex continuous eigenvalue
+#'       with the largest real part; `NULL` when no complex eigenvalue
 #'       exists.  This is the expected limit-cycle period near a Hopf
 #'       bifurcation.}
 #'     \item{`n_active`}{Dimension of the Jacobian: number of active fish cells
@@ -949,18 +957,18 @@ getStability <- function(params,
     # Fast decaying modes map to mu near 0, where 1/mu amplifies numerical noise,
     # so we only map modes with |mu| > 1e-4.
     valid_idx <- Mod(mu_map) > 1e-4
-    evals_cont <- rep(-Inf + 0i, length(mu_map))
-    evals_cont[valid_idx] <- 1 - 1 / mu_map[valid_idx]
+    evals_cont <- 1 - 1 / mu_map[valid_idx]
 
     # Sort by decreasing real part (most unstable first)
     ord       <- order(Re(evals_cont), decreasing = TRUE)
     evals_cont <- evals_cont[ord]
+    
+    # Filter and sort the corresponding eigenvectors
+    evecs     <- evecs[, valid_idx, drop = FALSE]
     evecs     <- evecs[, ord, drop = FALSE]
 
-    max_re <- Re(evals_cont[1])
-    stable <- max_re < 0
-    # Map back to a continuous per-year multiplier for backwards compatibility
-    spectral_radius <- exp(max_re)
+    max_real_part <- Re(evals_cont[1])
+    stable <- max_real_part < 0
 
     lam1   <- evals_cont[1]
     omega1 <- Im(lam1)
@@ -1022,7 +1030,8 @@ getStability <- function(params,
 
     list(
         eigenvalues          = evals_cont,
-        spectral_radius      = spectral_radius,
+        discrete_eigenvalues = mu_map,
+        max_real_part        = max_real_part,
         stable               = stable,
         dominant_period      = dominant_period,
         hopf_period          = hopf_period,

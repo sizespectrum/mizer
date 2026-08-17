@@ -8,65 +8,6 @@ norm_box_pred_kernel <- function(ppmr, ppmr_min, ppmr_max) {
     phi / (sum(phi) * (log(ppmr[2]) - log(ppmr[1])))
 }
 
-exact_logistic_immigration_step <- function(n, rate, capacity, immigration,
-                                            mortality, dt) {
-    result <- n
-    active <- is.finite(n) & is.finite(rate) & is.finite(capacity) &
-        is.finite(immigration) & is.finite(mortality) &
-        rate > 0 & capacity > 0 & immigration >= 0
-    if (dt == 0 || !any(active)) return(result)
-    
-    n0 <- n[active]; r <- rate[active]; k <- capacity[active]
-    i  <- immigration[active]; mu <- mortality[active]
-    a  <- r - mu; b <- r / k
-    next_n <- numeric(length(n0))
-    
-    # With immigration the quadratic has one positive and one negative root;
-    # the alternative root formulae avoid cancellation when abs(a) is large.
-    has_immigration <- i > 0
-    if (any(has_immigration)) {
-        idx <- which(has_immigration)
-        ai <- a[idx]; bi <- b[idx]; ii <- i[idx]
-        d  <- sqrt(ai^2 + 4 * bi * ii)
-        n_plus  <- ifelse(ai >= 0, (ai + d) / (2 * bi), 2 * ii / (d - ai))
-        n_minus <- ifelse(ai <= 0, (ai - d) / (2 * bi), -2 * ii / (ai + d))
-        ratio <- ((n0[idx] - n_plus) / (n0[idx] - n_minus)) * exp(-d * dt)
-        next_n[idx] <- (n_plus - ratio * n_minus) / (1 - ratio)
-    }
-    
-    # The zero-immigration limit is handled separately, including rate == mortality.
-    no_immigration <- !has_immigration
-    if (any(no_immigration)) {
-        idx <- which(no_immigration)
-        az <- a[idx]; bz <- b[idx]; nz <- n0[idx]
-        value <- numeric(length(idx))
-        zero_rate <- az == 0
-        value[zero_rate] <- nz[zero_rate] / (1 + bz[zero_rate] * nz[zero_rate] * dt)
-        
-        positive <- az > 0 & nz > 0
-        phi <- -expm1(-az[positive] * dt) / az[positive]
-        value[positive] <- nz[positive] / (exp(-az[positive] * dt) + bz[positive] * nz[positive] * phi)
-        
-        negative <- az < 0
-        exp_adt <- exp(az[negative] * dt)
-        phi <- expm1(az[negative] * dt) / az[negative]
-        value[negative] <- nz[negative] * exp_adt / (1 + bz[negative] * nz[negative] * phi)
-        next_n[idx] <- value
-    }
-    
-    # Round-off can only create tiny negative values; the analytic solution is
-    # non-negative for non-negative initial abundance and immigration.
-    result[active] <- pmax(next_n, 0)
-    result
-}
-
-plankton_logistic <- function(params, n, n_pp, n_other, rates, dt = 0.1, ...) {
-    exact_logistic_immigration_step(
-        n = n_pp, rate = params@rr_pp, capacity = params@cc_pp,
-        immigration = immigration, mortality = rates$resource_mort, dt = dt
-    )
-}
-
 # Build model ----
 p <- list(
     dt = 0.02, method = "tr_bdf2", dx = 0.1, w_min = 0.0003, w_inf = 66.5,
@@ -78,7 +19,7 @@ p <- list(
     w_pp_cutoff = 0.1, r0 = 10, a0 = 100, i0 = 100, rho = 0.85, lambda = 2
 )
 
-theta                 <- 0.3   # fraction of baseline cannibalism strength kept
+theta                 <- 0.2   # fraction of baseline cannibalism strength kept
 interaction_resource  <- 1     # this species' access to the background resource
 knife_edge_size       <- 10    # fishing gear cutoff, in grams
 kappa <- p$a0 * exp(-6.9 * (p$lambda - 1))
@@ -122,7 +63,42 @@ pp <- getParams(ss, c(start, conv$years))
 
 ps <- steadyNewton(pp, reproduction = "dynamic")
 stab <- getStability(ps, reproduction = "dynamic", include_resource = TRUE)
-lc <- getLimitCycleSim(stab)
+stab$stable
+stab$spectral_radius
+
+# Extract discrete eigenvalues
+mu <- stab$eigenvalues
+
+# Filter out the numerical noise (fast modes mapped near zero)
+# Only invert eigenvalues that are reasonably large
+mu_filtered <- mu[Mod(mu) > 1e-4]
+
+# Map to continuous time
+lambda_cont <- 1 - 1 / mu_filtered
+
+# Now find the true instability
+max_re <- max(Re(lambda_cont))
+is_stable <- max_re < 0
+
+unstable_idx <- which.max(Re(lambda_cont))
+unstable_mode <- lambda_cont[unstable_idx]
+
+cat("Is continuous system stable?", is_stable, "\n")
+cat("Maximum real part:", max_re, "\n")
+
+if (!is_stable && Im(unstable_mode) != 0) {
+    period <- 2 * pi / abs(Im(unstable_mode))
+    cat("Hopf period:", period, "years\n")
+}
+
+# According to this, the steady state is stable.
+# Let's test that by making a small perturbation
+ps_pert <- ps
+initialN(ps_pert) <- initialN(ps) * 1.01
+sim <- projectToSteady(ps_pert, t_per = 0.2, dt = p$dt, tol = 1e-6,
+                       method = p$method, return_sim = TRUE)
+plotBiomass(sim)
+
 
 sims <- project(ps, t_max = 10, dt = p$dt, method = p$method)
 plotBiomass(sims)
