@@ -386,6 +386,10 @@ while building or changing a model through a single mechanism controlled by
   messages when called on a model with `h = Inf`, indicating that `gamma` or
   `ks` must be supplied explicitly.
 
+- `gear_params<-()` and `calc_selectivity()` now list the missing column names
+  in the error message when arguments needed for a selectivity function are
+  missing from the gear parameter data frame.
+
 ## Other new functions
 
 - New `knife_edge_length()` selectivity function that applies a knife-edge cut

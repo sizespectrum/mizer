@@ -774,9 +774,11 @@ validGearParams <- function(gear_params, species_params) {
         # get args
         arg <- names(formals(gear_params[g, "sel_func"]))
         arg <- arg[!(arg %in% c("w", "species_params", "..."))]
-        if (!all(arg %in% colnames(gear_params))) {
+        missing <- setdiff(arg, colnames(gear_params))
+        if (length(missing) > 0) {
             stop("Some arguments needed for the selectivity function are ",
-                 "missing in the gear parameter dataframe.")
+                 "missing in the gear parameter dataframe: ",
+                 toString(missing), ".")
         }
         # Check that there are no missing values for selectivity parameters
         if (any(is.na(as.list(gear_params[g, arg])))) {
@@ -919,9 +921,11 @@ calc_selectivity <- function(params) {
         arg <- names(formals(sel_func))
         # lop off the arguments that we will supply
         arg <- arg[!(arg %in% c("w", "species_params", "..."))]
-        if (!all(arg %in% colnames(gear_params))) {
+        missing <- setdiff(arg, colnames(gear_params))
+        if (length(missing) > 0) {
             stop("Some arguments needed for the selectivity function are ",
-                 "missing in the gear_params dataframe.")
+                 "missing in the gear_params dataframe: ",
+                 toString(missing), ".")
         }
         # Check that there are no missing values for selectivity parameters
         if (any(is.na(as.list(gear_params[g, arg])))) {
