@@ -616,7 +616,7 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #' quasi-static approximation affects the stability conclusion.
 #'
 #' The discrete eigenvalues \eqn{\mu_i} of the numerical Jacobian are mapped back
-#' to their exact continuous-time equivalents \eqn{\lambda_i = 1 - 1/\mu_i} to
+#' to their exact continuous-time equivalents \eqn{\lambda_i = (1 - 1/\mu_i) / dt} to
 #' remove the artificial temporal numerical diffusion introduced by the backward
 #' Euler solver. The steady state is **stable** when all continuous-time
 #' eigenvalues satisfy \eqn{\text{Re}(\lambda_i) < 0} and **unstable** when at
@@ -665,14 +665,21 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #' @param h Relative step size for centred finite differences. Default `1e-4`.
 #'   The result should not depend on this choice. If it does, the one-step map
 #'   is not smooth at the state being analysed — see the section below.
+#' @param dt The time step size to use for evaluating the numerical one-step map.
+#'   Default `1`. The continuous eigenvalues are independent of this choice, but
+#'   the discrete eigenvalues and `spectral_radius` returned will reflect the
+#'   stability of mizer's numerical Euler method exactly for this step size.
 #' @return A named list with the following components:
 #'   \describe{
 #'     \item{`eigenvalues`}{Complex vector of the valid continuous-time
-#'       eigenvalues (\eqn{\lambda_i = 1 - 1/\mu_i}), sorted by decreasing real part.
+#'       eigenvalues (\eqn{\lambda_i = (1 - 1/\mu_i) / dt}), sorted by decreasing real part.
 #'       These describe the stability of the underlying continuous ODEs/PDEs.}
 #'     \item{`discrete_eigenvalues`}{Complex vector of the raw discrete eigenvalues
-#'       \eqn{\mu_i} of the numerical one-step map, sorted by decreasing real part
+#'       \eqn{\mu_i} of the numerical one-step map (evaluated at step size `dt`), sorted by decreasing real part
 #'       of their continuous counterparts.}
+#'     \item{`spectral_radius`}{The spectral radius of the numerical one-step map
+#'       evaluated at step size `dt`: \eqn{\max_i|\mu_i|}. A value less than 1 indicates
+#'       that the numerical scheme is stable.}
 #'     \item{`max_real_part`}{The largest real part of the continuous eigenvalues:
 #'       \eqn{\max_i \text{Re}(\lambda_i)}. Greater than 0 means unstable.}
 #'     \item{`stable`}{Logical: `TRUE` when `max_real_part < 0`.}
@@ -720,7 +727,8 @@ getStability <- function(params,
                          effort = params@initial_effort,
                          include_resource = FALSE,
                          extinction_floor = 1e-6,
-                         h = 1e-4) {
+                         h = 1e-4,
+                         dt = 1) {
     reproduction <- match.arg(reproduction)
     params <- validParams(params)
     effort <- validEffortVector(effort, params = params)
@@ -799,7 +807,7 @@ getStability <- function(params,
         }
 
         coefs <- get_transport_coefs(params, n = N_in, g = r$e_growth,
-                                     mu = r$mort, dt = 1,
+                                     mu = r$mort, dt = dt,
                                      recruitment_flux = rdd,
                                      d = r$diffusion,
                                      flux_limiter = flux_limiter)
@@ -818,11 +826,6 @@ getStability <- function(params,
     n_fish_active <- length(N_vec)
 
     # Finite-difference step sizes. The step is relative, `h * N`, so a positive
-    # cell stays positive and its derivative is resolved against its own scale.
-    # A cell sitting at exactly zero has no scale of its own: an absolute floor
-    # would make the step so much smaller than the rounding error of the
-    # (order-`N`) outputs it perturbs that the whole column collapses into
-    # floating-point noise — in practice to exactly zero, which silently drops
     # the cell from the Jacobian and puts a spurious zero eigenvalue in place of
     # its true decay rate. Such cells do occur: an isolated negativity-floor
     # artefact of the second-order schemes, or a tail class that steadyNewton()
@@ -899,7 +902,7 @@ getStability <- function(params,
             res <- fish_step(N_in, npp_in)
             # Resource dynamics with actual rates (includes resource_mort)
             npp_out <- resource_dyn(params, N_in, npp_in, n_other,
-                                    rates = res$rates, t = 0, dt = 1,
+                                    rates = res$rates, t = 0, dt = dt,
                                     resource_rate = params@rr_pp,
                                     resource_capacity = params@cc_pp)
             c(res$N[active$mask], as.numeric(npp_out))
@@ -952,12 +955,14 @@ getStability <- function(params,
     mu_map    <- eig$values
     evecs     <- eig$vectors          # columns are eigenvectors
 
-    # Map the discrete eigenvalues of the dt=1 map to continuous time
+    # Map the discrete eigenvalues of the dt map to continuous time
     # to avoid the massive temporal numerical diffusion of the implicit scheme.
     # Fast decaying modes map to mu near 0, where 1/mu amplifies numerical noise,
     # so we only map modes with |mu| > 1e-4.
     valid_idx <- Mod(mu_map) > 1e-4
-    evals_cont <- 1 - 1 / mu_map[valid_idx]
+    evals_cont <- (1 - 1 / mu_map[valid_idx]) / dt
+
+    spectral_radius <- max(Mod(mu_map))
 
     # Sort by decreasing real part (most unstable first)
     ord       <- order(Re(evals_cont), decreasing = TRUE)
@@ -1031,6 +1036,7 @@ getStability <- function(params,
     list(
         eigenvalues          = evals_cont,
         discrete_eigenvalues = mu_map,
+        spectral_radius      = spectral_radius,
         max_real_part        = max_real_part,
         stable               = stable,
         dominant_period      = dominant_period,

@@ -21,10 +21,10 @@ while building or changing a model through a single mechanism controlled by
   steady state by computing the eigenvalues of the linearised one-step-ahead map
   at the fixed point. To eliminate the artificial temporal numerical diffusion
   introduced by the implicit solver, it maps the discrete numerical eigenvalues
-  back to their exact continuous-time equivalents via $\lambda = 1 - 1/\mu$.
+  back to their exact continuous-time equivalents via $\lambda = (1 - 1/\mu) / \Delta t$.
   It reports whether the steady state is stable or unstable (based on the real
-  parts of the continuous eigenvalues), the maximum real part,
-  and — when the system approaches a Hopf bifurcation — the exact period of the
+  parts of the continuous eigenvalues), the maximum real part, the `spectral_radius`
+  of the discrete numerical solver for a given time step `dt`, and — when the system
   emergent limit cycle. By default the resource is treated as a
   quasi-static fast variable (valid for semichemostat dynamics); setting
   `include_resource = TRUE` gives the full coupled (fish + resource) Jacobian,

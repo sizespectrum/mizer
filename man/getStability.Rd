@@ -10,7 +10,8 @@ getStability(
   effort = params@initial_effort,
   include_resource = FALSE,
   extinction_floor = 1e-06,
-  h = 1e-04
+  h = 1e-04,
+  dt = 1
 )
 }
 \arguments{
@@ -38,16 +39,24 @@ case. Default is \code{1e-6}.}
 \item{h}{Relative step size for centred finite differences. Default \code{1e-4}.
 The result should not depend on this choice. If it does, the one-step map
 is not smooth at the state being analysed — see the section below.}
+
+\item{dt}{The time step size to use for evaluating the numerical one-step map.
+Default \code{1}. The continuous eigenvalues are independent of this choice, but
+the discrete eigenvalues and \code{spectral_radius} returned will reflect the
+stability of mizer's numerical Euler method exactly for this step size.}
 }
 \value{
 A named list with the following components:
 \describe{
 \item{\code{eigenvalues}}{Complex vector of the valid continuous-time
-eigenvalues (\eqn{\lambda_i = 1 - 1/\mu_i}), sorted by decreasing real part.
+eigenvalues (\eqn{\lambda_i = (1 - 1/\mu_i) / dt}), sorted by decreasing real part.
 These describe the stability of the underlying continuous ODEs/PDEs.}
 \item{\code{discrete_eigenvalues}}{Complex vector of the raw discrete eigenvalues
-\eqn{\mu_i} of the numerical one-step map, sorted by decreasing real part
+\eqn{\mu_i} of the numerical one-step map (evaluated at step size \code{dt}), sorted by decreasing real part
 of their continuous counterparts.}
+\item{\code{spectral_radius}}{The spectral radius of the numerical one-step map
+evaluated at step size \code{dt}: \eqn{\max_i|\mu_i|}. A value less than 1 indicates
+that the numerical scheme is stable.}
 \item{\code{max_real_part}}{The largest real part of the continuous eigenvalues:
 \eqn{\max_i \text{Re}(\lambda_i)}. Greater than 0 means unstable.}
 \item{\code{stable}}{Logical: \code{TRUE} when \code{max_real_part < 0}.}
@@ -113,7 +122,7 @@ Comparing the dominant eigenvalues of the two analyses shows how much the
 quasi-static approximation affects the stability conclusion.
 
 The discrete eigenvalues \eqn{\mu_i} of the numerical Jacobian are mapped back
-to their exact continuous-time equivalents \eqn{\lambda_i = 1 - 1/\mu_i} to
+to their exact continuous-time equivalents \eqn{\lambda_i = (1 - 1/\mu_i) / dt} to
 remove the artificial temporal numerical diffusion introduced by the backward
 Euler solver. The steady state is \strong{stable} when all continuous-time
 eigenvalues satisfy \eqn{\text{Re}(\lambda_i) < 0} and \strong{unstable} when at

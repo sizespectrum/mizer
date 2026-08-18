@@ -270,7 +270,7 @@ test_that("getStability returns a well-formed list for a stable model", {
     stab <- getStability(pn)
 
     expect_type(stab, "list")
-    expect_named(stab, c("eigenvalues", "discrete_eigenvalues", "max_real_part", "stable",
+    expect_named(stab, c("eigenvalues", "discrete_eigenvalues", "spectral_radius", "max_real_part", "stable",
                          "dominant_period", "hopf_period", "n_active",
                          "leading_eigenvectors", "params"))
     expect_true(is.complex(stab$eigenvalues))
@@ -320,6 +320,20 @@ test_that("getStability eigenvalues are consistent with max_real_part", {
     expect_equal(stab$max_real_part, max(Re(stab$eigenvalues)))
 })
 
+test_that("getStability dt argument works", {
+    skip_unless_experimental()
+    pn <- steadyNewton(p_steady)
+    stab1   <- getStability(pn, dt = 1)
+    stab01  <- getStability(pn, dt = 0.1)
+
+    # The continuous eigenvalues and stability shouldn't change (within numerical noise)
+    expect_equal(stab01$max_real_part, stab1$max_real_part, tolerance = 0.05)
+    
+    # But the discrete eigenvalues and spectral radius should change
+    expect_false(isTRUE(all.equal(stab01$discrete_eigenvalues, stab1$discrete_eigenvalues)))
+    expect_false(isTRUE(all.equal(stab01$spectral_radius, stab1$spectral_radius)))
+})
+
 
 
 test_that("getStability hopf_period is NULL when all eigenvalues are real", {
@@ -342,7 +356,7 @@ test_that("getStability with include_resource = TRUE returns well-formed list", 
     stab_full <- getStability(pn, include_resource = TRUE)
 
     expect_type(stab_full, "list")
-    expect_named(stab_full, c("eigenvalues", "discrete_eigenvalues", "max_real_part", "stable",
+    expect_named(stab_full, c("eigenvalues", "discrete_eigenvalues", "spectral_radius", "max_real_part", "stable",
                               "dominant_period", "hopf_period", "n_active",
                               "leading_eigenvectors", "params"))
     # n_active must equal n_fish_active + n_resource (always strictly larger)

@@ -30,7 +30,7 @@ unstable, unlike `steady()`.
 
 ## Is the steady state stable? — `getStability()`
 
-`getStability(params)` computes the exact continuous-time eigenvalues (by linearising the one-step map and analytically removing the temporal numerical diffusion). The result reports whether the state is stable or unstable, an equivalent continuous **spectral radius** (`exp(max_real_part)`; > 1 means unstable), and — when the system is near a Hopf bifurcation — the **period** of the emergent limit cycle. It also returns `leading_eigenvectors`, a complex array
+`getStability(params)` computes the exact continuous-time eigenvalues (by linearising the one-step map and analytically removing the temporal numerical diffusion). The result reports whether the state is stable or unstable, the maximum real part of the eigenvalues (`max_real_part`; > 0 means unstable), and — when the system is near a Hopf bifurcation — the **period** of the emergent limit cycle. You can optionally pass a `dt` argument to retrieve the `discrete_eigenvalues` and `spectral_radius` of the numerical solver for that exact time step. It also returns `leading_eigenvectors`, a complex array
 `(n_species, n_sizes, 2)` of the top two eigenvectors in fish-abundance space,
 normalised to maximum modulus 1 (the spatial shape of the oscillation).
 
