@@ -133,3 +133,42 @@ test_that("warn_if_not_steady() includes the context and is silenced by info_lev
     withr::local_options(mizer_info_level = 0)
     expect_silent(warn_if_not_steady(off_steady_params, "Context."))
 })
+
+# isSteady ----
+
+test_that("isSteady() returns a single boolean", {
+    expect_true(isSteady(residual_params))
+    expect_false(isSteady(off_steady_params))
+    expect_type(isSteady(residual_params), "logical")
+    expect_length(isSteady(residual_params), 1L)
+})
+
+test_that("isSteady() respects custom tol argument", {
+    expect_true(isSteady(off_steady_params, tol = 10))
+    expect_false(isSteady(residual_params, tol = 1e-10))
+})
+
+test_that("isSteady() respects effort argument", {
+    p <- NS_params_small
+    higher <- initial_effort(p) + 1
+    # Different effort changes steadiness if model was settled at initial_effort
+    expect_equal(isSteady(p, effort = initial_effort(p)),
+                 isSteady(p))
+})
+
+test_that("isSteady() works under the second-order scheme", {
+    p <- residual_params
+    second_order_w(p) <- TRUE
+    # Changing quadrature scheme moves model off its original steady state
+    expect_false(isSteady(p))
+    # Re-settling under second-order scheme restores steady state
+    p <- suppressMessages(steady(p, tol = 1e-5, t_max = 500,
+                                 progress_bar = FALSE, info_level = 0))
+    expect_true(isSteady(p))
+})
+
+test_that("isSteady() dispatches via S3", {
+    dummy <- structure(list(), class = "DummyModel")
+    isSteady.DummyModel <- function(params, ...) TRUE  # nolint: object_name_linter.
+    expect_true(isSteady(dummy))
+})

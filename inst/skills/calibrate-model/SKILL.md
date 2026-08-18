@@ -8,7 +8,7 @@ description: >-
   matchNumbers, matchGrowth), supply those observations (the
   biomass_observed/biomass_cutoff or number_observed species-parameter columns,
   the yield_observed gear-parameter column), set the level of density-dependent
-  reproduction (reproduction_level<-), check convergence (getSteadyResidual), or
+  reproduction (reproduction_level<-), check convergence (isSteady, getSteadyResidual), or
   diagnose a model that collapses, explodes or will not settle. To ask whether
   the steady state you found is dynamically stable, see the analyse-stability
   skill.
@@ -38,7 +38,8 @@ params <- steady(params)
 | `steadySingleSpecies(params)` | set each species to its single-species steady form, births held fixed, without changing the resource — a fast way to get a sensible starting spectrum before `steady()` |
 | `projectToSteady(params)` | the lower-level routine `steady()` builds on, but with **births responding dynamically**; exposes `t_max`, `tol`, `return_sim` if you need to watch convergence |
 | `steadyNewton(params)` | *(experimental)* solve the steady-state equation directly, converging even when the steady state is dynamically unstable |
-| `getSteadyResidual(params)` | *(experimental)* ask whether a model **is** at its steady state, and where it is not |
+| `isSteady(params)` | *(experimental)* ask whether a model **is** at its steady state (boolean) |
+| `getSteadyResidual(params)` | *(experimental)* per-capita rates of change across species and sizes, showing where it is not |
 
 During setup and calibration you almost always want `steady()` or
 `steadySingleSpecies()`, because holding births constant lets the dynamics settle
@@ -141,6 +142,7 @@ changing it.
 ## Verifying the result
 
 ```r
+isSteady(params)                       # TRUE if settled within tolerance
 summary(params)                        # still at the steady state?
 plotSpectra(params)                    # sensible, overlapping spectra?
 plotGrowthCurves(params, species = "Cod")

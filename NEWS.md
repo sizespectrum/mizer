@@ -76,6 +76,10 @@ while building or changing a model through a single mechanism controlled by
 
 ## Steady state and calibration
 
+- New experimental S3 generic `isSteady()` returns `TRUE` if a model is at its
+  steady state (within a tolerance, defaulting to 0.05/year), `FALSE` otherwise.
+  Extension packages can provide custom methods.
+
 - New experimental `getSteadyResidual()` answers the question every calibration
   workflow otherwise has to remember to ask: *is this model still at its steady
   state?* It returns the rate at which each species' abundance would change if
