@@ -58,6 +58,15 @@ test_that("validGearParams works", {
     gp <- validGearParams(gp, sp)
     expect_identical(gp$species, "species1", ignore_attr = TRUE)
     expect_identical(gp$gear, "g", ignore_attr = TRUE)
+
+    # Missing selectivity function arguments are reported
+    gp <- data.frame(species = "species1", gear = "g", sel_func = "sigmoid_length",
+                     stringsAsFactors = FALSE)
+    expect_error(validGearParams(gp, sp),
+                 "missing in the gear parameter dataframe: l25, l50.")
+    gp$l25 <- 10
+    expect_error(validGearParams(gp, sp),
+                 "missing in the gear parameter dataframe: l50.")
 })
 
 # validEffortVector ----
@@ -269,6 +278,13 @@ test_that("Non-existing species give error", {
     gp$species[[1]] <- "test"
     expect_error(gear_params(params) <- gp,
                  "The gear_params dataframe contains species that do not exist in the model.")
+})
+
+test_that("gear_params<- errors when selectivity arguments are missing", {
+    gp <- data.frame(species = "Cod", gear = "g", sel_func = "sigmoid_length",
+                     stringsAsFactors = FALSE)
+    expect_error(gear_params(params) <- gp,
+                 "missing in the gear parameter dataframe: l25, l50.")
 })
 
 test_that("Can get and set selectivity slot", {
@@ -487,7 +503,7 @@ test_that("calc_selectivity errors for missing or NA selectivity parameters", {
     class(params_missing@gear_params) <- "data.frame"
     params_missing@gear_params$knife_edge_size <- NULL
     expect_error(calc_selectivity(params_missing),
-                 "missing in the gear_params dataframe")
+                 "missing in the gear_params dataframe: knife_edge_size.")
 
     params_na <- knife_edge_selectivity_params_no_length
     params_na@gear_params$knife_edge_size[1] <- NA
