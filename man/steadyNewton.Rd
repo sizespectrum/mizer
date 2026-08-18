@@ -18,6 +18,7 @@ steadyNewton(params, ...)
   maxit = 200,
   method = c("Broyden", "Newton"),
   global = "dbldog",
+  info_level = default_info_level(),
   ...
 )
 }
@@ -55,11 +56,15 @@ function-value tolerance \code{ftol} and the step tolerance \code{xtol}).}
 
 \item{method}{The \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}} method, either \code{"Newton"} (with a
 numerical Jacobian calculated at each iteration) or \code{"Broyden"} (which
-calculates the full Jacobian only once and then only updates it on each
-iteration. '"Broyden"' is the default.}
+calculates the full Jacobian only once and then only updates it on each}
 
 \item{global}{The globalisation strategy passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}}.
 The default \code{"dbldog"} (double dogleg) is a robust trust-region method.}
+
+\item{info_level}{Controls the amount of information messages and warnings
+that are shown. Higher levels lead to more messages, \code{info_level = 0}
+gives silence. The default is taken from the \code{mizer_info_level} option,
+see \code{\link[=default_info_level]{default_info_level()}}.}
 }
 \value{
 A \linkS4class{MizerParams} object with the initial state set to the

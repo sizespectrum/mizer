@@ -493,3 +493,8 @@ test_that("leading_eigenvectors have correct shape and are normalised", {
     # Dimnames match initial_n
     expect_equal(dimnames(lev)[1:2], dimnames(pn@initial_n))
 })
+
+test_that("steadyNewton respects info_level", {
+    skip_unless_experimental()
+    expect_silent(steadyNewton(p_steady, info_level = 0))
+})

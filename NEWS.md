@@ -319,15 +319,15 @@ while building or changing a model through a single mechanism controlled by
 
 - Nearly every message and warning that mizer gives while building or changing
   a model now goes through that mechanism, including the ones in `steady()`,
-  `projectToSteady()`, `validParams()`, `setInteraction()`,
-  `setReproduction()`, `setResource()`, `newTraitParams()`,
+  `steadyNewton()`, `projectToSteady()`, `validParams()`, `setInteraction()`,
+  `setReproduction()`, `setBevertonHolt()`, `setResource()`, `newTraitParams()`,
   `newSingleSpeciesParams()`, `plotYieldObservedVsModel()` and the upgrade of
   an old object. They are collected into a single report rather than a stream,
   and `info_level` (or the `mizer_info_level` option) controls all of them
   alike, where before each function decided for itself. `steady()`,
   `projectToSteady()` and `validParams()` no longer implement
-  their own `info_level` threshold, and `newSingleSpeciesParams()` gains an
-  `info_level` argument.
+  their own `info_level` threshold, and `newSingleSpeciesParams()`,
+  `setBevertonHolt()` and `steadyNewton()` gain an `info_level` argument.
 
 ## Species, gear and resource parameters
 

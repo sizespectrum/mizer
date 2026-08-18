@@ -119,6 +119,10 @@
 #' @param R_max Maximum reproduction rate. See details.
 #' @param reproduction_level Sets `R_max` so that the reproduction rate at
 #'   the initial state is `R_max * reproduction_level`.
+#' @param info_level Controls the amount of information messages and warnings
+#'   that are shown. Higher levels lead to more messages, `info_level = 0`
+#'   gives silence. The default is taken from the `mizer_info_level` option,
+#'   see [default_info_level()].
 #' @param ... Unused
 #'   \itemize{
 #'     \item `R_factor`: Legacy alternative for specifying
@@ -144,12 +148,15 @@
 #' t(species_params(params)[, c("erepro", "R_max")])
 #' @export
 setBevertonHolt <- function(params, erepro,
-                            R_max, reproduction_level, ...) {
+                            R_max, reproduction_level,
+                            info_level = default_info_level(), ...) {
     UseMethod("setBevertonHolt")
 }
 #' @export
 setBevertonHolt.MizerParams <- function(params, erepro,
-                            R_max, reproduction_level, ...) {
+                                        R_max, reproduction_level,
+                                        info_level = default_info_level(), ...) {
+    with_info_level(info_level = info_level, {
     no_sp <- nrow(params@species_params)
 
     args <- list(...)
@@ -217,12 +224,14 @@ setBevertonHolt.MizerParams <- function(params, erepro,
         if (any(wrong)) {
             rdi_new[wrong] <- rdd_new[wrong]
             erepro_new[wrong] <- (erepro_old * rdi_new / rdi)[wrong]
-            warning("For the following species `erepro` ",
-                    "has been increased to the smallest ",
-                    "possible value: ",
-                    paste0("erepro[", species[wrong], "] = ",
-                           signif(erepro_new[wrong], 3),
-                           collapse = "; "), "\n")
+            signal_info("erepro", paste0(
+                "For the following species `erepro` ",
+                "has been increased to the smallest ",
+                "possible value: ",
+                paste0("erepro[", species[wrong], "] = ",
+                       signif(erepro_new[wrong], 3),
+                       collapse = "; ")),
+                level = 1, severity = "warning", unhandled = "show")
         }
         r_max_new <- rdi_new * rdd_new / (rdi_new - rdd_new)
         r_max_new[is.nan(r_max_new)] <- Inf
@@ -258,10 +267,12 @@ setBevertonHolt.MizerParams <- function(params, erepro,
     if (!missing(R_max)) {
         wrong <- values < rdd_new
         if (any(wrong)) {
-            warning("For the following species the requested `R_max` ",
-                    "was too small and has been increased to give a ",
-                    "reproduction level of 0.99: ",
-                    paste(species[wrong], collapse = ", "), "\n")
+            signal_info("R_max", paste0(
+                "For the following species the requested `R_max` ",
+                "was too small and has been increased to give a ",
+                "reproduction level of 0.99: ",
+                paste(species[wrong], collapse = ", ")),
+                level = 1, severity = "warning", unhandled = "show")
             values[wrong] <- rdd_new[wrong] / 0.99
         }
         r_max_new <- values
@@ -287,13 +298,16 @@ setBevertonHolt.MizerParams <- function(params, erepro,
 
     wrong <- params@species_params$erepro[sp_idx] > 1
     if (any(wrong)) {
-        warning("The following species require an unrealistic value greater ",
-                "than 1 for `erepro`: ",
-                paste(species[wrong], collapse = ", "), "\n")
+        signal_info("erepro", paste0(
+            "The following species require an unrealistic value greater ",
+            "than 1 for `erepro`: ",
+            paste(species[wrong], collapse = ", ")),
+            level = 1, severity = "warning", unhandled = "show")
     }
 
     params@time_modified <- lubridate::now()
     return(params)
+    })
 }
 
 
