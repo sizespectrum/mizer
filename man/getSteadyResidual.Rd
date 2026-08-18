@@ -110,7 +110,7 @@ plot(getSteadyResidual(params))
 }
 }
 \seealso{
-\code{\link[=steady]{steady()}}, \code{\link[=steadyNewton]{steadyNewton()}}, \code{\link[=getStability]{getStability()}}
+\code{\link[=isSteady]{isSteady()}}, \code{\link[=steady]{steady()}}, \code{\link[=steadyNewton]{steadyNewton()}}, \code{\link[=getStability]{getStability()}}
 
 Other summary functions:
 \code{\link[=getBiomass]{getBiomass()}},

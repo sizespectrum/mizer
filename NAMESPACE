@@ -622,33 +622,25 @@ import(methods)
 importFrom(Rcpp,sourceCpp)
 importFrom(grDevices,col2rgb)
 importFrom(lifecycle,deprecated)
-importFrom(plotly,
-  ggplotly,
-  plotlyOutput,
-  renderPlotly
-)
+importFrom(plotly,ggplotly)
+importFrom(plotly,plotlyOutput)
+importFrom(plotly,renderPlotly)
 importFrom(reshape2,melt)
-importFrom(rlang,
-  cnd_muffle,
-  inform,
-  signal
-)
-importFrom(stats,
-  complete.cases,
-  cor.test,
-  fft,
-  lm,
-  mvfft,
-  pnorm,
-  runif,
-  setNames
-)
-importFrom(utils,
-  adist,
-  data,
-  getS3method,
-  globalVariables,
-  modifyList,
-  packageVersion
-)
+importFrom(rlang,cnd_muffle)
+importFrom(rlang,inform)
+importFrom(rlang,signal)
+importFrom(stats,complete.cases)
+importFrom(stats,cor.test)
+importFrom(stats,fft)
+importFrom(stats,lm)
+importFrom(stats,mvfft)
+importFrom(stats,pnorm)
+importFrom(stats,runif)
+importFrom(stats,setNames)
+importFrom(utils,adist)
+importFrom(utils,data)
+importFrom(utils,getS3method)
+importFrom(utils,globalVariables)
+importFrom(utils,modifyList)
+importFrom(utils,packageVersion)
 useDynLib(mizer)

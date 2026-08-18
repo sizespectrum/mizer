@@ -178,8 +178,6 @@ getSteadyResidual <- function(params, effort = params@initial_effort,
 #'   otherwise.
 #' @seealso [getSteadyResidual()], [steady()], [steadyNewton()]
 #' @export
-#' @family summary functions
-#' @concept summary_function
 #' @examples
 #' isSteady(NS_params)
 #'

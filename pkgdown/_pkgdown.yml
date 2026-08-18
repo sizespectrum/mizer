@@ -186,6 +186,7 @@ reference:
     see how well the current model reproduces the observations.
   contents:
   - steady
+  - isSteady
   - steadyNewton
   - getSteadyResidual
   - isSteady

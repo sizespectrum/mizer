@@ -45,19 +45,4 @@ isSteady(params)
 }
 \seealso{
 \code{\link[=getSteadyResidual]{getSteadyResidual()}}, \code{\link[=steady]{steady()}}, \code{\link[=steadyNewton]{steadyNewton()}}
-
-Other summary functions:
-\code{\link[=getBiomass]{getBiomass()}},
-\code{\link[=getDiet]{getDiet()}},
-\code{\link[=getGrowthCurves]{getGrowthCurves()}},
-\code{\link[=getN]{getN()}},
-\code{\link[=getSSB]{getSSB()}},
-\code{\link[=getSteadyResidual]{getSteadyResidual()}},
-\code{\link[=getTrophicLevel]{getTrophicLevel()}},
-\code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
-\code{\link[=getYield]{getYield()}},
-\code{\link[=getYieldGear]{getYieldGear()}},
-\code{\link[=sizeIntegral]{sizeIntegral()}}
 }
-\concept{summary functions}
-\concept{summary_function}
