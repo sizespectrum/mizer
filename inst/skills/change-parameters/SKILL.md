@@ -49,7 +49,7 @@ A size-structured model potentially has a huge number of parameters, because
 rates must be specified at every size. Mizer assumes sensible functional forms
 for the size dependence, so you only supply a small number of scalars. Mizer
 also sets or calculates defaults for those you do not supply — see
-[Calculation of Default Parameter Values](default_parameters.html) — and keeps
+[Calculation of Default Parameter Values](default_parameters.html#defaults-table) — and keeps
 track of which values you **gave** and which it **calculated**.
 
 | Accessor | Returns |
@@ -178,7 +178,7 @@ changes just that one thing.
 
 The three sections below cover the traps this creates; for the mathematical
 derivations themselves see
-[Calculation of Default Parameter Values](default_parameters.html).
+[Calculation of Default Parameter Values](default_parameters.html#derivations).
 
 ### Whether a value is given determines whether it is recalculated
 

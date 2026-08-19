@@ -25,29 +25,15 @@ This vignette details the philosophy, the relationships, and the mathematical de
 
 ---
 
-## How species parameters are stored and used
+## Given and calculated parameters
 
 Because most species parameters can be filled in with defaults, `mizer` needs to
-keep track of which values *you* supplied and which it calculated for you. It
-also needs a rule for what should happen when you later change a value. This
-section explains the machinery — the two species-parameter data frames, the
-accessor and setter functions, the role of `setParams()`, and the "comment"
-mechanism on the size-dependent rate arrays — so that the rest of this vignette
-makes sense.
-
-### Two data frames: given vs. full
-
-Every `MizerParams` object stores **two** species-parameter data frames:
-
-* **`given_species_params`** holds only the values that were supplied
-  explicitly (by you, or by a wrapper function such as
-  `newMultispeciesParams()`). Parameters you never mentioned simply do not
-  appear here, or appear as `NA`.
-* **`species_params`** is the *full* table that the model actually uses. It
-  contains your given values **plus** all the defaults and derived values that
-  `mizer` filled in.
-
-You access them with three functions:
+keep track of which values *you* supplied and which it calculated for you. Every
+`MizerParams` object therefore stores **two** species-parameter data frames:
+`given_species_params` holds only the values that were supplied explicitly (by
+you, or by a wrapper function such as `newMultispeciesParams()`), while
+`species_params` is the *full* table that the model actually uses, with all the
+defaults and derived values filled in.
 
 ```{r eval=FALSE}
 given_species_params(params)       # only what was supplied explicitly
@@ -55,9 +41,13 @@ calculated_species_params(params)  # only the values mizer filled in
 species_params(params)             # the complete table (given + calculated)
 ```
 
-`calculated_species_params()` is just `species_params()` with the given entries
-blanked out, so the given and calculated frames together reconstruct the full
-table.
+This distinction governs everything in this vignette, because **a default is
+only calculated for a parameter that was not given**. Supplying a value
+therefore switches off not just its own default but any calculation that would
+have used it as an input. The [Dependency Chain](#the-dependency-chain) below
+shows, for instance, that `age_mat` is only used to calculate a default for `h`.
+If you give `h` directly, `age_mat` is ignored; if you give `gamma`, the `f0`
+value is ignored; and so on.
 
 Here is a minimal model set up from nothing but a name and an asymptotic size:
 
@@ -87,97 +77,10 @@ behave differently. For example `z0pre` and `z0exp` are used to *compute* the
 external mortality parameter `z0`, which therefore appears among the calculated
 parameters rather than the given ones.)
 
-### Changing parameters: `species_params<-()` vs. `given_species_params<-()`
-
-There are correspondingly two ways to change species parameters:
-
-* **`species_params<-()`** (often preferred in scripts) intelligently detects which values you have changed, records those changes as *given* values (protecting them from being overwritten by defaults), and then silently triggers a recalculation of everything that depends on them.
-* **`given_species_params<-()`** is very useful in interactive use. Like `species_params<-()` it triggers a recalculation of other parameters, but importantly it will warn you when you set a parameter whose effect is overridden by another value you have already given.
-
-For example, in a model where the age at maturity is known, `mizer` derives the
-maximum intake coefficient `h` from it (see the
-["Dependency Chain"](#the-dependency-chain) below). Changing the size at maturity
-via `species_params<-()` then propagates to `h` (and onward to `gamma` and
-`ks`) automatically:
-
-```{r message=FALSE, warning=FALSE}
-growing <- newMultispeciesParams(
-    data.frame(species = "Cod", w_inf = 5000, age_mat = 5)
-)
-species_params(growing)$h
-# using species_params<-() detects the change and protects it
-species_params(growing)$w_mat <- 1000
-species_params(growing)$h           # recalculated
-```
-
-After this, `w_mat` has moved from the calculated frame into the given frame of
-`growing`, because `species_params<-()` detected that you supplied it explicitly.
-
-A useful consequence of the given/calculated split is that supplying a value
-*switches off* the corresponding default calculation. The
-["Dependency Chain"](#the-dependency-chain) below shows, for instance, that
-`age_mat` is only used to calculate a default for `h`. If you give `h` directly,
-`age_mat` is ignored; if you give `gamma`, the `f0` value is ignored; and so on.
-
-### `setParams()` and the size-dependent rate arrays
-
-The species parameters are not used directly during a simulation. Instead they
-are used to compute the **size-dependent rate arrays** (search volume, maximum
-intake rate, metabolic rate, external mortality, reproduction, …) that are
-stored in their own slots of the `MizerParams` object. The function that does
-this translation is `setParams()`, which simply calls each of the individual
-setter functions (`setSearchVolume()`, `setMaxIntakeRate()`,
-`setMetabolicRate()`, and so on) in the correct order. Both
-`given_species_params<-()` and `species_params<-()` call `setParams()` for you,
-which is why changing a species parameter automatically updates the rates.
-
-### Overriding a rate directly: the "comment" mechanism
-
-Sometimes you do not want a rate to follow the allometric default at all — you
-have your own array of values. Every setter function accepts the rate array
-directly, e.g.
-
-```{r message=FALSE, warning=FALSE}
-sv <- search_vol(params)
-sv[] <- 2 * sv                      # your own custom values
-params <- setSearchVolume(params, search_vol = sv)
-```
-
-When you supply an array this way, `mizer` attaches a `comment()` to the stored
-slot (the text `"set manually"` unless you set your own comment):
-
-```{r}
-comment(params@search_vol)
-```
-
-This comment is a **flag that protects your values**. While a rate array carries
-a comment, `setParams()` will *not* recalculate it from the species parameters,
-and the species parameters that would normally feed into it are effectively
-ignored for that rate. So after the override above, changing `gamma` no longer
-affects the search volume:
-
-```{r message=FALSE, warning=FALSE}
-given_species_params(params)$gamma <- 1e-10
-species_params(params)$gamma        # the species parameter did change ...
-identical(comment(params@search_vol), "set manually")  # ... but the rate is frozen
-```
-
-To go back to the automatically calculated values, call the setter with
-`reset = TRUE`, which removes the comment and recomputes the rate from the
-species parameters:
-
-```{r message=FALSE, warning=FALSE}
-params <- setSearchVolume(params, reset = TRUE)
-comment(params@search_vol)          # NULL again
-```
-
-In summary:
-
-* Provide a *species parameter* (via `given_species_params<-()`) when you want
-  `mizer` to keep deriving the rate for you, using your value as input.
-* Provide a *rate array* (via the relevant setter) when you want to override the
-  rate completely; this sets a comment that freezes the rate until you
-  `reset` it.
+For how to *change* parameters once a model exists — which accessor to assign
+to, what `mizer` recalculates when you do, how to protect a calculated value or
+hand it back, and how to override a size-dependent rate array directly — see the
+[guide to changing model parameters](guide-change-parameters.html).
 
 ---
 
@@ -228,7 +131,7 @@ These parameters have been handled differently over the history of `mizer`:
 
 ---
 
-## Species Parameter Defaults Reference Table
+## Species Parameter Defaults Reference Table {#defaults-table}
 
 When creating a `MizerParams` object, `validSpeciesParams()` (and subsequent setup functions like `setSearchVolume()`, `setMaxIntakeRate()`, `setMetabolicRate()`, `setExtMort()`, and `setReproduction()`) check the species parameter data frame and fill in missing parameters.
 
@@ -304,9 +207,16 @@ Calculating the default physiological parameters follows a sequential dependency
 2. **Maximum intake rate** ($h$) is calculated from $\text{age}_{\text{mat}}$, egg size $w_{\text{min}}$, maturity size $w_{\text{mat}}$, and the assimilation parameters.
 3. **Search volume** ($\gamma$) and **metabolism** ($k_s$) are then both computed using the calculated value of $h$.
 
+Because the chain runs both ways, changing one parameter rarely changes only
+that one thing: giving `age_mat` makes `h` depend on `f0`, `fc` and `w_mat`, and
+`h` carries the change on into `gamma` and `ks`. The behavioural consequences —
+in particular why raising `h` does *not* change the feeding level — are
+described under ["Chained derivations and the cancellation
+trap"](guide-change-parameters.html) in the guide to changing model parameters.
+
 ---
 
-## Mathematical Derivations
+## Mathematical Derivations {#derivations}
 
 ### 1. Maximum Intake Rate Coefficient ($h$) {#h-default}
 
