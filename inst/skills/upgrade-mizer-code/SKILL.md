@@ -64,6 +64,8 @@ plots) are in the changelog and are not repeated here.
 | That warning appears with `given_species_params<-()` but not with `species_params<-()` | the diagnostics belong to the given species parameter setter | The two species parameter setters divide the diagnostics between them (3.3) |
 | Setting a given species parameter to `NA` now warns that the change has not taken effect | clearing a value counts as a change, and a frozen array blocks it | The two species parameter setters divide the diagnostics between them (3.3) |
 | Adding an all-`NA` species parameter column used to warn and no longer does | nothing acquires a value, so it is not a change | The two species parameter setters divide the diagnostics between them (3.3) |
+| Marking an existing calculated species parameter as given no longer rebuilds all rate arrays | only its provenance changed | Species parameter setters avoid unnecessary recalculation (3.3) |
+| Changing an observation or custom species-parameter column no longer runs every rate setter | the column has no cached dependants in mizer | Species parameter setters avoid unnecessary recalculation (3.3) |
 | `given_species_params()` no longer lists `a` and `b`, or another default, after an unrelated `species_params<-()` call | a filled-in default was mistaken for user input and frozen as given | `species_params<-()` no longer freezes the defaults it fills in (3.3) |
 | A species parameter that used to keep its value now moves when you change another one | it was silently recorded as given and is now calculated again | `species_params<-()` no longer freezes the defaults it fills in (3.3) |
 | A message that used to appear no longer does, with `info_level = 0` | `info_level = 0` now silences everything | One report, one switch (3.3) |
@@ -379,9 +381,13 @@ ignored because an array is frozen.
 
 ### The two species parameter setters divide the diagnostics between them
 
-`species_params<-()` and `given_species_params<-()` reach the same model. The
-difference is that `given_species_params<-()` tells you when a change you asked
-for cannot take effect, and `species_params<-()` does not. There are three such
+For an ordinary numerical edit the setters usually reach the same current
+model, but they express different intent. `species_params<-()` compares a
+complete table with the old one and records the entries that changed.
+`given_species_params<-()` treats its input as the authoritative declaration of
+what the user supplied, so a value becomes given even when it equals the current
+calculated value. The latter also tells you when a change you asked for cannot
+take effect, while `species_params<-()` does not. There are three such
 diagnostics, and they all sit on the same side of the line:
 
 | You change | and it is ignored because |
@@ -415,8 +421,36 @@ that is there can be overruled, so setting `f0` to `NA` on a model that gives
 
 **How this affects existing code:** nothing, which is the point — a script that
 ran clean on 3.2 using `species_params<-()` still runs clean. Use
-`given_species_params<-()` interactively, where the diagnostics are worth
-having, and `species_params<-()` in scripts.
+`given_species_params<-()` when you are explicitly managing which values count
+as given, or when its extra diagnostics are useful; use `species_params<-()`
+for ordinary edits.
+
+### Species parameter setters avoid unnecessary recalculation
+
+Assigning a species parameter table used to run the complete `setParams()`
+sequence even when no cached quantity could change. This included marking a
+calculated value as given without changing its number, adding observations used
+only by calibration or plotting, and changing a custom column that base mizer
+does not use.
+
+The setters now distinguish numerical changes from provenance changes and know
+which standard parameters feed cached quantities. A current calculated value
+can therefore be protected without rebuilding the model:
+
+```r
+given_species_params(params)$q <- species_params(params)$q
+```
+
+Observation, direct-runtime and unrelated custom columns are stored
+without recalculating all rate arrays. Parameters used by the active predation
+kernel still trigger recalculation, including arguments of a custom kernel.
+Unknown columns on extension-class objects remain conservative because an
+extension setter may use them. Clearing a given value to `NA` also keeps the
+full rebuild path so mizer can derive its replacement.
+
+Code should not rely on a provenance-only or metadata edit incidentally
+repairing rate arrays after direct slot manipulation. Call `setParams()`
+explicitly when a rebuild is intended.
 
 ### `species_params<-()` no longer freezes the defaults it fills in
 

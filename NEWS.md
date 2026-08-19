@@ -353,6 +353,15 @@ while building or changing a model through a single mechanism controlled by
 
 ## Species, gear and resource parameters
 
+- The two species parameter setters now avoid unnecessary recalculation.
+  `given_species_params<-()` records every non-`NA` value as explicit input,
+  including a value equal to the current calculated value, but does not rebuild
+  the model for that provenance-only change. Changes to observation,
+  direct-runtime and unrelated custom columns also avoid the full `setParams()`
+  sequence. Standard parameters with cached dependants, arguments of active
+  custom predation kernels, demotions to calculated values and unknown columns
+  on extension objects retain the conservative rebuild path.
+
 - Changing a species parameter that feeds a rate array you have set by hand now
   warns you that the change has no effect on the model. Previously
   `given_species_params<-()` recorded the new value in the species parameter

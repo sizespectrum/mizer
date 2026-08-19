@@ -250,9 +250,13 @@ ignored because an array is frozen.
 
 ### The two species parameter setters divide the diagnostics between them
 
-`species_params<-()` and `given_species_params<-()` reach the same model. The
-difference is that `given_species_params<-()` tells you when a change you asked
-for cannot take effect, and `species_params<-()` does not. There are three such
+For an ordinary numerical edit the setters usually reach the same current
+model, but they express different intent. `species_params<-()` compares a
+complete table with the old one and records the entries that changed.
+`given_species_params<-()` treats its input as the authoritative declaration of
+what the user supplied, so a value becomes given even when it equals the current
+calculated value. The latter also tells you when a change you asked for cannot
+take effect, while `species_params<-()` does not. There are three such
 diagnostics, and they all sit on the same side of the line:
 
 | You change | and it is ignored because |
@@ -286,8 +290,36 @@ that is there can be overruled, so setting `f0` to `NA` on a model that gives
 
 **How this affects existing code:** nothing, which is the point — a script that
 ran clean on 3.2 using `species_params<-()` still runs clean. Use
-`given_species_params<-()` interactively, where the diagnostics are worth
-having, and `species_params<-()` in scripts.
+`given_species_params<-()` when you are explicitly managing which values count
+as given, or when its extra diagnostics are useful; use `species_params<-()`
+for ordinary edits.
+
+### Species parameter setters avoid unnecessary recalculation
+
+Assigning a species parameter table used to run the complete [`setParams()`](../reference/setParams.html)
+sequence even when no cached quantity could change. This included marking a
+calculated value as given without changing its number, adding observations used
+only by calibration or plotting, and changing a custom column that base mizer
+does not use.
+
+The setters now distinguish numerical changes from provenance changes and know
+which standard parameters feed cached quantities. A current calculated value
+can therefore be protected without rebuilding the model:
+
+```{r eval=FALSE}
+given_species_params(params)$q <- species_params(params)$q
+```
+
+Observation, direct-runtime and unrelated custom columns are stored
+without recalculating all rate arrays. Parameters used by the active predation
+kernel still trigger recalculation, including arguments of a custom kernel.
+Unknown columns on extension-class objects remain conservative because an
+extension setter may use them. Clearing a given value to `NA` also keeps the
+full rebuild path so mizer can derive its replacement.
+
+Code should not rely on a provenance-only or metadata edit incidentally
+repairing rate arrays after direct slot manipulation. Call `setParams()`
+explicitly when a rebuild is intended.
 
 ### `species_params<-()` no longer freezes the defaults it fills in
 
@@ -630,7 +662,7 @@ rebuilds. Values calculated from the default `z0pre = 0.6` and
 
 ### `setParams()` rejects arguments it does not use
 
-[`setParams()`](../reference/setParams.html) passes its `...` on to the rate setters, each of which declares
+`setParams()` passes its `...` on to the rate setters, each of which declares
 its own `...` as unused. Any argument that none of them recognises was
 therefore accepted and ignored without a word. It is now an error, and the
 error says where the argument belongs when it belongs somewhere:
