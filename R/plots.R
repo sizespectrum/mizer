@@ -3823,12 +3823,6 @@ plotlyDiet <- function(object, species = NULL,
 # level panel while the equivalent `power = 2` went through.
 spectra_only_args <- c("power", "biomass", "per_log_size", "resource")
 
-#' Drop the spectrum-only arguments from the dots of a summary plot
-#'
-#' @param dots The list of arguments passed to [plot.MizerSim()] or
-#'   [plot.MizerParams()].
-#' @return The subset of `dots` that the non-spectrum panels understand.
-#' @keywords internal
 shared_plot_args <- function(dots) {
     if (length(dots) == 0) return(dots)
     nms <- names(dots) %||% rep("", length(dots))
