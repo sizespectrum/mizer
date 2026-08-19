@@ -903,13 +903,22 @@ getStability <- function(params,
         resource_dyn <- get(params@resource_dynamics)
 
         # Full one-step map: returns c(N_new[active_mask], npp_new_all)
+        # Using Backward Euler for the resource step ensures the entire 1-step map
+        # is integrated with Backward Euler, making the discrete-to-continuous
+        # eigenvalue conversion (1 - 1/mu)/dt mathematically consistent and
+        # preventing fast resource decay modes from producing spurious giant
+        # eigenvalues due to near-zero discrete eigenvalue inversion noise.
         full_step <- function(N_in, npp_in) {
             res <- fish_step(N_in, npp_in)
-            # Resource dynamics with actual rates (includes resource_mort)
-            npp_out <- resource_dyn(params, N_in, npp_in, n_other,
-                                    rates = res$rates, t = 0, dt = dt,
-                                    resource_rate = params@rr_pp,
-                                    resource_capacity = params@cc_pp)
+            if (params@resource_dynamics == "resource_semichemostat") {
+                mur <- params@rr_pp + res$rates$resource_mort
+                npp_out <- (npp_in + dt * params@rr_pp * params@cc_pp) / (1 + dt * mur)
+            } else {
+                npp_out <- resource_dyn(params, N_in, npp_in, n_other,
+                                        rates = res$rates, t = 0, dt = dt,
+                                        resource_rate = params@rr_pp,
+                                        resource_capacity = params@cc_pp)
+            }
             c(res$N[active$mask], as.numeric(npp_out))
         }
 
