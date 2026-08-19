@@ -60,14 +60,10 @@ plots) are in the changelog and are not repeated here.
 | `plot(<array>, species = ..., total = TRUE)` gives a bigger total than before | the total is the total of the whole array, not of the selected species | The total is summed on the axis it is plotted against (3.3) |
 | `plotSpectra2()` or `plotSpectraRelative()` with `size_axis = "l"` shows a `Total` line where it used to show none | the total is now formed on the axis being plotted | The total is summed on the axis it is plotted against (3.3) |
 | `plotSpectra2(size_axis = "l", ylim = ..., return_data = TRUE)` returns fewer rows | `ylim` now filters the data there as it does for `plotSpectra()` | The total is summed on the axis it is plotted against (3.3) |
-| New warning that a change to a species or resource parameter "has not taken effect" | the rate it feeds was set by hand and is no longer calculated | A change that cannot take effect now warns (3.3) |
-| That warning appears with `given_species_params<-()` but not with `species_params<-()` | the diagnostics belong to the given species parameter setter | The two species parameter setters divide the diagnostics between them (3.3) |
-| Setting a given species parameter to `NA` now warns that the change has not taken effect | clearing a value counts as a change, and a frozen array blocks it | The two species parameter setters divide the diagnostics between them (3.3) |
-| Adding an all-`NA` species parameter column used to warn and no longer does | nothing acquires a value, so it is not a change | The two species parameter setters divide the diagnostics between them (3.3) |
-| Marking an existing calculated species parameter as given no longer rebuilds all rate arrays | only its provenance changed | Species parameter setters avoid unnecessary recalculation (3.3) |
-| Changing an observation or custom species-parameter column no longer runs every rate setter | the column has no cached dependants in mizer | Species parameter setters avoid unnecessary recalculation (3.3) |
-| `given_species_params()` no longer lists `a` and `b`, or another default, after an unrelated `species_params<-()` call | a filled-in default was mistaken for user input and frozen as given | `species_params<-()` no longer freezes the defaults it fills in (3.3) |
-| A species parameter that used to keep its value now moves when you change another one | it was silently recorded as given and is now calculated again | `species_params<-()` no longer freezes the defaults it fills in (3.3) |
+| New warning that a species or resource parameter change "has not taken effect" | the rate it feeds was set by hand and is no longer calculated | Species parameter setters distinguish edits from declarations (3.3) |
+| `given_species_params<-()` warning behaviour changed: warnings appear only there, clearing a given value can warn, and adding an all-`NA` column does not | it reports actual changes to the authoritative given-value table | Species parameter setters distinguish edits from declarations (3.3) |
+| Marking a current calculated value as given, or changing an observation or custom column, no longer rebuilds all rate arrays | provenance-only and uncached changes need no rebuild | Species parameter setters distinguish edits from declarations (3.3) |
+| `given_species_params()` loses defaults such as `a` and `b`, or a derived value starts moving again | validation-filled defaults are no longer mistaken for user input | Species parameter setters distinguish edits from declarations (3.3) |
 | A message that used to appear no longer does, with `info_level = 0` | `info_level = 0` now silences everything | One report, one switch (3.3) |
 | `expect_message()` on a mizer call fails, or `options(warn = 2)` trips | reports are warnings where they were messages, and are collected until the end of the call | One report, one switch (3.3) |
 | A column read with `$` is now `NULL`, with a warning naming another column | `$` no longer partially matches column names | `$` no longer partially matches (3.3) |
@@ -334,146 +330,45 @@ made mizer repeat the "not consistent" warning at every later parameter change.
 If you worked around this by setting the weight and the length together, you can
 now set either one on its own.
 
-### A change that cannot take effect now warns
+### Species parameter setters distinguish edits from declarations
 
-If you have set a rate array by hand — `metab(params) <- ...`, or any setter
-called with an explicit array — mizer no longer calculates that rate from the
-species parameters. Changing one of the species parameters that used to feed it
-therefore changes the species parameter table but not the model.
-`given_species_params<-()` now warns when that happens:
+The setters now express two different intentions:
 
-```r
-params <- NS_params
-metab(params) <- metab(params)      # freeze the metabolic rate
-
-given_species_params(params)$ks <- 2 * species_params(params)$ks
-#> Warning: Your change to the species parameter `ks` has not taken effect
-#> because the metabolic rate has been set manually and so is no longer
-#> calculated from the species parameters. Call
-#> `setMetabolicRate(params, reset = TRUE)` if you want the metabolic rate to
-#> be calculated from the species parameters again.
-```
-
-Previously this was silent: the rate setter did emit a message, but
-`given_species_params<-()` runs `suppressMessages()` over the recalculation to
-quieten the routine chatter, so the message never reached you (#489). The same
-change made through `species_params<-()` stays silent — see *The two species
-parameter setters divide the diagnostics between them* below.
-
-**How this affects existing code:** nothing about the model changes — the
-change did not take effect before either, you just were not told. But code that
-runs under `options(warn = 2)`, or a test using `expect_message()` where the
-report now arrives as a warning, will need adjusting. To act on the warning,
-either put the rate back under the control of the species parameters with the
-`reset = TRUE` call it names, or set the rate array itself instead of the
-species parameter. To silence it, set `options(mizer_info_level = 0)`, which
-also covers the functions that take no `info_level` argument, or pass
-`info_level = 0` to the one call you want quiet.
-
-The resource works the same way. `resource_params(params)$kappa <- ...` on a
-model whose `resource_capacity()` you had set by hand used to change the stored
-`kappa` and nothing else, without saying anything at all; it now warns.
-
-This is the counterpart of the 3.2 change described under *Frozen arrays are
-protected from incidental balancing* below: there, mizer keeps a frozen array
-instead of overwriting it; here, it tells you when a parameter change is
-ignored because an array is frozen.
-
-### The two species parameter setters divide the diagnostics between them
-
-For an ordinary numerical edit the setters usually reach the same current
-model, but they express different intent. `species_params<-()` compares a
-complete table with the old one and records the entries that changed.
-`given_species_params<-()` treats its input as the authoritative declaration of
-what the user supplied, so a value becomes given even when it equals the current
-calculated value. The latter also tells you when a change you asked for cannot
-take effect, while `species_params<-()` does not. There are three such
-diagnostics, and they all sit on the same side of the line:
-
-| You change | and it is ignored because |
+| Setter | Meaning |
 |---|---|
-| `f0`, `fc`, `age_mat` | you have already given `gamma`, `ks`, `h` |
-| any parameter feeding a rate array you set by hand | the array is frozen |
-| `catchability`, `selectivity`, `l50`, `l25`, `sel_func`, `yield_observed` | these belong in `gear_params()` |
+| `species_params<-()` | Edit the complete table. Mizer detects and records only entries whose values changed. |
+| `given_species_params<-()` | Declare the authoritative user input. Every non-`NA` entry is given, even when equal to the current calculated value; `NA` or a removed column hands it back to mizer. |
 
-All three ask the same question about what changed, and setting a value to `NA`
-is part of the answer:
-
-```r
-params <- NS_params
-search_vol(params) <- search_vol(params)   # freeze the search volume
-
-given_species_params(params)$gamma <- NA   # hand `gamma` back to mizer
-#> Warning: Your change to the species parameter `gamma` has not taken effect
-#> because the search volume has been set manually …
-
-given_species_params(params)$z0 <- NA      # a column that was not given
-                                           # anyway: nothing changes, no warning
-```
-
-Clearing a parameter that *was* given is a change, because it asks mizer to go
-back to calculating it, and that instruction is blocked by a frozen array just
-as a new value would be. Adding a column that holds only `NA` is not a change:
-nothing acquires a value. The one thing none of the three reports is a value
-handed back to mizer being overruled by another given parameter — only a value
-that is there can be overruled, so setting `f0` to `NA` on a model that gives
-`gamma` stays silent.
-
-**How this affects existing code:** nothing, which is the point — a script that
-ran clean on 3.2 using `species_params<-()` still runs clean. Use
-`given_species_params<-()` when you are explicitly managing which values count
-as given, or when its extra diagnostics are useful; use `species_params<-()`
-for ordinary edits.
-
-### Species parameter setters avoid unnecessary recalculation
-
-Assigning a species parameter table used to run the complete `setParams()`
-sequence even when no cached quantity could change. This included marking a
-calculated value as given without changing its number, adding observations used
-only by calibration or plotting, and changing a custom column that base mizer
-does not use.
-
-The setters now distinguish numerical changes from provenance changes and know
-which standard parameters feed cached quantities. A current calculated value
-can therefore be protected without rebuilding the model:
+This makes it possible to protect a calculated value without changing the
+current model:
 
 ```r
 given_species_params(params)$q <- species_params(params)$q
 ```
 
-Observation, direct-runtime and unrelated custom columns are stored
-without recalculating all rate arrays. Parameters used by the active predation
-kernel still trigger recalculation, including arguments of a custom kernel.
-Unknown columns on extension-class objects remain conservative because an
-extension setter may use them. Clearing a given value to `NA` also keeps the
-full rebuild path so mizer can derive its replacement.
+The setters rebuild through `setParams()` only when the model can change.
+Provenance-only changes, observations, direct-runtime parameters and unrelated
+custom columns on a base `MizerParams` object are stored without rebuilding all
+rate arrays. Dependent parameters, demotions to calculated values, arguments of
+the active predation kernel and unknown columns on extension objects retain the
+conservative rebuild path. Call `setParams()` explicitly if the intention is to
+repair an object after direct slot manipulation.
 
-Code should not rely on a provenance-only or metadata edit incidentally
-repairing rate arrays after direct slot manipulation. Call `setParams()`
-explicitly when a rebuild is intended.
+`given_species_params<-()` also reports instructions that cannot take effect;
+`species_params<-()` stays quiet. It warns when a parameter is overruled by
+another given parameter, feeds a rate array set by hand, or belongs in
+`gear_params()`. Clearing an actually given value to `NA` counts as a change;
+adding an all-`NA` column does not. A frozen resource array is handled the same
+way. These warnings expose an existing no-op rather than changing the model:
+reset the named array to return it to parameter control, set the array directly,
+or use `options(mizer_info_level = 0)` when the warning is not wanted (#489).
 
-### `species_params<-()` no longer freezes the defaults it fills in
-
-`species_params<-()` records what you changed among the given species
-parameters. It used to also record any default that `validSpeciesParams()`
-filled in and that the model did not already carry, because such a column is
-indistinguishable from one you have just added. The usual victims are the
-length-weight parameters `a` and `b`, which a model built without length data
-does not have:
-
-```r
-params <- NS_params
-species_params(params)$beta <- 150     # nothing to do with a or b
-given_species_params(params)$a         # used to come back as 0.01 for every
-                                       # species; now absent, as it should be
-```
-
-**How this affects existing code:** a parameter that was silently frozen this
-way now stays calculated, so it responds to later changes and shows up in
-`calculated_species_params()` rather than `given_species_params()`. If you were
-relying on the frozen value, set it explicitly — a value you supply yourself is
-recorded as given exactly as before, including in a column that is new to the
-model (#496).
+Finally, defaults added while validating a `species_params<-()` assignment are
+no longer mistaken for values the user supplied. In particular, an unrelated
+edit no longer freezes newly filled `a` and `b` values. Such values can now move
+again when their inputs change and appear in `calculated_species_params()`
+rather than `given_species_params()`. Set a value explicitly if it should remain
+fixed (#496).
 
 ### One report, one switch
 
@@ -745,7 +640,8 @@ If you have a model in which you set `search_vol` by hand and then let mizer
 fill in a missing `gamma` or `f0`, that model's species parameters were wrong
 and change with this release. Note that the recalculated `gamma` still has no
 effect on the model while the search volume stays frozen — mizer now warns you
-about that separately, see "A change that cannot take effect now warns" above.
+about that separately, see "Species parameter setters distinguish edits from
+declarations" above.
 Call `setSearchVolume(params, reset = TRUE)` to put the search volume back under
 the control of the species parameters.
 
