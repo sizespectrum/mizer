@@ -272,7 +272,7 @@ file that loads without error and silently dispatches to base mizer.
 ## See also
 
 - The `extend-mizer` skill — the mechanisms an extension is built from.
-- [Creating a mizer extension package](creating-extension-packages.html) — how to
+- [Creating a mizer extension package](guide-create-extension-package.html) — how to
   package your own extension and make it composable with others.
 - `?registerExtension`, `?registerExtensions`, `?getRegisteredExtensions`,
   `?clearExtensionChain`, `?coerceToExtensionClass`

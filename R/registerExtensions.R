@@ -32,7 +32,7 @@
 #'   The [guide to using mizer extension
 #'   packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html).
 #'   "Creating a mizer extension package":
-#'   \code{vignette("creating-extension-packages", package = "mizer")}
+#'   \href{https://sizespectrum.org/mizer/articles/guide-create-extension-package.html}{Creating a mizer extension package}
 #' @export
 #' @family extension tools
 registerExtension <- function(name, requirement = NA_character_, install = FALSE) {
@@ -85,7 +85,7 @@ registerExtension <- function(name, requirement = NA_character_, install = FALSE
 #'   The [guide to using mizer extension
 #'   packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html).
 #'   "Creating a mizer extension package":
-#'   \code{vignette("creating-extension-packages", package = "mizer")}
+#'   \href{https://sizespectrum.org/mizer/articles/guide-create-extension-package.html}{Creating a mizer extension package}
 #' @export
 #' @family extension tools
 registerExtensions <- function(extensions, install = FALSE) {
@@ -136,7 +136,7 @@ getRegisteredExtensions <- function() {
 #' @return The same object coerced to the appropriate marker class, or to the
 #'   base class for an empty extension chain.
 #' @seealso "Creating a mizer extension package":
-#'   \code{vignette("creating-extension-packages", package = "mizer")}
+#'   \href{https://sizespectrum.org/mizer/articles/guide-create-extension-package.html}{Creating a mizer extension package}
 #' @export
 #' @family extension tools
 coerceToExtensionClass <- function(object, extensions = objectExtensions(object)) {
@@ -286,7 +286,7 @@ makeExtensions <- function(requirements, versions = character()) {
 #'   existing stamp is preserved.
 #' @return The `params` object with the updated `@extensions` slot.
 #' @seealso "Creating a mizer extension package":
-#'   \code{vignette("creating-extension-packages", package = "mizer")}
+#'   \href{https://sizespectrum.org/mizer/articles/guide-create-extension-package.html}{Creating a mizer extension package}
 #' @export
 #' @family extension tools
 recordExtension <- function(params, name, version = NULL) {

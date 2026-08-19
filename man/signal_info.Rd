@@ -52,4 +52,15 @@ Progress reports are the one thing that does not belong here: they have to
 appear while the work is going on, and these are collected and given at the
 end.
 }
+\examples{
+# With nothing collecting, a `"drop"` report says nothing at all ...
+signal_info("h", "Using a default for `h`.")
+
+# ... whereas `unhandled = "show"` reports it there and then.
+signal_info("h", "Using a default for `h`.", unhandled = "show")
+
+# Normally it is raised inside a call whose body is wrapped in
+# `with_info_level()`, which is what decides whether to show it.
+with_info_level(signal_info("h", "Using a default for `h`."))
+}
 \concept{helper}

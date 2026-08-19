@@ -110,6 +110,7 @@ plots) are in the changelog and are not repeated here.
 | The `build-multispecies-model` skill is not found | renamed to **build-model** | The cheatsheet articles are now called guides (3.3) |
 | A link to `articles/using-extension-packages.html` | renamed to **guide-use-extension-packages** when it became a generated guide; the old address redirects | The cheatsheet articles are now called guides (3.3) |
 | A link to `articles/extending-mizer.html` | merged into **guide-extend-mizer**, which was previously a separate shorter guide; the old address redirects | The cheatsheet articles are now called guides (3.3) |
+| A link to `articles/creating-extension-packages.html` | renamed to **guide-create-extension-package** when it became a generated guide; the old address redirects | The cheatsheet articles are now called guides (3.3) |
 | `unused argument (sim = ...)` from `plotBiomass()`, `plotYield()`, `plotYieldGear()` | first argument renamed to `object` | Renamed arguments and changed defaults (3.0) |
 | `unused argument (time_range = ...)` from `plotDiet()` | removed in 3.0, back for `MizerSim` in 3.1 | Renamed arguments and changed defaults (3.0) |
 | `setInitialValues()` warns that it is deprecated | replaced by `finalParams()` | `setInitialValues()` is deprecated (3.0) |
@@ -908,12 +909,28 @@ three, and its title is that skill's own heading:
 | `cheatsheet-stability` | `guide-analyse-stability` | Guide: Analysing dynamic stability |
 | `cheatsheet-extending-mizer` | `guide-extend-mizer` | Guide: Extending mizer |
 
-"Using mizer extension packages" is now generated from a skill too, so it is
-named after that skill like the rest:
+"Using mizer extension packages" and "Creating a mizer extension package" are
+now generated from skills too, so they are named after those skills like the
+rest:
 
 | Old article | New article | New title |
 |---|---|---|
 | `using-extension-packages` | `guide-use-extension-packages` | Guide: Using mizer extension packages |
+| `creating-extension-packages` | `guide-create-extension-package` | Guide: Creating a mizer extension package |
+
+The packaging article became a skill so that an agent helping you package an
+extension can find it; it was previously the only extension document that was
+not generated from one. Everything in the `extend-mizer` skill that only matters
+once you share an extension moved into it at the same time, so the articles split
+along that line: the mechanisms for changing mizer's dynamics in
+**guide-extend-mizer**, and everything about turning that into a package other
+people can install in **guide-create-extension-package**.
+
+Its advice on marker classes was also corrected. It still told you to define
+them with `setClass("myExtension", contains = "MizerParams")`, which mizer
+3.2 made unnecessary and which actively prevents your package from being chained
+with another, because a sealed class cannot be re-parented into the chain. Let
+mizer create the classes; see the `create-extension-package` skill.
 
 "Extending mizer" and "Guide: Extending mizer" were two articles on one topic,
 the guide a short companion to the article. They are now a single guide,
@@ -1126,7 +1143,7 @@ marker class (for example `getEncounter.mizerMR`), rather than only from a
 statically defined S4 marker class. You can now omit the static
 `setClass("mizerFoo", contains = "MizerParams")` and let mizer create the marker
 class dynamically. This lets two independently developed extensions be chained
-in either load order. See `vignette("creating-extension-packages")`.
+in either load order. See the `create-extension-package` skill.
 
 ## Upgrading from mizer 3.0 to 3.1
 

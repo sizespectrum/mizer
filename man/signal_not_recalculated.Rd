@@ -36,4 +36,10 @@ because it may then be all the user hears. The stronger \code{\link[=signal_froz
 warning is raised elsewhere, by whoever knows that the user asked for a
 change, see \code{\link[=signal_frozen_changes]{signal_frozen_changes()}}.
 }
+\examples{
+with_info_level(
+    signal_not_recalculated("metab", "metabolic rate",
+                            "setMetabolicRate(params, reset = TRUE)")
+)
+}
 \concept{helper}

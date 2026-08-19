@@ -18,8 +18,8 @@ library(mizer)
 This guide explains what happens when you load one or more mizer extension
 packages, why the order in which you load them can matter, and how to save
 and share models that use extensions. To write an extension rather than use
-one, see the [Creating a mizer extension
-package](creating-extension-packages.html) article.
+one, see the [guide to creating a mizer extension
+package](guide-create-extension-package.html).
 
 Extension packages add new biology to mizer — extra mortality terms, additional
 components such as detritus and carrion, overridden plotting functions. You do
@@ -280,7 +280,7 @@ itself in `.onLoad`, so sourcing the script fresh always rebuilds the same chain
 ## See also
 
 - The [guide to extending mizer](guide-extend-mizer.html) — the mechanisms an extension is built from.
-- [Creating a mizer extension package](creating-extension-packages.html) — how to
+- [Creating a mizer extension package](guide-create-extension-package.html) — how to
   package your own extension and make it composable with others.
 - `?registerExtension`, `?registerExtensions`, `?getRegisteredExtensions`,
   `?clearExtensionChain`, `?coerceToExtensionClass`

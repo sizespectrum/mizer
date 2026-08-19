@@ -22,4 +22,26 @@ that report information, so that
 functions that have no \code{info_level} argument of their own, such as
 \code{\link[=species_params<-]{species_params<-()}} and the rate setters.
 }
+\details{
+Extension packages should use this as the default of their own \code{info_level}
+argument, so that a constructor or setter of theirs follows the option like
+mizer's own do:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{newFooParams <- function(species_params, ...,
+                         info_level = default_info_level()) \{
+    newMultispeciesParams(species_params, info_level = info_level, ...)
+\}
+}\if{html}{\out{</div>}}
+
+Take the argument explicitly like that rather than hard-coding a value in the
+call, which would make a user's own \code{info_level} collide with it.
+}
+\examples{
+default_info_level()
+
+# Setting the option changes what every reporting function defaults to.
+old <- options(mizer_info_level = 1)
+default_info_level()
+options(old)
+}
 \concept{helper}

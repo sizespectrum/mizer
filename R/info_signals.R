@@ -18,12 +18,34 @@ info_reporting$active <- FALSE
 #' functions that have no `info_level` argument of their own, such as
 #' [species_params<-()] and the rate setters.
 #'
+#' Extension packages should use this as the default of their own `info_level`
+#' argument, so that a constructor or setter of theirs follows the option like
+#' mizer's own do:
+#'
+#' ```
+#' newFooParams <- function(species_params, ...,
+#'                          info_level = default_info_level()) {
+#'     newMultispeciesParams(species_params, info_level = info_level, ...)
+#' }
+#' ```
+#'
+#' Take the argument explicitly like that rather than hard-coding a value in the
+#' call, which would make a user's own `info_level` collide with it.
+#'
 #' @param fallback The level to use when the option is not set. Defaults to 3,
 #'   which reports everything.
 #'
 #' @return A single number, or `NA` to leave the reporting to a handler further
 #'   out.
+#' @export
 #' @concept helper
+#' @examples
+#' default_info_level()
+#'
+#' # Setting the option changes what every reporting function defaults to.
+#' old <- options(mizer_info_level = 1)
+#' default_info_level()
+#' options(old)
 default_info_level <- function(fallback = 3) {
     getOption("mizer_info_level", default = fallback)
 }
@@ -85,7 +107,25 @@ default_info_level <- function(fallback = 3) {
 #'   `expr` is reported as usual.
 #'
 #' @return The value of `expr`.
+#' @export
 #' @concept helper
+#' @examples
+#' # Wrap the body of a function that reports, and everything raised inside it
+#' # is collected and given together once the call has finished.
+#' myConstructor <- function(x, info_level = default_info_level()) {
+#'     with_info_level(info_level = info_level, {
+#'         signal_info("h", "No `h` provided, using a default.", level = 1)
+#'         signal_info("gamma", "Calculating `gamma` from `f0`.")
+#'         x
+#'     })
+#' }
+#' myConstructor(1)
+#'
+#' # `info_level = 1` keeps only the report that was marked important.
+#' myConstructor(1, info_level = 1)
+#'
+#' # `info_level = 0` is silence.
+#' myConstructor(1, info_level = 0)
 with_info_level <- function(expr, info_level = default_info_level(),
                             except = character()) {
     # `info_level = 0` silences its expression whatever a handler further out
@@ -170,7 +210,18 @@ with_info_level <- function(expr, info_level = default_info_level(),
 #'   catch a particular kind of report.
 #'
 #' @return `NULL` invisibly. Called for its side effect of signalling.
+#' @export
 #' @concept helper
+#' @examples
+#' # With nothing collecting, a `"drop"` report says nothing at all ...
+#' signal_info("h", "Using a default for `h`.")
+#'
+#' # ... whereas `unhandled = "show"` reports it there and then.
+#' signal_info("h", "Using a default for `h`.", unhandled = "show")
+#'
+#' # Normally it is raised inside a call whose body is wrapped in
+#' # `with_info_level()`, which is what decides whether to show it.
+#' with_info_level(signal_info("h", "Using a default for `h`."))
 signal_info <- function(var, message, level = 3,
                         severity = c("info", "warning"),
                         unhandled = c("drop", "show"),
@@ -238,7 +289,13 @@ signal_frozen <- function(var, message) {
 #'   have been calculated from.
 #'
 #' @return `NULL` invisibly. Called for its side effect of signalling.
+#' @export
 #' @concept helper
+#' @examples
+#' with_info_level(
+#'     signal_not_recalculated("metab", "metabolic rate",
+#'                             "setMetabolicRate(params, reset = TRUE)")
+#' )
 signal_not_recalculated <- function(var, quantity, reset_call,
                                     derived_from = "species parameters") {
     signal_info(var, paste0(

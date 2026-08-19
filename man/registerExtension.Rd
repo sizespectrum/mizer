@@ -37,7 +37,7 @@ re-executes \code{.onLoad}.
 \code{\link[=registerExtensions]{registerExtensions()}} for registering an explicit full chain.
 The \href{https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html}{guide to using mizer extension packages}.
 "Creating a mizer extension package":
-\code{vignette("creating-extension-packages", package = "mizer")}
+\href{https://sizespectrum.org/mizer/articles/guide-create-extension-package.html}{Creating a mizer extension package}
 
 Other extension tools:
 \code{\link[=NOther]{NOther()}},

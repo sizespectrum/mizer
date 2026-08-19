@@ -363,13 +363,14 @@ user-facing methods as **S3** methods. So an extension defines a formal S4
 subclass of these objects and provides S3 methods for it —
 `getBiomass.MyMizerSim()`, `plotBiomass.MyMizerSim()`,
 `summary.MyMizerParams()` — which is what makes a summary or plot account for
-components the extension added.
+components the extension added. Every such method must call `NextMethod()`, so
+that several extensions loaded at once compose instead of overwriting each other.
 
-Every such method must call `NextMethod()`, so that several extensions loaded at
-once compose instead of overwriting each other. The class hierarchy that makes
-this work, and the order in which the methods run, are the subject of the
-`use-extension-packages` skill; writing the package that declares them is the
-[Creating extension packages](creating-extension-packages.html) article.
+This only really works inside a package, because the marker class is created by
+mizer when the package loads. Writing that package — the class, the `.onLoad`
+registration and the methods — is the subject of the
+`create-extension-package` skill, and the order the methods then run in is the
+subject of the `use-extension-packages` skill.
 
 ## Storing parameters
 
@@ -400,14 +401,16 @@ nothing checks that it is.
 - If a custom rate depends on the abundances through a threshold, read
   [Discontinuous rate functions](discontinuous_rates.html) before trusting any
   results.
-- Once an extension is useful in more than one project, make it a package: a
-  stable namespace mizer can resolve function names in, somewhere for tests and
-  documentation to live, and a version that gets recorded in `params@extensions`.
-  Follow the
-  [Creating extension packages](creating-extension-packages.html) article for
-  `.onLoad` registration and method dispatch via `NextMethod()`; for the other
-  side of it — loading, saving and sharing a model that needs an extension
-  package — see the `use-extension-packages` skill.
+- Once an extension is useful in more than one project, or you want to give it
+  to someone else, make it a package: a stable namespace mizer can resolve
+  function names in, somewhere for tests and documentation to live, and a version
+  that gets recorded in `params@extensions`. Everything that only matters once
+  you share — `.onLoad` registration, marker classes, dispatch via
+  `NextMethod()`, bundled data objects, reporting through `info_level`, and
+  upgrading objects saved by an earlier version — is in the
+  `create-extension-package` skill. For the other side of it, loading and saving
+  a model that needs an extension package, see the
+  `use-extension-packages` skill.
 - For a larger design, it is worth discussing the interface on the
   [mizer issue tracker](https://github.com/sizespectrum/mizer/issues) before
   committing to it.

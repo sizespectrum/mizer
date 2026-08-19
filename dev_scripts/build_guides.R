@@ -110,9 +110,22 @@ guide_topics <- list(
                        "mizer's dynamics without editing the package source,",
                        "from external encounter and mortality through to whole",
                        "new ecosystem components, with worked examples of each.",
-                       "To package an extension up for others to use, see",
-                       "[Creating a mizer extension package](creating-extension-packages.html)."),
+                       "To package an extension up for others to use, see the",
+                       "[guide to creating a mizer extension package](guide-create-extension-package.html)."),
         setup  = "params <- NS_params"
+    ),
+    `create-extension-package` = list(
+        lead   = paste("This guide covers turning a working mizer extension",
+                       "into a shareable R package and maintaining it:",
+                       "registration in `.onLoad`, marker classes and method",
+                       "dispatch, bundled data objects, reporting to the user,",
+                       "running mizer's test suite against your subclass, and",
+                       "upgrading objects saved by an earlier version. For the",
+                       "extension mechanisms themselves, see the",
+                       "[guide to extending mizer](guide-extend-mizer.html)."),
+        # `data` is the package directory here, `library` and `setClass` are
+        # base R and methods, `extensions` is the params slot.
+        nolink = c("data", "library", "setClass", "extensions", "upgrade")
     ),
     `use-extension-packages` = list(
         lead   = paste("This guide explains what happens when you load one or",
@@ -120,8 +133,7 @@ guide_topics <- list(
                        "you load them can matter, and how to save and share",
                        "models that use extensions. To write an extension",
                        "rather than use one, see the",
-                       "[Creating a mizer extension package](creating-extension-packages.html)",
-                       "article."),
+                       "[guide to creating a mizer extension package](guide-create-extension-package.html)."),
         # `extensions` is the params slot here, not setExtEncounter()'s page;
         # `library` is base R.
         nolink = c("extensions", "library")

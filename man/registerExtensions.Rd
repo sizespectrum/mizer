@@ -43,7 +43,7 @@ use \code{\link[=registerExtension]{registerExtension()}} instead.
 \code{\link[=registerExtension]{registerExtension()}} for the incremental per-package variant.
 The \href{https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html}{guide to using mizer extension packages}.
 "Creating a mizer extension package":
-\code{vignette("creating-extension-packages", package = "mizer")}
+\href{https://sizespectrum.org/mizer/articles/guide-create-extension-package.html}{Creating a mizer extension package}
 
 Other extension tools:
 \code{\link[=NOther]{NOther()}},

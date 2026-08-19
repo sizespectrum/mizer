@@ -68,4 +68,22 @@ further out is collecting, so that a function can build something quietly
 as part of a larger job that does report.
 }
 
+\examples{
+# Wrap the body of a function that reports, and everything raised inside it
+# is collected and given together once the call has finished.
+myConstructor <- function(x, info_level = default_info_level()) {
+    with_info_level(info_level = info_level, {
+        signal_info("h", "No `h` provided, using a default.", level = 1)
+        signal_info("gamma", "Calculating `gamma` from `f0`.")
+        x
+    })
+}
+myConstructor(1)
+
+# `info_level = 1` keeps only the report that was marked important.
+myConstructor(1, info_level = 1)
+
+# `info_level = 0` is silence.
+myConstructor(1, info_level = 0)
+}
 \concept{helper}

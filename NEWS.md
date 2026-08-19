@@ -306,6 +306,28 @@ while building or changing a model through a single mechanism controlled by
   overrides it for a single call, and its default is now
   `default_info_level()`, which reads the option.
 
+- The "Creating a mizer extension package" article is now generated from a new
+  `create-extension-package` skill, and is named `guide-create-extension-package`
+  like the other guides; the old address redirects. Everything in the
+  extending-mizer guide that only matters once you share an extension — method
+  dispatch, bundled data objects, reporting to the user, upgrading saved objects
+  — moved into it, leaving that guide to the mechanisms themselves. Its advice on
+  marker classes has also been corrected: it still told you to define them with
+  `setClass()`, which mizer 3.2 made unnecessary and which prevents your package
+  from being chained with another.
+
+- The reporting mechanism is now exported, so that an extension package can tell
+  the user what it decided on their behalf through the same channel mizer uses,
+  and have it obey the same switch:
+  `signal_info()` raises a report, `with_info_level()` collects the reports
+  raised inside a call and gives them together when it finishes,
+  `signal_not_recalculated()` is the standard report for a setter that left a
+  hand-set array alone, and `default_info_level()` reads the `mizer_info_level`
+  option. Give your own constructors and setters an
+  `info_level = default_info_level()` argument and forward it, rather than
+  hard-coding a value in the call to `newMultispeciesParams()`, which would
+  collide with a user's own `info_level`.
+
 - The information mizer gives while it sets up or changes a model is now raised
   through one function, `signal_info()`, which says which quantity the report is
   about, how important it is, whether it is a message or a warning, and whether

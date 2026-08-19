@@ -34,7 +34,7 @@ object has just been created or upgraded to conform to that version; leave it
 }
 \seealso{
 "Creating a mizer extension package":
-\code{vignette("creating-extension-packages", package = "mizer")}
+\href{https://sizespectrum.org/mizer/articles/guide-create-extension-package.html}{Creating a mizer extension package}
 
 Other extension tools:
 \code{\link[=NOther]{NOther()}},
