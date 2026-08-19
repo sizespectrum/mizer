@@ -77,8 +77,8 @@ articles:
   - guide-analyse-and-plot
   - guide-analyse-stability
   - guide-extend-mizer
-  - guide-create-extension-package
   - guide-use-extension-packages
+  - guide-create-extension-package
 - title: Upgrading
   navbar: Upgrading
   contents:
