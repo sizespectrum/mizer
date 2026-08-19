@@ -182,9 +182,9 @@ plot(sim1)
 The trophic cascade can be explored by comparing the total abundances of all
 species at size when the community is fished and unfished. As mentioned above,
 we obtain the abundances with  `N(sim)`, which returns a three dimensional array
-with dimensions time x species x size. Here we have 76 time steps (75 from the
-simulation plus one which stores the initial population), 10 species and 100
-sizes:
+with dimensions time x species x size. Here we have `r dim(N(sim0))[1]` time
+steps (75 from the simulation plus one which stores the initial population),
+`r dim(N(sim0))[2]` species and `r dim(N(sim0))[3]` sizes:
 
 ```{r label=trait_dim_n}
 dim(N(sim0))

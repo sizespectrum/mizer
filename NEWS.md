@@ -675,6 +675,24 @@ while building or changing a model through a single mechanism controlled by
 
 ## Documentation
 
+- The "Community Model", "Trait-Based Model" and "The General Mizer
+  Size-spectrum Model" articles have been checked against the current API in the
+  same way. The model description used the deprecated `getResourceRate()` and
+  `getResourceCapacity()`, gave the wrong sign for the exponent in the default
+  external mortality $z0_i = z0_{pre}\,w_{\infty.i}^{n-1}$, said that the
+  investment into reproduction reaches one at `w_max` when since 3.1 that is
+  `w_repro_max`, misspelled `BevertonHoltRDD()`, repeated a sentence three times,
+  and linked to a developer vignette that no longer exists. The trait-based
+  article claimed 100 size bins where `newTraitParams()` now chooses 161.
+
+- The "Multi Species Model" article has been brought up to date with the current
+  API. It used the deprecated `getInteraction()`, said that the `MizerParams`
+  object stores neither abundances nor fishing effort (it stores the initial
+  values of both), described `steady()` as re-tuning `erepro` when it now
+  preserves the `reproduction_level` by default and also rebalances the resource,
+  and contained Rd markup (`\eqn{}` and `[foo()]` links) that does not render in
+  an Rmd article.
+
 - "Extending mizer" and "Guide: Extending mizer" have been merged into a single
   guide at `guide-extend-mizer`, generated from the `extend-mizer` skill; the old
   address redirects. The topic had been split across three documents that each
