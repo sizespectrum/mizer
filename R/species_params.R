@@ -33,8 +33,12 @@
 #' When you change species parameters with `species_params<-()`, mizer
 #' automatically detects which parameters you have changed. It records these
 #' changed parameters in `given_species_params` so that they are protected
-#' against being overwritten by future recalculations. It then triggers a
-#' re-calculation of the calculated species parameters.
+#' against being overwritten by future recalculations. It then re-calculates
+#' the quantities that depend on the changed parameters. Changes to observation,
+#' direct-runtime or other custom columns that base mizer does not use to build
+#' a cached quantity do not trigger that recalculation. Unknown columns on an
+#' extension object retain the conservative recalculation path because an
+#' extension setter may use them.
 #'
 #' There are some species parameters that are used to set up the
 #' size-dependent parameters that are used in the mizer model:
@@ -167,9 +171,10 @@
 #' @param object A MizerParams object, a MizerSim object or a data frame
 #' @param params A MizerParams object.
 #' @param value A data frame with the new species parameters.
-#' @param recalculate Whether `species_params<-()` should re-derive the
-#'   calculated species parameters and recalculate all the rates that depend on
-#'   the species parameters. Defaults to `TRUE`. See the section "Setting
+#' @param recalculate Whether `species_params<-()` should be allowed to
+#'   re-derive calculated species parameters and rates that depend on a changed
+#'   parameter. Defaults to `TRUE`; mizer still skips the rebuild when all
+#'   changes are to columns with no cached dependants. See the section "Setting
 #'   species parameters without recalculation" below before setting it to
 #'   `FALSE`.
 #' @param x An object to test with `is.species_params()` or
@@ -219,24 +224,31 @@
 #'   currently stored in the model.
 #'
 #'   `species_params<-()`: Updates the `given_species_params` with any
-#'   parameters you have changed, and then recalculates the full species
-#'   parameter table and the model parameters. With `recalculate = FALSE` it
-#'   only does the recording and stores the parameters you supplied, see the
-#'   section "Setting species parameters without recalculation" below.
+#'   parameters you have changed, and recalculates the full species parameter
+#'   table and model parameters when a changed column has cached dependants.
+#'   With `recalculate = FALSE` it only does the recording and stores the
+#'   parameters you supplied, see the section "Setting species parameters
+#'   without recalculation" below.
 #'
 #'   `given_species_params()`: Data frame containing the species parameter
 #'   values that were supplied explicitly by the user.
 #'
-#'   `given_species_params<-()`: An alternative to `species_params<-()` that
-#'   also triggers a recalculation of other parameters. It arrives at the same
-#'   model, the difference being that `given_species_params<-()` warns when a
-#'   change you asked for cannot take effect, namely when the parameter is
+#'   `given_species_params<-()`: Replaces the authoritative table of parameters
+#'   that are to count as explicit user input. Every non-`NA` entry in `value`
+#'   is recorded as given, even when it is numerically equal to the value
+#'   currently in `species_params()`. This lets you protect a calculated value
+#'   against future recalculation. An `NA` entry, or removal of a column, hands
+#'   a previously given parameter back to mizer's calculation. Dependent
+#'   quantities are recalculated only when the replacement can change them;
+#'   merely marking the current value as given does not rebuild the model.
+#'
+#'   This setter also warns when a change you asked for cannot take effect,
+#'   namely when the parameter is
 #'   overridden by another one you have already given (`f0` by `gamma`, `fc` by
 #'   `ks`, `age_mat` by `h`), when the rate array it feeds has been set by hand
 #'   and so is no longer calculated, or when it is a gear parameter that mizer
-#'   reads from [gear_params()] instead. This is especially useful during
-#'   interactive use, while `species_params<-()` stays quiet about all three and
-#'   so is the better choice in scripts. It has no `recalculate` argument;
+#'   reads from [gear_params()] instead. `species_params<-()` stays quiet about
+#'   all three. `given_species_params<-()` has no `recalculate` argument;
 #'   where you need to record values without recalculating, use
 #'   `species_params<-()` or [record_given_species_params()].
 #'
@@ -351,6 +363,13 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
         return(object)
     }
 
+    changed <- species_param_changes(value, object@species_params)
+    if (!needs_species_recalculation(object, value, changed)) {
+        object@species_params <- value
+        object@time_modified <- lubridate::now()
+        return(object)
+    }
+
     # Deliberately quiet about the changes that will have no impact, either
     # because another given parameter takes precedence or because the rate
     # array they feed has been set by hand. Only `given_species_params<-()`
@@ -384,6 +403,152 @@ rebuild_from_given <- function(object, keep) {
     }
     object@species_params <- new_sp
     return(suppressMessages(setParams(object)))
+}
+
+# Which entries changed between two species parameter tables. A removed column
+# is represented as changed for every species. This deliberately builds on
+# `changed_entries()`, the package's single definition of entry-wise equality.
+species_param_changes <- function(value, old) {
+    no_sp <- nrow(old)
+    cols <- union(names(value), names(old))
+    changed <- lapply(cols, function(col) {
+        if (!col %in% names(value)) {
+            return(rep(TRUE, no_sp))
+        }
+        changed_entries(value[[col]], old[[col]], no_sp)
+    })
+    names(changed) <- cols
+    changed[vapply(changed, any, logical(1))]
+}
+
+# Species parameters for which a numerical change can alter something cached
+# in a MizerParams object. Standard columns not on the leaf list default to the
+# safe choice of recalculating. Unknown columns on a base MizerParams object are
+# leaves, but on an extension object they are conservatively treated as
+# dependencies because an extension setter may read them.
+recalculation_species_params <- function(params, value) {
+    leaf <- c(
+        # Read directly by summaries, calibration or plotting code
+        "biomass_observed", "biomass_cutoff", "number_observed",
+        "number_cutoff", "yield_observed", "catch_observed", "legend_name",
+        "is_background",
+        # Read directly by reproduction-density-dependence functions
+        "erepro", "R_max", "constant_recruitment", "constant_reproduction",
+        "ricker_b", "sheperd_b", "sheperd_c"
+    )
+    required <- setdiff(known_species_params_columns(), leaf)
+
+    # A custom predation kernel can introduce arbitrary species parameters.
+    # Its formal arguments are dependencies even when their names are unknown
+    # to base mizer.
+    types <- unique(c(params@species_params$pred_kernel_type,
+                      value$pred_kernel_type))
+    types <- types[!is.na(types)]
+    for (type in types) {
+        fun <- get0(paste0(type, "_pred_kernel"))
+        if (is.function(fun)) {
+            required <- union(required,
+                              setdiff(names(formals(fun)), c("ppmr", "...")))
+        }
+    }
+
+    if (usesExtensionDispatch(params)) {
+        required <- union(required, names(value))
+    }
+    required
+}
+
+# Decide whether changed entries require the expensive rebuild through
+# setParams(). For the given-parameter setter, `old_given` distinguishes a
+# numerical change from a pure promotion of the current calculated value to an
+# explicitly given value.
+needs_species_recalculation <- function(params, value, changed,
+                                        old_given = NULL) {
+    if (length(changed) == 0) {
+        # A no-op `species_params<-()` call has historically been a way to
+        # rebuild an object after package code changed its slots directly.
+        # Preserve that repair behaviour. A no-op replacement of the given
+        # table, by contrast, changes no model value and needs no rebuild.
+        return(is.null(old_given))
+    }
+    required <- recalculation_species_params(params, value)
+    if (is.null(old_given)) {
+        # `record_given_species_params()` deliberately does not interpret a
+        # missing column as a request to remove it from the given table. Keep
+        # the established rebuild behaviour for such replacements.
+        if (any(!names(changed) %in% names(value))) {
+            return(TRUE)
+        }
+        return(any(names(changed) %in% required))
+    }
+
+    no_sp <- nrow(value)
+    removed <- setdiff(names(old_given), names(value))
+    for (col in removed) {
+        if (any(explicit_species_param_entries(old_given[[col]], no_sp))) {
+            return(TRUE)
+        }
+    }
+
+    for (col in names(changed)) {
+        sel <- changed[[col]]
+        new_explicit <- explicit_species_param_entries(value[[col]], no_sp)
+        old_explicit <- explicit_species_param_entries(old_given[[col]], no_sp)
+
+        # Handing any explicit value back to calculation needs a rebuild.
+        if (any(sel & old_explicit & !new_explicit)) {
+            return(TRUE)
+        }
+        if (!col %in% required) {
+            next
+        }
+
+        # A newly explicit value that equals the current model value changes
+        # provenance only. Every other change to a dependent parameter rebuilds.
+        promotion <- sel & !old_explicit & new_explicit
+        same_as_current <- !changed_entries(value[[col]],
+                                            params@species_params[[col]], no_sp)
+        if (any(sel & !(promotion & same_as_current))) {
+            return(TRUE)
+        }
+    }
+    FALSE
+}
+
+explicit_species_param_entries <- function(x, n) {
+    if (is.null(x)) {
+        return(rep(FALSE, n))
+    }
+    entry_has_value(x, n)
+}
+
+# Apply explicit entries from a given-parameter table to the full species
+# parameter table without deriving anything else. Called only after the change
+# classifier has established that no entry was handed back to calculation.
+merge_given_species_params <- function(sp, given, changed) {
+    no_sp <- nrow(sp)
+    for (col in names(changed)) {
+        if (col == "species") {
+            next
+        }
+        sel <- changed[[col]] &
+            explicit_species_param_entries(given[[col]], no_sp)
+        if (!any(sel)) {
+            next
+        }
+        new <- given[[col]]
+        old <- sp[[col]]
+        if (is.null(old)) {
+            sp <- set_column(sp, col, new)
+        } else if (!is.null(dim(old)) && length(dim(old)) >= 2) {
+            old[sel, ] <- new[sel, , drop = FALSE]
+            sp <- set_column(sp, col, old)
+        } else {
+            old[sel] <- new[sel]
+            sp <- set_column(sp, col, old)
+        }
+    }
+    sp
 }
 
 #' Record the species parameters that have changed
@@ -1158,6 +1323,13 @@ is.given_species_params <- function(x) {
     })
 
     params@given_species_params <- value
+    if (!needs_species_recalculation(params, value, changed,
+                                     old_given = old_given)) {
+        sp <- params@species_params
+        params@species_params <- merge_given_species_params(sp, value, changed)
+        params@time_modified <- lubridate::now()
+        return(params)
+    }
     # The user has edited the given species parameters and not the full table,
     # so it is the model's own species parameters whose columns are carried
     # over where they are not rebuilt from the given ones.

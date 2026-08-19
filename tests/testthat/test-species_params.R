@@ -773,6 +773,123 @@ test_that("given_species_params setter preserves columns mizer does not calculat
                  seq_len(nrow(species_params(params))), ignore_attr = TRUE)
 })
 
+test_that("given_species_params can protect an unchanged calculated value", {
+    params <- NS_params_small
+    params@given_species_params$q <- NULL
+    current_q <- species_params(params)$q
+
+    # Make a deliberately inconsistent, unfrozen array. A rebuild would repair
+    # it, so retaining it demonstrates that this provenance-only change does
+    # not call setParams().
+    params@search_vol[] <- 2 * params@search_vol
+    search_vol_before <- params@search_vol
+
+    given_species_params(params)$q <- current_q
+
+    expect_equal(given_species_params(params)$q, current_q,
+                 ignore_attr = TRUE)
+    expect_false("q" %in% names(calculated_species_params(params)))
+    expect_equal(params@search_vol, search_vol_before, ignore_attr = TRUE)
+
+    # The promotion has an effect on future recalculations: q no longer follows
+    # a change in the resource exponent.
+    resource_params(params)$lambda <- resource_params(params)$lambda + 0.1
+    expect_equal(species_params(params)$q, current_q, ignore_attr = TRUE)
+})
+
+test_that("the full species_params table can be declared given without rebuilding", {
+    params <- NS_params_small
+    params@search_vol[] <- 2 * params@search_vol
+    search_vol_before <- params@search_vol
+    sp <- species_params(params)
+
+    given_species_params(params) <- sp
+
+    given <- given_species_params(params)
+    for (col in names(sp)) {
+        if (is.atomic(sp[[col]]) && is.null(dim(sp[[col]]))) {
+            supplied <- !is.na(sp[[col]])
+            expect_equal(given[[col]][supplied], sp[[col]][supplied],
+                         ignore_attr = TRUE, info = col)
+        }
+    }
+    expect_equal(params@search_vol, search_vol_before, ignore_attr = TRUE)
+})
+
+test_that("leaf and custom species parameters do not rebuild the model", {
+    params <- NS_params_small
+    params@search_vol[] <- 2 * params@search_vol
+    search_vol_before <- params@search_vol
+    observed <- seq_len(nrow(species_params(params))) * 100
+
+    species_params(params)$biomass_observed <- observed
+    expect_equal(species_params(params)$biomass_observed, observed,
+                 ignore_attr = TRUE)
+    expect_equal(params@search_vol, search_vol_before, ignore_attr = TRUE)
+
+    species_params(params)$my_unused_parameter <- observed / 10
+    expect_equal(species_params(params)$my_unused_parameter, observed / 10,
+                 ignore_attr = TRUE)
+    expect_equal(params@search_vol, search_vol_before, ignore_attr = TRUE)
+
+    # The authoritative setter also merges a changed leaf value into the full
+    # table without rebuilding unrelated arrays.
+    given_species_params(params)$biomass_observed <- observed * 2
+    expect_equal(species_params(params)$biomass_observed, observed * 2,
+                 ignore_attr = TRUE)
+    expect_equal(params@search_vol, search_vol_before, ignore_attr = TRUE)
+})
+
+test_that("dependent changes and demotions still rebuild the model", {
+    params <- NS_params_small
+    params@given_species_params$q <- NULL
+    params@search_vol[] <- 2 * params@search_vol
+    search_vol_before <- params@search_vol
+
+    species_params(params)$q <- species_params(params)$q + 0.1
+    expect_false(isTRUE(all.equal(params@search_vol, search_vol_before,
+                                  check.attributes = FALSE)))
+
+    # A demotion must derive the replacement even when the old value happens
+    # to be the current species-parameter value.
+    params <- NS_params_small
+    old_gamma <- species_params(params)$gamma
+    given <- given_species_params(params)
+    given$f0 <- rep(0.2, nrow(given))
+    given$gamma <- NA
+    suppressWarnings(given_species_params(params) <- given)
+    expect_true(any(species_params(params)$gamma != old_gamma))
+})
+
+test_that("custom predation-kernel arguments require recalculation", {
+    fun_name <- "dependency_test_pred_kernel"
+    assign(fun_name, function(ppmr, custom_shape) ppmr^custom_shape,
+           envir = .GlobalEnv)
+    on.exit(rm(list = fun_name, envir = .GlobalEnv), add = TRUE)
+
+    params <- NS_params_small
+    sp <- species_params(params)
+    sp$pred_kernel_type <- "dependency_test"
+    sp$custom_shape <- rep(-1, nrow(sp))
+    species_params(params) <- sp
+
+    required <- recalculation_species_params(params, species_params(params))
+    expect_in("custom_shape", required)
+})
+
+test_that("extension objects treat unknown species parameters conservatively", {
+    class_name <- "SpeciesParamsDependencyTestParams"
+    if (!methods::isClass(class_name)) {
+        methods::setClass(class_name, contains = "MizerParams")
+    }
+    params <- methods::as(NS_params_small, class_name)
+    sp <- species_params(params)
+    sp$extension_parameter <- seq_len(nrow(sp))
+
+    required <- recalculation_species_params(params, sp)
+    expect_in("extension_parameter", required)
+})
+
 test_that("given_species_params setter can add new explicit columns", {
     params <- NS_params_small
     sp <- given_species_params(params)

@@ -39,9 +39,10 @@ calculated_species_params(params)
 
 \item{...}{Other arguments passed to methods.}
 
-\item{recalculate}{Whether \verb{species_params<-()} should re-derive the
-calculated species parameters and recalculate all the rates that depend on
-the species parameters. Defaults to \code{TRUE}. See the section "Setting
+\item{recalculate}{Whether \verb{species_params<-()} should be allowed to
+re-derive calculated species parameters and rates that depend on a changed
+parameter. Defaults to \code{TRUE}; mizer still skips the rebuild when all
+changes are to columns with no cached dependants. See the section "Setting
 species parameters without recalculation" below before setting it to
 \code{FALSE}.}
 
@@ -57,24 +58,31 @@ species parameters without recalculation" below before setting it to
 currently stored in the model.
 
 \verb{species_params<-()}: Updates the \code{given_species_params} with any
-parameters you have changed, and then recalculates the full species
-parameter table and the model parameters. With \code{recalculate = FALSE} it
-only does the recording and stores the parameters you supplied, see the
-section "Setting species parameters without recalculation" below.
+parameters you have changed, and recalculates the full species parameter
+table and model parameters when a changed column has cached dependants.
+With \code{recalculate = FALSE} it only does the recording and stores the
+parameters you supplied, see the section "Setting species parameters
+without recalculation" below.
 
 \code{given_species_params()}: Data frame containing the species parameter
 values that were supplied explicitly by the user.
 
-\verb{given_species_params<-()}: An alternative to \verb{species_params<-()} that
-also triggers a recalculation of other parameters. It arrives at the same
-model, the difference being that \verb{given_species_params<-()} warns when a
-change you asked for cannot take effect, namely when the parameter is
+\verb{given_species_params<-()}: Replaces the authoritative table of parameters
+that are to count as explicit user input. Every non-\code{NA} entry in \code{value}
+is recorded as given, even when it is numerically equal to the value
+currently in \code{species_params()}. This lets you protect a calculated value
+against future recalculation. An \code{NA} entry, or removal of a column, hands
+a previously given parameter back to mizer's calculation. Dependent
+quantities are recalculated only when the replacement can change them;
+merely marking the current value as given does not rebuild the model.
+
+This setter also warns when a change you asked for cannot take effect,
+namely when the parameter is
 overridden by another one you have already given (\code{f0} by \code{gamma}, \code{fc} by
 \code{ks}, \code{age_mat} by \code{h}), when the rate array it feeds has been set by hand
 and so is no longer calculated, or when it is a gear parameter that mizer
-reads from \code{\link[=gear_params]{gear_params()}} instead. This is especially useful during
-interactive use, while \verb{species_params<-()} stays quiet about all three and
-so is the better choice in scripts. It has no \code{recalculate} argument;
+reads from \code{\link[=gear_params]{gear_params()}} instead. \verb{species_params<-()} stays quiet about
+all three. \verb{given_species_params<-()} has no \code{recalculate} argument;
 where you need to record values without recalculating, use
 \verb{species_params<-()} or \code{\link[=record_given_species_params]{record_given_species_params()}}.
 
@@ -123,8 +131,12 @@ set to default values. You can retrieve the given species parameters with
 When you change species parameters with \verb{species_params<-()}, mizer
 automatically detects which parameters you have changed. It records these
 changed parameters in \code{given_species_params} so that they are protected
-against being overwritten by future recalculations. It then triggers a
-re-calculation of the calculated species parameters.
+against being overwritten by future recalculations. It then re-calculates
+the quantities that depend on the changed parameters. Changes to observation,
+direct-runtime or other custom columns that base mizer does not use to build
+a cached quantity do not trigger that recalculation. Unknown columns on an
+extension object retain the conservative recalculation path because an
+extension setter may use them.
 
 There are some species parameters that are used to set up the
 size-dependent parameters that are used in the mizer model:

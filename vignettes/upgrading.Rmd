@@ -203,114 +203,45 @@ made mizer repeat the "not consistent" warning at every later parameter change.
 If you worked around this by setting the weight and the length together, you can
 now set either one on its own.
 
-### A change that cannot take effect now warns
+### Species parameter setters distinguish edits from declarations
 
-If you have set a rate array by hand — [`metab(params) <- ...`](../reference/setMetabolicRate.html), or any setter
-called with an explicit array — mizer no longer calculates that rate from the
-species parameters. Changing one of the species parameters that used to feed it
-therefore changes the species parameter table but not the model.
-`given_species_params<-()` now warns when that happens:
+The setters now express two different intentions:
 
-```{r eval=FALSE}
-params <- NS_params
-metab(params) <- metab(params)      # freeze the metabolic rate
-
-given_species_params(params)$ks <- 2 * species_params(params)$ks
-#> Warning: Your change to the species parameter `ks` has not taken effect
-#> because the metabolic rate has been set manually and so is no longer
-#> calculated from the species parameters. Call
-#> `setMetabolicRate(params, reset = TRUE)` if you want the metabolic rate to
-#> be calculated from the species parameters again.
-```
-
-Previously this was silent: the rate setter did emit a message, but
-`given_species_params<-()` runs `suppressMessages()` over the recalculation to
-quieten the routine chatter, so the message never reached you (#489). The same
-change made through `species_params<-()` stays silent — see *The two species
-parameter setters divide the diagnostics between them* below.
-
-**How this affects existing code:** nothing about the model changes — the
-change did not take effect before either, you just were not told. But code that
-runs under `options(warn = 2)`, or a test using `expect_message()` where the
-report now arrives as a warning, will need adjusting. To act on the warning,
-either put the rate back under the control of the species parameters with the
-`reset = TRUE` call it names, or set the rate array itself instead of the
-species parameter. To silence it, set `options(mizer_info_level = 0)`, which
-also covers the functions that take no `info_level` argument, or pass
-`info_level = 0` to the one call you want quiet.
-
-The resource works the same way. [`resource_params(params)$kappa <- ...`](../reference/resource_params.html) on a
-model whose `resource_capacity()` you had set by hand used to change the stored
-`kappa` and nothing else, without saying anything at all; it now warns.
-
-This is the counterpart of the 3.2 change described under *Frozen arrays are
-protected from incidental balancing* below: there, mizer keeps a frozen array
-instead of overwriting it; here, it tells you when a parameter change is
-ignored because an array is frozen.
-
-### The two species parameter setters divide the diagnostics between them
-
-`species_params<-()` and `given_species_params<-()` reach the same model. The
-difference is that `given_species_params<-()` tells you when a change you asked
-for cannot take effect, and `species_params<-()` does not. There are three such
-diagnostics, and they all sit on the same side of the line:
-
-| You change | and it is ignored because |
+| Setter | Meaning |
 |---|---|
-| `f0`, `fc`, [`age_mat`](../reference/age_mat.html) | you have already given `gamma`, `ks`, `h` |
-| any parameter feeding a rate array you set by hand | the array is frozen |
-| [`catchability`](../reference/setFishing.html), [`selectivity`](../reference/setFishing.html), `l50`, `l25`, `sel_func`, `yield_observed` | these belong in [`gear_params()`](../reference/gear_params.html) |
+| `species_params<-()` | Edit the complete table. Mizer detects and records only entries whose values changed. |
+| `given_species_params<-()` | Declare the authoritative user input. Every non-`NA` entry is given, even when equal to the current calculated value; `NA` or a removed column hands it back to mizer. |
 
-All three ask the same question about what changed, and setting a value to `NA`
-is part of the answer:
-
-```{r eval=FALSE}
-params <- NS_params
-search_vol(params) <- search_vol(params)   # freeze the search volume
-
-given_species_params(params)$gamma <- NA   # hand `gamma` back to mizer
-#> Warning: Your change to the species parameter `gamma` has not taken effect
-#> because the search volume has been set manually …
-
-given_species_params(params)$z0 <- NA      # a column that was not given
-                                           # anyway: nothing changes, no warning
-```
-
-Clearing a parameter that *was* given is a change, because it asks mizer to go
-back to calculating it, and that instruction is blocked by a frozen array just
-as a new value would be. Adding a column that holds only `NA` is not a change:
-nothing acquires a value. The one thing none of the three reports is a value
-handed back to mizer being overruled by another given parameter — only a value
-that is there can be overruled, so setting `f0` to `NA` on a model that gives
-`gamma` stays silent.
-
-**How this affects existing code:** nothing, which is the point — a script that
-ran clean on 3.2 using `species_params<-()` still runs clean. Use
-`given_species_params<-()` interactively, where the diagnostics are worth
-having, and `species_params<-()` in scripts.
-
-### `species_params<-()` no longer freezes the defaults it fills in
-
-`species_params<-()` records what you changed among the given species
-parameters. It used to also record any default that `validSpeciesParams()`
-filled in and that the model did not already carry, because such a column is
-indistinguishable from one you have just added. The usual victims are the
-length-weight parameters `a` and `b`, which a model built without length data
-does not have:
+This makes it possible to protect a calculated value without changing the
+current model:
 
 ```{r eval=FALSE}
-params <- NS_params
-species_params(params)$beta <- 150     # nothing to do with a or b
-given_species_params(params)$a         # used to come back as 0.01 for every
-                                       # species; now absent, as it should be
+given_species_params(params)$q <- species_params(params)$q
 ```
 
-**How this affects existing code:** a parameter that was silently frozen this
-way now stays calculated, so it responds to later changes and shows up in
-[`calculated_species_params()`](../reference/species_params.html) rather than [`given_species_params()`](../reference/species_params.html). If you were
-relying on the frozen value, set it explicitly — a value you supply yourself is
-recorded as given exactly as before, including in a column that is new to the
-model (#496).
+The setters rebuild through [`setParams()`](../reference/setParams.html) only when the model can change.
+Provenance-only changes, observations, direct-runtime parameters and unrelated
+custom columns on a base [`MizerParams`](../reference/MizerParams.html) object are stored without rebuilding all
+rate arrays. Dependent parameters, demotions to calculated values, arguments of
+the active predation kernel and unknown columns on extension objects retain the
+conservative rebuild path. Call `setParams()` explicitly if the intention is to
+repair an object after direct slot manipulation.
+
+`given_species_params<-()` also reports instructions that cannot take effect;
+`species_params<-()` stays quiet. It warns when a parameter is overruled by
+another given parameter, feeds a rate array set by hand, or belongs in
+[`gear_params()`](../reference/gear_params.html). Clearing an actually given value to `NA` counts as a change;
+adding an all-`NA` column does not. A frozen resource array is handled the same
+way. These warnings expose an existing no-op rather than changing the model:
+reset the named array to return it to parameter control, set the array directly,
+or use `options(mizer_info_level = 0)` when the warning is not wanted (#489).
+
+Finally, defaults added while validating a `species_params<-()` assignment are
+no longer mistaken for values the user supplied. In particular, an unrelated
+edit no longer freezes newly filled `a` and `b` values. Such values can now move
+again when their inputs change and appear in [`calculated_species_params()`](../reference/species_params.html)
+rather than [`given_species_params()`](../reference/species_params.html). Set a value explicitly if it should remain
+fixed (#496).
 
 ### One report, one switch
 
@@ -374,7 +305,7 @@ recomputing.
 
 ### `getProportionOfLargeFish()` on a `MizerParams` object was wrong
 
-The [`MizerParams`](../reference/MizerParams.html) method multiplied the species x size abundance array by the
+The `MizerParams` method multiplied the species x size abundance array by the
 vector of weights, which R recycles down the columns of the array rather than
 along the size axis, so every species but the first was weighted by the wrong
 sizes. Only the `MizerParams` method was affected; the [`MizerSim`](../reference/MizerSim.html) method was
@@ -582,7 +513,8 @@ If you have a model in which you set `search_vol` by hand and then let mizer
 fill in a missing `gamma` or `f0`, that model's species parameters were wrong
 and change with this release. Note that the recalculated `gamma` still has no
 effect on the model while the search volume stays frozen — mizer now warns you
-about that separately, see "A change that cannot take effect now warns" above.
+about that separately, see "Species parameter setters distinguish edits from
+declarations" above.
 Call `setSearchVolume(params, reset = TRUE)` to put the search volume back under
 the control of the species parameters.
 
@@ -630,7 +562,7 @@ rebuilds. Values calculated from the default `z0pre = 0.6` and
 
 ### `setParams()` rejects arguments it does not use
 
-[`setParams()`](../reference/setParams.html) passes its `...` on to the rate setters, each of which declares
+`setParams()` passes its `...` on to the rate setters, each of which declares
 its own `...` as unused. Any argument that none of them recognises was
 therefore accepted and ignored without a word. It is now an error, and the
 error says where the argument belongs when it belongs somewhere:
@@ -670,7 +602,7 @@ among the setters that `setParams()` calls, which it always did.
 Twelve accessors that read a parameter or rate array back out of a `MizerParams` object had
 two interchangeable names. The bare name is now the one to use — it is the one
 that also has a replacement function, so the pair reads the same way in both
-directions (`catchability(params)` and `catchability(params) <- value`,
+directions ([`catchability(params)`](../reference/setFishing.html) and `catchability(params) <- value`,
 [`reproduction_level(params)`](../reference/setBevertonHolt.html) and `reproduction_level(params) <- value`). The
 `get`-prefixed names are soft-deprecated and warn:
 
@@ -844,7 +776,7 @@ an input, and the size-dependent arrays are computed from it.
 
 #### Assigning to `resource_params()` now updates the resource arrays
 
-Previously, assigning to `resource_params()` — or to one of its components, such
+Previously, assigning to [`resource_params()`](../reference/resource_params.html) — or to one of its components, such
 as `resource_params(params)$kappa <- ...` — only stored the new scalar values.
 The size-dependent carrying capacity (`cc_pp`) and replenishment rate (`rr_pp`)
 were left unchanged until you next called `setResource()`.

@@ -3,6 +3,8 @@
 species_params(params)$beta <- 150
 species_params(params)                     # view all (given + calculated)
 calculated_species_params(params)          # only what mizer derived
+given_species_params(params)$q <- species_params(params)$q  # protect current q
+given_species_params(params)$q <- NA        # let mizer calculate q again
 
 # ── Size-dependent rate arrays ────────────────────────────────────────────────
 params <- setMetabolicRate(params)         # recompute from species params
