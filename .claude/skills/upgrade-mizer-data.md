@@ -67,4 +67,4 @@ rather than the real cause (stale stored objects).
 
 ## User code and behavioural upgrades
 
-This skill only covers upgrading saved S4 data structures. If the change also alters user-facing function signatures, deprecates arguments, renames functions, or changes numerical results, also record the change and its user symptoms in `inst/skills/upgrade-mizer-code/SKILL.md` and rebuild the guides (`source("dev_scripts/build_guides.R"); build_guides()`).
+This skill only covers upgrading saved S4 data structures. If the change also alters user-facing function signatures, deprecates arguments, renames functions, or changes numerical results, also record the change in `inst/skills/upgrade-mizer-code/references/mizer-<version>.md` and its user symptoms in that skill's `SKILL.md` index, then rebuild the guides (`source("dev_scripts/build_guides.R"); build_guides()`).

@@ -313,8 +313,46 @@ skill_body <- function(skill, pkg_root = ".") {
     lines
 }
 
+#' Directory holding a skill's release reference files, or NA
+#'
+#' A skill whose body is a lookup rather than a narrative keeps only its
+#' navigation in SKILL.md -- the how-to and the symptom index -- and one file
+#' per release under `references/`. An agent then loads the small SKILL.md and
+#' reads just the release it needs; the article, which is read by release
+#' anyway, gets them all appended in order.
+skill_references_dir <- function(skill, pkg_root = ".") {
+    dir <- file.path(pkg_root, "inst", "skills", skill, "references")
+    if (dir.exists(dir)) dir else NA_character_
+}
+
+#' The reference files of a skill, newest release first
+#'
+#' Files must be named `mizer-<version>.md`; the version is what orders them,
+#' so a new release is added by dropping in a file and nothing else. Any other
+#' name is an error rather than a file silently left out of the article.
+skill_reference_files <- function(skill, pkg_root = ".") {
+    dir <- skill_references_dir(skill, pkg_root)
+    if (is.na(dir)) return(character(0))
+    files <- list.files(dir, pattern = "\\.md$")
+    bad <- files[!grepl("^mizer-[0-9]+(\\.[0-9]+)*\\.md$", files)]
+    if (length(bad)) {
+        stop("in the ", skill, " skill, reference file(s) not named ",
+             "`mizer-<version>.md`: ", paste(bad, collapse = ", "),
+             call. = FALSE)
+    }
+    versions <- numeric_version(sub("^mizer-(.*)\\.md$", "\\1", files))
+    file.path(dir, files[order(versions, decreasing = TRUE)])
+}
+
+#' The release sections of a skill, concatenated newest first
+skill_reference_body <- function(skill, pkg_root = ".") {
+    files <- skill_reference_files(skill, pkg_root)
+    unlist(lapply(files, readLines, warn = FALSE), use.names = FALSE)
+}
+
 skill_to_guide <- function(skill, spec, index, map, pkg_root = ".") {
-    lines <- skill_body(skill, pkg_root)
+    lines <- c(skill_body(skill, pkg_root),
+               skill_reference_body(skill, pkg_root))
 
     # Drop agent-only blocks.
     keep <- rep(TRUE, length(lines))
@@ -461,6 +499,131 @@ check_output <- function(txt, vignette, index, man_dir, vig_dir) {
     length(dead) + length(stray)
 }
 
+#' Check that quoted message fragments are strings mizer really emits
+#'
+#' A symptom row is matched against what the user pasted, so the highest-signal
+#' key it can carry is the message itself. A fragment written as `` `"..."` ``
+#' (a code span whose content is in straight double quotes) is checked here
+#' against the package sources, because a paraphrase that has drifted from the
+#' string in `R/` is worse than no quote at all: it looks quotable and matches
+#' nothing.
+#'
+#' Both sides are normalised by dropping double quotes and commas and
+#' collapsing whitespace, so a message assembled from adjacent literals --
+#' `paste0("half a ", "sentence")` -- is found as one string. A fragment may
+#' therefore not span an interpolated value: pick the longest run of literal
+#' text instead. Messages generated outside mizer (the lifecycle deprecation
+#' sentences, base R's "could not find function") have no literal to check
+#' against, so leave those unquoted and name the function instead. For the
+#' same reason the form is reserved for messages: write a quoted argument value
+#' some other way, or this reads it as a message and fails to find it.
+#'
+#' @return The number of fragments that no source file contains.
+check_index_quotes <- function(skill, pkg_root = ".") {
+    # Only the symptom-index skills use the convention; elsewhere a quoted code
+    # span is an argument value, not a message.
+    if (is.na(skill_references_dir(skill, pkg_root))) return(0L)
+    index <- file.path(pkg_root, "inst", "skills", skill, "SKILL.md")
+    lines <- readLines(index, warn = FALSE)
+
+    normalise <- function(x) {
+        x <- gsub("[\"“”,]", "", x)
+        trimws(gsub("[[:space:]]+", " ", x))
+    }
+    src <- list.files(file.path(pkg_root, "R"), pattern = "\\.R$",
+                      full.names = TRUE)
+    blob <- normalise(paste(unlist(lapply(src, readLines, warn = FALSE)),
+                            collapse = " "))
+
+    # Table rows only: the prose around the index talks *about* the convention.
+    lines <- lines[grepl("^\\s*\\|", lines)]
+    # A code span, one or two backticks, whose whole content is "quoted".
+    hits <- unlist(regmatches(lines, gregexpr("`{1,2}\"[^\"]*\"`{1,2}", lines)))
+    frags <- unique(normalise(gsub("^`{1,2}|`{1,2}$", "", hits)))
+    missing <- frags[!vapply(frags, function(f) grepl(f, blob, fixed = TRUE),
+                             logical(1))]
+    if (length(missing)) {
+        warning(skill, " symptom index quotes no longer in R/:\n  ",
+                paste0("\"", missing, "\"", collapse = "\n  "),
+                "\n  Each must be a run of literal text in a message mizer ",
+                "emits.", call. = FALSE)
+    }
+    length(missing)
+}
+
+#' Check that a symptom index navigates
+#'
+#' The index rows are the only route from a symptom to the section that
+#' explains it, and they are read by an agent that will grep for the section
+#' name rather than scroll. So each row's Section cell must be a heading in the
+#' reference file for its group, character for character, and each heading must
+#' be reachable from at least one row. Both drift silently otherwise: the row
+#' still reads well and simply leads nowhere.
+#'
+#' A group heading names its file, `### <anything> -- `references/<file>``, and
+#' every table row under it until the next heading is checked against that file.
+check_symptom_index <- function(skill, pkg_root = ".") {
+    if (is.na(skill_references_dir(skill, pkg_root))) return(0L)
+    skill_dir <- file.path(pkg_root, "inst", "skills", skill)
+    lines <- readLines(file.path(skill_dir, "SKILL.md"), warn = FALSE)
+
+    headings <- function(file) {
+        txt <- readLines(file.path(skill_dir, file), warn = FALSE)
+        sub("^#{3,6} ", "", grep("^#{3,6} ", txt, value = TRUE))
+    }
+
+    bad <- character(0)
+    seen <- list()      # file -> section names the index points at
+    file <- NA_character_
+    for (ln in lines) {
+        hit <- regmatches(ln, regexec("^#{2,4} .*`(references/[^`]+)`", ln))[[1]]
+        if (length(hit) == 2L) {
+            file <- hit[2]
+            if (!file.exists(file.path(skill_dir, file))) {
+                bad <- c(bad, paste0("index group names a missing file: ", file))
+                file <- NA_character_
+            } else if (is.null(seen[[file]])) {
+                seen[[file]] <- character(0)
+            }
+            next
+        }
+        if (grepl("^#{2,4} ", ln)) next          # a heading naming no file
+        if (!grepl("^\\s*\\|", ln)) next
+        if (grepl("^\\s*\\|[-: |]+\\|\\s*$", ln)) next
+        cells <- trimws(strsplit(sub("^\\s*\\|", "", sub("\\|\\s*$", "", ln)),
+                                 "|", fixed = TRUE)[[1]])
+        if (length(cells) < 3L || identical(cells[1], "Symptom")) next
+        section <- cells[length(cells)]
+        if (is.na(file)) {
+            bad <- c(bad, paste0("row outside any group: ", section))
+            next
+        }
+        if (!section %in% headings(file)) {
+            bad <- c(bad, paste0("no heading `", section, "` in ", file))
+        }
+        seen[[file]] <- c(seen[[file]], section)
+    }
+
+    # Every documented change must be reachable from a symptom.
+    for (f in basename(skill_reference_files(skill, pkg_root))) {
+        key <- paste0("references/", f)
+        if (is.null(seen[[key]])) {
+            bad <- c(bad, paste0("no index group for ", key))
+            next
+        }
+        orphan <- setdiff(headings(key), seen[[key]])
+        if (length(orphan)) {
+            bad <- c(bad, paste0("no symptom row for `", orphan, "` in ", key))
+        }
+    }
+
+    if (length(bad)) {
+        warning(skill, " symptom index:\n  ", paste(bad, collapse = "\n  "),
+                call. = FALSE)
+    }
+    length(bad)
+}
+
 build_guides <- function(pkg_root = ".",
                          skills = names(guide_topics)) {
     man_dir <- file.path(pkg_root, "man")
@@ -470,6 +633,8 @@ build_guides <- function(pkg_root = ".",
     bad <- 0L
     for (skill in skills) {
         spec <- guide_topics[[skill]]
+        bad <- bad + check_symptom_index(skill, pkg_root)
+        bad <- bad + check_index_quotes(skill, pkg_root)
         vig <- index[[skill]]$vignette
         txt <- skill_to_guide(skill, spec, index, map, pkg_root)
         bad <- bad + check_output(txt, vig, index, man_dir, vig_dir)

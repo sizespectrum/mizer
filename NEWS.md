@@ -776,8 +776,10 @@ while building or changing a model through a single mechanism controlled by
 
 - The ["Upgrading mizer"](https://sizespectrum.org/mizer/articles/upgrading.html)
   article is now also shipped as an AI-agent skill, `upgrade-mizer-code`, built
-  from `inst/skills/upgrade-mizer-code/SKILL.md` by the same generator as the
-  guides. Vignettes are not installed with the package, so an agent helping
+  from `inst/skills/upgrade-mizer-code/` by the same generator as the guides —
+  the skill keeps its symptom index in `SKILL.md` and one file per release
+  under `references/`, so an agent loads the index and then only the release it
+  needs. Vignettes are not installed with the package, so an agent helping
   you fix a script that stopped working after an upgrade previously had no
   access to this information and would debug a deliberate, documented change
   from first principles. The skill adds an index that maps the symptom you
