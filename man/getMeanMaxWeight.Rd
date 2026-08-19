@@ -31,7 +31,7 @@ over \code{max_w}.}
 }
 \value{
 Depends on the \code{measure} argument. If \code{measure = “both”}
-  then you get a matrix with two columns, one with values by numbers,
+then you get a matrix with two columns, one with values by numbers,
 the other with values by biomass at each saved time step (or a named
 vector with two entries for \code{MizerParams}). If \code{measure =
   “numbers”} or \code{“biomass”} you get a vector of the respective values

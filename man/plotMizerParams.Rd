@@ -11,7 +11,10 @@
 \item{x}{An object of class \linkS4class{MizerParams}}
 
 \item{...}{Arguments passed on to the individual plotting functions
-\code{\link[=plotFeedingLevel]{plotFeedingLevel()}},\code{\link[=plotSpectra]{plotSpectra()}},\code{\link[=plotPredMort]{plotPredMort()}}}
+\code{\link[=plotFeedingLevel]{plotFeedingLevel()}}, \code{\link[=plotSpectra]{plotSpectra()}} and \code{\link[=plotPredMort]{plotPredMort()}}. The arguments
+that describe the plotted spectrum (\code{power}, \code{biomass}, \code{per_log_size} and
+\code{resource}) go to \code{\link[=plotSpectra]{plotSpectra()}} only, because they mean nothing to a
+rate.}
 }
 \value{
 A viewport object

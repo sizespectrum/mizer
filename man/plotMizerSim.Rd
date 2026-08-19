@@ -12,7 +12,9 @@
 
 \item{...}{Arguments passed on to the individual plotting functions
 \code{\link[=plotBiomass]{plotBiomass()}}, \code{\link[=plotFeedingLevel]{plotFeedingLevel()}}, \code{\link[=plotSpectra]{plotSpectra()}}, \code{\link[=plotPredMort]{plotPredMort()}}
-and \code{\link[=plotFMort]{plotFMort()}}.}
+and \code{\link[=plotFMort]{plotFMort()}}. The arguments that describe the plotted spectrum
+(\code{power}, \code{biomass}, \code{per_log_size} and \code{resource}) go to \code{\link[=plotSpectra]{plotSpectra()}}
+only, because they mean nothing to a rate.}
 }
 \value{
 A viewport object

@@ -266,7 +266,7 @@ resulted in a fishing mortality of 1 for the fully selected sizes.
 ```{r label=print_plot_comm_fmort}
 #| fig.alt: >
 #|   A summary plot of the simulation with fishing.
-plot(sim1, power = 2)
+plot(sim1, biomass = TRUE, per_log_size = TRUE)
 ```
  
 To explore the presence of a trophic cascade, we are interested in looking at

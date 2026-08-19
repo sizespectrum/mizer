@@ -493,6 +493,15 @@ while building or changing a model through a single mechanism controlled by
 
 ## Bug fixes
 
+- The summary plots `plot(sim)` and `plot(params)` now accept the arguments that
+  describe the plotted spectrum. They passed their `...` to every panel, so
+  `plot(sim, per_log_size = TRUE)` failed on the feeding level panel with
+  "`per_log_size` only applies to an array that holds a density" even though the
+  equivalent `plot(sim, power = 2)` worked, because `power` was silently
+  swallowed by the other panels where `per_log_size` is a deliberate error.
+  `power`, `biomass`, `per_log_size` and `resource` now go to `plotSpectra()`
+  alone, so the arguments that replaced `power` work wherever `power` does.
+
 - `steadyNewton()` no longer fails with a non-finite residual error when the
   initial guess contains exactly zero abundance in the active size range (as
   can happen when averaging a simulation over a limit cycle). It now scales the
