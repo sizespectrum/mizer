@@ -3813,6 +3813,28 @@ plotlyDiet <- function(object, species = NULL,
 
 
 #### plot ####
+
+# Arguments of a summary plot that only the spectrum panel understands.
+# `plot()` on a MizerParams or MizerSim object passes its `...` on to every
+# panel it draws, but these describe the plotted spectrum and mean nothing to a
+# rate. They must not reach the other panels: `per_log_size` is deliberately an
+# error on an array that is not a density (see `check_per_log_size()`), so
+# broadcasting it made `plot(sim, per_log_size = TRUE)` fail on the feeding
+# level panel while the equivalent `power = 2` went through.
+spectra_only_args <- c("power", "biomass", "per_log_size", "resource")
+
+#' Drop the spectrum-only arguments from the dots of a summary plot
+#'
+#' @param dots The list of arguments passed to [plot.MizerSim()] or
+#'   [plot.MizerParams()].
+#' @return The subset of `dots` that the non-spectrum panels understand.
+#' @keywords internal
+shared_plot_args <- function(dots) {
+    if (length(dots) == 0) return(dots)
+    nms <- names(dots) %||% rep("", length(dots))
+    dots[!(nms %in% spectra_only_args)]
+}
+
 #' Summary plot for `MizerSim` objects
 #'
 #' After running a projection, produces 5 plots in the same window: feeding
@@ -3824,7 +3846,9 @@ plotlyDiet <- function(object, species = NULL,
 #' @param x An object of class \linkS4class{MizerSim}
 #' @param ...  Arguments passed on to the individual plotting functions
 #'   [plotBiomass()], [plotFeedingLevel()], [plotSpectra()], [plotPredMort()]
-#'   and [plotFMort()].
+#'   and [plotFMort()]. The arguments that describe the plotted spectrum
+#'   (`power`, `biomass`, `per_log_size` and `resource`) go to [plotSpectra()]
+#'   only, because they mean nothing to a rate.
 #' @return A viewport object
 #' @export
 #' @family plotting functions
@@ -3838,11 +3862,12 @@ plotlyDiet <- function(object, species = NULL,
 #' plot(sim)
 #' }
 plot.MizerSim <- function(x, ...) {
-    p1 <- plotFeedingLevel(x, ...)
+    shared <- shared_plot_args(list(...))
+    p1 <- do.call(plotFeedingLevel, c(list(x), shared))
     p2 <- plotSpectra(x, ...)
-    p3 <- plotBiomass(x, y_ticks = 3, ...)
-    p4 <- plotPredMort(x, ...)
-    p5 <- plotFMort(x, ...)
+    p3 <- do.call(plotBiomass, c(list(x, y_ticks = 3), shared))
+    p4 <- do.call(plotPredMort, c(list(x), shared))
+    p5 <- do.call(plotFMort, c(list(x), shared))
     grid::grid.newpage()
     glayout <- grid::grid.layout(3, 2) # widths and heights arguments
     vp <- grid::viewport(layout = glayout)
@@ -3868,7 +3893,10 @@ plot.MizerSim <- function(x, ...) {
 #'
 #' @param x An object of class \linkS4class{MizerParams}
 #' @param ...  Arguments passed on to the individual plotting functions
-#'   [plotFeedingLevel()],[plotSpectra()],[plotPredMort()]
+#'   [plotFeedingLevel()], [plotSpectra()] and [plotPredMort()]. The arguments
+#'   that describe the plotted spectrum (`power`, `biomass`, `per_log_size` and
+#'   `resource`) go to [plotSpectra()] only, because they mean nothing to a
+#'   rate.
 #' @return A viewport object
 #' @export
 #' @family plotting functions
@@ -3881,9 +3909,10 @@ plot.MizerSim <- function(x, ...) {
 #' }
 plot.MizerParams <- function(x, ...) {
     params <- validParams(x)
-    p11 <- plotFeedingLevel(params, ...)
+    shared <- shared_plot_args(list(...))
+    p11 <- do.call(plotFeedingLevel, c(list(params), shared))
     p2 <- plotSpectra(params, ...)
-    p12 <- plotPredMort(params, ...)
+    p12 <- do.call(plotPredMort, c(list(params), shared))
     grid::grid.newpage()
     glayout <- grid::grid.layout(2, 2) # widths and heights arguments
     vp <- grid::viewport(layout = glayout)
