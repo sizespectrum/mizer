@@ -13,10 +13,11 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   warning = FALSE,
-  message = FALSE,
-  cache = TRUE
+  message = FALSE
 )
 library(mizer)
+saved <- readRDS("discontinuous_rates.rds")
+list2env(saved, envir = knitr::knit_global())
 ```
 
 # Introduction
@@ -106,7 +107,7 @@ params_ramp <- setRateFunction(params, "FMort", "rampHCR")
 Now run each rule at two time steps that differ by a factor of eight, and track
 the cod SSB.
 
-```{r}
+```{r eval = FALSE}
 ssb_series <- function(p, dt, t_max = 30, method = "tr_bdf2") {
     sim <- project(p, dt = dt, t_max = t_max, t_save = dt, method = method,
                    progress_bar = FALSE)
@@ -162,7 +163,7 @@ legend("topright", c("dt = 0.1", "dt = 0.0125"),
 This is **chattering**. To see it directly, instrument the rule so that it
 records every decision it takes, and count them.
 
-```{r}
+```{r eval = FALSE}
 tally <- new.env()
 
 tallyHCR <- function(params, n, n_pp, n_other, t, effort, ...) {
@@ -186,6 +187,9 @@ switching <- function(dt, t_max = 30) {
 
 dts_sw <- c(0.1, 0.05, 0.0125)
 cbind(dt = dts_sw, as.data.frame(t(sapply(dts_sw, switching))))
+```
+```{r echo = FALSE}
+sw_table
 ```
 
 Two things are happening at once, and it is worth separating them.
@@ -243,7 +247,7 @@ the solve. So TR-BDF2 damps nothing.
 The numbers bear this out. Measuring the amplitude of the sawtooth over the last
 third of each run:
 
-```{r}
+```{r eval = FALSE}
 amplitude <- function(p, dt, method) {
     s <- ssb_series(p, dt, method = method)
     tail_s <- s$ssb[s$t > max(s$t) * 2 / 3]
@@ -257,6 +261,9 @@ data.frame(
     tr_bdf2     = sapply(dts, amplitude, p = params_hard, method = "tr_bdf2"),
     ramp_tr_bdf2 = sapply(dts, amplitude, p = params_ramp, method = "tr_bdf2")
 )
+```
+```{r echo = FALSE}
+amp_table
 ```
 
 Under the hard rule the sawtooth amplitude halves whenever `dt` halves, for both
@@ -290,7 +297,7 @@ discontinuous rate makes $F$ discontinuous, and where the equilibrium is a
 sliding one there is no root at all: neither branch is in equilibrium there. The
 solver has nothing to converge to.
 
-```{r}
+```{r eval = FALSE}
 settle <- function(p) {
     sim <- project(p, dt = 0.01, t_max = 40, t_save = 40, progress_bar = FALSE)
     initialN(p) <- finalN(sim)
@@ -305,17 +312,23 @@ ramp_ss <- steadyNewton(ramp_settled)
 
 The ramped model converges without complaint. The hard one does not:
 
-```{r warning = TRUE}
+```{r eval = FALSE}
 hard_ss <- steadyNewton(hard_settled)
+```
+```{r echo = FALSE, warning = TRUE}
+warning("steadyNewton() did not converge (nleqslv termination code 3: No better point found (algorithm has stalled)). Returning the best iterate found.", call. = quote(steadyNewton(hard_settled)))
 ```
 
 It returns its best iterate, which sits essentially exactly on the threshold —
 the sliding surface, where neither branch is in equilibrium and so no root
 exists:
 
-```{r}
+```{r eval = FALSE}
 c(ramp = getSSB(ramp_ss)[["Cod"]] / other_params(params)$b_lim,
   hard = getSSB(hard_ss)[["Cod"]] / other_params(params)$b_lim)
+```
+```{r echo = FALSE}
+ratio_ssb
 ```
 
 ## `getStability()` becomes unreliable
@@ -330,17 +343,23 @@ rule drives it — some perturbations straddle the threshold and pick up the jum
 giving an entry of order (size of jump)/(size of perturbation). The reported
 spectral radius then depends violently on `h`:
 
-```{r}
+```{r eval = FALSE}
 sapply(c(1e-3, 1e-4, 1e-5),
        function(h) getStability(hard_ss, h = h)$spectral_radius)
+```
+```{r echo = FALSE}
+stab_hard
 ```
 
 Four orders of magnitude apart. Contrast the ramped model, where the answer is
 the same to six figures whatever `h` you choose:
 
-```{r}
+```{r eval = FALSE}
 sapply(c(1e-3, 1e-4, 1e-5),
        function(h) getStability(ramp_ss, h = h)$spectral_radius)
+```
+```{r echo = FALSE}
+stab_ramp
 ```
 
 What matters here is the *reproducibility* of that number, not its value. (It
@@ -355,9 +374,12 @@ but not on the threshold, no perturbation is large enough to cross it, so the
 Jacobian sees only the branch the state happens to be sitting on. The result is
 the stability of a smooth system that your model is not:
 
-```{r}
+```{r eval = FALSE}
 st <- getStability(hard_settled)
 c(spectral_radius = st$spectral_radius, stable = st$stable)
+```
+```{r echo = FALSE}
+stab_hard_settled
 ```
 
 A spectral radius below one, and a confident verdict of `stable` — for a
