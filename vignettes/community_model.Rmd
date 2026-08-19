@@ -204,8 +204,8 @@ plot(x = w(params), y = pred_mort_final, log = "xy", type = "l",
      xlab = "Size [g]", ylab = "Predation mortality [1/year]")
 ```
 
-Note how we used `w(sim)` to get the vector of sizes to plot along the x-axis and
-how we specified that we wanted to have logarithmic axes.
+Note how we used `w(params)` to get the vector of sizes to plot along the x-axis
+and how we specified that we wanted to have logarithmic axes.
 
 In the long run it is worthwhile to use the ggplot2 package for creating plots,
 so we show also how you would create the above graph with `ggplot()`. For

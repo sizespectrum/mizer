@@ -61,15 +61,16 @@ A `MizerParams` object stores the:
 * parameters relating to the growth and dynamics of the resource spectrum;
 * fishing gear parameters: selectivity and catchability.
 
-Note that the `MizerParams` class does not store any parameters that can vary
-through time, such as fishing effort or population abundance. These are stored
-in the `MizerSim` class which we will come to later in 
+Besides the model parameters, a `MizerParams` object also holds an *initial
+state*: the initial abundances of the species and of the resource and the
+initial fishing effort. These are the values a simulation starts from. The
+values of the abundances and the effort at all the later times of a simulation
+are stored in the `MizerSim` class which we will come to later in 
 [the section on running a simulation.](running_a_simulation.html#sec:projection)
 
 Although the `MizerParams` class contains a lot of information, it is relatively
 straightforward to set up and use. Objects of class `MizerParams` are created
-using the constructor method `newMultispeciesParams()` (this constructor method
-was called MizerParams() in previous version of mizer). This constructor method
+using the constructor method `newMultispeciesParams()`. This constructor method
 can take many arguments. However, creation is simplified because many of the
 arguments have default values.
 
@@ -135,9 +136,10 @@ range of such selectivity functions and the user just needs to specify their
 parameters for each gear and each species in the `gear_params` data frame. All
 the details can be found on the help page for `setFishing()`.
 
-Fishing effort is not stored in the MizerParams object. Instead, effort is set
-when the simulation is run and can vary through time (see 
-[the section on running a simulation](running_a_simulation.html)).
+The MizerParams object stores only the *initial* fishing effort, which you can
+inspect and change with `initial_effort()`. The effort that is actually used
+during a simulation is set when the simulation is run and can vary through time
+(see [the section on running a simulation](running_a_simulation.html)).
 
 
 ## Example of making `MizerParams` objects {#sec:params_example}
@@ -230,7 +232,10 @@ species_params(params)
 We can see that this returns the original species data.frame (with `w_inf` and
 so on), plus any default values that may not have been included in the original
 data.frame. For example, we can see that there are now columns for `alpha` and
-`h` and `gamma` etc.
+`h` and `gamma` etc. Only a few columns are printed in full; the remaining ones
+are listed by name at the end. If you want to see only the parameters that you
+supplied yourself, without the ones that mizer filled in, use
+`given_species_params(params)`.
 
 Also note how the default fishing gears have been set up. Even though we did
 not provide a gear parameter data frame, the MizerParams object has one that we
@@ -269,11 +274,12 @@ summary(params200)
 
 So far we have created a `MizerParams` object by passing in only the species
 parameter data.frame argument. We did not specify an interaction matrix. The
-interaction matrix \eqn{\theta_{ij}} describes the interaction of each pair of
+interaction matrix $\theta_{ij}$ describes the interaction of each pair of
 species in the model. This can be viewed as a proxy for spatial interaction e.g.
 to model predator-prey interaction that is not size based. The values in the
-interaction matrix are used to scale the encountered food in [getEncounter()]
-and the predation mortality rate in [getPredMort()] (see 
+interaction matrix are used to scale the encountered food in
+[`getEncounter()`](../reference/getEncounter.html) and the predation mortality
+rate in [`getPredMort()`](../reference/getPredMort.html) (see 
 [the section on predator-prey encounter rate](model_description.html#sec:pref) 
 and on [predation mortality](model_description.html#mortality)).
 
@@ -283,7 +289,7 @@ other) to 1 (species overlap perfectly). By default mizer sets all values to 1,
 implying that all species fully interact with each other, i.e. the species are
 spread homogeneously across the model area. 
 ```{r}
-getInteraction(params)
+interaction_matrix(params)
 ```
 
 For the North Sea this is not the
@@ -308,10 +314,11 @@ inter
 ```
 
 We can set the interaction matrix in our existing MizerParams object `params`
-with the `setInteraction()` function:
+by assigning to `interaction_matrix()`:
 ```{r}
-params <- setInteraction(params, interaction = inter)
+interaction_matrix(params) <- inter
 ```
+This is equivalent to `params <- setInteraction(params, interaction = inter)`.
 
 Alternatively, instead of changing the interaction matrix in the existing
 MizerParams object, we could have created a new object from scratch with our
@@ -370,20 +377,34 @@ examine the catches by gear.
 Once the `MizerParams` object has been properly set up, it may be the case that
 one wishes put the system in steady state. Sometimes this can be done simply by
 running the model using `project()` until it reaches steady state. However, this
-method is not guaranteed to work, and there is a function called `steady()` that is
-more reliable. The function `steady()` must be supplied with a MizerParams
+method is not guaranteed to work, and there is a function called `steady()` that
+is more reliable. The function `steady()` must be supplied with a MizerParams
 object. It takes that MizerParams object, looks at the initial system state,
-computes the levels of reproduction of the different species, hold them fixed,
+computes the rates of reproduction of the different species, holds them fixed,
 and evolves the system until a steady state is reached (or more precisely, until
 the amount that the population abundances change during a time-step is below
-some small tolerance level). After this, the reproductive efficiency of each
-species is altered so that when the reproduction dynamics are turned back on
-(i.e., when we stop holding recruitment levels fixed), the values of the
-reproduction levels which we held the system fixed at will be realized. The
-steady function is not sure to converge, and the way it re-tunes the
-reproductive efficiency values may not be realistic, but the idea is to alter
-the other parameters in the system until `steady()` does arrive at a steady
-state with sensible reproductive efficiency values.
+some small tolerance level). The resource is rebalanced at the same time, so
+that the state returned is a steady state of the resource as well as of the
+consumers.
+
+After this, the reproduction parameters of each species are re-tuned so that
+when the reproduction dynamics are turned back on (i.e., when we stop holding
+the reproduction rates fixed), the reproduction rates at which we held the
+system fixed will indeed be realised. By default it is the
+`reproduction_level` of each species that is preserved by this re-tuning; the
+`preserve` argument of `steady()` lets you preserve the maximum reproduction
+rate `R_max` or the reproductive efficiency `erepro` instead. See
+`setBevertonHolt()` for an explanation of the reproduction level.
+
+The `steady()` function is not sure to converge, and the way it re-tunes the
+reproduction parameters may not be realistic, but the idea is to alter the other
+parameters in the system until `steady()` does arrive at a steady state with
+sensible parameter values. The returned object carries a `"convergence"`
+attribute that describes what was found (a steady state, a limit cycle, or no
+convergence), and `summary()` reports how far the model is from steady state.
+There is also `steadyNewton()`, which solves for the steady state directly
+instead of by running the dynamics. Calibrating a model to observations is
+discussed in the [guide to calibrating a model](guide-calibrate-model.html).
 
 Now that we know how to create a multispecies model we shall discuss how to 
 [run a multispecies model.](running_a_simulation.html)

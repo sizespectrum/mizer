@@ -28,7 +28,8 @@ size-dependent growth and mortality rates of individuals, and it describes how m
 we suggest you start by reading about [the single-species model](single_species_size-spectrum_dynamics.html).
 
 We will not go into detail of how this model is 
-realised in code. Such detail will be provided in the [developer guide](https://sizespectrum.org/mizer/articles/developer_vignette.html). However some details are hidden on this page
+realised in code. Such detail is provided in the vignette on the
+[numerical scheme](numerical_details.html). However some details are hidden on this page
 and you can see them by clicking on links like the following:
 <details>
 And clicking again will hide the details again.
@@ -177,15 +178,13 @@ $$r_R(w)= r_R\, w^{n-1}.$$
 
 $$c_R(w)=\kappa\, w^{-\lambda}.$$
 
-You can retrieve these with `getResourceRate()` and `getResourceCapacity()`
+You can retrieve these with `resource_rate()` and `resource_capacity()`
 respectively. It is also possible to implement other resource dynamics, as
 described in the help page for `setResource()`. The mortality $\mu_R(w)$ is
 due to predation by consumers and is described in the subsection 
 [Resource mortality].
 
-Because the resource spectrum spans a larger range of sizes these sizes
-Because the resource spectrum spans a larger range of sizes these sizes
-Because the resource spectrum spans a larger range of sizes these sizes
+Because the resource spectrum spans a larger range of sizes, these sizes
 are discretized into a different vector of weights
 
 The resource spectrum is then represented by a vector `NResource` such that
@@ -404,8 +403,11 @@ This is calculated with the `getEReproAndGrowth()` function.
 ## Investment into reproduction  {#sec:repro}
 A proportion $\psi_i(w)$ of the energy available for growth and reproduction is
 used for reproduction. This proportion should change from zero below the weight
-$w_{m.i}$ of maturation to one at the maximum weight $w_{max.i}$, where
-all available energy is used for reproduction. This function is changed with
+$w_{m.i}$ of maturation to one at the weight $w_{repro.max.i}$ at which an
+individual invests all its available energy into reproduction. By default this
+is the von Bertalanffy asymptotic size $w_{\infty.i}$; it is set by the
+`w_repro_max` species parameter, which is distinct from the computational
+upper boundary `w_max` of the size grid. This function is changed with
 `setReproduction()`. Mizer provides a default form for the function which you
 can however overrule.
 
@@ -468,7 +470,7 @@ changed with `setExtMort()`. By default mizer assumes that the external
 mortality for each species is a constant $z0_i$ independent of size. The value
 of $z0_i$ is either specified as a species parameter or it is assumed to
 depend allometrically on the maximum size:
-$$z0_i = z0_{pre} w_{\infty.i}^{1-n}.$$
+$$z0_i = z0_{pre}\, w_{\infty.i}^{n-1}.$$
 
 
 ## Fishing mortality
@@ -546,7 +548,7 @@ $$
 where $R_{\max.i}$ is the maximum reproduction rate of each trait class. 
 This final rate of reproduction is calculated with `getRDD()`.
 
-This default *Beverton-Holt* type is implemented by `BervertonHoldRDD()` but
+This default *Beverton-Holt* type is implemented by `BevertonHoltRDD()` but
 mizer also provides alternatives `RickerRDD()`, `SheperdRDD()`, `constantRDD()`
 and `noRDD()`. Also, users are able to write their own functions, e.g.
 *hockey-stick*. See `setReproduction()` for details.
