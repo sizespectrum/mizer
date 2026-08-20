@@ -40,13 +40,10 @@ test_that("setInteraction works", {
 })
 
 
-test_that("getInteraction works", {
+test_that("interaction_matrix works", {
     params <- NS_params_small
     p <- setInteraction(params, interaction = params@interaction)
     expect_unchanged(params, p)
-    expect_warning(expect_identical(getInteraction(params),
-                                    interaction_matrix(params)),
-                   "deprecated")
     expect_identical(interaction_matrix(params), params@interaction)
 })
 

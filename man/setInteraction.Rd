@@ -74,10 +74,10 @@ column is set to all 1s.
 
 \examples{
 params <- newTraitParams(no_sp = 3)
-inter <- getInteraction(params)
+inter <- interaction_matrix(params)
 inter[1, 2:3] <- 0
 params <- setInteraction(params, interaction = inter)
-getInteraction(params)
+interaction_matrix(params)
 }
 \seealso{
 Other functions for setting parameters:

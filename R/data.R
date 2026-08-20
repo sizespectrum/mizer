@@ -68,7 +68,7 @@
 
 #' Alias for `NS_interaction`
 #' 
-#' `r lifecycle::badge("deprecated")`
+#' `r lifecycle::badge("superseded")`
 #' An alias provided for backward compatibility with mizer version <= 2.3
 #' @format A 12 x 12 matrix.
 #' @source{Blanchard et al.}

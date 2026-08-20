@@ -122,7 +122,7 @@ set_species_param_from_length <- function(sp, pw, pl) {
 #' Alias for `validSpeciesParams()`
 #' 
 #' @description
-#' `r lifecycle::badge("deprecated")`
+#' `r lifecycle::badge("superseded")`
 #' 
 #' An alias provided for backward compatibility with mizer version <= 2.5.2
 #' @inherit validSpeciesParams

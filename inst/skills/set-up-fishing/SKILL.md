@@ -122,7 +122,8 @@ and — when a `sel_func` cannot express the shape you need — set them by hand
 | `catchability(params)` | $Q_{g,i}$ | gear × species |
 | `selectivity(params)` | $S_{g,i}(w)$ | gear × species × size |
 
-(`getCatchability()` and `getSelectivity()` are deprecated aliases of these.)
+(`getCatchability()` and `getSelectivity()` are superseded aliases of these:
+they still work but should not be used in new code.)
 Each has a matching setter that pushes an array straight into the model (this
 routes through `setFishing()`, so validation still runs):
 

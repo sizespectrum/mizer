@@ -441,7 +441,7 @@ getPredMort.MizerSim <- function(object, n, n_pp, n_other,
 
 #' Alias for `getPredMort()`
 #'
-#' `r lifecycle::badge("deprecated")`
+#' `r lifecycle::badge("superseded")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getPredMort
 #' @export
@@ -508,7 +508,7 @@ getResourceMort.MizerParams <- function(params, n = initialN(params),
 
 #' Alias for `getResourceMort()`
 #'
-#' `r lifecycle::badge("deprecated")`
+#' `r lifecycle::badge("superseded")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getResourceMort
 #' @export
@@ -912,7 +912,7 @@ getMort.MizerSim <- function(object, n, n_pp, n_other, effort, t, ...,
 
 #' Alias for `getMort()`
 #'
-#' `r lifecycle::badge("deprecated")`
+#' `r lifecycle::badge("superseded")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getMort
 #' @export
@@ -990,7 +990,7 @@ getERepro.MizerSim <- function(object, n, n_pp, n_other, t, ...,
 
 #' Alias for `getERepro()`
 #'
-#' `r lifecycle::badge("deprecated")`
+#' `r lifecycle::badge("superseded")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit getERepro
 #' @export

@@ -52,10 +52,10 @@
 #' @family functions for setting parameters
 #' @examples
 #' params <- newTraitParams(no_sp = 3)
-#' inter <- getInteraction(params)
+#' inter <- interaction_matrix(params)
 #' inter[1, 2:3] <- 0
 #' params <- setInteraction(params, interaction = inter)
-#' getInteraction(params)
+#' interaction_matrix(params)
 setInteraction <- function(params, interaction = NULL, ...) {
     UseMethod("setInteraction")
 }
@@ -130,24 +130,6 @@ setInteraction.MizerParams <- function(params,
     params@time_modified <- lubridate::now()
     return(params)
 }
-
-#' Deprecated function to get interaction matrix
-#'
-#' You should now use [interaction_matrix()] instead.
-#'
-#' @param params A MizerParams object
-#' @export
-#' @keywords internal
-getInteraction <- function(params) {
-    UseMethod("getInteraction")
-}
-#' @export
-getInteraction.MizerParams <- function(params) {
-    lifecycle::deprecate_warn("2.4.0", "getInteraction()",
-                              "interaction_matrix()")
-    interaction_matrix(params)
-}
-
 
 #' @rdname setInteraction
 #' @return `interaction_matrix()`: The interaction matrix (predator species x

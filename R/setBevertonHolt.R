@@ -347,7 +347,7 @@ reproduction_level.MizerParams <- function(params) {
 #' Alias for `setBevertonHolt()`
 #'
 #' @description
-#' `r lifecycle::badge("deprecated")`
+#' `r lifecycle::badge("superseded")`
 #'
 #' An alias provided for backward compatibility with mizer version <= 2.0.4
 #' @inherit setBevertonHolt

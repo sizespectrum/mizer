@@ -251,24 +251,57 @@ test_that("getPhiPrey deprecates softly and matches encounter over search volume
   expect_equal(phi, getEncounter(params) / search_vol(params))
 })
 
-test_that("the get-prefixed accessors deprecate softly and still work", {
+# Superseded name -> surviving name. Also used by the test below that checks
+# that mizer itself does not use the superseded names.
+superseded_accessors <- c(getCatchability = "catchability",
+                          getSelectivity = "selectivity",
+                          getInitialEffort = "initial_effort",
+                          getInteraction = "interaction_matrix",
+                          getResourceDynamics = "resource_dynamics",
+                          getResourceLevel = "resource_level",
+                          getResourceRate = "resource_rate",
+                          getResourceCapacity = "resource_capacity",
+                          getPredKernel = "pred_kernel",
+                          getSearchVolume = "search_vol",
+                          getMaxIntakeRate = "intake_max",
+                          getMetabolicRate = "metab",
+                          getExtMort = "ext_mort",
+                          getExtEncounter = "ext_encounter",
+                          getMaturityProportion = "maturity",
+                          getReproductionProportion = "repro_prop",
+                          getReproductionLevel = "reproduction_level")
+
+test_that("the get-prefixed accessors are silent aliases that still work", {
   params <- NS_params_small
-  # Deprecated name -> surviving name
-  pairs <- c(getCatchability = "catchability",
-             getSelectivity = "selectivity",
-             getInitialEffort = "initial_effort",
-             getPredKernel = "pred_kernel",
-             getSearchVolume = "search_vol",
-             getMaxIntakeRate = "intake_max",
-             getMetabolicRate = "metab",
-             getExtMort = "ext_mort",
-             getExtEncounter = "ext_encounter",
-             getMaturityProportion = "maturity",
-             getReproductionProportion = "repro_prop")
-  for (old in names(pairs)) {
-    new <- pairs[[old]]
-    expect_warning(value <- get(old)(params), "deprecated",
-                   label = old)
-    expect_equal(value, get(new)(params), label = old)
+  for (old in names(superseded_accessors)) {
+    new <- superseded_accessors[[old]]
+    # A true alias, not a forwarding wrapper
+    expect_identical(get(old), get(new), label = old)
+    expect_no_warning(value <- get(old)(params))
+    expect_identical(value, get(new)(params), label = old)
   }
+})
+
+test_that("mizer does not use the superseded accessor names", {
+  # The aliases no longer warn, so nothing at run time stops mizer code from
+  # drifting back to the old names. This scan is that guard. It can only run
+  # from a source checkout; R CMD check runs the tests without R/.
+  skip_if_not(dir.exists(test_path("..", "..", "R")),
+              "not running from a source checkout")
+  files <- list.files(test_path("..", "..", "R"), pattern = "[.]R$",
+                      full.names = TRUE)
+  # deprecated.R is where the aliases are defined and documented
+  files <- files[basename(files) != "deprecated.R"]
+  pattern <- paste0("\\b(", paste(names(superseded_accessors),
+                                  collapse = "|"), ")\\b")
+  offenders <- character(0)
+  for (file in files) {
+    lines <- readLines(file, warn = FALSE)
+    hits <- grep(pattern, lines)
+    if (length(hits) > 0) {
+      offenders <- c(offenders,
+                     paste0(basename(file), ":", hits, ": ", lines[hits]))
+    }
+  }
+  expect_equal(offenders, character(0))
 })

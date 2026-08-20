@@ -255,10 +255,10 @@ reference:
     mortality `ext_mort()` is the residual natural mortality not resolved by
     the model, fishing mortality `getFMort()` is *F*, and the total mortality
     `getMort()` is *Z*, the sum of all of these. The older names `getM2()` and
-    `getZ()` are retained as deprecated aliases for `getPredMort()` and
+    `getZ()` are retained as superseded aliases for `getPredMort()` and
     `getMort()`. Note that `getResourceMort()` is different in kind: it is the
     predation mortality imposed by fish *on the background resource* spectrum,
-    not a component of fish mortality (its deprecated alias is `getM2Background()`).
+    not a component of fish mortality (its superseded alias is `getM2Background()`).
   contents:
   - getRates
   - has_concept("rate functions")
@@ -414,9 +414,10 @@ reference:
   - NS_species_params_gears
   - NS_interaction
   - NS_sim
-- title: Deprecated
+- title: Deprecated and superseded
   desc: These functions are available for backwards compatibility with earlier
-    versions of mizer
+    versions of mizer. The superseded ones are here to stay; the deprecated ones
+    warn and will eventually be removed.
   contents:
   - has_concept("deprecated")
 

@@ -529,22 +529,28 @@ getPhiPrey <- function(object, n, n_pp, ...) {
     getEncounter(object, n, n_pp) / object@search_vol
 }
 
+
 #### get-prefixed rate accessors ####
-#' Deprecated `get`-prefixed accessors for stored rate arrays
+#' Superseded `get`-prefixed aliases for values stored in a model
 #'
 #' @description
-#' `r lifecycle::badge("deprecated")`
+#' `r lifecycle::badge("superseded")`
 #'
-#' Each of these functions had a shorter alias returning exactly the same thing.
-#' The shorter name is the one that also has a replacement function
-#' (`catchability(params) <- value` and friends), so that is the name that
-#' survives. Use the replacement given below instead:
+#' Each of these functions is an alias for a function with a shorter name that
+#' returns exactly the same thing. The shorter name is the one that also has a
+#' replacement function (`catchability(params) <- value` and friends), so that
+#' is the name to use:
 #'
-#' | Deprecated | Use instead |
+#' | Superseded | Use instead |
 #' |---|---|
 #' | `getCatchability()` | [catchability()] |
 #' | `getSelectivity()` | [selectivity()] |
 #' | `getInitialEffort()` | [initial_effort()] |
+#' | `getInteraction()` | [interaction_matrix()] |
+#' | `getResourceDynamics()` | [resource_dynamics()] |
+#' | `getResourceLevel()` | [resource_level()] |
+#' | `getResourceRate()` | [resource_rate()] |
+#' | `getResourceCapacity()` | [resource_capacity()] |
 #' | `getPredKernel()` | [pred_kernel()] |
 #' | `getSearchVolume()` | [search_vol()] |
 #' | `getMaxIntakeRate()` | [intake_max()] |
@@ -557,97 +563,84 @@ getPhiPrey <- function(object, n, n_pp, ...) {
 #'
 #' The `get` prefix is reserved for the functions that *calculate* a rate from
 #' the current state of a model, like [getEncounter()] or [getFMort()]. The
-#' functions above only read back a value stored in the MizerParams object,
-#' which is what the bare names say.
+#' functions above only read back a value that is already stored in the
+#' MizerParams object, which is what the bare names say.
+#'
+#' The old names are however not going away. They are plain aliases: they do
+#' not warn and they will keep working, so existing code and old scripts run
+#' unchanged. They are not used anywhere inside mizer and should not be used in
+#' new code.
 #'
 #' @param params A MizerParams object
-#' @return The same as the replacement function it forwards to.
-#' @name deprecated_accessors
+#' @return The same as the function it is an alias for.
+#' @name superseded_accessors
 #' @concept deprecated
 NULL
 
-#' @rdname deprecated_accessors
+#' @rdname superseded_accessors
 #' @export
-getCatchability <- function(params) {
-    lifecycle::deprecate_soft("3.3.0", "getCatchability()", "catchability()")
-    catchability(params)
-}
+getCatchability <- catchability
 
-#' @rdname deprecated_accessors
+#' @rdname superseded_accessors
 #' @export
-getSelectivity <- function(params) {
-    lifecycle::deprecate_soft("3.3.0", "getSelectivity()", "selectivity()")
-    selectivity(params)
-}
+getSelectivity <- selectivity
 
-#' @rdname deprecated_accessors
+#' @rdname superseded_accessors
 #' @export
-getInitialEffort <- function(params) {
-    lifecycle::deprecate_soft("3.3.0", "getInitialEffort()", "initial_effort()")
-    initial_effort(params)
-}
+getInitialEffort <- initial_effort
 
-#' @rdname deprecated_accessors
+#' @rdname superseded_accessors
 #' @export
-getPredKernel <- function(params) {
-    lifecycle::deprecate_soft("3.3.0", "getPredKernel()", "pred_kernel()")
-    pred_kernel(params)
-}
+getInteraction <- interaction_matrix
 
-#' @rdname deprecated_accessors
+#' @rdname superseded_accessors
 #' @export
-getSearchVolume <- function(params) {
-    lifecycle::deprecate_soft("3.3.0", "getSearchVolume()", "search_vol()")
-    search_vol(params)
-}
+getResourceDynamics <- resource_dynamics
 
-#' @rdname deprecated_accessors
+#' @rdname superseded_accessors
 #' @export
-getMaxIntakeRate <- function(params) {
-    lifecycle::deprecate_soft("3.3.0", "getMaxIntakeRate()", "intake_max()")
-    intake_max(params)
-}
+getResourceLevel <- resource_level
 
-#' @rdname deprecated_accessors
+#' @rdname superseded_accessors
 #' @export
-getMetabolicRate <- function(params) {
-    lifecycle::deprecate_soft("3.3.0", "getMetabolicRate()", "metab()")
-    metab(params)
-}
+getResourceRate <- resource_rate
 
-#' @rdname deprecated_accessors
+#' @rdname superseded_accessors
 #' @export
-getExtMort <- function(params) {
-    lifecycle::deprecate_soft("3.3.0", "getExtMort()", "ext_mort()")
-    ext_mort(params)
-}
+getResourceCapacity <- resource_capacity
 
-#' @rdname deprecated_accessors
+#' @rdname superseded_accessors
 #' @export
-getExtEncounter <- function(params) {
-    lifecycle::deprecate_soft("3.3.0", "getExtEncounter()", "ext_encounter()")
-    ext_encounter(params)
-}
+getPredKernel <- pred_kernel
 
-#' @rdname deprecated_accessors
+#' @rdname superseded_accessors
 #' @export
-getMaturityProportion <- function(params) {
-    lifecycle::deprecate_soft("3.3.0", "getMaturityProportion()", "maturity()")
-    maturity(params)
-}
+getSearchVolume <- search_vol
 
-#' @rdname deprecated_accessors
+#' @rdname superseded_accessors
 #' @export
-getReproductionProportion <- function(params) {
-    lifecycle::deprecate_soft("3.3.0", "getReproductionProportion()",
-                              "repro_prop()")
-    repro_prop(params)
-}
+getMaxIntakeRate <- intake_max
 
-#' @rdname deprecated_accessors
+#' @rdname superseded_accessors
 #' @export
-getReproductionLevel <- function(params) {
-    lifecycle::deprecate_soft("3.3.0", "getReproductionLevel()",
-                              "reproduction_level()")
-    reproduction_level(params)
-}
+getMetabolicRate <- metab
+
+#' @rdname superseded_accessors
+#' @export
+getExtMort <- ext_mort
+
+#' @rdname superseded_accessors
+#' @export
+getExtEncounter <- ext_encounter
+
+#' @rdname superseded_accessors
+#' @export
+getMaturityProportion <- maturity
+
+#' @rdname superseded_accessors
+#' @export
+getReproductionProportion <- repro_prop
+
+#' @rdname superseded_accessors
+#' @export
+getReproductionLevel <- reproduction_level

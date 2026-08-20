@@ -128,12 +128,6 @@ test_that("reproduction_level is getRDD divided by R_max", {
                  NS_rdd / NS_params_small@species_params$R_max)
 })
 
-test_that("getReproductionLevel warns and returns reproduction_level", {
-    expect_warning(rl <- getReproductionLevel(NS_params_small),
-                   "deprecated")
-    expect_equal(rl, reproduction_level(NS_params_small))
-})
-
 # R_factor ----
 test_that("setBevertonHolt sets R_factor correctly", {
     sp_name <- NS_params_small@species_params$species[3]

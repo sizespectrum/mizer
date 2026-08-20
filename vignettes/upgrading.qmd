@@ -599,30 +599,37 @@ among the setters that `setParams()` calls, which it always did.
 
 ### One name for each stored rate array
 
-Twelve accessors that read a parameter or rate array back out of a `MizerParams` object had
+Seventeen accessors that read a parameter or rate array back out of a `MizerParams` object had
 two interchangeable names. The bare name is now the one to use — it is the one
 that also has a replacement function, so the pair reads the same way in both
 directions ([`catchability(params)`](../reference/setFishing.html) and `catchability(params) <- value`,
 [`reproduction_level(params)`](../reference/setBevertonHolt.html) and `reproduction_level(params) <- value`). The
-`get`-prefixed names are soft-deprecated and warn:
+`get`-prefixed names are superseded:
 
-| Deprecated | Use instead |
+| Superseded | Use instead |
 |---|---|
-| [`getCatchability()`](../reference/deprecated_accessors.html) | [`catchability()`](../reference/setFishing.html) |
-| [`getSelectivity()`](../reference/deprecated_accessors.html) | [`selectivity()`](../reference/setFishing.html) |
-| [`getInitialEffort()`](../reference/deprecated_accessors.html) | [`initial_effort()`](../reference/initial_effort.html) |
-| [`getPredKernel()`](../reference/deprecated_accessors.html) | [`pred_kernel()`](../reference/setPredKernel.html) |
-| [`getSearchVolume()`](../reference/deprecated_accessors.html) | [`search_vol()`](../reference/setSearchVolume.html) |
-| [`getMaxIntakeRate()`](../reference/deprecated_accessors.html) | [`intake_max()`](../reference/setMaxIntakeRate.html) |
-| [`getMetabolicRate()`](../reference/deprecated_accessors.html) | [`metab()`](../reference/setMetabolicRate.html) |
-| [`getExtMort()`](../reference/deprecated_accessors.html) | [`ext_mort()`](../reference/setExtMort.html) |
-| [`getExtEncounter()`](../reference/deprecated_accessors.html) | [`ext_encounter()`](../reference/setExtEncounter.html) |
-| [`getMaturityProportion()`](../reference/deprecated_accessors.html) | [`maturity()`](../reference/setReproduction.html) |
-| [`getReproductionProportion()`](../reference/deprecated_accessors.html) | [`repro_prop()`](../reference/setReproduction.html) |
-| [`getReproductionLevel()`](../reference/deprecated_accessors.html) | [`reproduction_level()`](../reference/setBevertonHolt.html) |
+| [`getCatchability()`](../reference/superseded_accessors.html) | [`catchability()`](../reference/setFishing.html) |
+| [`getSelectivity()`](../reference/superseded_accessors.html) | [`selectivity()`](../reference/setFishing.html) |
+| [`getInitialEffort()`](../reference/superseded_accessors.html) | [`initial_effort()`](../reference/initial_effort.html) |
+| [`getInteraction()`](../reference/superseded_accessors.html) | [`interaction_matrix()`](../reference/setInteraction.html) |
+| [`getResourceDynamics()`](../reference/superseded_accessors.html) | [`resource_dynamics()`](../reference/setResource.html) |
+| [`getResourceLevel()`](../reference/superseded_accessors.html) | [`resource_level()`](../reference/setResource.html) |
+| [`getResourceRate()`](../reference/superseded_accessors.html) | [`resource_rate()`](../reference/setResource.html) |
+| [`getResourceCapacity()`](../reference/superseded_accessors.html) | [`resource_capacity()`](../reference/setResource.html) |
+| [`getPredKernel()`](../reference/superseded_accessors.html) | [`pred_kernel()`](../reference/setPredKernel.html) |
+| [`getSearchVolume()`](../reference/superseded_accessors.html) | [`search_vol()`](../reference/setSearchVolume.html) |
+| [`getMaxIntakeRate()`](../reference/superseded_accessors.html) | [`intake_max()`](../reference/setMaxIntakeRate.html) |
+| [`getMetabolicRate()`](../reference/superseded_accessors.html) | [`metab()`](../reference/setMetabolicRate.html) |
+| [`getExtMort()`](../reference/superseded_accessors.html) | [`ext_mort()`](../reference/setExtMort.html) |
+| [`getExtEncounter()`](../reference/superseded_accessors.html) | [`ext_encounter()`](../reference/setExtEncounter.html) |
+| [`getMaturityProportion()`](../reference/superseded_accessors.html) | [`maturity()`](../reference/setReproduction.html) |
+| [`getReproductionProportion()`](../reference/superseded_accessors.html) | [`repro_prop()`](../reference/setReproduction.html) |
+| [`getReproductionLevel()`](../reference/superseded_accessors.html) | [`reproduction_level()`](../reference/setBevertonHolt.html) |
 
-Nothing breaks: the old names still return exactly the same value. Renaming is
-a search and replace.
+Nothing breaks: the old names are kept as plain aliases of the new ones. They
+do not warn, they will not be removed, and they return exactly the same value,
+so old code and old scripts keep running untouched. Renaming is a search and
+replace whenever you next touch the code.
 
 The `get` prefix now means one thing — a function that *calculates* something
 from the current state of a model, like `getEncounter()`, [`getFMort()`](../reference/getFMort.html) or
@@ -832,7 +839,7 @@ by hand (by assigning a full vector rather than a scalar), mizer marks it "set
 manually" — it is *frozen* and will not be recomputed from the resource
 parameters. Previously, an operation that re-balanced the resource *without*
 being given a replacement rate or capacity — for example changing only
-[`resource_dynamics`](../reference/setResource.html), or calling `setResource()` with neither a rate nor a
+`resource_dynamics`, or calling `setResource()` with neither a rate nor a
 capacity — would silently overwrite such a frozen array. It is now kept, and a
 warning is issued instead.
 

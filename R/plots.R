@@ -3137,7 +3137,7 @@ plotPredMort.MizerParams <- function(object, species = NULL,
 
 #' Alias for `plotPredMort()`
 #'
-#' `r lifecycle::badge("deprecated")`
+#' `r lifecycle::badge("superseded")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit plotPredMort
 #' @export

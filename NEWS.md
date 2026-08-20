@@ -470,26 +470,42 @@ while building or changing a model through a single mechanism controlled by
   `mizerExperimental::matchYield()`, which adjusts the catchability instead
   (#526).
 
-- Eleven accessors that returned a rate array stored in the MizerParams object
-  had two names that did exactly the same thing. The `get`-prefixed name is now
-  soft-deprecated in favour of the bare name, which is the one that also has a
-  replacement function (`catchability(params) <- value` and friends):
-  `getCatchability()` → `catchability()`, `getSelectivity()` → `selectivity()`,
-  `getInitialEffort()` → `initial_effort()`, `getPredKernel()` →
+- Seventeen accessors that returned a value stored in the MizerParams object had
+  two names that did exactly the same thing. The
+  `get`-prefixed name is now superseded in favour of the bare name, which is the
+  one that also has a replacement function (`catchability(params) <- value` and
+  friends): `getCatchability()` → `catchability()`, `getSelectivity()` →
+  `selectivity()`, `getInitialEffort()` → `initial_effort()`,
+  `getInteraction()` → `interaction_matrix()`, `getResourceDynamics()` →
+  `resource_dynamics()`, `getResourceLevel()` → `resource_level()`,
+  `getResourceRate()` → `resource_rate()`, `getResourceCapacity()` →
+  `resource_capacity()`, `getPredKernel()` →
   `pred_kernel()`, `getSearchVolume()` → `search_vol()`, `getMaxIntakeRate()` →
   `intake_max()`, `getMetabolicRate()` → `metab()`, `getExtMort()` →
   `ext_mort()`, `getExtEncounter()` → `ext_encounter()`,
-  `getMaturityProportion()` → `maturity()` and `getReproductionProportion()` →
-  `repro_prop()`. The old names keep working; they warn once per session in
-  code you run directly. The `get` prefix is now reserved for the functions
-  that *calculate* something from the current state of a model, like
-  `getEncounter()` or `getFMort()`.
+  `getMaturityProportion()` → `maturity()`, `getReproductionProportion()` →
+  `repro_prop()` and `getReproductionLevel()` → `reproduction_level()`. The
+  `get` prefix is now reserved for the functions that *calculate* something from
+  the current state of a model, like `getEncounter()` or `getFMort()`.
 
-- `getReproductionLevel()` is deprecated in favour of the new
-  `reproduction_level()`.
+  The old names are kept as plain aliases: they do not warn and they will not be
+  removed, so existing code and old scripts keep running unchanged. They are no
+  longer used anywhere inside mizer and should not be used in new code. Note
+  that `getInteraction()` and the four resource getters did warn in earlier
+  versions; they no longer do.
+  Because these are aliases rather than generics, an extension that defined a
+  method such as `getExtMort.MyClass` or `getInteraction.MizerParams` needs to
+  rename it to `ext_mort.MyClass` or `interaction_matrix.MizerParams`.
 
 - The `sim2` argument of `plotYield()` is deprecated in favour of
   `plot2(getYield(sim1), getYield(sim2))`.
+
+- The older aliases `getM2()`, `getM2Background()`, `getZ()`, `getESpawning()`,
+  `plotM2()`, `setRmax()`, `completeSpeciesParams()` and the `inter` dataset are
+  now labelled *superseded* in the documentation instead of *deprecated*.
+  Nothing about them changes: they never warned and they are not going away.
+  The *deprecated* label is now reserved for things that do warn and are
+  scheduled for removal.
 
 ## Bug fixes
 

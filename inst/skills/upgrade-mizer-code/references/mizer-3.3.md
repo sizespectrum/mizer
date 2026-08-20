@@ -576,18 +576,23 @@ confirmation.
 
 ### One name for each stored rate array
 
-Twelve accessors that read a parameter or rate array back out of a `MizerParams` object had
+Seventeen accessors that read a parameter or rate array back out of a `MizerParams` object had
 two interchangeable names. The bare name is now the one to use — it is the one
 that also has a replacement function, so the pair reads the same way in both
 directions (`catchability(params)` and `catchability(params) <- value`,
 `reproduction_level(params)` and `reproduction_level(params) <- value`). The
-`get`-prefixed names are soft-deprecated and warn:
+`get`-prefixed names are superseded:
 
-| Deprecated | Use instead |
+| Superseded | Use instead |
 |---|---|
 | `getCatchability()` | `catchability()` |
 | `getSelectivity()` | `selectivity()` |
 | `getInitialEffort()` | `initial_effort()` |
+| `getInteraction()` | `interaction_matrix()` |
+| `getResourceDynamics()` | `resource_dynamics()` |
+| `getResourceLevel()` | `resource_level()` |
+| `getResourceRate()` | `resource_rate()` |
+| `getResourceCapacity()` | `resource_capacity()` |
 | `getPredKernel()` | `pred_kernel()` |
 | `getSearchVolume()` | `search_vol()` |
 | `getMaxIntakeRate()` | `intake_max()` |
@@ -598,8 +603,10 @@ directions (`catchability(params)` and `catchability(params) <- value`,
 | `getReproductionProportion()` | `repro_prop()` |
 | `getReproductionLevel()` | `reproduction_level()` |
 
-Nothing breaks: the old names still return exactly the same value. Renaming is
-a search and replace.
+Nothing breaks: the old names are kept as plain aliases of the new ones. They
+do not warn, they will not be removed, and they return exactly the same value,
+so old code and old scripts keep running untouched. Renaming is a search and
+replace whenever you next touch the code.
 
 The `get` prefix now means one thing — a function that *calculates* something
 from the current state of a model, like `getEncounter()`, `getFMort()` or
@@ -608,11 +615,16 @@ stored in the object.
 
 <!-- agent-only -->
 
-The `get` forms are no longer S3 generics; they are plain functions that warn
-and forward. Dispatch still works for a custom class, but on the bare name, so
-an extension that defined `getExtMort.MyClass` must rename its method to
-`ext_mort.MyClass`. A method on the bare name has always worked and keeps
-working through both names.
+The `get` forms are no longer S3 generics of their own; each is now bound to the
+same function object as the bare name (`getExtMort <- ext_mort`). Dispatch still
+works for a custom class, but on the bare name, so an extension that defined
+`getExtMort.MyClass` or `getInteraction.MizerParams` must rename its method to
+`ext_mort.MyClass` or `interaction_matrix.MizerParams`. A method on the bare
+name has always worked and keeps working through both names.
+
+Because the aliases no longer warn, a user running old code sees no signal at
+all. Do not tell them their code is about to break; it is not. Suggest the new
+name when you are already editing the line.
 
 When a user's `bin_average` diagnostic disagrees with the rate functions, check
 whether they reached for `pred_kernel()` (formerly `getPredKernel()`) rather
