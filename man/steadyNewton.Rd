@@ -136,5 +136,6 @@ plotSpectra(params)
 }
 }
 \seealso{
-\code{\link[=steady]{steady()}}, \code{\link[=steadySingleSpecies]{steadySingleSpecies()}}, \code{\link[=getStability]{getStability()}}
+\code{\link[=steady]{steady()}}, \code{\link[=steadySingleSpecies]{steadySingleSpecies()}}, \code{\link[=getStability]{getStability()}},
+\code{\link[=isSteady]{isSteady()}}, \code{\link[=getSteadyResidual]{getSteadyResidual()}}
 }
