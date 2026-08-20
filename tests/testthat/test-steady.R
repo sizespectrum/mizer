@@ -18,29 +18,29 @@ test_that("projectToSteady() works", {
                    "Simulation run did not converge after 0.1 years.")
     expect_message(paramsc <- projectToSteady(params, t_per = 1, dt = 1,
                                               tol = 1000, effort = effort),
-                   "Convergence was achieved")
+                   "Reached the convergence tolerance")
     expect_s4_class(paramsc, "MizerParams")
     expect_identical(paramsc@initial_effort, effort)
     # shouldn't take long the second time we run to steady
     expect_message(projectToSteady(paramsc, t_per = 1, dt = 1, tol = 1000),
-                   "Convergence was achieved")
+                   "Reached the convergence tolerance")
     
     # return sim
     expect_message(sim <- projectToSteady(params, return_sim = TRUE,
                                           t_per = 1, dt = 1, tol = 1000),
-                   "Convergence was achieved")
+                   "Reached the convergence tolerance")
     expect_s4_class(sim, "MizerSim")
     
     # Alternative distance function
     expect_message(paramsc <- projectToSteady(params, t_per = 1, dt = 1,
                                               distance_func = distanceMaxRelRDI,
                                               tol = 10),
-                   "Convergence was achieved")
+                   "Reached the convergence tolerance")
     # shouldn't take long the second time we run to steady
     expect_message(projectToSteady(paramsc, t_per = 1, dt = 1,
                                    distance_func = distanceMaxRelRDI,
                                    tol = 10),
-                   "Convergence was achieved")
+                   "Reached the convergence tolerance")
     
     # Check extinction
     params@psi[1:2, ] <- 0
@@ -198,7 +198,7 @@ test_that("projectToSteady() converges with use_predation_diffusion", {
     initialN(params_d)[1, ] <- initialN(params_d)[1, ] * 3
     expect_message(
         projectToSteady(params_d, t_per = 1, dt = 1, tol = 1000),
-        "Convergence was achieved"
+        "Reached the convergence tolerance"
     )
 })
 
@@ -387,14 +387,14 @@ cd_params <- suppressMessages(
 
 # The "convergence" attribute ------------------------------------------------
 
-test_that("steady() attaches a 'convergence' attribute for a steady state", {
+test_that("steady() attaches a 'convergence' attribute when the distance drops below tol", {
     p <- suppressWarnings(suppressMessages(steady(cd_params, progress_bar = FALSE)))
     conv <- attr(p, "convergence")
     expect_type(conv, "list")
-    expect_named(conv, c("type", "converged", "distance", "residual", "years",
+    expect_named(conv, c("type", "settled", "distance", "residual", "years",
                          "period", "amplitude"))
-    expect_identical(conv$type, "steady")
-    expect_true(conv$converged)
+    expect_identical(conv$type, "below_tolerance")
+    expect_true(conv$settled)
     expect_true(is.na(conv$period))
     expect_true(is.na(conv$amplitude))
     # The residual measures how far the state actually is from a fixed point,
@@ -407,7 +407,7 @@ test_that("the 'convergence' attribute survives return_sim = TRUE", {
     sim <- suppressWarnings(suppressMessages(steady(cd_params, return_sim = TRUE,
                                                     progress_bar = FALSE)))
     expect_s4_class(sim, "MizerSim")
-    expect_identical(attr(sim, "convergence")$type, "steady")
+    expect_identical(attr(sim, "convergence")$type, "below_tolerance")
 })
 
 test_that("projectToSteady() reports non-convergence", {
@@ -419,7 +419,7 @@ test_that("projectToSteady() reports non-convergence", {
     )
     conv <- attr(p, "convergence")
     expect_identical(conv$type, "not_converged")
-    expect_false(conv$converged)
+    expect_false(conv$settled)
 })
 
 test_that("fine t_save sampling does not change the result", {
@@ -450,7 +450,7 @@ test_that("projectToSteady() detects a limit cycle", {
     )
     conv <- attr(p, "convergence")
     expect_identical(conv$type, "cycle")
-    expect_true(conv$converged)
+    expect_true(conv$settled)
     expect_gt(conv$period, 0)
     expect_gt(conv$amplitude, 0.1)
 })

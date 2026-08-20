@@ -58,8 +58,10 @@ while building or changing a model through a single mechanism controlled by
 - `steady()` and `projectToSteady()` now report the nature of the solution they
   converged to via a `"convergence"` attribute on the returned object (mirroring
   the `"stability"` attribute of `steadyNewton()`). It records whether the run
-  settled on a stable steady state, a limit cycle, or neither, together with the
-  cycle period and relative amplitude when a cycle is found. Limit cycles are
+  dropped below its tolerance (`type = "below_tolerance"` — deliberately not
+  called `"steady"`, because passing the distance test is not a guarantee of a
+  fixed point), settled on a limit cycle, or neither, together with the cycle
+  period and relative amplitude when a cycle is found. Limit cycles are
   detected from a per-species biomass series sampled at the new `t_save`
   resolution (default `dt`), so detection no longer relies on the cycle period
   being commensurate with `t_per`. The relative-amplitude floor for calling an
@@ -113,6 +115,13 @@ while building or changing a model through a single mechanism controlled by
   whatever scale the distance function uses; `residual` measures the thing
   itself, and `steady()` now says when the two disagree — a run declared
   converged whose biomasses are still visibly moving (#495).
+
+- `steady()` and `projectToSteady()` no longer end a successful run by saying
+  "Convergence was achieved in 12 years." They now say what was actually tested
+  — "Reached the convergence tolerance after 12 years." — and report the biomass
+  drift every time rather than only when it is large, because that number is the
+  evidence for whether the state is a fixed point. Code matching the old wording
+  needs updating.
 
 - `matchBiomasses()`, `matchNumbers()` and `matchGrowth()` now say that they
   have moved the model off its steady state, turning an

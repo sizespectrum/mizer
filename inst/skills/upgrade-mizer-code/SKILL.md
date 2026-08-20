@@ -104,6 +104,8 @@ function` — carry no such quote, so match those rows on the function name.
 | A `match…()` call now reports `"has rescaled the model and so moved it off its steady state"` | the functions say so themselves now | The `match…()` functions announce that they broke the steady state |
 | `expect_named()` on `attr(params, "convergence")` fails | new `residual` field | The convergence attribute gained a `residual` field |
 | `steady()` adds ``"Reduce `tol` to converge further"`` to its convergence message | the state reached is not a fixed point | The convergence attribute gained a `residual` field |
+| `steady()` says `"Reached the convergence tolerance after"` where it used to announce that convergence was achieved | the message says what was actually tested | `steady()` reports the tolerance it reached rather than announcing convergence |
+| An `expect_message()` or a grep for the wording of the `steady()` success message no longer matches | the message was reworded | `steady()` reports the tolerance it reached rather than announcing convergence |
 | `getStability()` or `getLimitCycleSim()` now warns `"This model is not at its steady state"` | they linearise at the stored state | `getStability()` checks that it was given a steady state |
 | `summary(params)` has an extra `"Steady state:"` block | new steadiness verdict | `summary()` reports the steady state |
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters properly |

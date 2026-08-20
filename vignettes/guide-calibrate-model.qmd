@@ -64,13 +64,15 @@ and the checks in [Verifying the result](#verifying-the-result):
 
 ```{r eval=FALSE}
 params <- steady(params)
-attr(params, "convergence")$type       # "steady", "cycle", "not_converged", "extinction"
+attr(params, "convergence")$type       # "below_tolerance", "cycle", "not_converged", "extinction"
 attr(params, "convergence")$residual   # largest biomass drift, in 1/year
 plot(getSteadyResidual(params))        # which species, and at which sizes
 ```
 
-`"steady"` with a `residual` above about `0.05` means `tol` was too loose:
-tighten it. `"cycle"` means the dynamics settled onto a limit cycle and the
+`"below_tolerance"` says only that the distance function dropped below `tol`,
+which is not a guarantee of a steady state — that is why the type is not called
+`"steady"`. Always read `residual` alongside it: above about `0.05` it means
+`tol` was too loose, so tighten it. `"cycle"` means the dynamics settled onto a limit cycle and the
 stored state is one point on it — see the [guide to analysing dynamic stability](guide-analyse-stability.html).
 `"not_converged"` means the run ran out of time: raise `t_max`, or get a better
 starting spectrum from `steadySingleSpecies()` first, and reach for

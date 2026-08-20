@@ -143,7 +143,7 @@ sim_cycle <- projectToSteady(params, effort = 1.5, t_max = 200, t_per = 0.2,
 attr(sim_cycle, "convergence")
 ```
 
-`projectToSteady()` correctly identifies the attractor as a limit cycle with a period of about `r round(attr(sim_cycle, "convergence")$period, 1)` years and a peak-to-trough biomass amplitude of about `r round(100 * attr(sim_cycle, "convergence")$amplitude)`% of the mean. Applied to a model with a genuine stable steady state (such as the default `params` at effort 0), the function reports `type = "steady"` instead:
+`projectToSteady()` correctly identifies the attractor as a limit cycle with a period of about `r round(attr(sim_cycle, "convergence")$period, 1)` years and a peak-to-trough biomass amplitude of about `r round(100 * attr(sim_cycle, "convergence")$amplitude)`% of the mean. Applied to a model with a genuine stable steady state (such as the default `params` at effort 0), the function reports `type = "below_tolerance"` instead, meaning the state stopped moving on the scale of the distance function:
 
 ```{r pts_steady}
 attr(projectToSteady(params, t_max = 100), "convergence")$type
