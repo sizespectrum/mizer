@@ -28,8 +28,8 @@ class for an empty extension chain.
 
 ## See also
 
-"Creating a mizer extension package":
-[`vignette("creating-extension-packages", package = "mizer")`](https://sizespectrum.org/mizer/articles/creating-extension-packages.md)
+"Creating a mizer extension package": [Creating a mizer extension
+package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html)
 
 Other extension tools:
 [`NOther()`](https://sizespectrum.org/mizer/reference/NOther.md),

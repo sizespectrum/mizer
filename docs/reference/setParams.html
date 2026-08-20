@@ -14,9 +14,14 @@ setMaxIntakeRate()
 setMetabolicRate()
 setExtMort()
 setExtEncounter()
+setExtDiffusion()
 setReproduction()
 setFishing()
-See the Details section below for a discussion of how to use this function."><meta property="og:description" content="This is a convenient wrapper function calling each of the following
+Note that setResource() is not among them: the resource rate, capacity
+and dynamics are not changed by setParams() and have to be set with
+setResource(). Passing a resource argument to setParams() gives an error
+rather than being silently ignored. See the Details section below for a
+discussion of how to use this function."><meta property="og:description" content="This is a convenient wrapper function calling each of the following
 functions
 setPredKernel()
 setSearchVolume()
@@ -25,9 +30,14 @@ setMaxIntakeRate()
 setMetabolicRate()
 setExtMort()
 setExtEncounter()
+setExtDiffusion()
 setReproduction()
 setFishing()
-See the Details section below for a discussion of how to use this function."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+Note that setResource() is not among them: the resource rate, capacity
+and dynamics are not changed by setParams() and have to be set with
+setResource(). Passing a resource argument to setParams() gives an error
+rather than being silently ignored. See the Details section below for a
+discussion of how to use this function."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -35,7 +45,7 @@ See the Details section below for a discussion of how to use this function."><me
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,19 +65,21 @@ See the Details section below for a discussion of how to use this function."><me
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/guide-understand-size-spectrum-dynamics.html">Guide: Understanding size-spectrum dynamics</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-build-model.html">Guide: Building a mizer model</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-calibrate-model.html">Guide: Reaching steady state and calibrating</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-change-parameters.html">Guide: Changing model parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-set-up-fishing.html">Guide: Setting up fishing</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-run-simulation.html">Guide: Running a mizer simulation</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-and-plot.html">Guide: Analysing and plotting mizer results</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-stability.html">Guide: Analysing dynamic stability</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-extend-mizer.html">Guide: Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-use-extension-packages.html">Guide: Using mizer extension packages</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-create-extension-package.html">Guide: Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
-    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
-    <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/using-extension-packages.html">Using mizer extension packages</a></li>
-    <li><a class="dropdown-item" href="../articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -75,14 +87,15 @@ See the Details section below for a discussion of how to use this function."><me
     <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
+    <li><a class="dropdown-item" href="../articles/dynamic_stability.html">Dynamic stability and Hopf bifurcations</a></li>
+    <li><a class="dropdown-item" href="../articles/discontinuous_rates.html">Discontinuous rate functions</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/publications.html">Publications</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
-<li class="nav-item"><form class="form-inline" role="search">
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter"><span class="fa fab fa-twitter fa-lg"></span></a></li>
@@ -114,14 +127,25 @@ functions</p><ul><li><p><code><a href="setPredKernel.html">setPredKernel()</a></
 <li><p><code><a href="setMetabolicRate.html">setMetabolicRate()</a></code></p></li>
 <li><p><code><a href="setExtMort.html">setExtMort()</a></code></p></li>
 <li><p><code><a href="setExtEncounter.html">setExtEncounter()</a></code></p></li>
+<li><p><code><a href="setExtDiffusion.html">setExtDiffusion()</a></code></p></li>
 <li><p><code><a href="setReproduction.html">setReproduction()</a></code></p></li>
 <li><p><code><a href="setFishing.html">setFishing()</a></code></p></li>
-</ul><p>See the Details section below for a discussion of how to use this function.</p>
+</ul><p>Note that <code><a href="setResource.html">setResource()</a></code> is <strong>not</strong> among them: the resource rate, capacity
+and dynamics are not changed by <code>setParams()</code> and have to be set with
+<code><a href="setResource.html">setResource()</a></code>. Passing a resource argument to <code>setParams()</code> gives an error
+rather than being silently ignored. See the Details section below for a
+discussion of how to use this function.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setParams</span><span class="op">(</span><span class="va">object</span>, interaction <span class="op">=</span> <span class="cn">NULL</span>, info_level <span class="op">=</span> <span class="fl">3</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setParams</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  interaction <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  info_level <span class="op">=</span> <span class="fu"><a href="default_info_level.html">default_info_level</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  reset <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -140,11 +164,15 @@ interaction matrix" section below.</p></dd>
 
 <dt id="arg-info-level">info_level<a class="anchor" aria-label="anchor" href="#arg-info-level"></a></dt>
 <dd><p>Controls the amount of information messages that are shown.
-Higher levels lead to more messages.</p></dd>
+Higher levels lead to more messages, <code>info_level = 0</code> gives silence. The
+default is taken from the <code>mizer_info_level</code> option, see
+<code><a href="default_info_level.html">default_info_level()</a></code>. Note that the report that a change cannot take
+effect because the rate array it feeds has been set manually is a warning
+rather than a message, but it too is silenced by <code>info_level = 0</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Arguments passed on to <code><a href="setPredKernel.html">setPredKernel</a></code>, <code><a href="setSearchVolume.html">setSearchVolume</a></code>, <code><a href="setMaxIntakeRate.html">setMaxIntakeRate</a></code>, <code><a href="setMetabolicRate.html">setMetabolicRate</a></code>, <code><a href="setExtMort.html">setExtMort</a></code>, <code><a href="setExtEncounter.html">setExtEncounter</a></code>, <code><a href="setReproduction.html">setReproduction</a></code>, <code><a href="setFishing.html">setFishing</a></code></p><dl><dt><code>params</code></dt>
+<dd><p>Arguments passed on to <code><a href="setPredKernel.html">setPredKernel</a></code>, <code><a href="setSearchVolume.html">setSearchVolume</a></code>, <code><a href="setMaxIntakeRate.html">setMaxIntakeRate</a></code>, <code><a href="setMetabolicRate.html">setMetabolicRate</a></code>, <code><a href="setExtMort.html">setExtMort</a></code>, <code><a href="setExtEncounter.html">setExtEncounter</a></code>, <code><a href="setExtDiffusion.html">setExtDiffusion</a></code>, <code><a href="setReproduction.html">setReproduction</a></code>, <code><a href="setFishing.html">setFishing</a></code></p><dl><dt><code>params</code></dt>
 <dd><p>A MizerParams object</p></dd>
 
     <dt><code>pred_kernel</code></dt>
@@ -177,14 +205,13 @@ mortality rate.  If not supplied, a default is set as described in the
 section "Setting external mortality rate".</p></dd>
 
     <dt><code>z0pre</code></dt>
-<dd><p>If <code>z0</code>, the mortality from other sources, is not a column
-in the species data frame, it is calculated as z0pre * w_inf ^ z0exp.
-Default value is 0.6.</p></dd>
+<dd><p>If <code>z0</code>, the mortality from other sources, is not present in
+<code><a href="species_params.html">given_species_params()</a></code>, it is calculated as
+<code>z0pre * w_inf ^ z0exp</code>. Default value is 0.6.</p></dd>
 
     <dt><code>z0exp</code></dt>
-<dd><p>If <code>z0</code>, the mortality from other sources, is not a column in
-the species data frame, it is calculated as <code>z0pre * w_inf ^ z0exp</code>.
-Default value is <code>n-1</code>.</p></dd>
+<dd><p>The exponent used with <code>z0pre</code> to calculate non-given <code>z0</code>.
+Default value is <code>n - 1</code>.</p></dd>
 
     <dt><code>z0</code></dt>
 <dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use <code>ext_mort</code> instead. Not to
@@ -195,6 +222,12 @@ be confused with the species_parameter <code>z0</code>.</p></dd>
 encounter rate.  If not supplied, a default is calculated from the <code>E_ext</code>
 and <code>n</code> species parameters as described in the section "Setting external
 encounter rate".</p></dd>
+
+    <dt><code>ext_diffusion</code></dt>
+<dd><p>Optional. An array (species x size) holding the
+external diffusion rate. If not supplied, a default is calculated from the
+<code>D_ext</code> and <code>n</code> species parameters as described in the section "Setting
+external diffusion rate".</p></dd>
 
     <dt><code>maturity</code></dt>
 <dd><p>Optional. An array (species x size) that holds the proportion
@@ -228,6 +261,15 @@ a vector, must be named by gear.</p></dd>
 
 
 </dl></dd>
+
+
+<dt id="arg-reset">reset<a class="anchor" aria-label="anchor" href="#arg-reset"></a></dt>
+<dd><p>If set to TRUE then all the rate arrays that <code>setParams()</code> sets
+are recalculated from the species parameters, even if they had previously
+been overwritten with custom values. The default is FALSE, in which case
+arrays that have been set manually are left alone. This is passed on to
+each of the setter functions listed above, so it thaws all of them at once.
+To thaw only one of them, call that setter with <code>reset = TRUE</code> instead.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -333,15 +375,16 @@ mass, not on the two masses independently. The shape of that kernel is then
 determined by the <code>pred_kernel_type</code> column in species_params.</p>
 <p>The default for <code>pred_kernel_type</code> is "lognormal". This will call the function
 <code><a href="lognormal_pred_kernel.html">lognormal_pred_kernel()</a></code> to calculate the predation kernel.
-An alternative pred_kernel type is "box", implemented by the function
-<code><a href="box_pred_kernel.html">box_pred_kernel()</a></code>, and "power_law", implemented by the function
-<code><a href="power_law_pred_kernel.html">power_law_pred_kernel()</a></code>. These functions require certain species
-parameters in the species_params data frame. For the lognormal kernel these
-are <code>beta</code> and <code>sigma</code>, for the box kernel they are <code>ppmr_min</code>
-and <code>ppmr_max</code>. They are explained in the help pages for the kernel
-functions. Except for <code>beta</code> and <code>sigma</code>, no defaults are set for
-these parameters. If they are missing from the species_params data frame then
-mizer will issue an error message.</p>
+Alternative pred_kernel types are "box", implemented by <code><a href="box_pred_kernel.html">box_pred_kernel()</a></code>,
+"power_law", implemented by <code><a href="power_law_pred_kernel.html">power_law_pred_kernel()</a></code>, and
+"gaussian_mixture", implemented by <code><a href="gaussian_mixture_pred_kernel.html">gaussian_mixture_pred_kernel()</a></code>. These
+functions require certain species parameters in the species_params data
+frame. For the lognormal kernel these are <code>beta</code> and <code>sigma</code>, for the box
+kernel they are <code>ppmr_min</code> and <code>ppmr_max</code>, and for the Gaussian mixture they
+are the list-columns <code>kernel_p</code>, <code>kernel_mean</code>, and <code>kernel_sd</code>. They are
+explained in the help pages for the kernel functions. Except for <code>beta</code> and
+<code>sigma</code>, no defaults are set for these parameters. If they are missing from
+the species_params data frame then mizer will issue an error message.</p>
 <p>You can use any other string for <code>pred_kernel_type</code>. If for example you
 choose "my" then you need to define a function <code>my_pred_kernel</code> that you can
 model on the existing functions like <code><a href="lognormal_pred_kernel.html">lognormal_pred_kernel()</a></code>.</p>
@@ -352,7 +395,7 @@ bins. Instead, mizer only needs to store two two-dimensional arrays that hold
 Fourier transforms of the feeding kernel function that allow the encounter
 rate and the predation rate to be calculated very efficiently. However, if
 you need the full three-dimensional array you can calculate it with the
-<code><a href="setPredKernel.html">getPredKernel()</a></code> function.</p>
+<code><a href="setPredKernel.html">pred_kernel()</a></code> function.</p>
 <p><strong>Kernel dependent on both predator and prey size</strong></p>
 <p>If you want to work with a feeding kernel that depends on predator mass and
 prey mass independently, you can specify the full feeding kernel as a
@@ -456,9 +499,16 @@ the Examples section of the help page for <code><a href="setExtMort.html">setExt
 taken from the species parameters as
 $$\mu_{ext.i}(w) = z_{0.i} + z_{ext.i} w^{d_i}.$$
 The value of the constant \(z_0\) for each species is taken from the <code>z0</code>
-column of the species parameter data frame, if that column exists.
-Otherwise it is calculated as
+column of <code><a href="species_params.html">given_species_params()</a></code> if it is present there. Otherwise it is
+recalculated, even if a value from an earlier calculation is still present
+in <code>species_params</code>, as
 $$z_{0.i} = {\tt z0pre}_i\, w_{inf}^{\tt z0exp}.$$
+When <code>z0pre</code> or <code>z0exp</code> is supplied explicitly and used to calculate
+non-given <code>z0</code>, the resulting values are recorded in
+<code><a href="species_params.html">given_species_params()</a></code>. Values calculated from the defaults
+<code>z0pre = 0.6</code> and <code>z0exp = n - 1</code> are not recorded there. If either argument
+is supplied but cannot be used because <code>z0</code> is given for every species or
+because <code>ext_mort</code> was supplied, a warning is issued.
 Missing values of <code>z_ext</code> are set to 0 and missing values of <code>d</code> are set to
 <code>n - 1</code>.</p>
 <p>By default the power law is evaluated at the left bin edges \(w_j\)

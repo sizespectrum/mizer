@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,19 +61,21 @@
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/guide-understand-size-spectrum-dynamics.html">Guide: Understanding size-spectrum dynamics</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-build-model.html">Guide: Building a mizer model</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-calibrate-model.html">Guide: Reaching steady state and calibrating</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-change-parameters.html">Guide: Changing model parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-set-up-fishing.html">Guide: Setting up fishing</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-run-simulation.html">Guide: Running a mizer simulation</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-and-plot.html">Guide: Analysing and plotting mizer results</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-stability.html">Guide: Analysing dynamic stability</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-extend-mizer.html">Guide: Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-use-extension-packages.html">Guide: Using mizer extension packages</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-create-extension-package.html">Guide: Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
-    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
-    <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/using-extension-packages.html">Using mizer extension packages</a></li>
-    <li><a class="dropdown-item" href="../articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -81,16 +83,17 @@
     <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
+    <li><a class="dropdown-item" href="../articles/dynamic_stability.html">Dynamic stability and Hopf bifurcations</a></li>
+    <li><a class="dropdown-item" href="../articles/discontinuous_rates.html">Discontinuous rate functions</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/publications.html">Publications</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
@@ -129,7 +132,7 @@
 
     <p>On this page we present the details of the mizer model, taking care to separate the essential features of the model that are hard-coded and the various possible specialisations for which mizer provides setup functions. We will provide links to the functions that can be used to set or change the various model parameters (all collected together in <code><a href="../reference/setParams.html">setParams()</a></code>) as well as to the functions that calculate the various ecological rates in the model (all collected together in <code><a href="../reference/mizerRates.html">mizerRates()</a></code>) because the help pages of these functions will provide useful additional details.</p>
 <p>This is probably not the best place to start learning about the mizer model. Mizer is complicated because at the same time it introduces dynamical size-spectrum modelling, where the size-distribution of the population is shaped by the the size-dependent growth and mortality rates of individuals, and it describes how multi-species interactions determine those density-dependent rates. If you are new to dynamical size-spectrum models, we suggest you start by reading about <a href="single_species_size-spectrum_dynamics.html">the single-species model</a>.</p>
-We will not go into detail of how this model is realised in code. Such detail will be provided in the <a href="https://sizespectrum.org/mizer/articles/developer_vignette.html">developer guide</a>. However some details are hidden on this page and you can see them by clicking on links like the following:
+We will not go into detail of how this model is realised in code. Such detail is provided in the vignette on the <a href="numerical_details.html">numerical scheme</a>. However some details are hidden on this page and you can see them by clicking on links like the following:
 <details>
 And clicking again will hide the details again.
 </details><section class="section level2"><h2 id="size-spectrum-dynamics">Size spectrum dynamics<a class="anchor" aria-label="anchor" href="#size-spectrum-dynamics"></a>
@@ -179,8 +182,8 @@ J_i(t,w)= g_i(t,w) N_i(t,w) -
   = r_R(w) \Big[ c_R (w) - N_R(w,t) \Big] - \mu_R(w) N_R(w,t).
 \]</span> Here <span class="math inline">\(r_R(w)\)</span> is the resource regeneration rate and <span class="math inline">\(c_R(w)\)</span> is the carrying capacity in the absence of predation. These parameters are changed with <code><a href="../reference/setResource.html">setResource()</a></code>. By default mizer assumes allometric forms <span class="math display">\[r_R(w)= r_R\, w^{n-1}.\]</span></p>
 <p><span class="math display">\[c_R(w)=\kappa\, w^{-\lambda}.\]</span></p>
-<p>You can retrieve these with <code><a href="../reference/getResourceDynamics.html">getResourceRate()</a></code> and <code><a href="../reference/getResourceDynamics.html">getResourceCapacity()</a></code> respectively. It is also possible to implement other resource dynamics, as described in the help page for <code><a href="../reference/setResource.html">setResource()</a></code>. The mortality <span class="math inline">\(\mu_R(w)\)</span> is due to predation by consumers and is described in the subsection <a href="#resource-mortality">Resource mortality</a>.</p>
-<p>Because the resource spectrum spans a larger range of sizes these sizes Because the resource spectrum spans a larger range of sizes these sizes Because the resource spectrum spans a larger range of sizes these sizes are discretized into a different vector of weights</p>
+<p>You can retrieve these with <code><a href="../reference/setResource.html">resource_rate()</a></code> and <code><a href="../reference/setResource.html">resource_capacity()</a></code> respectively. It is also possible to implement other resource dynamics, as described in the help page for <code><a href="../reference/setResource.html">setResource()</a></code>. The mortality <span class="math inline">\(\mu_R(w)\)</span> is due to predation by consumers and is described in the subsection <a href="#resource-mortality">Resource mortality</a>.</p>
+<p>Because the resource spectrum spans a larger range of sizes, these sizes are discretized into a different vector of weights</p>
 <p>The resource spectrum is then represented by a vector <code>NResource</code> such that <code>NResource[c]</code> =<span class="math inline">\(N_R(\)</span><code>w_full[c]</code><span class="math inline">\()\)</span>.</p>
 </details></section></section><section class="section level2"><h2 id="growth">Growth<a class="anchor" aria-label="anchor" href="#growth"></a>
 </h2>
@@ -273,7 +276,7 @@ is then available for growth and reproduction. So the rate at which energy becom
 \]</span> This is calculated with the <code><a href="../reference/getEReproAndGrowth.html">getEReproAndGrowth()</a></code> function.</p>
 </section><section class="level2"><h3 id="sec:repro">Investment into reproduction<a class="anchor" aria-label="anchor" href="#sec:repro"></a>
 </h3>
-<p>A proportion <span class="math inline">\(\psi_i(w)\)</span> of the energy available for growth and reproduction is used for reproduction. This proportion should change from zero below the weight <span class="math inline">\(w_{m.i}\)</span> of maturation to one at the maximum weight <span class="math inline">\(w_{max.i}\)</span>, where all available energy is used for reproduction. This function is changed with <code><a href="../reference/setReproduction.html">setReproduction()</a></code>. Mizer provides a default form for the function which you can however overrule.</p>
+<p>A proportion <span class="math inline">\(\psi_i(w)\)</span> of the energy available for growth and reproduction is used for reproduction. This proportion should change from zero below the weight <span class="math inline">\(w_{m.i}\)</span> of maturation to one at the weight <span class="math inline">\(w_{repro.max.i}\)</span> at which an individual invests all its available energy into reproduction. By default this is the von Bertalanffy asymptotic size <span class="math inline">\(w_{\infty.i}\)</span>; it is set by the <code>w_repro_max</code> species parameter, which is distinct from the computational upper boundary <code>w_max</code> of the size grid. This function is changed with <code><a href="../reference/setReproduction.html">setReproduction()</a></code>. Mizer provides a default form for the function which you can however overrule.</p>
 </section><section class="level2"><h3 id="growth-1">Growth<a class="anchor" aria-label="anchor" href="#growth-1"></a>
 </h3>
 <p>What is left over after metabolism and reproduction is taken into account is invested in somatic growth. Thus the growth rate is <span class="math display">\[
@@ -302,7 +305,7 @@ is then available for growth and reproduction. So the rate at which energy becom
   \label{eq:mup}
   \mu_{p.i}(w_p) = \sum_j {\tt pred\_rate}_j(w_p)\, \theta_{ji}.
 \]</span> This predation mortality rate is calculated by the function <code><a href="../reference/getPredMort.html">getPredMort()</a></code>.</p>
-<p>External mortality <span class="math inline">\(\mu_{ext.i}(w)\)</span> is independent of the abundances and is changed with <code><a href="../reference/setExtMort.html">setExtMort()</a></code>. By default mizer assumes that the external mortality for each species is a constant <span class="math inline">\(z0_i\)</span> independent of size. The value of <span class="math inline">\(z0_i\)</span> is either specified as a species parameter or it is assumed to depend allometrically on the maximum size: <span class="math display">\[z0_i = z0_{pre} w_{\infty.i}^{1-n}.\]</span></p>
+<p>External mortality <span class="math inline">\(\mu_{ext.i}(w)\)</span> is independent of the abundances and is changed with <code><a href="../reference/setExtMort.html">setExtMort()</a></code>. By default mizer assumes that the external mortality for each species is a constant <span class="math inline">\(z0_i\)</span> independent of size. The value of <span class="math inline">\(z0_i\)</span> is either specified as a species parameter or it is assumed to depend allometrically on the maximum size: <span class="math display">\[z0_i = z0_{pre}\, w_{\infty.i}^{n-1}.\]</span></p>
 <section class="level2"><h3 id="fishing-mortality">Fishing mortality<a class="anchor" aria-label="anchor" href="#fishing-mortality"></a>
 </h3>
 <p>The fishing parameters for the model are set up with <code><a href="../reference/setFishing.html">setFishing()</a></code>, where you can find the details of how to set up gears with different selectivities and the capabilities of different species. Fishing mortality <span class="math inline">\(F_i(w)\)</span> is calculated with the function <code><a href="../reference/getFMort.html">getFMort()</a></code>.</p>
@@ -337,7 +340,7 @@ is then available for growth and reproduction. So the rate at which energy becom
   \label{eq:R}
   R_i = R_{\max.i} \frac{R_{p.i}}{R_{p.i} + R_{\max.i}},
 \]</span> where <span class="math inline">\(R_{\max.i}\)</span> is the maximum reproduction rate of each trait class. This final rate of reproduction is calculated with <code><a href="../reference/getRDD.html">getRDD()</a></code>.</p>
-<p>This default <em>Beverton-Holt</em> type is implemented by <code>BervertonHoldRDD()</code> but mizer also provides alternatives <code><a href="../reference/RickerRDD.html">RickerRDD()</a></code>, <code><a href="../reference/SheperdRDD.html">SheperdRDD()</a></code>, <code><a href="../reference/constantRDD.html">constantRDD()</a></code> and <code><a href="../reference/noRDD.html">noRDD()</a></code>. Also, users are able to write their own functions, e.g. <em>hockey-stick</em>. See <code><a href="../reference/setReproduction.html">setReproduction()</a></code> for details.</p>
+<p>This default <em>Beverton-Holt</em> type is implemented by <code><a href="../reference/BevertonHoltRDD.html">BevertonHoltRDD()</a></code> but mizer also provides alternatives <code><a href="../reference/RickerRDD.html">RickerRDD()</a></code>, <code><a href="../reference/SheperdRDD.html">SheperdRDD()</a></code>, <code><a href="../reference/constantRDD.html">constantRDD()</a></code> and <code><a href="../reference/noRDD.html">noRDD()</a></code>. Also, users are able to write their own functions, e.g. <em>hockey-stick</em>. See <code><a href="../reference/setReproduction.html">setReproduction()</a></code> for details.</p>
 </section><section class="level2"><h3 id="flux-at-egg-size">Flux at egg size<a class="anchor" aria-label="anchor" href="#flux-at-egg-size"></a>
 </h3>
 <p>The reproduction rate <span class="math inline">\(R_i\)</span> determines the flux of individuals into the smallest size class: <span class="math display">\[J_i(w_{0.i}) = R_i.\]</span> See the <a href="https://sizespectrum.org/mizer/articles/numerical_details.html#boundary-conditions">section on boundary conditions</a> in the vignette on the numerical scheme for the details on how this is implemented.</p>

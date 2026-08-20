@@ -6,7 +6,7 @@ the `z0`, `z_ext` and `d` species parameters with
 mortality rate for you. Call `setExtMort()` directly only if you want to
 impose a different functional form for the size dependence of the
 external mortality. See
-[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+[`vignette("guide-change-parameters")`](https://sizespectrum.org/mizer/articles/guide-change-parameters.md)
 for a full explanation of when to reach for which level of the model.
 
 ## Usage
@@ -21,8 +21,6 @@ setExtMort(
   z0 = deprecated(),
   ...
 )
-
-getExtMort(params)
 
 ext_mort(params)
 
@@ -43,15 +41,14 @@ ext_mort(params) <- value
 
 - z0pre:
 
-  If `z0`, the mortality from other sources, is not a column in the
-  species data frame, it is calculated as z0pre \* w_inf ^ z0exp.
-  Default value is 0.6.
+  If `z0`, the mortality from other sources, is not present in
+  [`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md),
+  it is calculated as `z0pre * w_inf ^ z0exp`. Default value is 0.6.
 
 - z0exp:
 
-  If `z0`, the mortality from other sources, is not a column in the
-  species data frame, it is calculated as `z0pre * w_inf ^ z0exp`.
-  Default value is `n-1`.
+  The exponent used with `z0pre` to calculate non-given `z0`. Default
+  value is `n - 1`.
 
 - reset:
 
@@ -79,8 +76,8 @@ ext_mort(params) <- value
 `setExtMort()`: A MizerParams object with updated external mortality
 rate.
 
-`getExtMort()` or equivalently `ext_mort()`: An `ArraySpeciesBySize`
-object (species x size) with the external mortality.
+`ext_mort()`: An `ArraySpeciesBySize` object (species x size) with the
+external mortality.
 
 ## Setting external mortality rate
 
@@ -97,10 +94,19 @@ the Examples section of the help page for `setExtMort()`.
 If the `ext_mort` argument is not supplied, then the external mortality
 is taken from the species parameters as \$\$\mu\_{ext.i}(w) = z\_{0.i} +
 z\_{ext.i} w^{d_i}.\$\$ The value of the constant \\z_0\\ for each
-species is taken from the `z0` column of the species parameter data
-frame, if that column exists. Otherwise it is calculated as \$\$z\_{0.i}
-= {\tt z0pre}\_i\\ w\_{inf}^{\tt z0exp}.\$\$ Missing values of `z_ext`
-are set to 0 and missing values of `d` are set to `n - 1`.
+species is taken from the `z0` column of
+[`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+if it is present there. Otherwise it is recalculated, even if a value
+from an earlier calculation is still present in `species_params`, as
+\$\$z\_{0.i} = {\tt z0pre}\_i\\ w\_{inf}^{\tt z0exp}.\$\$ When `z0pre`
+or `z0exp` is supplied explicitly and used to calculate non-given `z0`,
+the resulting values are recorded in
+[`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md).
+Values calculated from the defaults `z0pre = 0.6` and `z0exp = n - 1`
+are not recorded there. If either argument is supplied but cannot be
+used because `z0` is given for every species or because `ext_mort` was
+supplied, a warning is issued. Missing values of `z_ext` are set to 0
+and missing values of `d` are set to `n - 1`.
 
 By default the power law is evaluated at the left bin edges \\w_j\\
 (point sampling). If the `bin_average` entry of the `second_order_w`
@@ -137,11 +143,11 @@ Other functions for setting parameters:
 
 ``` r
 params <- newMultispeciesParams(NS_species_params)
+#> No h provided for some species, so using age at maturity to calculate it.
 #> Because you have n != p, the default value for `h` is not very good.
 #> Because the age at maturity is not known, I need to fall back to using
 #> von Bertalanffy parameters, where available, and this is not reliable.
-#> No ks column so calculating from critical feeding level.
-#> Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.
+#> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
 #> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
 
 #### Setting allometric death rate #######################

@@ -17,10 +17,19 @@ the name of the value, its units, and a reference to the `MizerParams`
 object that the value was computed from. This allows the plots to be
 automatically labelled and coloured appropriately.
 
+The resource classes `ArrayResourceBySize` and
+`ArrayTimeByResourceBySize` work the same way, except that they hold a
+single spectrum rather than one per species.
+
 To compare two mizer arrays in a single plot, use
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md). To show
 the relative difference between two arrays, use
 [`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md).
+To add an array to an existing plot, use
+[`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md). All
+three, and
+[`animate()`](https://sizespectrum.org/mizer/reference/animate.md), have
+methods for every mizer array class.
 
 All methods return a ggplot2 object, unless `return_data = TRUE`, in
 which case they return the underlying data frame instead.
@@ -104,7 +113,16 @@ and
 - `size_axis`:
 
   Whether to plot size as weight (`"w"`, default) or length (`"l"`),
-  using the allometric weight-length relationship.
+  using the allometric weight-length relationship. Densities are
+  transformed to match the chosen axis.
+
+- `per_log_size`:
+
+  For an array that holds a density, whether to plot it per logarithmic
+  size (`TRUE`) rather than per size (`FALSE`). The default, `NULL`,
+  plots the density as it stands. Unlike `size_axis` this needs no
+  weight-length relationship, so it is available for the resource
+  classes too. An error for an array that does not hold a density.
 
 Additional argument for
 [`plot.ArrayTimeBySpecies()`](https://sizespectrum.org/mizer/reference/plot.ArrayTimeBySpecies.md):
@@ -138,6 +156,7 @@ Other plotting functions:
 [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md),
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),

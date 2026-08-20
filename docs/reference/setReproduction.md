@@ -9,7 +9,7 @@ not need to call this function directly. Instead change the `w_mat`,
 ogive and reproduction allocation for you. Call `setReproduction()`
 directly only if you want to impose different functional forms for
 these. See
-[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+[`vignette("guide-change-parameters")`](https://sizespectrum.org/mizer/articles/guide-change-parameters.md)
 for a full explanation of when to reach for which level of the model.
 
 ## Usage
@@ -24,13 +24,9 @@ setReproduction(
   ...
 )
 
-getMaturityProportion(params)
-
 maturity(params)
 
 maturity(params) <- value
-
-getReproductionProportion(params)
 
 repro_prop(params)
 
@@ -85,16 +81,14 @@ psi(params)
 `setReproduction()`: A MizerParams object with updated reproduction
 parameters.
 
-`getMaturityProportion()` or equivalently `maturity()`: An
-`ArraySpeciesBySize` object (species x size) that holds the proportion
-of individuals of each species at size that are mature.
+`maturity()`: An `ArraySpeciesBySize` object (species x size) that holds
+the proportion of individuals of each species at size that are mature.
 
-`getReproductionProportion()` or equivalently `repro_prop()`: An
-`ArraySpeciesBySize` object (species x size) that holds the proportion
-of the energy available for growth and reproduction that a mature
-individual allocates to reproduction for each species at size. For sizes
-where the maturity proportion is zero, also the reproduction proportion
-is returned as zero.
+`repro_prop()`: An `ArraySpeciesBySize` object (species x size) that
+holds the proportion of the energy available for growth and reproduction
+that a mature individual allocates to reproduction for each species at
+size. For sizes where the maturity proportion is zero, also the
+reproduction proportion is returned as zero.
 
 ## Setting reproduction
 
@@ -220,12 +214,12 @@ Other functions for setting parameters:
 ``` r
 # \donttest{
 # Plot maturity and reproduction ogives for Cod in North Sea model
-maturity <- getMaturityProportion(NS_params)["Cod", ]
-repro_prop <- getReproductionProportion(NS_params)["Cod", ]
+mat <- maturity(NS_params)["Cod", ]
+rp <- repro_prop(NS_params)["Cod", ]
 df <- data.frame(Size = w(NS_params),
-                 Reproduction = repro_prop,
-                 Maturity = maturity,
-                 Total = maturity * repro_prop)
+                 Reproduction = rp,
+                 Maturity = mat,
+                 Total = mat * rp)
 dff <- reshape2::melt(df, id.vars = "Size",
             variable.name = "Type",
             value.name = "Proportion")

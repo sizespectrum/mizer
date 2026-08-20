@@ -8,7 +8,14 @@ An alias provided for backward compatibility with mizer version \<=
 ## Usage
 
 ``` r
-setRmax(params, erepro, R_max, reproduction_level, ...)
+setRmax(
+  params,
+  erepro,
+  R_max,
+  reproduction_level,
+  info_level = default_info_level(),
+  ...
+)
 ```
 
 ## Arguments
@@ -30,6 +37,13 @@ setRmax(params, erepro, R_max, reproduction_level, ...)
   Sets `R_max` so that the reproduction rate at the initial state is
   `R_max * reproduction_level`.
 
+- info_level:
+
+  Controls the amount of information messages and warnings that are
+  shown. Higher levels lead to more messages, `info_level = 0` gives
+  silence. The default is taken from the `mizer_info_level` option, see
+  [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md).
+
 - ...:
 
   Unused
@@ -40,6 +54,9 @@ setRmax(params, erepro, R_max, reproduction_level, ...)
 ## Value
 
 A MizerParams object
+
+[`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md):
+A named vector with the reproduction level for each species.
 
 ## Details
 
@@ -175,4 +192,20 @@ t(species_params(params)[, c("erepro", "R_max")])
 #>                 Cod       Saithe
 #> erepro 9.077210e-05 3.322021e-03
 #> R_max  2.758282e+10 3.730633e+11
+
+# Inspecting reproduction level
+reproduction_level(NS_params)
+#>      Sprat    Sandeel     N.pout    Herring        Dab    Whiting       Sole 
+#> 0.99074238 0.99987053 0.92829319 0.99198802 0.99578514 0.98718674 0.99643774 
+#>    Gurnard     Plaice    Haddock        Cod     Saithe 
+#> 0.44189813 0.08022106 0.94443443 0.99993658 0.99767830 
+
+# The reproduction level can be changed without changing the steady state:
+reproduction_level(params) <- 0.9
+#> Warning: The following species require an unrealistic value greater than 1 for `erepro`: Gurnard, Plaice
+reproduction_level(params)
+#>   Sprat Sandeel  N.pout Herring     Dab Whiting    Sole Gurnard  Plaice Haddock 
+#>     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9 
+#>     Cod  Saithe 
+#>     0.9     0.9 
 ```

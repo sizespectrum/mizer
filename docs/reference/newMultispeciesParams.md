@@ -41,7 +41,7 @@ newMultispeciesParams(
   catchability = NULL,
   initial_effort = NULL,
   second_order_w = FALSE,
-  info_level = 3,
+  info_level = default_info_level(),
   z0 = deprecated(),
   r_pp = deprecated()
 )
@@ -116,15 +116,14 @@ newMultispeciesParams(
 
 - z0pre:
 
-  If `z0`, the mortality from other sources, is not a column in the
-  species data frame, it is calculated as z0pre \* w_inf ^ z0exp.
-  Default value is 0.6.
+  If `z0`, the mortality from other sources, is not present in
+  [`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md),
+  it is calculated as `z0pre * w_inf ^ z0exp`. Default value is 0.6.
 
 - z0exp:
 
-  If `z0`, the mortality from other sources, is not a column in the
-  species data frame, it is calculated as `z0pre * w_inf ^ z0exp`.
-  Default value is `n-1`.
+  The exponent used with `z0pre` to calculate non-given `z0`. Default
+  value is `n - 1`.
 
 - ext_encounter:
 
@@ -241,7 +240,9 @@ newMultispeciesParams(
 
   Controls the amount of information messages that are shown when the
   function sets default values for parameters. Higher levels lead to
-  more messages.
+  more messages, `info_level = 0` gives silence. The default is taken
+  from the `mizer_info_level` option, see
+  [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md).
 
 - z0:
 
@@ -410,17 +411,21 @@ then determined by the `pred_kernel_type` column in species_params.
 The default for `pred_kernel_type` is "lognormal". This will call the
 function
 [`lognormal_pred_kernel()`](https://sizespectrum.org/mizer/reference/lognormal_pred_kernel.md)
-to calculate the predation kernel. An alternative pred_kernel type is
-"box", implemented by the function
+to calculate the predation kernel. Alternative pred_kernel types are
+"box", implemented by
 [`box_pred_kernel()`](https://sizespectrum.org/mizer/reference/box_pred_kernel.md),
-and "power_law", implemented by the function
-[`power_law_pred_kernel()`](https://sizespectrum.org/mizer/reference/power_law_pred_kernel.md).
+"power_law", implemented by
+[`power_law_pred_kernel()`](https://sizespectrum.org/mizer/reference/power_law_pred_kernel.md),
+and "gaussian_mixture", implemented by
+[`gaussian_mixture_pred_kernel()`](https://sizespectrum.org/mizer/reference/gaussian_mixture_pred_kernel.md).
 These functions require certain species parameters in the species_params
 data frame. For the lognormal kernel these are `beta` and `sigma`, for
-the box kernel they are `ppmr_min` and `ppmr_max`. They are explained in
-the help pages for the kernel functions. Except for `beta` and `sigma`,
-no defaults are set for these parameters. If they are missing from the
-species_params data frame then mizer will issue an error message.
+the box kernel they are `ppmr_min` and `ppmr_max`, and for the Gaussian
+mixture they are the list-columns `kernel_p`, `kernel_mean`, and
+`kernel_sd`. They are explained in the help pages for the kernel
+functions. Except for `beta` and `sigma`, no defaults are set for these
+parameters. If they are missing from the species_params data frame then
+mizer will issue an error message.
 
 You can use any other string for `pred_kernel_type`. If for example you
 choose "my" then you need to define a function `my_pred_kernel` that you
@@ -435,7 +440,7 @@ two-dimensional arrays that hold Fourier transforms of the feeding
 kernel function that allow the encounter rate and the predation rate to
 be calculated very efficiently. However, if you need the full
 three-dimensional array you can calculate it with the
-[`getPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
+[`pred_kernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
 function.
 
 **Kernel dependent on both predator and prey size**
@@ -552,10 +557,19 @@ the Examples section of the help page for
 If the `ext_mort` argument is not supplied, then the external mortality
 is taken from the species parameters as \$\$\mu\_{ext.i}(w) = z\_{0.i} +
 z\_{ext.i} w^{d_i}.\$\$ The value of the constant \\z_0\\ for each
-species is taken from the `z0` column of the species parameter data
-frame, if that column exists. Otherwise it is calculated as \$\$z\_{0.i}
-= {\tt z0pre}\_i\\ w\_{inf}^{\tt z0exp}.\$\$ Missing values of `z_ext`
-are set to 0 and missing values of `d` are set to `n - 1`.
+species is taken from the `z0` column of
+[`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+if it is present there. Otherwise it is recalculated, even if a value
+from an earlier calculation is still present in `species_params`, as
+\$\$z\_{0.i} = {\tt z0pre}\_i\\ w\_{inf}^{\tt z0exp}.\$\$ When `z0pre`
+or `z0exp` is supplied explicitly and used to calculate non-given `z0`,
+the resulting values are recorded in
+[`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md).
+Values calculated from the defaults `z0pre = 0.6` and `z0exp = n - 1`
+are not recorded there. If either argument is supplied but cannot be
+used because `z0` is given for every species or because `ext_mort` was
+supplied, a warning is issued. Missing values of `z_ext` are set to 0
+and missing values of `d` are set to `n - 1`.
 
 By default the power law is evaluated at the left bin edges \\w_j\\
 (point sampling). If the `bin_average` entry of the `second_order_w`
@@ -862,6 +876,12 @@ stored, as `r_pp` and `kappa` respectively. That list can be accessed
 with
 [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md).
 
+The resource power law also determines defaults for species search
+volume. Changing `lambda` recalculates any `q` and `gamma` values that
+mizer calculated, and changing `kappa` (by supplying a scalar
+`resource_capacity`) recalculates any calculated `gamma`.
+Species-specific values that you supplied explicitly remain unchanged.
+
 ## See also
 
 Other functions for setting up models:
@@ -873,10 +893,10 @@ Other functions for setting up models:
 
 ``` r
 params <- newMultispeciesParams(NS_species_params)
+#> No h provided for some species, so using age at maturity to calculate it.
 #> Because you have n != p, the default value for `h` is not very good.
 #> Because the age at maturity is not known, I need to fall back to using
 #> von Bertalanffy parameters, where available, and this is not reliable.
-#> No ks column so calculating from critical feeding level.
-#> Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.
+#> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
 #> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
 ```

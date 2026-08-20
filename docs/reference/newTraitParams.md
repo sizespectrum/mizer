@@ -50,7 +50,7 @@ newTraitParams(
   second_order_w = FALSE,
   min_w_inf = deprecated(),
   max_w_inf = deprecated(),
-  info_level = 2
+  info_level = default_info_level(2)
 )
 ```
 
@@ -149,7 +149,8 @@ newTraitParams(
 - f0:
 
   Expected average feeding level. Used to set `gamma`, the coefficient
-  in the search rate. Ignored if `gamma` is given explicitly.
+  in the search rate. Ignored if `gamma` is given explicitly, but must
+  still be finite and in the interval (0, 1).
 
 - fc:
 
@@ -177,7 +178,7 @@ newTraitParams(
 
   A number between 0 and 1 that determines the level of density
   dependence in reproduction, see
-  [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md).
+  [`reproduction_level<-()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md).
 
 - R_factor:
 
@@ -234,7 +235,9 @@ newTraitParams(
 - info_level:
 
   Controls the amount of information messages that are shown. Higher
-  levels lead to more messages.
+  levels lead to more messages, `info_level = 0` gives silence. The
+  default is taken from the `mizer_info_level` option, see
+  [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md).
 
 ## Value
 

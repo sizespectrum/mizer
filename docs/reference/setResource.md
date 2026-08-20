@@ -203,6 +203,12 @@ stored, as `r_pp` and `kappa` respectively. That list can be accessed
 with
 [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md).
 
+The resource power law also determines defaults for species search
+volume. Changing `lambda` recalculates any `q` and `gamma` values that
+mizer calculated, and changing `kappa` (by supplying a scalar
+`resource_capacity`) recalculates any calculated `gamma`.
+Species-specific values that you supplied explicitly remain unchanged.
+
 ## See also
 
 [`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md)

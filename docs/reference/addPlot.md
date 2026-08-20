@@ -1,11 +1,10 @@
 # Add lines to an existing plot
 
 **\[experimental\]** `addPlot()` adds another set of values to an
-existing ggplot. The first method supports adding an
-`ArraySpeciesBySize` object to a compatible plot, for example to compare
-the same rate before and after a model change. The method checks whether
-the existing plot uses a compatible x variable, and warns if the y
-variable or y-axis units appear to differ.
+existing ggplot, for example to compare the same rate before and after a
+model change. There are methods for all the mizer array classes. Each
+checks whether the existing plot uses a compatible x variable, and warns
+if the y variable or y-axis units appear to differ.
 
 ## Usage
 
@@ -32,28 +31,38 @@ addPlot(
 
 - x:
 
-  An object containing the values to add.
+  An object containing the values to add. Can be an
+  `ArraySpeciesBySize`, `ArrayTimeBySpecies`,
+  `ArrayTimeBySpeciesBySize`, `ArrayResourceBySize` or
+  `ArrayTimeByResourceBySize` object.
 
 - species:
 
   Character vector of species to include. `NULL` (default) means all
-  species.
+  species. A resource array holds a single spectrum, so this argument is
+  not used by the resource methods, which warn if it is set.
 
 - total:
 
   A boolean value that determines whether the total over all selected
-  species is plotted as well. Default is `FALSE`.
+  species is plotted as well. Default is `FALSE`. Not used by the
+  resource methods, which warn if it is set.
 
 - background:
 
   A boolean value that determines whether background species are
   included. Ignored if the model does not contain background species.
-  Default is `TRUE`.
+  Default is `TRUE`. Not used by the resource methods, which warn if it
+  is set.
 
 - colour:
 
   Optional fixed colour for the added lines. If `NULL`, the species
-  colours from the existing plot are used.
+  colours from the existing plot are used. Because a resource array is a
+  single line whose "Resource" level may be missing from the existing
+  plot's colour scale, the resource methods instead default to the fixed
+  resource colour from
+  [`getColours()`](https://sizespectrum.org/mizer/reference/setColours.md).
 
 - linetype:
 
@@ -72,18 +81,22 @@ addPlot(
 
   Further arguments used by only some of the methods:
 
-  **For `ArraySpeciesBySize` methods:**
-
-  `all.sizes`
-
-  :   If `FALSE` (default), values outside a species' size range
-      (`w_min` to `w_max`) are removed.
+  **For the `ArraySpeciesBySize`, `ArrayTimeBySpeciesBySize`,
+  `ArrayResourceBySize` and `ArrayTimeByResourceBySize` methods:**
 
   `wlim`
 
   :   A numeric vector of length two providing lower and upper limits
       for the weight (x) axis. Use `NA` to refer to the existing minimum
       or maximum.
+
+  **For the `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`
+  methods:**
+
+  `all.sizes`
+
+  :   If `FALSE` (default), values outside a species' size range
+      (`w_min` to `w_max`) are removed.
 
   `llim`
 
@@ -94,7 +107,18 @@ addPlot(
   `size_axis`
 
   :   Whether to plot size as weight (`"w"`, default) or length (`"l"`),
-      using the allometric weight-length relationship.
+      using the allometric weight-length relationship of each species,
+      or of the resource, see
+      [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md).
+
+  `per_log_size`
+
+  :   For an array that holds a density, whether to plot it per
+      logarithmic size (`TRUE`) rather than per size (`FALSE`). The
+      default, `NULL`, plots the density as it stands. Unlike
+      `size_axis` this needs no weight-length relationship, so it is
+      available for the resource classes too. An error for an array that
+      does not hold a density.
 
   **For `ArrayTimeBySpecies` methods:**
 
@@ -109,6 +133,13 @@ addPlot(
   :   A numeric vector of length two providing lower and upper limits
       for the value (y) axis.
 
+  **For the `ArrayTimeBySpeciesBySize` and `ArrayTimeByResourceBySize`
+  methods:**
+
+  `time`
+
+  :   The time to display. Default (`NULL`) is the final time step.
+
 ## Value
 
 A ggplot2 object.
@@ -119,6 +150,7 @@ Other plotting functions:
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),
@@ -143,6 +175,10 @@ Other plotting functions:
 # \donttest{
 p <- plot(getEncounter(NS_params), species = "Cod")
 addPlot(p, getEncounter(NS_params), species = "Cod")
+
+
+pr <- plot(getResourceMort(NS_params))
+addPlot(pr, getResourceMort(NS_params))
 
 # }
 ```

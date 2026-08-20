@@ -98,7 +98,8 @@ plotSpectraRelative(
 - size_axis:
 
   Whether to plot size as weight (`"w"`, default) or length (`"l"`),
-  using the allometric weight-length relationship.
+  using the allometric weight-length relationship. Spectrum densities
+  and their units are transformed to match the chosen axis.
 
 - ...:
 
@@ -126,6 +127,7 @@ Other plotting functions:
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),

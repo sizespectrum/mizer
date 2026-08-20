@@ -62,6 +62,7 @@ for setting the selectivity parameters.
 Other selectivity functions:
 [`double_sigmoid_length()`](https://sizespectrum.org/mizer/reference/double_sigmoid_length.md),
 [`knife_edge()`](https://sizespectrum.org/mizer/reference/knife_edge.md),
+[`knife_edge_length()`](https://sizespectrum.org/mizer/reference/knife_edge_length.md),
 [`sigmoid_weight()`](https://sizespectrum.org/mizer/reference/sigmoid_weight.md)
 
 ## Examples

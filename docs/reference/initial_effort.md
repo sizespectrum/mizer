@@ -61,3 +61,11 @@ An `effort` argument will lead to an error if it is either
 - named but where some names do not match any of the gears
 
 - not numeric
+
+## Examples
+
+``` r
+str(initial_effort(NS_params))
+#>  Named num [1:4] 0 1 0.5 0.5
+#>  - attr(*, "names")= chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"
+```

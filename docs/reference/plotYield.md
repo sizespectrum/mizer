@@ -106,6 +106,7 @@ Other plotting functions:
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),
@@ -137,14 +138,18 @@ plotYield(sim, species = c("Cod", "Herring"), total = TRUE)
 # Comparing with yield from twice the effort
 sim2 <- project(params, effort=2, t_max=20, t_save = 0.2, progress_bar = FALSE)
 plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
+#> Warning: The `sim2` argument of `plotYield()` is deprecated as of mizer 2.6.0.
+#> ℹ Please use `plot2()` instead.
+#> ℹ Use plot2(getYield(sim1), getYield(sim2)) instead.
 
 
 # Returning the data frame
 fr <- plotYield(sim, return_data = TRUE)
 str(fr)
-#> 'data.frame':    1212 obs. of  3 variables:
+#> 'data.frame':    1212 obs. of  4 variables:
 #>  $ Year   : num  0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 ...
 #>  $ Yield  : num  2.21e+11 1.86e+11 1.60e+11 1.42e+11 1.30e+11 ...
 #>  $ Species: Factor w/ 12 levels "Sprat","Sandeel",..: 1 1 1 1 1 1 1 1 1 1 ...
+#>  $ Legend : Factor w/ 12 levels "Sprat","Sandeel",..: 1 1 1 1 1 1 1 1 1 1 ...
 # }
 ```

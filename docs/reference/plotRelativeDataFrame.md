@@ -19,7 +19,9 @@ plotRelativeDataFrame(
   ylim = c(NA, NA),
   highlight = NULL,
   legend_var = "Legend",
-  size_axis = NULL
+  size_axis = NULL,
+  total_dat1 = NULL,
+  total_dat2 = NULL
 )
 ```
 

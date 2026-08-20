@@ -35,6 +35,7 @@ str(N(NS_sim))
 #>   ..$ w   : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...
 #>  - attr(*, "value_name")= chr "Number density"
 #>  - attr(*, "units")= chr "1/g"
+#>  - attr(*, "type")= chr "density"
 #>  - attr(*, "representation")= chr "point"
 #>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
 str(NResource(NS_sim))
@@ -44,5 +45,6 @@ str(NResource(NS_sim))
 #>   ..$ w   : chr [1:218] "8.73e-13" "1.04e-12" "1.24e-12" "1.48e-12" ...
 #>  - attr(*, "value_name")= chr "Number density"
 #>  - attr(*, "units")= chr "1/g"
+#>  - attr(*, "type")= chr "density"
 #>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
 ```

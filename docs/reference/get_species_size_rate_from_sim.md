@@ -15,6 +15,7 @@ get_species_size_rate_from_sim(
   rate_fun,
   value_name,
   units = NULL,
+  type = NULL,
   representation = "point"
 )
 ```
@@ -45,6 +46,13 @@ get_species_size_rate_from_sim(
 - units:
 
   Optional units of the value stored in the returned array.
+
+- type:
+
+  The kind of quantity the values are, see
+  [`ArraySpeciesBySize()`](https://sizespectrum.org/mizer/reference/ArraySpeciesBySize.md)
+  and
+  [array_types](https://sizespectrum.org/mizer/reference/array_types.md).
 
 ## Value
 

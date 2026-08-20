@@ -40,7 +40,7 @@ user contributions can be checked out and receive feedback from the
 community. A growing number of other extension packages add new biology
 such as temperature dependence, starvation mortality, seasonal dynamics,
 and more — see the [list of extension
-packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html).
+packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html).
 Example mizer models can be contributed to
 [mizerExamples](https://sizespectrum.org/mizerExamples/). Follow us on
 [twitter](https://x.com/mizer_model) and read our
@@ -60,6 +60,7 @@ The package is on [CRAN](https://cran.r-project.org/package=mizer) and
 therefore available from R’s built-in package manager.
 
 ``` r
+
 # Install latest released version from CRAN
 install.packages("mizer")
 
@@ -75,6 +76,7 @@ up the parameters for the mizer model, and runs a simulation for 10
 years.
 
 ``` r
+
 library(mizer)
 params <- newMultispeciesParams(NS_species_params, NS_interaction)
 sim <- project(params, t_max = 10, effort = 0)
@@ -84,6 +86,7 @@ The results of the simulation can then be analysed, for example via
 plots:
 
 ``` r
+
 plot(sim)
 ```
 

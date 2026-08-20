@@ -23,8 +23,8 @@ single-species
 model](https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.md).
 
 We will not go into detail of how this model is realised in code. Such
-detail will be provided in the [developer
-guide](https://sizespectrum.org/mizer/articles/developer_vignette.html).
+detail is provided in the vignette on the [numerical
+scheme](https://sizespectrum.org/mizer/articles/numerical_details.md).
 However some details are hidden on this page and you can see them by
 clicking on links like the following:
 
@@ -48,6 +48,7 @@ Here is a plot of an example size spectrum for two species with
 horizontal axis.
 
 ``` r
+
 library(mizer)
 params <- newTraitParams(no_sp = 2, min_w = 1e-3)
 plotSpectra(params, resource = FALSE, power = 0)
@@ -174,18 +175,16 @@ By default mizer assumes allometric forms \\r_R(w)= r_R\\ w^{n-1}.\\
 \\c_R(w)=\kappa\\ w^{-\lambda}.\\
 
 You can retrieve these with
-[`getResourceRate()`](https://sizespectrum.org/mizer/reference/getResourceDynamics.md)
+[`resource_rate()`](https://sizespectrum.org/mizer/reference/setResource.md)
 and
-[`getResourceCapacity()`](https://sizespectrum.org/mizer/reference/getResourceDynamics.md)
+[`resource_capacity()`](https://sizespectrum.org/mizer/reference/setResource.md)
 respectively. It is also possible to implement other resource dynamics,
 as described in the help page for
 [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md).
 The mortality \\\mu_R(w)\\ is due to predation by consumers and is
 described in the subsection [Resource mortality](#resource-mortality).
 
-Because the resource spectrum spans a larger range of sizes these sizes
-Because the resource spectrum spans a larger range of sizes these sizes
-Because the resource spectrum spans a larger range of sizes these sizes
+Because the resource spectrum spans a larger range of sizes, these sizes
 are discretized into a different vector of weights
 
 The resource spectrum is then represented by a vector `NResource` such
@@ -382,8 +381,12 @@ function.
 A proportion \\\psi_i(w)\\ of the energy available for growth and
 reproduction is used for reproduction. This proportion should change
 from zero below the weight \\w\_{m.i}\\ of maturation to one at the
-maximum weight \\w\_{max.i}\\, where all available energy is used for
-reproduction. This function is changed with
+weight \\w\_{repro.max.i}\\ at which an individual invests all its
+available energy into reproduction. By default this is the von
+Bertalanffy asymptotic size \\w\_{\infty.i}\\; it is set by the
+`w_repro_max` species parameter, which is distinct from the
+computational upper boundary `w_max` of the size grid. This function is
+changed with
 [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md).
 Mizer provides a default form for the function which you can however
 overrule.
@@ -442,8 +445,8 @@ and is changed with
 By default mizer assumes that the external mortality for each species is
 a constant \\z0_i\\ independent of size. The value of \\z0_i\\ is either
 specified as a species parameter or it is assumed to depend
-allometrically on the maximum size: \\z0_i = z0\_{pre}
-w\_{\infty.i}^{1-n}.\\
+allometrically on the maximum size: \\z0_i = z0\_{pre}\\
+w\_{\infty.i}^{n-1}.\\
 
 ### Fishing mortality
 
@@ -520,7 +523,8 @@ R\_{\max.i}}, \\ where \\R\_{\max.i}\\ is the maximum reproduction rate
 of each trait class. This final rate of reproduction is calculated with
 [`getRDD()`](https://sizespectrum.org/mizer/reference/getRDD.md).
 
-This default *Beverton-Holt* type is implemented by `BervertonHoldRDD()`
+This default *Beverton-Holt* type is implemented by
+[`BevertonHoltRDD()`](https://sizespectrum.org/mizer/reference/BevertonHoltRDD.md)
 but mizer also provides alternatives
 [`RickerRDD()`](https://sizespectrum.org/mizer/reference/RickerRDD.md),
 [`SheperdRDD()`](https://sizespectrum.org/mizer/reference/SheperdRDD.md),

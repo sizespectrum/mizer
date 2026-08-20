@@ -6,15 +6,13 @@ the `h` and `n` species parameters with
 intake rate for you. Call `setMaxIntakeRate()` directly only if you want
 to impose a different functional form for the size dependence of the
 intake rate. See
-[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+[`vignette("guide-change-parameters")`](https://sizespectrum.org/mizer/articles/guide-change-parameters.md)
 for a full explanation of when to reach for which level of the model.
 
 ## Usage
 
 ``` r
 setMaxIntakeRate(params, intake_max = NULL, reset = FALSE, ...)
-
-getMaxIntakeRate(params)
 
 intake_max(params)
 
@@ -54,9 +52,8 @@ intake_max(params) <- value
 `setMaxIntakeRate()`: A MizerParams object with updated maximum intake
 rate.
 
-`getMaxIntakeRate()` or equivalently `intake_max()`: A
-`ArraySpeciesBySize` object (species x size) with the maximum intake
-rate.
+`intake_max()`: An `ArraySpeciesBySize` object (species x size) with the
+maximum intake rate.
 
 ## Setting maximum intake rate
 
@@ -103,15 +100,15 @@ Other functions for setting parameters:
 
 ``` r
 # Inspect the current maximum intake rate
-getMaxIntakeRate(NS_params)["Cod", 1:5]
+intake_max(NS_params)["Cod", 1:5]
 #>     0.001   0.00119   0.00142    0.0017   0.00203 
 #> 0.6148276 0.6917271 0.7782447 0.8755836 0.9850971 
 
 # Increase intake rate for Cod by 50%
-intake_max <- getMaxIntakeRate(NS_params)
-intake_max["Cod", ] <- intake_max["Cod", ] * 1.5
-params <- setMaxIntakeRate(NS_params, intake_max = intake_max)
-getMaxIntakeRate(params)["Cod", 1:5]
+im <- intake_max(NS_params)
+im["Cod", ] <- im["Cod", ] * 1.5
+params <- setMaxIntakeRate(NS_params, intake_max = im)
+intake_max(params)["Cod", 1:5]
 #>     0.001   0.00119   0.00142    0.0017   0.00203 
 #> 0.9222414 1.0375906 1.1673671 1.3133754 1.4776457 
 ```

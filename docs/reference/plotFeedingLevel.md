@@ -138,6 +138,7 @@ Other plotting functions:
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),
@@ -170,9 +171,10 @@ plotFeedingLevel(sim, time_range = 10:20, species = c("Cod", "Herring"),
 # Returning the data frame
 fr <- plotFeedingLevel(sim, return_data = TRUE)
 str(fr)
-#> 'data.frame':    934 obs. of  3 variables:
+#> 'data.frame':    934 obs. of  4 variables:
 #>  $ w            : num  0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 ...
 #>  $ Feeding level: num  0.622 0.622 0.614 0.621 0.619 ...
 #>  $ Species      : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...
+#>  $ Legend       : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...
 # }
 ```

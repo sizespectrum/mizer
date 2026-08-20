@@ -16,8 +16,9 @@ plotCDF2(
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
-  power = 1,
-  biomass = TRUE,
+  power = NULL,
+  biomass = NULL,
+  per_log_size = NULL,
   total = FALSE,
   resource = FALSE,
   background = TRUE,
@@ -78,16 +79,19 @@ plotCDF2(
 
 - power:
 
-  The abundance is plotted as the number density times the weight raised
-  to `power`. The default `power = 1` gives the biomass density, whereas
-  `power = 2` gives the biomass density with respect to logarithmic size
-  bins.
+  The number density is multiplied by the weight raised to `power`
+  before being integrated. An alternative to the `biomass` argument,
+  with which it must agree if that is given as well. The default is
+  `power = 1`, the cumulative biomass.
 
 - biomass:
 
-  **\[deprecated\]** Only used if `power` argument is missing. Then
-  `biomass = TRUE` is equivalent to `power=1` and `biomass = FALSE` is
-  equivalent to `power=0`
+  Whether to plot the cumulative biomass (`TRUE`, the default) or the
+  cumulative abundance (`FALSE`).
+
+- per_log_size:
+
+  Only `FALSE` (the default) is accepted; see Details.
 
 - total:
 
@@ -162,6 +166,7 @@ Other plotting functions:
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotDiet()`](https://sizespectrum.org/mizer/reference/plotDiet.md),

@@ -1,8 +1,10 @@
 # Convert plotting data from weight to length
 
 When `size_axis = "l"`, adds a length column `l` computed from the
-weight column `w` using each species' weight-length relationship. For
-`size_axis = "w"` the data is returned unchanged.
+weight column `w` using the weight-length relationship of each line, see
+[`plot_length_params()`](https://sizespectrum.org/mizer/reference/plot_length_params.md).
+Rows with no such relationship are dropped. For `size_axis = "w"` the
+data is returned unchanged.
 
 ## Usage
 

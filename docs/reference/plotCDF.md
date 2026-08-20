@@ -2,10 +2,10 @@
 
 `plotCDF()` plots the cumulative distribution over body size from small
 to large sizes. It uses the same spectra data preparation as
-[`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md).
-The density is first multiplied by `w^power`, then integrated over size.
-With `normalise = TRUE`, each curve is divided by its final value so
-that it ends at 1.
+[`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md):
+the number density is multiplied by `w^power` and then integrated over
+size. With `normalise = TRUE`, each curve is divided by its final value
+so that it ends at 1.
 
 ## Usage
 
@@ -16,8 +16,9 @@ plotCDF(
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
-  power = 1,
-  biomass = TRUE,
+  power = NULL,
+  biomass = NULL,
+  per_log_size = NULL,
   total = FALSE,
   resource = FALSE,
   background = TRUE,
@@ -74,16 +75,19 @@ plotCDF(
 
 - power:
 
-  The abundance is plotted as the number density times the weight raised
-  to `power`. The default `power = 1` gives the biomass density, whereas
-  `power = 2` gives the biomass density with respect to logarithmic size
-  bins.
+  The number density is multiplied by the weight raised to `power`
+  before being integrated. An alternative to the `biomass` argument,
+  with which it must agree if that is given as well. The default is
+  `power = 1`, the cumulative biomass.
 
 - biomass:
 
-  **\[deprecated\]** Only used if `power` argument is missing. Then
-  `biomass = TRUE` is equivalent to `power=1` and `biomass = FALSE` is
-  equivalent to `power=0`
+  Whether to plot the cumulative biomass (`TRUE`, the default) or the
+  cumulative abundance (`FALSE`).
+
+- per_log_size:
+
+  Only `FALSE` (the default) is accepted; see Details.
 
 - total:
 
@@ -161,6 +165,14 @@ object.
 
 ## Details
 
+Unlike for
+[`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md),
+the only choice that matters here is `biomass`: whether to accumulate
+numbers or biomass. Whether a density is expressed with respect to size
+or with respect to logarithmic size makes no difference to its integral,
+because the change of variable cancels the factor of the weight, and so
+`plotCDF()` does not accept `per_log_size = TRUE`.
+
 `plotlyCDF()` is the interactive plotly version. To compare cumulative
 distributions from two objects, use
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md).
@@ -175,6 +187,7 @@ Other plotting functions:
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),
 [`plotDiet()`](https://sizespectrum.org/mizer/reference/plotDiet.md),

@@ -25,7 +25,10 @@ plotComparisonDataFrame(
   y_ticks = 6,
   highlight = NULL,
   legend_var = "Legend",
-  size_axis = NULL
+  size_axis = NULL,
+  density_wrt = NA_character_,
+  per_log_size = NULL,
+  total_dat = NULL
 )
 ```
 
@@ -74,6 +77,25 @@ plotComparisonDataFrame(
 
   Optional. If non-NULL, the x-axis is converted to weight (`"w"`) or
   length (`"l"`).
+
+- density_wrt:
+
+  The measure the values are a density with respect to, see
+  [density_measures](https://sizespectrum.org/mizer/reference/density_measures.md).
+  `NA` (the default) means the values are not a density and are left
+  alone when the size axis changes.
+
+- per_log_size:
+
+  Whether to express a density per logarithmic size. `NULL` (the
+  default) keeps whichever the values already are.
+
+- total_dat:
+
+  Optional data frame of the contributors to a total, with a `Model`
+  column identifying which of the two they belong to. The total is
+  summed from them after the size axis has been converted, see
+  [`add_total_line()`](https://sizespectrum.org/mizer/reference/add_total_line.md).
 
 ## Value
 

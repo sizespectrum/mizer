@@ -84,6 +84,7 @@ function keeps the system in this steady state. First we set up a mizer
 model with the power law rates:
 
 ``` r
+
 library(mizer)
 
 # Parameters
@@ -138,6 +139,7 @@ We can now project this forward in time and check that the result stays
 the same.
 
 ``` r
+
 # Run project
 # We verify that N stays constant.
 sim <- project(params, t_max = 1, dt = 0.1, method = "predictor-corrector")
@@ -158,6 +160,7 @@ legend("topright", legend=c("Analytical", "Numerical"),
 ![](analytic_test_files/figure-html/unnamed-chunk-3-1.png)
 
 ``` r
+
 
 # Calculate relative error
 rel_err <- abs(n1 - n0) / n0
@@ -210,6 +213,7 @@ avoid the singularity at \\t=0\\) and projecting it to a later time
 \\t\_{end}\\.
 
 ``` r
+
 # Function to calculate N analytic
 N_analytic <- function(w, t, w0, t0, K_eff = 0.1) {
   # Parameters
@@ -253,6 +257,7 @@ N_analytic <- function(w, t, w0, t0, K_eff = 0.1) {
 ```
 
 ``` r
+
 # Initial Condition
 w0 <- 1e-2
 t_start <- 0.1
@@ -267,6 +272,7 @@ We can simplify the left boundary condition because it is far enough
 away from the Gaussian for us to set the solution to 0 there.
 
 ``` r
+
 # Set RDD to 0
 params@species_params$constant_reproduction <- 0
 params <- setRateFunction(params, "RDD", "constantRDD")
@@ -275,6 +281,7 @@ params <- setRateFunction(params, "RDD", "constantRDD")
 Now we project forward in time.
 
 ``` r
+
 # Run project
 sim <- project(params, t_max = t_end - t_start, dt = 0.05,
                t_save = t_end - t_start,
@@ -298,6 +305,7 @@ legend("topright", legend = c("Numerical", "Analytical"),
 This looks good but let us also look at the agreement quantitatively:
 
 ``` r
+
 # Robust comparison metrics
 # 1. Total Abundance (Conservation)
 total_n_num <- sum(final_n_num * params@dw)
@@ -365,6 +373,7 @@ therefore a lognormal density: \\ N(w,t) = \frac{\exp\[-B(t-t_0)\]}{w}
 variance \\v\\.
 
 ``` r
+
 # Parameters for the Euler numerical diffusion check
 p_euler <- 1
 A_euler <- 1
@@ -419,6 +428,7 @@ We project with the Euler method and compare against the exact solution
 with the effective diffusion coefficient.
 
 ``` r
+
 sim_euler <- project(params_euler,
                      t_max = t_end_euler - t_start_euler,
                      dt = dt_euler,
@@ -442,6 +452,7 @@ legend("topright", legend = c("Euler", "Analytical with K_eff"),
 ![](analytic_test_files/figure-html/unnamed-chunk-10-1.png)
 
 ``` r
+
 total_euler <- sum(final_n_euler * params_euler@dw)
 total_euler_ana <- sum(final_n_euler_ana * params_euler@dw)
 rel_err_total_euler <- abs(total_euler - total_euler_ana) / total_euler_ana
@@ -493,6 +504,7 @@ exact solution is evaluated with \\K\_\mathrm{eff} = K +
 A(\beta\_\mathrm{grid} - 1).\\
 
 ``` r
+
 beta_grid <- w(params)[2] / w(params)[1]
 K_num_pc <- A * (beta_grid - 1)
 K_eff_pc <- K + K_num_pc
@@ -570,6 +582,7 @@ The travelling pulse stays well within the grid over this horizon, so
 the error norm, restricted to its bulk, is free of boundary effects.
 
 ``` r
+
 elapsed <- 12.8            # length of the run (the pulse stays on the grid)
 dt_ref  <- 0.025 / 8       # reference step, much finer than any tested step
 dts     <- 1.6 / 2^(0:6)   # tested steps: 1.6, 0.8, ..., 0.025
@@ -618,6 +631,7 @@ order while both `"predictor_corrector"` and `"tr_bdf2"` are second
 order.
 
 ``` r
+
 cols <- c(euler = "#E69F00", predictor_corrector = "#009E73",
           tr_bdf2 = "#0072B2")
 pchs <- c(euler = 16, predictor_corrector = 17, tr_bdf2 = 15)
@@ -696,6 +710,7 @@ temporal error is negligible and the slope reflects the spatial order
 alone.
 
 ``` r
+
 build_sp <- function(no_w, second_order) {
     sp <- data.frame(species = "Test", w_max = 1000, w_mat = 100,
                      n = p, z0 = 0, z_ext = B, d = p - 1, D_ext = K)
@@ -738,13 +753,14 @@ sp_order <- function(e) unname(coef(lm(log(e) ~ log(dx)))[2])
 round(c(first_order = sp_order(err_first),
         second_order = sp_order(err_second)), 2)
 #>  first_order second_order 
-#>         0.74         2.03
+#>         0.74         2.04
 ```
 
 The fitted slopes confirm that the default scheme is first order in the
 size step while `second_order_w <- TRUE` is, indeed, second order.
 
 ``` r
+
 plot(dx, err_first, log = "xy", type = "b", pch = 16, lwd = 2,
      col = "#E69F00", xlab = expression(Delta * x == log * beta),
      ylab = "relative L2 error", ylim = range(err_first, err_second),
@@ -781,6 +797,7 @@ state of its own discretisation with \[steadySingleSpecies()\] and
 compare to the exact power law sampled at the same reference sizes.
 
 ``` r
+
 steady_err <- function(no_w, second_order) {
     pr <- build_sp(no_w, second_order)
     rw <- ref_w(pr, second_order)

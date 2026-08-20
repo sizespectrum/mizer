@@ -25,6 +25,7 @@ project(
   progress_bar = TRUE,
   callback = NULL,
   method = c("euler", "predictor_corrector", "tr_bdf2"),
+  check_steady = FALSE,
   ...
 )
 ```
@@ -111,6 +112,22 @@ project(
   issued if `append = TRUE` and the supplied value differs from the
   stored one.
 
+- check_steady:
+
+  **\[experimental\]** If `TRUE`, warn when the model is not at its
+  steady state before the projection starts, which catches the common
+  mistake of forgetting to re-run
+  [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) after
+  a `match…`/`calibrate…` step. Default `FALSE`, because projecting a
+  model away from its steady state is a perfectly normal thing to do. It
+  is meant for a `MizerParams` object; when continuing from a `MizerSim`
+  the starting state is deliberately wherever the previous run ended, so
+  there is nothing to check. The check is made at the effort stored in
+  the params object rather than at the `effort` supplied here, so that
+  running a fishing scenario at a new effort — which legitimately starts
+  away from the steady state of that new effort — does not warn. See
+  [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md).
+
 - ...:
 
   Other arguments will be passed to rate functions.
@@ -194,6 +211,26 @@ naturally with the second-order time methods. Because it changes the
 discrete steady state, the choice lives in the params object alongside
 the steady state rather than being a per-run argument. See
 [`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md).
+
+## Custom rates must depend continuously on abundance
+
+All three methods are *semi-implicit*: the densities are solved for
+implicitly, but the rates that build the transport operator are frozen
+at values computed from earlier states. The second-order methods gain
+their extra order by evaluating the rates twice — at the start of the
+step and from a provisional prediction of its end — and averaging. That
+average is only second order if the rates vary smoothly along the
+trajectory.
+
+A custom rate function registered with
+[`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
+that depends discontinuously on the abundances therefore defeats all
+three methods alike, including the L-stable `"tr_bdf2"`, whose damping
+applies to the frozen linear operator and not to the rates. The result
+is a trajectory that keeps changing as `dt` is refined. See the
+[Discontinuous rate
+functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.html)
+article for the symptoms and the remedy.
 
 ## Examples
 

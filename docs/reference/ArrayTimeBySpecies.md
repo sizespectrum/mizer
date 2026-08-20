@@ -12,7 +12,13 @@ methods.
 ## Usage
 
 ``` r
-ArrayTimeBySpecies(x, value_name = NULL, units = NULL, params = NULL)
+ArrayTimeBySpecies(
+  x,
+  value_name = NULL,
+  units = NULL,
+  type = NULL,
+  params = NULL
+)
 
 is.ArrayTimeBySpecies(x)
 ```
@@ -31,6 +37,13 @@ is.ArrayTimeBySpecies(x)
 - units:
 
   A string giving the units (e.g. "g", "g/year").
+
+- type:
+
+  The kind of quantity the values are, see
+  [`ArraySpeciesBySize()`](https://sizespectrum.org/mizer/reference/ArraySpeciesBySize.md)
+  and
+  [array_types](https://sizespectrum.org/mizer/reference/array_types.md).
 
 - params:
 

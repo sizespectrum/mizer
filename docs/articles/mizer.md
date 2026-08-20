@@ -32,6 +32,38 @@ hear from you.
 
 Mizer workflow diagram
 
+We also provide topic-based guides, one for each stage of the workflow:
+
+- [Guide: Understanding size-spectrum
+  dynamics](https://sizespectrum.org/mizer/articles/guide-understand-size-spectrum-dynamics.html)
+- [Guide: Building a mizer
+  model](https://sizespectrum.org/mizer/articles/guide-build-model.html)
+- [Guide: Reaching steady state and
+  calibrating](https://sizespectrum.org/mizer/articles/guide-calibrate-model.html)
+- [Guide: Changing model
+  parameters](https://sizespectrum.org/mizer/articles/guide-change-parameters.html)
+- [Guide: Setting up
+  fishing](https://sizespectrum.org/mizer/articles/guide-set-up-fishing.html)
+- [Guide: Running a
+  simulation](https://sizespectrum.org/mizer/articles/guide-run-simulation.html)
+- [Guide: Analysing and plotting
+  results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.html)
+
+Mizer is designed to make it easy to tailor a mizer model to your
+research question.
+
+- [Guide: Extending
+  mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html)
+
+You can also build on the work of others and share your work for others
+to build upon:
+
+- [Guide: Using mizer extension
+  packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
+
+- [Guide: Creating a mizer extension
+  package](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
+
 A good way to get into mizer is to follow the online [mizer
 course](https://mizer.course.sizespectrum.org). This course has three
 parts, each consisting of several tutorials with example code and
@@ -55,17 +87,6 @@ exercises:
 Click on this preview to open a mizer cheat sheet. [![Cheat
 Sheet](images/cheat_sheet_preview.png)](https://sizespectrum.org/mizer/articles/images/cheat_sheet.pdf)
 
-For quick reference while working we also provide four topic-based cheat
-sheets:
-
-- [Model setup and
-  calibration](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html)
-- [Changing model
-  parameters](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.html)
-- [Fishing](https://sizespectrum.org/mizer/articles/cheatsheet-fishing.html)
-- [Analysis and
-  plotting](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html)
-
 There is a [series of YouTube
 videos](https://www.youtube.com/watch?v=zh0PDyTUssw&list=PLCTMeyjMKRkqR7uohI3p-61P7ZJj8sd5B)
 by Richard Southwell about mizer which are however no longer entirely
@@ -78,6 +99,7 @@ the mizer package is very simple (assuming you have an active internet
 connection). Just start an R session and then type:
 
 ``` r
+
 install.packages("mizer")
 ```
 
@@ -87,6 +109,7 @@ Note that whilst you only need to install the package once, it will need
 to be loaded every time you start a new R session.
 
 ``` r
+
 library(mizer)
 ```
 
@@ -120,12 +143,14 @@ extensively in putting together mizer). If you have not yet installed
 devtools, do
 
 ``` r
+
 install.packages("devtools")
 ```
 
 Then you can install the latest version from GitHub using
 
 ``` r
+
 devtools::install_github("sizespectrum/mizer")
 ```
 
@@ -157,6 +182,7 @@ Model](https://sizespectrum.org/mizer/articles/community_model.html)
 section) you can even let mizer choose all the parameters for you.
 
 ``` r
+
 params <- newCommunityParams()
 ```
 
@@ -166,6 +192,7 @@ included with the package. Here we also use a species interaction matrix
 for the North Sea species.
 
 ``` r
+
 params <- newMultispeciesParams(NS_species_params, NS_interaction)
 ```
 
@@ -186,6 +213,7 @@ This is done by calling the
 function (as in “project forward in time”) with the model parameters.
 
 ``` r
+
 sim <- project(params, t_max = 10, effort = 1)
 ```
 
@@ -210,6 +238,7 @@ The [`plot()`](https://sizespectrum.org/mizer/reference/plot.md)
 function combines several of these plots into one:
 
 ``` r
+
 plot(sim)
 ```
 
@@ -220,6 +249,7 @@ large fish varies over time. We can get the proportion of Herrings in
 terms of biomass that have a weight above 50g in each of the 10 years:
 
 ``` r
+
 getProportionOfLargeFish(sim, 
                          species = "Herring", 
                          threshold_w = 50, 
@@ -273,6 +303,7 @@ These small files live in the course repository; the code below
 downloads them into your working directory the first time you run it.
 
 ``` r
+
 base_url <- "https://github.com/gustavdelius/mizerCourse/raw/master/build/"
 files <- c("celtic_species_params.rds", "celtic_gear_params.csv",
            "celtic_interaction.csv", "celtic_yields.rds")
@@ -293,6 +324,7 @@ and, crucially, the **observed** average biomass of each species
 to. Some species have no observation and are left as `NA`.
 
 ``` r
+
 celtic_species_params[, c("species", "w_max", "biomass_observed")]
 ```
 
@@ -324,6 +356,7 @@ allometric exponents `n` and `p` both to 3/4 and switch the commercial
 gear on at unit effort.
 
 ``` r
+
 cel <- newMultispeciesParams(
     species_params = celtic_species_params,
     gear_params    = celtic_gear_params,
@@ -344,8 +377,9 @@ the size-spectrum dynamics, holding reproduction and the resource fixed,
 until the community settles onto a steady state.
 
 ``` r
+
 cel <- steady(cel)
-plotSpectra(cel, power = 2)
+plotSpectra(cel, per_log_size = TRUE)
 ```
 
 ![](mizer_files/figure-html/unnamed-chunk-14-1.png)
@@ -380,6 +414,7 @@ pull on different parameters, so we alternate them, re-converging each
 time, until both are satisfied.
 
 ``` r
+
 cel <- calibrateBiomass(cel)
 for (i in 1:4) {
     cel <- matchBiomasses(cel)
@@ -393,6 +428,7 @@ shows how well the calibrated steady state reproduces the observations:
 points on the diagonal are a perfect match.
 
 ``` r
+
 plotBiomassObservedVsModel(cel)
 ```
 
@@ -414,8 +450,12 @@ observed yields is a genuine test of the model. We attach the observed
 yields and plot them against the model.
 
 ``` r
+
 celtic_yields <- readRDS("celtic_yields.rds")
-species_params(cel)$yield_observed <- as.numeric(celtic_yields)
+# The observed yield is a gear parameter, given for each gear-species pair.
+# Here each species is caught by a single gear, in the same order as the
+# species, so we can assign the yields directly.
+gear_params(cel)$yield_observed <- as.numeric(celtic_yields)
 plotYieldObservedVsModel(cel)
 ```
 
@@ -432,15 +472,15 @@ tutorial](https://mizer.course.sizespectrum.org/build/landings.html)).
 
 Calibrating the steady state fixes *where* the community sits, but not
 *how sensitively* it responds when we change fishing. That sensitivity
-is governed by the strength of density dependence in reproduction.
-[`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
-sets it through the `reproduction_level` — the fraction of the maximum
+is governed by the strength of density dependence in reproduction. We
+set it through the `reproduction_level` — the fraction of the maximum
 recruitment that is realised at the steady state. A value of 0.5 gives
 moderate density dependence, a common default in the absence of
 stock-specific information.
 
 ``` r
-cel <- setBevertonHolt(cel, reproduction_level = 0.5)
+
+reproduction_level(cel) <- 0.5
 ```
 
 This changes the reproduction parameters without moving the steady
@@ -457,6 +497,7 @@ level we project to the new steady state and record the total community
 yield — the yield that could be taken indefinitely at that effort.
 
 ``` r
+
 efforts <- c(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2)
 sustainable_yield <- sapply(efforts, function(e) {
     p <- projectToSteady(cel, effort = e, t_max = 100,
@@ -503,17 +544,17 @@ Size spectrum models have emerged as a conceptually simple way to model
 a large community of individuals which grow and change trophic level
 during life. There is now a growing literature describing different
 types of size spectrum models (e.g. [Benoît and Rochet
-2004](#ref-benoit_continuous_2004); [K. H. Andersen and Beyer
-2006](#ref-andersen_asymptotic_2006); [K. H. Andersen et al.
+2004](#ref-benoit_continuous_2004); [Andersen and Beyer
+2006](#ref-andersen_asymptotic_2006); [Andersen et al.
 2008](#ref-andersen_life-history_2008); [Law et al.
 2009](#ref-law_size-spectra_2009); [Hartvig
-2011](#ref-hartvig_food_2011); [Hartvig, Andersen, and Beyer
+2011](#ref-hartvig_food_2011); [Hartvig et al.
 2011](#ref-hartvig_food_2011-1)). The models can be used to understand
-how marine communities are organised ([K. H. Andersen and Beyer
-2006](#ref-andersen_asymptotic_2006); [K. H. Andersen, Beyer, and
-Lundberg 2009](#ref-andersen_trophic_2009); [Blanchard et al.
-2009](#ref-blanchard_how_2009)) and how they respond to fishing ([K. H.
-Andersen and Rice 2010](#ref-andersen_direct_2010); [K. H. Andersen and
+how marine communities are organised ([Andersen and Beyer
+2006](#ref-andersen_asymptotic_2006); [Andersen et al.
+2009](#ref-andersen_trophic_2009); [Blanchard et al.
+2009](#ref-blanchard_how_2009)) and how they respond to fishing
+([Andersen and Rice 2010](#ref-andersen_direct_2010); [Andersen and
 Pedersen 2010](#ref-andersen_damped_2010)). This section introduces the
 central assumptions, concepts, processes, equations and parameters of
 size spectrum models.
@@ -526,10 +567,10 @@ the [community model](#community-model) ([Benoît and Rochet
 2007](#ref-maury_modeling_2007); [Blanchard et al.
 2009](#ref-blanchard_how_2009); [Law et al.
 2009](#ref-law_size-spectra_2009)), the [trait-based
-model](#trait-based-model) ([K. H. Andersen and Beyer
-2006](#ref-andersen_asymptotic_2006); [K. H. Andersen and Pedersen
+model](#trait-based-model) ([Andersen and Beyer
+2006](#ref-andersen_asymptotic_2006); [Andersen and Pedersen
 2010](#ref-andersen_damped_2010)), and the [multispecies
-model](#multispecies-model) ([Hartvig, Andersen, and Beyer
+model](#multispecies-model) ([Hartvig et al.
 2011](#ref-hartvig_food_2011-1)). The single-species, community and
 trait-based models can be considered as simplifications of the
 multispecies model. This section focuses on the multispecies model but
@@ -678,12 +719,14 @@ a single function call.
 First install the package from GitHub:
 
 ``` r
+
 pak::pak("sizespectrum/mizerAgents")
 ```
 
 Then, from the root of your mizer project, run:
 
 ``` r
+
 mizerAgents::setup_mizer_agent()
 ```
 
@@ -721,8 +764,7 @@ Biomass Size Spectra Governed by Predation and the Effects of Fishing on
 Them.” *Journal of Theoretical Biology* 226 (1): 9–21.
 <https://doi.org/10.1016/S0022-5193(03)00290-X>.
 
-Blanchard, Julia L., Simon Jennings, Richard Law, Matthew D. Castle,
-Paul McCloghrie, Marie-Joëlle Rochet, and Eric Benoît. 2009. “How Does
+Blanchard, Julia L., Simon Jennings, Richard Law, et al. 2009. “How Does
 Abundance Scale with Body Size in Coupled Size-Structured Food Webs?”
 *Journal of Animal Ecology* 78 (1): 270–80.
 <https://doi.org/10.1111/j.1365-2656.2008.01466.x>.

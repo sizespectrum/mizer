@@ -36,6 +36,7 @@ newSingleSpeciesParams(
   ext_mort_prop = 0,
   reproduction_level = 0,
   second_order_w = FALSE,
+  info_level = default_info_level(),
   R_factor = deprecated(),
   w_inf = deprecated(),
   k_vb = deprecated()
@@ -108,7 +109,8 @@ newSingleSpeciesParams(
 - f0:
 
   Expected average feeding level. Used to set `gamma`, the coefficient
-  in the search rate. Ignored if `gamma` is given explicitly.
+  in the search rate. Ignored if `gamma` is given explicitly, but must
+  still be finite and in the interval (0, 1).
 
 - fc:
 
@@ -136,7 +138,7 @@ newSingleSpeciesParams(
 
   A number between 0 and 1 that determines the level of density
   dependence in reproduction, see
-  [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md).
+  [`reproduction_level<-()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md).
 
 - second_order_w:
 
@@ -147,6 +149,13 @@ newSingleSpeciesParams(
   [`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md)
   setter. Defaults to `FALSE`. See
   [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md).
+
+- info_level:
+
+  Controls the amount of information messages that are shown. Higher
+  levels lead to more messages, `info_level = 0` gives silence. The
+  default is taken from the `mizer_info_level` option, see
+  [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md).
 
 - R_factor:
 
@@ -175,8 +184,9 @@ necessary so that there are at least 5 size bins per factor 10 in body
 size. It requires `w_min < w_mat < w_max`, `ext_mort_prop` in `[0, 1)`,
 positive values for `n`, `lambda`, `kappa`, `alpha`, `h`, `beta`,
 `sigma` and `f0`, and `fc` between 0 and `f0` if `fc` is supplied. If
-`gamma` is supplied then `f0` is ignored. The function stops if the
-resulting feeding level is not sufficient to maintain the species.
+`gamma` is supplied then `f0` is ignored after its value has been
+validated. The function stops if the resulting feeding level is not
+sufficient to maintain the species.
 
 The returned model has a single foreground species with cannibalism
 switched off and a fixed power-law background community that provides

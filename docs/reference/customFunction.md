@@ -59,8 +59,8 @@ However you can always undo the effect by reloading mizer with
 
 ## See also
 
-"Extending mizer":
-[`vignette("extending-mizer", package = "mizer")`](https://sizespectrum.org/mizer/articles/extending-mizer.md)
+"Extending mizer": [guide to extending
+mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html)
 
 ## Examples
 

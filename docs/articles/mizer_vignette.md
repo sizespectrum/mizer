@@ -55,6 +55,7 @@ the mizer package is very simple (assuming you have an active internet
 connection). Just start an R session and then type:
 
 ``` r
+
 install.packages("mizer")
 ```
 
@@ -64,6 +65,7 @@ Note that whilst you only need to install the package once, it will need
 to be loaded every time you start a new R session.
 
 ``` r
+
 library(mizer)
 ```
 
@@ -97,12 +99,14 @@ extensively in putting together mizer). If you have not yet installed
 devtools, do
 
 ``` r
+
 install.packages("devtools")
 ```
 
 Then you can install the latest version from GitHub using
 
 ``` r
+
 devtools::install_github("sizespectrum/mizer")
 ```
 
@@ -134,6 +138,7 @@ Model](https://sizespectrum.org/mizer/articles/community_model.html)
 section) you can even let mizer choose all the parameters for you.
 
 ``` r
+
 params <- newCommunityParams()
 ```
 
@@ -143,14 +148,15 @@ included with the package. Here we also use a species interaction matrix
 for the North Sea species.
 
 ``` r
+
 params <- newMultispeciesParams(NS_species_params, NS_interaction)
 ```
 
+    ## No h provided for some species, so using age at maturity to calculate it.
     ## Because you have n != p, the default value for `h` is not very good.
     ## Because the age at maturity is not known, I need to fall back to using
     ## von Bertalanffy parameters, where available, and this is not reliable.
-    ## No ks column so calculating from critical feeding level.
-    ## Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.
+    ## Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
     ## Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
 
 The notes printed out by the function show us that mizer calculated
@@ -163,6 +169,7 @@ This is done by calling the
 function (as in “project forward in time”) with the model parameters.
 
 ``` r
+
 sim <- project(params, t_max = 10, effort = 1)
 ```
 
@@ -187,6 +194,7 @@ The [`plot()`](https://sizespectrum.org/mizer/reference/plot.md)
 function combines several of these plots into one:
 
 ``` r
+
 plot(sim)
 ```
 
@@ -197,6 +205,7 @@ large fish varies over time. We can get the proportion of Herrings in
 terms of biomass that have a weight above 50g in each of the 10 years:
 
 ``` r
+
 getProportionOfLargeFish(sim, 
                          species = "Herring", 
                          threshold_w = 50, 
@@ -220,17 +229,17 @@ Size spectrum models have emerged as a conceptually simple way to model
 a large community of individuals which grow and change trophic level
 during life. There is now a growing literature describing different
 types of size spectrum models (e.g. [Benoît and Rochet
-2004](#ref-benoit_continuous_2004); [K. H. Andersen and Beyer
-2006](#ref-andersen_asymptotic_2006); [K. H. Andersen et al.
+2004](#ref-benoit_continuous_2004); [Andersen and Beyer
+2006](#ref-andersen_asymptotic_2006); [Andersen et al.
 2008](#ref-andersen_life-history_2008); [Law et al.
 2009](#ref-law_size-spectra_2009); [Hartvig
-2011](#ref-hartvig_food_2011); [Hartvig, Andersen, and Beyer
+2011](#ref-hartvig_food_2011); [Hartvig et al.
 2011](#ref-hartvig_food_2011-1)). The models can be used to understand
-how marine communities are organised ([K. H. Andersen and Beyer
-2006](#ref-andersen_asymptotic_2006); [K. H. Andersen, Beyer, and
-Lundberg 2009](#ref-andersen_trophic_2009); [Blanchard et al.
-2009](#ref-blanchard_how_2009)) and how they respond to fishing ([K. H.
-Andersen and Rice 2010](#ref-andersen_direct_2010); [K. H. Andersen and
+how marine communities are organised ([Andersen and Beyer
+2006](#ref-andersen_asymptotic_2006); [Andersen et al.
+2009](#ref-andersen_trophic_2009); [Blanchard et al.
+2009](#ref-blanchard_how_2009)) and how they respond to fishing
+([Andersen and Rice 2010](#ref-andersen_direct_2010); [Andersen and
 Pedersen 2010](#ref-andersen_damped_2010)). This section introduces the
 central assumptions, concepts, processes, equations and parameters of
 size spectrum models.
@@ -243,10 +252,10 @@ the [community model](#community-model) ([Benoît and Rochet
 2007](#ref-maury_modeling_2007); [Blanchard et al.
 2009](#ref-blanchard_how_2009); [Law et al.
 2009](#ref-law_size-spectra_2009)), the [trait-based
-model](#trait-based-model) ([K. H. Andersen and Beyer
-2006](#ref-andersen_asymptotic_2006); [K. H. Andersen and Pedersen
+model](#trait-based-model) ([Andersen and Beyer
+2006](#ref-andersen_asymptotic_2006); [Andersen and Pedersen
 2010](#ref-andersen_damped_2010)), and the [multispecies
-model](#multispecies-model) ([Hartvig, Andersen, and Beyer
+model](#multispecies-model) ([Hartvig et al.
 2011](#ref-hartvig_food_2011-1)). The single-species, community and
 trait-based models can be considered as simplifications of the
 multispecies model. This section focuses on the multispecies model but
@@ -413,8 +422,7 @@ Biomass Size Spectra Governed by Predation and the Effects of Fishing on
 Them.” *Journal of Theoretical Biology* 226 (1): 9–21.
 <https://doi.org/10.1016/S0022-5193(03)00290-X>.
 
-Blanchard, Julia L., Simon Jennings, Richard Law, Matthew D. Castle,
-Paul McCloghrie, Marie-Joëlle Rochet, and Eric Benoît. 2009. “How Does
+Blanchard, Julia L., Simon Jennings, Richard Law, et al. 2009. “How Does
 Abundance Scale with Body Size in Coupled Size-Structured Food Webs?”
 *Journal of Animal Ecology* 78 (1): 270–80.
 <https://doi.org/10.1111/j.1365-2656.2008.01466.x>.

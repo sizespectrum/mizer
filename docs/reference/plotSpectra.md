@@ -1,13 +1,18 @@
 # Plot abundance and biomass spectra
 
-`plotSpectra()` plots the number density multiplied by a power of the
-weight, with the power specified by the `power` argument. When called
-with a [MizerSim](https://sizespectrum.org/mizer/reference/MizerSim.md)
-object, the abundance is averaged over the specified time range (a
-single value for the time range can be used to plot a single time step).
+`plotSpectra()` plots either a number density or a biomass density,
+either with respect to size or with respect to logarithmic size. Those
+two choices are made with the `biomass` and `per_log_size` arguments.
 When called with a
+[MizerSim](https://sizespectrum.org/mizer/reference/MizerSim.md) object,
+the abundance is averaged over the specified time range (a single value
+for the time range can be used to plot a single time step). When called
+with a
 [MizerParams](https://sizespectrum.org/mizer/reference/MizerParams.md)
-object the initial abundance is plotted.
+object the initial abundance is plotted. With `size_axis = "l"`,
+densities are converted from per unit weight to per unit length;
+densities with respect to logarithmic size are instead converted between
+logarithmic weight and logarithmic length intervals.
 
 ## Usage
 
@@ -18,8 +23,9 @@ plotSpectra(
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
-  power = 1,
-  biomass = TRUE,
+  power = NULL,
+  biomass = NULL,
+  per_log_size = NULL,
   total = FALSE,
   resource = TRUE,
   background = TRUE,
@@ -76,15 +82,19 @@ plotSpectra(
 - power:
 
   The abundance is plotted as the number density times the weight raised
-  to `power`. The default `power = 1` gives the biomass density, whereas
-  `power = 2` gives the biomass density with respect to logarithmic size
-  bins.
+  to `power`. An alternative to the `biomass` and `per_log_size`
+  arguments, with which it must agree if they are given as well; see
+  Details. The default is `power = 1`, the biomass density.
 
 - biomass:
 
-  **\[deprecated\]** Only used if `power` argument is missing. Then
-  `biomass = TRUE` is equivalent to `power=1` and `biomass = FALSE` is
-  equivalent to `power=0`
+  Whether to plot the biomass density (`TRUE`, the default) or the
+  number density (`FALSE`).
+
+- per_log_size:
+
+  Whether to plot the density with respect to logarithmic size (`TRUE`)
+  or with respect to size (`FALSE`, the default).
 
 - total:
 
@@ -128,7 +138,8 @@ plotSpectra(
 - size_axis:
 
   Whether to plot size as weight (`"w"`, default) or length (`"l"`),
-  using the allometric weight-length relationship.
+  using the allometric weight-length relationship. Spectrum densities
+  and their units are transformed to match the chosen axis.
 
 - return_data:
 
@@ -159,6 +170,32 @@ plotly object.
 
 ## Details
 
+The plotted quantity is the number density multiplied by `w^power`,
+where the power is the sum of the two choices above: a biomass density
+carries one factor of the weight and a density with respect to
+logarithmic size carries another:
+
+|                   |                        |                       |
+|-------------------|------------------------|-----------------------|
+|                   | `per_log_size = FALSE` | `per_log_size = TRUE` |
+| `biomass = FALSE` | `power = 0`            | `power = 1`           |
+| `biomass = TRUE`  | `power = 1`            | `power = 2`           |
+
+The `power` argument can still be given instead, and is the only way to
+ask for a power that is not the sum of the two flags. But note that
+`power` on its own does not distinguish the two entries with
+`power = 1`: it is taken to mean the biomass density with respect to
+weight, which is what determines the y-axis label and the Jacobian used
+for a length axis. Supplying `power` together with a flag that
+contradicts it is an error.
+
+The `log_x` argument only controls how the size axis is displayed; it
+does not change the density on the y-axis. In particular, showing weight
+on a logarithmic axis does not by itself convert a density per unit
+weight into a density per logarithmic weight interval. That choice is
+made with `per_log_size`, and the conversion from weight to length then
+uses the logarithmic Jacobian, irrespective of the value of `log_x`.
+
 `plotlySpectra()` is the interactive plotly version. To compare spectra
 from two objects use
 [`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md).
@@ -174,6 +211,7 @@ Other plotting functions:
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),
@@ -203,9 +241,9 @@ plotSpectra(sim, wlim = c(1e-6, NA))
 
 plotSpectra(sim, time_range = 10:20)
 
-plotSpectra(sim, time_range = 10:20, power = 0)
+plotSpectra(sim, time_range = 10:20, biomass = FALSE)
 
-plotSpectra(sim, species = c("Cod", "Herring"), power = 1)
+plotSpectra(sim, species = c("Cod", "Herring"), per_log_size = TRUE)
 
 plotSpectra(sim, species = c("Cod", "Herring"), size_axis = "l")
 

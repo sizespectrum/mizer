@@ -63,6 +63,7 @@ dataframe.
 
 Other predation kernel:
 [`box_pred_kernel()`](https://sizespectrum.org/mizer/reference/box_pred_kernel.md),
+[`gaussian_mixture_pred_kernel()`](https://sizespectrum.org/mizer/reference/gaussian_mixture_pred_kernel.md),
 [`lognormal_pred_kernel()`](https://sizespectrum.org/mizer/reference/lognormal_pred_kernel.md),
 [`truncated_lognormal_pred_kernel()`](https://sizespectrum.org/mizer/reference/truncated_lognormal_pred_kernel.md)
 
@@ -77,5 +78,5 @@ species_params(params)["Cod", "kernel_u_l"] <- 3
 species_params(params)["Cod", "kernel_l_r"] <- 12.5
 species_params(params)["Cod", "kernel_u_r"] <- 4.3
 species_params(params)["Cod", "pred_kernel_type"] <- "power_law"
-plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
+plot(w_full(params), pred_kernel(params)["Cod", 10, ], type="l", log="x")
 ```

@@ -25,8 +25,9 @@ plotRelative(
 - x:
 
   The first of two compatible mizer array objects to compare. Can be an
-  `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
-  `ArrayTimeBySpeciesBySize` object.
+  `ArraySpeciesBySize`, `ArrayTimeBySpecies`,
+  `ArrayTimeBySpeciesBySize`, `ArrayResourceBySize` or
+  `ArrayTimeByResourceBySize` object.
 
 - y:
 
@@ -35,7 +36,8 @@ plotRelative(
 - species:
 
   Character vector of species to include. `NULL` (default) means all
-  species.
+  species. A resource array holds a single spectrum, so this argument is
+  not used by the resource methods, which warn if it is set.
 
 - log_x:
 
@@ -50,30 +52,36 @@ plotRelative(
 - total:
 
   A boolean value that determines whether the total over all selected
-  species is plotted as well. Default is `FALSE`.
+  species is plotted as well. Default is `FALSE`. Not used by the
+  resource methods, which warn if it is set.
 
 - background:
 
   A boolean value that determines whether background species are
   included. Ignored if the model does not contain background species.
-  Default is `TRUE`.
+  Default is `TRUE`. Not used by the resource methods, which warn if it
+  is set.
 
 - ...:
 
   Further arguments used by only some of the methods:
 
-  **For `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize` methods:**
-
-  `all.sizes`
-
-  :   If `FALSE` (default), values outside a species' size range
-      (`w_min` to `w_max`) are removed.
+  **For the `ArraySpeciesBySize`, `ArrayTimeBySpeciesBySize`,
+  `ArrayResourceBySize` and `ArrayTimeByResourceBySize` methods:**
 
   `wlim`
 
   :   A numeric vector of length two providing lower and upper limits
       for the weight (x) axis. Use `NA` to refer to the existing minimum
       or maximum.
+
+  **For the `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`
+  methods:**
+
+  `all.sizes`
+
+  :   If `FALSE` (default), values outside a species' size range
+      (`w_min` to `w_max`) are removed.
 
   `llim`
 
@@ -84,7 +92,9 @@ plotRelative(
   `size_axis`
 
   :   Whether to plot size as weight (`"w"`, default) or length (`"l"`),
-      using the allometric weight-length relationship.
+      using the allometric weight-length relationship of each species,
+      or of the resource, see
+      [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md).
 
   **For `ArrayTimeBySpecies` methods:**
 
@@ -94,7 +104,8 @@ plotRelative(
       for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
       limit at that end. Default is `c(NA, NA)`.
 
-  **For `ArrayTimeBySpeciesBySize` methods:**
+  **For the `ArrayTimeBySpeciesBySize` and `ArrayTimeByResourceBySize`
+  methods:**
 
   `time`
 
@@ -111,6 +122,7 @@ Other plotting functions:
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),
@@ -136,6 +148,12 @@ params <- NS_params
 given_species_params(params)["Cod", "w_mat"] <- 1200
 plotRelative(getEGrowth(NS_params), getEGrowth(params),
              wlim = c(500, 2000), log_x = FALSE, species = "Cod")
+
+
+# The same works for the resource
+params2 <- setResource(NS_params,
+                       resource_capacity = 2 * resource_capacity(NS_params))
+plotRelative(resource_capacity(NS_params), resource_capacity(params2))
 
 # }
 ```

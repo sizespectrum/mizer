@@ -59,5 +59,5 @@ dynamics.
 In practice you will need to use some observations to set the scale for
 your model. If you have biomass observations you can use
 [`calibrateBiomass()`](https://sizespectrum.org/mizer/reference/calibrateBiomass.md),
-if you have yearly yields you can use
-[`calibrateYield()`](https://sizespectrum.org/mizer/reference/calibrateYield.md).
+if you have observed numbers you can use
+[`calibrateNumber()`](https://sizespectrum.org/mizer/reference/calibrateNumber.md).

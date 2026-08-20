@@ -125,10 +125,45 @@ Note that your own rate functions need to be defined in the global
 environment or in a package. If they are defined within a function then
 mizer will not find them.
 
+## Avoid rates that jump as a function of abundance
+
+Make sure your rate function depends **continuously** on the abundances
+`n`, `n_pp` and `n_other`. It is tempting to write a rate that switches
+abruptly on the state of the model — a fishery that closes when a stock
+falls below a limit reference point, a predator that switches diet when
+its preferred prey becomes scarce, a mortality that kicks in below a
+critical condition. Such a rate breaks the assumption underlying every
+one of mizer's time-stepping methods, which freeze the rates during each
+density update and so cannot see a threshold being crossed within a
+step.
+
+The symptoms are quiet: mizer issues no warning, but the trajectory
+keeps changing as you refine `dt`,
+[`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
+stalls, and
+[`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
+reports a confident but meaningless answer. Choosing the L-stable
+`method = "tr_bdf2"` in
+[`project()`](https://sizespectrum.org/mizer/reference/project.md) does
+not help, because the difficulty lies in the frozen rates rather than in
+the linear solve.
+
+The remedy is to give the switch a finite width, using a linear ramp
+between two thresholds or a logistic transition, which is usually the
+more realistic model anyway. Rates built with
+[`max()`](https://rdrr.io/r/base/Extremes.html) or
+[`min()`](https://rdrr.io/r/base/Extremes.html) are continuous but not
+differentiable; these are much less troublesome, costing some accuracy
+but not correctness. See the [Discontinuous rate
+functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.html)
+article for the full story, the diagnostics and the fix.
+
 ## See also
 
-"Extending mizer":
-[`vignette("extending-mizer", package = "mizer")`](https://sizespectrum.org/mizer/articles/extending-mizer.md)
+"Extending mizer": [guide to extending
+mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html);
+[Discontinuous rate
+functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.html)
 
 Other extension tools:
 [`NOther()`](https://sizespectrum.org/mizer/reference/NOther.md),

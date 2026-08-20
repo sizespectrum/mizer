@@ -67,8 +67,8 @@ str(NS_params)
 #>  @ mizer_version       : Classes 'package_version', 'numeric_version'  hidden list of 1
 #>     $ : int [1:4] 3 0 0 9003 
 #>  @ extensions          :  chr(0) 
-#>  @ time_created        :  POSIXct[1:1], format: "2021-09-03 21:29:38"
-#>  @ time_modified       :  POSIXct[1:1], format: "2026-06-24 14:50:03"
+#>  @ time_created        :  POSIXct[1:1], format: "2021-09-03 20:29:38"
+#>  @ time_modified       :  POSIXct[1:1], format: "2026-06-24 13:50:03"
 #>  @ w                   :  num [1:100] 0.001 0.00119 0.00142 0.0017 0.00203 ...
 #>  @ dw                  :  num [1:100] 0.000193 0.000231 0.000275 0.000329 0.000392 ...
 #>  @ w_full              :  num [1:226] 2.12e-13 2.53e-13 3.02e-13 3.61e-13 4.30e-13 ...
@@ -259,8 +259,8 @@ str(NS_sim)
 #>     @ mizer_version       : Classes 'package_version', 'numeric_version'  hidden list of 1
 #>        $ : int [1:4] 3 0 0 9003 
 #>     @ extensions          :  chr(0) 
-#>     @ time_created        :  POSIXct[1:1], format: "2021-09-03 21:30:02"
-#>     @ time_modified       :  POSIXct[1:1], format: "2026-06-24 14:50:03"
+#>     @ time_created        :  POSIXct[1:1], format: "2021-09-03 20:30:02"
+#>     @ time_modified       :  POSIXct[1:1], format: "2026-06-24 13:50:03"
 #>     @ w                   :  num [1:100] 0.001 0.00119 0.00142 0.0017 0.00203 ...
 #>     @ dw                  :  num [1:100] 0.000193 0.000231 0.000275 0.000329 0.000392 ...
 #>     @ w_full              :  num [1:218] 8.73e-13 1.04e-12 1.24e-12 1.48e-12 1.77e-12 ...
@@ -466,6 +466,7 @@ str(getEncounter(NS_params))
 #>   ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...
 #>  - attr(*, "value_name")= chr "Encounter rate"
 #>  - attr(*, "units")= chr "g/year"
+#>  - attr(*, "type")= chr "value"
 #>  - attr(*, "representation")= chr "point"
 #>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
 # }

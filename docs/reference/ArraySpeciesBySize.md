@@ -17,6 +17,7 @@ ArraySpeciesBySize(
   x,
   value_name = NULL,
   units = NULL,
+  type = NULL,
   params = NULL,
   representation = c("point", "average")
 )
@@ -38,6 +39,20 @@ is.ArraySpeciesBySize(x)
 - units:
 
   A string giving the units (e.g. "g/year", "1/year").
+
+- type:
+
+  The kind of quantity the values are, see
+  [array_types](https://sizespectrum.org/mizer/reference/array_types.md):
+  `"value"` (the default) for a rate or an amount, `"density"` for an
+  amount per gram of body weight, `"proportion"` for a fraction. This is
+  what tells
+  [`plot()`](https://sizespectrum.org/mizer/reference/plot.md) to
+  multiply a density by the appropriate Jacobian when it is plotted
+  against a length axis (`size_axis = "l"`), and to show a proportion
+  against the whole of the interval from 0 to 1. The default, `NULL`,
+  treats a `value_name` of `"Number density"` or units of `"1/g"` as a
+  density, the way mizer recognised one before this attribute existed.
 
 - params:
 
@@ -63,13 +78,15 @@ An `ArraySpeciesBySize` object (inherits from `matrix` and `array`).
 ## Details
 
 An `ArraySpeciesBySize` object behaves just like a regular matrix for
-arithmetic operations and subsetting. It carries two lightweight
+arithmetic operations and subsetting. It carries a few lightweight
 attributes:
 
 - `value_name` – a human-readable name for the value (e.g. "Encounter
   rate").
 
 - `units` – the units of the rate (e.g. "g/year").
+
+- `type` – the kind of quantity the values are.
 
 ## See also
 

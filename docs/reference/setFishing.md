@@ -14,19 +14,13 @@ setFishing(
   ...
 )
 
-getCatchability(params)
-
 catchability(params)
 
 catchability(params) <- value
 
-getSelectivity(params)
-
 selectivity(params)
 
 selectivity(params) <- value
-
-getInitialEffort(params)
 ```
 
 ## Arguments
@@ -71,17 +65,13 @@ getInitialEffort(params)
 
 `setFishing()`: A MizerParams object with updated fishing parameters.
 
-`getCatchability()` or equivalently `catchability()`: An array (gear x
-species) that holds the catchability of each species by each gear,
-\\Q\_{g,i}\\. The names of the dimensions are "gear, "sp".
+`catchability()`: An array (gear x species) that holds the catchability
+of each species by each gear, \\Q\_{g,i}\\. The names of the dimensions
+are "gear, "sp".
 
-`getSelectivity()` or equivalently `selectivity()`: An array (gear x
-species x size) that holds the selectivity of each gear for species and
-size, \\S\_{g,i,w}\\. The names of the dimensions are "gear, "sp", "w".
-
-`getInitialEffort()` or equivalently
-[`initial_effort()`](https://sizespectrum.org/mizer/reference/initial_effort.md):
-A named vector with the initial fishing effort for each gear.
+`selectivity()`: An array (gear x species x size) that holds the
+selectivity of each gear for species and size, \\S\_{g,i,w}\\. The names
+of the dimensions are "gear, "sp", "w".
 
 ## Setting fishing
 
@@ -211,21 +201,18 @@ Other functions for setting parameters:
 ``` r
 # Halve the initial fishing effort for all gears
 params <- setFishing(NS_params, initial_effort = 0.5)
-getInitialEffort(params)
+initial_effort(params)
 #> Industrial    Pelagic       Beam      Otter 
 #>        0.5        0.5        0.5        0.5 
-str(getCatchability(NS_params))
+str(catchability(NS_params))
 #>  num [1:4, 1:12] 1 0 0 0 1 0 0 0 1 0 ...
 #>  - attr(*, "dimnames")=List of 2
 #>   ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"
 #>   ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...
-str(getSelectivity(NS_params))
+str(selectivity(NS_params))
 #>  num [1:4, 1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...
 #>  - attr(*, "dimnames")=List of 3
 #>   ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"
 #>   ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...
 #>   ..$ w   : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...
-str(getInitialEffort(NS_params))
-#>  Named num [1:4] 0 1 0.5 0.5
-#>  - attr(*, "names")= chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"
 ```

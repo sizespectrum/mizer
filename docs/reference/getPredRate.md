@@ -124,6 +124,7 @@ str(pred_rate)
 #>   ..$ w_prey: chr [1:226] "2.12e-13" "2.53e-13" "3.02e-13" "3.61e-13" ...
 #>  - attr(*, "value_name")= chr "Predation rate"
 #>  - attr(*, "units")= chr "1/year"
+#>  - attr(*, "type")= chr "value"
 #>  - attr(*, "representation")= chr "point"
 #>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
 # With constant fishing effort for all gears for 20 time steps

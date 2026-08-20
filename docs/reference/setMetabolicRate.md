@@ -7,15 +7,13 @@ will usually not need to call this function directly. Instead change the
 metabolic rate for you. Call `setMetabolicRate()` directly only if you
 want to impose a different functional form for the size dependence of
 the metabolic rate. See
-[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+[`vignette("guide-change-parameters")`](https://sizespectrum.org/mizer/articles/guide-change-parameters.md)
 for a full explanation of when to reach for which level of the model.
 
 ## Usage
 
 ``` r
 setMetabolicRate(object, metab = NULL, p = deprecated(), reset = FALSE, ...)
-
-getMetabolicRate(params)
 
 metab(params)
 
@@ -67,8 +65,8 @@ metab(params) <- value
 
 `setMetabolicRate()`: A MizerParams object with updated metabolic rate.
 
-`getMetabolicRate()` or equivalently `metab()`: A `ArraySpeciesBySize`
-object (species x size) with the metabolic rate.
+`metab()`: An `ArraySpeciesBySize` object (species x size) with the
+metabolic rate.
 
 ## Setting metabolic rate
 
@@ -115,13 +113,13 @@ Other functions for setting parameters:
 
 ``` r
 # Inspect the current metabolic rate
-getMetabolicRate(NS_params)["Cod", 1:5]
+metab(NS_params)["Cod", 1:5]
 #>      0.001    0.00119    0.00142     0.0017    0.00203 
 #> 0.09767498 0.11054111 0.12510202 0.14158096 0.16023056 
 
 # Reset metabolic rate from species parameters
 params <- setMetabolicRate(NS_params, reset = TRUE)
-getMetabolicRate(params)["Cod", 1:5]
+metab(params)["Cod", 1:5]
 #>      0.001    0.00119    0.00142     0.0017    0.00203 
 #> 0.09767498 0.11054111 0.12510202 0.14158096 0.16023056 
 ```

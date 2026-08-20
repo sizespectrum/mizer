@@ -46,11 +46,6 @@ function you may want to use
 This is described in the blog post at
 <https://blog.mizer.sizespectrum.org/posts/2021-08-20-a-5-step-recipe-for-tuning-the-model-steady-state/>.
 
-If you have observations of the yearly yield instead of biomasses, you
-can use
-[`calibrateYield()`](https://sizespectrum.org/mizer/reference/calibrateYield.md)
-instead of this function.
-
 ## Examples
 
 ``` r

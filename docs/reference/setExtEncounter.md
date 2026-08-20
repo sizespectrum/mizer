@@ -6,15 +6,13 @@ the `E_ext` and `n` species parameters with
 encounter rate for you. Call `setExtEncounter()` directly only if you
 want to impose a different functional form for the size dependence of
 the external encounter rate. See
-[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+[`vignette("guide-change-parameters")`](https://sizespectrum.org/mizer/articles/guide-change-parameters.md)
 for a full explanation of when to reach for which level of the model.
 
 ## Usage
 
 ``` r
 setExtEncounter(params, ext_encounter = NULL, reset = FALSE, ...)
-
-getExtEncounter(params)
 
 ext_encounter(params)
 
@@ -55,9 +53,8 @@ ext_encounter(params) <- value
 `setExtEncounter()`: A MizerParams object with updated external
 encounter rate.
 
-`getExtEncounter()` or equivalently `ext_encounter()`: A
-`ArraySpeciesBySize` object (species x size) with the external encounter
-rate.
+`ext_encounter()`: An `ArraySpeciesBySize` object (species x size) with
+the external encounter rate.
 
 ## Setting external encounter rate
 
@@ -100,11 +97,11 @@ Other functions for setting parameters:
 
 ``` r
 params <- newMultispeciesParams(NS_species_params)
+#> No h provided for some species, so using age at maturity to calculate it.
 #> Because you have n != p, the default value for `h` is not very good.
 #> Because the age at maturity is not known, I need to fall back to using
 #> von Bertalanffy parameters, where available, and this is not reliable.
-#> No ks column so calculating from critical feeding level.
-#> Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.
+#> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
 #> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
 
 #### Setting allometric encounter rate #######################

@@ -6,7 +6,7 @@ the `D_ext` and `n` species parameters with
 diffusion rate for you. Call `setExtDiffusion()` directly only if you
 want to impose a different functional form for the size dependence of
 the external diffusion rate. See
-[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+[`vignette("guide-change-parameters")`](https://sizespectrum.org/mizer/articles/guide-change-parameters.md)
 for a full explanation of when to reach for which level of the model.
 
 ## Usage

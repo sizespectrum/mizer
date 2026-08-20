@@ -1,11 +1,10 @@
 # Plotting observed vs. model yields
 
 **\[experimental\]** If yield observations are available for at least
-some species via the `yield_observed` column in the species parameter
-data frame, this function plots the yield of each species in the model
-against the observed yields. When called with a MizerSim object, the
-plot will use the model yields predicted for the final time step in the
-simulation.
+some species via the `yield_observed` column, this function plots the
+yield of each species in the model against the observed yields. When
+called with a MizerSim object, the plot will use the model yields
+predicted for the final time step in the simulation.
 
 ## Usage
 
@@ -18,6 +17,7 @@ plotYieldObservedVsModel(
   return_data = FALSE,
   labels = TRUE,
   show_unobserved = FALSE,
+  gear = NULL,
   ...
 )
 ```
@@ -65,6 +65,12 @@ plotYieldObservedVsModel(
   available. If TRUE, these species will be shown as if their observed
   yield was equal to the model yield.
 
+- gear:
+
+  The gears to be included. Optional. By default the catch of all gears
+  is included. A vector of gear names. Only species caught by the
+  selected gears are shown.
+
 - ...:
 
   For `plotlyYieldObservedVsModel()`, additional arguments passed to
@@ -81,8 +87,22 @@ the plot is returned instead of the plot.
 
 Before you can use this function you will need to have added a
 `yield_observed` column to your model which gives the observed yield in
-grams per year. For species for which you have no observed yield, you
-should set the value in the `yield_observed` column to 0 or NA.
+grams per year. Its home is the gear parameter data frame, see
+[`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
+where you give the yield for each gear-species pair and this function
+adds them up over the gears. For backwards compatibility a
+`yield_observed` column in the species parameter data frame is also
+accepted, see
+[`get_yield_observed()`](https://sizespectrum.org/mizer/reference/get_yield_observed.md).
+For species for which you have no observed yield, you should set the
+value in the `yield_observed` column to 0 or NA.
+
+If a species is caught by several gears, both the model yield and the
+observed yield are summed over the gears. With the `gear` argument you
+can restrict the comparison to a subset of the gears, in which case only
+the catch of those gears enters on both axes. Because the species
+parameter data frame only holds the yield summed over all gears, the
+observations then have to come from the gear parameters.
 
 The total relative error is shown in the caption of the plot, calculated
 by \$\$TRE = \sum_i\|1-\rm{ratio_i}\|\$\$ where \\\rm{ratio_i}\\ is the
@@ -93,9 +113,11 @@ ratio of model yield / observed yield for species i.
 ``` r
 # create an example
 params <- NS_params
-species_params(params)$yield_observed <-
-    c(0.8, 61, 12, 35, 1.6, NA, 10, 7.6, 135, 60, 30, NA)
-params <- calibrateYield(params)
+# In this model each species is caught by a single gear, so there is one
+# row in the gear parameters for each species, in the same order.
+# Species without an observation get NA.
+gear_params(params)$yield_observed <-
+    c(NA, NA, NA, 3e11, 4e9, 4e10, 5e10, NA, 2e11, 6e10, 3e11, NA)
 
 # Plot with default options
 plotYieldObservedVsModel(params)
@@ -110,4 +132,18 @@ plotYieldObservedVsModel(params, show_unobserved = TRUE)
 # Show the ratio instead
 plotYieldObservedVsModel(params, ratio = TRUE)
 #> The following species are not being fished in your model and will not be included in the plot: Sprat, Sandeel, N.pout.
+
+
+# If several gears catch the same species, their yields are added up.
+# Give Cod a second gear that takes a quarter of the observed yield.
+gp <- gear_params(params)
+gp["Cod, Otter", "yield_observed"] <- 3e11 * 0.75
+extra <- gp["Cod, Otter", ]
+extra$gear <- "Gillnet"
+extra$yield_observed <- 3e11 * 0.25
+gear_params(params) <- rbind(gp, extra)
+
+# Compare only the catch of the Otter gear against its observation
+plotYieldObservedVsModel(params, gear = "Otter")
+#> The following species are not being caught by the selected gear and will not be included in the plot: Sprat, Sandeel, N.pout, Herring, Dab, Sole, Plaice.
 ```

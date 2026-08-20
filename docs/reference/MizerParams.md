@@ -66,7 +66,8 @@ MizerParams(
 - f0:
 
   Expected average feeding level. Used to set `gamma`, the coefficient
-  in the search rate. Ignored if `gamma` is given explicitly.
+  in the search rate. Ignored if `gamma` is given explicitly, but must
+  still be finite and in the interval (0, 1).
 
 - kappa:
 

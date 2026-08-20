@@ -120,6 +120,7 @@ str(M2)
 #>   ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...
 #>  - attr(*, "value_name")= chr "Predation mortality"
 #>  - attr(*, "units")= chr "1/year"
+#>  - attr(*, "type")= chr "value"
 #>  - attr(*, "representation")= chr "average"
 #>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
 # With constant fishing effort for all gears for 20 time steps
@@ -136,6 +137,7 @@ str(M2)
 #>   ..$ w   : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...
 #>  - attr(*, "value_name")= chr "Predation mortality"
 #>  - attr(*, "units")= chr "1/year"
+#>  - attr(*, "type")= chr "value"
 #>  - attr(*, "representation")= chr "average"
 #>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
 # Get predation mortality over the years 15 - 20

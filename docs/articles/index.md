@@ -13,30 +13,35 @@
 - [The General Mizer Size-spectrum
   Model](https://sizespectrum.org/mizer/articles/model_description.md):
 
-### Cheat sheets
+### Guides
 
-- [Cheatsheet: Model Setup and
-  Calibration](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.md):
-- [Cheatsheet: Changing Model
-  Parameters](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md):
-- [Cheatsheet:
-  Fishing](https://sizespectrum.org/mizer/articles/cheatsheet-fishing.md):
-- [Cheatsheet: Analysis and
-  Plotting](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.md):
+- [Guide: Understanding size-spectrum
+  dynamics](https://sizespectrum.org/mizer/articles/guide-understand-size-spectrum-dynamics.md):
+- [Guide: Building a mizer
+  model](https://sizespectrum.org/mizer/articles/guide-build-model.md):
+- [Guide: Reaching steady state and
+  calibrating](https://sizespectrum.org/mizer/articles/guide-calibrate-model.md):
+- [Guide: Changing model
+  parameters](https://sizespectrum.org/mizer/articles/guide-change-parameters.md):
+- [Guide: Setting up
+  fishing](https://sizespectrum.org/mizer/articles/guide-set-up-fishing.md):
+- [Guide: Running a mizer
+  simulation](https://sizespectrum.org/mizer/articles/guide-run-simulation.md):
+- [Guide: Analysing and plotting mizer
+  results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.md):
+- [Guide: Analysing dynamic
+  stability](https://sizespectrum.org/mizer/articles/guide-analyse-stability.md):
+- [Guide: Extending
+  mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.md):
+- [Guide: Using mizer extension
+  packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.md):
+- [Guide: Creating a mizer extension
+  package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.md):
 
 ### Upgrading
 
-- [Upgrading
-  mizer](https://sizespectrum.org/mizer/articles/upgrading.md):
-
-### Extending mizer
-
-- [Extending
-  mizer](https://sizespectrum.org/mizer/articles/extending-mizer.md):
-- [Using mizer extension
-  packages](https://sizespectrum.org/mizer/articles/using-extension-packages.md):
-- [Creating a mizer extension
-  package](https://sizespectrum.org/mizer/articles/creating-extension-packages.md):
+- [Upgrading your mizer
+  code](https://sizespectrum.org/mizer/articles/upgrading.md):
 
 ### Technical articles
 
@@ -50,3 +55,7 @@
   Rates](https://sizespectrum.org/mizer/articles/fft.md):
 - [Analytic
   Test](https://sizespectrum.org/mizer/articles/analytic_test.md):
+- [Dynamic stability and Hopf
+  bifurcations](https://sizespectrum.org/mizer/articles/dynamic_stability.md):
+- [Discontinuous rate
+  functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.md):

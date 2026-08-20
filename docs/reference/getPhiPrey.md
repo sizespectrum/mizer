@@ -35,7 +35,7 @@ getPhiPrey(object, n, n_pp, ...)
 ## Value
 
 A two dimensional array (predator species x predator size) equal to
-`getEncounter(object, n, n_pp) / getSearchVolume(object)`.
+`getEncounter(object, n, n_pp) / search_vol(object)`.
 
 ## See also
 

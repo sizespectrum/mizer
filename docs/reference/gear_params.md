@@ -60,7 +60,12 @@ For the details see
 [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md).
 
 There can optionally also be a column `yield_observed` that allows you
-to specify for each gear and species the total annual fisheries yield.
+to specify for each gear and species the total annual fisheries yield in
+grams per year. This is used by
+[`plotYieldObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.md),
+which adds the yields up over the gears to get the observed yield of
+each species, see
+[`get_yield_observed()`](https://sizespectrum.org/mizer/reference/get_yield_observed.md).
 
 The fishing effort, which is also needed to determine the fishing
 mortality exerted by a gear is not set via the `gear_params` data frame

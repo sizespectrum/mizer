@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,19 +61,21 @@
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/guide-understand-size-spectrum-dynamics.html">Guide: Understanding size-spectrum dynamics</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-build-model.html">Guide: Building a mizer model</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-calibrate-model.html">Guide: Reaching steady state and calibrating</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-change-parameters.html">Guide: Changing model parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-set-up-fishing.html">Guide: Setting up fishing</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-run-simulation.html">Guide: Running a mizer simulation</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-and-plot.html">Guide: Analysing and plotting mizer results</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-stability.html">Guide: Analysing dynamic stability</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-extend-mizer.html">Guide: Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-use-extension-packages.html">Guide: Using mizer extension packages</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-create-extension-package.html">Guide: Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
-    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
-    <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/using-extension-packages.html">Using mizer extension packages</a></li>
-    <li><a class="dropdown-item" href="../articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -81,16 +83,17 @@
     <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
+    <li><a class="dropdown-item" href="../articles/dynamic_stability.html">Dynamic stability and Hopf bifurcations</a></li>
+    <li><a class="dropdown-item" href="../articles/discontinuous_rates.html">Discontinuous rate functions</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/publications.html">Publications</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
@@ -132,26 +135,16 @@
 <p>A key design feature of the <code>mizer</code> package is that a multi-species size-spectrum model can be set up using only a small amount of information. This is possible because <code>mizer</code> uses <strong>allometric scaling relations</strong> and <strong>size-based feeding rules</strong> to choose sensible default values for parameters that are not explicitly provided by the user.</p>
 <p>For example, to set up a model using the <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> function, the user only <em>needs</em> to provide the von Bertalanffy asymptotic sizes (<span class="math inline">\(w_{\infty}\)</span>) for the species in the community. Almost all other physiological, ecological, and mortality parameters can be automatically filled in using defaults. (See the section on <a href="#maximum-size-parameters">maximum-size parameters</a> below for the distinction between <span class="math inline">\(w_{\infty}\)</span>, <span class="math inline">\(w_{\text{repro_max}}\)</span> and <span class="math inline">\(w_{\text{max}}\)</span>.)</p>
 <p>This vignette details the philosophy, the relationships, and the mathematical derivations behind the default parameter values calculated by <code>mizer</code>. For a description of the model equations themselves, see <a href="model_description.html">The General Mizer Size-spectrum Model</a>.</p>
-<hr></section><section class="level2"><h2 id="how-species-parameters-are-stored-and-used">How species parameters are stored and used<a class="anchor" aria-label="anchor" href="#how-species-parameters-are-stored-and-used"></a>
+<hr></section><section class="level2"><h2 id="given-and-calculated-parameters">Given and calculated parameters<a class="anchor" aria-label="anchor" href="#given-and-calculated-parameters"></a>
 </h2>
-<p>Because most species parameters can be filled in with defaults, <code>mizer</code> needs to keep track of which values <em>you</em> supplied and which it calculated for you. It also needs a rule for what should happen when you later change a value. This section explains the machinery — the two species-parameter data frames, the accessor and setter functions, the role of <code><a href="../reference/setParams.html">setParams()</a></code>, and the “comment” mechanism on the size-dependent rate arrays — so that the rest of this vignette makes sense.</p>
-<section class="level3"><h3 id="two-data-frames-given-vs--full">Two data frames: given vs. full<a class="anchor" aria-label="anchor" href="#two-data-frames-given-vs--full"></a>
-</h3>
-<p>Every <code>MizerParams</code> object stores <strong>two</strong> species-parameter data frames:</p>
-<ul>
-<li>
-<strong><code>given_species_params</code></strong> holds only the values that were supplied explicitly (by you, or by a wrapper function such as <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>). Parameters you never mentioned simply do not appear here, or appear as <code>NA</code>.</li>
-<li>
-<strong><code>species_params</code></strong> is the <em>full</em> table that the model actually uses. It contains your given values <strong>plus</strong> all the defaults and derived values that <code>mizer</code> filled in.</li>
-</ul>
-<p>You access them with three functions:</p>
+<p>Because most species parameters can be filled in with defaults, <code>mizer</code> needs to keep track of which values <em>you</em> supplied and which it calculated for you. Every <code>MizerParams</code> object therefore stores <strong>two</strong> species-parameter data frames: <code>given_species_params</code> holds only the values that were supplied explicitly (by you, or by a wrapper function such as <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>), while <code>species_params</code> is the <em>full</em> table that the model actually uses, with all the defaults and derived values filled in.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>       <span class="co"># only what was supplied explicitly</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">calculated_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>  <span class="co"># only the values mizer filled in</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>             <span class="co"># the complete table (given + calculated)</span></span></code></pre></div>
 </div>
-<p><code><a href="../reference/species_params.html">calculated_species_params()</a></code> is just <code><a href="../reference/species_params.html">species_params()</a></code> with the given entries blanked out, so the given and calculated frames together reconstruct the full table.</p>
+<p>This distinction governs everything in this vignette, because <strong>a default is only calculated for a parameter that was not given</strong>. Supplying a value therefore switches off not just its own default but any calculation that would have used it as an input. The <a href="#the-dependency-chain">Dependency Chain</a> below shows, for instance, that <code>age_mat</code> is only used to calculate a default for <code>h</code>. If you give <code>h</code> directly, <code>age_mat</code> is ignored; if you give <code>gamma</code>, the <code>f0</code> value is ignored; and so on.</p>
 <p>Here is a minimal model set up from nothing but a name and an asymptotic size:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
@@ -161,101 +154,20 @@
 <span><span class="co"># The columns that count as "given":</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "species" "w_inf"   "n"       "p"      </code></pre>
+<pre><code>[1] "species" "w_inf"   "n"       "p"       "w_min"  </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Everything else was calculated, for example:</span></span>
 <span><span class="fu"><a href="https://generics.r-lib.org/reference/setops.html" class="external-link">intersect</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"w_mat"</span>, <span class="st">"w_min"</span>, <span class="st">"h"</span>, <span class="st">"gamma"</span>, <span class="st">"ks"</span><span class="op">)</span>,</span>
 <span>          <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/species_params.html">calculated_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "w_mat" "w_min" "h"     "gamma" "ks"   </code></pre>
+<pre><code>[1] "w_mat" "h"     "gamma" "ks"   </code></pre>
 </div>
 </div>
 <p>Notice that <code>n</code> and <code>p</code> appear among the <em>given</em> parameters even though we did not put them in the data frame. This is deliberate: some species parameters can also be set through arguments to the constructor functions (here the <code>n</code> and <code>p</code> arguments of <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>), and any species parameter set from such an argument is recorded as given — <strong>even when the argument was left at its default value in the function signature</strong>. In other words, “given” means “fixed by the way you called the constructor”, not only “typed into the species parameter data frame”. The practical consequence is that these values count as explicit input and so are not silently changed by later recalculations.</p>
 <p>(Constructor arguments that do <em>not</em> directly correspond to a species parameter behave differently. For example <code>z0pre</code> and <code>z0exp</code> are used to <em>compute</em> the external mortality parameter <code>z0</code>, which therefore appears among the calculated parameters rather than the given ones.)</p>
-</section><section class="level3"><h3 id="changing-parameters-species_params--vs--given_species_params-">Changing parameters: <code>species_params&lt;-()</code> vs. <code>given_species_params&lt;-()</code>
-<a class="anchor" aria-label="anchor" href="#changing-parameters-species_params--vs--given_species_params-"></a>
-</h3>
-<p>There are correspondingly two ways to change species parameters:</p>
-<ul>
-<li>
-<strong><code>species_params&lt;-()</code></strong> (often preferred in scripts) intelligently detects which values you have changed, records those changes as <em>given</em> values (protecting them from being overwritten by defaults), and then silently triggers a recalculation of everything that depends on them.</li>
-<li>
-<strong><code>given_species_params&lt;-()</code></strong> is very useful in interactive use. Like <code>species_params&lt;-()</code> it triggers a recalculation of other parameters, but importantly it will warn you when you set a parameter whose effect is overridden by another value you have already given.</li>
-</ul>
-<p>For example, in a model where the age at maturity is known, <code>mizer</code> derives the maximum intake coefficient <code>h</code> from it (see the <a href="#the-dependency-chain">“Dependency Chain”</a> below). Changing the size at maturity via <code>species_params&lt;-()</code> then propagates to <code>h</code> (and onward to <code>gamma</code> and <code>ks</code>) automatically:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">growing</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Cod"</span>, w_inf <span class="op">=</span> <span class="fl">5000</span>, age_mat <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">growing</span><span class="op">)</span><span class="op">$</span><span class="va">h</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code><span>     <span class="va">Cod</span></span>
-<span><span class="fl">26.68043</span> </span></code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># using species_params&lt;-() detects the change and protects it</span></span>
-<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">growing</span><span class="op">)</span><span class="op">$</span><span class="va">w_mat</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
-<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">growing</span><span class="op">)</span><span class="op">$</span><span class="va">h</span>           <span class="co"># recalculated</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code><span>     <span class="va">Cod</span></span>
-<span><span class="fl">26.68043</span> </span></code></pre>
-</div>
-</div>
-<p>After this, <code>w_mat</code> has moved from the calculated frame into the given frame of <code>growing</code>, because <code>species_params&lt;-()</code> detected that you supplied it explicitly.</p>
-<p>A useful consequence of the given/calculated split is that supplying a value <em>switches off</em> the corresponding default calculation. The <a href="#the-dependency-chain">“Dependency Chain”</a> below shows, for instance, that <code>age_mat</code> is only used to calculate a default for <code>h</code>. If you give <code>h</code> directly, <code>age_mat</code> is ignored; if you give <code>gamma</code>, the <code>f0</code> value is ignored; and so on.</p>
-</section><section class="level3"><h3 id="setparams-and-the-size-dependent-rate-arrays">
-<code>setParams()</code> and the size-dependent rate arrays<a class="anchor" aria-label="anchor" href="#setparams-and-the-size-dependent-rate-arrays"></a>
-</h3>
-<p>The species parameters are not used directly during a simulation. Instead they are used to compute the <strong>size-dependent rate arrays</strong> (search volume, maximum intake rate, metabolic rate, external mortality, reproduction, …) that are stored in their own slots of the <code>MizerParams</code> object. The function that does this translation is <code><a href="../reference/setParams.html">setParams()</a></code>, which simply calls each of the individual setter functions (<code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code>, <code><a href="../reference/setMaxIntakeRate.html">setMaxIntakeRate()</a></code>, <code><a href="../reference/setMetabolicRate.html">setMetabolicRate()</a></code>, and so on) in the correct order. Both <code>given_species_params&lt;-()</code> and <code>species_params&lt;-()</code> call <code><a href="../reference/setParams.html">setParams()</a></code> for you, which is why changing a species parameter automatically updates the rates.</p>
-</section><section class="level3"><h3 id="overriding-a-rate-directly-the-comment-mechanism">Overriding a rate directly: the “comment” mechanism<a class="anchor" aria-label="anchor" href="#overriding-a-rate-directly-the-comment-mechanism"></a>
-</h3>
-<p>Sometimes you do not want a rate to follow the allometric default at all — you have your own array of values. Every setter function accepts the rate array directly, e.g.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setSearchVolume.html">getSearchVolume</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
-<span><span class="va">sv</span><span class="op">[</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">sv</span>                      <span class="co"># your own custom values</span></span>
-<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setSearchVolume.html">setSearchVolume</a></span><span class="op">(</span><span class="va">params</span>, search_vol <span class="op">=</span> <span class="va">sv</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>When you supply an array this way, <code>mizer</code> attaches a <code><a href="https://rdrr.io/r/base/comment.html" class="external-link">comment()</a></code> to the stored slot (the text <code>"set manually"</code> unless you set your own comment):</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/comment.html" class="external-link">comment</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">search_vol</span><span class="op">)</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "set manually"</code></pre>
-</div>
-</div>
-<p>This comment is a <strong>flag that protects your values</strong>. While a rate array carries a comment, <code><a href="../reference/setParams.html">setParams()</a></code> will <em>not</em> recalculate it from the species parameters, and the species parameters that would normally feed into it are effectively ignored for that rate. So after the override above, changing <code>gamma</code> no longer affects the search volume:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span> <span class="op">&lt;-</span> <span class="fl">1e-10</span></span>
-<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span>        <span class="co"># the species parameter did change ...</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code><span>  <span class="va">Cod</span></span>
-<span><span class="fl">1e-10</span> </span></code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/comment.html" class="external-link">comment</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">search_vol</span><span class="op">)</span>, <span class="st">"set manually"</span><span class="op">)</span>  <span class="co"># ... but the rate is frozen</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] TRUE</code></pre>
-</div>
-</div>
-<p>To go back to the automatically calculated values, call the setter with <code>reset = TRUE</code>, which removes the comment and recomputes the rate from the species parameters:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setSearchVolume.html">setSearchVolume</a></span><span class="op">(</span><span class="va">params</span>, reset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/comment.html" class="external-link">comment</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">search_vol</span><span class="op">)</span>          <span class="co"># NULL again</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code><span><span class="cn">NULL</span></span></code></pre>
-</div>
-</div>
-<p>In summary:</p>
-<ul>
-<li>Provide a <em>species parameter</em> (via <code>given_species_params&lt;-()</code>) when you want <code>mizer</code> to keep deriving the rate for you, using your value as input.</li>
-<li>Provide a <em>rate array</em> (via the relevant setter) when you want to override the rate completely; this sets a comment that freezes the rate until you <code>reset</code> it.</li>
-</ul>
-<hr></section></section><section class="level2"><h2 id="maximum-size-parameters">Maximum-size parameters<a class="anchor" aria-label="anchor" href="#maximum-size-parameters"></a>
+<p>For how to <em>change</em> parameters once a model exists — which accessor to assign to, what <code>mizer</code> recalculates when you do, how to protect a calculated value or hand it back, and how to override a size-dependent rate array directly — see the <a href="guide-change-parameters.html">guide to changing model parameters</a>.</p>
+<hr></section><section class="level2"><h2 id="maximum-size-parameters">Maximum-size parameters<a class="anchor" aria-label="anchor" href="#maximum-size-parameters"></a>
 </h2>
 <p><code>mizer</code> has three species parameters that all describe a “maximum size” but play distinct roles. Keeping them separate avoids a lot of confusion.</p>
 <ul>
@@ -274,7 +186,7 @@
 <li>In <strong>mizer 2</strong>, <code>w_max</code> was introduced to acknowledge that real fish can be larger than the von Bertalanffy <code>w_inf</code>. Existing models were upgraded by renaming <code>w_inf</code> to <code>w_max</code>, and the use of von Bertalanffy curves was discouraged. Later in the mizer 2 series, <code>w_repro_max</code> was added (the size at which mature fish invest all energy into reproduction) once diffusion made it possible for fish to exceed the size at which the growth rate reaches zero, and <code>w_max</code> became just a computational boundary.</li>
 <li>In <strong>mizer 3</strong>, with diffusion fully integrated, von Bertalanffy growth is again the standard way to constrain growth, and <code>w_inf</code> is once more the first-class maximum-size parameter. Fish are allowed to exist beyond the von Bertalanffy asymptotic size because diffusion can take them there.</li>
 </ul>
-<hr></section><section class="level2"><h2 id="species-parameter-defaults-reference-table">Species Parameter Defaults Reference Table<a class="anchor" aria-label="anchor" href="#species-parameter-defaults-reference-table"></a>
+<hr></section><section class="level2"><h2 id="defaults-table">Species Parameter Defaults Reference Table<a class="anchor" aria-label="anchor" href="#defaults-table"></a>
 </h2>
 <p>When creating a <code>MizerParams</code> object, <code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code> (and subsequent setup functions like <code><a href="../reference/setSearchVolume.html">setSearchVolume()</a></code>, <code><a href="../reference/setMaxIntakeRate.html">setMaxIntakeRate()</a></code>, <code><a href="../reference/setMetabolicRate.html">setMetabolicRate()</a></code>, <code><a href="../reference/setExtMort.html">setExtMort()</a></code>, and <code><a href="../reference/setReproduction.html">setReproduction()</a></code>) check the species parameter data frame and fill in missing parameters.</p>
 <section class="level3"><h3 id="where-defaults-live">Where defaults live<a class="anchor" aria-label="anchor" href="#where-defaults-live"></a>
@@ -506,7 +418,8 @@
 <li>
 <strong>Search volume</strong> (<span class="math inline">\(\gamma\)</span>) and <strong>metabolism</strong> (<span class="math inline">\(k_s\)</span>) are then both computed using the calculated value of <span class="math inline">\(h\)</span>.</li>
 </ol>
-<hr></section><section class="level2"><h2 id="mathematical-derivations">Mathematical Derivations<a class="anchor" aria-label="anchor" href="#mathematical-derivations"></a>
+<p>Because the chain runs both ways, changing one parameter rarely changes only that one thing: giving <code>age_mat</code> makes <code>h</code> depend on <code>f0</code>, <code>fc</code> and <code>w_mat</code>, and <code>h</code> carries the change on into <code>gamma</code> and <code>ks</code>. The behavioural consequences — in particular why raising <code>h</code> does <em>not</em> change the feeding level — are described under <a href="guide-change-parameters.html">“Chained derivations and the cancellation trap”</a> in the guide to changing model parameters.</p>
+<hr></section><section class="level2"><h2 id="derivations">Mathematical Derivations<a class="anchor" aria-label="anchor" href="#derivations"></a>
 </h2>
 <section class="level3"><h3 id="h-default">1. Maximum Intake Rate Coefficient (<span class="math inline">\(h\)</span>)<a class="anchor" aria-label="anchor" href="#h-default"></a>
 </h3>
@@ -548,7 +461,7 @@
 </h2>
 <ul>
 <li>
-<strong>External Mortality (<span class="math inline">\(z_0\)</span>)</strong>: Background mortality that is not due to predation or fishing. If not specified, it scales allometrically with the asymptotic size: <span class="math display">\[z_{0, i} = z_{0\text{pre}} w_{\infty, i}^{z_{0\text{exp}}}\]</span> where <span class="math inline">\(z_{0\text{pre}}\)</span> defaults to <span class="math inline">\(0.6\)</span> and <span class="math inline">\(z_{0\text{exp}}\)</span> defaults to <span class="math inline">\(n - 1\)</span> (typically <span class="math inline">\(-1/4\)</span>).</li>
+<strong>External Mortality (<span class="math inline">\(z_0\)</span>)</strong>: Background mortality that is not due to predation or fishing. If not specified, it scales allometrically with the asymptotic size: <span class="math display">\[z_{0, i} = z_{0\text{pre}} w_{\infty, i}^{z_{0\text{exp}}}\]</span> where <span class="math inline">\(z_{0\text{pre}}\)</span> defaults to <span class="math inline">\(0.6\)</span> and <span class="math inline">\(z_{0\text{exp}}\)</span> defaults to <span class="math inline">\(n - 1 = -1/3\)</span>. The <span class="math inline">\(n\)</span> here is the model-wide allometric exponent — the <code>n</code> argument of <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>, which defaults to <span class="math inline">\(2/3\)</span>, and which <code><a href="../reference/setExtMort.html">setExtMort()</a></code> reads back as <code>resource_params(params)$n</code> when it is called on its own. It is not the per-species <code>n</code> column, so overriding <code>n</code> for an individual species does not change that species’ <span class="math inline">\(z_{0\text{exp}}\)</span>.</li>
 <li>
 <strong>Predation Kernel</strong>: By default, <code>mizer</code> uses a lognormal predation kernel <span class="math inline">\(\phi_i(w, w_p)\)</span> with preferred predator-prey mass ratio <span class="math inline">\(\beta = 30\)</span> and width <span class="math inline">\(\sigma = 2\)</span>.</li>
 <li>
@@ -568,7 +481,7 @@
 </h2>
 <p>The following code illustrates how <code>mizer</code> automatically calculates defaults when setting up a new model with only the species name and asymptotic size:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create species parameter data frame with only w_inf specified</span></span>
 <span><span class="va">simple_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Species A"</span>, <span class="st">"Species B"</span><span class="op">)</span>,</span>
@@ -578,14 +491,15 @@
 <span><span class="co"># Initialize parameters</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">simple_species</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>For species where no growth information is available the parameter h has been set to h = 30.
+<pre><code>No h provided for some species, so using age at maturity to calculate it.
+Because you have n != p, the default value for `h` is not very good.
 Because the age at maturity is not known, I need to fall back to using
 von Bertalanffy parameters, where available, and this is not reliable.
-No ks column so calculating from critical feeding level.
-Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.
+For species where no growth information is available the parameter h has been set to h = 30.
+Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
 Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Inspect the automatically filled species parameters</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"species"</span>, <span class="st">"w_mat"</span>, <span class="st">"w_min"</span>, <span class="st">"h"</span>, <span class="st">"gamma"</span>, <span class="st">"ks"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">

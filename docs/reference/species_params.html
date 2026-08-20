@@ -15,7 +15,7 @@ stored in a MizerParams object."><meta property="og:image" content="https://size
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,19 +35,21 @@ stored in a MizerParams object."><meta property="og:image" content="https://size
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/guide-understand-size-spectrum-dynamics.html">Guide: Understanding size-spectrum dynamics</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-build-model.html">Guide: Building a mizer model</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-calibrate-model.html">Guide: Reaching steady state and calibrating</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-change-parameters.html">Guide: Changing model parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-set-up-fishing.html">Guide: Setting up fishing</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-run-simulation.html">Guide: Running a mizer simulation</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-and-plot.html">Guide: Analysing and plotting mizer results</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-stability.html">Guide: Analysing dynamic stability</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-extend-mizer.html">Guide: Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-use-extension-packages.html">Guide: Using mizer extension packages</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-create-extension-package.html">Guide: Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
-    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
-    <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/using-extension-packages.html">Using mizer extension packages</a></li>
-    <li><a class="dropdown-item" href="../articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -55,14 +57,15 @@ stored in a MizerParams object."><meta property="og:image" content="https://size
     <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
+    <li><a class="dropdown-item" href="../articles/dynamic_stability.html">Dynamic stability and Hopf bifurcations</a></li>
+    <li><a class="dropdown-item" href="../articles/discontinuous_rates.html">Discontinuous rate functions</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/publications.html">Publications</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
-<li class="nav-item"><form class="form-inline" role="search">
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter"><span class="fa fab fa-twitter fa-lg"></span></a></li>
@@ -120,9 +123,10 @@ stored in a MizerParams object.</p>
 
 
 <dt id="arg-recalculate">recalculate<a class="anchor" aria-label="anchor" href="#arg-recalculate"></a></dt>
-<dd><p>Whether <code>species_params&lt;-()</code> should re-derive the
-calculated species parameters and recalculate all the rates that depend on
-the species parameters. Defaults to <code>TRUE</code>. See the section "Setting
+<dd><p>Whether <code>species_params&lt;-()</code> should be allowed to
+re-derive calculated species parameters and rates that depend on a changed
+parameter. Defaults to <code>TRUE</code>; mizer still skips the rebuild when all
+changes are to columns with no cached dependants. See the section "Setting
 species parameters without recalculation" below before setting it to
 <code>FALSE</code>.</p></dd>
 
@@ -145,17 +149,30 @@ species parameters without recalculation" below before setting it to
     <p><code>species_params()</code>: Data frame containing all species parameters
 currently stored in the model.</p>
 <p><code>species_params&lt;-()</code>: Updates the <code>given_species_params</code> with any
-parameters you have changed, and then recalculates the full species
-parameter table and the model parameters. With <code>recalculate = FALSE</code> it
-only does the recording and stores the parameters you supplied, see the
-section "Setting species parameters without recalculation" below.</p>
+parameters you have changed, and recalculates the full species parameter
+table and model parameters when a changed column has cached dependants.
+With <code>recalculate = FALSE</code> it only does the recording and stores the
+parameters you supplied, see the section "Setting species parameters
+without recalculation" below.</p>
 <p><code>given_species_params()</code>: Data frame containing the species parameter
 values that were supplied explicitly by the user.</p>
-<p><code>given_species_params&lt;-()</code>: An alternative to <code>species_params&lt;-()</code> that
-also triggers a recalculation of other parameters. The only difference is
-that <code>given_species_params&lt;-()</code> issues warnings when a parameter is
-changed whose effect is overridden by another parameter that has already
-been given. This is especially useful during interactive use.</p>
+<p><code>given_species_params&lt;-()</code>: Replaces the authoritative table of parameters
+that are to count as explicit user input. Every non-<code>NA</code> entry in <code>value</code>
+is recorded as given, even when it is numerically equal to the value
+currently in <code>species_params()</code>. This lets you protect a calculated value
+against future recalculation. An <code>NA</code> entry, or removal of a column, hands
+a previously given parameter back to mizer's calculation. Dependent
+quantities are recalculated only when the replacement can change them;
+merely marking the current value as given does not rebuild the model.</p>
+<p>This setter also warns when a change you asked for cannot take effect,
+namely when the parameter is
+overridden by another one you have already given (<code>f0</code> by <code>gamma</code>, <code>fc</code> by
+<code>ks</code>, <code>age_mat</code> by <code>h</code>), when the rate array it feeds has been set by hand
+and so is no longer calculated, or when it is a gear parameter that mizer
+reads from <code><a href="gear_params.html">gear_params()</a></code> instead. <code>species_params&lt;-()</code> stays quiet about
+all three. <code>given_species_params&lt;-()</code> has no <code>recalculate</code> argument;
+where you need to record values without recalculating, use
+<code>species_params&lt;-()</code> or <code><a href="record_given_species_params.html">record_given_species_params()</a></code>.</p>
 <p><code>calculated_species_params()</code>: Data frame containing only those species
 parameter entries that are not explicit user input. Columns that would
 consist entirely of <code>NA</code> values are dropped.</p>
@@ -190,8 +207,12 @@ set to default values. You can retrieve the given species parameters with
 <p>When you change species parameters with <code>species_params&lt;-()</code>, mizer
 automatically detects which parameters you have changed. It records these
 changed parameters in <code>given_species_params</code> so that they are protected
-against being overwritten by future recalculations. It then triggers a
-re-calculation of the calculated species parameters.</p>
+against being overwritten by future recalculations. It then re-calculates
+the quantities that depend on the changed parameters. Changes to observation,
+direct-runtime or other custom columns that base mizer does not use to build
+a cached quantity do not trigger that recalculation. Unknown columns on an
+extension object retain the conservative recalculation path because an
+extension setter may use them.</p>
 <p>There are some species parameters that are used to set up the
 size-dependent parameters that are used in the mizer model:</p><ul><li><p><code>gamma</code> and <code>q</code> are used to set the search volume, see <code><a href="setSearchVolume.html">setSearchVolume()</a></code>.</p></li>
 <li><p><code>h</code> and <code>n</code> are used to set the maximum intake rate, see <code><a href="setMaxIntakeRate.html">setMaxIntakeRate()</a></code>.</p></li>
@@ -209,13 +230,18 @@ reproduction, see <code><a href="setReproduction.html">setReproduction()</a></co
 is a "lognormal", for other options see the "Setting predation kernel"
 section in the help for <code><a href="setPredKernel.html">setPredKernel()</a></code>.</p></li>
 <li><p><code>beta</code> and <code>sigma</code> are parameters of the lognormal predation kernel, see
-<code><a href="lognormal_pred_kernel.html">lognormal_pred_kernel()</a></code>. There will be other parameters if you are
+<code><a href="lognormal_pred_kernel.html">lognormal_pred_kernel()</a></code>. The Gaussian-mixture kernel instead uses the
+list-columns <code>kernel_p</code>, <code>kernel_mean</code>, and <code>kernel_sd</code>, see
+<code><a href="gaussian_mixture_pred_kernel.html">gaussian_mixture_pred_kernel()</a></code>. There will be other parameters if you are
 using other predation kernel functions.</p></li>
 </ul><p>When you change one of the above species parameters using
 <code>species_params&lt;-()</code> or <code>given_species_params&lt;-()</code>, the new value will be
 used to update the corresponding size-dependent rates automatically, unless
 you have set those size-dependent rates manually, in which case the
-corresponding species parameters will be ignored.</p>
+corresponding species parameters will be ignored. Mizer warns you when that
+happens, because the value is then in the species parameter table without
+having any effect on the model. The warning names the call that puts the
+rate back under the control of the species parameters.</p>
 <p>There are some species parameters that are used directly in the model
 rather than being used for setting up size-dependent parameters:</p><ul><li><p><code>alpha</code> is the assimilation efficiency, the proportion of the consumed
 biomass that can be used for growth, metabolism and reproduction, see
@@ -247,11 +273,11 @@ weight and warns you that it has changed the length to match.</p>
 <p>The rule is applied when a species parameter data frame is put into a model.
 A data frame that you have taken out of a model and are editing on its own
 is left exactly as you write it: no conversions, no checks and no warnings
-until you assign it back with <code>species_params&lt;-()</code>, which is when mizer can
-tell which values you changed. A data frame that was never in a model, for
-example one you pass to <code><a href="validSpeciesParams.html">validSpeciesParams()</a></code>, carries no such history, so
-a length and a weight that disagree there count as given at the same time
-and the weight wins.</p>
+until you assign it back with <code>species_params&lt;-()</code> or
+<code>given_species_params&lt;-()</code>, which is when mizer can tell which values you
+changed. A data frame that was never in a model, for example one you pass to
+<code><a href="validSpeciesParams.html">validSpeciesParams()</a></code>, carries no such history, so a length and a weight
+that disagree there count as given at the same time and the weight wins.</p>
 <p>The parameters that are only used to calculate default values for other
 parameters are:</p><ul><li><p><code>f0</code> is the feeding level and is used to get a default value for the
 coefficient of the search volume <code>gamma</code>, see <code><a href="get_gamma_default.html">get_gamma_default()</a></code>.</p></li>
@@ -270,10 +296,12 @@ by being explicitly given.</p>
 observations:</p><ul><li><p><code>biomass_observed</code> and <code>biomass_cutoff</code> allow you to specify for each
 species the total observed biomass above some cutoff size. This is
 used by <code><a href="calibrateBiomass.html">calibrateBiomass()</a></code> and <code><a href="matchBiomasses.html">matchBiomasses()</a></code>.</p></li>
-<li><p><code>yield_observed</code> allows you to specify for each
-species the total annual fisheries yield. This is
-used by <code><a href="calibrateYield.html">calibrateYield()</a></code> and <code><a href="matchYields.html">matchYields()</a></code>.</p></li>
-</ul><p>Finally there are two species parameters that control the way the species are
+</ul><p>The total annual fisheries yield is not a species parameter but a gear
+parameter, because it is observed for each gear separately, see
+<code><a href="gear_params.html">gear_params()</a></code>. For backwards compatibility mizer still accepts a
+<code>yield_observed</code> column in the species parameter data frame, see
+<code><a href="get_yield_observed.html">get_yield_observed()</a></code>.</p>
+<p>Finally there are two species parameters that control the way the species are
 represented in plots:</p><ul><li><p><code>linecolour</code> specifies the colour and can be any valid R colour value.</p></li>
 <li><p><code>linetype</code> specifies the line type ("solid", "dashed", "dotted", "dotdash",
 "longdash", "twodash" or "blank")</p></li>
@@ -287,6 +315,27 @@ will have no effect.</p>
 <p>You are allowed to include additional columns in the species parameter
 data frames. They will simply be ignored by mizer but will be stored in the
 MizerParams object, in case your own code makes use of them.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="extracting-a-column-with-">Extracting a column with <code>$</code><a class="anchor" aria-label="anchor" href="#extracting-a-column-with-"></a></h2>
+
+
+<p><code>species_params(params)$w_mat</code> returns the column as a vector named after the
+species. Unlike <code>$</code> on an ordinary data frame, it does <strong>not</strong> partially
+match the column name. Partial matching is dangerous here because so many
+species parameter names are prefixes of others: in a model without
+length-weight parameters <code>species_params(params)$a</code> used to return the
+<code>alpha</code> column and <code>$b</code> the <code>beta</code> column, complete with species names, so
+code converting weights to lengths silently got the assimilation efficiency
+and the preferred predator/prey mass ratio instead. Writing was never
+partially matched, so reads and writes disagreed about which column <code>$b</code>
+meant.</p>
+<p>A name that is not a column now gives <code>NULL</code>, so
+<code>is.null(species_params(params)$foo)</code> is a reliable way of testing whether a
+parameter is present. If the name would have partially matched a column
+under the old behaviour you also get a warning naming that column, because
+that is exactly the case where existing code changes its meaning. The same
+holds for <code><a href="gear_params.html">gear_params()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="setting-species-parameters-without-recalculation">Setting species parameters without recalculation<a class="anchor" aria-label="anchor" href="#setting-species-parameters-without-recalculation"></a></h2>

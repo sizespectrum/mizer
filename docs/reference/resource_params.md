@@ -55,14 +55,28 @@ initial resource abundance is **not** updated when you subsequently
 change `kappa` (or call
 [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)).
 
+The resource parameters `a` and `b` give the allometric weight-length
+relationship \\w = a l^b\\ of the resource, with \\w\\ in grams and
+\\l\\ in centimetres. They feed none of the rates; they exist so that
+the resource can be shown on the length-based plots (`size_axis = "l"`)
+alongside the species. They default to the equivalent spherical diameter
+of an organism with the density of water, \\a = \pi/6\\ and \\b = 3\\,
+which is the convention plankton ecology uses for a composite of many
+taxa. This is a different convention from the one the species use, so
+the resource and the species each sit on the length axis at their own;
+see
+[resource_length_defaults](https://sizespectrum.org/mizer/reference/resource_length_defaults.md).
+
 Assigning to `resource_params` only rebuilds the size-dependent resource
 rate and capacity arrays from these scalars (leaving any arrays you have
-set manually untouched). It does **not** balance the resource, i.e. it
-does not adjust one of the rate or capacity to keep the resource at the
-steady state where it replenishes at the rate at which it is consumed.
-This mirrors the way the species parameters feed the species rates. If
-you want to preserve the steady state after changing a resource scalar,
-call
+set manually untouched). Changing `lambda` also recalculates any `q` and
+`gamma` species parameters that mizer calculated, and changing `kappa`
+recalculates any calculated `gamma`; values you supplied explicitly are
+preserved. It does **not** balance the resource, i.e. it does not adjust
+one of the rate or capacity to keep the resource at the steady state
+where it replenishes at the rate at which it is consumed. This mirrors
+the way the species parameters feed the species rates. If you want to
+preserve the steady state after changing a resource scalar, call
 [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
 with the appropriate argument (which balances by default).
 

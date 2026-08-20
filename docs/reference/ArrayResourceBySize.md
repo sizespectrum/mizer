@@ -14,7 +14,13 @@ methods.
 ## Usage
 
 ``` r
-ArrayResourceBySize(x, value_name = NULL, units = NULL, params = NULL)
+ArrayResourceBySize(
+  x,
+  value_name = NULL,
+  units = NULL,
+  type = NULL,
+  params = NULL
+)
 
 is.ArrayResourceBySize(x)
 ```
@@ -33,6 +39,13 @@ is.ArrayResourceBySize(x)
 - units:
 
   A string giving the units (e.g. "1/year").
+
+- type:
+
+  The kind of quantity the values are, see
+  [`ArraySpeciesBySize()`](https://sizespectrum.org/mizer/reference/ArraySpeciesBySize.md)
+  and
+  [array_types](https://sizespectrum.org/mizer/reference/array_types.md).
 
 - params:
 
@@ -65,7 +78,10 @@ lightweight attributes:
 [`print()`](https://sizespectrum.org/mizer/reference/print.md),
 [`summary()`](https://sizespectrum.org/mizer/reference/summary.md),
 [`as.data.frame()`](https://sizespectrum.org/mizer/reference/as.data.frame.md),
-[`plot()`](https://sizespectrum.org/mizer/reference/plot.md)
+[`plot()`](https://sizespectrum.org/mizer/reference/plot.md),
+[`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+[`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md),
+[`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md)
 
 ## Examples
 

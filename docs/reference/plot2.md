@@ -29,8 +29,9 @@ plot2(
 - x:
 
   The first of two compatible mizer array objects to compare. Can be an
-  `ArraySpeciesBySize`, `ArrayTimeBySpecies`, or
-  `ArrayTimeBySpeciesBySize` object.
+  `ArraySpeciesBySize`, `ArrayTimeBySpecies`,
+  `ArrayTimeBySpeciesBySize`, `ArrayResourceBySize` or
+  `ArrayTimeByResourceBySize` object.
 
 - y:
 
@@ -43,7 +44,8 @@ plot2(
 - species:
 
   Character vector of species to include. `NULL` (default) means all
-  species.
+  species. A resource array holds a single spectrum, so this argument is
+  not used by the resource methods, which warn if it is set.
 
 - log_x:
 
@@ -53,7 +55,8 @@ plot2(
 - log_y:
 
   If `TRUE`, use a log10 y-axis. Default is `FALSE` for
-  `ArraySpeciesBySize` and `TRUE` for `ArrayTimeBySpecies`.
+  `ArraySpeciesBySize` and `TRUE` for `ArrayTimeBySpecies` and for the
+  resource classes.
 
 - log:
 
@@ -72,13 +75,15 @@ plot2(
 - total:
 
   A boolean value that determines whether the total over all selected
-  species is plotted as well. Default is `FALSE`.
+  species is plotted as well. Default is `FALSE`. Not used by the
+  resource methods, which warn if it is set.
 
 - background:
 
   A boolean value that determines whether background species are
   included. Ignored if the model does not contain background species.
-  Default is `TRUE`.
+  Default is `TRUE`. Not used by the resource methods, which warn if it
+  is set.
 
 - y_ticks:
 
@@ -88,18 +93,22 @@ plot2(
 
   Further arguments used by only some of the methods:
 
-  **For `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize` methods:**
-
-  `all.sizes`
-
-  :   If `FALSE` (default), values outside a species' size range
-      (`w_min` to `w_max`) are removed.
+  **For the `ArraySpeciesBySize`, `ArrayTimeBySpeciesBySize`,
+  `ArrayResourceBySize` and `ArrayTimeByResourceBySize` methods:**
 
   `wlim`
 
   :   A numeric vector of length two providing lower and upper limits
       for the weight (x) axis. Use `NA` to refer to the existing minimum
       or maximum.
+
+  **For the `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`
+  methods:**
+
+  `all.sizes`
+
+  :   If `FALSE` (default), values outside a species' size range
+      (`w_min` to `w_max`) are removed.
 
   `llim`
 
@@ -110,7 +119,18 @@ plot2(
   `size_axis`
 
   :   Whether to plot size as weight (`"w"`, default) or length (`"l"`),
-      using the allometric weight-length relationship.
+      using the allometric weight-length relationship of each species,
+      or of the resource, see
+      [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md).
+
+  `per_log_size`
+
+  :   For an array that holds a density, whether to plot it per
+      logarithmic size (`TRUE`) rather than per size (`FALSE`). The
+      default, `NULL`, plots the density as it stands. Unlike
+      `size_axis` this needs no weight-length relationship, so it is
+      available for the resource classes too. An error for an array that
+      does not hold a density.
 
   **For `ArrayTimeBySpecies` methods:**
 
@@ -120,7 +140,8 @@ plot2(
       for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
       limit at that end. Default is `c(NA, NA)`.
 
-  **For `ArrayTimeBySpeciesBySize` methods:**
+  **For the `ArrayTimeBySpeciesBySize` and `ArrayTimeByResourceBySize`
+  methods:**
 
   `time`
 
@@ -136,6 +157,7 @@ Other plotting functions:
 [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md),
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
+[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),
@@ -159,6 +181,8 @@ Other plotting functions:
 ``` r
 # \donttest{
 plot2(getEncounter(NS_params), getEncounter(NS_params))
+
+plot2(getResourceMort(NS_params), getResourceMort(NS_params))
 
 # }
 ```

@@ -16,8 +16,8 @@ Invisibly, an empty character vector.
 
 ## See also
 
-"Using mizer extension packages":
-[`vignette("using-extension-packages", package = "mizer")`](https://sizespectrum.org/mizer/articles/using-extension-packages.md)
+The [guide to using mizer extension
+packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
 
 Other extension tools:
 [`NOther()`](https://sizespectrum.org/mizer/reference/NOther.md),

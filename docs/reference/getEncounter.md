@@ -165,6 +165,7 @@ str(encounter)
 #>   ..$ w : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...
 #>  - attr(*, "value_name")= chr "Encounter rate"
 #>  - attr(*, "units")= chr "g/year"
+#>  - attr(*, "type")= chr "value"
 #>  - attr(*, "representation")= chr "point"
 #>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
 ```

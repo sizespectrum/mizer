@@ -33,9 +33,10 @@ calculated_species_params(params)
 
 - recalculate:
 
-  Whether `species_params<-()` should re-derive the calculated species
-  parameters and recalculate all the rates that depend on the species
-  parameters. Defaults to `TRUE`. See the section "Setting species
+  Whether `species_params<-()` should be allowed to re-derive calculated
+  species parameters and rates that depend on a changed parameter.
+  Defaults to `TRUE`; mizer still skips the rebuild when all changes are
+  to columns with no cached dependants. See the section "Setting species
   parameters without recalculation" below before setting it to `FALSE`.
 
 - value:
@@ -57,19 +58,35 @@ calculated_species_params(params)
 currently stored in the model.
 
 `species_params<-()`: Updates the `given_species_params` with any
-parameters you have changed, and then recalculates the full species
-parameter table and the model parameters. With `recalculate = FALSE` it
-only does the recording and stores the parameters you supplied, see the
-section "Setting species parameters without recalculation" below.
+parameters you have changed, and recalculates the full species parameter
+table and model parameters when a changed column has cached dependants.
+With `recalculate = FALSE` it only does the recording and stores the
+parameters you supplied, see the section "Setting species parameters
+without recalculation" below.
 
 `given_species_params()`: Data frame containing the species parameter
 values that were supplied explicitly by the user.
 
-`given_species_params<-()`: An alternative to `species_params<-()` that
-also triggers a recalculation of other parameters. The only difference
-is that `given_species_params<-()` issues warnings when a parameter is
-changed whose effect is overridden by another parameter that has already
-been given. This is especially useful during interactive use.
+`given_species_params<-()`: Replaces the authoritative table of
+parameters that are to count as explicit user input. Every non-`NA`
+entry in `value` is recorded as given, even when it is numerically equal
+to the value currently in `species_params()`. This lets you protect a
+calculated value against future recalculation. An `NA` entry, or removal
+of a column, hands a previously given parameter back to mizer's
+calculation. Dependent quantities are recalculated only when the
+replacement can change them; merely marking the current value as given
+does not rebuild the model.
+
+This setter also warns when a change you asked for cannot take effect,
+namely when the parameter is overridden by another one you have already
+given (`f0` by `gamma`, `fc` by `ks`, `age_mat` by `h`), when the rate
+array it feeds has been set by hand and so is no longer calculated, or
+when it is a gear parameter that mizer reads from
+[`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
+instead. `species_params<-()` stays quiet about all three.
+`given_species_params<-()` has no `recalculate` argument; where you need
+to record values without recalculating, use `species_params<-()` or
+[`record_given_species_params()`](https://sizespectrum.org/mizer/reference/record_given_species_params.md).
 
 `calculated_species_params()`: Data frame containing only those species
 parameter entries that are not explicit user input. Columns that would
@@ -116,7 +133,12 @@ When you change species parameters with `species_params<-()`, mizer
 automatically detects which parameters you have changed. It records
 these changed parameters in `given_species_params` so that they are
 protected against being overwritten by future recalculations. It then
-triggers a re-calculation of the calculated species parameters.
+re-calculates the quantities that depend on the changed parameters.
+Changes to observation, direct-runtime or other custom columns that base
+mizer does not use to build a cached quantity do not trigger that
+recalculation. Unknown columns on an extension object retain the
+conservative recalculation path because an extension setter may use
+them.
 
 There are some species parameters that are used to set up the
 size-dependent parameters that are used in the mizer model:
@@ -152,6 +174,9 @@ size-dependent parameters that are used in the mizer model:
 - `beta` and `sigma` are parameters of the lognormal predation kernel,
   see
   [`lognormal_pred_kernel()`](https://sizespectrum.org/mizer/reference/lognormal_pred_kernel.md).
+  The Gaussian-mixture kernel instead uses the list-columns `kernel_p`,
+  `kernel_mean`, and `kernel_sd`, see
+  [`gaussian_mixture_pred_kernel()`](https://sizespectrum.org/mizer/reference/gaussian_mixture_pred_kernel.md).
   There will be other parameters if you are using other predation kernel
   functions.
 
@@ -159,7 +184,10 @@ When you change one of the above species parameters using
 `species_params<-()` or `given_species_params<-()`, the new value will
 be used to update the corresponding size-dependent rates automatically,
 unless you have set those size-dependent rates manually, in which case
-the corresponding species parameters will be ignored.
+the corresponding species parameters will be ignored. Mizer warns you
+when that happens, because the value is then in the species parameter
+table without having any effect on the model. The warning names the call
+that puts the rate back under the control of the species parameters.
 
 There are some species parameters that are used directly in the model
 rather than being used for setting up size-dependent parameters:
@@ -210,9 +238,10 @@ the length to match.
 The rule is applied when a species parameter data frame is put into a
 model. A data frame that you have taken out of a model and are editing
 on its own is left exactly as you write it: no conversions, no checks
-and no warnings until you assign it back with `species_params<-()`,
-which is when mizer can tell which values you changed. A data frame that
-was never in a model, for example one you pass to
+and no warnings until you assign it back with `species_params<-()` or
+`given_species_params<-()`, which is when mizer can tell which values
+you changed. A data frame that was never in a model, for example one you
+pass to
 [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md),
 carries no such history, so a length and a weight that disagree there
 count as given at the same time and the weight wins.
@@ -252,11 +281,12 @@ observations:
   and
   [`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md).
 
-- `yield_observed` allows you to specify for each species the total
-  annual fisheries yield. This is used by
-  [`calibrateYield()`](https://sizespectrum.org/mizer/reference/calibrateYield.md)
-  and
-  [`matchYields()`](https://sizespectrum.org/mizer/reference/matchYields.md).
+The total annual fisheries yield is not a species parameter but a gear
+parameter, because it is observed for each gear separately, see
+[`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md).
+For backwards compatibility mizer still accepts a `yield_observed`
+column in the species parameter data frame, see
+[`get_yield_observed()`](https://sizespectrum.org/mizer/reference/get_yield_observed.md).
 
 Finally there are two species parameters that control the way the
 species are represented in plots:
@@ -280,6 +310,27 @@ effect.
 You are allowed to include additional columns in the species parameter
 data frames. They will simply be ignored by mizer but will be stored in
 the MizerParams object, in case your own code makes use of them.
+
+## Extracting a column with `$`
+
+`species_params(params)$w_mat` returns the column as a vector named
+after the species. Unlike `$` on an ordinary data frame, it does **not**
+partially match the column name. Partial matching is dangerous here
+because so many species parameter names are prefixes of others: in a
+model without length-weight parameters `species_params(params)$a` used
+to return the `alpha` column and `$b` the `beta` column, complete with
+species names, so code converting weights to lengths silently got the
+assimilation efficiency and the preferred predator/prey mass ratio
+instead. Writing was never partially matched, so reads and writes
+disagreed about which column `$b` meant.
+
+A name that is not a column now gives `NULL`, so
+`is.null(species_params(params)$foo)` is a reliable way of testing
+whether a parameter is present. If the name would have partially matched
+a column under the old behaviour you also get a warning naming that
+column, because that is exactly the case where existing code changes its
+meaning. The same holds for
+[`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md).
 
 ## Setting species parameters without recalculation
 

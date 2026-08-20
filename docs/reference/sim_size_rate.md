@@ -18,6 +18,7 @@ sim_size_rate(
   slot,
   value_name,
   units = NULL,
+  type = NULL,
   use_sim_effort = FALSE,
   representation = "point",
   ...

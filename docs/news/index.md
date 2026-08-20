@@ -1,6 +1,1195 @@
 # Changelog
 
+## mizer 3.2.1.9000
+
+This development version adds experimental tools for analysing the
+dynamic stability of steady states, tools for checking whether a model
+actually is at its steady state, a general
+[`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md)
+for integrals over the size spectrum, and a substantial extension of the
+plotting functions, in particular of plots against a length axis. It
+also routes nearly everything mizer says while building or changing a
+model through a single mechanism controlled by `info_level`.
+
+### Dynamic stability
+
+- New experimental
+  [`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
+  finds a steady state by solving the steady-state equation directly
+  with a Newton-type root finder (via the `nleqslv` package) instead of
+  running the dynamics to convergence. Unlike
+  [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) it
+  converges even when the steady state is dynamically unstable, and it
+  discovers the support of the steady state automatically. Currently
+  supports the default semichemostat resource dynamics.
+
+- New experimental
+  [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
+  analyses the dynamic stability of a mizer steady state by computing
+  the eigenvalues of the linearised one-step-ahead map at the fixed
+  point. To eliminate the artificial temporal numerical diffusion
+  introduced by the implicit solver, it maps the discrete numerical
+  eigenvalues back to their exact continuous-time equivalents via
+  \\\lambda = (1 - 1/\mu) / \Delta t\\. It reports whether the steady
+  state is stable or unstable (based on the real parts of the continuous
+  eigenvalues), the maximum real part, the `spectral_radius` of the
+  discrete numerical solver for a given time step `dt`, and — when the
+  system emergent limit cycle. By default the resource is treated as a
+  quasi-static fast variable (valid for semichemostat dynamics); setting
+  `include_resource = TRUE` gives the full coupled (fish + resource)
+  Jacobian, useful for verifying that the quasi-static approximation
+  makes little difference. The stability list also includes
+  `leading_eigenvectors`: a complex array `(n_species, n_sizes, 2)` of
+  the top two eigenvectors reshaped into the fish abundance space,
+  normalised to maximum modulus 1. The rate functions are only ever
+  evaluated at states satisfying `N >= 0` — where a centred difference
+  would push a cell negative, the column is differenced forwards from
+  the unperturbed state instead — so a custom rate function registered
+  with
+  [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
+  never has to be defined at negative abundances.
+
+- New experimental
+  [`getLimitCycleSim()`](https://sizespectrum.org/mizer/reference/getLimitCycleSim.md)
+  takes the output of
+  [`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
+  and constructs a `MizerSim` covering one period of the limit cycle in
+  the linear approximation. The trajectory is , where is the leading
+  complex eigenvector and the amplitude is scaled so the maximum
+  relative perturbation equals the `amplitude` argument (default 10%).
+  The returned object can be passed directly to
+  [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
+  [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md),
+  and other standard mizer plot functions.
+
+- New experimental
+  [`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md)
+  draws a bifurcation diagram over fishing effort. For each effort value
+  it follows the attractor of the full dynamics and plots the long-term
+  range of a summary quantity (biomass, yield or SSB). A stable steady
+  state appears as a single line and a limit cycle as a band between the
+  minimum and maximum, so a Hopf bifurcation shows up as the effort at
+  which the band opens up. The settling stage runs
+  [`projectToSteady()`](https://sizespectrum.org/mizer/reference/projectToSteady.md),
+  whose `tol`, `amplitude_tol` and `extinction_threshold` are exposed
+  for tuning.
+
+- [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) and
+  [`projectToSteady()`](https://sizespectrum.org/mizer/reference/projectToSteady.md)
+  now report the nature of the solution they converged to via a
+  `"convergence"` attribute on the returned object (mirroring the
+  `"stability"` attribute of
+  [`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)).
+  It records whether the run settled on a stable steady state, a limit
+  cycle, or neither, together with the cycle period and relative
+  amplitude when a cycle is found. Limit cycles are detected from a
+  per-species biomass series sampled at the new `t_save` resolution
+  (default `dt`), so detection no longer relies on the cycle period
+  being commensurate with `t_per`. The relative-amplitude floor for
+  calling an oscillation a limit cycle is a separate `amplitude_tol`
+  argument (default `0.01`), independent of the fixed-point convergence
+  tolerance `tol`, and a species is treated as extinct once its
+  reproduction falls below the `extinction_threshold` fraction (default
+  `1e-6`) of its value at the start of the run.
+
+- [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
+  and
+  [`getLimitCycleSim()`](https://sizespectrum.org/mizer/reference/getLimitCycleSim.md)
+  warn when they are handed a model that is not at a steady state. Both
+  linearise the dynamics *at* the stored state, so on a state that is
+  not a fixed point their eigenvalues describe the neighbourhood of a
+  point the model is not sitting at
+  ([\#495](https://github.com/sizespectrum/mizer/issues/495)).
+
+### Steady state and calibration
+
+- New experimental S3 generic
+  [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
+  returns `TRUE` if a model is at its steady state (within a tolerance,
+  defaulting to 0.05/year), `FALSE` otherwise. Extension packages can
+  provide custom methods.
+
+- New experimental
+  [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md)
+  answers the question every calibration workflow otherwise has to
+  remember to ask: *is this model still at its steady state?* It returns
+  the rate at which each species’ abundance would change if the model
+  were projected forward, as a per-capita rate in 1/year, so zero means
+  the model is on a fixed point. For the consumers the value is exact
+  rather than a finite difference: the backward-Euler transport
+  coefficients used by
+  [`project()`](https://sizespectrum.org/mizer/reference/project.md)
+  satisfy `A N - S = -dt dN/dt` identically. Everything is evaluated
+  with the model’s own reproduction function and its own
+  `resource_dynamics`, so unlike
+  [`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
+  it works whatever the resource dynamics are. The result is an
+  `ArraySpeciesBySize`, so `plot(getSteadyResidual(params))` shows which
+  species and which sizes have moved
+  ([\#495](https://github.com/sizespectrum/mizer/issues/495)).
+
+- [`summary()`](https://sizespectrum.org/mizer/reference/summary.md) of
+  a `MizerParams` object now reports the model’s biomass drift and
+  whether that counts as being at a steady state. Whether a model is
+  settled is not visible from any of the other parameters shown, and
+  getting it wrong is the most common way a calibration goes quietly
+  wrong ([\#495](https://github.com/sizespectrum/mizer/issues/495)).
+
+- [`project()`](https://sizespectrum.org/mizer/reference/project.md)
+  gains an experimental `check_steady` argument. With
+  `check_steady = TRUE` it warns when it is handed a model that is not
+  at its steady state, which catches the mistake of forgetting to re-run
+  [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) after
+  a `match…()` step. It defaults to `FALSE`, because projecting a model
+  away from its steady state is a perfectly normal thing to do. The
+  check is made at the effort stored in the params object rather than at
+  the effort passed to
+  [`project()`](https://sizespectrum.org/mizer/reference/project.md), so
+  running a fishing scenario at a new effort does not warn
+  ([\#495](https://github.com/sizespectrum/mizer/issues/495)).
+
+- The `"convergence"` attribute attached by
+  [`projectToSteady()`](https://sizespectrum.org/mizer/reference/projectToSteady.md)
+  and [`steady()`](https://sizespectrum.org/mizer/reference/steady.md)
+  gains a `residual` field giving how far the state reached actually is
+  from a fixed point. The `distance` field only compares two states
+  `t_per` apart on whatever scale the distance function uses; `residual`
+  measures the thing itself, and
+  [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) now
+  says when the two disagree — a run declared converged whose biomasses
+  are still visibly moving
+  ([\#495](https://github.com/sizespectrum/mizer/issues/495)).
+
+- [`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md),
+  [`matchNumbers()`](https://sizespectrum.org/mizer/reference/matchNumbers.md)
+  and
+  [`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md)
+  now say that they have moved the model off its steady state, turning
+  an instruction the documentation had to keep repeating into something
+  the package says at the moment it becomes true. The `calibrate…()`
+  functions and
+  [`scaleModel()`](https://sizespectrum.org/mizer/reference/scaleModel.md)
+  deliberately do not: they apply one overall scaling factor, which is
+  an exact symmetry of the model and leaves the steady state untouched
+  ([\#495](https://github.com/sizespectrum/mizer/issues/495)).
+
+- New
+  [`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+  and `reproduction_level<-` accessor and replacement functions allow
+  reading and changing the reproduction level while preserving the
+  steady state, matching the syntax of
+  [`resource_level()`](https://sizespectrum.org/mizer/reference/setResource.md)
+  and `resource_level<-`.
+  [`getReproductionLevel()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  is deprecated in favour of
+  [`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md).
+
+- [`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md)
+  gains the `info_level` argument that the other `match…()` functions
+  already had, and
+  [`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md)
+  and
+  [`matchNumbers()`](https://sizespectrum.org/mizer/reference/matchNumbers.md)
+  now actually honour theirs.
+
+- The biomass and the number variants of the calibration and matching
+  functions now share one implementation each.
+  [`calibrateBiomass()`](https://sizespectrum.org/mizer/reference/calibrateBiomass.md)
+  and
+  [`calibrateNumber()`](https://sizespectrum.org/mizer/reference/calibrateNumber.md)
+  differ only in whether the size integral carries a factor of the
+  weight, as do
+  [`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md)
+  and
+  [`matchNumbers()`](https://sizespectrum.org/mizer/reference/matchNumbers.md),
+  but each was a separate copy of the code, and the copies had drifted
+  apart. The four functions behave exactly as before on the default
+  quadrature scheme; what changes is that a correction to how an
+  observation is compared with the model is now made once instead of
+  once per variant
+  ([\#504](https://github.com/sizespectrum/mizer/issues/504)).
+
+### Integrals over the size spectrum
+
+- New experimental
+  [`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md)
+  calculates any integral over the size spectrum. It is now the
+  recommended way to write your own summary or indicator function: it
+  selects the size range, applies the quadrature scheme the model is
+  actually on and wraps the result in the appropriate mizer array class,
+  so none of those rules need to be remembered. It takes the weighting
+  factor via the `weighting` argument in any of the shapes mizer’s own
+  arrays come in, from a single number to a gear x species x size array,
+  and keeps the extra dimensions in the result.
+  [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md),
+  [`getN()`](https://sizespectrum.org/mizer/reference/getN.md),
+  [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md),
+  [`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md),
+  [`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md)
+  and
+  [`getProportionOfLargeFish()`](https://sizespectrum.org/mizer/reference/getProportionOfLargeFish.md)
+  are now all implemented with it
+  ([\#494](https://github.com/sizespectrum/mizer/issues/494)).
+
+- New experimental
+  [`bin_average_weight()`](https://sizespectrum.org/mizer/reference/bin_average_weight.md)
+  prepares the weight of an integral over the size spectrum so that the
+  integral uses the quadrature scheme the model is actually on. Use it
+  when writing your own indicator or diagnostic function: it is gated on
+  the `bin_average` entry of
+  [`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md),
+  so an indicator written with it is unchanged on the default scheme and
+  correct to second order when second-order bin-averaging is switched
+  on. Previously only available internally as
+  `bin_average_summary_weight()`.
+
+- New experimental
+  [`encounter_kernel()`](https://sizespectrum.org/mizer/reference/encounter_kernel.md)
+  returns the predation kernel that
+  [`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
+  actually uses under whichever quadrature scheme the model is on, to be
+  paired with the plain point prey weight `w_full * dw_full`. Any
+  diagnostic that decomposes the encounter rate must use this rather
+  than
+  [`getPredKernel()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md),
+  which is point-sampled on the grid and is intended for plotting and
+  for supplying a custom kernel.
+
+### Plotting
+
+- Mizer arrays now state what kind of quantity they hold. Every array
+  constructor gains a `type` argument: `"value"` (the default) for a
+  rate or an amount, `"density"` for an amount per gram of body weight,
+  `"proportion"` for a fraction. Two things follow from it.
+
+  A `"density"` is multiplied by the appropriate Jacobian when it is
+  plotted against a length axis (`size_axis = "l"`), and its units are
+  restated from `1/g` to `1/cm`. This replaces the guess mizer used to
+  make from the array’s name and units, which recognised only densities
+  that happened to be called “Number density” or to have units “1/g” —
+  and so missed
+  [`getFluxGradient()`](https://sizespectrum.org/mizer/reference/getFluxGradient.md),
+  whose values were plotted per gram against a length axis and labelled
+  `g^-1/year`. Arrays that declare no type still fall back to that
+  guess, so existing code and saved objects are unaffected.
+
+  A `"proportion"` —
+  [`getFeedingLevel()`](https://sizespectrum.org/mizer/reference/getFeedingLevel.md),
+  [`getCriticalFeedingLevel()`](https://sizespectrum.org/mizer/reference/getCriticalFeedingLevel.md),
+  [`maturity()`](https://sizespectrum.org/mizer/reference/setReproduction.md),
+  [`repro_prop()`](https://sizespectrum.org/mizer/reference/setReproduction.md),
+  [`psi()`](https://sizespectrum.org/mizer/reference/setReproduction.md),
+  [`resource_level()`](https://sizespectrum.org/mizer/reference/setResource.md)
+  — is plotted on a linear y axis showing the whole of the interval from
+  0 to 1, so the value can be read against the scale it belongs to. The
+  range is only ever widened to include the data, never narrowed to that
+  interval: the critical feeding level and the resource level can both
+  legitimately exceed 1, and their plots show it.
+  `plot(getFeedingLevel(params))` therefore now shows the same y range
+  that
+  [`plotFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md)
+  always has.
+
+- [`plot()`](https://sizespectrum.org/mizer/reference/plot.md),
+  [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+  [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md) and
+  [`animate()`](https://sizespectrum.org/mizer/reference/animate.md) on
+  an array that holds a density gain a `per_log_size` argument, which
+  expresses the values per logarithmic size rather than per size. This
+  is the same change of measure that `size_axis` makes — both rescale
+  the density by a Jacobian — so the two now sit side by side, and
+  [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
+  is no longer the only way to see a spectrum per log size. Unlike
+  `size_axis` it needs no weight-length relationship, so the resource
+  classes take it too. Asking for it on an array that does not hold a
+  density is now an error; it used to be swallowed silently by `...`.
+
+- [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md),
+  [`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md),
+  [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
+  [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md)
+  and [`animate()`](https://sizespectrum.org/mizer/reference/animate.md)
+  now let you choose the plotted quantity with two independent arguments
+  instead of the single `power`: `biomass` selects a biomass density
+  rather than a number density and the new `per_log_size` selects a
+  density with respect to logarithmic size rather than with respect to
+  size. The power of the weight is the sum of the two, which is why
+  `power = 1` was ambiguous: it is both the biomass density and the
+  number density in log size, and mizer had to assume the former when
+  choosing the y-axis label and the Jacobian for a length axis. The
+  number density in log size,
+  `plotSpectra(sim, biomass = FALSE, per_log_size = TRUE)`, is therefore
+  now available for the first time with the correct label and length
+  conversion. The `power` argument keeps working as before and remains
+  the only way to ask for a power that is not the sum of the two flags,
+  but supplying it together with a contradictory flag is now an error
+  instead of silently ignoring the flag
+  ([\#501](https://github.com/sizespectrum/mizer/issues/501)).
+  [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md)
+  does not accept `per_log_size`, because the cumulative distribution
+  does not depend on that choice. As a side effect,
+  [`plotlySpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md),
+  [`plotlyCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
+  [`plotlySpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md)
+  and
+  [`plotlyCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md)
+  now honour `biomass`, which they used to drop because they always
+  passed `power` on internally.
+
+- The resource can now be shown on length-based plots.
+  [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md)
+  gains the weight-length parameters `a` and `b`, defaulting to the
+  equivalent spherical diameter of an organism with the density of
+  water, `a = pi/6` and `b = 3`, which is the convention plankton
+  ecology uses for a composite of many taxa.
+  `plotSpectra(params, size_axis = "l")` therefore includes the resource
+  spectrum, where it used to drop it silently, and the resource array
+  plots and
+  [`animate()`](https://sizespectrum.org/mizer/reference/animate.md)
+  gain `size_axis` and `llim`. The parameters feed none of the rates.
+  Note that the resource then sits on the length axis at its own
+  convention: a fish of a given weight is about 3.7 times longer than a
+  sphere of that weight. That difference is real rather than an artefact
+  — a 1 mg copepod really is shorter than a 1 mg fish larva — but it
+  does mean the resource and the species are measured differently.
+
+- The total line is now shown on length-based plots, where it used to be
+  dropped. A total can only be formed once every line sits on the same
+  coordinate, and on a length axis the lines do not: each species, and
+  the resource, converts weight to length with its own allometric
+  relationship, so at a given length they sit at different weights. The
+  total is therefore summed *after* the conversion — at equal length
+  rather than at equal weight — interpolating each series onto the union
+  of all the size coordinates, logarithmically in size, with a series
+  contributing nothing outside its own range. Where the series already
+  share a grid, which is always the case on a weight axis, the union is
+  that grid and nothing is approximated: the weight-axis total is
+  unchanged.
+
+  [`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md),
+  [`plotSpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md),
+  [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md) and
+  [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md)
+  keep their total on a length axis too. The comparison plots used to
+  convert the axis after assembling the two spectra, so the total they
+  had been given — summed at equal weight — arrived at the conversion
+  with no species to convert it by and was dropped. They now let
+  [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
+  convert, so the total they receive is already the total on the axis
+  being plotted. As a result
+  [`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md)
+  also applies `ylim` the way
+  [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
+  does on a length axis: it could not before, because the values it was
+  filtering were a Jacobian away from the ones the limits described, so
+  with `return_data = TRUE` it returned values outside the limits that a
+  single spectrum plot would have dropped.
+
+  `total = TRUE` also now means the same thing everywhere: the total of
+  everything the object holds. For
+  [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
+  that was already so — the resource and every species, whatever is
+  drawn — and it stays so. The array plots have been brought into line:
+  `plot(<array>, total = TRUE)` used to sum only the species that were
+  selected for display, and now sums the whole array, so a plot of two
+  species can be read against the community total.
+
+- The array-plotting toolkit now covers every mizer array class. The
+  resource classes `ArrayResourceBySize` (as returned by
+  [`getResourceMort()`](https://sizespectrum.org/mizer/reference/getResourceMort.md),
+  [`resource_rate()`](https://sizespectrum.org/mizer/reference/setResource.md),
+  [`resource_capacity()`](https://sizespectrum.org/mizer/reference/setResource.md),
+  [`resource_level()`](https://sizespectrum.org/mizer/reference/setResource.md)
+  and
+  [`initialNResource()`](https://sizespectrum.org/mizer/reference/initialNResource-set.md))
+  and `ArrayTimeByResourceBySize` (as returned by
+  [`NResource()`](https://sizespectrum.org/mizer/reference/N.md) on a
+  `MizerSim`) gain
+  [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+  [`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md)
+  and [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md)
+  methods, and `ArrayTimeByResourceBySize` also gains an
+  [`animate()`](https://sizespectrum.org/mizer/reference/animate.md)
+  method, so you can now compare resource spectra before and after a
+  model change or play one through a simulation the same way you already
+  could for species rates. `ArrayTimeBySpeciesBySize` gains the
+  [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md)
+  method it was missing. The `species`, `total` and `background`
+  arguments do nothing for a resource array, which holds a single
+  spectrum, so the resource methods warn if they are set
+  ([\#468](https://github.com/sizespectrum/mizer/issues/468)).
+
+- [`plotFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md),
+  [`plotlyFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md)
+  and
+  [`plotYield()`](https://sizespectrum.org/mizer/reference/plotYield.md)
+  now delegate directly to the array plotting methods —
+  [`plot()`](https://sizespectrum.org/mizer/reference/plot.md) /
+  [`plotHover()`](https://sizespectrum.org/mizer/reference/plotHover.md)
+  on `ArraySpeciesBySize` and `plot(getYield(object))` — so they share
+  the behaviour and the arguments of those methods.
+  [`plotFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md)
+  keeps full support for `include_critical = TRUE` and its non-clipping
+  proportion coordinate scaling.
+
+- [`plotYieldObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.md)
+  gains a `gear` argument that restricts the comparison to the catch of
+  the selected gears. Both the model yield and the observed yield are
+  then taken from those gears only, so in a model where several gears
+  catch the same species you can check the gears against their own
+  observations instead of only their total. Without the argument the
+  plot keeps comparing the yield summed over all gears. Because the
+  species parameter `yield_observed` is a total over all the gears,
+  per-gear observations have to be given in
+  [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
+  ([\#286](https://github.com/sizespectrum/mizer/issues/286)).
+
+### Reporting information to the user
+
+- New `mizer_info_level` option sets how much mizer tells you about the
+  choices it makes, without your having to pass `info_level` to each
+  call. `options(mizer_info_level = 0)` quietens mizer as a whole,
+  including the functions that have no `info_level` argument of their
+  own, such as `species_params<-()` and the rate setters. The
+  `info_level` argument still overrides it for a single call, and its
+  default is now
+  [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md),
+  which reads the option.
+
+- The “Creating a mizer extension package” article is now generated from
+  a new `create-extension-package` skill, and is named
+  `guide-create-extension-package` like the other guides; the old
+  address redirects. Everything in the extending-mizer guide that only
+  matters once you share an extension — method dispatch, bundled data
+  objects, reporting to the user, upgrading saved objects — moved into
+  it, leaving that guide to the mechanisms themselves. Its advice on
+  marker classes has also been corrected: it still told you to define
+  them with `setClass()`, which mizer 3.2 made unnecessary and which
+  prevents your package from being chained with another.
+
+- The reporting mechanism is now exported, so that an extension package
+  can tell the user what it decided on their behalf through the same
+  channel mizer uses, and have it obey the same switch:
+  [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.md)
+  raises a report,
+  [`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.md)
+  collects the reports raised inside a call and gives them together when
+  it finishes,
+  [`signal_not_recalculated()`](https://sizespectrum.org/mizer/reference/signal_not_recalculated.md)
+  is the standard report for a setter that left a hand-set array alone,
+  and
+  [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md)
+  reads the `mizer_info_level` option. Give your own constructors and
+  setters an `info_level = default_info_level()` argument and forward
+  it, rather than hard-coding a value in the call to
+  [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md),
+  which would collide with a user’s own `info_level`.
+
+- The information mizer gives while it sets up or changes a model is now
+  raised through one function,
+  [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.md),
+  which says which quantity the report is about, how important it is,
+  whether it is a message or a warning, and whether it should still be
+  shown when nothing is collecting reports. The collecting handlers now
+  nest by themselves, so a function can report the information raised
+  inside it without having to know whether its caller is already doing
+  so, and two different things said about the same quantity are both
+  reported where previously the second overwrote the first. This is the
+  machinery behind the frozen-rate warnings described below, and it is
+  available to packages that extend mizer.
+
+- Nearly every message and warning that mizer gives while building or
+  changing a model now goes through that mechanism, including the ones
+  in [`steady()`](https://sizespectrum.org/mizer/reference/steady.md),
+  [`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md),
+  [`projectToSteady()`](https://sizespectrum.org/mizer/reference/projectToSteady.md),
+  [`validParams()`](https://sizespectrum.org/mizer/reference/validParams.md),
+  [`setInteraction()`](https://sizespectrum.org/mizer/reference/setInteraction.md),
+  [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md),
+  [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md),
+  [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md),
+  [`newTraitParams()`](https://sizespectrum.org/mizer/reference/newTraitParams.md),
+  [`newSingleSpeciesParams()`](https://sizespectrum.org/mizer/reference/newSingleSpeciesParams.md),
+  [`plotYieldObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.md)
+  and the upgrade of an old object. They are collected into a single
+  report rather than a stream, and `info_level` (or the
+  `mizer_info_level` option) controls all of them alike, where before
+  each function decided for itself.
+  [`steady()`](https://sizespectrum.org/mizer/reference/steady.md),
+  [`projectToSteady()`](https://sizespectrum.org/mizer/reference/projectToSteady.md)
+  and
+  [`validParams()`](https://sizespectrum.org/mizer/reference/validParams.md)
+  no longer implement their own `info_level` threshold, and
+  [`newSingleSpeciesParams()`](https://sizespectrum.org/mizer/reference/newSingleSpeciesParams.md),
+  [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+  and
+  [`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
+  gain an `info_level` argument.
+
+### Species, gear and resource parameters
+
+- The two species parameter setters now avoid unnecessary recalculation.
+  `given_species_params<-()` records every non-`NA` value as explicit
+  input, including a value equal to the current calculated value, but
+  does not rebuild the model for that provenance-only change. Changes to
+  observation, direct-runtime and unrelated custom columns also avoid
+  the full
+  [`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md)
+  sequence. Standard parameters with cached dependants, arguments of
+  active custom predation kernels, demotions to calculated values and
+  unknown columns on extension objects retain the conservative rebuild
+  path.
+
+- Changing a species parameter that feeds a rate array you have set by
+  hand now warns you that the change has no effect on the model.
+  Previously `given_species_params<-()` recorded the new value in the
+  species parameter table but left the model unchanged, and said
+  nothing: the rate setters do emit a message in that situation, but the
+  setter runs
+  [`suppressMessages()`](https://rdrr.io/r/base/message.html) over the
+  recalculation to quieten the routine chatter, so the message never
+  reached the user. The report is now a warning, which survives that,
+  and it names the species parameters that were ignored, the quantity
+  that is holding them back, and the call that puts the quantity back
+  under the control of the species parameters, for example
+  `setMetabolicRate(params, reset = TRUE)`. It is raised only when a
+  parameter that actually feeds the frozen quantity changed, so models
+  that mizer itself freezes arrays in, like those from
+  [`newTraitParams()`](https://sizespectrum.org/mizer/reference/newTraitParams.md)
+  and
+  [`newCommunityParams()`](https://sizespectrum.org/mizer/reference/newCommunityParams.md),
+  do not warn about unrelated changes
+  ([\#489](https://github.com/sizespectrum/mizer/issues/489)).
+
+- Changing a resource parameter that feeds a resource array you have set
+  by hand now warns you that the change has no effect, the same way a
+  species parameter change does. `resource_params(params)$kappa <- ...`
+  with a
+  [`resource_capacity()`](https://sizespectrum.org/mizer/reference/setResource.md)
+  that was set manually previously changed the stored scalar and nothing
+  else, in complete silence.
+  [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
+  also now says when it leaves a frozen resource array alone although
+  the resource parameters ask for a different value
+  ([\#489](https://github.com/sizespectrum/mizer/issues/489)).
+
+- The division of labour between the two species parameter setters is
+  now clear-cut: `given_species_params<-()` is the one that warns when a
+  change you asked for cannot take effect, and `species_params<-()`
+  stays quiet. That covers all three such diagnostics — a parameter
+  overridden by another one you have given, a parameter feeding a rate
+  array you have set by hand, and a gear parameter that mizer reads from
+  [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md).
+  Use `species_params<-()` in scripts and `given_species_params<-()`
+  interactively, where the diagnostics are worth having
+  ([\#496](https://github.com/sizespectrum/mizer/issues/496)).
+
+- Those three diagnostics now agree about what counts as a change.
+  Clearing a given species parameter to `NA` is one: it hands the
+  parameter back to mizer’s calculation, and if the rate array that
+  calculation feeds has been frozen, that instruction cannot be carried
+  out and you are now told so. Adding a column that holds only `NA` is
+  not a change, and no longer draws a warning that nothing else agreed
+  with. Previously each of the three diagnostics answered the question
+  differently, so an all-`NA` new column warned about a frozen array
+  while clearing a value that was actually given was reported by none of
+  them ([\#524](https://github.com/sizespectrum/mizer/issues/524)).
+
+- `given_species_params<-()` now warns when `k_vb` is specified on a
+  model where `h` or `age_mat` is already given and will override
+  `k_vb`.
+
+- [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)
+  now warns when explicitly supplied `z0pre` or `z0exp` arguments are
+  ignored because `z0` is already present in
+  [`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+  for every species or because `ext_mort` was supplied. A `z0` value
+  that is present only in
+  [`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+  is now recognised as calculated and is recalculated from `z0pre`,
+  `w_inf` and `z0exp`. When either argument is explicitly supplied and
+  used, the resulting values are recorded in
+  [`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md).
+  Values calculated from the arguments’ defaults remain calculated
+  parameters and are not recorded there
+  ([\#493](https://github.com/sizespectrum/mizer/issues/493)).
+
+- `setParams(params, reset = TRUE)` is now a documented argument of
+  [`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md)
+  rather than something that happened to be forwarded through `...`. It
+  thaws every rate array that
+  [`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md)
+  sets.
+
+- [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
+  and
+  [`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md)
+  now provide informative error messages when called on a model with
+  `h = Inf`, indicating that `gamma` or `ks` must be supplied
+  explicitly.
+
+- `gear_params<-()` and
+  [`calc_selectivity()`](https://sizespectrum.org/mizer/reference/calc_selectivity.md)
+  now list the missing column names in the error message when arguments
+  needed for a selectivity function are missing from the gear parameter
+  data frame.
+
+### Other new functions
+
+- New
+  [`knife_edge_length()`](https://sizespectrum.org/mizer/reference/knife_edge_length.md)
+  selectivity function that applies a knife-edge cut at a given
+  **length** rather than a weight. Set `sel_func = "knife_edge_length"`
+  and provide a `knife_edge_length` column in
+  [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md).
+  The length is converted to a cut-off weight via the length–weight
+  parameters `a` and `b`.
+
+- New
+  [`gaussian_mixture_pred_kernel()`](https://sizespectrum.org/mizer/reference/gaussian_mixture_pred_kernel.md)
+  supports multimodal feeding preferences represented by mixtures of
+  Gaussian distributions on the log predator/prey mass-ratio scale.
+
+### Other improvements
+
+- [`validParams()`](https://sizespectrum.org/mizer/reference/validParams.md)
+  is now about 15 times faster on an object that is already valid
+  ([\#461](https://github.com/sizespectrum/mizer/issues/461)). It used
+  to redo its full work on every call, which made it expensive to apply
+  the “validate at the boundary” principle consistently. The repair work
+  — rebuilding the species parameter tables and the `w_min_idx` and
+  `ft_mask` slots, and checking the structural validity of the object —
+  is now skipped for an object that has already been through it. Mizer
+  recognises such an object by a fingerprint calculated from the
+  contents of the slots that the repair and the structural checks depend
+  on. The fingerprint is recalculated on every call and is not stored on
+  the object, so it cannot go stale: any change to any of those slots,
+  made by any route including a direct slot assignment, gives a new
+  fingerprint and triggers the full validation. The checks for
+  non-finite values in the rate arrays are still made on every call,
+  because they catch what the fingerprint cannot see.
+  [`validSim()`](https://sizespectrum.org/mizer/reference/validSim.md)
+  benefits automatically, because most of its cost was its nested
+  [`validParams()`](https://sizespectrum.org/mizer/reference/validParams.md)
+  call. One consequence: any warning or message that the repair issues
+  about a condition it does not itself fix (for example that a species
+  has a maximum size larger than the largest size in the model) is now
+  issued only the first time an object with that content is validated in
+  a session.
+
+### Deprecations
+
+- `matchYields()` and `calibrateYield()` have been removed. They were
+  deprecated in mizer 2.6.0 and no use case for them was reported. Both
+  worked by multiplying the abundance of a species at all sizes by a
+  constant factor, which is the wrong lever for a yield: use
+  [`mizerExperimental::matchYield()`](https://sizespectrum.org/mizerExperimental/reference/matchYield.html),
+  which adjusts the catchability instead
+  ([\#526](https://github.com/sizespectrum/mizer/issues/526)).
+
+- Eleven accessors that returned a rate array stored in the MizerParams
+  object had two names that did exactly the same thing. The
+  `get`-prefixed name is now soft-deprecated in favour of the bare name,
+  which is the one that also has a replacement function
+  (`catchability(params) <- value` and friends):
+  [`getCatchability()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  →
+  [`catchability()`](https://sizespectrum.org/mizer/reference/setFishing.md),
+  [`getSelectivity()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  →
+  [`selectivity()`](https://sizespectrum.org/mizer/reference/setFishing.md),
+  [`getInitialEffort()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  →
+  [`initial_effort()`](https://sizespectrum.org/mizer/reference/initial_effort.md),
+  [`getPredKernel()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  →
+  [`pred_kernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md),
+  [`getSearchVolume()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  →
+  [`search_vol()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md),
+  [`getMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  →
+  [`intake_max()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md),
+  [`getMetabolicRate()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  →
+  [`metab()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md),
+  [`getExtMort()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  →
+  [`ext_mort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),
+  [`getExtEncounter()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  →
+  [`ext_encounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
+  [`getMaturityProportion()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  →
+  [`maturity()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
+  and
+  [`getReproductionProportion()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  →
+  [`repro_prop()`](https://sizespectrum.org/mizer/reference/setReproduction.md).
+  The old names keep working; they warn once per session in code you run
+  directly. The `get` prefix is now reserved for the functions that
+  *calculate* something from the current state of a model, like
+  [`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md)
+  or
+  [`getFMort()`](https://sizespectrum.org/mizer/reference/getFMort.md).
+
+- [`getReproductionLevel()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  is deprecated in favour of the new
+  [`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md).
+
+- The `sim2` argument of
+  [`plotYield()`](https://sizespectrum.org/mizer/reference/plotYield.md)
+  is deprecated in favour of `plot2(getYield(sim1), getYield(sim2))`.
+
+### Bug fixes
+
+- The summary plots `plot(sim)` and `plot(params)` now accept the
+  arguments that describe the plotted spectrum. They passed their `...`
+  to every panel, so `plot(sim, per_log_size = TRUE)` failed on the
+  feeding level panel with “`per_log_size` only applies to an array that
+  holds a density” even though the equivalent `plot(sim, power = 2)`
+  worked, because `power` was silently swallowed by the other panels
+  where `per_log_size` is a deliberate error. `power`, `biomass`,
+  `per_log_size` and `resource` now go to
+  [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
+  alone, so the arguments that replaced `power` work wherever `power`
+  does.
+
+- [`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
+  no longer fails with a non-finite residual error when the initial
+  guess contains exactly zero abundance in the active size range (as can
+  happen when averaging a simulation over a limit cycle). It now scales
+  the residual by a strictly positive initial guess instead.
+
+- [`projectToSteady()`](https://sizespectrum.org/mizer/reference/projectToSteady.md)
+  limit-cycle detection now uses only the second half of the series (or
+  the most recent 20 samples if the series is short) for its
+  autocorrelation step, instead of the entire run. This stops large
+  initial transients from drowning out a cycle that settles later.
+
+- Setting `f0` to a value outside the interval `[0, 1)` now gives an
+  immediate error, whether or not `gamma` has been supplied. Previously
+  `f0 = 1` silently produced an infinite `gamma` and a non-finite
+  `search_vol` when `gamma` was calculated, while an invalid `f0`
+  supplied alongside `gamma` could be accepted and ignored
+  ([\#517](https://github.com/sizespectrum/mizer/issues/517)).
+
+- The default values for the `gamma` and `f0` species parameters are no
+  longer corrupted by a search volume that you have set by hand.
+  [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
+  measures the energy available to a predator by giving it a search
+  volume coefficient of 1, but it obtained that search volume by calling
+  [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md),
+  which refuses to recalculate a `search_vol` array you have set
+  yourself. So mizer’s own internal calculation was blocked along with
+  yours and the available energy was read off your array instead, making
+  the resulting `gamma` wrong by however much your array differed from
+  the unit-gamma one — many orders of magnitude in realistic models.
+  Both
+  [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
+  and
+  [`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md)
+  now compute the search volume they need directly from the species
+  parameters, so they are unaffected by a frozen `search_vol` and remain
+  exact inverses of each other
+  ([\#488](https://github.com/sizespectrum/mizer/issues/488)).
+
+- [`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md)
+  now respects `interaction_resource` under `defaults_edition() >= 2`,
+  making it the exact inverse of
+  [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
+  also in a model where the species do not all feed on the resource with
+  the same strength.
+
+- Setting `f0` to a value outside the interval `[0, 1)` now gives an
+  immediate error, whether or not `gamma` has been supplied. Previously
+  `f0 = 1` silently produced an infinite `gamma` and a non-finite
+  `search_vol` when `gamma` was calculated, while an invalid `f0`
+  supplied alongside `gamma` could be accepted and ignored
+  ([\#517](https://github.com/sizespectrum/mizer/issues/517)).
+
+- Changing the resource power-law parameters now refreshes the species
+  search volume parameters that mizer calculated from them. Changing
+  `lambda` recalculates calculated `q` and `gamma` entries, while
+  changing `kappa` recalculates calculated `gamma`; explicitly supplied
+  species values remain protected. Previously
+  `resource_params(params)$lambda <- ...` and the corresponding
+  [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
+  calls rebuilt the resource arrays but silently left these calculated
+  species parameters and `search_vol` stale
+  ([\#497](https://github.com/sizespectrum/mizer/issues/497)).
+
+- `species_params<-()` no longer records a default that mizer filled in
+  as a given species parameter. A parameter that the model does not yet
+  carry and that
+  [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)
+  supplies a default for — most commonly the length-weight parameters
+  `a` and `b`, which a model built without length data does not have —
+  looked like a column the user had just added, and so was recorded as
+  given and frozen against every later recalculation. On `NS_params` any
+  assignment to
+  [`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md),
+  even one setting an unrelated parameter, added 24 given entries this
+  way. Values you do supply, including in a column that is new to the
+  model, are recorded as before
+  ([\#496](https://github.com/sizespectrum/mizer/issues/496)).
+
+- `$` on a `species_params` or `gear_params` table no longer partially
+  matches column names. In a model without length-weight parameters,
+  `species_params(params)$a` returned the `alpha` column and `$b` the
+  `beta` column, with the species names attached, so code converting
+  weights to lengths silently got the assimilation efficiency and the
+  preferred predator/prey mass ratio instead. Writing was never
+  partially matched, so reads and writes disagreed about which column
+  `$b` meant. A name that is not a column now gives `NULL`, with a
+  warning naming the column that used to be returned
+  ([\#487](https://github.com/sizespectrum/mizer/issues/487)).
+
+- `w_min` is now included in `given_species_params`, so the `min_w`
+  argument to
+  [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)
+  and
+  [`emptyParams()`](https://sizespectrum.org/mizer/reference/emptyParams.md)
+  is preserved across any operation that rebuilds the species parameters
+  from the given ones. Previously, a `given_species_params<-` round-trip
+  would silently reset `w_min` to 0.001 when `min_w` was smaller than
+  that, and emit a spurious warning when `min_w` was larger
+  ([\#460](https://github.com/sizespectrum/mizer/issues/460)).
+
+- [`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md)
+  now gives an error when it is passed an argument that none of the
+  setter functions it calls accepts. Every one of those setters declares
+  its `...` as unused, so any misspelled or misplaced argument was
+  silently accepted and ignored: `setParams(params, metabolic = 99)` did
+  nothing and said nothing. Arguments that belong to another function
+  are named in the error together with the function that does accept
+  them. In particular
+  [`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md)
+  never called
+  [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md),
+  so `setParams(params, resource_rate = ...)` had no effect on the
+  model; the error now points at
+  [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md),
+  and the deprecation warnings for `setResource(r_pp)` and
+  `setResource(kappa)`, which used to recommend
+  [`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md),
+  now recommend
+  [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
+  too.
+  [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
+  likewise now errors on an argument it does not have, instead of
+  ignoring it
+  ([\#491](https://github.com/sizespectrum/mizer/issues/491)).
+
+- `info_level = 0` now really does silence all the information about
+  default values, including the reports that until now were plain
+  messages: the notes about the interaction matrix dimnames, about
+  `no_w` being increased, about negative resource abundances, about what
+  an upgrade changed, and the consistency corrections to `w_mat`,
+  `w_mat25`, `w_min` and `w_repro_max`. Previously an information signal
+  whose level was above `info_level` was passed on rather than dropped,
+  so it could still be reported by a handler further out, and a plain
+  message ignored `info_level` altogether.
+
+- [`repair_params()`](https://sizespectrum.org/mizer/reference/repair_params.md)
+  now suggests
+  [`adjustSizeGrid()`](https://sizespectrum.org/mizer/reference/adjustSizeGrid.md)
+  instead of the deprecated
+  [`expandSizeGrid()`](https://sizespectrum.org/mizer/reference/expandSizeGrid.md)
+  when `w_min` is smaller than the grid minimum.
+
+- [`compareParams()`](https://sizespectrum.org/mizer/reference/compareParams.md)
+  now uses relative tolerance when comparing species parameters, so
+  small-magnitude parameters like `gamma` (~1e-8) are no longer silently
+  treated as equal when they differ by up to ~10%.
+
+- [`calibrateBiomass()`](https://sizespectrum.org/mizer/reference/calibrateBiomass.md),
+  [`calibrateNumber()`](https://sizespectrum.org/mizer/reference/calibrateNumber.md),
+  [`matchNumbers()`](https://sizespectrum.org/mizer/reference/matchNumbers.md),
+  [`plotBiomassObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotBiomassObservedVsModel.md)
+  and
+  [`plotYieldObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.md)
+  now integrate over the size grid with
+  [`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md)
+  like everything else in mizer. They had each hand-rolled the sum, so
+  they stayed on the first-order quadrature and cut the size range at a
+  bin boundary even in a model with
+  `second_order_w(params)["bin_average"]` switched on. In such a model a
+  species matched to its observed biomass was then plotted off the 1:1
+  line, because the match and the plot measured the biomass differently,
+  and the model yields in
+  [`plotYieldObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.md)
+  came out 10-20% below
+  [`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md),
+  so the plot and its total-relative-error caption reported an
+  under-prediction of the yields that was not there. Results on the
+  default quadrature scheme are unchanged
+  ([\#504](https://github.com/sizespectrum/mizer/issues/504),
+  [\#529](https://github.com/sizespectrum/mizer/issues/529)).
+
+- [`matchNumbers()`](https://sizespectrum.org/mizer/reference/matchNumbers.md)
+  no longer re-tunes the reproduction parameters when it has nothing to
+  match. Its guard against an empty selection of species never fired, so
+  with no observations, or none for the species asked for, it left the
+  abundances alone but still adjusted the reproduction parameters and
+  reported a rescaling that had not happened
+  ([\#504](https://github.com/sizespectrum/mizer/issues/504)).
+
+- [`plotYieldObservedVsModel()`](https://sizespectrum.org/mizer/reference/plotYieldObservedVsModel.md)
+  now finds the observed yield where mizer says it belongs.
+  `yield_observed` is documented as a
+  [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
+  column, and `given_species_params<-()` tells you to put it there, but
+  the plot read it only from the species parameters, so a model that
+  followed the advice got the error that no `yield_observed` had been
+  provided. The plot now takes the observations from the gear
+  parameters, summed over the gears catching each species, and still
+  accepts them in the species parameters for the species that have no
+  gear observation
+  ([\#526](https://github.com/sizespectrum/mizer/issues/526)).
+
+- [`getProportionOfLargeFish()`](https://sizespectrum.org/mizer/reference/getProportionOfLargeFish.md)
+  called on a `MizerParams` object gave a wrong answer. It multiplied
+  the species x size abundance array by the vector of weights, which R
+  recycles down the columns of the array instead of along the size axis,
+  so every species but the first was weighted by the wrong sizes. The
+  `MizerSim` method was unaffected, and the two now agree when applied
+  to the same state
+  ([\#494](https://github.com/sizespectrum/mizer/issues/494)).
+
+- [`getN()`](https://sizespectrum.org/mizer/reference/getN.md) now
+  applies the model’s quadrature scheme to the size range it is given,
+  so that under `second_order_w(params) <- c(bin_average = TRUE)` the
+  bin straddling `min_w` or `max_w` contributes only partially, as it
+  already did in
+  [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md).
+  Results on the default first-order scheme are unchanged
+  ([\#494](https://github.com/sizespectrum/mizer/issues/494)).
+
+- `getDiet(proportion = FALSE)` no longer overcounts when second-order
+  bin-averaging is switched on with
+  [`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md).
+  It was applying the prey-bin quadrature twice — once through its
+  bin-averaged prey weight and again through the bin-integrated
+  predation kernel that
+  [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
+  builds under `second_order_w` — so the diet was uniformly too large by
+  `(1 + beta) / 2`, where `beta` is the grid ratio (9.7% for
+  `NS_params`). Summing the diet over prey now reproduces
+  `getEncounter() * (1 - getFeedingLevel())` under both schemes, on both
+  the FFT and the custom-kernel path. `getDiet(proportion = TRUE)`, the
+  default, was unaffected because the factor was uniform and divided out
+  ([\#474](https://github.com/sizespectrum/mizer/issues/474)).
+
+- [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+  had the same quadrature mismatch: its trophic-level-weighted numerator
+  was built from the point-sampled
+  [`getPredKernel()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  and a bin-averaged prey weight, while its denominator came from
+  [`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md).
+  Under `second_order_w` the two are no longer the same integral, so the
+  reported trophic levels were off by up to 0.06. Numerator and
+  denominator now use the same quadrature, and a predator whose prey all
+  have trophic level 1 comes out at exactly 2 in both schemes
+  ([\#474](https://github.com/sizespectrum/mizer/issues/474)).
+
+- [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) now
+  successfully converges when the advective flux scheme is set to
+  `"van_leer"` (via `second_order_w`). Previously, the time-stepping
+  iteration would fall into a limit cycle because the flux limiter
+  weights flipped wildly across cells. We resolved this by introducing
+  an exponential moving average relaxation to the limiter `chi`
+  ([\#522](https://github.com/sizespectrum/mizer/issues/522)).
+
+- Size-spectrum plots with `size_axis = "l"` now transform number and
+  biomass densities from weight to length units using the
+  species-specific Jacobian. Biomass density per logarithmic size
+  interval (`power = 2`) uses the corresponding logarithmic Jacobian
+  ([\#469](https://github.com/sizespectrum/mizer/issues/469)).
+
+- `plotFeedingLevel(include_critical = TRUE)` no longer draws a critical
+  feeding level above 1 off the top of the plot. The y axis was fixed to
+  the interval from 0 to 1, and now widens when the data need it.
+
+### Documentation
+
+- The “Community Model”, “Trait-Based Model” and “The General Mizer
+  Size-spectrum Model” articles have been checked against the current
+  API in the same way. The model description used the deprecated
+  [`getResourceRate()`](https://sizespectrum.org/mizer/reference/getResourceDynamics.md)
+  and
+  [`getResourceCapacity()`](https://sizespectrum.org/mizer/reference/getResourceDynamics.md),
+  gave the wrong sign for the exponent in the default external mortality
+  \\z0_i = z0\_{pre}\\w\_{\infty.i}^{n-1}\\, said that the investment
+  into reproduction reaches one at `w_max` when since 3.1 that is
+  `w_repro_max`, misspelled
+  [`BevertonHoltRDD()`](https://sizespectrum.org/mizer/reference/BevertonHoltRDD.md),
+  repeated a sentence three times, and linked to a developer vignette
+  that no longer exists. The trait-based article claimed 100 size bins
+  where
+  [`newTraitParams()`](https://sizespectrum.org/mizer/reference/newTraitParams.md)
+  now chooses 161.
+
+- The “Multi Species Model” article has been brought up to date with the
+  current API. It used the deprecated
+  [`getInteraction()`](https://sizespectrum.org/mizer/reference/getInteraction.md),
+  said that the `MizerParams` object stores neither abundances nor
+  fishing effort (it stores the initial values of both), described
+  [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) as
+  re-tuning `erepro` when it now preserves the `reproduction_level` by
+  default and also rebalances the resource, and contained Rd markup
+  (`\eqn{}` and `[foo()]` links) that does not render in an Rmd article.
+
+- “Extending mizer” and “Guide: Extending mizer” have been merged into a
+  single guide at `guide-extend-mizer`, generated from the
+  `extend-mizer` skill; the old address redirects. The topic had been
+  split across three documents that each explained
+  [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
+  in full — the two articles and the “Level 3” section of the
+  `change-parameters` skill, which is now a pointer. Each half had
+  something the other lacked, and both are now in one place for readers
+  and agents alike: the table of the signature and return shape required
+  of every replaceable rate, and the rules on respecting the
+  `second_order_w` quadrature scheme and on never letting a rate jump as
+  a function of abundance.
+
+  A skill can now keep material out of the agent’s copy and in the
+  article, which is what lets the worked examples stay evaluated: an
+  `<!-- article-only -->` block, the mirror of the existing
+  `<!-- agent-only -->` one. The guide builder keeps its content and
+  drops the markers, and `mizerAgents` (\>= 0.4.0) drops the block as it
+  installs the skill, so a topic still lives in a single file.
+
+- “Using mizer extension packages” is now a guide like the others,
+  generated from a new `use-extension-packages` skill, so an agent
+  working in a project that loads mizerEcopath, mizerShelf, therMizer or
+  any other extension knows how the extension chain works. Being named
+  after its skill, the article moved from `using-extension-packages` to
+  `guide-use-extension-packages`; the old address redirects. It gains a
+  statement of the two rules that cover almost every problem — load the
+  packages before using a model that needs them, and persist models with
+  [`saveParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
+  and
+  [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
+  rather than [`saveRDS()`](https://rdrr.io/r/base/readRDS.html), since
+  the file deliberately holds a base-class object and only
+  [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
+  puts the extension class back.
+
+- The “Point values and bin averages” section of
+  [`vignette("numerical_details")`](https://sizespectrum.org/mizer/articles/numerical_details.md)
+  now explains where each bin integral is performed and why it must be
+  applied exactly once, and a new “The `second_order_w` switch” section
+  documents what the flag changes and how to make your own diagnostic
+  second-order accurate.
+
+- New article [“Discontinuous rate
+  functions”](https://sizespectrum.org/mizer/articles/discontinuous_rates.html)
+  explains what goes wrong when a custom rate function registered with
+  [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
+  depends discontinuously on the abundances — chattering trajectories
+  that keep changing as `dt` is refined, a stalled
+  [`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md),
+  and an unreliable
+  [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
+  — why none of the time-stepping methods can fix it, and how to avoid
+  it by giving the switch a finite width.
+
+- The topic articles and the AI-agent skills are now one set of
+  documents rather than two. Each `inst/skills/<topic>/SKILL.md` is
+  shipped as an agent skill and is also the source of the matching
+  `guide-*` article, built by `dev_scripts/build_guides.R`.
+  `mizerAgents` (\>= 0.3.3) installs the skills from the mizer it finds
+  installed, so the two packages can no longer drift apart.
+
+  These articles are no longer called cheatsheets. A cheatsheet reminds
+  you of something you already know, whereas these assume no prior
+  knowledge, so each is now a **guide**. Each is also named after the
+  skill it comes from, and titled with that skill’s own heading, so a
+  topic has one name instead of three: `cheatsheet-fishing` has become
+  `guide-set-up-fishing`, titled “Guide: Setting up fishing”, from the
+  `set-up-fishing` skill. Every old address redirects, but
+  `vignette("cheatsheet-fishing")` does not — see the [“Upgrading
+  mizer”](https://sizespectrum.org/mizer/articles/upgrading.html)
+  article for the full table of old and new names. The
+  `build-multispecies-model` skill was renamed to `build-model` at the
+  same time, since it covers the single-species, community and trait
+  constructors too.
+
+  There is now one guide per stage of the workflow, matching the skills
+  one for one. Two are new, covering topics that previously had a skill
+  but no article: **Running Simulations** (the arguments of
+  [`project()`](https://sizespectrum.org/mizer/reference/project.md),
+  the four ways of giving fishing effort, continuing and comparing runs,
+  and when numerical diffusion in the default upwind scheme can damp a
+  real oscillation) and **Extending mizer** (a short reference companion
+  to the Extending mizer article).
+
+  The former “Model setup and calibration” article has been split into
+  **Model setup** and **Steady state and calibration**, which are
+  separate tasks reached for at different times. The old URL redirects
+  to the first.
+
+  The remaining guides gain the material that had previously only been
+  written on the skill side: the fishing guide now covers
+  [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md)
+  and how catchability fixes the units of fishing effort; the
+  calibration guide covers
+  [`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
+  and
+  [`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md);
+  the model setup guide covers saving and reloading a model with
+  [`saveParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)/[`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md);
+  the changing-parameters guide explains that the feeding level is set
+  by `f0` rather than by `h`; and the analysis guide recommends
+  [`finalParams()`](https://sizespectrum.org/mizer/reference/finalParams.md)
+  over indexing a time series with
+  [`idxFinalT()`](https://sizespectrum.org/mizer/reference/finalN.md).
+
+- New `analyse-stability` skill, and the matching “Guide: Dynamic
+  Stability” article, cover the experimental stability tools added in
+  this version:
+  [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md),
+  [`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md),
+  [`getLimitCycleSim()`](https://sizespectrum.org/mizer/reference/getLimitCycleSim.md)
+  and
+  [`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md).
+  Like the other skills it is shipped in `inst/skills/` and picked up by
+  [`mizerAgents::setup_mizer_agent()`](https://sizespectrum.github.io/mizerAgents/reference/setup_mizer_agent.html)
+  from the installed mizer, so an agent’s guidance describes the version
+  of mizer the project actually runs.
+
+- New `understand-size-spectrum-dynamics` skill, and the matching
+  “Guide: Size-Spectrum Dynamics” article, explain how mizer models
+  behave rather than which function to call: which quantities you impose
+  and which the model produces for itself, the food and predation
+  feedback loops that couple species, what sets the slope of the
+  steady-state spectrum and the timescales of its dynamics, and the
+  difference between density dependence imposed through `R_max` and the
+  density dependence that emerges from the feedback loops. It closes
+  with a table mapping a symptom you actually see — a species that
+  collapses, oscillates, stops growing before `w_mat`, or refuses to
+  respond to fishing — to what to inspect.
+
+- The [“Upgrading
+  mizer”](https://sizespectrum.org/mizer/articles/upgrading.html)
+  article is now also shipped as an AI-agent skill,
+  `upgrade-mizer-code`, built from `inst/skills/upgrade-mizer-code/` by
+  the same generator as the guides — the skill keeps its symptom index
+  in `SKILL.md` and one file per release under `references/`, so an
+  agent loads the index and then only the release it needs. Vignettes
+  are not installed with the package, so an agent helping you fix a
+  script that stopped working after an upgrade previously had no access
+  to this information and would debug a deliberate, documented change
+  from first principles. The skill adds an index that maps the symptom
+  you actually see — an “unused argument” error, a deprecation warning,
+  a plot that changed, an
+  [`identical()`](https://rdrr.io/r/base/identical.html) comparison that
+  now fails — to the release that caused it and the fix.
+
 ## mizer 3.2.1
+
+CRAN release: 2026-08-04
 
 This patch release fixes how species and gear parameters are handled
 when they are assigned. A size given as a weight can now actually be set
@@ -11,6 +1200,33 @@ now record its change without triggering a recalculation that would undo
 it.
 
 ### Species parameter changes
+
+- Fixed: `given_species_params<-()` did not apply the length/weight
+  precedence rule, so it disagreed with `species_params<-()`, which the
+  documentation describes as equivalent apart from its warnings. On a
+  model where a size is given both as a weight and as a length, changing
+  the length through `given_species_params<-()` left the weight at its
+  old value and warned that the length was inconsistent, and it went on
+  warning at every later parameter change because the given species
+  parameters were never brought into line. The same edit made with
+  `species_params<-()` gave a maturity weight up to 73% larger. Both
+  setters now follow the same rule: the one you gave last wins
+  ([\#490](https://github.com/sizespectrum/mizer/issues/490)).
+  `given_species_params<-()` also preserves the columns of the
+  `species_params` slot that mizer does not calculate, which
+  `species_params<-()` already did.
+
+- Fixed: `species_params<-()` did not re-derive the calculated species
+  parameters that a rate setter owns (`h`, `gamma`, `ks`, `q`, `z0`,
+  `beta`, `w_mat25`, …). It rebuilt the species parameters from
+  [`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+  but then carried the previously calculated values over, so they looked
+  like given values and no longer responded to a change in the
+  parameters they are derived from. For example, in a model where `h` is
+  derived from the age at maturity, changing `w_mat` left `h` (and with
+  it `gamma` and `ks`) at its old value. `species_params<-()` and
+  `given_species_params<-()` now agree. Columns that mizer does not
+  calculate are still preserved, as are values you supplied yourself.
 
 - `species_params<-()` gains a `recalculate` argument. With
   `species_params(params, recalculate = FALSE) <- value` mizer records
@@ -573,7 +1789,7 @@ and the “Numerical Details” vignette.
     [`getPredMort()`](https://sizespectrum.org/mizer/reference/getPredMort.md),
     [`getFMort()`](https://sizespectrum.org/mizer/reference/getFMort.md),
     [`getMort()`](https://sizespectrum.org/mizer/reference/getMort.md),
-    [`getExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)
+    [`getExtMort()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
     and the reproductive investment
     [`getERepro()`](https://sizespectrum.org/mizer/reference/getERepro.md)
     — are reported at the geometric bin centre , the location where a
@@ -635,8 +1851,7 @@ and the “Numerical Details” vignette.
   /
   [`upgrade.MizerSim()`](https://sizespectrum.org/mizer/reference/upgrade.MizerSim.md)
   method. See the “Upgrading objects across versions of your extension”
-  section of
-  [`vignette("creating-extension-packages")`](https://sizespectrum.org/mizer/articles/creating-extension-packages.md).
+  section of `vignette("creating-extension-packages")`.
 
 - [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md)
   gains a `MizerSim` method and
@@ -1280,8 +2495,7 @@ vignette for the mathematical details.
   [`newTraitParams()`](https://sizespectrum.org/mizer/reference/newTraitParams.md),
   [`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md),
   [`matchNumbers()`](https://sizespectrum.org/mizer/reference/matchNumbers.md),
-  [`matchYields()`](https://sizespectrum.org/mizer/reference/matchYields.md)
-  and
+  `matchYields()` and
   [`addSpecies()`](https://sizespectrum.org/mizer/reference/addSpecies.md)to
   control the verbosity of information messages, consistent with
   [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md).
@@ -1457,7 +2671,7 @@ CRAN release: 2025-11-16
 - [`animateSpectra()`](https://sizespectrum.org/mizer/reference/animate.md)
   now uses consistent colours and preserves colour identity across
   frames ([\#321](https://github.com/sizespectrum/mizer/issues/321)).
-- [`getReproductionProportion()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
+- [`getReproductionProportion()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
   no longer returns incorrect proportions \> 1
   ([\#299](https://github.com/sizespectrum/mizer/issues/299))
 - [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
@@ -1547,10 +2761,7 @@ CRAN release: 2024-10-14
   [`setColours()`](https://sizespectrum.org/mizer/reference/setColours.md)
   and
   [`setLinetypes()`](https://sizespectrum.org/mizer/reference/setColours.md).
-- Deprecated
-  [`matchYields()`](https://sizespectrum.org/mizer/reference/matchYields.md)
-  and
-  [`calibrateYield()`](https://sizespectrum.org/mizer/reference/calibrateYield.md).
+- Deprecated `matchYields()` and `calibrateYield()`.
 - Improved some unit tests.
 - Some improvements to documentation.
 
@@ -1583,7 +2794,7 @@ rate at which a predator encounters food that is not explicitly
 modelled. This encounter rate is set with
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md)
 or `ext_encounter<-()` and can be read with
-[`getExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md)
+[`getExtEncounter()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
 or
 [`ext_encounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md).
 So this is similar to how external mortality is handled.
@@ -1825,7 +3036,7 @@ matching the growth rates.
 - If there are no differences then
   [`compareParams()`](https://sizespectrum.org/mizer/reference/compareParams.md)
   says so clearly.
-- [`getReproductionLevel()`](https://sizespectrum.org/mizer/reference/getReproductionLevel.md)
+- [`getReproductionLevel()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
   works as long as `R_max` is set.
   [\#252](https://github.com/sizespectrum/mizer/issues/252)
 - Converted several unit tests to edition 3 of testthat package.
@@ -1910,16 +3121,13 @@ CRAN release: 2021-09-11
   with their plotly counterparts.
 - New
   [`calibrateBiomass()`](https://sizespectrum.org/mizer/reference/calibrateBiomass.md),
-  [`calibrateYield()`](https://sizespectrum.org/mizer/reference/calibrateYield.md)
-  to set the model scale to agree with total observed biomass or total
-  observed yield. Uses the new
+  `calibrateYield()` to set the model scale to agree with total observed
+  biomass or total observed yield. Uses the new
   [`scaleModel()`](https://sizespectrum.org/mizer/reference/scaleModel.md).
 - New
   [`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md)
-  and
-  [`matchYields()`](https://sizespectrum.org/mizer/reference/matchYields.md)
-  will try to adjust the abundances of the species to produce the
-  observed biomasses or yields. See blog post at
+  and `matchYields()` will try to adjust the abundances of the species
+  to produce the observed biomasses or yields. See blog post at
   <https://blog.mizer.sizespectrum.org/posts/2021-08-20-a-5-step-recipe-for-tuning-the-model-steady-state/>
   .
 - There are now accessor and replacement functions for rates. So for
@@ -2049,7 +3257,7 @@ CRAN release: 2021-08-03
   change the density dependence in reproduction without changing the
   steady state of your model.
 - The new
-  [`getReproductionLevel()`](https://sizespectrum.org/mizer/reference/getReproductionLevel.md)
+  [`getReproductionLevel()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
   function tells you at what proportion of their maximum reproduction
   rate the species are operating in your model.
 - The package now comes with an example MizerSim object `NS_sim` which
@@ -2522,16 +3730,16 @@ the mizer model.
 
 Along with these setter functions there are accessor functions for
 getting the parameter arrays:
-[`getPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md),
-[`getSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md),
+[`getPredKernel()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md),
+[`getSearchVolume()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md),
 [`getInteraction()`](https://sizespectrum.org/mizer/reference/getInteraction.md),
-[`getMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md),
-[`getMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md),
-[`getExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),
-[`getMaturityProportion()`](https://sizespectrum.org/mizer/reference/setReproduction.md),
-[`getReproductionProportion()`](https://sizespectrum.org/mizer/reference/setReproduction.md),
-[`getCatchability()`](https://sizespectrum.org/mizer/reference/setFishing.md),
-[`getSelectivity()`](https://sizespectrum.org/mizer/reference/setFishing.md),
+[`getMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md),
+[`getMetabolicRate()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md),
+[`getExtMort()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md),
+[`getMaturityProportion()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md),
+[`getReproductionProportion()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md),
+[`getCatchability()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md),
+[`getSelectivity()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md),
 [`getResourceRate()`](https://sizespectrum.org/mizer/reference/getResourceDynamics.md),
 [`getResourceCapacity()`](https://sizespectrum.org/mizer/reference/getResourceDynamics.md),
 `getResourceParams()`,
@@ -2629,7 +3837,7 @@ experience in writing extensions for mizer.
   Mizer automatically falls back on the old non-FFT code to handle this.
   ([\#41](https://github.com/sizespectrum/mizer/issues/41))
 - New
-  [`getPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
+  [`getPredKernel()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
   returns the full 3-dimensional predation kernel array, even when this
   is not stored in MizerParams object.
 

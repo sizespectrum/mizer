@@ -13,7 +13,7 @@ w_mat25, w_repro_max and m species parameters with
 given_species_params(params) &amp;lt;- and let mizer recalculate the maturity
 ogive and reproduction allocation for you. Call setReproduction()
 directly only if you want to impose different functional forms for these.
-See vignette("cheatsheet-changing-parameters") for a full explanation of
+See vignette("guide-change-parameters") for a full explanation of
 when to reach for which level of the model.'><meta property="og:description" content='Sets the proportion of the total energy available for reproduction and growth
 that is invested into reproduction as a function of the size of the
 individual and sets additional density dependence. You will usually not
@@ -22,7 +22,7 @@ w_mat25, w_repro_max and m species parameters with
 given_species_params(params) &amp;lt;- and let mizer recalculate the maturity
 ogive and reproduction allocation for you. Call setReproduction()
 directly only if you want to impose different functional forms for these.
-See vignette("cheatsheet-changing-parameters") for a full explanation of
+See vignette("guide-change-parameters") for a full explanation of
 when to reach for which level of the model.'><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
@@ -31,7 +31,7 @@ when to reach for which level of the model.'><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,19 +51,21 @@ when to reach for which level of the model.'><meta property="og:image" content="
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/guide-understand-size-spectrum-dynamics.html">Guide: Understanding size-spectrum dynamics</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-build-model.html">Guide: Building a mizer model</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-calibrate-model.html">Guide: Reaching steady state and calibrating</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-change-parameters.html">Guide: Changing model parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-set-up-fishing.html">Guide: Setting up fishing</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-run-simulation.html">Guide: Running a mizer simulation</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-and-plot.html">Guide: Analysing and plotting mizer results</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-stability.html">Guide: Analysing dynamic stability</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-extend-mizer.html">Guide: Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-use-extension-packages.html">Guide: Using mizer extension packages</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-create-extension-package.html">Guide: Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
-    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
-    <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/using-extension-packages.html">Using mizer extension packages</a></li>
-    <li><a class="dropdown-item" href="../articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -71,14 +73,15 @@ when to reach for which level of the model.'><meta property="og:image" content="
     <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
+    <li><a class="dropdown-item" href="../articles/dynamic_stability.html">Dynamic stability and Hopf bifurcations</a></li>
+    <li><a class="dropdown-item" href="../articles/discontinuous_rates.html">Discontinuous rate functions</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/publications.html">Publications</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
-<li class="nav-item"><form class="form-inline" role="search">
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter"><span class="fa fab fa-twitter fa-lg"></span></a></li>
@@ -110,7 +113,7 @@ need to call this function directly. Instead change the <code>w_mat</code>,
 <code>given_species_params(params) &lt;-</code> and let mizer recalculate the maturity
 ogive and reproduction allocation for you. Call <code>setReproduction()</code>
 directly only if you want to impose different functional forms for these.
-See <code><a href="../articles/cheatsheet-changing-parameters.html">vignette("cheatsheet-changing-parameters")</a></code> for a full explanation of
+See <code><a href="../articles/guide-change-parameters.html">vignette("guide-change-parameters")</a></code> for a full explanation of
 when to reach for which level of the model.</p>
     </div>
 
@@ -125,13 +128,9 @@ when to reach for which level of the model.</p>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getMaturityProportion</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
-<span></span>
 <span><span class="fu">maturity</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">maturity</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
-<span></span>
-<span><span class="fu">getReproductionProportion</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">repro_prop</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span></span>
@@ -188,11 +187,11 @@ reproduction rate from the density-independent rate. Defaults to
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code>setReproduction()</code>: A MizerParams object with updated reproduction
 parameters.</p>
-<p><code>getMaturityProportion()</code> or equivalently <code>maturity()</code>:
-An <code>ArraySpeciesBySize</code> object (species x size) that holds the proportion
+<p><code>maturity()</code>: An <code>ArraySpeciesBySize</code> object (species x size) that
+holds the proportion
 of individuals of each species at size that are mature.</p>
-<p><code>getReproductionProportion()</code> or equivalently <code>repro_prop()</code>:
-An <code>ArraySpeciesBySize</code> object (species x size) that holds the proportion
+<p><code>repro_prop()</code>: An <code>ArraySpeciesBySize</code> object (species x size) that
+holds the proportion
 of the energy available for growth and reproduction that a mature
 individual allocates to reproduction for each species at size. For sizes
 where the maturity proportion is zero, also the reproduction proportion is
@@ -320,12 +319,12 @@ these as models for writing your own functions.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co"># Plot maturity and reproduction ogives for Cod in North Sea model</span></span></span>
-<span class="r-in"><span><span class="va">maturity</span> <span class="op">&lt;-</span> <span class="fu">getMaturityProportion</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">repro_prop</span> <span class="op">&lt;-</span> <span class="fu">getReproductionProportion</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu">maturity</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">rp</span> <span class="op">&lt;-</span> <span class="fu">repro_prop</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Size <span class="op">=</span> <span class="fu"><a href="w.html">w</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 Reproduction <span class="op">=</span> <span class="va">repro_prop</span>,</span></span>
-<span class="r-in"><span>                 Maturity <span class="op">=</span> <span class="va">maturity</span>,</span></span>
-<span class="r-in"><span>                 Total <span class="op">=</span> <span class="va">maturity</span> <span class="op">*</span> <span class="va">repro_prop</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                 Reproduction <span class="op">=</span> <span class="va">rp</span>,</span></span>
+<span class="r-in"><span>                 Maturity <span class="op">=</span> <span class="va">mat</span>,</span></span>
+<span class="r-in"><span>                 Total <span class="op">=</span> <span class="va">mat</span> <span class="op">*</span> <span class="va">rp</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dff</span> <span class="op">&lt;-</span> <span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt</a></span><span class="op">(</span><span class="va">df</span>, id.vars <span class="op">=</span> <span class="st">"Size"</span>,</span></span>
 <span class="r-in"><span>            variable.name <span class="op">=</span> <span class="st">"Type"</span>,</span></span>
 <span class="r-in"><span>            value.name <span class="op">=</span> <span class="st">"Proportion"</span><span class="op">)</span></span></span>

@@ -7,15 +7,15 @@
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Plotting observed vs. model yields — plotYieldObservedVsModel"><meta name="description" content="
 If yield observations are available for at least some species via the
-yield_observed column in the species parameter data frame, this function
-plots the yield of each species in the model against the observed
-yields. When called with a MizerSim object, the plot will use the model
-yields predicted for the final time step in the simulation."><meta property="og:description" content="
+yield_observed column, this function plots the yield of each species in
+the model against the observed yields. When called with a MizerSim object,
+the plot will use the model yields predicted for the final time step in the
+simulation."><meta property="og:description" content="
 If yield observations are available for at least some species via the
-yield_observed column in the species parameter data frame, this function
-plots the yield of each species in the model against the observed
-yields. When called with a MizerSim object, the plot will use the model
-yields predicted for the final time step in the simulation."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+yield_observed column, this function plots the yield of each species in
+the model against the observed yields. When called with a MizerSim object,
+the plot will use the model yields predicted for the final time step in the
+simulation."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -23,7 +23,7 @@ yields predicted for the final time step in the simulation."><meta property="og:
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,19 +43,21 @@ yields predicted for the final time step in the simulation."><meta property="og:
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/guide-understand-size-spectrum-dynamics.html">Guide: Understanding size-spectrum dynamics</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-build-model.html">Guide: Building a mizer model</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-calibrate-model.html">Guide: Reaching steady state and calibrating</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-change-parameters.html">Guide: Changing model parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-set-up-fishing.html">Guide: Setting up fishing</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-run-simulation.html">Guide: Running a mizer simulation</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-and-plot.html">Guide: Analysing and plotting mizer results</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-stability.html">Guide: Analysing dynamic stability</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-extend-mizer.html">Guide: Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-use-extension-packages.html">Guide: Using mizer extension packages</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-create-extension-package.html">Guide: Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
-    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
-    <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/using-extension-packages.html">Using mizer extension packages</a></li>
-    <li><a class="dropdown-item" href="../articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -63,14 +65,15 @@ yields predicted for the final time step in the simulation."><meta property="og:
     <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
+    <li><a class="dropdown-item" href="../articles/dynamic_stability.html">Dynamic stability and Hopf bifurcations</a></li>
+    <li><a class="dropdown-item" href="../articles/discontinuous_rates.html">Discontinuous rate functions</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/publications.html">Publications</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
-<li class="nav-item"><form class="form-inline" role="search">
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter"><span class="fa fab fa-twitter fa-lg"></span></a></li>
@@ -96,10 +99,10 @@ yields predicted for the final time step in the simulation."><meta property="og:
     <div class="ref-description section level2">
     <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a>
 If yield observations are available for at least some species via the
-<code>yield_observed</code> column in the species parameter data frame, this function
-plots the yield of each species in the model against the observed
-yields. When called with a MizerSim object, the plot will use the model
-yields predicted for the final time step in the simulation.</p>
+<code>yield_observed</code> column, this function plots the yield of each species in
+the model against the observed yields. When called with a MizerSim object,
+the plot will use the model yields predicted for the final time step in the
+simulation.</p>
     </div>
 
     <div class="section level2">
@@ -112,6 +115,7 @@ yields predicted for the final time step in the simulation.</p>
 <span>  return_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  labels <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  show_unobserved <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  gear <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -159,6 +163,12 @@ yield observation is available. If TRUE, these species will be
 shown as if their observed yield was equal to the model yield.</p></dd>
 
 
+<dt id="arg-gear">gear<a class="anchor" aria-label="anchor" href="#arg-gear"></a></dt>
+<dd><p>The gears to be included. Optional. By default the catch of all
+gears is included. A vector of gear names. Only species caught by the
+selected gears are shown.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>For <code>plotlyYieldObservedVsModel()</code>, additional arguments passed
 to <code><a href="plotHover.html">plotHover()</a></code>. Otherwise unused.</p></dd>
@@ -174,8 +184,19 @@ create the plot is returned instead of the plot.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Before you can use this function you will need to have added a
 <code>yield_observed</code> column to your model which gives the observed yield in
-grams per year.  For species for which you have no observed yield, you should set
-the value in the <code>yield_observed</code> column to 0 or NA.</p>
+grams per year. Its home is the gear parameter data frame, see
+<code><a href="gear_params.html">gear_params()</a></code>, where you give the yield for each gear-species pair and
+this function adds them up over the gears. For backwards compatibility a
+<code>yield_observed</code> column in the species parameter data frame is also
+accepted, see <code><a href="get_yield_observed.html">get_yield_observed()</a></code>. For species for which you have no
+observed yield, you should set the value in the <code>yield_observed</code> column to
+0 or NA.</p>
+<p>If a species is caught by several gears, both the model yield and the
+observed yield are summed over the gears. With the <code>gear</code> argument you can
+restrict the comparison to a subset of the gears, in which case only the
+catch of those gears enters on both axes. Because the species parameter
+data frame only holds the yield summed over all gears, the observations
+then have to come from the gear parameters.</p>
 <p>The total relative error is shown in the caption of the plot, calculated by
 $$TRE = \sum_i|1-\rm{ratio_i}|$$ where
 \(\rm{ratio_i}\) is the ratio of model yield / observed
@@ -186,9 +207,11 @@ yield for species i.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># create an example</span></span></span>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">yield_observed</span> <span class="op">&lt;-</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="fl">61</span>, <span class="fl">12</span>, <span class="fl">35</span>, <span class="fl">1.6</span>, <span class="cn">NA</span>, <span class="fl">10</span>, <span class="fl">7.6</span>, <span class="fl">135</span>, <span class="fl">60</span>, <span class="fl">30</span>, <span class="cn">NA</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="calibrateYield.html">calibrateYield</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># In this model each species is caught by a single gear, so there is one</span></span></span>
+<span class="r-in"><span><span class="co"># row in the gear parameters for each species, in the same order.</span></span></span>
+<span class="r-in"><span><span class="co"># Species without an observation get NA.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">yield_observed</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">3e11</span>, <span class="fl">4e9</span>, <span class="fl">4e10</span>, <span class="fl">5e10</span>, <span class="cn">NA</span>, <span class="fl">2e11</span>, <span class="fl">6e10</span>, <span class="fl">3e11</span>, <span class="cn">NA</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot with default options</span></span></span>
 <span class="r-in"><span><span class="fu">plotYieldObservedVsModel</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
@@ -204,6 +227,20 @@ yield for species i.</p>
 <span class="r-in"><span><span class="fu">plotYieldObservedVsModel</span><span class="op">(</span><span class="va">params</span>, ratio <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The following species are not being fished in your model and will not be included in the plot: Sprat, Sandeel, N.pout.</span>
 <span class="r-plt img"><img src="plotYieldObservedVsModel-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># If several gears catch the same species, their yields are added up.</span></span></span>
+<span class="r-in"><span><span class="co"># Give Cod a second gear that takes a quarter of the observed yield.</span></span></span>
+<span class="r-in"><span><span class="va">gp</span> <span class="op">&lt;-</span> <span class="fu"><a href="gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">gp</span><span class="op">[</span><span class="st">"Cod, Otter"</span>, <span class="st">"yield_observed"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">3e11</span> <span class="op">*</span> <span class="fl">0.75</span></span></span>
+<span class="r-in"><span><span class="va">extra</span> <span class="op">&lt;-</span> <span class="va">gp</span><span class="op">[</span><span class="st">"Cod, Otter"</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">extra</span><span class="op">$</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="st">"Gillnet"</span></span></span>
+<span class="r-in"><span><span class="va">extra</span><span class="op">$</span><span class="va">yield_observed</span> <span class="op">&lt;-</span> <span class="fl">3e11</span> <span class="op">*</span> <span class="fl">0.25</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">gp</span>, <span class="va">extra</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Compare only the catch of the Otter gear against its observation</span></span></span>
+<span class="r-in"><span><span class="fu">plotYieldObservedVsModel</span><span class="op">(</span><span class="va">params</span>, gear <span class="op">=</span> <span class="st">"Otter"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following species are not being caught by the selected gear and will not be included in the plot: Sprat, Sandeel, N.pout, Herring, Dab, Sole, Plaice.</span>
+<span class="r-plt img"><img src="plotYieldObservedVsModel-4.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

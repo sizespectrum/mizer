@@ -6,15 +6,13 @@ the `gamma` and `q` species parameters with
 volume for you. Call `setSearchVolume()` directly only if you want to
 impose a different functional form for the size dependence of the search
 volume. See
-[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+[`vignette("guide-change-parameters")`](https://sizespectrum.org/mizer/articles/guide-change-parameters.md)
 for a full explanation of when to reach for which level of the model.
 
 ## Usage
 
 ``` r
 setSearchVolume(params, search_vol = NULL, reset = FALSE, ...)
-
-getSearchVolume(params)
 
 search_vol(params)
 
@@ -53,8 +51,8 @@ search_vol(params) <- value
 
 `setSearchVolume()`: A MizerParams object with updated search volume.
 
-`getSearchVolume()` or equivalently `search_vol()`: A
-`ArraySpeciesBySize` object (species x size) holding the search volume.
+`search_vol()`: An `ArraySpeciesBySize` object (species x size) holding
+the search volume.
 
 ## Setting search volume
 
@@ -110,14 +108,14 @@ Other functions for setting parameters:
 
 ``` r
 # Inspect the current search volume
-getSearchVolume(NS_params)["Cod", 1:5]
+search_vol(NS_params)["Cod", 1:5]
 #>        0.001      0.00119      0.00142       0.0017      0.00203 
 #> 6.365796e-13 7.332810e-13 8.446721e-13 9.729844e-13 1.120788e-12 
 
 # Double the search volume for all species
-sv <- getSearchVolume(NS_params) * 2
+sv <- search_vol(NS_params) * 2
 params <- setSearchVolume(NS_params, search_vol = sv)
-getSearchVolume(params)["Cod", 1:5]
+search_vol(params)["Cod", 1:5]
 #>        0.001      0.00119      0.00142       0.0017      0.00203 
 #> 1.273159e-12 1.466562e-12 1.689344e-12 1.945969e-12 2.241577e-12 
 ```

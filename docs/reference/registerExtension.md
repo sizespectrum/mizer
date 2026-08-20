@@ -44,11 +44,11 @@ which re-executes `.onLoad`.
 ## See also
 
 [`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md)
-for registering an explicit full chain. "Using mizer extension
-packages":
-[`vignette("using-extension-packages", package = "mizer")`](https://sizespectrum.org/mizer/articles/using-extension-packages.md).
-"Creating a mizer extension package":
-[`vignette("creating-extension-packages", package = "mizer")`](https://sizespectrum.org/mizer/articles/creating-extension-packages.md)
+for registering an explicit full chain. The [guide to using mizer
+extension
+packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html).
+"Creating a mizer extension package": [Creating a mizer extension
+package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html)
 
 Other extension tools:
 [`NOther()`](https://sizespectrum.org/mizer/reference/NOther.md),

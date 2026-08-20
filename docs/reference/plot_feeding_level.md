@@ -16,12 +16,14 @@ plot_feeding_level(
   highlight,
   all.sizes,
   include_critical,
-  log_x,
-  log_y,
   wlim,
   llim,
   size_axis,
-  return_data
+  return_data,
+  log_x = TRUE,
+  log_y = FALSE,
+  log = NULL,
+  ...
 )
 ```
 
@@ -52,10 +54,6 @@ plot_feeding_level(
 
   Whether to also plot the critical feeding level.
 
-- log_x, log_y:
-
-  Logical flags for log10 axes.
-
 - wlim, llim:
 
   Numeric vectors of length two giving the weight and length limits.
@@ -67,6 +65,19 @@ plot_feeding_level(
 - return_data:
 
   If `TRUE`, return the plotting data frame instead of the plot.
+
+- log_x, log_y:
+
+  Logical flags for log10 axes.
+
+- log:
+
+  Optional base-R log argument string or boolean.
+
+- ...:
+
+  Additional arguments passed to
+  [`plot.ArraySpeciesBySize()`](https://sizespectrum.org/mizer/reference/plot.ArraySpeciesBySize.md).
 
 ## Value
 

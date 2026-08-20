@@ -2,19 +2,17 @@
 
 You will usually not need to call this function directly. Instead change
 the relevant species parameters (`pred_kernel_type`, and, depending on
-its value, `beta`/`sigma` or `ppmr_min`/`ppmr_max`) with
+its value, the parameters required by the selected kernel) with
 `given_species_params(params) <-` and let mizer recalculate the
 predation kernel for you. Call `setPredKernel()` directly only if you
 want to supply the full kernel array yourself. See
-[`vignette("cheatsheet-changing-parameters")`](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md)
+[`vignette("guide-change-parameters")`](https://sizespectrum.org/mizer/articles/guide-change-parameters.md)
 for a full explanation of when to reach for which level of the model.
 
 ## Usage
 
 ``` r
 setPredKernel(params, pred_kernel = NULL, reset = FALSE, ...)
-
-getPredKernel(params)
 
 pred_kernel(params)
 
@@ -54,8 +52,7 @@ pred_kernel(params) <- value
 
 `setPredKernel()`: A MizerParams object with updated predation kernel.
 
-`getPredKernel()` or equivalently `pred_kernel()`: An array (predator
-species x predator_size x prey_size)
+`pred_kernel()`: An array (predator species x predator_size x prey_size)
 
 ## Details
 
@@ -81,17 +78,21 @@ then determined by the `pred_kernel_type` column in species_params.
 The default for `pred_kernel_type` is "lognormal". This will call the
 function
 [`lognormal_pred_kernel()`](https://sizespectrum.org/mizer/reference/lognormal_pred_kernel.md)
-to calculate the predation kernel. An alternative pred_kernel type is
-"box", implemented by the function
+to calculate the predation kernel. Alternative pred_kernel types are
+"box", implemented by
 [`box_pred_kernel()`](https://sizespectrum.org/mizer/reference/box_pred_kernel.md),
-and "power_law", implemented by the function
-[`power_law_pred_kernel()`](https://sizespectrum.org/mizer/reference/power_law_pred_kernel.md).
+"power_law", implemented by
+[`power_law_pred_kernel()`](https://sizespectrum.org/mizer/reference/power_law_pred_kernel.md),
+and "gaussian_mixture", implemented by
+[`gaussian_mixture_pred_kernel()`](https://sizespectrum.org/mizer/reference/gaussian_mixture_pred_kernel.md).
 These functions require certain species parameters in the species_params
 data frame. For the lognormal kernel these are `beta` and `sigma`, for
-the box kernel they are `ppmr_min` and `ppmr_max`. They are explained in
-the help pages for the kernel functions. Except for `beta` and `sigma`,
-no defaults are set for these parameters. If they are missing from the
-species_params data frame then mizer will issue an error message.
+the box kernel they are `ppmr_min` and `ppmr_max`, and for the Gaussian
+mixture they are the list-columns `kernel_p`, `kernel_mean`, and
+`kernel_sd`. They are explained in the help pages for the kernel
+functions. Except for `beta` and `sigma`, no defaults are set for these
+parameters. If they are missing from the species_params data frame then
+mizer will issue an error message.
 
 You can use any other string for `pred_kernel_type`. If for example you
 choose "my" then you need to define a function `my_pred_kernel` that you
@@ -105,7 +106,7 @@ number of size bins. Instead, mizer only needs to store two
 two-dimensional arrays that hold Fourier transforms of the feeding
 kernel function that allow the encounter rate and the predation rate to
 be calculated very efficiently. However, if you need the full
-three-dimensional array you can calculate it with the `getPredKernel()`
+three-dimensional array you can calculate it with the `pred_kernel()`
 function.
 
 **Kernel dependent on both predator and prey size**
@@ -181,13 +182,13 @@ species_params(params)["Cod", "beta"] <- 200
 species_params(params)$ppmr_max <- 4000
 species_params(params)$ppmr_min <- 200
 species_params(params)$pred_kernel_type <- "box"
-plot(w_full(params), getPredKernel(params)["Cod", 100, ], type="l", log="x")
+plot(w_full(params), pred_kernel(params)["Cod", 100, ], type="l", log="x")
 
 
 ## If you need a kernel that depends also on prey size you need to define
 # it yourself.
-pred_kernel <- getPredKernel(params)
-pred_kernel["Herring", , ] <- sweep(pred_kernel["Herring", , ], 2,
-                                    params@w_full, "*")
-params<- setPredKernel(params, pred_kernel = pred_kernel)
+pk <- pred_kernel(params)
+pk["Herring", , ] <- sweep(pk["Herring", , ], 2,
+                           params@w_full, "*")
+params<- setPredKernel(params, pred_kernel = pk)
 ```

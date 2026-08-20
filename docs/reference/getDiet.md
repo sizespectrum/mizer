@@ -97,6 +97,10 @@ This function performs the same integration as
 but does not aggregate over prey species, and multiplies by \\1-f_i(w)\\
 to get the consumed biomass rather than the available biomass. Outside
 the range of sizes for a predator species the returned rate is zero.
+Summing the result of `getDiet(proportion = FALSE)` over prey therefore
+reproduces `getEncounter(params) * (1 - getFeedingLevel(params))`,
+whichever quadrature scheme the model uses (see
+[`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md)).
 
 ## See also
 
@@ -107,10 +111,12 @@ Other summary functions:
 [`getGrowthCurves()`](https://sizespectrum.org/mizer/reference/getGrowthCurves.md),
 [`getN()`](https://sizespectrum.org/mizer/reference/getN.md),
 [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md),
+[`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md),
 [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md),
 [`getTrophicLevelBySpecies()`](https://sizespectrum.org/mizer/reference/getTrophicLevelBySpecies.md),
 [`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md),
-[`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md)
+[`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md),
+[`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md)
 
 ## Examples
 

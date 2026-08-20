@@ -36,13 +36,13 @@ params2 <- params1
 species_params(params2)$w_mat[1] <- 10
 #> Warning: For the species Sprat the value for `w_mat25` is not smaller than that of `w_mat`. I have corrected that by setting it to NA.
 compareParams(params1, params2)
-#> The following species parameters differ: Component “w_mat”: Mean absolute difference: 3, Component “w_mat25”: Mean absolute difference: 2.687875
+#> The following species parameters differ: Component "w_mat": Mean relative difference: 0.2307692, Component "w_mat25": Mean relative difference: 0.2307692
 #> 
-#> params2 has the following additional given species parameters: w_mat25, a, b
+#> params2 has the following additional given species parameters: w_mat25
 #> 
-#> The following given species parameters differ: Component “w_mat”: Mean absolute difference: 3
+#> The following given species parameters differ: Component "w_mat": Mean relative difference: 0.2307692
 #> 
-#> The time_modified slots do not agree: Mean absolute difference: 3181166
+#> The time_modified slots do not agree: Mean absolute difference: 4919727
 #> 
 #> The maturity slots do not agree: Mean absolute difference: 0.04497162
 #>   Max |diff|: Sprat: 0.568

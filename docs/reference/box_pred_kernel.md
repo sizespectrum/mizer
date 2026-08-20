@@ -41,6 +41,7 @@ dataframe in the columns `ppmr_min` and `ppmr_max`.
 [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
 
 Other predation kernel:
+[`gaussian_mixture_pred_kernel()`](https://sizespectrum.org/mizer/reference/gaussian_mixture_pred_kernel.md),
 [`lognormal_pred_kernel()`](https://sizespectrum.org/mizer/reference/lognormal_pred_kernel.md),
 [`power_law_pred_kernel()`](https://sizespectrum.org/mizer/reference/power_law_pred_kernel.md),
 [`truncated_lognormal_pred_kernel()`](https://sizespectrum.org/mizer/reference/truncated_lognormal_pred_kernel.md)
@@ -53,5 +54,5 @@ params <- NS_params
 species_params(params)$ppmr_max <- 4000
 species_params(params)$ppmr_min <- 200
 species_params(params)$pred_kernel_type <- "box"
-plot(w_full(params), getPredKernel(params)["Cod", 10, ], type="l", log="x")
+plot(w_full(params), pred_kernel(params)["Cod", 10, ], type="l", log="x")
 ```

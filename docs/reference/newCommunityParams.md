@@ -27,7 +27,7 @@ newCommunityParams(
   knife_edge_size = 1000,
   reproduction,
   second_order_w = FALSE,
-  info_level = 2
+  info_level = default_info_level(2)
 )
 ```
 
@@ -63,7 +63,7 @@ newCommunityParams(
 
   The average feeding level of individuals who feed on a power-law
   spectrum. This value is used to calculate the search rate parameter
-  `gamma`.
+  `gamma`. Must be finite and in the interval \[0, 1).
 
 - h:
 
@@ -137,7 +137,9 @@ newCommunityParams(
 
   Controls the amount of information messages that are shown when the
   function sets default values for parameters. Higher levels lead to
-  more messages.
+  more messages, `info_level = 0` gives silence. The default is taken
+  from the `mizer_info_level` option, see
+  [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md).
 
 ## Value
 

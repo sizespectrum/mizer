@@ -40,7 +40,7 @@ user contributions can be checked out and receive feedback from the
 community. A growing number of other extension packages add new biology
 such as temperature dependence, starvation mortality, seasonal dynamics,
 and more — see the [list of extension
-packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html).
+packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html).
 Example mizer models can be contributed to
 [mizerExamples](https://sizespectrum.org/mizerExamples/). Follow us on
 [twitter](https://x.com/mizer_model) and read our
@@ -60,6 +60,7 @@ The package is on [CRAN](https://cran.r-project.org/package=mizer) and
 therefore available from R’s built-in package manager.
 
 ``` r
+
 # Install latest released version from CRAN
 install.packages("mizer")
 
@@ -75,6 +76,7 @@ up the parameters for the mizer model, and runs a simulation for 10
 years.
 
 ``` r
+
 library(mizer)
 params <- newMultispeciesParams(NS_species_params, NS_interaction)
 sim <- project(params, t_max = 10, effort = 0)
@@ -84,6 +86,7 @@ The results of the simulation can then be analysed, for example via
 plots:
 
 ``` r
+
 plot(sim)
 ```
 
@@ -249,8 +252,8 @@ reference sections below are organised in roughly this order:
 
 New users should start with the [Get started
 guide](https://sizespectrum.org/mizer/articles/mizer.html) and the topic
-[cheat sheets](https://sizespectrum.org/mizer/articles/index.html), or
-open the package overview page below.
+[guides](https://sizespectrum.org/mizer/articles/index.html), or open
+the package overview page below.
 
 - [`mizer`](https://sizespectrum.org/mizer/reference/mizer-package.md)
   [`mizer-package`](https://sizespectrum.org/mizer/reference/mizer-package.md)
@@ -261,9 +264,9 @@ open the package overview page below.
 Mizer allows the easy set-up of four different types of models, of
 increasing level of complexity. See
 <https://sizespectrum.org/mizer/articles/mizer.html#size-spectrum-models>
-for a description of these model types. The [Model setup and calibration
-cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html)
-gives a quick overview of the workflow.
+for a description of these model types. The [guide to building a mizer
+model](https://sizespectrum.org/mizer/articles/guide-build-model.html)
+walks through the workflow.
 
 - [`newSingleSpeciesParams()`](https://sizespectrum.org/mizer/reference/newSingleSpeciesParams.md)
   **\[experimental\]** : Set up parameters for a single species in a
@@ -279,9 +282,9 @@ gives a quick overview of the workflow.
 
 After you have created a model, you will want to make changes to it
 while tuning the model and for investigating the impact of changes in
-parameters. See the [Changing model parameters
-cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.html)
-for a quick reference.
+parameters. See the [guide to changing model
+parameters](https://sizespectrum.org/mizer/articles/guide-change-parameters.html)
+for how to do this.
 
 - [`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
   [`` `species_params<-`() ``](https://sizespectrum.org/mizer/reference/species_params.md)
@@ -331,9 +334,9 @@ for a quick reference.
 
 The first task after creating a multi-species model is to tune the model
 parameters so that in its steady state the model reproduces average
-observed growth rates, abundances and fisheries yields. The [Model setup
-and calibration
-cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.html)
+observed growth rates, abundances and fisheries yields. The [guide to
+reaching steady state and
+calibrating](https://sizespectrum.org/mizer/articles/guide-calibrate-model.html)
 walks through this calibration workflow.
 
 Two families of functions rescale abundances to match observations. The
@@ -350,6 +353,19 @@ reproduces the observations.
 
 - [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) : Set
   initial values to a steady state for the model
+- [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
+  **\[experimental\]** : Check whether a model is at steady state
+- [`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
+  **\[experimental\]** : Find a steady state by directly solving the
+  steady-state equation
+- [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md)
+  **\[experimental\]** : How far a model is from its steady state
+- [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
+  **\[experimental\]** : Analyse the dynamic stability of a mizer steady
+  state
+- [`getLimitCycleSim()`](https://sizespectrum.org/mizer/reference/getLimitCycleSim.md)
+  **\[experimental\]** : Construct a MizerSim of the linearised limit
+  cycle
 - [`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
   **\[experimental\]** : Set initial abundances to solution of
   steady-state equation with current rates
@@ -382,6 +398,8 @@ functions allow you to change the model without destroying the steady
 state.
 
 - [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+  [`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+  [`` `reproduction_level<-`() ``](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
   : Set Beverton-Holt reproduction without changing the steady state
 - [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
   [`resource_rate()`](https://sizespectrum.org/mizer/reference/setResource.md)
@@ -446,9 +464,9 @@ extract the ecosystem state as a `MizerParams` object.
 
 Calculate summary quantities from a `MizerSim` object, such as biomass,
 yield, growth, and feeding level, averaged or disaggregated over time,
-species, or size. The [Analysis and plotting
-cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html)
-gives a quick reference to these functions.
+species, or size. The [guide to analysing and plotting
+results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.html)
+introduces these functions.
 
 - [`summary_functions`](https://sizespectrum.org/mizer/reference/summary_functions.md)
   : Description of summary functions
@@ -463,6 +481,8 @@ gives a quick reference to these functions.
   Calculate the number of individuals within a size range
 - [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md) :
   Calculate the SSB of species
+- [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md)
+  **\[experimental\]** : How far a model is from its steady state
 - [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
   **\[experimental\]** : Get trophic level of individuals at size
 - [`getTrophicLevelBySpecies()`](https://sizespectrum.org/mizer/reference/getTrophicLevelBySpecies.md)
@@ -472,10 +492,15 @@ gives a quick reference to these functions.
 - [`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md)
   : Calculate the rate at which biomass of each species is fished by
   each gear
+- [`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md)
+  **\[experimental\]** : Integrate a quantity over the size spectrum
 - [`getFeedingLevel()`](https://sizespectrum.org/mizer/reference/getFeedingLevel.md)
   : Get feeding level
 - [`getCriticalFeedingLevel()`](https://sizespectrum.org/mizer/reference/getCriticalFeedingLevel.md)
   : Get critical feeding level
+- [`bin_average_weight()`](https://sizespectrum.org/mizer/reference/bin_average_weight.md)
+  **\[experimental\]** : Bin-average the weight of a size-spectrum
+  integral
 - [`w()`](https://sizespectrum.org/mizer/reference/w.md)
   [`w_full()`](https://sizespectrum.org/mizer/reference/w.md)
   [`dw()`](https://sizespectrum.org/mizer/reference/w.md)
@@ -492,7 +517,7 @@ fish mortality rates map onto the standard notation as follows:
 predation mortality
 [`getPredMort()`](https://sizespectrum.org/mizer/reference/getPredMort.md)
 is the multi-species analogue of *M2*, external mortality
-[`getExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)
+[`ext_mort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)
 is the residual natural mortality not resolved by the model, fishing
 mortality
 [`getFMort()`](https://sizespectrum.org/mizer/reference/getFMort.md) is
@@ -566,10 +591,10 @@ weight, mean maximum weight, and the Large Fish Index.
 ## Plotting results
 
 Visualise size spectra, biomass and yield trajectories, growth curves,
-and comparisons of model output with observations. See the [Analysis and
-plotting
-cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.html)
-for a quick reference.
+and comparisons of model output with observations. See the [guide to
+analysing and plotting
+results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.html)
+for an introduction to them.
 
 Several plots come in related variants. A plain plot such as
 [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
@@ -633,6 +658,9 @@ frame if you would rather build the plot yourself.
 - [`plotYieldGear()`](https://sizespectrum.org/mizer/reference/plotYieldGear.md)
   : Plot the total yield of each species by gear through time
 
+- [`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md)
+  **\[experimental\]** : Draw a bifurcation diagram over fishing effort
+
 - [`plotFMort()`](https://sizespectrum.org/mizer/reference/plotFMort.md)
   : Plot total fishing mortality of each species by size
 
@@ -677,12 +705,13 @@ and gear parameters with your own rate arrays.
 - [`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md)
   : Set or change any model parameters
 - [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
-  [`getPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
   [`pred_kernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
   [`` `pred_kernel<-`() ``](https://sizespectrum.org/mizer/reference/setPredKernel.md)
   : Set predation kernel
+- [`encounter_kernel()`](https://sizespectrum.org/mizer/reference/encounter_kernel.md)
+  **\[experimental\]** : The predation kernel as used by the encounter
+  quadrature
 - [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md)
-  [`getSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md)
   [`search_vol()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md)
   [`` `search_vol<-`() ``](https://sizespectrum.org/mizer/reference/setSearchVolume.md)
   : Set search volume
@@ -691,12 +720,10 @@ and gear parameters with your own rate arrays.
   [`` `interaction_matrix<-`() ``](https://sizespectrum.org/mizer/reference/setInteraction.md)
   : Set species interaction matrix
 - [`setMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md)
-  [`getMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md)
   [`intake_max()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md)
   [`` `intake_max<-`() ``](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md)
   : Set maximum intake rate
 - [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md)
-  [`getMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md)
   [`metab()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md)
   [`` `metab<-`() ``](https://sizespectrum.org/mizer/reference/setMetabolicRate.md)
   : Set metabolic rate
@@ -705,42 +732,35 @@ and gear parameters with your own rate arrays.
   [`` `ext_diffusion<-`() ``](https://sizespectrum.org/mizer/reference/setExtDiffusion.md)
   : Set external diffusion rate
 - [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)
-  [`getExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)
   [`ext_mort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)
   [`` `ext_mort<-`() ``](https://sizespectrum.org/mizer/reference/setExtMort.md)
   : Set external mortality rate
 - [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md)
-  [`getExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md)
   [`ext_encounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md)
   [`` `ext_encounter<-`() ``](https://sizespectrum.org/mizer/reference/setExtEncounter.md)
   : Set external encounter rate
 - [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
-  [`getMaturityProportion()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
   [`maturity()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
   [`` `maturity<-`() ``](https://sizespectrum.org/mizer/reference/setReproduction.md)
-  [`getReproductionProportion()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
   [`repro_prop()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
   [`` `repro_prop<-`() ``](https://sizespectrum.org/mizer/reference/setReproduction.md)
   [`psi()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
   : Set reproduction parameters
 - [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md)
-  [`getCatchability()`](https://sizespectrum.org/mizer/reference/setFishing.md)
   [`catchability()`](https://sizespectrum.org/mizer/reference/setFishing.md)
   [`` `catchability<-`() ``](https://sizespectrum.org/mizer/reference/setFishing.md)
-  [`getSelectivity()`](https://sizespectrum.org/mizer/reference/setFishing.md)
   [`selectivity()`](https://sizespectrum.org/mizer/reference/setFishing.md)
   [`` `selectivity<-`() ``](https://sizespectrum.org/mizer/reference/setFishing.md)
-  [`getInitialEffort()`](https://sizespectrum.org/mizer/reference/setFishing.md)
   : Set fishing parameters
 
 ## Extending Mizer
 
-See [Extending
-mizer](https://sizespectrum.org/mizer/articles/extending-mizer.html),
+See the [guide to extending
+mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html),
 [Using mizer extension
-packages](https://sizespectrum.org/mizer/articles/using-extension-packages.html)
+packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
 and [Creating a mizer extension
-package](https://sizespectrum.org/mizer/articles/creating-extension-packages.html)
+package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html)
 for more details.
 
 - [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
@@ -781,6 +801,8 @@ given size.
 
 - [`box_pred_kernel()`](https://sizespectrum.org/mizer/reference/box_pred_kernel.md)
   : Box predation kernel
+- [`gaussian_mixture_pred_kernel()`](https://sizespectrum.org/mizer/reference/gaussian_mixture_pred_kernel.md)
+  : Gaussian-mixture predation kernel
 - [`lognormal_pred_kernel()`](https://sizespectrum.org/mizer/reference/lognormal_pred_kernel.md)
   : Lognormal predation kernel
 - [`power_law_pred_kernel()`](https://sizespectrum.org/mizer/reference/power_law_pred_kernel.md)
@@ -792,14 +814,16 @@ given size.
 
 Functions that determine the size-selectivity of fishing gears, i.e. the
 proportion of fish of a given size that are retained by a gear. The
-[Fishing
-cheatsheet](https://sizespectrum.org/mizer/articles/cheatsheet-fishing.html)
-gives a quick reference to setting up gears, selectivity and effort.
+[guide to setting up
+fishing](https://sizespectrum.org/mizer/articles/guide-set-up-fishing.html)
+explains how to set up gears, selectivity and effort.
 
 - [`double_sigmoid_length()`](https://sizespectrum.org/mizer/reference/double_sigmoid_length.md)
   : Length based double-sigmoid selectivity function
 - [`knife_edge()`](https://sizespectrum.org/mizer/reference/knife_edge.md)
   : Weight based knife-edge selectivity function
+- [`knife_edge_length()`](https://sizespectrum.org/mizer/reference/knife_edge_length.md)
+  : Length based knife-edge selectivity function
 - [`sigmoid_length()`](https://sizespectrum.org/mizer/reference/sigmoid_length.md)
   : Length based sigmoid selectivity function
 - [`sigmoid_weight()`](https://sizespectrum.org/mizer/reference/sigmoid_weight.md)
@@ -844,8 +868,10 @@ energy invested in reproduction and the actual egg production rate.
   **\[experimental\]** : Give constant reproduction rate
 - [`noRDD()`](https://sizespectrum.org/mizer/reference/noRDD.md) : Give
   density-independent reproduction rate
-- [`getReproductionLevel()`](https://sizespectrum.org/mizer/reference/getReproductionLevel.md)
-  : Get reproduction level
+- [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+  [`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+  [`` `reproduction_level<-`() ``](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+  : Set Beverton-Holt reproduction without changing the steady state
 - [`getRequiredRDD()`](https://sizespectrum.org/mizer/reference/getRequiredRDD.md)
   : Determine reproduction rate needed for initial egg abundance
 
@@ -923,6 +949,9 @@ users building extensions or working with model objects directly.
 - [`constant_other()`](https://sizespectrum.org/mizer/reference/constant_other.md)
   : Helper function to keep other components constant
 
+- [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md)
+  : The default level of information that mizer gives
+
 - [`default_pred_kernel_params()`](https://sizespectrum.org/mizer/reference/default_pred_kernel_params.md)
   : Set defaults for predation kernel parameters
 
@@ -939,6 +968,9 @@ users building extensions or working with model objects directly.
 
 - [`emptyParams()`](https://sizespectrum.org/mizer/reference/emptyParams.md)
   : Create empty MizerParams object of the right size
+
+- [`frozen_rate_params()`](https://sizespectrum.org/mizer/reference/frozen_rate_params.md)
+  : Which parameters feed which frozen array
 
 - [`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md)
   : Get default value for f0
@@ -969,6 +1001,9 @@ users building extensions or working with model objects directly.
 - [`get_time_elements()`](https://sizespectrum.org/mizer/reference/get_time_elements.md)
   : Get array indices for a time range in a MizerSim object
 
+- [`get_yield_observed()`](https://sizespectrum.org/mizer/reference/get_yield_observed.md)
+  : Observed yield of each species
+
 - [`l2w()`](https://sizespectrum.org/mizer/reference/l2w.md)
   [`w2l()`](https://sizespectrum.org/mizer/reference/l2w.md) :
   Length-weight conversion
@@ -996,6 +1031,25 @@ users building extensions or working with model objects directly.
 - [`set_species_param_default()`](https://sizespectrum.org/mizer/reference/set_species_param_default.md)
   : Set a species parameter to a default value
 
+- [`signal_frozen()`](https://sizespectrum.org/mizer/reference/signal_frozen.md)
+  : Signal that a change the user made cannot take effect
+
+- [`signal_frozen_changes()`](https://sizespectrum.org/mizer/reference/signal_frozen_changes.md)
+  : Signal the changes to species parameters that cannot take effect
+
+- [`signal_gear_params_changes()`](https://sizespectrum.org/mizer/reference/signal_gear_params_changes.md)
+  : Signal a gear parameter changed through the given species parameters
+
+- [`signal_ignored_changes()`](https://sizespectrum.org/mizer/reference/signal_ignored_changes.md)
+  : Signal the changes that are ignored because another parameter was
+  given
+
+- [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.md)
+  : Signal information about a choice mizer made
+
+- [`signal_not_recalculated()`](https://sizespectrum.org/mizer/reference/signal_not_recalculated.md)
+  : Signal that a rate array was not recalculated because it is frozen
+
 - [`validEffortVector()`](https://sizespectrum.org/mizer/reference/validEffortVector.md)
   : Make a valid effort vector
 
@@ -1011,6 +1065,10 @@ users building extensions or working with model objects directly.
 
 - [`valid_species_arg()`](https://sizespectrum.org/mizer/reference/valid_species_arg.md)
   : Helper function to assure validity of species argument
+
+- [`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.md)
+  : Collect and report the information signals raised while setting
+  parameters
 
 - [`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md)
   : Default editions
@@ -1120,15 +1178,27 @@ versions of mizer
   Alias for
   [`set_multispecies_model()`](https://sizespectrum.org/mizer/reference/set_multispecies_model.md)
 
-- [`calibrateYield()`](https://sizespectrum.org/mizer/reference/calibrateYield.md)
-  **\[deprecated\]** : Calibrate the model scale to match total observed
-  yield
-
 - [`completeSpeciesParams()`](https://sizespectrum.org/mizer/reference/completeSpeciesParams.md)
   **\[deprecated\]** :
 
   Alias for
   [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)
+
+- [`getCatchability()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  [`getSelectivity()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  [`getInitialEffort()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  [`getPredKernel()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  [`getSearchVolume()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  [`getMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  [`getMetabolicRate()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  [`getExtMort()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  [`getExtEncounter()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  [`getMaturityProportion()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  [`getReproductionProportion()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  [`getReproductionLevel()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+  **\[deprecated\]** :
+
+  Deprecated `get`-prefixed accessors for stored rate arrays
 
 - [`expandSizeGrid()`](https://sizespectrum.org/mizer/reference/expandSizeGrid.md)
   **\[deprecated\]** : Expand the size grid
@@ -1164,9 +1234,6 @@ versions of mizer
   **\[deprecated\]** :
 
   Alias for `NS_interaction`
-
-- [`matchYields()`](https://sizespectrum.org/mizer/reference/matchYields.md)
-  **\[deprecated\]** : Match yields to observations
 
 - [`plotM2()`](https://sizespectrum.org/mizer/reference/plotM2.md)
   **\[deprecated\]** :
@@ -1210,30 +1277,35 @@ versions of mizer
 - [The General Mizer Size-spectrum
   Model](https://sizespectrum.org/mizer/articles/model_description.md):
 
-### Cheat sheets
+### Guides
 
-- [Cheatsheet: Model Setup and
-  Calibration](https://sizespectrum.org/mizer/articles/cheatsheet-model-setup-and-calibration.md):
-- [Cheatsheet: Changing Model
-  Parameters](https://sizespectrum.org/mizer/articles/cheatsheet-changing-parameters.md):
-- [Cheatsheet:
-  Fishing](https://sizespectrum.org/mizer/articles/cheatsheet-fishing.md):
-- [Cheatsheet: Analysis and
-  Plotting](https://sizespectrum.org/mizer/articles/cheatsheet-analysis-and-plotting.md):
+- [Guide: Understanding size-spectrum
+  dynamics](https://sizespectrum.org/mizer/articles/guide-understand-size-spectrum-dynamics.md):
+- [Guide: Building a mizer
+  model](https://sizespectrum.org/mizer/articles/guide-build-model.md):
+- [Guide: Reaching steady state and
+  calibrating](https://sizespectrum.org/mizer/articles/guide-calibrate-model.md):
+- [Guide: Changing model
+  parameters](https://sizespectrum.org/mizer/articles/guide-change-parameters.md):
+- [Guide: Setting up
+  fishing](https://sizespectrum.org/mizer/articles/guide-set-up-fishing.md):
+- [Guide: Running a mizer
+  simulation](https://sizespectrum.org/mizer/articles/guide-run-simulation.md):
+- [Guide: Analysing and plotting mizer
+  results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.md):
+- [Guide: Analysing dynamic
+  stability](https://sizespectrum.org/mizer/articles/guide-analyse-stability.md):
+- [Guide: Extending
+  mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.md):
+- [Guide: Using mizer extension
+  packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.md):
+- [Guide: Creating a mizer extension
+  package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.md):
 
 ### Upgrading
 
-- [Upgrading
-  mizer](https://sizespectrum.org/mizer/articles/upgrading.md):
-
-### Extending mizer
-
-- [Extending
-  mizer](https://sizespectrum.org/mizer/articles/extending-mizer.md):
-- [Using mizer extension
-  packages](https://sizespectrum.org/mizer/articles/using-extension-packages.md):
-- [Creating a mizer extension
-  package](https://sizespectrum.org/mizer/articles/creating-extension-packages.md):
+- [Upgrading your mizer
+  code](https://sizespectrum.org/mizer/articles/upgrading.md):
 
 ### Technical articles
 
@@ -1247,3 +1319,7 @@ versions of mizer
   Rates](https://sizespectrum.org/mizer/articles/fft.md):
 - [Analytic
   Test](https://sizespectrum.org/mizer/articles/analytic_test.md):
+- [Dynamic stability and Hopf
+  bifurcations](https://sizespectrum.org/mizer/articles/dynamic_stability.md):
+- [Discontinuous rate
+  functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.md):

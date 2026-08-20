@@ -76,8 +76,8 @@ table in a human-readable form.
 summary(NS_params)
 #> An object of class "MizerParams" 
 #> mizer version: 3.0.0.9003
-#> Created: 2021-09-03 21:29:38
-#> Modified: 2026-06-24 14:50:03
+#> Created: 2021-09-03 20:29:38
+#> Modified: 2026-06-24 13:50:03
 #> Consumer size spectrum:
 #>  minimum size:   0.001
 #>  maximum size:   39851.3
@@ -86,6 +86,8 @@ summary(NS_params)
 #>  minimum size:   2.12182e-13
 #>  maximum size:   9.82091
 #>  no. size bins:  179 (226 size bins in total)
+#> Steady state:
+#>  biomass drift:  0.014 /year (at steady state)
 #> Species details:
 #> An object of class "species_params" containing parameters for 12 species:
 #>  species   w_inf w_mat w_min  f0   beta sigma
@@ -114,8 +116,8 @@ summary(NS_sim)
 #> Parameters:
 #> An object of class "MizerParams" 
 #> mizer version: 3.0.0.9003
-#> Created: 2021-09-03 21:30:02
-#> Modified: 2026-06-24 14:50:03
+#> Created: 2021-09-03 20:30:02
+#> Modified: 2026-06-24 13:50:03
 #> Consumer size spectrum:
 #>  minimum size:   0.001
 #>  maximum size:   39851.3
@@ -124,6 +126,8 @@ summary(NS_sim)
 #>  minimum size:   8.72744e-13
 #>  maximum size:   9.82091
 #>  no. size bins:  171 (218 size bins in total)
+#> Steady state:
+#>  biomass drift:  0.91 /year  (not at steady state - run steady())
 #> Species details:
 #> An object of class "species_params" containing parameters for 12 species:
 #>  species   w_inf w_mat w_min   beta sigma

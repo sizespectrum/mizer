@@ -6,7 +6,7 @@ in the model so that their biomasses match with observations.
 ## Usage
 
 ``` r
-matchBiomasses(params, species = NULL, info_level = 3, ...)
+matchBiomasses(params, species = NULL, info_level = default_info_level(), ...)
 ```
 
 ## Arguments
@@ -25,7 +25,9 @@ matchBiomasses(params, species = NULL, info_level = 3, ...)
 - info_level:
 
   Controls the amount of information messages that are shown. Higher
-  levels lead to more messages.
+  levels lead to more messages, `info_level = 0` gives silence. The
+  default is taken from the `mizer_info_level` option, see
+  [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md).
 
 - ...:
 
@@ -67,5 +69,6 @@ species_params(params)$biomass_observed <-
 species_params(params)$biomass_cutoff <- 10
 params <- calibrateBiomass(params)
 params <- matchBiomasses(params)
+#> `matchBiomasses()` has rescaled the model and so moved it off its steady state. Run `steady()` to settle it again. You can check with `getSteadyResidual()`.
 plotBiomassObservedVsModel(params)
 ```

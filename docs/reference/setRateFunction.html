@@ -19,7 +19,7 @@ rate and use setRateFunction() to register it with mizer."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,19 +39,21 @@ rate and use setRateFunction() to register it with mizer."><meta property="og:im
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/guide-understand-size-spectrum-dynamics.html">Guide: Understanding size-spectrum dynamics</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-build-model.html">Guide: Building a mizer model</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-calibrate-model.html">Guide: Reaching steady state and calibrating</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-change-parameters.html">Guide: Changing model parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-set-up-fishing.html">Guide: Setting up fishing</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-run-simulation.html">Guide: Running a mizer simulation</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-and-plot.html">Guide: Analysing and plotting mizer results</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-stability.html">Guide: Analysing dynamic stability</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-extend-mizer.html">Guide: Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-use-extension-packages.html">Guide: Using mizer extension packages</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-create-extension-package.html">Guide: Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
-    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
-    <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/using-extension-packages.html">Using mizer extension packages</a></li>
-    <li><a class="dropdown-item" href="../articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -59,14 +61,15 @@ rate and use setRateFunction() to register it with mizer."><meta property="og:im
     <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
+    <li><a class="dropdown-item" href="../articles/dynamic_stability.html">Dynamic stability and Hopf bifurcations</a></li>
+    <li><a class="dropdown-item" href="../articles/discontinuous_rates.html">Discontinuous rate functions</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/publications.html">Publications</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
-<li class="nav-item"><form class="form-inline" role="search">
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter"><span class="fa fab fa-twitter fa-lg"></span></a></li>
@@ -176,9 +179,34 @@ environment or in a package. If they are defined within a function then
 mizer will not find them.</p>
     </div>
     <div class="section level2">
+    <h2 id="avoid-rates-that-jump-as-a-function-of-abundance">Avoid rates that jump as a function of abundance<a class="anchor" aria-label="anchor" href="#avoid-rates-that-jump-as-a-function-of-abundance"></a></h2>
+
+
+<p>Make sure your rate function depends <strong>continuously</strong> on the abundances <code>n</code>,
+<code>n_pp</code> and <code>n_other</code>. It is tempting to write a rate that switches abruptly
+on the state of the model — a fishery that closes when a stock falls below a
+limit reference point, a predator that switches diet when its preferred prey
+becomes scarce, a mortality that kicks in below a critical condition. Such a
+rate breaks the assumption underlying every one of mizer's time-stepping
+methods, which freeze the rates during each density update and so cannot see
+a threshold being crossed within a step.</p>
+<p>The symptoms are quiet: mizer issues no warning, but the trajectory keeps
+changing as you refine <code>dt</code>, <code><a href="steadyNewton.html">steadyNewton()</a></code> stalls, and <code><a href="getStability.html">getStability()</a></code>
+reports a confident but meaningless answer. Choosing the L-stable
+<code>method = "tr_bdf2"</code> in <code><a href="project.html">project()</a></code> does not help, because the difficulty
+lies in the frozen rates rather than in the linear solve.</p>
+<p>The remedy is to give the switch a finite width, using a linear ramp between
+two thresholds or a logistic transition, which is usually the more realistic
+model anyway. Rates built with <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max()</a></code> or <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min()</a></code> are continuous but not
+differentiable; these are much less troublesome, costing some accuracy but
+not correctness. See the <a href="https://sizespectrum.org/mizer/articles/discontinuous_rates.html">Discontinuous rate functions</a>
+article for the full story, the diagnostics and the fix.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>"Extending mizer":
-<code><a href="../articles/extending-mizer.html">vignette("extending-mizer", package = "mizer")</a></code></p>
+<a href="https://sizespectrum.org/mizer/articles/guide-extend-mizer.html">guide to extending mizer</a>;
+<a href="https://sizespectrum.org/mizer/articles/discontinuous_rates.html">Discontinuous rate functions</a></p>
 <p>Other extension tools:
 <code><a href="NOther.html">NOther()</a></code>,
 <code><a href="clearExtensionChain.html">clearExtensionChain()</a></code>,

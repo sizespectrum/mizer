@@ -35,6 +35,10 @@ plot(x, ...)
   [`plotPredMort()`](https://sizespectrum.org/mizer/reference/plotPredMort.md)
   and
   [`plotFMort()`](https://sizespectrum.org/mizer/reference/plotFMort.md).
+  The arguments that describe the plotted spectrum (`power`, `biomass`,
+  `per_log_size` and `resource`) go to
+  [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
+  only, because they mean nothing to a rate.
 
 ## Value
 
@@ -49,6 +53,7 @@ Other plotting functions:
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),

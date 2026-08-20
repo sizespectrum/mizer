@@ -16,8 +16,9 @@ plotSpectra2(
   wlim = c(NA, NA),
   llim = c(NA, NA),
   ylim = c(NA, NA),
-  power = 1,
-  biomass = TRUE,
+  power = NULL,
+  biomass = NULL,
+  per_log_size = NULL,
   total = FALSE,
   resource = TRUE,
   background = TRUE,
@@ -78,15 +79,19 @@ plotSpectra2(
 - power:
 
   The abundance is plotted as the number density times the weight raised
-  to `power`. The default `power = 1` gives the biomass density, whereas
-  `power = 2` gives the biomass density with respect to logarithmic size
-  bins.
+  to `power`. An alternative to the `biomass` and `per_log_size`
+  arguments, with which it must agree if they are given as well; see
+  Details. The default is `power = 1`, the biomass density.
 
 - biomass:
 
-  **\[deprecated\]** Only used if `power` argument is missing. Then
-  `biomass = TRUE` is equivalent to `power=1` and `biomass = FALSE` is
-  equivalent to `power=0`
+  Whether to plot the biomass density (`TRUE`, the default) or the
+  number density (`FALSE`).
+
+- per_log_size:
+
+  Whether to plot the density with respect to logarithmic size (`TRUE`)
+  or with respect to size (`FALSE`, the default).
 
 - total:
 
@@ -130,7 +135,8 @@ plotSpectra2(
 - size_axis:
 
   Whether to plot size as weight (`"w"`, default) or length (`"l"`),
-  using the allometric weight-length relationship.
+  using the allometric weight-length relationship. Spectrum densities
+  and their units are transformed to match the chosen axis.
 
 - ...:
 
@@ -158,6 +164,7 @@ Other plotting functions:
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
+[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),

@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,19 +33,21 @@
     <li><a class="dropdown-item" href="articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
-    <li><a class="dropdown-item" href="articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
-    <li><a class="dropdown-item" href="articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
-    <li><a class="dropdown-item" href="articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
-    <li><a class="dropdown-item" href="articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="articles/guide-understand-size-spectrum-dynamics.html">Guide: Understanding size-spectrum dynamics</a></li>
+    <li><a class="dropdown-item" href="articles/guide-build-model.html">Guide: Building a mizer model</a></li>
+    <li><a class="dropdown-item" href="articles/guide-calibrate-model.html">Guide: Reaching steady state and calibrating</a></li>
+    <li><a class="dropdown-item" href="articles/guide-change-parameters.html">Guide: Changing model parameters</a></li>
+    <li><a class="dropdown-item" href="articles/guide-set-up-fishing.html">Guide: Setting up fishing</a></li>
+    <li><a class="dropdown-item" href="articles/guide-run-simulation.html">Guide: Running a mizer simulation</a></li>
+    <li><a class="dropdown-item" href="articles/guide-analyse-and-plot.html">Guide: Analysing and plotting mizer results</a></li>
+    <li><a class="dropdown-item" href="articles/guide-analyse-stability.html">Guide: Analysing dynamic stability</a></li>
+    <li><a class="dropdown-item" href="articles/guide-extend-mizer.html">Guide: Extending mizer</a></li>
+    <li><a class="dropdown-item" href="articles/guide-use-extension-packages.html">Guide: Using mizer extension packages</a></li>
+    <li><a class="dropdown-item" href="articles/guide-create-extension-package.html">Guide: Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
-    <li><a class="dropdown-item" href="articles/upgrading.html">Upgrading mizer</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
-    <li><a class="dropdown-item" href="articles/extending-mizer.html">Extending mizer</a></li>
-    <li><a class="dropdown-item" href="articles/using-extension-packages.html">Using mizer extension packages</a></li>
-    <li><a class="dropdown-item" href="articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
+    <li><a class="dropdown-item" href="articles/upgrading.html">Upgrading your mizer code</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -53,14 +55,15 @@
     <li><a class="dropdown-item" href="articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="articles/analytic_test.html">Analytic Test</a></li>
+    <li><a class="dropdown-item" href="articles/dynamic_stability.html">Dynamic stability and Hopf bifurcations</a></li>
+    <li><a class="dropdown-item" href="articles/discontinuous_rates.html">Discontinuous rate functions</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="nav-link" href="articles/publications.html">Publications</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
-<li class="nav-item"><form class="form-inline" role="search">
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://blog.mizer.sizespectrum.org">Blog</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://twitter.com/mizer_model" aria-label="Twitter"><span class="fa fab fa-twitter fa-lg"></span></a></li>
@@ -89,11 +92,43 @@
 <h2 id="architecture">Architecture<a class="anchor" aria-label="anchor" href="#architecture"></a></h2>
 <p><strong><code>MizerParams</code></strong> (S4) — central object passed to nearly all functions. Modified via setter functions that return new copies: <code>setFishing(params, ...)</code>, etc.</p>
 <p><strong><code>MizerSim</code></strong> (S4) — stores simulation output: arrays <code>n</code> (time × species × size), <code>n_pp</code>, <code>n_other</code>, <code>effort</code>, and the <code>MizerParams</code> used.</p>
-<p><strong><code>ArraySpeciesBySize</code></strong> / <strong><code>ArrayTimeBySpecies</code></strong> / <strong><code>ArrayTimeBySpeciesBySize</code></strong> (S3) — wrap some arrays with metadata. When assigning back to S4 slots, use <code>slot[] &lt;- value</code> (not <code>slot &lt;- value</code>) to strip the class.</p>
+<p><strong><code>ArraySpeciesBySize</code></strong> / <strong><code>ArrayTimeBySpecies</code></strong> / <strong><code>ArrayTimeBySpeciesBySize</code></strong> (S3) — wrap some arrays with metadata. When assigning back to S4 slots, use <code>slot[] &lt;- value</code> (not <code>slot &lt;- value</code>) to strip the class. Follow <code>.claude/skills/array-wrapper-classes.md</code>.</p>
 <p><strong><code>species_params</code></strong> / <strong><code>given_species_params</code></strong> / <strong><code>gear_params</code></strong> (S3) — parameter tables subclassing <code>data.frame</code> stored in S4 slots. Users should access/modify these tables via S3 generics (e.g. <code>species_params(params)</code> or <code>gear_params(params)</code>), but package code and developers can modify slots directly (e.g. <code>params@species_params</code>) when appropriate. Editing one of these tables on its own does nothing but edit it: the subclass is preserved (by the base <code>data.frame</code> methods — there are deliberately no <code>[&lt;-</code>, <code>$&lt;-</code> or <code>[[&lt;-</code> methods), and no validation, conversion or warning happens. The checks and conversions (misspelled column names, length-to-weight, consistency) run when the table is validated, which is what <code><a href="reference/species_params.html">species_params()</a></code>/<code><a href="reference/gear_params.html">gear_params()</a></code> do to a plain data frame and what <code>species_params&lt;-()</code>/<code>gear_params&lt;-()</code> do to the table they are given. This is also what makes the length/weight precedence rule work: <code>species_params&lt;-()</code> compares the incoming table against the model’s, so the value you changed wins; a table edited on its own carries no such history, so a length and a weight that both differ count as given at the same time and the weight wins. <code>given_species_params</code> holds what the user supplied <strong>plus the defaults of any function argument that sets a species parameter</strong> (e.g. <code>n</code> and <code>p</code> from <code><a href="reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>), even when the user did not override the argument; defaults that are not function arguments stay out of it.</p>
 <p><strong>Customisable rate functions</strong>: users replace rate functions by storing a custom function name in <code>params@rates_funcs</code>. Dispatch via <code>get(params@rates_funcs$FunctionName)(params, ...)</code>.</p>
-<p><strong>Auto-generated files</strong> — never edit <code>NAMESPACE</code>, <code>man/</code>, <code>RcppExports.R</code>, or <code>RcppExports.cpp</code> directly.</p>
+<p><strong>Two quadrature schemes</strong>: the <code>second_order_w</code> slot selects how the model is discretised on the size grid — <code>flux</code> picks the advective reconstruction, and <code>bin_average</code> decides whether size-dependent factors are integrated over their bin or point-sampled at the left bin boundary. Both default to the first-order scheme, so previous mizer versions reproduce byte-for-byte. This is invisible in the code you are likely to be reading: a function that ignores <code>bin_average</code> still looks correct and still passes its tests on the default path. Anything that integrates over the size grid must handle both schemes and be tested under both.</p>
+<p><strong>Gated validation</strong>: <code><a href="reference/validParams.html">validParams()</a></code> splits into three jobs — upgrade (gated on the version string), repair plus <code>validObject()</code> (gated on a fingerprint), and the unconditional <code><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.finite()</a></code> scans of the rate arrays. The fingerprint, <code><a href="reference/validation_key.html">validation_key()</a></code>, is a hash of every slot that <code><a href="reference/repair_params.html">repair_params()</a></code> reads or writes and every slot that <code>validMizerParams()</code> inspects, taking only the dimensions and dimension names of the big rate arrays, never their values. It is recalculated on every call and never stored on the object, so it cannot go stale. This gate stays sound only as long as that correspondence holds: <strong>if you make <code><a href="reference/repair_params.html">repair_params()</a></code> or <code>validMizerParams()</code> depend on a slot, add that slot to <code><a href="reference/validation_key.html">validation_key()</a></code></strong>, or the new logic will be silently skipped for objects mizer has already seen. Values inside the rate arrays are deliberately out of the fingerprint and are guarded by <code><a href="reference/check_finite.html">check_finite()</a></code> instead.</p>
+<p><strong>Auto-generated files</strong> — never edit <code>NAMESPACE</code>, <code>man/</code>, <code>RcppExports.R</code>, or <code>RcppExports.cpp</code> directly. The <code>vignettes/guide-*.Rmd</code> articles are also generated: their single source is <code>inst/skills/&lt;topic&gt;/SKILL.md</code>, which doubles as the agent skill. Edit the skill and re-run <code>source("dev_scripts/build_guides.R"); build_guides()</code>. Content that belongs in the skill but not in the article (an agent’s diagnostic procedure, a lookup table keyed by symptom rather than by topic) goes in an <code>&lt;!-- agent-only --&gt;</code> block, which the generator drops. Likewise <code>docs/llms.txt</code> and <code>inst/llms.txt</code> are generated: pkgdown writes a raw <code>docs/llms.txt</code> during <code>build_site()</code>, and <code>source("dev_scripts/build_llms.R"); build_llms()</code> then swaps its README-derived preamble for <code>pkgdown/llms-header.md</code> — the file to edit — and copies the result to <code>inst/llms.txt</code>. That installed copy is how <code><a href="https://sizespectrum.github.io/mizerAgents/reference/setup_mizer_agent.html" class="external-link">mizerAgents::setup_mizer_agent()</a></code> points an agent at the API index for the mizer it has, so it must ship: do not add it to <code>.Rbuildignore</code>. Follow <code>.claude/skills/build-documentation.md</code>.</p>
 </div>
+<div class="section level2">
+<h2 id="domain-architecture--workflows">Domain Architecture &amp; Workflows<a class="anchor" aria-label="anchor" href="#domain-architecture--workflows"></a></h2>
+<p>Before modifying, designing, or debugging core features, consult the design intent, mathematical formulations, and user-facing workflows documented in <code>inst/skills/</code>:</p>
+<table class="table"><colgroup><col width="50%"><col width="50%"></colgroup><thead><tr><th>When working on…</th>
+<th>Consult skill</th>
+</tr></thead><tbody><tr><td>Modifying parameter accessors, downward propagation, rate setters, or freeze mechanisms</td>
+<td><code>inst/skills/change-parameters/SKILL.md</code></td>
+</tr><tr><td>Calibration functions (<code>steady</code>, <code>calibrateBiomass</code>, <code>matchGrowth</code>), steady states, or reproduction levels</td>
+<td><code>inst/skills/calibrate-model/SKILL.md</code></td>
+</tr><tr><td>Extension points (<code>setExtEncounter</code>, <code>setExtMort</code>, <code>setComponent</code>, <code>setRateFunction</code>)</td>
+<td><code>inst/skills/extend-mizer/SKILL.md</code></td>
+</tr><tr><td>Packaging an extension: <code>.onLoad</code> registration, marker classes, <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> dispatch, bundled data, upgrading saved objects</td>
+<td><code>inst/skills/create-extension-package/SKILL.md</code></td>
+</tr><tr><td>The extension chain, or saving/reading params and sim objects</td>
+<td><code>inst/skills/use-extension-packages/SKILL.md</code></td>
+</tr><tr><td>Model constructors (<code>newMultispeciesParams</code>, etc.), size grids, or allometric defaults</td>
+<td><code>inst/skills/build-model/SKILL.md</code></td>
+</tr><tr><td>Fishing gears, selectivity functions, catchability, or <code>gear_params</code>
+</td>
+<td><code>inst/skills/set-up-fishing/SKILL.md</code></td>
+</tr><tr><td>Simulation stepping, projection methods, or effort scenarios</td>
+<td><code>inst/skills/run-simulation/SKILL.md</code></td>
+</tr><tr><td>Stability analysis, limit cycles, <code>steadyNewton</code>, or <code>getStability</code>
+</td>
+<td><code>inst/skills/analyse-stability/SKILL.md</code></td>
+</tr><tr><td>Summary or plotting functions</td>
+<td><code>inst/skills/analyse-and-plot/SKILL.md</code></td>
+</tr><tr><td>Renaming/deprecating arguments, changing defaults, or investigating breaking changes</td>
+<td><code>inst/skills/upgrade-mizer-code/SKILL.md</code></td>
+</tr></tbody></table></div>
 <div class="section level2">
 <h2 id="code-conventions">Code Conventions<a class="anchor" aria-label="anchor" href="#code-conventions"></a></h2>
 <ul><li>
@@ -104,37 +139,35 @@
 <strong>Language</strong>: British English (en-GB) — “colour”, “behaviour”, “modelling”</li>
 <li>When documenting a mizer S3 generic whose methods share a man page (combined with <code>@rdname</code>/<code>@name</code>), follow the steps in <code>.claude/skills/document-s3-generics.md</code>.</li>
 <li>When adding, moving or removing a species parameter default, follow <code>.claude/skills/species-param-defaults.md</code>. A default belongs to the rate setter that reads the parameter; only parameters that no single rate setter owns are defaulted centrally.</li>
+<li>When writing anything that integrates over the size grid — a summary or indicator function, a diagnostic derived from a rate, a rate setter with a size-dependent parameter — follow <code>.claude/skills/size-grid-integrals.md</code>. Each bin integral is performed in exactly one place, so a size-dependent factor is bin-averaged where its integral is performed and nowhere else; doing it twice is a silent uniform error.</li>
+<li>When mizer code needs to tell the user something — a default filled in, an input adjusted, an instruction that could not be carried out — follow <code>.claude/skills/info-signals.md</code>. Raise it with <code><a href="reference/signal_info.html">signal_info()</a></code> and friends, never a plain <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> or <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code>: those ignore <code>info_level</code>, are not collected with the other reports, and are swallowed by the <code><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages()</a></code> on the <code>species_params&lt;-()</code> path. Progress reports, deprecations and argument errors are the deliberate exceptions.</li>
 </ul></div>
 <div class="section level2">
 <h2 id="testing">Testing<a class="anchor" aria-label="anchor" href="#testing"></a></h2>
-<ul><li><p>Use <code>expect_doppelganger()</code> (vdiffr) for plot tests</p></li>
-<li><p>Use snapshot tests for complex outputs</p></li>
-<li><p>Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> after adding or changing exports</p></li>
-<li><p>Run <code><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">devtools::load_all()</a></code> before running tests</p></li>
-<li><p>Run only relevant tests with <code>devtools::test(filter = "pattern")</code>. Running all tests is too slow.</p></li>
-<li><p>Lint a file with <code><a href="https://lintr.r-lib.org/reference/lint.html" class="external-link">lintr::lint()</a></code></p></li>
-<li><p>After editing C++ source: <code><a href="https://pkgbuild.r-lib.org/reference/clean_dll.html" class="external-link">devtools::clean_dll(); devtools::load_all()</a></code></p></li>
-<li><p>After modifying the <code>MizerParams</code> or <code>MizerSim</code> class (new/removed slots, changes to <code>@rates_funcs</code>, etc.), follow the steps in <code>.claude/skills/upgrade-mizer-data.md</code>.</p></li>
-<li><p>When snapshot tests fail because values legitimately changed, run <code><a href="https://testthat.r-lib.org/reference/snapshot_accept.html" class="external-link">testthat::snapshot_accept()</a></code> to promote the <code>.new.md</code> files into the canonical <code>.md</code> snapshots.</p></li>
-<li><p>Avoid top-level <code><a href="https://rdrr.io/r/utils/data.html" class="external-link">data()</a></code> calls in test files. <code>testthat 3.x</code> shares <code>.GlobalEnv</code> across all tests. Use the <code>_small</code> fixtures from <code>helper.R</code> instead.</p></li>
-</ul><div class="section level3">
-<h3 id="test-helper-objects">Test helper objects<a class="anchor" aria-label="anchor" href="#test-helper-objects"></a></h3>
-<p><code>helper.R</code> defines small objects used across all test files. All are named with the <code>_small</code> suffix to avoid shadowing the built-in package datasets:</p>
-<ul><li>
-<strong><code>NS_params_small</code></strong>: 3 species (Sprat=1, Herring=2, Cod=3), 20 size bins, 3 gears (Industrial effort=0, Pelagic effort=1, Otter effort=0.5). Sprat is always unfished (Industrial gear, zero effort).</li>
+<ul><li>Run <code><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">devtools::load_all()</a></code> before running tests</li>
+<li>Run only relevant tests with <code>devtools::test(filter = "pattern")</code>. Running all tests is too slow.</li>
 <li>
-<strong><code>NS_sim_small</code></strong>: <code>project(NS_params_small, t_max=3, t_save=1)</code> — 4 time steps at t=0,1,2,3.</li>
-<li>
-<strong><code>NS_species_params_small</code></strong>, <strong><code>NS_species_params_gears_small</code></strong>, <strong><code>inter_small</code></strong>: 3-species subsets of the full package datasets (rows 1, 4, 11 = Sprat, Herring, Cod).</li>
-</ul><p>Tests that hardcode species indices (e.g. <code>[12, ]</code>) or time indices (e.g. <code>times[10]</code>) must use values valid for 3 species and 4 time steps.</p>
-</div>
-</div>
+<strong>Never compare two rate arrays with <code><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical()</a></code>.</strong> The freeze mechanism writes a <code>comment</code> attribute onto an array that has been set by hand, so two arrays holding the same numbers compare unequal whenever one of them has been through a setter. This reports a difference where there is none and has already produced a wrong conclusion about whether a setter argument works. Compare values: <code><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal()</a></code> after stripping attributes down to <code>dim</code>, or <code>all.equal(..., check.attributes = FALSE)</code>. The internal <code><a href="reference/different.html">different()</a></code> (<code>R/helpers.R:14</code>) is the in-package form of this.</li>
+<li>Use <code>expect_doppelganger()</code> (vdiffr) for plot tests, and snapshot tests for complex outputs</li>
+<li>When snapshot tests fail because values legitimately changed, run <code><a href="https://testthat.r-lib.org/reference/snapshot_accept.html" class="external-link">testthat::snapshot_accept()</a></code> to promote the <code>.new.md</code> files into the canonical <code>.md</code> snapshots.</li>
+<li>Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> after adding or changing exports</li>
+<li>Lint a file with <code><a href="https://lintr.r-lib.org/reference/lint.html" class="external-link">lintr::lint()</a></code>
+</li>
+<li>After editing C++ source: <code><a href="https://pkgbuild.r-lib.org/reference/clean_dll.html" class="external-link">devtools::clean_dll(); devtools::load_all()</a></code>
+</li>
+<li>After modifying the <code>MizerParams</code> or <code>MizerSim</code> class (new/removed slots, changes to <code>@rates_funcs</code>, etc.), follow the steps in <code>.claude/skills/upgrade-mizer-data.md</code>.</li>
+<li>Tests go in the file named after the R file that <strong>defines</strong> the function under test — not one named after the feature. Before adding a test, or any new test file, follow <code>.claude/skills/test-organisation.md</code>.</li>
+<li>Use the shared <code>_small</code> fixtures from <code>helper.R</code>; never a top-level <code><a href="https://rdrr.io/r/utils/data.html" class="external-link">data()</a></code> call, as <code>testthat 3.x</code> shares <code>.GlobalEnv</code> across all tests. The fixtures give <strong>3 species and 4 time steps</strong>, so any hardcoded species or time index must be valid for that. For the full catalogue, for adding a fixture, and for the parallel and experimental-test settings, see <code>.claude/skills/test-fixtures.md</code>.</li>
+</ul></div>
 <div class="section level2">
 <h2 id="before-submitting">Before Submitting<a class="anchor" aria-label="anchor" href="#before-submitting"></a></h2>
 <ul><li>After adding a new file under <code>R/</code>, add it to the <code>Collate:</code> field in <code>DESCRIPTION</code> (roxygen2 does not manage this automatically in this package).</li>
 <li>After adding or renaming exported functions, add them to the <code>appropriate</code> section in <code>pkgdown/_pkgdown.yml</code> so they appear on the reference page of the website.</li>
 <li>Update <code>NEWS.md</code> when adding features or fixing bugs.</li>
+<li>If the change can alter the behaviour of code users have already written — a renamed or removed argument, a changed default, a deprecation, a corrected bug that moves results — also record it in the <code>upgrade-mizer-code</code> skill, which is split in two: the prose goes in <code>inst/skills/upgrade-mizer-code/references/mizer-&lt;version&gt;.md</code> for the release being prepared (create the file for a new release; the generator orders them by version), and a row goes in the agent-only symptom index in its <code>SKILL.md</code>, giving the symptom a user would actually see and naming the section heading <strong>verbatim</strong>. If the change emits a message, quote a literal run of it in the row as <code>`"..."`</code> — that is the string the user will paste. <code>build_guides()</code> then checks that every row resolves to a heading, every heading has a row, and every quoted fragment is still a literal in <code>R/</code>, and updates <code>vignettes/upgrading.Rmd</code>. Do not edit that article directly.</li>
 <li>When creating a pull request, always include the summary of your changes in the PR body.</li>
+<li>
+<strong>Committing Changes</strong>: When asking the user for permission to commit, the agent must <em>first</em> provide a clear summary of all implemented changes. When executing the commit, the agent must <em>only</em> stage and commit the specific files it modified (using <code>git add &lt;file1&gt; &lt;file2&gt; ...</code>). The agent must <strong>never</strong> use <code>git commit -a</code> or <code>git add .</code>, to avoid committing unrelated unstaged changes in the user’s workspace.</li>
 </ul></div>
 </div>
 

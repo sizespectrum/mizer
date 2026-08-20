@@ -15,7 +15,10 @@ plot(
   log_y = TRUE,
   log = NULL,
   wlim = c(NA, NA),
+  llim = c(NA, NA),
   ylim = c(NA, NA),
+  size_axis = c("w", "l"),
+  per_log_size = NULL,
   y_ticks = 6,
   ...
 )
@@ -53,11 +56,30 @@ plot(
   the weight (x) axis. Use `NA` to refer to the existing minimum or
   maximum.
 
+- llim:
+
+  A numeric vector of length two providing lower and upper limits for
+  the length (x) axis when `size_axis = "l"`. Use `NA` to refer to the
+  existing minimum or maximum.
+
 - ylim:
 
   A numeric vector of length two providing lower and upper limits for
   the value (y) axis. Use `NA` to refer to the existing minimum or
   maximum.
+
+- size_axis:
+
+  Whether to plot size as weight (`"w"`, default) or length (`"l"`),
+  using the weight-length relationship in
+  [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md).
+
+- per_log_size:
+
+  For an array that holds a density, whether to plot it per logarithmic
+  size (`TRUE`) rather than per size (`FALSE`). The default, `NULL`,
+  plots the density as it stands. An error for an array that does not
+  hold a density.
 
 - y_ticks:
 

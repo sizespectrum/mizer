@@ -24,6 +24,7 @@ plot(
   llim = c(NA, NA),
   ylim = c(NA, NA),
   size_axis = c("w", "l"),
+  per_log_size = NULL,
   total = FALSE,
   background = TRUE,
   y_ticks = 6,
@@ -97,6 +98,13 @@ plot(
 
   Whether to plot size as weight (`"w"`, default) or length (`"l"`),
   using the allometric weight-length relationship.
+
+- per_log_size:
+
+  For an array that holds a density, whether to plot it per logarithmic
+  size (`TRUE`) rather than per size (`FALSE`). The default, `NULL`,
+  plots the density as it stands. An error for an array that does not
+  hold a density.
 
 - total:
 

@@ -37,7 +37,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,19 +59,21 @@
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/guide-understand-size-spectrum-dynamics.html">Guide: Understanding size-spectrum dynamics</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-build-model.html">Guide: Building a mizer model</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-calibrate-model.html">Guide: Reaching steady state and calibrating</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-change-parameters.html">Guide: Changing model parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-set-up-fishing.html">Guide: Setting up fishing</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-run-simulation.html">Guide: Running a mizer simulation</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-and-plot.html">Guide: Analysing and plotting mizer results</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-stability.html">Guide: Analysing dynamic stability</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-extend-mizer.html">Guide: Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-use-extension-packages.html">Guide: Using mizer extension packages</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-create-extension-package.html">Guide: Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
-    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
-    <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/using-extension-packages.html">Using mizer extension packages</a></li>
-    <li><a class="dropdown-item" href="../articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -79,16 +81,17 @@
     <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
+    <li><a class="dropdown-item" href="../articles/dynamic_stability.html">Dynamic stability and Hopf bifurcations</a></li>
+    <li><a class="dropdown-item" href="../articles/discontinuous_rates.html">Discontinuous rate functions</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/publications.html">Publications</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
@@ -275,11 +278,12 @@ steady-state shape.</p>
 <p>We can plot the size spectrum with the <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code>
 function.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params</span>, power <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params</span>, biomass <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
-<p>The <code>power = 0</code> argument to the <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code>
-function specifies that we want to plot the number density, rather than
-for example the biomass density.</p>
+<p>The <code>biomass = FALSE</code> argument to the
+<code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> function specifies that we want to plot the
+number density, rather than the biomass density that is plotted by
+default.</p>
 <p>The green line represents the number density of the background
 community, labelled as “Resource” in the plot legend, in which our
 foreground species finds itself. The green line is a straight line with
@@ -312,7 +316,7 @@ click on the “Solution” triangle below.</p>
 Solution
 </summary><div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newSingleSpeciesParams.html">newSingleSpeciesParams</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">2.1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params2</span>, power <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params2</span>, biomass <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="700"></details>
 </div>
 <div class="section level2">
@@ -392,10 +396,9 @@ Solution
 <div class="section level2">
 <h2 id="biomass-spectra">Biomass spectra<a class="anchor" aria-label="anchor" href="#biomass-spectra"></a>
 </h2>
-<p>Without the <code>power</code> argument (or with
-<code>power = 1</code> which is the default) the
-<code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> function plots the biomass density as a
-function of size.</p>
+<p>Without any arguments (or with <code>biomass = TRUE</code>, which is
+the default) the <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code> function plots the biomass
+density as a function of size.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="700"></p>
@@ -410,9 +413,10 @@ explain the reason for this later when we discuss predation
 mortality.</p>
 <p>We can also plot the Sheldon spectrum, i.e., the biomass density as a
 function of the log weight instead of the weight, by supplying the
-argument <code>power = 2</code> to <code><a href="../reference/plotSpectra.html">plotSpectra()</a></code>.</p>
+argument <code>per_log_size = TRUE</code> to
+<code><a href="../reference/plotSpectra.html">plotSpectra()</a></code>.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params</span>, power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params</span>, per_log_size <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="700"></p>
 <p>This now shows an approximately constant biomass density as a
 function of log size (the slope of the green line is -0.05). The biomass
@@ -728,7 +732,7 @@ the adult spectrum clearly.</p>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra2.html">plotSpectra2</a></span><span class="op">(</span><span class="va">params</span>, name1 <span class="op">=</span> <span class="st">"original"</span>,</span>
 <span>             <span class="va">params_changed_maturity</span>, name2 <span class="op">=</span> <span class="st">"changed"</span>,</span>
-<span>             power <span class="op">=</span> <span class="fl">2</span>, resource <span class="op">=</span> <span class="cn">FALSE</span>, wlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>             per_log_size <span class="op">=</span> <span class="cn">TRUE</span>, resource <span class="op">=</span> <span class="cn">FALSE</span>, wlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-38-1.png" class="r-plt" alt="" width="700"></p>
 <p>As expected, the bump happens later due to the larger maturity size
 and it is less pronounced, because the maturity curve is less steep.</p>
@@ -752,16 +756,17 @@ at each size that balances the growth and mortality rates while keeping
 the egg influx fixed, but it does not touch the reproduction parameters.
 So it does not by itself tell us what reproductive efficiency would be
 needed to actually sustain the population at this steady state.</p>
-<p>To work that out we use the <code><a href="../reference/setBevertonHolt.html">setBevertonHolt()</a></code> function.
-This function adjusts the reproduction parameters so that the energy
-that the mature individuals invest into reproduction produces exactly
-the reproduction rate required to maintain the egg abundance at its
-steady-state value — without changing the steady-state spectrum we have
-just found. We ask for a <code>reproduction_level</code> of 0, which
-imposes no maximum on the reproduction rate, so that the reproductive
-efficiency <code>erepro</code> alone has to do the job.</p>
+<p>To work that out we can set the reproduction level using
+<code>reproduction_level(params) &lt;- 0</code>. This adjusts the
+reproduction parameters so that the energy that the mature individuals
+invest into reproduction produces exactly the reproduction rate required
+to maintain the egg abundance at its steady-state value — without
+changing the steady-state spectrum we have just found. We ask for a
+<code>reproduction_level</code> of 0, which imposes no maximum on the
+reproduction rate, so that the reproductive efficiency
+<code>erepro</code> alone has to do the job.</p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setBevertonHolt.html">setBevertonHolt</a></span><span class="op">(</span><span class="va">params</span>, reproduction_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/setBevertonHolt.html">reproduction_level</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">erepro</span></span></code></pre></div>
 <pre><code><span><span class="co">## Target species </span></span>
 <span><span class="co">##       0.899483</span></span></code></pre>
@@ -779,11 +784,10 @@ same as in the original model:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params_changed_maturity</span><span class="op">)</span><span class="op">$</span><span class="va">erepro</span></span></code></pre></div>
 <pre><code><span><span class="co">## Target species </span></span>
 <span><span class="co">##       0.899483</span></span></code></pre>
-<p>Calling <code><a href="../reference/setBevertonHolt.html">setBevertonHolt()</a></code> on the changed model retunes
+<p>Setting <code>reproduction_level</code> on the changed model retunes
 it to the value required for its own steady state:</p>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">params_changed_maturity</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setBevertonHolt.html">setBevertonHolt</a></span><span class="op">(</span><span class="va">params_changed_maturity</span>,</span>
-<span>                                           reproduction_level <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/setBevertonHolt.html">reproduction_level</a></span><span class="op">(</span><span class="va">params_changed_maturity</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params_changed_maturity</span><span class="op">)</span><span class="op">$</span><span class="va">erepro</span></span></code></pre></div>
 <pre><code><span><span class="co">## Target species </span></span>
 <span><span class="co">##      0.8894122</span></span></code></pre>
@@ -827,7 +831,7 @@ our species. We recalculate the steady-state shape with
 <div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra2.html">plotSpectra2</a></span><span class="op">(</span><span class="va">params</span>, name1 <span class="op">=</span> <span class="st">"original"</span>,</span>
 <span>             <span class="va">params_starved</span>, name2 <span class="op">=</span> <span class="st">"less prey"</span>,</span>
-<span>             power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span>             per_log_size <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-44-1.png" class="r-plt" alt="" width="700"></p>
 <p>As expected, the lack of food and the resulting slow-down in growth
 leads to a traffic jam: a peak in the biomass density. This slow-down
@@ -851,7 +855,7 @@ Solution
 <span><span class="va">params_overfed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steadySingleSpecies.html">steadySingleSpecies</a></span><span class="op">(</span><span class="va">params_overfed</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotSpectra2.html">plotSpectra2</a></span><span class="op">(</span><span class="va">params</span>, name1 <span class="op">=</span> <span class="st">"original"</span>,</span>
 <span>             <span class="va">params_overfed</span>, name2 <span class="op">=</span> <span class="st">"more prey"</span>,</span>
-<span>             power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span>             per_log_size <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-45-1.png" class="r-plt" alt="" width="700"></details>
 </div>
 <div class="section level3">
@@ -896,14 +900,14 @@ rate.</p>
 of sizes, smaller than themselves. This is encoded in the size-spectrum
 model by the predation kernel. Let us take a look at the predation
 kernel in our model. We can obtain it with the function
-<code><a href="../reference/setPredKernel.html">getPredKernel()</a></code>.</p>
+<code><a href="../reference/setPredKernel.html">pred_kernel()</a></code>.</p>
 <div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pred_kernel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setPredKernel.html">getPredKernel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">pk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setPredKernel.html">pred_kernel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <p>This is a large three-dimensional array (predator species x predator
 size x prey size). We extract the kernel of a predator of size 10g
 (using that we remember that this is in size class 81)</p>
 <div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pred_kernel_10</span> <span class="op">&lt;-</span> <span class="va">pred_kernel</span><span class="op">[</span>, <span class="fl">81</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">pred_kernel_10</span> <span class="op">&lt;-</span> <span class="va">pk</span><span class="op">[</span>, <span class="fl">81</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span></code></pre></div>
 <p>The <code>drop = FALSE</code> option is there to prevent R from
 dropping any of the array dimensions. We can now plot this as usual</p>
 <div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
@@ -932,7 +936,7 @@ make the change in that copy.</p>
 <p>Let’s make a plot to see that the predation kernel has indeed
 changed.</p>
 <div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/setPredKernel.html">getPredKernel</a></span><span class="op">(</span><span class="va">params_pk</span><span class="op">)</span><span class="op">[</span>, <span class="fl">81</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/setPredKernel.html">pred_kernel</a></span><span class="op">(</span><span class="va">params_pk</span><span class="op">)</span><span class="op">[</span>, <span class="fl">81</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">w_prey</span>, y <span class="op">=</span> <span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -946,7 +950,7 @@ somewhere between 1g and 10g. Let’s check.</p>
 <span><span class="va">params_pk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steadySingleSpecies.html">steadySingleSpecies</a></span><span class="op">(</span><span class="va">params_pk</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotSpectra2.html">plotSpectra2</a></span><span class="op">(</span><span class="va">params_starved</span>, name1 <span class="op">=</span> <span class="st">"beta = 100"</span>,</span>
 <span>             <span class="va">params_pk</span>, name2 <span class="op">=</span> <span class="st">"beta = 1000"</span>,</span>
-<span>             power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span>             per_log_size <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-52-1.png" class="r-plt" alt="" width="700"></p>
 <p>Yes, as expected: with the larger preferred predator/prey mass ratio
 the peak has moved to a larger size.</p>
@@ -976,7 +980,7 @@ Solution
 <code class="sourceCode R"><span><span class="va">params3</span> <span class="op">&lt;-</span> <span class="va">params</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params3</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fl">50</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params3</span><span class="op">)</span><span class="op">$</span><span class="va">sigma</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
-<span><span class="fu"><a href="../reference/setPredKernel.html">getPredKernel</a></span><span class="op">(</span><span class="va">params3</span><span class="op">)</span><span class="op">[</span>, <span class="fl">61</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span><span class="fu"><a href="../reference/setPredKernel.html">pred_kernel</a></span><span class="op">(</span><span class="va">params3</span><span class="op">)</span><span class="op">[</span>, <span class="fl">61</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html" class="external-link">melt</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">w_prey</span>, y <span class="op">=</span> <span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -995,7 +999,7 @@ Solution
 <span><span class="va">params3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steadySingleSpecies.html">steadySingleSpecies</a></span><span class="op">(</span><span class="va">params3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotSpectra2.html">plotSpectra2</a></span><span class="op">(</span><span class="va">params</span>, name1 <span class="op">=</span> <span class="st">"original"</span>,</span>
 <span>             <span class="va">params3</span>, name2 <span class="op">=</span> <span class="st">"less prey"</span>,</span>
-<span>             power <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span>             per_log_size <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-54-1.png" class="r-plt" alt="" width="700">
 There is no pronounced bump created this time. This is because the
 larvae experience a decreased growth rate already almost from the start
@@ -1019,7 +1023,7 @@ needs to consume prey at a rate that scales with its body size to the
 power <span class="math inline">\(p\)</span>, with <span class="math inline">\(p\)</span> about <span class="math inline">\(3/4\)</span>. We also know that the prey density
 will be approximately described by the Sheldon power law, i.e., that
 <span class="math inline">\(N(w) = N_0\ w^{-\lambda}\)</span>. A bit of
-maths then says that <span class="math display">\[q = 2 - \lambda +
+maths then says that <span class="math display">\[q = \lambda -2 +
 n.\]</span> This explains the message you got when you created the
 params object with a certain choice of <span class="math inline">\(\lambda\)</span>: mizer chose the search volume
 exponent automatically according to this formula. In the real world,
@@ -1062,7 +1066,7 @@ more negative.</p>
 <div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectra2.html">plotSpectra2</a></span><span class="op">(</span><span class="va">params</span>, name1 <span class="op">=</span> <span class="st">"original"</span>,</span>
 <span>             <span class="va">params_new_gamma</span>, name2 <span class="op">=</span> <span class="st">"changed"</span>,</span>
-<span>             power <span class="op">=</span> <span class="fl">0</span>, resource <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span>             biomass <span class="op">=</span> <span class="cn">FALSE</span>, resource <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-59-1.png" class="r-plt" alt="" width="700"></p>
 </details>
 </div>

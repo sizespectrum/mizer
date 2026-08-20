@@ -103,7 +103,7 @@ the system is not run to steady state. This could be done with
 [`steady()`](https://sizespectrum.org/mizer/reference/steady.md). The
 new species will have a reproduction level of 1/4, this can then be
 changed with
-[`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+[`reproduction_level<-()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md).
 
 ## See also
 

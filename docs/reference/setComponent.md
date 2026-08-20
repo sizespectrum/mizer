@@ -91,8 +91,8 @@ component with `removeComponent()`.
 
 ## See also
 
-"Extending mizer":
-[`vignette("extending-mizer", package = "mizer")`](https://sizespectrum.org/mizer/articles/extending-mizer.md)
+"Extending mizer": [guide to extending
+mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html)
 
 Other extension tools:
 [`NOther()`](https://sizespectrum.org/mizer/reference/NOther.md),

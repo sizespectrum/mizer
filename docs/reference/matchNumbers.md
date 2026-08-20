@@ -6,7 +6,7 @@ the model so that their numbers match with observations.
 ## Usage
 
 ``` r
-matchNumbers(params, species = NULL, info_level = 3, ...)
+matchNumbers(params, species = NULL, info_level = default_info_level(), ...)
 ```
 
 ## Arguments
@@ -25,7 +25,9 @@ matchNumbers(params, species = NULL, info_level = 3, ...)
 - info_level:
 
   Controls the amount of information messages that are shown. Higher
-  levels lead to more messages.
+  levels lead to more messages, `info_level = 0` gives silence. The
+  default is taken from the `mizer_info_level` option, see
+  [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md).
 
 - ...:
 
@@ -67,4 +69,5 @@ species_params(params)$number_observed <-
 species_params(params)$number_cutoff <- 10
 params <- calibrateNumber(params)
 params <- matchNumbers(params)
+#> `matchNumbers()` has rescaled the model and so moved it off its steady state. Run `steady()` to settle it again. You can check with `getSteadyResidual()`.
 ```

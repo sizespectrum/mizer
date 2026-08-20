@@ -18,6 +18,7 @@ ArrayTimeBySpeciesBySize(
   x,
   value_name = NULL,
   units = NULL,
+  type = NULL,
   params = NULL,
   representation = c("point", "average")
 )
@@ -39,6 +40,13 @@ is.ArrayTimeBySpeciesBySize(x)
 - units:
 
   A string giving the units (e.g. "1/year").
+
+- type:
+
+  The kind of quantity the values are, see
+  [`ArraySpeciesBySize()`](https://sizespectrum.org/mizer/reference/ArraySpeciesBySize.md)
+  and
+  [array_types](https://sizespectrum.org/mizer/reference/array_types.md).
 
 - params:
 
@@ -73,6 +81,8 @@ attributes:
   mortality").
 
 - `units` – the units of the value (e.g. "1/year").
+
+- `type` – the kind of quantity the values are.
 
 - `params` – the `MizerParams` object that the value was computed from.
 

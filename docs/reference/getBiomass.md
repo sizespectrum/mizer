@@ -75,10 +75,12 @@ Other summary functions:
 [`getGrowthCurves()`](https://sizespectrum.org/mizer/reference/getGrowthCurves.md),
 [`getN()`](https://sizespectrum.org/mizer/reference/getN.md),
 [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md),
+[`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md),
 [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md),
 [`getTrophicLevelBySpecies()`](https://sizespectrum.org/mizer/reference/getTrophicLevelBySpecies.md),
 [`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md),
-[`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md)
+[`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md),
+[`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md)
 
 ## Examples
 

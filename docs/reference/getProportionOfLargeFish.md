@@ -117,5 +117,5 @@ getProportionOfLargeFish(NS_sim, min_w = 10, max_w = 5000,
 #>       1972       2010 
 #> 0.00441820 0.01212436 
 getProportionOfLargeFish(NS_params)
-#> [1] 2.312485e-07
+#> [1] 0.1796364
 ```

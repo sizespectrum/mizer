@@ -11,7 +11,13 @@ recalculates the size spectra using
 ## Usage
 
 ``` r
-matchGrowth(params, species = NULL, keep = c("egg", "biomass", "number"), ...)
+matchGrowth(
+  params,
+  species = NULL,
+  keep = c("egg", "biomass", "number"),
+  info_level = default_info_level(),
+  ...
+)
 ```
 
 ## Arguments
@@ -34,6 +40,13 @@ matchGrowth(params, species = NULL, keep = c("egg", "biomass", "number"), ...)
   choices are "egg" which keeps the egg density constant, "biomass"
   which keeps the total biomass of the species constant and "number"
   which keeps the total number of individuals constant.
+
+- info_level:
+
+  Controls the amount of information messages that are shown. Higher
+  levels lead to more messages, `info_level = 0` gives silence. The
+  default is taken from the `mizer_info_level` option, see
+  [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md).
 
 - ...:
 
@@ -62,6 +75,7 @@ that species will not be changed.
 species_params(NS_params)["Cod", "gamma"]
 #> [1] 1.599016e-10
 params <- matchGrowth(NS_params)
+#> `matchGrowth()` has rescaled the model and so moved it off its steady state. Run `steady()` to settle it again. You can check with `getSteadyResidual()`.
 species_params(params)["Cod", "gamma"]
 #> [1] 2.351462e-10
 age_mat(params)["Cod"]

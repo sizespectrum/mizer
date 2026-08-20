@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,19 +54,21 @@
     <li><a class="dropdown-item" href="../articles/multispecies_model.html">The Multi Species Model</a></li>
     <li><a class="dropdown-item" href="../articles/model_description.html">The General Mizer Size-spectrum Model</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Cheat sheets</h6></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-model-setup-and-calibration.html">Cheatsheet: Model Setup and Calibration</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-changing-parameters.html">Cheatsheet: Changing Model Parameters</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-fishing.html">Cheatsheet: Fishing</a></li>
-    <li><a class="dropdown-item" href="../articles/cheatsheet-analysis-and-plotting.html">Cheatsheet: Analysis and Plotting</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/guide-understand-size-spectrum-dynamics.html">Guide: Understanding size-spectrum dynamics</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-build-model.html">Guide: Building a mizer model</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-calibrate-model.html">Guide: Reaching steady state and calibrating</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-change-parameters.html">Guide: Changing model parameters</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-set-up-fishing.html">Guide: Setting up fishing</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-run-simulation.html">Guide: Running a mizer simulation</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-and-plot.html">Guide: Analysing and plotting mizer results</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-analyse-stability.html">Guide: Analysing dynamic stability</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-extend-mizer.html">Guide: Extending mizer</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-use-extension-packages.html">Guide: Using mizer extension packages</a></li>
+    <li><a class="dropdown-item" href="../articles/guide-create-extension-package.html">Guide: Creating a mizer extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
-    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading mizer</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Extending mizer</h6></li>
-    <li><a class="dropdown-item" href="../articles/extending-mizer.html">Extending mizer</a></li>
-    <li><a class="dropdown-item" href="../articles/using-extension-packages.html">Using mizer extension packages</a></li>
-    <li><a class="dropdown-item" href="../articles/creating-extension-packages.html">Creating a mizer extension package</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -74,16 +76,17 @@
     <li><a class="dropdown-item" href="../articles/default_parameters.html">Calculation of Default Parameter Values</a></li>
     <li><a class="dropdown-item" href="../articles/fft.html">Fast Fourier Transform for Rates</a></li>
     <li><a class="dropdown-item" href="../articles/analytic_test.html">Analytic Test</a></li>
+    <li><a class="dropdown-item" href="../articles/dynamic_stability.html">Dynamic stability and Hopf bifurcations</a></li>
+    <li><a class="dropdown-item" href="../articles/discontinuous_rates.html">Discontinuous rate functions</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/publications.html">Publications</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="external-link nav-link" href="https://notebooklm.google.com/notebook/6aa51f75-d1a8-4140-9180-84532ef5f821"><span class="fa fa-robot"></span> Ask AI</a></li>
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
@@ -295,14 +298,17 @@ already carries <span class="math inline">\(dw =
 convolution output sits at the <strong>prey</strong> node <span class="math inline">\(w_p\)</span>, but predation mortality enters the
 finite-volume update as a sink integrated against the prey density over
 the prey bin, <span class="math inline">\(\tfrac{1}{\Delta
-w_p}\int_{\text{bin}}\mu_{\mathrm{pred}}(w_p)\, N(w_p)\,dw_p\)</span>.
-So, exactly as for external mortality and fishing, the rate that enters
-the mortality wants the <strong>prey-bin average</strong> of <span class="math inline">\(P_j(w_p)\)</span>, not its value at the prey node.
-Bin-averaging the convolution output over the prey bin is a trapezoid
-fold of the (reversed) kernel over adjacent offsets, <span class="math display">\[
+w_p}\int_{\text{bin}}\mu_{\mathrm{pred}}(w_p)\,
+N(w_p)\,dw_p\)</span>. So, exactly as for external mortality and
+fishing, the rate that enters the mortality wants the <strong>prey-bin
+average</strong> of <span class="math inline">\(P_j(w_p)\)</span>, not
+its value at the prey node. Bin-averaging the convolution output over
+the prey bin is a trapezoid fold of the (reversed) kernel over adjacent
+offsets, <span class="math display">\[
 \bar\Phi^{P}_i[m] = \tfrac12\bigl(\Phi^{P}_i[m] + \Phi^{P}_i[m-1]\bigr),
 \]</span> because <span class="math inline">\(\tfrac12\bigl(P_j[w_{p}] +
-P_j[\beta w_{p}]\bigr) = \sum_n \tfrac12\bigl(\Phi^P_i[n-j] +
+P_j[\beta w_{p}]\bigr)
+= \sum_n \tfrac12\bigl(\Phi^P_i[n-j] +
 \Phi^P_i[n-j-1]\bigr)\,Q_i[n]\)</span>. Storing <span class="math inline">\(\mathrm{fft}(\bar\Phi^{P})\)</span> as
 <code>ft_pred_kernel_p</code> makes <code><a href="../reference/getPredRate.html">getPredRate()</a></code> come out
 already prey-bin-averaged, so both <code><a href="../reference/mizerPredMort.html">mizerPredMort()</a></code> and
@@ -490,7 +496,7 @@ paying for a full zero-padded convolution.</p>
 get it is to supply a custom predation kernel with [setPredKernel()].
 When a custom kernel is present, <code><a href="../reference/mizerEncounter.html">mizerEncounter()</a></code> and
 <code><a href="../reference/mizerDiffusion.html">projectDiffusion()</a></code> fall back to direct summation over the
-full predation kernel returned by [getPredKernel()], which explicitly
+full predation kernel returned by [pred_kernel()], which explicitly
 zeroes prey larger than the predator and so has no wrap-around at all.
 This direct path is what makes [getDiffusion()] correct for a general
 predation kernel that depends on predator and prey size separately

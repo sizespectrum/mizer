@@ -60,20 +60,20 @@ A `MizerParams` object stores the:
   spectrum;
 - fishing gear parameters: selectivity and catchability.
 
-Note that the `MizerParams` class does not store any parameters that can
-vary through time, such as fishing effort or population abundance. These
-are stored in the `MizerSim` class which we will come to later in [the
-section on running a
+Besides the model parameters, a `MizerParams` object also holds an
+*initial state*: the initial abundances of the species and of the
+resource and the initial fishing effort. These are the values a
+simulation starts from. The values of the abundances and the effort at
+all the later times of a simulation are stored in the `MizerSim` class
+which we will come to later in [the section on running a
 simulation.](https://sizespectrum.org/mizer/articles/running_a_simulation.html#sec:projection)
 
 Although the `MizerParams` class contains a lot of information, it is
 relatively straightforward to set up and use. Objects of class
 `MizerParams` are created using the constructor method
-[`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)
-(this constructor method was called MizerParams() in previous version of
-mizer). This constructor method can take many arguments. However,
-creation is simplified because many of the arguments have default
-values.
+[`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md).
+This constructor method can take many arguments. However, creation is
+simplified because many of the arguments have default values.
 
 In the rest of this section we look at the main arguments to the
 [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)
@@ -138,9 +138,12 @@ each species in the `gear_params` data frame. All the details can be
 found on the help page for
 [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md).
 
-Fishing effort is not stored in the MizerParams object. Instead, effort
-is set when the simulation is run and can vary through time (see [the
-section on running a
+The MizerParams object stores only the *initial* fishing effort, which
+you can inspect and change with
+[`initial_effort()`](https://sizespectrum.org/mizer/reference/initial_effort.md).
+The effort that is actually used during a simulation is set when the
+simulation is run and can vary through time (see [the section on running
+a
 simulation](https://sizespectrum.org/mizer/articles/running_a_simulation.md)).
 
 ### Example of making `MizerParams` objects
@@ -158,6 +161,7 @@ parameters for a multispecies North Sea model. The location of the file
 can be found by running
 
 ``` r
+
 params_location <- system.file("extdata", "NS_species_params.csv",
                                package = "mizer")
 ```
@@ -166,6 +170,7 @@ This file can be opened with most spreadsheets or a text editor for you
 to inspect. This can be loaded into R with
 
 ``` r
+
 species_params <- read.csv(params_location)
 ```
 
@@ -173,6 +178,7 @@ This reads the .csv file into R in the form of a data.frame. You can
 check this with the `class`:
 
 ``` r
+
 class(species_params)
 ```
 
@@ -181,6 +187,7 @@ class(species_params)
 Let’s have a look at the data frame:
 
 ``` r
+
 species_params
 ```
 
@@ -239,19 +246,21 @@ data.frame into the
 constructor method:
 
 ``` r
+
 params <- newMultispeciesParams(species_params)
 ```
 
+    ## No h provided for some species, so using age at maturity to calculate it.
     ## Because you have n != p, the default value for `h` is not very good.
     ## Because the age at maturity is not known, I need to fall back to using
     ## von Bertalanffy parameters, where available, and this is not reliable.
-    ## No ks column so calculating from critical feeding level.
-    ## Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.
+    ## Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
     ## Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
 
 We have just created a `MizerParams` object:
 
 ``` r
+
 class(params)
 ```
 
@@ -264,6 +273,7 @@ frame that we provided. We can look at it with
 [`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md):
 
 ``` r
+
 species_params(params)
 ```
 
@@ -286,13 +296,18 @@ species_params(params)
 We can see that this returns the original species data.frame (with
 `w_inf` and so on), plus any default values that may not have been
 included in the original data.frame. For example, we can see that there
-are now columns for `alpha` and `h` and `gamma` etc.
+are now columns for `alpha` and `h` and `gamma` etc. Only a few columns
+are printed in full; the remaining ones are listed by name at the end.
+If you want to see only the parameters that you supplied yourself,
+without the ones that mizer filled in, use
+`given_species_params(params)`.
 
 Also note how the default fishing gears have been set up. Even though we
 did not provide a gear parameter data frame, the MizerParams object has
 one that we can access with
 
 ``` r
+
 gear_params(params)
 ```
 
@@ -311,13 +326,14 @@ method for `MizerParams` objects which prints a useful summary of the
 model parameters:
 
 ``` r
+
 summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.2.1
-    ## Created: 2026-07-31 10:39:00
-    ## Modified: 2026-07-31 10:39:00
+    ## mizer version: 3.2.1.9004
+    ## Created: 2026-08-20 12:36:24
+    ## Modified: 2026-08-20 12:36:24
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066
@@ -326,6 +342,8 @@ summary(params)
     ##  minimum size:   9.20914e-13
     ##  maximum size:   8.48399
     ##  no. size bins:  166 (215 size bins in total)
+    ## Steady state:
+    ##  biomass drift:  1.4 /year   (not at steady state - run steady())
     ## Species details:
     ## An object of class "species_params" containing parameters for 12 species:
     ##  species w_inf w_mat w_min   beta sigma
@@ -355,6 +373,7 @@ controlled by the arguments `no_w`, `min_w` and `max_w` respectively.
 For example, if we wanted 200 size classes in the model we would use:
 
 ``` r
+
 params200 <- newMultispeciesParams(species_params, no_w = 200)
 summary(params200)
 ```
@@ -363,12 +382,15 @@ summary(params200)
 
 So far we have created a `MizerParams` object by passing in only the
 species parameter data.frame argument. We did not specify an interaction
-matrix. The interaction matrix describes the interaction of each pair of
-species in the model. This can be viewed as a proxy for spatial
-interaction e.g. to model predator-prey interaction that is not size
-based. The values in the interaction matrix are used to scale the
-encountered food in \[getEncounter()\] and the predation mortality rate
-in \[getPredMort()\] (see [the section on predator-prey encounter
+matrix. The interaction matrix \\\theta\_{ij}\\ describes the
+interaction of each pair of species in the model. This can be viewed as
+a proxy for spatial interaction e.g. to model predator-prey interaction
+that is not size based. The values in the interaction matrix are used to
+scale the encountered food in
+[`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md)
+and the predation mortality rate in
+[`getPredMort()`](https://sizespectrum.org/mizer/reference/getPredMort.md)
+(see [the section on predator-prey encounter
 rate](https://sizespectrum.org/mizer/articles/model_description.html#sec:pref)
 and on [predation
 mortality](https://sizespectrum.org/mizer/articles/model_description.html#mortality)).
@@ -381,14 +403,9 @@ with each other, i.e. the species are spread homogeneously across the
 model area.
 
 ``` r
-getInteraction(params)
-```
 
-    ## Warning: `getInteraction()` was deprecated in mizer 2.4.0.
-    ## ℹ Please use `interaction_matrix()` instead.
-    ## This warning is displayed once per session.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-    ## generated.
+interaction_matrix(params)
+```
 
     ##          prey
     ## predator  Sprat Sandeel N.pout Herring Dab Whiting Sole Gurnard Plaice Haddock
@@ -428,6 +445,7 @@ An example interaction matrix for the North Sea has been included in
 running:
 
 ``` r
+
 inter_location <- system.file("extdata", "NS_interaction.csv",
                               package = "mizer")
 ```
@@ -441,6 +459,7 @@ row names. We therefore use an additional argument to the
 `row.names`.
 
 ``` r
+
 inter <- read.csv(inter_location, row.names = 1)
 inter
 ```
@@ -473,13 +492,16 @@ inter
     ## Saithe  0.01242055 0.12351994 0.03294939 0.26167470 0.20894496 0.66383553
 
 We can set the interaction matrix in our existing MizerParams object
-`params` with the
-[`setInteraction()`](https://sizespectrum.org/mizer/reference/setInteraction.md)
-function:
+`params` by assigning to
+[`interaction_matrix()`](https://sizespectrum.org/mizer/reference/setInteraction.md):
 
 ``` r
-params <- setInteraction(params, interaction = inter)
+
+interaction_matrix(params) <- inter
 ```
+
+This is equivalent to
+`params <- setInteraction(params, interaction = inter)`.
 
 Alternatively, instead of changing the interaction matrix in the
 existing MizerParams object, we could have created a new object from
@@ -487,14 +509,15 @@ scratch with our interaction matrix by passing it to
 [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md):
 
 ``` r
+
 params_new <- newMultispeciesParams(species_params, interaction = inter)
 ```
 
+    ## No h provided for some species, so using age at maturity to calculate it.
     ## Because you have n != p, the default value for `h` is not very good.
     ## Because the age at maturity is not known, I need to fall back to using
     ## von Bertalanffy parameters, where available, and this is not reliable.
-    ## No ks column so calculating from critical feeding level.
-    ## Using z0 = z0pre * w_inf ^ z0exp for missing z0 values.
+    ## Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
     ## Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
 
 Note that the first argument must be the species parameters data.frame.
@@ -512,6 +535,7 @@ In the above example, each species is caught by the same gear (named
 provided.
 
 ``` r
+
 gear_params(params)
 ```
 
@@ -521,6 +545,7 @@ combinations of species. We can achieve that by only changing the `gear`
 column in the `gear_params` data frame.
 
 ``` r
+
 gear_params(params)$gear <- c("Industrial", "Industrial", "Industrial",
                               "Pelagic", "Beam", "Otter",
                               "Beam", "Otter", "Beam",
@@ -532,13 +557,14 @@ You can see the result by calling
 the `params` object.
 
 ``` r
+
 summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.2.1
-    ## Created: 2026-07-31 10:39:00
-    ## Modified: 2026-07-31 10:39:01
+    ## mizer version: 3.2.1.9004
+    ## Created: 2026-08-20 12:36:24
+    ## Modified: 2026-08-20 12:36:25
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066
@@ -547,6 +573,8 @@ summary(params)
     ##  minimum size:   9.20914e-13
     ##  maximum size:   8.48399
     ##  no. size bins:  166 (215 size bins in total)
+    ## Steady state:
+    ##  biomass drift:  1.4 /year   (not at steady state - run steady())
     ## Species details:
     ## An object of class "species_params" containing parameters for 12 species:
     ##  species w_inf w_mat w_min   beta sigma
@@ -595,19 +623,41 @@ and there is a function called
 more reliable. The function
 [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) must be
 supplied with a MizerParams object. It takes that MizerParams object,
-looks at the initial system state, computes the levels of reproduction
-of the different species, hold them fixed, and evolves the system until
-a steady state is reached (or more precisely, until the amount that the
+looks at the initial system state, computes the rates of reproduction of
+the different species, holds them fixed, and evolves the system until a
+steady state is reached (or more precisely, until the amount that the
 population abundances change during a time-step is below some small
-tolerance level). After this, the reproductive efficiency of each
-species is altered so that when the reproduction dynamics are turned
-back on (i.e., when we stop holding recruitment levels fixed), the
-values of the reproduction levels which we held the system fixed at will
-be realized. The steady function is not sure to converge, and the way it
-re-tunes the reproductive efficiency values may not be realistic, but
-the idea is to alter the other parameters in the system until
+tolerance level). The resource is rebalanced at the same time, so that
+the state returned is a steady state of the resource as well as of the
+consumers.
+
+After this, the reproduction parameters of each species are re-tuned so
+that when the reproduction dynamics are turned back on (i.e., when we
+stop holding the reproduction rates fixed), the reproduction rates at
+which we held the system fixed will indeed be realised. By default it is
+the `reproduction_level` of each species that is preserved by this
+re-tuning; the `preserve` argument of
+[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) lets
+you preserve the maximum reproduction rate `R_max` or the reproductive
+efficiency `erepro` instead. See
+[`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+for an explanation of the reproduction level.
+
+The [`steady()`](https://sizespectrum.org/mizer/reference/steady.md)
+function is not sure to converge, and the way it re-tunes the
+reproduction parameters may not be realistic, but the idea is to alter
+the other parameters in the system until
 [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) does
-arrive at a steady state with sensible reproductive efficiency values.
+arrive at a steady state with sensible parameter values. The returned
+object carries a `"convergence"` attribute that describes what was found
+(a steady state, a limit cycle, or no convergence), and
+[`summary()`](https://sizespectrum.org/mizer/reference/summary.md)
+reports how far the model is from steady state. There is also
+[`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md),
+which solves for the steady state directly instead of by running the
+dynamics. Calibrating a model to observations is discussed in the [guide
+to calibrating a
+model](https://sizespectrum.org/mizer/articles/guide-calibrate-model.md).
 
 Now that we know how to create a multispecies model we shall discuss how
 to [run a multispecies
