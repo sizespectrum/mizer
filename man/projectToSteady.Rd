@@ -101,10 +101,15 @@ saved every \code{t_per} years.
 In either case the returned object carries an attribute \code{"convergence"}
 describing the solution the run settled on, a named list with entries:
 \describe{
-\item{\code{type}}{One of \code{"steady"} (a stable fixed point), \code{"cycle"} (a
-limit cycle), \code{"not_converged"} (still changing at \code{t_max}) or
-\code{"extinction"} (a species died out).}
-\item{\code{converged}}{Logical, \code{TRUE} for \code{"steady"} and \code{"cycle"}.}
+\item{\code{type}}{One of \code{"below_tolerance"} (the distance function dropped
+below \code{tol}, which suggests but does not guarantee a stable fixed
+point — check \code{residual}), \code{"cycle"} (a limit cycle),
+\code{"not_converged"} (still changing at \code{t_max}) or \code{"extinction"} (a
+species died out).}
+\item{\code{settled}}{Logical, \code{TRUE} for \code{"below_tolerance"} and \code{"cycle"},
+i.e. when the run stopped on a criterion of its own rather than
+running out of time. It says nothing about whether the state reached
+is a fixed point; that is what \code{residual} is for.}
 \item{\code{distance}}{The final value returned by \code{distance_func}.}
 \item{\code{residual}}{The largest per-capita rate of change, in 1/year, at the
 state that was reached, as returned by \code{\link[=getSteadyResidual]{getSteadyResidual()}}. Unlike
@@ -164,7 +169,11 @@ healthy species is never flagged.
 \code{distance_func} is called with the state at the end of the previous block and
 the state at the end of the current block, i.e. with two states \code{t_per} years
 apart. If the number it returns is less than \code{tol}, the run stops with
-\code{type = "steady"}. What "distance" means is entirely up to that function:
+\code{type = "below_tolerance"}. The type is deliberately not called \code{"steady"}:
+all it says is that the state stopped moving on the scale of the distance
+function, which is not a guarantee that a fixed point has been reached. The
+\code{residual} entry of the \code{"convergence"} attribute measures that directly.
+What "distance" means is entirely up to that function:
 the default \code{\link[=distanceSSLogN]{distanceSSLogN()}} uses the sum of squared changes in log
 abundance, while \code{\link[=steady]{steady()}} instead passes \code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}, which uses
 the largest relative change in egg production.
@@ -237,7 +246,7 @@ on; it does not say that the state reached is a fixed point. There are four
 ways the returned object can fail to be one:
 \itemize{
 \item the run converged on its own scale while the biomasses are still
-visibly drifting, because \code{tol} was too loose;
+visibly drifting, because \code{tol} was too loose (\code{type = "below_tolerance"}, which is why that type is not called \code{"steady"});
 \item the run reached \code{t_max} without converging (\code{type = "not_converged"});
 \item the run settled on a limit cycle (\code{type = "cycle"}), in which case the
 state stored is one point on that cycle;
@@ -247,7 +256,7 @@ state stored is one point on that cycle;
 
 So treat the result as a claim to be checked rather than as a guarantee:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{attr(params, "convergence")$type      # "steady", "cycle", "not_converged", "extinction"
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{attr(params, "convergence")$type      # "below_tolerance", "cycle", "not_converged", "extinction"
 attr(params, "convergence")$residual  # largest biomass drift, in 1/year
 isSteady(params)                      # TRUE if within tolerance
 summary(params)                       # includes the biomass-drift verdict

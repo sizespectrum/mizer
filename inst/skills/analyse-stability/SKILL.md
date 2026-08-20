@@ -54,9 +54,10 @@ warning. `plot(getSteadyResidual(params))` shows how far off it is — see the
 `calibrate-model` skill.
 
 `steady()` and `projectToSteady()` attach a related `"convergence"` attribute
-recording whether the run settled on a **steady state, a limit cycle, or
-neither**, together with the cycle period and relative amplitude when a cycle is
-found. Limit cycles are detected from the per-species biomass series sampled at
+recording whether the run **dropped below its tolerance** (`type =
+"below_tolerance"`, which suggests but does not prove a fixed point), settled on
+**a limit cycle**, or **neither**, together with the cycle period and relative
+amplitude when a cycle is found. Limit cycles are detected from the per-species biomass series sampled at
 `t_save`; the relative-amplitude floor for calling an oscillation a cycle is the
 `amplitude_tol` argument (default `0.01`), independent of the fixed-point
 tolerance `tol`.

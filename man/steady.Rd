@@ -122,7 +122,7 @@ on; it does not say that the state reached is a fixed point. There are four
 ways the returned object can fail to be one:
 \itemize{
 \item the run converged on its own scale while the biomasses are still
-visibly drifting, because \code{tol} was too loose;
+visibly drifting, because \code{tol} was too loose (\code{type = "below_tolerance"}, which is why that type is not called \code{"steady"});
 \item the run reached \code{t_max} without converging (\code{type = "not_converged"});
 \item the run settled on a limit cycle (\code{type = "cycle"}), in which case the
 state stored is one point on that cycle;
@@ -132,7 +132,7 @@ state stored is one point on that cycle;
 
 So treat the result as a claim to be checked rather than as a guarantee:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{attr(params, "convergence")$type      # "steady", "cycle", "not_converged", "extinction"
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{attr(params, "convergence")$type      # "below_tolerance", "cycle", "not_converged", "extinction"
 attr(params, "convergence")$residual  # largest biomass drift, in 1/year
 isSteady(params)                      # TRUE if within tolerance
 summary(params)                       # includes the biomass-drift verdict

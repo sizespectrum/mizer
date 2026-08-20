@@ -396,16 +396,45 @@ updating. It reports how far the state reached actually is from a fixed point,
 which the existing `distance` field only approximates — `distance` compares two
 states `t_per` apart on whatever scale the distance function uses.
 
-When the two disagree, `steady()` now appends to its convergence message:
+When the two disagree, `steady()` appends to its convergence message:
 
 ```
-#> Convergence was achieved in 12 years. A biomass is still changing at up to
-#> 0.42 per year. Reduce `tol` to converge further.
+#> Reached the convergence tolerance after 12 years. The biomasses change at up
+#> to 0.42 per year. Reduce `tol` to converge further.
 ```
 
 This is the case where the relative-RDI criterion is satisfied while the spectra
 are still moving. It is a message, not a warning, because convergence at the
 `tol` you asked for did happen.
+
+### `steady()` reports the tolerance it reached rather than announcing convergence
+
+`steady()` and `projectToSteady()` used to end a successful run with
+
+```
+#> Convergence was achieved in 12 years.
+```
+
+They now say what was actually tested — the distance function dropped below
+`tol`, which is not the same thing as having reached a fixed point — and they
+report the biomass drift every time rather than only when it is large:
+
+```
+#> Reached the convergence tolerance after 12 years. The biomasses change at up
+#> to 3.2e-05 per year.
+```
+
+Code that matched the old wording needs the new string: an `expect_message()` in
+an extension package's tests, or a script grepping the output. In a script the
+`"convergence"` attribute is the better check anyway, since `info_level = 0`
+suppresses the message entirely.
+
+The same reasoning renamed two things in that attribute, which is new in this
+release and so breaks nothing: its `type` is `"below_tolerance"` rather than
+`"steady"`, and the logical field saying the run stopped on a criterion of its
+own rather than running out of time is called `settled` rather than `converged`.
+Neither now reads as a promise that the state is a fixed point; `residual` is
+the field that answers that.
 
 ### `getStability()` checks that it was given a steady state
 

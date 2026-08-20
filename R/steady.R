@@ -111,7 +111,11 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' `distance_func` is called with the state at the end of the previous block and
 #' the state at the end of the current block, i.e. with two states `t_per` years
 #' apart. If the number it returns is less than `tol`, the run stops with
-#' `type = "steady"`. What "distance" means is entirely up to that function:
+#' `type = "below_tolerance"`. The type is deliberately not called `"steady"`:
+#' all it says is that the state stopped moving on the scale of the distance
+#' function, which is not a guarantee that a fixed point has been reached. The
+#' `residual` entry of the `"convergence"` attribute measures that directly.
+#' What "distance" means is entirely up to that function:
 #' the default [distanceSSLogN()] uses the sum of squared changes in log
 #' abundance, while [steady()] instead passes [distanceMaxRelRDI()], which uses
 #' the largest relative change in egg production.
@@ -202,10 +206,15 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   In either case the returned object carries an attribute `"convergence"`
 #'   describing the solution the run settled on, a named list with entries:
 #'   \describe{
-#'     \item{`type`}{One of `"steady"` (a stable fixed point), `"cycle"` (a
-#'       limit cycle), `"not_converged"` (still changing at `t_max`) or
-#'       `"extinction"` (a species died out).}
-#'     \item{`converged`}{Logical, `TRUE` for `"steady"` and `"cycle"`.}
+#'     \item{`type`}{One of `"below_tolerance"` (the distance function dropped
+#'       below `tol`, which suggests but does not guarantee a stable fixed
+#'       point — check `residual`), `"cycle"` (a limit cycle),
+#'       `"not_converged"` (still changing at `t_max`) or `"extinction"` (a
+#'       species died out).}
+#'     \item{`settled`}{Logical, `TRUE` for `"below_tolerance"` and `"cycle"`,
+#'       i.e. when the run stopped on a criterion of its own rather than
+#'       running out of time. It says nothing about whether the state reached
+#'       is a fixed point; that is what `residual` is for.}
 #'     \item{`distance`}{The final value returned by `distance_func`.}
 #'     \item{`residual`}{The largest per-capita rate of change, in 1/year, at the
 #'       state that was reached, as returned by [getSteadyResidual()]. Unlike
@@ -386,7 +395,7 @@ projectToSteady.MizerParams <- function(params,
     }
 
     years <- (i - 1) * t_per
-    converged <- FALSE
+    settled <- FALSE
 
     params@initial_n[] <- current$n
     params@initial_n_pp[] <- current$n_pp
@@ -399,37 +408,39 @@ projectToSteady.MizerParams <- function(params,
     residual <- tryCatch(steady_biomass_drift(params, effort = effort),
                          error = function(e) NA_real_)
     residual_txt <- if (is.finite(residual)) {
-        paste0(" A biomass is still changing at up to ",
-               signif(residual, 2), " per year.")
+        paste0(" The biomasses change at up to ", signif(residual, 2),
+               " per year.")
     } else {
         ""
     }
 
     if (!is.null(cycle)) {
         type <- "cycle"
-        converged <- TRUE
+        settled <- TRUE
         signal_info("convergence", paste0(
-            "Converged to a limit cycle of period ",
+            "Settled onto a limit cycle of period ",
             signif(cycle$period, 3), " years (relative amplitude ",
             signif(cycle$amplitude, 2), ") after ", years, " years."),
             unhandled = "show")
     } else if (success) {
-        type <- "steady"
-        converged <- TRUE
+        type <- "below_tolerance"
+        settled <- TRUE
         # The distance function being satisfied only says that the state stopped
-        # moving on that function's own scale. Report the residual alongside it,
-        # and flag the case where the two disagree — a run declared converged
-        # whose biomasses are still visibly moving, which would otherwise be
-        # invisible. This stays an "info": the user asked for convergence at
+        # moving on that function's own scale, so the message says that and no
+        # more. The residual is reported every time, not only when it is large:
+        # it is the evidence for whether this is a fixed point, and a number the
+        # user only ever sees when something has gone wrong is a number they
+        # never learn to look at. Only the instruction to act on it is
+        # conditional. This stays an "info": the user asked for convergence at
         # their `tol` and got it, so nothing they asked for failed to happen.
         caveat <- if (is.finite(residual) && residual > steady_residual_tol()) {
-            paste0(residual_txt, " Reduce `tol` to converge further.")
+            " Reduce `tol` to converge further."
         } else {
             ""
         }
         signal_info("convergence",
-                    paste0("Convergence was achieved in ", years, " years.",
-                           caveat),
+                    paste0("Reached the convergence tolerance after ", years,
+                           " years.", residual_txt, caveat),
                     unhandled = "show")
     } else {
         type <- if (any(extinct)) "extinction" else "not_converged"
@@ -441,7 +452,7 @@ projectToSteady.MizerParams <- function(params,
 
     convergence <- list(
         type = type,
-        converged = converged,
+        settled = settled,
         distance = distance,
         residual = residual,
         years = years,
