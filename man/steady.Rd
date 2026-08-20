@@ -88,7 +88,7 @@ state replaced by the steady state. If \code{return_sim = TRUE}, a \code{MizerSi
 object containing the intermediate states saved every \code{t_per} years. The
 returned object carries a \code{"convergence"} attribute describing the solution
 found (steady state, limit cycle, or non-convergence); see
-\code{\link[=projectToSteady]{projectToSteady()}}.
+\code{\link[=projectToSteady]{projectToSteady()}}. Check it: convergence is not guaranteed.
 }
 \description{
 The steady state is found by running the dynamics while keeping reproduction,
@@ -96,6 +96,12 @@ resource and other components constant until the size spectra no longer
 change much (or until time \code{t_max} is reached, if earlier).
 }
 \details{
+Holding those constant is what makes the search reliable, but it does not
+make the result certain: the state that is stored is only as close to a fixed
+point as \code{tol} and \code{t_max} allowed, and the run may instead have stopped on a
+limit cycle or on a species going extinct. Check the result rather than
+assuming it; see the section below.
+
 If the model use Beverton-Holt reproduction then the reproduction parameters
 are set to values that give the level of reproduction observed in that
 steady state. The \code{preserve} argument can be used to specify which of the
@@ -107,6 +113,48 @@ preserved while the capacity is recomputed to keep it steady. If the resource
 capacity had been set manually (frozen), it is rebalanced and thereby
 unfrozen.
 }
+\section{What you get back may not be a steady state}{
+
+
+The stopping criterion is a proxy. It says that two states \code{t_per} years
+apart differ by less than \code{tol} on whatever scale the criterion is measured
+on; it does not say that the state reached is a fixed point. There are four
+ways the returned object can fail to be one:
+\itemize{
+\item the run converged on its own scale while the biomasses are still
+visibly drifting, because \code{tol} was too loose;
+\item the run reached \code{t_max} without converging (\code{type = "not_converged"});
+\item the run settled on a limit cycle (\code{type = "cycle"}), in which case the
+state stored is one point on that cycle;
+\item the run stopped because a species was going extinct
+(\code{type = "extinction"}).
+}
+
+So treat the result as a claim to be checked rather than as a guarantee:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{attr(params, "convergence")$type      # "steady", "cycle", "not_converged", "extinction"
+attr(params, "convergence")$residual  # largest biomass drift, in 1/year
+isSteady(params)                      # TRUE if within tolerance
+summary(params)                       # includes the biomass-drift verdict
+plot(getSteadyResidual(params))       # which species, and at which sizes
+}\if{html}{\out{</div>}}
+
+The first four say \emph{whether} the model is steady, the last says \emph{where} it
+is not, which is the one to reach for when it is not: a model that is off
+steady state is usually off in one species or one part of the size range,
+and the plot names it. See \code{\link[=getSteadyResidual]{getSteadyResidual()}} for why the verdict is
+phrased in terms of biomass drift rather than the largest per-capita rate.
+
+The messages this function prints say the same thing — a converged run
+whose biomasses are still moving reports the drift and adds "Reduce \code{tol}
+to converge further." — but they are suppressed by \code{info_level = 0}, so in
+a script the \code{"convergence"} attribute is the reliable check.
+
+Finally, a genuine fixed point need not be a \emph{stable} one. Use
+\code{\link[=getStability]{getStability()}} to find out, and \code{\link[=steadyNewton]{steadyNewton()}} to converge onto a fixed
+point that the dynamics themselves would run away from.
+}
+
 \examples{
 \donttest{
 params <- newTraitParams()
@@ -114,4 +162,8 @@ species_params(params)$gamma[5] <- 3000
 params <- steady(params)
 plotSpectra(params)
 }
+}
+\seealso{
+\code{\link[=projectToSteady]{projectToSteady()}}, \code{\link[=steadySingleSpecies]{steadySingleSpecies()}}, \code{\link[=steadyNewton]{steadyNewton()}},
+\code{\link[=isSteady]{isSteady()}}, \code{\link[=getSteadyResidual]{getSteadyResidual()}}, \code{\link[=getStability]{getStability()}}
 }

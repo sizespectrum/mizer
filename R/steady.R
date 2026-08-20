@@ -71,6 +71,12 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' successive time steps is less than `tol`. You determine how the distance is
 #' calculated.
 #'
+#' Because reproduction stays dynamic here, the run can only ever end up on an
+#' attractor of the dynamics, and that need not be a fixed point: it may stop on
+#' a limit cycle, on a species going extinct, or simply at `t_max`. So the state
+#' it leaves behind is not necessarily a steady state; see the section below on
+#' how to check.
+#'
 #' @details
 #' # How the run is organised
 #'
@@ -165,6 +171,8 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' The reported `period` is a multiple of `t_save`, so it is only resolved to
 #' that accuracy; reduce `t_save` if you need the period more precisely.
 #'
+#' @template section_check_steady
+#'
 #' @inheritParams steady
 #' @param effort The fishing effort to be used throughout the simulation.
 #'   This is validated by [validEffortVector()] and can therefore be `NULL`, a
@@ -210,7 +218,8 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'       peak-to-trough biomass amplitude; otherwise `NA`.}
 #'   }
 #'   This mirrors how [steadyNewton()] attaches an `"stability"` attribute.
-#' @seealso [distanceSSLogN()], [distanceMaxRelRDI()], [steadyNewton()],
+#' @seealso [steady()], [isSteady()], [getSteadyResidual()],
+#'   [distanceSSLogN()], [distanceMaxRelRDI()], [steadyNewton()],
 #'   [getStability()]
 #' @export
 projectToSteady <- function(params,
@@ -553,6 +562,12 @@ find_first_acf_peak <- function(ac, threshold) {
 #' resource and other components constant until the size spectra no longer
 #' change much (or until time `t_max` is reached, if earlier).
 #'
+#' Holding those constant is what makes the search reliable, but it does not
+#' make the result certain: the state that is stored is only as close to a fixed
+#' point as `tol` and `t_max` allowed, and the run may instead have stopped on a
+#' limit cycle or on a species going extinct. Check the result rather than
+#' assuming it; see the section below.
+#'
 #' If the model use Beverton-Holt reproduction then the reproduction parameters
 #' are set to values that give the level of reproduction observed in that
 #' steady state. The `preserve` argument can be used to specify which of the
@@ -610,12 +625,16 @@ find_first_acf_peak <- function(ac, threshold) {
 #'   [default_info_level()].
 #' @param method The numerical method to use for the consumer density update.
 #'   See [project()].
+#' @template section_check_steady
+#'
 #' @return If `return_sim = FALSE`, a `MizerParams` object with the initial
 #'   state replaced by the steady state. If `return_sim = TRUE`, a `MizerSim`
 #'   object containing the intermediate states saved every `t_per` years. The
 #'   returned object carries a `"convergence"` attribute describing the solution
 #'   found (steady state, limit cycle, or non-convergence); see
-#'   [projectToSteady()].
+#'   [projectToSteady()]. Check it: convergence is not guaranteed.
+#' @seealso [projectToSteady()], [steadySingleSpecies()], [steadyNewton()],
+#'   [isSteady()], [getSteadyResidual()], [getStability()]
 #' @export
 #' @examples
 #' \donttest{

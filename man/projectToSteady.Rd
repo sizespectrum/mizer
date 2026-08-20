@@ -125,6 +125,12 @@ Run the full dynamics, as in \code{\link[=project]{project()}}, but stop once th
 down sufficiently, in the sense that the distance between states at
 successive time steps is less than \code{tol}. You determine how the distance is
 calculated.
+
+Because reproduction stays dynamic here, the run can only ever end up on an
+attractor of the dynamics, and that need not be a fixed point: it may stop on
+a limit cycle, on a species going extinct, or simply at \code{t_max}. So the state
+it leaves behind is not necessarily a steady state; see the section below on
+how to check.
 }
 \section{How the run is organised}{
 The simulation is not run in one go but is broken into blocks of \code{t_per}
@@ -222,7 +228,50 @@ The reported \code{period} is a multiple of \code{t_save}, so it is only resolve
 that accuracy; reduce \code{t_save} if you need the period more precisely.
 }
 
+\section{What you get back may not be a steady state}{
+
+
+The stopping criterion is a proxy. It says that two states \code{t_per} years
+apart differ by less than \code{tol} on whatever scale the criterion is measured
+on; it does not say that the state reached is a fixed point. There are four
+ways the returned object can fail to be one:
+\itemize{
+\item the run converged on its own scale while the biomasses are still
+visibly drifting, because \code{tol} was too loose;
+\item the run reached \code{t_max} without converging (\code{type = "not_converged"});
+\item the run settled on a limit cycle (\code{type = "cycle"}), in which case the
+state stored is one point on that cycle;
+\item the run stopped because a species was going extinct
+(\code{type = "extinction"}).
+}
+
+So treat the result as a claim to be checked rather than as a guarantee:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{attr(params, "convergence")$type      # "steady", "cycle", "not_converged", "extinction"
+attr(params, "convergence")$residual  # largest biomass drift, in 1/year
+isSteady(params)                      # TRUE if within tolerance
+summary(params)                       # includes the biomass-drift verdict
+plot(getSteadyResidual(params))       # which species, and at which sizes
+}\if{html}{\out{</div>}}
+
+The first four say \emph{whether} the model is steady, the last says \emph{where} it
+is not, which is the one to reach for when it is not: a model that is off
+steady state is usually off in one species or one part of the size range,
+and the plot names it. See \code{\link[=getSteadyResidual]{getSteadyResidual()}} for why the verdict is
+phrased in terms of biomass drift rather than the largest per-capita rate.
+
+The messages this function prints say the same thing — a converged run
+whose biomasses are still moving reports the drift and adds "Reduce \code{tol}
+to converge further." — but they are suppressed by \code{info_level = 0}, so in
+a script the \code{"convergence"} attribute is the reliable check.
+
+Finally, a genuine fixed point need not be a \emph{stable} one. Use
+\code{\link[=getStability]{getStability()}} to find out, and \code{\link[=steadyNewton]{steadyNewton()}} to converge onto a fixed
+point that the dynamics themselves would run away from.
+}
+
 \seealso{
+\code{\link[=steady]{steady()}}, \code{\link[=isSteady]{isSteady()}}, \code{\link[=getSteadyResidual]{getSteadyResidual()}},
 \code{\link[=distanceSSLogN]{distanceSSLogN()}}, \code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}, \code{\link[=steadyNewton]{steadyNewton()}},
 \code{\link[=getStability]{getStability()}}
 }

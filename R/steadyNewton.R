@@ -104,7 +104,8 @@
 #' @param ... Unused.
 #' @return A \linkS4class{MizerParams} object with the initial state set to the
 #'   steady state.
-#' @seealso [steady()], [steadySingleSpecies()], [getStability()]
+#' @seealso [steady()], [steadySingleSpecies()], [getStability()],
+#'   [isSteady()], [getSteadyResidual()]
 #' @export
 #' @examples
 #' \donttest{

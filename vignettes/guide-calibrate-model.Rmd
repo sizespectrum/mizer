@@ -55,6 +55,31 @@ rate at the new steady state — use the `preserve` argument to choose whether
 [`reproduction_level`](../reference/setBevertonHolt.html) (default), `R_max`, or `erepro` is held fixed during that
 re-tuning.
 
+**`steady()` returning is not proof that the model is steady.** Its stopping
+test is the relative change in egg production over `t_per`, a proxy for the
+drift itself, and the run can also stop on a limit cycle, on a species going
+extinct, or simply at `t_max`. All four outcomes return a `MizerParams` object
+that looks the same. What distinguishes them is the `"convergence"` attribute,
+and the checks in [Verifying the result](#verifying-the-result):
+
+```{r eval=FALSE}
+params <- steady(params)
+attr(params, "convergence")$type       # "steady", "cycle", "not_converged", "extinction"
+attr(params, "convergence")$residual   # largest biomass drift, in 1/year
+plot(getSteadyResidual(params))        # which species, and at which sizes
+```
+
+`"steady"` with a `residual` above about `0.05` means `tol` was too loose:
+tighten it. `"cycle"` means the dynamics settled onto a limit cycle and the
+stored state is one point on it — see the [guide to analysing dynamic stability](guide-analyse-stability.html).
+`"not_converged"` means the run ran out of time: raise `t_max`, or get a better
+starting spectrum from `steadySingleSpecies()` first, and reach for
+`steadyNewton()` when the fixed point is dynamically unstable. `"extinction"`
+means a species is dying out, which is a modelling problem — see [Diagnosing
+calibration problems](#diagnosing-calibration-problems). `steady()` says all of
+this in its messages too, but `info_level = 0` suppresses those, so in a script
+the attribute is the reliable check.
+
 ---
 
 ## The calibration loop
@@ -185,10 +210,9 @@ and analyse the results with the [guide to analysing and plotting mizer results]
   and trophic mechanics.
 - **Biomass matches but growth is wrong (or vice versa).** Alternate
   `matchGrowth()` and `matchBiomasses()`, re-running `steady()` between them.
-- **`steady()` said it converged but the results still drift.** Its convergence
-  test is the relative change in egg production over `t_per`, which is a proxy.
-  Check `attr(params, "convergence")$residual`, or `summary(params)`, for how far
-  the state actually is from a fixed point, and reduce `steady()`'s `tol` if it is
+- **`steady()` said it converged but the results still drift.** Check
+  `attr(params, "convergence")$residual`, or `summary(params)`, for how far the
+  state actually is from a fixed point, and reduce `steady()`'s `tol` if it is
   too large. `steady()` warns when the two disagree.
 - **Results move even though nothing was changed.** The model was not at its
   steady state to begin with. [`plot(getSteadyResidual(params))`](../reference/plot.html) shows which
