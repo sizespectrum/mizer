@@ -638,7 +638,7 @@ build_guides <- function(pkg_root = ".",
         vig <- index[[skill]]$vignette
         txt <- skill_to_guide(skill, spec, index, map, pkg_root)
         bad <- bad + check_output(txt, vig, index, man_dir, vig_dir)
-        dest <- file.path(pkg_root, "vignettes", paste0(vig, ".Rmd"))
+        dest <- file.path(pkg_root, "vignettes", paste0(vig, ".qmd"))
         writeLines(txt, dest)
         message("Wrote ", dest, " from ", skill)
     }

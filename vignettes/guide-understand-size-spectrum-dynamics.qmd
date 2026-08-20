@@ -73,6 +73,7 @@ different ways:
 | **Encounter → feeding level → growth** of species $i$ | all **prey** small enough for $i$ to eat | prey mass $w_p$ (mass gained) | the abundance of $i$'s **prey** — bottom-up |
 | **Predation mortality** on species $i$ | all **predators** big enough to eat $i$ | nothing (deaths counted, not mass) | the abundance of $i$'s **predators** — top-down |
 
+
 Same kernel $\phi$, same search volume $\gamma$, same interaction matrix
 $\theta$; even the satiation factor is shared, since a satiated predator both
 stops gaining mass and stops killing. The only differences are which variable is
@@ -133,6 +134,7 @@ edge, and leave only by growing out through the top edge or by dying. So
 
 That is the whole content of the McKendrick–von Foerster equation. The quantity
 doing the growing-in and growing-out is the **flux** $J_i(w)$: the rate
+
 (individuals per year) at which fish of species $i$ grow past size $w$. It is
 just density times speed, $g_i(w) N_i(w)$ — how many fish are sitting at that
 size, times how fast they are moving through it. The dying term is
@@ -180,6 +182,7 @@ fewer consumers. Diagnose with [`plotFeedingLevel()`](../reference/plotFeedingLe
 predation mortality $\mu_p$ on their prey sizes rises → prey abundance falls →
 which relieves predation on whatever the prey were eating. Diagnose with
 [`plotPredMort()`](../reference/plotPredMort.html) and [`plotDiet()`](../reference/plotDiet.html).
+
 
 The loops act on **different sizes of the same species at the same time**. A fish
 is prey early and predator late, so a change can travel up the spectrum through
@@ -304,6 +307,7 @@ $\psi$ rising to 1 at `w_repro_max`, so growth halts there. This is what turns
 the species spectrum into a dome: growth decelerating towards `w_repro_max` piles
 individuals up (see the traffic-jam effect below) and then mortality removes
 them.
+
 
 ---
 
