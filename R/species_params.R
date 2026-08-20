@@ -553,6 +553,7 @@ merge_given_species_params <- function(sp, given, changed) {
 
 #' Record the species parameters that have changed
 #'
+#' `r lifecycle::badge("experimental")`
 #' Compares the new species parameters in `value` against the old ones in
 #' `old_sp` and records the entries that have changed in the given species
 #' parameter data frame `given`. This is the change detection used by

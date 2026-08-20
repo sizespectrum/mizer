@@ -11,6 +11,7 @@ info_reporting$active <- FALSE
 
 #' The default level of information that mizer gives
 #'
+#' `r lifecycle::badge("experimental")`
 #' Returns the `mizer_info_level` option if it is set and `fallback`
 #' otherwise. This is the default of the `info_level` argument of the functions
 #' that report information, so that
@@ -52,6 +53,7 @@ default_info_level <- function(fallback = 3) {
 
 #' Collect and report the information signals raised while setting parameters
 #'
+#' `r lifecycle::badge("experimental")`
 #' While mizer sets up or changes a model it raises conditions of class
 #' `info_about_default` to tell the user about the choices it made on their
 #' behalf and about the instructions it could not carry out. This function
@@ -181,6 +183,7 @@ with_info_level <- function(expr, info_level = default_info_level(),
 
 #' Signal information about a choice mizer made
 #'
+#' `r lifecycle::badge("experimental")`
 #' Raises the condition that [with_info_level()] collects. This is the way for
 #' mizer, and for anything extending it, to tell the user about a default it
 #' filled in, an input it adjusted or an instruction it could not carry out,
@@ -271,6 +274,7 @@ signal_frozen <- function(var, message) {
 
 #' Signal that a rate array was not recalculated because it is frozen
 #'
+#' `r lifecycle::badge("experimental")`
 #' Raised by the rate setters when they leave a frozen array alone although the
 #' species parameters say that it should have a different value. It is reported
 #' as a message, and `info_level = 0` silences it along with the other

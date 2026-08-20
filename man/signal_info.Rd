@@ -41,6 +41,7 @@ catch a particular kind of report.}
 \code{NULL} invisibly. Called for its side effect of signalling.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Raises the condition that \code{\link[=with_info_level]{with_info_level()}} collects. This is the way for
 mizer, and for anything extending it, to tell the user about a default it
 filled in, an input it adjusted or an instruction it could not carry out,

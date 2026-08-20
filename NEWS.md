@@ -326,7 +326,10 @@ while building or changing a model through a single mechanism controlled by
   option. Give your own constructors and setters an
   `info_level = default_info_level()` argument and forward it, rather than
   hard-coding a value in the call to `newMultispeciesParams()`, which would
-  collide with a user's own `info_level`.
+  collide with a user's own `info_level`. All four are marked experimental: the
+  mechanism is new and the details of the contract — the level scale, the
+  `severity` and `unhandled` arguments and the `info_about_default` condition
+  class — may still change in the light of how extensions use it.
 
 - The information mizer gives while it sets up or changes a model is now raised
   through one function, `signal_info()`, which says which quantity the report is
@@ -436,9 +439,12 @@ while building or changing a model through a single mechanism controlled by
   and provide a `knife_edge_length` column in `gear_params()`. The length is
   converted to a cut-off weight via the length–weight parameters `a` and `b`.
 
-- New `gaussian_mixture_pred_kernel()` supports multimodal feeding preferences
-  represented by mixtures of Gaussian distributions on the log
-  predator/prey mass-ratio scale.
+- New experimental `gaussian_mixture_pred_kernel()` supports multimodal feeding
+  preferences represented by mixtures of Gaussian distributions on the log
+  predator/prey mass-ratio scale. Its component parameters are held in the
+  list-columns `kernel_p`, `kernel_mean` and `kernel_sd` of the species
+  parameter data frame, a convention mizer uses nowhere else, which is why the
+  function is marked experimental.
 
 ## Other improvements
 
@@ -460,6 +466,14 @@ while building or changing a model through a single mechanism controlled by
   condition it does not itself fix (for example that a species has a maximum
   size larger than the largest size in the model) is now issued only the first
   time an object with that content is validated in a session.
+
+- Two things introduced in earlier releases are now marked experimental, to say
+  explicitly that their interfaces may still change:
+  `record_given_species_params()`, which exposes the given/calculated provenance
+  machinery that has been reworked several times in this cycle, and the
+  `ArrayResourceBySize` and `ArrayTimeByResourceBySize` classes, which are still
+  gaining methods and whose weight-length convention for the resource is a
+  recent addition. Nothing about their behaviour changes.
 
 ## Deprecations
 

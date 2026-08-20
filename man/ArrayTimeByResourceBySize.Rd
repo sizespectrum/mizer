@@ -37,6 +37,7 @@ An \code{ArrayTimeByResourceBySize} object (inherits from \code{matrix} and
 \code{ArrayTimeByResourceBySize} object, \code{FALSE} otherwise.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 The \code{\link[=NResource]{NResource()}} function returns a two-dimensional array (time x size)
 holding the resource number density through time. The
 \code{ArrayTimeByResourceBySize} class wraps this array to provide convenient

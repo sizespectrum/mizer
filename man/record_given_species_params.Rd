@@ -20,6 +20,7 @@ before the change. Must have one row per species, in the same order as
 The updated \code{given} data frame.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Compares the new species parameters in \code{value} against the old ones in
 \code{old_sp} and records the entries that have changed in the given species
 parameter data frame \code{given}. This is the change detection used by

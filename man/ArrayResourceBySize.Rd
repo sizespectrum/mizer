@@ -36,6 +36,7 @@ An \code{ArrayResourceBySize} object (inherits from \code{numeric}).
 \code{ArrayResourceBySize} object, \code{FALSE} otherwise.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Several functions in mizer return a vector over the full size grid holding
 a resource-related quantity such as the resource number density, the
 resource mortality, the intrinsic resource birth rate or carrying capacity.

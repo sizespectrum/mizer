@@ -23,6 +23,7 @@ that is going to say the same thing itself. Everything else raised inside
 The value of \code{expr}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 While mizer sets up or changes a model it raises conditions of class
 \code{info_about_default} to tell the user about the choices it made on their
 behalf and about the instructions it could not carry out. This function

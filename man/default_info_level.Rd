@@ -15,6 +15,7 @@ A single number, or \code{NA} to leave the reporting to a handler further
 out.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Returns the \code{mizer_info_level} option if it is set and \code{fallback}
 otherwise. This is the default of the \code{info_level} argument of the functions
 that report information, so that

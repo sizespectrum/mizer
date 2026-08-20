@@ -27,6 +27,7 @@ have been calculated from.}
 \code{NULL} invisibly. Called for its side effect of signalling.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Raised by the rate setters when they leave a frozen array alone although the
 species parameters say that it should have a different value. It is reported
 as a message, and \code{info_level = 0} silences it along with the other

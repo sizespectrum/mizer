@@ -6,6 +6,7 @@
 
 #' S3 class for resource size spectra
 #'
+#' `r lifecycle::badge("experimental")`
 #' Several functions in mizer return a vector over the full size grid holding
 #' a resource-related quantity such as the resource number density, the
 #' resource mortality, the intrinsic resource birth rate or carrying capacity.
@@ -499,6 +500,7 @@ str.ArrayResourceBySize <- function(object, ...) {
 
 #' S3 class for time x resource-size arrays
 #'
+#' `r lifecycle::badge("experimental")`
 #' The [NResource()] function returns a two-dimensional array (time x size)
 #' holding the resource number density through time. The
 #' `ArrayTimeByResourceBySize` class wraps this array to provide convenient

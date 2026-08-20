@@ -21,6 +21,7 @@ A vector giving the value of the predation kernel at each of the
 predator/prey mass ratios in the \code{ppmr} argument.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 A predation kernel for which the log predator/prey mass ratio follows a
 mixture of Gaussian distributions.
 }

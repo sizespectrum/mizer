@@ -81,6 +81,7 @@ truncated_lognormal_pred_kernel <- function(ppmr, beta, sigma) {
 
 #' Gaussian-mixture predation kernel
 #'
+#' `r lifecycle::badge("experimental")`
 #' A predation kernel for which the log predator/prey mass ratio follows a
 #' mixture of Gaussian distributions.
 #'
