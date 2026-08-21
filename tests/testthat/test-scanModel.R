@@ -117,6 +117,37 @@ test_that("scanFishingMortality() is idempotent", {
     expect_length(added, 1)
 })
 
+test_that("a setter reused on another model does not hijack its gear", {
+    # The setter carries the name of the gear it installed. Handed a different
+    # model that happens to have a gear of that name catching the same species
+    # with catchability 1, it must not take that for its own installation: the
+    # original gears would then still be fishing and the scanned mortality
+    # would add to them instead of replacing them.
+    f <- scanFishingMortality("Cod")
+    p_a <- suppressMessages(f(NS_params_small, 0.3))
+    installed <- setdiff(mizer:::gear_names(p_a),
+                         mizer:::gear_names(NS_params_small))
+    expect_length(installed, 1)
+
+    # A second model carrying a decoy gear of exactly that name
+    p_b <- NS_params_small
+    gp <- gear_params(p_b)
+    decoy <- gp[gp$species == "Cod", ][1, ]
+    decoy$gear <- installed
+    decoy$catchability <- 1
+    gear_params(p_b) <- rbind(gp, decoy)
+    initial_effort(p_b)[installed] <- 1
+
+    # Applied to that model the setter must still deliver the mortality asked
+    # for: doubling the request doubles Cod's fishing mortality.
+    r1 <- suppressMessages(f(p_b, 0.3))
+    r2 <- suppressMessages(f(p_b, 0.6))
+    expect_equal(max(getFMort(r2)["Cod", ]), 2 * max(getFMort(r1)["Cod", ]))
+    # and other species are untouched
+    expect_equal(unclass(getFMort(r2))["Herring", ],
+                 unclass(getFMort(r1))["Herring", ])
+})
+
 test_that("scanFishingMortality() does not hijack a gear of its own name", {
     # A model that already has a gear called "scan" must not have that gear's
     # effort scanned in place of the target species' fishing mortality.
@@ -256,6 +287,14 @@ test_that("series that are not species can be selected", {
         "Mean weight")
     expect_error(plot(scan, species = "Cod"), "no series called")
     expect_error(plot(scan, species = 5), "out of range")
+    # A fractional index would otherwise be truncated silently, and an empty
+    # selection would quietly return an empty plot.
+    expect_error(plot(scan, species = 1.5), "whole numbers")
+    expect_error(plot(scan, species = NA_real_), "must not contain NA")
+    expect_error(plot(scan, species = NA_character_), "must not contain NA")
+    expect_error(plot(scan, species = numeric(0)), "selects no series")
+    expect_error(plot(scan, species = character(0)), "selects no series")
+    expect_error(plot(scan, species = Inf), "whole numbers")
 })
 
 test_that("scanModel() can restrict the scan to some species", {

@@ -96,17 +96,22 @@ scanFishingMortality <- function(species, gear = NULL) {
     # cannot collide with a gear the model already has.
     scan_gear <- NULL
     f <- function(params, value) {
-        if (is.null(scan_gear)) {
-            scan_gear <<- free_gear_name(params)
-        }
-        # Install the gear only if the one we installed is not already there.
-        # This is what makes the function idempotent, which it has to be
-        # because with continuation it is handed the object it returned last
-        # time; reinstalling would append a second row and rebuild the
-        # selectivity array at every scan value. The ownership check means a
-        # gear of that name that is not ours does not get hijacked.
-        if (!owns_scan_gear(params, scan_gear, species)) {
-            if (scan_gear %in% dimnames(params@catchability)[[1]]) {
+        # Install the gear unless this model already carries the installation
+        # this setter makes. Whether it does has to be judged from the state of
+        # the gears, not from the name: a gear that merely looks like ours
+        # leaves the gears we are supposed to have switched off still fishing,
+        # so the scanned mortality would add to them instead of replacing them.
+        # Skipping the install when it has already been done is what makes the
+        # setter idempotent under continuation, where it is handed the object it
+        # returned last time and re-installing would append a second row and
+        # rebuild the selectivity array at every scan value.
+        if (is.null(scan_gear) ||
+                !scan_gear_installed(params, scan_gear, species, gear)) {
+            if (is.null(scan_gear) || scan_gear %in% gear_names(params)) {
+                # Either this is the first use, or a gear of that name is
+                # present but is not our installation -- a setter can be handed
+                # more than one model, and the name belongs to that model.
+                # Leave it alone and take a name that is free here.
                 scan_gear <<- free_gear_name(params)
             }
             params <- install_tmp_gear(params, species, gear, scan_gear)
@@ -177,35 +182,61 @@ scanSpeciesParam <- function(species, parameter) {
 #' @return A string naming a gear that does not exist in `params`.
 #' @keywords internal
 free_gear_name <- function(params) {
-    taken <- c(dimnames(params@catchability)[[1]],
-               as.character(gear_params(params)$gear))
-    if (!("scan" %in% taken)) return("scan")
+    taken <- gear_names(params)
+    # The leading dot marks the gear as one mizer added rather than one the
+    # user set up, which makes an accidental clash with a real gear unlikely.
     for (i in seq_len(1000)) {
-        candidate <- paste0("scan_", i)
+        candidate <- paste0(".scan_", i)
         if (!(candidate %in% taken)) return(candidate)
     }
     stop("Could not find an unused gear name.")
 }
 
-#' Is this gear the one a fishing-mortality scan installed?
+#' Every gear name a model uses
 #'
-#' A gear of the right name might be one the model already had, in which case
-#' setting its effort would not do what the scan means and would silently leave
-#' the target species' fishing mortality alone. So the name is not taken as
-#' proof: the gear also has to look like the one [scanFishingMortality()]
-#' installs, namely a single row catching the target species with catchability 1.
+#' @param params A MizerParams object.
+#' @return A character vector of gear names.
+#' @keywords internal
+gear_names <- function(params) {
+    unique(c(dimnames(params@catchability)[[1]],
+             as.character(gear_params(params)$gear)))
+}
+
+#' Has a fishing-mortality scan already been installed in this model?
+#'
+#' A gear of the right name proves nothing: it might be one the model already
+#' had, and setting its effort would then leave the fishing the scan is supposed
+#' to replace still switched on, so the scanned mortality would be added to the
+#' existing mortality rather than replacing it. Nor is it enough for the gear to
+#' *look* like the one [scanFishingMortality()] adds, for the same reason.
+#'
+#' What is checked is therefore the whole installation, exactly as
+#' [install_tmp_gear()] leaves it: a single gear of that name catching the
+#' target species with catchability 1, **and** every gear it was supposed to
+#' replace switched off.
 #'
 #' @param params A MizerParams object.
 #' @param gear_name The name of the gear to check.
 #' @param species The target species.
-#' @return TRUE if the gear is one this scan installed.
+#' @param gear The gear whose mortality the scan replaces, or NULL for all of
+#'   the gears catching the species.
+#' @return TRUE if this model already carries the installation.
 #' @keywords internal
-owns_scan_gear <- function(params, gear_name, species) {
+scan_gear_installed <- function(params, gear_name, species, gear = NULL) {
+    if (is.null(gear_name)) return(FALSE)
     gp <- gear_params(params)
-    rows <- which(as.character(gp$gear) == gear_name)
-    length(rows) == 1 &&
-        identical(as.character(gp$species[[rows]]), as.character(species)) &&
-        isTRUE(gp$catchability[[rows]] == 1)
+    gp$gear <- as.character(gp$gear)
+    rows <- which(gp$gear == gear_name)
+    if (length(rows) != 1) return(FALSE)
+    if (!identical(as.character(gp$species[[rows]]), as.character(species))) {
+        return(FALSE)
+    }
+    if (!isTRUE(gp$catchability[[rows]] == 1)) return(FALSE)
+    # The gears this installation replaces must still be switched off.
+    replaced <- tryCatch(select_gear_rows(gp[-rows, , drop = FALSE], species,
+                                          gear),
+                         error = function(e) integer(0))
+    length(replaced) == 0 || all(gp$catchability[-rows][replaced] == 0)
 }
 
 #' The gear params rows whose fishing mortality is to be varied

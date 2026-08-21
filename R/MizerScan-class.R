@@ -469,18 +469,32 @@ prepare_MizerScan_plot_data <- function(x, species = NULL) {
 #' the model.
 #'
 #' @param available The `Species` column of the scan.
-#' @param species The series asked for, as names or as indices into the series
-#'   of the scan.
+#' @param species The series asked for, either as names or as whole-number
+#'   indices into the series of the scan. Must select at least one.
 #' @return A logical vector selecting the rows to keep.
 #' @keywords internal
 select_scan_series <- function(available, species) {
     available <- as.character(available)
     series <- unique(available)
+    if (length(species) == 0) {
+        stop("`species` selects no series at all. Leave it as NULL to keep ",
+             "all of them.")
+    }
+    if (anyNA(species)) {
+        stop("`species` must not contain NA.")
+    }
     chosen <- if (is.numeric(species)) {
-        if (any(species < 1 | species > length(series))) {
+        # An index has to be a whole number in range. Without this check R
+        # would quietly truncate 1.5 to 1 and return the wrong series.
+        if (!all(is.finite(species)) ||
+                !isTRUE(all(species == round(species)))) {
+            stop("When `species` is numeric it indexes the series of the scan, ",
+                 "so it must consist of whole numbers.")
+        }
+        bad <- species < 1 | species > length(series)
+        if (any(bad)) {
             stop("This scan has ", length(series), " series, so the index ",
-                 paste(species[species < 1 | species > length(series)],
-                       collapse = ", "), " is out of range.")
+                 paste(species[bad], collapse = ", "), " is out of range.")
         }
         series[species]
     } else {
