@@ -666,8 +666,9 @@ workflow.
   passed on rather than dropped, so it could still be reported by a handler
   further out, and a plain message ignored `info_level` altogether.
 
-- `repair_params()` now suggests `adjustSizeGrid()` instead of the deprecated
-  `expandSizeGrid()` when `w_min` is smaller than the grid minimum.
+- The warning that a species' `w_min` is smaller than the minimum weight of the
+  size grid now tells you to expand the grid with `adjustSizeGrid()` instead of
+  with the deprecated `expandSizeGrid()`.
 
 - `compareParams()` now uses relative tolerance when comparing species
   parameters, so small-magnitude parameters like `gamma` (~1e-8) are no longer
