@@ -1,12 +1,32 @@
 # with_info_level() ----
 
 test_that("with_info_level() collects information into a single message", {
-    expect_message(
+    withr::local_options(cli.unicode = TRUE)
+    emitted <- NULL
+    withCallingHandlers(
         with_info_level({
             signal_info("a", "first", level = 1)
             signal_info("b", "second")
         }),
-        "first.*second")
+        message = function(cnd) {
+            emitted <<- conditionMessage(cnd)
+            cnd_muffle(cnd)
+        })
+    expect_identical(emitted, "ℹ first\nℹ second")
+})
+
+test_that("with_info_level() collects warnings into a bulleted list", {
+    emitted <- NULL
+    withCallingHandlers(
+        with_info_level({
+            signal_frozen("metab", "first")
+            signal_frozen("search_vol", "second")
+        }),
+        warning = function(cnd) {
+            emitted <<- conditionMessage(cnd)
+            cnd_muffle(cnd)
+        })
+    expect_identical(emitted, "! first\n! second")
 })
 
 test_that("with_info_level() collapses repeats but keeps distinct reports", {

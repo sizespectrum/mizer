@@ -33,7 +33,7 @@
 #' @return A single number, or `NA` to leave the reporting to a handler further
 #'   out.
 #' @export
-#' @concept info signaling functions
+#' @concept info signalling functions
 #' @examples
 #' default_info_level()
 #'
@@ -104,7 +104,7 @@ default_info_level <- function(fallback = 3) {
 #'
 #' @return The value of `expr`.
 #' @export
-#' @concept info signaling functions
+#' @concept info signalling functions
 #' @examples
 #' # Wrap the body of a function that reports, and everything raised inside it
 #' # is collected and given together once the call has finished.
@@ -214,7 +214,7 @@ with_info_level <- function(expr, info_level = default_info_level(),
 #'
 #' @return `NULL` invisibly. Called for its side effect of signalling.
 #' @export
-#' @concept info signaling functions
+#' @concept info signalling functions
 #' @examples
 #' # With nothing collecting, a `"drop"` report says nothing at all ...
 #' signal_info("h", "Using a default for `h`.")
@@ -266,7 +266,7 @@ signal_info <- function(var, message, level = 3,
 #' @param message The message to give the user.
 #'
 #' @return `NULL` invisibly. Called for its side effect of signalling.
-#' @concept info signaling functions
+#' @concept info signalling functions
 signal_frozen <- function(var, message) {
     signal_info(var, message, level = 1, severity = "warning",
                 unhandled = "show", class = "info_about_frozen")
@@ -294,7 +294,7 @@ signal_frozen <- function(var, message) {
 #'
 #' @return `NULL` invisibly. Called for its side effect of signalling.
 #' @export
-#' @concept info signaling functions
+#' @concept info signalling functions
 #' @examples
 #' with_info_level(
 #'     signal_not_recalculated("metab", "metabolic rate",
@@ -328,7 +328,7 @@ signal_not_recalculated <- function(var, quantity, reset_call,
 #'
 #' @return A named list of lists with entries `quantity`, `reset_call`,
 #'   `params` and `derived_from`.
-#' @concept info signaling functions
+#' @concept info signalling functions
 frozen_rate_params <- function() {
     list(
         intake_max = list(
@@ -397,7 +397,7 @@ frozen_rate_params <- function() {
 #'   that the user changed.
 #'
 #' @return `NULL` invisibly. Called for its side effect of signalling.
-#' @concept info signaling functions
+#' @concept info signalling functions
 signal_frozen_changes <- function(params, changed) {
     if (length(changed) == 0) {
         return(invisible(NULL))
@@ -458,7 +458,7 @@ overridden_species_params <- function() {
 #'   [given_species_params<-()].
 #'
 #' @return `NULL` invisibly. Called for its side effect of signalling.
-#' @concept info signaling functions
+#' @concept info signalling functions
 signal_ignored_changes <- function(given, changed) {
     for (par in names(overridden_species_params())) {
         if (!(par %in% names(changed))) {
@@ -502,7 +502,7 @@ signal_ignored_changes <- function(given, changed) {
 #'   character vector of the changed column names.
 #'
 #' @return `NULL` invisibly. Called for its side effect of signalling.
-#' @concept info signaling functions
+#' @concept info signalling functions
 signal_gear_params_changes <- function(changed) {
     changed <- if (is.character(changed)) changed else names(changed)
     gear_pars <- c("catchability", "selectivity", "l50", "l25", "sel_func")

@@ -45,4 +45,4 @@ old <- options(mizer_info_level = 1)
 default_info_level()
 options(old)
 }
-\concept{info signaling functions}
+\concept{info signalling functions}
