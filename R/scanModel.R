@@ -261,9 +261,11 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
     if (!is.null(current_scan_value)) {
         assert_that(is.number(current_scan_value))
         if (!continuation) {
-            warning("`current_scan_value` only affects the order in which the ",
-                    "scan values are projected, which does not matter when ",
-                    "`continuation = FALSE`. It will be ignored.")
+            signal_info("current_scan_value",
+                        paste0("`current_scan_value` only affects the order in which the ",
+                               "scan values are projected, which does not matter when ",
+                               "`continuation = FALSE`. It will be ignored."),
+                        severity = "warning", unhandled = "show")
         }
     }
 

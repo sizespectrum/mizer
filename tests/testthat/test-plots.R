@@ -1597,3 +1597,9 @@ test_that("plotYield delegates to plot(getYield()) and warns on sim2", {
     lifecycle::expect_deprecated(plotYield(sim, sim))
 })
 
+
+test_that("plotDataFrame() needs ymin and ymax for the band styles", {
+    frame <- data.frame(x = 1:2, y = 1:2, Species = "Cod")
+    expect_error(plotDataFrame(frame, NS_params_small, style = "ribbon"),
+                 "needs the variables")
+})
