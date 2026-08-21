@@ -54,6 +54,63 @@ while building or changing a model through a single mechanism controlled by
   between the minimum and maximum, so a Hopf bifurcation shows up as the effort
   at which the band opens up. The settling stage runs `projectToSteady()`, whose
   `tol`, `amplitude_tol` and `extinction_threshold` are exposed for tuning.
+  It is now a thin wrapper over `scanModel()`, see below.
+
+- New experimental `scanModel()` scans *any* aspect of a model over a range of
+  values and measures *any* quantity on the attractor the model settles on at
+  each of them. You say what to vary by passing a function that changes the
+  model, and what to measure by passing a function that computes a quantity from
+  a `MizerSim`, so a yield-versus-fishing-mortality curve, a bifurcation diagram
+  over fishing effort and a scan over the resource carrying capacity are all the
+  same call with different arguments. All of mizer's summary functions
+  (`getBiomass()`, `getYield()`, `getSSB()`, `getN()`, `sizeIntegral()`) work as
+  the measuring function unchanged.
+
+  How the quantity is measured depends on what the model settled on, which
+  `projectToSteady()` now reports. On a fixed point it is read straight off the
+  settled state with no further projection at all. On a limit cycle the model is
+  projected for **exactly one period** of the detected cycle and the quantity is
+  averaged over it, which is its long-term average; a window that is not a whole
+  number of periods would leave a residue of the oscillation in the average and
+  show up as a jagged curve. When the model settled on neither, the quantity is
+  averaged over `t_sample` years and the scan values concerned are named in a
+  message, because those points should not be relied on.
+
+  New `scanEffort()`, `scanFishingMortality()` and `scanSpeciesParam()` build the
+  function that applies each scan value to the model; any function of
+  `(params, value)` returning a `MizerParams` will do, as long as it is
+  idempotent.
+
+- New experimental `MizerScan` S3 class holds the result of a `scanModel()` run.
+  It is a data frame with one row per scan value and series, carrying as
+  attributes everything `plot()` needs to draw it — the axis names and units, the
+  `MizerParams` the scan started from, optional reference lines, and `at_max`,
+  the scanned value at which each series attains its largest value (which is
+  \eqn{F_{MSY}} on a yield-versus-fishing-mortality scan). It has `plot()`,
+  `print()`, `summary()`, `as.data.frame()`, `str()` and `[` methods; `[`
+  recomputes `at_max` from the rows that remain, so a subset never carries a
+  stale maximum.
+
+- `plotDataFrame()` gained two styles, `"ribbon"` and `"envelope"`, which draw a
+  band between the `ymin` and `ymax` variables of the data frame. `"ribbon"`
+  draws the y variable as a line inside the band; `"envelope"` draws lines along
+  the two edges instead. `plotBifurcation()` used to hand-roll its band, and in
+  doing so lost the line types, highlighting and `xlim` that `plotDataFrame()`
+  provides; it now gets all of them.
+
+- `plotBifurcation()` changed in the course of being rebuilt on `scanModel()`.
+  `return_data = TRUE` now returns the `MizerScan` object. It inherits from
+  `data.frame`, so `d$Effort`, `d$ymin` and `nrow(d)` go on working, but the
+  columns are now `Effort`, the measured quantity, `Species`, `ymin`, `ymax`,
+  `type`, `settled`, `period` and `residual` — `Species` has moved from second
+  to third, and the second column is named after what was measured. `t_sample` is
+  now only the fallback window for a run that settled on neither a fixed point
+  nor a limit cycle, since a cycle is now sampled over exactly one period and a
+  fixed point is not sampled at all. `t_sample_default` is deprecated in favour
+  of `t_sample`, `ytrans` in favour of `log_y`, and `t_save` is deprecated and
+  ignored because the attractor is sampled at every time step. `progress_bar`
+  now defaults to `interactive()`, and the y-axis label comes from the measured
+  quantity itself, so `value = "yield"` is now labelled "Yield rate [g/year]".
 
 - `steady()` and `projectToSteady()` now report the nature of the solution they
   converged to via a `"convergence"` attribute on the returned object (mirroring

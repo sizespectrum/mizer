@@ -98,11 +98,15 @@ plotBifurcation(params, effort = seq(0, 1.5, 0.05), value = "yield")
 ```
 
 - `value` chooses the summary quantity (`"biomass"`, `"yield"`, or `"ssb"`);
-  `species` restricts which species are shown.
+  `species` restricts which species are shown. To scan something other than the
+  fishing effort, or to measure something else, use `scanModel()` directly —
+  `plotBifurcation()` is that function with `scanEffort()` as its setter. See
+  the `analyse-and-plot` skill.
 - The settling stage runs `projectToSteady()`, whose `tol`, `amplitude_tol` and
   `extinction_threshold` are exposed for tuning when a run is slow to settle or a
   species is collapsing.
-- `return_data = TRUE` returns the underlying data instead of the plot.
+- `return_data = TRUE` returns the underlying data, as a `MizerScan` object,
+  instead of the plot.
 
 ## Numerical caveat
 

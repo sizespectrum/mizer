@@ -153,7 +153,11 @@ utils::globalVariables(c("time", "value", "Species", "w", "l", "gear", "Age",
 #' @param params A MizerParams object, which is used for the line colours and
 #'   line types.
 #' @param style The style of the plot. Available options are `"line"` for
-#'   `geom_line()` and `"area"` for `geom_area()`. Default is `"line"`.
+#'   `geom_line()`, `"area"` for `geom_area()`, and `"ribbon"` and `"envelope"`
+#'   for a band drawn between the `ymin` and `ymax` variables, which must then
+#'   be present in `frame`. `"ribbon"` draws the y variable as a line inside the
+#'   band; `"envelope"` draws lines along the two edges of the band instead.
+#'   Default is `"line"`.
 #' @param legend_var The name of the variable that should be used in the legend
 #'   and to determine the line style. If NULL then the grouping variable is
 #'   used for this purpose.
@@ -244,6 +248,46 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
                                  fill = .data[[legend_var]])) +
                    scale_fill_manual(values = linecolour)
            },
+           "ribbon" = {
+               check_band_vars(var_names, style)
+               p <- p +
+                   geom_ribbon(aes(x = .data[[x_var]],
+                                   ymin = .data[["ymin"]],
+                                   ymax = .data[["ymax"]],
+                                   fill = .data[[legend_var]]),
+                               alpha = 0.25, colour = NA) +
+                   geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
+                                 colour = .data[[legend_var]],
+                                 linetype = .data[[legend_var]],
+                                 linewidth = .data[[legend_var]])) +
+                   scale_colour_manual(values = linecolour) +
+                   scale_fill_manual(values = linecolour) +
+                   scale_linetype_manual(values = linetype) +
+                   scale_discrete_manual("linewidth", values = linesize)
+           },
+           "envelope" = {
+               # As "ribbon", but the lines mark the edges of the band rather
+               # than the value in the middle of it.
+               check_band_vars(var_names, style)
+               p <- p +
+                   geom_ribbon(aes(x = .data[[x_var]],
+                                   ymin = .data[["ymin"]],
+                                   ymax = .data[["ymax"]],
+                                   fill = .data[[legend_var]]),
+                               alpha = 0.25, colour = NA) +
+                   geom_line(aes(x = .data[[x_var]], y = .data[["ymax"]],
+                                 colour = .data[[legend_var]],
+                                 linetype = .data[[legend_var]],
+                                 linewidth = .data[[legend_var]])) +
+                   geom_line(aes(x = .data[[x_var]], y = .data[["ymin"]],
+                                 colour = .data[[legend_var]],
+                                 linetype = .data[[legend_var]],
+                                 linewidth = .data[[legend_var]])) +
+                   scale_colour_manual(values = linecolour) +
+                   scale_fill_manual(values = linecolour) +
+                   scale_linetype_manual(values = linetype) +
+                   scale_discrete_manual("linewidth", values = linesize)
+           },
            stop("unknown style selected")
     )
 
@@ -257,6 +301,21 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
 
     make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, y_var,
                                           legend_var))
+}
+
+#' Check that a data frame has the variables a band style needs
+#'
+#' @param var_names The names of the variables in the data frame.
+#' @param style The style that was requested.
+#' @return Nothing; called for the error.
+#' @keywords internal
+check_band_vars <- function(var_names, style) {
+    missing <- setdiff(c("ymin", "ymax"), var_names)
+    if (length(missing) > 0) {
+        stop('style = "', style, '" needs the variables ',
+             paste0("`", missing, "`", collapse = " and "),
+             ", which the data frame does not have.")
+    }
 }
 
 #' Construct a named vector of line widths for a plot

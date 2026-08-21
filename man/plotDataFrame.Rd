@@ -34,7 +34,11 @@ The first three variables are used, in that order, as:
 line types.}
 
 \item{style}{The style of the plot. Available options are \code{"line"} for
-\code{geom_line()} and \code{"area"} for \code{geom_area()}. Default is \code{"line"}.}
+\code{geom_line()}, \code{"area"} for \code{geom_area()}, and \code{"ribbon"} and \code{"envelope"}
+for a band drawn between the \code{ymin} and \code{ymax} variables, which must then
+be present in \code{frame}. \code{"ribbon"} draws the y variable as a line inside the
+band; \code{"envelope"} draws lines along the two edges of the band instead.
+Default is \code{"line"}.}
 
 \item{xlab}{Label for the x-axis}
 
