@@ -20,6 +20,7 @@ animate(
   ylim = c(NA, NA),
   tlim = c(NA, NA),
   size_axis = c("w", "l"),
+  per_log_size = NULL,
   total = FALSE,
   background = TRUE,
   frame_duration = 500,
@@ -69,12 +70,15 @@ limit at that end. Default is \code{c(NA, NA)}.}
 or of the resource, see \code{\link[=resource_params]{resource_params()}}. Number and biomass densities
 are transformed to match the chosen axis.}
 
-\item{per_log_size}{For an array that holds a density, whether to animate it
-per logarithmic size (\code{TRUE}) rather than per size (\code{FALSE}). The default,
-\code{NULL}, animates the density as it stands. Unlike \code{size_axis} this needs no
+\item{per_log_size}{Whether to animate a density per logarithmic size
+(\code{TRUE}) rather than per size (\code{FALSE}). Unlike \code{size_axis} this needs no
 weight-length relationship, so the \code{ArrayTimeByResourceBySize} method takes
-it too. An error for an array that does not hold a density. The \code{MizerSim}
-method has its own \code{per_log_size}, described below.}
+it too. The two kinds of \code{x} read the default \code{NULL} differently. For an
+array it means animating the density as it stands, and asking for it on an
+array that does not hold a density is an error. For a \code{MizerSim} it means
+\code{FALSE} unless \code{power} says otherwise, since there the argument chooses the
+plotted quantity together with \code{biomass} and \code{power}, in the same way as in
+\code{\link[=plotSpectra]{plotSpectra()}}.}
 
 \item{total}{A boolean value that determines whether the total over all
 selected species is plotted as an additional trace called \code{"Total"}.
@@ -105,9 +109,6 @@ frames. Default is \code{"linear"}. Available options are \code{"linear"}, \code
 \describe{
 \item{\code{biomass}}{Whether to animate the biomass density (\code{TRUE}, the
 default) or the number density (\code{FALSE}).}
-\item{\code{per_log_size}}{Whether to animate the density with respect to
-logarithmic size (\code{TRUE}) or with respect to size (\code{FALSE}, the
-default).}
 \item{\code{power}}{The abundance is plotted as the number density times the
 weight raised to \code{power}. An alternative to \code{biomass} and
 \code{per_log_size}, with which it must agree if they are given as well.

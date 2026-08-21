@@ -44,12 +44,15 @@
 #' @param log A character string specifying which axes to log-transform:
 #'   `"x"`, `"y"`, `"xy"` or `""`. If supplied, this overrides `log_x`
 #'   and `log_y`.
-#' @param per_log_size For an array that holds a density, whether to animate it
-#'   per logarithmic size (`TRUE`) rather than per size (`FALSE`). The default,
-#'   `NULL`, animates the density as it stands. Unlike `size_axis` this needs no
+#' @param per_log_size Whether to animate a density per logarithmic size
+#'   (`TRUE`) rather than per size (`FALSE`). Unlike `size_axis` this needs no
 #'   weight-length relationship, so the `ArrayTimeByResourceBySize` method takes
-#'   it too. An error for an array that does not hold a density. The `MizerSim`
-#'   method has its own `per_log_size`, described below.
+#'   it too. The two kinds of `x` read the default `NULL` differently. For an
+#'   array it means animating the density as it stands, and asking for it on an
+#'   array that does not hold a density is an error. For a `MizerSim` it means
+#'   `FALSE` unless `power` says otherwise, since there the argument chooses the
+#'   plotted quantity together with `biomass` and `power`, in the same way as in
+#'   [plotSpectra()].
 #' @param size_axis Whether to plot size as weight (`"w"`, default) or length
 #'   (`"l"`), using the allometric weight-length relationship of each species,
 #'   or of the resource, see [resource_params()]. Number and biomass densities
@@ -89,9 +92,6 @@
 #'   \describe{
 #'     \item{`biomass`}{Whether to animate the biomass density (`TRUE`, the
 #'       default) or the number density (`FALSE`).}
-#'     \item{`per_log_size`}{Whether to animate the density with respect to
-#'       logarithmic size (`TRUE`) or with respect to size (`FALSE`, the
-#'       default).}
 #'     \item{`power`}{The abundance is plotted as the number density times the
 #'       weight raised to \code{power}. An alternative to `biomass` and
 #'       `per_log_size`, with which it must agree if they are given as well.
@@ -122,8 +122,8 @@
 animate <- function(x, species = NULL, log_x = TRUE, log_y = TRUE,
                     log = NULL, wlim = c(NA, NA), llim = c(NA, NA),
                     ylim = c(NA, NA), tlim = c(NA, NA),
-                    size_axis = c("w", "l"), total = FALSE,
-                    background = TRUE, frame_duration = 500,
+                    size_axis = c("w", "l"), per_log_size = NULL,
+                    total = FALSE, background = TRUE, frame_duration = 500,
                     transition_duration = frame_duration,
                     easing = "linear", ...) {
     UseMethod("animate")
@@ -139,6 +139,7 @@ animate.MizerSim <- function(x, species = NULL,
                               ylim = c(NA, NA),
                               tlim = c(NA, NA),
                               size_axis = c("w", "l"),
+                              per_log_size = NULL,
                               total = FALSE,
                               background = TRUE,
                               frame_duration = 500,
@@ -146,7 +147,6 @@ animate.MizerSim <- function(x, species = NULL,
                               easing = "linear",
                               time_range = lifecycle::deprecated(),
                               power = NULL, biomass = NULL,
-                              per_log_size = NULL,
                               resource = TRUE, ...) {
     if (lifecycle::is_present(time_range)) {
         lifecycle::deprecate_warn("2.6.0", "animate(time_range)", "animate(tlim)")

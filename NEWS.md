@@ -780,6 +780,15 @@ while building or changing a model through a single mechanism controlled by
 
 ## Documentation
 
+- `per_log_size` is now a formal argument of the `animate()` generic rather than
+  reaching the methods through `...`. Every `animate()` method already took it,
+  but the two array methods declared it in a position the generic did not have,
+  which made the generic and its methods inconsistent, and its `@param` entry
+  documented an argument that did not appear in the usage section. Nothing
+  changes for code that calls `animate()`, since the argument was always passed
+  through; an extension package that defines its own `animate()` method should
+  add `per_log_size` after `size_axis` to stay consistent with the generic.
+
 - The "Community Model", "Trait-Based Model" and "The General Mizer
   Size-spectrum Model" articles have been checked against the current API in the
   same way. The model description used the deprecated `getResourceRate()` and
