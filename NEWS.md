@@ -1,12 +1,16 @@
-# mizer 3.2.1.9000
+# mizer 3.3.0
 
-This development version adds experimental tools for analysing the dynamic
-stability of steady states, tools for checking whether a model actually is at
-its steady state, a general `sizeIntegral()` for integrals over the size
-spectrum, and a substantial extension of the plotting functions, in particular
-of plots against a length axis. It also routes nearly everything mizer says
-while building or changing a model through a single mechanism controlled by
-`info_level`.
+This release adds experimental tools for analysing the dynamic stability of
+steady states and for scanning a model over a range of parameter values, tools
+for checking whether a model actually is at its steady state, a general
+`sizeIntegral()` for integrals over the size spectrum, and a substantial
+extension of the plotting functions, in particular of plots against a length
+axis. It routes nearly everything mizer says while building or changing a model
+through a single mechanism controlled by `info_level`, which extension packages
+can now use too, and it gives each of the seventeen accessors that had two names
+a single preferred one. The topic articles and the AI-agent skills have become
+one set of documents, so that there is now one guide per stage of the modelling
+workflow.
 
 ## Dynamic stability
 
@@ -24,24 +28,24 @@ while building or changing a model through a single mechanism controlled by
   back to their exact continuous-time equivalents via $\lambda = (1 - 1/\mu) / \Delta t$.
   It reports whether the steady state is stable or unstable (based on the real
   parts of the continuous eigenvalues), the maximum real part, the `spectral_radius`
-  of the discrete numerical solver for a given time step `dt`, and — when the system
-  emergent limit cycle. By default the resource is treated as a
-  quasi-static fast variable (valid for semichemostat dynamics); setting
-  `include_resource = TRUE` gives the full coupled (fish + resource) Jacobian,
-  useful for verifying that the quasi-static approximation makes little difference.
-  The stability list also includes
-  `leading_eigenvectors`: a complex array `(n_species, n_sizes, 2)` of the
-  top two eigenvectors reshaped into the fish abundance space, normalised to
-  maximum modulus 1. The rate functions are only ever evaluated at states
+  of the discrete numerical solver for a given time step `dt`, and — when the
+  system approaches a Hopf bifurcation — the period of the emergent limit cycle.
+  By default the resource is treated as a quasi-static fast variable (valid for
+  semichemostat dynamics); setting `include_resource = TRUE` gives the full
+  coupled (fish + resource) Jacobian, useful for verifying that the quasi-static
+  approximation makes little difference. The stability list also includes
+  `leading_eigenvectors`: a complex array `(n_species, n_sizes, 2)` of the top
+  two eigenvectors reshaped into the fish abundance space, normalised to maximum
+  modulus 1. The rate functions are only ever evaluated at states
   satisfying `N >= 0` — where a centred difference would push a cell negative,
   the column is differenced forwards from the unperturbed state instead — so a
   custom rate function registered with `setRateFunction()` never has to be
   defined at negative abundances.
 
-- New experimental `getLimitCycleSim()` takes the output of `steadyNewton()`
-  and constructs a `MizerSim` covering one period of the limit cycle in the
-  linear approximation. The trajectory is
-  \eqn{N(t) = N^* + A\,\text{Re}[e^{i\theta t}\,\mathbf{v}]}, where
+- New experimental `getLimitCycleSim()` takes a model at a steady state — or the
+  stability list that `getStability()` returns — and constructs a `MizerSim`
+  covering one period of the limit cycle in the linear approximation. The
+  trajectory is \eqn{N(t) = N^* + A\,\text{Re}[e^{i\theta t}\,\mathbf{v}]}, where
   \eqn{\mathbf{v}} is the leading complex eigenvector and the amplitude \eqn{A}
   is scaled so the maximum relative perturbation equals the `amplitude`
   argument (default 10\%). The returned object can be passed directly to
@@ -54,7 +58,7 @@ while building or changing a model through a single mechanism controlled by
   between the minimum and maximum, so a Hopf bifurcation shows up as the effort
   at which the band opens up. The settling stage runs `projectToSteady()`, whose
   `tol`, `amplitude_tol` and `extinction_threshold` are exposed for tuning.
-  It is now a thin wrapper over `scanModel()`, see below.
+  It is a thin wrapper over `scanModel()`, described below.
 
 - New experimental `scanModel()` scans *any* aspect of a model over a range of
   values and measures *any* quantity on the attractor the model settles on at
@@ -94,34 +98,18 @@ while building or changing a model through a single mechanism controlled by
 - `plotDataFrame()` gained two styles, `"ribbon"` and `"envelope"`, which draw a
   band between the `ymin` and `ymax` variables of the data frame. `"ribbon"`
   draws the y variable as a line inside the band; `"envelope"` draws lines along
-  the two edges instead. `plotBifurcation()` used to hand-roll its band, and in
-  doing so lost the line types, highlighting and `xlim` that `plotDataFrame()`
-  provides; it now gets all of them.
-
-- `plotBifurcation()` changed in the course of being rebuilt on `scanModel()`.
-  `return_data = TRUE` now returns the `MizerScan` object. It inherits from
-  `data.frame`, so `d$Effort`, `d$ymin` and `nrow(d)` go on working, but the
-  columns are now `Effort`, the measured quantity, `Species`, `ymin`, `ymax`,
-  `type`, `settled`, `period` and `residual` — `Species` has moved from second
-  to third, and the second column is named after what was measured. `t_sample` is
-  now only the fallback window for a run that settled on neither a fixed point
-  nor a limit cycle, since a cycle is now sampled over exactly one period and a
-  fixed point is not sampled at all. `t_sample_default` is deprecated in favour
-  of `t_sample`, `ytrans` in favour of `log_y`, and `t_save` is deprecated and
-  ignored because the attractor is sampled at every time step. `progress_bar`
-  now defaults to `interactive()`, and the y-axis label comes from the measured
-  quantity itself, so `value = "yield"` is now labelled "Yield rate [g/year]".
+  the two edges instead. `plotBifurcation()` uses `"envelope"` to draw its band,
+  and so shares the line types, highlighting and `xlim` that `plotDataFrame()`
+  provides.
 
 - `steady()` and `projectToSteady()` now report the nature of the solution they
-  converged to via a `"convergence"` attribute on the returned object (mirroring
-  the `"stability"` attribute of `steadyNewton()`). It records whether the run
-  dropped below its tolerance (`type = "below_tolerance"` — deliberately not
-  called `"steady"`, because passing the distance test is not a guarantee of a
-  fixed point), settled on a limit cycle, or neither, together with the cycle
-  period and relative amplitude when a cycle is found. Limit cycles are
-  detected from a per-species biomass series sampled at the new `t_save`
-  resolution (default `dt`), so detection no longer relies on the cycle period
-  being commensurate with `t_per`. The relative-amplitude floor for calling an
+  converged to via a `"convergence"` attribute on the returned object. It records
+  whether the run dropped below its tolerance (`type = "below_tolerance"` —
+  deliberately not called `"steady"`, because passing the distance test is not a
+  guarantee of a fixed point), settled on a limit cycle, or neither, together
+  with the cycle period and relative amplitude when a cycle is found. Limit
+  cycles are detected from a per-species biomass series sampled at the new
+  `t_save` resolution (default `dt`). The relative-amplitude floor for calling an
   oscillation a limit cycle is a separate `amplitude_tol` argument (default
   `0.01`), independent of the fixed-point convergence tolerance `tol`, and a
   species is treated as extinct once its reproduction falls below the
@@ -166,12 +154,12 @@ while building or changing a model through a single mechanism controlled by
   passed to `project()`, so running a fishing scenario at a new effort does not
   warn (#495).
 
-- The `"convergence"` attribute attached by `projectToSteady()` and `steady()`
-  gains a `residual` field giving how far the state reached actually is from a
-  fixed point. The `distance` field only compares two states `t_per` apart on
-  whatever scale the distance function uses; `residual` measures the thing
-  itself, and `steady()` now says when the two disagree — a run declared
-  converged whose biomasses are still visibly moving (#495).
+- The `"convergence"` attribute also carries a `residual` field giving how far
+  the state reached actually is from a fixed point. The `distance` field only
+  compares two states `t_per` apart on whatever scale the distance function
+  uses; `residual` measures the thing itself, and `steady()` says when the two
+  disagree — a run declared converged whose biomasses are still visibly moving
+  (#495).
 
 - `steady()` and `projectToSteady()` no longer end a successful run by saying
   "Convergence was achieved in 12 years." They now say what was actually tested
@@ -372,16 +360,6 @@ while building or changing a model through a single mechanism controlled by
   overrides it for a single call, and its default is now
   `default_info_level()`, which reads the option.
 
-- The "Creating a mizer extension package" article is now generated from a new
-  `create-extension-package` skill, and is named `guide-create-extension-package`
-  like the other guides; the old address redirects. Everything in the
-  extending-mizer guide that only matters once you share an extension — method
-  dispatch, bundled data objects, reporting to the user, upgrading saved objects
-  — moved into it, leaving that guide to the mechanisms themselves. Its advice on
-  marker classes has also been corrected: it still told you to define them with
-  `setClass()`, which mizer 3.2 made unnecessary and which prevents your package
-  from being chained with another.
-
 - The reporting mechanism is now exported, so that an extension package can tell
   the user what it decided on their behalf through the same channel mizer uses,
   and have it obey the same switch:
@@ -410,15 +388,15 @@ while building or changing a model through a single mechanism controlled by
 
 - Nearly every message and warning that mizer gives while building or changing
   a model now goes through that mechanism, including the ones in `steady()`,
-  `steadyNewton()`, `projectToSteady()`, `validParams()`, `setInteraction()`,
-  `setReproduction()`, `setBevertonHolt()`, `setResource()`, `newTraitParams()`,
+  `projectToSteady()`, `validParams()`, `setInteraction()`, `setReproduction()`,
+  `setBevertonHolt()`, `setResource()`, `newTraitParams()`,
   `newSingleSpeciesParams()`, `plotYieldObservedVsModel()` and the upgrade of
   an old object. They are collected into a single report rather than a stream,
   and `info_level` (or the `mizer_info_level` option) controls all of them
   alike, where before each function decided for itself. `steady()`,
-  `projectToSteady()` and `validParams()` no longer implement
-  their own `info_level` threshold, and `newSingleSpeciesParams()`,
-  `setBevertonHolt()` and `steadyNewton()` gain an `info_level` argument.
+  `projectToSteady()` and `validParams()` no longer implement their own
+  `info_level` threshold, and `newSingleSpeciesParams()` and
+  `setBevertonHolt()` gain an `info_level` argument.
 
 ## Species, gear and resource parameters
 
@@ -541,6 +519,15 @@ while building or changing a model through a single mechanism controlled by
   gaining methods and whose weight-length convention for the resource is a
   recent addition. Nothing about their behaviour changes.
 
+- `per_log_size` is now a formal argument of the `animate()` generic rather than
+  reaching the methods through `...`. Every `animate()` method already took it,
+  but the two array methods declared it in a position the generic did not have,
+  which made the generic and its methods inconsistent, and its `@param` entry
+  documented an argument that did not appear in the usage section. Nothing
+  changes for code that calls `animate()`, since the argument was always passed
+  through; an extension package that defines its own `animate()` method should
+  add `per_log_size` after `size_axis` to stay consistent with the generic.
+
 ## Deprecations
 
 - `matchYields()` and `calibrateYield()` have been removed. They were deprecated
@@ -589,30 +576,12 @@ while building or changing a model through a single mechanism controlled by
 
 ## Bug fixes
 
-- The summary plots `plot(sim)` and `plot(params)` now accept the arguments that
-  describe the plotted spectrum. They passed their `...` to every panel, so
-  `plot(sim, per_log_size = TRUE)` failed on the feeding level panel with
-  "`per_log_size` only applies to an array that holds a density" even though the
-  equivalent `plot(sim, power = 2)` worked, because `power` was silently
-  swallowed by the other panels where `per_log_size` is a deliberate error.
-  `power`, `biomass`, `per_log_size` and `resource` now go to `plotSpectra()`
-  alone, so the arguments that replaced `power` work wherever `power` does.
-
-- `steadyNewton()` no longer fails with a non-finite residual error when the
-  initial guess contains exactly zero abundance in the active size range (as
-  can happen when averaging a simulation over a limit cycle). It now scales the
-  residual by a strictly positive initial guess instead.
-
-- `projectToSteady()` limit-cycle detection now uses only the second half of the
-  series (or the most recent 20 samples if the series is short) for its
-  autocorrelation step, instead of the entire run. This stops large initial
-  transients from drowning out a cycle that settles later.
-
-- Setting `f0` to a value outside the interval `[0, 1)` now gives an immediate
-  error, whether or not `gamma` has been supplied. Previously `f0 = 1`
-  silently produced an infinite `gamma` and a non-finite `search_vol` when
-  `gamma` was calculated, while an invalid `f0` supplied alongside `gamma`
-  could be accepted and ignored (#517).
+- The summary plots `plot(sim)` and `plot(params)` now send the arguments that
+  describe the plotted spectrum — `power`, `biomass`, `per_log_size` and
+  `resource` — to `plotSpectra()` alone, instead of passing their `...` to every
+  panel. So `plot(sim, per_log_size = TRUE)` works, where routing it to the
+  feeding level panel too would have failed with "`per_log_size` only applies to
+  an array that holds a density".
 
 - The default values for the `gamma` and `f0` species parameters are no longer
   corrupted by a search volume that you have set by hand. `get_gamma_default()`
@@ -780,14 +749,13 @@ while building or changing a model through a single mechanism controlled by
 
 ## Documentation
 
-- `per_log_size` is now a formal argument of the `animate()` generic rather than
-  reaching the methods through `...`. Every `animate()` method already took it,
-  but the two array methods declared it in a position the generic did not have,
-  which made the generic and its methods inconsistent, and its `@param` entry
-  documented an argument that did not appear in the usage section. Nothing
-  changes for code that calls `animate()`, since the argument was always passed
-  through; an extension package that defines its own `animate()` method should
-  add `per_log_size` after `size_axis` to stay consistent with the generic.
+- The "Multi Species Model" article has been brought up to date with the current
+  API. It used the deprecated `getInteraction()`, said that the `MizerParams`
+  object stores neither abundances nor fishing effort (it stores the initial
+  values of both), described `steady()` as re-tuning `erepro` when it now
+  preserves the `reproduction_level` by default and also rebalances the resource,
+  and contained Rd markup (`\eqn{}` and `[foo()]` links) that does not render in
+  an Rmd article.
 
 - The "Community Model", "Trait-Based Model" and "The General Mizer
   Size-spectrum Model" articles have been checked against the current API in the
@@ -798,14 +766,6 @@ while building or changing a model through a single mechanism controlled by
   `w_repro_max`, misspelled `BevertonHoltRDD()`, repeated a sentence three times,
   and linked to a developer vignette that no longer exists. The trait-based
   article claimed 100 size bins where `newTraitParams()` now chooses 161.
-
-- The "Multi Species Model" article has been brought up to date with the current
-  API. It used the deprecated `getInteraction()`, said that the `MizerParams`
-  object stores neither abundances nor fishing effort (it stores the initial
-  values of both), described `steady()` as re-tuning `erepro` when it now
-  preserves the `reproduction_level` by default and also rebalances the resource,
-  and contained Rd markup (`\eqn{}` and `[foo()]` links) that does not render in
-  an Rmd article.
 
 - "Extending mizer" and "Guide: Extending mizer" have been merged into a single
   guide at `guide-extend-mizer`, generated from the `extend-mizer` skill; the old
@@ -822,6 +782,16 @@ while building or changing a model through a single mechanism controlled by
   block, the mirror of the existing `<!-- agent-only -->` one. The guide builder
   keeps its content and drops the markers, and `mizerAgents` (>= 0.4.0) drops the
   block as it installs the skill, so a topic still lives in a single file.
+
+- The "Creating a mizer extension package" article is now generated from a new
+  `create-extension-package` skill, and is named `guide-create-extension-package`
+  like the other guides; the old address redirects. Everything in the
+  extending-mizer guide that only matters once you share an extension — method
+  dispatch, bundled data objects, reporting to the user, upgrading saved objects
+  — moved into it, leaving that guide to the mechanisms themselves. Its advice on
+  marker classes has also been corrected: it still told you to define them with
+  `setClass()`, which mizer 3.2 made unnecessary and which prevents your package
+  from being chained with another.
 
 - "Using mizer extension packages" is now a guide like the others, generated
   from a new `use-extension-packages` skill, so an agent working in a project
