@@ -121,7 +121,6 @@ from being a fixed point.}
 \item{\code{amplitude}}{For a limit cycle, the largest per-species relative
 peak-to-trough biomass amplitude; otherwise \code{NA}.}
 }
-This mirrors how \code{\link[=steadyNewton]{steadyNewton()}} attaches an \code{"stability"} attribute.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

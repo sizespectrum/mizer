@@ -226,7 +226,6 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'     \item{`amplitude`}{For a limit cycle, the largest per-species relative
 #'       peak-to-trough biomass amplitude; otherwise `NA`.}
 #'   }
-#'   This mirrors how [steadyNewton()] attaches an `"stability"` attribute.
 #' @seealso [steady()], [isSteady()], [getSteadyResidual()],
 #'   [distanceSSLogN()], [distanceMaxRelRDI()], [steadyNewton()],
 #'   [getStability()]
