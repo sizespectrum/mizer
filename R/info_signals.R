@@ -1,13 +1,7 @@
 # Machinery for the information that mizer gives the user while it is setting
 # up or changing a model. See `with_info_level()` for a description.
 
-# Package-local state recording whether a `with_info_level()` handler is
-# already collecting. It is what makes the handlers nest: the outermost one
-# does the reporting and the inner ones step aside, so that a function can wrap
-# its body without having to know whether its caller has done the same. It is
-# always restored on exit, including when the expression throws.
-info_reporting <- new.env(parent = emptyenv())
-info_reporting$active <- FALSE
+
 
 #' The default level of information that mizer gives
 #'
@@ -139,7 +133,7 @@ with_info_level <- function(expr, info_level = default_info_level(),
     # muffling anything. A caller that wants to drop a particular report has
     # to install a handler for it even so.
     if (!silent && length(except) == 0 &&
-        (info_reporting$active ||
+        (isTRUE(getOption("mizer_info_reporting_active")) ||
          !is.numeric(info_level) || length(info_level) != 1 ||
          is.na(info_level))) {
         return(expr)
@@ -164,18 +158,24 @@ with_info_level <- function(expr, info_level = default_info_level(),
     # early. A function can then wrap its whole body in `with_info_level()`
     # even though it returns from the middle of it, which is what makes this
     # usable as a wrapper around an existing function.
-    was_active <- info_reporting$active
-    info_reporting$active <- TRUE
+    old_opt <- options(mizer_info_reporting_active = TRUE)
     on.exit({
-        info_reporting$active <- was_active
+        options(old_opt)
         severities <- vapply(reports, `[[`, character(1), "severity")
         messages <- vapply(reports, `[[`, character(1), "message")
         if (any(severities == "info")) {
-            message(paste(messages[severities == "info"], collapse = "\n"))
+            msgs <- unname(messages[severities == "info"])
+            if (length(msgs) > 1) {
+                names(msgs) <- c(rep("i", length(msgs)))
+            }
+            inform(msgs)
         }
         if (any(severities == "warning")) {
-            warning(paste(messages[severities == "warning"], collapse = "\n"),
-                    call. = FALSE)
+            msgs <- unname(messages[severities == "warning"])
+            if (length(msgs) > 1) {
+                names(msgs) <- c(rep("!", length(msgs)))
+            }
+            rlang::warn(msgs)
         }
     }, add = TRUE)
     withCallingHandlers(expr, info_about_default = collect_info)

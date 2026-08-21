@@ -6,7 +6,7 @@ test_that("with_info_level() collects information into a single message", {
             signal_info("a", "first", level = 1)
             signal_info("b", "second")
         }),
-        "first\nsecond")
+        "first.*second")
 })
 
 test_that("with_info_level() collapses repeats but keeps distinct reports", {
@@ -16,14 +16,14 @@ test_that("with_info_level() collapses repeats but keeps distinct reports", {
             signal_info("a", "same", level = 1)
             signal_info("a", "same", level = 1)
         }),
-        "^same\n$")
+        "^same$")
     # ... but two things said about one quantity are both kept.
     expect_message(
         with_info_level({
             signal_info("a", "first", level = 1)
             signal_info("a", "second", level = 1)
         }),
-        "^first\nsecond\n$")
+        "first.*second")
 })
 
 test_that("with_info_level() drops information above the info level", {
@@ -32,7 +32,7 @@ test_that("with_info_level() drops information above the info level", {
             signal_info("a", "important", level = 1)
             signal_info("b", "chatter", level = 3)
         }),
-        "^important\n$")
+        "^important$")
     # info_level = 0 is silence
     expect_silent(
         with_info_level(info_level = 0, signal_info("a", "important",
@@ -60,7 +60,7 @@ test_that("with_info_level() handlers nest, the outermost one reporting", {
         with_info_level({
             with_info_level(signal_info("a", "inner", level = 1))
         }),
-        "^inner\n$")
+        "^inner$")
     # The inner info level does not apply, the outer one does
     expect_silent(
         with_info_level(info_level = 0, {
@@ -79,14 +79,14 @@ test_that("with_info_level() handlers nest, the outermost one reporting", {
                                                         level = 1))
             signal_info("b", "loud", level = 1)
         }),
-        "^loud\n$")
+        "^loud$")
     # `NA` asks for the same deferral explicitly
     expect_message(
         with_info_level({
             with_info_level(info_level = NA, signal_info("a", "inner",
                                                          level = 1))
         }),
-        "^inner\n$")
+        "^inner$")
 })
 
 test_that("with_info_level() reports when the expression returns early", {
@@ -97,14 +97,14 @@ test_that("with_info_level() reports when the expression returns early", {
             signal_info("b", "never", level = 1)  # nocov
         })
     }
-    expect_message(expect_identical(f(), "returned"), "^early\n$")
+    expect_message(expect_identical(f(), "returned"), "^early$")
 })
 
 test_that("with_info_level() releases the nesting flag when expr fails", {
     expect_error(with_info_level(stop("boom")), "boom")
-    expect_false(info_reporting$active)
+    expect_false(isTRUE(getOption("mizer_info_reporting_active")))
     expect_message(with_info_level(signal_info("a", "after", level = 1)),
-                   "^after\n$")
+                   "^after$")
 })
 
 test_that("the mizer_info_level option sets the default", {
@@ -141,7 +141,7 @@ test_that("signal_info() says nothing when unhandled unless asked to", {
 
 test_that("signal_info() reports at the requested severity", {
     expect_message(with_info_level(signal_info("a", "note", level = 1)),
-                   "^note\n$")
+                   "^note$")
     expect_warning(
         with_info_level(signal_info("a", "alarm", level = 1,
                                     severity = "warning")),
@@ -156,7 +156,7 @@ test_that("with_info_level() copes with a condition that has no fields", {
     # An extension package may raise the condition itself
     expect_message(
         with_info_level(signal("bare", class = "info_about_default")),
-        "^bare\n$")
+        "^bare$")
     expect_silent(
         with_info_level(info_level = 0,
                         signal("bare", class = "info_about_default")))
@@ -180,7 +180,7 @@ test_that("with_info_level() reports frozen signals as a warning", {
                 signal_info("a", "info", level = 1)
                 signal_frozen("metab", "frozen")
             }),
-            "^info\n$"),
+            "^info$"),
         "^frozen$")
     # and `info_level = 0` still silences both
     expect_silent(

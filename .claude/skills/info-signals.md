@@ -101,12 +101,13 @@ Reports are given **on exit**, collapsed by content, and joined with `"\n"`, so
 the idioms differ from testing a plain `message()`:
 
 ```r
-# A message ends in a newline; a warning does not.
-expect_message(with_info_level(signal_info("a", "note", level = 1)), "^note\n$")
-expect_warning(with_info_level(signal_frozen("metab", "frozen")), "^frozen$")
+# Identical reports collapse to one line; two different things said about the
+# same `var` are both kept. Assert on both if a change should produce both.
+expect_message(with_info_level(signal_info("a", "note", level = 1)), "note")
+expect_warning(with_info_level(signal_frozen("metab", "frozen")), "frozen")
 
 # Messages and warnings are reported separately, so nest the expectations.
-expect_warning(expect_message(with_info_level({...}), "^info\n$"), "^frozen$")
+expect_warning(expect_message(with_info_level({...}), "info"), "frozen")
 
 # Set the option with withr so it is restored.
 withr::local_options(mizer_info_level = 0)
