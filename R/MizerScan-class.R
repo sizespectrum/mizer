@@ -222,6 +222,14 @@ set_scan_maximum <- function(x) {
     x
 }
 
+# The metadata a MizerScan carries. Listed once, so that an attribute added to
+# the class cannot be copied by `[` but left behind by `as.data.frame()`.
+# `at_max` and `max_value` are derived from the rows and so are recomputed
+# rather than copied, see set_scan_maximum().
+scan_attributes <- c("scan_name", "scan_units", "value_name", "value_units",
+                     "type", "params", "reference_lines", "settings")
+scan_derived_attributes <- c("at_max", "max_value")
+
 #' Copy the metadata of a MizerScan onto another object
 #'
 #' @param to The object to receive the attributes.
@@ -229,8 +237,7 @@ set_scan_maximum <- function(x) {
 #' @return `to` with the attributes and class of a MizerScan.
 #' @keywords internal
 copy_scan_attributes <- function(to, from) {
-    for (a in c("scan_name", "scan_units", "value_name", "value_units",
-                "type", "params", "reference_lines", "settings")) {
+    for (a in scan_attributes) {
         attr(to, a) <- attr(from, a)
     }
     class(to) <- c("MizerScan", "data.frame")
@@ -251,7 +258,7 @@ print.MizerScan <- function(x, ...) {
     cat(n_values, "scan values x", n_series, "series\n")
 
     frame <- as.data.frame(x)
-    n_show <- min(nrow(frame), mizer_print_defaults$time_max %||% 10)
+    n_show <- min(nrow(frame), mizer_print_defaults$rows_max)
     print(frame[seq_len(n_show), , drop = FALSE], row.names = FALSE)
     if (n_show < nrow(frame)) {
         cat("# ... ", nrow(frame) - n_show, " more rows\n", sep = "")
@@ -314,9 +321,7 @@ print.summary.MizerScan <- function(x, ...) {
 
 #' @export
 as.data.frame.MizerScan <- function(x, ...) {
-    for (a in c("scan_name", "scan_units", "value_name", "value_units",
-                "type", "params", "reference_lines", "settings",
-                "at_max", "max_value")) {
+    for (a in c(scan_attributes, scan_derived_attributes)) {
         attr(x, a) <- NULL
     }
     class(x) <- "data.frame"
@@ -430,8 +435,7 @@ plot.MizerScan <- function(x, species = NULL,
     if (return_data) return(plot_dat)
 
     params <- scan_plot_params(x, plot_dat)
-    p <- plotDataFrame(plot_dat, params,
-                       style = if (style == "line") "line" else style,
+    p <- plotDataFrame(plot_dat, params, style = style,
                        xlab = scan_x_label(x), ylab = scan_y_label(x),
                        xtrans = if (log_axes$log_x) "log10" else "identity",
                        ytrans = if (log_axes$log_y) "log10" else "identity",
@@ -469,8 +473,9 @@ prepare_MizerScan_plot_data <- function(x, species = NULL) {
 #' the model.
 #'
 #' @param available The `Species` column of the scan.
-#' @param species The series asked for, either as names or as whole-number
-#'   indices into the series of the scan. Must select at least one.
+#' @param species The series asked for, as names, as whole-number indices into
+#'   the series of the scan, or as a logical vector with one entry per series.
+#'   Must select at least one.
 #' @return A logical vector selecting the rows to keep.
 #' @keywords internal
 select_scan_series <- function(available, species) {
@@ -483,7 +488,18 @@ select_scan_series <- function(available, species) {
     if (anyNA(species)) {
         stop("`species` must not contain NA.")
     }
-    chosen <- if (is.numeric(species)) {
+    chosen <- if (is.logical(species)) {
+        if (length(species) != length(series)) {
+            stop("A logical `species` argument must have one entry for each ",
+                 "of the ", length(series), " series of the scan, but it has ",
+                 length(species), ".")
+        }
+        if (!any(species)) {
+            stop("`species` selects no series at all. Leave it as NULL to ",
+                 "keep all of them.")
+        }
+        series[species]
+    } else if (is.numeric(species)) {
         # An index has to be a whole number in range. Without this check R
         # would quietly truncate 1.5 to 1 and return the wrong series.
         if (!all(is.finite(species)) ||
@@ -530,23 +546,19 @@ scan_plot_params <- function(x, plot_dat) {
              "or rebuild the object with MizerScan().")
     }
     series <- unique(as.character(plot_dat$Species))
-    missing <- setdiff(series, names(getColours(params)))
-    if (length(missing) > 0) {
-        colours <- grDevices::hcl.colors(max(3, length(missing)), "Dark 3")
-        params <- setColours(params,
-                             stats::setNames(as.list(colours[seq_along(missing)]),
-                                             missing))
+    fill_in <- function(params, have, set, value) {
+        missing <- setdiff(series, names(have(params)))
+        if (length(missing) == 0) return(params)
+        set(params, stats::setNames(as.list(value(missing)), missing))
     }
+    params <- fill_in(params, getColours, setColours, function(missing) {
+        utils::head(grDevices::hcl.colors(max(3, length(missing)), "Dark 3"),
+                    length(missing))
+    })
     # A line style is needed too, or the manual linetype scale has no level to
     # match and ggplot2 warns.
-    missing <- setdiff(series, names(getLinetypes(params)))
-    if (length(missing) > 0) {
-        params <- setLinetypes(params,
-                               stats::setNames(as.list(rep("solid",
-                                                           length(missing))),
-                                               missing))
-    }
-    params
+    fill_in(params, getLinetypes, setLinetypes,
+            function(missing) rep("solid", length(missing)))
 }
 
 #' Add the annotation layers to a MizerScan plot

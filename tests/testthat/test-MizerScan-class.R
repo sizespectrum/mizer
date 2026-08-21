@@ -1,12 +1,3 @@
-# Fast settings, so that the integration tests stay cheap. Note that t_per must
-# be a whole multiple of both dt and t_save.
-fast <- list(t_max = 6, t_per = 1.5, dt = 0.5, t_save = 0.5, t_sample = 3,
-             progress_bar = FALSE)
-
-scan_fast <- function(params, ...) {
-    do.call(scanModel, c(list(params = params, ...), fast))
-}
-
 # Where the maximum is -------------------------------------------------------
 
 test_that("at_max records where each series is largest, and stays fresh", {
@@ -86,4 +77,17 @@ test_that("plot.MizerScan() draws all three styles", {
     stripped <- scan
     attr(stripped, "params") <- NULL
     expect_error(plot(stripped), "lost its `params` attribute")
+})
+
+test_that("select_scan_series() accepts a logical selection", {
+    available <- c("Sprat", "Herring", "Cod", "Sprat", "Herring", "Cod")
+    expect_identical(
+        mizer:::select_scan_series(available, c(TRUE, FALSE, TRUE)),
+        c(TRUE, FALSE, TRUE, TRUE, FALSE, TRUE))
+    expect_error(mizer:::select_scan_series(available, c(TRUE, FALSE)),
+                 "one entry for each of the 3 series")
+    expect_error(mizer:::select_scan_series(available, c(FALSE, FALSE, FALSE)),
+                 "selects no series")
+    expect_error(mizer:::select_scan_series(available, c(TRUE, NA, TRUE)),
+                 "must not contain NA")
 })

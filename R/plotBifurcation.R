@@ -137,6 +137,11 @@ plotBifurcation <- function(params,
     }
     value <- match.arg(value)
     assert_that(is.numeric(effort), length(effort) >= 2)
+    # Resolved here rather than left to `scanModel()`, which selects against
+    # the series a value function returned and so knows nothing about
+    # background species or about a logical or numeric species argument.
+    params <- validParams(params)
+    species <- valid_species_arg(params, species, error_on_empty = TRUE)
 
     scan <- scanModel(params, scan_values = effort,
                       set_func = scanEffort(),

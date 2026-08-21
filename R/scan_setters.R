@@ -105,8 +105,7 @@ scanFishingMortality <- function(species, gear = NULL) {
         # setter idempotent under continuation, where it is handed the object it
         # returned last time and re-installing would append a second row and
         # rebuild the selectivity array at every scan value.
-        if (is.null(scan_gear) ||
-                !scan_gear_installed(params, scan_gear, species, gear)) {
+        if (!scan_gear_installed(params, scan_gear, species, gear)) {
             if (is.null(scan_gear) || scan_gear %in% gear_names(params)) {
                 # Either this is the first use, or a gear of that name is
                 # present but is not our installation -- a setter can be handed
@@ -185,11 +184,9 @@ free_gear_name <- function(params) {
     taken <- gear_names(params)
     # The leading dot marks the gear as one mizer added rather than one the
     # user set up, which makes an accidental clash with a real gear unlikely.
-    for (i in seq_len(1000)) {
-        candidate <- paste0(".scan_", i)
-        if (!(candidate %in% taken)) return(candidate)
-    }
-    stop("Could not find an unused gear name.")
+    # One more candidate than there are gears, so at least one is always free.
+    candidates <- paste0(".scan_", seq_len(length(taken) + 1L))
+    setdiff(candidates, taken)[[1]]
 }
 
 #' Every gear name a model uses
@@ -211,9 +208,9 @@ gear_names <- function(params) {
 #' *look* like the one [scanFishingMortality()] adds, for the same reason.
 #'
 #' What is checked is therefore the whole installation, exactly as
-#' [install_tmp_gear()] leaves it: a single gear of that name catching the
-#' target species with catchability 1, **and** at least one original gear still
-#' present with every gear it was supposed to replace switched off.
+#' [install_tmp_gear()] leaves it: the name carried by exactly one row, which
+#' catches the target species with catchability 1, **and** at least one original
+#' gear still present with every gear it was supposed to replace switched off.
 #'
 #' @param params A MizerParams object.
 #' @param gear_name The name of the gear to check.
@@ -226,10 +223,16 @@ scan_gear_installed <- function(params, gear_name, species, gear = NULL) {
     if (is.null(gear_name)) return(FALSE)
     gp <- gear_params(params)
     gp$gear <- as.character(gp$gear)
-    scan <- gp$gear == gear_name & gp$species == species &
-        gp$catchability == 1
+    # Exactly one row may carry the name, and that row must be ours. A gear of
+    # that name with further rows catching other species is not our
+    # installation, and scanning its effort would move those species too.
+    scan <- gp$gear == gear_name
     if (sum(scan) != 1) return(FALSE)
-    replaced <- gp$gear != gear_name & gp$species == species
+    if (!identical(as.character(gp$species[scan]), as.character(species)) ||
+            !isTRUE(gp$catchability[scan] == 1)) {
+        return(FALSE)
+    }
+    replaced <- !scan & gp$species == species
     if (!is.null(gear)) {
         replaced <- replaced & gp$gear == gear
     }
@@ -265,9 +268,11 @@ select_gear_rows <- function(gp, species, gear = NULL) {
 #' Add a gear that exerts the fishing mortality being scanned
 #'
 #' Copies the selectivity of the first gear catching the species onto a new gear
-#' called `"tmp"` with catchability 1, so that the effort of that gear is the
-#' fishing mortality it exerts, and switches off the catchability of the gears it
-#' replaces. The fishing on every other species is untouched.
+#' called `gear_name` with catchability 1, so that the effort of that gear is
+#' the fishing mortality it exerts, and switches off the catchability of the
+#' gears it replaces. The fishing on every other species is untouched. The
+#' effort of the new gear is left at whatever [gear_params<-()] gives it; the
+#' caller sets it to the value being scanned.
 #'
 #' @param params A MizerParams object.
 #' @param species The target species.
@@ -276,7 +281,7 @@ select_gear_rows <- function(gp, species, gear = NULL) {
 #' @param gear_name The name to give the new gear.
 #' @return The MizerParams object with the extra gear.
 #' @keywords internal
-install_tmp_gear <- function(params, species, gear = NULL, gear_name = "scan") {
+install_tmp_gear <- function(params, species, gear = NULL, gear_name) {
     species <- valid_species_arg(params, species, error_on_empty = TRUE)
     if (length(species) != 1) {
         stop("You can only scan the fishing mortality on one species at a ",
@@ -286,17 +291,19 @@ install_tmp_gear <- function(params, species, gear = NULL, gear_name = "scan") {
     gp$gear <- as.character(gp$gear)
     sel <- select_gear_rows(gp, species, gear)
     if (is.null(gear) && length(sel) > 1) {
-        signal_info("scan", paste0(
-            "Several gears catch ", species, ". The fishing mortality from ",
-            "all of them will be replaced. Use the `gear` argument if you ",
-            "want to vary the fishing mortality from only one of them."),
-            unhandled = "show")
+        signal_info(
+            "scan",
+            paste0("Several gears catch ", species, ". The fishing mortality ",
+                   "from all of them will be replaced. Use the `gear` ",
+                   "argument if you want to vary the fishing mortality from ",
+                   "only one of them."),
+            unhandled = "show"
+        )
     }
     gp_extra <- gp[sel[[1]], ]
     gp_extra$gear <- gear_name
     gp_extra$catchability <- 1
     gp$catchability[sel] <- 0
     gear_params(params) <- rbind(gp, gp_extra)
-    initial_effort(params)[gear_name] <- 1
     params
 }

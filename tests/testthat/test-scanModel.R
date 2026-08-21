@@ -1,12 +1,3 @@
-# Fast settings, so that the integration tests stay cheap. Note that t_per must
-# be a whole multiple of both dt and t_save.
-fast <- list(t_max = 6, t_per = 1.5, dt = 0.5, t_save = 0.5, t_sample = 3,
-             progress_bar = FALSE)
-
-scan_fast <- function(params, ...) {
-    do.call(scanModel, c(list(params = params, ...), fast))
-}
-
 # Pure helpers ---------------------------------------------------------------
 
 test_that("sweep_arms() works outwards from the current value", {
@@ -215,6 +206,44 @@ test_that("current_scan_value = 'auto' asks the setter", {
                   current_scan_value = "auto"))),
         "says where the model currently sits")
 })
+
+test_that("current_scan_value says so when it cannot matter", {
+    # Raised through signal_info() at severity "warning", so that it survives
+    # the suppressMessages() the setter paths run.
+    expect_warning(suppressMessages(
+        scan_fast(NS_params_small, scan_values = c(0, 1),
+                  set_func = scanEffort(), continuation = FALSE,
+                  current_scan_value = 0.5)),
+        "It will be ignored")
+})
+
+test_that("a mistyped species is caught before the whole scan has run", {
+    # The series are known after the first scan value, so the error must not
+    # wait until every projection has been paid for.
+    seen <- 0L
+    spy <- function(params, value) {
+        seen <<- seen + 1L
+        scanEffort()(params, value)
+    }
+    expect_error(suppressMessages(suppressWarnings(
+        scan_fast(NS_params_small, scan_values = c(0, 0.5, 1, 1.5),
+                  set_func = spy, species = "Nonexistent"))),
+        "no series called")
+    expect_identical(seen, 1L)
+})
+
+test_that("the generic and its method keep the same signature", {
+    # The two are written out separately, as mizer's S3 generics are, so that
+    # the man page shows the defaults. Nothing else keeps them in step: the
+    # generic's defaults are never evaluated, so a drifted one would show up
+    # only as a wrong default in the documentation.
+    expect_identical(names(formals(scanModel)),
+                     names(formals(mizer:::scanModel.MizerParams)))
+    expect_identical(
+        vapply(formals(scanModel), deparse1, character(1)),
+        vapply(formals(mizer:::scanModel.MizerParams), deparse1, character(1)))
+})
+
 # Slow: the correctness claim ------------------------------------------------
 
 test_that("a limit cycle is averaged over exactly one period", {

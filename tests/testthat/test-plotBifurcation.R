@@ -76,3 +76,23 @@ test_that("the arguments replaced by scanModel() are soft-deprecated", {
         class = "lifecycle_warning_deprecated")
     expect_s3_class(p, "ggplot")
 })
+
+test_that("plotBifurcation() resolves `species` the way mizer does elsewhere", {
+    # Background species are not target species, so they are left out by
+    # default, and a logical or numeric argument indexes the model's species.
+    p <- NS_params_small
+    sp <- species_params(p)
+    sp$is_background <- c(FALSE, TRUE, FALSE)
+    species_params(p) <- sp
+    d <- suppressMessages(suppressWarnings(
+        plotBifurcation(p, effort = c(0, 1), t_max = 4, t_sample = 2,
+                        return_data = TRUE, progress_bar = FALSE)))
+    expect_identical(unique(as.character(d$Species)), c("Sprat", "Cod"))
+
+    d <- suppressMessages(suppressWarnings(
+        plotBifurcation(NS_params_small, effort = c(0, 1),
+                        species = c(TRUE, FALSE, TRUE), t_max = 4,
+                        t_sample = 2, return_data = TRUE,
+                        progress_bar = FALSE)))
+    expect_identical(unique(as.character(d$Species)), c("Sprat", "Cod"))
+})

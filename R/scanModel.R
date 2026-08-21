@@ -262,18 +262,15 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
         assert_that(is.number(current_scan_value))
         if (!continuation) {
             signal_info("current_scan_value",
-                        paste0("`current_scan_value` only affects the order in which the ",
-                               "scan values are projected, which does not matter when ",
-                               "`continuation = FALSE`. It will be ignored."),
+                        paste0("`current_scan_value` only affects the order ",
+                               "in which the scan values are projected, which ",
+                               "does not matter when `continuation = FALSE`. ",
+                               "It will be ignored."),
                         severity = "warning", unhandled = "show")
         }
     }
 
     arms <- sweep_arms(scan_values, current_scan_value)
-    order <- unlist(arms)
-    # The step at which each arm begins. Continuation must not carry the
-    # attractor from the end of one arm into the start of the next.
-    arm_starts <- cumsum(c(1L, utils::head(lengths(arms), -1L)))
 
     pb <- NULL
     if (isTRUE(progress_bar)) {
@@ -283,69 +280,74 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
     }
 
     rows <- vector("list", length(scan_values))
-    convergence <- vector("list", length(scan_values))
+    types <- rep(NA_character_, length(scan_values))
     series_names <- NULL
-    p_run <- params
+    step <- 0L
 
-    for (step in seq_along(order)) {
+    for (arm in arms) {
         # Each arm starts again from the model as it was given, so that the
         # arm working upwards from the current value does not begin at the
         # attractor reached at the far end of the arm working downwards.
-        if (step %in% arm_starts) p_run <- params
-        i <- order[[step]]
-        p <- set_func(p_run, scan_values[[i]])
-        if (!is(p, "MizerParams")) {
-            stop("`set_func` must return a MizerParams object, but at the ",
-                 "scan value ", signif(scan_values[[i]], 3),
-                 " it returned an object of class ",
-                 paste(class(p), collapse = "/"), ".")
+        p_run <- params
+        for (i in arm) {
+            step <- step + 1L
+            p <- set_func(p_run, scan_values[[i]])
+            if (!is(p, "MizerParams")) {
+                stop("`set_func` must return a MizerParams object, but at the ",
+                     "scan value ", signif(scan_values[[i]], 3),
+                     " it returned an object of class ",
+                     paste(class(p), collapse = "/"), ".")
+            }
+
+            settled <- projectToSteady(
+                p, distance_func = distance_func,
+                t_per = t_per, t_max = t_max, dt = dt, t_save = t_save,
+                tol = tol, amplitude_tol = amplitude_tol,
+                amp_rel_tol = amp_rel_tol,
+                extinction_threshold = extinction_threshold,
+                method = method, return_sim = FALSE, progress_bar = FALSE,
+                info_level = info_level, ...
+            )
+            conv <- attr(settled, "convergence")
+
+            measured <- measure_on_attractor(
+                settled, value_func, conv, dt = dt, t_sample = t_sample,
+                sample_all = sample_all, method = method,
+                default_name = value_name %||% "Value"
+            )
+            if (is.null(series_names)) {
+                series_names <- measured$series
+                value_name <- value_name %||% measured$value_name
+                value_units <- value_units %||% measured$value_units
+                value_type <- measured$type
+                # Checked as soon as the series are known, so that a
+                # mistyped name is not paid for with the whole scan first.
+                if (!is.null(species)) select_scan_series(series_names, species)
+            } else if (!identical(measured$series, series_names)) {
+                stop("`value_func` returned different series at different ",
+                     "scan values: ", paste(series_names, collapse = ", "),
+                     " and then ", paste(measured$series, collapse = ", "),
+                     ". A scan needs the same series throughout.")
+            }
+
+            rows[[i]] <- data.frame(
+                x = scan_values[[i]],
+                value = measured$mean,
+                Species = series_names,
+                ymin = measured$min,
+                ymax = measured$max,
+                type = conv$type,
+                settled = isTRUE(conv$settled),
+                period = conv$period %||% NA_real_,
+                residual = conv$residual %||% NA_real_,
+                row.names = NULL,
+                stringsAsFactors = FALSE
+            )
+            types[[i]] <- conv$type %||% NA_character_
+
+            if (continuation) p_run <- settled
+            if (!is.null(pb)) utils::setTxtProgressBar(pb, step)
         }
-
-        settled <- projectToSteady(p, distance_func = distance_func,
-                                   t_per = t_per, t_max = t_max, dt = dt,
-                                   t_save = t_save, tol = tol,
-                                   amplitude_tol = amplitude_tol,
-                                   amp_rel_tol = amp_rel_tol,
-                                   extinction_threshold = extinction_threshold,
-                                   method = method, return_sim = FALSE,
-                                   progress_bar = FALSE,
-                                   info_level = info_level, ...)
-        conv <- attr(settled, "convergence")
-
-        measured <- measure_on_attractor(settled, value_func, conv,
-                                         dt = dt, t_sample = t_sample,
-                                         sample_all = sample_all,
-                                         method = method,
-                                         default_name = value_name %||% "Value")
-        if (is.null(series_names)) {
-            series_names <- colnames(measured$mat)
-            value_name <- value_name %||% measured$value_name
-            value_units <- value_units %||% measured$value_units
-            value_type <- measured$type
-        } else if (!identical(colnames(measured$mat), series_names)) {
-            stop("`value_func` returned different series at different scan ",
-                 "values: ", paste(series_names, collapse = ", "), " and then ",
-                 paste(colnames(measured$mat), collapse = ", "),
-                 ". A scan needs the same series throughout.")
-        }
-
-        rows[[i]] <- data.frame(
-            x = scan_values[[i]],
-            value = measured$mean,
-            Species = series_names,
-            ymin = measured$min,
-            ymax = measured$max,
-            type = conv$type,
-            settled = isTRUE(conv$settled),
-            period = conv$period %||% NA_real_,
-            residual = conv$residual %||% NA_real_,
-            row.names = NULL,
-            stringsAsFactors = FALSE
-        )
-        convergence[[i]] <- conv
-
-        if (continuation) p_run <- settled
-        if (!is.null(pb)) utils::setTxtProgressBar(pb, step)
     }
 
     frame <- do.call(rbind, rows)
@@ -359,8 +361,7 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
         rownames(frame) <- NULL
     }
 
-    report_scan_convergence(scan_values, convergence, scan_name, t_max,
-                            t_sample)
+    report_scan_convergence(scan_values, types, scan_name, t_max, t_sample)
 
     MizerScan(frame,
               scan_name = scan_name, scan_units = scan_units,
@@ -384,7 +385,7 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
 #' @param method The numerical method.
 #' @param default_name The series name to use when `value_func` supplies none.
 #' @return A list with the mean, minimum and maximum over the attractor, the
-#'   normalised matrix and the metadata read off `value_func`'s result.
+#'   names of the series and the metadata read off `value_func`'s result.
 #' @keywords internal
 measure_on_attractor <- function(settled, value_func, conv, dt, t_sample,
                                  sample_all, method, default_name = "Value") {
@@ -417,7 +418,7 @@ measure_on_attractor <- function(settled, value_func, conv, dt, t_sample,
     }
 
     mat <- as_series_matrix(vals, default_name = default_name)
-    list(mat = mat,
+    list(series = colnames(mat),
          mean = colMeans(mat[keep, , drop = FALSE]),
          min = apply(mat, 2, min),
          max = apply(mat, 2, max),
@@ -499,44 +500,42 @@ sweep_arms <- function(scan_values, current_scan_value = NULL) {
 #' Report the scan values that did not settle on a fixed point
 #'
 #' @param scan_values The values that were scanned.
-#' @param convergence A list of the `"convergence"` attributes, one per value.
+#' @param types The attractor type reached at each value, one per value.
 #' @param scan_name The name of the scanned quantity.
 #' @param t_max The time limit that was used.
 #' @param t_sample The averaging window that was used.
 #' @return Nothing; called for its messages.
 #' @keywords internal
-report_scan_convergence <- function(scan_values, convergence, scan_name, t_max,
+report_scan_convergence <- function(scan_values, types, scan_name, t_max,
                                     t_sample) {
-    types <- vapply(convergence, function(x) x$type %||% NA_character_,
-                    character(1))
-    name_them <- function(sel) {
-        paste(signif(scan_values[sel], 3), collapse = ", ")
+    # `which()` rather than the logical vector itself, so that a missing type
+    # cannot put an NA among the scan values that are named.
+    name_them <- function(type) {
+        paste(signif(scan_values[which(types == type)], 3), collapse = ", ")
     }
-    if (any(types == "cycle", na.rm = TRUE)) {
-        signal_info("scan", paste0(
-            "The model settled onto a limit cycle at ", scan_name, " = ",
-            name_them(types == "cycle"),
-            ". The value there is the average over one period of the cycle."),
-            unhandled = "show")
+    # `...` is only forced inside the `if`, so a report that is not needed
+    # costs nothing to have written down here.
+    report <- function(type, ...) {
+        if (any(types == type, na.rm = TRUE)) {
+            signal_info("scan", paste0(...), unhandled = "show")
+        }
     }
-    if (any(types == "not_converged", na.rm = TRUE)) {
-        signal_info("scan", paste0(
-            "The model did not settle onto an attractor within ", t_max,
-            " years at ", scan_name, " = ",
-            name_them(types == "not_converged"),
-            ". The value there is only the average over the last ", t_sample,
-            " years and should not be relied on. Increase `t_max` to give the ",
-            "model more time to settle, or loosen `tol`. The `residual` ",
-            "column says how fast the abundances were still changing, in ",
-            "1/year."), unhandled = "show")
-    }
-    if (any(types == "extinction", na.rm = TRUE)) {
-        signal_info("scan", paste0(
-            "A species was on its way to extinction at ", scan_name, " = ",
-            name_them(types == "extinction"),
-            ", which stopped the projection early. The value there is only the ",
-            "average over the ", t_sample, " years following that point."),
-            unhandled = "show")
-    }
+    report("cycle",
+           "The model settled onto a limit cycle at ", scan_name, " = ",
+           name_them("cycle"),
+           ". The value there is the average over one period of the cycle.")
+    report("not_converged",
+           "The model did not settle onto an attractor within ", t_max,
+           " years at ", scan_name, " = ", name_them("not_converged"),
+           ". The value there is only the average over the last ", t_sample,
+           " years and should not be relied on. Increase `t_max` to give the ",
+           "model more time to settle, or loosen `tol`. The `residual` ",
+           "column says how fast the abundances were still changing, in ",
+           "1/year.")
+    report("extinction",
+           "A species was on its way to extinction at ", scan_name, " = ",
+           name_them("extinction"),
+           ", which stopped the projection early. The value there is only ",
+           "the average over the ", t_sample, " years following that point.")
     invisible(NULL)
 }

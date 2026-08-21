@@ -139,3 +139,31 @@ test_that("scanSpeciesParam() sets a parameter and propagates the change", {
     expect_error(scanSpeciesParam("Nonexistent", "w_mat")(NS_params_small, 1),
                  "no species called")
 })
+
+test_that("scan_gear_installed() requires the name to be the scan's alone", {
+    f <- scanFishingMortality("Cod")
+    installed <- suppressMessages(f(NS_params_small, 0.3))
+    name <- setdiff(mizer:::gear_names(installed),
+                    mizer:::gear_names(NS_params_small))
+    expect_true(mizer:::scan_gear_installed(installed, name, "Cod"))
+
+    # A gear of that name that also catches another species is not the scan's
+    # installation, even though one of its rows looks exactly like it and the
+    # gears the scan would replace are switched off. Adopting it would move
+    # Herring's fishing mortality along with Cod's.
+    p <- NS_params_small
+    gp <- gear_params(p)
+    extra <- gp[gp$species %in% c("Cod", "Herring"), ]
+    extra$gear <- name
+    extra$catchability <- 1
+    gp$catchability[gp$species == "Cod"] <- 0
+    gear_params(p) <- rbind(gp, extra)
+    expect_false(mizer:::scan_gear_installed(p, name, "Cod"))
+
+    # So the setter leaves that gear alone and installs under another name.
+    r1 <- suppressMessages(f(p, 0.3))
+    r2 <- suppressMessages(f(p, 0.6))
+    expect_equal(max(getFMort(r2)["Cod", ]), 2 * max(getFMort(r1)["Cod", ]))
+    expect_equal(unclass(getFMort(r2))["Herring", ],
+                 unclass(getFMort(r1))["Herring", ])
+})

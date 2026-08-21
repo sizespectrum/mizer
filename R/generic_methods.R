@@ -186,8 +186,10 @@ NULL
 #
 # Shared, non-exported machinery used by the print.Array*() methods (defined
 # in the various *-class.R files) to keep their console output compact for
-# large models or long simulations.
+# large models or long simulations. `rows_max` is for the classes that print a
+# data frame rather than an array, where the rows are not a time axis.
 mizer_print_defaults <- list(
+    rows_max = 10L,
     time_max = 8L,
     time_threshold = 12L,
     species_head = 8L,

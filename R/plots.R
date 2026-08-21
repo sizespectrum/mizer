@@ -232,59 +232,39 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
                            limits = xlim)
 
     switch(style,
-           "line" = {
-               p <- p +
-                   geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
-                                 colour = .data[[legend_var]],
-                                 linetype = .data[[legend_var]],
-                                 linewidth = .data[[legend_var]])) +
-                   scale_colour_manual(values = linecolour) +
-                   scale_linetype_manual(values = linetype) +
-                   scale_discrete_manual("linewidth", values = linesize)
-           },
            "area" = {
                p <- p +
                    geom_area(aes(x = .data[[x_var]], y = .data[[y_var]],
                                  fill = .data[[legend_var]])) +
                    scale_fill_manual(values = linecolour)
            },
-           "ribbon" = {
-               check_band_vars(var_names, style)
-               p <- p +
-                   geom_ribbon(aes(x = .data[[x_var]],
-                                   ymin = .data[["ymin"]],
-                                   ymax = .data[["ymax"]],
-                                   fill = .data[[legend_var]]),
-                               alpha = 0.25, colour = NA) +
-                   geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
-                                 colour = .data[[legend_var]],
-                                 linetype = .data[[legend_var]],
-                                 linewidth = .data[[legend_var]])) +
-                   scale_colour_manual(values = linecolour) +
-                   scale_fill_manual(values = linecolour) +
-                   scale_linetype_manual(values = linetype) +
-                   scale_discrete_manual("linewidth", values = linesize)
-           },
+           "line" = ,
+           "ribbon" = ,
            "envelope" = {
-               # As "ribbon", but the lines mark the edges of the band rather
-               # than the value in the middle of it.
-               check_band_vars(var_names, style)
+               # A helper rather than an `aes()` written inline in the loop
+               # below, so that each layer gets its own binding of `yv`.
+               value_line <- function(yv) {
+                   geom_line(aes(x = .data[[x_var]], y = .data[[yv]],
+                                 colour = .data[[legend_var]],
+                                 linetype = .data[[legend_var]],
+                                 linewidth = .data[[legend_var]]))
+               }
+               if (style != "line") {
+                   check_band_vars(var_names, style)
+                   p <- p +
+                       geom_ribbon(aes(x = .data[[x_var]],
+                                       ymin = .data[["ymin"]],
+                                       ymax = .data[["ymax"]],
+                                       fill = .data[[legend_var]]),
+                                   alpha = 0.25, colour = NA) +
+                       scale_fill_manual(values = linecolour)
+               }
+               # "envelope" draws the two edges of the band in place of the
+               # value that lies inside it.
+               y_vars <- if (style == "envelope") c("ymax", "ymin") else y_var
+               for (yv in y_vars) p <- p + value_line(yv)
                p <- p +
-                   geom_ribbon(aes(x = .data[[x_var]],
-                                   ymin = .data[["ymin"]],
-                                   ymax = .data[["ymax"]],
-                                   fill = .data[[legend_var]]),
-                               alpha = 0.25, colour = NA) +
-                   geom_line(aes(x = .data[[x_var]], y = .data[["ymax"]],
-                                 colour = .data[[legend_var]],
-                                 linetype = .data[[legend_var]],
-                                 linewidth = .data[[legend_var]])) +
-                   geom_line(aes(x = .data[[x_var]], y = .data[["ymin"]],
-                                 colour = .data[[legend_var]],
-                                 linetype = .data[[legend_var]],
-                                 linewidth = .data[[legend_var]])) +
                    scale_colour_manual(values = linecolour) +
-                   scale_fill_manual(values = linecolour) +
                    scale_linetype_manual(values = linetype) +
                    scale_discrete_manual("linewidth", values = linesize)
            },

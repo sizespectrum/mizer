@@ -34,7 +34,7 @@ measure_on_attractor(
 }
 \value{
 A list with the mean, minimum and maximum over the attractor, the
-normalised matrix and the metadata read off \code{value_func}'s result.
+names of the series and the metadata read off \code{value_func}'s result.
 }
 \description{
 Measure a quantity on the attractor a projection settled on

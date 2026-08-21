@@ -4,7 +4,7 @@
 \alias{install_tmp_gear}
 \title{Add a gear that exerts the fishing mortality being scanned}
 \usage{
-install_tmp_gear(params, species, gear = NULL, gear_name = "scan")
+install_tmp_gear(params, species, gear = NULL, gear_name)
 }
 \arguments{
 \item{params}{A MizerParams object.}
@@ -21,8 +21,10 @@ The MizerParams object with the extra gear.
 }
 \description{
 Copies the selectivity of the first gear catching the species onto a new gear
-called \code{"tmp"} with catchability 1, so that the effort of that gear is the
-fishing mortality it exerts, and switches off the catchability of the gears it
-replaces. The fishing on every other species is untouched.
+called \code{gear_name} with catchability 1, so that the effort of that gear is
+the fishing mortality it exerts, and switches off the catchability of the
+gears it replaces. The fishing on every other species is untouched. The
+effort of the new gear is left at whatever \code{\link[=gear_params<-]{gear_params<-()}} gives it; the
+caller sets it to the value being scanned.
 }
 \keyword{internal}

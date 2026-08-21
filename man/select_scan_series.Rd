@@ -9,8 +9,9 @@ select_scan_series(available, species)
 \arguments{
 \item{available}{The \code{Species} column of the scan.}
 
-\item{species}{The series asked for, either as names or as whole-number
-indices into the series of the scan. Must select at least one.}
+\item{species}{The series asked for, as names, as whole-number indices into
+the series of the scan, or as a logical vector with one entry per series.
+Must select at least one.}
 }
 \value{
 A logical vector selecting the rows to keep.
