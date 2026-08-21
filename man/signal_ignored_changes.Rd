@@ -30,4 +30,4 @@ species that were \emph{given} a value, not about every species whose value
 changed: clearing a value to \code{NA} is a change, but not one this has anything
 to say about.
 }
-\concept{helper}
+\concept{info signaling functions}

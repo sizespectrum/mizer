@@ -43,4 +43,4 @@ with_info_level(
                             "setMetabolicRate(params, reset = TRUE)")
 )
 }
-\concept{helper}
+\concept{info signaling functions}

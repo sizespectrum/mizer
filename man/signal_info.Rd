@@ -64,4 +64,4 @@ signal_info("h", "Using a default for `h`.", unhandled = "show")
 # `with_info_level()`, which is what decides whether to show it.
 with_info_level(signal_info("h", "Using a default for `h`."))
 }
-\concept{helper}
+\concept{info signaling functions}

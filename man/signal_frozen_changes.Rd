@@ -24,4 +24,4 @@ longer follows the species parameters" into a warning the user sees at the
 moment they make the change. It is one of the diagnostics that only
 \code{\link[=given_species_params<-]{given_species_params<-()}} gives, see there.
 }
-\concept{helper}
+\concept{info signaling functions}

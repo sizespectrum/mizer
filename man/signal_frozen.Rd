@@ -34,4 +34,4 @@ trait-based and community models, and those arrays differ from the formula
 for the lifetime of the model. See \code{\link[=signal_frozen_changes]{signal_frozen_changes()}}, which decides
 this from the species parameters the user changed.
 }
-\concept{helper}
+\concept{info signaling functions}

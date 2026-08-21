@@ -27,4 +27,4 @@ left with the message that the setter itself gives, see
 influence is the worse mistake, because it warns about a change that did
 take effect.
 }
-\concept{helper}
+\concept{info signaling functions}

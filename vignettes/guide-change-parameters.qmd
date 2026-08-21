@@ -96,7 +96,9 @@ given, it feeds a rate array you set by hand, or it is a gear parameter that
 mizer reads from `gear_params()`. `species_params<-()` stays quiet about all
 three.
 
-**Turning the commentary up or down.** Mizer reports the choices it makes —
+### Turning the commentary up or down
+
+Mizer reports the choices it makes —
 defaults it filled in, inputs it adjusted, instructions it could not carry out —
 at a level set by `info_level`. Most `set…()` and `new…()` functions take it as
 an argument; for the ones that do not, including `species_params(params) <-` and

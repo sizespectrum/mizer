@@ -374,6 +374,27 @@ reference:
   - starts_with("mizer")
   - projectRDD
   - -mizer
+- title: Info signaling functions
+  description: >
+    Mizer tells the user about choices it makes on their behalf, such as filling
+    in defaults or adjusting inputs, by raising information signals. These are 
+    collected and reported together at a verbosity set by the `info_level` argument. 
+    This allows the user to suppress routine chatter while keeping important 
+    warnings. See the [guide to changing parameters](https://sizespectrum.org/mizer/articles/guide-change-parameters.html#turning-the-commentary-up-or-down) 
+    for how a user controls this, and the [guide to creating an extension package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html#telling-the-user-what-your-package-decided) 
+    for how an extension developer should use this system so their reports are collected 
+    along with mizer's own.
+  contents:
+  - with_info_level
+  - default_info_level
+  - signal_info
+  - signal_not_recalculated
+  - signal_frozen
+  - signal_frozen_changes
+  - signal_ignored_changes
+  - signal_gear_params_changes
+  - frozen_rate_params
+  - has_concept("info signaling functions")
 - title: Internal helper functions
   description: Utility functions used internally by mizer that may also be useful
     for users building extensions or working with model objects directly.
