@@ -9,17 +9,47 @@ scan_fast <- function(params, ...) {
 
 # Pure helpers ---------------------------------------------------------------
 
-test_that("sweep_order() works outwards from the current value", {
+test_that("sweep_arms() works outwards from the current value", {
     v <- c(0, 0.5, 1, 1.5)
-    # Without a current value the order given is kept, which is what lets a
-    # decreasing vector trace a hysteresis branch deliberately.
-    expect_identical(mizer:::sweep_order(v), seq_along(v))
-    expect_identical(mizer:::sweep_order(rev(v)), seq_along(v))
-    # From 1 the scan works down through the smaller values, then up.
-    expect_identical(v[mizer:::sweep_order(v, 1)], c(0.5, 0, 1, 1.5))
-    # A value sitting exactly at the current one goes into the ascending arm.
-    expect_identical(v[mizer:::sweep_order(v, 0)], c(0, 0.5, 1, 1.5))
-    expect_identical(v[mizer:::sweep_order(v, 2)], c(1.5, 1, 0.5, 0))
+    # Without a current value there is one arm, in the order given, which is
+    # what lets a decreasing vector trace a hysteresis branch deliberately.
+    expect_identical(mizer:::sweep_arms(v), list(seq_along(v)))
+    expect_identical(mizer:::sweep_arms(rev(v)), list(seq_along(v)))
+    # From 1 there are two arms: down through the smaller values, and up.
+    arms <- mizer:::sweep_arms(v, 1)
+    expect_length(arms, 2)
+    expect_identical(v[arms[[1]]], c(0.5, 0))
+    expect_identical(v[arms[[2]]], c(1, 1.5))
+    # A value sitting exactly at the current one goes into the ascending arm,
+    # and an empty arm is dropped rather than returned.
+    expect_identical(mizer:::sweep_arms(v, 0), list(seq_along(v)))
+    expect_identical(lapply(mizer:::sweep_arms(v, 2), function(a) v[a]),
+                     list(c(1.5, 1, 0.5, 0)))
+})
+
+test_that("each arm of the scan restarts from the model as given", {
+    # The arms must not be run as one sequence: doing so would start the
+    # ascending arm at the attractor reached at the far end of the descending
+    # arm, which in a hysteretic model follows the wrong branch.
+    seen <- list()
+    spy <- function(params, value) {
+        seen[[length(seen) + 1L]] <<- list(value = value,
+                                           n = params@initial_n)
+        scanEffort()(params, value)
+    }
+    v <- c(0, 0.5, 1, 1.5)
+    suppressMessages(suppressWarnings(
+        scan_fast(NS_params_small, scan_values = v, set_func = spy,
+                  current_scan_value = 1)))
+
+    values <- vapply(seen, function(x) x$value, numeric(1))
+    expect_identical(values, c(0.5, 0, 1, 1.5))
+    # The first call of each arm sees the unmodified model ...
+    original <- NS_params_small@initial_n
+    expect_equal(seen[[1]]$n, original)   # start of the descending arm
+    expect_equal(seen[[3]]$n, original)   # start of the ascending arm
+    # ... while continuation within an arm does not.
+    expect_false(isTRUE(all.equal(seen[[2]]$n, original)))
 })
 
 test_that("as_series_matrix() normalises what a value function returns", {
@@ -208,6 +238,26 @@ test_that("scanModel() accepts a value function returning a plain vector", {
     expect_gt(nrow(ggplot2::layer_data(p, 1)), 0)
 })
 
+test_that("series that are not species can be selected", {
+    scan <- suppressMessages(suppressWarnings(
+        scan_fast(NS_params_small, scan_values = c(0, 1),
+                  set_func = scanEffort(),
+                  value_func = function(sim) getMeanWeight(sim),
+                  value_name = "Mean weight")))
+    # Selecting by name must go through the scan's own series, not through
+    # valid_species_arg(), which would reject a series that is not a species.
+    p <- plot(scan, species = "Mean weight")
+    expect_s3_class(p, "ggplot")
+    d <- plot(scan, species = "Mean weight", return_data = TRUE)
+    expect_identical(unique(as.character(d$Species)), "Mean weight")
+    # By index into the series too
+    expect_identical(
+        unique(as.character(plot(scan, species = 1, return_data = TRUE)$Species)),
+        "Mean weight")
+    expect_error(plot(scan, species = "Cod"), "no series called")
+    expect_error(plot(scan, species = 5), "out of range")
+})
+
 test_that("scanModel() can restrict the scan to some species", {
     scan <- suppressMessages(suppressWarnings(
         scan_fast(NS_params_small, scan_values = c(0, 1),
@@ -216,7 +266,7 @@ test_that("scanModel() can restrict the scan to some species", {
     expect_error(suppressMessages(suppressWarnings(
         scan_fast(NS_params_small, scan_values = c(0, 1),
                   set_func = scanEffort(), species = "Nonexistent"))),
-        "None of the requested species")
+        "no series called")
 })
 
 test_that("the sweep order does not change the result", {

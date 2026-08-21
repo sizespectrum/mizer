@@ -105,7 +105,8 @@
 #' @param current_scan_value The value at which the model currently sits. When
 #'   given, the scan works outwards from it in both directions so that every
 #'   projection starts from a neighbouring attractor rather than from a distant
-#'   state. Pass `"auto"` to ask `set_func` for it. By default the values are
+#'   state, and each of the two directions begins again at the model as it was
+#'   given. Pass `"auto"` to ask `set_func` for it. By default the values are
 #'   scanned in the order given, which is also how you trace a hysteresis branch
 #'   deliberately: pass a decreasing `scan_values`.
 #' @param continuation Whether each scan value should start from the attractor
@@ -266,7 +267,11 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
         }
     }
 
-    order <- sweep_order(scan_values, current_scan_value)
+    arms <- sweep_arms(scan_values, current_scan_value)
+    order <- unlist(arms)
+    # The step at which each arm begins. Continuation must not carry the
+    # attractor from the end of one arm into the start of the next.
+    arm_starts <- cumsum(c(1L, utils::head(lengths(arms), -1L)))
 
     pb <- NULL
     if (isTRUE(progress_bar)) {
@@ -281,6 +286,10 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
     p_run <- params
 
     for (step in seq_along(order)) {
+        # Each arm starts again from the model as it was given, so that the
+        # arm working upwards from the current value does not begin at the
+        # attractor reached at the far end of the arm working downwards.
+        if (step %in% arm_starts) p_run <- params
         i <- order[[step]]
         p <- set_func(p_run, scan_values[[i]])
         if (!is(p, "MizerParams")) {
@@ -341,13 +350,10 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
     names(frame)[1:2] <- c(scan_name, value_name %||% "Value")
 
     if (!is.null(species)) {
-        keep <- as.character(frame$Species) %in% as.character(species)
-        if (!any(keep)) {
-            stop("None of the requested species are among the series that ",
-                 "`value_func` returned: ",
-                 paste(series_names, collapse = ", "), ".")
-        }
-        frame <- frame[keep, , drop = FALSE]
+        # Selected against the series the value function actually returned,
+        # which need not be species at all.
+        frame <- frame[select_scan_series(frame$Species, species), ,
+                       drop = FALSE]
         rownames(frame) <- NULL
     }
 
@@ -464,18 +470,28 @@ as_series_matrix <- function(x, default_name = "Value") {
 #' user gave is used, which is also what lets a decreasing `scan_values` trace a
 #' hysteresis branch deliberately.
 #'
+#' The two directions are returned as separate arms rather than as one
+#' sequence, because each has to begin again at the model as it was given. Run
+#' as one sequence they would carry the attractor from the far end of the
+#' descending arm into the start of the ascending arm, which is the opposite of
+#' starting each projection from a neighbour, and in a model with coexisting
+#' attractors would follow the wrong branch.
+#'
 #' @param scan_values The values to scan over.
 #' @param current_scan_value The value the model currently sits at, or NULL.
-#' @return An integer vector of indices into `scan_values`.
+#' @return A list of integer vectors, each holding indices into `scan_values` in
+#'   the order they should be projected. Each arm is to be started from the
+#'   unmodified model.
 #' @keywords internal
-sweep_order <- function(scan_values, current_scan_value = NULL) {
+sweep_arms <- function(scan_values, current_scan_value = NULL) {
     if (is.null(current_scan_value)) {
-        return(seq_along(scan_values))
+        return(list(seq_along(scan_values)))
     }
     below <- which(scan_values < current_scan_value)
     above <- which(scan_values >= current_scan_value)
-    c(rev(below[order(scan_values[below])]),
-      above[order(scan_values[above])])
+    arms <- list(rev(below[order(scan_values[below])]),
+                 above[order(scan_values[above])])
+    arms[lengths(arms) > 0]
 }
 
 #' Report the scan values that did not settle on a fixed point

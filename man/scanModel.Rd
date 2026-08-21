@@ -68,7 +68,8 @@ axis for \code{\link[=plot.MizerScan]{plot.MizerScan()}} to mark with vertical d
 \item{current_scan_value}{The value at which the model currently sits. When
 given, the scan works outwards from it in both directions so that every
 projection starts from a neighbouring attractor rather than from a distant
-state. Pass \code{"auto"} to ask \code{set_func} for it. By default the values are
+state, and each of the two directions begins again at the model as it was
+given. Pass \code{"auto"} to ask \code{set_func} for it. By default the values are
 scanned in the order given, which is also how you trace a hysteresis branch
 deliberately: pass a decreasing \code{scan_values}.}
 

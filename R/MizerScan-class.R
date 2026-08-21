@@ -453,19 +453,46 @@ plot.MizerScan <- function(x, species = NULL,
 prepare_MizerScan_plot_data <- function(x, species = NULL) {
     frame <- as.data.frame(x)
     if (!is.null(species)) {
-        params <- attr(x, "params")
-        if (!is.null(params)) {
-            species <- valid_species_arg(params, species,
-                                         error_on_empty = TRUE)
-        }
-        keep <- as.character(frame$Species) %in% as.character(species)
-        if (!any(keep)) {
-            stop("None of the requested species are in this scan.")
-        }
-        frame <- frame[keep, , drop = FALSE]
+        frame <- frame[select_scan_series(frame$Species, species), ,
+                       drop = FALSE]
     }
     rownames(frame) <- NULL
     frame
+}
+
+#' Pick out some of the series of a scan
+#'
+#' The series of a scan need not be species: a scan of `getMeanWeight()` has a
+#' single series that no model has ever heard of. So the selection is made
+#' against the series the scan actually holds rather than through
+#' [valid_species_arg()], which would reject anything that is not a species in
+#' the model.
+#'
+#' @param available The `Species` column of the scan.
+#' @param species The series asked for, as names or as indices into the series
+#'   of the scan.
+#' @return A logical vector selecting the rows to keep.
+#' @keywords internal
+select_scan_series <- function(available, species) {
+    available <- as.character(available)
+    series <- unique(available)
+    chosen <- if (is.numeric(species)) {
+        if (any(species < 1 | species > length(series))) {
+            stop("This scan has ", length(series), " series, so the index ",
+                 paste(species[species < 1 | species > length(series)],
+                       collapse = ", "), " is out of range.")
+        }
+        series[species]
+    } else {
+        as.character(species)
+    }
+    unknown <- setdiff(chosen, series)
+    if (length(unknown) > 0) {
+        stop("This scan has no series called ",
+             paste0("`", unknown, "`", collapse = ", "),
+             ". It has ", paste0("`", series, "`", collapse = ", "), ".")
+    }
+    available %in% chosen
 }
 
 #' The params object to use when plotting a MizerScan
