@@ -341,33 +341,43 @@ distinct ways depending on how close the state sits to the threshold.
 When the state sits *on* the switching surface — which is exactly where a hard
 rule drives it — some perturbations straddle the threshold and pick up the jump,
 giving an entry of order (size of jump)/(size of perturbation). The reported
-spectral radius then depends violently on `h`:
+growth rate of the dominant mode then depends on `h`:
 
 ```{r eval = FALSE}
 sapply(c(1e-3, 1e-4, 1e-5),
-       function(h) getStability(hard_ss, h = h)$spectral_radius)
+       function(h) getStability(hard_ss, h = h)$max_real_part)
 ```
 ```{r echo = FALSE}
 stab_hard
 ```
 
-Four orders of magnitude apart. Contrast the ramped model, where the answer is
-the same to six figures whatever `h` you choose:
+The coarsest step is the only one whose perturbations reach across the
+threshold, and it moves the answer by more than ten per cent (it also inflates
+the largest eigenvalue modulus of the Jacobian by a factor of fifteen). Note
+what the two finer steps do: they agree with each other *exactly*, because at
+that size no perturbation crosses the threshold at all. That agreement is the
+second failure mode below, not a clean bill of health.
+
+Contrast the ramped model, where the answer is the same to six figures whatever
+`h` you choose:
 
 ```{r eval = FALSE}
 sapply(c(1e-3, 1e-4, 1e-5),
-       function(h) getStability(ramp_ss, h = h)$spectral_radius)
+       function(h) getStability(ramp_ss, h = h)$max_real_part)
 ```
 ```{r echo = FALSE}
 stab_ramp
 ```
 
-What matters here is the *reproducibility* of that number, not its value. (It
-exceeds one, so the ramped model's fixed-reproduction steady state is mildly
-unstable — which is consistent with the small residual oscillation we measured
-earlier, and is a real property of this parameterisation rather than anything to
-do with the switch.) The `h`-sensitivity is the cheapest diagnostic available:
-**if halving `h` changes the answer, do not trust the answer.**
+What matters here is the *reproducibility* of that number, not its value. (It is
+negative, so the ramped model's fixed-reproduction steady state is weakly
+stable. That is not in conflict with the small residual oscillation measured
+earlier: those runs let reproduction respond to the abundances, so they are a
+different system from the fixed-reproduction one linearised here — and a decay
+rate this slow is in any case barely distinguishable from a cycle over a
+thirty-year run.) The `h`-sensitivity is the cheapest diagnostic available:
+**if halving `h` changes the answer, do not trust the answer** — while
+remembering that an answer which does not move is necessary, not sufficient.
 
 The second failure mode is quieter and therefore worse. When the state is near
 but not on the threshold, no perturbation is large enough to cross it, so the
@@ -376,14 +386,15 @@ the stability of a smooth system that your model is not:
 
 ```{r eval = FALSE}
 st <- getStability(hard_settled)
-c(spectral_radius = st$spectral_radius, stable = st$stable)
+c(max_real_part = st$max_real_part, stable = st$stable)
 ```
 ```{r echo = FALSE}
 stab_hard_settled
 ```
 
-A spectral radius below one, and a confident verdict of `stable` — for a
-simulation that we watched chatter for thirty years and will chatter for ever.
+Every eigenvalue in the left half-plane, and a confident verdict of `stable` —
+for a simulation that we watched chatter for thirty years and will chatter for
+ever.
 Nothing here is flagged. The number is the correct linearisation of the
 open-fishery branch, evaluated at a state that is not an equilibrium of that
 branch, and it answers a question nobody asked.
@@ -451,8 +462,10 @@ something looks odd, work through this list.
   depends on `n`, `n_pp` or `n_other`? Those are where discontinuities hide.
 - Does the trajectory change when you halve `dt`? It should not, once `dt` is
   small enough.
-- Does the reported spectral radius change when you halve `h` in
-  `getStability()`? It should not.
+- Does `getStability()` report a different `max_real_part` when you halve `h`?
+  It should not — though an answer that does not move is necessary rather than
+  sufficient, since a state near a threshold may have no perturbation reaching
+  across it.
 - Does `steadyNewton()` warn that it stalled? On a smooth model it usually will
   not.
 - Is a state variable pinned suspiciously exactly to a threshold you wrote into

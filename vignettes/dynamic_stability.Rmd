@@ -29,40 +29,84 @@ This vignette explains how to perform this stability analysis, what the results 
 
 ## Linear stability analysis
 
-Mizer projects the state of the ecosystem forward in discrete time steps. We can write this discrete-time map abstractly as:
+Mizer discretises the size axis but leaves time continuous. On the size grid the
+model is therefore a system of ordinary differential equations,
 
-$$ N(t+\Delta t) = G(N(t)) $$
+$$ \frac{dN}{dt} = F(N), $$
 
-where $N(t)$ represents the full state vector (abundances of all species at all sizes) at time $t$. At a steady state $N^*$, we have $N^* = G(N^*)$.
+where $N$ is the full state vector (abundances of all species at all sizes) and
+$F$ collects the divergence of the growth flux, the mortality sink and the
+reproductive influx at the egg size. A steady state $N^*$ is a state at which
+$F(N^*) = 0$.
 
-Because abundances in a mizer model span dozens of orders of magnitude across the size spectrum, evaluating stability in terms of absolute perturbations (e.g., $N(t) = N^* + \delta N(t)$) can be numerically poorly-scaled. Instead, it is more natural to consider **multiplicative (relative) perturbations**, where we perturb the steady state by a small relative amount $x(t)$:
+Close to $N^*$ a small perturbation $\delta N(t) = N(t) - N^*$ obeys the
+linearised equation $d\,\delta N/dt = J\,\delta N$, where $J = \partial F /
+\partial N$ evaluated at $N^*$ is the Jacobian matrix. Its eigenvalues
+$\lambda_i$ decide everything: each mode of the perturbation evolves as
+$e^{\lambda_i t}$, so the steady state is **stable** when every eigenvalue has
+negative real part and **unstable** as soon as one has a positive real part.
 
-$$ N_i(t) = N_i^* \left(1 + x_i(t)\right) $$
+Because abundances in a mizer model span dozens of orders of magnitude across
+the size spectrum, evaluating stability in terms of absolute perturbations can
+be numerically poorly-scaled. It is more natural to consider **multiplicative
+(relative) perturbations**, where we perturb the steady state by a small
+relative amount $x(t)$:
 
-Linearising the dynamics for these small relative perturbations $x(t)$ gives:
+$$ N_i(t) = N_i^* \left(1 + x_i(t)\right). $$
 
-$$ x(t+\Delta t) \approx K \, x(t) $$
+The relative Jacobian $K$ that governs these relative perturbations,
 
-where $K$ is the relative Jacobian matrix. The elements of $K$ describe the proportional change in species $i$ resulting from a proportional change in species $j$:
+$$ K_{ij} = \frac{N_j^*}{N_i^*} \frac{\partial F_i}{\partial N_j}(N^*), $$
 
-$$ K_{ij} = \frac{\partial \log G_i}{\partial \log N_j}(N^*) = \frac{N_j^*}{N_i^*} \frac{\partial G_i}{\partial N_j}(N^*) $$
+is related to $J$ by a similarity transform $K = D^{-1} J D$, where $D$ is a
+diagonal matrix of the steady-state abundances $N^*$. Because $K$ and $J$ are
+similar matrices, **they have exactly the same eigenvalues**.
 
-Notice that $K$ is related to the standard absolute Jacobian $L$ (with elements $L_{ij} = \frac{\partial G_i}{\partial N_j}$) by a similarity transform $K = D^{-1} L D$, where $D$ is a diagonal matrix of the steady-state abundances $N^*$. Because $K$ and $L$ are similar matrices, **they have exactly the same eigenvalues** $\mu_i$. 
+`getStability()` computes $J$ by perturbing each state variable in turn and
+differencing the rates of change that mizer's own rate functions return, so the
+eigenvalues it reports are those of the model as it is configured, including any
+rate function registered with `setRateFunction()` and whichever spatial scheme
+`second_order_w()` selects. **No time step enters this calculation.** The
+eigenvalues are a property of the model, not of a solver, and they are what a
+simulation with a small enough time step converges to.
 
-While a pure discrete-time stability analysis would check if the spectral radius $\max_i |\mu_i| < 1$, doing so evaluates the stability of the numerical scheme rather than the underlying mathematical model. Implicit numerical schemes like the one mizer uses introduce severe "temporal numerical diffusion" that artificially damps oscillations. To evaluate the true continuous-time stability, `getStability()` maps these discrete eigenvalues back to the exact continuous-time eigenvalues $\lambda_i$ using the algebraic relation $\lambda_i = (1 - 1/\mu_i) / \Delta t$.
+*(Note on numerical implementation: while analysing the relative Jacobian $K$ is
+conceptually natural, computing it requires dividing by $N_i^*$, which causes
+floating-point overflow for structurally zero size classes (e.g., extinct species
+or truncated tails). Therefore, `getStability()` numerically computes the
+absolute Jacobian $J$ using finite-difference steps scaled multiplicatively to
+the local density. This is mathematically equivalent to the relative analysis but
+avoids dividing by zero.)*
 
-**Why does this exact mapping work?**
-Mizer solves the continuous PDEs of the size spectrum using a fully implicit backward Euler step:
-$$ N(t+\Delta t) = N(t) + \Delta t \, \frac{dN}{dt}(t+\Delta t) $$
-If we define the continuous Jacobian as $J = \partial(dN/dt)/\partial N$ and the discrete Jacobian of the one-step map as $L = \partial N(t+\Delta t)/\partial N(t)$, differentiating the implicit step yields:
-$$ L = I + \Delta t \, J \, L \quad \implies \quad (I - \Delta t \, J) L = I \quad \implies \quad J = \frac{1}{\Delta t}(I - L^{-1}) $$
-This relates their eigenvalues exactly by $\lambda_i = (1 - 1/\mu_i) / \Delta t$. By applying this mapping, we analytically strip away the temporal numerical diffusion of the implicit solver and recover the exact continuous-time stability.
+### The stability of the model and the stability of the solver
 
-The stability of the continuous-time mathematical steady state is determined by the real parts of these continuous eigenvalues. If the maximum real part is negative ($\max_i \text{Re}(\lambda_i) < 0$), every perturbation decays and the steady state is stable; if any real part is positive, some perturbation grows and it is unstable.
+There is a second, quite different question one can ask: not whether the *model*
+is stable, but whether *mizer's numerical time step* is. `project()` advances
+the state by a discrete map
 
-If you specifically want to study the numerical stability of mizer's Euler method for a particular time step, `getStability()` optionally accepts a `dt` argument. The discrete eigenvalues $\mu_i$ will then reflect the one-step map under that time step size, and the returned **spectral radius** $\max_i |\mu_i|$ determines numerical stability (stable if $<1$).
+$$ N(t+\Delta t) = G(N(t)), $$
 
-*(Note on numerical implementation: While analysing the relative Jacobian $K$ is conceptually natural, computing it requires dividing by $N_i^*$, which causes floating-point overflow for structurally zero size classes (e.g., extinct species or truncated tails). Therefore, `getStability()` numerically computes the absolute Jacobian $L$ using finite-difference steps scaled multiplicatively to the local density. This is mathematically equivalent to the relative analysis but avoids dividing by zero, ensuring robust eigenvalue computation. Fast decaying modes map to $\mu \approx 0$, which can amplify numerical noise during the $1/\mu$ inversion, so mizer safely filters these out to isolate the dominant continuous eigenvalues.)*
+and the eigenvalues $\mu_i$ of the Jacobian of $G$ at the fixed point decide
+whether that map amplifies a perturbation: it does not when the **spectral
+radius** $\max_i|\mu_i|$ is below 1. `getDiscreteStability()` reports those
+numbers for a chosen step size `dt`.
+
+The two questions have different answers, and the difference matters. Mizer's
+step solves the transport implicitly, and implicit schemes introduce a "temporal
+numerical diffusion" that artificially damps oscillations. At a large `dt` a
+steady state that the model does not hold can therefore have a spectral radius
+below 1 — the simulation settles down onto a state that is an artefact of the
+step size. We will see exactly that below.
+
+It is tempting to try to recover $J$ from $G$ algebraically. If mizer's step were
+*fully* implicit, $N^{t+\Delta t} = N^t + \Delta t\,F(N^{t+\Delta t})$, then the
+two Jacobians would be related exactly by $\mu = 1/(1 - \Delta t\,\lambda)$ and
+one could simply invert. But mizer's step is not fully implicit: it evaluates all
+the rates — encounter, feeding level, predation mortality, growth — at the state
+at the *start* of the step, and only the transport solve that follows is
+implicit. The inversion is then correct only to first order in $\Delta t$, and at
+$\Delta t = 1$ it is wrong by more than an order of magnitude. This is why
+`getStability()` differentiates $F$ directly instead.
 
 ## Driving the North Sea model unstable
 
@@ -83,35 +127,52 @@ params_f15 <- steadyNewton(params, effort = 1.5)
 
 ## Diagnosing the instability
 
-Is this steady state stable? We compute its stability metrics with `getStability()`.
+Is this steady state stable? We compute its stability metrics with
+`getStability()`.
 
 ```{r default_stability}
 stab_default <- getStability(params_f15, effort = 1.5)
-stab_default$spectral_radius
 stab_default$max_real_part
+stab_default$stable
 ```
 
-Notice the distinction between discrete numerical stability and continuous physical stability:
-- The **spectral radius** $\max |\mu| = `r round(stab_default$spectral_radius, 2)` < 1$, which means the numerical one-step map of the default backward Euler solver at $\Delta t = 1$ is discretely stable. The temporal numerical diffusion of backward Euler artificially damps the oscillation.
-- Mapping back to continuous time reveals the true physical PDE stability with **`max_real_part`** $\text{Re}(\lambda) = `r round(stab_default$max_real_part, 2)` > 0$, showing that the continuous system is physically unstable.
+The largest real part among the eigenvalues, $\text{Re}(\lambda) =
+`r round(stab_default$max_real_part, 3)` > 0$, so the steady state is unstable:
+a perturbation grows at that exponential rate, roughly a factor $e$ every
+`r round(1 / stab_default$max_real_part)` years.
 
-To convert discrete eigenvalues $\mu$ of the one-step map to continuous eigenvalues $\lambda$, `getStability()` uses the Backward Euler transformation:
-$$ \lambda = \frac{1 - 1/\mu}{\Delta t} $$
-To ensure mathematical consistency across all state variables and prevent fast-decaying modes from producing spurious eigenvalue artifacts due to near-zero matrix inversion noise, `getStability()` evaluates the resource step using the same implicit Backward Euler scheme:
-$$ N_R(t+\Delta t) = \frac{N_R(t) + \Delta t \, r_R(w) c_R(w)}{1 + \Delta t \, (r_R(w) + \mu_R(w))} $$
-
-Although `project()` uses the exact analytical resource solution ($N_R(t+\Delta t) = N_R^* + (N_R(t) - N_R^*) e^{-(r_R + \mu_R)\Delta t}$) at each step, the discrete eigenvalues $\mu$ from `getStability()` accurately reflect the numerical step in `project(method = "euler")`. For fast resource modes ($r_R + \mu_R \gg 1$), both exact decay ($\mu_{exact} = e^{-(r_R + \mu_R)\Delta t} \approx 0$) and Backward Euler ($\mu_{BE} = \frac{1}{1 + (r_R + \mu_R)\Delta t} \approx 0$) damp out perturbations within a single timestep. For slow, coupled modes ($|\mu| \approx 1$) governing system stability, Taylor expanding around $\Delta t = 0$ shows that $\mu_{BE} = 1 - k\Delta t + \mathcal{O}(\Delta t^2)$ matches $\mu_{exact} = 1 - k\Delta t + \mathcal{O}(\Delta t^2)$ to first order.
-
-Furthermore, by default `getStability()` treats the resource spectrum as a *quasi-static* fast variable that instantly equilibrates to the fish. Analysing the full coupled fish–resource system with `include_resource = TRUE` includes the resource dynamics:
+By default `getStability()` treats the resource spectrum as a *quasi-static*
+fast variable that instantly equilibrates to the fish. Analysing the full
+coupled fish–resource system with `include_resource = TRUE` perturbs the
+resource independently instead:
 
 ```{r coupled_stability}
 stab <- getStability(params_f15, effort = 1.5, include_resource = TRUE)
-stab$spectral_radius
 stab$max_real_part
 stab$stable
 ```
 
-With the full coupled fish–resource dynamics included, both the discrete numerical solver ($\max |\mu| = `r round(stab$spectral_radius, 2)` > 1$) and the continuous PDE ($\text{Re}(\lambda) = `r round(stab$max_real_part, 2)` > 0$) are unstable.
+The two agree closely, which is the usual reason to run the coupled analysis: it
+confirms that the quasi-static approximation is not what the conclusion rests
+on.
+
+### What mizer's time step makes of it
+
+The instability is a property of the model. Whether you *see* it in a simulation
+depends on the time step, and `getDiscreteStability()` says by how much:
+
+```{r discrete_stability}
+getDiscreteStability(params_f15, effort = 1.5, dt = 1)$spectral_radius
+getDiscreteStability(params_f15, effort = 1.5, dt = 0.1)$spectral_radius
+```
+
+At $\Delta t = 1$ the spectral radius of mizer's one-step map is *below* one:
+the implicit transport solve damps the growing oscillation hard enough to
+reverse the verdict, and a run with `project(..., dt = 1)` would quietly settle
+onto a state the model does not actually hold. At $\Delta t = 0.1$ the artificial
+damping is small and the map has become unstable, in agreement with the model.
+This is the practical reason to keep an eye on `dt`, and the reason
+`getStability()` does not go through the one-step map at all.
 
 To see *how* it is unstable, we look at the dominant eigenvalue (the one with the largest real part).
 
@@ -119,7 +180,7 @@ To see *how* it is unstable, we look at the dominant eigenvalue (the one with th
 stab$eigenvalues[1]
 ```
 
-It is **complex** with a positive real part ($\lambda \approx `r round(Re(stab$eigenvalues[1]), 2)` + `r round(Im(stab$eigenvalues[1]), 2)`i$). A purely real, positive eigenvalue would signal monotone growth, but a complex pair with a positive real part means the perturbation grows *while oscillating* — a Hopf (or Neimark–Sacker) bifurcation. The period of this oscillation is set by the imaginary part of the eigenvalue,
+It is **complex** with a positive real part ($\lambda \approx `r round(Re(stab$eigenvalues[1]), 3)` + `r round(Im(stab$eigenvalues[1]), 3)`i$). A purely real, positive eigenvalue would signal monotone growth, but a complex pair with a positive real part means the perturbation grows *while oscillating* — a Hopf bifurcation. The period of this oscillation is set by the imaginary part of the eigenvalue,
 
 $$ \text{Period} = \frac{2\pi}{|\text{Im}(\lambda)|} \text{ years}, $$
 
@@ -129,7 +190,7 @@ which mizer reports as `dominant_period`:
 stab$dominant_period
 ```
 
-So the linear analysis predicts a growing oscillation with a period of roughly `r round(stab$dominant_period, 1)` years.
+So the linear analysis predicts a growing oscillation with a period of roughly `r round(stab$dominant_period, 2)` years.
 
 ## Watching the limit cycle emerge with `projectToSteady()`
 
@@ -155,7 +216,7 @@ Because `return_sim = TRUE` returns a standard `MizerSim` object, we can plot th
 plotBiomass(sim_cycle)
 ```
 
-Notice that the detected nonlinear period (about `r round(attr(sim_cycle, "convergence")$period, 1)` years) is slightly shorter than the `dominant_period` of about `r round(stab$dominant_period, 1)` years from the linear PDE analysis. This is expected: at effort 1.5 we are beyond the bifurcation where nonlinearities reshape the large-amplitude cycle. Close to the bifurcation point the two agree closely; further from it the linear analysis remains an excellent qualitative guide, correctly predicting an oscillatory instability.
+Notice how well the detected nonlinear period (about `r round(attr(sim_cycle, "convergence")$period, 1)` years) agrees with the `dominant_period` of about `r round(stab$dominant_period, 2)` years from the linear analysis, even though the cycle we are looking at is anything but small: its relative amplitude is about `r round(100 * attr(sim_cycle, "convergence")$amplitude)`% of the mean. The linear analysis is a prediction about infinitesimal perturbations of the steady state, so the remaining difference of under ten percent is what the nonlinearity does to the shape of the large-amplitude cycle. Close to the bifurcation point the two agree even more closely.
 
 ## Visualising the oscillation shape
 

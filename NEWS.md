@@ -22,25 +22,34 @@ workflow.
   the default semichemostat resource dynamics.
 
 - New experimental `getStability()` analyses the dynamic stability of a mizer
-  steady state by computing the eigenvalues of the linearised one-step-ahead map
-  at the fixed point. To eliminate the artificial temporal numerical diffusion
-  introduced by the implicit solver, it maps the discrete numerical eigenvalues
-  back to their exact continuous-time equivalents via $\lambda = (1 - 1/\mu) / \Delta t$.
-  It reports whether the steady state is stable or unstable (based on the real
-  parts of the continuous eigenvalues), the maximum real part, the `spectral_radius`
-  of the discrete numerical solver for a given time step `dt`, and — when the
-  system approaches a Hopf bifurcation — the period of the emergent limit cycle.
-  By default the resource is treated as a quasi-static fast variable (valid for
-  semichemostat dynamics); setting `include_resource = TRUE` gives the full
-  coupled (fish + resource) Jacobian, useful for verifying that the quasi-static
-  approximation makes little difference. The stability list also includes
-  `leading_eigenvectors`: a complex array `(n_species, n_sizes, 2)` of the top
-  two eigenvectors reshaped into the fish abundance space, normalised to maximum
-  modulus 1. The rate functions are only ever evaluated at states
-  satisfying `N >= 0` — where a centred difference would push a cell negative,
-  the column is differenced forwards from the unperturbed state instead — so a
-  custom rate function registered with `setRateFunction()` never has to be
-  defined at negative abundances.
+  steady state by computing the eigenvalues of the linearised dynamics at the
+  fixed point. Mizer discretises the size axis but not time, so the model is a
+  system of ODEs on the size grid; `getStability()` differentiates their
+  right-hand side directly and returns the eigenvalues of that Jacobian. No time
+  step enters the calculation: the eigenvalues are a property of the model
+  rather than of any solver. It reports whether the steady state is stable or
+  unstable (based on the real parts of the eigenvalues), the maximum real part,
+  and — when the system approaches a Hopf bifurcation — the period of the
+  emergent limit cycle. By default the resource is treated as a quasi-static
+  fast variable (valid for semichemostat dynamics); setting
+  `include_resource = TRUE` gives the full coupled (fish + resource) Jacobian,
+  useful for verifying that the quasi-static approximation makes little
+  difference. The stability list also includes `leading_eigenvectors`: a complex
+  array `(n_species, n_sizes, 2)` of the top two eigenvectors reshaped into the
+  fish abundance space, normalised to maximum modulus 1. The rate functions are
+  only ever evaluated at states satisfying `N >= 0` — where a centred difference
+  would push a cell negative, the column is differenced forwards from the
+  unperturbed state instead — so a custom rate function registered with
+  `setRateFunction()` never has to be defined at negative abundances.
+
+- New experimental `getDiscreteStability()` asks the separate question of how
+  mizer's *numerical* step behaves near the steady state: it linearises the
+  one-step map that `project(method = "euler")` takes at a given `dt` and
+  returns its `discrete_eigenvalues` and `spectral_radius`. A spectral radius
+  below 1 means the scheme does not amplify perturbations at that step size,
+  which is not the same as the model being stable — the implicit transport solve
+  damps oscillations artificially, so a physically unstable steady state can
+  look discretely stable at a large `dt`.
 
 - New experimental `getLimitCycleSim()` takes a model at a steady state — or the
   stability list that `getStability()` returns — and constructs a `MizerSim`

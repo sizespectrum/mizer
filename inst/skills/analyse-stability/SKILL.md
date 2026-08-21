@@ -3,10 +3,11 @@ name: analyse-stability
 description: >-
   Analyse the dynamic stability of a mizer steady state and characterise limit
   cycles (experimental). Use whenever the user asks whether a steady state is
-  stable or unstable, wants the spectral radius or leading eigenvalue, the period
-  of an emergent oscillation, a Hopf bifurcation, a limit cycle to build or plot,
-  or a bifurcation diagram over fishing effort — via getStability(),
-  steadyNewton(), getLimitCycleSim() and scanModel(). This
+  stable or unstable, wants the leading eigenvalue, the period of an emergent
+  oscillation, a Hopf bifurcation, the spectral radius of the numerical time
+  step, a limit cycle to build or plot, or a bifurcation diagram over fishing
+  effort — via getStability(), getDiscreteStability(), steadyNewton(),
+  getLimitCycleSim() and scanModel(). This
   skill and calibrate-model share steadyNewton() and getSteadyResidual(): use
   calibrate-model to find a steady state, this skill to ask whether the state you
   found is stable. Assumes the standard semichemostat resource dynamics.
@@ -30,21 +31,33 @@ unstable, unlike `steady()`.
 
 ## Is the steady state stable? — `getStability()`
 
-`getStability(params)` computes the exact continuous-time eigenvalues (by linearising the one-step map and analytically removing the temporal numerical diffusion). The result reports whether the state is stable or unstable, the maximum real part of the eigenvalues (`max_real_part`; > 0 means unstable), and — when the system is near a Hopf bifurcation — the **period** of the emergent limit cycle. You can optionally pass a `dt` argument to retrieve the `discrete_eigenvalues` and `spectral_radius` of the numerical solver for that exact time step. It also returns `leading_eigenvectors`, a complex array
-`(n_species, n_sizes, 2)` of the top two eigenvectors in fish-abundance space,
-normalised to maximum modulus 1 (the spatial shape of the oscillation).
+`getStability(params)` computes the continuous-time eigenvalues of the model.
+Mizer discretises the size axis but not time, so on the size grid the model is a
+system of ODEs; `getStability()` differentiates their right-hand side directly
+and takes the eigenvalues of that Jacobian. **No time step is involved**, so the
+eigenvalues are a property of the model rather than of a solver. The result
+reports whether the state is stable or unstable, the maximum real part of the
+eigenvalues (`max_real_part`; > 0 means unstable), and — when the system is near
+a Hopf bifurcation — the **period** of the emergent limit cycle
+(`dominant_period`, `hopf_period`). It also returns `leading_eigenvectors`, a
+complex array `(n_species, n_sizes, 2)` of the top two eigenvectors in
+fish-abundance space, normalised to maximum modulus 1 (the spatial shape of the
+oscillation).
 
 ```r
 params <- steadyNewton(params)          # sit exactly on the (possibly unstable) fixed point
 stab   <- getStability(params)
-stab                                     # stable/unstable, spectral radius, cycle period
+stab                                     # stable/unstable, growth rate, cycle period
 ```
 
 - `include_resource = TRUE` computes the full coupled (fish + resource) Jacobian
   instead of the quasi-static approximation — mainly to verify that the
   approximation makes little difference.
 - `effort` / `reproduction` set the fishing effort and reproduction handling used
-  when forming the map.
+  when forming the Jacobian.
+- `h` is the relative finite-difference step. Re-running with a different `h` is
+  the cheapest check that the model is smooth enough for the analysis to mean
+  anything: if the answer moves, do not trust it.
 
 **Both `getStability()` and `getLimitCycleSim()` linearise at the state stored in
 the object**, so a model that is not on a fixed point gets eigenvalues for the
@@ -61,6 +74,27 @@ amplitude when a cycle is found. Limit cycles are detected from the per-species 
 `t_save`; the relative-amplitude floor for calling an oscillation a cycle is the
 `amplitude_tol` argument (default `0.01`), independent of the fixed-point
 tolerance `tol`.
+
+## Is mizer's time step stable? — `getDiscreteStability()`
+
+A different question, and the one to ask when a simulation disagrees with
+`getStability()`. `getDiscreteStability(params, dt = 1)` linearises the one-step
+map that `project(method = "euler")` takes at that step size and returns its
+`discrete_eigenvalues` and `spectral_radius`. Below 1 means the *numerical
+scheme* does not amplify perturbations at that `dt`.
+
+The two verdicts can differ, and that is the point: the implicit transport solve
+damps oscillations artificially, so an unstable steady state can have a spectral
+radius below 1 at a large `dt` and a simulation will then settle onto a state the
+model does not hold. If `getStability()` says unstable but the simulation goes
+flat, check `getDiscreteStability()` at the `dt` you are projecting with, and
+reduce `dt` (or use `method = "tr_bdf2"`).
+
+The discrete eigenvalues cannot be converted into continuous ones by any exact
+algebraic relation, because mizer's step is not fully implicit: the rates are
+evaluated at the state at the start of the step and only the transport solve is
+implicit. That is why `getStability()` differentiates the rates of change
+directly instead of inverting the one-step map.
 
 ## Visualising the limit cycle — `getLimitCycleSim()`
 
@@ -113,6 +147,6 @@ plot(scan, style = "envelope")
 
 ## Numerical caveat
 
-While `getStability()` is now exact for the continuous-time dynamics (by analytically removing the temporal numerical diffusion of the underlying implicit map), the *spatial* numerical diffusion from the default first-order upwind scheme remains. A real limit cycle can still be damped to a flat line by the spatial scheme alone!
+`getStability()` involves no time step, so the temporal numerical diffusion of the implicit solver does not enter its answer at all. But the *spatial* numerical diffusion from the default first-order upwind scheme does: it is part of the semi-discretised model that the eigenvalues describe. A real limit cycle can still be damped to a flat line by the spatial scheme alone!
 
 To accurately simulate the fully nonlinear oscillation and confirm a stable cycle, build the model with `second_order_w = TRUE` and project with `method = "tr_bdf2"`. See the `run-simulation` skill.

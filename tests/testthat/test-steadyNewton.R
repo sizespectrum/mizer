@@ -270,11 +270,10 @@ test_that("getStability returns a well-formed list for a stable model", {
     stab <- getStability(pn)
 
     expect_type(stab, "list")
-    expect_named(stab, c("eigenvalues", "discrete_eigenvalues", "spectral_radius", "max_real_part", "stable",
+    expect_named(stab, c("eigenvalues", "max_real_part", "stable",
                          "dominant_period", "hopf_period", "n_active",
                          "leading_eigenvectors", "params"))
     expect_true(is.complex(stab$eigenvalues))
-    expect_true(is.complex(stab$discrete_eigenvalues))
     expect_type(stab$max_real_part, "double")
     expect_type(stab$stable, "logical")
     expect_type(stab$dominant_period, "double")
@@ -320,18 +319,40 @@ test_that("getStability eigenvalues are consistent with max_real_part", {
     expect_equal(stab$max_real_part, max(Re(stab$eigenvalues)))
 })
 
-test_that("getStability dt argument works", {
+test_that("getDiscreteStability returns a well-formed list and depends on dt", {
     skip_unless_experimental()
     pn <- steadyNewton(p_steady)
-    stab1   <- getStability(pn, dt = 1)
-    stab01  <- getStability(pn, dt = 0.1)
+    disc1  <- getDiscreteStability(pn, dt = 1)
+    disc01 <- getDiscreteStability(pn, dt = 0.1)
 
-    # The continuous eigenvalues and stability shouldn't change (within numerical noise)
-    expect_equal(stab01$max_real_part, stab1$max_real_part, tolerance = 0.05)
-    
-    # But the discrete eigenvalues and spectral radius should change
-    expect_false(isTRUE(all.equal(stab01$discrete_eigenvalues, stab1$discrete_eigenvalues)))
-    expect_false(isTRUE(all.equal(stab01$spectral_radius, stab1$spectral_radius)))
+    expect_named(disc1, c("discrete_eigenvalues", "spectral_radius", "stable",
+                          "dt", "n_active", "leading_eigenvectors", "params"))
+    expect_true(is.complex(disc1$discrete_eigenvalues))
+    expect_equal(disc1$spectral_radius, max(Mod(disc1$discrete_eigenvalues)))
+    expect_equal(disc1$stable, disc1$spectral_radius < 1)
+    expect_equal(disc1$dt, 1)
+    expect_equal(disc1$n_active, getStability(pn)$n_active)
+
+    # The one-step map is a property of the solver, so it does depend on dt.
+    expect_false(isTRUE(all.equal(disc01$discrete_eigenvalues,
+                                  disc1$discrete_eigenvalues)))
+    expect_false(isTRUE(all.equal(disc01$spectral_radius,
+                                  disc1$spectral_radius)))
+})
+
+test_that("the continuous eigenvalues are the dt -> 0 limit of the one-step map", {
+    skip_unless_experimental()
+    # getStability() differentiates the rates of change directly, so it involves
+    # no time step. The one-step map at a small dt has to agree with it: for a
+    # step of length dt the discrete eigenvalues satisfy mu = 1 + dt lambda +
+    # O(dt^2). This is the check that the two maps describe the same model.
+    pn <- steadyNewton(p_steady)
+    stab <- getStability(pn)
+    dt <- 1e-3
+    disc <- getDiscreteStability(pn, dt = dt)
+
+    lambda <- sort(Re((disc$discrete_eigenvalues - 1) / dt), decreasing = TRUE)
+    expect_equal(lambda[1], stab$max_real_part, tolerance = 1e-2)
 })
 
 
@@ -356,7 +377,7 @@ test_that("getStability with include_resource = TRUE returns well-formed list", 
     stab_full <- getStability(pn, include_resource = TRUE)
 
     expect_type(stab_full, "list")
-    expect_named(stab_full, c("eigenvalues", "discrete_eigenvalues", "spectral_radius", "max_real_part", "stable",
+    expect_named(stab_full, c("eigenvalues", "max_real_part", "stable",
                               "dominant_period", "hopf_period", "n_active",
                               "leading_eigenvectors", "params"))
     # n_active must equal n_fish_active + n_resource (always strictly larger)
@@ -414,11 +435,11 @@ test_that("getStability resolves cells sitting at exactly zero", {
     expect_equal(stab_holed$n_active, stab$n_active)
     expect_false(any(Mod(stab_holed$eigenvalues) < 1e-12))
     # The hole is one cell out of many, so the spectrum barely moves.
-    expect_equal(stab_holed$spectral_radius, stab$spectral_radius,
+    expect_equal(stab_holed$max_real_part, stab$max_real_part,
                  tolerance = 1e-3)
     # The step is relative, so the answer must not depend on `h`.
-    expect_equal(getStability(holed, h = 1e-5)$spectral_radius,
-                 stab_holed$spectral_radius, tolerance = 1e-6)
+    expect_equal(getStability(holed, h = 1e-5)$max_real_part,
+                 stab_holed$max_real_part, tolerance = 1e-6)
 })
 
 test_that("getStability never evaluates rate functions at negative abundances", {
@@ -446,6 +467,12 @@ test_that("getStability never evaluates rate functions at negative abundances", 
     spied <- setRateFunction(holed, "Encounter", "record_min")
 
     getStability(spied)
+    expect_gte(seen$min_n, 0)
+    expect_gte(seen$min_n_pp, 0)
+
+    seen$min_n <- Inf
+    seen$min_n_pp <- Inf
+    getDiscreteStability(spied)
     expect_gte(seen$min_n, 0)
     expect_gte(seen$min_n_pp, 0)
 
