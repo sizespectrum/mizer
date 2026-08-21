@@ -87,4 +87,4 @@ myConstructor(1, info_level = 1)
 # `info_level = 0` is silence.
 myConstructor(1, info_level = 0)
 }
-\concept{info signaling functions}
+\concept{info signalling functions}

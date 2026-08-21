@@ -27,4 +27,4 @@ which is what this reports. But it feeds no rate, so a value in the species
 parameters is not lost: \code{\link[=get_yield_observed]{get_yield_observed()}} falls back to it for any
 species that has no observation among the gear parameters.
 }
-\concept{info signaling functions}
+\concept{info signalling functions}
