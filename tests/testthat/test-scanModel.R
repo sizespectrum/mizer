@@ -148,6 +148,27 @@ test_that("a setter reused on another model does not hijack its gear", {
                  unclass(getFMort(r1))["Herring", ])
 })
 
+test_that("a reused setter still requires its requested gear", {
+    f <- scanFishingMortality("Cod", gear = "Otter")
+    p_a <- suppressMessages(f(NS_params_small, 0.3))
+    installed <- setdiff(mizer:::gear_names(p_a),
+                         mizer:::gear_names(NS_params_small))
+    expect_length(installed, 1)
+
+    # This model has a decoy bearing the remembered scan-gear name, but the
+    # original Cod--Otter row that proves a genuine installation is absent.
+    p_b <- NS_params_small
+    gp <- gear_params(p_b)
+    gp <- gp[gp$species != "Cod" | gp$gear != "Otter", ]
+    decoy <- gear_params(p_a)
+    decoy <- decoy[decoy$gear == installed, ]
+    gear_params(p_b) <- rbind(gp, decoy)
+    initial_effort(p_b)[installed] <- 1
+
+    expect_error(suppressMessages(f(p_b, 0.6)),
+                 "The gear Otter does not catch Cod")
+})
+
 test_that("scanFishingMortality() does not hijack a gear of its own name", {
     # A model that already has a gear called "scan" must not have that gear's
     # effort scanned in place of the target species' fishing mortality.

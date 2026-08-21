@@ -29,7 +29,7 @@ existing mortality rather than replacing it. Nor is it enough for the gear to
 \details{
 What is checked is therefore the whole installation, exactly as
 \code{\link[=install_tmp_gear]{install_tmp_gear()}} leaves it: a single gear of that name catching the
-target species with catchability 1, \strong{and} every gear it was supposed to
-replace switched off.
+target species with catchability 1, \strong{and} at least one original gear still
+present with every gear it was supposed to replace switched off.
 }
 \keyword{internal}

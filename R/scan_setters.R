@@ -212,8 +212,8 @@ gear_names <- function(params) {
 #'
 #' What is checked is therefore the whole installation, exactly as
 #' [install_tmp_gear()] leaves it: a single gear of that name catching the
-#' target species with catchability 1, **and** every gear it was supposed to
-#' replace switched off.
+#' target species with catchability 1, **and** at least one original gear still
+#' present with every gear it was supposed to replace switched off.
 #'
 #' @param params A MizerParams object.
 #' @param gear_name The name of the gear to check.
@@ -226,17 +226,14 @@ scan_gear_installed <- function(params, gear_name, species, gear = NULL) {
     if (is.null(gear_name)) return(FALSE)
     gp <- gear_params(params)
     gp$gear <- as.character(gp$gear)
-    rows <- which(gp$gear == gear_name)
-    if (length(rows) != 1) return(FALSE)
-    if (!identical(as.character(gp$species[[rows]]), as.character(species))) {
-        return(FALSE)
+    scan <- gp$gear == gear_name & gp$species == species &
+        gp$catchability == 1
+    if (sum(scan) != 1) return(FALSE)
+    replaced <- gp$gear != gear_name & gp$species == species
+    if (!is.null(gear)) {
+        replaced <- replaced & gp$gear == gear
     }
-    if (!isTRUE(gp$catchability[[rows]] == 1)) return(FALSE)
-    # The gears this installation replaces must still be switched off.
-    replaced <- tryCatch(select_gear_rows(gp[-rows, , drop = FALSE], species,
-                                          gear),
-                         error = function(e) integer(0))
-    length(replaced) == 0 || all(gp$catchability[-rows][replaced] == 0)
+    any(replaced) && all(gp$catchability[replaced] == 0)
 }
 
 #' The gear params rows whose fishing mortality is to be varied
