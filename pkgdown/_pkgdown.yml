@@ -305,7 +305,7 @@ reference:
   - plotFeedingLevel
   - plotYield
   - plotYieldGear
-  - plotBifurcation
+  - plotYieldVsF
   - MizerScan
   - is.MizerScan
   - plot.MizerScan

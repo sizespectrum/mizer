@@ -74,7 +74,7 @@ plot(scanModel(NS_params, scan_values = seq(0, 1.2, 0.3),
 Other scan functions:
 \code{\link[=MizerScan]{MizerScan()}},
 \code{\link[=plot.MizerScan]{plot.MizerScan()}},
-\code{\link[=plotBifurcation]{plotBifurcation()}},
+\code{\link[=plotYieldVsF]{plotYieldVsF()}},
 \code{\link[=scanModel]{scanModel()}}
 }
 \concept{scan}

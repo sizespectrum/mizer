@@ -463,8 +463,24 @@ Points where the model settled on neither are marked with a cross, and the
 `plot()` takes `style = "ribbon"` (default: the average as a line inside the
 band), `"envelope"` (lines along the edges, no average) or `"line"` (no band),
 plus `mark_max`, `reference_lines` and the usual `log_x`/`log_y`/`ylim`
-arguments. `plotBifurcation()` is `scanModel()` with `scanEffort()` and
+arguments. A bifurcation diagram over fishing effort is `scanEffort()` with
 `style = "envelope"`.
+
+### `plotYieldVsF()`
+
+The one scan common enough to have its own function. `plotYieldVsF(params,
+species)` is `scanModel()` with `scanFishingMortality()` and `getYield()`, drawn
+with the peak marked, so the fishing mortality at the peak is \(F_{MSY}\):
+
+```r
+plotYieldVsF(NS_params, "Cod", F_max = 1.5)
+scan <- plotYieldVsF(NS_params, "Cod", F_max = 1.5, return_data = TRUE)
+attr(scan, "at_max")      # F_MSY for Cod
+```
+
+The y axis is linear by default, because the yield is exactly zero at `F = 0`. If
+the species already has an `F_MSY` species parameter it is drawn as a reference
+line, so the value the model gives can be compared with the value assumed.
 
 ## Dedicated plot functions
 

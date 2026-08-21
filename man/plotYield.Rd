@@ -92,7 +92,6 @@ Other plotting functions:
 \code{\link[=animate]{animate()}},
 \code{\link{plot}},
 \code{\link[=plot2]{plot2()}},
-\code{\link[=plotBifurcation]{plotBifurcation()}},
 \code{\link[=plotBiomass]{plotBiomass()}},
 \code{\link[=plotCDF]{plotCDF()}},
 \code{\link[=plotCDF2]{plotCDF2()}},
@@ -108,6 +107,7 @@ Other plotting functions:
 \code{\link[=plotSpectra2]{plotSpectra2()}},
 \code{\link[=plotSpectraRelative]{plotSpectraRelative()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
+\code{\link[=plotYieldVsF]{plotYieldVsF()}},
 \code{\link{plotting_functions}}
 }
 \concept{plotting functions}

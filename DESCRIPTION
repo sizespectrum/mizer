@@ -19,7 +19,7 @@ Authors@R: c(person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
                     comment = c(ORCID = "0000-0002-8478-3430")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb", "cph")))
-Version: 3.2.1.9004
+Version: 3.2.1.9005
 License: GPL-3
 Imports:
     assertthat,
@@ -107,7 +107,6 @@ Collate:
     'summary_methods.R'
     'indicator_functions.R'
     'plots.R'
-    'plotBifurcation.R'
     'plotBiomassObservedVsModel.R'
     'plotYieldObservedVsModel.R'
     'animateSpectra.R'
@@ -117,6 +116,7 @@ Collate:
     'steady.R'
     'scanModel.R'
     'scan_setters.R'
+    'plotYieldVsF.R'
     'extension.R'
     'data.R'
     'RcppExports.R'

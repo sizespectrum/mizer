@@ -51,14 +51,15 @@ workflow.
   argument (default 10\%). The returned object can be passed directly to
   `plotBiomass()`, `plotSpectra()`, and other standard mizer plot functions.
 
-- New experimental `plotBifurcation()` draws a bifurcation diagram over fishing
-  effort. For each effort value it follows the attractor of the full dynamics
-  and plots the long-term range of a summary quantity (biomass, yield or SSB).
-  A stable steady state appears as a single line and a limit cycle as a band
-  between the minimum and maximum, so a Hopf bifurcation shows up as the effort
-  at which the band opens up. The settling stage runs `projectToSteady()`, whose
-  `tol`, `amplitude_tol` and `extinction_threshold` are exposed for tuning.
-  It is a thin wrapper over `scanModel()`, described below.
+- `plotYieldVsF()` has moved to mizer from mizerExperimental and is now a thin
+  wrapper over `scanModel()`, described below. It plots the yield of one species
+  against the fishing mortality on that species, leaving the fishing on every
+  other species alone, and marks the fishing mortality at which the yield is
+  largest, which is \eqn{F_{MSY}}. A limit cycle is drawn as a band around the
+  average rather than being silently averaged away, and if the species has an
+  `F_MSY` species parameter it is drawn as a reference line for comparison.
+  `getYieldVsF()` has not come with it: use `plotYieldVsF(return_data = TRUE)`,
+  which returns the `MizerScan` object behind the plot, or `scanModel()` itself.
 
 - New experimental `scanModel()` scans *any* aspect of a model over a range of
   values and measures *any* quantity on the attractor the model settles on at
@@ -98,9 +99,9 @@ workflow.
 - `plotDataFrame()` gained two styles, `"ribbon"` and `"envelope"`, which draw a
   band between the `ymin` and `ymax` variables of the data frame. `"ribbon"`
   draws the y variable as a line inside the band; `"envelope"` draws lines along
-  the two edges instead. `plotBifurcation()` uses `"envelope"` to draw its band,
-  and so shares the line types, highlighting and `xlim` that `plotDataFrame()`
-  provides.
+  the two edges instead. `plot.MizerScan()` uses them to draw the range a
+  quantity covers on a limit cycle, and so shares the line types, highlighting
+  and `xlim` that `plotDataFrame()` provides.
 
 - `steady()` and `projectToSteady()` now report the nature of the solution they
   converged to via a `"convergence"` attribute on the returned object. It records
@@ -860,7 +861,7 @@ workflow.
 - New `analyse-stability` skill, and the matching "Guide: Dynamic
   Stability" article, cover the experimental stability tools added in this
   version: `getStability()`, `steadyNewton()`,
-  `getLimitCycleSim()` and `plotBifurcation()`. Like the other skills it is
+  `getLimitCycleSim()` and `scanModel()`. Like the other skills it is
   shipped in `inst/skills/` and picked up by `mizerAgents::setup_mizer_agent()`
   from the installed mizer, so an agent's guidance describes the version of
   mizer the project actually runs.

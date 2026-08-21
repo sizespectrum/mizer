@@ -153,7 +153,7 @@
 #' @family scan functions
 #' @concept scan
 #' @seealso [MizerScan()], [plot.MizerScan()], [scanEffort()],
-#'   [scanFishingMortality()], [scanSpeciesParam()], [plotBifurcation()]
+#'   [scanFishingMortality()], [scanSpeciesParam()], [plotYieldVsF()]
 #' @export
 #' @examples
 #' \donttest{

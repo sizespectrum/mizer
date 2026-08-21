@@ -98,28 +98,31 @@ project the real dynamics with the second-order scheme (see the
 
 ---
 
-## Where does the cycle appear? — `plotBifurcation()`
+## Where does the cycle appear? — `scanModel()`
 
-[`plotBifurcation(params, effort = ...)`](../reference/plotBifurcation.html) draws a bifurcation diagram over fishing
-effort. For each effort value it follows the attractor of the full dynamics and
-plots the long-term **range** of a summary quantity: a stable steady state shows
-as a single line, a limit cycle as a **band** between its minimum and maximum, so
-a Hopf bifurcation appears as the effort at which the band opens up.
+[`scanModel()`](../reference/scanModel.html) sweeps any aspect of the model and, at each value, follows the
+attractor of the full dynamics and records the long-term **range** of a summary
+quantity. Draw that range with `style = "envelope"` and you have a bifurcation
+diagram: a stable steady state shows as a single line, a limit cycle as a **band**
+between its minimum and maximum, so a Hopf bifurcation appears as the value at
+which the band opens up.
 
 ```{r eval=FALSE}
-plotBifurcation(params, effort = seq(0, 1.5, 0.05), value = "yield")
+scan <- scanModel(params, scan_values = seq(0, 1.5, 0.05),
+                  set_func = scanEffort(), value_func = getYield)
+plot(scan, style = "envelope")
 ```
 
-- `value` chooses the summary quantity (`"biomass"`, `"yield"`, or `"ssb"`);
-  `species` restricts which species are shown. To scan something other than the
-  fishing effort, or to measure something else, use [`scanModel()`](../reference/scanModel.html) directly —
-  `plotBifurcation()` is that function with [`scanEffort()`](../reference/scanEffort.html) as its setter. See
-  the [guide to analysing and plotting mizer results](guide-analyse-and-plot.html).
+- `set_func` says what to vary — [`scanEffort()`](../reference/scanEffort.html) for the fishing effort of every
+  gear together, [`scanFishingMortality()`](../reference/scanEffort.html) for the fishing mortality on one
+  species, [`scanSpeciesParam()`](../reference/scanEffort.html) for any species parameter. `value_func` says what
+  to measure: any of [`getBiomass()`](../reference/getBiomass.html), [`getYield()`](../reference/getYield.html), [`getSSB()`](../reference/getSSB.html), [`getN()`](../reference/getN.html). `species`
+  restricts which series are shown. See the [guide to analysing and plotting mizer results](guide-analyse-and-plot.html).
 - The settling stage runs `projectToSteady()`, whose `tol`, `amplitude_tol` and
   `extinction_threshold` are exposed for tuning when a run is slow to settle or a
   species is collapsing.
-- `return_data = TRUE` returns the underlying data, as a [`MizerScan`](../reference/MizerScan.html) object,
-  instead of the plot.
+- The returned [`MizerScan`](../reference/MizerScan.html) object is a data frame, so the numbers behind the
+  diagram are available without re-running the scan.
 
 ---
 

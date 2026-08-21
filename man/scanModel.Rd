@@ -240,12 +240,12 @@ plot(scanModel(NS_params, scan_values = kappa * c(0.5, 1, 2),
 }
 \seealso{
 \code{\link[=MizerScan]{MizerScan()}}, \code{\link[=plot.MizerScan]{plot.MizerScan()}}, \code{\link[=scanEffort]{scanEffort()}},
-\code{\link[=scanFishingMortality]{scanFishingMortality()}}, \code{\link[=scanSpeciesParam]{scanSpeciesParam()}}, \code{\link[=plotBifurcation]{plotBifurcation()}}
+\code{\link[=scanFishingMortality]{scanFishingMortality()}}, \code{\link[=scanSpeciesParam]{scanSpeciesParam()}}, \code{\link[=plotYieldVsF]{plotYieldVsF()}}
 
 Other scan functions:
 \code{\link[=MizerScan]{MizerScan()}},
 \code{\link[=plot.MizerScan]{plot.MizerScan()}},
-\code{\link[=plotBifurcation]{plotBifurcation()}},
+\code{\link[=plotYieldVsF]{plotYieldVsF()}},
 \code{\link[=scanEffort]{scanEffort()}}
 }
 \concept{scan}

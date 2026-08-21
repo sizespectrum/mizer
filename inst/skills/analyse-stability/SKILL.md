@@ -6,7 +6,7 @@ description: >-
   stable or unstable, wants the spectral radius or leading eigenvalue, the period
   of an emergent oscillation, a Hopf bifurcation, a limit cycle to build or plot,
   or a bifurcation diagram over fishing effort — via getStability(),
-  steadyNewton(), getLimitCycleSim() and plotBifurcation(). This
+  steadyNewton(), getLimitCycleSim() and scanModel(). This
   skill and calibrate-model share steadyNewton() and getSteadyResidual(): use
   calibrate-model to find a steady state, this skill to ask whether the state you
   found is stable. Assumes the standard semichemostat resource dynamics.
@@ -85,28 +85,31 @@ This is the *linear* cycle — the shape near onset. For the fully nonlinear cyc
 project the real dynamics with the second-order scheme (see the
 `run-simulation` skill).
 
-## Where does the cycle appear? — `plotBifurcation()`
+## Where does the cycle appear? — `scanModel()`
 
-`plotBifurcation(params, effort = ...)` draws a bifurcation diagram over fishing
-effort. For each effort value it follows the attractor of the full dynamics and
-plots the long-term **range** of a summary quantity: a stable steady state shows
-as a single line, a limit cycle as a **band** between its minimum and maximum, so
-a Hopf bifurcation appears as the effort at which the band opens up.
+`scanModel()` sweeps any aspect of the model and, at each value, follows the
+attractor of the full dynamics and records the long-term **range** of a summary
+quantity. Draw that range with `style = "envelope"` and you have a bifurcation
+diagram: a stable steady state shows as a single line, a limit cycle as a **band**
+between its minimum and maximum, so a Hopf bifurcation appears as the value at
+which the band opens up.
 
 ```r
-plotBifurcation(params, effort = seq(0, 1.5, 0.05), value = "yield")
+scan <- scanModel(params, scan_values = seq(0, 1.5, 0.05),
+                  set_func = scanEffort(), value_func = getYield)
+plot(scan, style = "envelope")
 ```
 
-- `value` chooses the summary quantity (`"biomass"`, `"yield"`, or `"ssb"`);
-  `species` restricts which species are shown. To scan something other than the
-  fishing effort, or to measure something else, use `scanModel()` directly —
-  `plotBifurcation()` is that function with `scanEffort()` as its setter. See
-  the `analyse-and-plot` skill.
+- `set_func` says what to vary — `scanEffort()` for the fishing effort of every
+  gear together, `scanFishingMortality()` for the fishing mortality on one
+  species, `scanSpeciesParam()` for any species parameter. `value_func` says what
+  to measure: any of `getBiomass()`, `getYield()`, `getSSB()`, `getN()`. `species`
+  restricts which series are shown. See the `analyse-and-plot` skill.
 - The settling stage runs `projectToSteady()`, whose `tol`, `amplitude_tol` and
   `extinction_threshold` are exposed for tuning when a run is slow to settle or a
   species is collapsing.
-- `return_data = TRUE` returns the underlying data, as a `MizerScan` object,
-  instead of the plot.
+- The returned `MizerScan` object is a data frame, so the numbers behind the
+  diagram are available without re-running the scan.
 
 ## Numerical caveat
 

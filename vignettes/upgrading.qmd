@@ -470,7 +470,7 @@ solver's unknowns, so the two are updated together (#521).
 The fixed point this converges on is the correct one, so **steady states found
 with `steadyNewton()` on a model with satiated consumers move**, and anything
 downstream of them — `getStability()`'s spectral radius, `getLimitCycleSim()`'s
-period, a [`plotBifurcation()`](../reference/plotBifurcation.html) diagram — moves with them. Models whose consumers
+period, a [`scanModel()`](../reference/scanModel.html) scan — moves with them. Models whose consumers
 are far from satiation are unaffected. `getStability()`'s quasi-static
 approximation gained a fixed iteration for the same reason, which also makes its
 numerical Jacobian smoother; small changes in the reported eigenvalues are

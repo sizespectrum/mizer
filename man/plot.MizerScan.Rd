@@ -90,7 +90,7 @@ plot(scan, style = "envelope", mark_max = TRUE)
 
 Other scan functions:
 \code{\link[=MizerScan]{MizerScan()}},
-\code{\link[=plotBifurcation]{plotBifurcation()}},
+\code{\link[=plotYieldVsF]{plotYieldVsF()}},
 \code{\link[=scanEffort]{scanEffort()}},
 \code{\link[=scanModel]{scanModel()}}
 }
