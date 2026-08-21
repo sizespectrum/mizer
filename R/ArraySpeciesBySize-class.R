@@ -829,11 +829,7 @@ array_y_label <- function(x, default = "Value", size_axis = "w",
                              if (identical(plot_size_axis(size_axis), "l"))
                                  " in log length" else " in log weight")
     }
-    units_str <- array_units(x, size_axis, per_log_size)
-    if (!is.null(units_str) && nzchar(units_str)) {
-        value_name <- paste0(value_name, " [", units_str, "]")
-    }
-    value_name
+    label_with_units(value_name, array_units(x, size_axis, per_log_size))
 }
 
 #' Check that `per_log_size` applies to a mizer array

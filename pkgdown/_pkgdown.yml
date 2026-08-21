@@ -188,6 +188,10 @@ reference:
   - isSteady
   - getStability
   - getLimitCycleSim
+  - scanModel
+  - scanEffort
+  - scanFishingMortality
+  - scanSpeciesParam
   - steadySingleSpecies
   - matchGrowth
   - plotBiomassObservedVsModel
@@ -302,6 +306,9 @@ reference:
   - plotYield
   - plotYieldGear
   - plotBifurcation
+  - MizerScan
+  - is.MizerScan
+  - plot.MizerScan
   - plotFMort
   - plotMizerParams
   - plotMizerSim

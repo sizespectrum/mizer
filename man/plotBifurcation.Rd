@@ -9,17 +9,21 @@ plotBifurcation(
   effort = seq(0, 2, length.out = 21),
   species = NULL,
   value = c("biomass", "yield", "ssb"),
+  style = "envelope",
   t_max = 100,
-  t_sample = NULL,
-  t_sample_default = 10,
-  t_save = 0.25,
+  t_sample = 10,
   tol = 0.01,
   amplitude_tol = 0.01,
   extinction_threshold = 1e-06,
   continuation = TRUE,
   return_data = FALSE,
-  progress_bar = TRUE,
-  ytrans = "log10"
+  progress_bar = interactive(),
+  log_y = TRUE,
+  log = NULL,
+  t_sample_default = lifecycle::deprecated(),
+  t_save = lifecycle::deprecated(),
+  ytrans = lifecycle::deprecated(),
+  ...
 )
 }
 \arguments{
@@ -36,19 +40,15 @@ vector of species names or indices, as for other mizer plotting functions.}
 \code{"yield"} or \code{"ssb"}, computed with \code{\link[=getBiomass]{getBiomass()}}, \code{\link[=getYield]{getYield()}} or
 \code{\link[=getSSB]{getSSB()}} respectively.}
 
+\item{style}{How the envelope is drawn, see \code{\link[=plot.MizerScan]{plot.MizerScan()}}. The default
+\code{"envelope"} draws a line along the top and the bottom of the band.}
+
 \item{t_max}{The maximum number of years to run the settling stage
 (\code{\link[=projectToSteady]{projectToSteady()}}) at each effort value.}
 
-\item{t_sample}{The length in years of the window over which the settled
-attractor is sampled to measure the envelope. If \code{NULL} (default) it is
-chosen automatically: one full period for a detected limit cycle, or
-\code{t_sample_default} years otherwise.}
-
-\item{t_sample_default}{The sampling window used when no limit-cycle period is
-available (a stable or non-converged run). Default \code{10}.}
-
-\item{t_save}{The interval at which the sampling window is saved, controlling
-how finely the cycle envelope is resolved. Default \code{0.25}.}
+\item{t_sample}{The length in years of the window over which the attractor is
+sampled when the run settled on neither a fixed point nor a limit cycle.
+Default \code{10}.}
 
 \item{tol}{Convergence tolerance for the settling stage, passed to
 \code{\link[=projectToSteady]{projectToSteady()}}. Tighter (smaller) values settle the stable branch more
@@ -65,19 +65,29 @@ species is treated as extinct, passed to \code{\link[=projectToSteady]{projectTo
 \item{continuation}{If \code{TRUE} (default) each settling run warm-starts from the
 attractor of the previous effort value.}
 
-\item{return_data}{If \code{TRUE} the data frame underlying the plot is returned
-instead of the plot. Default \code{FALSE}.}
+\item{return_data}{If \code{TRUE} the \link{MizerScan} object underlying the plot is
+returned instead of the plot. Default \code{FALSE}.}
 
-\item{progress_bar}{If \code{TRUE} (default) a text progress bar is shown while the
-effort values are swept.}
+\item{progress_bar}{If \code{TRUE} a text progress bar is shown while the effort
+values are swept. Defaults to \code{interactive()}.}
 
-\item{ytrans}{Transformation for the y-axis, \code{"log10"} (default) or
-\code{"identity"}.}
+\item{log_y, log}{Whether to use a logarithmic y-axis, see \code{\link[=parsePlotLog]{parsePlotLog()}}.}
+
+\item{t_sample_default}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{t_sample}
+instead.}
+
+\item{t_save}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Ignored: the attractor is
+now sampled at every time step.}
+
+\item{ytrans}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{log_y} instead.}
+
+\item{...}{Further arguments are passed on to \code{\link[=scanModel]{scanModel()}}.}
 }
 \value{
-A ggplot2 object, or a data frame with columns \code{Effort}, \code{Species},
-\code{ymin}, \code{ymax} and \code{type} (the attractor type reported by
-\code{\link[=projectToSteady]{projectToSteady()}}) if \code{return_data = TRUE}.
+A ggplot2 object, or, if \code{return_data = TRUE}, the \link{MizerScan} object
+holding the data. That object inherits from \code{data.frame} and has the
+columns \code{Effort}, the measured quantity, \code{Species}, \code{ymin}, \code{ymax}, \code{type},
+\code{settled}, \code{period} and \code{residual}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -87,13 +97,20 @@ the full dynamics to their attractor and records the long-term range of a
 summary quantity (biomass by default). The result is a bifurcation diagram
 with fishing effort on the x-axis.
 
+This is \code{\link[=scanModel]{scanModel()}} with \code{\link[=scanEffort]{scanEffort()}} as its setter, drawn with
+\code{style = "envelope"}. Use \code{scanModel()} directly to scan something other than
+the fishing effort, or to measure something other than biomass, yield or
+spawning stock biomass.
+
 For each effort value the attractor is found in two stages. First
 \code{\link[=projectToSteady]{projectToSteady()}} runs the dynamics until they settle, stopping early once
 it detects a stable steady state or a limit cycle and reporting which via its
 \code{"convergence"} attribute. Then the settled state is projected forward once
-more with \code{\link[=project]{project()}} over a short sampling window — one full period for a
-limit cycle, or a few years otherwise — and the minimum and maximum of the
-chosen quantity over that window are taken as the attractor envelope.
+more with \code{\link[=project]{project()}} over a sampling window — exactly one period for a limit
+cycle, \code{t_sample} years for a run that settled on neither — and the minimum
+and maximum of the chosen quantity over that window are taken as the
+attractor envelope. A stable steady state does not move, so it is not sampled
+at all and its minimum and maximum are equal.
 
 For a stable steady state the minimum and maximum coincide and the species is
 drawn as a single line; once the dynamics settle onto a limit cycle the two
@@ -115,7 +132,7 @@ plotBifurcation(NS_params, effort = seq(0, 2, length.out = 11))
 }
 }
 \seealso{
-\code{\link[=getStability]{getStability()}}, \code{\link[=projectToSteady]{projectToSteady()}}, \code{\link[=plotBiomass]{plotBiomass()}}
+\code{\link[=scanModel]{scanModel()}}, \code{\link[=getStability]{getStability()}}, \code{\link[=projectToSteady]{projectToSteady()}}, \code{\link[=plotBiomass]{plotBiomass()}}
 
 Other plotting functions:
 \code{\link[=addPlot]{addPlot()}},
@@ -139,5 +156,12 @@ Other plotting functions:
 \code{\link[=plotYield]{plotYield()}},
 \code{\link[=plotYieldGear]{plotYieldGear()}},
 \code{\link{plotting_functions}}
+
+Other scan functions:
+\code{\link[=MizerScan]{MizerScan()}},
+\code{\link[=plot.MizerScan]{plot.MizerScan()}},
+\code{\link[=scanEffort]{scanEffort()}},
+\code{\link[=scanModel]{scanModel()}}
 }
 \concept{plotting functions}
+\concept{scan functions}

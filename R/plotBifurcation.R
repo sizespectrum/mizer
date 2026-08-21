@@ -6,6 +6,9 @@
 # collapses to a single line; where the dynamics settle onto a limit cycle it
 # opens into a band, so a Hopf bifurcation appears as the point where the band
 # starts to widen.
+#
+# It is the fishing-effort special case of `scanModel()`, which scans any aspect
+# of a model and measures any quantity on the attractor it settles on.
 
 #' Draw a bifurcation diagram over fishing effort
 #'
@@ -17,13 +20,20 @@
 #' summary quantity (biomass by default). The result is a bifurcation diagram
 #' with fishing effort on the x-axis.
 #'
+#' This is [scanModel()] with [scanEffort()] as its setter, drawn with
+#' `style = "envelope"`. Use `scanModel()` directly to scan something other than
+#' the fishing effort, or to measure something other than biomass, yield or
+#' spawning stock biomass.
+#'
 #' For each effort value the attractor is found in two stages. First
 #' [projectToSteady()] runs the dynamics until they settle, stopping early once
 #' it detects a stable steady state or a limit cycle and reporting which via its
 #' `"convergence"` attribute. Then the settled state is projected forward once
-#' more with [project()] over a short sampling window — one full period for a
-#' limit cycle, or a few years otherwise — and the minimum and maximum of the
-#' chosen quantity over that window are taken as the attractor envelope.
+#' more with [project()] over a sampling window — exactly one period for a limit
+#' cycle, `t_sample` years for a run that settled on neither — and the minimum
+#' and maximum of the chosen quantity over that window are taken as the
+#' attractor envelope. A stable steady state does not move, so it is not sampled
+#' at all and its minimum and maximum are equal.
 #'
 #' For a stable steady state the minimum and maximum coincide and the species is
 #' drawn as a single line; once the dynamics settle onto a limit cycle the two
@@ -48,16 +58,13 @@
 #' @param value The quantity for the y-axis, one of `"biomass"` (default),
 #'   `"yield"` or `"ssb"`, computed with [getBiomass()], [getYield()] or
 #'   [getSSB()] respectively.
+#' @param style How the envelope is drawn, see [plot.MizerScan()]. The default
+#'   `"envelope"` draws a line along the top and the bottom of the band.
 #' @param t_max The maximum number of years to run the settling stage
 #'   ([projectToSteady()]) at each effort value.
-#' @param t_sample The length in years of the window over which the settled
-#'   attractor is sampled to measure the envelope. If `NULL` (default) it is
-#'   chosen automatically: one full period for a detected limit cycle, or
-#'   `t_sample_default` years otherwise.
-#' @param t_sample_default The sampling window used when no limit-cycle period is
-#'   available (a stable or non-converged run). Default `10`.
-#' @param t_save The interval at which the sampling window is saved, controlling
-#'   how finely the cycle envelope is resolved. Default `0.25`.
+#' @param t_sample The length in years of the window over which the attractor is
+#'   sampled when the run settled on neither a fixed point nor a limit cycle.
+#'   Default `10`.
 #' @param tol Convergence tolerance for the settling stage, passed to
 #'   [projectToSteady()]. Tighter (smaller) values settle the stable branch more
 #'   fully, giving cleaner single lines below the bifurcation at the cost of
@@ -69,17 +76,24 @@
 #'   `1e-6`.
 #' @param continuation If `TRUE` (default) each settling run warm-starts from the
 #'   attractor of the previous effort value.
-#' @param return_data If `TRUE` the data frame underlying the plot is returned
-#'   instead of the plot. Default `FALSE`.
-#' @param progress_bar If `TRUE` (default) a text progress bar is shown while the
-#'   effort values are swept.
-#' @param ytrans Transformation for the y-axis, `"log10"` (default) or
-#'   `"identity"`.
-#' @return A ggplot2 object, or a data frame with columns `Effort`, `Species`,
-#'   `ymin`, `ymax` and `type` (the attractor type reported by
-#'   [projectToSteady()]) if `return_data = TRUE`.
-#' @seealso [getStability()], [projectToSteady()], [plotBiomass()]
+#' @param return_data If `TRUE` the [MizerScan] object underlying the plot is
+#'   returned instead of the plot. Default `FALSE`.
+#' @param progress_bar If `TRUE` a text progress bar is shown while the effort
+#'   values are swept. Defaults to `interactive()`.
+#' @param log_y,log Whether to use a logarithmic y-axis, see [parsePlotLog()].
+#' @param t_sample_default `r lifecycle::badge("deprecated")` Use `t_sample`
+#'   instead.
+#' @param t_save `r lifecycle::badge("deprecated")` Ignored: the attractor is
+#'   now sampled at every time step.
+#' @param ytrans `r lifecycle::badge("deprecated")` Use `log_y` instead.
+#' @param ... Further arguments are passed on to [scanModel()].
+#' @return A ggplot2 object, or, if `return_data = TRUE`, the [MizerScan] object
+#'   holding the data. That object inherits from `data.frame` and has the
+#'   columns `Effort`, the measured quantity, `Species`, `ymin`, `ymax`, `type`,
+#'   `settled`, `period` and `residual`.
+#' @seealso [scanModel()], [getStability()], [projectToSteady()], [plotBiomass()]
 #' @family plotting functions
+#' @family scan functions
 #' @export
 #' @examples
 #' \donttest{
@@ -89,103 +103,62 @@ plotBifurcation <- function(params,
                             effort = seq(0, 2, length.out = 21),
                             species = NULL,
                             value = c("biomass", "yield", "ssb"),
+                            style = "envelope",
                             t_max = 100,
-                            t_sample = NULL,
-                            t_sample_default = 10,
-                            t_save = 0.25,
+                            t_sample = 10,
                             tol = 0.01,
                             amplitude_tol = 0.01,
                             extinction_threshold = 1e-6,
                             continuation = TRUE,
                             return_data = FALSE,
-                            progress_bar = TRUE,
-                            ytrans = "log10") {
-    params <- validParams(params)
+                            progress_bar = interactive(),
+                            log_y = TRUE,
+                            log = NULL,
+                            t_sample_default = lifecycle::deprecated(),
+                            t_save = lifecycle::deprecated(),
+                            ytrans = lifecycle::deprecated(),
+                            ...) {
+    if (lifecycle::is_present(t_sample_default)) {
+        lifecycle::deprecate_soft("3.2.1.9005",
+                                  "plotBifurcation(t_sample_default)",
+                                  "plotBifurcation(t_sample)")
+        if (missing(t_sample)) t_sample <- t_sample_default
+    }
+    if (lifecycle::is_present(t_save)) {
+        lifecycle::deprecate_soft(
+            "3.2.1.9005", "plotBifurcation(t_save)",
+            details = paste("The attractor is now sampled at every time step,",
+                            "so `t_save` is ignored."))
+    }
+    if (lifecycle::is_present(ytrans)) {
+        lifecycle::deprecate_soft("3.2.1.9005", "plotBifurcation(ytrans)",
+                                  "plotBifurcation(log_y)")
+        log_y <- identical(ytrans, "log10")
+    }
     value <- match.arg(value)
-    assert_that(is.numeric(effort), length(effort) >= 2,
-                is.number(t_max), t_max > 0,
-                is.null(t_sample) || is.number(t_sample),
-                is.number(t_sample_default), t_sample_default > 0,
-                is.number(tol), tol > 0,
-                is.number(amplitude_tol), amplitude_tol > 0,
-                is.number(extinction_threshold), extinction_threshold >= 0)
+    assert_that(is.numeric(effort), length(effort) >= 2)
+    # Resolved here rather than left to `scanModel()`, which selects against
+    # the series a value function returned and so knows nothing about
+    # background species or about a logical or numeric species argument.
+    params <- validParams(params)
     species <- valid_species_arg(params, species, error_on_empty = TRUE)
 
-    value_func <- switch(value,
-                         biomass = getBiomass,
-                         yield   = getYield,
-                         ssb     = getSSB)
-    ylab <- switch(value,
-                   biomass = "Biomass [g]",
-                   yield   = "Yield [g/year]",
-                   ssb     = "Spawning stock biomass [g]")
+    scan <- scanModel(params, scan_values = effort,
+                      set_func = scanEffort(),
+                      value_func = switch(value,
+                                          biomass = getBiomass,
+                                          yield   = getYield,
+                                          ssb     = getSSB),
+                      species = species,
+                      scan_name = "Effort",
+                      t_max = t_max, t_sample = t_sample, tol = tol,
+                      amplitude_tol = amplitude_tol,
+                      extinction_threshold = extinction_threshold,
+                      continuation = continuation,
+                      progress_bar = progress_bar,
+                      ...)
 
-    if (isTRUE(progress_bar)) {
-        pb <- utils::txtProgressBar(min = 0, max = length(effort), style = 3)
-        on.exit(close(pb), add = TRUE)
-    }
+    if (return_data) return(scan)
 
-    p_run <- params
-    rows <- vector("list", length(effort))
-    for (i in seq_along(effort)) {
-        # Stage 1: settle onto the attractor, stopping early once a steady state
-        # or limit cycle is detected.
-        settled <- projectToSteady(p_run, effort = effort[i], t_max = t_max,
-                                   tol = tol, amplitude_tol = amplitude_tol,
-                                   extinction_threshold = extinction_threshold,
-                                   return_sim = FALSE, progress_bar = FALSE,
-                                   info_level = 0)
-        conv <- attr(settled, "convergence")
-
-        # Stage 2: sample the settled attractor to measure the envelope. Starting
-        # from the settled state means the window contains no transient.
-        window <- if (!is.null(t_sample)) {
-            t_sample
-        } else if (identical(conv$type, "cycle")) {
-            ceiling(conv$period)
-        } else {
-            t_sample_default
-        }
-        sim <- project(settled, effort = effort[i], t_max = window,
-                       t_save = t_save, progress_bar = FALSE)
-        vals <- value_func(sim)[, species, drop = FALSE]
-
-        rows[[i]] <- data.frame(
-            Effort  = effort[i],
-            Species = species,
-            ymin    = apply(vals, 2, min),
-            ymax    = apply(vals, 2, max),
-            type    = conv$type,
-            row.names = NULL,
-            stringsAsFactors = FALSE
-        )
-
-        # Warm-start the next effort value from the attractor just reached.
-        if (continuation) p_run <- settled
-        if (isTRUE(progress_bar)) utils::setTxtProgressBar(pb, i)
-    }
-    plot_dat <- do.call(rbind, rows)
-
-    if (return_data) return(plot_dat)
-
-    species_levels <- intersect(names(params@linecolour),
-                                unique(plot_dat$Species))
-    plot_dat$Species <- factor(plot_dat$Species, levels = species_levels)
-    linecolour <- params@linecolour[species_levels]
-
-    ybreaks <- if (ytrans == "log10") log_breaks() else waiver()
-
-    p <- ggplot(plot_dat, aes(x = .data$Effort, group = .data$Species)) +
-        geom_ribbon(aes(ymin = .data$ymin, ymax = .data$ymax,
-                        fill = .data$Species),
-                    alpha = 0.25, colour = NA) +
-        geom_line(aes(y = .data$ymax, colour = .data$Species)) +
-        geom_line(aes(y = .data$ymin, colour = .data$Species)) +
-        scale_colour_manual(values = linecolour) +
-        scale_fill_manual(values = linecolour) +
-        scale_y_continuous(trans = ytrans, breaks = ybreaks,
-                           labels = prettyNum, name = ylab) +
-        scale_x_continuous(name = "Fishing effort")
-
-    make_mizer_plot(p, c("Species", "Effort", "ymax", "ymin"))
+    plot(scan, style = style, log_y = log_y, log = log)
 }

@@ -394,6 +394,78 @@ animate(NResource(sim))      # an ArrayTimeByResourceBySize over time
 
 `animate()` accepts most of the common arguments from `plot()`.
 
+## Scanning a model over a range — `scanModel()`
+
+Everything above measures one model. `scanModel()` measures a *family* of them:
+it varies one aspect of the model over a range of values and, at each value,
+projects until the model settles and measures a quantity on the attractor it
+settled on. The result is a `MizerScan`, a data frame that knows how to plot
+itself.
+
+```r
+scan <- scanModel(params,
+                  scan_values = seq(0, 1.5, 0.1),
+                  set_func    = scanFishingMortality("Cod"),  # what to vary
+                  value_func  = getYield,                      # what to measure
+                  species     = "Cod")
+plot(scan)
+attr(scan, "at_max")      # the F at which the yield is largest, i.e. F_MSY
+```
+
+- **`set_func(params, value)`** returns a modified `MizerParams`. Ready-made
+  ones: `scanEffort(gear)` for fishing effort, `scanFishingMortality(species,
+  gear)` for the fishing mortality on one species with the rest of the fishing
+  left alone, `scanSpeciesParam(species, parameter)` for a species parameter.
+  Any function of `(params, value)` will do, as long as it is **idempotent** —
+  with `continuation = TRUE` it is handed the object it returned at the previous
+  scan value, so it must set rather than accumulate.
+- **`value_func(sim)`** returns a time-by-series object. `getBiomass`,
+  `getYield`, `getSSB`, `getN` and `sizeIntegral` all work unchanged, and so
+  does a plain numeric vector over time such as `getMeanWeight`. Give extra
+  arguments with a closure, not through `...`:
+  `value_func = function(sim) getBiomass(sim, min_w = 10)`.
+
+Scanning something that has nothing to do with fishing needs no more than a
+two-line setter, because `project()` takes the effort from the params object:
+
+```r
+plot(scanModel(params,
+               scan_values = 10^seq(10, 12, length.out = 9),
+               set_func = function(params, value) {
+                   resource_params(params)$kappa <- value
+                   params
+               },
+               scan_name = "Resource capacity", scan_units = "g"),
+     log_x = TRUE)
+```
+
+### What the band means
+
+How the quantity is measured depends on what the model settled on, which
+`projectToSteady()` reports:
+
+| Attractor | What is measured |
+|---|---|
+| fixed point | read off the settled state, no further projection; `ymin == ymax` |
+| limit cycle | averaged over **exactly one period**; `ymin`/`ymax` give the range |
+| neither | averaged over `t_sample` years, and the scan values are named in a message |
+
+So the band on the plot is the range of the oscillation, and a Hopf bifurcation
+appears as the scan value at which it opens up. Averaging over exactly one period
+is what keeps the curve smooth: a window that is not a whole number of periods
+leaves a residue of the oscillation in the average. If you need the average more
+accurately, reduce `dt` — do **not** lengthen the window.
+
+Points where the model settled on neither are marked with a cross, and the
+`residual` column says how fast the abundances were still changing there, in
+1/year. Treat those points as provisional and raise `t_max`.
+
+`plot()` takes `style = "ribbon"` (default: the average as a line inside the
+band), `"envelope"` (lines along the edges, no average) or `"line"` (no band),
+plus `mark_max`, `reference_lines` and the usual `log_x`/`log_y`/`ylim`
+arguments. `plotBifurcation()` is `scanModel()` with `scanEffort()` and
+`style = "envelope"`.
+
 ## Dedicated plot functions
 
 Besides the spectrum plots above, mizer has a dedicated `plot…()` function for
