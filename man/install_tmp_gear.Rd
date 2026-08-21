@@ -4,7 +4,7 @@
 \alias{install_tmp_gear}
 \title{Add a gear that exerts the fishing mortality being scanned}
 \usage{
-install_tmp_gear(params, species, gear = NULL)
+install_tmp_gear(params, species, gear = NULL, gear_name = "scan")
 }
 \arguments{
 \item{params}{A MizerParams object.}
@@ -13,6 +13,8 @@ install_tmp_gear(params, species, gear = NULL)
 
 \item{gear}{The gear whose mortality is replaced, or NULL for all of the
 gears catching the species.}
+
+\item{gear_name}{The name to give the new gear.}
 }
 \value{
 The MizerParams object with the extra gear.

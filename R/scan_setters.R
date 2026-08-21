@@ -28,13 +28,13 @@
 #'     catchability 1, so that its effort *is* the fishing mortality, and
 #'     switching off the catchability of the gears it replaces. If several gears
 #'     catch the species you can name the one whose mortality is to be varied,
-#'     and the others go on fishing unchanged.}
-#'   \item{`scanSpeciesParam()`}{Scans any species parameter. It writes to
-#'     [given_species_params()], so the change propagates through to the rates
-#'     that depend on it rather than being frozen. Note that scanning a
-#'     parameter that mizer calculates for itself from others — `gamma` when
-#'     `f0` is given, say — will not work, because the calculated value
-#'     overwrites what you set.}
+#'     and the others go on fishing unchanged. The added gear is given a name
+#'     the model is not already using, so a model that happens to have a gear
+#'     called `"scan"` is not disturbed.}
+#'   \item{`scanSpeciesParam()`}{Scans any species parameter. It assigns to
+#'     [species_params()], so the value is recorded as a given one and the
+#'     change propagates through to the rates that depend on it. The parameter
+#'     has to be one the model already has; add the column first if it is not.}
 #' }
 #'
 #' @param gear For `scanEffort()`, the name of the gear whose effort is scanned,
@@ -92,17 +92,27 @@ scanEffort <- function(gear = NULL) {
 scanFishingMortality <- function(species, gear = NULL) {
     force(species)
     force(gear)
+    # The name of the gear this setter installs, chosen on first use so that it
+    # cannot collide with a gear the model already has.
+    scan_gear <- NULL
     f <- function(params, value) {
-        # Install the temporary gear only if it is not already there. This is
-        # what makes the function idempotent, which it has to be because with
-        # continuation it is handed the object it returned last time.
-        # Reinstalling would append a second "tmp" row and rebuild the
-        # selectivity array at every scan value.
-        if (!("tmp" %in% dimnames(params@catchability)[[1]])) {
-            params <- install_tmp_gear(params, species, gear)
+        if (is.null(scan_gear)) {
+            scan_gear <<- free_gear_name(params)
+        }
+        # Install the gear only if the one we installed is not already there.
+        # This is what makes the function idempotent, which it has to be
+        # because with continuation it is handed the object it returned last
+        # time; reinstalling would append a second row and rebuild the
+        # selectivity array at every scan value. The ownership check means a
+        # gear of that name that is not ours does not get hijacked.
+        if (!owns_scan_gear(params, scan_gear, species)) {
+            if (scan_gear %in% dimnames(params@catchability)[[1]]) {
+                scan_gear <<- free_gear_name(params)
+            }
+            params <- install_tmp_gear(params, species, gear, scan_gear)
         }
         effort <- initial_effort(params)
-        effort[["tmp"]] <- value
+        effort[[scan_gear]] <- value
         initial_effort(params) <- effort
         params
     }
@@ -131,11 +141,23 @@ scanSpeciesParam <- function(species, parameter) {
     force(species)
     force(parameter)
     f <- function(params, value) {
-        idx <- match(species, params@species_params$species)
+        sp <- species_params(params)
+        idx <- match(species, sp$species)
         if (is.na(idx)) {
             stop("There is no species called ", species, " in this model.")
         }
-        given_species_params(params)[[parameter]][[idx]] <- value
+        # The full species params table, not `given_species_params()`, which
+        # holds only what the user supplied. Writing a parameter that is absent
+        # there would build a malformed column rather than set a value, and
+        # assigning the full table back is also what runs the validation and
+        # propagates the change to the rates that depend on it.
+        if (!(parameter %in% names(sp))) {
+            stop("This model has no species parameter called `", parameter,
+                 "`. Add the column to the species parameters before scanning ",
+                 "it.")
+        }
+        sp[[parameter]][[idx]] <- value
+        species_params(params) <- sp
         params
     }
     attr(f, "scan_name") <- paste0(parameter, " of ", species)
@@ -147,6 +169,43 @@ scanSpeciesParam <- function(species, parameter) {
         params@species_params[[parameter]][[idx]]
     }
     f
+}
+
+#' A gear name that the model is not already using
+#'
+#' @param params A MizerParams object.
+#' @return A string naming a gear that does not exist in `params`.
+#' @keywords internal
+free_gear_name <- function(params) {
+    taken <- c(dimnames(params@catchability)[[1]],
+               as.character(gear_params(params)$gear))
+    if (!("scan" %in% taken)) return("scan")
+    for (i in seq_len(1000)) {
+        candidate <- paste0("scan_", i)
+        if (!(candidate %in% taken)) return(candidate)
+    }
+    stop("Could not find an unused gear name.")
+}
+
+#' Is this gear the one a fishing-mortality scan installed?
+#'
+#' A gear of the right name might be one the model already had, in which case
+#' setting its effort would not do what the scan means and would silently leave
+#' the target species' fishing mortality alone. So the name is not taken as
+#' proof: the gear also has to look like the one [scanFishingMortality()]
+#' installs, namely a single row catching the target species with catchability 1.
+#'
+#' @param params A MizerParams object.
+#' @param gear_name The name of the gear to check.
+#' @param species The target species.
+#' @return TRUE if the gear is one this scan installed.
+#' @keywords internal
+owns_scan_gear <- function(params, gear_name, species) {
+    gp <- gear_params(params)
+    rows <- which(as.character(gp$gear) == gear_name)
+    length(rows) == 1 &&
+        identical(as.character(gp$species[[rows]]), as.character(species)) &&
+        isTRUE(gp$catchability[[rows]] == 1)
 }
 
 #' The gear params rows whose fishing mortality is to be varied
@@ -186,9 +245,10 @@ select_gear_rows <- function(gp, species, gear = NULL) {
 #' @param species The target species.
 #' @param gear The gear whose mortality is replaced, or NULL for all of the
 #'   gears catching the species.
+#' @param gear_name The name to give the new gear.
 #' @return The MizerParams object with the extra gear.
 #' @keywords internal
-install_tmp_gear <- function(params, species, gear = NULL) {
+install_tmp_gear <- function(params, species, gear = NULL, gear_name = "scan") {
     species <- valid_species_arg(params, species, error_on_empty = TRUE)
     if (length(species) != 1) {
         stop("You can only scan the fishing mortality on one species at a ",
@@ -205,10 +265,10 @@ install_tmp_gear <- function(params, species, gear = NULL) {
             unhandled = "show")
     }
     gp_extra <- gp[sel[[1]], ]
-    gp_extra$gear <- "tmp"
+    gp_extra$gear <- gear_name
     gp_extra$catchability <- 1
     gp$catchability[sel] <- 0
     gear_params(params) <- rbind(gp, gp_extra)
-    initial_effort(params)["tmp"] <- 1
+    initial_effort(params)[gear_name] <- 1
     params
 }

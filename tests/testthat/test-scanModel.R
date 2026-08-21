@@ -81,8 +81,31 @@ test_that("scanFishingMortality() is idempotent", {
     # getFMort() carries differs in its time_modified stamp.
     expect_equal(unclass(getFMort(p2))[, ], unclass(getFMort(p1))[, ],
                  ignore_attr = TRUE)
-    # The temporary gear is installed exactly once.
-    expect_identical(sum(dimnames(p2@catchability)[[1]] == "tmp"), 1L)
+    # The extra gear is installed exactly once.
+    added <- setdiff(dimnames(p2@catchability)[[1]],
+                     dimnames(NS_params_small@catchability)[[1]])
+    expect_length(added, 1)
+})
+
+test_that("scanFishingMortality() does not hijack a gear of its own name", {
+    # A model that already has a gear called "scan" must not have that gear's
+    # effort scanned in place of the target species' fishing mortality.
+    p <- NS_params_small
+    gp <- gear_params(p)
+    decoy <- gp[gp$species == "Herring", ][1, ]
+    decoy$gear <- "scan"
+    gear_params(p) <- rbind(gp, decoy)
+    initial_effort(p)["scan"] <- 1
+
+    f <- scanFishingMortality("Cod")
+    p1 <- suppressMessages(f(p, 0.3))
+    p2 <- suppressMessages(f(p1, 0.6))
+
+    # Doubling the requested value doubles Cod's fishing mortality ...
+    expect_equal(max(getFMort(p2)["Cod", ]), 2 * max(getFMort(p1)["Cod", ]))
+    # ... and leaves the pre-existing "scan" gear's effort alone.
+    expect_identical(initial_effort(p2)[["scan"]],
+                     initial_effort(p)[["scan"]])
 })
 
 test_that("scanFishingMortality() varies only the target species", {
@@ -94,9 +117,30 @@ test_that("scanFishingMortality() varies only the target species", {
     expect_equal(unclass(high)["Herring", ], unclass(low)["Herring", ])
 })
 
-test_that("scanSpeciesParam() writes to the given species params", {
-    p <- scanSpeciesParam("Cod", "w_mat")(NS_params_small, 100)
+test_that("scanSpeciesParam() sets a parameter and propagates the change", {
+    # A parameter the user supplied, so present in given_species_params().
+    # mizer warns that w_mat25 no longer sits below w_mat, which is the
+    # validation now running as it should.
+    p <- suppressWarnings(suppressMessages(
+        scanSpeciesParam("Cod", "w_mat")(NS_params_small, 100)))
+    expect_identical(species_params(p)[["w_mat"]][[3]], 100)
     expect_identical(given_species_params(p)[["w_mat"]][[3]], 100)
+
+    # A parameter mizer defaulted, so absent from given_species_params(). This
+    # used to build a malformed column and then fail in the rate calculations.
+    expect_false("alpha" %in% names(given_species_params(NS_params_small)))
+    p <- suppressMessages(scanSpeciesParam("Cod", "alpha")(NS_params_small, 0.4))
+    expect_identical(species_params(p)[["alpha"]][[3]], 0.4)
+    expect_type(species_params(p)[["alpha"]], "double")
+    # and it reaches the rates that depend on it
+    expect_false(isTRUE(all.equal(unclass(getEGrowth(p))[3, ],
+                                  unclass(getEGrowth(NS_params_small))[3, ])))
+
+    # An unknown parameter is rejected rather than silently creating a column
+    expect_error(scanSpeciesParam("Cod", "not_a_parameter")(NS_params_small, 1),
+                 "no species parameter called")
+    expect_error(scanSpeciesParam("Nonexistent", "w_mat")(NS_params_small, 1),
+                 "no species called")
 })
 
 test_that("scanModel() insists that set_func returns a MizerParams", {

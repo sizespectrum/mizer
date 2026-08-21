@@ -51,13 +51,13 @@ adding a temporary gear that catches only the target species with
 catchability 1, so that its effort \emph{is} the fishing mortality, and
 switching off the catchability of the gears it replaces. If several gears
 catch the species you can name the one whose mortality is to be varied,
-and the others go on fishing unchanged.}
-\item{\code{scanSpeciesParam()}}{Scans any species parameter. It writes to
-\code{\link[=given_species_params]{given_species_params()}}, so the change propagates through to the rates
-that depend on it rather than being frozen. Note that scanning a
-parameter that mizer calculates for itself from others — \code{gamma} when
-\code{f0} is given, say — will not work, because the calculated value
-overwrites what you set.}
+and the others go on fishing unchanged. The added gear is given a name
+the model is not already using, so a model that happens to have a gear
+called \code{"scan"} is not disturbed.}
+\item{\code{scanSpeciesParam()}}{Scans any species parameter. It assigns to
+\code{\link[=species_params]{species_params()}}, so the value is recorded as a given one and the
+change propagates through to the rates that depend on it. The parameter
+has to be one the model already has; add the column first if it is not.}
 }
 }
 \examples{
