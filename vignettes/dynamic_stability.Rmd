@@ -228,7 +228,7 @@ Notice how well the detected nonlinear period (about `r round(attr(sim_cycle, "c
 Finally, `getLimitCycleSim()` constructs a `MizerSim` object covering one period of the oscillation *in the linear approximation*, using the eigenvector of the dominant oscillatory mode. This isolates the pure **shape** of the cycle — which species and sizes participate and with what phase — without the growth or the nonlinear distortion of the full run. Fish and resource are driven by the same eigenvector and the same scale factor, so the resource carries the phase the mode gives it: on this model it leads the total fish biomass by about 0.7 years of the 5.03-year period.
 
 ```{r limit_cycle}
-lcs <- getLimitCycleSim(params_f15, amplitude = 1)
+lcs <- getLimitCycleSim(params_f15, amplitude = 0.1)
 ```
 
 Because `lcs` is an ordinary `MizerSim` object, any of the standard mizer plotting functions can be used to explore it. For example, the biomass over one period:

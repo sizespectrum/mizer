@@ -11,9 +11,9 @@ getLimitCycleSim(x, amplitude = 0.1, t_save = 0.1, ...)
 typically the output of \code{\link[=steadyNewton]{steadyNewton()}}, or the list returned by
 \code{\link[=getStability]{getStability()}}.}
 
-\item{amplitude}{Maximum perturbation relative to the steady state,
-\eqn{\max_{t,i} |\delta x_i(t)|/x^*_i}, across the limit cycle, taken over
-the fish spectrum and the resource together.  Default \code{0.1}.}
+\item{amplitude}{Largest relative swing in species biomass across the cycle,
+\eqn{\max_i \max_t |B_i(t) - B_i^*| / B_i^*}.  Default \code{0.1}, meaning the
+most strongly oscillating species departs 10\\% from its steady biomass.}
 
 \item{t_save}{The time interval between saved time steps in the returned
 \linkS4class{MizerSim}.  Defaults to \code{0.1}.}
@@ -43,22 +43,35 @@ returns that pair as \code{hopf_eigenvalue} and its eigenvector as
 \eqn{x = (N, n_{pp})} is
 \deqn{\delta x(t) = A\,\operatorname{Re}[e^{i\omega t}\,\mathbf{v}],}
 where \eqn{\mathbf{v}} is that eigenvector and \eqn{A} is chosen so that the
-maximum perturbation \emph{relative to the steady state},
-\eqn{\max_{t,i}|\delta x_i(t)|/x^*_i}, equals \code{amplitude}. The state at each
-time is
-\deqn{x(t) = \max(x^* + \delta x(t),\; 0),}
-where the clipping matters only for cells that sit at exactly zero in the
-steady state; anywhere else an \code{amplitude} below 1 keeps the perturbation
-smaller than the state it perturbs. A cell with a positive steady value that
-is nevertheless driven negative is reported.
+largest \emph{relative swing in species biomass} equals \code{amplitude}. Biomass is a
+linear functional of the abundance, so
+\deqn{B_i(t) = B_i^* + A\,\operatorname{Re}[e^{i\omega t} c_i], \qquad
+      c_i = \int v_i(w)\, w \, dw,}
+and species \eqn{i} departs from its steady biomass by at most
+\eqn{A|c_i|}. \eqn{A} is set so that \eqn{\max_i A|c_i|/B_i^*} is
+\code{amplitude}: no species' biomass moves further than that fraction from its
+steady value, and the one that oscillates hardest moves exactly that far.
+The integral uses \code{\link[=sizeIntegral]{sizeIntegral()}}, so it follows the model's own quadrature
+scheme and agrees with \code{\link[=getBiomass]{getBiomass()}} bin for bin.
+
+The cap is on the species that swings hardest rather than on the community
+total, because species oscillating out of phase cancel in the total: a
+modest total swing can be produced by wild swings in the individual species.
+
+The state at each time is
+\deqn{x(t) = \max(x^* + \delta x(t),\; 0).}
+Because the cap is on biomass, an individual size class can still be driven
+negative while the biomass it belongs to moves only a little — a cohort
+trough is a much larger relative excursion than the biomass integral over
+it. That clipping is reported when it happens, and means the picture is no
+longer the linear mode.
 
 The fish and resource blocks of \eqn{\mathbf{v}} carry a single common
 normalisation, so the same \eqn{A} drives both and the resource oscillates
 with the amplitude and phase \emph{the mode gives it} — generally neither in step
-with the fish nor slaved to them. \code{amplitude} caps the whole state, so which
-of the two actually reaches it is a property of the mode. For \code{NS_params} at
-effort 1.5 the fish do: the resource's largest relative swing is about an
-eighth of theirs.
+with the fish nor slaved to them. \code{amplitude} is set on the fish biomass, so
+how far the resource moves is a property of the mode rather than something
+you choose.
 
 The growth of the mode is deliberately dropped: \eqn{e^{\sigma t}} is
 omitted so that the cycle closes after one period. That is exact only at the

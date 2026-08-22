@@ -56,10 +56,11 @@ workflow.
   trajectory is
   \eqn{x(t) = x^* + A\,\text{Re}[e^{i\omega t}\,\mathbf{v}]} over the whole
   state \eqn{x = (N, n_{pp})}, where \eqn{\mathbf{v}} is the eigenvector of the
-  dominant *oscillatory* mode and the amplitude \eqn{A} is scaled so the
-  maximum perturbation relative to the steady state equals the `amplitude`
-  argument (default 10\%). The resource oscillates with the amplitude and phase
-  the mode gives it, rather than being slaved to the fish. The returned object
+  dominant *oscillatory* mode and the amplitude \eqn{A} is scaled so that the
+  largest relative swing in **species biomass** equals the `amplitude` argument
+  (default 10\%), which is the quantity `plotBiomass()` shows. The resource
+  oscillates with the amplitude and phase the mode gives it, rather than being
+  slaved to the fish. The returned object
   can be passed directly to `plotBiomass()`, `plotSpectra()`, and other
   standard mizer plot functions.
 

@@ -24,22 +24,35 @@
 #' \eqn{x = (N, n_{pp})} is
 #' \deqn{\delta x(t) = A\,\operatorname{Re}[e^{i\omega t}\,\mathbf{v}],}
 #' where \eqn{\mathbf{v}} is that eigenvector and \eqn{A} is chosen so that the
-#' maximum perturbation *relative to the steady state*,
-#' \eqn{\max_{t,i}|\delta x_i(t)|/x^*_i}, equals `amplitude`. The state at each
-#' time is
-#' \deqn{x(t) = \max(x^* + \delta x(t),\; 0),}
-#' where the clipping matters only for cells that sit at exactly zero in the
-#' steady state; anywhere else an `amplitude` below 1 keeps the perturbation
-#' smaller than the state it perturbs. A cell with a positive steady value that
-#' is nevertheless driven negative is reported.
+#' largest *relative swing in species biomass* equals `amplitude`. Biomass is a
+#' linear functional of the abundance, so
+#' \deqn{B_i(t) = B_i^* + A\,\operatorname{Re}[e^{i\omega t} c_i], \qquad
+#'       c_i = \int v_i(w)\, w \, dw,}
+#' and species \eqn{i} departs from its steady biomass by at most
+#' \eqn{A|c_i|}. \eqn{A} is set so that \eqn{\max_i A|c_i|/B_i^*} is
+#' `amplitude`: no species' biomass moves further than that fraction from its
+#' steady value, and the one that oscillates hardest moves exactly that far.
+#' The integral uses [sizeIntegral()], so it follows the model's own quadrature
+#' scheme and agrees with [getBiomass()] bin for bin.
+#'
+#' The cap is on the species that swings hardest rather than on the community
+#' total, because species oscillating out of phase cancel in the total: a
+#' modest total swing can be produced by wild swings in the individual species.
+#'
+#' The state at each time is
+#' \deqn{x(t) = \max(x^* + \delta x(t),\; 0).}
+#' Because the cap is on biomass, an individual size class can still be driven
+#' negative while the biomass it belongs to moves only a little — a cohort
+#' trough is a much larger relative excursion than the biomass integral over
+#' it. That clipping is reported when it happens, and means the picture is no
+#' longer the linear mode.
 #'
 #' The fish and resource blocks of \eqn{\mathbf{v}} carry a single common
 #' normalisation, so the same \eqn{A} drives both and the resource oscillates
 #' with the amplitude and phase *the mode gives it* — generally neither in step
-#' with the fish nor slaved to them. `amplitude` caps the whole state, so which
-#' of the two actually reaches it is a property of the mode. For `NS_params` at
-#' effort 1.5 the fish do: the resource's largest relative swing is about an
-#' eighth of theirs.
+#' with the fish nor slaved to them. `amplitude` is set on the fish biomass, so
+#' how far the resource moves is a property of the mode rather than something
+#' you choose.
 #'
 #' The growth of the mode is deliberately dropped: \eqn{e^{\sigma t}} is
 #' omitted so that the cycle closes after one period. That is exact only at the
@@ -53,9 +66,9 @@
 #' @param x A \linkS4class{MizerParams} object at a steady state,
 #'   typically the output of [steadyNewton()], or the list returned by
 #'   [getStability()].
-#' @param amplitude Maximum perturbation relative to the steady state,
-#'   \eqn{\max_{t,i} |\delta x_i(t)|/x^*_i}, across the limit cycle, taken over
-#'   the fish spectrum and the resource together.  Default `0.1`.
+#' @param amplitude Largest relative swing in species biomass across the cycle,
+#'   \eqn{\max_i \max_t |B_i(t) - B_i^*| / B_i^*}.  Default `0.1`, meaning the
+#'   most strongly oscillating species departs 10\% from its steady biomass.
 #' @param t_save The time interval between saved time steps in the returned
 #'   \linkS4class{MizerSim}.  Defaults to `0.1`.
 #' @param ... Additional arguments forwarded to [getStability()] when `x` is a
@@ -114,20 +127,31 @@ getLimitCycleSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
     npp_ss     <- params@initial_n_pp
     n_other_ss <- params@initial_n_other
 
-    # Over the whole state, fish and resource together, so that `amplitude`
-    # means the same thing whichever block the mode puts its weight on. Cells
-    # at exactly zero are excluded: they have no scale to be relative to.
-    rel_of <- function(v, x_ss) {
-        ok <- x_ss > 0 & is.finite(x_ss)
-        if (!any(ok)) return(0)
-        max(Mod(v[ok]) / x_ss[ok])
+    # `amplitude` is set on species biomass, which is the quantity a reader of
+    # plotBiomass() actually sees. Biomass is a linear functional of the
+    # abundance, so the biomass of the perturbation is the same integral
+    # applied to the eigenvector:
+    #   B_i(t) = B_i* + A Re[e^{i omega t} c_i],   c_i = int v_i(w) w dw,
+    # and the largest deviation species i reaches over the cycle is A |c_i|.
+    # The integral goes through sizeIntegral(), so it follows the model's own
+    # quadrature scheme and matches getBiomass() bin for bin. It is real and
+    # linear, so the real and imaginary parts integrate separately.
+    biomass_of <- function(n) {
+        as.numeric(sizeIntegral(params, weighting = params@w, n = n))
     }
-    max_rel <- max(rel_of(v_fish, N_ss), rel_of(v_npp, npp_ss))
-    if (max_rel <= 0) {
-        stop("The leading oscillatory eigenvector is zero wherever the steady ",
-             "state is positive, so there is no cycle to draw.")
+    B_ss  <- biomass_of(N_ss)
+    c_sp  <- complex(real      = biomass_of(Re(v_fish)),
+                     imaginary = biomass_of(Im(v_fish)))
+
+    ok <- B_ss > 0 & is.finite(B_ss)
+    if (!any(ok) || max(Mod(c_sp[ok]) / B_ss[ok]) <= 0) {
+        stop("The leading oscillatory mode moves no species' biomass, so ",
+             "there is no cycle to draw at a given biomass amplitude.")
     }
-    A_scale <- amplitude / max_rel
+    # Cap the species that swings hardest, rather than the community total:
+    # species oscillating out of phase cancel in the total, which would let a
+    # modest total swing be produced by wild swings in the individual species.
+    A_scale <- amplitude / max(Mod(c_sp[ok]) / B_ss[ok])
 
     # ------------------------------------------------------------------
     # 5. Build the MizerSim
