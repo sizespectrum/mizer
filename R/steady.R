@@ -143,8 +143,8 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' motion that is left. When the distance criterion is met but the drift is not,
 #' the run carries on rather than declaring a fixed point.
 #'
-#' When both hold the run stops with `type = "below_tolerance"`. The type is
-#' deliberately not called `"steady"`: `residual_tol` is a working tolerance
+#' When both hold the run stops with `termination = "residual_tolerance"`. That
+#' is deliberately not called `"steady"`: `residual_tol` is a working tolerance
 #' rather than a proof, and the `residual` entry of the `"convergence"`
 #' attribute reports the drift that was actually reached.
 #'
@@ -270,7 +270,10 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   answer three different questions and should not be read as one:
 #'   \describe{
 #'     \item{`termination`}{Why the run stopped: `"residual_tolerance"` (both
-#'       convergence criteria were met), `"cycle_detected"` (a limit cycle),
+#'       convergence criteria were met), `"distance_tolerance"` (the distance
+#'       function was satisfied but the state is still drifting — reachable with
+#'       a loose `residual_tol`, and from the superseded [steady()], which stops
+#'       on the distance criterion alone), `"cycle_detected"` (a limit cycle),
 #'       `"time_limit"` (still changing at `t_max`) or `"extinction"` (a species
 #'       died out). The steady-state finders can also return
 #'       `"solver_converged"` and `"solver_failed"` from the Newton solver.}
@@ -415,6 +418,15 @@ steady_attractor <- function(residual, residual_tol) {
 #' @inheritParams projectUntilSettled
 #' @param return_sim Whether to build and return a `MizerSim` of the run rather
 #'   than a `MizerParams` holding only the final state.
+#' @param require_steady Whether the biomass drift has to be within
+#'   `residual_tol` before the run may stop on the distance criterion. `TRUE`
+#'   for everything mizer exports; the superseded [steady()] and
+#'   [projectToSteady()] pass `FALSE`, because released code was written against
+#'   a stopping rule that used the distance function alone and a run that
+#'   suddenly takes ten times as long is a bad way to learn about a new
+#'   criterion. It changes when the run stops and nothing else: the drift is
+#'   measured either way, and `attractor` is derived from it either way, so a
+#'   wrapper that stops early still reports honestly what it stopped on.
 #' @return A `MizerSim` or a `MizerParams`, in either case carrying the
 #'   `"convergence"` attribute.
 #' @noRd
@@ -434,7 +446,8 @@ project_until_settled <- function(params,
                                 info_level = default_info_level(),
                                 method = c("euler", "predictor_corrector",
                                            "tr_bdf2"), ...,
-                                  return_sim = FALSE) {
+                                  return_sim = FALSE,
+                                  require_steady = TRUE) {
     with_info_level(info_level = info_level, {
     # `tol` used to be the name of `distance_tol`. It would otherwise be passed
     # on to the distance function and silently ignored, which is the one way
@@ -581,7 +594,10 @@ project_until_settled <- function(params,
         if (distance < distance_tol) {
             # The distance function has gone quiet. Whether that means a fixed
             # point has been reached is a different question, asked of the state
-            # itself rather than of the distance function's scale.
+            # itself rather than of the distance function's scale. It is asked
+            # here whatever `require_steady` says, because the answer is
+            # reported either way; only whether it can hold the run open
+            # depends on that argument.
             residual <- tryCatch(
                 steady_biomass_drift(params, effort = effort,
                                      n = current$n, n_pp = current$n_pp,
@@ -590,7 +606,8 @@ project_until_settled <- function(params,
             # An unmeasurable drift is no reason to keep running: the distance
             # criterion the user asked for has been met, and `residual` records
             # that the check could not be made.
-            if (!is.finite(residual) || residual <= residual_tol) {
+            if (!require_steady || !is.finite(residual) ||
+                residual <= residual_tol) {
                 success <- TRUE
                 break
             }
@@ -631,13 +648,18 @@ project_until_settled <- function(params,
             signif(cycle$amplitude, 2), ") after ", years, " years."),
             unhandled = "show")
     } else if (success) {
-        termination <- "residual_tolerance"
-        converged <- TRUE
-        # Both halves of the criterion were just checked at this very state, so
-        # this is the one branch where the claim is not re-derived. It still
-        # goes through the same function, so that "fixed point" cannot come to
-        # mean two things.
+        # The drift was measured at this very state, so the verdict is not
+        # re-derived; it still goes through the same function, so that "fixed
+        # point" cannot come to mean two things. Where the run stopped on the
+        # distance criterion alone the termination says so, rather than naming a
+        # tolerance that was not part of the test.
         attractor <- steady_attractor(residual, residual_tol)
+        converged <- TRUE
+        termination <- if (identical(attractor, "fixed_point")) {
+            "residual_tolerance"
+        } else {
+            "distance_tolerance"
+        }
         # The distance function being satisfied only says that the state stopped
         # moving on that function's own scale, so the message says that and no
         # more. The residual is reported every time, not only when it is large:

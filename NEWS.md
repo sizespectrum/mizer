@@ -158,15 +158,21 @@ fixed, keeping the old names as silent aliases.
   `extinction_threshold` fraction (default `1e-6`) of its value at the start of
   the run.
 
-- A steady-state search no longer stops at a state that is still moving. The
-  distance function dropping below its tolerance is now only half the criterion:
-  the model's biomass drift must also be within the new `residual_tol` argument
-  (default `0.05`/year, the tolerance `isSteady()` uses), and the limit-cycle
-  detection runs on every block rather than only when the distance criterion has
-  failed. A cycle whose period divides `t_per` is sampled at one phase by the
-  distance function and used to look perfectly converged; it is now recognised.
-  `scanModel()` gains the same argument and no longer draws such a point as a
-  band of zero width (#562).
+- `tuneSteadyState()` and `findSteadyState()` no longer stop at a state that is
+  still moving. The distance function dropping below `distance_tol` is only half
+  the criterion: the model's biomass drift must also be within the new
+  `residual_tol` argument (default `0.05`/year, the tolerance `isSteady()`
+  uses), and the limit-cycle detection runs on every block rather than only when
+  the distance criterion has failed. A cycle whose period divides `t_per` is
+  sampled at one phase by the distance function and used to look perfectly
+  converged; it is now recognised. `scanModel()` gains the same argument and no
+  longer draws such a point as a band of zero width (#562).
+
+  The superseded `steady()` and `projectToSteady()` keep the stopping rule they
+  shipped with, so a script that relies on a loose `tol` for a quick run is
+  unaffected. They do report the drift they stopped on: `termination =
+  "distance_tolerance"` with `attractor = NA` says the distance criterion was
+  met while the model was still moving.
 
 - The projection inside a steady-state search now passes absolute time to the
   rate and component functions, as `project()` does. Each block used to restart

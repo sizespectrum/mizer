@@ -403,30 +403,33 @@ When the distance function is satisfied but the drift is not negligible,
 It is a message, not a warning, because convergence at the `tol` you asked for
 did happen.
 
-### A run that is still drifting no longer counts as converged
+### `steady()` says when it stopped short of a fixed point
 
-`steady()` and `projectToSteady()` used to stop as soon as the distance function
-dropped below `tol`. They now also require the model's biomasses to have stopped
-moving: the largest relative rate of biomass change, the number
-`getSteadyResidual()` reports, must be at most `residual_tol`, which defaults to
-`0.05`/year — the same tolerance `isSteady()` uses. If the distance criterion is
-met while the model is still drifting, the run carries on rather than declaring
-a fixed point.
+`steady()` and `projectToSteady()` stop as soon as the distance function drops
+below `tol`, exactly as they always did. **Their stopping rule has not changed**,
+and a script that relies on a loose `tol` to get a quick, rough run still gets
+one.
 
-This is what stops a limit cycle from being reported as a steady state. The
-distance function compares two states `t_per` apart, so a cycle whose period
-divides `t_per` is sampled at the same phase every time and looks perfectly
-converged; the drift is measured at a single state and is not fooled. (The cycle
-detection now also runs on every block for the same reason, rather than only
-when the distance criterion has failed.)
+What has changed is that they now measure the model's biomass drift at the state
+they stop on, and say so. Where that drift is above `0.05`/year — the tolerance
+`isSteady()` uses — the state is not a fixed point, and the `"convergence"`
+attribute records `termination = "distance_tolerance"` (the distance criterion,
+and only that, was met) with `attractor = NA`:
 
-Two consequences for existing code:
+```r
+conv <- attr(steady(params, tol = 1e3), "convergence")
+conv$termination   # "distance_tolerance"
+conv$attractor     # NA — not a fixed point
+conv$residual      # how fast it is still moving, in 1/year
+```
 
-* A run that used to stop after a few years may now run to `t_max`. This is
-  most likely with a deliberately loose `tol`, which used to be the way to stop
-  a run early. Say so directly instead — `t_max = t_per` gives exactly one
-  block — or set `residual_tol = Inf` to ask for the old behaviour.
-* The message on a run that ends this way names the drift as the reason:
+The successful case is `termination = "residual_tolerance"` with
+`attractor = "fixed_point"`. Nothing errors or warns in either case; code that
+ignores the attribute is unaffected.
+
+The new `tuneSteadyState()` and `findSteadyState()` take the stricter line: a
+run there does not stop until the drift is within `residual_tol` as well
+(default `0.05`/year), and carries on to `t_max` otherwise, reporting
 
 ```
 #> Simulation run did not converge after 100 years. The distance function
@@ -435,8 +438,16 @@ Two consequences for existing code:
 #> so this state is not a fixed point.
 ```
 
-The remedy is nearly always to look at what is moving, with
-`plot(getSteadyResidual(params))`, rather than to loosen `residual_tol`.
+The remedy there is nearly always to look at what is moving, with
+`plot(getSteadyResidual(params))`, rather than to loosen `residual_tol`. Pass
+`t_max = t_per` for a deliberate single block, or `residual_tol = Inf` for the
+wrappers' rule.
+
+<!-- agent-only -->
+If a user reports that `steady()` has become slow, this is **not** the cause —
+its stopping rule is untouched. Check `t_max`, the model size, and whether they
+have switched to `tuneSteadyState()`, which is where the stricter rule lives.
+<!-- /agent-only -->
 
 ### The steady-state run advances time like `project()` does
 

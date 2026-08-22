@@ -368,6 +368,34 @@ test_that("the superseded finders keep their return_sim argument", {
                    attr(p2, "convergence")$termination)
 })
 
+test_that("the superseded finders keep their old stopping rule", {
+  # Released code was written against a rule that stopped as soon as the
+  # distance function was satisfied, and a loose tolerance was the way to ask
+  # for a quick, rough run. The new finders also require the biomasses to have
+  # stopped drifting; the wrappers do not, so such a call still returns after
+  # one block instead of running to `t_max`.
+  params <- NS_params_small
+  initialN(params)[1, ] <- initialN(params)[1, ] * 3
+  args <- list(t_per = 1, t_max = 10, dt = 0.5, progress_bar = FALSE,
+               info_level = 0)
+
+  old <- suppressMessages(do.call(steady, c(list(params), args, tol = 1e3)))
+  new <- suppressMessages(do.call(tuneSteadyState,
+                                  c(list(params), args, distance_tol = 1e3)))
+
+  conv_old <- attr(old, "convergence")
+  conv_new <- attr(new, "convergence")
+  expect_identical(conv_old$termination, "distance_tolerance")
+  # The wrapper stops on the distance criterion alone, so it stops sooner than
+  # the new function, which holds out for a state that has stopped moving.
+  expect_gt(conv_new$years, conv_old$years)
+
+  # Stopping early is not the same as claiming to have arrived: the drift is
+  # measured either way, and it is what sets the verdict on the state.
+  expect_true(is.na(conv_old$attractor))
+  expect_gt(conv_old$residual, steady_residual_tol())
+})
+
 test_that("the superseded finders do not warn", {
   params <- NS_params_small
   args <- list(t_per = 1, t_max = 1, dt = 0.5, tol = 1e3,

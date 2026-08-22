@@ -64,8 +64,8 @@ function` — carry no such quote, so match those rows on the function name.
 | Symptom | Cause | Section |
 |---|---|---|
 | `projectToSteady()` finds a limit cycle much earlier, or one it used to miss | ignores the first half of the simulation | `projectToSteady()` ignores initial transients |
-| `steady()` or `projectToSteady()` runs to `t_max` where it used to stop early, often with a loose `tol` | a converged distance function is no longer enough on its own | A run that is still drifting no longer counts as converged |
-| Message `"which is below the distance tolerance, but the"` from a steady-state run | the distance criterion was met but the model is still drifting | A run that is still drifting no longer counts as converged |
+| `attr(params, "convergence")$termination` is `"distance_tolerance"` after `steady()` | the run stopped on the distance criterion with the model still drifting | `steady()` says when it stopped short of a fixed point |
+| Message `"which is below the distance tolerance, but the"`, or a `tuneSteadyState()` run that goes to `t_max` where `steady()` stopped early | the new finders also require the biomasses to have stopped moving | `steady()` says when it stopped short of a fixed point |
 | `conv$type` or `conv$settled` on a `"convergence"` attribute is `NULL`, or an `expect_named()` on it fails | the attribute now has `termination`, `converged` and `attractor` | The convergence attribute has a new shape |
 | A limit cycle used to be reported as a converged steady state | the fixed-point claim is now made on the measured biomass drift | The convergence attribute has a new shape |
 | `steady()` gives different results for a model with seasonal or otherwise time-dependent rates | every block used to restart the clock at zero | The steady-state run advances time like `project()` does |

@@ -730,6 +730,13 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
                             amp_rel_tol = amp_rel_tol,
                             extinction_threshold = extinction_threshold,
                             return_sim = return_sim,
+                            # Released code was written against a stopping rule
+                            # that used the distance function alone, so that is
+                            # what this wrapper keeps. The drift is still
+                            # measured and still decides `attractor`, so the
+                            # result says what it is; only the decision to keep
+                            # running is left as it was.
+                            require_steady = FALSE,
                             progress_bar = progress_bar,
                             info_level = info_level, method = method)
     })
@@ -780,6 +787,9 @@ projectToSteady.MizerParams <- function(params,
                           amplitude_tol = amplitude_tol,
                           amp_rel_tol = amp_rel_tol,
                           extinction_threshold = extinction_threshold,
+                          # As in steady() above: the old stopping rule, the
+                          # new report.
+                          require_steady = FALSE,
                           progress_bar = progress_bar, info_level = info_level,
                           method = method, ..., return_sim = return_sim)
 }

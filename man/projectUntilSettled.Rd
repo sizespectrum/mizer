@@ -114,7 +114,10 @@ solution the run settled on, a named list with entries. The first three
 answer three different questions and should not be read as one:
 \describe{
 \item{\code{termination}}{Why the run stopped: \code{"residual_tolerance"} (both
-convergence criteria were met), \code{"cycle_detected"} (a limit cycle),
+convergence criteria were met), \code{"distance_tolerance"} (the distance
+function was satisfied but the state is still drifting — reachable with
+a loose \code{residual_tol}, and from the superseded \code{\link[=steady]{steady()}}, which stops
+on the distance criterion alone), \code{"cycle_detected"} (a limit cycle),
 \code{"time_limit"} (still changing at \code{t_max}) or \code{"extinction"} (a species
 died out). The steady-state finders can also return
 \code{"solver_converged"} and \code{"solver_failed"} from the Newton solver.}
@@ -217,8 +220,8 @@ a different question — a distance function can be insensitive to the very
 motion that is left. When the distance criterion is met but the drift is not,
 the run carries on rather than declaring a fixed point.
 
-When both hold the run stops with \code{type = "below_tolerance"}. The type is
-deliberately not called \code{"steady"}: \code{residual_tol} is a working tolerance
+When both hold the run stops with \code{termination = "residual_tolerance"}. That
+is deliberately not called \code{"steady"}: \code{residual_tol} is a working tolerance
 rather than a proof, and the \code{residual} entry of the \code{"convergence"}
 attribute reports the drift that was actually reached.
 
@@ -276,38 +279,45 @@ that accuracy; reduce \code{t_save} if you need the period more precisely.
 
 
 The stopping criterion is a proxy. It says that two states \code{t_per} years
-apart differ by less than \code{tol} on whatever scale the criterion is measured
-on; it does not say that the state reached is a fixed point. There are four
-ways the returned object can fail to be one:
+apart differ by less than \code{distance_tol} on whatever scale the criterion is
+measured on; it does not say that the state reached is a fixed point. There
+are four ways the returned object can fail to be one:
 \itemize{
-\item the run converged on its own scale while the biomasses are still
-visibly drifting, because \code{tol} was too loose (\code{type = "below_tolerance"}, which is why that type is not called \code{"steady"});
-\item the run reached \code{t_max} without converging (\code{type = "not_converged"});
-\item the run settled on a limit cycle (\code{type = "cycle"}), in which case the
-state stored is one point on that cycle;
+\item the run converged on its own scale while the biomasses are still visibly
+drifting (\code{termination = "distance_tolerance"});
+\item the run reached \code{t_max} without converging
+(\code{termination = "time_limit"});
+\item the run settled on a limit cycle (\code{termination = "cycle_detected"}), in
+which case the state stored is one point on that cycle;
 \item the run stopped because a species was going extinct
-(\code{type = "extinction"}).
+(\code{termination = "extinction"}).
 }
 
 So treat the result as a claim to be checked rather than as a guarantee:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{attr(params, "convergence")$type      # "below_tolerance", "cycle", "not_converged", "extinction"
-attr(params, "convergence")$residual  # largest biomass drift, in 1/year
-isSteady(params)                      # TRUE if within tolerance
-summary(params)                       # includes the biomass-drift verdict
-plot(getSteadyResidual(params))       # which species, and at which sizes
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{attr(params, "convergence")$attractor  # "fixed_point", "limit_cycle" or NA
+attr(params, "convergence")$residual   # largest biomass drift, in 1/year
+isSteady(params)                       # TRUE if within tolerance
+summary(params)                        # includes the biomass-drift verdict
+plot(getSteadyResidual(params))        # which species, and at which sizes
 }\if{html}{\out{</div>}}
 
-The first four say \emph{whether} the model is steady, the last says \emph{where} it
-is not, which is the one to reach for when it is not: a model that is off
-steady state is usually off in one species or one part of the size range,
-and the plot names it. See \code{\link[=getSteadyResidual]{getSteadyResidual()}} for why the verdict is
-phrased in terms of biomass drift rather than the largest per-capita rate.
+\code{attractor} is the field that answers the question: it is \code{"fixed_point"}
+only where the measured biomass drift is within \code{residual_tol}, so it
+cannot be satisfied by a distance function that has merely gone quiet.
+\code{termination} says how the run ended and \code{converged} whether the solver met
+its own criterion; neither is a claim about the state. The last line says
+\emph{where} the model is not steady, which is the one to reach for when it is
+not: a model that is off steady state is usually off in one species or one
+part of the size range, and the plot names it. See \code{\link[=getSteadyResidual]{getSteadyResidual()}}
+for why the verdict is phrased in terms of biomass drift rather than the
+largest per-capita rate.
 
 The messages this function prints say the same thing — a converged run
-whose biomasses are still moving reports the drift and adds "Reduce \code{tol}
-to converge further." — but they are suppressed by \code{info_level = 0}, so in
-a script the \code{"convergence"} attribute is the reliable check.
+whose biomasses are still moving reports the drift and adds "Reduce the
+tolerance on the distance function to converge further." — but they are
+suppressed by \code{info_level = 0}, so in a script the \code{"convergence"}
+attribute is the reliable check.
 
 Finally, a genuine fixed point need not be a \emph{stable} one. Use
 \code{\link[=getStability]{getStability()}} to find out, and \code{solver = "newton"} to converge onto a

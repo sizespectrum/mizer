@@ -309,6 +309,9 @@ findSteadyState.MizerParams <- function(params,
 #' @inheritParams projectUntilSettled
 #' @param return_sim Whether to return the `MizerSim` of the run instead of the
 #'   tuned `MizerParams`.
+#' @param require_steady Whether the biomass drift must also be within
+#'   `residual_tol` before the run may stop; `FALSE` restores the stopping rule
+#'   that [steady()] shipped with. See `project_until_settled()`.
 #' @return A `MizerParams`, or a `MizerSim` if `return_sim = TRUE`, carrying the
 #'   `"convergence"` attribute.
 #' @noRd
@@ -318,7 +321,8 @@ tune_steady_project <- function(params, effort, preserve,
                                 residual_tol = steady_residual_tol(),
                                 amplitude_tol = 0.01, amp_rel_tol = 0.01,
                                 extinction_threshold = 1e-6,
-                                return_sim = FALSE, progress_bar = TRUE,
+                                return_sim = FALSE, require_steady = TRUE,
+                                progress_bar = TRUE,
                                 info_level = default_info_level(),
                                 method = c("euler", "predictor_corrector",
                                            "tr_bdf2")) {
@@ -363,6 +367,7 @@ tune_steady_project <- function(params, effort, preserve,
                                     amp_rel_tol = amp_rel_tol,
                                     extinction_threshold = extinction_threshold,
                                     return_sim = return_sim,
+                                    require_steady = require_steady,
                                     progress_bar = progress_bar,
                                     info_level = info_level,
                                     method = method)
