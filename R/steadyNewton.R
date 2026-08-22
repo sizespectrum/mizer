@@ -892,34 +892,57 @@ stability_step <- function(ctx, dt) {
 #'
 #' @param evecs The eigenvector matrix, columns already sorted.
 #' @param ctx The context from `stability_context()`.
-#' @return The `leading_eigenvectors` component of the stability list.
+#' @param cols The columns of `evecs` to reshape. Defaults to the first two.
+#' @return A list with `$fish`, a complex `(n_species, n_sizes, length(cols))`
+#'   array, and `$resource`, a complex `(n_w_full, length(cols))` matrix.
 #' @noRd
-stability_eigenvectors <- function(evecs, ctx) {
-    n_leading <- min(2L, ncol(evecs))
+stability_eigenvectors <- function(evecs, ctx,
+                                   cols = seq_len(min(2L, ncol(evecs)))) {
     N_ss  <- ctx$N_ss
     no_sp <- nrow(N_ss)
     no_w  <- ncol(N_ss)
+    n_out <- length(cols)
 
-    fish <- array(0 + 0i, dim = c(no_sp, no_w, n_leading),
+    fish <- array(0 + 0i, dim = c(no_sp, no_w, n_out),
                   dimnames = c(dimnames(N_ss), list(NULL)))
-    for (k in seq_len(n_leading)) {
-        v <- evecs[seq_len(ctx$n_fish_active), k]
-        # Normalise to maximum modulus 1 for comparability.
-        max_mod <- max(Mod(v))
-        if (max_mod > 0) v <- v / max_mod
+    resource <- matrix(0 + 0i, nrow = ctx$n_npp, ncol = n_out)
+
+    # Fish abundances and resource densities differ by many orders of
+    # magnitude, so a normalisation by absolute modulus would be set entirely
+    # by the resource block and leave the fish block at ~1e-13. Scale instead
+    # by the largest perturbation *relative to the local steady state*, which
+    # is the quantity the two blocks have in common. `ctx$x0` is the packed
+    # steady state, in the same row order as the eigenvectors.
+    x_ss <- ctx$x0
+    pos  <- x_ss > 0
+
+    for (k in seq_len(n_out)) {
+        # One scalar for the whole state vector, so that the relative
+        # amplitude and phase between the fish block and the resource block
+        # are those of the mode. Normalising the two blocks separately would
+        # rescale them by different factors and destroy exactly the
+        # information that makes the resource component worth returning.
+        v <- evecs[, cols[k]]
+        max_rel <- if (any(pos)) max(Mod(v[pos]) / x_ss[pos]) else 0
+        if (max_rel > 0) v <- v / max_rel
+
         M <- matrix(0 + 0i, nrow = no_sp, ncol = no_w)
-        M[ctx$active_idx] <- v
+        M[ctx$active_idx] <- v[seq_len(ctx$n_fish_active)]
         fish[, , k] <- M
-    }
-    resource <- matrix(0 + 0i, nrow = ctx$n_npp, ncol = n_leading)
-    for (k in seq_len(n_leading)) {
-        v <- evecs[ctx$n_fish_active + seq_len(ctx$n_npp), k]
-        max_mod <- max(Mod(v))
-        if (max_mod > 0) v <- v / max_mod
-        resource[, k] <- v
+        resource[, k] <- v[ctx$n_fish_active + seq_len(ctx$n_npp)]
     }
     rownames(resource) <- names(ctx$npp_ss)
     list(fish = fish, resource = resource)
+}
+
+#' Drop the trailing mode dimension of a `stability_eigenvectors()` result
+#'
+#' @param ev A `stability_eigenvectors()` list holding a single mode.
+#' @return A list with `$fish`, a complex `(n_species, n_sizes)` matrix, and
+#'   `$resource`, a complex vector of length `n_w_full`.
+#' @noRd
+single_eigenvector <- function(ev) {
+    list(fish = ev$fish[, , 1], resource = ev$resource[, 1])
 }
 
 #' Analyse the dynamic stability of a mizer steady state
@@ -1003,18 +1026,31 @@ stability_eigenvectors <- function(evecs, ctx) {
 #'       with the largest real part; `NULL` when no complex eigenvalue
 #'       exists.  This is the expected limit-cycle period near a Hopf
 #'       bifurcation.}
+#'     \item{`hopf_eigenvalue`}{That eigenvalue itself, or `NULL` when there
+#'       is none. Its real part is the rate at which the oscillation grows.}
+#'     \item{`hopf_eigenvector`}{Its eigenvector, as a list with `$fish`, a
+#'       complex `(n_species, n_sizes)` matrix, and `$resource`, a complex
+#'       vector of length `n_w_full`. This is the mode [getLimitCycleSim()]
+#'       draws, and it is not in general one of `leading_eigenvectors`: the
+#'       dominant mode of the system can be real while the dominant
+#'       *oscillatory* mode is well down the spectrum.}
 #'     \item{`n_active`}{Dimension of the Jacobian: the number of active fish
 #'       cells plus all resource cells.}
 #'     \item{`leading_eigenvectors`}{The eigenvectors of the two eigenvalues
-#'       with the largest real part, reshaped back into the fish abundance
-#'       space: a list with `$fish`, a complex array of shape
-#'       `(n_species, n_sizes, 2)` with the same species and size dimnames as
-#'       `params@initial_n`, and `$resource`, a complex matrix of shape
-#'       `(n_w_full, 2)` for the resource component.
-#'       Each eigenvector is normalised so that its maximum modulus equals 1.
-#'       The real and imaginary parts of eigenvector 1 span the two-dimensional
-#'       oscillation plane of the dominant mode; `Mod()` gives the amplitude
-#'       pattern across species and sizes.}
+#'       with the largest real part, reshaped back into the state space: a list
+#'       with `$fish`, a complex array of shape `(n_species, n_sizes, 2)` with
+#'       the same species and size dimnames as `params@initial_n`, and
+#'       `$resource`, a complex matrix of shape `(n_w_full, 2)`.
+#'       Each eigenvector is normalised by a single scalar covering both
+#'       blocks, so that the relative amplitude and phase between fish and
+#'       resource are those of the mode. The scalar is chosen so that the
+#'       largest perturbation *relative to the steady state*,
+#'       \eqn{|v_i| / x^*_i}, is 1 somewhere in the state: an absolute
+#'       normalisation would be set entirely by the resource, whose densities
+#'       dwarf the fish abundances. `Mod(fish[, , 1]) / initialN(params)` is
+#'       therefore the relative amplitude pattern, peaking at 1 in whichever
+#'       cell swings hardest. The real and imaginary parts of eigenvector 1
+#'       span the two-dimensional oscillation plane of the dominant mode.}
 #'     \item{`params`}{The validated `params` object the analysis was made at.}
 #'   }
 #' @section Requires smooth dynamics:
@@ -1057,11 +1093,19 @@ getStability <- function(params,
     is_complex <- abs(Im(evals)) > 1e-8
     if (any(is_complex)) {
         # The complex eigenvalue closest to (or furthest across) the imaginary
-        # axis is the one whose oscillation the dynamics show.
-        lam_hopf <- evals[is_complex][which.max(Re(evals[is_complex]))]
-        hopf_period <- 2 * pi / abs(Im(lam_hopf))
+        # axis is the one whose oscillation the dynamics show. Its eigenvector
+        # is returned alongside it: it need not be among the leading two, and
+        # picking it out of `leading_eigenvectors` by index would silently
+        # return the shape of a different mode whenever it is not.
+        hopf_idx <- which(is_complex)[which.max(Re(evals[is_complex]))]
+        hopf_eigenvalue  <- evals[hopf_idx]
+        hopf_period      <- 2 * pi / abs(Im(hopf_eigenvalue))
+        hopf_eigenvector <- single_eigenvector(
+            stability_eigenvectors(evecs, ctx, cols = hopf_idx))
     } else {
-        hopf_period <- NULL
+        hopf_eigenvalue  <- NULL
+        hopf_period      <- NULL
+        hopf_eigenvector <- NULL
     }
 
     list(
@@ -1070,6 +1114,8 @@ getStability <- function(params,
         stable               = max_real_part < 0,
         dominant_period      = dominant_period,
         hopf_period          = hopf_period,
+        hopf_eigenvalue      = hopf_eigenvalue,
+        hopf_eigenvector     = hopf_eigenvector,
         n_active             = length(ctx$x0),
         leading_eigenvectors = stability_eigenvectors(evecs, ctx),
         params               = ctx$params

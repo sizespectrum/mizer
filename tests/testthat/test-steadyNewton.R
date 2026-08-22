@@ -271,7 +271,8 @@ test_that("getStability returns a well-formed list for a stable model", {
 
     expect_type(stab, "list")
     expect_named(stab, c("eigenvalues", "max_real_part", "stable",
-                         "dominant_period", "hopf_period", "n_active",
+                         "dominant_period", "hopf_period", "hopf_eigenvalue",
+                         "hopf_eigenvector", "n_active",
                          "leading_eigenvectors", "params"))
     expect_true(is.complex(stab$eigenvalues))
     expect_type(stab$max_real_part, "double")
@@ -378,7 +379,8 @@ test_that("getStability returns a well-formed list including the resource", {
 
     expect_type(stab, "list")
     expect_named(stab, c("eigenvalues", "max_real_part", "stable",
-                         "dominant_period", "hopf_period", "n_active",
+                         "dominant_period", "hopf_period", "hopf_eigenvalue",
+                         "hopf_eigenvector", "n_active",
                          "leading_eigenvectors", "params"))
     # The resource is always part of the state, so the Jacobian is larger than
     # the number of active fish cells.
@@ -512,12 +514,47 @@ test_that("leading_eigenvectors have correct shape and are normalised", {
     expect_equal(dim(lev)[2], ncol(pn@initial_n))
     expect_equal(dim(lev)[3], 2L)
 
-    # Each eigenvector normalised: max(Mod(.)) == 1 over active cells
-    expect_equal(max(Mod(lev[, , 1])), 1, tolerance = 1e-10)
-    expect_equal(max(Mod(lev[, , 2])), 1, tolerance = 1e-10)
+    # Normalised jointly over fish and resource, by the largest perturbation
+    # relative to the steady state.
+    N <- initialN(pn); npp <- initialNResource(pn)
+    joint_max_rel <- function(k) {
+        max(max(Mod(stab$leading_eigenvectors$fish[, , k])[N > 0] / N[N > 0]),
+            max(Mod(stab$leading_eigenvectors$resource[, k])[npp > 0] /
+                    npp[npp > 0]))
+    }
+    expect_equal(joint_max_rel(1), 1, tolerance = 1e-10)
+    expect_equal(joint_max_rel(2), 1, tolerance = 1e-10)
 
     # Dimnames match initial_n
     expect_equal(dimnames(lev)[1:2], dimnames(pn@initial_n))
+})
+
+test_that("getStability returns the dominant oscillatory mode with its vector", {
+    skip_unless_experimental()
+    pn   <- steadyNewton(p_steady)
+    stab <- getStability(pn)
+    skip_if(is.null(stab$hopf_eigenvalue), "No complex eigenvalue in this model.")
+
+    # hopf_period must describe hopf_eigenvalue, and that eigenvalue must be
+    # the complex one with the largest real part.
+    expect_equal(stab$hopf_period, 2 * pi / abs(Im(stab$hopf_eigenvalue)))
+    is_cplx <- abs(Im(stab$eigenvalues)) > 1e-8
+    expect_equal(stab$hopf_eigenvalue,
+                 stab$eigenvalues[is_cplx][which.max(Re(stab$eigenvalues[is_cplx]))])
+
+    # The vector travels with the eigenvalue, one mode, no trailing dimension.
+    expect_equal(dim(stab$hopf_eigenvector$fish), dim(pn@initial_n))
+    expect_length(stab$hopf_eigenvector$resource, length(pn@w_full))
+
+    # It really is an eigenvector of that eigenvalue: when the Hopf mode is
+    # also the dominant one, it must match the leading eigenvector up to phase.
+    if (isTRUE(all.equal(stab$hopf_eigenvalue, stab$eigenvalues[1]))) {
+        a <- as.vector(stab$hopf_eigenvector$fish)
+        b <- as.vector(stab$leading_eigenvectors$fish[, , 1])
+        keep <- Mod(b) > 0
+        ratio <- (a[keep] / b[keep])
+        expect_equal(max(Mod(ratio)) - min(Mod(ratio)), 0, tolerance = 1e-8)
+    }
 })
 
 test_that("steadyNewton respects info_level", {

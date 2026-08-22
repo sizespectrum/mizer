@@ -104,11 +104,26 @@ directly instead of inverting the one-step map.
 `getLimitCycleSim(params)` takes the output of `steadyNewton()` and builds a
 `MizerSim` covering **one period** of the limit cycle in the linear approximation,
 
-\[ N(t) = N^* + A\,\mathrm{Re}\!\left[e^{i\theta t}\,\mathbf v\right], \]
+\[ x(t) = x^* + A\,\mathrm{Re}\!\left[e^{i\omega t}\,\mathbf v\right], \]
 
-where \(\mathbf v\) is the leading complex eigenvector and the amplitude \(A\) is
-scaled so the maximum relative perturbation equals the `amplitude` argument
-(default 10%). The result is an ordinary `MizerSim`, so plot it with the standard
+over the whole state \(x = (N, n_{pp})\), where \(\mathbf v\) is
+`getStability()`'s `hopf_eigenvector` — the eigenvector of the dominant
+*oscillatory* mode, which is not in general the dominant mode — and \(A\) is
+scaled so that the largest relative swing in **species biomass** equals the
+`amplitude` argument (default 10%): the hardest-oscillating species departs
+that far from its steady biomass and no species departs further. Fish and
+resource share one \(A\), so the resource oscillates with the phase the mode
+gives it; on `NS_params` at effort 1.5 it leads the fish biomass by about 0.7
+of the 5.03-year period. The growth factor \(e^{\sigma t}\) is deliberately
+omitted so the cycle closes; \(\sigma\) is recorded as `growth_rate` in the
+result's `sim_params`.
+
+A biomass amplitude does not bound the individual size classes — a cohort
+trough is a far larger relative excursion than the biomass integral over it —
+so `getLimitCycleSim()` reports when the perturbation drives an abundance
+negative and it has to be clipped at zero. On `NS_params` at effort 1.5 that
+starts at around `amplitude = 0.2`. Past that point the picture is no longer
+the linear mode. The result is an ordinary `MizerSim`, so plot it with the standard
 tools (see the `analyse-and-plot` skill):
 
 ```r
