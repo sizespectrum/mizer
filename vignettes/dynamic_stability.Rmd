@@ -25,7 +25,7 @@ If a steady state is unstable, small perturbations will grow rather than decay, 
 
 Mizer's steady-state finders take a `solver` argument for exactly this case. With `solver = "newton"` they find steady states irrespective of their stability by solving the algebraic equilibrium equations directly. Once a steady state is found, its stability can be analysed using `getStability()`.
 
-This vignette explains how to perform this stability analysis, what the results mean, how mizer's steady-state finders detect and characterise limit cycles, and how to use the linearised limit cycle approximation provided by `getLimitCycleSim()` to understand emergent oscillations around a Hopf bifurcation.
+This vignette explains how to perform this stability analysis, what the results mean, how mizer's steady-state finders detect and characterise limit cycles, and how to use the linearised limit cycle approximation provided by `getOscillationModeSim()` to understand emergent oscillations around a Hopf bifurcation.
 
 ## Linear stability analysis
 
@@ -201,10 +201,10 @@ sim_cycle <- projectUntilSettled(params, effort = 1.5, t_max = 200,
 attr(sim_cycle, "convergence")
 ```
 
-`projectUntilSettled()` correctly identifies the attractor as a limit cycle with a period of about `r round(attr(sim_cycle, "convergence")$period, 1)` years and a peak-to-trough biomass amplitude of about `r round(100 * attr(sim_cycle, "convergence")$amplitude)`% of the mean. Applied to a model with a genuine stable steady state (such as the default `params` at effort 0), the function reports `type = "below_tolerance"` instead, meaning the state stopped moving on the scale of the distance function:
+`projectUntilSettled()` correctly identifies the attractor as a limit cycle with a period of about `r round(attr(sim_cycle, "convergence")$period, 1)` years and a peak-to-trough biomass amplitude of about `r round(100 * attr(sim_cycle, "convergence")$amplitude)`% of the mean. Applied to a model with a genuine stable steady state (such as the default `params` at effort 0), the same call reports `attractor = "fixed_point"`, which it does only when the biomasses have actually stopped drifting and not merely because the distance function went quiet:
 
 ```{r pts_steady}
-attr(projectUntilSettled(params, t_max = 100), "convergence")$type
+attr(projectUntilSettled(params, t_max = 100), "convergence")$attractor
 ```
 
 Because it is a standard `MizerSim` object, we can plot the emergence of the limit cycle directly:
@@ -217,10 +217,10 @@ Notice how well the detected nonlinear period (about `r round(attr(sim_cycle, "c
 
 ## Visualising the oscillation shape
 
-Finally, `getLimitCycleSim()` constructs a `MizerSim` object covering one period of the oscillation *in the linear approximation*, using the eigenvector of the dominant oscillatory mode. This isolates the pure **shape** of the cycle — which species and sizes participate and with what phase — without the growth or the nonlinear distortion of the full run. Fish and resource are driven by the same eigenvector and the same scale factor, so the resource carries the phase the mode gives it: on this model it leads the total fish biomass by about 0.3 years of the 5.12-year period.
+Finally, `getOscillationModeSim()` constructs a `MizerSim` object covering one period of the oscillation *in the linear approximation*, using the eigenvector of the dominant oscillatory mode. This isolates the pure **shape** of the cycle — which species and sizes participate and with what phase — without the growth or the nonlinear distortion of the full run. Fish and resource are driven by the same eigenvector and the same scale factor, so the resource carries the phase the mode gives it: on this model it leads the total fish biomass by about 0.3 years of the 5.12-year period.
 
 ```{r limit_cycle}
-lcs <- getLimitCycleSim(params_f15, amplitude = 0.1)
+lcs <- getOscillationModeSim(params_f15, amplitude = 0.1)
 ```
 
 Because `lcs` is an ordinary `MizerSim` object, any of the standard mizer plotting functions can be used to explore it. For example, the biomass over one period:

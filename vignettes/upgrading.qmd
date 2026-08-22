@@ -388,24 +388,103 @@ Steady state:
 Code that parses the output of `summary()` by line position needs updating. The
 same number is available directly as [`getSteadyResidual()`](../reference/getSteadyResidual.html).
 
-### The convergence attribute gained a `residual` field
+### The convergence attribute has a new shape
 
-The `"convergence"` attribute attached by `projectToSteady()` and `steady()` has
-a new `residual` entry, so `expect_named()` or `names()` checks on it need
-updating. It reports how far the state reached actually is from a fixed point,
-which the existing `distance` field only approximates — `distance` compares two
-states `t_per` apart on whatever scale the distance function uses.
+The `"convergence"` attribute attached by `projectToSteady()` and `steady()`
+used to carry `type` and `settled`. It now carries three fields in their place,
+because those two were being read as one answer to three different questions:
 
-When the two disagree, `steady()` appends to its convergence message:
+| Field | Answers | Values |
+|---|---|---|
+| `termination` | Why the run stopped | `"residual_tolerance"`, `"cycle_detected"`, `"time_limit"`, `"extinction"`, and from the Newton solver `"solver_converged"`, `"solver_failed"` |
+| `converged` | Whether the solver met its own criterion | `TRUE`/`FALSE` |
+| `attractor` | What the state reached *is* | `"fixed_point"`, `"limit_cycle"`, `NA` |
+
+`distance`, `years`, `period` and `amplitude` are unchanged, and there is a new
+`residual`: how far the state reached actually is from a fixed point, which the
+`distance` field only approximates — `distance` compares two states `t_per`
+apart on whatever scale the distance function uses, and a distance function can
+go quiet while the model is still moving.
+
+Code that tested `conv$type == "steady"` or `conv$settled` needs updating, and
+so does any `expect_named()` or `names()` check on the attribute. The
+translation:
+
+```{r eval=FALSE}
+# old
+if (conv$settled && conv$type == "below_tolerance") ...
+# new — the question is almost always about the state, not the run
+if (identical(conv$attractor, "fixed_point")) ...
+```
+
+`attractor` is the only one of the three that may be read as a claim that the
+model is at a steady state: it is set from the measured biomass drift, so it is
+`"fixed_point"` only where that drift is within tolerance. `converged` says the
+numerics went well, which is a different thing and is why a limit cycle could
+previously be reported as a converged fixed point.
+
+When the distance function is satisfied but the drift is not negligible,
+`steady()` appends to its convergence message:
 
 ```
 #> Reached the convergence tolerance after 12 years. The biomasses change at up
-#> to 0.42 per year. Reduce `tol` to converge further.
+#> to 0.42 per year. Reduce the tolerance on the distance function to converge
+#> further.
 ```
 
-This is the case where the relative-RDI criterion is satisfied while the spectra
-are still moving. It is a message, not a warning, because convergence at the
-`tol` you asked for did happen.
+It is a message, not a warning, because convergence at the `tol` you asked for
+did happen.
+
+### A run that is still drifting no longer counts as converged
+
+`steady()` and `projectToSteady()` used to stop as soon as the distance function
+dropped below `tol`. They now also require the model's biomasses to have stopped
+moving: the largest relative rate of biomass change, the number
+`getSteadyResidual()` reports, must be at most `residual_tol`, which defaults to
+`0.05`/year — the same tolerance [`isSteady()`](../reference/isSteady.html) uses. If the distance criterion is
+met while the model is still drifting, the run carries on rather than declaring
+a fixed point.
+
+This is what stops a limit cycle from being reported as a steady state. The
+distance function compares two states `t_per` apart, so a cycle whose period
+divides `t_per` is sampled at the same phase every time and looks perfectly
+converged; the drift is measured at a single state and is not fooled. (The cycle
+detection now also runs on every block for the same reason, rather than only
+when the distance criterion has failed.)
+
+Two consequences for existing code:
+
+* A run that used to stop after a few years may now run to `t_max`. This is
+  most likely with a deliberately loose `tol`, which used to be the way to stop
+  a run early. Say so directly instead — `t_max = t_per` gives exactly one
+  block — or set `residual_tol = Inf` to ask for the old behaviour.
+* The message on a run that ends this way names the drift as the reason:
+
+```
+#> Simulation run did not converge after 100 years. The distance function
+#> returned 0.0002, which is below the distance tolerance, but the biomasses are
+#> still changing at up to 0.4 per year, which is above the residual tolerance,
+#> so this state is not a fixed point.
+```
+
+The remedy is nearly always to look at what is moving, with
+`plot(getSteadyResidual(params))`, rather than to loosen `residual_tol`.
+
+### The steady-state run advances time like `project()` does
+
+`steady()` and `projectToSteady()` break the run into blocks of `t_per` years,
+and each block used to start its clock again at `t = 0`. A rate function or a
+component's dynamics function that reads `t` therefore saw the same short
+interval over and over instead of a clock that runs. Seasonal forcing, a
+time-dependent external mortality, or anything else registered with
+[`setRateFunction()`](../reference/setRateFunction.html) or [`setComponent()`](../reference/setComponent.html) that depends on `t` was affected; the
+result differed from [`project()`](../reference/project.html) over the same period and could not settle onto
+a forced cycle.
+
+The clock now runs from 0 to the end of the run, exactly as in `project()`.
+Results move for models with time-dependent dynamics, and the new numbers are
+the right ones. Models whose rates do not depend on `t` — which is nearly all of
+them — are unaffected to the last digit.
 
 ### `steady()` reports the tolerance it reached rather than announcing convergence
 
@@ -429,12 +508,10 @@ an extension package's tests, or a script grepping the output. In a script the
 `"convergence"` attribute is the better check anyway, since `info_level = 0`
 suppresses the message entirely.
 
-The same reasoning renamed two things in that attribute, which is new in this
-release and so breaks nothing: its `type` is `"below_tolerance"` rather than
-`"steady"`, and the logical field saying the run stopped on a criterion of its
-own rather than running out of time is called `settled` rather than `converged`.
-Neither now reads as a promise that the state is a fixed point; `residual` is
-the field that answers that.
+The same reasoning reshaped that attribute; see *The convergence attribute has a
+new shape* above. Nothing in it now reads as a promise that the state is a fixed
+point unless it is one: `attractor` is the field that answers that, and it is
+set from the measured drift.
 
 ### The steady-state finders have new names
 
@@ -490,12 +567,58 @@ untouched. Renaming is a search and replace whenever you next touch the code.
 
 ### `getStability()` checks that it was given a steady state
 
-Both [`getStability()`](../reference/getStability.html) and [`getLimitCycleSim()`](../reference/getLimitCycleSim.html) linearise the dynamics *at*
+Both [`getStability()`](../reference/getStability.html) and [`getOscillationModeSim()`](../reference/getOscillationModeSim.html) linearise the dynamics *at*
 `initialN(params)`. If that state is not a fixed point, the eigenvalues describe
 the neighbourhood of a point the model is not sitting at and the verdict on
 stability is meaningless. Both now warn in that case. Run
 `findSteadyState(params, solver = "newton")` first, or silence with
 `options(mizer_info_level = 0)` if you know what you are doing.
+
+### The steady-state and stability tools say that they cover fish and resource
+
+`tuneSteadyState()` holds the components registered with `setComponent()` at
+their stored values while it solves for the spectra, and puts their dynamics
+back afterwards without solving or rebalancing them. `getStability()` and
+[`getDiscreteStability()`](../reference/getDiscreteStability.html) likewise give the Jacobian a row for every fish cell
+and every resource cell and none for any component. That has always been true
+and was never said, so a model built with `setComponent()` could come back
+described as being at a fixed point of dynamics that had not been solved.
+
+Both now warn when they meet a component whose `dynamics_fun` is not
+[`constant_other`](../reference/constant_other.html):
+
+```
+#> The component `detritus` has dynamics of their own, and mizer's steady-state
+#> and stability machinery covers the consumers and the resource only: it is
+#> held at the stored value throughout.
+```
+
+Nothing is refused: the analysis is the right one whenever the component is
+slaved to the fish or moves on a very different timescale, and only the user
+knows which. What has changed is that the assumption is now visible, and that
+the `residual` in the `"convergence"` attribute — which *does* cover the
+components — is measured on the model that is actually returned. Use
+`findSteadyState(solver = "project")` where the components need to settle too:
+the projection advances them like everything else and is not restricted.
+
+A model with a custom [`resource_dynamics`](../reference/setResource.html) and no matching
+`balance_<dynamics>()` function gets a second warning from `tuneSteadyState()`,
+because the resource capacity that would make the preserved resource abundance
+steady cannot be derived:
+
+```
+#> There is no `balance_my_resource()` function, so the resource capacity could
+#> not be rebalanced and the preserved resource abundance need not be a steady
+#> state of `my_resource()`.
+```
+
+This too used to happen silently. Supply a `balance_<dynamics>()` function
+(see [`balance_resource_semichemostat()`](../reference/resource_semichemostat.html) for the shape of one), or read the
+reported residual and decide whether the drift matters.
+
+An extension package whose tests assert that these calls are silent will see
+them fail. That is the point of the change; suppress with
+`options(mizer_info_level = 0)` where the assumption is deliberate.
 
 ### `steady()` converges under the `van_leer` flux scheme
 
@@ -1047,8 +1170,8 @@ Several fixes correct earlier behaviour and so change output:
   a `MizerSim` accepts a `time_range` argument. The diet is now computed from
   the *simulated* abundances at the requested times, defaulting to the final
   saved step, rather than the initial one (#357).
-- **Other components and `t_save`.** [`project()`](../reference/project.html) was advancing the abundances of
-  other components (set via [`setComponent()`](../reference/setComponent.html)) only once per *saved* time step
+- **Other components and `t_save`.** `project()` was advancing the abundances of
+  other components (set via `setComponent()`) only once per *saved* time step
   instead of once per `dt` step. They are now integrated with the same `dt` as
   the consumer and resource spectra, so results for models with other components
   no longer depend on `t_save`.

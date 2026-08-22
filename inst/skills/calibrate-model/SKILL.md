@@ -59,31 +59,41 @@ converges even when the steady state is dynamically **unstable**, and discovers
 the support of the steady state automatically.
 
 **`tuneSteadyState()` returning is not proof that the model is steady.** Its
-stopping test is the relative change in egg production over `t_per`, a proxy for the
-drift itself, and the run can also stop on a limit cycle, on a species going
+stopping test is the relative change in egg production over `t_per`, a proxy for
+the drift itself, and the run can also stop on a limit cycle, on a species going
 extinct, or simply at `t_max`. All four outcomes return a `MizerParams` object
 that looks the same. What distinguishes them is the `"convergence"` attribute,
 and the checks in [Verifying the result](#verifying-the-result):
 
 ```r
 params <- tuneSteadyState(params)
-attr(params, "convergence")$type       # "below_tolerance", "cycle", "not_converged", "extinction"
-attr(params, "convergence")$residual   # largest biomass drift, in 1/year
-plot(getSteadyResidual(params))        # which species, and at which sizes
+attr(params, "convergence")$attractor    # "fixed_point", "limit_cycle" or NA
+attr(params, "convergence")$termination  # why the run stopped
+attr(params, "convergence")$residual     # largest biomass drift, in 1/year
+plot(getSteadyResidual(params))          # which species, and at which sizes
 ```
 
-`"below_tolerance"` says only that the distance function dropped below `tol`,
-which is not a guarantee of a steady state — that is why the type is not called
-`"steady"`. Always read `residual` alongside it: above about `0.05` it means
-`tol` was too loose, so tighten it. `"cycle"` means the dynamics settled onto a limit cycle and the
-stored state is one point on it — see the `analyse-stability` skill.
-`"not_converged"` means the run ran out of time: raise `t_max`, or get a better
-starting spectrum from `steadySingleSpecies()` first, and reach for
-`solver = "newton"` when the fixed point is dynamically unstable. `"extinction"`
-means a species is dying out, which is a modelling problem — see [Diagnosing
-calibration problems](#diagnosing-calibration-problems). `tuneSteadyState()` says all of
-this in its messages too, but `info_level = 0` suppresses those, so in a script
-the attribute is the reliable check.
+**`attractor` is the field to read.** It is set from the measured biomass drift
+of the model that is returned, so `"fixed_point"` means the drift is within
+`residual_tol` (default `0.05`/year) and nothing else does. `termination` says
+how the run ended and `converged` whether the solver was happy, neither of which
+is a claim about the state.
+
+A `termination` of `"residual_tolerance"` is the ordinary success: the distance
+function dropped below `distance_tol` *and* the drift was within `residual_tol`.
+`"cycle_detected"` means the search ran into a limit cycle — see the
+`analyse-stability` skill. `"time_limit"` means the run ran out of time: raise
+`t_max`, or get a better starting spectrum from `steadySingleSpecies()` first,
+and reach for `solver = "newton"` when the fixed point is dynamically unstable.
+`"extinction"` means a species is dying out, which is a modelling problem — see
+[Diagnosing calibration problems](#diagnosing-calibration-problems).
+`tuneSteadyState()` says all of this in its messages too, but `info_level = 0`
+suppresses those, so in a script the attribute is the reliable check.
+
+A run that hits `t_max` having *met* `distance_tol` is worth recognising: the
+message names the drift as the reason, and it means the distance function went
+quiet while the model was still moving. Tightening `distance_tol` will not help;
+`plot(getSteadyResidual(params))` shows what is actually moving.
 
 ## The calibration loop
 
