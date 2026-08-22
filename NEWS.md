@@ -30,13 +30,12 @@ workflow.
   rather than of any solver. It reports whether the steady state is stable or
   unstable (based on the real parts of the eigenvalues), the maximum real part,
   and — when the system approaches a Hopf bifurcation — the period of the
-  emergent limit cycle. By default the resource is treated as a quasi-static
-  fast variable (valid for semichemostat dynamics); setting
-  `include_resource = TRUE` gives the full coupled (fish + resource) Jacobian,
-  useful for verifying that the quasi-static approximation makes little
-  difference. The stability list also includes `leading_eigenvectors`: a complex
-  array `(n_species, n_sizes, 2)` of the top two eigenvectors reshaped into the
-  fish abundance space, normalised to maximum modulus 1. The rate functions are
+  emergent limit cycle. Fish and resource are perturbed together, so the
+  Jacobian is the full coupled one and any resource dynamics function is
+  supported. The stability list also includes `leading_eigenvectors`, holding
+  the top two eigenvectors reshaped into the state space: `$fish`, a complex
+  array `(n_species, n_sizes, 2)`, and `$resource`, a complex matrix
+  `(n_w_full, 2)`, each normalised to maximum modulus 1. The rate functions are
   only ever evaluated at states satisfying `N >= 0` — where a centred difference
   would push a cell negative, the column is differenced forwards from the
   unperturbed state instead — so a custom rate function registered with

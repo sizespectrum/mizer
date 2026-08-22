@@ -17,12 +17,12 @@ description: >-
 
 Tools for asking whether a mizer steady state is dynamically **stable** — and,
 when it is not, characterising the **limit cycle** that replaces it. These are
-**experimental**: their interface may still change. All assume the standard
-semichemostat resource dynamics. `steadyNewton()` solves for the resource
-alongside the fish, so the resource density and the feeding levels it implies
-are self-consistent even where consumers are satiated; `getStability()` instead
-treats the resource as a quasi-static fast variable, and
-`include_resource = TRUE` turns that approximation off.
+**experimental**: their interface may still change. `steadyNewton()` assumes the
+standard semichemostat resource dynamics and solves for the resource alongside
+the fish, so the resource density and the feeding levels it implies are
+self-consistent even where consumers are satiated. `getStability()` and
+`getDiscreteStability()` perturb the resource alongside the fish and so work
+with any resource dynamics.
 
 Distinct from calibration: the `calibrate-model` skill gets you *onto* a fixed
 point; what follows analyses the *dynamics around* it. The natural entry point
@@ -39,10 +39,10 @@ eigenvalues are a property of the model rather than of a solver. The result
 reports whether the state is stable or unstable, the maximum real part of the
 eigenvalues (`max_real_part`; > 0 means unstable), and — when the system is near
 a Hopf bifurcation — the **period** of the emergent limit cycle
-(`dominant_period`, `hopf_period`). It also returns `leading_eigenvectors`, a
-complex array `(n_species, n_sizes, 2)` of the top two eigenvectors in
-fish-abundance space, normalised to maximum modulus 1 (the spatial shape of the
-oscillation).
+(`dominant_period`, `hopf_period`). It also returns `leading_eigenvectors`, the
+top two eigenvectors of the state space split into `$fish`, a complex array
+`(n_species, n_sizes, 2)`, and `$resource`, a complex matrix `(n_w_full, 2)`,
+each normalised to maximum modulus 1 (the spatial shape of the oscillation).
 
 ```r
 params <- steadyNewton(params)          # sit exactly on the (possibly unstable) fixed point
@@ -50,9 +50,12 @@ stab   <- getStability(params)
 stab                                     # stable/unstable, growth rate, cycle period
 ```
 
-- `include_resource = TRUE` computes the full coupled (fish + resource) Jacobian
-  instead of the quasi-static approximation — mainly to verify that the
-  approximation makes little difference.
+- The resource is always a state variable of the analysis. There is no option to
+  substitute it at its quasi-static equilibrium: that shortcut is a good
+  approximation for the model (it moves the leading eigenvalue of `NS_params` at
+  effort 1.5 by 3%) but not for a one-step map, whose resource response lags by a
+  whole step — at `dt = 1` it turns a spectral radius of 1.14 into 0.96 and
+  reverses the verdict.
 - `effort` / `reproduction` set the fishing effort and reproduction handling used
   when forming the Jacobian.
 - `h` is the relative finite-difference step. Re-running with a different `h` is

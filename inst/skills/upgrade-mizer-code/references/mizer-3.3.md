@@ -439,10 +439,7 @@ The fixed point this converges on is the correct one, so **steady states found
 with `steadyNewton()` on a model with satiated consumers move**, and anything
 downstream of them — `getStability()`'s eigenvalues, `getLimitCycleSim()`'s
 period, a `scanModel()` scan — moves with them. Models whose consumers
-are far from satiation are unaffected. `getStability()`'s quasi-static
-approximation gained a fixed iteration for the same reason, which also makes its
-numerical Jacobian smoother; small changes in the reported eigenvalues are
-expected.
+are far from satiation are unaffected.
 
 ### `compareParams()` compares small parameters properly
 

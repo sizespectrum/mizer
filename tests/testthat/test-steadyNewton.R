@@ -371,32 +371,31 @@ test_that("getStability hopf_period is NULL when all eigenvalues are real", {
     }
 })
 
-test_that("getStability with include_resource = TRUE returns well-formed list", {
+test_that("getStability returns a well-formed list including the resource", {
     skip_unless_experimental()
     pn <- steadyNewton(p_steady)
-    stab_full <- getStability(pn, include_resource = TRUE)
+    stab <- getStability(pn)
 
-    expect_type(stab_full, "list")
-    expect_named(stab_full, c("eigenvalues", "max_real_part", "stable",
-                              "dominant_period", "hopf_period", "n_active",
-                              "leading_eigenvectors", "params"))
-    # n_active must equal n_fish_active + n_resource (always strictly larger)
-    stab_red <- getStability(pn, include_resource = FALSE)
-    expect_gt(stab_full$n_active, stab_red$n_active)
-    expect_true(stab_full$stable)
+    expect_type(stab, "list")
+    expect_named(stab, c("eigenvalues", "max_real_part", "stable",
+                         "dominant_period", "hopf_period", "n_active",
+                         "leading_eigenvectors", "params"))
+    # The resource is always part of the state, so the Jacobian is larger than
+    # the number of active fish cells.
+    expect_gt(stab$n_active, sum(initialN(pn) > 0))
+    expect_named(stab$leading_eigenvectors, c("fish", "resource"))
+    expect_equal(nrow(stab$leading_eigenvectors$resource), length(pn@w_full))
+    expect_true(stab$stable)
 })
 
-test_that("full and reduced stability analyses agree on max_real_part for NS model", {
+test_that("getStability works with non-semichemostat resource dynamics", {
     skip_unless_experimental()
-    # For a model where the resource dynamics are fast (large rr_pp), the
-    # quasi-static reduction should give almost the same dominant eigenvalue.
     pn <- steadyNewton(p_steady)
-    stab_red  <- getStability(pn, include_resource = FALSE)
-    stab_full <- getStability(pn, include_resource = TRUE)
-
-    # Dominant eigenvalue moduli should match to within a loose tolerance.
-    expect_equal(stab_full$max_real_part, stab_red$max_real_part,
-                 tolerance = 0.05)
+    pn@resource_dynamics <- "resource_constant"
+    # A constant resource contributes only zero rows, but the call must work:
+    # the quasi-static substitution used to restrict this to the semichemostat.
+    stab <- expect_no_error(getStability(pn))
+    expect_length(stab$eigenvalues, stab$n_active)
 })
 
 test_that("fd_step_scale floors the step at the local scale of the spectrum", {
@@ -480,7 +479,7 @@ test_that("getStability never evaluates rate functions at negative abundances", 
     # analysis exercises the resource columns too.
     seen$min_n <- Inf
     seen$min_n_pp <- Inf
-    getStability(spied, include_resource = TRUE)
+    getStability(spied)
     expect_gte(seen$min_n, 0)
     expect_gte(seen$min_n_pp, 0)
 })
@@ -506,7 +505,7 @@ test_that("leading_eigenvectors have correct shape and are normalised", {
     skip_unless_experimental()
     pn   <- steadyNewton(p_steady)
     stab <- getStability(pn)
-    lev  <- stab$leading_eigenvectors
+    lev  <- stab$leading_eigenvectors$fish
 
     # Shape: (n_species, n_sizes, 2)
     expect_equal(dim(lev)[1], nrow(pn@initial_n))

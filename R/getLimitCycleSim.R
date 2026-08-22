@@ -29,9 +29,10 @@
 #' \deqn{N(t) = \max(N^* + \delta N(t),\; 0)}
 #' (clipping prevents negative abundances at large amplitudes).
 #'
-#' The resource is placed at its quasi-static semichemostat equilibrium
-#' \eqn{n_{pp}^*(N(t))} at each step, consistent with the reduced Jacobian
-#' used by [getStability()].
+#' Only the fish component of the eigenvector is used to shape the cycle. The
+#' resource is placed at its semichemostat equilibrium \eqn{n_{pp}^*(N(t))} for
+#' the perturbed fish state at each step, so that the resource in the returned
+#' object is consistent with the fish rather than oscillating independently.
 #'
 #' The returned \linkS4class{MizerSim} has times running from 0 to \eqn{T}
 #' (the period in time steps, typically years).
@@ -86,13 +87,11 @@ getLimitCycleSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
     idx <- complex_idx[which.max(Re(stab$eigenvalues[complex_idx]))]
     lam1 <- stab$eigenvalues[idx]
 
-    # Leading eigenvectors are stored as (sp × w × 2) array, or as a list
-    # with $fish when include_resource = TRUE was used.
-    # Note: getStability only returns the top few eigenvectors. If our chosen
+    # `getStability()` only returns the top few eigenvectors. If our chosen
     # eigenvalue is not among the leading ones returned, we fall back to index 1.
-    lev <- stab$leading_eigenvectors
-    safe_idx <- if (idx <= dim(if (is.array(lev)) lev else lev$fish)[3]) idx else 1
-    v_use <- if (is.array(lev)) lev[, , safe_idx] else lev$fish[, , safe_idx]
+    lev <- stab$leading_eigenvectors$fish
+    safe_idx <- if (idx <= dim(lev)[3]) idx else 1
+    v_use <- lev[, , safe_idx]
 
     theta    <- Im(lam1)               # angular frequency, per year
     T_period <- 2 * pi / abs(theta)    # period in years

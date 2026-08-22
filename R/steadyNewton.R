@@ -623,8 +623,6 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #' @param params A \linkS4class{MizerParams} object.
 #' @param reproduction Whether reproduction is held fixed or run dynamically.
 #' @param effort The fishing effort to use.
-#' @param include_resource Whether the resource is a state variable of its own
-#'   (`TRUE`) or is substituted at its quasi-static equilibrium (`FALSE`).
 #' @param fn_name The name of the calling function, for error messages.
 #' @param map_name What the linearised map is called, for error messages.
 #' @return A list holding the validated `params`, the state and the closures
@@ -633,7 +631,6 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 stability_context <- function(params,
                               reproduction = c("fixed", "dynamic"),
                               effort = params@initial_effort,
-                              include_resource = FALSE,
                               fn_name = "getStability",
                               map_name = "the rates of change") {
     reproduction <- match.arg(reproduction)
@@ -649,14 +646,6 @@ stability_context <- function(params,
         "The eigenvalues below describe the dynamics near a fixed point, so on",
         "a state that is not one they are not meaningful. Use `steadyNewton()`",
         "first."))
-
-    if (!include_resource &&
-        params@resource_dynamics != "resource_semichemostat") {
-        stop(fn_name, "() with include_resource = FALSE requires ",
-             "semichemostat resource dynamics. ",
-             "Use include_resource = TRUE for other resource dynamics.",
-             call. = FALSE)
-    }
 
     rdd_const <- if (reproduction == "dynamic") NULL else getRDD(params)
     n_other      <- params@initial_n_other
@@ -685,36 +674,24 @@ stability_context <- function(params,
                              positive_initial_guess(N_ss, params@w_min_idx,
                                                     active$w_top)[active$mask])
 
-    if (include_resource) {
-        npp_vec <- as.numeric(npp_ss)
-        n_npp   <- length(npp_vec)
-        # Step scale for the resource, floored the same way as for the fish.
-        # The resource carries structural zeros above `w_pp_cutoff`, where the
-        # capacity vanishes; log-interpolation with flat extrapolation gives
-        # them the scale of the last nonzero class.
-        npp_local <- positive_initial_guess(matrix(npp_vec, nrow = 1),
-                                            w_min_idx = 1L, w_top = n_npp)
-        npp_scale <- fd_step_scale(npp_vec, as.numeric(npp_local))
-        x0    <- c(N_vec, npp_vec)
-        scale <- c(N_scale, npp_scale)
-    } else {
-        n_npp <- 0L
-        x0    <- N_vec
-        scale <- N_scale
-    }
+    npp_vec <- as.numeric(npp_ss)
+    n_npp   <- length(npp_vec)
+    # Step scale for the resource, floored the same way as for the fish.
+    # The resource carries structural zeros above `w_pp_cutoff`, where the
+    # capacity vanishes; log-interpolation with flat extrapolation gives
+    # them the scale of the last nonzero class.
+    npp_local <- positive_initial_guess(matrix(npp_vec, nrow = 1),
+                                        w_min_idx = 1L, w_top = n_npp)
+    npp_scale <- fd_step_scale(npp_vec, as.numeric(npp_local))
+    x0    <- c(N_vec, npp_vec)
+    scale <- c(N_scale, npp_scale)
 
-    # Packed state -> the arrays the rate functions want. With the resource left
-    # out of the state it is substituted at its quasi-static equilibrium, which
-    # is what projects the dynamics onto the slow manifold.
+    # Packed state -> the arrays the rate functions want.
     unpack <- function(x) {
         N <- N_ss
         N[active_idx] <- x[seq_len(n_fish_active)]
-        if (include_resource) {
-            n_pp <- npp_ss
-            n_pp[] <- x[n_fish_active + seq_len(n_npp)]
-        } else {
-            n_pp <- resource_steady_semichemostat(params, N, n_other)
-        }
+        n_pp <- npp_ss
+        n_pp[] <- x[n_fish_active + seq_len(n_npp)]
         list(N = N, n_pp = n_pp)
     }
 
@@ -745,7 +722,6 @@ stability_context <- function(params,
     list(params = params, effort = effort, rdd_const = rdd_const,
          n_other = n_other, active = active, active_idx = active_idx,
          n_fish_active = n_fish_active, n_npp = n_npp,
-         include_resource = include_resource,
          rates_fns = rates_fns, flux_limiter = flux_limiter,
          N_ss = N_ss, npp_ss = npp_ss, x0 = x0, scale = scale,
          unpack = unpack, check = check, describe = describe)
@@ -819,8 +795,7 @@ stability_jacobian <- function(ctx, f, h) {
 #' @noRd
 stability_rhs <- function(ctx, dt_resource = 1e-4) {
     params  <- ctx$params
-    targets <- c("EGrowth", "Mort", "Diffusion")
-    if (ctx$include_resource) targets <- c(targets, "ResourceMort")
+    targets <- c("EGrowth", "Mort", "Diffusion", "ResourceMort")
     semichemostat <- params@resource_dynamics == "resource_semichemostat"
     resource_dyn  <- if (semichemostat) NULL else get(params@resource_dynamics)
 
@@ -836,27 +811,22 @@ stability_rhs <- function(ctx, dt_resource = 1e-4) {
                                    rates_fns = ctx$rates_fns,
                                    flux_limiter = ctx$flux_limiter,
                                    rates = r)
-        out <- dNdt[ctx$active$mask]
-
-        if (ctx$include_resource) {
-            if (semichemostat) {
-                # dn_pp/dt = rr (cc - n_pp) - mu_R n_pp. Where both the
-                # replenishment rate and the mortality vanish this is zero, so
-                # such a class simply stays put, as resource_semichemostat()
-                # also arranges.
-                dnpp <- params@rr_pp * params@cc_pp -
-                    (params@rr_pp + r$resource_mort) * st$n_pp
-            } else {
-                npp_new <- resource_dyn(params, n = st$N, n_pp = st$n_pp,
-                                        n_other = ctx$n_other, rates = r,
-                                        t = 0, dt = dt_resource,
-                                        resource_rate = params@rr_pp,
-                                        resource_capacity = params@cc_pp)
-                dnpp <- (npp_new - st$n_pp) / dt_resource
-            }
-            out <- c(out, as.numeric(dnpp))
+        if (semichemostat) {
+            # dn_pp/dt = rr (cc - n_pp) - mu_R n_pp. Where both the
+            # replenishment rate and the mortality vanish this is zero, so
+            # such a class simply stays put, as resource_semichemostat()
+            # also arranges.
+            dnpp <- params@rr_pp * params@cc_pp -
+                (params@rr_pp + r$resource_mort) * st$n_pp
+        } else {
+            npp_new <- resource_dyn(params, n = st$N, n_pp = st$n_pp,
+                                    n_other = ctx$n_other, rates = r,
+                                    t = 0, dt = dt_resource,
+                                    resource_rate = params@rr_pp,
+                                    resource_capacity = params@cc_pp)
+            dnpp <- (npp_new - st$n_pp) / dt_resource
         }
-        out
+        c(dNdt[ctx$active$mask], as.numeric(dnpp))
     }
 }
 
@@ -880,8 +850,7 @@ stability_rhs <- function(ctx, dt_resource = 1e-4) {
 stability_step <- function(ctx, dt) {
     params  <- ctx$params
     w_top   <- support_top_idx(params)
-    targets <- c("EGrowth", "Mort", "Diffusion")
-    if (ctx$include_resource) targets <- c(targets, "ResourceMort")
+    targets <- c("EGrowth", "Mort", "Diffusion", "ResourceMort")
     semichemostat <- params@resource_dynamics == "resource_semichemostat"
     resource_dyn  <- if (semichemostat) NULL else get(params@resource_dynamics)
 
@@ -903,23 +872,19 @@ stability_step <- function(ctx, dt) {
                                      flux_limiter = ctx$flux_limiter)
         N_out <- project_n_loop(st$N, coefs$a, coefs$b, coefs$c, coefs$S,
                                 params@w_min_idx)
-        out <- zero_above_support(N_out, w_top)[ctx$active$mask]
-
-        if (ctx$include_resource) {
-            if (semichemostat) {
-                mur <- params@rr_pp + r$resource_mort
-                npp_out <- (st$n_pp + dt * params@rr_pp * params@cc_pp) /
-                    (1 + dt * mur)
-            } else {
-                npp_out <- resource_dyn(params, n = st$N, n_pp = st$n_pp,
-                                        n_other = ctx$n_other, rates = r,
-                                        t = 0, dt = dt,
-                                        resource_rate = params@rr_pp,
-                                        resource_capacity = params@cc_pp)
-            }
-            out <- c(out, as.numeric(npp_out))
+        if (semichemostat) {
+            mur <- params@rr_pp + r$resource_mort
+            npp_out <- (st$n_pp + dt * params@rr_pp * params@cc_pp) /
+                (1 + dt * mur)
+        } else {
+            npp_out <- resource_dyn(params, n = st$N, n_pp = st$n_pp,
+                                    n_other = ctx$n_other, rates = r,
+                                    t = 0, dt = dt,
+                                    resource_rate = params@rr_pp,
+                                    resource_capacity = params@cc_pp)
         }
-        out
+        c(zero_above_support(N_out, w_top)[ctx$active$mask],
+          as.numeric(npp_out))
     }
 }
 
@@ -946,8 +911,6 @@ stability_eigenvectors <- function(evecs, ctx) {
         M[ctx$active_idx] <- v
         fish[, , k] <- M
     }
-    if (!ctx$include_resource) return(fish)
-
     resource <- matrix(0 + 0i, nrow = ctx$n_npp, ncol = n_leading)
     for (k in seq_len(n_leading)) {
         v <- evecs[ctx$n_fish_active + seq_len(ctx$n_npp), k]
@@ -991,19 +954,12 @@ stability_eigenvectors <- function(evecs, ctx) {
 #' crosses the imaginary axis, giving a limit-cycle period
 #' \deqn{T = \frac{2\pi}{|\text{Im}(\lambda)|} \text{ years.}}
 #'
-#' When `include_resource = FALSE` (the default), the resource is treated as a
-#' fast variable that adjusts *instantaneously* to the consumer abundance: for
-#' each perturbed \eqn{N}, \eqn{n_{pp}} is set to its quasi-static equilibrium
-#' \eqn{n_{pp}^*(N)}. The resulting reduced Jacobian has dimension equal to the
-#' number of active fish cells. This is equivalent to projecting the full
-#' dynamics onto the slow manifold \eqn{n_{pp} = n_{pp}^*(N)}.
-#'
-#' When `include_resource = TRUE`, both fish and resource cells are perturbed
-#' independently and the full coupled Jacobian is returned. Its eigenvalues
-#' include both the slow fish modes and a cluster of fast resource-relaxation
-#' modes, at \eqn{\lambda \approx -(r_{pp} + \mu_R)}. Comparing the dominant
-#' eigenvalues of the two analyses shows how much the quasi-static approximation
-#' affects the stability conclusion.
+#' The resource is a state variable of the system like any other: fish and
+#' resource cells are perturbed independently, giving the full coupled Jacobian.
+#' Its eigenvalues include both the slow fish modes and a cluster of fast
+#' resource-relaxation modes, at \eqn{\lambda \approx -(r_{pp} + \mu_R)}. Any
+#' resource dynamics function is supported: the semichemostat derivative is
+#' written down analytically, and anything else is differenced over a short step.
 #'
 #' ## Numerical details
 #'
@@ -1030,12 +986,6 @@ stability_eigenvectors <- function(evecs, ctx) {
 #'   Must match the choice used when the steady state was computed.
 #' @param effort The fishing effort to use. By default the initial effort
 #'   stored in `params`.
-#' @param include_resource If `FALSE` (default) the resource is treated as a
-#'   quasi-static fast variable: for each perturbed fish abundance the resource
-#'   is set to its analytic steady-state value conditioned on that fish
-#'   abundance (valid only for semichemostat resource dynamics).  If `TRUE`,
-#'   both fish and resource cells are perturbed independently, giving the
-#'   complete coupled Jacobian.
 #' @param h Relative step size for centred finite differences. Default `1e-4`.
 #'   The result should not depend on this choice. If it does, the dynamics are
 #'   not smooth at the state being analysed — see the section below.
@@ -1053,17 +1003,14 @@ stability_eigenvectors <- function(evecs, ctx) {
 #'       with the largest real part; `NULL` when no complex eigenvalue
 #'       exists.  This is the expected limit-cycle period near a Hopf
 #'       bifurcation.}
-#'     \item{`n_active`}{Dimension of the Jacobian: number of active fish cells
-#'       when `include_resource = FALSE`, or fish cells plus all resource cells
-#'       when `include_resource = TRUE`.}
+#'     \item{`n_active`}{Dimension of the Jacobian: the number of active fish
+#'       cells plus all resource cells.}
 #'     \item{`leading_eigenvectors`}{The eigenvectors of the two eigenvalues
 #'       with the largest real part, reshaped back into the fish abundance
-#'       space.
-#'       When `include_resource = FALSE`: a complex array of shape
+#'       space: a list with `$fish`, a complex array of shape
 #'       `(n_species, n_sizes, 2)` with the same species and size dimnames as
-#'       `params@initial_n`. When `include_resource = TRUE`: a list with
-#'       `$fish` (the same array) and `$resource` (a complex matrix of shape
-#'       `(n_w_full, 2)` for the resource component).
+#'       `params@initial_n`, and `$resource`, a complex matrix of shape
+#'       `(n_w_full, 2)` for the resource component.
 #'       Each eigenvector is normalised so that its maximum modulus equals 1.
 #'       The real and imaginary parts of eigenvector 1 span the two-dimensional
 #'       oscillation plane of the dominant mode; `Mod()` gives the amplitude
@@ -1090,11 +1037,9 @@ stability_eigenvectors <- function(evecs, ctx) {
 getStability <- function(params,
                          reproduction = c("fixed", "dynamic"),
                          effort = params@initial_effort,
-                         include_resource = FALSE,
                          h = 1e-4) {
     ctx <- stability_context(params, reproduction = reproduction,
                              effort = effort,
-                             include_resource = include_resource,
                              fn_name = "getStability",
                              map_name = "the rates of change")
     J <- stability_jacobian(ctx, stability_rhs(ctx), h)
@@ -1194,13 +1139,11 @@ getStability <- function(params,
 getDiscreteStability <- function(params,
                                  reproduction = c("fixed", "dynamic"),
                                  effort = params@initial_effort,
-                                 include_resource = FALSE,
                                  h = 1e-4,
                                  dt = 1) {
     assert_that(is.number(dt), dt > 0)
     ctx <- stability_context(params, reproduction = reproduction,
                              effort = effort,
-                             include_resource = include_resource,
                              fn_name = "getDiscreteStability",
                              map_name = "the one-step map")
     L <- stability_jacobian(ctx, stability_step(ctx, dt), h)
