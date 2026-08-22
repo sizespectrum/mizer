@@ -31,6 +31,16 @@
 #' meaning the reproduction rate varies during the solve and the reproduction
 #' parameters are not adjusted.
 #'
+#' The choice affects the solve, not the result: because [setBevertonHolt()]
+#' restores the density dependence without changing the reproduction rate, the
+#' state returned is a fixed point of the *full* dynamics either way, with
+#' reproduction free. [getStability()] can therefore be applied to it directly.
+#' Note though that the two modes generally land on different fixed points, with
+#' different reproduction parameters and hence different stability: `"fixed"`
+#' keeps the reproduction rate of the state you supplied and adjusts `erepro`
+#' and `R_max` to match, whereas `"dynamic"` keeps those parameters and lets the
+#' reproduction rate be whatever they imply.
+#'
 #' The consumer densities are solved for in log space, which both keeps them
 #' positive and conditions the otherwise badly-scaled system. The unknowns are
 #' the size classes in the full potential grid support (running from the egg
@@ -621,7 +631,6 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #' unpack a packed state, name a cell and check a result for non-finite values.
 #'
 #' @param params A \linkS4class{MizerParams} object.
-#' @param reproduction Whether reproduction is held fixed or run dynamically.
 #' @param effort The fishing effort to use.
 #' @param fn_name The name of the calling function, for error messages.
 #' @param map_name What the linearised map is called, for error messages.
@@ -629,11 +638,9 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #'   described above.
 #' @noRd
 stability_context <- function(params,
-                              reproduction = c("fixed", "dynamic"),
                               effort = params@initial_effort,
                               fn_name = "getStability",
                               map_name = "the rates of change") {
-    reproduction <- match.arg(reproduction)
     params <- validParams(params)
     effort <- validEffortVector(effort, params = params)
     params@initial_effort <- effort
@@ -647,7 +654,6 @@ stability_context <- function(params,
         "a state that is not one they are not meaningful. Use `steadyNewton()`",
         "first."))
 
-    rdd_const <- if (reproduction == "dynamic") NULL else getRDD(params)
     n_other      <- params@initial_n_other
     active       <- steady_active_set(params)
     active_idx   <- which(active$mask)
@@ -719,7 +725,7 @@ stability_context <- function(params,
         }
     }
 
-    list(params = params, effort = effort, rdd_const = rdd_const,
+    list(params = params, effort = effort,
          n_other = n_other, active = active, active_idx = active_idx,
          n_fish_active = n_fish_active, n_npp = n_npp,
          rates_fns = rates_fns, flux_limiter = flux_limiter,
@@ -805,9 +811,12 @@ stability_rhs <- function(ctx, dt_resource = 1e-4) {
                                 n_other = ctx$n_other, t = 0,
                                 effort = ctx$effort,
                                 rates_fns = ctx$rates_fns, targets = targets)
+        # `rdd = NULL` makes `consumer_residual()` evaluate the model's own
+        # reproduction function at the perturbed state, so the reproduction
+        # feedback is part of the Jacobian just as it is part of `project()`.
         dNdt <- -consumer_residual(params, n = st$N, n_pp = st$n_pp,
                                    n_other = ctx$n_other, effort = ctx$effort,
-                                   rdd = ctx$rdd_const,
+                                   rdd = NULL,
                                    rates_fns = ctx$rates_fns,
                                    flux_limiter = ctx$flux_limiter,
                                    rates = r)
@@ -860,11 +869,8 @@ stability_step <- function(ctx, dt) {
                                 n_other = ctx$n_other, t = 0,
                                 effort = ctx$effort,
                                 rates_fns = ctx$rates_fns, targets = targets)
-        rdd <- ctx$rdd_const
-        if (is.null(rdd)) {
-            rdd <- state_rdd(params, n = st$N, n_pp = st$n_pp,
-                             n_other = ctx$n_other, rates = r)
-        }
+        rdd <- state_rdd(params, n = st$N, n_pp = st$n_pp,
+                         n_other = ctx$n_other, rates = r)
         coefs <- get_transport_coefs(params, n = st$N, g = r$e_growth,
                                      mu = r$mort, dt = dt,
                                      recruitment_flux = rdd,
@@ -984,6 +990,25 @@ single_eigenvector <- function(ev) {
 #' resource dynamics function is supported: the semichemostat derivative is
 #' written down analytically, and anything else is differenced over a short step.
 #'
+#' Reproduction is a state-dependent rate like any other: the reproduction
+#' function stored in `params@rates_funcs$RDD` is evaluated at each perturbed
+#' state, so the feedback from the spectra back onto the influx of eggs is part
+#' of the Jacobian, exactly as it is part of [project()]. There is no option to
+#' pin the reproduction rate at its value at the fixed point. A model in which
+#' reproduction really is constant expresses that as a model: with
+#' `rates_funcs$RDD = "constantRDD"` the derivative of the reproduction rate is
+#' zero and the pinned Jacobian is what the analysis returns.
+#'
+#' This is why the stability of a steady state depends on the reproduction
+#' parameters even though the steady state itself does not.
+#' [setBevertonHolt()] moves along a family of `erepro`/`R_max` pairs that all
+#' leave the same fixed point, but they do not all leave the same dynamics: at a
+#' [reproduction_level()] near 1 the reproduction rate barely responds to the
+#' energy invested in it, approaching the constant-reproduction case, while at a
+#' level near 0 it follows that energy proportionally. The two ends can differ
+#' in their verdict, so the analysis has to read the model rather than take an
+#' argument.
+#'
 #' ## Numerical details
 #'
 #' The Jacobian is computed numerically using a multiplicative (relative)
@@ -1004,9 +1029,6 @@ single_eigenvector <- function(ev) {
 #'
 #' @param params A \linkS4class{MizerParams} object whose `initial_n` holds the
 #'   steady state to analyse. Typically the output of [steadyNewton()].
-#' @param reproduction Whether the reproduction rate is held fixed (`"fixed"`,
-#'   default) or run dynamically (`"dynamic"`) during the evaluation.
-#'   Must match the choice used when the steady state was computed.
 #' @param effort The fishing effort to use. By default the initial effort
 #'   stored in `params`.
 #' @param h Relative step size for centred finite differences. Default `1e-4`.
@@ -1071,10 +1093,9 @@ single_eigenvector <- function(ev) {
 #' @seealso [steadyNewton()], [getDiscreteStability()], [getLimitCycleSim()]
 #' @export
 getStability <- function(params,
-                         reproduction = c("fixed", "dynamic"),
                          effort = params@initial_effort,
                          h = 1e-4) {
-    ctx <- stability_context(params, reproduction = reproduction,
+    ctx <- stability_context(params,
                              effort = effort,
                              fn_name = "getStability",
                              map_name = "the rates of change")
@@ -1183,12 +1204,11 @@ getStability <- function(params,
 #' @seealso [getStability()], [steadyNewton()]
 #' @export
 getDiscreteStability <- function(params,
-                                 reproduction = c("fixed", "dynamic"),
                                  effort = params@initial_effort,
                                  h = 1e-4,
                                  dt = 1) {
     assert_that(is.number(dt), dt > 0)
-    ctx <- stability_context(params, reproduction = reproduction,
+    ctx <- stability_context(params,
                              effort = effort,
                              fn_name = "getDiscreteStability",
                              map_name = "the one-step map")

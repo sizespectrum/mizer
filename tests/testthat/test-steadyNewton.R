@@ -312,6 +312,37 @@ test_that("getStability reports stable = TRUE for the NS model at its steady sta
     expect_lt(stab$max_real_part, 0)
 })
 
+test_that("getStability linearises the model's own reproduction function", {
+    skip_unless_experimental()
+    pn <- steadyNewton(p_steady)
+
+    # Holding the reproduction rate fixed is not an option on the analysis but
+    # a property of the model: `constantRDD` has zero derivative, so it gives
+    # the pinned Jacobian. The two verdicts are genuinely different, which is
+    # why the analysis must read the model rather than take an argument.
+    pinned <- pn
+    pinned@species_params$constant_reproduction <- getRDD(pn)
+    pinned@rates_funcs$RDD <- "constantRDD"
+
+    stab <- getStability(pn)
+    stab_pinned <- getStability(pinned)
+
+    expect_equal(stab_pinned$n_active, stab$n_active)
+    expect_gt(abs(stab_pinned$max_real_part - stab$max_real_part), 1e-2)
+    # The reproduction feedback is what carries the state to the marginal end:
+    # with this fixture's low reproduction levels the reproduction rate follows
+    # the invested energy almost proportionally, and the abundance level is
+    # then only weakly determined.
+    expect_lt(abs(stab$max_real_part), abs(stab_pinned$max_real_part))
+
+    # The removed argument must not creep back in through `...` forwarding.
+    expect_error(getStability(pn, reproduction = "fixed"), "unused argument")
+    expect_error(getDiscreteStability(pn, reproduction = "fixed"),
+                 "unused argument")
+    expect_error(getLimitCycleSim(pn, reproduction = "fixed"),
+                 "unused argument")
+})
+
 test_that("getStability eigenvalues are consistent with max_real_part", {
     skip_unless_experimental()
     pn <- steadyNewton(p_steady)
@@ -435,12 +466,17 @@ test_that("getStability resolves cells sitting at exactly zero", {
 
     expect_equal(stab_holed$n_active, stab$n_active)
     expect_false(any(Mod(stab_holed$eigenvalues) < 1e-12))
+    # Both comparisons below are absolute. This fixture has low reproduction
+    # levels, so its leading eigenvalue sits close to the marginal value zero
+    # (around -0.01), and a relative tolerance on it measures nothing. The
+    # failure the test is for is unmistakable on the absolute scale: dropping
+    # the holed cell from the Jacobian puts a spurious eigenvalue at exactly
+    # zero, which moves `max_real_part` by its whole magnitude.
     # The hole is one cell out of many, so the spectrum barely moves.
-    expect_equal(stab_holed$max_real_part, stab$max_real_part,
-                 tolerance = 1e-3)
+    expect_lt(abs(stab_holed$max_real_part - stab$max_real_part), 1e-3)
     # The step is relative, so the answer must not depend on `h`.
-    expect_equal(getStability(holed, h = 1e-5)$max_real_part,
-                 stab_holed$max_real_part, tolerance = 1e-6)
+    expect_lt(abs(getStability(holed, h = 1e-5)$max_real_part -
+                      stab_holed$max_real_part), 1e-3)
 })
 
 test_that("getStability never evaluates rate functions at negative abundances", {

@@ -32,7 +32,18 @@ workflow.
   and — when the system approaches a Hopf bifurcation — the period of the
   emergent limit cycle. Fish and resource are perturbed together, so the
   Jacobian is the full coupled one and any resource dynamics function is
-  supported. The stability list also includes `leading_eigenvectors`, holding
+  supported. Reproduction is part of the analysis in the same way: the model's
+  own `rates_funcs$RDD` is evaluated at each perturbed state, so the eigenvalues
+  describe the reproduction feedback that `project()` actually runs, and there
+  is no option to pin the reproduction rate at its value at the fixed point. A
+  model whose reproduction really is constant expresses that as a model, with
+  `rates_funcs$RDD = "constantRDD"`. This is why the stability of a steady state
+  depends on the reproduction parameters even though the steady state itself
+  does not: the `erepro`/`R_max` pairs that `setBevertonHolt()` moves between
+  all leave the fixed point where it is, but a `reproduction_level()` near 1
+  barely lets the reproduction rate respond to the energy invested in it, while
+  one near 0 lets it follow that energy proportionally. The stability list also
+  includes `leading_eigenvectors`, holding
   the top two eigenvectors reshaped into the state space: `$fish`, a complex
   array `(n_species, n_sizes, 2)`, and `$resource`, a complex matrix
   `(n_w_full, 2)`, each normalised to maximum modulus 1. The rate functions are

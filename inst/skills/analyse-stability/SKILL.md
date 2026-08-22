@@ -50,14 +50,7 @@ stab   <- getStability(params)
 stab                                     # stable/unstable, growth rate, cycle period
 ```
 
-- The resource is always a state variable of the analysis. There is no option to
-  substitute it at its quasi-static equilibrium: that shortcut is a good
-  approximation for the model (it moves the leading eigenvalue of `NS_params` at
-  effort 1.5 by 3%) but not for a one-step map, whose resource response lags by a
-  whole step — at `dt = 1` it turns a spectral radius of 1.14 into 0.96 and
-  reverses the verdict.
-- `effort` / `reproduction` set the fishing effort and reproduction handling used
-  when forming the Jacobian.
+- `effort` sets the fishing effort used when forming the Jacobian.
 - `h` is the relative finite-difference step. Re-running with a different `h` is
   the cheapest check that the model is smooth enough for the analysis to mean
   anything: if the answer moves, do not trust it.
@@ -113,8 +106,8 @@ scaled so that the largest relative swing in **species biomass** equals the
 `amplitude` argument (default 10%): the hardest-oscillating species departs
 that far from its steady biomass and no species departs further. Fish and
 resource share one \(A\), so the resource oscillates with the phase the mode
-gives it; on `NS_params` at effort 1.5 it leads the fish biomass by about 0.7
-of the 5.03-year period. The growth factor \(e^{\sigma t}\) is deliberately
+gives it; on `NS_params` at effort 1.5 it leads the fish biomass by about 0.3
+years of the 5.12-year period. The growth factor \(e^{\sigma t}\) is deliberately
 omitted so the cycle closes; \(\sigma\) is recorded as `growth_rate` in the
 result's `sim_params`.
 

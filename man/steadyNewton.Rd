@@ -90,6 +90,16 @@ If \code{reproduction = "dynamic"}, the reproduction dynamics are run dynamicall
 meaning the reproduction rate varies during the solve and the reproduction
 parameters are not adjusted.
 
+The choice affects the solve, not the result: because \code{\link[=setBevertonHolt]{setBevertonHolt()}}
+restores the density dependence without changing the reproduction rate, the
+state returned is a fixed point of the \emph{full} dynamics either way, with
+reproduction free. \code{\link[=getStability]{getStability()}} can therefore be applied to it directly.
+Note though that the two modes generally land on different fixed points, with
+different reproduction parameters and hence different stability: \code{"fixed"}
+keeps the reproduction rate of the state you supplied and adjusts \code{erepro}
+and \code{R_max} to match, whereas \code{"dynamic"} keeps those parameters and lets the
+reproduction rate be whatever they imply.
+
 The consumer densities are solved for in log space, which both keeps them
 positive and conditions the otherwise badly-scaled system. The unknowns are
 the size classes in the full potential grid support (running from the egg

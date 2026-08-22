@@ -62,7 +62,7 @@ start <- conv$years - conv$period
 pp <- getParams(ss, c(start, conv$years))
 
 ps <- steadyNewton(pp, reproduction = "dynamic")
-stab <- getStability(ps, reproduction = "dynamic")
+stab <- getStability(ps)
 stab$stable
 
 # The eigenvalues are already the continuous-time ones, sorted by decreasing
@@ -78,8 +78,7 @@ if (!stab$stable && Im(unstable_mode) != 0) {
 }
 
 # How the numerical step at the dt used above sees the same state:
-getDiscreteStability(ps, reproduction = "dynamic",
-                     dt = p$dt)$spectral_radius
+getDiscreteStability(ps, dt = p$dt)$spectral_radius
 
 # According to this, the steady state is stable.
 # Let's test that by making a small perturbation
