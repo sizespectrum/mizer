@@ -22,7 +22,7 @@
 #'
 #' @section What is measured, and where:
 #'
-#' At each scan value the model is projected with [projectToSteady()], which
+#' At each scan value the model is projected with [projectUntilSettled()], which
 #' stops as soon as it recognises that the model has settled onto a fixed point
 #' or onto a limit cycle, and reports which of the two happened. What happens
 #' next depends on that answer:
@@ -61,7 +61,7 @@
 #' worked example.
 #'
 #' There is no `effort` argument, because there does not need to be one:
-#' [project()] and [projectToSteady()] both take the fishing effort from
+#' [project()] and [projectUntilSettled()] both take the fishing effort from
 #' `params@initial_effort`, so a `set_func()` that changes the effort is all it
 #' takes to scan over effort, and a scan over something else never has to
 #' mention fishing at all.
@@ -116,7 +116,7 @@
 #'   measuring the distance between them. See [distanceSSLogN()].
 #' @param tol The projection at each scan value stops once the number returned
 #'   by `distance_func` for two states `t_per` years apart drops below `tol`.
-#'   The default is tighter than the one [projectToSteady()] uses on its own,
+#'   The default is tighter than the one [projectUntilSettled()] uses on its own,
 #'   because a scan produces a curve, and a loosely converged point does not
 #'   average away: it shows up as a kink in the curve and as spurious width in
 #'   the band. Loosen it to go faster, and use the `residual` column of the
@@ -126,7 +126,7 @@
 #' @param t_max The longest time to project at each scan value.
 #' @param dt The time step to use.
 #' @param t_save The interval at which the biomass summary used for limit-cycle
-#'   detection is recorded, see [projectToSteady()].
+#'   detection is recorded, see [projectUntilSettled()].
 #' @param amplitude_tol The minimum relative biomass amplitude for a persistent
 #'   oscillation to count as a limit cycle rather than a fixed point.
 #' @param amp_rel_tol Maximum relative change of amplitude between successive
@@ -299,7 +299,7 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
                      paste(class(p), collapse = "/"), ".")
             }
 
-            settled <- projectToSteady(
+            settled <- project_until_settled(
                 p, distance_func = distance_func,
                 t_per = t_per, t_max = t_max, dt = dt, t_save = t_save,
                 tol = tol, amplitude_tol = amplitude_tol,
@@ -376,7 +376,7 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
 
 #' Measure a quantity on the attractor a projection settled on
 #'
-#' @param settled The MizerParams returned by [projectToSteady()].
+#' @param settled The MizerParams returned by `project_until_settled()`.
 #' @param value_func The function measuring the quantity.
 #' @param conv The `"convergence"` attribute of `settled`.
 #' @param dt The time step.

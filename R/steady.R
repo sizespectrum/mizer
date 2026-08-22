@@ -3,7 +3,7 @@
 #' @description
 #' `r lifecycle::badge("experimental")`
 #'
-#' This function can be used in [projectToSteady()] to decide when sufficient
+#' This function can be used in [projectUntilSettled()] to decide when sufficient
 #' convergence to steady state has been achieved.
 #'
 #' @param params MizerParams
@@ -37,7 +37,7 @@ distanceMaxRelRDI.MizerParams <- function(params, current, previous) {
 #' `r lifecycle::badge("experimental")`
 #'
 #' Calculates the sum squared difference between log(N) in current and previous
-#' state. This function can be used in [projectToSteady()] to decide when
+#' state. This function can be used in [projectUntilSettled()] to decide when
 #' sufficient convergence to steady state has been achieved.
 #'
 #' @param params MizerParams
@@ -61,21 +61,24 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
     sum((log(current$n[sel]) - log(previous$n[sel]))^2)
 }
 
-#' Project to steady state
+#' Project the dynamics until they settle
 #'
 #' @description
 #' `r lifecycle::badge("experimental")`
 #'
-#' Run the full dynamics, as in [project()], but stop once the change has slowed
-#' down sufficiently, in the sense that the distance between states at
-#' successive time steps is less than `tol`. You determine how the distance is
-#' calculated.
+#' Run the full dynamics, as in [project()], but stop once the run has settled:
+#' either the change has slowed down sufficiently, in the sense that the
+#' distance between states `t_per` years apart is less than `tol`, or the run
+#' has been recognised as being on a limit cycle. You determine how the distance
+#' is calculated.
 #'
-#' Because reproduction stays dynamic here, the run can only ever end up on an
-#' attractor of the dynamics, and that need not be a fixed point: it may stop on
-#' a limit cycle, on a species going extinct, or simply at `t_max`. So the state
-#' it leaves behind is not necessarily a steady state; see the section below on
-#' how to check.
+#' Nothing is held fixed, so the run can only ever end up on an attractor of the
+#' dynamics, and that need not be a fixed point: besides a limit cycle it may
+#' stop on a species going extinct, or simply at `t_max`. "Settled" is therefore
+#' the most this function claims; the state it leaves behind is not necessarily
+#' a steady state. See the section below on how to check, and use
+#' [findSteadyState()] if what you want is the steady state itself rather than
+#' the trajectory leading to it.
 #'
 #' @details
 #' # How the run is organised
@@ -103,7 +106,7 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' the affected species is issued and the run stops with
 #' `type = "extinction"`. Because the criterion is relative to the initial
 #' reproduction, a species that starts with zero reproduction is flagged
-#' immediately, whereas in [steady()], where reproduction is held constant, a
+#' immediately, whereas in [tuneSteadyState()], where reproduction is held constant, a
 #' healthy species is never flagged.
 #'
 #' ## 2. Convergence to a fixed point
@@ -117,7 +120,8 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' `residual` entry of the `"convergence"` attribute measures that directly.
 #' What "distance" means is entirely up to that function:
 #' the default [distanceSSLogN()] uses the sum of squared changes in log
-#' abundance, while [steady()] instead passes [distanceMaxRelRDI()], which uses
+#' abundance, while [tuneSteadyState()] instead passes [distanceMaxRelRDI()], which
+#' uses
 #' the largest relative change in egg production.
 #'
 #' Note that this test only compares two states one `t_per` apart; it cannot by
@@ -168,7 +172,8 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' one period to the next, the cycle does not. The distinction is necessarily
 #' imperfect when the decay is extremely slow, because over any finite run such
 #' a spiral is indistinguishable from a cycle. If you need a definitive answer,
-#' use [getStability()] on the fixed point found by [steadyNewton()], which
+#' use [getStability()] on the fixed point found by
+#' [findSteadyState()], which
 #' works out the eigenvalues of the linearised dynamics instead of watching
 #' a trajectory.
 #'
@@ -176,8 +181,7 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' that accuracy; reduce `t_save` if you need the period more precisely.
 #'
 #' @template section_check_steady
-#'
-#' @inheritParams steady
+#' @param params A \linkS4class{MizerParams} object
 #' @param effort The fishing effort to be used throughout the simulation.
 #'   This is validated by [validEffortVector()] and can therefore be `NULL`, a
 #'   single numeric value used for all gears, an unnamed numeric vector with one
@@ -187,9 +191,38 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   that in some sense measures the distance between the states. By default
 #'   this uses the function [distanceSSLogN()] that you can use as a model for your
 #'   own distance function.
+#' @param t_per The simulation is broken up into shorter runs of `t_per` years,
+#'   after each of which we check for convergence. Default value is 1.5. This
+#'   should be chosen as an odd multiple of the timestep `dt` in order to be
+#'   able to detect period 2 cycles.
+#' @param t_max The maximum number of years to run the simulation. Default is 100.
+#' @param dt The time step to use in `project()`.
+#' @param t_save The interval at which a cheap per-species biomass summary is
+#'   recorded for limit-cycle detection. Must be a positive multiple of `dt` and
+#'   a divisor of `t_per`. Smaller values resolve the cycle period more finely at
+#'   a small extra cost. Default is `dt`.
 #' @param tol The run stops when the number returned by `distance_func` for two
 #'   states `t_per` years apart drops below `tol`. Its meaning therefore depends
 #'   on the distance function you supply.
+#' @param amplitude_tol `r lifecycle::badge("experimental")`
+#'   The minimum relative biomass amplitude for a persistent oscillation to be
+#'   reported as a limit cycle rather than treated as an (effectively steady)
+#'   fixed point. This is a fraction of mean biomass and is kept separate from
+#'   `tol` (which measures convergence to a fixed point on a different scale).
+#'   Default `0.01`.
+#' @param amp_rel_tol `r lifecycle::badge("experimental")`
+#'   Maximum relative change of amplitude between successive periods for the
+#'   cycle to count as settled. Default `0.01`.
+#' @param extinction_threshold `r lifecycle::badge("experimental")`
+#'   A species is treated as going extinct, stopping the run, once its
+#'   reproduction rate (RDD) falls below this fraction of its value at the start
+#'   of the run. For example the default `1e-6` treats a species as extinct once
+#'   its reproduction has collapsed to a millionth of its initial level. Because
+#'   it is relative to the initial reproduction, a species that starts with zero
+#'   reproduction is flagged immediately, and (in [tuneSteadyState()], where
+#'   reproduction is held constant) a healthy species is never flagged.
+#' @param progress_bar A shiny progress object to implement a progress bar in a
+#'   shiny app. Default FALSE.
 #' @param info_level Controls the amount of information messages that are shown.
 #'   Higher levels lead to more messages, `info_level = 0` gives silence. The
 #'   default is taken from the `mizer_info_level` option, see
@@ -198,13 +231,13 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   See [project()].
 #' @param ... Further arguments will be passed on to your distance function.
 #'
-#' @return If `return_sim = FALSE`, a `MizerParams` object with the initial
-#'   state replaced by the final state found by the steady-state search. If
-#'   `return_sim = TRUE`, a `MizerSim` object containing the intermediate states
-#'   saved every `t_per` years.
+#' @return A `MizerSim` object containing the states saved every `t_per` years,
+#'   up to and including the state the run settled on. Use [finalParams()] to
+#'   extract that final state as a `MizerParams` object, or call
+#'   [findSteadyState()] instead, which returns it directly.
 #'
-#'   In either case the returned object carries an attribute `"convergence"`
-#'   describing the solution the run settled on, a named list with entries:
+#'   The returned object carries an attribute `"convergence"` describing the
+#'   solution the run settled on, a named list with entries:
 #'   \describe{
 #'     \item{`type`}{One of `"below_tolerance"` (the distance function dropped
 #'       below `tol`, which suggests but does not guarantee a stable fixed
@@ -226,43 +259,85 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'     \item{`amplitude`}{For a limit cycle, the largest per-species relative
 #'       peak-to-trough biomass amplitude; otherwise `NA`.}
 #'   }
-#' @seealso [steady()], [isSteady()], [getSteadyResidual()],
-#'   [distanceSSLogN()], [distanceMaxRelRDI()], [steadyNewton()],
+#' @seealso [findSteadyState()], [tuneSteadyState()], [isSteady()],
+#'   [getSteadyResidual()], [distanceSSLogN()], [distanceMaxRelRDI()],
 #'   [getStability()]
 #' @export
-projectToSteady <- function(params,
-                            effort = params@initial_effort,
-                            distance_func = distanceSSLogN,
-                            t_per = 1.5,
-                            t_max = 100,
-                            dt = 0.1,
-                            t_save = dt,
-                            tol = 0.1 * t_per,
-                            amplitude_tol = 0.01,
-                            amp_rel_tol = 0.1,
-                            extinction_threshold = 1e-6,
-                            return_sim = FALSE,
-                            progress_bar = TRUE,
-                            info_level = default_info_level(),
-                            method = c("euler", "predictor_corrector", "tr_bdf2"), ...) {
-    UseMethod("projectToSteady")
+projectUntilSettled <- function(params,
+                                effort = params@initial_effort,
+                                distance_func = distanceSSLogN,
+                                t_per = 1.5,
+                                t_max = 100,
+                                dt = 0.1,
+                                t_save = dt,
+                                tol = 0.1 * t_per,
+                                amplitude_tol = 0.01,
+                                amp_rel_tol = 0.1,
+                                extinction_threshold = 1e-6,
+                                progress_bar = TRUE,
+                                info_level = default_info_level(),
+                                method = c("euler", "predictor_corrector",
+                                           "tr_bdf2"), ...) {
+    UseMethod("projectUntilSettled")
 }
+
 #' @export
-projectToSteady.MizerParams <- function(params,
-                            effort = params@initial_effort,
-                            distance_func = distanceSSLogN,
-                            t_per = 1.5,
-                            t_max = 100,
-                            dt = 0.1,
-                            t_save = dt,
-                            tol = 0.1 * t_per,
-                            amplitude_tol = 0.01,
-                            amp_rel_tol = 0.1,
-                            extinction_threshold = 1e-6,
-                            return_sim = FALSE,
-                            progress_bar = TRUE,
-                            info_level = default_info_level(),
-                            method = c("euler", "predictor_corrector", "tr_bdf2"), ...) {
+projectUntilSettled.MizerParams <- function(params,
+                                effort = params@initial_effort,
+                                distance_func = distanceSSLogN,
+                                t_per = 1.5,
+                                t_max = 100,
+                                dt = 0.1,
+                                t_save = dt,
+                                tol = 0.1 * t_per,
+                                amplitude_tol = 0.01,
+                                amp_rel_tol = 0.1,
+                                extinction_threshold = 1e-6,
+                                progress_bar = TRUE,
+                                info_level = default_info_level(),
+                                method = c("euler", "predictor_corrector",
+                                           "tr_bdf2"), ...) {
+    project_until_settled(params = params, effort = effort,
+                          distance_func = distance_func,
+                          t_per = t_per, t_max = t_max, dt = dt,
+                          t_save = t_save, tol = tol,
+                          amplitude_tol = amplitude_tol,
+                          amp_rel_tol = amp_rel_tol,
+                          extinction_threshold = extinction_threshold,
+                          progress_bar = progress_bar, info_level = info_level,
+                          method = method, ..., return_sim = TRUE)
+}
+
+#' The engine behind [projectUntilSettled()] and the steady-state finders
+#'
+#' Holds the whole block-by-block run. It is kept separate from the exported
+#' [projectUntilSettled()] for one reason: with `return_sim = FALSE` it never
+#' allocates the `MizerSim` arrays at all, and [tuneSteadyState()],
+#' [findSteadyState()] and [scanModel()] all run it in that mode, the last of
+#' them in a loop. The exported function is the `return_sim = TRUE` face of it.
+#'
+#' @inheritParams projectUntilSettled
+#' @param return_sim Whether to build and return a `MizerSim` of the run rather
+#'   than a `MizerParams` holding only the final state.
+#' @return A `MizerSim` or a `MizerParams`, in either case carrying the
+#'   `"convergence"` attribute.
+#' @noRd
+project_until_settled <- function(params,
+                                effort = params@initial_effort,
+                                distance_func = distanceSSLogN,
+                                t_per = 1.5,
+                                t_max = 100,
+                                dt = 0.1,
+                                t_save = dt,
+                                tol = 0.1 * t_per,
+                                amplitude_tol = 0.01,
+                                amp_rel_tol = 0.1,
+                                extinction_threshold = 1e-6,
+                                progress_bar = TRUE,
+                                info_level = default_info_level(),
+                                method = c("euler", "predictor_corrector",
+                                           "tr_bdf2"), ...,
+                                  return_sim = FALSE) {
     with_info_level(info_level = info_level, {
     params <- validParams(params)
     method <- normalise_project_method(method)
@@ -478,7 +553,7 @@ projectToSteady.MizerParams <- function(params,
 
 #' Detect a limit cycle from a fine-resolution biomass time series
 #'
-#' Used by [projectToSteady()] to decide whether a run that is not settling to a
+#' Used by [projectUntilSettled()] to decide whether a run that is not settling to a
 #' fixed point has instead converged onto a limit cycle. Works on the per-species
 #' biomass sampled at the fine `t_save` resolution, so it is independent of
 #' whether the cycle period is commensurate with the block length `t_per`.
@@ -566,203 +641,6 @@ find_first_acf_peak <- function(ac, threshold) {
     NA_integer_
 }
 
-#' Set initial values to a steady state for the model
-#'
-#' The steady state is found by running the dynamics while keeping reproduction,
-#' resource and other components constant until the size spectra no longer
-#' change much (or until time `t_max` is reached, if earlier).
-#'
-#' Holding those constant is what makes the search reliable, but it does not
-#' make the result certain: the state that is stored is only as close to a fixed
-#' point as `tol` and `t_max` allowed, and the run may instead have stopped on a
-#' limit cycle or on a species going extinct. Check the result rather than
-#' assuming it; see the section below.
-#'
-#' If the model use Beverton-Holt reproduction then the reproduction parameters
-#' are set to values that give the level of reproduction observed in that
-#' steady state. The `preserve` argument can be used to specify which of the
-#' reproduction parameters should be preserved.
-#'
-#' The resource is rebalanced so that the returned state is a steady state of
-#' the resource as well as of the consumers. The resource abundance is
-#' preserved while the capacity is recomputed to keep it steady. If the resource
-#' capacity had been set manually (frozen), it is rebalanced and thereby
-#' unfrozen.
-#'
-#' @param params A \linkS4class{MizerParams} object
-#' @param t_max The maximum number of years to run the simulation. Default is 100.
-#' @param t_per The simulation is broken up into shorter runs of `t_per` years,
-#'   after each of which we check for convergence. Default value is 1.5. This
-#'   should be chosen as an odd multiple of the timestep `dt` in order to be
-#'   able to detect period 2 cycles.
-#' @param dt The time step to use in `project()`.
-#' @param t_save The interval at which a cheap per-species biomass summary is
-#'   recorded for limit-cycle detection. Must be a positive multiple of `dt` and
-#'   a divisor of `t_per`. Smaller values resolve the cycle period more finely at
-#'   a small extra cost. Default is `dt`.
-#' @param tol The simulation stops when the relative change in the egg
-#'   production RDI over `t_per` years is less than `tol` for every species.
-#' @param amplitude_tol `r lifecycle::badge("experimental")`
-#'   The minimum relative biomass amplitude for a persistent oscillation to be
-#'   reported as a limit cycle rather than treated as an (effectively steady)
-#'   fixed point. This is a fraction of mean biomass and is kept separate from
-#'   `tol` (which measures convergence to a fixed point on a different scale).
-#'   Default `0.01`.
-#' @param amp_rel_tol `r lifecycle::badge("experimental")`
-#'   Maximum relative change of amplitude between successive periods for the
-#'   cycle to count as settled. Default `0.01`.
-#' @param extinction_threshold `r lifecycle::badge("experimental")`
-#'   A species is treated as going extinct, stopping the run, once its
-#'   reproduction rate (RDD) falls below this fraction of its value at the start
-#'   of the run. For example the default `1e-6` treats a species as extinct once
-#'   its reproduction has collapsed to a millionth of its initial level. Because
-#'   it is relative to the initial reproduction, a species that starts with zero
-#'   reproduction is flagged immediately, and (in [steady()], where reproduction
-#'   is held constant) a healthy species is never flagged.
-#' @param return_sim If TRUE, the function returns the MizerSim object holding
-#'   the result of the simulation run, saved at intervals of `t_per`. If FALSE (default) the function returns
-#'   a MizerParams object with the "initial" slots set to the steady state.
-#' @param preserve `r lifecycle::badge("experimental")`
-#'   Specifies whether the `reproduction_level` should be preserved (default)
-#'   or the maximum reproduction rate `R_max` or the reproductive
-#'   efficiency `erepro`. See [setBevertonHolt()] for an explanation
-#'   of the `reproduction_level`.
-#' @param progress_bar A shiny progress object to implement a progress bar in a
-#'   shiny app. Default FALSE.
-#' @param info_level Controls the amount of information messages that are shown.
-#'   Higher levels lead to more messages, `info_level = 0` gives silence. The
-#'   default is taken from the `mizer_info_level` option, see
-#'   [default_info_level()].
-#' @param method The numerical method to use for the consumer density update.
-#'   See [project()].
-#' @template section_check_steady
-#'
-#' @return If `return_sim = FALSE`, a `MizerParams` object with the initial
-#'   state replaced by the steady state. If `return_sim = TRUE`, a `MizerSim`
-#'   object containing the intermediate states saved every `t_per` years. The
-#'   returned object carries a `"convergence"` attribute describing the solution
-#'   found (steady state, limit cycle, or non-convergence); see
-#'   [projectToSteady()]. Check it: convergence is not guaranteed.
-#' @seealso [projectToSteady()], [steadySingleSpecies()], [steadyNewton()],
-#'   [isSteady()], [getSteadyResidual()], [getStability()]
-#' @export
-#' @examples
-#' \donttest{
-#' params <- newTraitParams()
-#' species_params(params)$gamma[5] <- 3000
-#' params <- steady(params)
-#' plotSpectra(params)
-#' }
-steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1, t_save = dt,
-                   tol = 0.1 * dt, amplitude_tol = 0.01, amp_rel_tol = 0.01,
-                   extinction_threshold = 1e-6, return_sim = FALSE,
-                   preserve = c("reproduction_level", "erepro", "R_max"),
-                   progress_bar = TRUE,
-                   info_level = default_info_level(),
-                   method = c("euler", "predictor_corrector", "tr_bdf2")) {
-    UseMethod("steady")
-}
-
-#' @export
-steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
-                   t_save = dt,
-                   tol = 0.1 * dt, amplitude_tol = 0.01, amp_rel_tol = 0.01,
-                   extinction_threshold = 1e-6, return_sim = FALSE,
-                   preserve = c("reproduction_level", "erepro", "R_max"),
-                   progress_bar = TRUE,
-                   info_level = default_info_level(),
-                   method = c("euler", "predictor_corrector", "tr_bdf2")) {
-    with_info_level(info_level = info_level, {
-    method <- normalise_project_method(method)
-
-    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
-        preserve <- match.arg(preserve)
-        old_reproduction_level <- reproduction_level(params)
-        old_R_max <- params@species_params$R_max
-        old_erepro <- params@species_params$erepro
-    }
-
-    # Force the reproduction to stay at the current level
-    params@species_params$constant_reproduction <- getRDD(params)
-    old_rdd_fun <- params@rates_funcs$RDD
-    params@rates_funcs$RDD <- "constantRDD"
-
-    # Force resource to stay at current level
-    old_resource_dynamics <- params@resource_dynamics
-    params@resource_dynamics <- "resource_constant"
-
-    # Force other components to stay at current level
-    old_other_dynamics <- params@other_dynamics
-    for (res in names(params@other_dynamics)) {
-        params@other_dynamics[[res]] <- "constant_other"
-    }
-
-    object <- projectToSteady(params,
-                              distance_func = distanceMaxRelRDI,
-                              t_per = t_per,
-                              t_max = t_max,
-                              dt = dt,
-                              t_save = t_save,
-                              tol = tol,
-                              amplitude_tol = amplitude_tol,
-                              amp_rel_tol = amp_rel_tol,
-                              extinction_threshold = extinction_threshold,
-                              return_sim = return_sim,
-                              progress_bar = progress_bar,
-                              info_level = info_level,
-                              method = method)
-    # Capture the convergence diagnostic before the setter functions below
-    # return fresh objects that drop attributes; it is re-attached at the end.
-    conv <- attr(object, "convergence")
-    if (return_sim) {
-        params <- object@params
-    } else {
-        params <- object
-    }
-    # Restore original RDD and dynamics
-    params@rates_funcs$RDD <- old_rdd_fun
-    params@other_dynamics <- old_other_dynamics
-    params@species_params$constant_reproduction <- NULL
-
-    # Restore the original resource dynamics and rebalance so that the
-    # converged state is a genuine steady state of the resource as well as of
-    # the consumers. Balancing derives the resource capacity from the (preserved)
-    # rate; a manually set (frozen) capacity would otherwise block this, leaving
-    # the resource off its fixed point. We therefore clear the frozen mark on the
-    # capacity first, so that it is rebalanced from the rate exactly as earlier
-    # versions of mizer did when they rebalanced the resource in `steady()`.
-    comment(params@cc_pp) <- NULL
-    params <- setResource(params, resource_dynamics = old_resource_dynamics)
-
-    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
-        if (preserve == "reproduction_level") {
-            reproduction_level(params) <- old_reproduction_level
-        } else if (preserve == "R_max") {
-            params <- setBevertonHolt(params,
-                                      R_max = old_R_max)
-        } else {
-            params <- setBevertonHolt(params, erepro = old_erepro)
-        }
-    }
-
-    # The residual recorded by projectToSteady() was measured on the model it
-    # was handed, which had reproduction, the resource and the other components
-    # pinned. Restoring the real dynamics above changes the model, so the
-    # residual is measured again on what is actually being returned.
-    conv$residual <- tryCatch(steady_biomass_drift(params),
-                              error = function(e) NA_real_)
-
-    if (return_sim) {
-        object@params <- params
-        attr(object, "convergence") <- conv
-        return(object)
-    } else {
-        params@time_modified <- lubridate::now()
-        attr(params, "convergence") <- conv
-        return(params)
-    }
-    })
-}
 
 
 #' Helper function to keep other components constant

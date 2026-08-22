@@ -44,5 +44,5 @@ isSteady(params)
 }
 }
 \seealso{
-\code{\link[=getSteadyResidual]{getSteadyResidual()}}, \code{\link[=steady]{steady()}}, \code{\link[=steadyNewton]{steadyNewton()}}
+\code{\link[=getSteadyResidual]{getSteadyResidual()}}, \code{\link[=tuneSteadyState]{tuneSteadyState()}}, \code{\link[=findSteadyState]{findSteadyState()}}
 }

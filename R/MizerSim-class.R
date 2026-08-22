@@ -162,7 +162,7 @@ valid_MizerSim <- function(object) {
 #' @slot effort An array (time x gear) that stores the fishing effort by time
 #'   and gear.
 #' @slot sim_params A named list of the parameters passed to [project()] or
-#'   [projectToSteady()] to produce this simulation, such as `method` and `dt`.
+#'   [projectUntilSettled()] to produce this simulation, such as `method` and `dt`.
 #'
 #' @export
 setClass(
@@ -623,7 +623,7 @@ finalParams.MizerSim <- function(sim) {
 #' Extract the projection parameters used to produce a simulation
 #'
 #' Returns the named list of arguments passed to [project()] or
-#' [projectToSteady()] when producing this `MizerSim` object, such as
+#' [projectUntilSettled()] when producing this `MizerSim` object, such as
 #' `method` and `dt`. Returns an empty list for simulations produced by
 #' older versions of mizer.
 #'

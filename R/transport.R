@@ -55,7 +55,7 @@ log_dx <- function(params) {
 #'
 #' The dynamics impose this as the upper boundary condition (see
 #' `get_transport_coefs()`) so that abundance is held at zero above `w_max` even
-#' when diffusion would otherwise carry density past it, and [steadyNewton()]
+#' when diffusion would otherwise carry density past it, and the Newton solver
 #' solves on exactly this support.
 #'
 #' @param params A \linkS4class{MizerParams} object.

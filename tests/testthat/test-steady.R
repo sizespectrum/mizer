@@ -1,135 +1,80 @@
-# projectToSteady ----
+# projectUntilSettled ----
 # Built once here; tests get a fresh copy via R's copy-on-modify semantics.
 small_steady_params <- suppressMessages(
     newTraitParams(no_sp = 2, no_w = 20, max_w_max = 100,
                    min_w = 1e-3, w_pp_cutoff = 5, ks = 4,
                    reproduction_level = 0.25, info_level = 0)
 )
-
-test_that("projectToSteady() works", {
+test_that("projectUntilSettled() works", {
     params <- small_steady_params
     effort <- params@initial_effort * 1.1
     initialN(params)[1, ] <- initialN(params)[1, ] * 3
-    expect_error(projectToSteady(params, dt = 1, t_per = 0.5),
+    expect_error(projectUntilSettled(params, dt = 1, t_per = 0.5),
                  "t_per must be a positive multiple of dt")
-    expect_error(projectToSteady(params, t_max = 0.1),
+    expect_error(projectUntilSettled(params, t_max = 0.1),
                  "t_max not greater than or equal to t_per")
-    expect_message(projectToSteady(params, t_max = 0.1, t_per = 0.1, info_level = 3),
+    expect_message(projectUntilSettled(params, t_max = 0.1, t_per = 0.1,
+                                       info_level = 3),
                    "Simulation run did not converge after 0.1 years.")
-    expect_message(paramsc <- projectToSteady(params, t_per = 1, dt = 1,
+    # It always returns the trajectory, whatever the run settled on.
+    expect_message(sim <- projectUntilSettled(params, t_per = 1, dt = 1,
                                               tol = 1000, effort = effort),
                    "Reached the convergence tolerance")
-    expect_s4_class(paramsc, "MizerParams")
-    expect_identical(paramsc@initial_effort, effort)
-    # shouldn't take long the second time we run to steady
-    expect_message(projectToSteady(paramsc, t_per = 1, dt = 1, tol = 1000),
-                   "Reached the convergence tolerance")
-    
-    # return sim
-    expect_message(sim <- projectToSteady(params, return_sim = TRUE,
-                                          t_per = 1, dt = 1, tol = 1000),
-                   "Reached the convergence tolerance")
     expect_s4_class(sim, "MizerSim")
-    
+    expect_identical(sim@params@initial_effort, effort)
+    # shouldn't take long the second time we run to steady
+    expect_message(projectUntilSettled(finalParams(sim), t_per = 1, dt = 1,
+                                       tol = 1000),
+                   "Reached the convergence tolerance")
+
     # Alternative distance function
-    expect_message(paramsc <- projectToSteady(params, t_per = 1, dt = 1,
+    expect_message(sim <- projectUntilSettled(params, t_per = 1, dt = 1,
                                               distance_func = distanceMaxRelRDI,
                                               tol = 10),
                    "Reached the convergence tolerance")
     # shouldn't take long the second time we run to steady
-    expect_message(projectToSteady(paramsc, t_per = 1, dt = 1,
-                                   distance_func = distanceMaxRelRDI,
-                                   tol = 10),
+    expect_message(projectUntilSettled(finalParams(sim), t_per = 1, dt = 1,
+                                       distance_func = distanceMaxRelRDI,
+                                       tol = 10),
                    "Reached the convergence tolerance")
-    
+
     # Check extinction
     params@psi[1:2, ] <- 0
     sp1 <- params@species_params$species[1]
     sp2 <- params@species_params$species[2]
-    expect_warning(projectToSteady(params) |> suppressMessages(),
+    expect_warning(projectUntilSettled(params) |> suppressMessages(),
                    paste0(sp1, ", ", sp2, " are going extinct."))
 })
 
-test_that("projectToSteady accepts the documented effort forms", {
+test_that("projectUntilSettled accepts the documented effort forms", {
     params <- NS_params_small
-    p1 <- projectToSteady(params, effort = 0.5, t_per = 0.1,
-                          t_max = 0.1, tol = 10, info_level = 0)
-    expect_equal(unname(p1@initial_effort), rep(0.5, length(initial_effort(params))))
+    s1 <- projectUntilSettled(params, effort = 0.5, t_per = 0.1,
+                              t_max = 0.1, tol = 10, info_level = 0)
+    expect_equal(unname(s1@params@initial_effort),
+                 rep(0.5, length(initial_effort(params))))
 
     named <- initial_effort(params)[1:2]
     named[] <- c(0.2, NA)
-    p2 <- projectToSteady(params, effort = named, t_per = 0.1,
-                          t_max = 0.1, tol = 10, info_level = 0)
+    s2 <- projectUntilSettled(params, effort = named, t_per = 0.1,
+                              t_max = 0.1, tol = 10, info_level = 0)
     expected <- validEffortVector(named, params)
-    expect_equal(p2@initial_effort, expected)
+    expect_equal(s2@params@initial_effort, expected)
 })
-
-test_that("projectToSteady accepts consumer update method", {
+test_that("projectUntilSettled accepts consumer update method", {
     params <- small_steady_params
 
-    pc <- projectToSteady(params, t_per = 1, dt = 1,
-                          t_max = 1, tol = 1000,
-                          method = "predictor_corrector", info_level = 0)
-    expect_s4_class(pc, "MizerParams")
-    expect_true(all(is.finite(pc@initial_n)))
-    expect_true(all(pc@initial_n >= 0))
+    sim <- projectUntilSettled(params, t_per = 1, dt = 1,
+                               t_max = 1, tol = 1000,
+                               method = "predictor_corrector", info_level = 0)
+    expect_s4_class(sim, "MizerSim")
+    expect_true(all(is.finite(finalN(sim))))
+    expect_true(all(finalN(sim) >= 0))
 
     expect_error(
-        projectToSteady(params, t_per = 1, dt = 1, t_max = 1,
-                        method = "bogus"),
+        projectUntilSettled(params, t_per = 1, dt = 1, t_max = 1,
+                            method = "bogus"),
         "should be one of"
     )
-})
-
-# steady ----
-test_that("steady works", {
-    params <- small_steady_params
-    params@species_params$gamma[2] <- 2000
-    params <- setSearchVolume(params)
-    sim <- steady(params, t_per = 1, t_max = 1, dt = 1, tol = 10,
-                  return_sim = TRUE) |>
-        suppressMessages()
-    expect_s4_class(sim, "MizerSim")
-    expect_snapshot_value(getRDD(sim@params), style = "deparse")
-})
-
-test_that("steady accepts consumer update method", {
-    params <- small_steady_params
-    params@species_params$gamma[2] <- 2000
-    params <- setSearchVolume(params)
-
-    p <- steady(params, t_per = 1, t_max = 1, dt = 1, tol = 10,
-                method = "predictor_corrector") |>
-        suppressMessages()
-
-    expect_s4_class(p, "MizerParams")
-    expect_true(all(is.finite(p@initial_n)))
-    expect_true(all(p@initial_n >= 0))
-})
-
-test_that("steady() preserves parameters", {
-    params <- small_steady_params
-
-    params_rdd <- params
-    params_rdd@rates_funcs$RDD <- "noRDD"
-    p_rdd <- steady(params_rdd, t_per = 1, t_max = 1, dt = 1) |> suppressMessages()
-    expect_equal(p_rdd@rates_funcs$RDD, "noRDD")
-
-    params_rmax <- params
-    species_params(params_rmax)$R_max <- 1.01 * species_params(params_rmax)$R_max
-    p_erepro <- steady(params_rmax, t_per = 1, t_max = 1, dt = 1, tol = 10,
-                       preserve = "erepro") |> suppressMessages()
-    expect_equal(p_erepro@species_params$erepro, params_rmax@species_params$erepro)
-    p_rl <- steady(params_rmax, t_per = 1, t_max = 1, dt = 1, tol = 10,
-                   preserve = "reproduction_level") |> suppressMessages()
-    expect_equal(reproduction_level(p_rl), reproduction_level(params_rmax))
-
-    params_erepro <- params
-    species_params(params_erepro)$erepro <- 1.01 * species_params(params_erepro)$erepro
-    p_rmax <- steady(params_erepro, t_per = 1, t_max = 1, dt = 1, tol = 10,
-                     preserve = "R_max") |> suppressMessages()
-    expect_equal(p_rmax@species_params$R_max, params_erepro@species_params$R_max)
-    expect_false(identical(p_rmax@time_modified, params_erepro@time_modified))
 })
 
 # valid_species_arg ----
@@ -191,17 +136,15 @@ test_that("valid_species_arg works", {
                      valid_species_arg(NS_params_small, 
                                        NS_params_small@species_params$species))
 })
-
-test_that("projectToSteady() converges with use_predation_diffusion", {
+test_that("projectUntilSettled() converges with use_predation_diffusion", {
     params_d <- small_steady_params
     params_d@use_predation_diffusion <- TRUE
     initialN(params_d)[1, ] <- initialN(params_d)[1, ] * 3
     expect_message(
-        projectToSteady(params_d, t_per = 1, dt = 1, tol = 1000),
+        projectUntilSettled(params_d, t_per = 1, dt = 1, tol = 1000),
         "Reached the convergence tolerance"
     )
 })
-
 test_that("valid_gears_arg works", {
     all_gears <- unique(NS_params_small@gear_params$gear)
     expect_identical(valid_gears_arg(NS_params_small), all_gears)
@@ -269,54 +212,6 @@ test_that("distance functions implement their documented formulas", {
     expect_equal(distanceSSLogN(params, previous, previous), 0)
 })
 
-# Deviation of the resource from the semichemostat fixed point
-# n_steady = r * cc / (r + mu); zero when the resource is exactly at steady
-# state.
-resource_deviation <- function(params) {
-    mu <- getResourceMort(params)
-    n_pp <- params@initial_n_pp
-    n_steady <- params@rr_pp * params@cc_pp / (params@rr_pp + mu)
-    sel <- n_pp > 0 & is.finite(n_steady)
-    max(abs(n_pp[sel] - n_steady[sel]) / n_pp[sel])
-}
-
-test_that("steady() rebalances the resource to a genuine fixed point", {
-    # For a normal (non-frozen) resource, steady() rebalances the resource so
-    # that it is a genuine fixed point and issues no warning.
-    expect_no_warning(
-        ps <- suppressMessages(steady(NS_params_small, progress_bar = FALSE))
-    )
-    expect_lt(resource_deviation(ps), 1e-8)
-    # From this state both the second-order and Euler steppers stay put and
-    # agree closely, confirming the resource really is at steady state.
-    sim_t <- project(ps, t_max = 5, dt = 0.1, method = "tr_bdf2",
-                     progress_bar = FALSE)
-    sim_e <- project(ps, t_max = 5, dt = 0.1, method = "euler",
-                     progress_bar = FALSE)
-    rel_diff_pp <- max(abs(finalNResource(sim_t) - finalNResource(sim_e)) /
-                           (finalNResource(sim_e) + 1e-30))
-    expect_lt(rel_diff_pp, 1e-3)
-})
-
-test_that("steady() rebalances a frozen resource capacity", {
-    # Freeze the resource capacity away from its balanced value.
-    pf <- suppressMessages(setResource(NS_params_small,
-                                       resource_capacity = NS_params_small@cc_pp * 1.3,
-                                       balance = FALSE))
-    expect_false(is.null(comment(pf@cc_pp)))
-    npp_before <- pf@initial_n_pp
-
-    # steady() rebalances the frozen capacity silently, as earlier mizer
-    # versions did, without a warning or message about the resource.
-    expect_no_warning(ps <- suppressMessages(steady(pf, progress_bar = FALSE)))
-    # The resource is now a genuine fixed point and no longer frozen ...
-    expect_lt(resource_deviation(ps), 1e-8)
-    expect_null(comment(ps@cc_pp))
-    # ... and the resource abundance itself was preserved (only the capacity
-    # was adjusted to balance it).
-    expect_equal(unclass(ps@initial_n_pp), unclass(npp_before))
-})
-
 # limit cycle detection ----
 
 # Limit-cycle detection and the "convergence" attribute --------------------
@@ -332,7 +227,6 @@ test_that("find_first_acf_peak returns the lag of the first local maximum", {
     # Too short
     expect_true(is.na(find_first_acf_peak(c(1, 0.5), threshold = 0.5)))
 })
-
 test_that("amp_window gives the largest per-species relative amplitude", {
     bio <- cbind(c(1, 2, 3),        # (3 - 1) / 2 = 1
                  c(10, 10, 10),     # 0
@@ -341,7 +235,6 @@ test_that("amp_window gives the largest per-species relative amplitude", {
     # A species with zero mean contributes zero, not NaN/Inf
     expect_equal(amp_window(cbind(c(0, 0, 0))), 0)
 })
-
 test_that("detect_limit_cycle finds a sustained oscillation", {
     t_save <- 0.25; period <- 5; a <- 0.1
     idx <- 0:199
@@ -352,7 +245,6 @@ test_that("detect_limit_cycle finds a sustained oscillation", {
     # For a sinusoid about the mean the relative peak-to-trough amplitude is 2a.
     expect_equal(cyc$amplitude, 2 * a, tolerance = 1e-3)
 })
-
 test_that("detect_limit_cycle rejects non-cycles", {
     t_save <- 0.25; period <- 5; a <- 0.1
     idx <- 0:199
@@ -367,7 +259,6 @@ test_that("detect_limit_cycle rejects non-cycles", {
     expect_null(detect_limit_cycle(matrix(1000, nrow = 10, ncol = 1),
                                    t_save, amplitude_tol = 0.01))
 })
-
 test_that("detect_limit_cycle respects amplitude_tol", {
     t_save <- 0.25; period <- 5; a <- 0.03   # ~6% peak-to-trough amplitude
     idx <- 0:199
@@ -384,71 +275,43 @@ cd_params <- suppressMessages(
                    min_w = 1e-3, w_pp_cutoff = 5, ks = 4,
                    reproduction_level = 0.25, info_level = 0)
 )
-
-# The "convergence" attribute ------------------------------------------------
-
-test_that("steady() attaches a 'convergence' attribute when the distance drops below tol", {
-    p <- suppressWarnings(suppressMessages(steady(cd_params, progress_bar = FALSE)))
-    conv <- attr(p, "convergence")
-    expect_type(conv, "list")
-    expect_named(conv, c("type", "settled", "distance", "residual", "years",
-                         "period", "amplitude"))
-    expect_identical(conv$type, "below_tolerance")
-    expect_true(conv$settled)
-    expect_true(is.na(conv$period))
-    expect_true(is.na(conv$amplitude))
-    # The residual measures how far the state actually is from a fixed point,
-    # which the distance function only approximates.
-    expect_true(is.finite(conv$residual))
-    expect_lt(conv$residual, steady_residual_tol())
-})
-
-test_that("the 'convergence' attribute survives return_sim = TRUE", {
-    sim <- suppressWarnings(suppressMessages(steady(cd_params, return_sim = TRUE,
-                                                    progress_bar = FALSE)))
-    expect_s4_class(sim, "MizerSim")
-    expect_identical(attr(sim, "convergence")$type, "below_tolerance")
-})
-
-test_that("projectToSteady() reports non-convergence", {
+test_that("projectUntilSettled() reports non-convergence", {
     p <- cd_params
     initialN(p)[1, ] <- initialN(p)[1, ] * 3
-    p <- suppressMessages(
-        projectToSteady(p, t_max = 0.5, t_per = 0.5, dt = 0.1,
-                        tol = 1e-12, info_level = 0)
+    sim <- suppressMessages(
+        projectUntilSettled(p, t_max = 0.5, t_per = 0.5, dt = 0.1,
+                            tol = 1e-12, info_level = 0)
     )
-    conv <- attr(p, "convergence")
+    conv <- attr(sim, "convergence")
     expect_identical(conv$type, "not_converged")
     expect_false(conv$settled)
 })
-
 test_that("fine t_save sampling does not change the result", {
     # Sub-blocking the run at the t_save resolution must be numerically
     # identical to stepping a whole t_per block at once.
     args <- list(t_max = 3, t_per = 1.5, dt = 0.5, tol = 1e-12, info_level = 0)
-    p_fine   <- suppressMessages(do.call(projectToSteady,
+    p_fine   <- suppressMessages(do.call(findSteadyState,
                                          c(list(cd_params, t_save = 0.5), args)))
-    p_coarse <- suppressMessages(do.call(projectToSteady,
+    p_coarse <- suppressMessages(do.call(findSteadyState,
                                          c(list(cd_params, t_save = 1.5), args)))
     expect_identical(p_fine@initial_n, p_coarse@initial_n)
 })
-
 test_that("t_save is validated", {
-    expect_error(projectToSteady(cd_params, dt = 0.1, t_save = 0.15),
+    expect_error(projectUntilSettled(cd_params, dt = 0.1, t_save = 0.15),
                  "t_save must be a positive multiple of dt")
-    expect_error(projectToSteady(cd_params, dt = 0.1, t_per = 1, t_save = 0.3),
+    expect_error(projectUntilSettled(cd_params, dt = 0.1, t_per = 1,
+                                     t_save = 0.3),
                  "t_per must be a positive multiple of t_save")
 })
-
-test_that("projectToSteady() detects a limit cycle", {
+test_that("projectUntilSettled() detects a limit cycle", {
     skip_on_cran()
     # The full North Sea model driven at high fishing effort settles onto a
     # limit cycle rather than a fixed point.
-    p <- suppressMessages(
-        projectToSteady(NS_params, effort = 2, t_max = 200,
-                        t_per = 1.5, dt = 0.1, tol = 1e-8, info_level = 0)
+    sim <- suppressMessages(
+        projectUntilSettled(NS_params, effort = 2, t_max = 200,
+                            t_per = 1.5, dt = 0.1, tol = 1e-8, info_level = 0)
     )
-    conv <- attr(p, "convergence")
+    conv <- attr(sim, "convergence")
     expect_identical(conv$type, "cycle")
     expect_true(conv$settled)
     expect_gt(conv$period, 0)

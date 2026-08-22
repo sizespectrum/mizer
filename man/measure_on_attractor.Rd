@@ -16,7 +16,7 @@ measure_on_attractor(
 )
 }
 \arguments{
-\item{settled}{The MizerParams returned by \code{\link[=projectToSteady]{projectToSteady()}}.}
+\item{settled}{The MizerParams returned by \code{project_until_settled()}.}
 
 \item{value_func}{The function measuring the quantity.}
 

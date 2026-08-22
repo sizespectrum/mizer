@@ -268,7 +268,7 @@ w2l <- function(w, species_params) {
 #'
 #' The returned abundance is held at zero above each species' `w_max`, the same
 #' upper boundary condition that [project()] imposes (via `zero_above_support()`
-#' in `project_n()`) and that [steadyNewton()] solves on. Without this the
+#' in `project_n()`) and that the Newton solver solves on. Without this the
 #' bottom-up solve would carry density above `w_max` whenever growth is still
 #' positive there or diffusion pushes density past it.
 #' @concept helper

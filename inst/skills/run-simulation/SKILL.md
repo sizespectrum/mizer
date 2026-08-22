@@ -70,8 +70,9 @@ running, see the `set-up-fishing` skill.
 ## Common patterns
 
 **Run to a new steady state after a change.** To get the equilibrium a change
-implies, rather than a fixed number of years, use `steady()` or
-`projectToSteady()` from the `calibrate-model` skill instead of a long
+implies, rather than a fixed number of years, use `tuneSteadyState()`,
+`findSteadyState()` or `projectUntilSettled()` from the `calibrate-model` skill
+instead of a long
 `project()`.
 
 **Continue a simulation.** Pass a `MizerSim` back to `project()`; it resumes
@@ -150,7 +151,7 @@ second_order_w(params)                           # inspect: flux and bin_average
 The scheme lives in the `MizerParams`, so a `MizerSim` carries it: comparing a
 run made under one setting with a run made under the other compares two
 discretisations as well as two scenarios. Recalibrate after switching it on —
-`steady()` handles the `van_leer` flux from mizer 3.3 onwards. On earlier
+`tuneSteadyState()` handles the `van_leer` flux from mizer 3.3 onwards. On earlier
 versions it fell into a limit cycle there and never converged, so a model built
 with `second_order_w = TRUE` had to be settled under the default flux first.
 

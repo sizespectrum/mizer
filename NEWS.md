@@ -10,16 +10,20 @@ through a single mechanism controlled by `info_level`, which extension packages
 can now use too, and it gives each of the seventeen accessors that had two names
 a single preferred one. The topic articles and the AI-agent skills have become
 one set of documents, so that there is now one guide per stage of the modelling
-workflow.
+workflow. It also renames the steady-state finders after what each one keeps
+fixed, keeping the old names as silent aliases.
 
 ## Dynamic stability
 
-- New experimental `steadyNewton()` finds a steady state by solving the
-  steady-state equation directly with a Newton-type root finder (via the
-  `nleqslv` package) instead of running the dynamics to convergence. Unlike
-  `steady()` it converges even when the steady state is dynamically unstable, and
-  it discovers the support of the steady state automatically. Currently supports
-  the default semichemostat resource dynamics.
+- The two steady-state finders gain an experimental `solver` argument. With
+  `solver = "newton"` they solve the steady-state equation directly with a
+  Newton-type root finder (via the `nleqslv` package) instead of running the
+  dynamics to convergence. Unlike the default `solver = "project"` it converges
+  even when the steady state is dynamically unstable, and it discovers the
+  support of the steady state automatically. `findSteadyState(solver = "newton")`
+  carries the resource densities among its unknowns and so needs the default
+  semichemostat resource dynamics; `tuneSteadyState(solver = "newton")` holds
+  the resource fixed and works with any.
 
 - New experimental `getStability()` analyses the dynamic stability of a mizer
   steady state by computing the eigenvalues of the linearised dynamics at the
@@ -160,7 +164,8 @@ workflow.
   rather than a finite difference: the backward-Euler transport coefficients
   used by `project()` satisfy `A N - S = -dt dN/dt` identically. Everything is
   evaluated with the model's own reproduction function and its own
-  `resource_dynamics`, so unlike `steadyNewton()` it works whatever the resource
+  `resource_dynamics`, so unlike `findSteadyState(solver = "newton")` it works
+  whatever the resource
   dynamics are. The result is an `ArraySpeciesBySize`, so
   `plot(getSteadyResidual(params))` shows which species and which sizes have
   moved (#495).
@@ -172,7 +177,8 @@ workflow.
 
 - `project()` gains an experimental `check_steady` argument. With
   `check_steady = TRUE` it warns when it is handed a model that is not at its
-  steady state, which catches the mistake of forgetting to re-run `steady()`
+  steady state, which catches the mistake of forgetting to re-run
+  `tuneSteadyState()`
   after a `match…()` step. It defaults to `FALSE`, because projecting a model
   away from its steady state is a perfectly normal thing to do. The check is
   made at the effort stored in the params object rather than at the effort
@@ -182,7 +188,8 @@ workflow.
 - The `"convergence"` attribute also carries a `residual` field giving how far
   the state reached actually is from a fixed point. The `distance` field only
   compares two states `t_per` apart on whatever scale the distance function
-  uses; `residual` measures the thing itself, and `steady()` says when the two
+  uses; `residual` measures the thing itself, and `tuneSteadyState()` says when
+  the two
   disagree — a run declared converged whose biomasses are still visibly moving
   (#495).
 
@@ -555,6 +562,21 @@ workflow.
 
 ## Deprecations
 
+- `steady()` and `projectToSteady()` are superseded. Neither name said what
+  distinguished the two functions, and `projectToSteady()` returned a different
+  class depending on an argument. Use `tuneSteadyState()` in place of `steady()`
+  and `findSteadyState()` in place of `projectToSteady()`, or
+  `projectUntilSettled()` where you wanted `projectToSteady(return_sim = TRUE)`.
+  The new names say what each one keeps: `tuneSteadyState()` holds the
+  reproduction rate and the resource abundance at the values you supply and
+  adjusts `erepro`/`R_max` and `cc_pp` to make them steady, while
+  `findSteadyState()` changes no parameter and lets everything settle together.
+  The two finders always return a `MizerParams` and `projectUntilSettled()`
+  always returns a `MizerSim`, so `return_sim` is gone from the new functions.
+  Nothing breaks: the old names are kept as thin wrappers that reproduce the old
+  behaviour exactly, `return_sim` included. They do not warn and they are not
+  going away.
+
 - `matchYields()` and `calibrateYield()` have been removed. They were deprecated
   in mizer 2.6.0 and no use case for them was reported. Both worked by
   multiplying the abundance of a species at all sizes by a constant factor,
@@ -838,7 +860,7 @@ workflow.
 - New article ["Discontinuous rate functions"](https://sizespectrum.org/mizer/articles/discontinuous_rates.html)
   explains what goes wrong when a custom rate function registered with
   `setRateFunction()` depends discontinuously on the abundances — chattering
-  trajectories that keep changing as `dt` is refined, a stalled `steadyNewton()`,
+  trajectories that keep changing as `dt` is refined, a stalled Newton solver,
   and an unreliable `getStability()` — why none of the time-stepping methods can
   fix it, and how to avoid it by giving the switch a finite width.
 
@@ -876,7 +898,7 @@ workflow.
   The remaining guides gain the material that had previously only been
   written on the skill side: the fishing guide now covers `setFishing()`
   and how catchability fixes the units of fishing effort; the calibration
-  guide covers `steadyNewton()` and `reproduction_level()`; the model
+  guide covers the `solver` argument and `reproduction_level()`; the model
   setup guide covers saving and reloading a model with
   `saveParams()`/`readParams()`; the changing-parameters guide explains
   that the feeding level is set by `f0` rather than by `h`; and the analysis
@@ -885,7 +907,7 @@ workflow.
 
 - New `analyse-stability` skill, and the matching "Guide: Dynamic
   Stability" article, cover the experimental stability tools added in this
-  version: `getStability()`, `steadyNewton()`,
+  version: `getStability()`, `findSteadyState(solver = "newton")`,
   `getLimitCycleSim()` and `scanModel()`. Like the other skills it is
   shipped in `inst/skills/` and picked up by `mizerAgents::setup_mizer_agent()`
   from the installed mizer, so an agent's guidance describes the version of

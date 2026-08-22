@@ -3,9 +3,9 @@
 Most of the changes in this release are corrections. Results move only for
 models that had opted in to second-order bin-averaging or to the `van_leer`
 flux, that set `min_w` below the default, that specify sizes as lengths, that
-change the resource power law after constructing the model, or that were brought
-to steady state with `steadyNewton()` while their consumers were satiated. The
-one change to an interface is in the spectrum plots.
+or that change the resource power law after constructing the model. Two
+interfaces change: the spectrum plots, and the names of the steady-state
+finders.
 
 ### `biomass` and `per_log_size` replace `power`
 
@@ -404,13 +404,77 @@ own rather than running out of time is called `settled` rather than `converged`.
 Neither now reads as a promise that the state is a fixed point; `residual` is
 the field that answers that.
 
+### The steady-state finders have new names
+
+Neither `steady()` nor `projectToSteady()` said what distinguished them, and
+`projectToSteady()` returned a different class depending on an argument. Both
+are superseded:
+
+| Superseded | Use instead |
+|---|---|
+| `steady()` | `tuneSteadyState()` |
+| `projectToSteady()` | `findSteadyState()`, or `projectUntilSettled()` for the trajectory |
+
+The new names say what each one keeps. `tuneSteadyState()` holds the inputs to
+the fish dynamics — the reproduction rate and the resource abundance — at the
+values you supply while the spectra settle, and then adjusts the parameters that
+generate them, `erepro`/`R_max` and the resource capacity `cc_pp`, so that those
+held values are steady too. That is what `steady()` always did.
+`findSteadyState()` changes no parameter and lets reproduction, the resource and
+the spectra settle together, which is what `projectToSteady()` did.
+
+`projectUntilSettled()` is the run itself and always returns a `MizerSim`; the
+two finders always return a `MizerParams`. So the `return_sim` argument is gone
+from the new functions:
+
+```r
+# old
+sim    <- projectToSteady(params, return_sim = TRUE)
+params <- projectToSteady(params)
+# new
+sim    <- projectUntilSettled(params)
+params <- findSteadyState(params)
+```
+
+It is called "settled" rather than "steady" because a run may equally settle on
+a limit cycle, which is what the `settled` field of the `"convergence"`
+attribute has always meant.
+
+Both finders gained a `solver` argument. The default `solver = "project"` runs
+the dynamics until they settle, which is the old behaviour.
+`solver = "newton"` instead solves the steady-state equation directly with a
+Newton-type root finder from the `nleqslv` package, so it converges even when
+the steady state is dynamically unstable, where the time-stepping solver
+diverges away from it. `findSteadyState(solver = "newton")` carries the resource
+densities among its unknowns and so needs the default semichemostat resource
+dynamics; `tuneSteadyState(solver = "newton")` holds the resource fixed and
+works with any.
+
+Nothing breaks: `steady()` and `projectToSteady()` are kept as thin wrappers
+that reproduce the old behaviour exactly, `return_sim` included. They do not
+warn, they will not be removed, and old code and old scripts keep running
+untouched. Renaming is a search and replace whenever you next touch the code.
+
+<!-- agent-only -->
+Because the wrappers do not warn, a user running old code sees no signal at all.
+**Do not tell them their code is about to break; it is not.** Suggest the new
+name when you are already editing the line.
+
+Both wrappers are still S3 generics with `MizerParams` methods, so an extension
+package that defines `steady.MyClass` or `projectToSteady.MyClass` keeps
+dispatching. A package that wants the new names should add
+`tuneSteadyState.MyClass` / `findSteadyState.MyClass` methods rather than move
+the old ones.
+<!-- /agent-only -->
+
 ### `getStability()` checks that it was given a steady state
 
 Both `getStability()` and `getLimitCycleSim()` linearise the dynamics *at*
 `initialN(params)`. If that state is not a fixed point, the eigenvalues describe
 the neighbourhood of a point the model is not sitting at and the verdict on
-stability is meaningless. Both now warn in that case. Run `steadyNewton()` first,
-or silence with `options(mizer_info_level = 0)` if you know what you are doing.
+stability is meaningless. Both now warn in that case. Run
+`findSteadyState(params, solver = "newton")` first, or silence with
+`options(mizer_info_level = 0)` if you know what you are doing.
 
 ### `steady()` converges under the `van_leer` flux scheme
 
@@ -421,25 +485,10 @@ itself. The limiter is now relaxed with an exponential moving average, and the
 run converges (#522).
 
 Code that worked around this — a `steady()` call wrapped in `try()`, a hand-set
-`t_max`, a fall-back to the default upwind flux, or a `steadyNewton()`
-substituted for `steady()` — is no longer needed. The steady state it now
+`t_max`, or a fall-back to the default upwind flux — is no longer needed. The steady state it now
 reaches is the one the `van_leer` discretisation actually has, so it differs
 from the upwind steady state the workaround was settling on; recalibrate rather
 than treat the difference as a regression.
-
-### `steadyNewton()` solves for the resource
-
-`steadyNewton()`'s analytic substitution for the semichemostat resource assumed
-that consumer feeding levels were fixed while the resource adjusted, which is not
-self-consistent once consumers are satiated: the resource density and the feeding
-level it produces determine each other. The resource is now carried among the
-solver's unknowns, so the two are updated together (#521).
-
-The fixed point this converges on is the correct one, so **steady states found
-with `steadyNewton()` on a model with satiated consumers move**, and anything
-downstream of them — `getStability()`'s eigenvalues, `getLimitCycleSim()`'s
-period, a `scanModel()` scan — moves with them. Models whose consumers
-are far from satiation are unaffected.
 
 ### `compareParams()` compares small parameters properly
 

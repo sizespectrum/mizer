@@ -26,7 +26,7 @@
 #'     window. On a fixed point these both equal the value; on a limit cycle
 #'     they give the range of the oscillation.}
 #'   \item{`type`, `settled`}{What kind of attractor was reached, from the
-#'     `"convergence"` attribute that [projectToSteady()] attaches to its
+#'     `"convergence"` attribute that [projectUntilSettled()] attaches to its
 #'     result.}
 #'   \item{`period`}{The period of the limit cycle in years, or `NA`.}
 #'   \item{`residual`}{How far the state still is from a fixed point, as a

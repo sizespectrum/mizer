@@ -1,6 +1,6 @@
 # Limit-cycle simulation from linear stability analysis ----------------------
 #
-# `getLimitCycleSim()` takes the output of `steadyNewton()` (with stability
+# `getLimitCycleSim()` takes the output of `findSteadyState()` (with stability
 # analysis attached) and constructs a `MizerSim` covering one period of the
 # limit cycle in the *linear approximation*.  The approximation is exact at a
 # Hopf bifurcation (Re(lambda) = 0) and remains a good first picture of the
@@ -64,7 +64,7 @@
 #' (the period in time steps, typically years).
 #'
 #' @param x A \linkS4class{MizerParams} object at a steady state,
-#'   typically the output of [steadyNewton()], or the list returned by
+#'   typically the output of [findSteadyState()], or the list returned by
 #'   [getStability()].
 #' @param amplitude Largest relative swing in species biomass across the cycle,
 #'   \eqn{\max_i \max_t |B_i(t) - B_i^*| / B_i^*}.  Default `0.1`, meaning the
@@ -75,7 +75,7 @@
 #'   `MizerParams` object.
 #' @return A \linkS4class{MizerSim} object whose time axis spans one period
 #'   \eqn{[0, T]} of the linearised limit cycle.
-#' @seealso [getStability()], [steadyNewton()]
+#' @seealso [getStability()], [findSteadyState()]
 #' @export
 getLimitCycleSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
     # ------------------------------------------------------------------

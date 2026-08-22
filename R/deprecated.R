@@ -644,3 +644,142 @@ getReproductionProportion <- repro_prop
 #' @rdname superseded_accessors
 #' @export
 getReproductionLevel <- reproduction_level
+
+
+#### Superseded steady-state finders ####
+#' Superseded names for the steady-state finders
+#'
+#' @description
+#' `r lifecycle::badge("superseded")`
+#'
+#' Neither of these names says what distinguishes the two functions, and
+#' `projectToSteady()` returns a different class depending on an argument. Both
+#' have been replaced:
+#'
+#' | Superseded | Use instead |
+#' |---|---|
+#' | `steady()` | [tuneSteadyState()] |
+#' | `projectToSteady()` | [findSteadyState()], or [projectUntilSettled()] for the trajectory |
+#'
+#' The distinction the new names carry is what each one holds fixed.
+#' [tuneSteadyState()] holds the inputs to the fish dynamics — the reproduction
+#' rate and the resource — at the values you supply while the spectra settle,
+#' and then adjusts the parameters that generate them (`erepro`/`R_max` and
+#' `cc_pp`) so that those held values are steady too. That is what `steady()`
+#' always did. [findSteadyState()] changes no parameter and lets reproduction,
+#' the resource and the spectra settle together, which is what
+#' `projectToSteady()` did.
+#'
+#' Each of the two also gained a `solver` argument, so the same job can be done
+#' either by running the dynamics (`solver = "project"`, the default and the old
+#' behaviour) or by solving the steady-state equation directly with a
+#' Newton-type root finder (`solver = "newton"`), which converges even at a
+#' dynamically unstable steady state.
+#'
+#' The `return_sim` argument is gone from the new functions:
+#' [tuneSteadyState()] and [findSteadyState()] always return a `MizerParams`
+#' object and [projectUntilSettled()] always returns a `MizerSim`.
+#'
+#' The old names are however not going away. They are thin wrappers that
+#' reproduce the old behaviour exactly, `return_sim` included: they do not warn
+#' and they will keep working, so existing code and old scripts run unchanged.
+#' They are not used anywhere inside mizer and should not be used in new code.
+#'
+#' @inheritParams tuneSteadyState
+#' @inheritParams projectUntilSettled
+#' @param return_sim If TRUE, the function returns the MizerSim object holding
+#'   the result of the simulation run, saved at intervals of `t_per`. If FALSE
+#'   (default) the function returns a MizerParams object with the "initial"
+#'   slots set to the steady state.
+#' @return A `MizerParams` object, or a `MizerSim` object if
+#'   `return_sim = TRUE`, in either case carrying the `"convergence"` attribute
+#'   described in [projectUntilSettled()].
+#' @seealso [tuneSteadyState()], [findSteadyState()], [projectUntilSettled()]
+#' @name superseded_steady
+#' @concept deprecated
+NULL
+
+#' @rdname superseded_steady
+#' @export
+steady <- function(params, t_max = 100, t_per = 1.5, dt = 0.1, t_save = dt,
+                   tol = 0.1 * dt, amplitude_tol = 0.01, amp_rel_tol = 0.01,
+                   extinction_threshold = 1e-6, return_sim = FALSE,
+                   preserve = c("reproduction_level", "erepro", "R_max"),
+                   progress_bar = TRUE,
+                   info_level = default_info_level(),
+                   method = c("euler", "predictor_corrector", "tr_bdf2")) {
+    UseMethod("steady")
+}
+
+#' @export
+steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
+                   t_save = dt,
+                   tol = 0.1 * dt, amplitude_tol = 0.01, amp_rel_tol = 0.01,
+                   extinction_threshold = 1e-6, return_sim = FALSE,
+                   preserve = c("reproduction_level", "erepro", "R_max"),
+                   progress_bar = TRUE,
+                   info_level = default_info_level(),
+                   method = c("euler", "predictor_corrector", "tr_bdf2")) {
+    with_info_level(info_level = info_level, {
+        params <- validParams(params)
+        tune_steady_project(params, effort = params@initial_effort,
+                            preserve = preserve,
+                            t_max = t_max, t_per = t_per, dt = dt,
+                            t_save = t_save, tol = tol,
+                            amplitude_tol = amplitude_tol,
+                            amp_rel_tol = amp_rel_tol,
+                            extinction_threshold = extinction_threshold,
+                            return_sim = return_sim,
+                            progress_bar = progress_bar,
+                            info_level = info_level, method = method)
+    })
+}
+
+#' @rdname superseded_steady
+#' @export
+projectToSteady <- function(params,
+                            effort = params@initial_effort,
+                            distance_func = distanceSSLogN,
+                            t_per = 1.5,
+                            t_max = 100,
+                            dt = 0.1,
+                            t_save = dt,
+                            tol = 0.1 * t_per,
+                            amplitude_tol = 0.01,
+                            amp_rel_tol = 0.1,
+                            extinction_threshold = 1e-6,
+                            return_sim = FALSE,
+                            progress_bar = TRUE,
+                            info_level = default_info_level(),
+                            method = c("euler", "predictor_corrector",
+                                       "tr_bdf2"), ...) {
+    UseMethod("projectToSteady")
+}
+
+#' @export
+projectToSteady.MizerParams <- function(params,
+                            effort = params@initial_effort,
+                            distance_func = distanceSSLogN,
+                            t_per = 1.5,
+                            t_max = 100,
+                            dt = 0.1,
+                            t_save = dt,
+                            tol = 0.1 * t_per,
+                            amplitude_tol = 0.01,
+                            amp_rel_tol = 0.1,
+                            extinction_threshold = 1e-6,
+                            return_sim = FALSE,
+                            progress_bar = TRUE,
+                            info_level = default_info_level(),
+                            method = c("euler", "predictor_corrector",
+                                       "tr_bdf2"), ...) {
+    project_until_settled(params, effort = effort,
+                          distance_func = distance_func,
+                          t_per = t_per, t_max = t_max, dt = dt,
+                          t_save = t_save, tol = tol,
+                          amplitude_tol = amplitude_tol,
+                          amp_rel_tol = amp_rel_tol,
+                          extinction_threshold = extinction_threshold,
+                          progress_bar = progress_bar, info_level = info_level,
+                          method = method, ..., return_sim = return_sim)
+}

@@ -52,7 +52,8 @@ NULL
 #' @param check_steady `r lifecycle::badge("experimental")`
 #'   If `TRUE`, warn when the model is not at its steady state before the
 #'   projection starts, which catches the common mistake of forgetting to re-run
-#'   [steady()] after a `match…`/`calibrate…` step. Default `FALSE`, because
+#'   [tuneSteadyState()] after a `match…`/`calibrate…` step. Default `FALSE`,
+#'   because
 #'   projecting a model away from its steady state is a perfectly normal thing
 #'   to do. It is meant for a `MizerParams` object; when continuing from a
 #'   `MizerSim` the starting state is deliberately wherever the previous run

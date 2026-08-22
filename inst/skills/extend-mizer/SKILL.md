@@ -119,7 +119,7 @@ discontinuously is fine; depending on `n`, `n_pp` or `n_other` discontinuously
 is not. Mizer's time steppers freeze the rates during each density update, so
 they cannot see a threshold being crossed within a step. A rule like
 `if (biomass < threshold) effort <- 0` gives a trajectory that keeps changing as
-`dt` is refined, makes `steadyNewton()` stall, and makes `getStability()` return
+`dt` is refined, makes `solver = "newton"` stall, and makes `getStability()` return
 a confident but meaningless answer — with no warning from mizer. Choosing
 `method = "tr_bdf2"` does not help. Give the switch a finite width instead:
 

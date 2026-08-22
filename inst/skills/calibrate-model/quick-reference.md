@@ -1,16 +1,16 @@
 ```r
 # ── Steady state ──────────────────────────────────────────────────────────────
-params <- steady(params)
+params <- tuneSteadyState(params)
 params <- steadySingleSpecies(params)   # fast starting spectrum
-params <- steadyNewton(params)          # direct solve (experimental)
+params <- tuneSteadyState(params, solver = "newton")  # direct solve (experimental)
 
-# ── Calibrate to data (re-run steady() after each) ────────────────────────────
+# ── Calibrate to data (re-run tuneSteadyState() after each) ───────────────────
 params <- calibrateBiomass(params)      # total biomass  → kappa
 params <- matchBiomasses(params)        # per-species biomass
 params <- calibrateNumber(params)       # same, for `number_observed` instead
 params <- matchNumbers(params)          #   of `biomass_observed`
 params <- matchGrowth(params)           # growth → h, gamma, ks, k
-params <- steady(params)                # re-converge
+params <- tuneSteadyState(params)       # re-converge
 
 # ── Reproduction ──────────────────────────────────────────────────────────────
 reproduction_level(params) <- 0.25

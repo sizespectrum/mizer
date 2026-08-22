@@ -87,7 +87,7 @@ Further consequences worth internalising:
   changes its abundance, which changes the food available to its predators and
   the mortality on its prey. There are no isolated species.
 * **A steady state is a fixed point of that coupling**, not a property you can
-  set species by species. This is why `steady()` exists.
+  set species by species. This is why `tuneSteadyState()` exists.
 
 ## The size spectrum as state variable
 
@@ -239,11 +239,11 @@ to switch the food loop off deliberately when isolating a feedback (see the
   and the resource is drawn down, feeding levels fall, and growth slows — with
   nothing having been changed. This is normal, and it is why calibration comes
   before interpretation.
-* **`steady()` rebalances the resource at the end.** It holds the resource fixed
+* **`tuneSteadyState()` rebalances the resource at the end.** It holds the resource fixed
   while converging the fish, then recomputes the capacity from the (preserved)
   rate so that the converged state is a steady state of the resource too. The
   abundance you calibrated against is kept; the capacity moves above it. So
-  after `steady()` the resource level is an emergent, size-dependent quantity —
+  after `tuneSteadyState()` the resource level is an emergent, size-dependent quantity —
   lowest where the fish feed hardest, near 1 where consumption is negligible.
 
 ### The resource runs on its own clock
@@ -368,7 +368,7 @@ Practical consequences:
 * **Oscillation periods track generation time**, so a limit cycle in a large
   slow species has a long period and needs a correspondingly long `project()`
   run to even be visible.
-* **Equilibration is set by the slowest species.** A `steady()` run that looks
+* **Equilibration is set by the slowest species.** A `tuneSteadyState()` run that looks
   converged for small species may be nowhere near it for large ones.
 * **Small species and juvenile size classes respond first** to any perturbation;
   the large-fish response arrives a generation later. A transient that looks
@@ -452,13 +452,13 @@ Check emergent properties before changing structural parameters.
 | **Species collapses during `project()`** | Starving larvae, intense juvenile predation, or too little egg production | `plotFeedingLevel()`, `plotDiet()`, `getPredMort()` |
 | **Biomass oscillates in regular cycles** | Reproduction level near 0 (little recruitment damping — mizer's default), narrow kernel (`sigma` too small), or knife-edge fishing | [`reproduction_level()`](../reference/setBevertonHolt.html), [`getStability()`](../reference/getStability.html) (see the `analyse-stability` skill) |
 | **Growth slows before `w_mat`** | Food limitation at intermediate sizes; resource depleted or `w_pp_cutoff` too low | `plotGrowthCurves()`, `resource_level()`, `plotSpectra()` |
-| **Feeding levels drift down during `project()` although nothing was changed** | The resource was left at its capacity ($L = 1$, as freshly built) and is being eaten down towards its true fixed point | [`resource_level()`](../reference/setResource.html), `plot(initialNResource(params))`; run `steady()` first |
+| **Feeding levels drift down during `project()` although nothing was changed** | The resource was left at its capacity ($L = 1$, as freshly built) and is being eaten down towards its true fixed point | [`resource_level()`](../reference/setResource.html), `plot(initialNResource(params))`; run `tuneSteadyState()` first |
 | **Growth is not what `matchGrowth()` asked for** | Growth is emergent — the food to support it is not there | `plotFeedingLevel()`, then the `calibrate-model` skill |
 | **Tuning one species drops another** | Predation overlap or resource competition in shared juvenile size bins | `interaction_matrix()`, `plotDiet()` |
 | **Species insensitive to fishing** | Strong imposed density dependence ($r_i$ **high**, near 1 — only $1-r_i$ of any change in egg production gets through), or an effectively infinite resource | [`reproduction_level()`](../reference/setBevertonHolt.html), [`resource_level()`](../reference/setResource.html) |
 | **Species spectrum curves instead of running straight** | `lambda`, `q` and `n` no longer mutually consistent, so feeding level is size-dependent | [`plotFeedingLevel()`](../reference/plotFeedingLevel.html) — is it flat in size? |
 | **Community slope isn't `lambda`** | Expected only in the idealised scaling model; with few species the domes don't sum to a clean power law | [`getCommunitySlope()`](../reference/getCommunitySlope.html), [`plotSpectra()`](../reference/plotSpectra.html) — compare against species domes, not against `lambda` |
-| **Species won't stay at steady state** | Fixed point is dynamically unstable, not a numerical failure | `getSteadyResidual()`, `steadyNewton()` |
+| **Species won't stay at steady state** | Fixed point is dynamically unstable, not a numerical failure | `getSteadyResidual()`, `findSteadyState(solver = "newton")` |
 
 <!-- agent-only -->
 ### Diagnostic procedure
