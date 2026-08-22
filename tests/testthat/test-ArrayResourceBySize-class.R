@@ -334,3 +334,62 @@ test_that("plot2, plotRelative and addPlot support length axis and per_log_size 
     expect_equal(length(ta_l$layers), 2)
 })
 
+
+# Comparing two resource spectra across models ----
+
+test_that("resource comparisons use each model's own length relationship", {
+    params2 <- NS_params_small
+    params2@resource_params$a <- resource_length_params(NS_params_small)$a / 8
+    mort1 <- getResourceMort(NS_params_small)
+    mort2 <- getResourceMort(params2)
+
+    dat1 <- ArrayResourceBySize_plot_data(mort1, size_axis = "l")
+    dat2 <- ArrayResourceBySize_plot_data(mort2, size_axis = "l")
+    b <- resource_length_params(NS_params_small)$b
+    expect_equal(dat2$l, dat1$l * 8^(1 / b))
+
+    p2 <- plot2(mort1, mort2, size_axis = "l")
+    expect_equal(sort(unique(p2$data$l[p2$data$Model == "Second"])),
+                 sort(unique(dat2$l)))
+})
+
+test_that("plotRelative interpolates two resource spectra onto a common grid", {
+    params2 <- NS_params_small
+    params2@resource_params$a <- resource_length_params(NS_params_small)$a / 8
+    mort1 <- getResourceMort(NS_params_small)
+    mort2 <- getResourceMort(params2)
+
+    rel <- plotRelative(mort1, mort2, size_axis = "l")
+    expect_gt(nrow(rel$data), 10)
+    dat1 <- ArrayResourceBySize_plot_data(mort1, size_axis = "l")
+    dat2 <- ArrayResourceBySize_plot_data(mort2, size_axis = "l")
+    expect_true(all(rel$data$l >= max(min(dat1$l), min(dat2$l))))
+    expect_true(all(rel$data$l <= min(max(dat1$l), max(dat2$l))))
+})
+
+test_that("resource comparisons honour highlight", {
+    mort <- getResourceMort(NS_params_small)
+    doubled <- ArrayResourceBySize(unclass_resource(mort) * 2,
+                                   value_name = attr(mort, "value_name"),
+                                   units = attr(mort, "units"),
+                                   params = NS_params_small)
+    # A linear y axis, because the resource mortality vanishes at the top of
+    # the grid and a logarithmic one would only warn about it.
+    p2 <- plot2(mort, doubled, highlight = "Resource", log_y = FALSE)
+    expect_equal(drawn_linewidth(p2, "Resource", NS_params_small), 1.6)
+    plain <- plot2(mort, doubled, log_y = FALSE)
+    expect_equal(drawn_linewidth(plain, "Resource", NS_params_small), 0.8)
+
+    pr <- plotRelative(mort, doubled, highlight = "Resource")
+    expect_equal(drawn_linewidth(pr, "Resource", NS_params_small, layer = 2),
+                 1.6)
+})
+
+test_that("plot() and the comparisons share one resource preparation", {
+    mort <- getResourceMort(NS_params_small)
+    prepared <- ArrayResourceBySize_plot_data(mort, wlim = c(1e-5, NA),
+                                              size_axis = "l")
+    from_plot <- plot(mort, wlim = c(1e-5, NA), size_axis = "l",
+                      return_data = TRUE)
+    expect_equal(from_plot, prepared)
+})

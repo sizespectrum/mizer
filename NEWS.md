@@ -359,6 +359,73 @@ workflow.
   resource array, which holds a single spectrum, so the resource methods warn if
   they are set (#468).
 
+- Each array now prepares its complete plotting data once — species selection,
+  background grouping, natural-size masking, density conversion, the total line
+  and the size-axis conversion — and `plot()`, `addPlot()`, `plot2()` and
+  `plotRelative()` all consume that one representation. The comparison plots
+  used to do the conversion themselves, for both operands at once, with the
+  first array's model. That is wrong whenever the two arrays come from models
+  that differ in the weight-length relationship `w = a l^b`: on a length axis
+  the second spectrum was drawn at the first model's lengths, and a density was
+  rescaled by the first model's Jacobian. Each operand is now prepared with its
+  own model, so a cross-model length plot is right. On a weight axis, and
+  whenever the two models agree, nothing changes.
+
+- `plotRelative()` now interpolates the two series onto a common size grid
+  instead of matching them by equality of the size coordinate. Once each
+  operand is converted with its own model, two length grids need not coincide,
+  and an inner join then kept only their exact coincidences — usually none, so
+  the plot came out nearly empty. Each series is now interpolated linearly in
+  the logarithm of size onto the union of the two sets of coordinates,
+  restricted to the interval both of them cover, so that nothing is
+  extrapolated. Where the two grids already coincide — always on a weight axis
+  — the union is that grid and the interpolation reproduces the values exactly.
+  `plotSpectraRelative()` gains the same treatment. For a density on a length
+  axis the relative difference itself now moves, because the Jacobian of the
+  two models no longer cancels out of the ratio; that cancellation was only
+  ever valid when the two models shared `a` and `b`.
+
+- Comparing two arrays that hold different kinds of value is now an error rather
+  than a warning. The `type` of an array decides whether its values are
+  multiplied by a Jacobian on a length axis and whether the y axis is scaled to
+  the interval from 0 to 1, so a density and a plain value have no pair of axes
+  in common. The warnings about a differing `value_name` or differing units are
+  unchanged.
+
+- `plot2()` and `plotRelative()` accept `highlight`, which they used to take
+  through `...` and discard.
+
+- `plot()` on an `ArrayTimeBySpeciesBySize` now goes through the same slice
+  helper as the other methods. It used to slice the array by hand, losing the
+  `representation` tag on the way, so under second-order bin-averaging
+  (`second_order_w = c(bin_average = TRUE)`) a bin-averaged quantity such as
+  `getFMort(sim)` was drawn at the left bin edges instead of the geometric bin
+  centres it lives at.
+
+- Plots of a time-by-species array — `plot(getBiomass(sim))` and friends —
+  handle background species in a single pass, which fixes three things. A
+  background species used to be drawn twice, once under its own name and again
+  under the `"Background"` legend, whenever `species` was left at its default of
+  all of them. `background = FALSE` used to leave the background species on the
+  plot, under their own names, instead of removing them. And a background
+  species with no values left to draw aborted the plot with `replacement has 1
+  row, data has 0`. A background species is now drawn when the selection asks
+  for it — as `plot()` on a species-by-size array has always done — and is
+  always labelled `"Background"`.
+
+- The same plots no longer drop values of zero or less from a linear y axis.
+  They have no place on a logarithmic axis and are still dropped there, but on a
+  linear one they are data like any other, and a quantity that can go negative
+  lost exactly the part of it that was interesting. `plotRelative()` on a
+  time-by-species array is drawn on a linear axis and so keeps them too, which
+  is what lets it show the −2 of a species that has gone from present to absent.
+
+- `animate()` applies the same axis handling as the static plots. A resource
+  animation on a length axis labels its y axis `1/cm` rather than keeping the
+  `1/g` of the weight axis, an animation of a proportion is drawn on a linear y
+  axis showing the whole of the interval from 0 to 1, and `llim` and `tlim` are
+  checked for length like the other limits.
+
 - `plotFeedingLevel()`, `plotlyFeedingLevel()` and `plotYield()` now delegate
   directly to the array plotting methods — `plot()` / `plotHover()` on
   `ArraySpeciesBySize` and `plot(getYield(object))` — so they share the

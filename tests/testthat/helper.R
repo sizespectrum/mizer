@@ -169,3 +169,11 @@ scan_fast_settings <- list(t_max = 6, t_per = 1.5, dt = 0.5, t_save = 0.5,
 scan_fast <- function(params, ...) {
     do.call(scanModel, c(list(params = params, ...), scan_fast_settings))
 }
+
+# The linewidth a species is drawn with, read off the built plot. The species is
+# identified by its colour, which is the only thing that survives into the layer
+# data. Used by the tests of the `highlight` argument.
+drawn_linewidth <- function(plot, species, params, layer = 1) {
+    built <- ggplot2::ggplot_build(plot)$data[[layer]]
+    unique(built$linewidth[built$colour == params@linecolour[[species]]])
+}

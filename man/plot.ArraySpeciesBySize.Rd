@@ -69,8 +69,9 @@ logarithmic size (\code{TRUE}) rather than per size (\code{FALSE}). The default,
 weight-length relationship, so it is available for the resource classes
 too. An error for an array that does not hold a density.}
 
-\item{total}{A boolean value that determines whether the total over
-all selected species is plotted as well. Default is \code{FALSE}.}
+\item{total}{A boolean value that determines whether the total is plotted
+as well. The total is the total of everything the array holds, every
+species and every size, whatever is drawn. Default is \code{FALSE}.}
 
 \item{background}{A boolean value that determines whether background
 species are included. Ignored if the model does not contain background

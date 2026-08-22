@@ -198,8 +198,9 @@ print.summary.ArrayTimeBySpeciesBySize <- function(x, ...) {
 #'   hold a density.
 #' @param size_axis Whether to plot size as weight (`"w"`, default) or
 #'   length (`"l"`), using the allometric weight-length relationship.
-#' @param total A boolean value that determines whether the total over
-#'   all selected species is plotted as well. Default is `FALSE`.
+#' @param total A boolean value that determines whether the total is plotted
+#'   as well. The total is the total of everything the array holds, every
+#'   species and every size, whatever is drawn. Default is `FALSE`.
 #' @param background A boolean value that determines whether background
 #'   species are included. Ignored if the model does not contain background
 #'   species. Default is `TRUE`.
@@ -224,24 +225,11 @@ plot.ArrayTimeBySpeciesBySize <- function(x, species = NULL, time = NULL,
                                           per_log_size = NULL,
                                           total = FALSE, background = TRUE,
                                           y_ticks = 6, ...) {
-    params <- attr(x, "params")
-    value_name <- attr(x, "value_name")
-    units <- attr(x, "units")
-
-    times <- as.numeric(dimnames(x)[[1]])
-    if (is.null(time)) {
-        tidx <- dim(x)[1]
-    } else {
-        tidx <- which.min(abs(times - time))
-    }
-
-    arr <- unclass(x)
-    slice <- matrix(arr[tidx, , , drop = FALSE],
-                    nrow = dim(arr)[2],
-                    dimnames = dimnames(arr)[2:3])
-    slice <- ArraySpeciesBySize(slice, value_name = value_name,
-                                units = units, type = array_type(x),
-                                params = params)
+    # Through the slice helper rather than a copy of it, so that every piece of
+    # metadata reaches the plot. A hand-rolled slice used to drop
+    # `representation`, which put a second-order bin average back on the left
+    # bin edge instead of the geometric bin centre it belongs at.
+    slice <- ArrayTimeBySpeciesBySize_slice(x, time = time)
 
     plot.ArraySpeciesBySize(slice, species = species, all.sizes = all.sizes,
                             highlight = highlight, return_data = return_data,
@@ -264,6 +252,7 @@ plot2.ArrayTimeBySpeciesBySize <- function(x, y, name1 = "First",
                                            ylim = c(NA, NA),
                                            total = FALSE,
                                            background = TRUE,
+                                           highlight = NULL,
                                            y_ticks = 6,
                                            time = NULL,
                                            all.sizes = FALSE,
@@ -279,7 +268,8 @@ plot2.ArrayTimeBySpeciesBySize <- function(x, y, name1 = "First",
                              log_x = log_x, log_y = log_y, log = log,
                              wlim = wlim, ylim = ylim, llim = llim,
                              size_axis = size_axis, total = total,
-                             background = background, y_ticks = y_ticks, ...)
+                             background = background, highlight = highlight,
+                             y_ticks = y_ticks, ...)
 }
 
 #' @rdname plotRelative
@@ -290,6 +280,7 @@ plotRelative.ArrayTimeBySpeciesBySize <- function(x, y, species = NULL,
                                                   ylim = c(NA, NA),
                                                   total = FALSE,
                                                   background = TRUE,
+                                                  highlight = NULL,
                                                   time = NULL,
                                                   all.sizes = FALSE,
                                                   wlim = c(NA, NA),
@@ -304,7 +295,7 @@ plotRelative.ArrayTimeBySpeciesBySize <- function(x, y, species = NULL,
                                     wlim = wlim, ylim = ylim, llim = llim,
                                     size_axis = size_axis,
                                     total = total, background = background,
-                                    ...)
+                                    highlight = highlight, ...)
 }
 
 #' @rdname addPlot
@@ -390,7 +381,8 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                 is.number(frame_duration), frame_duration >= 0,
                 is.number(transition_duration), transition_duration >= 0,
                 is.string(easing),
-                length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
+                length(wlim) == 2, length(llim) == 2, length(ylim) == 2,
+                length(tlim) == 2)
     size_axis <- plot_size_axis(size_axis)
     check_per_log_size(x, per_log_size)
     log_y <- array_log_y(x, log_y, log, !missing(log_y))
@@ -466,6 +458,7 @@ animate.ArrayTimeBySpeciesBySize <- function(x, species = NULL,
                    size_axis = size_axis,
                    density_wrt = array_density_wrt(x),
                    per_log_size = per_log_size,
+                   type = array_type(x),
                    total_dat = total_dat,
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,

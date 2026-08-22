@@ -425,6 +425,13 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
 #' and [plotCDF2()]. The two data frames are combined and drawn with colour
 #' identifying the species or group and linetype identifying the object.
 #'
+#' Both data frames must arrive ready to plot: on the axis they will be drawn
+#' against, with any total line already among their rows. Each operand is
+#' prepared by whatever produced it, using *its own* model, because a length
+#' axis and a density Jacobian both depend on the weight-length relationship of
+#' the model the values came from. Doing it here instead would silently impose
+#' the first model's parameters on the second.
+#'
 #' @param frame1,frame2 Data frames sharing the same first three variables (x, y
 #'   and grouping variable). The names of `frame1` are imposed on `frame2`.
 #' @param params A MizerParams object, used for the line colours.
@@ -439,17 +446,6 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @param legend_var Name of the variable used in the legend and to determine the
 #'   line colour.
-#' @param size_axis Optional. If non-NULL, the x-axis is converted to weight
-#'   (`"w"`) or length (`"l"`).
-#' @param density_wrt The measure the values are a density with respect to, see
-#'   [density_measures]. `NA` (the default) means the values are not a density
-#'   and are left alone when the size axis changes.
-#' @param per_log_size Whether to express a density per logarithmic size.
-#'   `NULL` (the default) keeps whichever the values already are.
-#' @param total_dat Optional data frame of the contributors to a total, with a
-#'   `Model` column identifying which of the two they belong to. The total is
-#'   summed from them after the size axis has been converted, see
-#'   [add_total_line()].
 #' @return A `mizer_plot` (ggplot2) object.
 #' @keywords internal
 plotComparisonDataFrame <- function(frame1, frame2, params,
@@ -458,11 +454,7 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     xtrans = "identity", ytrans = "identity",
                                     xlim = c(NA, NA), ylim = c(NA, NA),
                                     y_ticks = 6, highlight = NULL,
-                                    legend_var = "Legend",
-                                    size_axis = NULL,
-                                    density_wrt = NA_character_,
-                                    per_log_size = NULL,
-                                    total_dat = NULL) {
+                                    legend_var = "Legend") {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -477,34 +469,10 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
     var_names <- names(frame)
     x_var <- var_names[[1]]
     y_var <- var_names[[2]]
-    group_var <- var_names[[3]]
     if (!(legend_var %in% var_names)) {
         stop("The `legend_var` argument must be the name of a variable ",
              "in the data frame.")
     }
-    if (!is.null(size_axis)) {
-        size_axis <- plot_size_axis(size_axis)
-        frame <- convert_plot_density_axis(frame, params, size_axis,
-                                           density_wrt = density_wrt,
-                                           per_log_size = per_log_size,
-                                           species_col = group_var,
-                                           value_col = y_var)
-        x_var <- plot_size_x_var(size_axis)
-    }
-    if (!is.null(total_dat)) {
-        # The contributors arrive unconverted and are put on the same axis as
-        # the data they join before being summed there.
-        total_dat <- convert_plot_density_axis(total_dat, params, size_axis,
-                                               density_wrt = density_wrt,
-                                               per_log_size = per_log_size,
-                                               species_col = group_var,
-                                               value_col = y_var)
-        total_dat <- add_total_line(total_dat, x_var, y_var, by = "Model")
-        total_dat <- total_dat[total_dat[[group_var]] == "Total", ]
-        frame <- rbind(frame, total_dat[, names(frame), drop = FALSE])
-        frame$Model <- factor(frame$Model, levels = c(name1, name2))
-    }
-
     legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
     frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
     if (sum(is.na(frame[[legend_var]]))) {
@@ -540,8 +508,13 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
 #' Make a plot of the relative difference between two data frames
 #'
 #' Used internally by [plotSpectraRelative()] and similar functions. The two
-#' data frames are joined on their shared variables and the relative difference
-#' of their y-values is plotted against the x-variable.
+#' data frames are matched up on their shared variables and the relative
+#' difference of their y-values is plotted against the x-variable.
+#'
+#' Both data frames must arrive ready to plot, on the axis they will be drawn
+#' against and with any total line already among their rows. See
+#' [plotComparisonDataFrame()] for why the preparation belongs to whatever
+#' produced each operand rather than here.
 #'
 #' @param frame1,frame2 Data frames sharing the same first three variables (x, y
 #'   and grouping variable). The names of `frame1` are imposed on `frame2`.
@@ -553,8 +526,11 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @param legend_var Name of the variable used in the legend and to determine the
 #'   line colour.
-#' @param size_axis Optional. If non-NULL, the x-axis is converted to weight
-#'   (`"w"`) or length (`"l"`).
+#' @param interpolate Whether the two series may sit on different x-grids and
+#'   should be interpolated onto a common one, see
+#'   [interpolate_relative_frames()]. `TRUE` for a size axis, where the two
+#'   models can convert weight to length differently; `FALSE` for a time axis,
+#'   where they share the saved times or share nothing.
 #' @return A `mizer_plot` (ggplot2) object showing the relative difference.
 #' @keywords internal
 plotRelativeDataFrame <- function(frame1, frame2, params,
@@ -564,8 +540,7 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                                   ylim = c(NA, NA),
                                   highlight = NULL,
                                   legend_var = "Legend",
-                                  size_axis = NULL,
-                                  total_dat1 = NULL, total_dat2 = NULL) {
+                                  interpolate = FALSE) {
     assert_that(is.data.frame(frame1),
                 is.data.frame(frame2),
                 is(params, "MizerParams"))
@@ -581,35 +556,14 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
              "in the data frame.")
     }
 
-    # The size axis is converted before the two frames are joined, so that a
-    # total can be formed on the axis it is plotted against. The relative
-    # difference itself is unaffected: a common Jacobian cancels.
-    if (!is.null(size_axis)) {
-        size_axis <- plot_size_axis(size_axis)
-        frame1 <- convert_plot_size_axis(frame1, params, size_axis,
-                                         species_col = group_var)
-        frame2 <- convert_plot_size_axis(frame2, params, size_axis,
-                                         species_col = group_var)
-        x_var <- plot_size_x_var(size_axis)
+    by_vars <- unique(c(group_var, legend_var))
+    if (isTRUE(interpolate)) {
+        frame <- interpolate_relative_frames(frame1, frame2, x_var = x_var,
+                                             y_var = y_var, by_vars = by_vars)
+    } else {
+        frame <- dplyr::inner_join(frame1, frame2, by = c(x_var, by_vars),
+                                   suffix = c(".x", ".y"))
     }
-    if (!is.null(total_dat1) && !is.null(total_dat2)) {
-        add_total <- function(frame, total_dat) {
-            if (!is.null(size_axis)) {
-                total_dat <- convert_plot_size_axis(total_dat, params,
-                                                    size_axis,
-                                                    species_col = group_var)
-            }
-            total_dat <- add_total_line(total_dat, x_var, y_var)
-            total_dat <- total_dat[total_dat[[group_var]] == "Total", ]
-            rbind(frame, total_dat[, names(frame), drop = FALSE])
-        }
-        frame1 <- add_total(frame1, total_dat1)
-        frame2 <- add_total(frame2, total_dat2)
-    }
-
-    by_vars <- c(x_var, group_var, legend_var)
-    frame <- dplyr::inner_join(frame1, frame2, by = by_vars,
-                               suffix = c(".x", ".y"))
     frame$rel_diff <- relative_difference(frame[[paste0(y_var, ".x")]],
                                           frame[[paste0(y_var, ".y")]])
     frame <- frame[is.finite(frame$rel_diff), ]
@@ -649,6 +603,100 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
 #' @keywords internal
 relative_difference <- function(first, second) {
     2 * (second - first) / (first + second)
+}
+
+#' Put two series on a common size grid before comparing them
+#'
+#' A relative difference can only be formed where both series have a value. On a
+#' weight axis they always do: both models share the size grid, so the two
+#' frames match up row for row. On a length axis they need not, because each
+#' model converts weight to length with its own allometric relationship, so the
+#' same weight grid lands on different lengths. Matching the frames by equality
+#' of the size coordinate then throws away nearly every point — an inner join on
+#' two grids that merely overlap keeps only their exact coincidences.
+#'
+#' Each series is therefore interpolated, linearly in the logarithm of size
+#' since the grid is logarithmic, onto the sorted union of the two sets of
+#' coordinates, restricted to the interval both series cover. Outside that
+#' interval one of them would have to be extrapolated, which is not a comparison
+#' but a guess. When the two grids already coincide the union is that grid, the
+#' overlap is all of it, and the interpolation reproduces the values exactly, so
+#' the matching case is unchanged.
+#'
+#' @param frame1,frame2 Data frames of prepared plotting data, sharing their
+#'   variable names.
+#' @param x_var Name of the size column.
+#' @param y_var Name of the value column.
+#' @param by_vars Names of the columns identifying a series, typically the
+#'   species and the legend group.
+#' @return A data frame with the `by_vars`, the size column, and the two value
+#'   columns named `<y_var>.x` and `<y_var>.y`, holding only the series present
+#'   in both frames.
+#' @keywords internal
+interpolate_relative_frames <- function(frame1, frame2, x_var, y_var, by_vars) {
+    series_key <- function(frame) {
+        do.call(paste, c(lapply(frame[, by_vars, drop = FALSE], as.character),
+                         sep = "\r"))
+    }
+    split1 <- split(frame1, series_key(frame1))
+    split2 <- split(frame2, series_key(frame2))
+    parts <- lapply(intersect(names(split1), names(split2)), function(key) {
+        first <- split1[[key]]
+        second <- split2[[key]]
+        x1 <- first[[x_var]]
+        x2 <- second[[x_var]]
+        if (length(x1) == 0 || length(x2) == 0) return(NULL)
+        xout <- sort(unique(c(x1, x2)))
+        xout <- xout[xout >= max(min(x1), min(x2)) &
+                         xout <= min(max(x1), max(x2))]
+        if (length(xout) == 0) return(NULL)
+        out <- first[rep(1, length(xout)), by_vars, drop = FALSE]
+        out[[x_var]] <- xout
+        out[[paste0(y_var, ".x")]] <-
+            interpolate_in_log_size(x1, first[[y_var]], xout)
+        out[[paste0(y_var, ".y")]] <-
+            interpolate_in_log_size(x2, second[[y_var]], xout)
+        out
+    })
+    parts <- parts[!vapply(parts, is.null, logical(1))]
+    if (length(parts) == 0) {
+        out <- frame1[0, by_vars, drop = FALSE]
+        out[[x_var]] <- numeric(0)
+        out[[paste0(y_var, ".x")]] <- numeric(0)
+        out[[paste0(y_var, ".y")]] <- numeric(0)
+        return(out)
+    }
+    out <- do.call(rbind, parts)
+    rownames(out) <- NULL
+    out
+}
+
+#' Interpolate a series linearly in the logarithm of size
+#'
+#' The size grid is logarithmic, so the interpolation is too. A series of a
+#' single point can only speak for the coordinate it sits at, and a coordinate
+#' that is not positive has no logarithm, so those two cases fall back to
+#' matching the coordinates exactly and to a linear interpolation respectively.
+#'
+#' @param x,y The coordinates and values of the series.
+#' @param xout The coordinates to interpolate onto.
+#' @return The interpolated values, `NA` where `xout` is outside the range of
+#'   `x`.
+#' @keywords internal
+interpolate_in_log_size <- function(x, y, xout) {
+    order_x <- order(x)
+    x <- x[order_x]
+    y <- y[order_x]
+    if (length(x) < 2) {
+        out <- rep(NA_real_, length(xout))
+        hit <- match(x, xout)
+        if (length(hit) == 1 && !is.na(hit)) out[hit] <- y
+        return(out)
+    }
+    if (any(x <= 0) || any(xout <= 0)) {
+        return(stats::approx(x, y, xout = xout)$y)
+    }
+    stats::approx(log(x), y, xout = log(xout))$y
 }
 
 #' Helper function to produce nice breaks on logarithmic axes
@@ -766,6 +814,24 @@ proportion_ylim <- function(ylim, log_y, values) {
     if (is.na(ylim[1])) ylim[1] <- full[1]
     if (is.na(ylim[2])) ylim[2] <- full[2]
     ylim
+}
+
+#' Whether a plot's y axis is logarithmic
+#'
+#' Read from the plot's own y scale, so that data being *added* to an existing
+#' plot can be filtered the way that plot was. A plot with no explicit y scale
+#' has ggplot2's default, which is linear.
+#'
+#' @param plot A ggplot2 object.
+#' @return `TRUE` if the plot's y axis uses a log10 transformation.
+#' @keywords internal
+plot_y_is_log <- function(plot) {
+    for (scale in plot$scales$scales) {
+        if ("y" %in% scale$aesthetics) {
+            return(identical(scale$trans$name, "log-10"))
+        }
+    }
+    FALSE
 }
 
 #' Y-axis limits an array's type calls for
@@ -1729,10 +1795,10 @@ plotlyYieldGear <- function(object, species = NULL,
 #'   raised to `power`. An alternative to the `biomass` and `per_log_size`
 #'   arguments, with which it must agree if they are given as well; see
 #'   Details. The default is `power = 1`, the biomass density.
-#' @param total A boolean value that determines whether the total over all
-#'   species in the system is plotted as well. Note that even if the plot
-#'   only shows a selection of species, the total is including all species.
-#'   Default is FALSE.
+#' @param total A boolean value that determines whether the total is plotted as
+#'   well. The total is the total of everything the object holds — every
+#'   species and the resource — whatever is drawn, so it does not move when
+#'   `species`, `resource` or `background` change. Default is FALSE.
 #' @param resource A boolean value that determines whether resource is included.
 #'   Default is TRUE.
 #' @param background A boolean value that determines whether background species
@@ -2084,10 +2150,10 @@ plot_spectra <- function(params, n, n_pp,
 #'   `power` before being integrated. An alternative to the `biomass`
 #'   argument, with which it must agree if that is given as well. The default
 #'   is `power = 1`, the cumulative biomass.
-#' @param total A boolean value that determines whether the total over all
-#'   species in the system is plotted as well. Note that even if the plot
-#'   only shows a selection of species, the total is including all species.
-#'   Default is FALSE.
+#' @param total A boolean value that determines whether the total is plotted as
+#'   well. The total is the total of everything the object holds — every
+#'   species and the resource — whatever is drawn, so it does not move when
+#'   `species`, `resource` or `background` change. Default is FALSE.
 #' @param resource A boolean value that determines whether resource is included.
 #'   Default is FALSE.
 #' @param background A boolean value that determines whether background species
@@ -2735,13 +2801,17 @@ plotSpectraRelative <- function(object1, object2,
     params <- if (is(object1, "MizerSim")) object1@params else object1
     params <- validParams(params)
 
+    # A size axis, so the two spectra are interpolated onto a common grid.
+    # On a weight axis they already share one and nothing is approximated; on a
+    # length axis they need not, because the two models can convert weight to
+    # length differently.
     plotRelativeDataFrame(sf1, sf2, params,
                           xlab = plot_size_xlab(size_axis),
                           xtrans = if (log_x) "log10" else "identity",
                           xlim = plot_size_xlim(wlim, size_axis, llim),
                           ylim = ylim,
                           highlight = highlight,
-                          legend_var = "Legend")
+                          legend_var = "Legend", interpolate = TRUE)
 }
 
 #' @rdname plotSpectraRelative

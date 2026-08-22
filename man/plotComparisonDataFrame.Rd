@@ -18,11 +18,7 @@ plotComparisonDataFrame(
   ylim = c(NA, NA),
   y_ticks = 6,
   highlight = NULL,
-  legend_var = "Legend",
-  size_axis = NULL,
-  density_wrt = NA_character_,
-  per_log_size = NULL,
-  total_dat = NULL
+  legend_var = "Legend"
 )
 }
 \arguments{
@@ -48,21 +44,6 @@ legend.}
 
 \item{legend_var}{Name of the variable used in the legend and to determine the
 line colour.}
-
-\item{size_axis}{Optional. If non-NULL, the x-axis is converted to weight
-(\code{"w"}) or length (\code{"l"}).}
-
-\item{density_wrt}{The measure the values are a density with respect to, see
-\link{density_measures}. \code{NA} (the default) means the values are not a density
-and are left alone when the size axis changes.}
-
-\item{per_log_size}{Whether to express a density per logarithmic size.
-\code{NULL} (the default) keeps whichever the values already are.}
-
-\item{total_dat}{Optional data frame of the contributors to a total, with a
-\code{Model} column identifying which of the two they belong to. The total is
-summed from them after the size axis has been converted, see
-\code{\link[=add_total_line]{add_total_line()}}.}
 }
 \value{
 A \code{mizer_plot} (ggplot2) object.
@@ -71,5 +52,13 @@ A \code{mizer_plot} (ggplot2) object.
 Used internally by the comparison plotting functions such as \code{\link[=plotSpectra2]{plotSpectra2()}}
 and \code{\link[=plotCDF2]{plotCDF2()}}. The two data frames are combined and drawn with colour
 identifying the species or group and linetype identifying the object.
+}
+\details{
+Both data frames must arrive ready to plot: on the axis they will be drawn
+against, with any total line already among their rows. Each operand is
+prepared by whatever produced it, using \emph{its own} model, because a length
+axis and a density Jacobian both depend on the weight-length relationship of
+the model the values came from. Doing it here instead would silently impose
+the first model's parameters on the second.
 }
 \keyword{internal}

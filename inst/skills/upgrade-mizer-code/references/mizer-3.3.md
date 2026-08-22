@@ -135,6 +135,109 @@ longer moves when you change `species`, `all.sizes` or `background`, and a plot
 of two species can be read against the community total. If you were relying on
 the total of a selection, sum the selection yourself.
 
+### Comparison plots transform each array with its own model
+
+`plot2()` and `plotRelative()` used to convert both of their operands together,
+with the `MizerParams` attached to the *first* one. That is invisible while the
+two models agree, and wrong as soon as they do not. The weight-length
+relationship `w = a l^b` is a species parameter, so with `size_axis = "l"`
+the second array was drawn at the first model's lengths, and a density was
+multiplied by the first model's Jacobian. Comparing a model against a version of
+itself with a changed `a` or `b` — exactly what these plots are for — therefore
+compared it against a curve in the wrong place.
+
+Each array now prepares its own plotting data, with its own model, and the
+comparison receives two series that are already on the axis they will be drawn
+against. Two consequences, both only on a length axis and only when the models
+differ:
+
+- The two lines sit where they belong, which for `plot2()` means the second one
+  may move.
+- `plotRelative()` interpolates. Once each series is converted with its own
+  parameters the two length grids no longer coincide, and matching them by
+  equality of the coordinate — which is what the old join did — kept only their
+  exact coincidences, usually none. Each series is now interpolated linearly in
+  the logarithm of size onto the union of the two sets of coordinates,
+  restricted to the interval both cover so that nothing is extrapolated. Where
+  the grids already coincide, which is always the case on a weight axis, the
+  union is that grid and the interpolation reproduces the values exactly.
+  `plotSpectraRelative()` works the same way.
+- The relative difference of a *density* on a length axis moves, because the
+  Jacobian of the two models no longer cancels out of the ratio. The old
+  cancellation was only ever valid when both models shared `a` and `b`.
+
+On a weight axis, and whenever the two models agree, every one of these plots is
+unchanged.
+
+Two arrays that hold different kinds of value can no longer be compared at all.
+The `type` of an array decides whether its values are multiplied by a Jacobian
+on a length axis and whether the y axis covers the interval from 0 to 1, so a
+density and a plain value have no pair of axes in common; `plot2()` and
+`plotRelative()` now stop instead of warning and using the first array's type
+for both. The warnings about a differing `value_name` or differing units are
+unchanged.
+
+`plot2()` and `plotRelative()` also take `highlight` now. They used to accept it
+into `...` and discard it, so a call that asked for a thicker line got a plot
+that looked right but was not.
+
+### Background species and non-positive values in time-series plots
+
+`plot()` on a time-by-species array — which is what `plotBiomass()`,
+`plotYield()` and `plotN()` draw — used to select the species and then append
+the background species as a second, separate step. Four things follow from
+doing it in one pass instead.
+
+- **A background species is drawn once.** With `species` left at its default of
+  all of them, every background species was selected under its own name and
+  then appended again under the `"Background"` legend, so it was drawn twice,
+  in two colours.
+- **`background = FALSE` removes them.** It used to skip the appending step and
+  leave the background species on the plot under their own names, which is the
+  opposite of what it asks for.
+- **A background species is drawn when the selection asks for it.** Previously
+  every background species appeared whatever `species` said; now `species`
+  decides, as it always has for `plot()` on a species-by-size array. Name a
+  background species in `species` to see it — it keeps the `"Background"`
+  legend.
+- **An empty background group no longer aborts the plot** with `replacement has
+  1 row, data has 0`. That happened whenever no background value survived the
+  filtering, for instance when a background species had died out.
+
+Separately, these plots no longer discard values of zero or less when the y axis
+is linear. The floor at `1e-20` belongs to a logarithmic axis, where such values
+cannot be shown, and is still applied there. On a linear axis they are data like
+any other, and a quantity that can go negative used to lose exactly the part of
+it that was interesting. `plotRelative()` on a time-by-species array is drawn on
+a linear axis, so it keeps them too, which is what lets it show the -2 of a
+species that has gone from present to absent.
+
+### Bin averages are drawn at the bin centres in time-by-size plots
+
+`plot()` on an `ArrayTimeBySpeciesBySize` took its time slice by hand rather
+than through the slice helper the other methods use, and lost the array's
+`representation` tag on the way. In a model with second-order bin-averaging
+switched on with `second_order_w()`, a bin-averaged quantity such as
+`getFMort(sim)` or `getFeedingLevel(sim)` was therefore drawn at the left bin
+edges instead of the geometric bin centres where it lives — one bin to the left
+of the right place. Only the drawn location moves; the values are unchanged, as
+is every plot on the default first-order scheme.
+
+### Animations follow the array type and the size axis
+
+`animate()` now applies the axis handling the static plots have. Three changes,
+each of them a case the animations were missing:
+
+- A resource animation with `size_axis = "l"` labels its y axis `1/cm`. It used
+  to convert the values to a density per centimetre but keep the `1/g` of the
+  weight axis in the label, which named the curve wrongly.
+- An animation of a `"proportion"` — `getFeedingLevel(sim)`, or a resource
+  level through time — is drawn on a linear y axis showing the whole of the
+  interval from 0 to 1, as a static plot of one is. Pass `log_y = TRUE` or an
+  explicit `ylim` to override it.
+- `llim` and `tlim` are checked for length like the other limit arguments,
+  rather than being used as given.
+
 ### Length and weight parameters follow the one you gave last
 
 A size can be given either as a weight (`w_mat`, `w_max`, …) or as the length it

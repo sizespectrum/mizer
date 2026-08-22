@@ -335,3 +335,44 @@ test_that("a time slice keeps the representation tag", {
     expect_identical(attr(slice, "representation"), "average")
     expect_equal(get_ArraySpeciesBySize_w(slice), bin_midpoints(sim2@params))
 })
+
+test_that("plot() draws a bin average at the geometric bin centre", {
+    sim2 <- NS_sim_small
+    second_order_w(sim2@params) <- c(bin_average = TRUE)
+    fmort <- getFMort(sim2)
+    expect_identical(attr(fmort, "representation"), "average")
+
+    dat <- plot(fmort, all.sizes = TRUE, return_data = TRUE)
+    # The plot used to slice the array by hand and lose `representation`, which
+    # put the averages back on the left bin edges.
+    expect_equal(sort(unique(dat$w)),
+                 sort(unname(bin_midpoints(sim2@params))))
+    expect_false(isTRUE(all.equal(sort(unique(dat$w)),
+                                  sort(unname(sim2@params@w)))))
+})
+
+test_that("plot() leaves a point-valued array on the grid nodes", {
+    sim2 <- NS_sim_small
+    second_order_w(sim2@params) <- c(bin_average = TRUE)
+    n <- N(sim2)
+    expect_identical(attr(n, "representation"), "point")
+    dat <- plot(n, all.sizes = TRUE, return_data = TRUE)
+    expect_equal(sort(unique(dat$w)), sort(unname(sim2@params@w)))
+})
+
+test_that("the time-by-size comparison methods honour highlight", {
+    fmort <- getFMort(NS_sim_small)
+    doubled <- ArrayTimeBySpeciesBySize(unclass_tss(fmort) * 2,
+                                        value_name = attr(fmort, "value_name"),
+                                        units = attr(fmort, "units"),
+                                        params = NS_params_small)
+    p2 <- plot2(fmort, doubled, highlight = "Cod")
+    expect_gt(drawn_linewidth(p2, "Cod", NS_params_small),
+              drawn_linewidth(p2, "Herring", NS_params_small))
+
+    # Sprat is unfished in this model, so its relative difference is 0/0 and
+    # it is not drawn at all; Herring is.
+    pr <- plotRelative(fmort, doubled, highlight = "Cod")
+    expect_gt(drawn_linewidth(pr, "Cod", NS_params_small, layer = 2),
+              drawn_linewidth(pr, "Herring", NS_params_small, layer = 2))
+})

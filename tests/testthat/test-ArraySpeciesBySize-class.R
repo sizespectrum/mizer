@@ -363,11 +363,25 @@ test_that("a proportion is plotted against the whole of [0, 1]", {
     expect_true(all(is.na(plot(enc_small)$scales$get_scales("y")$limits)))
 })
 
-test_that("plot2 warns when the two arrays hold different types of value", {
+test_that("comparisons reject two arrays that hold different types of value", {
     density <- initialN(NS_params_small)
     as_value <- density
     attr(as_value, "type") <- "value"
-    expect_warning(plot2(density, as_value), "type")
+    # The type decides the Jacobian and the y-axis range, so there is no one
+    # pair of axes that can carry both.
+    expect_error(plot2(density, as_value), "different types")
+    expect_error(plotRelative(density, as_value), "different types")
+})
+
+test_that("comparisons still only warn about a differing name or units", {
+    enc <- getEncounter(NS_params_small)
+    renamed <- enc
+    attr(renamed, "value_name") <- "Something else"
+    expect_warning(plot2(enc, renamed), "value name")
+
+    rescaled <- enc
+    attr(rescaled, "units") <- "kg/year"
+    expect_warning(plot2(enc, rescaled), "y units")
 })
 
 test_that("plot.ArraySpeciesBySize supports base plot log argument", {
@@ -635,4 +649,106 @@ test_that("apply_wlim leaves a side unrestricted when its limit is NA", {
 test_that("apply_wlim can return no rows at all", {
     data <- data.frame(w = c(1, 2, 5), value = 1:3)
     expect_identical(nrow(apply_wlim(data, c(100, 200))), 0L)
+})
+
+# Comparison plots across two models ----
+
+test_that("plot2 transforms each array with its own weight-length parameters", {
+    params2 <- NS_params_small
+    # Halving `a` doubles the length a given weight corresponds to.
+    given_species_params(params2)$a <- species_params(NS_params_small)$a / 2
+    enc1 <- getEncounter(NS_params_small)
+    enc2 <- getEncounter(params2)
+
+    dat1 <- ArraySpeciesBySize_plot_data(enc1, size_axis = "l")
+    dat2 <- ArraySpeciesBySize_plot_data(enc2, size_axis = "l")
+    # The second model really does put the same weights at other lengths.
+    expect_false(isTRUE(all.equal(dat1$l, dat2$l)))
+    b <- species_params(NS_params_small)$b[[1]]
+    expect_equal(dat2$l, dat1$l * 2^(1 / b))
+
+    p <- plot2(enc1, enc2, size_axis = "l")
+    lengths <- p$data$l[p$data$Model == "Second"]
+    expect_equal(sort(unique(lengths)), sort(unique(dat2$l)))
+})
+
+test_that("plotRelative interpolates when the two length grids differ", {
+    params2 <- NS_params_small
+    given_species_params(params2)$a <- species_params(NS_params_small)$a / 2
+    enc1 <- getEncounter(NS_params_small)
+    enc2 <- getEncounter(params2)
+
+    # The two grids share almost no coordinate, so matching by equality would
+    # leave essentially nothing to compare.
+    rel <- plotRelative(enc1, enc2, size_axis = "l")
+    expect_gt(nrow(rel$data), 10)
+    expect_true(all(is.finite(rel$data$rel_diff)))
+    # Every retained coordinate lies inside the range both series cover.
+    dat1 <- ArraySpeciesBySize_plot_data(enc1, size_axis = "l")
+    dat2 <- ArraySpeciesBySize_plot_data(enc2, size_axis = "l")
+    for (sp in unique(rel$data$Species)) {
+        shown <- rel$data$l[rel$data$Species == sp]
+        l1 <- dat1$l[dat1$Species == sp]
+        l2 <- dat2$l[dat2$Species == sp]
+        expect_true(all(shown >= max(min(l1), min(l2))))
+        expect_true(all(shown <= min(max(l1), max(l2))))
+    }
+})
+
+test_that("plotRelative reproduces the exact values when the grids match", {
+    enc1 <- getEncounter(NS_params_small)
+    enc2 <- getEncounter(NS_params_small) * 2
+    enc2 <- ArraySpeciesBySize(enc2, value_name = attr(enc1, "value_name"),
+                               units = attr(enc1, "units"),
+                               params = NS_params_small)
+    rel <- plotRelative(enc1, enc2)
+    # 2 (2N - N) / (N + 2N) = 2/3 everywhere.
+    expect_equal(unique(round(rel$data$rel_diff, 12)), 2 / 3)
+})
+
+test_that("plotRelative applies the density Jacobian of each model", {
+    params2 <- NS_params_small
+    # A different exponent gives a different dw/dl, which no longer cancels.
+    given_species_params(params2)$b <- species_params(NS_params_small)$b + 0.2
+    n1 <- initialN(NS_params_small)
+    n2 <- initialN(params2)
+    rel_w <- plotRelative(n1, n2, size_axis = "w")
+    rel_l <- plotRelative(n1, n2, size_axis = "l")
+    expect_true(all(abs(rel_w$data$rel_diff) < 1e-12))
+    expect_false(all(abs(rel_l$data$rel_diff) < 1e-12))
+})
+
+test_that("the comparison methods honour highlight", {
+    enc <- getEncounter(NS_params_small)
+    doubled <- ArraySpeciesBySize(unclass_rate(enc) * 2,
+                                  value_name = attr(enc, "value_name"),
+                                  units = attr(enc, "units"),
+                                  params = NS_params_small)
+
+    p2 <- plot2(enc, doubled, highlight = "Cod")
+    expect_gt(drawn_linewidth(p2, "Cod", NS_params_small),
+              drawn_linewidth(p2, "Sprat", NS_params_small))
+
+    # The relative plot draws its zero line first, so the values are layer 2.
+    pr <- plotRelative(enc, doubled, highlight = "Cod")
+    expect_gt(drawn_linewidth(pr, "Cod", NS_params_small, layer = 2),
+              drawn_linewidth(pr, "Sprat", NS_params_small, layer = 2))
+})
+
+test_that("the array plots all share one preparation", {
+    enc <- getEncounter(NS_params_small)
+    prepared <- ArraySpeciesBySize_plot_data(
+        enc, species = "Cod", wlim = c(1, NA), total = TRUE, size_axis = "l")
+    from_plot <- plot(enc, species = "Cod", wlim = c(1, NA), total = TRUE,
+                      size_axis = "l", return_data = TRUE)
+    expect_equal(from_plot, prepared)
+
+    # The comparison of an array with itself is that same data, twice.
+    p2 <- plot2(enc, enc, species = "Cod", wlim = c(1, NA), total = TRUE,
+                size_axis = "l")
+    expect_equal(sum(p2$data$Model == "First"), nrow(prepared))
+    shown <- p2$data[p2$data$Model == "First", names(prepared)]
+    # The renderer turns `Legend` into a factor to order the legend.
+    shown$Legend <- as.character(shown$Legend)
+    expect_equal(shown, prepared, ignore_attr = TRUE)
 })

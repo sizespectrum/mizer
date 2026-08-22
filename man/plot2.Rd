@@ -23,6 +23,7 @@ plot2(
   ylim = c(NA, NA),
   total = FALSE,
   background = TRUE,
+  highlight = NULL,
   y_ticks = 6,
   ...
 )
@@ -56,14 +57,18 @@ in the same form as the base \code{\link[=plot]{plot()}} argument. For example, 
 for the value (y) axis. Use \code{NA} to refer to the existing minimum or
 maximum.}
 
-\item{total}{A boolean value that determines whether the total over all
-selected species is plotted as well. Default is \code{FALSE}. Not used by the
-resource methods, which warn if it is set.}
+\item{total}{A boolean value that determines whether the total is plotted
+as well. The total is the total of everything the array holds, every
+species and every size, whatever is drawn. Default is \code{FALSE}. Not used by
+the resource methods, which warn if it is set.}
 
 \item{background}{A boolean value that determines whether background species
 are included. Ignored if the model does not contain background species.
 Default is \code{TRUE}. Not used by the resource methods, which warn if it is
 set.}
+
+\item{highlight}{Name or vector of names of the species to be highlighted
+with a thicker line.}
 
 \item{y_ticks}{The approximate number of ticks desired on the y axis.}
 
