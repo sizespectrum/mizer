@@ -9,11 +9,11 @@ test_that("getLimitCycleSim returns a MizerSim for a model with complex eigenval
     pn  <- steadyNewton(p_steady_lcs)
     stab <- getStability(pn)
 
-    # Only run test when the dominant eigenvalue is complex (Hopf mode dominant)
-    skip_if(is.null(stab$hopf_period),
+    # The function needs an oscillatory mode, which need not be the dominant
+    # one: it draws `hopf_eigenvector`, whose eigenvalue can sit well down the
+    # spectrum below a real leading eigenvalue.
+    skip_if(is.null(stab$hopf_eigenvalue),
             "Model has no complex eigenvalues; skipping limit cycle test.")
-    skip_if(abs(Im(stab$eigenvalues[1])) <= 1e-8,
-            "Dominant eigenvalue is real; limit cycle test not applicable.")
 
     lcs <- getLimitCycleSim(stab)
     expect_s4_class(lcs, "MizerSim")
@@ -24,12 +24,11 @@ test_that("getLimitCycleSim time axis spans one period", {
     pn   <- steadyNewton(p_steady_lcs)
     stab <- getStability(pn)
 
-    skip_if(is.null(stab$hopf_period))
-    skip_if(abs(Im(stab$eigenvalues[1])) <= 1e-8)
+    skip_if(is.null(stab$hopf_eigenvalue))
 
     lcs   <- getLimitCycleSim(stab)
     times <- getTimes(lcs)
-    T_period <- stab$dominant_period
+    T_period <- stab$hopf_period
 
     expect_equal(times[1], 0)
     expect_lte(times[length(times)], ceiling(T_period) + 1e-8)
@@ -41,8 +40,7 @@ test_that("getLimitCycleSim abundances are non-negative", {
     pn   <- steadyNewton(p_steady_lcs)
     stab <- getStability(pn)
 
-    skip_if(is.null(stab$hopf_period))
-    skip_if(abs(Im(stab$eigenvalues[1])) <= 1e-8)
+    skip_if(is.null(stab$hopf_eigenvalue))
 
     # A large amplitude drives cells negative, which is clipped and reported.
     expect_warning(lcs <- getLimitCycleSim(stab, amplitude = 0.5),
@@ -56,10 +54,9 @@ test_that("getLimitCycleSim t_save controls the time step spacing", {
     pn   <- steadyNewton(p_steady_lcs)
     stab <- getStability(pn)
 
-    skip_if(is.null(stab$hopf_period))
-    skip_if(abs(Im(stab$eigenvalues[1])) <= 1e-8)
+    skip_if(is.null(stab$hopf_eigenvalue))
 
-    T_period <- stab$dominant_period
+    T_period <- stab$hopf_period
     t_save   <- T_period / 50
     lcs      <- getLimitCycleSim(pn, t_save = t_save)
     times    <- getTimes(lcs)
@@ -73,8 +70,7 @@ test_that("getLimitCycleSim n array has correct species and size dimnames", {
     pn   <- steadyNewton(p_steady_lcs)
     stab <- getStability(pn)
 
-    skip_if(is.null(stab$hopf_period))
-    skip_if(abs(Im(stab$eigenvalues[1])) <= 1e-8)
+    skip_if(is.null(stab$hopf_eigenvalue))
 
     lcs <- getLimitCycleSim(stab)
     expect_equal(dimnames(lcs@n)$sp, dimnames(pn@initial_n)[[1]])

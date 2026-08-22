@@ -4,20 +4,11 @@
 \alias{getStability}
 \title{Analyse the dynamic stability of a mizer steady state}
 \usage{
-getStability(
-  params,
-  reproduction = c("fixed", "dynamic"),
-  effort = params@initial_effort,
-  h = 1e-04
-)
+getStability(params, effort = params@initial_effort, h = 1e-04)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object whose \code{initial_n} holds the
 steady state to analyse. Typically the output of \code{\link[=steadyNewton]{steadyNewton()}}.}
-
-\item{reproduction}{Whether the reproduction rate is held fixed (\code{"fixed"},
-default) or run dynamically (\code{"dynamic"}) during the evaluation.
-Must match the choice used when the steady state was computed.}
 
 \item{effort}{The fishing effort to use. By default the initial effort
 stored in \code{params}.}
@@ -107,6 +98,25 @@ Its eigenvalues include both the slow fish modes and a cluster of fast
 resource-relaxation modes, at \eqn{\lambda \approx -(r_{pp} + \mu_R)}. Any
 resource dynamics function is supported: the semichemostat derivative is
 written down analytically, and anything else is differenced over a short step.
+
+Reproduction is a state-dependent rate like any other: the reproduction
+function stored in \code{params@rates_funcs$RDD} is evaluated at each perturbed
+state, so the feedback from the spectra back onto the influx of eggs is part
+of the Jacobian, exactly as it is part of \code{\link[=project]{project()}}. There is no option to
+pin the reproduction rate at its value at the fixed point. A model in which
+reproduction really is constant expresses that as a model: with
+\code{rates_funcs$RDD = "constantRDD"} the derivative of the reproduction rate is
+zero and the pinned Jacobian is what the analysis returns.
+
+This is why the stability of a steady state depends on the reproduction
+parameters even though the steady state itself does not.
+\code{\link[=setBevertonHolt]{setBevertonHolt()}} moves along a family of \code{erepro}/\code{R_max} pairs that all
+leave the same fixed point, but they do not all leave the same dynamics: at a
+\code{\link[=reproduction_level]{reproduction_level()}} near 1 the reproduction rate barely responds to the
+energy invested in it, approaching the constant-reproduction case, while at a
+level near 0 it follows that energy proportionally. The two ends can differ
+in their verdict, so the analysis has to read the model rather than take an
+argument.
 }
 
 \subsection{Numerical details}{

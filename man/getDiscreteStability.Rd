@@ -4,21 +4,11 @@
 \alias{getDiscreteStability}
 \title{Analyse the stability of mizer's numerical time step}
 \usage{
-getDiscreteStability(
-  params,
-  reproduction = c("fixed", "dynamic"),
-  effort = params@initial_effort,
-  h = 1e-04,
-  dt = 1
-)
+getDiscreteStability(params, effort = params@initial_effort, h = 1e-04, dt = 1)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object whose \code{initial_n} holds the
 steady state to analyse. Typically the output of \code{\link[=steadyNewton]{steadyNewton()}}.}
-
-\item{reproduction}{Whether the reproduction rate is held fixed (\code{"fixed"},
-default) or run dynamically (\code{"dynamic"}) during the evaluation.
-Must match the choice used when the steady state was computed.}
 
 \item{effort}{The fishing effort to use. By default the initial effort
 stored in \code{params}.}

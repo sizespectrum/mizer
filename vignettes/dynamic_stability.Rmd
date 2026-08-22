@@ -141,14 +141,6 @@ The largest real part among the eigenvalues, $\text{Re}(\lambda) =
 a perturbation grows at that exponential rate, roughly a factor $e$ every
 `r round(1 / stab$max_real_part)` years.
 
-Fish and resource are perturbed together here: the resource spectrum is a state
-variable of the analysis like any other. It is tempting to economise by treating
-it instead as a *quasi-static* fast variable that equilibrates instantly to the
-fish, and for the model that is a good approximation — on this model it moves
-the leading eigenvalue by about 3%. It is not a safe one for the numerical map
-of the next section, whose resource responds with a whole step's delay rather
-than instantly, so mizer does not offer it.
-
 ### What mizer's time step makes of it
 
 The instability is a property of the model. Whether you *see* it in a simulation
@@ -221,11 +213,11 @@ Because `return_sim = TRUE` returns a standard `MizerSim` object, we can plot th
 plotBiomass(sim_cycle)
 ```
 
-Notice how well the detected nonlinear period (about `r round(attr(sim_cycle, "convergence")$period, 1)` years) agrees with the `dominant_period` of about `r round(stab$dominant_period, 2)` years from the linear analysis, even though the cycle we are looking at is anything but small: its relative amplitude is about `r round(100 * attr(sim_cycle, "convergence")$amplitude)`% of the mean. The linear analysis is a prediction about infinitesimal perturbations of the steady state, so the remaining difference of under ten percent is what the nonlinearity does to the shape of the large-amplitude cycle. Close to the bifurcation point the two agree even more closely.
+Notice how well the detected nonlinear period (about `r round(attr(sim_cycle, "convergence")$period, 1)` years) agrees with the `dominant_period` of about `r round(stab$dominant_period, 2)` years from the linear analysis, even though the cycle we are looking at is anything but small: its relative amplitude is about `r round(100 * attr(sim_cycle, "convergence")$amplitude)`% of the mean. The linear analysis is a prediction about infinitesimal perturbations of the steady state, so the remaining difference of under six percent is what the nonlinearity does to the shape of the large-amplitude cycle. Close to the bifurcation point the two agree even more closely.
 
 ## Visualising the oscillation shape
 
-Finally, `getLimitCycleSim()` constructs a `MizerSim` object covering one period of the oscillation *in the linear approximation*, using the eigenvector of the dominant oscillatory mode. This isolates the pure **shape** of the cycle — which species and sizes participate and with what phase — without the growth or the nonlinear distortion of the full run. Fish and resource are driven by the same eigenvector and the same scale factor, so the resource carries the phase the mode gives it: on this model it leads the total fish biomass by about 0.7 years of the 5.03-year period.
+Finally, `getLimitCycleSim()` constructs a `MizerSim` object covering one period of the oscillation *in the linear approximation*, using the eigenvector of the dominant oscillatory mode. This isolates the pure **shape** of the cycle — which species and sizes participate and with what phase — without the growth or the nonlinear distortion of the full run. Fish and resource are driven by the same eigenvector and the same scale factor, so the resource carries the phase the mode gives it: on this model it leads the total fish biomass by about 0.3 years of the 5.12-year period.
 
 ```{r limit_cycle}
 lcs <- getLimitCycleSim(params_f15, amplitude = 0.1)

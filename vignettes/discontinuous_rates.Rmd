@@ -357,7 +357,7 @@ finer steps do: they agree to seven figures, because at that size no
 perturbation crosses the threshold at all. That agreement is the second failure
 mode below, not a clean bill of health.
 
-Contrast the ramped model, where the answer is the same to six figures whatever
+Contrast the ramped model, where the answer is the same to five figures whatever
 `h` you choose:
 
 ```{r eval = FALSE}
@@ -369,12 +369,12 @@ stab_ramp
 ```
 
 What matters here is the *reproducibility* of that number, not its value. (It is
-negative, so the ramped model's fixed-reproduction steady state is weakly
-stable. That is not in conflict with the small residual oscillation measured
-earlier: those runs let reproduction respond to the abundances, so they are a
-different system from the fixed-reproduction one linearised here — and a decay
-rate this slow is in any case barely distinguishable from a cycle over a
-thirty-year run.) The `h`-sensitivity is the cheapest diagnostic available:
+negative, so the ramped model's steady state is weakly stable. That is not in
+conflict with the small residual oscillation measured earlier: the linearisation
+is of the same system those runs project, reproduction included, but a decay
+rate this slow — an e-folding time of forty years — is barely distinguishable
+from a sustained cycle over a thirty-year run.) The `h`-sensitivity is the
+cheapest diagnostic available:
 **if halving `h` changes the answer, do not trust the answer** — while
 remembering that an answer which does not move is necessary, not sufficient.
 
