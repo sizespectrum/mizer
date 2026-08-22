@@ -1,15 +1,15 @@
 #' Deprecated obsolete function for setting up multispecies parameters
-#' 
+#'
 #' @description
 #' `r lifecycle::badge("deprecated")`
-#' 
+#'
 #' This function has been deprecated in favour of the function
 #' [newMultispeciesParams()] that sets better default values.
 #'
 #' This wrapper keeps the legacy defaults and also fills in several columns in
 #' `species_params` if they are missing, using the same rules as older mizer
 #' versions.
-#' 
+#'
 #' @inheritParams newMultispeciesParams
 #' @inheritParams newTraitParams
 #' @param q Allometric exponent of search volume
@@ -32,7 +32,7 @@
 #' @return A MizerParams object
 #' @export
 #' @concept deprecated
-set_multispecies_model <- 
+set_multispecies_model <-
     function(
         species_params,
         interaction = matrix(1,
@@ -60,17 +60,17 @@ set_multispecies_model <-
     if (is.null(max_w)) {
         max_w <- max(species_params$w_max) * 1.1
     }
-    
+
     # Need to correct for the fact that new mizer extends w_full to BELOW
     # min_w_pp
         dx <- log10(max_w / min_w) / (no_w - 1)
         min_w_pp <- min_w_pp * 10 ^ dx
-        
+
     species_params[["q"]] <- q
     species_params[["f0"]] <- f0
     object <- species_params
     # old code from MizerParams() in version 1.0.1
-    
+
     # Set default values for column values if missing
     # If no gear_name column in object, then named after species
     if (!("gear" %in% colnames(object)))
@@ -118,13 +118,13 @@ set_multispecies_model <-
         message("Note: No ks column in species data frame so using ks = h * 0.2.")
         object$ks <- object$h * 0.2
     }
-    
+
     # The m column did not exist in the old version, set it to 1
     if (!("m" %in% colnames(object))) {
         message("Note: No m column in species data frame so using m = 1.")
         object[["m"]] <- 1
     }
-    
+
     return(newMultispeciesParams(object,
                                  interaction = interaction,
                                  n = n,
@@ -139,7 +139,7 @@ set_multispecies_model <-
 }
 
 #' Alias for `set_multispecies_model()`
-#' 
+#'
 #' `r lifecycle::badge("deprecated")`
 #' An alias provided for backward compatibility with mizer version <= 1.0
 #' @inherit set_multispecies_model
@@ -150,54 +150,54 @@ MizerParams <- set_multispecies_model
 
 # Copied from version 1.0.1
 #' Deprecated function for setting up parameters for a trait-based model
-#' 
+#'
 #' @description
 #' `r lifecycle::badge("deprecated")`
-#' 
+#'
 #' This function has been deprecated in favour of the function
 #' [newTraitParams()] that sets better default values.
-#' 
+#'
 #' @details
-#' This functions creates a `MizerParams` object so that trait-based-type 
+#' This functions creates a `MizerParams` object so that trait-based-type
 #' models can be easily set up and run. The trait-based size spectrum model can
 #' be derived as a simplification of the general size-based model used in
-#' `mizer`. The species-specific parameters are the same for all species, 
+#' `mizer`. The species-specific parameters are the same for all species,
 #' except for
 #' the asymptotic size, which is considered the most important trait
 #' characterizing a species. Other parameters are related to the asymptotic
-#' size. For example, the size at maturity is given by \code{w_max * eta}, 
+#' size. For example, the size at maturity is given by \code{w_max * eta},
 #' where `eta` is
 #' the same for all species. For the trait-based model the number of species is
 #' not important. For applications of the trait-based model see Andersen &
 #' Pedersen (2010). See the `mizer` vignette for more details and examples
 #' of the trait-based model.
-#' 
+#'
 #' The function has many arguments, all of which have default values. Of
 #' particular interest to the user are the number of species in the model and
 #' the minimum and maximum asymptotic sizes. The asymptotic sizes of the species
 #' are spread evenly on a logarithmic scale within this range.
-#' 
+#'
 #' The stock recruitment relationship is the default Beverton-Holt style. The
 #' maximum recruitment is calculated using equilibrium theory (see Andersen &
 #' Pedersen, 2010) and a multiplier, `k0`. Users should adjust `k0` to
 #' get the spectra they want.
-#' 
+#'
 #' The factor for the search volume, `gamma`, is calculated using the
 #' expected feeding level, `f0`.
-#' 
+#'
 #' Fishing selectivity is modelled as a knife-edge function with one parameter,
 #' `knife_edge_size`, which is the size at which species are selected. Each
 #' species can either be fished by the same gear (`knife_edge_size` has a
 #' length of 1) or by a different gear (the length of `knife_edge_size` has
 #' the same length as the number of species and the order of selectivity size is
 #' that of the asymptotic size).
-#' 
+#'
 #' The resulting `MizerParams` object can be projected forward using
 #' `project` like any other `MizerParams` object. When projecting
 #' the community model it may be necessary to reduce `dt` to 0.1 to avoid
 #' any instabilities with the solver. You can check this by plotting the biomass
 #' or abundance through time after the projection.
-#' 
+#'
 #' @param no_sp The number of species in the model. The default value is 10. The
 #'   more species, the longer takes to run.
 #' @param min_w_inf The asymptotic size of the smallest species in the
@@ -237,7 +237,7 @@ MizerParams <- set_multispecies_model
 #' @param gear_names The names of the fishing gears. A character vector, the
 #'   same length as the number of species. Default is 1 - no_sp.
 #' @param ... Other arguments to pass to the `MizerParams` constructor.
-#' 
+#'
 #' @return An object of type `MizerParams`
 #' @references K. H. Andersen and M. Pedersen, 2010, Damped trophic cascades
 #'   driven by fishing in model marine ecosystems. Proceedings of the Royal
@@ -255,7 +255,7 @@ set_trait_model <- function(no_sp = 10,
                             k0 = 50, # recruitment adjustment parameter
                             n = 2/3,
                             p = 0.75,
-                            q = 0.9, 
+                            q = 0.9,
                             eta = 0.25,
                             r_pp = 4,
                             kappa = 0.005,
@@ -279,13 +279,13 @@ set_trait_model <- function(no_sp = 10,
     # TODO: remove this here because it is already calculated in MizerParams()
     #       Having the same code in two locations is not a good idea
     if(is.na(gamma)){
-        alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) * 
+        alpha_e <- sqrt(2*pi) * sigma * beta^(lambda-2) *
             exp((lambda-2)^2 * sigma^2 / 2) # see A&P 2009
-        gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009 
+        gamma <- h * f0 / (alpha_e * kappa * (1-f0)) # see A&P 2009
     }
     w_inf <- 10^seq(from=log10(min_w_inf), to = log10(max_w_inf), length=no_sp)
     w_mat <- w_inf * eta
-    
+
     # Check gears
     if (length(knife_edge_size) > no_sp){
         stop("There cannot be more gears than species in the model")
@@ -296,7 +296,7 @@ set_trait_model <- function(no_sp = 10,
     if ((length(gear_names) != 1) & (length(gear_names) != no_sp)){
         stop("Length of gear_names argument must equal the number of species.")
     }
-    
+
     # Make the species parameters data.frame
     trait_params_df <- data.frame(
         species = as.factor(1:no_sp),
@@ -331,7 +331,7 @@ set_trait_model <- function(no_sp = 10,
             r_pp = r_pp,
             kappa = kappa,
             lambda = lambda
-        ) 
+        )
     # Sort out maximum recruitment - see A&P 2009 Get max flux at recruitment
     # boundary, R_max R -> | -> g0 N0 R is egg flux, in numbers per time Actual
     # flux at recruitment boundary = RDD = NDD * g0 (where g0 is growth rate) So
@@ -339,7 +339,7 @@ set_trait_model <- function(no_sp = 10,
     # * g0 (g0 is the average growth rate of smallest size, i.e. at f0 = 0.5) N0
     # given by Appendix A of A&P 2010 - see Ken's email 12/08/13 Taken from
     # Ken's code 12/08/13 - equation in paper is wrong!
-    alpha_p <- f0 * h * beta^(2 * n - q - 1) * 
+    alpha_p <- f0 * h * beta^(2 * n - q - 1) *
         exp((2 * n * (q - 1) - q^2 + 1) * sigma^2 / 2)
     alpha_rec <- alpha_p / (alpha * h * f0 - ks)
     # Calculating dw using Ken's code - see Ken's email 12/08/13
@@ -350,22 +350,22 @@ set_trait_model <- function(no_sp = 10,
     # No need to include (1 - psi) in growth equation because allocation to reproduction at this size = 0, so 1 - psi = 1
     g0 <- (alpha * f0 * h * trait_params@w[1]^n - ks * trait_params@w[1]^p)
     r_max <- N0_max * g0
-    
+
     trait_params@species_params$R_max <- r_max
-    
+
     return(trait_params)
 }
 
 
 # Copied from version 1.0.1
 #' Deprecated function for setting up parameters for a community-type model
-#' 
+#'
 #' @description
 #' `r lifecycle::badge("deprecated")`
-#' 
+#'
 #' This function has been deprecated in favour of the function
 #' [newCommunityParams()] that sets better default values.
-#' 
+#'
 #' @details
 #' This functions creates a \code{\linkS4class{MizerParams}} object so that
 #' community-type models can be easily set up and run. A community model has
@@ -374,32 +374,32 @@ set_trait_model <- function(no_sp = 10,
 #' community. The resource spectrum only extends to the start of the community
 #' spectrum. Recruitment to the smallest size in the community spectrum is
 #' constant and set by the user. As recruitment is constant, the proportion of
-#' energy invested in reproduction (the slot `psi` of the returned 
-#' `MizerParams` object) is set to 0. Standard metabolism has been turned 
-#' off (the parameter `ks` is set to 0). Consequently, the growth rate is 
-#' now determined solely by the assimilated food (see the package vignette for 
+#' energy invested in reproduction (the slot `psi` of the returned
+#' `MizerParams` object) is set to 0. Standard metabolism has been turned
+#' off (the parameter `ks` is set to 0). Consequently, the growth rate is
+#' now determined solely by the assimilated food (see the package vignette for
 #' more details).
-#' 
-#' The function has many arguments, all of which have default values. The main 
-#' arguments that the users should be concerned with are `z0`, 
+#'
+#' The function has many arguments, all of which have default values. The main
+#' arguments that the users should be concerned with are `z0`,
 #' `recruitment`, `alpha` and `f0` as these determine the average
 #' growth rate of the community.
-#' 
-#' Fishing selectivity is modelled as a knife-edge function with one parameter, 
-#' `knife_edge_size`, which determines the size at which species are 
+#'
+#' Fishing selectivity is modelled as a knife-edge function with one parameter,
+#' `knife_edge_size`, which determines the size at which species are
 #' selected.
-#' 
-#' The resulting `MizerParams` object can be projected forward using 
-#' \code{project()} like any other `MizerParams` object. When projecting 
+#'
+#' The resulting `MizerParams` object can be projected forward using
+#' \code{project()} like any other `MizerParams` object. When projecting
 #' the community model it may be necessary to keep a small time step size
 #' `dt` of around 0.1 to avoid any instabilities with the solver. You can
 #' check for these numerical instabilities by plotting the biomass or abundance
 #' through time after the projection.
-#' 
+#'
 #' @param z0 The background mortality of the community. Default value is 0.1.
 #' @param alpha The assimilation efficiency of the community. Default value 0.2
-#' @param f0 The average feeding level of individuals who feed on a power-law 
-#'   spectrum. This value is used to calculate the search rate parameter 
+#' @param f0 The average feeding level of individuals who feed on a power-law
+#'   spectrum. This value is used to calculate the search rate parameter
 #'   `gamma` (see the package vignette). Default value is 0.7.
 #' @param h The maximum food intake rate. Default value is 10.
 #' @param beta The preferred predator prey mass ratio. Default value is 100.
@@ -410,28 +410,28 @@ set_trait_model <- function(no_sp = 10,
 #'   is 1000.
 #' @param lambda The exponent of the resource spectrum. Default value is 2 + q - n.
 #' @param r_pp Growth rate parameter for the resource spectrum. Default value is 10.
-#' @param gamma Volumetric search rate. Estimated using `h`, `f0` and 
+#' @param gamma Volumetric search rate. Estimated using `h`, `f0` and
 #'   `kappa` if not supplied.
 #' @param recruitment The constant recruitment in the smallest size class of the
-#'   community spectrum. This should be set so that the community spectrum 
-#'   continues the resource spectrum. Default value = `kappa` * 
+#'   community spectrum. This should be set so that the community spectrum
+#'   continues the resource spectrum. Default value = `kappa` *
 #'   `min_w`^-`lambda`.
-#' @param rec_mult Additional multiplier for the constant recruitment. Default 
+#' @param rec_mult Additional multiplier for the constant recruitment. Default
 #'   value is 1.
-#' @param knife_edge_size The size at the edge of the knife-selectivity 
+#' @param knife_edge_size The size at the edge of the knife-selectivity
 #'   function. Default value is 1000.
-#' @param knife_is_min Is the knife-edge selectivity function selecting above 
+#' @param knife_is_min Is the knife-edge selectivity function selecting above
 #'   (TRUE) or below (FALSE) the edge. Default is TRUE.
-#' @param max_w The maximum size of the community. The `w_inf` of the 
-#'   species used to represent the community is set to this value. The 
+#' @param max_w The maximum size of the community. The `w_inf` of the
+#'   species used to represent the community is set to this value. The
 #'   default value is 1e6.
 #' @param min_w The minimum size of the community. Default value is 1e-3.
-#' @param min_w_pp The smallest size of the resource spectrum. 
+#' @param min_w_pp The smallest size of the resource spectrum.
 #' @param ... Other arguments to pass to the `MizerParams` constructor.
 #' @export
 #' @return An object of type \code{\linkS4class{MizerParams}}
-#' @references K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and 
-#'   individual efficiencies of size-structured communities, Proceedings of the 
+#' @references K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
+#'   individual efficiencies of size-structured communities, Proceedings of the
 #'   Royal Society, 276, 109-114
 #' @concept deprecated
 #' @examples
@@ -687,6 +687,8 @@ getReproductionLevel <- reproduction_level
 #'
 #' @inheritParams tuneSteadyState
 #' @inheritParams projectUntilSettled
+#' @param tol The simulation stops when the relative change in the egg
+#'   production RDI over t_per years is less than tol for every species.
 #' @param return_sim If TRUE, the function returns the MizerSim object holding
 #'   the result of the simulation run, saved at intervals of `t_per`. If FALSE
 #'   (default) the function returns a MizerParams object with the "initial"

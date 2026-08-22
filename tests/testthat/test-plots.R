@@ -100,7 +100,9 @@ test_that("plotly wrappers return plotly objects with correct tooltips", {
     expect_s3_class(gp, "plotly")
     expect_equal(tooltip_fields(gp), c("Species", "Year", "Yield"))
 
-    expect_s3_class(plotlyYield(sim, sim), "plotly")
+    lifecycle::expect_deprecated(
+        expect_s3_class(plotlyYield(sim, sim), "plotly")
+    )
 
     gp <- plotlyYieldGear(sim, species = species)
     expect_s3_class(gp, "plotly")
@@ -1014,7 +1016,10 @@ test_that("convert_plot_spectrum_axis agrees with the density conversion", {
 test_that("yield plotting helpers validate comparison and gear selection", {
     sim_shifted <- sim
     dimnames(sim_shifted@n)$time <- as.character(10:13)
-    expect_error(plotYield(sim, sim_shifted), "do not have the same times")
+    lifecycle::expect_deprecated(
+        expect_error(plotYield(sim, sim_shifted),
+                     "do not have the same times")
+    )
 
     y <- plotYieldGear(sim, species = species,
                        gears = dimnames(sim@params@selectivity)$gear[[1]],

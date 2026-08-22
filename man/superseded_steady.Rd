@@ -59,6 +59,9 @@ recorded for limit-cycle detection. Must be a positive multiple of \code{dt} and
 a divisor of \code{t_per}. Smaller values resolve the cycle period more finely at
 a small extra cost. Default is \code{dt}.}
 
+\item{tol}{The simulation stops when the relative change in the egg
+production RDI over t_per years is less than tol for every species.}
+
 \item{amplitude_tol}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 The minimum relative biomass amplitude for a persistent oscillation to be
 reported as a limit cycle rather than treated as an (effectively steady)

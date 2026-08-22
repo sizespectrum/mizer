@@ -79,8 +79,9 @@
 #'   typically the output of [findSteadyState()], or the list returned by
 #'   [getStability()].
 #' @param amplitude Largest relative swing in species biomass across the cycle,
-#'   \eqn{\max_i \max_t |B_i(t) - B_i^*| / B_i^*}.  Default `0.1`, meaning the
-#'   most strongly oscillating species departs 10\% from its steady biomass.
+#'   \eqn{\max_i \max_t |B_i(t) - B_i^\ast| / B_i^\ast}.  Default `0.1`, meaning the
+#'   most strongly oscillating species departs 10
+#'   % from its steady biomass.
 #' @param t_save The time interval between saved time steps in the returned
 #'   \linkS4class{MizerSim}.  Defaults to `0.1`. The final interval is shorter
 #'   when `t_save` does not divide the period, so that the cycle closes.

@@ -12,8 +12,9 @@ typically the output of \code{\link[=findSteadyState]{findSteadyState()}}, or th
 \code{\link[=getStability]{getStability()}}.}
 
 \item{amplitude}{Largest relative swing in species biomass across the cycle,
-\eqn{\max_i \max_t |B_i(t) - B_i^*| / B_i^*}.  Default \code{0.1}, meaning the
-most strongly oscillating species departs 10\\% from its steady biomass.}
+\eqn{\max_i \max_t |B_i(t) - B_i^\ast| / B_i^\ast}.  Default \code{0.1}, meaning the
+most strongly oscillating species departs 10
+\% from its steady biomass.}
 
 \item{t_save}{The time interval between saved time steps in the returned
 \linkS4class{MizerSim}.  Defaults to \code{0.1}. The final interval is shorter
