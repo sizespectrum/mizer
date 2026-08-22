@@ -11,7 +11,7 @@
 # or, within an R session,
 #
 #     Sys.setenv(MIZER_TEST_EXPERIMENTAL = "true")
-#     devtools::test(filter = "steadyState|steadyNewton|getLimitCycleSim")
+#     devtools::test(filter = "steadyState|steadyNewton|getOscillationModeSim")
 #
 # The full R CMD check workflows set the variable, so a deliberate check still
 # covers this code. Remove the gate once these functions are no longer
@@ -119,7 +119,7 @@ delayedAssign("NS_params_cod_small", suppressMessages(
 # finders themselves belong in test-steadyState.R and must of course keep
 # calling them.
 delayedAssign("NS_params_steady_small", suppressMessages(
-    tuneSteadyState(NS_params_small, tol = 1e-10, t_max = 500,
+    tuneSteadyState(NS_params_small, distance_tol = 1e-10, t_max = 500,
                     progress_bar = FALSE, info_level = 0)
 ))
 

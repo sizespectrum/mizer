@@ -30,11 +30,12 @@ default is taken from the \code{mizer_info_level} option, see
 \item{...}{Arguments for the chosen solver.
 
 With \code{solver = "project"}: \code{distance_func}, \code{t_max}, \code{t_per}, \code{dt},
-\code{t_save}, \code{tol}, \code{amplitude_tol}, \code{amp_rel_tol}, \code{extinction_threshold},
-\code{progress_bar} and \code{method}, all as described in \code{\link[=projectUntilSettled]{projectUntilSettled()}}.
+\code{t_save}, \code{distance_tol}, \code{residual_tol}, \code{amplitude_tol}, \code{amp_rel_tol},
+\code{extinction_threshold}, \code{progress_bar} and \code{method}, all as described in
+\code{\link[=projectUntilSettled]{projectUntilSettled()}}.
 
 With \code{solver = "newton"}: \code{extinction_floor} (default \code{1e-6}), the relative
-abundance below which a species counts as extinct, plus \code{residual_tol},
+abundance below which a species counts as extinct, plus \code{solver_tol},
 \code{maxit}, \code{jacobian}, \code{global} and \code{verbose} as described in
 \code{\link[=tuneSteadyState]{tuneSteadyState()}}.}
 }

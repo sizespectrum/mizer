@@ -28,15 +28,18 @@ A named list with the following components:
 \item{\code{dominant_period}}{The period (in years) of the dominant
 eigenvalue: \code{2*pi / abs(Im(lambda_1))}. \code{Inf} for a real
 dominant eigenvalue (monotone dynamics).}
-\item{\code{hopf_period}}{Period (in years) of the complex eigenvalue
-with the largest real part; \code{NULL} when no complex eigenvalue
-exists.  This is the expected limit-cycle period near a Hopf
-bifurcation.}
-\item{\code{hopf_eigenvalue}}{That eigenvalue itself, or \code{NULL} when there
-is none. Its real part is the rate at which the oscillation grows.}
-\item{\code{hopf_eigenvector}}{Its eigenvector, as a list with \verb{$fish}, a
+\item{\code{oscillation_period}}{Period (in years) of the oscillatory mode
+below, \eqn{2\pi/|\omega|}; \code{NULL} when no complex eigenvalue exists.
+It is the period at which the model rings, and only at a Hopf
+bifurcation — where the real part is zero — the period of a limit
+cycle.}
+\item{\code{leading_oscillatory_eigenvalue}}{The complex eigenvalue with the
+largest real part, or \code{NULL} when there is none. Its real part is the
+rate at which that oscillation grows, so a strongly negative one means
+the ringing is a transient, not a cycle the model settles onto.}
+\item{\code{leading_oscillatory_eigenvector}}{Its eigenvector, as a list with \verb{$fish}, a
 complex \verb{(n_species, n_sizes)} matrix, and \verb{$resource}, a complex
-vector of length \code{n_w_full}. This is the mode \code{\link[=getLimitCycleSim]{getLimitCycleSim()}}
+vector of length \code{n_w_full}. This is the mode \code{\link[=getOscillationModeSim]{getOscillationModeSim()}}
 draws, and it is not in general one of \code{leading_eigenvectors}: the
 dominant mode of the system can be real while the dominant
 \emph{oscillatory} mode is well down the spectrum.}
@@ -64,8 +67,8 @@ span the two-dimensional oscillation plane of the dominant mode.}
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Computes the eigenvalues of the linearised dynamics at the steady state
 stored in \code{params@initial_n}. These eigenvalues determine whether the steady
-state is dynamically stable and, when a Hopf bifurcation is approached, the
-period of the emergent limit cycle.
+state is dynamically stable and, where the spectrum contains a complex pair,
+the period at which the model oscillates.
 }
 \details{
 \subsection{Mathematical background}{
@@ -88,9 +91,24 @@ semi-discretised model, and are what a simulation with a small enough time
 step converges to. The stability of the numerical step itself is a separate
 question, answered by \code{\link[=getDiscreteStability]{getDiscreteStability()}}.
 
-A \strong{Hopf bifurcation} occurs when a complex-conjugate pair of eigenvalues
-crosses the imaginary axis, giving a limit-cycle period
-\deqn{T = \frac{2\pi}{|\text{Im}(\lambda)|} \text{ years.}}
+A complex-conjugate pair \eqn{\lambda = \sigma \pm i\omega} is an
+oscillatory mode: a perturbation along it rings with period
+\deqn{T = \frac{2\pi}{|\omega|} \text{ years,}}
+growing or decaying as \eqn{e^{\sigma t}}. The pair with the largest
+\eqn{\sigma} is returned as \code{leading_oscillatory_eigenvalue}, with its
+period and eigenvector.
+
+That is a statement about the mode, not about a bifurcation. A \strong{Hopf
+bifurcation} is the event of such a pair \emph{crossing} the imaginary axis, and
+a single spectrum cannot show a crossing: the leading oscillatory mode of a
+comfortably stable model can sit far to the left, ringing only as a transient
+on the way back to the fixed point. Establishing a Hopf bifurcation means
+watching \eqn{\sigma} pass through zero as a parameter is varied, which is
+what \code{\link[=scanModel]{scanModel()}} is for. Only then is \eqn{T} the period of an emerging
+limit cycle; otherwise it is the period of a damped (or growing) oscillation.
+}
+
+\subsection{What is in the Jacobian}{
 
 The resource is a state variable of the system like any other: fish and
 resource cells are perturbed independently, giving the full coupled Jacobian.
@@ -98,6 +116,15 @@ Its eigenvalues include both the slow fish modes and a cluster of fast
 resource-relaxation modes, at \eqn{\lambda \approx -(r_{pp} + \mu_R)}. Any
 resource dynamics function is supported: the semichemostat derivative is
 written down analytically, and anything else is differenced over a short step.
+
+Components registered with \code{\link[=setComponent]{setComponent()}} are \emph{not} state variables here.
+They are held at their stored values while the fish and the resource are
+perturbed, so the spectrum is that of the consumer-resource subsystem with
+the components frozen. This is exact when a component is a fixed input, and a
+good approximation when it is much faster or much slower than the fish, but
+it is not the full model, and mizer says so with a warning when it meets one.
+Giving extension components an explicit residual and Jacobian is the work
+that would lift this restriction.
 
 Reproduction is a state-dependent rate like any other: the reproduction
 function stored in \code{params@rates_funcs$RDD} is evaluated at each perturbed
@@ -155,5 +182,5 @@ do not trust it. See \href{https://sizespectrum.org/mizer/articles/discontinuous
 }
 
 \seealso{
-\code{\link[=findSteadyState]{findSteadyState()}}, \code{\link[=getDiscreteStability]{getDiscreteStability()}}, \code{\link[=getLimitCycleSim]{getLimitCycleSim()}}
+\code{\link[=findSteadyState]{findSteadyState()}}, \code{\link[=getDiscreteStability]{getDiscreteStability()}}, \code{\link[=getOscillationModeSim]{getOscillationModeSim()}}
 }

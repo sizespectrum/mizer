@@ -99,7 +99,8 @@ test_that("scanModel() returns a MizerScan laid out as documented", {
     expect_s3_class(scan, "data.frame")
     expect_identical(names(scan),
                      c("Fishing effort", "Biomass", "Species", "ymin", "ymax",
-                       "type", "settled", "period", "residual"))
+                       "termination", "converged", "attractor", "period",
+                       "residual"))
     expect_identical(nrow(scan), 9L)
     # The metadata is lifted off what the value function returned.
     expect_identical(attr(scan, "value_name"), "Biomass")
@@ -116,7 +117,7 @@ test_that("a fixed point is not sampled at all", {
         scanModel(NS_params_steady_small, scan_values = c(0.4, 0.5),
                   set_func = scanEffort("Otter"), value_func = getYield,
                   progress_bar = FALSE)))
-    fixed <- scan$type == "below_tolerance"
+    fixed <- scan$attractor == "fixed_point"
     expect_true(any(fixed))
     # Identical, not merely equal: the value is read off a single snapshot.
     expect_identical(scan[[2]][fixed], scan$ymin[fixed])
@@ -254,14 +255,14 @@ test_that("a limit cycle is averaged over exactly one period", {
     p_cycle <- suppressMessages(
         projectToSteady(NS_params, effort = 2, t_max = 200, t_per = 1.5,
                         dt = 0.1, tol = 1e-8, info_level = 0))
-    expect_identical(attr(p_cycle, "convergence")$type, "cycle")
+    expect_identical(attr(p_cycle, "convergence")$attractor, "limit_cycle")
 
     scan <- suppressMessages(suppressWarnings(
         scanModel(p_cycle, scan_values = 1,
                   set_func = scanFishingMortality("Herring"),
                   value_func = getYield, species = "Herring",
                   progress_bar = FALSE)))
-    expect_identical(scan$type, "cycle")
+    expect_identical(scan$attractor, "limit_cycle")
     expect_gt(scan$period, 0)
     # The yield oscillates, so the average lies strictly inside the range.
     expect_lt(scan$ymin, scan[[2]])

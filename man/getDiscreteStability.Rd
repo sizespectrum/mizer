@@ -67,13 +67,11 @@ continuous-time eigenvalues by any exact algebraic relation. That conversion
 is what \code{\link[=getStability]{getStability()}} avoids by differentiating the rates of change
 themselves.
 
-The resource is stepped with backward Euler,
-\deqn{n_{pp}^{t+1} = \frac{n_{pp}^t + dt\,r_{pp}c_{pp}}%
-                          {1 + dt\,(r_{pp} + \mu_R^t)},}
-rather than with the exact semichemostat solution that
-\code{\link[=resource_semichemostat]{resource_semichemostat()}} uses in \code{project()}. The two agree to first order
-in \code{dt} for the slow modes that decide stability, while backward Euler keeps
-the fast resource modes away from a discrete eigenvalue of exactly zero.
+The resource is advanced by the model's own \code{resource_dynamics} function, the
+one \code{\link[=project]{project()}} calls. Nothing is substituted for it: the map that is
+differentiated here reproduces a single \code{project(method = "euler")} step
+exactly, which is what makes the spectral radius a statement about mizer's
+solver rather than about a nearby scheme.
 }
 }
 \section{Requires smooth dynamics}{

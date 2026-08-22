@@ -311,10 +311,13 @@ test_that("mizer does not use the superseded accessor names", {
 test_that("steady() is tuneSteadyState() under the old name", {
   params <- NS_params_small
   initialN(params)[1, ] <- initialN(params)[1, ] * 2
-  args <- list(t_per = 1, t_max = 3, dt = 0.5, tol = 1e-3,
+  # The wrapper keeps the argument name it shipped with; the new function uses
+  # the name that says which of the two tolerances it is.
+  args <- list(t_per = 1, t_max = 3, dt = 0.5,
                progress_bar = FALSE, info_level = 0)
-  old <- suppressMessages(do.call(steady, c(list(params), args)))
-  new <- suppressMessages(do.call(tuneSteadyState, c(list(params), args)))
+  old <- suppressMessages(do.call(steady, c(list(params), args, tol = 1e-3)))
+  new <- suppressMessages(do.call(tuneSteadyState,
+                                  c(list(params), args, distance_tol = 1e-3)))
   # Never identical(): the freeze mechanism writes a comment attribute onto
   # arrays that have been through a setter.
   expect_equal(unclass(old@initial_n), unclass(new@initial_n))
@@ -328,10 +331,12 @@ test_that("steady() is tuneSteadyState() under the old name", {
 test_that("projectToSteady() is findSteadyState() under the old name", {
   params <- NS_params_small
   initialN(params)[1, ] <- initialN(params)[1, ] * 2
-  args <- list(t_per = 1, t_max = 3, dt = 0.5, tol = 1e-3,
+  args <- list(t_per = 1, t_max = 3, dt = 0.5,
                progress_bar = FALSE, info_level = 0)
-  old <- suppressMessages(do.call(projectToSteady, c(list(params), args)))
-  new <- suppressMessages(do.call(findSteadyState, c(list(params), args)))
+  old <- suppressMessages(do.call(projectToSteady,
+                                  c(list(params), args, tol = 1e-3)))
+  new <- suppressMessages(do.call(findSteadyState,
+                                  c(list(params), args, distance_tol = 1e-3)))
   expect_equal(unclass(old@initial_n), unclass(new@initial_n))
   expect_equal(unclass(old@initial_n_pp), unclass(new@initial_n_pp))
   expect_equal(attr(old, "convergence"), attr(new, "convergence"))
@@ -341,6 +346,8 @@ test_that("the superseded finders keep their return_sim argument", {
   params <- NS_params_small
   args <- list(t_per = 1, t_max = 1, dt = 0.5, tol = 1e3,
                progress_bar = FALSE, info_level = 0)
+  # `t_max = t_per` stops the run after a single block whatever the tolerances
+  # make of the state it reaches.
   # return_sim = TRUE is the only thing the new functions cannot do, which is
   # why the wrappers are not plain aliases.
   sim1 <- suppressMessages(do.call(steady,
@@ -355,8 +362,10 @@ test_that("the superseded finders keep their return_sim argument", {
   p2 <- suppressMessages(do.call(projectToSteady, c(list(params), args)))
   expect_s4_class(p1, "MizerParams")
   expect_s4_class(p2, "MizerParams")
-  expect_identical(attr(sim1, "convergence")$type, attr(p1, "convergence")$type)
-  expect_identical(attr(sim2, "convergence")$type, attr(p2, "convergence")$type)
+  expect_identical(attr(sim1, "convergence")$termination,
+                   attr(p1, "convergence")$termination)
+  expect_identical(attr(sim2, "convergence")$termination,
+                   attr(p2, "convergence")$termination)
 })
 
 test_that("the superseded finders do not warn", {

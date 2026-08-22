@@ -71,7 +71,7 @@
 #' @param extinction_floor The relative abundance floor below which a species is
 #'   considered extinct. Only used when `rdd_const` is `NULL`.
 #' @param verbose Whether to trace the solver iterations to the console.
-#' @param residual_tol Tolerance on the residual, passed to
+#' @param solver_tol Tolerance on the residual, passed to
 #'   [nleqslv::nleqslv()] as both `ftol` and `xtol`.
 #' @param maxit Maximum number of iterations for [nleqslv::nleqslv()].
 #' @param jacobian Either `"update"` (the Jacobian is computed once and then
@@ -85,7 +85,7 @@ newton_steady_state <- function(params, effort, rdd_const,
                                 resource = c("solve", "fixed"),
                                 extinction_floor = 1e-6,
                                 verbose = FALSE,
-                                residual_tol = 1e-6, maxit = 200,
+                                solver_tol = 1e-6, maxit = 200,
                                 jacobian = c("update", "recompute"),
                                 global = "dbldog") {
     resource <- match.arg(resource)
@@ -109,6 +109,12 @@ newton_steady_state <- function(params, effort, rdd_const,
     n_other <- params@initial_n_other
 
     active <- steady_active_set(params, resource = resource)
+    if (active$n_fish_active == 0) {
+        stop("There is no fish density to solve for: every species is absent ",
+             "from `initialN(params)`. The Newton solver holds an absent ",
+             "species at zero, so there is nothing left to determine.",
+             call. = FALSE)
+    }
 
     # Save initial state for relative floor checks
     N0_initial <- params@initial_n
@@ -131,7 +137,7 @@ newton_steady_state <- function(params, effort, rdd_const,
         x0 <- c(x0, log(x0_n_pp))
     }
 
-    control <- list(maxit = maxit, ftol = residual_tol, xtol = residual_tol,
+    control <- list(maxit = maxit, ftol = solver_tol, xtol = solver_tol,
                     trace = if (isTRUE(verbose)) 1 else 0)
 
     sol <- nleqslv::nleqslv(x0, residual_fn, method = nleqslv_method,
@@ -171,7 +177,7 @@ newton_steady_state <- function(params, effort, rdd_const,
         n_pp <- resource_steady_semichemostat(params, N, n_other)
     }
 
-    list(n = N, n_pp = n_pp, extinct = is_extinct,
+    list(n = N, n_pp = n_pp, extinct = is_extinct, absent = active$absent,
          termcd = sol$termcd, message = sol$message)
 }
 
@@ -179,30 +185,34 @@ newton_steady_state <- function(params, effort, rdd_const,
 #'
 #' Builds the logical mask of the (species x size) density matrix that the
 #' direct solver treats as unknowns. For each species the unknowns run from the
-#' egg size `w_min_idx` up to the highest class that actually carries density in
-#' the current `initial_n`, capped at the grid truncation `support_top_idx()`.
+#' egg size `w_min_idx` up to the grid truncation `support_top_idx()`, which is
+#' the whole of the size range the dynamics can put density into.
 #'
-#' The support is read off the abundances rather than from `w_max` on purpose.
-#' Users routinely set `w_max` far larger than necessary (so the grid need not
-#' change when a parameter change produces larger fish), which would otherwise
-#' put a whole band of structurally-zero classes — `log(0)` unknowns that make
-#' the Jacobian singular — into the system. The growth rate alone cannot locate
-#' the top either: the main reason fish grow beyond `w_repro_max` is diffusion,
-#' and the diffusion rate only grows with `w`, never vanishing. The abundance is
-#' therefore the only reliable indicator of where the (possibly diffusion-fed)
-#' tail has died away. The distinction is clean: without diffusion the classes
-#' above where growth stops receive no inflow and are *exactly* zero, while with
-#' diffusion the tail is genuinely non-zero up to where it decays away (or to the
-#' grid truncation).
+#' The top is the truncation rather than the highest class that currently
+#' carries density, because the tail of the solution need not lie under the tail
+#' of the starting guess. The growth rate cannot locate the top either: the main
+#' reason fish grow beyond `w_repro_max` is diffusion, and the diffusion rate
+#' only grows with `w`, never vanishing. Above the truncation the dynamics hold
+#' the density at exactly zero, so those classes can never be unknowns; that is
+#' what keeps the band of `log(0)` unknowns that would make the Jacobian
+#' singular out of the system.
 #'
 #' Isolated interior zeros (negativity-floor artefacts of the second-order
 #' schemes) below the top are kept in the mask and repaired by
-#' `positive_initial_guess()`; only a trailing run of zeros is dropped.
+#' `positive_initial_guess()`.
+#'
+#' A species whose row is zero throughout is left out of the mask altogether. It
+#' has no density anywhere, so there is nothing to interpolate a starting guess
+#' from and `log()` of its row would put `-Inf` into the starting vector. Zero is
+#' in any case a steady state of its own equation, so the species is simply held
+#' there; recolonisation is not something this solver can discover.
 #'
 #' @param params A \linkS4class{MizerParams} object.
-#' @return A list with the logical matrix `mask` and a function `unpack(x)` that
-#'   maps a vector of log-densities (in `mask` order) to the full density
-#'   matrix.
+#' @param resource `"solve"` to make the resource densities unknowns of the
+#'   system, `"fixed"` to leave them out of it.
+#' @return A list with the logical matrix `mask`, the logical vector `absent`
+#'   naming the species that were left out, and a function `unpack(x)` that maps
+#'   a vector of log-densities (in `mask` order) to the full density matrix.
 #' @noRd
 steady_active_set <- function(params, resource = c("solve", "fixed")) {
     resource <- match.arg(resource)
@@ -214,11 +224,19 @@ steady_active_set <- function(params, resource = c("solve", "fixed")) {
     grid_top <- support_top_idx(params)
     n <- params@initial_n
     w_top <- integer(no_sp)
+    absent <- rep(FALSE, no_sp)
+    names(absent) <- rownames(n)
     mask <- matrix(FALSE, nrow = no_sp, ncol = no_w)
     for (i in seq_len(no_sp)) {
         lo <- params@w_min_idx[i]
         # Always solve up to the grid truncation limit
         w_top[i] <- grid_top[i]
+        # A species that is absent to begin with stays absent: it contributes no
+        # unknowns, and its row of the solution is left at zero.
+        if (all(n[i, ] <= 0)) {
+            absent[i] <- TRUE
+            next
+        }
         mask[i, lo:w_top[i]] <- TRUE
     }
     
@@ -241,7 +259,7 @@ steady_active_set <- function(params, resource = c("solve", "fixed")) {
         }
         list(N = N, n_pp = n_pp)
     }
-    list(mask = mask, w_top = w_top, mask_pp = mask_pp,
+    list(mask = mask, w_top = w_top, mask_pp = mask_pp, absent = absent,
          n_fish_active = n_fish_active, unpack = unpack)
 }
 
@@ -562,6 +580,17 @@ stability_context <- function(params,
         "`findSteadyState()`",
         "first."))
 
+    # The Jacobian below has a row for every fish cell and every resource cell,
+    # and none for any other component: they enter as fixed inputs. A component
+    # that responds to the fish on a comparable timescale is then missing from
+    # the spectrum, which can change the verdict.
+    warn_other_components_fixed(params, paste(
+        "The eigenvalues therefore describe the consumer-resource subsystem",
+        "with", if (length(params@other_dynamics) > 1) "them" else "it",
+        "frozen, which is the whole story only if the component responds to",
+        "the fish much faster or much more slowly than the fish respond to",
+        "each other."))
+
     n_other      <- params@initial_n_other
     active       <- steady_active_set(params)
     active_idx   <- which(active$mask)
@@ -751,14 +780,17 @@ stability_rhs <- function(ctx, dt_resource = 1e-4) {
 #'
 #' Returns the function that [getDiscreteStability()] differentiates: one step
 #' of length `dt` of the dynamics as [project()] takes it with
-#' `method = "euler"`, using the same `project_n_loop()` C++ Thomas solver and
-#' the same transport coefficients.
+#' `method = "euler"`, using the same `project_n_loop()` C++ Thomas solver, the
+#' same transport coefficients and the model's own `resource_dynamics`.
 #'
-#' The resource is stepped with backward Euler rather than with the exact
-#' semichemostat solution that [resource_semichemostat()] uses, so that the fast
-#' resource modes cannot land on a discrete eigenvalue of exactly zero. The two
-#' agree to first order in `dt` for the slow modes that decide stability, and
-#' both damp the fast modes out within a step.
+#' It has to be that map and not one that merely agrees with it to first order
+#' in `dt`, because the whole purpose of the function is to say what mizer's
+#' solver does at a particular `dt`. An earlier version stepped the resource
+#' with backward Euler so that the fast resource modes could not land on a
+#' discrete eigenvalue of exactly zero. There is nothing wrong with such an
+#' eigenvalue: it is the correct statement that the mode relaxes inside a single
+#' step, and it can never be the largest in modulus, so it never touches the
+#' spectral radius.
 #'
 #' @param ctx The context from `stability_context()`.
 #' @param dt The step length.
@@ -768,8 +800,7 @@ stability_step <- function(ctx, dt) {
     params  <- ctx$params
     w_top   <- support_top_idx(params)
     targets <- c("EGrowth", "Mort", "Diffusion", "ResourceMort")
-    semichemostat <- params@resource_dynamics == "resource_semichemostat"
-    resource_dyn  <- if (semichemostat) NULL else get(params@resource_dynamics)
+    resource_dyn <- get(params@resource_dynamics)
 
     function(x) {
         st <- ctx$unpack(x)
@@ -786,17 +817,11 @@ stability_step <- function(ctx, dt) {
                                      flux_limiter = ctx$flux_limiter)
         N_out <- project_n_loop(st$N, coefs$a, coefs$b, coefs$c, coefs$S,
                                 params@w_min_idx)
-        if (semichemostat) {
-            mur <- params@rr_pp + r$resource_mort
-            npp_out <- (st$n_pp + dt * params@rr_pp * params@cc_pp) /
-                (1 + dt * mur)
-        } else {
-            npp_out <- resource_dyn(params, n = st$N, n_pp = st$n_pp,
-                                    n_other = ctx$n_other, rates = r,
-                                    t = 0, dt = dt,
-                                    resource_rate = params@rr_pp,
-                                    resource_capacity = params@cc_pp)
-        }
+        npp_out <- resource_dyn(params, n = st$N, n_pp = st$n_pp,
+                                n_other = ctx$n_other, rates = r,
+                                t = 0, dt = dt,
+                                resource_rate = params@rr_pp,
+                                resource_capacity = params@cc_pp)
         c(zero_above_support(N_out, w_top)[ctx$active$mask],
           as.numeric(npp_out))
     }
@@ -864,8 +889,8 @@ single_eigenvector <- function(ev) {
 #' `r lifecycle::badge("experimental")`
 #' Computes the eigenvalues of the linearised dynamics at the steady state
 #' stored in `params@initial_n`. These eigenvalues determine whether the steady
-#' state is dynamically stable and, when a Hopf bifurcation is approached, the
-#' period of the emergent limit cycle.
+#' state is dynamically stable and, where the spectrum contains a complex pair,
+#' the period at which the model oscillates.
 #'
 #' ## Mathematical background
 #'
@@ -887,9 +912,23 @@ single_eigenvector <- function(ev) {
 #' step converges to. The stability of the numerical step itself is a separate
 #' question, answered by [getDiscreteStability()].
 #'
-#' A **Hopf bifurcation** occurs when a complex-conjugate pair of eigenvalues
-#' crosses the imaginary axis, giving a limit-cycle period
-#' \deqn{T = \frac{2\pi}{|\text{Im}(\lambda)|} \text{ years.}}
+#' A complex-conjugate pair \eqn{\lambda = \sigma \pm i\omega} is an
+#' oscillatory mode: a perturbation along it rings with period
+#' \deqn{T = \frac{2\pi}{|\omega|} \text{ years,}}
+#' growing or decaying as \eqn{e^{\sigma t}}. The pair with the largest
+#' \eqn{\sigma} is returned as `leading_oscillatory_eigenvalue`, with its
+#' period and eigenvector.
+#'
+#' That is a statement about the mode, not about a bifurcation. A **Hopf
+#' bifurcation** is the event of such a pair *crossing* the imaginary axis, and
+#' a single spectrum cannot show a crossing: the leading oscillatory mode of a
+#' comfortably stable model can sit far to the left, ringing only as a transient
+#' on the way back to the fixed point. Establishing a Hopf bifurcation means
+#' watching \eqn{\sigma} pass through zero as a parameter is varied, which is
+#' what [scanModel()] is for. Only then is \eqn{T} the period of an emerging
+#' limit cycle; otherwise it is the period of a damped (or growing) oscillation.
+#'
+#' ## What is in the Jacobian
 #'
 #' The resource is a state variable of the system like any other: fish and
 #' resource cells are perturbed independently, giving the full coupled Jacobian.
@@ -897,6 +936,15 @@ single_eigenvector <- function(ev) {
 #' resource-relaxation modes, at \eqn{\lambda \approx -(r_{pp} + \mu_R)}. Any
 #' resource dynamics function is supported: the semichemostat derivative is
 #' written down analytically, and anything else is differenced over a short step.
+#'
+#' Components registered with [setComponent()] are *not* state variables here.
+#' They are held at their stored values while the fish and the resource are
+#' perturbed, so the spectrum is that of the consumer-resource subsystem with
+#' the components frozen. This is exact when a component is a fixed input, and a
+#' good approximation when it is much faster or much slower than the fish, but
+#' it is not the full model, and mizer says so with a warning when it meets one.
+#' Giving extension components an explicit residual and Jacobian is the work
+#' that would lift this restriction.
 #'
 #' Reproduction is a state-dependent rate like any other: the reproduction
 #' function stored in `params@rates_funcs$RDD` is evaluated at each perturbed
@@ -952,15 +1000,18 @@ single_eigenvector <- function(ev) {
 #'     \item{`dominant_period`}{The period (in years) of the dominant
 #'       eigenvalue: `2*pi / abs(Im(lambda_1))`. `Inf` for a real
 #'       dominant eigenvalue (monotone dynamics).}
-#'     \item{`hopf_period`}{Period (in years) of the complex eigenvalue
-#'       with the largest real part; `NULL` when no complex eigenvalue
-#'       exists.  This is the expected limit-cycle period near a Hopf
-#'       bifurcation.}
-#'     \item{`hopf_eigenvalue`}{That eigenvalue itself, or `NULL` when there
-#'       is none. Its real part is the rate at which the oscillation grows.}
-#'     \item{`hopf_eigenvector`}{Its eigenvector, as a list with `$fish`, a
+#'     \item{`oscillation_period`}{Period (in years) of the oscillatory mode
+#'       below, \eqn{2\pi/|\omega|}; `NULL` when no complex eigenvalue exists.
+#'       It is the period at which the model rings, and only at a Hopf
+#'       bifurcation — where the real part is zero — the period of a limit
+#'       cycle.}
+#'     \item{`leading_oscillatory_eigenvalue`}{The complex eigenvalue with the
+#'       largest real part, or `NULL` when there is none. Its real part is the
+#'       rate at which that oscillation grows, so a strongly negative one means
+#'       the ringing is a transient, not a cycle the model settles onto.}
+#'     \item{`leading_oscillatory_eigenvector`}{Its eigenvector, as a list with `$fish`, a
 #'       complex `(n_species, n_sizes)` matrix, and `$resource`, a complex
-#'       vector of length `n_w_full`. This is the mode [getLimitCycleSim()]
+#'       vector of length `n_w_full`. This is the mode [getOscillationModeSim()]
 #'       draws, and it is not in general one of `leading_eigenvectors`: the
 #'       dominant mode of the system can be real while the dominant
 #'       *oscillatory* mode is well down the spectrum.}
@@ -998,11 +1049,12 @@ single_eigenvector <- function(ev) {
 #' do not trust it. See [Discontinuous rate
 #' functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.html).
 #'
-#' @seealso [findSteadyState()], [getDiscreteStability()], [getLimitCycleSim()]
+#' @seealso [findSteadyState()], [getDiscreteStability()], [getOscillationModeSim()]
 #' @export
 getStability <- function(params,
                          effort = params@initial_effort,
                          h = 1e-4) {
+    assert_that(is.number(h), is.finite(h), h > 0)
     ctx <- stability_context(params,
                              effort = effort,
                              fn_name = "getStability",
@@ -1022,19 +1074,23 @@ getStability <- function(params,
     is_complex <- abs(Im(evals)) > 1e-8
     if (any(is_complex)) {
         # The complex eigenvalue closest to (or furthest across) the imaginary
-        # axis is the one whose oscillation the dynamics show. Its eigenvector
-        # is returned alongside it: it need not be among the leading two, and
-        # picking it out of `leading_eigenvectors` by index would silently
-        # return the shape of a different mode whenever it is not.
-        hopf_idx <- which(is_complex)[which.max(Re(evals[is_complex]))]
-        hopf_eigenvalue  <- evals[hopf_idx]
-        hopf_period      <- 2 * pi / abs(Im(hopf_eigenvalue))
-        hopf_eigenvector <- single_eigenvector(
-            stability_eigenvectors(evecs, ctx, cols = hopf_idx))
+        # axis is the one whose oscillation the dynamics show. It is named after
+        # what it is — the leading oscillatory mode — and not after a Hopf
+        # bifurcation: whether it is anywhere near crossing the axis is a
+        # question about its real part, which this function reports rather than
+        # presumes. Its eigenvector is returned alongside it: it need not be
+        # among the leading two, and picking it out of `leading_eigenvectors` by
+        # index would silently return the shape of a different mode whenever it
+        # is not.
+        osc_idx <- which(is_complex)[which.max(Re(evals[is_complex]))]
+        leading_oscillatory_eigenvalue  <- evals[osc_idx]
+        oscillation_period      <- 2 * pi / abs(Im(leading_oscillatory_eigenvalue))
+        leading_oscillatory_eigenvector <- single_eigenvector(
+            stability_eigenvectors(evecs, ctx, cols = osc_idx))
     } else {
-        hopf_eigenvalue  <- NULL
-        hopf_period      <- NULL
-        hopf_eigenvector <- NULL
+        leading_oscillatory_eigenvalue  <- NULL
+        oscillation_period      <- NULL
+        leading_oscillatory_eigenvector <- NULL
     }
 
     list(
@@ -1042,9 +1098,9 @@ getStability <- function(params,
         max_real_part        = max_real_part,
         stable               = max_real_part < 0,
         dominant_period      = dominant_period,
-        hopf_period          = hopf_period,
-        hopf_eigenvalue      = hopf_eigenvalue,
-        hopf_eigenvector     = hopf_eigenvector,
+        oscillation_period          = oscillation_period,
+        leading_oscillatory_eigenvalue      = leading_oscillatory_eigenvalue,
+        leading_oscillatory_eigenvector     = leading_oscillatory_eigenvector,
         n_active             = length(ctx$x0),
         leading_eigenvectors = stability_eigenvectors(evecs, ctx),
         params               = ctx$params
@@ -1084,13 +1140,11 @@ getStability <- function(params,
 #' is what [getStability()] avoids by differentiating the rates of change
 #' themselves.
 #'
-#' The resource is stepped with backward Euler,
-#' \deqn{n_{pp}^{t+1} = \frac{n_{pp}^t + dt\,r_{pp}c_{pp}}%
-#'                           {1 + dt\,(r_{pp} + \mu_R^t)},}
-#' rather than with the exact semichemostat solution that
-#' [resource_semichemostat()] uses in `project()`. The two agree to first order
-#' in `dt` for the slow modes that decide stability, while backward Euler keeps
-#' the fast resource modes away from a discrete eigenvalue of exactly zero.
+#' The resource is advanced by the model's own `resource_dynamics` function, the
+#' one [project()] calls. Nothing is substituted for it: the map that is
+#' differentiated here reproduces a single `project(method = "euler")` step
+#' exactly, which is what makes the spectral radius a statement about mizer's
+#' solver rather than about a nearby scheme.
 #'
 #' @inheritParams getStability
 #' @param dt The time step size of the one-step map. Default `1`.
@@ -1115,7 +1169,8 @@ getDiscreteStability <- function(params,
                                  effort = params@initial_effort,
                                  h = 1e-4,
                                  dt = 1) {
-    assert_that(is.number(dt), dt > 0)
+    assert_that(is.number(h), is.finite(h), h > 0,
+                is.number(dt), is.finite(dt), dt > 0)
     ctx <- stability_context(params,
                              effort = effort,
                              fn_name = "getDiscreteStability",

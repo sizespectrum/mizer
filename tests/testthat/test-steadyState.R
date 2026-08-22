@@ -34,7 +34,7 @@ test_that("tuneSteadyState works", {
     params <- tss_params
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)
-    p <- tuneSteadyState(params, t_per = 1, t_max = 1, dt = 1, tol = 10) |>
+    p <- tuneSteadyState(params, t_per = 1, t_max = 1, dt = 1, distance_tol = 10) |>
         suppressMessages()
     expect_s4_class(p, "MizerParams")
     expect_snapshot_value(getRDD(p), style = "deparse")
@@ -45,7 +45,7 @@ test_that("tuneSteadyState accepts consumer update method", {
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)
 
-    p <- tuneSteadyState(params, t_per = 1, t_max = 1, dt = 1, tol = 10,
+    p <- tuneSteadyState(params, t_per = 1, t_max = 1, dt = 1, distance_tol = 10,
                          method = "predictor_corrector") |>
         suppressMessages()
 
@@ -66,17 +66,17 @@ test_that("tuneSteadyState() preserves parameters", {
     params_rmax <- params
     species_params(params_rmax)$R_max <- 1.01 * species_params(params_rmax)$R_max
     p_erepro <- tuneSteadyState(params_rmax, t_per = 1, t_max = 1, dt = 1,
-                                tol = 10, preserve = "erepro") |>
+                                distance_tol = 10, preserve = "erepro") |>
         suppressMessages()
     expect_equal(p_erepro@species_params$erepro, params_rmax@species_params$erepro)
-    p_rl <- tuneSteadyState(params_rmax, t_per = 1, t_max = 1, dt = 1, tol = 10,
+    p_rl <- tuneSteadyState(params_rmax, t_per = 1, t_max = 1, dt = 1, distance_tol = 10,
                             preserve = "reproduction_level") |> suppressMessages()
     expect_equal(reproduction_level(p_rl), reproduction_level(params_rmax))
 
     params_erepro <- params
     species_params(params_erepro)$erepro <- 1.01 * species_params(params_erepro)$erepro
     p_rmax <- tuneSteadyState(params_erepro, t_per = 1, t_max = 1, dt = 1,
-                              tol = 10, preserve = "R_max") |> suppressMessages()
+                              distance_tol = 10, preserve = "R_max") |> suppressMessages()
     expect_equal(p_rmax@species_params$R_max, params_erepro@species_params$R_max)
     expect_false(identical(p_rmax@time_modified, params_erepro@time_modified))
 })
@@ -125,10 +125,11 @@ test_that("tuneSteadyState() attaches a 'convergence' attribute", {
         tuneSteadyState(tss_params, progress_bar = FALSE)))
     conv <- attr(p, "convergence")
     expect_type(conv, "list")
-    expect_named(conv, c("type", "settled", "distance", "residual", "years",
-                         "period", "amplitude"))
-    expect_identical(conv$type, "below_tolerance")
-    expect_true(conv$settled)
+    expect_named(conv, c("termination", "converged", "attractor", "distance",
+                         "residual", "years", "period", "amplitude"))
+    expect_identical(conv$termination, "residual_tolerance")
+    expect_true(conv$converged)
+    expect_identical(conv$attractor, "fixed_point")
     expect_true(is.na(conv$period))
     expect_true(is.na(conv$amplitude))
     # The residual measures how far the state actually is from a fixed point,
@@ -144,14 +145,19 @@ test_that("findSteadyState() returns a MizerParams at the settled state", {
     params <- tss_params
     initialN(params)[1, ] <- initialN(params)[1, ] * 3
     effort <- params@initial_effort * 1.1
-    expect_message(p <- findSteadyState(params, t_per = 1, dt = 1, tol = 1000,
-                                        effort = effort),
+    # A single crude block, stopped by an absurdly loose distance tolerance;
+    # the drift criterion is switched off rather than pretended to be met.
+    expect_message(p <- findSteadyState(params, t_per = 1, dt = 1,
+                                        distance_tol = 1000,
+                                        residual_tol = Inf, effort = effort),
                    "Reached the convergence tolerance")
     expect_s4_class(p, "MizerParams")
     expect_identical(p@initial_effort, effort)
     # It is exactly projectUntilSettled() with the trajectory thrown away.
     sim <- suppressMessages(projectUntilSettled(params, t_per = 1, dt = 1,
-                                                tol = 1000, effort = effort))
+                                                distance_tol = 1000,
+                                                residual_tol = Inf,
+                                                effort = effort))
     expect_equal(p@initial_n, finalN(sim), ignore_attr = TRUE)
     expect_equal(attr(p, "convergence"), attr(sim, "convergence"))
 })
@@ -159,13 +165,13 @@ test_that("findSteadyState() returns a MizerParams at the settled state", {
 test_that("findSteadyState() accepts the documented effort forms", {
     params <- NS_params_small
     p1 <- findSteadyState(params, effort = 0.5, t_per = 0.1,
-                          t_max = 0.1, tol = 10, info_level = 0)
+                          t_max = 0.1, distance_tol = 10, info_level = 0)
     expect_equal(unname(p1@initial_effort), rep(0.5, length(initial_effort(params))))
 
     named <- initial_effort(params)[1:2]
     named[] <- c(0.2, NA)
     p2 <- findSteadyState(params, effort = named, t_per = 0.1,
-                          t_max = 0.1, tol = 10, info_level = 0)
+                          t_max = 0.1, distance_tol = 10, info_level = 0)
     expected <- validEffortVector(named, params)
     expect_equal(p2@initial_effort, expected)
 })
@@ -175,22 +181,31 @@ test_that("findSteadyState() reports non-convergence", {
     initialN(p)[1, ] <- initialN(p)[1, ] * 3
     p <- suppressMessages(
         findSteadyState(p, t_max = 0.5, t_per = 0.5, dt = 0.1,
-                        tol = 1e-12, info_level = 0)
+                        distance_tol = 1e-12, info_level = 0)
     )
     conv <- attr(p, "convergence")
-    expect_identical(conv$type, "not_converged")
-    expect_false(conv$settled)
+    expect_identical(conv$termination, "time_limit")
+    expect_false(conv$converged)
+    # Half a year from a state knocked well off its steady state: not a fixed
+    # point by any measure, so no attractor is claimed.
+    expect_true(is.na(conv$attractor))
 })
 
 test_that("findSteadyState() changes no parameter", {
     p <- tss_params
     initialN(p)[1, ] <- initialN(p)[1, ] * 3
-    out <- suppressMessages(findSteadyState(p, t_per = 1, dt = 1, tol = 1000))
+    # One block and no drift criterion: what is under test is which parameters
+    # the two functions touch, not where either of them ends up.
+    out <- suppressMessages(findSteadyState(p, t_per = 1, dt = 1, t_max = 1,
+                                            distance_tol = 1000,
+                                            residual_tol = Inf))
     expect_equal(out@species_params$erepro, p@species_params$erepro)
     expect_equal(out@species_params$R_max, p@species_params$R_max)
     expect_equal(unclass(out@cc_pp), unclass(p@cc_pp))
     # ... whereas tuneSteadyState() adjusts exactly those.
-    tuned <- suppressMessages(tuneSteadyState(p, t_per = 1, dt = 1, tol = 1000))
+    tuned <- suppressMessages(tuneSteadyState(p, t_per = 1, dt = 1, t_max = 1,
+                                              distance_tol = 1000,
+                                              residual_tol = Inf))
     expect_false(isTRUE(all.equal(unclass(tuned@cc_pp), unclass(p@cc_pp))))
 })
 
@@ -271,10 +286,12 @@ test_that("the Newton solvers attach a well-formed 'convergence' attribute", {
     for (p in list(tuneSteadyState(p_steady, solver = "newton"),
                    findSteadyState(p_steady, solver = "newton"))) {
         conv <- attr(p, "convergence")
-        expect_named(conv, c("type", "settled", "distance", "residual",
-                             "years", "period", "amplitude"))
-        expect_identical(conv$type, "below_tolerance")
-        expect_true(conv$settled)
+        expect_named(conv, c("termination", "converged", "attractor",
+                             "distance", "residual", "years", "period",
+                             "amplitude"))
+        expect_identical(conv$termination, "solver_converged")
+        expect_true(conv$converged)
+        expect_identical(conv$attractor, "fixed_point")
         expect_true(is.finite(conv$residual))
         expect_true(is.na(conv$distance))
         expect_true(is.na(conv$years))
@@ -307,8 +324,14 @@ test_that("findSteadyState(solver = 'newton') handles extinctions", {
     lo <- p_extinct@w_min_idx[3]
     expect_equal(pn_ext@initial_n[3, lo], 0)
     conv <- attr(pn_ext, "convergence")
-    expect_identical(conv$type, "extinction")
-    expect_false(conv$settled)
+    expect_identical(conv$termination, "extinction")
+    # `attractor` is not forced to NA here: the state left behind, with that
+    # species at zero, may well be a perfectly good fixed point of what remains,
+    # and it says so only if the measured drift agrees. `termination` is what
+    # says that a species was lost on the way.
+    expect_true(is.na(conv$attractor) ||
+                identical(conv$attractor, "fixed_point"))
+    expect_true(is.finite(conv$residual))
 })
 
 test_that("only the resource-solving Newton branch needs a semichemostat", {
@@ -388,4 +411,66 @@ test_that("an unknown solver is rejected", {
                  "should be one of")
     expect_error(findSteadyState(tss_params, solver = "bogus"),
                  "should be one of")
+})
+
+# What the analysis actually covers ------------------------------------------
+
+test_that("tuneSteadyState() says when it has held a component fixed", {
+    assign("mizer_test_growing_component", function(params, n_other, component,
+                                                    dt, ...) {
+        n_other[[component]] * (1 + dt)
+    }, envir = .GlobalEnv)
+    withr::defer(rm("mizer_test_growing_component", envir = .GlobalEnv))
+
+    p <- setComponent(NS_params_small, "grower", initial_value = 1,
+                      dynamics_fun = "mizer_test_growing_component")
+
+    # The search holds it fixed and never rebalances it, so the model that comes
+    # back is at a fixed point of the fish and the resource only. That has to be
+    # said, not assumed — but it is not a refusal: extension models are built
+    # this way and still need to be tuned.
+    expect_warning(
+        p_tuned <- suppressMessages(
+            tuneSteadyState(p, t_per = 1, t_max = 1, dt = 1,
+                            distance_tol = 10, progress_bar = FALSE)),
+        "has dynamics of their own|has\n?\\s*dynamics"
+    )
+    expect_s4_class(p_tuned, "MizerParams")
+
+    # And the residual it reports does cover the component, so the number the
+    # warning points at is one that would notice.
+    conv <- attr(p_tuned, "convergence")
+    expect_true(is.finite(conv$residual))
+    # The component grows at 1/year, and the residual is the largest drift of
+    # anything in the model, so it cannot be below that.
+    expect_gt(conv$residual, 0.9)
+})
+
+test_that("a constant component is nothing to report", {
+    p <- setComponent(NS_params_small, "constant", initial_value = 1,
+                      dynamics_fun = "constant_other")
+    expect_false(mizer:::warn_other_components_fixed(p, "context"))
+    expect_true(mizer:::warn_other_components_fixed(
+        setComponent(NS_params_small, "moving", initial_value = 1,
+                     dynamics_fun = "resource_constant"), "context") |>
+        suppressWarnings())
+})
+
+test_that("tuneSteadyState() says when the resource could not be rebalanced", {
+    assign("mizer_test_resource_dyn", function(params, n_pp, ...) n_pp,
+           envir = .GlobalEnv)
+    withr::defer(rm("mizer_test_resource_dyn", envir = .GlobalEnv))
+
+    p <- NS_params_small
+    p@resource_dynamics <- "mizer_test_resource_dyn"
+
+    # There is no `balance_mizer_test_resource_dyn()`, so setResource() cannot
+    # derive a capacity that makes the preserved abundance steady. It used to
+    # skip the balancing without a word.
+    expect_warning(
+        suppressMessages(tuneSteadyState(p, t_per = 1, t_max = 1, dt = 1,
+                                         distance_tol = 10,
+                                         progress_bar = FALSE)),
+        "could not be rebalanced"
+    )
 })

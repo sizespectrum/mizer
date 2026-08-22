@@ -33,7 +33,7 @@
 #' own `tol` argument; tighten that if you need to settle further.
 #'
 #' Everything that judges steadiness — the `summary()` line, the [project()]
-#' check, the guards in [getStability()] and [getLimitCycleSim()] — goes through
+#' check, the guards in [getStability()] and [getOscillationModeSim()] — goes through
 #' this function, so the tolerance has a single definition.
 #'
 #' @return The tolerance, a single number.
@@ -216,22 +216,29 @@ isSteady.MizerParams <- function(params, tol = 0.05,
 #' whereas the relative rate there is `0/0`. The two callers then divide, or
 #' integrate, as each needs.
 #'
+#' The state is taken from the model unless it is supplied explicitly. The
+#' explicit form is what the convergence checks in `project_until_settled()`
+#' use: they need the drift at the state the run has just reached, and writing
+#' that state into `params` only to read it back would both copy the object and
+#' invalidate its validation fingerprint on every block.
+#'
 #' @param params A \linkS4class{MizerParams} object.
 #' @param effort The fishing effort to evaluate at.
 #' @param dt The step length for the components whose dynamics are only
 #'   available as a one-step map.
+#' @param n,n_pp,n_other The state to evaluate at. By default the state stored
+#'   in `params`.
 #' @return A list with the validated `params`, the state (`n`, `n_pp`), the
 #'   consumer and resource rates of change (`dNdt`, `dn_pp_dt`) and the list
 #'   `other` of relative rates of change of the other components.
 #' @noRd
-steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4) {
+steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4,
+                         n = params@initial_n,
+                         n_pp = params@initial_n_pp,
+                         n_other = params@initial_n_other) {
     params <- validParams(params)
     effort <- validEffortVector(effort, params = params)
     assert_that(is.number(dt), dt > 0)
-
-    n <- params@initial_n
-    n_pp <- params@initial_n_pp
-    n_other <- params@initial_n_other
 
     # Consumers. `rdd = NULL` asks for the model's own reproduction function to
     # be used, so that the residual reflects the dynamics the user would get.

@@ -36,14 +36,21 @@ default is taken from the \code{mizer_info_level} option, see
 
 \item{...}{Arguments for the chosen solver.
 
-With \code{solver = "project"}: \code{t_max}, \code{t_per}, \code{dt}, \code{t_save}, \code{tol},
-\code{amplitude_tol}, \code{amp_rel_tol}, \code{extinction_threshold}, \code{progress_bar} and
-\code{method}, all as described in \code{\link[=projectUntilSettled]{projectUntilSettled()}}. Note that \code{tol}
-here defaults to \code{0.1 * dt} and measures the largest relative change in
-egg production, because the distance function is \code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}.
+With \code{solver = "project"}: \code{t_max}, \code{t_per}, \code{dt}, \code{t_save},
+\code{distance_tol}, \code{residual_tol}, \code{amplitude_tol}, \code{amp_rel_tol},
+\code{extinction_threshold}, \code{progress_bar} and \code{method}, all as described in
+\code{\link[=projectUntilSettled]{projectUntilSettled()}}.
+Note that \code{distance_tol} here defaults to \code{0.1 * dt} and measures the
+largest relative change in egg production, because the distance function is
+\code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}. \code{residual_tol} is judged on the model as the search
+sees it, with reproduction, the resource and the other components pinned;
+the residual reported in the result is measured again on the model that is
+actually returned.
 
-With \code{solver = "newton"}: \code{residual_tol} (default \code{1e-6}), a tolerance on
-the per-capita rate of change passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}}; \code{maxit}
+With \code{solver = "newton"}: \code{solver_tol} (default \code{1e-6}), a tolerance on
+the per-capita rate of change passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}}. It was called
+\code{residual_tol} before mizer 3.3, a name that now belongs to the biomass
+drift criterion above; \code{maxit}
 (default \code{200}); \code{jacobian}, either \code{"update"} (default, the Jacobian is
 computed once and then updated cheaply each iteration — \code{nleqslv}'s
 \code{"Broyden"}) or \code{"recompute"} (a numerical Jacobian at every iteration —
