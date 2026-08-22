@@ -544,7 +544,7 @@ project.MizerSim <- function(object, effort,
 #' of its running time, which pays when the function is called hundreds of
 #' times in a row.
 #'
-#' This function is also used in `steady()`. In between calls to
+#' This function is also used by the steady-state finders. In between calls to
 #' `project_simple()` the `steady()` function checks whether the values are
 #' still changing significantly, so that it can stop when a steady state has
 #' been approached. Mizer extension packages might have a similar need to run

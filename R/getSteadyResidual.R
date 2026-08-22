@@ -26,7 +26,8 @@
 #' | after `matchGrowth()` | 4 |
 #'
 #' `0.05` therefore sits more than an order of magnitude above a default
-#' `steady()` run and one to three orders below a model knocked off its steady
+#' `tuneSteadyState()` run and one to three orders below a model knocked off its
+#' steady
 #' state. Note that [tuneSteadyState()] stops on the relative change in egg
 #' production rather than on this drift, so how close it gets is governed by its
 #' own `tol` argument; tighten that if you need to settle further.
@@ -291,7 +292,8 @@ steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4) {
 #' size is hours; a model settled for every practical purpose can carry a cell
 #' rate of \eqn{10^4}/year there while nothing observable moves. Under the
 #' second-order scheme this is severe enough to invert the ordering: a converged
-#' `steady()` run scores *worse* on the cell maximum than a model that has just
+#' `tuneSteadyState()` run scores *worse* on the cell maximum than a model that
+#' has just
 #' been knocked off its steady state by `matchGrowth()`.
 #'
 #' Weighting by biomass removes that: fast cells holding no mass contribute
@@ -356,7 +358,8 @@ steady_biomass_drift <- function(params, ...) {
 signal_off_steady <- function(fname) {
     signal_info("steady", paste0(
         "`", fname, "()` has rescaled the model and so moved it off its ",
-        "steady state. Run `steady()` to settle it again. You can check with ",
+        "steady state. Run `tuneSteadyState()` to settle it again. You can ",
+        "check with ",
         "`getSteadyResidual()`."),
         level = 3, unhandled = "show")
 }
@@ -389,7 +392,7 @@ warn_if_not_steady <- function(params, context,
     signal_info("steady", paste0(
         "This model is not at its steady state: a biomass is changing at ",
         "up to ", signif(drift, 2), " per year. ", context,
-        " Run `steady(params)` if that was not intended, or check ",
+        " Run `tuneSteadyState(params)` if that was not intended, or check ",
         "`getSteadyResidual(params)` to see which species are moving."),
         level = 1, severity = "warning", unhandled = "show")
     invisible(TRUE)
