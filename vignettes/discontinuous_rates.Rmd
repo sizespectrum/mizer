@@ -290,9 +290,10 @@ The damage is not confined to `project()`. Mizer's steady-state and stability
 machinery assumes a smooth right-hand side, and a discontinuity undermines it in
 three different ways.
 
-## `steadyNewton()` stalls
+## The Newton solver stalls
 
-`steadyNewton()` solves $F(N) = 0$ with a Newton-type root finder. A
+With `solver = "newton"` the steady-state finders solve $F(N) = 0$ with a
+Newton-type root finder. A
 discontinuous rate makes $F$ discontinuous, and where the equilibrium is a
 sliding one there is no root at all: neither branch is in equilibrium there. The
 solver has nothing to converge to.
@@ -307,16 +308,16 @@ settle <- function(p) {
 hard_settled <- settle(params_hard)
 ramp_settled <- settle(params_ramp)
 
-ramp_ss <- steadyNewton(ramp_settled)
+ramp_ss <- findSteadyState(ramp_settled, solver = "newton")
 ```
 
 The ramped model converges without complaint. The hard one does not:
 
 ```{r eval = FALSE}
-hard_ss <- steadyNewton(hard_settled)
+hard_ss <- findSteadyState(hard_settled, solver = "newton")
 ```
 ```{r echo = FALSE, warning = TRUE}
-warning("steadyNewton() did not converge (nleqslv termination code 3: No better point found (algorithm has stalled)). Returning the best iterate found.", call. = quote(steadyNewton(hard_settled)))
+warning("The Newton solver did not converge (nleqslv termination code 3: No better point found (algorithm has stalled)). Returning the best iterate found.", call. = FALSE)
 ```
 
 It returns its best iterate, which sits essentially exactly on the threshold —
@@ -444,7 +445,8 @@ continuous but not differentiable. This is a far less serious problem than a
 jump. Such a rate cannot chatter, because there is no gap for the two branches
 to argue across, and positivity and the qualitative dynamics are safe. What it
 costs is accuracy at the steps that cross the kink, and machine-precision
-convergence in `steadyNewton()`, whose residual becomes merely Lipschitz. Mizer
+convergence with `solver = "newton"`, whose residual becomes merely Lipschitz.
+Mizer
 already lives with exactly this situation in its van Leer flux limiter, for the
 same reason and with the same consequence.
 
@@ -465,7 +467,7 @@ something looks odd, work through this list.
   It should not — though an answer that does not move is necessary rather than
   sufficient, since a state near a threshold may have no perturbation reaching
   across it.
-- Does `steadyNewton()` warn that it stalled? On a smooth model it usually will
+- Does the Newton solver warn that it stalled? On a smooth model it usually will
   not.
 - Is a state variable pinned suspiciously exactly to a threshold you wrote into
   the model? That is a sliding mode.
@@ -487,4 +489,4 @@ on itself.
 - [Extending mizer](guide-extend-mizer.html) — the full set of extension
   mechanisms.
 - [Dynamic stability and Hopf bifurcations](dynamic_stability.html) —
-  `getStability()` and `steadyNewton()` applied to smooth models.
+  `getStability()` and `solver = "newton"` applied to smooth models.

@@ -64,6 +64,6 @@ values for other ecosystem components.}
 and gear.}
 
 \item{\code{sim_params}}{A named list of the parameters passed to \code{\link[=project]{project()}} or
-\code{\link[=projectToSteady]{projectToSteady()}} to produce this simulation, such as \code{method} and \code{dt}.}
+\code{\link[=projectUntilSettled]{projectUntilSettled()}} to produce this simulation, such as \code{method} and \code{dt}.}
 }}
 

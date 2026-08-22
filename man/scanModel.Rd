@@ -82,7 +82,7 @@ measuring the distance between them. See \code{\link[=distanceSSLogN]{distanceSS
 
 \item{tol}{The projection at each scan value stops once the number returned
 by \code{distance_func} for two states \code{t_per} years apart drops below \code{tol}.
-The default is tighter than the one \code{\link[=projectToSteady]{projectToSteady()}} uses on its own,
+The default is tighter than the one \code{\link[=projectUntilSettled]{projectUntilSettled()}} uses on its own,
 because a scan produces a curve, and a loosely converged point does not
 average away: it shows up as a kink in the curve and as spurious width in
 the band. Loosen it to go faster, and use the \code{residual} column of the
@@ -96,7 +96,7 @@ an odd multiple of \code{dt}.}
 \item{dt}{The time step to use.}
 
 \item{t_save}{The interval at which the biomass summary used for limit-cycle
-detection is recorded, see \code{\link[=projectToSteady]{projectToSteady()}}.}
+detection is recorded, see \code{\link[=projectUntilSettled]{projectUntilSettled()}}.}
 
 \item{amplitude_tol}{The minimum relative biomass amplitude for a persistent
 oscillation to count as a limit cycle rather than a fixed point.}
@@ -150,7 +150,7 @@ This is a generic function with a method for objects of class
 \section{What is measured, and where}{
 
 
-At each scan value the model is projected with \code{\link[=projectToSteady]{projectToSteady()}}, which
+At each scan value the model is projected with \code{\link[=projectUntilSettled]{projectUntilSettled()}}, which
 stops as soon as it recognises that the model has settled onto a fixed point
 or onto a limit cycle, and reports which of the two happened. What happens
 next depends on that answer:
@@ -191,7 +191,7 @@ check whether the gear is already there. See \code{\link[=scanFishingMortality]{
 worked example.
 
 There is no \code{effort} argument, because there does not need to be one:
-\code{\link[=project]{project()}} and \code{\link[=projectToSteady]{projectToSteady()}} both take the fishing effort from
+\code{\link[=project]{project()}} and \code{\link[=projectUntilSettled]{projectUntilSettled()}} both take the fishing effort from
 \code{params@initial_effort}, so a \code{set_func()} that changes the effort is all it
 takes to scan over effort, and a scan over something else never has to
 mention fishing at all.

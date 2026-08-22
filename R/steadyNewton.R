@@ -1,45 +1,49 @@
 # Direct steady-state solver -------------------------------------------------
 #
-# `steady()` finds a steady state by running the dynamics until they stop
-# changing. That only works for steady states that are dynamically stable: at an
-# unstable steady state the time-stepping diverges away from the fixed point.
+# `solver = "project"` finds a steady state by running the dynamics until they
+# stop changing. That only works for steady states that are dynamically stable:
+# at an unstable steady state the time-stepping diverges away from the fixed
+# point.
 #
-# `steadyNewton()` instead solves the discrete steady-state equation
+# `solver = "newton"` instead solves the discrete steady-state equation
 # `F(N) = 0` directly with a Newton-type root finder (via the `nleqslv`
 # package). Because it solves the algebraic equation rather than following the
 # time evolution, it converges to the steady state irrespective of its dynamic
 # stability. See the "Steady-State Solution" section of the
 # `vignette("numerical_details")` for the equation that is being solved.
+#
+# This file holds that solver, `newton_steady_state()`, and the stability
+# analysis built on the same machinery. The two exported entry points that call
+# the solver, `tuneSteadyState()` and `findSteadyState()`, live in
+# `steadyState.R`.
 
-#' Find a steady state by directly solving the steady-state equation
+#' Solve the steady-state equation with a Newton-type root finder
 #'
-#' `r lifecycle::badge("experimental")`
-#' This is an alternative to [steady()] that finds the steady state by solving
-#' the steady-state equation `F(N) = 0` with a Newton-type root finder instead
-#' of running the dynamics to convergence. The advantage is that it converges
-#' to the steady state even when that steady state is dynamically **unstable**,
-#' a case in which [steady()] fails because the time-stepping diverges away from
-#' the fixed point.
+#' The engine behind `solver = "newton"` in [tuneSteadyState()] and
+#' [findSteadyState()]. It solves the steady-state equation `F(N) = 0` with a
+#' globalised Newton iteration from the `nleqslv` package instead of running the
+#' dynamics to convergence, so it converges to the steady state even when that
+#' steady state is dynamically **unstable**, a case in which the time-stepping
+#' solver fails because it diverges away from the fixed point.
 #'
-#' By default, or when `reproduction = "fixed"`, the function holds the
-#' reproduction rate (RDD) constant while solving for the consumer spectra,
-#' substitutes the analytic steady state of the resource, and keeps any other
-#' components constant. After the spectra have been found it restores
-#' density-dependent Beverton-Holt reproduction with [setBevertonHolt()],
-#' honouring the `preserve` argument exactly as [steady()] does.
-#' If `reproduction = "dynamic"`, the reproduction dynamics are run dynamically,
-#' meaning the reproduction rate varies during the solve and the reproduction
-#' parameters are not adjusted.
+#' Two things vary between the two callers, and they are the two arguments that
+#' say what is held fixed:
 #'
-#' The choice affects the solve, not the result: because [setBevertonHolt()]
-#' restores the density dependence without changing the reproduction rate, the
-#' state returned is a fixed point of the *full* dynamics either way, with
-#' reproduction free. [getStability()] can therefore be applied to it directly.
-#' Note though that the two modes generally land on different fixed points, with
-#' different reproduction parameters and hence different stability: `"fixed"`
-#' keeps the reproduction rate of the state you supplied and adjusts `erepro`
-#' and `R_max` to match, whereas `"dynamic"` keeps those parameters and lets the
-#' reproduction rate be whatever they imply.
+#' * `rdd_const` is the per-species reproduction rate to hold constant, or
+#'   `NULL` to let the model's own RDI and RDD functions set it at each iterate.
+#'   [tuneSteadyState()] passes the rate of the state it was given;
+#'   [findSteadyState()] passes `NULL`.
+#' * `resource = "solve"` adds the resource densities to the unknowns and
+#'   appends the semichemostat steady-state equation to the residual, so the
+#'   resource density and the feeding levels it implies are self-consistent even
+#'   where consumers are satiated. This requires the default semichemostat
+#'   resource dynamics and is what [findSteadyState()] uses. `resource = "fixed"`
+#'   leaves the resource out of the system entirely, holding it at the density
+#'   in `initial_n_pp`; the caller is then responsible for rebalancing the
+#'   capacity afterwards, which is what [tuneSteadyState()] does.
+#'
+#' Restoring density-dependent reproduction after a `rdd_const` solve is the
+#' caller's job too, so that both solvers share one implementation of it.
 #'
 #' The consumer densities are solved for in log space, which both keeps them
 #' positive and conditions the otherwise badly-scaled system. The unknowns are
@@ -50,128 +54,61 @@
 #' automatically handles zero-density and tail classes smoothly and prevents
 #' singular Jacobians. After convergence, size classes that remain at or near
 #' the floor are set to zero. This allows the solver to automatically discover
-#' the support of the steady state. The nonlinear system is solved with a
-#' globalised Newton iteration from the `nleqslv` package, starting from the
-#' current `initial_n`. Newton's method converges from any starting point in the
-#' *root's* basin of attraction (which is unrelated to the dynamic stability of
-#' the steady state), so a reasonable initial guess should still be supplied in
-#' `initialN(params)` — for example the spectra from a nearby stable
-#' parameterisation, or the (diverging) output of [steady()].
+#' the support of the steady state. Newton's method converges from any starting
+#' point in the *root's* basin of attraction (which is unrelated to the dynamic
+#' stability of the steady state), so a reasonable initial guess should still be
+#' supplied in `initialN(params)`.
 #'
-#' The solver respects the active transport scheme: if the experimental
-#' second-order scheme is enabled (see [second_order_w()]) it solves the
-#' steady-state equation of that scheme. With the van Leer reconstruction the
-#' residual is only Lipschitz, so the iteration converges to a fixed point of the
-#' dynamics but not to machine precision. The unlimited `"centred"`
-#' reconstruction admits an undamped odd-even mode at a steady state with no
-#' physical diffusion, giving an ill-conditioned steady-state Jacobian for which
-#' the solver is not expected to converge.
-#'
-#' The Newton iteration also needs the residual \eqn{F(N)} to be continuous. A
-#' custom rate function registered with [setRateFunction()] that jumps as a
-#' function of the abundances makes \eqn{F} discontinuous, and where the
-#' equilibrium lies on the switching threshold there is no root at all, because
-#' neither branch is in equilibrium there. The solver then stalls (`nleqslv`
-#' termination code 3) and returns an iterate pinned to the threshold. See
-#' [Discontinuous rate
-#' functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.html).
-#'
-#' Only the default semichemostat resource dynamics
-#' (`resource_dynamics = "resource_semichemostat"`) are currently supported,
-#' because the solver substitutes the analytic resource steady state. For other
-#' resource dynamics the function stops with an error.
-#'
-#' @param params A \linkS4class{MizerParams} object. Its `initial_n` is used as
+#' @param params A \linkS4class{MizerParams} object.
+#' @param resource `"solve"` to make the resource densities unknowns of the
+#'   system, `"fixed"` to leave the resource out of it entirely. Its `initial_n` is used as
 #'   the starting guess for the iteration.
-#' @param effort The fishing effort. By default the initial effort stored in
-#'   `params`.
-#' @param preserve `r lifecycle::badge("experimental")`
-#'   Specifies whether the `reproduction_level` should be preserved (default)
-#'   or the maximum reproduction rate `R_max` or the reproductive efficiency
-#'   `erepro`. See [setBevertonHolt()] for an explanation of the
-#'   `reproduction_level`. This argument is ignored when `reproduction = "dynamic"`.
-#' @param reproduction `r lifecycle::badge("experimental")`
-#'   If `"fixed"`, the reproduction rate (RDD) is held constant at the initial
-#'   value. If `"dynamic"`, the reproduction dynamics are run dynamically and the
-#'   reproduction parameters are not adjusted. Default is `"fixed"`.
-#' @param extinction_floor `r lifecycle::badge("experimental")`
-#'   The relative abundance floor below which a species is considered extinct.
-#'   Only used when `reproduction = "dynamic"`. Default is 1e-6.
-#' @param verbose If `TRUE` then the solver iterations will be traced and
-#'   printed to the console. Default is `FALSE`.
-#' @param tol Convergence tolerance passed to [nleqslv::nleqslv()] (both the
-#'   function-value tolerance `ftol` and the step tolerance `xtol`).
+#' @param effort The fishing effort vector, already validated.
+#' @param rdd_const Per-species reproduction rate to hold constant, or `NULL`
+#'   to let the reproduction dynamics run.
+#' @param resource Either `"solve"` (the resource densities are unknowns of the
+#'   system) or `"fixed"` (the resource is held at `initial_n_pp`).
+#' @param extinction_floor The relative abundance floor below which a species is
+#'   considered extinct. Only used when `rdd_const` is `NULL`.
+#' @param verbose Whether to trace the solver iterations to the console.
+#' @param residual_tol Tolerance on the residual, passed to
+#'   [nleqslv::nleqslv()] as both `ftol` and `xtol`.
 #' @param maxit Maximum number of iterations for [nleqslv::nleqslv()].
-#' @param method The [nleqslv::nleqslv()] method, either `"Newton"` (with a
-#'   numerical Jacobian calculated at each iteration) or `"Broyden"` (which
-#'   calculates the full Jacobian only once and then only updates it on each
+#' @param jacobian Either `"update"` (the Jacobian is computed once and then
+#'   updated cheaply on each iteration) or `"recompute"` (a numerical Jacobian
+#'   is computed afresh at every iteration).
 #' @param global The globalisation strategy passed to [nleqslv::nleqslv()].
-#'   The default `"dbldog"` (double dogleg) is a robust trust-region method.
-#' @param info_level Controls the amount of information messages and warnings
-#'   that are shown. Higher levels lead to more messages, `info_level = 0`
-#'   gives silence. The default is taken from the `mizer_info_level` option,
-#'   see [default_info_level()].
-#' @param ... Unused.
-#' @return A \linkS4class{MizerParams} object with the initial state set to the
-#'   steady state.
-#' @seealso [steady()], [steadySingleSpecies()], [getStability()],
-#'   [isSteady()], [getSteadyResidual()]
-#' @export
-#' @examples
-#' \donttest{
-#' params <- steadyNewton(NS_params)
-#' plotSpectra(params)
-#' }
-steadyNewton <- function(params, ...) {
-    UseMethod("steadyNewton")
-}
-
-#' @rdname steadyNewton
-#' @export
-steadyNewton.MizerParams <- function(params,
-                                     effort = params@initial_effort,
-                                     preserve = c("reproduction_level",
-                                                  "erepro", "R_max"),
-                                     reproduction = c("fixed", "dynamic"),
-                                     extinction_floor = 1e-6,
-                                     verbose = FALSE,
-                                     tol = 1e-6, maxit = 200,
-                                     method = c("Broyden", "Newton"),
-                                     global = "dbldog",
-                                     info_level = default_info_level(), ...) {
-    with_info_level(info_level = info_level, {
-    reproduction <- match.arg(reproduction)
-    if (reproduction == "fixed") {
-        preserve <- match.arg(preserve)
-    }
-    method <- match.arg(method)
+#' @return A list with the new `initial_n` and `initial_n_pp`, the logical
+#'   vector of species that went extinct, and the `nleqslv` termination code.
+#' @noRd
+newton_steady_state <- function(params, effort, rdd_const,
+                                resource = c("solve", "fixed"),
+                                extinction_floor = 1e-6,
+                                verbose = FALSE,
+                                residual_tol = 1e-6, maxit = 200,
+                                jacobian = c("update", "recompute"),
+                                global = "dbldog") {
+    resource <- match.arg(resource)
+    jacobian <- match.arg(jacobian)
+    # nleqslv names these after the Jacobian's origin rather than after what it
+    # does; ours says what differs.
+    nleqslv_method <- c(update = "Broyden", recompute = "Newton")[[jacobian]]
     if (!requireNamespace("nleqslv", quietly = TRUE)) {
-        stop("steadyNewton() requires the 'nleqslv' package. ",
+        stop("The Newton solver requires the 'nleqslv' package. ",
              "Install it with install.packages('nleqslv').")
     }
-    params <- validParams(params)
-    if (params@resource_dynamics != "resource_semichemostat") {
-        stop("steadyNewton() currently only supports the default semichemostat ",
-             "resource dynamics (resource_dynamics = 'resource_semichemostat'). ",
-             "Use steady() for other resource dynamics.")
-    }
-    effort <- validEffortVector(effort, params = params)
-    params@initial_effort <- effort
-
-    if (params@rates_funcs$RDD == "BevertonHoltRDD" && reproduction == "fixed") {
-        old_reproduction_level <- reproduction_level(params)
-        old_R_max <- params@species_params$R_max
-        old_erepro <- params@species_params$erepro
+    if (resource == "solve" &&
+        params@resource_dynamics != "resource_semichemostat") {
+        stop("`solver = \"newton\"` can only solve for the resource with the ",
+             "default semichemostat resource dynamics ",
+             "(resource_dynamics = 'resource_semichemostat'). Use ",
+             "`tuneSteadyState()`, which holds the resource fixed, or ",
+             "`solver = \"project\"`.")
     }
 
-    if (reproduction == "dynamic") {
-        rdd_const <- NULL
-    } else {
-        rdd_const <- getRDD(params)
-    }
     n_other <- params@initial_n_other
 
-    active <- steady_active_set(params)
+    active <- steady_active_set(params, resource = resource)
 
     # Save initial state for relative floor checks
     N0_initial <- params@initial_n
@@ -187,28 +124,18 @@ steadyNewton.MizerParams <- function(params,
                                          active, extinction_floor = extinction_floor,
                                          N0 = N0)
 
-    x0_fish <- log(N0[active$mask])
-    
-    x0_n_pp <- as.numeric(params@initial_n_pp[active$mask_pp])
-    x0_n_pp[x0_n_pp <= 0] <- params@cc_pp[active$mask_pp][x0_n_pp <= 0]
-    x0_pp <- log(x0_n_pp)
-    
-    x0 <- c(x0_fish, x0_pp)
-
-    if (isTRUE(verbose)) {
-        control <- list(maxit = maxit, ftol = tol, xtol = tol, trace = 1)
-    } else {
-        control <- list(maxit = maxit, ftol = tol, xtol = tol, trace = 0)
+    x0 <- log(N0[active$mask])
+    if (resource == "solve") {
+        x0_n_pp <- as.numeric(params@initial_n_pp[active$mask_pp])
+        x0_n_pp[x0_n_pp <= 0] <- params@cc_pp[active$mask_pp][x0_n_pp <= 0]
+        x0 <- c(x0, log(x0_n_pp))
     }
 
-    sol <- nleqslv::nleqslv(x0, residual_fn, method = method,
+    control <- list(maxit = maxit, ftol = residual_tol, xtol = residual_tol,
+                    trace = if (isTRUE(verbose)) 1 else 0)
+
+    sol <- nleqslv::nleqslv(x0, residual_fn, method = nleqslv_method,
                             global = global, control = control)
-
-    if (sol$termcd > 2) {
-        warning("steadyNewton() did not converge (nleqslv termination code ",
-                sol$termcd, ": ", sol$message,
-                "). Returning the best iterate found.", call. = FALSE)
-    }
 
     unpacked <- active$unpack(sol$x)
     N <- unpacked$N
@@ -217,7 +144,7 @@ steadyNewton.MizerParams <- function(params,
     names(is_extinct) <- rownames(N)
 
     # Check for extinctions if using the relative floor
-    if (reproduction == "dynamic" && !is.null(extinction_floor) && extinction_floor > 0) {
+    if (is.null(rdd_const) && !is.null(extinction_floor) && extinction_floor > 0) {
         extinct_threshold <- extinction_floor * 1.01
         for (i in seq_len(nrow(N))) {
             lo <- params@w_min_idx[i]
@@ -230,10 +157,6 @@ steadyNewton.MizerParams <- function(params,
                 N[i, ] <- 0
             }
         }
-        if (any(is_extinct)) {
-            warning("The following species went extinct and were set to zero: ",
-                    paste(names(is_extinct)[is_extinct], collapse = ", "))
-        }
     }
 
     # Zero out any tail densities that ended up at or near the structural penalty floor
@@ -244,43 +167,15 @@ steadyNewton.MizerParams <- function(params,
         }
     }
 
-    n_pp <- resource_steady_semichemostat(params, N, n_other)
-
-    params@initial_n[] <- N
-    params@initial_n_pp[] <- n_pp
-
-    # Restore density-dependent reproduction, just as steady() does.
-    if (params@rates_funcs$RDD == "BevertonHoltRDD" && reproduction == "fixed") {
-        if (preserve == "reproduction_level") {
-            reproduction_level(params) <- old_reproduction_level
-        } else if (preserve == "R_max") {
-            params <- setBevertonHolt(params, R_max = old_R_max)
-        } else if (preserve == "erepro") {
-            params <- setBevertonHolt(params, erepro = old_erepro)
-        }
+    if (resource == "solve") {
+        n_pp <- resource_steady_semichemostat(params, N, n_other)
     }
 
-    params@time_modified <- lubridate::now()
-
-    # Report how close to a fixed point the solver actually got. This is the
-    # honest measure of the result: with the van Leer reconstruction the
-    # residual is only Lipschitz and cannot reach machine precision, and the
-    # analytic resource substitution used during the solve is not quite
-    # self-consistent, so the number is not always as small as `tol` suggests.
-    residual <- tryCatch(steady_biomass_drift(params, effort = effort),
-                         error = function(e) NA_real_)
-    if (is.finite(residual)) {
-        signal_info("convergence", paste0(
-            "The biomasses of the solution change at up to ",
-            signif(residual, 2), " per year."),
-            level = 3, unhandled = "show")
-    }
-
-    params
-    })
+    list(n = N, n_pp = n_pp, extinct = is_extinct,
+         termcd = sol$termcd, message = sol$message)
 }
 
-#' The set of size classes solved for by steadyNewton()
+#' The set of size classes solved for by the Newton solver
 #'
 #' Builds the logical mask of the (species x size) density matrix that the
 #' direct solver treats as unknowns. For each species the unknowns run from the
@@ -309,7 +204,8 @@ steadyNewton.MizerParams <- function(params,
 #'   maps a vector of log-densities (in `mask` order) to the full density
 #'   matrix.
 #' @noRd
-steady_active_set <- function(params) {
+steady_active_set <- function(params, resource = c("solve", "fixed")) {
+    resource <- match.arg(resource)
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
 
@@ -326,7 +222,13 @@ steady_active_set <- function(params) {
         mask[i, lo:w_top[i]] <- TRUE
     }
     
-    mask_pp <- as.logical(params@cc_pp > 0)
+    # With the resource held fixed there are no resource unknowns, so the mask
+    # is empty and `unpack()` hands back the supplied density untouched.
+    if (resource == "solve") {
+        mask_pp <- as.logical(params@cc_pp > 0)
+    } else {
+        mask_pp <- rep(FALSE, length(params@cc_pp))
+    }
     n_fish_active <- sum(mask)
 
     dn <- dimnames(params@initial_n)
@@ -334,10 +236,12 @@ steady_active_set <- function(params) {
         N <- matrix(0, nrow = no_sp, ncol = no_w, dimnames = dn)
         N[mask] <- exp(x[1:n_fish_active])
         n_pp <- params@initial_n_pp
-        n_pp[mask_pp] <- exp(x[(n_fish_active + 1):length(x)])
+        if (any(mask_pp)) {
+            n_pp[mask_pp] <- exp(x[(n_fish_active + 1):length(x)])
+        }
         list(N = N, n_pp = n_pp)
     }
-    list(mask = mask, w_top = w_top, mask_pp = mask_pp, 
+    list(mask = mask, w_top = w_top, mask_pp = mask_pp,
          n_fish_active = n_fish_active, unpack = unpack)
 }
 
@@ -446,7 +350,7 @@ resource_steady_semichemostat <- function(params, N, n_other) {
 #' Because the backward-Euler coefficients are `A = I - dt L`, this residual is
 #' \eqn{-dt\,dN/dt} exactly, so at `dt = 1` its negative is the instantaneous
 #' rate of change of the density. That is what makes it usable both as the
-#' function whose root [steadyNewton()] seeks and as the diagnostic
+#' function whose root the Newton solver seeks and as the diagnostic
 #' [getSteadyResidual()] reports.
 #'
 #' This is the single implementation of the transport residual; both callers go
@@ -609,7 +513,10 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
             r_ss <- r_ss + penalty
         }
         
-        # Resource residual
+        # Resource residual, only when the resource is part of the system.
+        if (!any(mask_pp)) {
+            return(r_ss)
+        }
         mu_R <- as.numeric(getResourceMort(params, n = N,
                                            n_pp = n_pp,
                                            n_other = n_other, t = 0))
@@ -651,7 +558,8 @@ stability_context <- function(params,
     # stability means nothing.
     warn_if_not_steady(params, paste(
         "The eigenvalues below describe the dynamics near a fixed point, so on",
-        "a state that is not one they are not meaningful. Use `steadyNewton()`",
+        "a state that is not one they are not meaningful. Use",
+        "`findSteadyState()`",
         "first."))
 
     n_other      <- params@initial_n_other
@@ -669,7 +577,7 @@ stability_context <- function(params,
     # exactly zero would get a zero step: the difference quotient then drops
     # the cell from the Jacobian and puts a spurious zero eigenvalue in place of
     # its true decay rate. Such cells do occur: an isolated negativity-floor
-    # artefact of the second-order schemes, or a tail class that steadyNewton()
+    # artefact of the second-order schemes, or a tail class that the solver
     # zeroed at its structural floor. We therefore floor the step at the local
     # scale of the spectrum, log-interpolated across the gaps from the nonzero
     # neighbours exactly as the Newton solve does. A row that is zero throughout
@@ -1028,7 +936,7 @@ single_eigenvector <- function(ev) {
 #' so they respond slightly more to a change of `h` than the rest.
 #'
 #' @param params A \linkS4class{MizerParams} object whose `initial_n` holds the
-#'   steady state to analyse. Typically the output of [steadyNewton()].
+#'   steady state to analyse. Typically the output of [findSteadyState()].
 #' @param effort The fishing effort to use. By default the initial effort
 #'   stored in `params`.
 #' @param h Relative step size for centred finite differences. Default `1e-4`.
@@ -1090,7 +998,7 @@ single_eigenvector <- function(ev) {
 #' do not trust it. See [Discontinuous rate
 #' functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.html).
 #'
-#' @seealso [steadyNewton()], [getDiscreteStability()], [getLimitCycleSim()]
+#' @seealso [findSteadyState()], [getDiscreteStability()], [getLimitCycleSim()]
 #' @export
 getStability <- function(params,
                          effort = params@initial_effort,
@@ -1201,7 +1109,7 @@ getStability <- function(params,
 #'     \item{`params`}{The validated `params` object the analysis was made at.}
 #'   }
 #' @inheritSection getStability Requires smooth dynamics
-#' @seealso [getStability()], [steadyNewton()]
+#' @seealso [getStability()], [findSteadyState()]
 #' @export
 getDiscreteStability <- function(params,
                                  effort = params@initial_effort,

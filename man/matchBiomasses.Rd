@@ -33,7 +33,8 @@ biomasses match with observations.
 The function works by multiplying for each species the abundance density
 at all sizes by the same factor. This will of course not give a steady
 state solution, even if the initial abundance densities were at steady state.
-So after using this function you may want to use \code{steady()} to run the model
+So after using this function you may want to use \code{tuneSteadyState()} to run
+the model
 to steady state, after which of course the biomasses will no longer match
 exactly. You could then iterate this process. This is described in the
 blog post at \url{https://blog.mizer.sizespectrum.org/posts/2021-08-20-a-5-step-recipe-for-tuning-the-model-steady-state/}.

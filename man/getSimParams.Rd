@@ -14,7 +14,7 @@ A named list of projection parameters.
 }
 \description{
 Returns the named list of arguments passed to \code{\link[=project]{project()}} or
-\code{\link[=projectToSteady]{projectToSteady()}} when producing this \code{MizerSim} object, such as
+\code{\link[=projectUntilSettled]{projectUntilSettled()}} when producing this \code{MizerSim} object, such as
 \code{method} and \code{dt}. Returns an empty list for simulations produced by
 older versions of mizer.
 }

@@ -110,7 +110,8 @@ reference:
     2. **Calibrate the steady state** so that growth, biomass and yield match
        observations, with [`matchGrowth()`](matchGrowth.html),
        [`calibrateBiomass()`](calibrateBiomass.html),
-       [`matchBiomasses()`](matchBiomasses.html) and [`steady()`](steady.html).
+       [`matchBiomasses()`](matchBiomasses.html) and
+       [`tuneSteadyState()`](tuneSteadyState.html).
     3. **Tune the dynamics** so the model responds realistically to
        perturbations away from the steady state, with
        [`setBevertonHolt()`](setBevertonHolt.html) and
@@ -171,6 +172,15 @@ reference:
     walks through this calibration workflow.
 
 
+    `tuneSteadyState()` is the function that does that tuning: it holds the
+    reproduction rate and the resource at the values you supply while the
+    spectra settle, and then adjusts the parameters that generate them so that
+    those values are steady too. Its counterpart `findSteadyState()` changes no
+    parameter and instead reports the steady state that the parameters you
+    already have imply. Both can either run the dynamics or solve the
+    steady-state equation directly, chosen with their `solver` argument.
+
+
     Two families of functions rescale abundances to match observations.
     The `calibrate...()` functions apply a single overall scaling factor to
     the whole model, whereas the `match...()` functions rescale each species
@@ -181,11 +191,10 @@ reference:
     von Bertalanffy growth, and the `plot...ObservedVsModel()` functions to
     see how well the current model reproduces the observations.
   contents:
-  - steady
+  - tuneSteadyState
+  - findSteadyState
   - isSteady
-  - steadyNewton
   - getSteadyResidual
-  - isSteady
   - getStability
   - getDiscreteStability
   - getLimitCycleSim
@@ -221,7 +230,7 @@ reference:
     `MizerSim` object containing the full time series of size spectra.
   contents:
   - project
-  - projectToSteady
+  - projectUntilSettled
 - title: Accessing results
   description: Extract the raw arrays stored in a `MizerSim` object, such as
     species and resource size spectra and fishing effort at each saved time step,

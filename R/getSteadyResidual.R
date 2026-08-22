@@ -1,6 +1,7 @@
 # Steady-state residual diagnostic -------------------------------------------
 #
-# `steady()` and `steadyNewton()` put a model *onto* its steady state. This file
+# `tuneSteadyState()` and `findSteadyState()` put a model *onto* its steady
+# state. This file
 # provides the diagnostic that asks whether a model *is* on it, so that the
 # instruction "re-run steady() after any match.../calibrate... step" can be
 # checked rather than remembered.
@@ -9,13 +10,14 @@
 #'
 #' The relative rate of biomass change, in units of 1/year, below which mizer
 #' treats a model as being at its steady state. It has to sit above what a
-#' converged [steady()] actually leaves behind and below the drift that the
+#' converged [tuneSteadyState()] actually leaves behind and below the drift that
+#' the
 #' mistake it is meant to catch produces. Measured on the North Sea model with
 #' `steady_biomass_drift()`:
 #'
 #' | State | Drift (1/year) |
 #' |---|---|
-#' | `steadyNewton()` | 4e-7 |
+#' | `findSteadyState(solver = "newton")` | 4e-7 |
 #' | `steady(tol = 1e-4)` | 2e-5 |
 #' | `steady()` at its default `tol` | 3e-3 |
 #' | as shipped in `NS_params` | 1e-2 |
@@ -24,8 +26,9 @@
 #' | after `matchGrowth()` | 4 |
 #'
 #' `0.05` therefore sits more than an order of magnitude above a default
-#' `steady()` run and one to three orders below a model knocked off its steady
-#' state. Note that [steady()] stops on the relative change in egg
+#' `tuneSteadyState()` run and one to three orders below a model knocked off its
+#' steady
+#' state. Note that [tuneSteadyState()] stops on the relative change in egg
 #' production rather than on this drift, so how close it gets is governed by its
 #' own `tol` argument; tighten that if you need to settle further.
 #'
@@ -68,7 +71,8 @@ steady_residual_tol <- function() {
 #' function and its own `resource_dynamics`. Nothing is substituted or held
 #' fixed. The number therefore answers exactly "if I called [project()] now,
 #' would anything move?", which is why it works for every model rather than only
-#' for the semichemostat resource that [steadyNewton()] requires.
+#' for the semichemostat resource that `findSteadyState(solver = "newton")`
+#' requires.
 #'
 #' ## Reading the result
 #'
@@ -122,7 +126,8 @@ steady_residual_tol <- function() {
 #'       its per-capita rate of change, or `NA` for a component whose state is
 #'       not numeric.}
 #'   }
-#' @seealso [isSteady()], [steady()], [steadyNewton()], [getStability()]
+#' @seealso [isSteady()], [tuneSteadyState()], [findSteadyState()],
+#'   [getStability()]
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -176,7 +181,7 @@ getSteadyResidual <- function(params, effort = params@initial_effort,
 #' @param ... Additional arguments passed to methods.
 #' @return `TRUE` if the model's biomass drift is within `tol`, `FALSE`
 #'   otherwise.
-#' @seealso [getSteadyResidual()], [steady()], [steadyNewton()]
+#' @seealso [getSteadyResidual()], [tuneSteadyState()], [findSteadyState()]
 #' @export
 #' @examples
 #' isSteady(NS_params)
@@ -275,7 +280,8 @@ steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4) {
 #' The scalar that every steady-state check in mizer is phrased in terms of: the
 #' largest relative rate of change of any species' biomass, of the resource
 #' biomass, or of any other component. Having one function compute it means
-#' `summary()`, [project()], [steady()] and the guards in [getStability()] all
+#' `summary()`, [project()], [tuneSteadyState()] and the guards in
+#' [getStability()] all
 #' report the same number for the same model.
 #'
 #' ## Why biomass rather than the largest cell
@@ -286,7 +292,8 @@ steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4) {
 #' size is hours; a model settled for every practical purpose can carry a cell
 #' rate of \eqn{10^4}/year there while nothing observable moves. Under the
 #' second-order scheme this is severe enough to invert the ordering: a converged
-#' `steady()` run scores *worse* on the cell maximum than a model that has just
+#' `tuneSteadyState()` run scores *worse* on the cell maximum than a model that
+#' has just
 #' been knocked off its steady state by `matchGrowth()`.
 #'
 #' Weighting by biomass removes that: fast cells holding no mass contribute
@@ -343,7 +350,7 @@ steady_biomass_drift <- function(params, ...) {
 #' `severity = "info"` because mizer did exactly what it was asked to do and is
 #' reporting a consequence, which is the rule in
 #' `.claude/skills/info-signals.md`; and `level = 3` because in the calibration
-#' loop this is expected and the user is about to run [steady()] anyway.
+#' loop this is expected and the user is about to run [tuneSteadyState()] anyway.
 #'
 #' @param fname The name of the calling function, without brackets.
 #' @return `NULL` invisibly.
@@ -351,7 +358,8 @@ steady_biomass_drift <- function(params, ...) {
 signal_off_steady <- function(fname) {
     signal_info("steady", paste0(
         "`", fname, "()` has rescaled the model and so moved it off its ",
-        "steady state. Run `steady()` to settle it again. You can check with ",
+        "steady state. Run `tuneSteadyState()` to settle it again. You can ",
+        "check with ",
         "`getSteadyResidual()`."),
         level = 3, unhandled = "show")
 }
@@ -384,7 +392,7 @@ warn_if_not_steady <- function(params, context,
     signal_info("steady", paste0(
         "This model is not at its steady state: a biomass is changing at ",
         "up to ", signif(drift, 2), " per year. ", context,
-        " Run `steady(params)` if that was not intended, or check ",
+        " Run `tuneSteadyState(params)` if that was not intended, or check ",
         "`getSteadyResidual(params)` to see which species are moving."),
         level = 1, severity = "warning", unhandled = "show")
     invisible(TRUE)

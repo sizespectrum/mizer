@@ -1,12 +1,13 @@
 # Tests for getLimitCycleSim()
 
-# Use the same steadied model as test-steadyNewton.R
+# Use the same steadied model as test-steadyState.R
 delayedAssign("p_steady_lcs",
-               steady(NS_params_small, t_max = 50, progress_bar = FALSE))
+               tuneSteadyState(NS_params_small, t_max = 50,
+                               progress_bar = FALSE))
 
 test_that("getLimitCycleSim returns a MizerSim for a model with complex eigenvalues", {
     skip_unless_experimental()
-    pn  <- steadyNewton(p_steady_lcs)
+    pn  <- findSteadyState(p_steady_lcs, solver = "newton")
     stab <- getStability(pn)
 
     # The function needs an oscillatory mode, which need not be the dominant
@@ -21,7 +22,7 @@ test_that("getLimitCycleSim returns a MizerSim for a model with complex eigenval
 
 test_that("getLimitCycleSim time axis spans one period", {
     skip_unless_experimental()
-    pn   <- steadyNewton(p_steady_lcs)
+    pn   <- findSteadyState(p_steady_lcs, solver = "newton")
     stab <- getStability(pn)
 
     skip_if(is.null(stab$hopf_eigenvalue))
@@ -37,7 +38,7 @@ test_that("getLimitCycleSim time axis spans one period", {
 
 test_that("getLimitCycleSim abundances are non-negative", {
     skip_unless_experimental()
-    pn   <- steadyNewton(p_steady_lcs)
+    pn   <- findSteadyState(p_steady_lcs, solver = "newton")
     stab <- getStability(pn)
 
     skip_if(is.null(stab$hopf_eigenvalue))
@@ -51,7 +52,7 @@ test_that("getLimitCycleSim abundances are non-negative", {
 
 test_that("getLimitCycleSim t_save controls the time step spacing", {
     skip_unless_experimental()
-    pn   <- steadyNewton(p_steady_lcs)
+    pn   <- findSteadyState(p_steady_lcs, solver = "newton")
     stab <- getStability(pn)
 
     skip_if(is.null(stab$hopf_eigenvalue))
@@ -67,7 +68,7 @@ test_that("getLimitCycleSim t_save controls the time step spacing", {
 
 test_that("getLimitCycleSim n array has correct species and size dimnames", {
     skip_unless_experimental()
-    pn   <- steadyNewton(p_steady_lcs)
+    pn   <- findSteadyState(p_steady_lcs, solver = "newton")
     stab <- getStability(pn)
 
     skip_if(is.null(stab$hopf_eigenvalue))
@@ -79,7 +80,7 @@ test_that("getLimitCycleSim n array has correct species and size dimnames", {
 
 test_that("getLimitCycleSim oscillates the resource with the mode", {
     skip_unless_experimental()
-    pn   <- steadyNewton(p_steady_lcs)
+    pn   <- findSteadyState(p_steady_lcs, solver = "newton")
     stab <- getStability(pn)
     skip_if(is.null(stab$hopf_eigenvalue))
 
@@ -111,7 +112,7 @@ test_that("getLimitCycleSim oscillates the resource with the mode", {
 
 test_that("`amplitude` sets the largest relative swing in species biomass", {
     skip_unless_experimental()
-    pn   <- steadyNewton(p_steady_lcs)
+    pn   <- findSteadyState(p_steady_lcs, solver = "newton")
     stab <- getStability(pn)
     skip_if(is.null(stab$hopf_eigenvalue))
 
@@ -131,7 +132,7 @@ test_that("`amplitude` sets the largest relative swing in species biomass", {
 
 test_that("`amplitude` scales the cycle linearly while nothing is clipped", {
     skip_unless_experimental()
-    pn   <- steadyNewton(p_steady_lcs)
+    pn   <- findSteadyState(p_steady_lcs, solver = "newton")
     stab <- getStability(pn)
     skip_if(is.null(stab$hopf_eigenvalue))
 
@@ -146,7 +147,7 @@ test_that("`amplitude` scales the cycle linearly while nothing is clipped", {
 
 test_that("getLimitCycleSim reports clipping only when it matters", {
     skip_unless_experimental()
-    pn   <- steadyNewton(p_steady_lcs)
+    pn   <- findSteadyState(p_steady_lcs, solver = "newton")
     stab <- getStability(pn)
     skip_if(is.null(stab$hopf_eigenvalue))
 

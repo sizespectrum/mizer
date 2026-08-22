@@ -69,7 +69,7 @@ machinery reads.}
 window. On a fixed point these both equal the value; on a limit cycle
 they give the range of the oscillation.}
 \item{\code{type}, \code{settled}}{What kind of attractor was reached, from the
-\code{"convergence"} attribute that \code{\link[=projectToSteady]{projectToSteady()}} attaches to its
+\code{"convergence"} attribute that \code{\link[=projectUntilSettled]{projectUntilSettled()}} attaches to its
 result.}
 \item{\code{period}}{The period of the limit cycle in years, or \code{NA}.}
 \item{\code{residual}}{How far the state still is from a fixed point, as a

@@ -6,9 +6,9 @@ description: >-
   stable or unstable, wants the leading eigenvalue, the period of an emergent
   oscillation, a Hopf bifurcation, the spectral radius of the numerical time
   step, a limit cycle to build or plot, or a bifurcation diagram over fishing
-  effort — via getStability(), getDiscreteStability(), steadyNewton(),
+  effort — via getStability(), getDiscreteStability(), findSteadyState(),
   getLimitCycleSim() and scanModel(). This
-  skill and calibrate-model share steadyNewton() and getSteadyResidual(): use
+  skill and calibrate-model share findSteadyState() and getSteadyResidual(): use
   calibrate-model to find a steady state, this skill to ask whether the state you
   found is stable. Assumes the standard semichemostat resource dynamics.
 ---
@@ -17,7 +17,8 @@ description: >-
 
 Tools for asking whether a mizer steady state is dynamically **stable** — and,
 when it is not, characterising the **limit cycle** that replaces it. These are
-**experimental**: their interface may still change. `steadyNewton()` assumes the
+**experimental**: their interface may still change. `findSteadyState(solver =
+"newton")` assumes the
 standard semichemostat resource dynamics and solves for the resource alongside
 the fish, so the resource density and the feeding levels it implies are
 self-consistent even where consumers are satiated. `getStability()` and
@@ -26,8 +27,8 @@ with any resource dynamics.
 
 Distinct from calibration: the `calibrate-model` skill gets you *onto* a fixed
 point; what follows analyses the *dynamics around* it. The natural entry point
-is `steadyNewton()`, which converges even when the fixed point is dynamically
-unstable, unlike `steady()`.
+is `findSteadyState(params, solver = "newton")`, which converges even when the
+fixed point is dynamically unstable, unlike the default `solver = "project"`.
 
 ## Is the steady state stable? — `getStability()`
 
@@ -45,7 +46,7 @@ top two eigenvectors of the state space split into `$fish`, a complex array
 each normalised to maximum modulus 1 (the spatial shape of the oscillation).
 
 ```r
-params <- steadyNewton(params)          # sit exactly on the (possibly unstable) fixed point
+params <- findSteadyState(params, solver = "newton")  # sit exactly on the (possibly unstable) fixed point
 stab   <- getStability(params)
 stab                                     # stable/unstable, growth rate, cycle period
 ```
@@ -58,11 +59,13 @@ stab                                     # stable/unstable, growth rate, cycle p
 **Both `getStability()` and `getLimitCycleSim()` linearise at the state stored in
 the object**, so a model that is not on a fixed point gets eigenvalues for the
 neighbourhood of a point it is not sitting at. Both now warn when handed one;
-the fix is to run `steadyNewton()` (or `steady()`) first, not to ignore the
+the fix is to run `findSteadyState()` (or `tuneSteadyState()`) first, not to
+ignore the
 warning. `plot(getSteadyResidual(params))` shows how far off it is — see the
 `calibrate-model` skill.
 
-`steady()` and `projectToSteady()` attach a related `"convergence"` attribute
+`tuneSteadyState()` and `findSteadyState()` attach a related `"convergence"`
+attribute
 recording whether the run **dropped below its tolerance** (`type =
 "below_tolerance"`, which suggests but does not prove a fixed point), settled on
 **a limit cycle**, or **neither**, together with the cycle period and relative
@@ -94,7 +97,7 @@ directly instead of inverting the one-step map.
 
 ## Visualising the limit cycle — `getLimitCycleSim()`
 
-`getLimitCycleSim(params)` takes the output of `steadyNewton()` and builds a
+`getLimitCycleSim(params)` takes the output of `findSteadyState()` and builds a
 `MizerSim` covering **one period** of the limit cycle in the linear approximation,
 
 \[ x(t) = x^* + A\,\mathrm{Re}\!\left[e^{i\omega t}\,\mathbf v\right], \]
@@ -120,7 +123,7 @@ the linear mode. The result is an ordinary `MizerSim`, so plot it with the stand
 tools (see the `analyse-and-plot` skill):
 
 ```r
-params <- steadyNewton(params)
+params <- findSteadyState(params, solver = "newton")
 sim    <- getLimitCycleSim(params, amplitude = 0.1)
 plotBiomass(sim)                         # biomass oscillation over one period
 animate(plotSpectra(sim))               # the travelling wave in the spectrum
@@ -150,7 +153,7 @@ plot(scan, style = "envelope")
   species, `scanSpeciesParam()` for any species parameter. `value_func` says what
   to measure: any of `getBiomass()`, `getYield()`, `getSSB()`, `getN()`. `species`
   restricts which series are shown. See the `analyse-and-plot` skill.
-- The settling stage runs `projectToSteady()`, whose `tol`, `amplitude_tol` and
+- The settling stage runs `projectUntilSettled()`, whose `tol`, `amplitude_tol` and
   `extinction_threshold` are exposed for tuning when a run is slow to settle or a
   species is collapsing.
 - The returned `MizerScan` object is a data frame, so the numbers behind the

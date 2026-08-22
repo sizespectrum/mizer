@@ -377,8 +377,8 @@ examine the catches by gear.
 Once the `MizerParams` object has been properly set up, it may be the case that
 one wishes put the system in steady state. Sometimes this can be done simply by
 running the model using `project()` until it reaches steady state. However, this
-method is not guaranteed to work, and there is a function called `steady()` that
-is more reliable. The function `steady()` must be supplied with a MizerParams
+method is not guaranteed to work, and there is a function called
+`tuneSteadyState()` that is more reliable. It must be supplied with a MizerParams
 object. It takes that MizerParams object, looks at the initial system state,
 computes the rates of reproduction of the different species, holds them fixed,
 and evolves the system until a steady state is reached (or more precisely, until
@@ -392,18 +392,20 @@ when the reproduction dynamics are turned back on (i.e., when we stop holding
 the reproduction rates fixed), the reproduction rates at which we held the
 system fixed will indeed be realised. By default it is the
 `reproduction_level` of each species that is preserved by this re-tuning; the
-`preserve` argument of `steady()` lets you preserve the maximum reproduction
+`preserve` argument lets you preserve the maximum reproduction
 rate `R_max` or the reproductive efficiency `erepro` instead. See
 `setBevertonHolt()` for an explanation of the reproduction level.
 
-The `steady()` function is not sure to converge, and the way it re-tunes the
-reproduction parameters may not be realistic, but the idea is to alter the other
-parameters in the system until `steady()` does arrive at a steady state with
+The `tuneSteadyState()` function is not sure to converge, and the way it re-tunes
+the reproduction parameters may not be realistic, but the idea is to alter the
+other parameters in the system until it does arrive at a steady state with
 sensible parameter values. The returned object carries a `"convergence"`
 attribute that describes what was found (a steady state, a limit cycle, or no
 convergence), and `summary()` reports how far the model is from steady state.
-There is also `steadyNewton()`, which solves for the steady state directly
-instead of by running the dynamics. Calibrating a model to observations is
+Passing `solver = "newton"` solves for the steady state directly instead of by
+running the dynamics, which works even where the steady state is dynamically
+unstable. Its counterpart `findSteadyState()` changes no parameter at all and
+instead reports the steady state that the parameters you already have imply. Calibrating a model to observations is
 discussed in the [guide to calibrating a model](guide-calibrate-model.html).
 
 Now that we know how to create a multispecies model we shall discuss how to 

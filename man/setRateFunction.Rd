@@ -106,7 +106,7 @@ methods, which freeze the rates during each density update and so cannot see
 a threshold being crossed within a step.
 
 The symptoms are quiet: mizer issues no warning, but the trajectory keeps
-changing as you refine \code{dt}, \code{\link[=steadyNewton]{steadyNewton()}} stalls, and \code{\link[=getStability]{getStability()}}
+changing as you refine \code{dt}, the Newton solver stalls, and \code{\link[=getStability]{getStability()}}
 reports a confident but meaningless answer. Choosing the L-stable
 \code{method = "tr_bdf2"} in \code{\link[=project]{project()}} does not help, because the difficulty
 lies in the frozen rates rather than in the linear solve.

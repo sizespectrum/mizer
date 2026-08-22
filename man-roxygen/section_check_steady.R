@@ -36,5 +36,5 @@
 #'   a script the `"convergence"` attribute is the reliable check.
 #'
 #'   Finally, a genuine fixed point need not be a *stable* one. Use
-#'   [getStability()] to find out, and [steadyNewton()] to converge onto a fixed
-#'   point that the dynamics themselves would run away from.
+#'   [getStability()] to find out, and `solver = "newton"` to converge onto a
+#'   fixed point that the dynamics themselves would run away from.

@@ -80,7 +80,8 @@ value used to produce that simulation. A warning is issued if
 \item{check_steady}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 If \code{TRUE}, warn when the model is not at its steady state before the
 projection starts, which catches the common mistake of forgetting to re-run
-\code{\link[=steady]{steady()}} after a \verb{match…}/\verb{calibrate…} step. Default \code{FALSE}, because
+\code{\link[=tuneSteadyState]{tuneSteadyState()}} after a \verb{match…}/\verb{calibrate…} step. Default \code{FALSE},
+because
 projecting a model away from its steady state is a perfectly normal thing
 to do. It is meant for a \code{MizerParams} object; when continuing from a
 \code{MizerSim} the starting state is deliberately wherever the previous run

@@ -215,7 +215,7 @@
 #' a threshold being crossed within a step.
 #'
 #' The symptoms are quiet: mizer issues no warning, but the trajectory keeps
-#' changing as you refine `dt`, [steadyNewton()] stalls, and [getStability()]
+#' changing as you refine `dt`, the Newton solver stalls, and [getStability()]
 #' reports a confident but meaningless answer. Choosing the L-stable
 #' `method = "tr_bdf2"` in [project()] does not help, because the difficulty
 #' lies in the frozen rates rather than in the linear solve.

@@ -52,7 +52,8 @@ NULL
 #' @param check_steady `r lifecycle::badge("experimental")`
 #'   If `TRUE`, warn when the model is not at its steady state before the
 #'   projection starts, which catches the common mistake of forgetting to re-run
-#'   [steady()] after a `match…`/`calibrate…` step. Default `FALSE`, because
+#'   [tuneSteadyState()] after a `match…`/`calibrate…` step. Default `FALSE`,
+#'   because
 #'   projecting a model away from its steady state is a perfectly normal thing
 #'   to do. It is meant for a `MizerParams` object; when continuing from a
 #'   `MizerSim` the starting state is deliberately wherever the previous run
@@ -543,7 +544,7 @@ project.MizerSim <- function(object, effort,
 #' of its running time, which pays when the function is called hundreds of
 #' times in a row.
 #'
-#' This function is also used in `steady()`. In between calls to
+#' This function is also used by the steady-state finders. In between calls to
 #' `project_simple()` the `steady()` function checks whether the values are
 #' still changing significantly, so that it can stop when a steady state has
 #' been approached. Mizer extension packages might have a similar need to run

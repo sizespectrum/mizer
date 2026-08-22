@@ -1,4 +1,4 @@
-# steady works
+# tuneSteadyState works
 
     c("1" = 1.4849740688434, "2" = 0.29287846590181)
 

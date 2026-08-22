@@ -82,7 +82,7 @@ The reason the function does not do that itself is to shave 20 microseconds
 of its running time, which pays when the function is called hundreds of
 times in a row.
 
-This function is also used in \code{steady()}. In between calls to
+This function is also used by the steady-state finders. In between calls to
 \code{project_simple()} the \code{steady()} function checks whether the values are
 still changing significantly, so that it can stop when a steady state has
 been approached. Mizer extension packages might have a similar need to run

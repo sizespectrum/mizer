@@ -8,7 +8,7 @@ getStability(params, effort = params@initial_effort, h = 1e-04)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object whose \code{initial_n} holds the
-steady state to analyse. Typically the output of \code{\link[=steadyNewton]{steadyNewton()}}.}
+steady state to analyse. Typically the output of \code{\link[=findSteadyState]{findSteadyState()}}.}
 
 \item{effort}{The fishing effort to use. By default the initial effort
 stored in \code{params}.}
@@ -155,5 +155,5 @@ do not trust it. See \href{https://sizespectrum.org/mizer/articles/discontinuous
 }
 
 \seealso{
-\code{\link[=steadyNewton]{steadyNewton()}}, \code{\link[=getDiscreteStability]{getDiscreteStability()}}, \code{\link[=getLimitCycleSim]{getLimitCycleSim()}}
+\code{\link[=findSteadyState]{findSteadyState()}}, \code{\link[=getDiscreteStability]{getDiscreteStability()}}, \code{\link[=getLimitCycleSim]{getLimitCycleSim()}}
 }

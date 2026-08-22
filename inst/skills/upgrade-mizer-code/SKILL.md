@@ -110,8 +110,9 @@ function` — carry no such quote, so match those rows on the function name.
 | `summary(params)` has an extra `"Steady state:"` block | new steadiness verdict | `summary()` reports the steady state |
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters properly |
 | `steady()` now converges on a `van_leer` model where it used to report a limit cycle, or never settle | the flux limiter is relaxed between iterations | `steady()` converges under the `van_leer` flux scheme |
-| A steady state found with `steadyNewton()` moved, in a model whose consumers are satiated | the resource is now solved for alongside the fish | `steadyNewton()` solves for the resource |
-| `getStability()` eigenvalues, a limit-cycle period or a bifurcation diagram shifted | they inherit the corrected `steadyNewton()` fixed point | `steadyNewton()` solves for the resource |
+| R errors with `could not find function`, naming `steadyNewton` | it never shipped; the Newton solver is now the `solver = "newton"` argument of the two finders | The steady-state finders have new names |
+| A code review, a linter or the reference index calls `steady()` or `projectToSteady()` superseded | both were renamed for what they keep fixed | The steady-state finders have new names |
+| `projectToSteady(return_sim = TRUE)` has no equivalent on the new functions | the return type no longer depends on an argument | The steady-state finders have new names |
 | `gamma`, `q` or feeding levels change after setting resource `kappa` or `lambda` | calculated search-volume parameters now follow the resource power law | Resource scalars refresh calculated `gamma` and `q` |
 | A recalculated `gamma` or `f0` is wildly different, in a model whose `search_vol` was set by hand | the frozen array used to block mizer's own unit-gamma calculation | Defaults for `gamma` and `f0` ignore a hand-set search volume |
 | Setting `f0 = 1` errors `"must be finite and in the interval [0, 1)"`, even though `gamma` is supplied | every supplied target feeding level is now validated | `f0` is always validated |

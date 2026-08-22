@@ -8,7 +8,7 @@ getLimitCycleSim(x, amplitude = 0.1, t_save = 0.1, ...)
 }
 \arguments{
 \item{x}{A \linkS4class{MizerParams} object at a steady state,
-typically the output of \code{\link[=steadyNewton]{steadyNewton()}}, or the list returned by
+typically the output of \code{\link[=findSteadyState]{findSteadyState()}}, or the list returned by
 \code{\link[=getStability]{getStability()}}.}
 
 \item{amplitude}{Largest relative swing in species biomass across the cycle,
@@ -84,5 +84,5 @@ The returned \linkS4class{MizerSim} has times running from 0 to \eqn{T}
 }
 }
 \seealso{
-\code{\link[=getStability]{getStability()}}, \code{\link[=steadyNewton]{steadyNewton()}}
+\code{\link[=getStability]{getStability()}}, \code{\link[=findSteadyState]{findSteadyState()}}
 }

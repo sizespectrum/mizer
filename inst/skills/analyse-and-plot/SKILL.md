@@ -442,7 +442,7 @@ plot(scanModel(params,
 ### What the band means
 
 How the quantity is measured depends on what the model settled on, which
-`projectToSteady()` reports:
+`projectUntilSettled()` reports:
 
 | Attractor | What is measured |
 |---|---|

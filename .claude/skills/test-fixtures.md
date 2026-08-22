@@ -72,8 +72,9 @@ file becomes slow, add it there.
 ## Slow tests of experimental features
 
 Tests of functions marked `lifecycle::badge("experimental")` may be put behind an
-opt-in flag when they are slow. This currently covers `test-steadyNewton.R` and
-`test-getLimitCycleSim.R`, which together were a third of the suite's runtime.
+opt-in flag when they are slow. This currently covers `test-steadyState.R`,
+`test-steadyNewton.R` and `test-getLimitCycleSim.R`, which together were a third
+of the suite's runtime.
 
 Gate each block with the helper from `helper.R`:
 
@@ -90,7 +91,7 @@ every test in the file skips.
 Run them explicitly with:
 
 ```
-MIZER_TEST_EXPERIMENTAL=true Rscript -e 'devtools::test(filter = "steadyNewton")'
+MIZER_TEST_EXPERIMENTAL=true Rscript -e 'devtools::test(filter = "steadyState")'
 ```
 
 The `check-standard` and `basic_check` workflows set the variable, so a full

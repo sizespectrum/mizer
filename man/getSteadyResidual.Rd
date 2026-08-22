@@ -58,7 +58,8 @@ Everything is evaluated at the model's own stored state — \code{initialN()},
 function and its own \code{resource_dynamics}. Nothing is substituted or held
 fixed. The number therefore answers exactly "if I called \code{\link[=project]{project()}} now,
 would anything move?", which is why it works for every model rather than only
-for the semichemostat resource that \code{\link[=steadyNewton]{steadyNewton()}} requires.
+for the semichemostat resource that \code{findSteadyState(solver = "newton")}
+requires.
 \subsection{Reading the result}{
 
 The returned array is an \link{ArraySpeciesBySize} object, so it prints,
@@ -110,7 +111,8 @@ plot(getSteadyResidual(params))
 }
 }
 \seealso{
-\code{\link[=isSteady]{isSteady()}}, \code{\link[=steady]{steady()}}, \code{\link[=steadyNewton]{steadyNewton()}}, \code{\link[=getStability]{getStability()}}
+\code{\link[=isSteady]{isSteady()}}, \code{\link[=tuneSteadyState]{tuneSteadyState()}}, \code{\link[=findSteadyState]{findSteadyState()}},
+\code{\link[=getStability]{getStability()}}
 
 Other summary functions:
 \code{\link[=getBiomass]{getBiomass()}},
