@@ -19,6 +19,7 @@ plotRelative(
   ylim = c(NA, NA),
   total = FALSE,
   background = TRUE,
+  highlight = NULL,
   ...
 )
 }
@@ -40,14 +41,18 @@ spectra and \code{FALSE} for time series.}
 \item{ylim}{A numeric vector of length two providing lower and upper limits
 for the value (y) axis.}
 
-\item{total}{A boolean value that determines whether the total over all
-selected species is plotted as well. Default is \code{FALSE}. Not used by the
-resource methods, which warn if it is set.}
+\item{total}{A boolean value that determines whether the total is plotted
+as well. The total is the total of everything the array holds, every
+species and every size, whatever is drawn. Default is \code{FALSE}. Not used by
+the resource methods, which warn if it is set.}
 
 \item{background}{A boolean value that determines whether background species
 are included. Ignored if the model does not contain background species.
 Default is \code{TRUE}. Not used by the resource methods, which warn if it is
 set.}
+
+\item{highlight}{Name or vector of names of the species to be highlighted
+with a thicker line.}
 
 \item{...}{Further arguments used by only some of the methods:
 
@@ -69,6 +74,10 @@ refer to the existing minimum or maximum.}
 \item{\code{size_axis}}{Whether to plot size as weight (\code{"w"}, default) or
 length (\code{"l"}), using the allometric weight-length relationship of
 each species, or of the resource, see \code{\link[=resource_params]{resource_params()}}.}
+\item{\code{per_log_size}}{For an array that holds a density, whether to
+express it per logarithmic size (\code{TRUE}) rather than per size
+(\code{FALSE}). The default, \code{NULL}, leaves the density as it stands. An
+error for an array that does not hold a density.}
 }
 
 \strong{For \code{ArrayTimeBySpecies} methods:}

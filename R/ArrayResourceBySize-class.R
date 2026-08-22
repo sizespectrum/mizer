@@ -193,13 +193,9 @@ plot.ArrayResourceBySize <- function(x, return_data = FALSE,
                 length(ylim) == 2)
     params <- attr(x, "params")
 
-    plot_dat <- prepare_ArrayResourceBySize_plot_data(x, wlim = wlim)
-    plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
-                                          density_wrt = array_density_wrt(x),
-                                          per_log_size = per_log_size)
-    if (identical(size_axis, "l")) {
-        plot_dat <- filter_plot_length_limits(plot_dat, llim)
-    }
+    plot_dat <- ArrayResourceBySize_plot_data(x, wlim = wlim, llim = llim,
+                                              size_axis = size_axis,
+                                              per_log_size = per_log_size)
 
     if (return_data) return(plot_dat)
 
@@ -213,6 +209,39 @@ plot.ArrayResourceBySize <- function(x, return_data = FALSE,
                   ytrans = if (log_y) "log10" else "identity",
                   xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
                   y_ticks = y_ticks, legend_var = "Legend")
+}
+
+#' The complete plotting data of a resource-by-size array
+#'
+#' The resource analogue of [ArraySpeciesBySize_plot_data()]: the weight limits,
+#' the conversion of the values and of the size coordinate onto the requested
+#' axis, and the length limits, all done with the array's own `params`. A
+#' resource array holds a single spectrum, so there is no selection, no
+#' background and no total to form.
+#'
+#' @param x An `ArrayResourceBySize` object.
+#' @param wlim Numeric vector of length two giving the weight limits.
+#' @param llim Numeric vector of length two giving the length limits, applied
+#'   only on a length axis.
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param per_log_size Whether to express a density per logarithmic size.
+#' @return A data frame with the size coordinate in its first column, the values
+#'   in its second, and `Species` and `Legend` columns.
+#' @keywords internal
+ArrayResourceBySize_plot_data <- function(x, wlim = c(NA, NA),
+                                          llim = c(NA, NA),
+                                          size_axis = "w",
+                                          per_log_size = NULL) {
+    params <- attr(x, "params")
+    size_axis <- plot_size_axis(size_axis)
+    plot_dat <- prepare_ArrayResourceBySize_plot_data(x, wlim = wlim)
+    plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
+                                          density_wrt = array_density_wrt(x),
+                                          per_log_size = per_log_size)
+    if (identical(size_axis, "l")) {
+        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    }
+    plot_dat
 }
 
 prepare_ArrayResourceBySize_plot_data <- function(x, wlim = c(NA, NA)) {
@@ -239,6 +268,7 @@ plot2.ArrayResourceBySize <- function(x, y, name1 = "First", name2 = "Second",
                                       log_x = TRUE, log_y = TRUE, log = NULL,
                                       ylim = c(NA, NA),
                                       total = FALSE, background = TRUE,
+                                      highlight = NULL,
                                       y_ticks = 6,
                                       wlim = c(NA, NA), llim = c(NA, NA),
                                       size_axis = c("w", "l"),
@@ -259,8 +289,14 @@ plot2.ArrayResourceBySize <- function(x, y, name1 = "First", name2 = "Second",
     params <- attr(x, "params")
     y_label <- array_y_label(x, default = "Value", size_axis = size_axis,
                              per_log_size = per_log_size)
-    plot_dat1 <- prepare_ArrayResourceBySize_plot_data(x, wlim = wlim)
-    plot_dat2 <- prepare_ArrayResourceBySize_plot_data(y, wlim = wlim)
+    # Each array is prepared with its own model: the resource has its own
+    # weight-length relationship too, see `resource_length_params()`.
+    plot_dat1 <- ArrayResourceBySize_plot_data(x, wlim = wlim, llim = llim,
+                                               size_axis = size_axis,
+                                               per_log_size = per_log_size)
+    plot_dat2 <- ArrayResourceBySize_plot_data(y, wlim = wlim, llim = llim,
+                                               size_axis = size_axis,
+                                               per_log_size = per_log_size)
 
     ylim <- array_ylim(x, ylim, log_y, c(plot_dat1[[2]], plot_dat2[[2]]))
 
@@ -270,11 +306,8 @@ plot2.ArrayResourceBySize <- function(x, y, name1 = "First", name2 = "Second",
                             xtrans = if (log_x) "log10" else "identity",
                             ytrans = if (log_y) "log10" else "identity",
                             xlim = plot_size_xlim(wlim, size_axis, llim),
-                            ylim = ylim,
-                            y_ticks = y_ticks, legend_var = "Legend",
-                            size_axis = size_axis,
-                            density_wrt = array_density_wrt(x),
-                            per_log_size = per_log_size)
+                            ylim = ylim, highlight = highlight,
+                            y_ticks = y_ticks, legend_var = "Legend")
 }
 
 #' @rdname plotRelative
@@ -285,27 +318,34 @@ plotRelative.ArrayResourceBySize <- function(x, y, species = NULL,
                                              ylim = c(NA, NA),
                                              total = FALSE,
                                              background = TRUE,
+                                             highlight = NULL,
                                              wlim = c(NA, NA),
                                              llim = c(NA, NA),
-                                             size_axis = c("w", "l"), ...) {
+                                             size_axis = c("w", "l"),
+                                             per_log_size = NULL, ...) {
     check_plot2_compatible(x, y, "ArrayResourceBySize")
     compare_array_metadata(x, y)
     warn_unused_resource_args(species, total, background)
     size_axis <- plot_size_axis(size_axis)
+    check_per_log_size(x, per_log_size)
     assert_that(length(wlim) == 2,
                 length(llim) == 2,
                 length(ylim) == 2)
 
     params <- attr(x, "params")
-    plot_dat1 <- prepare_ArrayResourceBySize_plot_data(x, wlim = wlim)
-    plot_dat2 <- prepare_ArrayResourceBySize_plot_data(y, wlim = wlim)
+    plot_dat1 <- ArrayResourceBySize_plot_data(x, wlim = wlim, llim = llim,
+                                               size_axis = size_axis,
+                                               per_log_size = per_log_size)
+    plot_dat2 <- ArrayResourceBySize_plot_data(y, wlim = wlim, llim = llim,
+                                               size_axis = size_axis,
+                                               per_log_size = per_log_size)
 
     plotRelativeDataFrame(plot_dat1, plot_dat2, params,
                           xlab = plot_size_xlab(size_axis),
                           xtrans = if (log_x) "log10" else "identity",
                           xlim = plot_size_xlim(wlim, size_axis, llim),
-                          ylim = ylim,
-                          legend_var = "Legend", size_axis = size_axis)
+                          ylim = ylim, highlight = highlight,
+                          legend_var = "Legend", interpolate = TRUE)
 }
 
 #' @rdname addPlot
@@ -336,14 +376,9 @@ addPlot.ArrayResourceBySize <- function(plot, x, species = NULL,
     check_per_log_size(x, per_log_size)
 
     plot <- deep_copy(plot)
-    plot_dat <- prepare_ArrayResourceBySize_plot_data(x, wlim = wlim)
-    params <- attr(x, "params")
-    plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
-                                          density_wrt = array_density_wrt(x),
-                                          per_log_size = per_log_size)
-    if (identical(size_axis, "l")) {
-        plot_dat <- filter_plot_length_limits(plot_dat, llim)
-    }
+    plot_dat <- ArrayResourceBySize_plot_data(x, wlim = wlim, llim = llim,
+                                              size_axis = size_axis,
+                                              per_log_size = per_log_size)
     x_var <- plot_size_x_var(size_axis)
     y_var <- names(plot_dat)[2]
     check_addPlot_compatible(plot, x_var = x_var, y_var = y_var,
@@ -688,6 +723,7 @@ plot2.ArrayTimeByResourceBySize <- function(x, y, name1 = "First",
                                             log = NULL,
                                             ylim = c(NA, NA),
                                             total = FALSE, background = TRUE,
+                                            highlight = NULL,
                                             y_ticks = 6,
                                             time = NULL,
                                             wlim = c(NA, NA),
@@ -701,7 +737,8 @@ plot2.ArrayTimeByResourceBySize <- function(x, y, name1 = "First",
     plot2.ArrayResourceBySize(slice1, slice2, name1 = name1, name2 = name2,
                               species = species, log_x = log_x, log_y = log_y,
                               log = log, ylim = ylim, total = total,
-                              background = background, y_ticks = y_ticks,
+                              background = background, highlight = highlight,
+                              y_ticks = y_ticks,
                               wlim = wlim, llim = llim, size_axis = size_axis,
                               per_log_size = per_log_size, ...)
 }
@@ -714,6 +751,7 @@ plotRelative.ArrayTimeByResourceBySize <- function(x, y, species = NULL,
                                                    ylim = c(NA, NA),
                                                    total = FALSE,
                                                    background = TRUE,
+                                                   highlight = NULL,
                                                    time = NULL,
                                                    wlim = c(NA, NA),
                                                    llim = c(NA, NA),
@@ -724,7 +762,8 @@ plotRelative.ArrayTimeByResourceBySize <- function(x, y, species = NULL,
 
     plotRelative.ArrayResourceBySize(slice1, slice2, species = species,
                                      log_x = log_x, ylim = ylim, total = total,
-                                     background = background, wlim = wlim,
+                                     background = background,
+                                     highlight = highlight, wlim = wlim,
                                      llim = llim, size_axis = size_axis, ...)
 }
 
@@ -774,10 +813,12 @@ animate.ArrayTimeByResourceBySize <- function(x, species = NULL,
     assert_that(is.number(frame_duration), frame_duration >= 0,
                 is.number(transition_duration), transition_duration >= 0,
                 is.string(easing),
-                length(wlim) == 2, length(ylim) == 2, length(tlim) == 2)
+                length(wlim) == 2, length(llim) == 2, length(ylim) == 2,
+                length(tlim) == 2)
     warn_unused_resource_args(species, total, background)
     check_per_log_size(x, per_log_size)
     size_axis <- plot_size_axis(size_axis)
+    log_y <- array_log_y(x, log_y, log, !missing(log_y))
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
     log_y <- log_axes$log_y
@@ -805,12 +846,16 @@ animate.ArrayTimeByResourceBySize <- function(x, species = NULL,
     df$Species <- "Resource"
     df$legend_name <- "Resource"
 
-    y_label <- array_y_label(x, default = "Value", per_log_size = per_log_size)
+    # The label has to know the size axis: on a length axis a density per gram
+    # is restated per centimetre, and the units must say so.
+    y_label <- array_y_label(x, default = "Value", size_axis = size_axis,
+                             per_log_size = per_log_size)
 
     animate_plotly(df, params, log_x, log_y, y_label, wlim, llim, ylim,
                    size_axis = size_axis,
                    density_wrt = array_density_wrt(x),
                    per_log_size = per_log_size,
+                   type = array_type(x),
                    frame_duration = frame_duration,
                    transition_duration = transition_duration,
                    easing = easing)

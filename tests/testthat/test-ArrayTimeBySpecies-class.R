@@ -261,3 +261,93 @@ test_that("ArrayTimeBySpecies value_name attributes are set correctly", {
     expect_identical(attr(yield_small, "value_name"), "Yield rate")
     expect_identical(attr(abundance_small, "value_name"), "Abundance")
 })
+
+# Background species, selection and non-positive values ----
+
+test_that("a background species is drawn once, under the Background legend", {
+    sim <- markBackground(NS_sim_small, species = "Sprat")
+    dat <- plot(getBiomass(sim), return_data = TRUE)
+    sprat <- dat[dat$Species == "Sprat", ]
+    # One row per saved time, not two: it used to be selected under its own
+    # name and then appended again as "Background".
+    expect_equal(nrow(sprat), nrow(sim@n))
+    expect_identical(unique(sprat$Legend), "Background")
+    expect_setequal(unique(as.character(dat$Species)),
+                    c("Sprat", "Herring", "Cod"))
+})
+
+test_that("background = FALSE removes the background species", {
+    sim <- markBackground(NS_sim_small, species = "Sprat")
+    dat <- plot(getBiomass(sim), background = FALSE, return_data = TRUE)
+    expect_false("Sprat" %in% dat$Species)
+    expect_false("Background" %in% dat$Legend)
+})
+
+test_that("a background species can be selected explicitly", {
+    sim <- markBackground(NS_sim_small, species = "Sprat")
+    dat <- plot(getBiomass(sim), species = "Sprat", return_data = TRUE)
+    expect_identical(unique(as.character(dat$Species)), "Sprat")
+    expect_identical(unique(dat$Legend), "Background")
+    # And a selection that leaves it out really leaves it out.
+    dat <- plot(getBiomass(sim), species = "Cod", return_data = TRUE)
+    expect_identical(unique(as.character(dat$Species)), "Cod")
+})
+
+test_that("a background series with no retained values does not error", {
+    sim <- markBackground(NS_sim_small, species = "Sprat")
+    bio <- getBiomass(sim)
+    bio[, "Sprat"] <- 0
+    # Every Sprat value is now below the cutoff a logarithmic axis applies, so
+    # the background group is empty. That used to abort the plot.
+    dat <- plot(bio, return_data = TRUE)
+    expect_false("Sprat" %in% dat$Species)
+    expect_s3_class(plot(bio), "ggplot")
+})
+
+test_that("non-positive values survive a linear y axis", {
+    signed <- getBiomass(NS_sim_small)
+    signed[, "Cod"] <- 0
+    signed[, "Sprat"] <- -signed[, "Sprat"]
+
+    linear <- plot(signed, log_y = FALSE, return_data = TRUE)
+    expect_true(all(linear$Biomass[linear$Species == "Cod"] == 0))
+    expect_true(all(linear$Biomass[linear$Species == "Sprat"] < 0))
+
+    # A logarithmic axis still drops them, since it cannot show them.
+    logged <- plot(signed, log_y = TRUE, return_data = TRUE)
+    expect_false("Cod" %in% logged$Species)
+    expect_false("Sprat" %in% logged$Species)
+})
+
+test_that("plotRelative keeps values a logarithmic axis would have dropped", {
+    first <- getBiomass(NS_sim_small)
+    second <- first
+    second[, "Cod"] <- 0
+    rel <- plotRelative(first, second)
+    # 2 (0 - N) / (N + 0) = -2 wherever the second model has nothing.
+    cod <- rel$data$rel_diff[rel$data$Species == "Cod"]
+    expect_equal(unique(cod), -2)
+})
+
+test_that("the total is the total over every species the array holds", {
+    bio <- getBiomass(NS_sim_small)
+    all_species <- plot(bio, total = TRUE, return_data = TRUE)
+    one_species <- plot(bio, species = "Cod", total = TRUE, return_data = TRUE)
+    expect_equal(all_species$Biomass[all_species$Species == "Total"],
+                 one_species$Biomass[one_species$Species == "Total"])
+})
+
+test_that("the time comparison methods honour highlight", {
+    bio <- getBiomass(NS_sim_small)
+    doubled <- ArrayTimeBySpecies(unclass_time(bio) * 2,
+                                  value_name = attr(bio, "value_name"),
+                                  units = attr(bio, "units"),
+                                  params = NS_params_small)
+    p2 <- plot2(bio, doubled, highlight = "Cod")
+    expect_gt(drawn_linewidth(p2, "Cod", NS_params_small),
+              drawn_linewidth(p2, "Sprat", NS_params_small))
+
+    pr <- plotRelative(bio, doubled, highlight = "Cod")
+    expect_gt(drawn_linewidth(pr, "Cod", NS_params_small, layer = 2),
+              drawn_linewidth(pr, "Sprat", NS_params_small, layer = 2))
+})

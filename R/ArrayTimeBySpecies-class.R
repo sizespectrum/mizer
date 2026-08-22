@@ -151,8 +151,9 @@ print.summary.ArrayTimeBySpecies <- function(x, ...) {
 #' @param ylim A numeric vector of length two providing lower and upper
 #'   limits for the value (y) axis. Use `NA` to refer to the existing
 #'   minimum or maximum.
-#' @param total A boolean value that determines whether the total over
-#'   all selected species is plotted as well. Default is `FALSE`.
+#' @param total A boolean value that determines whether the total is plotted
+#'   as well. The total is the total over every species the array holds,
+#'   whatever is drawn. Default is `FALSE`.
 #' @param background A boolean value that determines whether background
 #'   species are included. Ignored if the model does not contain background
 #'   species. Default is `TRUE`.
@@ -202,7 +203,7 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
     }
     plot_dat <- prepare_ArrayTimeBySpecies_plot_data(
         x, species = species, tlim = tlim,
-        ylim = ylim, total = total, background = background)
+        ylim = ylim, total = total, background = background, log_y = log_y)
 
     if (return_data) return(plot_dat)
 
@@ -236,9 +237,11 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
                 alpha <= 1)
 
     plot <- deep_copy(plot)
+    # Filter the added values the way the plot they are joining was filtered.
     plot_dat <- prepare_ArrayTimeBySpecies_plot_data(
         x, species = species, tlim = tlim,
-        ylim = ylim, total = total, background = background)
+        ylim = ylim, total = total, background = background,
+        log_y = plot_y_is_log(plot))
     y_var <- names(plot_dat)[[2]]
     check_addPlot_compatible(plot, x_var = "Year", y_var = y_var,
                              units = attr(x, "units"))
@@ -277,6 +280,7 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
                                      log_x = FALSE, log_y = TRUE,
                                      log = NULL, ylim = c(NA, NA),
                                      total = FALSE, background = TRUE,
+                                     highlight = NULL,
                                      y_ticks = 6,
                                      tlim = c(NA, NA), ...) {
     check_plot2_compatible(x, y, "ArrayTimeBySpecies")
@@ -290,10 +294,10 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
     y_label <- array_y_label(x, default = "Value")
     plot_dat1 <- prepare_ArrayTimeBySpecies_plot_data(
         x, species = species, tlim = tlim,
-        ylim = ylim, total = total, background = background)
+        ylim = ylim, total = total, background = background, log_y = log_y)
     plot_dat2 <- prepare_ArrayTimeBySpecies_plot_data(
         y, species = species, tlim = tlim,
-        ylim = ylim, total = total, background = background)
+        ylim = ylim, total = total, background = background, log_y = log_y)
 
     ylim <- array_ylim(x, ylim, log_y, c(plot_dat1[[2]], plot_dat2[[2]]))
 
@@ -303,7 +307,7 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
                             xtrans = if (log_x) "log10" else "identity",
                             ytrans = if (log_y) "log10" else "identity",
                             ylim = ylim, y_ticks = y_ticks,
-                            legend_var = "Legend")
+                            highlight = highlight, legend_var = "Legend")
 }
 
 #' @rdname plotRelative
@@ -314,28 +318,57 @@ plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
                                             ylim = c(NA, NA),
                                             total = FALSE,
                                             background = TRUE,
+                                            highlight = NULL,
                                             tlim = c(NA, NA), ...) {
     check_plot2_compatible(x, y, "ArrayTimeBySpecies")
     compare_array_metadata(x, y)
     params <- attr(x, "params")
+    # The relative difference is drawn on a linear axis, so a value of zero or
+    # less is kept: it is a real difference between the two models rather than
+    # something a logarithm cannot show.
     plot_dat1 <- prepare_ArrayTimeBySpecies_plot_data(
         x, species = species, tlim = tlim,
-        total = total, background = background)
+        total = total, background = background, log_y = FALSE)
     plot_dat2 <- prepare_ArrayTimeBySpecies_plot_data(
         y, species = species, tlim = tlim,
-        total = total, background = background)
+        total = total, background = background, log_y = FALSE)
 
     plotRelativeDataFrame(plot_dat1, plot_dat2, params,
                           xlab = "Year",
                           xtrans = if (log_x) "log10" else "identity",
-                          ylim = ylim, legend_var = "Legend")
+                          ylim = ylim, highlight = highlight,
+                          legend_var = "Legend")
 }
 
+#' The complete plotting data of a time-by-species array
+#'
+#' The species selection and the background grouping are done in a single pass,
+#' so that no species can be both selected under its own name and appended again
+#' under the `"Background"` legend — which is what a separate appending step
+#' used to do to every background species whenever `species` was left at its
+#' default of all of them.
+#'
+#' @param x An `ArrayTimeBySpecies` object.
+#' @param species Character vector of species to include, or `NULL` for all.
+#' @param tlim Numeric vector of length two giving the time limits.
+#' @param ylim Numeric vector of length two giving the value limits. Values
+#'   outside them are dropped, as they cannot be seen anyway.
+#' @param total Whether to append the total, which is the total over every
+#'   species the array holds, whatever is drawn.
+#' @param background Whether background species are included.
+#' @param log_y Whether the values will be drawn on a logarithmic axis. Only
+#'   then are non-positive values dropped: they have no place on a log axis, but
+#'   on a linear one they are data like any other, and a quantity that can go
+#'   negative — a rate of change, a difference between two models — would
+#'   otherwise lose exactly the part of it that is interesting.
+#' @return A data frame with `Year`, value, `Species` and `Legend` columns.
+#' @keywords internal
 prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
                                                  tlim = c(NA, NA),
                                                  ylim = c(NA, NA),
                                                  total = FALSE,
-                                                 background = TRUE) {
+                                                 background = TRUE,
+                                                 log_y = TRUE) {
     value_name <- attr(x, "value_name") %||% "Value"
     params <- attr(x, "params")
 
@@ -365,33 +398,40 @@ prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
 
     bm <- unclass(x)
 
-    # Add total if requested (before species selection so total includes all)
+    # The total is the total over every species the array holds, so it is formed
+    # before the selection narrows the columns.
     if (total) {
         bm <- cbind(bm, Total = rowSums(bm))
     }
 
     bm <- reshape2::melt(bm)
 
-    # Implement ylim and a minimal cutoff; bring columns in desired order
-    min_value <- 1e-20
-    bm <- bm[bm$value >= min_value &
-                 (is.na(ylim[1]) | bm$value >= ylim[1]) &
-                 (is.na(ylim[2]) | bm$value <= ylim[2]), c(1, 3, 2)]
+    # Implement ylim; bring columns in desired order
+    keep <- (is.na(ylim[1]) | bm$value >= ylim[1]) &
+        (is.na(ylim[2]) | bm$value <= ylim[2])
+    if (isTRUE(log_y)) {
+        # A hard floor rather than a plain `> 0`, so that a species that has
+        # died out does not drag a logarithmic axis down by twenty decades.
+        keep <- keep & bm$value >= 1e-20
+    }
+    bm <- bm[keep, c(1, 3, 2)]
     names(bm) <- c("Year", value_name, "Species")
 
-    # Select species
-    plot_dat <- bm[bm$Species %in% c("Total", species), ]
-    plot_dat$Legend <- plot_dat$Species
-
-    if (background && !is.null(params) && any(params@species_params$is_background)) {
-        # Add background species in light grey
+    bkgrd_sp <- character(0)
+    if (!is.null(params) && isTRUE(any(params@species_params$is_background))) {
         bkgrd_sp <- params@species_params$species[params@species_params$is_background]
-        if (length(bkgrd_sp) > 0) {
-            bm_bkgrd <- bm[bm$Species %in% bkgrd_sp, ]
-            bm_bkgrd$Legend <- "Background"
-            plot_dat <- rbind(plot_dat, bm_bkgrd)
-        }
     }
+
+    # One pass over the rows decides both what is drawn and what it is called.
+    # A background species is drawn when the selection asks for it, and is
+    # always labelled "Background", the way the species-by-size plots label it.
+    selected <- as.character(bm$Species) %in% c("Total", species)
+    if (!background) {
+        selected <- selected & !(as.character(bm$Species) %in% bkgrd_sp)
+    }
+    plot_dat <- bm[selected, , drop = FALSE]
+    plot_dat$Legend <- as.character(plot_dat$Species)
+    plot_dat$Legend[plot_dat$Legend %in% bkgrd_sp] <- "Background"
 
     plot_dat
 }

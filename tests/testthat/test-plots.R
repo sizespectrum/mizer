@@ -1603,3 +1603,142 @@ test_that("plotDataFrame() needs ymin and ymax for the band styles", {
     expect_error(plotDataFrame(frame, NS_params_small, style = "ribbon"),
                  "needs the variables")
 })
+
+# interpolate_relative_frames ----
+
+test_that("interpolation reproduces the values exactly on a shared grid", {
+    grid <- c(1, 2, 4, 8)
+    frame1 <- data.frame(w = grid, value = c(1, 2, 3, 4),
+                         Species = "Cod", Legend = "Cod")
+    frame2 <- data.frame(w = grid, value = c(2, 4, 6, 8),
+                         Species = "Cod", Legend = "Cod")
+    out <- interpolate_relative_frames(frame1, frame2, "w", "value",
+                                       c("Species", "Legend"))
+    expect_equal(out$w, grid)
+    expect_equal(out$value.x, frame1$value)
+    expect_equal(out$value.y, frame2$value)
+})
+
+test_that("interpolation keeps only the domain both series cover", {
+    frame1 <- data.frame(w = c(1, 2, 4), value = c(1, 2, 4),
+                         Species = "Cod", Legend = "Cod")
+    frame2 <- data.frame(w = c(2, 4, 8), value = c(2, 4, 8),
+                         Species = "Cod", Legend = "Cod")
+    out <- interpolate_relative_frames(frame1, frame2, "w", "value",
+                                       c("Species", "Legend"))
+    # Outside [2, 4] one of the two would have to be extrapolated.
+    expect_equal(out$w, c(2, 4))
+})
+
+test_that("interpolation puts two offset grids on their union", {
+    frame1 <- data.frame(w = c(1, 4, 16), value = c(0, 2, 4),
+                         Species = "Cod", Legend = "Cod")
+    frame2 <- data.frame(w = c(2, 8), value = c(1, 3),
+                         Species = "Cod", Legend = "Cod")
+    out <- interpolate_relative_frames(frame1, frame2, "w", "value",
+                                       c("Species", "Legend"))
+    expect_equal(out$w, c(2, 4, 8))
+    # Both series are linear in log2 of the size, so the interpolation is exact.
+    expect_equal(out$value.x, c(1, 2, 3))
+    expect_equal(out$value.y, c(1, 2, 3))
+})
+
+test_that("interpolation drops a series that only one frame has", {
+    frame1 <- data.frame(w = c(1, 2), value = c(1, 2),
+                         Species = c("Cod", "Cod"), Legend = "Cod")
+    frame2 <- data.frame(w = c(1, 2), value = c(1, 2),
+                         Species = c("Sprat", "Sprat"), Legend = "Sprat")
+    out <- interpolate_relative_frames(frame1, frame2, "w", "value",
+                                       c("Species", "Legend"))
+    expect_equal(nrow(out), 0)
+    expect_setequal(names(out), c("Species", "Legend", "w", "value.x",
+                                  "value.y"))
+})
+
+test_that("interpolate_in_log_size handles the awkward series", {
+    # A single point speaks only for the coordinate it sits at.
+    expect_equal(interpolate_in_log_size(2, 5, c(1, 2, 4)), c(NA, 5, NA))
+    # A non-positive coordinate has no logarithm, so the fallback is linear.
+    expect_equal(interpolate_in_log_size(c(0, 2), c(0, 2), c(0, 1, 2)),
+                 c(0, 1, 2))
+    # Unsorted input is sorted first.
+    expect_equal(interpolate_in_log_size(c(4, 1), c(4, 1), c(1, 2, 4)),
+                 c(1, 2.5, 4))
+})
+
+# plot_y_is_log ----
+
+test_that("plot_y_is_log reads the transformation off the plot", {
+    bio <- getBiomass(NS_sim_small)
+    expect_true(plot_y_is_log(plot(bio, log_y = TRUE)))
+    expect_false(plot_y_is_log(plot(bio, log_y = FALSE)))
+    # A plot with no y scale of its own is linear, ggplot2's default.
+    bare <- ggplot2::ggplot(data.frame(x = 1, y = 1),
+                            ggplot2::aes(x = x, y = y)) + ggplot2::geom_point()
+    expect_false(plot_y_is_log(bare))
+})
+
+# The comparison renderers consume prepared data ----
+
+test_that("plotComparisonDataFrame draws the frames it is given", {
+    frame1 <- data.frame(l = c(1, 2), value = c(1, 2),
+                         Species = "Cod", Legend = "Cod")
+    frame2 <- data.frame(l = c(3, 4), value = c(3, 4),
+                         Species = "Cod", Legend = "Cod")
+    p <- plotComparisonDataFrame(frame1, frame2, NS_params_small,
+                                 name1 = "A", name2 = "B")
+    # No conversion of its own: the coordinates are exactly what it was handed.
+    expect_equal(p$data$l, c(1, 2, 3, 4))
+    expect_equal(as.character(p$data$Model), c("A", "A", "B", "B"))
+})
+
+test_that("plotRelativeDataFrame joins unless told to interpolate", {
+    frame1 <- data.frame(w = c(1, 2, 4), value = c(1, 1, 1),
+                         Species = "Cod", Legend = "Cod")
+    frame2 <- data.frame(w = c(2, 4, 8), value = c(3, 3, 3),
+                         Species = "Cod", Legend = "Cod")
+    joined <- plotRelativeDataFrame(frame1, frame2, NS_params_small)
+    expect_equal(joined$data$w, c(2, 4))
+    interpolated <- plotRelativeDataFrame(frame1, frame2, NS_params_small,
+                                          interpolate = TRUE)
+    expect_equal(interpolated$data$w, c(2, 4))
+    expect_equal(unique(interpolated$data$rel_diff), 1)
+})
+
+# The weight axis is unchanged ----
+
+test_that("a weight-axis comparison stays on the model's own grid", {
+    enc <- getEncounter(NS_params_small)
+    doubled <- ArraySpeciesBySize(unclass_rate(enc) * 2,
+                                  value_name = attr(enc, "value_name"),
+                                  units = attr(enc, "units"),
+                                  params = NS_params_small)
+    p2 <- plot2(enc, doubled, all.sizes = TRUE)
+    expect_equal(sort(unique(p2$data$w)), sort(unname(NS_params_small@w)))
+
+    rel <- plotRelative(enc, doubled, all.sizes = TRUE)
+    expect_equal(sort(unique(rel$data$w)), sort(unname(NS_params_small@w)))
+    expect_equal(unique(round(rel$data$rel_diff, 12)), 2 / 3)
+})
+
+test_that("plotSpectraRelative compares two models with different lengths", {
+    params_a <- params
+    params_a@species_params$a <- 0.01
+    params_a@species_params$b <- 3
+    params_b <- params_a
+    params_b@species_params$a <- 0.005
+
+    # The two models put the same weights at different lengths, so their length
+    # grids only overlap; matching by equality would keep almost nothing.
+    rel <- plotSpectraRelative(params_a, params_b, species = species,
+                               resource = FALSE, size_axis = "l")
+    expect_gt(nrow(rel$data), 10)
+    expect_true(all(is.finite(rel$data$rel_diff)))
+
+    # Two identical models are still compared exactly, on either axis.
+    for (axis in c("w", "l")) {
+        same <- plotSpectraRelative(params_a, params_a, species = species,
+                                    resource = FALSE, size_axis = axis)
+        expect_true(all(abs(same$data$rel_diff) < 1e-12))
+    }
+})

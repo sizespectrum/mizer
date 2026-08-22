@@ -8,7 +8,8 @@
 #' * **`MizerSim`** — animates the community abundance spectra (number density
 #'   or biomass density vs body size). Resource, background species, and a
 #'   community total can be added via the `resource`, `background`, and `total`
-#'   arguments. The `biomass` and `per_log_size` arguments choose the plotted
+#'   arguments. The total is the total of everything the model holds, whatever
+#'   is drawn. The `biomass` and `per_log_size` arguments choose the plotted
 #'   quantity in the same way as in [plotSpectra()], and the `power` argument
 #'   is available as the same alternative to them. Both axes are log10 by
 #'   default and can each be switched to linear with `log_x = FALSE` or
@@ -18,8 +19,9 @@
 #'   quantity returned by a `MizerSim` accessor, such as [getFMort()],
 #'   [getFeedingLevel()], or [getPredMort()]. Both axes are log10 by default
 #'   and can each be switched to linear with `log_x = FALSE` or `log_y = FALSE`.
-#'   Background species and a species total can be added via the `background`
-#'   and `total` arguments.
+#'   Background species and a total can be added via the `background` and
+#'   `total` arguments. The total is the total over every species the array
+#'   holds, whatever is drawn.
 #'
 #' * **`ArrayTimeByResourceBySize`** — animates the size-resolved resource
 #'   quantity returned by [NResource()] on a `MizerSim` object. There is only a
@@ -57,10 +59,12 @@
 #'   (`"l"`), using the allometric weight-length relationship of each species,
 #'   or of the resource, see [resource_params()]. Number and biomass densities
 #'   are transformed to match the chosen axis.
-#' @param total A boolean value that determines whether the total over all
-#'   selected species is plotted as an additional trace called `"Total"`.
-#'   Default is `FALSE`. Not used by the `ArrayTimeByResourceBySize` method,
-#'   which warns if it is set.
+#' @param total A boolean value that determines whether the total is plotted
+#'   as an additional trace called `"Total"`. The total is the total of
+#'   everything the object holds, whatever is drawn: for a `MizerSim` every
+#'   species and the resource, for an array every species it holds. Default is
+#'   `FALSE`. Not used by the `ArrayTimeByResourceBySize` method, which warns if
+#'   it is set.
 #' @param background A boolean value that determines whether background species
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is `TRUE`. Not used by the `ArrayTimeByResourceBySize` method,
@@ -241,6 +245,8 @@ animate.MizerSim <- function(x, species = NULL,
 
 # Build a plotly animation from a prepared long-format data frame.
 # df must have columns: Species, legend_name, w, time, value.
+# `type` is the array type of the animated quantity, see `array_types`: a
+# proportion is animated against the whole of the interval from 0 to 1.
 # Traces are ordered by legend_name first (following params@linecolour), then
 # by individual Species within each legend group — so background species always
 # appear together and share a single legend entry.
@@ -250,6 +256,7 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
                            size_axis = "w",
                            density_wrt = NA_character_,
                            per_log_size = NULL,
+                           type = "value",
                            total_dat = NULL,
                            frame_duration = 500, transition_duration = 500,
                            easing = "linear") {
@@ -295,6 +302,11 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
             line = list(color = col, simplify = FALSE),
             showlegend = showlegend
         )
+    }
+    # A proportion is animated against the whole of the interval from 0 to 1,
+    # the same range a static plot of one shows, see `proportion_ylim()`.
+    if (identical(type, "proportion")) {
+        ylim <- proportion_ylim(ylim, log_y, df$value)
     }
     p <- plotly::layout(p,
                         xaxis = plotly_axis(

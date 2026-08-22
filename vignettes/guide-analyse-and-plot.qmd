@@ -222,6 +222,21 @@ plotRelative(getEGrowth(params), getEGrowth(params2))  # relative difference
 plotHover(getBiomass(sim))     # interactive (hover) version of any array plot
 ```
 
+`plot2()` and `plotRelative()` prepare each of their two arrays separately,
+using the model attached to that array. This matters when the two models differ
+in the length-weight relationship `w = a l^b`: with `size_axis = "l"` each
+spectrum is then drawn at its own lengths, and a density is rescaled by its own
+Jacobian. The two length grids no longer coincide when that happens, so
+`plotRelative()` interpolates both series (linearly in the logarithm of size)
+onto the union of their coordinates, restricted to the range both cover. On a
+weight axis, and whenever the two models agree, the grids coincide and nothing
+is approximated.
+
+The two arrays must hold the same kind of value: comparing a `"density"` with a
+`"value"` is an error, because the `type` decides both the Jacobian and the
+y-axis scaling and there is no pair of axes that carries both. A differing
+`value_name` or differing units only warn.
+
 ### Common arguments
 
 Most analysis and plotting functions — including `plot()` on an array and the
@@ -236,6 +251,7 @@ dedicated `plot…()` functions below — share these optional arguments:
 | `ylim` | numeric vector `c(min, max)` — restrict the value (y) axis |
 | `highlight` | character vector — draw named species with thicker lines |
 | `total` | logical — add a line for the community total. The total of *everything the object holds*, so it does not change when you select species or hide the resource; on a length axis it is summed at equal length |
+| `background` | logical — whether species marked with [`markBackground()`](../reference/markBackground.html) are drawn. They are drawn only when the selection asks for them, always under a single grey `"Background"` legend entry; `background = FALSE` removes them |
 | `log_x`, `log_y` | logical — log-scale the x or y axis |
 | `size_axis` | `"w"` (default) or `"l"` — plot against weight or against length |
 

@@ -37,8 +37,9 @@ Arguments used by all methods:
 (default) means all species.}
 \item{\code{highlight}}{Name or vector of names of the species to be
 highlighted.}
-\item{\code{total}}{A boolean value that determines whether the total over
-all selected species is plotted as well. Default is \code{FALSE}.}
+\item{\code{total}}{A boolean value that determines whether the total is
+plotted as well. The total is the total of everything the array holds,
+every species and every size, whatever is drawn. Default is \code{FALSE}.}
 \item{\code{background}}{A boolean value that determines whether background
 species are included. Ignored if the model does not contain background
 species. Default is \code{TRUE}.}

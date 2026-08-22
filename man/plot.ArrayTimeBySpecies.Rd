@@ -36,8 +36,9 @@ limit at that end. Default is \code{c(NA, NA)}.}
 limits for the value (y) axis. Use \code{NA} to refer to the existing
 minimum or maximum.}
 
-\item{total}{A boolean value that determines whether the total over
-all selected species is plotted as well. Default is \code{FALSE}.}
+\item{total}{A boolean value that determines whether the total is plotted
+as well. The total is the total over every species the array holds,
+whatever is drawn. Default is \code{FALSE}.}
 
 \item{background}{A boolean value that determines whether background
 species are included. Ignored if the model does not contain background

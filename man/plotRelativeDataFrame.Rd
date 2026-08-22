@@ -14,9 +14,7 @@ plotRelativeDataFrame(
   ylim = c(NA, NA),
   highlight = NULL,
   legend_var = "Legend",
-  size_axis = NULL,
-  total_dat1 = NULL,
-  total_dat2 = NULL
+  interpolate = FALSE
 )
 }
 \arguments{
@@ -37,15 +35,24 @@ and grouping variable). The names of \code{frame1} are imposed on \code{frame2}.
 \item{legend_var}{Name of the variable used in the legend and to determine the
 line colour.}
 
-\item{size_axis}{Optional. If non-NULL, the x-axis is converted to weight
-(\code{"w"}) or length (\code{"l"}).}
+\item{interpolate}{Whether the two series may sit on different x-grids and
+should be interpolated onto a common one, see
+\code{\link[=interpolate_relative_frames]{interpolate_relative_frames()}}. \code{TRUE} for a size axis, where the two
+models can convert weight to length differently; \code{FALSE} for a time axis,
+where they share the saved times or share nothing.}
 }
 \value{
 A \code{mizer_plot} (ggplot2) object showing the relative difference.
 }
 \description{
 Used internally by \code{\link[=plotSpectraRelative]{plotSpectraRelative()}} and similar functions. The two
-data frames are joined on their shared variables and the relative difference
-of their y-values is plotted against the x-variable.
+data frames are matched up on their shared variables and the relative
+difference of their y-values is plotted against the x-variable.
+}
+\details{
+Both data frames must arrive ready to plot, on the axis they will be drawn
+against and with any total line already among their rows. See
+\code{\link[=plotComparisonDataFrame]{plotComparisonDataFrame()}} for why the preparation belongs to whatever
+produced each operand rather than here.
 }
 \keyword{internal}

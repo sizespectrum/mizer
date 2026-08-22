@@ -203,8 +203,9 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #'     (default) means all species.}
 #'   \item{`highlight`}{Name or vector of names of the species to be
 #'     highlighted.}
-#'   \item{`total`}{A boolean value that determines whether the total over
-#'     all selected species is plotted as well. Default is `FALSE`.}
+#'   \item{`total`}{A boolean value that determines whether the total is
+#'     plotted as well. The total is the total of everything the array holds,
+#'     every species and every size, whatever is drawn. Default is `FALSE`.}
 #'   \item{`background`}{A boolean value that determines whether background
 #'     species are included. Ignored if the model does not contain background
 #'     species. Default is `TRUE`.}
@@ -318,8 +319,9 @@ NULL
 #'   `NULL`, plots the density as it stands. Unlike `size_axis` this needs no
 #'   weight-length relationship, so it is available for the resource classes
 #'   too. An error for an array that does not hold a density.
-#' @param total A boolean value that determines whether the total over
-#'   all selected species is plotted as well. Default is `FALSE`.
+#' @param total A boolean value that determines whether the total is plotted
+#'   as well. The total is the total of everything the array holds, every
+#'   species and every size, whatever is drawn. Default is `FALSE`.
 #' @param background A boolean value that determines whether background
 #'   species are included. Ignored if the model does not contain background
 #'   species. Default is `TRUE`.
@@ -358,19 +360,10 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
                 length(llim) == 2,
                 length(ylim) == 2)
     params <- attr(x, "params")
-    plot_dat <- prepare_ArraySpeciesBySize_plot_data(
-        x, species = species, all.sizes = all.sizes, wlim = wlim,
-        total = total, background = background)
-    plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
-                                          density_wrt = array_density_wrt(x),
-                                          per_log_size = per_log_size)
-    if (total) {
-        plot_dat <- append_total_line(plot_dat, total_contributors(x, wlim),
-                                      params, size_axis, x, per_log_size)
-    }
-    if (identical(size_axis, "l")) {
-        plot_dat <- filter_plot_length_limits(plot_dat, llim)
-    }
+    plot_dat <- ArraySpeciesBySize_plot_data(
+        x, species = species, all.sizes = all.sizes, wlim = wlim, llim = llim,
+        total = total, background = background, size_axis = size_axis,
+        per_log_size = per_log_size)
 
     if (return_data) return(plot_dat)
 
@@ -451,13 +444,16 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the value (y) axis. Use `NA` to refer to the existing minimum or
 #'   maximum.
-#' @param total A boolean value that determines whether the total over all
-#'   selected species is plotted as well. Default is `FALSE`. Not used by the
-#'   resource methods, which warn if it is set.
+#' @param total A boolean value that determines whether the total is plotted
+#'   as well. The total is the total of everything the array holds, every
+#'   species and every size, whatever is drawn. Default is `FALSE`. Not used by
+#'   the resource methods, which warn if it is set.
 #' @param background A boolean value that determines whether background species
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is `TRUE`. Not used by the resource methods, which warn if it is
 #'   set.
+#' @param highlight Name or vector of names of the species to be highlighted
+#'   with a thicker line.
 #' @param y_ticks The approximate number of ticks desired on the y axis.
 #' @param ... Further arguments used by only some of the methods:
 #'
@@ -513,7 +509,7 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
 plot2 <- function(x, y, name1 = "First", name2 = "Second",
                   species = NULL, log_x, log_y, log = NULL,
                   ylim = c(NA, NA), total = FALSE, background = TRUE,
-                  y_ticks = 6, ...) {
+                  highlight = NULL, y_ticks = 6, ...) {
     UseMethod("plot2", x)
 }
 
@@ -525,6 +521,7 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                                      log_x = TRUE, log_y = FALSE, log = NULL,
                                      ylim = c(NA, NA),
                                      total = FALSE, background = TRUE,
+                                     highlight = NULL,
                                      y_ticks = 6,
                                      all.sizes = FALSE,
                                      wlim = c(NA, NA), llim = c(NA, NA),
@@ -545,12 +542,16 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
     params <- attr(x, "params")
     y_label <- array_y_label(x, default = "Rate", size_axis = size_axis,
                              per_log_size = per_log_size)
-    plot_dat1 <- prepare_ArraySpeciesBySize_plot_data(
-        x, species = species, all.sizes = all.sizes, wlim = wlim,
-        total = total, background = background)
-    plot_dat2 <- prepare_ArraySpeciesBySize_plot_data(
-        y, species = species, all.sizes = all.sizes, wlim = wlim,
-        total = total, background = background)
+    # Each array is prepared with its own model, so that a length axis and a
+    # density Jacobian use the weight-length relationship the values belong to.
+    plot_dat1 <- ArraySpeciesBySize_plot_data(
+        x, species = species, all.sizes = all.sizes, wlim = wlim, llim = llim,
+        total = total, background = background, size_axis = size_axis,
+        per_log_size = per_log_size)
+    plot_dat2 <- ArraySpeciesBySize_plot_data(
+        y, species = species, all.sizes = all.sizes, wlim = wlim, llim = llim,
+        total = total, background = background, size_axis = size_axis,
+        per_log_size = per_log_size)
 
     ylim <- array_ylim(x, ylim, log_y, c(plot_dat1[[2]], plot_dat2[[2]]))
 
@@ -560,17 +561,8 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
                             xtrans = if (log_x) "log10" else "identity",
                             ytrans = if (log_y) "log10" else "identity",
                             xlim = plot_size_xlim(wlim, size_axis, llim),
-                            ylim = ylim,
-                            y_ticks = y_ticks, legend_var = "Legend",
-                            size_axis = size_axis,
-                            density_wrt = array_density_wrt(x),
-                            per_log_size = per_log_size,
-                            total_dat = if (total) {
-                                rbind(cbind(total_contributors(x, wlim),
-                                            Model = name1),
-                                      cbind(total_contributors(y, wlim),
-                                            Model = name2))
-                            })
+                            ylim = ylim, highlight = highlight,
+                            y_ticks = y_ticks, legend_var = "Legend")
 }
 
 #' Plot relative difference between two mizer arrays
@@ -592,13 +584,16 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
 #'   spectra and `FALSE` for time series.
 #' @param ylim A numeric vector of length two providing lower and upper limits
 #'   for the value (y) axis.
-#' @param total A boolean value that determines whether the total over all
-#'   selected species is plotted as well. Default is `FALSE`. Not used by the
-#'   resource methods, which warn if it is set.
+#' @param total A boolean value that determines whether the total is plotted
+#'   as well. The total is the total of everything the array holds, every
+#'   species and every size, whatever is drawn. Default is `FALSE`. Not used by
+#'   the resource methods, which warn if it is set.
 #' @param background A boolean value that determines whether background species
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is `TRUE`. Not used by the resource methods, which warn if it is
 #'   set.
+#' @param highlight Name or vector of names of the species to be highlighted
+#'   with a thicker line.
 #' @param ... Further arguments used by only some of the methods:
 #'
 #'   **For the `ArraySpeciesBySize`, `ArrayTimeBySpeciesBySize`,
@@ -619,6 +614,10 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
 #'     \item{`size_axis`}{Whether to plot size as weight (`"w"`, default) or
 #'       length (`"l"`), using the allometric weight-length relationship of
 #'       each species, or of the resource, see [resource_params()].}
+#'     \item{`per_log_size`}{For an array that holds a density, whether to
+#'       express it per logarithmic size (`TRUE`) rather than per size
+#'       (`FALSE`). The default, `NULL`, leaves the density as it stands. An
+#'       error for an array that does not hold a density.}
 #'   }
 #'
 #'   **For `ArrayTimeBySpecies` methods:**
@@ -653,7 +652,7 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
 #' }
 plotRelative <- function(x, y, species = NULL, log_x,
                          ylim = c(NA, NA), total = FALSE,
-                         background = TRUE, ...) {
+                         background = TRUE, highlight = NULL, ...) {
     UseMethod("plotRelative", x)
 }
 
@@ -665,32 +664,39 @@ plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
                                             ylim = c(NA, NA),
                                             total = FALSE,
                                             background = TRUE,
+                                            highlight = NULL,
                                             all.sizes = FALSE,
                                             wlim = c(NA, NA),
                                             llim = c(NA, NA),
-                                            size_axis = c("w", "l"), ...) {
+                                            size_axis = c("w", "l"),
+                                            per_log_size = NULL, ...) {
     check_plot2_compatible(x, y, "ArraySpeciesBySize")
     compare_array_metadata(x, y)
     size_axis <- plot_size_axis(size_axis)
+    check_per_log_size(x, per_log_size)
     assert_that(length(wlim) == 2,
                 length(llim) == 2,
                 length(ylim) == 2)
     params <- attr(x, "params")
-    plot_dat1 <- prepare_ArraySpeciesBySize_plot_data(
-        x, species = species, all.sizes = all.sizes, wlim = wlim,
-        total = total, background = background)
-    plot_dat2 <- prepare_ArraySpeciesBySize_plot_data(
-        y, species = species, all.sizes = all.sizes, wlim = wlim,
-        total = total, background = background)
+    # As in `plot2()`, each array is prepared with its own model. The Jacobian
+    # of a density no longer cancels out of the ratio when the two models
+    # convert weight to length differently, and the two grids no longer
+    # coincide, which is why the comparison is interpolated.
+    plot_dat1 <- ArraySpeciesBySize_plot_data(
+        x, species = species, all.sizes = all.sizes, wlim = wlim, llim = llim,
+        total = total, background = background, size_axis = size_axis,
+        per_log_size = per_log_size)
+    plot_dat2 <- ArraySpeciesBySize_plot_data(
+        y, species = species, all.sizes = all.sizes, wlim = wlim, llim = llim,
+        total = total, background = background, size_axis = size_axis,
+        per_log_size = per_log_size)
 
     plotRelativeDataFrame(plot_dat1, plot_dat2, params,
                           xlab = plot_size_xlab(size_axis),
                           xtrans = if (log_x) "log10" else "identity",
                           xlim = plot_size_xlim(wlim, size_axis, llim),
-                          ylim = ylim,
-                          legend_var = "Legend", size_axis = size_axis,
-                          total_dat1 = if (total) total_contributors(x, wlim),
-                          total_dat2 = if (total) total_contributors(y, wlim))
+                          ylim = ylim, highlight = highlight,
+                          legend_var = "Legend", interpolate = TRUE)
 }
 
 check_plot2_compatible <- function(x, y, class) {
@@ -718,10 +724,11 @@ compare_array_metadata <- function(x, y) {
     type1 <- array_type(x)
     type2 <- array_type(y)
     if (!identical(type1, type2)) {
-        warning("The first array holds a value of type `", type1,
-                "`, but the second array holds a value of type `", type2,
-                "`. Only the first is used to decide how the values are ",
-                "plotted.")
+        stop("The first array holds a value of type `", type1,
+             "`, but the second array holds a value of type `", type2,
+             "`. The type decides how the values are transformed and how the ",
+             "axes are scaled, so two arrays of different types cannot be ",
+             "drawn on one pair of axes.")
     }
 }
 
@@ -870,9 +877,10 @@ check_per_log_size <- function(x, per_log_size) {
 #' @param species Character vector of species to include. `NULL` (default) means
 #'   all species. A resource array holds a single spectrum, so this argument is
 #'   not used by the resource methods, which warn if it is set.
-#' @param total A boolean value that determines whether the total over all
-#'   selected species is plotted as well. Default is `FALSE`. Not used by the
-#'   resource methods, which warn if it is set.
+#' @param total A boolean value that determines whether the total is plotted
+#'   as well. The total is the total of everything the array holds, every
+#'   species and every size, whatever is drawn. Default is `FALSE`. Not used by
+#'   the resource methods, which warn if it is set.
 #' @param background A boolean value that determines whether background species
 #'   are included. Ignored if the model does not contain background species.
 #'   Default is `TRUE`. Not used by the resource methods, which warn if it is
@@ -977,20 +985,10 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
                 length(llim) == 2)
 
     plot <- deep_copy(plot)
-    plot_dat <- prepare_ArraySpeciesBySize_plot_data(
-        x, species = species, all.sizes = all.sizes, wlim = wlim,
-        total = total, background = background)
-    params <- attr(x, "params")
-    plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
-                                          density_wrt = array_density_wrt(x),
-                                          per_log_size = per_log_size)
-    if (total) {
-        plot_dat <- append_total_line(plot_dat, total_contributors(x, wlim),
-                                      params, size_axis, x, per_log_size)
-    }
-    if (identical(size_axis, "l")) {
-        plot_dat <- filter_plot_length_limits(plot_dat, llim)
-    }
+    plot_dat <- ArraySpeciesBySize_plot_data(
+        x, species = species, all.sizes = all.sizes, wlim = wlim, llim = llim,
+        total = total, background = background, size_axis = size_axis,
+        per_log_size = per_log_size)
     x_var <- plot_size_x_var(size_axis)
     y_var <- names(plot_dat)[2]
     check_addPlot_compatible(plot, x_var = x_var, y_var = y_var,
@@ -1118,6 +1116,60 @@ apply_wlim <- function(data, wlim) {
     if (!is.na(wlim[1])) data <- data[data$w >= wlim[1], ]
     if (!is.na(wlim[2])) data <- data[data$w <= wlim[2], ]
     data
+}
+
+#' The complete plotting data of a species-by-size array
+#'
+#' Everything a plot of an `ArraySpeciesBySize` needs, prepared once: the
+#' species selection, the background grouping, the masking of sizes outside a
+#' species' own range, the weight limits, the conversion of the values and of
+#' the size coordinate onto the requested axis, the total line, and the length
+#' limits.
+#'
+#' All of it uses the array's *own* `params`. That matters for the comparison
+#' plots, where the two operands may come from different models: a length axis
+#' and a density Jacobian are both built from the weight-length relationship of
+#' the model the values came from, so preparing the second array with the first
+#' one's parameters would put it in the wrong place on the axis. Each operand is
+#' therefore prepared here, on its own, and the comparison renderers receive
+#' data that is already on the axis it will be drawn against.
+#'
+#' @param x An `ArraySpeciesBySize` object.
+#' @param species Character vector of species to include, or `NULL` for all.
+#' @param all.sizes If `FALSE`, values outside a species' size range are
+#'   removed.
+#' @param wlim Numeric vector of length two giving the weight limits.
+#' @param llim Numeric vector of length two giving the length limits, applied
+#'   only on a length axis.
+#' @param total Whether to append the total line, see [total_contributors()].
+#' @param background Whether background species are included.
+#' @param size_axis Either `"w"` (weight) or `"l"` (length).
+#' @param per_log_size Whether to express a density per logarithmic size.
+#' @return A data frame with the size coordinate in its first column, the values
+#'   in its second, and `Species` and `Legend` columns.
+#' @keywords internal
+ArraySpeciesBySize_plot_data <- function(x, species = NULL,
+                                         all.sizes = FALSE,
+                                         wlim = c(NA, NA), llim = c(NA, NA),
+                                         total = FALSE, background = TRUE,
+                                         size_axis = "w",
+                                         per_log_size = NULL) {
+    params <- attr(x, "params")
+    size_axis <- plot_size_axis(size_axis)
+    plot_dat <- prepare_ArraySpeciesBySize_plot_data(
+        x, species = species, all.sizes = all.sizes, wlim = wlim,
+        total = total, background = background)
+    plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
+                                          density_wrt = array_density_wrt(x),
+                                          per_log_size = per_log_size)
+    if (total) {
+        plot_dat <- append_total_line(plot_dat, total_contributors(x, wlim),
+                                      params, size_axis, x, per_log_size)
+    }
+    if (identical(size_axis, "l")) {
+        plot_dat <- filter_plot_length_limits(plot_dat, llim)
+    }
+    plot_dat
 }
 
 prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,

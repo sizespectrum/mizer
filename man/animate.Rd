@@ -80,10 +80,12 @@ array that does not hold a density is an error. For a \code{MizerSim} it means
 plotted quantity together with \code{biomass} and \code{power}, in the same way as in
 \code{\link[=plotSpectra]{plotSpectra()}}.}
 
-\item{total}{A boolean value that determines whether the total over all
-selected species is plotted as an additional trace called \code{"Total"}.
-Default is \code{FALSE}. Not used by the \code{ArrayTimeByResourceBySize} method,
-which warns if it is set.}
+\item{total}{A boolean value that determines whether the total is plotted
+as an additional trace called \code{"Total"}. The total is the total of
+everything the object holds, whatever is drawn: for a \code{MizerSim} every
+species and the resource, for an array every species it holds. Default is
+\code{FALSE}. Not used by the \code{ArrayTimeByResourceBySize} method, which warns if
+it is set.}
 
 \item{background}{A boolean value that determines whether background species
 are included. Ignored if the model does not contain background species.
@@ -134,7 +136,8 @@ The function dispatches on the class of \code{x}:
 \item \strong{\code{MizerSim}} — animates the community abundance spectra (number density
 or biomass density vs body size). Resource, background species, and a
 community total can be added via the \code{resource}, \code{background}, and \code{total}
-arguments. The \code{biomass} and \code{per_log_size} arguments choose the plotted
+arguments. The total is the total of everything the model holds, whatever
+is drawn. The \code{biomass} and \code{per_log_size} arguments choose the plotted
 quantity in the same way as in \code{\link[=plotSpectra]{plotSpectra()}}, and the \code{power} argument
 is available as the same alternative to them. Both axes are log10 by
 default and can each be switched to linear with \code{log_x = FALSE} or
@@ -143,8 +146,9 @@ default and can each be switched to linear with \code{log_x = FALSE} or
 quantity returned by a \code{MizerSim} accessor, such as \code{\link[=getFMort]{getFMort()}},
 \code{\link[=getFeedingLevel]{getFeedingLevel()}}, or \code{\link[=getPredMort]{getPredMort()}}. Both axes are log10 by default
 and can each be switched to linear with \code{log_x = FALSE} or \code{log_y = FALSE}.
-Background species and a species total can be added via the \code{background}
-and \code{total} arguments.
+Background species and a total can be added via the \code{background} and
+\code{total} arguments. The total is the total over every species the array
+holds, whatever is drawn.
 \item \strong{\code{ArrayTimeByResourceBySize}} — animates the size-resolved resource
 quantity returned by \code{\link[=NResource]{NResource()}} on a \code{MizerSim} object. There is only a
 single resource spectrum, so \code{species}, \code{total} and \code{background} do nothing

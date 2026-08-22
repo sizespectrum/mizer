@@ -68,10 +68,10 @@ or the cumulative abundance (\code{FALSE}).}
 
 \item{per_log_size}{Only \code{FALSE} (the default) is accepted; see Details.}
 
-\item{total}{A boolean value that determines whether the total over all
-species in the system is plotted as well. Note that even if the plot
-only shows a selection of species, the total is including all species.
-Default is FALSE.}
+\item{total}{A boolean value that determines whether the total is plotted as
+well. The total is the total of everything the object holds — every
+species and the resource — whatever is drawn, so it does not move when
+\code{species}, \code{resource} or \code{background} change. Default is FALSE.}
 
 \item{resource}{A boolean value that determines whether resource is included.
 Default is FALSE.}

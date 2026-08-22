@@ -351,3 +351,58 @@ test_that("animate supports the log argument", {
     expect_identical(built_array$x$layout$xaxis$type, "-")
     expect_identical(built_array$x$layout$yaxis$type, "log")
 })
+
+# Axis labels and ranges follow the array type ----
+
+test_that("a resource animation relabels its y axis on a length axis", {
+    sim <- ns_animate_sim
+    nr <- NResource(sim)
+
+    weight_axis <- plotly::plotly_build(animate(nr, tlim = c(1, 2)))
+    expect_match(weight_axis$x$layout$yaxis$title, "1/g", fixed = TRUE)
+    expect_match(weight_axis$x$layout$xaxis$title, "Size", fixed = TRUE)
+
+    # The values are restated per centimetre, so the units have to say so.
+    length_axis <- plotly::plotly_build(animate(nr, tlim = c(1, 2),
+                                                size_axis = "l"))
+    expect_match(length_axis$x$layout$yaxis$title, "1/cm", fixed = TRUE)
+    expect_match(length_axis$x$layout$xaxis$title, "Length", fixed = TRUE)
+})
+
+test_that("a resource animation of a proportion gets a linear 0-1 axis", {
+    sim <- ns_animate_sim
+    level <- resource_level(sim@params)
+    # Build a time-by-resource-by-size proportion out of the resource level.
+    arr <- matrix(rep(as.numeric(level), each = 2), nrow = 2,
+                  dimnames = list(time = c("1", "2"),
+                                  w = names(initialNResource(sim@params))))
+    prop <- ArrayTimeByResourceBySize(arr, value_name = "Resource level",
+                                      units = "", type = "proportion",
+                                      params = sim@params)
+    built <- plotly::plotly_build(animate(prop))
+    expect_identical(built$x$layout$yaxis$type, "-")
+    expect_equal(built$x$layout$yaxis$range[[1]], 0)
+    expect_gte(built$x$layout$yaxis$range[[2]], 1)
+})
+
+test_that("a species animation of a proportion gets the full 0-1 range", {
+    sim <- ns_animate_sim
+    feed <- getFeedingLevel(sim)
+    expect_identical(array_type(feed), "proportion")
+    built <- plotly::plotly_build(animate(feed, log_y = FALSE))
+    expect_equal(built$x$layout$yaxis$range[[1]], 0)
+    expect_gte(built$x$layout$yaxis$range[[2]], 1)
+
+    # An explicit limit still wins.
+    fixed <- plotly::plotly_build(animate(feed, log_y = FALSE,
+                                          ylim = c(0.2, 0.8)))
+    expect_equal(fixed$x$layout$yaxis$range, c(0.2, 0.8))
+})
+
+test_that("the animations validate their axis limit arguments", {
+    sim <- ns_animate_sim
+    expect_error(animate(getFMort(sim), tlim = 1),
+                 "length\\(tlim\\) not equal to 2")
+    expect_error(animate(NResource(sim), llim = 1),
+                 "length\\(llim\\) not equal to 2")
+})
