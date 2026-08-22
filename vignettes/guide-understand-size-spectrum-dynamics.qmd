@@ -269,9 +269,9 @@ spread over far more orders of magnitude: with the default `r_pp` of 10, the
 smallest resource sizes replenish tens of thousands of times a year, while at
 the `w_pp_cutoff` of 10 g the rate is under 5 per year — comparable to fish
 rates, and precisely at the sizes fish eat most. So the resource is a fast,
-quasi-static variable at the bottom (which is what [`getStability()`](../reference/getStability.html) assumes by
-default; see the [guide to analysing dynamic stability](guide-analyse-stability.html)) and a genuinely dynamical one at the
-top. Raising `r_pp` makes the resource stiffer and the model less sensitive to
+quasi-static variable at the bottom and a genuinely dynamical one at the top —
+which is why [`getStability()`](../reference/getStability.html) always perturbs it alongside the fish rather than
+slaving it to them; see the [guide to analysing dynamic stability](guide-analyse-stability.html). Raising `r_pp` makes the resource stiffer and the model less sensitive to
 competition for food; lowering it makes the resource a slow variable that can
 carry oscillations of its own.
 

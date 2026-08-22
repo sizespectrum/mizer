@@ -48,9 +48,10 @@ The full state at each time step is
 \deqn{N(t) = \max(N^* + \delta N(t),\; 0)}
 (clipping prevents negative abundances at large amplitudes).
 
-The resource is placed at its quasi-static semichemostat equilibrium
-\eqn{n_{pp}^*(N(t))} at each step, consistent with the reduced Jacobian
-used by \code{\link[=getStability]{getStability()}}.
+Only the fish component of the eigenvector is used to shape the cycle. The
+resource is placed at its semichemostat equilibrium \eqn{n_{pp}^*(N(t))} for
+the perturbed fish state at each step, so that the resource in the returned
+object is consistent with the fish rather than oscillating independently.
 
 The returned \linkS4class{MizerSim} has times running from 0 to \eqn{T}
 (the period in time steps, typically years).

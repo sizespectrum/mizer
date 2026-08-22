@@ -130,49 +130,54 @@ params_f15 <- steadyNewton(params, effort = 1.5)
 Is this steady state stable? We compute its stability metrics with
 `getStability()`.
 
-```{r default_stability}
-stab_default <- getStability(params_f15, effort = 1.5)
-stab_default$max_real_part
-stab_default$stable
-```
-
-The largest real part among the eigenvalues, $\text{Re}(\lambda) =
-`r round(stab_default$max_real_part, 3)` > 0$, so the steady state is unstable:
-a perturbation grows at that exponential rate, roughly a factor $e$ every
-`r round(1 / stab_default$max_real_part)` years.
-
-By default `getStability()` treats the resource spectrum as a *quasi-static*
-fast variable that instantly equilibrates to the fish. Analysing the full
-coupled fish–resource system with `include_resource = TRUE` perturbs the
-resource independently instead:
-
 ```{r coupled_stability}
-stab <- getStability(params_f15, effort = 1.5, include_resource = TRUE)
+stab <- getStability(params_f15, effort = 1.5)
 stab$max_real_part
 stab$stable
 ```
 
-The two agree closely, which is the usual reason to run the coupled analysis: it
-confirms that the quasi-static approximation is not what the conclusion rests
-on.
+The largest real part among the eigenvalues, $\text{Re}(\lambda) =
+`r round(stab$max_real_part, 3)` > 0$, so the steady state is unstable:
+a perturbation grows at that exponential rate, roughly a factor $e$ every
+`r round(1 / stab$max_real_part)` years.
+
+Fish and resource are perturbed together here: the resource spectrum is a state
+variable of the analysis like any other. It is tempting to economise by treating
+it instead as a *quasi-static* fast variable that equilibrates instantly to the
+fish, and for the model that is a good approximation — on this model it moves
+the leading eigenvalue by about 3%. It is not a safe one for the numerical map
+of the next section, whose resource responds with a whole step's delay rather
+than instantly, so mizer does not offer it.
 
 ### What mizer's time step makes of it
 
 The instability is a property of the model. Whether you *see* it in a simulation
-depends on the time step, and `getDiscreteStability()` says by how much:
+depends on the time step, and `getDiscreteStability()` says by how much. It
+reports the spectral radius $\max_i|\mu_i|$ of the one-step map; converting that
+into a growth rate per year, $\log(\max_i|\mu_i|)/\Delta t$, puts it on the same
+footing as `max_real_part`:
 
 ```{r discrete_stability}
-getDiscreteStability(params_f15, effort = 1.5, dt = 1)$spectral_radius
-getDiscreteStability(params_f15, effort = 1.5, dt = 0.1)$spectral_radius
+growth_rate <- function(dt) {
+    rho <- getDiscreteStability(params_f15, effort = 1.5, dt = dt)$spectral_radius
+    log(rho) / dt
+}
+sapply(c(0.1, 0.5, 1), growth_rate)
 ```
 
-At $\Delta t = 1$ the spectral radius of mizer's one-step map is *below* one:
-the implicit transport solve damps the growing oscillation hard enough to
-reverse the verdict, and a run with `project(..., dt = 1)` would quietly settle
-onto a state the model does not actually hold. At $\Delta t = 0.1$ the artificial
-damping is small and the map has become unstable, in agreement with the model.
-This is the practical reason to keep an eye on `dt`, and the reason
-`getStability()` does not go through the one-step map at all.
+Against the model's own `r round(stab$max_real_part, 3)` per year, mizer's
+default `euler` step gets none of these right, and not in a tidy direction
+either. At $\Delta t = 0.1$ the implicit transport solve damps the growing
+oscillation almost exactly as fast as the model grows it, so the scheme sits at
+the edge of stability and a century-long run stays flat — a steady state that
+looks perfectly settled and is an artefact of the step size. At
+$\Delta t = 0.5$ the map is firmly stable; at $\Delta t = 1$ it is unstable once
+more, but oscillating with a period near 3.4 years that belongs to no mode of
+the model.
+
+This is the practical reason to keep an eye on `dt`, to prefer
+`method = "tr_bdf2"` when the dynamics matter, and the reason `getStability()`
+does not go through the one-step map at all.
 
 To see *how* it is unstable, we look at the dominant eigenvalue (the one with the largest real part).
 
@@ -223,7 +228,7 @@ Notice how well the detected nonlinear period (about `r round(attr(sim_cycle, "c
 Finally, `getLimitCycleSim()` constructs a `MizerSim` object covering one period of the oscillation *in the linear approximation*, using the leading complex eigenvector. This isolates the pure **shape** of the cycle — which species and sizes participate and with what phase — without the growth or the nonlinear distortion of the full run.
 
 ```{r limit_cycle}
-lcs <- getLimitCycleSim(params_f15, include_resource = TRUE, amplitude = 1)
+lcs <- getLimitCycleSim(params_f15, amplitude = 1)
 ```
 
 Because `lcs` is an ordinary `MizerSim` object, any of the standard mizer plotting functions can be used to explore it. For example, the biomass over one period:
@@ -245,5 +250,5 @@ rate jumps as a function of the abundances, `steadyNewton()` may stall and
 branch of the dynamics.
 
 The cheapest check is to re-run `getStability()` with a different `h`: on a
-smooth model the spectral radius is unchanged to several figures. See
+smooth model `max_real_part` is unchanged to several figures. See
 [Discontinuous rate functions](discontinuous_rates.html).

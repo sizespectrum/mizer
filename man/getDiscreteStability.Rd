@@ -8,7 +8,6 @@ getDiscreteStability(
   params,
   reproduction = c("fixed", "dynamic"),
   effort = params@initial_effort,
-  include_resource = FALSE,
   h = 1e-04,
   dt = 1
 )
@@ -23,13 +22,6 @@ Must match the choice used when the steady state was computed.}
 
 \item{effort}{The fishing effort to use. By default the initial effort
 stored in \code{params}.}
-
-\item{include_resource}{If \code{FALSE} (default) the resource is treated as a
-quasi-static fast variable: for each perturbed fish abundance the resource
-is set to its analytic steady-state value conditioned on that fish
-abundance (valid only for semichemostat resource dynamics).  If \code{TRUE},
-both fish and resource cells are perturbed independently, giving the
-complete coupled Jacobian.}
 
 \item{h}{Relative step size for centred finite differences. Default \code{1e-4}.
 The result should not depend on this choice. If it does, the dynamics are

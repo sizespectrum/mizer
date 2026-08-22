@@ -352,11 +352,10 @@ stab_hard
 ```
 
 The coarsest step is the only one whose perturbations reach across the
-threshold, and it moves the answer by more than ten per cent (it also inflates
-the largest eigenvalue modulus of the Jacobian by a factor of fifteen). Note
-what the two finer steps do: they agree with each other *exactly*, because at
-that size no perturbation crosses the threshold at all. That agreement is the
-second failure mode below, not a clean bill of health.
+threshold, and it moves the answer by nearly twelve per cent. Note what the two
+finer steps do: they agree to seven figures, because at that size no
+perturbation crosses the threshold at all. That agreement is the second failure
+mode below, not a clean bill of health.
 
 Contrast the ramped model, where the answer is the same to six figures whatever
 `h` you choose:

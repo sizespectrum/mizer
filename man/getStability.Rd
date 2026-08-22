@@ -8,7 +8,6 @@ getStability(
   params,
   reproduction = c("fixed", "dynamic"),
   effort = params@initial_effort,
-  include_resource = FALSE,
   h = 1e-04
 )
 }
@@ -22,13 +21,6 @@ Must match the choice used when the steady state was computed.}
 
 \item{effort}{The fishing effort to use. By default the initial effort
 stored in \code{params}.}
-
-\item{include_resource}{If \code{FALSE} (default) the resource is treated as a
-quasi-static fast variable: for each perturbed fish abundance the resource
-is set to its analytic steady-state value conditioned on that fish
-abundance (valid only for semichemostat resource dynamics).  If \code{TRUE},
-both fish and resource cells are perturbed independently, giving the
-complete coupled Jacobian.}
 
 \item{h}{Relative step size for centred finite differences. Default \code{1e-4}.
 The result should not depend on this choice. If it does, the dynamics are
@@ -49,17 +41,14 @@ dominant eigenvalue (monotone dynamics).}
 with the largest real part; \code{NULL} when no complex eigenvalue
 exists.  This is the expected limit-cycle period near a Hopf
 bifurcation.}
-\item{\code{n_active}}{Dimension of the Jacobian: number of active fish cells
-when \code{include_resource = FALSE}, or fish cells plus all resource cells
-when \code{include_resource = TRUE}.}
+\item{\code{n_active}}{Dimension of the Jacobian: the number of active fish
+cells plus all resource cells.}
 \item{\code{leading_eigenvectors}}{The eigenvectors of the two eigenvalues
 with the largest real part, reshaped back into the fish abundance
-space.
-When \code{include_resource = FALSE}: a complex array of shape
+space: a list with \verb{$fish}, a complex array of shape
 \verb{(n_species, n_sizes, 2)} with the same species and size dimnames as
-\code{params@initial_n}. When \code{include_resource = TRUE}: a list with
-\verb{$fish} (the same array) and \verb{$resource} (a complex matrix of shape
-\verb{(n_w_full, 2)} for the resource component).
+\code{params@initial_n}, and \verb{$resource}, a complex matrix of shape
+\verb{(n_w_full, 2)} for the resource component.
 Each eigenvector is normalised so that its maximum modulus equals 1.
 The real and imaginary parts of eigenvector 1 span the two-dimensional
 oscillation plane of the dominant mode; \code{Mod()} gives the amplitude
@@ -99,19 +88,12 @@ A \strong{Hopf bifurcation} occurs when a complex-conjugate pair of eigenvalues
 crosses the imaginary axis, giving a limit-cycle period
 \deqn{T = \frac{2\pi}{|\text{Im}(\lambda)|} \text{ years.}}
 
-When \code{include_resource = FALSE} (the default), the resource is treated as a
-fast variable that adjusts \emph{instantaneously} to the consumer abundance: for
-each perturbed \eqn{N}, \eqn{n_{pp}} is set to its quasi-static equilibrium
-\eqn{n_{pp}^*(N)}. The resulting reduced Jacobian has dimension equal to the
-number of active fish cells. This is equivalent to projecting the full
-dynamics onto the slow manifold \eqn{n_{pp} = n_{pp}^*(N)}.
-
-When \code{include_resource = TRUE}, both fish and resource cells are perturbed
-independently and the full coupled Jacobian is returned. Its eigenvalues
-include both the slow fish modes and a cluster of fast resource-relaxation
-modes, at \eqn{\lambda \approx -(r_{pp} + \mu_R)}. Comparing the dominant
-eigenvalues of the two analyses shows how much the quasi-static approximation
-affects the stability conclusion.
+The resource is a state variable of the system like any other: fish and
+resource cells are perturbed independently, giving the full coupled Jacobian.
+Its eigenvalues include both the slow fish modes and a cluster of fast
+resource-relaxation modes, at \eqn{\lambda \approx -(r_{pp} + \mu_R)}. Any
+resource dynamics function is supported: the semichemostat derivative is
+written down analytically, and anything else is differenced over a short step.
 }
 
 \subsection{Numerical details}{
