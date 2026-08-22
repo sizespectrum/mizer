@@ -19,11 +19,11 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-In a mizer model, a steady state represents an equilibrium where the abundance of every species at every size remains constant over time. While `steady()` attempts to find such a state by projecting the dynamics forward in time until changes stop, this only works if the steady state is *dynamically stable*.
+In a mizer model, a steady state represents an equilibrium where the abundance of every species at every size remains constant over time. While `tuneSteadyState()` attempts to find such a state by projecting the dynamics forward in time until changes stop, this only works if the steady state is *dynamically stable*.
 
 If a steady state is unstable, small perturbations will grow rather than decay, and the system will naturally move away from the steady state, often settling into persistent oscillations (a limit cycle) or more complex dynamics.
 
-Mizer provides the `steadyNewton()` function to find steady states irrespective of their stability by solving the algebraic equilibrium equations directly. Once a steady state is found, its stability can be analysed using `getStability()`.
+Mizer's steady-state finders take a `solver` argument for exactly this case. With `solver = "newton"` they find steady states irrespective of their stability by solving the algebraic equilibrium equations directly. Once a steady state is found, its stability can be analysed using `getStability()`.
 
 This vignette explains how to perform this stability analysis, what the results mean, how mizer's steady-state finders detect and characterise limit cycles, and how to use the linearised limit cycle approximation provided by `getLimitCycleSim()` to understand emergent oscillations around a Hopf bifurcation.
 
@@ -119,10 +119,10 @@ params <- NS_params
 
 The North Sea model at its default fishing effort is dynamically stable, so it makes a rather uneventful example: perturb it and it simply settles back down. To see something more interesting we increase the fishing pressure, setting the effort of every gear to `1.5`. This pushes the model across a **Hopf bifurcation** into a regime where the steady state is unstable.
 
-Because the steady state is now unstable, `steady()` cannot find it — projecting the dynamics forward would diverge away from it. This is exactly the situation `steadyNewton()` is designed for: it solves the equilibrium equations directly and therefore finds the steady state regardless of its stability.
+Because the steady state is now unstable, the default `solver = "project"` cannot find it — projecting the dynamics forward would diverge away from it. This is exactly the situation `solver = "newton"` is designed for: it solves the equilibrium equations directly and therefore finds the steady state regardless of its stability. We use `findSteadyState()` rather than `tuneSteadyState()` because we want the steady state of the model as it stands, with the reproduction parameters left alone.
 
 ```{r find_steady}
-params_f15 <- steadyNewton(params, effort = 1.5)
+params_f15 <- findSteadyState(params, effort = 1.5, solver = "newton")
 ```
 
 ## Diagnosing the instability
@@ -189,25 +189,25 @@ stab$dominant_period
 
 So the linear analysis predicts a growing oscillation with a period of roughly `r round(stab$dominant_period, 2)` years.
 
-## Watching the limit cycle emerge with `projectToSteady()`
+## Watching the limit cycle emerge with `projectUntilSettled()`
 
-We can confirm these predictions by projecting the dynamics with `projectToSteady()`.
+We can confirm these predictions by projecting the dynamics with `projectUntilSettled()`.
 
-Because the steady state is unstable, running the dynamics forward will never "converge" to a fixed point in the usual sense. `projectToSteady()` recognises this: it attaches a `"convergence"` attribute to its result that reports whether the trajectory settled on a stable fixed point or a limit cycle, along with its period and relative amplitude. By passing `return_sim = TRUE`, it returns a full `MizerSim` object covering the run.
+Because the steady state is unstable, running the dynamics forward will never "converge" to a fixed point in the usual sense. `projectUntilSettled()` recognises this: it attaches a `"convergence"` attribute to its result that reports whether the trajectory settled on a stable fixed point or a limit cycle, along with its period and relative amplitude. It returns a full `MizerSim` object covering the run, which is what we want here — the approach to the cycle is the thing to look at.
 
 ```{r pts_trbdf2}
-sim_cycle <- projectToSteady(params, effort = 1.5, t_max = 200, t_per = 0.2,
-                             return_sim = TRUE, method = "tr_bdf2")
+sim_cycle <- projectUntilSettled(params, effort = 1.5, t_max = 200,
+                                 t_per = 0.2, method = "tr_bdf2")
 attr(sim_cycle, "convergence")
 ```
 
-`projectToSteady()` correctly identifies the attractor as a limit cycle with a period of about `r round(attr(sim_cycle, "convergence")$period, 1)` years and a peak-to-trough biomass amplitude of about `r round(100 * attr(sim_cycle, "convergence")$amplitude)`% of the mean. Applied to a model with a genuine stable steady state (such as the default `params` at effort 0), the function reports `type = "below_tolerance"` instead, meaning the state stopped moving on the scale of the distance function:
+`projectUntilSettled()` correctly identifies the attractor as a limit cycle with a period of about `r round(attr(sim_cycle, "convergence")$period, 1)` years and a peak-to-trough biomass amplitude of about `r round(100 * attr(sim_cycle, "convergence")$amplitude)`% of the mean. Applied to a model with a genuine stable steady state (such as the default `params` at effort 0), the function reports `type = "below_tolerance"` instead, meaning the state stopped moving on the scale of the distance function:
 
 ```{r pts_steady}
-attr(projectToSteady(params, t_max = 100), "convergence")$type
+attr(projectUntilSettled(params, t_max = 100), "convergence")$type
 ```
 
-Because `return_sim = TRUE` returns a standard `MizerSim` object, we can plot the emergence of the limit cycle directly:
+Because it is a standard `MizerSim` object, we can plot the emergence of the limit cycle directly:
 
 ```{r plot_lcs_biomass2}
 plotBiomass(sim_cycle)
@@ -237,7 +237,7 @@ Everything in this vignette rests on the one-step map being differentiable at
 the steady state, so that the finite-difference Jacobian means something. That
 holds for models built from mizer's own rate functions, but not necessarily for
 a model carrying a custom rate registered with `setRateFunction()`. If such a
-rate jumps as a function of the abundances, `steadyNewton()` may stall and
+rate jumps as a function of the abundances, `solver = "newton"` may stall and
 `getStability()` can return a plausible-looking number that describes neither
 branch of the dynamics.
 

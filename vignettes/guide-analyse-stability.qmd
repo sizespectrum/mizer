@@ -23,7 +23,8 @@ links.
 
 Tools for asking whether a mizer steady state is dynamically **stable** — and,
 when it is not, characterising the **limit cycle** that replaces it. These are
-**experimental**: their interface may still change. [`steadyNewton()`](../reference/steadyNewton.html) assumes the
+**experimental**: their interface may still change. `findSteadyState(solver =
+"newton")` assumes the
 standard semichemostat resource dynamics and solves for the resource alongside
 the fish, so the resource density and the feeding levels it implies are
 self-consistent even where consumers are satiated. [`getStability()`](../reference/getStability.html) and
@@ -32,8 +33,8 @@ with any resource dynamics.
 
 Distinct from calibration: the [guide to reaching steady state and calibrating](guide-calibrate-model.html) gets you *onto* a fixed
 point; what follows analyses the *dynamics around* it. The natural entry point
-is `steadyNewton()`, which converges even when the fixed point is dynamically
-unstable, unlike [`steady()`](../reference/steady.html).
+is [`findSteadyState(params, solver = "newton")`](../reference/findSteadyState.html), which converges even when the
+fixed point is dynamically unstable, unlike the default `solver = "project"`.
 
 ---
 
@@ -53,7 +54,7 @@ top two eigenvectors of the state space split into `$fish`, a complex array
 each normalised to maximum modulus 1 (the spatial shape of the oscillation).
 
 ```{r eval=FALSE}
-params <- steadyNewton(params)          # sit exactly on the (possibly unstable) fixed point
+params <- findSteadyState(params, solver = "newton")  # sit exactly on the (possibly unstable) fixed point
 stab   <- getStability(params)
 stab                                     # stable/unstable, growth rate, cycle period
 ```
@@ -66,11 +67,13 @@ stab                                     # stable/unstable, growth rate, cycle p
 **Both `getStability()` and [`getLimitCycleSim()`](../reference/getLimitCycleSim.html) linearise at the state stored in
 the object**, so a model that is not on a fixed point gets eigenvalues for the
 neighbourhood of a point it is not sitting at. Both now warn when handed one;
-the fix is to run `steadyNewton()` (or `steady()`) first, not to ignore the
+the fix is to run `findSteadyState()` (or [`tuneSteadyState()`](../reference/tuneSteadyState.html)) first, not to
+ignore the
 warning. [`plot(getSteadyResidual(params))`](../reference/plot.html) shows how far off it is — see the
 [guide to reaching steady state and calibrating](guide-calibrate-model.html).
 
-`steady()` and [`projectToSteady()`](../reference/projectToSteady.html) attach a related `"convergence"` attribute
+`tuneSteadyState()` and `findSteadyState()` attach a related `"convergence"`
+attribute
 recording whether the run **dropped below its tolerance** (`type =
 "below_tolerance"`, which suggests but does not prove a fixed point), settled on
 **a limit cycle**, or **neither**, together with the cycle period and relative
@@ -106,7 +109,7 @@ directly instead of inverting the one-step map.
 
 ## Visualising the limit cycle — `getLimitCycleSim()`
 
-`getLimitCycleSim(params)` takes the output of `steadyNewton()` and builds a
+`getLimitCycleSim(params)` takes the output of `findSteadyState()` and builds a
 [`MizerSim`](../reference/MizerSim.html) covering **one period** of the limit cycle in the linear approximation,
 
 \[ x(t) = x^* + A\,\mathrm{Re}\!\left[e^{i\omega t}\,\mathbf v\right], \]
@@ -132,7 +135,7 @@ the linear mode. The result is an ordinary `MizerSim`, so plot it with the stand
 tools (see the [guide to analysing and plotting mizer results](guide-analyse-and-plot.html)):
 
 ```{r eval=FALSE}
-params <- steadyNewton(params)
+params <- findSteadyState(params, solver = "newton")
 sim    <- getLimitCycleSim(params, amplitude = 0.1)
 plotBiomass(sim)                         # biomass oscillation over one period
 animate(plotSpectra(sim))               # the travelling wave in the spectrum
@@ -164,7 +167,7 @@ plot(scan, style = "envelope")
   species, [`scanSpeciesParam()`](../reference/scanEffort.html) for any species parameter. `value_func` says what
   to measure: any of [`getBiomass()`](../reference/getBiomass.html), [`getYield()`](../reference/getYield.html), [`getSSB()`](../reference/getSSB.html), [`getN()`](../reference/getN.html). `species`
   restricts which series are shown. See the [guide to analysing and plotting mizer results](guide-analyse-and-plot.html).
-- The settling stage runs `projectToSteady()`, whose `tol`, `amplitude_tol` and
+- The settling stage runs [`projectUntilSettled()`](../reference/projectUntilSettled.html), whose `tol`, `amplitude_tol` and
   `extinction_threshold` are exposed for tuning when a run is slow to settle or a
   species is collapsing.
 - The returned [`MizerScan`](../reference/MizerScan.html) object is a data frame, so the numbers behind the

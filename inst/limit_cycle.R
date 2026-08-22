@@ -54,14 +54,14 @@ mort    <- ext_mort(params)
 mort[]  <- mu_b
 ext_mort(params) <- mort
 
-ss <- projectToSteady(params, t_max = 150, t_per = 0.2, dt = p$dt,
-                      method = p$method, return_sim = TRUE)
+ss <- projectUntilSettled(params, t_max = 150, t_per = 0.2, dt = p$dt,
+                          method = p$method)
 plotBiomass(ss)
 conv <- attr(ss, "convergence")
 start <- conv$years - conv$period
 pp <- getParams(ss, c(start, conv$years))
 
-ps <- steadyNewton(pp, reproduction = "dynamic")
+ps <- findSteadyState(pp, solver = "newton")
 stab <- getStability(ps)
 stab$stable
 
@@ -84,8 +84,8 @@ getDiscreteStability(ps, dt = p$dt)$spectral_radius
 # Let's test that by making a small perturbation
 ps_pert <- ps
 initialN(ps_pert) <- initialN(ps) * 1.01
-sim <- projectToSteady(ps_pert, t_per = 0.2, dt = p$dt, tol = 1e-6,
-                       method = p$method, return_sim = TRUE)
+sim <- projectUntilSettled(ps_pert, t_per = 0.2, dt = p$dt, tol = 1e-6,
+                           method = p$method)
 plotBiomass(sim)
 
 
@@ -96,8 +96,8 @@ effort_seq <- c(1, 2, 3, 5, 9, 20, 50, 100)
 params <- finalParams(ss)
 
 mean_yield <- sapply(effort_seq, function(effort) {
-    sim <- projectToSteady(params, dt = p$dt, method = p$method, t_per = 0.2,
-                           return_sim = TRUE, effort = effort)
+    sim <- projectUntilSettled(params, dt = p$dt, method = p$method,
+                               t_per = 0.2, effort = effort)
     conv <- attr(sim, "convergence")
     start <- conv$years - conv$period
     mean(getYield(sim)[getTimes(sim) >= start, ])

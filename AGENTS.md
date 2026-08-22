@@ -28,14 +28,14 @@ Before modifying, designing, or debugging core features, consult the design inte
 | When working on... | Consult skill |
 |---|---|
 | Modifying parameter accessors, downward propagation, rate setters, or freeze mechanisms | `inst/skills/change-parameters/SKILL.md` |
-| Calibration functions (`steady`, `calibrateBiomass`, `matchGrowth`), steady states, or reproduction levels | `inst/skills/calibrate-model/SKILL.md` |
+| Calibration functions (`tuneSteadyState`, `calibrateBiomass`, `matchGrowth`), steady states, or reproduction levels | `inst/skills/calibrate-model/SKILL.md` |
 | Extension points (`setExtEncounter`, `setExtMort`, `setComponent`, `setRateFunction`) | `inst/skills/extend-mizer/SKILL.md` |
 | Packaging an extension: `.onLoad` registration, marker classes, `NextMethod()` dispatch, bundled data, upgrading saved objects | `inst/skills/create-extension-package/SKILL.md` |
 | The extension chain, or saving/reading params and sim objects | `inst/skills/use-extension-packages/SKILL.md` |
 | Model constructors (`newMultispeciesParams`, etc.), size grids, or allometric defaults | `inst/skills/build-model/SKILL.md` |
 | Fishing gears, selectivity functions, catchability, or `gear_params` | `inst/skills/set-up-fishing/SKILL.md` |
 | Simulation stepping, projection methods, or effort scenarios | `inst/skills/run-simulation/SKILL.md` |
-| Stability analysis, limit cycles, `steadyNewton`, or `getStability` | `inst/skills/analyse-stability/SKILL.md` |
+| Stability analysis, limit cycles, the `solver` argument, or `getStability` | `inst/skills/analyse-stability/SKILL.md` |
 | Summary or plotting functions | `inst/skills/analyse-and-plot/SKILL.md` |
 | Renaming/deprecating arguments, changing defaults, or investigating breaking changes | `inst/skills/upgrade-mizer-code/SKILL.md` |
 

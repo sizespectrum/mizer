@@ -95,8 +95,8 @@ settle <- function(p) {
 hard_settled <- settle(params_hard)
 ramp_settled <- settle(params_ramp)
 
-ramp_ss <- steadyNewton(ramp_settled)
-hard_ss <- suppressWarnings(steadyNewton(hard_settled))
+ramp_ss <- findSteadyState(ramp_settled, solver = "newton")
+hard_ss <- suppressWarnings(findSteadyState(hard_settled, solver = "newton"))
 
 ratio_ssb <- c(ramp = getSSB(ramp_ss)[["Cod"]] / other_params(params)$b_lim,
                hard = getSSB(hard_ss)[["Cod"]] / other_params(params)$b_lim)

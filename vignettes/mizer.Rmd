@@ -296,12 +296,14 @@ suppressed them here to keep the output short.
 
 ### Finding the steady state
 
-A freshly built model has only a rough spectrum. `steady()` runs the
+A freshly built model has only a rough spectrum. `tuneSteadyState()` runs the
 size-spectrum dynamics, holding reproduction and the resource fixed, until the
-community settles onto a steady state.
+community settles onto a steady state. It then adjusts the reproduction and
+resource parameters so that the held values are steady too — which is why it is
+called *tuning* the model to a steady state rather than merely finding one.
 
 ```{r}
-cel <- steady(cel)
+cel <- tuneSteadyState(cel)
 plotSpectra(cel, per_log_size = TRUE)
 ```
 
@@ -312,7 +314,7 @@ background resource — the hallmark of a self-consistent size-spectrum model.
 
 The steady state is self-consistent, but its species abundances are still
 arbitrary. Calibration rescales them to match observation. We do this in stages,
-**re-running `steady()` after every adjustment** because each change pushes the
+**re-running `tuneSteadyState()` after every adjustment** because each change pushes the
 community off its steady state:
 
 - `calibrateBiomass()` sets the overall abundance scale (the resource level
@@ -331,7 +333,7 @@ cel <- calibrateBiomass(cel)
 for (i in 1:4) {
     cel <- matchBiomasses(cel)
     cel <- matchGrowth(cel)
-    cel <- steady(cel)
+    cel <- tuneSteadyState(cel)
 }
 ```
 
@@ -400,8 +402,8 @@ that could be taken indefinitely at that effort.
 ```{r}
 efforts <- c(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2)
 sustainable_yield <- sapply(efforts, function(e) {
-    p <- projectToSteady(cel, effort = e, t_max = 100,
-                         return_sim = FALSE, progress_bar = FALSE)
+    p <- findSteadyState(cel, effort = e, t_max = 100,
+                         progress_bar = FALSE)
     sum(getYield(p))
 })
 
