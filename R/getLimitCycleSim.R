@@ -94,8 +94,8 @@ getLimitCycleSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
     safe_idx <- if (idx <= dim(if (is.array(lev)) lev else lev$fish)[3]) idx else 1
     v_use <- if (is.array(lev)) lev[, , safe_idx] else lev$fish[, , safe_idx]
 
-    theta    <- Im(lam1)               # angular frequency per time step
-    T_period <- 2 * pi / abs(theta)    # period in time steps
+    theta    <- Im(lam1)               # angular frequency, per year
+    T_period <- 2 * pi / abs(theta)    # period in years
 
     # ------------------------------------------------------------------
     # 3. Time grid

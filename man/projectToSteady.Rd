@@ -229,7 +229,7 @@ one period to the next, the cycle does not. The distinction is necessarily
 imperfect when the decay is extremely slow, because over any finite run such
 a spiral is indistinguishable from a cycle. If you need a definitive answer,
 use \code{\link[=getStability]{getStability()}} on the fixed point found by \code{\link[=steadyNewton]{steadyNewton()}}, which
-works out the spectral radius of the linearised dynamics instead of watching
+works out the eigenvalues of the linearised dynamics instead of watching
 a trajectory.
 
 The reported \code{period} is a multiple of \code{t_save}, so it is only resolved to

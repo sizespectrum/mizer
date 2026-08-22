@@ -453,33 +453,27 @@ resource_steady_semichemostat <- function(params, N, n_other) {
 #'   so that a caller evaluating the residual many times need only look them up
 #'   once.
 #' @param flux_limiter The flux limiter scheme, from `flux_limiter_scheme()`.
+#' @param rates The rates at this state, as returned by `mizer_rates_subset()`
+#'   with targets `EGrowth`, `Mort` and `Diffusion`. Pass them in when the
+#'   caller has computed them already; otherwise they are computed here.
 #' @return The unscaled residual matrix (species x size).
 #' @noRd
 consumer_residual <- function(params, n, n_pp, n_other, effort, rdd = NULL,
                               rates_fns = projectRateFunctions(params),
-                              flux_limiter = flux_limiter_scheme(params)) {
+                              flux_limiter = flux_limiter_scheme(params),
+                              rates = NULL) {
     no_w <- length(params@w)
 
-    r <- mizer_rates_subset(params, n = n, n_pp = n_pp, n_other = n_other,
-                            t = 0, effort = effort, rates_fns = rates_fns,
-                            targets = c("EGrowth", "Mort", "Diffusion"))
+    r <- rates
+    if (is.null(r)) {
+        r <- mizer_rates_subset(params, n = n, n_pp = n_pp, n_other = n_other,
+                                t = 0, effort = effort, rates_fns = rates_fns,
+                                targets = c("EGrowth", "Mort", "Diffusion"))
+    }
 
     if (is.null(rdd)) {
-        if (usesExtensionDispatch(params)) {
-            rdi <- projectRDI(params, n = n, n_pp = n_pp, n_other = n_other, t = 0,
-                              e_repro = r$e_repro, e_growth = r$e_growth, mort = r$mort,
-                              diffusion = r$diffusion)
-            rdd <- projectRDD(params, rdi = rdi, species_params = params@species_params,
-                              t = 0)
-        } else {
-            f_rdi <- get(params@rates_funcs$RDI)
-            rdi <- f_rdi(params, n = n, n_pp = n_pp, n_other = n_other, t = 0,
-                         e_repro = r$e_repro, e_growth = r$e_growth, mort = r$mort,
-                         diffusion = r$diffusion)
-            f_rdd <- get(params@rates_funcs$RDD)
-            rdd <- f_rdd(rdi = rdi, species_params = params@species_params,
-                         params = params, t = 0)
-        }
+        rdd <- state_rdd(params, n = n, n_pp = n_pp, n_other = n_other,
+                         rates = r)
     }
 
     coefs <- get_transport_coefs(params, n = n, g = r$e_growth,
@@ -491,6 +485,40 @@ consumer_residual <- function(params, n, n_pp, n_other, effort, rdd = NULL,
     Nm <- cbind(0, n[, -no_w, drop = FALSE])   # N_{j-1}
     Np <- cbind(n[, -1, drop = FALSE], 0)      # N_{j+1}
     coefs$a * Nm + coefs$b * n + coefs$c * Np - coefs$S
+}
+
+#' Reproduction rate at a given state
+#'
+#' Runs the model's own RDI and RDD functions at the state `(n, n_pp, n_other)`,
+#' going through the extension dispatch when the model carries extensions. This
+#' is the reproduction rate that the dynamics would use at that state, as
+#' opposed to a rate held fixed at its steady-state value. It is shared by
+#' `consumer_residual()` and the stability analyses, which have to agree on it.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @param n Consumer densities (species x size).
+#' @param n_pp Resource density.
+#' @param n_other Abundances of other components.
+#' @param rates The rates at this state, at least `e_repro`, `e_growth`, `mort`
+#'   and `diffusion`, as returned by `mizer_rates_subset()`.
+#' @return The per-species density-dependent reproduction rate.
+#' @noRd
+state_rdd <- function(params, n, n_pp, n_other, rates) {
+    if (usesExtensionDispatch(params)) {
+        rdi <- projectRDI(params, n = n, n_pp = n_pp, n_other = n_other, t = 0,
+                          e_repro = rates$e_repro, e_growth = rates$e_growth,
+                          mort = rates$mort, diffusion = rates$diffusion)
+        projectRDD(params, rdi = rdi, species_params = params@species_params,
+                   t = 0)
+    } else {
+        f_rdi <- get(params@rates_funcs$RDI)
+        rdi <- f_rdi(params, n = n, n_pp = n_pp, n_other = n_other, t = 0,
+                     e_repro = rates$e_repro, e_growth = rates$e_growth,
+                     mort = rates$mort, diffusion = rates$diffusion)
+        f_rdd <- get(params@rates_funcs$RDD)
+        f_rdd(rdi = rdi, species_params = params@species_params,
+              params = params, t = 0)
+    }
 }
 
 #' Residual of the discrete steady-state equation
@@ -583,79 +611,422 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 
 # Stability analysis ----------------------------------------------------------
 
+#' Shared scaffolding for the stability analyses
+#'
+#' [getStability()] and [getDiscreteStability()] differ only in the map they
+#' linearise: the continuous rates of change in the one case, mizer's numerical
+#' one-step map in the other. Everything around that map is the same, and this
+#' function assembles it: the validated `params`, the active set, the packed
+#' state vector with its finite-difference step scales, and the closures that
+#' unpack a packed state, name a cell and check a result for non-finite values.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @param reproduction Whether reproduction is held fixed or run dynamically.
+#' @param effort The fishing effort to use.
+#' @param include_resource Whether the resource is a state variable of its own
+#'   (`TRUE`) or is substituted at its quasi-static equilibrium (`FALSE`).
+#' @param fn_name The name of the calling function, for error messages.
+#' @param map_name What the linearised map is called, for error messages.
+#' @return A list holding the validated `params`, the state and the closures
+#'   described above.
+#' @noRd
+stability_context <- function(params,
+                              reproduction = c("fixed", "dynamic"),
+                              effort = params@initial_effort,
+                              include_resource = FALSE,
+                              fn_name = "getStability",
+                              map_name = "the rates of change") {
+    reproduction <- match.arg(reproduction)
+    params <- validParams(params)
+    effort <- validEffortVector(effort, params = params)
+    params@initial_effort <- effort
+
+    # The whole calculation linearises the dynamics *at* the stored state. If
+    # that state is not a fixed point, the eigenvalues describe the
+    # neighbourhood of a point the model is not sitting at, and the verdict on
+    # stability means nothing.
+    warn_if_not_steady(params, paste(
+        "The eigenvalues below describe the dynamics near a fixed point, so on",
+        "a state that is not one they are not meaningful. Use `steadyNewton()`",
+        "first."))
+
+    if (!include_resource &&
+        params@resource_dynamics != "resource_semichemostat") {
+        stop(fn_name, "() with include_resource = FALSE requires ",
+             "semichemostat resource dynamics. ",
+             "Use include_resource = TRUE for other resource dynamics.",
+             call. = FALSE)
+    }
+
+    rdd_const <- if (reproduction == "dynamic") NULL else getRDD(params)
+    n_other      <- params@initial_n_other
+    active       <- steady_active_set(params)
+    active_idx   <- which(active$mask)
+    flux_limiter <- flux_limiter_scheme(params)
+    rates_fns    <- projectRateFunctions(params)
+
+    N_ss   <- params@initial_n
+    npp_ss <- params@initial_n_pp
+    N_vec  <- N_ss[active$mask]
+    n_fish_active <- length(N_vec)
+
+    # Finite-difference step sizes. The step is relative, `h * N`, so a cell at
+    # exactly zero would get a zero step: the difference quotient then drops
+    # the cell from the Jacobian and puts a spurious zero eigenvalue in place of
+    # its true decay rate. Such cells do occur: an isolated negativity-floor
+    # artefact of the second-order schemes, or a tail class that steadyNewton()
+    # zeroed at its structural floor. We therefore floor the step at the local
+    # scale of the spectrum, log-interpolated across the gaps from the nonzero
+    # neighbours exactly as the Newton solve does. A row that is zero throughout
+    # (an extinct species) has no local scale either, but there the dynamics are
+    # exactly linear about a zero baseline, so any step recovers the derivative
+    # and the absolute floor is kept.
+    N_scale <- fd_step_scale(N_vec,
+                             positive_initial_guess(N_ss, params@w_min_idx,
+                                                    active$w_top)[active$mask])
+
+    if (include_resource) {
+        npp_vec <- as.numeric(npp_ss)
+        n_npp   <- length(npp_vec)
+        # Step scale for the resource, floored the same way as for the fish.
+        # The resource carries structural zeros above `w_pp_cutoff`, where the
+        # capacity vanishes; log-interpolation with flat extrapolation gives
+        # them the scale of the last nonzero class.
+        npp_local <- positive_initial_guess(matrix(npp_vec, nrow = 1),
+                                            w_min_idx = 1L, w_top = n_npp)
+        npp_scale <- fd_step_scale(npp_vec, as.numeric(npp_local))
+        x0    <- c(N_vec, npp_vec)
+        scale <- c(N_scale, npp_scale)
+    } else {
+        n_npp <- 0L
+        x0    <- N_vec
+        scale <- N_scale
+    }
+
+    # Packed state -> the arrays the rate functions want. With the resource left
+    # out of the state it is substituted at its quasi-static equilibrium, which
+    # is what projects the dynamics onto the slow manifold.
+    unpack <- function(x) {
+        N <- N_ss
+        N[active_idx] <- x[seq_len(n_fish_active)]
+        if (include_resource) {
+            n_pp <- npp_ss
+            n_pp[] <- x[n_fish_active + seq_len(n_npp)]
+        } else {
+            n_pp <- resource_steady_semichemostat(params, N, n_other)
+        }
+        list(N = N, n_pp = n_pp)
+    }
+
+    # A custom rate function can be non-finite at a state that the differencing
+    # visits. Fail loudly, naming the cell, rather than letting a NaN travel on
+    # into eigen() and come back as a meaningless spectrum.
+    check <- function(x, where) {
+        if (!all(is.finite(x))) {
+            stop(fn_name, "(): ", map_name, " returned non-finite values ",
+                 where, ". Every state it evaluates satisfies N >= 0, so this ",
+                 "points to a rate function that is not finite there.",
+                 call. = FALSE)
+        }
+    }
+
+    describe <- function(k) {
+        if (k <= n_fish_active) {
+            rc <- arrayInd(active_idx[k], dim(N_ss))
+            paste0("when perturbing species ",
+                   params@species_params$species[rc[1]], " at w = ",
+                   signif(params@w[rc[2]], 3))
+        } else {
+            paste0("when perturbing the resource at w = ",
+                   signif(params@w_full[k - n_fish_active], 3))
+        }
+    }
+
+    list(params = params, effort = effort, rdd_const = rdd_const,
+         n_other = n_other, active = active, active_idx = active_idx,
+         n_fish_active = n_fish_active, n_npp = n_npp,
+         include_resource = include_resource,
+         rates_fns = rates_fns, flux_limiter = flux_limiter,
+         N_ss = N_ss, npp_ss = npp_ss, x0 = x0, scale = scale,
+         unpack = unpack, check = check, describe = describe)
+}
+
+#' Finite-difference Jacobian of a map on the packed state
+#'
+#' Differences `f` column by column at the steady state, with a multiplicative
+#' step `h * scale[k]`.
+#'
+#' Every state at which `f` is evaluated satisfies \eqn{N \ge 0}: where a
+#' centred step would push a cell negative — which can only happen for a cell at
+#' (or below) the floor described in `stability_context()` — the column is
+#' differenced forwards from the unperturbed state instead. Such columns are
+#' first order in `h` rather than second.
+#'
+#' @param ctx The context from `stability_context()`.
+#' @param f The map, a function of the packed state vector returning a vector of
+#'   the same length.
+#' @param h Relative step size.
+#' @return The Jacobian matrix of `f` at the steady state.
+#' @noRd
+stability_jacobian <- function(ctx, f, h) {
+    x <- ctx$x0
+    n <- length(x)
+    L <- matrix(0, nrow = n, ncol = n)
+
+    # Baseline for the one-sided columns, shared by all of them. It has to be
+    # evaluated rather than assumed: the state is a fixed point only to the
+    # tolerance of whatever produced it, and that residual would otherwise be
+    # divided by eps into every one-sided column.
+    base <- f(x)
+    ctx$check(base, "at the unperturbed steady state")
+
+    for (k in seq_len(n)) {
+        eps <- h * ctx$scale[k]
+        x_plus <- x
+        x_plus[k] <- x[k] + eps
+        if (x[k] - eps < 0) {
+            # A centred step would leave the physical cone N >= 0. Difference
+            # forwards instead: at the boundary of the cone the one-sided
+            # derivative is the right object anyway, because the dynamics never
+            # visit the states a centred step would sample. This keeps every
+            # rate function evaluation inside N >= 0, so extensions need not be
+            # defined at negative abundances.
+            L[, k] <- (f(x_plus) - base) / eps
+        } else {
+            x_minus <- x
+            x_minus[k] <- x[k] - eps
+            L[, k] <- (f(x_plus) - f(x_minus)) / (2 * eps)
+        }
+        ctx$check(L[, k], ctx$describe(k))
+    }
+    L
+}
+
+#' The continuous rates of change as a map on the packed state
+#'
+#' Returns the function that [getStability()] differentiates: the instantaneous
+#' rate of change of every state variable. For the consumers this is
+#' `-consumer_residual()`, which assembles exactly the semi-discretised
+#' \eqn{dN/dt} with the spatial scheme configured in `params`. For the resource
+#' it is the analytic semichemostat derivative; any other resource dynamics is
+#' only available as a one-step map, so there it is differenced over a short
+#' step, as `steady_rates()` does.
+#'
+#' @param ctx The context from `stability_context()`.
+#' @param dt_resource Step length for differencing a resource dynamics function
+#'   that is not the semichemostat.
+#' @return A function of the packed state vector.
+#' @noRd
+stability_rhs <- function(ctx, dt_resource = 1e-4) {
+    params  <- ctx$params
+    targets <- c("EGrowth", "Mort", "Diffusion")
+    if (ctx$include_resource) targets <- c(targets, "ResourceMort")
+    semichemostat <- params@resource_dynamics == "resource_semichemostat"
+    resource_dyn  <- if (semichemostat) NULL else get(params@resource_dynamics)
+
+    function(x) {
+        st <- ctx$unpack(x)
+        r <- mizer_rates_subset(params, n = st$N, n_pp = st$n_pp,
+                                n_other = ctx$n_other, t = 0,
+                                effort = ctx$effort,
+                                rates_fns = ctx$rates_fns, targets = targets)
+        dNdt <- -consumer_residual(params, n = st$N, n_pp = st$n_pp,
+                                   n_other = ctx$n_other, effort = ctx$effort,
+                                   rdd = ctx$rdd_const,
+                                   rates_fns = ctx$rates_fns,
+                                   flux_limiter = ctx$flux_limiter,
+                                   rates = r)
+        out <- dNdt[ctx$active$mask]
+
+        if (ctx$include_resource) {
+            if (semichemostat) {
+                # dn_pp/dt = rr (cc - n_pp) - mu_R n_pp. Where both the
+                # replenishment rate and the mortality vanish this is zero, so
+                # such a class simply stays put, as resource_semichemostat()
+                # also arranges.
+                dnpp <- params@rr_pp * params@cc_pp -
+                    (params@rr_pp + r$resource_mort) * st$n_pp
+            } else {
+                npp_new <- resource_dyn(params, n = st$N, n_pp = st$n_pp,
+                                        n_other = ctx$n_other, rates = r,
+                                        t = 0, dt = dt_resource,
+                                        resource_rate = params@rr_pp,
+                                        resource_capacity = params@cc_pp)
+                dnpp <- (npp_new - st$n_pp) / dt_resource
+            }
+            out <- c(out, as.numeric(dnpp))
+        }
+        out
+    }
+}
+
+#' Mizer's numerical one-step map on the packed state
+#'
+#' Returns the function that [getDiscreteStability()] differentiates: one step
+#' of length `dt` of the dynamics as [project()] takes it with
+#' `method = "euler"`, using the same `project_n_loop()` C++ Thomas solver and
+#' the same transport coefficients.
+#'
+#' The resource is stepped with backward Euler rather than with the exact
+#' semichemostat solution that [resource_semichemostat()] uses, so that the fast
+#' resource modes cannot land on a discrete eigenvalue of exactly zero. The two
+#' agree to first order in `dt` for the slow modes that decide stability, and
+#' both damp the fast modes out within a step.
+#'
+#' @param ctx The context from `stability_context()`.
+#' @param dt The step length.
+#' @return A function of the packed state vector.
+#' @noRd
+stability_step <- function(ctx, dt) {
+    params  <- ctx$params
+    w_top   <- support_top_idx(params)
+    targets <- c("EGrowth", "Mort", "Diffusion")
+    if (ctx$include_resource) targets <- c(targets, "ResourceMort")
+    semichemostat <- params@resource_dynamics == "resource_semichemostat"
+    resource_dyn  <- if (semichemostat) NULL else get(params@resource_dynamics)
+
+    function(x) {
+        st <- ctx$unpack(x)
+        r <- mizer_rates_subset(params, n = st$N, n_pp = st$n_pp,
+                                n_other = ctx$n_other, t = 0,
+                                effort = ctx$effort,
+                                rates_fns = ctx$rates_fns, targets = targets)
+        rdd <- ctx$rdd_const
+        if (is.null(rdd)) {
+            rdd <- state_rdd(params, n = st$N, n_pp = st$n_pp,
+                             n_other = ctx$n_other, rates = r)
+        }
+        coefs <- get_transport_coefs(params, n = st$N, g = r$e_growth,
+                                     mu = r$mort, dt = dt,
+                                     recruitment_flux = rdd,
+                                     d = r$diffusion,
+                                     flux_limiter = ctx$flux_limiter)
+        N_out <- project_n_loop(st$N, coefs$a, coefs$b, coefs$c, coefs$S,
+                                params@w_min_idx)
+        out <- zero_above_support(N_out, w_top)[ctx$active$mask]
+
+        if (ctx$include_resource) {
+            if (semichemostat) {
+                mur <- params@rr_pp + r$resource_mort
+                npp_out <- (st$n_pp + dt * params@rr_pp * params@cc_pp) /
+                    (1 + dt * mur)
+            } else {
+                npp_out <- resource_dyn(params, n = st$N, n_pp = st$n_pp,
+                                        n_other = ctx$n_other, rates = r,
+                                        t = 0, dt = dt,
+                                        resource_rate = params@rr_pp,
+                                        resource_capacity = params@cc_pp)
+            }
+            out <- c(out, as.numeric(npp_out))
+        }
+        out
+    }
+}
+
+#' Reshape the leading eigenvectors back into abundance space
+#'
+#' @param evecs The eigenvector matrix, columns already sorted.
+#' @param ctx The context from `stability_context()`.
+#' @return The `leading_eigenvectors` component of the stability list.
+#' @noRd
+stability_eigenvectors <- function(evecs, ctx) {
+    n_leading <- min(2L, ncol(evecs))
+    N_ss  <- ctx$N_ss
+    no_sp <- nrow(N_ss)
+    no_w  <- ncol(N_ss)
+
+    fish <- array(0 + 0i, dim = c(no_sp, no_w, n_leading),
+                  dimnames = c(dimnames(N_ss), list(NULL)))
+    for (k in seq_len(n_leading)) {
+        v <- evecs[seq_len(ctx$n_fish_active), k]
+        # Normalise to maximum modulus 1 for comparability.
+        max_mod <- max(Mod(v))
+        if (max_mod > 0) v <- v / max_mod
+        M <- matrix(0 + 0i, nrow = no_sp, ncol = no_w)
+        M[ctx$active_idx] <- v
+        fish[, , k] <- M
+    }
+    if (!ctx$include_resource) return(fish)
+
+    resource <- matrix(0 + 0i, nrow = ctx$n_npp, ncol = n_leading)
+    for (k in seq_len(n_leading)) {
+        v <- evecs[ctx$n_fish_active + seq_len(ctx$n_npp), k]
+        max_mod <- max(Mod(v))
+        if (max_mod > 0) v <- v / max_mod
+        resource[, k] <- v
+    }
+    rownames(resource) <- names(ctx$npp_ss)
+    list(fish = fish, resource = resource)
+}
+
 #' Analyse the dynamic stability of a mizer steady state
 #'
 #' `r lifecycle::badge("experimental")`
-#' Computes the eigenvalues of the linearised one-step-ahead map at the steady
-#' state stored in `params@initial_n`. These eigenvalues determine whether
-#' the steady state is dynamically stable and, when a Hopf bifurcation is
-#' approached, the period of the emergent limit cycle.
+#' Computes the eigenvalues of the linearised dynamics at the steady state
+#' stored in `params@initial_n`. These eigenvalues determine whether the steady
+#' state is dynamically stable and, when a Hopf bifurcation is approached, the
+#' period of the emergent limit cycle.
 #'
 #' ## Mathematical background
 #'
-#' The mizer time step applies a backward-Euler transport solve for the fish:
-#' \deqn{A(N^t, n_{pp}^t)\,N^{t+1} = S(N^t, n_{pp}^t),}
-#' and an exact semi-chemostat update for the resource:
-#' \deqn{n_{pp}^{t+1} = n_{pp}^* + (n_{pp}^t - n_{pp}^*)\,e^{-\mu^t\,dt},}
-#' where \eqn{n_{pp}^* = r_{pp}\,c_{pp}/\mu^t} is the resource steady state
-#' conditioned on the mortality \eqn{\mu^t} due to consumers at time \eqn{t}.
-#' Note that this function evaluates the Jacobian of this specific first-order
-#' backward-Euler time step, regardless of which `method` you might later pass
-#' to [project()]. However, it fully respects any higher-order spatial scheme
-#' configured via [second_order_w()].
+#' Mizer discretises the size axis but not time: on the size grid the model is a
+#' system of ordinary differential equations
+#' \deqn{\frac{dN}{dt} = F(N, n_{pp}),}
+#' where \eqn{F} collects the divergence of the growth flux, the mortality sink
+#' and the reproductive influx at the egg size, assembled with the spatial
+#' scheme configured via [second_order_w()]. `getStability()` differentiates
+#' \eqn{F} directly, by centred finite differences in each state variable, and
+#' returns the eigenvalues \eqn{\lambda_i} of the resulting Jacobian
+#' \eqn{J = \partial F/\partial N}. The steady state is **stable** when all of
+#' them satisfy \eqn{\text{Re}(\lambda_i) < 0} and **unstable** when at least
+#' one exceeds 0.
 #'
-#' The stability is determined by the Jacobian of the full one-step-ahead map
-#' \eqn{G : (N, n_{pp}) \mapsto (N^{t+1}, n_{pp}^{t+1})} at the fixed point.
-#'
-#' When `include_resource = FALSE` (the default), the resource is treated as a
-#' fast variable that adjusts *instantaneously* to the consumer abundance: for
-#' each perturbed \eqn{N}, \eqn{n_{pp}} is set to its quasi-static equilibrium
-#' \eqn{n_{pp}^*(N)}.  The resulting reduced Jacobian \eqn{L_{\text{red}}} has
-#' dimension equal to the number of active fish cells.  This is equivalent to
-#' projecting the full dynamics onto the slow manifold \eqn{n_{pp} = n_{pp}^*(N)}.
-#'
-#' When `include_resource = TRUE`, both fish and resource cells are perturbed
-#' independently and the full coupled Jacobian \eqn{L_{\text{full}}} is
-#' returned.  Its eigenvalues include both the slow fish modes and a cluster of
-#' fast resource-relaxation modes (with modulus \eqn{e^{-\mu\,dt} \ll 1}).
-#' Comparing the dominant eigenvalues of the two analyses shows how much the
-#' quasi-static approximation affects the stability conclusion.
-#'
-#' The discrete eigenvalues \eqn{\mu_i} of the numerical Jacobian are mapped back
-#' to their exact continuous-time equivalents \eqn{\lambda_i = (1 - 1/\mu_i) / dt} to
-#' remove the artificial temporal numerical diffusion introduced by the backward
-#' Euler solver. The steady state is **stable** when all continuous-time
-#' eigenvalues satisfy \eqn{\text{Re}(\lambda_i) < 0} and **unstable** when at
-#' least one exceeds 0.
+#' No time step enters this calculation. The eigenvalues are a property of the
+#' model, not of any solver: they describe the continuous-time dynamics of the
+#' semi-discretised model, and are what a simulation with a small enough time
+#' step converges to. The stability of the numerical step itself is a separate
+#' question, answered by [getDiscreteStability()].
 #'
 #' A **Hopf bifurcation** occurs when a complex-conjugate pair of eigenvalues
 #' crosses the imaginary axis, giving a limit-cycle period
 #' \deqn{T = \frac{2\pi}{|\text{Im}(\lambda)|} \text{ years.}}
 #'
-#' Both branches use the same `project_n_loop()` C++ Thomas solver as the
-#' regular dynamics, evaluating the transport coefficients with the exact
-#' spatial scheme configured in `params` (e.g., first-order upwind or a
-#' second-order limiter). The Jacobian is computed numerically using a
-#' multiplicative (relative) finite-difference step \eqn{h \cdot N^*}. Where a
-#' cell sits at exactly zero and so has no scale of its own, the step is floored
-#' at the local scale of the spectrum, interpolated from the nonzero neighbours,
-#' so that the cell still gets a resolved derivative rather than a column of
-#' rounding error.
+#' When `include_resource = FALSE` (the default), the resource is treated as a
+#' fast variable that adjusts *instantaneously* to the consumer abundance: for
+#' each perturbed \eqn{N}, \eqn{n_{pp}} is set to its quasi-static equilibrium
+#' \eqn{n_{pp}^*(N)}. The resulting reduced Jacobian has dimension equal to the
+#' number of active fish cells. This is equivalent to projecting the full
+#' dynamics onto the slow manifold \eqn{n_{pp} = n_{pp}^*(N)}.
 #'
-#' Every state at which the rate functions are evaluated satisfies
-#' \eqn{N \ge 0}: where a centred step would push a cell negative — which can
-#' only happen for a cell at (or below) the floor described above — the column is
-#' differenced forwards from the unperturbed state instead. At the boundary of
-#' the physical cone the one-sided derivative is the appropriate object anyway,
-#' since the dynamics never visit the states a centred step would sample. A rate
-#' function registered with [setRateFunction()] therefore never has to be defined
-#' at negative abundances. Such columns are first order in `h` rather than
-#' second, so they respond slightly more to a change of `h` than the rest.
+#' When `include_resource = TRUE`, both fish and resource cells are perturbed
+#' independently and the full coupled Jacobian is returned. Its eigenvalues
+#' include both the slow fish modes and a cluster of fast resource-relaxation
+#' modes, at \eqn{\lambda \approx -(r_{pp} + \mu_R)}. Comparing the dominant
+#' eigenvalues of the two analyses shows how much the quasi-static approximation
+#' affects the stability conclusion.
+#'
+#' ## Numerical details
+#'
+#' The Jacobian is computed numerically using a multiplicative (relative)
+#' finite-difference step \eqn{h \cdot N^*}. Where a cell sits at exactly zero
+#' and so has no scale of its own, the step is floored at the local scale of the
+#' spectrum, interpolated from the nonzero neighbours, so that the cell still
+#' gets a resolved derivative rather than a column of rounding error.
+#'
+#' Every state at which the rates are evaluated satisfies \eqn{N \ge 0}: where
+#' a centred step would push a cell negative — which can only happen for a cell
+#' at (or below) the floor described above — the column is differenced forwards
+#' from the unperturbed state instead. At the boundary of the physical cone the
+#' one-sided derivative is the appropriate object anyway, since the dynamics
+#' never visit the states a centred step would sample. A rate function
+#' registered with [setRateFunction()] therefore never has to be defined at
+#' negative abundances. Such columns are first order in `h` rather than second,
+#' so they respond slightly more to a change of `h` than the rest.
 #'
 #' @param params A \linkS4class{MizerParams} object whose `initial_n` holds the
 #'   steady state to analyse. Typically the output of [steadyNewton()].
 #' @param reproduction Whether the reproduction rate is held fixed (`"fixed"`,
-#'   default) or run dynamically (`"dynamic"`) during the one-step evaluation.
+#'   default) or run dynamically (`"dynamic"`) during the evaluation.
 #'   Must match the choice used when the steady state was computed.
 #' @param effort The fishing effort to use. By default the initial effort
 #'   stored in `params`.
@@ -663,44 +1034,31 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #'   quasi-static fast variable: for each perturbed fish abundance the resource
 #'   is set to its analytic steady-state value conditioned on that fish
 #'   abundance (valid only for semichemostat resource dynamics).  If `TRUE`,
-#'   both fish and resource cells are perturbed independently and the resource
-#'   is evolved with the full resource dynamics function stored in
-#'   `params@resource_dynamics`, giving the complete coupled Jacobian.
-#' @param extinction_floor Relative abundance floor for the dynamic reproduction
-#'   case. Default is `1e-6`.
+#'   both fish and resource cells are perturbed independently, giving the
+#'   complete coupled Jacobian.
 #' @param h Relative step size for centred finite differences. Default `1e-4`.
-#'   The result should not depend on this choice. If it does, the one-step map
-#'   is not smooth at the state being analysed — see the section below.
-#' @param dt The time step size to use for evaluating the numerical one-step map.
-#'   Default `1`. The continuous eigenvalues are independent of this choice, but
-#'   the discrete eigenvalues and `spectral_radius` returned will reflect the
-#'   stability of mizer's numerical Euler method exactly for this step size.
+#'   The result should not depend on this choice. If it does, the dynamics are
+#'   not smooth at the state being analysed — see the section below.
 #' @return A named list with the following components:
 #'   \describe{
-#'     \item{`eigenvalues`}{Complex vector of the valid continuous-time
-#'       eigenvalues (\eqn{\lambda_i = (1 - 1/\mu_i) / dt}), sorted by decreasing real part.
-#'       These describe the stability of the underlying continuous ODEs/PDEs.}
-#'     \item{`discrete_eigenvalues`}{Complex vector of the raw discrete eigenvalues
-#'       \eqn{\mu_i} of the numerical one-step map (evaluated at step size `dt`), sorted by decreasing real part
-#'       of their continuous counterparts.}
-#'     \item{`spectral_radius`}{The spectral radius of the numerical one-step map
-#'       evaluated at step size `dt`: \eqn{\max_i|\mu_i|}. A value less than 1 indicates
-#'       that the numerical scheme is stable.}
-#'     \item{`max_real_part`}{The largest real part of the continuous eigenvalues:
+#'     \item{`eigenvalues`}{Complex vector of the continuous-time eigenvalues
+#'       \eqn{\lambda_i}, sorted by decreasing real part.}
+#'     \item{`max_real_part`}{The largest real part of the eigenvalues:
 #'       \eqn{\max_i \text{Re}(\lambda_i)}. Greater than 0 means unstable.}
 #'     \item{`stable`}{Logical: `TRUE` when `max_real_part < 0`.}
 #'     \item{`dominant_period`}{The period (in years) of the dominant
-#'       continuous eigenvalue: `2*pi / abs(Im(lambda_1))`. `Inf` for a real positive
+#'       eigenvalue: `2*pi / abs(Im(lambda_1))`. `Inf` for a real
 #'       dominant eigenvalue (monotone dynamics).}
-#'     \item{`hopf_period`}{Period (in years) of the complex continuous eigenvalue
+#'     \item{`hopf_period`}{Period (in years) of the complex eigenvalue
 #'       with the largest real part; `NULL` when no complex eigenvalue
 #'       exists.  This is the expected limit-cycle period near a Hopf
 #'       bifurcation.}
 #'     \item{`n_active`}{Dimension of the Jacobian: number of active fish cells
 #'       when `include_resource = FALSE`, or fish cells plus all resource cells
 #'       when `include_resource = TRUE`.}
-#'     \item{`leading_eigenvectors`}{The eigenvectors of the two largest-modulus
-#'       eigenvalues, reshaped back into the fish abundance space.
+#'     \item{`leading_eigenvectors`}{The eigenvectors of the two eigenvalues
+#'       with the largest real part, reshaped back into the fish abundance
+#'       space.
 #'       When `include_resource = FALSE`: a complex array of shape
 #'       `(n_species, n_sizes, 2)` with the same species and size dimnames as
 #'       `params@initial_n`. When `include_resource = TRUE`: a list with
@@ -710,14 +1068,15 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #'       The real and imaginary parts of eigenvector 1 span the two-dimensional
 #'       oscillation plane of the dominant mode; `Mod()` gives the amplitude
 #'       pattern across species and sizes.}
+#'     \item{`params`}{The validated `params` object the analysis was made at.}
 #'   }
-#' @section Requires a smooth one-step map:
-#' The finite-difference Jacobian is only meaningful if the one-step map is
+#' @section Requires smooth dynamics:
+#' The finite-difference Jacobian is only meaningful if the rates of change are
 #' differentiable at \eqn{N^*}. A custom rate function registered with
 #' [setRateFunction()] that jumps as a function of the abundances breaks this in
 #' two ways. If the state sits on the switching threshold, some perturbations
-#' straddle it and pick up the jump, and the reported spectral radius then
-#' varies wildly with `h`. If the state is near but not on the threshold, no
+#' straddle it and pick up the jump, and the reported eigenvalues then vary
+#' wildly with `h`. If the state is near but not on the threshold, no
 #' perturbation crosses it, and the function silently returns the stability of
 #' the single branch the state happens to lie on — which can read as `stable`
 #' for a model whose simulations never settle.
@@ -726,338 +1085,139 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
 #' do not trust it. See [Discontinuous rate
 #' functions](https://sizespectrum.org/mizer/articles/discontinuous_rates.html).
 #'
-#' @seealso [steadyNewton()]
+#' @seealso [steadyNewton()], [getDiscreteStability()], [getLimitCycleSim()]
 #' @export
 getStability <- function(params,
                          reproduction = c("fixed", "dynamic"),
                          effort = params@initial_effort,
                          include_resource = FALSE,
-                         extinction_floor = 1e-6,
-                         h = 1e-4,
-                         dt = 1) {
-    reproduction <- match.arg(reproduction)
-    params <- validParams(params)
-    effort <- validEffortVector(effort, params = params)
-    params@initial_effort <- effort
+                         h = 1e-4) {
+    ctx <- stability_context(params, reproduction = reproduction,
+                             effort = effort,
+                             include_resource = include_resource,
+                             fn_name = "getStability",
+                             map_name = "the rates of change")
+    J <- stability_jacobian(ctx, stability_rhs(ctx), h)
 
-    # The whole calculation linearises the dynamics *at* the stored state. If
-    # that state is not a fixed point, the eigenvalues describe the neighbourhood
-    # of a point the model is not sitting at, and the verdict on stability means
-    # nothing.
-    warn_if_not_steady(params, paste(
-        "The eigenvalues below describe the dynamics near a fixed point, so on",
-        "a state that is not one they are not meaningful. Use `steadyNewton()`",
-        "first."))
+    eig <- eigen(J)
+    # Sort by decreasing real part (most unstable first).
+    ord   <- order(Re(eig$values), decreasing = TRUE)
+    evals <- as.complex(eig$values[ord])
+    evecs <- eig$vectors[, ord, drop = FALSE]
 
-    if (reproduction == "dynamic") {
-        rdd_const <- NULL
-    } else {
-        rdd_const <- getRDD(params)
-    }
-    n_other <- params@initial_n_other
-    active  <- steady_active_set(params)
-    flux_limiter <- flux_limiter_scheme(params)
-    rates_fns    <- projectRateFunctions(params)
-    active_idx   <- which(active$mask)
+    max_real_part <- Re(evals[1])
+    omega1 <- Im(evals[1])
+    dominant_period <- if (abs(omega1) < 1e-10) Inf else 2 * pi / abs(omega1)
 
-    # A custom rate function can be non-finite at a state that the differencing
-    # visits. Fail loudly, naming the cell, rather than letting a NaN travel on
-    # into eigen() and come back as a meaningless spectrum.
-    stop_if_not_finite <- function(x, where) {
-        if (!all(is.finite(x))) {
-            stop("getStability(): the one-step map returned non-finite values ",
-                 where, ". Every state it evaluates satisfies N >= 0, so this ",
-                 "points to a rate function that is not finite there.",
-                 call. = FALSE)
-        }
-    }
-    fish_cell <- function(k) {
-        rc <- arrayInd(active_idx[k], dim(params@initial_n))
-        paste0("when perturbing species ",
-               params@species_params$species[rc[1]], " at w = ",
-               signif(params@w[rc[2]], 3))
-    }
-
-    # -------------------------------------------------------------------------
-    # Shared helper: one step of fish dynamics given N and n_pp.
-    # The n_pp here is whatever we choose to pass (quasi-static or actual).
-    # -------------------------------------------------------------------------
-    fish_step <- function(N_in, npp_in) {
-        r <- mizer_rates_subset(params, n = N_in, n_pp = npp_in,
-                                n_other = n_other, t = 0, effort = effort,
-                                rates_fns = rates_fns,
-                                targets = c("EGrowth", "Mort", "Diffusion",
-                                            "ResourceMort"))
-
-        if (is.null(rdd_const)) {
-            if (usesExtensionDispatch(params)) {
-                rdi <- projectRDI(params, n = N_in, n_pp = npp_in,
-                                  n_other = n_other, t = 0,
-                                  e_repro = r$e_repro, e_growth = r$e_growth,
-                                  mort = r$mort, diffusion = r$diffusion)
-                rdd <- projectRDD(params, rdi = rdi,
-                                  species_params = params@species_params, t = 0)
-            } else {
-                f_rdi <- get(params@rates_funcs$RDI)
-                rdi <- f_rdi(params, n = N_in, n_pp = npp_in,
-                             n_other = n_other, t = 0,
-                             e_repro = r$e_repro, e_growth = r$e_growth,
-                             mort = r$mort, diffusion = r$diffusion)
-                f_rdd <- get(params@rates_funcs$RDD)
-                rdd <- f_rdd(rdi = rdi,
-                             species_params = params@species_params,
-                             params = params, t = 0)
-            }
-        } else {
-            rdd <- rdd_const
-        }
-
-        coefs <- get_transport_coefs(params, n = N_in, g = r$e_growth,
-                                     mu = r$mort, dt = dt,
-                                     recruitment_flux = rdd,
-                                     d = r$diffusion,
-                                     flux_limiter = flux_limiter)
-        N_out <- project_n_loop(N_in, coefs$a, coefs$b, coefs$c, coefs$S,
-                                 params@w_min_idx)
-        # Return both the updated N and the rates (needed for resource step).
-        list(N = zero_above_support(N_out, support_top_idx(params)),
-             rates = r)
-    }
-
-    # -------------------------------------------------------------------------
-    # Steady-state arrays
-    # -------------------------------------------------------------------------
-    N_ss  <- params@initial_n
-    N_vec <- N_ss[active$mask]
-    n_fish_active <- length(N_vec)
-
-    # Finite-difference step sizes. The step is relative, `h * N`, so a positive
-    # the cell from the Jacobian and puts a spurious zero eigenvalue in place of
-    # its true decay rate. Such cells do occur: an isolated negativity-floor
-    # artefact of the second-order schemes, or a tail class that steadyNewton()
-    # zeroed at its structural floor. We therefore floor the step at the local
-    # scale of the spectrum, log-interpolated across the gaps from the nonzero
-    # neighbours exactly as the Newton solve does. A row that is zero throughout
-    # (an extinct species) has no local scale either, but there the one-step map
-    # is exactly linear about a zero baseline, so any step recovers the
-    # derivative and the absolute floor is kept.
-    N_scale <- fd_step_scale(N_vec,
-                             positive_initial_guess(N_ss, params@w_min_idx,
-                                                    active$w_top)[active$mask])
-
-    if (!include_resource) {
-        # -- Reduced system: resource at quasi-static equilibrium --------------
-        if (params@resource_dynamics != "resource_semichemostat") {
-            stop("getStability() with include_resource = FALSE requires ",
-                 "semichemostat resource dynamics. ",
-                 "Use include_resource = TRUE for other resource dynamics.")
-        }
-
-        reduced_step <- function(N_in) {
-            npp_in <- resource_steady_semichemostat(params, N_in, n_other)
-            fish_step(N_in, npp_in)$N
-        }
-
-        n_state <- n_fish_active
-        L <- matrix(0, nrow = n_state, ncol = n_state)
-        # Baseline for the one-sided columns, shared by all of them. It has to
-        # be evaluated rather than assumed equal to N_ss: the state is a fixed
-        # point only to the tolerance of whatever produced it, and that residual
-        # would otherwise be divided by eps_k into every one-sided column.
-        base <- reduced_step(N_ss)[active$mask]
-        stop_if_not_finite(base, "at the unperturbed steady state")
-        for (k in seq_len(n_fish_active)) {
-            eps_k   <- h * N_scale[k]
-            N_plus  <- N_ss; N_plus[active_idx[k]]  <- N_vec[k] + eps_k
-            if (N_vec[k] - eps_k < 0) {
-                # A centred step would leave the physical cone N >= 0.
-                # Difference forwards instead: at the boundary of the cone the
-                # one-sided derivative is the right object anyway, because the
-                # dynamics never visit the states a centred step would sample.
-                # This keeps every rate function evaluation inside N >= 0, so
-                # extensions need not be defined at negative abundances. The
-                # column is then first order in `h` rather than second.
-                L[, k] <- (reduced_step(N_plus)[active$mask] - base) / eps_k
-            } else {
-                N_minus <- N_ss; N_minus[active_idx[k]] <- N_vec[k] - eps_k
-                L[, k]  <- (reduced_step(N_plus)[active$mask] -
-                            reduced_step(N_minus)[active$mask]) / (2 * eps_k)
-            }
-            stop_if_not_finite(L[, k], fish_cell(k))
-        }
-
-    } else {
-        # -- Full coupled system: perturb fish and resource independently ------
-        npp_ss  <- params@initial_n_pp
-        npp_vec <- as.numeric(npp_ss)
-        n_npp   <- length(npp_vec)
-        n_state <- n_fish_active + n_npp
-
-        # Step scale for the resource, floored the same way as for the fish.
-        # The resource carries structural zeros above `w_pp_cutoff`, where the
-        # capacity vanishes; log-interpolation with flat extrapolation gives
-        # them the scale of the last nonzero class.
-        npp_local <- positive_initial_guess(matrix(npp_vec, nrow = 1),
-                                            w_min_idx = 1L, w_top = n_npp)
-        npp_scale <- fd_step_scale(npp_vec, as.numeric(npp_local))
-
-        resource_dyn <- get(params@resource_dynamics)
-
-        # Full one-step map: returns c(N_new[active_mask], npp_new_all)
-        # Using Backward Euler for the resource step ensures the entire 1-step map
-        # is integrated with Backward Euler, making the discrete-to-continuous
-        # eigenvalue conversion (1 - 1/mu)/dt mathematically consistent and
-        # preventing fast resource decay modes from producing spurious giant
-        # eigenvalues due to near-zero discrete eigenvalue inversion noise.
-        full_step <- function(N_in, npp_in) {
-            res <- fish_step(N_in, npp_in)
-            if (params@resource_dynamics == "resource_semichemostat") {
-                mur <- params@rr_pp + res$rates$resource_mort
-                npp_out <- (npp_in + dt * params@rr_pp * params@cc_pp) / (1 + dt * mur)
-            } else {
-                npp_out <- resource_dyn(params, N_in, npp_in, n_other,
-                                        rates = res$rates, t = 0, dt = dt,
-                                        resource_rate = params@rr_pp,
-                                        resource_capacity = params@cc_pp)
-            }
-            c(res$N[active$mask], as.numeric(npp_out))
-        }
-
-        n_state <- n_fish_active + n_npp
-        L <- matrix(0, nrow = n_state, ncol = n_state)
-
-        # Baseline for the one-sided columns, fish and resource alike (see the
-        # reduced branch).
-        base <- full_step(N_ss, npp_ss)
-        stop_if_not_finite(base, "at the unperturbed steady state")
-
-        # Columns 1..n_fish_active: perturb fish, resource held at n_pp_ss
-        for (k in seq_len(n_fish_active)) {
-            eps_k   <- h * N_scale[k]
-            N_plus  <- N_ss; N_plus[active_idx[k]]  <- N_vec[k] + eps_k
-            if (N_vec[k] - eps_k < 0) {
-                L[, k] <- (full_step(N_plus, npp_ss) - base) / eps_k
-            } else {
-                N_minus <- N_ss; N_minus[active_idx[k]] <- N_vec[k] - eps_k
-                L[, k]  <- (full_step(N_plus,  npp_ss) -
-                            full_step(N_minus, npp_ss)) / (2 * eps_k)
-            }
-            stop_if_not_finite(L[, k], fish_cell(k))
-        }
-
-        # Columns n_fish_active+1..n_state: perturb resource, fish held at N_ss
-        for (j in seq_len(n_npp)) {
-            k      <- n_fish_active + j
-            eps_j  <- h * npp_scale[j]
-            npp_plus  <- npp_ss; npp_plus[j]  <- npp_vec[j] + eps_j
-            if (npp_vec[j] - eps_j < 0) {
-                L[, k] <- (full_step(N_ss, npp_plus) - base) / eps_j
-            } else {
-                npp_minus <- npp_ss; npp_minus[j] <- npp_vec[j] - eps_j
-                L[, k] <- (full_step(N_ss, npp_plus) -
-                           full_step(N_ss, npp_minus)) / (2 * eps_j)
-            }
-            stop_if_not_finite(L[, k],
-                               paste0("when perturbing the resource at w = ",
-                                      signif(params@w_full[j], 3)))
-        }
-    }
-
-    # -------------------------------------------------------------------------
-    # Eigenvalue analysis (shared by both branches)
-    # -------------------------------------------------------------------------
-    eig       <- eigen(L)
-    mu_map    <- eig$values
-    evecs     <- eig$vectors          # columns are eigenvectors
-
-    # Map the discrete eigenvalues of the dt map to continuous time
-    # to avoid the massive temporal numerical diffusion of the implicit scheme.
-    # Fast decaying modes map to mu near 0, where 1/mu amplifies numerical noise,
-    # so we only map modes with |mu| > 1e-4.
-    valid_idx <- Mod(mu_map) > 1e-4
-    evals_cont <- (1 - 1 / mu_map[valid_idx]) / dt
-
-    spectral_radius <- max(Mod(mu_map))
-
-    # Sort by decreasing real part (most unstable first)
-    ord       <- order(Re(evals_cont), decreasing = TRUE)
-    evals_cont <- evals_cont[ord]
-    
-    # Filter and sort the corresponding eigenvectors
-    evecs     <- evecs[, valid_idx, drop = FALSE]
-    evecs     <- evecs[, ord, drop = FALSE]
-
-    max_real_part <- Re(evals_cont[1])
-    stable <- max_real_part < 0
-
-    lam1   <- evals_cont[1]
-    omega1 <- Im(lam1)
-    if (abs(omega1) < 1e-10) {
-        dominant_period <- Inf
-    } else {
-        dominant_period <- 2 * pi / abs(omega1)
-    }
-
-    is_complex <- abs(Im(evals_cont)) > 1e-8
+    is_complex <- abs(Im(evals)) > 1e-8
     if (any(is_complex)) {
-        complex_evals <- evals_cont[is_complex]
-        closest_idx   <- which.max(Re(complex_evals))
-        lam_hopf      <- complex_evals[closest_idx]
-        hopf_period   <- 2 * pi / abs(Im(lam_hopf))
+        # The complex eigenvalue closest to (or furthest across) the imaginary
+        # axis is the one whose oscillation the dynamics show.
+        lam_hopf <- evals[is_complex][which.max(Re(evals[is_complex]))]
+        hopf_period <- 2 * pi / abs(Im(lam_hopf))
     } else {
         hopf_period <- NULL
     }
 
-    # -------------------------------------------------------------------------
-    # Reshape leading eigenvectors back to (species x size) complex arrays.
-    # Eigenvectors are normalised so max(Mod(.)) == 1 for comparability.
-    # For include_resource = TRUE the resource component is also extracted.
-    # -------------------------------------------------------------------------
-    n_leading <- min(2L, n_state)          # top 2 (or 1 if Jacobian is 1×1)
-    no_sp     <- nrow(N_ss)
-    no_w      <- ncol(N_ss)
-
-    # Preallocate leading eigenvector array (species x size x n_leading), complex
-    leading_evecs_fish <- array(0 + 0i,
-                                dim      = c(no_sp, no_w, n_leading),
-                                dimnames = c(dimnames(N_ss), list(NULL)))
-
-    for (k in seq_len(n_leading)) {
-        v_fish <- evecs[seq_len(n_fish_active), k]  # fish component
-        # Normalise to max modulus 1
-        max_mod <- max(Mod(v_fish))
-        if (max_mod > 0) v_fish <- v_fish / max_mod
-        M <- matrix(0 + 0i, nrow = no_sp, ncol = no_w)
-        M[active_idx] <- v_fish
-        leading_evecs_fish[, , k] <- M
-    }
-
-    if (include_resource) {
-        # Resource component: rows n_fish_active+1..n_state of each eigenvector.
-        leading_evecs_resource <- matrix(0 + 0i, nrow = n_npp, ncol = n_leading)
-        for (k in seq_len(n_leading)) {
-            v_res <- evecs[n_fish_active + seq_len(n_npp), k]
-            max_mod <- max(Mod(v_res))
-            if (max_mod > 0) v_res <- v_res / max_mod
-            leading_evecs_resource[, k] <- v_res
-        }
-        rownames(leading_evecs_resource) <- names(params@initial_n_pp)
-        leading_eigenvectors <- list(fish     = leading_evecs_fish,
-                                     resource = leading_evecs_resource)
-    } else {
-        leading_eigenvectors <- leading_evecs_fish
-    }
-
     list(
-        eigenvalues          = evals_cont,
-        discrete_eigenvalues = mu_map,
-        spectral_radius      = spectral_radius,
+        eigenvalues          = evals,
         max_real_part        = max_real_part,
-        stable               = stable,
+        stable               = max_real_part < 0,
         dominant_period      = dominant_period,
         hopf_period          = hopf_period,
-        n_active             = n_state,
-        leading_eigenvectors = leading_eigenvectors,
-        params               = params
+        n_active             = length(ctx$x0),
+        leading_eigenvectors = stability_eigenvectors(evecs, ctx),
+        params               = ctx$params
+    )
+}
+
+#' Analyse the stability of mizer's numerical time step
+#'
+#' `r lifecycle::badge("experimental")`
+#' Computes the eigenvalues \eqn{\mu_i} of the linearised one-step-ahead map at
+#' the steady state stored in `params@initial_n`, for a given step size `dt`.
+#' These describe how mizer's numerical scheme, rather than the model, behaves
+#' near the steady state: the map does not amplify perturbations when the
+#' spectral radius \eqn{\max_i|\mu_i|} is less than 1.
+#'
+#' This is the numerical counterpart of [getStability()], which analyses the
+#' model itself and involves no time step at all. Use `getStability()` to ask
+#' whether the steady state of the *model* is stable, and this function to ask
+#' what mizer's solver does at a particular `dt`. The two can disagree, and that
+#' disagreement is the point: the implicit transport solve damps oscillations
+#' artificially, so a physically unstable steady state can have a spectral
+#' radius below 1 at a large `dt`, and the simulation then sits at a state the
+#' model does not actually hold.
+#'
+#' ## The map that is linearised
+#'
+#' One step is what [project()] takes with `method = "euler"`: the rates are
+#' evaluated at the state at the start of the step, and the resulting transport
+#' problem is solved implicitly,
+#' \deqn{A(N^t, n_{pp}^t)\,N^{t+1} = S(N^t, n_{pp}^t),}
+#' with the same `project_n_loop()` C++ Thomas solver and the same spatial
+#' scheme ([second_order_w()]) as the regular dynamics.
+#'
+#' Because the rates are evaluated at the *input* state, the step is not fully
+#' implicit, and the discrete eigenvalues therefore cannot be converted into
+#' continuous-time eigenvalues by any exact algebraic relation. That conversion
+#' is what [getStability()] avoids by differentiating the rates of change
+#' themselves.
+#'
+#' The resource is stepped with backward Euler,
+#' \deqn{n_{pp}^{t+1} = \frac{n_{pp}^t + dt\,r_{pp}c_{pp}}%
+#'                           {1 + dt\,(r_{pp} + \mu_R^t)},}
+#' rather than with the exact semichemostat solution that
+#' [resource_semichemostat()] uses in `project()`. The two agree to first order
+#' in `dt` for the slow modes that decide stability, while backward Euler keeps
+#' the fast resource modes away from a discrete eigenvalue of exactly zero.
+#'
+#' @inheritParams getStability
+#' @param dt The time step size of the one-step map. Default `1`.
+#' @return A named list with the following components:
+#'   \describe{
+#'     \item{`discrete_eigenvalues`}{Complex vector of the eigenvalues
+#'       \eqn{\mu_i} of the one-step map, sorted by decreasing modulus.}
+#'     \item{`spectral_radius`}{\eqn{\max_i|\mu_i|}. Less than 1 means the
+#'       numerical scheme is stable at this `dt`.}
+#'     \item{`stable`}{Logical: `TRUE` when `spectral_radius < 1`.}
+#'     \item{`dt`}{The step size the map was evaluated at.}
+#'     \item{`n_active`}{Dimension of the Jacobian.}
+#'     \item{`leading_eigenvectors`}{The eigenvectors of the two
+#'       largest-modulus eigenvalues, in the same shape as for
+#'       [getStability()].}
+#'     \item{`params`}{The validated `params` object the analysis was made at.}
+#'   }
+#' @inheritSection getStability Requires smooth dynamics
+#' @seealso [getStability()], [steadyNewton()]
+#' @export
+getDiscreteStability <- function(params,
+                                 reproduction = c("fixed", "dynamic"),
+                                 effort = params@initial_effort,
+                                 include_resource = FALSE,
+                                 h = 1e-4,
+                                 dt = 1) {
+    assert_that(is.number(dt), dt > 0)
+    ctx <- stability_context(params, reproduction = reproduction,
+                             effort = effort,
+                             include_resource = include_resource,
+                             fn_name = "getDiscreteStability",
+                             map_name = "the one-step map")
+    L <- stability_jacobian(ctx, stability_step(ctx, dt), h)
+
+    eig <- eigen(L)
+    ord   <- order(Mod(eig$values), decreasing = TRUE)
+    evals <- as.complex(eig$values[ord])
+    evecs <- eig$vectors[, ord, drop = FALSE]
+    spectral_radius <- Mod(evals[1])
+
+    list(
+        discrete_eigenvalues = evals,
+        spectral_radius      = spectral_radius,
+        stable               = spectral_radius < 1,
+        dt                   = dt,
+        n_active             = length(ctx$x0),
+        leading_eigenvectors = stability_eigenvectors(evecs, ctx),
+        params               = ctx$params
     )
 }

@@ -102,15 +102,15 @@ ratio_ssb <- c(ramp = getSSB(ramp_ss)[["Cod"]] / other_params(params)$b_lim,
                hard = getSSB(hard_ss)[["Cod"]] / other_params(params)$b_lim)
 
 stab_hard <- suppressWarnings(sapply(c(1e-3, 1e-4, 1e-5), function(h) {
-    getStability(hard_ss, h = h)$spectral_radius
+    getStability(hard_ss, h = h)$max_real_part
 }))
 
 stab_ramp <- suppressWarnings(sapply(c(1e-3, 1e-4, 1e-5), function(h) {
-    getStability(ramp_ss, h = h)$spectral_radius
+    getStability(ramp_ss, h = h)$max_real_part
 }))
 
 st <- suppressWarnings(getStability(hard_settled))
-stab_hard_settled <- c(spectral_radius = st$spectral_radius, stable = st$stable)
+stab_hard_settled <- c(max_real_part = st$max_real_part, stable = st$stable)
 
 res <- list(
     hard_coarse = hard_coarse,

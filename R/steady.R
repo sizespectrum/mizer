@@ -169,7 +169,7 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' imperfect when the decay is extremely slow, because over any finite run such
 #' a spiral is indistinguishable from a cycle. If you need a definitive answer,
 #' use [getStability()] on the fixed point found by [steadyNewton()], which
-#' works out the spectral radius of the linearised dynamics instead of watching
+#' works out the eigenvalues of the linearised dynamics instead of watching
 #' a trajectory.
 #'
 #' The reported `period` is a multiple of `t_save`, so it is only resolved to

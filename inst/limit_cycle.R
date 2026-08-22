@@ -64,32 +64,22 @@ pp <- getParams(ss, c(start, conv$years))
 ps <- steadyNewton(pp, reproduction = "dynamic")
 stab <- getStability(ps, reproduction = "dynamic", include_resource = TRUE)
 stab$stable
-stab$spectral_radius
 
-# Extract discrete eigenvalues
-mu <- stab$eigenvalues
+# The eigenvalues are already the continuous-time ones, sorted by decreasing
+# real part.
+lambda_cont <- stab$eigenvalues
+unstable_mode <- lambda_cont[1]
 
-# Filter out the numerical noise (fast modes mapped near zero)
-# Only invert eigenvalues that are reasonably large
-mu_filtered <- mu[Mod(mu) > 1e-4]
+cat("Is continuous system stable?", stab$stable, "\n")
+cat("Maximum real part:", stab$max_real_part, "\n")
 
-# Map to continuous time
-lambda_cont <- 1 - 1 / mu_filtered
-
-# Now find the true instability
-max_re <- max(Re(lambda_cont))
-is_stable <- max_re < 0
-
-unstable_idx <- which.max(Re(lambda_cont))
-unstable_mode <- lambda_cont[unstable_idx]
-
-cat("Is continuous system stable?", is_stable, "\n")
-cat("Maximum real part:", max_re, "\n")
-
-if (!is_stable && Im(unstable_mode) != 0) {
-    period <- 2 * pi / abs(Im(unstable_mode))
-    cat("Hopf period:", period, "years\n")
+if (!stab$stable && Im(unstable_mode) != 0) {
+    cat("Hopf period:", stab$dominant_period, "years\n")
 }
+
+# How the numerical step at the dt used above sees the same state:
+getDiscreteStability(ps, reproduction = "dynamic", include_resource = TRUE,
+                     dt = p$dt)$spectral_radius
 
 # According to this, the steady state is stable.
 # Let's test that by making a small perturbation
