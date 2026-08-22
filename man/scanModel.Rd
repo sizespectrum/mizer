@@ -18,7 +18,8 @@ scanModel(
   current_scan_value = NULL,
   continuation = TRUE,
   distance_func = distanceSSLogN,
-  tol = 0.001,
+  distance_tol = 0.001,
+  residual_tol = steady_residual_tol(),
   t_per = 1.5,
   t_max = 100,
   dt = 0.1,
@@ -80,13 +81,19 @@ reached at the previous one. Default TRUE.}
 with both the previous and the new state and that should return a number
 measuring the distance between them. See \code{\link[=distanceSSLogN]{distanceSSLogN()}}.}
 
-\item{tol}{The projection at each scan value stops once the number returned
-by \code{distance_func} for two states \code{t_per} years apart drops below \code{tol}.
+\item{distance_tol}{The projection at each scan value stops once the number
+returned by \code{distance_func} for two states \code{t_per} years apart drops below
+\code{distance_tol}.
 The default is tighter than the one \code{\link[=projectUntilSettled]{projectUntilSettled()}} uses on its own,
 because a scan produces a curve, and a loosely converged point does not
 average away: it shows up as a kink in the curve and as spurious width in
 the band. Loosen it to go faster, and use the \code{residual} column of the
 result to check whether that cost you anything.}
+
+\item{residual_tol}{The largest relative rate of biomass change, in 1/year, at
+which a scan point may still be recorded as a fixed point. See
+\code{\link[=projectUntilSettled]{projectUntilSettled()}}. A point that meets \code{distance_tol} but not this is not
+sampled as a single value, which would draw it as a band of zero width.}
 
 \item{t_per}{The interval in years at which convergence is checked. Should be
 an odd multiple of \code{dt}.}

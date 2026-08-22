@@ -33,10 +33,17 @@ fixed, keeping the old names as silent aliases.
   step enters the calculation: the eigenvalues are a property of the model
   rather than of any solver. It reports whether the steady state is stable or
   unstable (based on the real parts of the eigenvalues), the maximum real part,
-  and — when the system approaches a Hopf bifurcation — the period of the
-  emergent limit cycle. Fish and resource are perturbed together, so the
-  Jacobian is the full coupled one and any resource dynamics function is
-  supported. Reproduction is part of the analysis in the same way: the model's
+  and — where the spectrum contains a complex pair — the
+  `leading_oscillatory_eigenvalue`, the `oscillation_period` at which the model
+  rings and the `leading_oscillatory_eigenvector` of that mode. Those are named
+  after what they are rather than after a Hopf bifurcation, which a single
+  spectrum cannot establish: a comfortably stable model has a leading
+  oscillatory mode too, and it describes a transient rather than a cycle. Use
+  `scanModel()` to watch its real part cross zero. Fish and resource are
+  perturbed together, so the Jacobian is the full coupled one and any resource
+  dynamics function is supported; components registered with `setComponent()`
+  are held fixed and are not in the Jacobian, which mizer now warns about when
+  it meets one with dynamics of its own. Reproduction is part of the analysis in the same way: the model's
   own `rates_funcs$RDD` is evaluated at each perturbed state, so the eigenvalues
   describe the reproduction feedback that `project()` actually runs, and there
   is no option to pin the reproduction rate at its value at the fixed point. A
@@ -65,9 +72,13 @@ fixed, keeping the old names as silent aliases.
   damps oscillations artificially, so a physically unstable steady state can
   look discretely stable at a large `dt`.
 
-- New experimental `getLimitCycleSim()` takes a model at a steady state — or the
-  stability list that `getStability()` returns — and constructs a `MizerSim`
-  covering one period of the limit cycle in the linear approximation. The
+- New experimental `getOscillationModeSim()` takes a model at a steady state — or
+  the stability list that `getStability()` returns — and constructs a `MizerSim`
+  covering exactly one period of the leading oscillatory mode in the linear
+  approximation, ending at the period itself so that the oscillation closes. It
+  shows the shape of the mode — which species swing, how far, and in what phase
+  relative to each other and to the resource — which is a limit cycle only at a
+  Hopf bifurcation, where the mode's growth rate is zero. The
   trajectory is
   \eqn{x(t) = x^* + A\,\text{Re}[e^{i\omega t}\,\mathbf{v}]} over the whole
   state \eqn{x = (N, n_{pp})}, where \eqn{\mathbf{v}} is the eigenvector of the
@@ -132,20 +143,67 @@ fixed, keeping the old names as silent aliases.
   and `xlim` that `plotDataFrame()` provides.
 
 - `steady()` and `projectToSteady()` now report the nature of the solution they
-  converged to via a `"convergence"` attribute on the returned object. It records
-  whether the run dropped below its tolerance (`type = "below_tolerance"` —
-  deliberately not called `"steady"`, because passing the distance test is not a
-  guarantee of a fixed point), settled on a limit cycle, or neither, together
-  with the cycle period and relative amplitude when a cycle is found. Limit
+  converged to via a `"convergence"` attribute on the returned object. It answers
+  three questions separately, because conflating them is how a limit cycle came
+  to be reported as a converged steady state: `termination` says why the run
+  stopped, `converged` whether the solver met its own criterion, and `attractor`
+  what the state actually is — `"fixed_point"`, `"limit_cycle"` or `NA`. Only
+  `attractor` may be read as a claim about the model, and it is set from the
+  measured biomass drift, reported alongside as `residual`. Limit
   cycles are detected from a per-species biomass series sampled at the new
   `t_save` resolution (default `dt`). The relative-amplitude floor for calling an
   oscillation a limit cycle is a separate `amplitude_tol` argument (default
-  `0.01`), independent of the fixed-point convergence tolerance `tol`, and a
+  `0.01`), independent of the fixed-point convergence tolerance, and a
   species is treated as extinct once its reproduction falls below the
   `extinction_threshold` fraction (default `1e-6`) of its value at the start of
   the run.
 
-- `getStability()` and `getLimitCycleSim()` warn when they are handed a model
+- `tuneSteadyState()` and `findSteadyState()` no longer stop at a state that is
+  still moving. The distance function dropping below `distance_tol` is only half
+  the criterion: the model's biomass drift must also be within the new
+  `residual_tol` argument (default `0.05`/year, the tolerance `isSteady()`
+  uses), and the limit-cycle detection runs on every block rather than only when
+  the distance criterion has failed. A cycle whose period divides `t_per` is
+  sampled at one phase by the distance function and used to look perfectly
+  converged; it is now recognised. `scanModel()` gains the same argument and no
+  longer draws such a point as a band of zero width (#562).
+
+  The superseded `steady()` and `projectToSteady()` keep the stopping rule they
+  shipped with, so a script that relies on a loose `tol` for a quick run is
+  unaffected. They do report the drift they stopped on: `termination =
+  "distance_tolerance"` with `attractor = NA` says the distance criterion was
+  met while the model was still moving.
+
+- The projection inside a steady-state search now passes absolute time to the
+  rate and component functions, as `project()` does. Each block used to restart
+  the clock at zero, so a model with seasonal or otherwise time-dependent
+  dynamics saw the same interval repeatedly and could not settle onto a forced
+  cycle (#562).
+
+- The projection tolerance of the new steady-state family is called
+  `distance_tol` rather than `tol`, so that it cannot be confused with
+  `residual_tol`, and the Newton solver's own tolerance is `solver_tol` rather
+  than `residual_tol`. The superseded `steady()` and `projectToSteady()` keep
+  their `tol` argument unchanged.
+
+- `getDiscreteStability()` linearises the step `project()` actually takes. It
+  used to substitute a backward-Euler formula for the resource instead of the
+  model's own `resource_dynamics`, which made the result an approximation to a
+  slightly different numerical map (#562).
+
+- `findSteadyState(solver = "newton")` accepts a model in which a species is
+  already absent. Its all-zero row used to reach `log()` and stop the root
+  finder with a non-finite starting vector; the species is now left out of the
+  system, held at zero and reported (#562).
+
+- `tuneSteadyState()` warns when it cannot rebalance a custom resource, and both
+  it and the stability analyses warn when a component registered with
+  `setComponent()` has dynamics of its own: these tools hold such components
+  fixed and cover the consumers and the resource only. Nothing is refused —
+  `findSteadyState(solver = "project")` advances everything and is not
+  restricted — but the assumption is no longer silent (#562).
+
+- `getStability()` and `getOscillationModeSim()` warn when they are handed a model
   that is not at a steady state. Both linearise the dynamics *at* the stored
   state, so on a state that is not a fixed point their eigenvalues describe the
   neighbourhood of a point the model is not sitting at (#495).
@@ -908,7 +966,7 @@ fixed, keeping the old names as silent aliases.
 - New `analyse-stability` skill, and the matching "Guide: Dynamic
   Stability" article, cover the experimental stability tools added in this
   version: `getStability()`, `findSteadyState(solver = "newton")`,
-  `getLimitCycleSim()` and `scanModel()`. Like the other skills it is
+  `getOscillationModeSim()` and `scanModel()`. Like the other skills it is
   shipped in `inst/skills/` and picked up by `mizerAgents::setup_mizer_agent()`
   from the installed mizer, so an agent's guidance describes the version of
   mizer the project actually runs.

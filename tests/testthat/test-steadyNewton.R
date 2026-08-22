@@ -120,8 +120,8 @@ test_that("getStability returns a well-formed list for a stable model", {
 
     expect_type(stab, "list")
     expect_named(stab, c("eigenvalues", "max_real_part", "stable",
-                         "dominant_period", "hopf_period", "hopf_eigenvalue",
-                         "hopf_eigenvector", "n_active",
+                         "dominant_period", "oscillation_period", "leading_oscillatory_eigenvalue",
+                         "leading_oscillatory_eigenvector", "n_active",
                          "leading_eigenvectors", "params"))
     expect_true(is.complex(stab$eigenvalues))
     expect_type(stab$max_real_part, "double")
@@ -180,7 +180,7 @@ test_that("getStability linearises the model's own reproduction function", {
     expect_error(getStability(pn, reproduction = "fixed"), "unused argument")
     expect_error(getDiscreteStability(pn, reproduction = "fixed"),
                  "unused argument")
-    expect_error(getLimitCycleSim(pn, reproduction = "fixed"),
+    expect_error(getOscillationModeSim(pn, reproduction = "fixed"),
                  "unused argument")
 })
 test_that("getStability eigenvalues are consistent with max_real_part", {
@@ -227,17 +227,17 @@ test_that("the continuous eigenvalues are the dt -> 0 limit of the one-step map"
 
 
 
-test_that("getStability hopf_period is NULL when all eigenvalues are real", {
+test_that("getStability oscillation_period is NULL when all eigenvalues are real", {
     skip_unless_experimental()
     # For a 1-species model the dominant eigenvalue is typically real.
     # Use a simple single-species model as a proxy: the Newton solver on it,
-    # then check that if hopf_period is not NULL it is a positive finite number.
+    # then check that if oscillation_period is not NULL it is a positive finite number.
     pn <- findSteadyState(p_steady, solver = "newton")
     stab <- getStability(pn)
 
-    if (!is.null(stab$hopf_period)) {
-        expect_true(is.finite(stab$hopf_period))
-        expect_gt(stab$hopf_period, 0)
+    if (!is.null(stab$oscillation_period)) {
+        expect_true(is.finite(stab$oscillation_period))
+        expect_gt(stab$oscillation_period, 0)
     }
 })
 test_that("getStability returns a well-formed list including the resource", {
@@ -247,8 +247,8 @@ test_that("getStability returns a well-formed list including the resource", {
 
     expect_type(stab, "list")
     expect_named(stab, c("eigenvalues", "max_real_part", "stable",
-                         "dominant_period", "hopf_period", "hopf_eigenvalue",
-                         "hopf_eigenvector", "n_active",
+                         "dominant_period", "oscillation_period", "leading_oscillatory_eigenvalue",
+                         "leading_oscillatory_eigenvector", "n_active",
                          "leading_eigenvectors", "params"))
     # The resource is always part of the state, so the Jacobian is larger than
     # the number of active fish cells.
@@ -399,26 +399,122 @@ test_that("getStability returns the dominant oscillatory mode with its vector", 
     skip_unless_experimental()
     pn   <- findSteadyState(p_steady, solver = "newton")
     stab <- getStability(pn)
-    skip_if(is.null(stab$hopf_eigenvalue), "No complex eigenvalue in this model.")
+    skip_if(is.null(stab$leading_oscillatory_eigenvalue), "No complex eigenvalue in this model.")
 
-    # hopf_period must describe hopf_eigenvalue, and that eigenvalue must be
+    # oscillation_period must describe leading_oscillatory_eigenvalue, and that eigenvalue must be
     # the complex one with the largest real part.
-    expect_equal(stab$hopf_period, 2 * pi / abs(Im(stab$hopf_eigenvalue)))
+    expect_equal(stab$oscillation_period, 2 * pi / abs(Im(stab$leading_oscillatory_eigenvalue)))
     is_cplx <- abs(Im(stab$eigenvalues)) > 1e-8
-    expect_equal(stab$hopf_eigenvalue,
+    expect_equal(stab$leading_oscillatory_eigenvalue,
                  stab$eigenvalues[is_cplx][which.max(Re(stab$eigenvalues[is_cplx]))])
 
     # The vector travels with the eigenvalue, one mode, no trailing dimension.
-    expect_equal(dim(stab$hopf_eigenvector$fish), dim(pn@initial_n))
-    expect_length(stab$hopf_eigenvector$resource, length(pn@w_full))
+    expect_equal(dim(stab$leading_oscillatory_eigenvector$fish), dim(pn@initial_n))
+    expect_length(stab$leading_oscillatory_eigenvector$resource, length(pn@w_full))
 
     # It really is an eigenvector of that eigenvalue: when the Hopf mode is
     # also the dominant one, it must match the leading eigenvector up to phase.
-    if (isTRUE(all.equal(stab$hopf_eigenvalue, stab$eigenvalues[1]))) {
-        a <- as.vector(stab$hopf_eigenvector$fish)
+    if (isTRUE(all.equal(stab$leading_oscillatory_eigenvalue, stab$eigenvalues[1]))) {
+        a <- as.vector(stab$leading_oscillatory_eigenvector$fish)
         b <- as.vector(stab$leading_eigenvectors$fish[, , 1])
         keep <- Mod(b) > 0
         ratio <- (a[keep] / b[keep])
         expect_equal(max(Mod(ratio)) - min(Mod(ratio)), 0, tolerance = 1e-8)
     }
+})
+test_that("steady_active_set leaves an absent species out of the system", {
+    skip_unless_experimental()
+    p <- NS_params_small
+    p@initial_n[2, ] <- 0
+
+    active <- mizer:::steady_active_set(p)
+    expect_true(active$absent[[2]])
+    expect_false(any(active$absent[-2]))
+    # No unknowns for that species, so nothing to take a log of.
+    expect_false(any(active$mask[2, ]))
+    expect_true(all(active$mask[-2, p@w_min_idx[1]:active$w_top[1]]))
+    expect_equal(active$n_fish_active, sum(active$mask))
+
+    # And the packed state still unpacks to a full density matrix, with the
+    # absent species at zero. (With the resource held fixed the packed state is
+    # the fish block alone, which keeps the check to the point.)
+    fixed <- mizer:::steady_active_set(p, resource = "fixed")
+    N <- fixed$unpack(rep(log(1e-5), fixed$n_fish_active))$N
+    expect_true(all(N[2, ] == 0))
+    expect_true(any(N[1, ] > 0))
+})
+
+test_that("the Newton solver keeps an already-absent species at zero", {
+    skip_unless_experimental()
+    # A zero row used to reach log() as -Inf and stop the root finder before it
+    # took a single step.
+    p <- p_steady
+    initialN(p)[2, ] <- 0
+
+    warns <- character(0)
+    pn <- withCallingHandlers(
+        suppressMessages(findSteadyState(p, solver = "newton")),
+        warning = function(w) {
+            warns <<- c(warns, conditionMessage(w))
+            invokeRestart("muffleWarning")
+        })
+
+    expect_true(any(grepl("already absent and were held at zero", warns)))
+    # Nothing died during the solve, so nothing is reported as having.
+    expect_false(any(grepl("went extinct", warns)))
+    expect_true(all(initialN(pn)[2, ] == 0))
+    expect_true(any(initialN(pn)[1, ] > 0))
+    expect_true(any(initialN(pn)[3, ] > 0))
+})
+
+test_that("the stability analyses validate their numerical controls", {
+    # These fire before any computation, so no steady state is needed.
+    expect_error(getStability(NS_params_small, h = 0), "h not greater than 0")
+    expect_error(getStability(NS_params_small, h = -1e-4), "h not greater than 0")
+    expect_error(getStability(NS_params_small, h = Inf), "h")
+    expect_error(getDiscreteStability(NS_params_small, h = 0),
+                 "h not greater than 0")
+    expect_error(getDiscreteStability(NS_params_small, dt = 0),
+                 "dt not greater than 0")
+    expect_error(getDiscreteStability(NS_params_small, dt = Inf), "dt")
+})
+
+test_that("getDiscreteStability differentiates the step project() takes", {
+    skip_unless_experimental()
+    # The point of the function is to say what mizer's solver does at a given
+    # `dt`, so the map it linearises has to be that step and not one that merely
+    # agrees with it to first order.
+    p  <- p_steady
+    dt <- 0.1
+    ctx <- suppressMessages(suppressWarnings(mizer:::stability_context(p)))
+    out <- mizer:::stability_step(ctx, dt)(ctx$x0)
+
+    sim <- suppressMessages(project(p, t_max = dt, dt = dt, t_save = dt,
+                                    progress_bar = FALSE))
+
+    expect_equal(out[seq_len(ctx$n_fish_active)],
+                 finalN(sim)[ctx$active$mask])
+    expect_equal(out[ctx$n_fish_active + seq_len(ctx$n_npp)],
+                 as.numeric(finalNResource(sim)))
+})
+
+test_that("getStability says a dynamic component is not in its Jacobian", {
+    skip_unless_experimental()
+    # A component that happens not to move, but whose dynamics function is not
+    # `constant_other`: the check is on what the model declares, because that is
+    # all it can know. Keeping it still also keeps the model at its steady
+    # state, so this is the only warning the call has to raise.
+    assign("mizer_test_stability_component", function(params, n_other,
+                                                      component, ...) {
+        n_other[[component]]
+    }, envir = .GlobalEnv)
+    withr::defer(rm("mizer_test_stability_component", envir = .GlobalEnv))
+
+    p <- setComponent(p_steady, "grower", initial_value = 1,
+                      dynamics_fun = "mizer_test_stability_component")
+
+    # The Jacobian has rows for the fish and the resource and none for the
+    # component, so the spectrum is that of a subsystem. That has to be said.
+    expect_warning(suppressMessages(getStability(p)),
+                   "covers the consumers and the resource only")
 })

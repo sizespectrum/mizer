@@ -4,12 +4,21 @@
 \alias{report_scan_convergence}
 \title{Report the scan values that did not settle on a fixed point}
 \usage{
-report_scan_convergence(scan_values, types, scan_name, t_max, t_sample)
+report_scan_convergence(
+  scan_values,
+  attractors,
+  terminations,
+  scan_name,
+  t_max,
+  t_sample
+)
 }
 \arguments{
 \item{scan_values}{The values that were scanned.}
 
-\item{types}{The attractor type reached at each value, one per value.}
+\item{attractors}{The attractor reached at each value, one per value.}
+
+\item{terminations}{Why the run at each value stopped, one per value.}
 
 \item{scan_name}{The name of the scanned quantity.}
 

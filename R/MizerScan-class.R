@@ -25,9 +25,14 @@
 #'   \item{`ymin`, `ymax`}{The smallest and largest value over the sampling
 #'     window. On a fixed point these both equal the value; on a limit cycle
 #'     they give the range of the oscillation.}
-#'   \item{`type`, `settled`}{What kind of attractor was reached, from the
+#'   \item{`attractor`}{What the state reached at this scan value is:
+#'     `"fixed_point"`, `"limit_cycle"` or `NA` for neither. This is the column
+#'     that says whether the value in this row can be read as an equilibrium.}
+#'   \item{`termination`, `converged`}{Why the run at this scan value stopped,
+#'     and whether the solver met its own criterion. Both come from the
 #'     `"convergence"` attribute that [projectUntilSettled()] attaches to its
-#'     result.}
+#'     result, and neither is a claim about the state — see `attractor` for
+#'     that.}
 #'   \item{`period`}{The period of the limit cycle in years, or `NA`.}
 #'   \item{`residual`}{How far the state still is from a fixed point, as a
 #'     per-capita rate in 1/year, see [getSteadyResidual()].}
@@ -263,7 +268,10 @@ print.MizerScan <- function(x, ...) {
     if (n_show < nrow(frame)) {
         cat("# ... ", nrow(frame) - n_show, " more rows\n", sep = "")
     }
-    unsettled <- unique(x[[scan_x_var(x)]][!x$settled])
+    # Reported on the attractor rather than on `converged`: what matters to a
+    # reader of the curve is which points are equilibria, not which runs
+    # stopped tidily.
+    unsettled <- unique(x[[scan_x_var(x)]][is.na(x$attractor)])
     if (length(unsettled) > 0) {
         cat("Did not settle at ", scan_x_var(x), " = ",
             paste(signif(unsettled, 3), collapse = ", "), "\n", sep = "")
@@ -297,7 +305,8 @@ summary.MizerScan <- function(object, ...) {
         n_values = length(unique(object[[x_var]])),
         range = range(object[[x_var]], na.rm = TRUE),
         per_series = per_series,
-        attractor = table(object$type[!duplicated(object[[x_var]])]),
+        attractor = table(object$attractor[!duplicated(object[[x_var]])],
+                          useNA = "ifany"),
         settings = attr(object, "settings")
     )
     class(result) <- "summary.MizerScan"
@@ -581,7 +590,7 @@ add_scan_annotations <- function(p, x, plot_dat, reference_lines = TRUE,
     if (isTRUE(show_unsettled)) {
         # Base subsetting rather than subset() or dplyr::filter(), so that no
         # variable name has to be registered with globalVariables().
-        bad <- plot_dat[!plot_dat$settled, , drop = FALSE]
+        bad <- plot_dat[is.na(plot_dat$attractor), , drop = FALSE]
         if (nrow(bad) > 0) {
             p <- p +
                 geom_point(data = bad,

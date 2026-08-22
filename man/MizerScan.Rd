@@ -68,9 +68,14 @@ machinery reads.}
 \item{\code{ymin}, \code{ymax}}{The smallest and largest value over the sampling
 window. On a fixed point these both equal the value; on a limit cycle
 they give the range of the oscillation.}
-\item{\code{type}, \code{settled}}{What kind of attractor was reached, from the
+\item{\code{attractor}}{What the state reached at this scan value is:
+\code{"fixed_point"}, \code{"limit_cycle"} or \code{NA} for neither. This is the column
+that says whether the value in this row can be read as an equilibrium.}
+\item{\code{termination}, \code{converged}}{Why the run at this scan value stopped,
+and whether the solver met its own criterion. Both come from the
 \code{"convergence"} attribute that \code{\link[=projectUntilSettled]{projectUntilSettled()}} attaches to its
-result.}
+result, and neither is a claim about the state — see \code{attractor} for
+that.}
 \item{\code{period}}{The period of the limit cycle in years, or \code{NA}.}
 \item{\code{residual}}{How far the state still is from a fixed point, as a
 per-capita rate in 1/year, see \code{\link[=getSteadyResidual]{getSteadyResidual()}}.}

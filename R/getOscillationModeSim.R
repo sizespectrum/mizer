@@ -1,26 +1,33 @@
-# Limit-cycle simulation from linear stability analysis ----------------------
+# Oscillation-mode simulation from linear stability analysis ------------------
 #
-# `getLimitCycleSim()` takes the output of `findSteadyState()` (with stability
-# analysis attached) and constructs a `MizerSim` covering one period of the
-# limit cycle in the *linear approximation*.  The approximation is exact at a
-# Hopf bifurcation (Re(lambda) = 0) and remains a good first picture of the
-# oscillation pattern for parameter values close to the bifurcation.
+# `getOscillationModeSim()` takes the output of `findSteadyState()` (with
+# stability analysis attached) and constructs a `MizerSim` covering one period
+# of the leading oscillatory mode in the *linear approximation*. That mode is a
+# limit cycle only at a Hopf bifurcation (Re(lambda) = 0); away from it the
+# object shows the shape of the oscillation the model rings with, whether that
+# ringing grows or decays.
 
-#' Construct a MizerSim of the linearised limit cycle
+#' Construct a MizerSim of the leading oscillatory mode
 #'
 #' `r lifecycle::badge("experimental")`
 #' Using the leading complex eigenvector from [getStability()], constructs a
-#' \linkS4class{MizerSim} object covering one period of the limit cycle in the
+#' \linkS4class{MizerSim} object covering one period of that oscillation in the
 #' linear approximation.  The result can be inspected with all standard mizer
 #' plotting functions (e.g. [plotBiomass()], [plotSpectra()]).
 #'
+#' The object shows the *shape* of the mode — which species swing, how far, and
+#' in what phase relative to each other and to the resource. Whether the model
+#' actually settles onto this oscillation is a separate question, answered by
+#' the real part of the eigenvalue: it is a limit cycle only where that real
+#' part is zero, at a Hopf bifurcation.
+#'
 #' ## Mathematical background
 #'
-#' Near a Hopf bifurcation the dynamics are dominated by a complex-conjugate
-#' pair of eigenvalues \eqn{\lambda = \sigma \pm i\omega} of the Jacobian, with
-#' \eqn{\sigma} small and period \eqn{T = 2\pi/|\omega|}. `getStability()`
-#' returns that pair as `hopf_eigenvalue` and its eigenvector as
-#' `hopf_eigenvector`. The linearised perturbation of the full state
+#' An oscillatory mode is a complex-conjugate pair of eigenvalues
+#' \eqn{\lambda = \sigma \pm i\omega} of the Jacobian, with period
+#' \eqn{T = 2\pi/|\omega|}. `getStability()` returns the pair with the largest
+#' \eqn{\sigma} as `leading_oscillatory_eigenvalue` and its eigenvector as
+#' `leading_oscillatory_eigenvector`. The linearised perturbation of the full state
 #' \eqn{x = (N, n_{pp})} is
 #' \deqn{\delta x(t) = A\,\operatorname{Re}[e^{i\omega t}\,\mathbf{v}],}
 #' where \eqn{\mathbf{v}} is that eigenvector and \eqn{A} is chosen so that the
@@ -55,13 +62,18 @@
 #' you choose.
 #'
 #' The growth of the mode is deliberately dropped: \eqn{e^{\sigma t}} is
-#' omitted so that the cycle closes after one period. That is exact only at the
-#' bifurcation itself, where \eqn{\sigma = 0}; away from it the returned object
-#' shows the *shape* of the oscillation, not its envelope. \eqn{\sigma} is
-#' recorded in the result's `sim_params` as `growth_rate`.
+#' omitted so that the oscillation closes after one period. That is exact only
+#' at a Hopf bifurcation, where \eqn{\sigma = 0}; away from it the returned
+#' object shows the *shape* of the oscillation, not its envelope. \eqn{\sigma}
+#' is recorded in the result's `sim_params` as `growth_rate`, and it is the
+#' number to look at before calling what you are seeing a cycle.
 #'
-#' The returned \linkS4class{MizerSim} has times running from 0 to \eqn{T}
-#' (the period in time steps, typically years).
+#' The returned \linkS4class{MizerSim} has times running from 0 to exactly
+#' \eqn{T} (the period, in years). The saved times are spaced `t_save` apart,
+#' except for the last interval, which is shortened when `t_save` does not
+#' divide \eqn{T}. Ending exactly at \eqn{T} is what makes the cycle close:
+#' the phase factor \eqn{e^{i\omega T}} is 1, so the final state is the first
+#' state again.
 #'
 #' @param x A \linkS4class{MizerParams} object at a steady state,
 #'   typically the output of [findSteadyState()], or the list returned by
@@ -70,14 +82,17 @@
 #'   \eqn{\max_i \max_t |B_i(t) - B_i^*| / B_i^*}.  Default `0.1`, meaning the
 #'   most strongly oscillating species departs 10\% from its steady biomass.
 #' @param t_save The time interval between saved time steps in the returned
-#'   \linkS4class{MizerSim}.  Defaults to `0.1`.
+#'   \linkS4class{MizerSim}.  Defaults to `0.1`. The final interval is shorter
+#'   when `t_save` does not divide the period, so that the cycle closes.
 #' @param ... Additional arguments forwarded to [getStability()] when `x` is a
 #'   `MizerParams` object.
 #' @return A \linkS4class{MizerSim} object whose time axis spans one period
-#'   \eqn{[0, T]} of the linearised limit cycle.
+#'   \eqn{[0, T]} of the linearised oscillatory mode.
 #' @seealso [getStability()], [findSteadyState()]
 #' @export
-getLimitCycleSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
+getOscillationModeSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
+    assert_that(is.number(amplitude), is.finite(amplitude), amplitude > 0,
+                is.number(t_save), is.finite(t_save), t_save > 0)
     # ------------------------------------------------------------------
     # 1. Get (or compute) stability analysis
     # ------------------------------------------------------------------
@@ -92,10 +107,11 @@ getLimitCycleSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
         stop("The first argument must be a MizerParams object or the stability list returned by getStability().")
     }
 
-    if (is.null(stab$hopf_eigenvalue)) {
+    if (is.null(stab$leading_oscillatory_eigenvalue)) {
         stop("No oscillatory mode detected: all eigenvalues are real. ",
-             "A Hopf limit cycle requires at least one complex eigenvalue ",
-             "pair. Try a parameter setting closer to a Hopf bifurcation.")
+             "An oscillation requires at least one complex eigenvalue pair. ",
+             "This model has none, so it returns to its steady state without ",
+             "ringing.")
     }
 
     # ------------------------------------------------------------------
@@ -106,18 +122,29 @@ getLimitCycleSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
     # eigenvectors at all, so it has to travel with its own vector rather than
     # be looked up by index.
     # ------------------------------------------------------------------
-    lam1   <- stab$hopf_eigenvalue
-    v_fish <- stab$hopf_eigenvector$fish
-    v_npp  <- stab$hopf_eigenvector$resource
+    lam1   <- stab$leading_oscillatory_eigenvalue
+    v_fish <- stab$leading_oscillatory_eigenvector$fish
+    v_npp  <- stab$leading_oscillatory_eigenvector$resource
 
     theta    <- Im(lam1)               # angular frequency, per year
     T_period <- 2 * pi / abs(theta)    # period in years
 
     # ------------------------------------------------------------------
     # 3. Time grid
+    #
+    # The run has to end exactly at T, because that is what closes the cycle:
+    # the phase factor exp(i omega T) is 1, so the last state is the first one
+    # again. Regular `t_save` steps overshoot T whenever `t_save` does not
+    # divide it, so the final interval is shortened instead.
     # ------------------------------------------------------------------
-    n_steps <- ceiling(T_period / t_save)
-    t_seq <- seq(0, by = t_save, length.out = n_steps + 1)
+    t_seq <- seq(0, T_period, by = t_save)
+    if (T_period - t_seq[length(t_seq)] > 1e-8 * T_period) {
+        t_seq <- c(t_seq, T_period)
+    } else {
+        # `seq()` landed on T up to rounding; make it exactly T so that the
+        # closure is exact and the time dimname is the period itself.
+        t_seq[length(t_seq)] <- T_period
+    }
 
     # ------------------------------------------------------------------
     # 4. Amplitude scaling
@@ -146,7 +173,7 @@ getLimitCycleSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
     ok <- B_ss > 0 & is.finite(B_ss)
     if (!any(ok) || max(Mod(c_sp[ok]) / B_ss[ok]) <= 0) {
         stop("The leading oscillatory mode moves no species' biomass, so ",
-             "there is no cycle to draw at a given biomass amplitude.")
+             "there is nothing to draw at a given biomass amplitude.")
     }
     # Cap the species that swings hardest, rather than the community total:
     # species oscillating out of phase cancel in the total, which would let a
@@ -158,7 +185,7 @@ getLimitCycleSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
     # ------------------------------------------------------------------
     sim <- MizerSim(params, t_dimnames = t_seq)
     sim@sim_params <- list(
-        method      = "limit_cycle_linear_approx",
+        method      = "oscillation_mode_linear_approx",
         period      = T_period,
         amplitude   = amplitude,
         eigenvalue  = lam1,
@@ -202,10 +229,10 @@ getLimitCycleSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
         signal_info("amplitude", paste0(
             "An amplitude of ", signif(amplitude, 3), " drives some ",
             "abundances negative, and they have been clipped at zero, so the ",
-            "cycle shown is no longer the linear mode. Reduce `amplitude` to ",
-            "stay inside the linear approximation."),
+            "oscillation shown is no longer the linear mode. Reduce ",
+            "`amplitude` to stay inside the linear approximation."),
             level = 1, severity = "warning", unhandled = "show",
-            class = "info_limit_cycle_clipped")
+            class = "info_oscillation_mode_clipped")
     }
 
     sim

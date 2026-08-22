@@ -64,6 +64,13 @@ function` — carry no such quote, so match those rows on the function name.
 | Symptom | Cause | Section |
 |---|---|---|
 | `projectToSteady()` finds a limit cycle much earlier, or one it used to miss | ignores the first half of the simulation | `projectToSteady()` ignores initial transients |
+| `attr(params, "convergence")$termination` is `"distance_tolerance"` after `steady()` | the run stopped on the distance criterion with the model still drifting | `steady()` says when it stopped short of a fixed point |
+| Message `"which is below the distance tolerance, but the"`, or a `tuneSteadyState()` run that goes to `t_max` where `steady()` stopped early | the new finders also require the biomasses to have stopped moving | `steady()` says when it stopped short of a fixed point |
+| `conv$type` or `conv$settled` on a `"convergence"` attribute is `NULL`, or an `expect_named()` on it fails | the attribute now has `termination`, `converged` and `attractor` | The convergence attribute has a new shape |
+| A limit cycle used to be reported as a converged steady state | the fixed-point claim is now made on the measured biomass drift | The convergence attribute has a new shape |
+| `steady()` gives different results for a model with seasonal or otherwise time-dependent rates | every block used to restart the clock at zero | The steady-state run advances time like `project()` does |
+| New warning `"and stability machinery covers the consumers and the resource only"` | a component with its own dynamics is held fixed by these tools | The steady-state and stability tools say that they cover fish and resource |
+| New warning `"not be rebalanced and the preserved resource abundance need not be a steady"` from `steady()` | a custom `resource_dynamics` with no `balance_<dynamics>()` function | The steady-state and stability tools say that they cover fish and resource |
 | `plotSpectra()` or `plotCDF()` errors `"but not contradictory values of both"` | supplying both is no longer silently resolved | `biomass` and `per_log_size` replace `power` |
 | A `plotSpectra()` call with both `power` and `biomass`, or any `plotly...()` call with `biomass`, now gives a different plot | `biomass` is no longer ignored | `biomass` and `per_log_size` replace `power` |
 | `plotCDF(per_log_size = TRUE)` errors `"A cumulative distribution does not depend on whether the"` | meaningless for a cumulative distribution | `biomass` and `per_log_size` replace `power` |
@@ -102,11 +109,11 @@ function` — carry no such quote, so match those rows on the function name.
 | Repeated `"is not consistent with the value of"` warning has stopped | the given species parameters are brought into line | Length and weight parameters follow the one you gave last |
 | Size grid or results changed in a model built with a small `min_w` | `w_min` is no longer reset to 0.001 | `w_min` survives a rebuild of the species parameters |
 | A `match…()` call now reports `"has rescaled the model and so moved it off its steady state"` | the functions say so themselves now | The `match…()` functions announce that they broke the steady state |
-| `expect_named()` on `attr(params, "convergence")` fails | new `residual` field | The convergence attribute gained a `residual` field |
-| `steady()` adds ``"Reduce `tol` to converge further"`` to its convergence message | the state reached is not a fixed point | The convergence attribute gained a `residual` field |
+| `expect_named()` on `attr(params, "convergence")` fails | the attribute has new fields | The convergence attribute has a new shape |
+| `steady()` adds `"Reduce the tolerance on the distance function to converge further."` to its convergence message | the state reached is not a fixed point | The convergence attribute has a new shape |
 | `steady()` says `"Reached the convergence tolerance after"` where it used to announce that convergence was achieved | the message says what was actually tested | `steady()` reports the tolerance it reached rather than announcing convergence |
 | An `expect_message()` or a grep for the wording of the `steady()` success message no longer matches | the message was reworded | `steady()` reports the tolerance it reached rather than announcing convergence |
-| `getStability()` or `getLimitCycleSim()` now warns `"This model is not at its steady state"` | they linearise at the stored state | `getStability()` checks that it was given a steady state |
+| `getStability()` or `getOscillationModeSim()` now warns `"This model is not at its steady state"` | they linearise at the stored state | `getStability()` checks that it was given a steady state |
 | `summary(params)` has an extra `"Steady state:"` block | new steadiness verdict | `summary()` reports the steady state |
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters properly |
 | `steady()` now converges on a `van_leer` model where it used to report a limit cycle, or never settle | the flux limiter is relaxed between iterations | `steady()` converges under the `van_leer` flux scheme |

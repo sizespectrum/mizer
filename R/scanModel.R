@@ -114,13 +114,18 @@
 #' @param distance_func A function that will be called after every `t_per` years
 #'   with both the previous and the new state and that should return a number
 #'   measuring the distance between them. See [distanceSSLogN()].
-#' @param tol The projection at each scan value stops once the number returned
-#'   by `distance_func` for two states `t_per` years apart drops below `tol`.
+#' @param distance_tol The projection at each scan value stops once the number
+#'   returned by `distance_func` for two states `t_per` years apart drops below
+#'   `distance_tol`.
 #'   The default is tighter than the one [projectUntilSettled()] uses on its own,
 #'   because a scan produces a curve, and a loosely converged point does not
 #'   average away: it shows up as a kink in the curve and as spurious width in
 #'   the band. Loosen it to go faster, and use the `residual` column of the
 #'   result to check whether that cost you anything.
+#' @param residual_tol The largest relative rate of biomass change, in 1/year, at
+#'   which a scan point may still be recorded as a fixed point. See
+#'   [projectUntilSettled()]. A point that meets `distance_tol` but not this is not
+#'   sampled as a single value, which would draw it as a band of zero width.
 #' @param t_per The interval in years at which convergence is checked. Should be
 #'   an odd multiple of `dt`.
 #' @param t_max The longest time to project at each scan value.
@@ -188,7 +193,8 @@ scanModel <- function(params, scan_values, set_func,
                       current_scan_value = NULL,
                       continuation = TRUE,
                       distance_func = distanceSSLogN,
-                      tol = 0.001, t_per = 1.5, t_max = 100, dt = 0.1,
+                      distance_tol = 0.001, residual_tol = steady_residual_tol(),
+                      t_per = 1.5, t_max = 100, dt = 0.1,
                       t_save = dt,
                       amplitude_tol = 0.01, amp_rel_tol = 0.1,
                       extinction_threshold = 1e-6,
@@ -209,7 +215,9 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
                                   current_scan_value = NULL,
                                   continuation = TRUE,
                                   distance_func = distanceSSLogN,
-                                  tol = 0.001, t_per = 1.5, t_max = 100,
+                                  distance_tol = 0.001,
+                                  residual_tol = steady_residual_tol(),
+                                  t_per = 1.5, t_max = 100,
                                   dt = 0.1, t_save = dt,
                                   amplitude_tol = 0.01, amp_rel_tol = 0.1,
                                   extinction_threshold = 1e-6,
@@ -223,7 +231,8 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
     assert_that(is.numeric(scan_values),
                 is.function(set_func),
                 is.function(value_func),
-                is.number(tol), tol > 0,
+                is.number(distance_tol), distance_tol > 0,
+                is.number(residual_tol), residual_tol > 0,
                 is.number(t_per), t_per > 0,
                 is.number(t_max), t_max > 0,
                 is.number(dt), dt > 0,
@@ -280,7 +289,8 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
     }
 
     rows <- vector("list", length(scan_values))
-    types <- rep(NA_character_, length(scan_values))
+    attractors <- rep(NA_character_, length(scan_values))
+    terminations <- rep(NA_character_, length(scan_values))
     series_names <- NULL
     step <- 0L
 
@@ -302,7 +312,8 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
             settled <- project_until_settled(
                 p, distance_func = distance_func,
                 t_per = t_per, t_max = t_max, dt = dt, t_save = t_save,
-                tol = tol, amplitude_tol = amplitude_tol,
+                distance_tol = distance_tol, residual_tol = residual_tol,
+                amplitude_tol = amplitude_tol,
                 amp_rel_tol = amp_rel_tol,
                 extinction_threshold = extinction_threshold,
                 method = method, return_sim = FALSE, progress_bar = FALSE,
@@ -336,14 +347,16 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
                 Species = series_names,
                 ymin = measured$min,
                 ymax = measured$max,
-                type = conv$type,
-                settled = isTRUE(conv$settled),
+                termination = conv$termination %||% NA_character_,
+                converged = isTRUE(conv$converged),
+                attractor = conv$attractor %||% NA_character_,
                 period = conv$period %||% NA_real_,
                 residual = conv$residual %||% NA_real_,
                 row.names = NULL,
                 stringsAsFactors = FALSE
             )
-            types[[i]] <- conv$type %||% NA_character_
+            attractors[[i]] <- conv$attractor %||% NA_character_
+            terminations[[i]] <- conv$termination %||% NA_character_
 
             if (continuation) p_run <- settled
             if (!is.null(pb)) utils::setTxtProgressBar(pb, step)
@@ -361,14 +374,17 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
         rownames(frame) <- NULL
     }
 
-    report_scan_convergence(scan_values, types, scan_name, t_max, t_sample)
+    report_scan_convergence(scan_values, attractors, terminations, scan_name,
+                            t_max, t_sample)
 
     MizerScan(frame,
               scan_name = scan_name, scan_units = scan_units,
               value_name = value_name %||% "Value", value_units = value_units,
               type = value_type, params = params,
               reference_lines = reference_lines,
-              settings = list(tol = tol, t_per = t_per, t_max = t_max,
+              settings = list(distance_tol = distance_tol,
+                              residual_tol = residual_tol,
+                              t_per = t_per, t_max = t_max,
                               dt = dt, t_sample = t_sample,
                               continuation = continuation,
                               method = method))
@@ -389,9 +405,13 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
 #' @keywords internal
 measure_on_attractor <- function(settled, value_func, conv, dt, t_sample,
                                  sample_all, method, default_name = "Value") {
-    whole_period <- identical(conv$type, "cycle") &&
+    # What is measured depends on what the state *is*, not on why the run
+    # stopped: a snapshot is enough at a fixed point, one period is the right
+    # window on a cycle, and anything else has to be averaged over `t_sample`
+    # and treated with suspicion.
+    whole_period <- identical(conv$attractor, "limit_cycle") &&
         is.finite(conv$period) && conv$period > 0
-    fixed_point <- identical(conv$type, "below_tolerance") && !sample_all
+    fixed_point <- identical(conv$attractor, "fixed_point") && !sample_all
 
     if (fixed_point) {
         # Nothing moves, so a snapshot carries all the information a longer
@@ -500,41 +520,48 @@ sweep_arms <- function(scan_values, current_scan_value = NULL) {
 #' Report the scan values that did not settle on a fixed point
 #'
 #' @param scan_values The values that were scanned.
-#' @param types The attractor type reached at each value, one per value.
+#' @param attractors The attractor reached at each value, one per value.
+#' @param terminations Why the run at each value stopped, one per value.
 #' @param scan_name The name of the scanned quantity.
 #' @param t_max The time limit that was used.
 #' @param t_sample The averaging window that was used.
 #' @return Nothing; called for its messages.
 #' @keywords internal
-report_scan_convergence <- function(scan_values, types, scan_name, t_max,
-                                    t_sample) {
-    # `which()` rather than the logical vector itself, so that a missing type
+report_scan_convergence <- function(scan_values, attractors, terminations,
+                                    scan_name, t_max, t_sample) {
+    # `which()` rather than the logical vector itself, so that a missing entry
     # cannot put an NA among the scan values that are named.
-    name_them <- function(type) {
-        paste(signif(scan_values[which(types == type)], 3), collapse = ", ")
+    name_them <- function(sel) {
+        paste(signif(scan_values[which(sel)], 3), collapse = ", ")
     }
     # `...` is only forced inside the `if`, so a report that is not needed
     # costs nothing to have written down here.
-    report <- function(type, ...) {
-        if (any(types == type, na.rm = TRUE)) {
+    report <- function(sel, ...) {
+        if (any(sel, na.rm = TRUE)) {
             signal_info("scan", paste0(...), unhandled = "show")
         }
     }
-    report("cycle",
+    cycles <- attractors == "limit_cycle"
+    extinctions <- terminations == "extinction"
+    # Anything that is neither a fixed point nor a cycle when the run ran out of
+    # time. This is the bucket that a state which met `distance_tol` but was
+    # still drifting falls into, which is the point of measuring the drift.
+    unsettled <- is.na(attractors) & terminations == "time_limit"
+    report(cycles,
            "The model settled onto a limit cycle at ", scan_name, " = ",
-           name_them("cycle"),
+           name_them(cycles),
            ". The value there is the average over one period of the cycle.")
-    report("not_converged",
+    report(unsettled,
            "The model did not settle onto an attractor within ", t_max,
-           " years at ", scan_name, " = ", name_them("not_converged"),
+           " years at ", scan_name, " = ", name_them(unsettled),
            ". The value there is only the average over the last ", t_sample,
            " years and should not be relied on. Increase `t_max` to give the ",
-           "model more time to settle, or loosen `tol`. The `residual` ",
-           "column says how fast the abundances were still changing, in ",
-           "1/year.")
-    report("extinction",
+           "model more time to settle, or loosen `distance_tol` and ",
+           "`residual_tol`. The `residual` column says how fast the abundances ",
+           "were still changing, in 1/year.")
+    report(extinctions,
            "A species was on its way to extinction at ", scan_name, " = ",
-           name_them("extinction"),
+           name_them(extinctions),
            ", which stopped the projection early. The value there is only ",
            "the average over the ", t_sample, " years following that point.")
     invisible(NULL)

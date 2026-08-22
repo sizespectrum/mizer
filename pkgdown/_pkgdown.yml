@@ -197,7 +197,7 @@ reference:
   - getSteadyResidual
   - getStability
   - getDiscreteStability
-  - getLimitCycleSim
+  - getOscillationModeSim
   - scanModel
   - scanEffort
   - scanFishingMortality

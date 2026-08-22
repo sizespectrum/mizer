@@ -12,7 +12,8 @@ projectUntilSettled(
   t_max = 100,
   dt = 0.1,
   t_save = dt,
-  tol = 0.1 * t_per,
+  distance_tol = 0.1 * t_per,
+  residual_tol = steady_residual_tol(),
   amplitude_tol = 0.01,
   amp_rel_tol = 0.1,
   extinction_threshold = 1e-06,
@@ -50,15 +51,30 @@ recorded for limit-cycle detection. Must be a positive multiple of \code{dt} and
 a divisor of \code{t_per}. Smaller values resolve the cycle period more finely at
 a small extra cost. Default is \code{dt}.}
 
-\item{tol}{The run stops when the number returned by \code{distance_func} for two
-states \code{t_per} years apart drops below \code{tol}. Its meaning therefore depends
-on the distance function you supply.}
+\item{distance_tol}{The run stops when the number returned by \code{distance_func}
+for two states \code{t_per} years apart drops below \code{distance_tol}, provided the
+drift criterion below is also met. Its meaning therefore depends on the
+distance function you supply. It was called \code{tol} before mizer 3.3.}
+
+\item{residual_tol}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+The largest relative rate of biomass change, in 1/year, that a state may
+have and still be called a fixed point. This is the criterion of
+\code{\link[=isSteady]{isSteady()}} and is measured with \code{\link[=getSteadyResidual]{getSteadyResidual()}}, so it has the same
+meaning for every model and every distance function. Default \code{0.05}.
+
+It is a backstop against a distance function that has gone quiet while the
+model is still moving, not the main line of defence against a cycle: an
+oscillation of relative amplitude \eqn{A} and period \eqn{T} drifts at up
+to \eqn{2\pi A/T} per year, which for a small \code{amplitude_tol} can be below
+any sensible \code{residual_tol}. Cycles that small are caught by the cycle
+detection above, which is why that runs unconditionally.}
 
 \item{amplitude_tol}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 The minimum relative biomass amplitude for a persistent oscillation to be
 reported as a limit cycle rather than treated as an (effectively steady)
 fixed point. This is a fraction of mean biomass and is kept separate from
-\code{tol} (which measures convergence to a fixed point on a different scale).
+\code{distance_tol} (which measures convergence to a fixed point on a different
+scale).
 Default \code{0.01}.}
 
 \item{amp_rel_tol}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -94,24 +110,32 @@ extract that final state as a \code{MizerParams} object, or call
 \code{\link[=findSteadyState]{findSteadyState()}} instead, which returns it directly.
 
 The returned object carries an attribute \code{"convergence"} describing the
-solution the run settled on, a named list with entries:
+solution the run settled on, a named list with entries. The first three
+answer three different questions and should not be read as one:
 \describe{
-\item{\code{type}}{One of \code{"below_tolerance"} (the distance function dropped
-below \code{tol}, which suggests but does not guarantee a stable fixed
-point — check \code{residual}), \code{"cycle"} (a limit cycle),
-\code{"not_converged"} (still changing at \code{t_max}) or \code{"extinction"} (a
-species died out).}
-\item{\code{settled}}{Logical, \code{TRUE} for \code{"below_tolerance"} and \code{"cycle"},
-i.e. when the run stopped on a criterion of its own rather than
-running out of time. It says nothing about whether the state reached
-is a fixed point; that is what \code{residual} is for.}
+\item{\code{termination}}{Why the run stopped: \code{"residual_tolerance"} (both
+convergence criteria were met), \code{"distance_tolerance"} (the distance
+function was satisfied but the state is still drifting — reachable with
+a loose \code{residual_tol}, and from the superseded \code{\link[=steady]{steady()}}, which stops
+on the distance criterion alone), \code{"cycle_detected"} (a limit cycle),
+\code{"time_limit"} (still changing at \code{t_max}) or \code{"extinction"} (a species
+died out). The steady-state finders can also return
+\code{"solver_converged"} and \code{"solver_failed"} from the Newton solver.}
+\item{\code{converged}}{Logical, \code{TRUE} when the run stopped on a criterion of
+its own rather than running out of time or losing a species. This is a
+statement about the numerics, not about the state.}
+\item{\code{attractor}}{What the state that was reached actually is:
+\code{"fixed_point"} when the biomass drift is within \code{residual_tol},
+\code{"limit_cycle"} when a cycle was detected, and \code{NA} when it is neither
+— a run stopped in mid-flight, or a species on its way out. This is the
+entry to test before treating a result as a steady state.}
 \item{\code{distance}}{The final value returned by \code{distance_func}.}
 \item{\code{residual}}{The largest per-capita rate of change, in 1/year, at the
 state that was reached, as returned by \code{\link[=getSteadyResidual]{getSteadyResidual()}}. Unlike
 \code{distance}, which compares two states \code{t_per} apart on whatever scale
 the distance function uses, this measures how far the state actually is
 from being a fixed point.}
-\item{\code{years}}{The number of years simulated.}
+\item{\code{years}}{The number of years simulated. \code{NA} for a direct solve.}
 \item{\code{period}}{For a limit cycle, its period in years; otherwise \code{NA}.}
 \item{\code{amplitude}}{For a limit cycle, the largest per-species relative
 peak-to-trough biomass amplitude; otherwise \code{NA}.}
@@ -122,8 +146,9 @@ peak-to-trough biomass amplitude; otherwise \code{NA}.}
 
 Run the full dynamics, as in \code{\link[=project]{project()}}, but stop once the run has settled:
 either the change has slowed down sufficiently, in the sense that the
-distance between states \code{t_per} years apart is less than \code{tol}, or the run
-has been recognised as being on a limit cycle. You determine how the distance
+distance between states \code{t_per} years apart is less than \code{distance_tol} and
+the state has stopped drifting, or the run has been recognised as being on a
+limit cycle. You determine how the distance
 is calculated.
 
 Nothing is held fixed, so the run can only ever end up on an attractor of the
@@ -161,35 +186,49 @@ immediately, whereas in \code{\link[=tuneSteadyState]{tuneSteadyState()}}, where
 healthy species is never flagged.
 }
 
-\subsection{2. Convergence to a fixed point}{
+\subsection{2. Limit cycle}{
 
-\code{distance_func} is called with the state at the end of the previous block and
-the state at the end of the current block, i.e. with two states \code{t_per} years
-apart. If the number it returns is less than \code{tol}, the run stops with
-\code{type = "below_tolerance"}. The type is deliberately not called \code{"steady"}:
-all it says is that the state stopped moving on the scale of the distance
-function, which is not a guarantee that a fixed point has been reached. The
-\code{residual} entry of the \code{"convergence"} attribute measures that directly.
-What "distance" means is entirely up to that function:
-the default \code{\link[=distanceSSLogN]{distanceSSLogN()}} uses the sum of squared changes in log
-abundance, while \code{\link[=tuneSteadyState]{tuneSteadyState()}} instead passes \code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}, which
-uses
-the largest relative change in egg production.
+The recorded biomass series is examined to see whether the run has settled
+onto a limit cycle. If it has, the run stops with \code{type = "cycle"} and the
+period and amplitude of the cycle are reported.
 
-Note that this test only compares two states one \code{t_per} apart; it cannot by
-itself tell a fixed point from a cycle whose period divides \code{t_per}. This is
-why \code{t_per} should be chosen as an \emph{odd} multiple of \code{dt}: a period-2 cycle
-(period \code{2 * dt}), which is the most common numerical oscillation, would
-otherwise be sampled at the same phase in every block and would look
-perfectly converged.
+This check is made on every block, whether or not the state looks converged
+by the measure below. A cycle whose period divides \code{t_per} puts the two
+states that the distance function compares at the same phase, so it would
+otherwise be reported as a fixed point of zero width. The detection works on
+the finely sampled biomass series instead, which is blind to \code{t_per}.
 }
 
-\subsection{3. Limit cycle}{
+\subsection{3. Convergence to a fixed point}{
 
-If the state is still changing more than \code{tol}, the recorded biomass series
-is examined to see whether the run has instead settled onto a limit cycle. If
-it has, the run stops with \code{type = "cycle"} and the period and amplitude of
-the cycle are reported.
+Two things have to hold for the run to stop on a fixed point.
+
+First, \code{distance_func} is called with the state at the end of the previous
+block and the state at the end of the current block, i.e. with two states
+\code{t_per} years apart, and the number it returns must be less than
+\code{distance_tol}. What
+"distance" means is entirely up to that function: the default
+\code{\link[=distanceSSLogN]{distanceSSLogN()}} uses the sum of squared changes in log abundance, while
+\code{\link[=tuneSteadyState]{tuneSteadyState()}} instead passes \code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}, which uses the
+largest relative change in egg production.
+
+Second, the state actually reached must be a fixed point: the largest
+relative rate of biomass change there, as measured by \code{\link[=getSteadyResidual]{getSteadyResidual()}},
+must be at most \code{residual_tol}. The distance criterion on its own says only
+that the state stopped moving on the scale of the distance function, which is
+a different question — a distance function can be insensitive to the very
+motion that is left. When the distance criterion is met but the drift is not,
+the run carries on rather than declaring a fixed point.
+
+When both hold the run stops with \code{termination = "residual_tolerance"}. That
+is deliberately not called \code{"steady"}: \code{residual_tol} is a working tolerance
+rather than a proof, and the \code{residual} entry of the \code{"convergence"}
+attribute reports the drift that was actually reached.
+
+Even so, \code{t_per} should be chosen as an \emph{odd} multiple of \code{dt}. A period-2
+cycle (period \code{2 * dt}), the most common numerical oscillation, is otherwise
+sampled at the same phase in every block, and its amplitude can sit below
+\code{amplitude_tol} where the cycle detection deliberately ignores it.
 
 If none of the three checks fires before \code{t_max} is reached, the run stops
 with \code{type = "not_converged"}. In every case the outcome is recorded in the
@@ -240,38 +279,45 @@ that accuracy; reduce \code{t_save} if you need the period more precisely.
 
 
 The stopping criterion is a proxy. It says that two states \code{t_per} years
-apart differ by less than \code{tol} on whatever scale the criterion is measured
-on; it does not say that the state reached is a fixed point. There are four
-ways the returned object can fail to be one:
+apart differ by less than \code{distance_tol} on whatever scale the criterion is
+measured on; it does not say that the state reached is a fixed point. There
+are four ways the returned object can fail to be one:
 \itemize{
-\item the run converged on its own scale while the biomasses are still
-visibly drifting, because \code{tol} was too loose (\code{type = "below_tolerance"}, which is why that type is not called \code{"steady"});
-\item the run reached \code{t_max} without converging (\code{type = "not_converged"});
-\item the run settled on a limit cycle (\code{type = "cycle"}), in which case the
-state stored is one point on that cycle;
+\item the run converged on its own scale while the biomasses are still visibly
+drifting (\code{termination = "distance_tolerance"});
+\item the run reached \code{t_max} without converging
+(\code{termination = "time_limit"});
+\item the run settled on a limit cycle (\code{termination = "cycle_detected"}), in
+which case the state stored is one point on that cycle;
 \item the run stopped because a species was going extinct
-(\code{type = "extinction"}).
+(\code{termination = "extinction"}).
 }
 
 So treat the result as a claim to be checked rather than as a guarantee:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{attr(params, "convergence")$type      # "below_tolerance", "cycle", "not_converged", "extinction"
-attr(params, "convergence")$residual  # largest biomass drift, in 1/year
-isSteady(params)                      # TRUE if within tolerance
-summary(params)                       # includes the biomass-drift verdict
-plot(getSteadyResidual(params))       # which species, and at which sizes
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{attr(params, "convergence")$attractor  # "fixed_point", "limit_cycle" or NA
+attr(params, "convergence")$residual   # largest biomass drift, in 1/year
+isSteady(params)                       # TRUE if within tolerance
+summary(params)                        # includes the biomass-drift verdict
+plot(getSteadyResidual(params))        # which species, and at which sizes
 }\if{html}{\out{</div>}}
 
-The first four say \emph{whether} the model is steady, the last says \emph{where} it
-is not, which is the one to reach for when it is not: a model that is off
-steady state is usually off in one species or one part of the size range,
-and the plot names it. See \code{\link[=getSteadyResidual]{getSteadyResidual()}} for why the verdict is
-phrased in terms of biomass drift rather than the largest per-capita rate.
+\code{attractor} is the field that answers the question: it is \code{"fixed_point"}
+only where the measured biomass drift is within \code{residual_tol}, so it
+cannot be satisfied by a distance function that has merely gone quiet.
+\code{termination} says how the run ended and \code{converged} whether the solver met
+its own criterion; neither is a claim about the state. The last line says
+\emph{where} the model is not steady, which is the one to reach for when it is
+not: a model that is off steady state is usually off in one species or one
+part of the size range, and the plot names it. See \code{\link[=getSteadyResidual]{getSteadyResidual()}}
+for why the verdict is phrased in terms of biomass drift rather than the
+largest per-capita rate.
 
 The messages this function prints say the same thing — a converged run
-whose biomasses are still moving reports the drift and adds "Reduce \code{tol}
-to converge further." — but they are suppressed by \code{info_level = 0}, so in
-a script the \code{"convergence"} attribute is the reliable check.
+whose biomasses are still moving reports the drift and adds "Reduce the
+tolerance on the distance function to converge further." — but they are
+suppressed by \code{info_level = 0}, so in a script the \code{"convergence"}
+attribute is the reliable check.
 
 Finally, a genuine fixed point need not be a \emph{stable} one. Use
 \code{\link[=getStability]{getStability()}} to find out, and \code{solver = "newton"} to converge onto a

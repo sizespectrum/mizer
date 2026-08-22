@@ -16,26 +16,31 @@ test_that("projectUntilSettled() works", {
     expect_message(projectUntilSettled(params, t_max = 0.1, t_per = 0.1,
                                        info_level = 3),
                    "Simulation run did not converge after 0.1 years.")
-    # It always returns the trajectory, whatever the run settled on.
+    # It always returns the trajectory, whatever the run settled on. These runs
+    # take a crude `dt = 1` step and stop on an absurdly loose `tol` after a
+    # single block, which is the cheapest way to exercise the plumbing. That is
+    # not a converged state, and the drift criterion would rightly say so, so it
+    # is switched off here rather than the tolerance being pretended tight.
     expect_message(sim <- projectUntilSettled(params, t_per = 1, dt = 1,
-                                              tol = 1000, effort = effort),
+                                              distance_tol = 1000, residual_tol = Inf,
+                                              effort = effort),
                    "Reached the convergence tolerance")
     expect_s4_class(sim, "MizerSim")
     expect_identical(sim@params@initial_effort, effort)
     # shouldn't take long the second time we run to steady
     expect_message(projectUntilSettled(finalParams(sim), t_per = 1, dt = 1,
-                                       tol = 1000),
+                                       distance_tol = 1000, residual_tol = Inf),
                    "Reached the convergence tolerance")
 
     # Alternative distance function
     expect_message(sim <- projectUntilSettled(params, t_per = 1, dt = 1,
                                               distance_func = distanceMaxRelRDI,
-                                              tol = 10),
+                                              distance_tol = 10, residual_tol = Inf),
                    "Reached the convergence tolerance")
     # shouldn't take long the second time we run to steady
     expect_message(projectUntilSettled(finalParams(sim), t_per = 1, dt = 1,
                                        distance_func = distanceMaxRelRDI,
-                                       tol = 10),
+                                       distance_tol = 10, residual_tol = Inf),
                    "Reached the convergence tolerance")
 
     # Check extinction
@@ -49,14 +54,14 @@ test_that("projectUntilSettled() works", {
 test_that("projectUntilSettled accepts the documented effort forms", {
     params <- NS_params_small
     s1 <- projectUntilSettled(params, effort = 0.5, t_per = 0.1,
-                              t_max = 0.1, tol = 10, info_level = 0)
+                              t_max = 0.1, distance_tol = 10, info_level = 0)
     expect_equal(unname(s1@params@initial_effort),
                  rep(0.5, length(initial_effort(params))))
 
     named <- initial_effort(params)[1:2]
     named[] <- c(0.2, NA)
     s2 <- projectUntilSettled(params, effort = named, t_per = 0.1,
-                              t_max = 0.1, tol = 10, info_level = 0)
+                              t_max = 0.1, distance_tol = 10, info_level = 0)
     expected <- validEffortVector(named, params)
     expect_equal(s2@params@initial_effort, expected)
 })
@@ -64,7 +69,7 @@ test_that("projectUntilSettled accepts consumer update method", {
     params <- small_steady_params
 
     sim <- projectUntilSettled(params, t_per = 1, dt = 1,
-                               t_max = 1, tol = 1000,
+                               t_max = 1, distance_tol = 1000,
                                method = "predictor_corrector", info_level = 0)
     expect_s4_class(sim, "MizerSim")
     expect_true(all(is.finite(finalN(sim))))
@@ -141,7 +146,8 @@ test_that("projectUntilSettled() converges with use_predation_diffusion", {
     params_d@use_predation_diffusion <- TRUE
     initialN(params_d)[1, ] <- initialN(params_d)[1, ] * 3
     expect_message(
-        projectUntilSettled(params_d, t_per = 1, dt = 1, tol = 1000),
+        projectUntilSettled(params_d, t_per = 1, dt = 1, distance_tol = 1000,
+                            residual_tol = Inf),
         "Reached the convergence tolerance"
     )
 })
@@ -280,16 +286,17 @@ test_that("projectUntilSettled() reports non-convergence", {
     initialN(p)[1, ] <- initialN(p)[1, ] * 3
     sim <- suppressMessages(
         projectUntilSettled(p, t_max = 0.5, t_per = 0.5, dt = 0.1,
-                            tol = 1e-12, info_level = 0)
+                            distance_tol = 1e-12, info_level = 0)
     )
     conv <- attr(sim, "convergence")
-    expect_identical(conv$type, "not_converged")
-    expect_false(conv$settled)
+    expect_identical(conv$termination, "time_limit")
+    expect_false(conv$converged)
+    expect_true(is.na(conv$attractor))
 })
 test_that("fine t_save sampling does not change the result", {
     # Sub-blocking the run at the t_save resolution must be numerically
     # identical to stepping a whole t_per block at once.
-    args <- list(t_max = 3, t_per = 1.5, dt = 0.5, tol = 1e-12, info_level = 0)
+    args <- list(t_max = 3, t_per = 1.5, dt = 0.5, distance_tol = 1e-12, info_level = 0)
     p_fine   <- suppressMessages(do.call(findSteadyState,
                                          c(list(cd_params, t_save = 0.5), args)))
     p_coarse <- suppressMessages(do.call(findSteadyState,
@@ -309,11 +316,112 @@ test_that("projectUntilSettled() detects a limit cycle", {
     # limit cycle rather than a fixed point.
     sim <- suppressMessages(
         projectUntilSettled(NS_params, effort = 2, t_max = 200,
-                            t_per = 1.5, dt = 0.1, tol = 1e-8, info_level = 0)
+                            t_per = 1.5, dt = 0.1, distance_tol = 1e-8, info_level = 0)
     )
     conv <- attr(sim, "convergence")
-    expect_identical(conv$type, "cycle")
-    expect_true(conv$settled)
+    expect_identical(conv$termination, "cycle_detected")
+    expect_true(conv$converged)
+    expect_identical(conv$attractor, "limit_cycle")
+    expect_gt(conv$period, 0)
+    expect_gt(conv$amplitude, 0.1)
+})
+test_that("projectUntilSettled() passes absolute time to the dynamics", {
+    # The run is broken into blocks of `t_per`, subdivided again at `t_save`.
+    # Every sub-run has to continue the clock rather than restart it, or a rate
+    # or component function that depends on `t` sees the same interval over and
+    # over and the result stops matching project().
+    assign("mizer_test_recorded_times", numeric(0), envir = .GlobalEnv)
+    assign("mizer_test_record_time", function(params, n_other, component, t,
+                                              dt, ...) {
+        # The steady-state diagnostic differences the dynamics over a very
+        # short step; those calls are not part of the trajectory.
+        if (dt > 1e-3) {
+            .GlobalEnv$mizer_test_recorded_times <-
+                c(.GlobalEnv$mizer_test_recorded_times, t)
+        }
+        n_other[[component]]
+    }, envir = .GlobalEnv)
+    withr::defer(rm("mizer_test_record_time", "mizer_test_recorded_times",
+                    envir = .GlobalEnv))
+
+    p <- setComponent(cd_params, "recorder", initial_value = 1,
+                      dynamics_fun = "mizer_test_record_time")
+
+    suppressMessages(
+        project(p, t_max = 4.5, dt = 0.1, t_save = 1.5, progress_bar = FALSE)
+    )
+    from_project <- .GlobalEnv$mizer_test_recorded_times
+
+    .GlobalEnv$mizer_test_recorded_times <- numeric(0)
+    suppressMessages(
+        projectUntilSettled(p, t_max = 4.5, t_per = 1.5, dt = 0.1,
+                            t_save = 0.5, distance_tol = 1e-12, progress_bar = FALSE,
+                            info_level = 0)
+    )
+    from_settled <- .GlobalEnv$mizer_test_recorded_times
+
+    expect_equal(from_settled, from_project)
+    expect_false(is.unsorted(from_settled))
+    expect_gt(max(from_settled), 4)
+})
+
+test_that("a state that is still drifting is not called a fixed point", {
+    # A distance function that is blind to the motion that is left used to be
+    # enough on its own to stop the run and label the state a fixed point.
+    blind <- function(params, current, previous, ...) 0
+    p <- cd_params
+    initialN(p)[1, ] <- initialN(p)[1, ] * 10
+
+    conv <- attr(suppressMessages(
+        projectUntilSettled(p, distance_func = blind, t_max = 3, t_per = 1.5,
+                            dt = 0.1, progress_bar = FALSE, info_level = 0)
+    ), "convergence")
+    expect_identical(conv$termination, "time_limit")
+    expect_false(conv$converged)
+    expect_true(is.na(conv$attractor))
+    expect_gt(conv$residual, steady_residual_tol())
+
+    # The drift is the only thing keeping it from being accepted: allow it and
+    # the very same run stops on the distance criterion alone.
+    conv <- attr(suppressMessages(
+        projectUntilSettled(p, distance_func = blind, residual_tol = Inf,
+                            t_max = 3, t_per = 1.5, dt = 0.1,
+                            progress_bar = FALSE, info_level = 0)
+    ), "convergence")
+    expect_identical(conv$termination, "residual_tolerance")
+    expect_true(conv$converged)
+    # `residual_tol = Inf` says that any drift counts as steady, so the verdict
+    # follows the tolerance it was given. That is the user's call to make, and
+    # the reported `residual` still says what the drift actually was.
+    expect_identical(conv$attractor, "fixed_point")
+    expect_gt(conv$residual, steady_residual_tol())
+})
+
+test_that("the report says when the drift is what stopped convergence", {
+    blind <- function(params, current, previous, ...) 0
+    p <- cd_params
+    initialN(p)[1, ] <- initialN(p)[1, ] * 10
+    expect_message(
+        projectUntilSettled(p, distance_func = blind, t_max = 3, t_per = 1.5,
+                            dt = 0.1, progress_bar = FALSE, info_level = 3),
+        "which is below the distance tolerance, but the biomasses are"
+    )
+})
+
+test_that("a converged distance function does not mask a limit cycle", {
+    skip_on_cran()
+    # The same model as the limit-cycle test above, but with a distance function
+    # that reports perfect convergence at every block, standing in for a cycle
+    # whose period divides `t_per` and is therefore sampled at one phase. The
+    # cycle detection works on the finely sampled biomass series, so it sees the
+    # oscillation regardless.
+    blind <- function(params, current, previous, ...) 0
+    sim <- suppressMessages(
+        projectUntilSettled(NS_params, effort = 2, distance_func = blind,
+                            t_max = 200, t_per = 1.5, dt = 0.1, info_level = 0)
+    )
+    conv <- attr(sim, "convergence")
+    expect_identical(conv$attractor, "limit_cycle")
     expect_gt(conv$period, 0)
     expect_gt(conv$amplitude, 0.1)
 })

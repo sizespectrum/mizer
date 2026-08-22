@@ -68,8 +68,9 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'
 #' Run the full dynamics, as in [project()], but stop once the run has settled:
 #' either the change has slowed down sufficiently, in the sense that the
-#' distance between states `t_per` years apart is less than `tol`, or the run
-#' has been recognised as being on a limit cycle. You determine how the distance
+#' distance between states `t_per` years apart is less than `distance_tol` and
+#' the state has stopped drifting, or the run has been recognised as being on a
+#' limit cycle. You determine how the distance
 #' is calculated.
 #'
 #' Nothing is held fixed, so the run can only ever end up on an attractor of the
@@ -109,34 +110,48 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' immediately, whereas in [tuneSteadyState()], where reproduction is held constant, a
 #' healthy species is never flagged.
 #'
-#' ## 2. Convergence to a fixed point
+#' ## 2. Limit cycle
 #'
-#' `distance_func` is called with the state at the end of the previous block and
-#' the state at the end of the current block, i.e. with two states `t_per` years
-#' apart. If the number it returns is less than `tol`, the run stops with
-#' `type = "below_tolerance"`. The type is deliberately not called `"steady"`:
-#' all it says is that the state stopped moving on the scale of the distance
-#' function, which is not a guarantee that a fixed point has been reached. The
-#' `residual` entry of the `"convergence"` attribute measures that directly.
-#' What "distance" means is entirely up to that function:
-#' the default [distanceSSLogN()] uses the sum of squared changes in log
-#' abundance, while [tuneSteadyState()] instead passes [distanceMaxRelRDI()], which
-#' uses
-#' the largest relative change in egg production.
+#' The recorded biomass series is examined to see whether the run has settled
+#' onto a limit cycle. If it has, the run stops with `type = "cycle"` and the
+#' period and amplitude of the cycle are reported.
 #'
-#' Note that this test only compares two states one `t_per` apart; it cannot by
-#' itself tell a fixed point from a cycle whose period divides `t_per`. This is
-#' why `t_per` should be chosen as an *odd* multiple of `dt`: a period-2 cycle
-#' (period `2 * dt`), which is the most common numerical oscillation, would
-#' otherwise be sampled at the same phase in every block and would look
-#' perfectly converged.
+#' This check is made on every block, whether or not the state looks converged
+#' by the measure below. A cycle whose period divides `t_per` puts the two
+#' states that the distance function compares at the same phase, so it would
+#' otherwise be reported as a fixed point of zero width. The detection works on
+#' the finely sampled biomass series instead, which is blind to `t_per`.
 #'
-#' ## 3. Limit cycle
+#' ## 3. Convergence to a fixed point
 #'
-#' If the state is still changing more than `tol`, the recorded biomass series
-#' is examined to see whether the run has instead settled onto a limit cycle. If
-#' it has, the run stops with `type = "cycle"` and the period and amplitude of
-#' the cycle are reported.
+#' Two things have to hold for the run to stop on a fixed point.
+#'
+#' First, `distance_func` is called with the state at the end of the previous
+#' block and the state at the end of the current block, i.e. with two states
+#' `t_per` years apart, and the number it returns must be less than
+#' `distance_tol`. What
+#' "distance" means is entirely up to that function: the default
+#' [distanceSSLogN()] uses the sum of squared changes in log abundance, while
+#' [tuneSteadyState()] instead passes [distanceMaxRelRDI()], which uses the
+#' largest relative change in egg production.
+#'
+#' Second, the state actually reached must be a fixed point: the largest
+#' relative rate of biomass change there, as measured by [getSteadyResidual()],
+#' must be at most `residual_tol`. The distance criterion on its own says only
+#' that the state stopped moving on the scale of the distance function, which is
+#' a different question — a distance function can be insensitive to the very
+#' motion that is left. When the distance criterion is met but the drift is not,
+#' the run carries on rather than declaring a fixed point.
+#'
+#' When both hold the run stops with `termination = "residual_tolerance"`. That
+#' is deliberately not called `"steady"`: `residual_tol` is a working tolerance
+#' rather than a proof, and the `residual` entry of the `"convergence"`
+#' attribute reports the drift that was actually reached.
+#'
+#' Even so, `t_per` should be chosen as an *odd* multiple of `dt`. A period-2
+#' cycle (period `2 * dt`), the most common numerical oscillation, is otherwise
+#' sampled at the same phase in every block, and its amplitude can sit below
+#' `amplitude_tol` where the cycle detection deliberately ignores it.
 #'
 #' If none of the three checks fires before `t_max` is reached, the run stops
 #' with `type = "not_converged"`. In every case the outcome is recorded in the
@@ -201,14 +216,28 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   recorded for limit-cycle detection. Must be a positive multiple of `dt` and
 #'   a divisor of `t_per`. Smaller values resolve the cycle period more finely at
 #'   a small extra cost. Default is `dt`.
-#' @param tol The run stops when the number returned by `distance_func` for two
-#'   states `t_per` years apart drops below `tol`. Its meaning therefore depends
-#'   on the distance function you supply.
+#' @param distance_tol The run stops when the number returned by `distance_func`
+#'   for two states `t_per` years apart drops below `distance_tol`, provided the
+#'   drift criterion below is also met. Its meaning therefore depends on the
+#'   distance function you supply. It was called `tol` before mizer 3.3.
+#' @param residual_tol `r lifecycle::badge("experimental")`
+#'   The largest relative rate of biomass change, in 1/year, that a state may
+#'   have and still be called a fixed point. This is the criterion of
+#'   [isSteady()] and is measured with [getSteadyResidual()], so it has the same
+#'   meaning for every model and every distance function. Default `0.05`.
+#'
+#'   It is a backstop against a distance function that has gone quiet while the
+#'   model is still moving, not the main line of defence against a cycle: an
+#'   oscillation of relative amplitude \eqn{A} and period \eqn{T} drifts at up
+#'   to \eqn{2\pi A/T} per year, which for a small `amplitude_tol` can be below
+#'   any sensible `residual_tol`. Cycles that small are caught by the cycle
+#'   detection above, which is why that runs unconditionally.
 #' @param amplitude_tol `r lifecycle::badge("experimental")`
 #'   The minimum relative biomass amplitude for a persistent oscillation to be
 #'   reported as a limit cycle rather than treated as an (effectively steady)
 #'   fixed point. This is a fraction of mean biomass and is kept separate from
-#'   `tol` (which measures convergence to a fixed point on a different scale).
+#'   `distance_tol` (which measures convergence to a fixed point on a different
+#'   scale).
 #'   Default `0.01`.
 #' @param amp_rel_tol `r lifecycle::badge("experimental")`
 #'   Maximum relative change of amplitude between successive periods for the
@@ -237,24 +266,32 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   [findSteadyState()] instead, which returns it directly.
 #'
 #'   The returned object carries an attribute `"convergence"` describing the
-#'   solution the run settled on, a named list with entries:
+#'   solution the run settled on, a named list with entries. The first three
+#'   answer three different questions and should not be read as one:
 #'   \describe{
-#'     \item{`type`}{One of `"below_tolerance"` (the distance function dropped
-#'       below `tol`, which suggests but does not guarantee a stable fixed
-#'       point — check `residual`), `"cycle"` (a limit cycle),
-#'       `"not_converged"` (still changing at `t_max`) or `"extinction"` (a
-#'       species died out).}
-#'     \item{`settled`}{Logical, `TRUE` for `"below_tolerance"` and `"cycle"`,
-#'       i.e. when the run stopped on a criterion of its own rather than
-#'       running out of time. It says nothing about whether the state reached
-#'       is a fixed point; that is what `residual` is for.}
+#'     \item{`termination`}{Why the run stopped: `"residual_tolerance"` (both
+#'       convergence criteria were met), `"distance_tolerance"` (the distance
+#'       function was satisfied but the state is still drifting — reachable with
+#'       a loose `residual_tol`, and from the superseded [steady()], which stops
+#'       on the distance criterion alone), `"cycle_detected"` (a limit cycle),
+#'       `"time_limit"` (still changing at `t_max`) or `"extinction"` (a species
+#'       died out). The steady-state finders can also return
+#'       `"solver_converged"` and `"solver_failed"` from the Newton solver.}
+#'     \item{`converged`}{Logical, `TRUE` when the run stopped on a criterion of
+#'       its own rather than running out of time or losing a species. This is a
+#'       statement about the numerics, not about the state.}
+#'     \item{`attractor`}{What the state that was reached actually is:
+#'       `"fixed_point"` when the biomass drift is within `residual_tol`,
+#'       `"limit_cycle"` when a cycle was detected, and `NA` when it is neither
+#'       — a run stopped in mid-flight, or a species on its way out. This is the
+#'       entry to test before treating a result as a steady state.}
 #'     \item{`distance`}{The final value returned by `distance_func`.}
 #'     \item{`residual`}{The largest per-capita rate of change, in 1/year, at the
 #'       state that was reached, as returned by [getSteadyResidual()]. Unlike
 #'       `distance`, which compares two states `t_per` apart on whatever scale
 #'       the distance function uses, this measures how far the state actually is
 #'       from being a fixed point.}
-#'     \item{`years`}{The number of years simulated.}
+#'     \item{`years`}{The number of years simulated. `NA` for a direct solve.}
 #'     \item{`period`}{For a limit cycle, its period in years; otherwise `NA`.}
 #'     \item{`amplitude`}{For a limit cycle, the largest per-species relative
 #'       peak-to-trough biomass amplitude; otherwise `NA`.}
@@ -270,7 +307,8 @@ projectUntilSettled <- function(params,
                                 t_max = 100,
                                 dt = 0.1,
                                 t_save = dt,
-                                tol = 0.1 * t_per,
+                                distance_tol = 0.1 * t_per,
+                                residual_tol = steady_residual_tol(),
                                 amplitude_tol = 0.01,
                                 amp_rel_tol = 0.1,
                                 extinction_threshold = 1e-6,
@@ -289,7 +327,8 @@ projectUntilSettled.MizerParams <- function(params,
                                 t_max = 100,
                                 dt = 0.1,
                                 t_save = dt,
-                                tol = 0.1 * t_per,
+                                distance_tol = 0.1 * t_per,
+                                residual_tol = steady_residual_tol(),
                                 amplitude_tol = 0.01,
                                 amp_rel_tol = 0.1,
                                 extinction_threshold = 1e-6,
@@ -300,12 +339,72 @@ projectUntilSettled.MizerParams <- function(params,
     project_until_settled(params = params, effort = effort,
                           distance_func = distance_func,
                           t_per = t_per, t_max = t_max, dt = dt,
-                          t_save = t_save, tol = tol,
+                          t_save = t_save, distance_tol = distance_tol,
+                          residual_tol = residual_tol,
                           amplitude_tol = amplitude_tol,
                           amp_rel_tol = amp_rel_tol,
                           extinction_threshold = extinction_threshold,
                           progress_bar = progress_bar, info_level = info_level,
                           method = method, ..., return_sim = TRUE)
+}
+
+#' The `"convergence"` attribute, in one place
+#'
+#' Every steady-state search — the projecting one here and the Newton solves in
+#' `steadyState.R` — attaches a description of what it settled on, and callers
+#' such as [scanModel()] read it without knowing which solver produced it. The
+#' three verdicts it carries answer three different questions and are
+#' deliberately not collapsed into one:
+#'
+#' * `termination` — *why the search stopped*. A fact about the run.
+#' * `converged` — *whether the solver met its own criterion*. A fact about the
+#'   numerics.
+#' * `attractor` — *what the state that was reached is*. A fact about the model,
+#'   and the only one of the three that may be used to claim a fixed point.
+#'
+#' The old `type`/`settled` pair conflated them, which is how a limit cycle
+#' could be reported as a converged fixed point.
+#'
+#' @param termination One of `"residual_tolerance"`, `"cycle_detected"`,
+#'   `"time_limit"`, `"extinction"`, `"solver_converged"` or `"solver_failed"`.
+#' @param converged Whether the solver met its own convergence criterion.
+#' @param attractor `"fixed_point"`, `"limit_cycle"` or `NA`.
+#' @param distance The final value of the distance function, or `NA`.
+#' @param residual The biomass drift at the state reached, in 1/year.
+#' @param years The number of years simulated, or `NA` for a direct solve.
+#' @param period,amplitude The period and relative amplitude of a limit cycle.
+#' @return A named list.
+#' @noRd
+convergence_result <- function(termination, converged, attractor,
+                               distance = NA_real_, residual = NA_real_,
+                               years = NA_real_, period = NA_real_,
+                               amplitude = NA_real_) {
+    list(termination = termination,
+         converged = converged,
+         attractor = attractor,
+         distance = distance,
+         residual = residual,
+         years = years,
+         period = period,
+         amplitude = amplitude)
+}
+
+#' Whether a state counts as a fixed point
+#'
+#' The single place that turns a measured biomass drift into the claim that a
+#' state is a fixed point, so that the claim means the same thing whichever
+#' solver produced the state and whatever criterion that solver stopped on.
+#'
+#' @param residual The biomass drift, from `steady_biomass_drift()`.
+#' @param residual_tol The tolerance to judge it against.
+#' @return `"fixed_point"` or `NA_character_`.
+#' @noRd
+steady_attractor <- function(residual, residual_tol) {
+    if (is.finite(residual) && residual <= residual_tol) {
+        "fixed_point"
+    } else {
+        NA_character_
+    }
 }
 
 #' The engine behind [projectUntilSettled()] and the steady-state finders
@@ -319,6 +418,15 @@ projectUntilSettled.MizerParams <- function(params,
 #' @inheritParams projectUntilSettled
 #' @param return_sim Whether to build and return a `MizerSim` of the run rather
 #'   than a `MizerParams` holding only the final state.
+#' @param require_steady Whether the biomass drift has to be within
+#'   `residual_tol` before the run may stop on the distance criterion. `TRUE`
+#'   for everything mizer exports; the superseded [steady()] and
+#'   [projectToSteady()] pass `FALSE`, because released code was written against
+#'   a stopping rule that used the distance function alone and a run that
+#'   suddenly takes ten times as long is a bad way to learn about a new
+#'   criterion. It changes when the run stops and nothing else: the drift is
+#'   measured either way, and `attractor` is derived from it either way, so a
+#'   wrapper that stops early still reports honestly what it stopped on.
 #' @return A `MizerSim` or a `MizerParams`, in either case carrying the
 #'   `"convergence"` attribute.
 #' @noRd
@@ -329,7 +437,8 @@ project_until_settled <- function(params,
                                 t_max = 100,
                                 dt = 0.1,
                                 t_save = dt,
-                                tol = 0.1 * t_per,
+                                distance_tol = 0.1 * t_per,
+                                residual_tol = steady_residual_tol(),
                                 amplitude_tol = 0.01,
                                 amp_rel_tol = 0.1,
                                 extinction_threshold = 1e-6,
@@ -337,14 +446,24 @@ project_until_settled <- function(params,
                                 info_level = default_info_level(),
                                 method = c("euler", "predictor_corrector",
                                            "tr_bdf2"), ...,
-                                  return_sim = FALSE) {
+                                  return_sim = FALSE,
+                                  require_steady = TRUE) {
     with_info_level(info_level = info_level, {
+    # `tol` used to be the name of `distance_tol`. It would otherwise be passed
+    # on to the distance function and silently ignored, which is the one way
+    # this rename could cost someone a wrong answer rather than an error.
+    if ("tol" %in% names(list(...))) {
+        stop("`tol` has been renamed to `distance_tol`, because the run now ",
+             "also has to meet a tolerance on the biomass drift, ",
+             "`residual_tol`. See `?projectUntilSettled`.", call. = FALSE)
+    }
     params <- validParams(params)
     method <- normalise_project_method(method)
     effort <- validEffortVector(effort, params = params)
     params@initial_effort <- effort
     assert_that(t_max >= t_per,
-                tol > 0,
+                distance_tol > 0,
+                is.number(residual_tol), residual_tol > 0,
                 amplitude_tol > 0,
                 extinction_threshold >= 0)
     if ((t_per < dt) || !isTRUE(all.equal((t_per - round(t_per / dt) * dt), 0))) {
@@ -410,19 +529,24 @@ project_until_settled <- function(params,
     success <- FALSE
     extinct <- FALSE
     distance <- NA_real_
+    residual <- NA_real_
     for (i in 2:length(t_dimnames)) {
         # advance shiny progress bar
         if (is(progress_bar, "Progress")) {
             progress_bar$inc(amount = proginc)
         }
         # Step the block in `t_save`-sized sub-steps, recording the biomass
-        # summary after each. Passing the within-block time keeps the result
-        # bit-identical to a single project_simple() call over the whole block.
+        # summary after each. The time passed is the absolute time since the
+        # start of the run, exactly as project() passes it, so that a rate or
+        # component function that depends on `t` sees the same monotonically
+        # increasing time here as it would there. Subdividing the block does not
+        # change the result: the sub-runs pick up where each other left off.
         current <- previous
+        t_block <- (i - 2) * t_per
         for (s in seq_len(saves_per_block)) {
             current <- project_simple(params, n = current$n, n_pp = current$n_pp,
                                       n_other = current$n_other,
-                                      t = (s - 1) * t_save,
+                                      t = t_block + (s - 1) * t_save,
                                       dt = dt, steps = steps_per_save,
                                       effort = params@initial_effort,
                                       resource_dynamics_fn = resource_dynamics_fn,
@@ -455,21 +579,43 @@ project_until_settled <- function(params,
         distance <- distance_func(params,
                                   current = current,
                                   previous = previous, ...)
-        success <- distance < tol
-        if (success == TRUE) {
-            break
-        }
-        # Not settling to a fixed point: check whether we are on a limit cycle.
+
+        # Check for a limit cycle whether or not the distance criterion is met.
+        # A cycle whose period divides `t_per` is sampled at the same phase by
+        # every call to the distance function, so on that evidence alone it is
+        # indistinguishable from a fixed point; the detection below works on the
+        # finely sampled biomass series and is blind to `t_per`.
         cycle <- detect_limit_cycle(bio_series[seq_len(save_idx), , drop = FALSE],
                                     t_save, amplitude_tol, amp_rel_tol = amp_rel_tol)
         if (!is.null(cycle)) {
             break
         }
+
+        if (distance < distance_tol) {
+            # The distance function has gone quiet. Whether that means a fixed
+            # point has been reached is a different question, asked of the state
+            # itself rather than of the distance function's scale. It is asked
+            # here whatever `require_steady` says, because the answer is
+            # reported either way; only whether it can hold the run open
+            # depends on that argument.
+            residual <- tryCatch(
+                steady_biomass_drift(params, effort = effort,
+                                     n = current$n, n_pp = current$n_pp,
+                                     n_other = current$n_other),
+                error = function(e) NA_real_)
+            # An unmeasurable drift is no reason to keep running: the distance
+            # criterion the user asked for has been met, and `residual` records
+            # that the check could not be made.
+            if (!require_steady || !is.finite(residual) ||
+                residual <= residual_tol) {
+                success <- TRUE
+                break
+            }
+        }
         previous <- current
     }
 
     years <- (i - 1) * t_per
-    settled <- FALSE
 
     params@initial_n[] <- current$n
     params@initial_n_pp[] <- current$n_pp
@@ -478,9 +624,13 @@ project_until_settled <- function(params,
     # How far the state that was reached actually is from a fixed point. The
     # distance function above only compares two states `t_per` apart, which is a
     # proxy; this is the thing itself. It is recorded even for a cycle or a
-    # non-converged run, where it says how far off the run stopped.
-    residual <- tryCatch(steady_biomass_drift(params, effort = effort),
-                         error = function(e) NA_real_)
+    # non-converged run, where it says how far off the run stopped. On a
+    # successful run it has already been measured at this very state, as the
+    # second half of the convergence criterion, so it is not measured twice.
+    if (!success) {
+        residual <- tryCatch(steady_biomass_drift(params, effort = effort),
+                             error = function(e) NA_real_)
+    }
     residual_txt <- if (is.finite(residual)) {
         paste0(" The biomasses change at up to ", signif(residual, 2),
                " per year.")
@@ -489,16 +639,27 @@ project_until_settled <- function(params,
     }
 
     if (!is.null(cycle)) {
-        type <- "cycle"
-        settled <- TRUE
+        termination <- "cycle_detected"
+        converged <- TRUE
+        attractor <- "limit_cycle"
         signal_info("convergence", paste0(
             "Settled onto a limit cycle of period ",
             signif(cycle$period, 3), " years (relative amplitude ",
             signif(cycle$amplitude, 2), ") after ", years, " years."),
             unhandled = "show")
     } else if (success) {
-        type <- "below_tolerance"
-        settled <- TRUE
+        # The drift was measured at this very state, so the verdict is not
+        # re-derived; it still goes through the same function, so that "fixed
+        # point" cannot come to mean two things. Where the run stopped on the
+        # distance criterion alone the termination says so, rather than naming a
+        # tolerance that was not part of the test.
+        attractor <- steady_attractor(residual, residual_tol)
+        converged <- TRUE
+        termination <- if (identical(attractor, "fixed_point")) {
+            "residual_tolerance"
+        } else {
+            "distance_tolerance"
+        }
         # The distance function being satisfied only says that the state stopped
         # moving on that function's own scale, so the message says that and no
         # more. The residual is reported every time, not only when it is large:
@@ -506,9 +667,17 @@ project_until_settled <- function(params,
         # user only ever sees when something has gone wrong is a number they
         # never learn to look at. Only the instruction to act on it is
         # conditional. This stays an "info": the user asked for convergence at
-        # their `tol` and got it, so nothing they asked for failed to happen.
-        caveat <- if (is.finite(residual) && residual > steady_residual_tol()) {
-            " Reduce `tol` to converge further."
+        # their `distance_tol` and got it, so nothing they asked for failed to
+        # happen.
+        # The drift is only unmeasurable when `steady_biomass_drift()` itself
+        # failed, in which case the run stopped on the distance criterion alone
+        # and the user should know that half the test did not happen.
+        caveat <- if (!is.finite(residual)) {
+            paste0(" The biomass drift could not be measured, so only the ",
+                   "distance criterion was checked.")
+        } else if (residual > steady_residual_tol()) {
+            paste0(" Reduce the tolerance on the distance function to ",
+                   "converge further.")
         } else {
             ""
         }
@@ -517,21 +686,44 @@ project_until_settled <- function(params,
                            " years.", residual_txt, caveat),
                     unhandled = "show")
     } else {
-        type <- if (any(extinct)) "extinction" else "not_converged"
+        termination <- if (any(extinct)) "extinction" else "time_limit"
+        converged <- FALSE
+        # Running out of time says nothing about where the run had got to. If
+        # the state it stopped at is not drifting, it is a fixed point, however
+        # unhappy the distance function was about it.
+        attractor <- if (any(extinct)) {
+            NA_character_
+        } else {
+            steady_attractor(residual, residual_tol)
+        }
+        # A run that has met the distance criterion but is still drifting is
+        # the case the two-part test exists for. Saying so is the difference
+        # between a puzzling long run and a diagnosis.
+        why <- if (!any(extinct) && is.finite(distance) &&
+                   distance < distance_tol && is.finite(residual) &&
+                   residual > residual_tol) {
+            paste0("The distance function returned ", signif(distance, 3),
+                   ", which is below the distance tolerance, but the ",
+                   "biomasses are still changing at up to ",
+                   signif(residual, 2), " per year, which is above the ",
+                   "residual tolerance, so this state is not a fixed point.")
+        } else {
+            paste0("Value returned by the distance function was: ", distance)
+        }
         signal_info("convergence", paste0(
-            "Simulation run did not converge after ", years,
-            " years. Value returned by the distance function was: ", distance),
+            "Simulation run did not converge after ", years, " years. ", why),
             unhandled = "show")
     }
 
-    convergence <- list(
-        type = type,
-        settled = settled,
+    convergence <- convergence_result(
+        termination = termination,
+        converged = converged,
+        attractor = attractor,
         distance = distance,
         residual = residual,
         years = years,
-        period = if (type == "cycle") cycle$period else NA_real_,
-        amplitude = if (type == "cycle") cycle$amplitude else NA_real_
+        period = if (!is.null(cycle)) cycle$period else NA_real_,
+        amplitude = if (!is.null(cycle)) cycle$amplitude else NA_real_
     )
 
     if (return_sim) {
