@@ -97,3 +97,67 @@ test_that("getLimitCycleSim respects amplitude: max relative perturbation ~ ampl
     # max relative perturbation should be close to amp (within floating-point)
     expect_equal(max_rel, amp, tolerance = 1e-4)
 })
+
+test_that("getLimitCycleSim oscillates the resource with the mode", {
+    skip_unless_experimental()
+    pn   <- steadyNewton(p_steady_lcs)
+    stab <- getStability(pn)
+    skip_if(is.null(stab$hopf_eigenvalue))
+
+    lcs <- getLimitCycleSim(stab, amplitude = 0.1)
+    npp <- NResource(lcs)
+    keep <- npp[1, ] > 0
+
+    # The resource must actually move: it used to be slaved to the fish at
+    # their quasi-static equilibrium, which threw away its phase.
+    swing <- apply(npp[, keep, drop = FALSE], 2,
+                   function(x) (max(x) - min(x)) / mean(x))
+    expect_gt(max(swing), 0)
+
+    # And it must move as the eigenvector says, not as a function of the fish:
+    # n_pp(t) = n_pp* + A Re[e^{i omega t} v_resource].
+    A <- lcs@sim_params$amplitude / max(
+        max(Mod(stab$hopf_eigenvector$fish)[initialN(pn) > 0] /
+                initialN(pn)[initialN(pn) > 0]),
+        max(Mod(stab$hopf_eigenvector$resource)[keep] /
+                initialNResource(pn)[keep]))
+    omega <- Im(stab$hopf_eigenvalue)
+    t2 <- getTimes(lcs)[2]
+    expected <- initialNResource(pn) +
+        A * Re(exp(1i * omega * t2) * stab$hopf_eigenvector$resource)
+    expect_equal(as.numeric(npp[2, keep]), as.numeric(pmax(expected, 0)[keep]),
+                 tolerance = 1e-10)
+})
+
+test_that("getLimitCycleSim caps the relative perturbation at `amplitude`", {
+    skip_unless_experimental()
+    pn   <- steadyNewton(p_steady_lcs)
+    stab <- getStability(pn)
+    skip_if(is.null(stab$hopf_eigenvalue))
+
+    for (amp in c(0.05, 0.2)) {
+        lcs <- getLimitCycleSim(stab, amplitude = amp)
+        N   <- N(lcs)
+        N_ss <- initialN(pn)
+        rel <- apply(N, 1, function(m) {
+            max(abs(m[N_ss > 0] - N_ss[N_ss > 0]) / N_ss[N_ss > 0])
+        })
+        # The cap is over the whole state, so the fish reach it only when the
+        # mode puts its largest relative swing on them; never exceed it.
+        expect_lte(max(rel), amp + 1e-8)
+    }
+})
+
+test_that("getLimitCycleSim reports clipping only when it matters", {
+    skip_unless_experimental()
+    pn   <- steadyNewton(p_steady_lcs)
+    stab <- getStability(pn)
+    skip_if(is.null(stab$hopf_eigenvalue))
+
+    # Below 1 the perturbation is smaller than the state it perturbs, so no
+    # positive cell can go negative and there is nothing to report.
+    expect_silent(getLimitCycleSim(stab, amplitude = 0.1))
+    # Above 1 it can, and must be.
+    expect_warning(getLimitCycleSim(stab, amplitude = 3),
+                   "clipped at zero")
+})

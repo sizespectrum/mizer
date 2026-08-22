@@ -41,18 +41,31 @@ dominant eigenvalue (monotone dynamics).}
 with the largest real part; \code{NULL} when no complex eigenvalue
 exists.  This is the expected limit-cycle period near a Hopf
 bifurcation.}
+\item{\code{hopf_eigenvalue}}{That eigenvalue itself, or \code{NULL} when there
+is none. Its real part is the rate at which the oscillation grows.}
+\item{\code{hopf_eigenvector}}{Its eigenvector, as a list with \verb{$fish}, a
+complex \verb{(n_species, n_sizes)} matrix, and \verb{$resource}, a complex
+vector of length \code{n_w_full}. This is the mode \code{\link[=getLimitCycleSim]{getLimitCycleSim()}}
+draws, and it is not in general one of \code{leading_eigenvectors}: the
+dominant mode of the system can be real while the dominant
+\emph{oscillatory} mode is well down the spectrum.}
 \item{\code{n_active}}{Dimension of the Jacobian: the number of active fish
 cells plus all resource cells.}
 \item{\code{leading_eigenvectors}}{The eigenvectors of the two eigenvalues
-with the largest real part, reshaped back into the fish abundance
-space: a list with \verb{$fish}, a complex array of shape
-\verb{(n_species, n_sizes, 2)} with the same species and size dimnames as
-\code{params@initial_n}, and \verb{$resource}, a complex matrix of shape
-\verb{(n_w_full, 2)} for the resource component.
-Each eigenvector is normalised so that its maximum modulus equals 1.
-The real and imaginary parts of eigenvector 1 span the two-dimensional
-oscillation plane of the dominant mode; \code{Mod()} gives the amplitude
-pattern across species and sizes.}
+with the largest real part, reshaped back into the state space: a list
+with \verb{$fish}, a complex array of shape \verb{(n_species, n_sizes, 2)} with
+the same species and size dimnames as \code{params@initial_n}, and
+\verb{$resource}, a complex matrix of shape \verb{(n_w_full, 2)}.
+Each eigenvector is normalised by a single scalar covering both
+blocks, so that the relative amplitude and phase between fish and
+resource are those of the mode. The scalar is chosen so that the
+largest perturbation \emph{relative to the steady state},
+\eqn{|v_i| / x^*_i}, is 1 somewhere in the state: an absolute
+normalisation would be set entirely by the resource, whose densities
+dwarf the fish abundances. \code{Mod(fish[, , 1]) / initialN(params)} is
+therefore the relative amplitude pattern, peaking at 1 in whichever
+cell swings hardest. The real and imaginary parts of eigenvector 1
+span the two-dimensional oscillation plane of the dominant mode.}
 \item{\code{params}}{The validated \code{params} object the analysis was made at.}
 }
 }

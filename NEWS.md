@@ -53,11 +53,15 @@ workflow.
 - New experimental `getLimitCycleSim()` takes a model at a steady state — or the
   stability list that `getStability()` returns — and constructs a `MizerSim`
   covering one period of the limit cycle in the linear approximation. The
-  trajectory is \eqn{N(t) = N^* + A\,\text{Re}[e^{i\theta t}\,\mathbf{v}]}, where
-  \eqn{\mathbf{v}} is the leading complex eigenvector and the amplitude \eqn{A}
-  is scaled so the maximum relative perturbation equals the `amplitude`
-  argument (default 10\%). The returned object can be passed directly to
-  `plotBiomass()`, `plotSpectra()`, and other standard mizer plot functions.
+  trajectory is
+  \eqn{x(t) = x^* + A\,\text{Re}[e^{i\omega t}\,\mathbf{v}]} over the whole
+  state \eqn{x = (N, n_{pp})}, where \eqn{\mathbf{v}} is the eigenvector of the
+  dominant *oscillatory* mode and the amplitude \eqn{A} is scaled so the
+  maximum perturbation relative to the steady state equals the `amplitude`
+  argument (default 10\%). The resource oscillates with the amplitude and phase
+  the mode gives it, rather than being slaved to the fish. The returned object
+  can be passed directly to `plotBiomass()`, `plotSpectra()`, and other
+  standard mizer plot functions.
 
 - `plotYieldVsF()` has moved to mizer from mizerExperimental and is now a thin
   wrapper over `scanModel()`, described below. It plots the yield of one species

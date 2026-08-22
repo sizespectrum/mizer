@@ -11,9 +11,9 @@ getLimitCycleSim(x, amplitude = 0.1, t_save = 0.1, ...)
 typically the output of \code{\link[=steadyNewton]{steadyNewton()}}, or the list returned by
 \code{\link[=getStability]{getStability()}}.}
 
-\item{amplitude}{Maximum relative perturbation
-\eqn{\max_w |\delta N(t,w)|/N^*(w)} across the limit cycle.  Default
-\code{0.1}.}
+\item{amplitude}{Maximum perturbation relative to the steady state,
+\eqn{\max_{t,i} |\delta x_i(t)|/x^*_i}, across the limit cycle, taken over
+the fish spectrum and the resource together.  Default \code{0.1}.}
 
 \item{t_save}{The time interval between saved time steps in the returned
 \linkS4class{MizerSim}.  Defaults to \code{0.1}.}
@@ -35,23 +35,36 @@ plotting functions (e.g. \code{\link[=plotBiomass]{plotBiomass()}}, \code{\link[
 \details{
 \subsection{Mathematical background}{
 
-Near a Hopf bifurcation the dominant eigenvalue of the linearised one-step
-map is a complex conjugate pair \eqn{\lambda = r e^{i\theta}} with
-\eqn{r \approx 1} and angular frequency \eqn{\theta = 2\pi/T} per time
-step. The linearised perturbation is
-\deqn{\delta N(t) = A\,\operatorname{Re}[e^{i\theta t}\,\mathbf{v}],}
-where \eqn{\mathbf{v}} is the leading complex eigenvector (normalised so
-\eqn{\max_w |\mathbf{v}(w)| = 1}) and \eqn{A} is chosen so that the
-maximum \emph{relative} perturbation
-\eqn{\max_{t,w}|\delta N(t,w)|/N^*(w) = } \code{amplitude}.
-The full state at each time step is
-\deqn{N(t) = \max(N^* + \delta N(t),\; 0)}
-(clipping prevents negative abundances at large amplitudes).
+Near a Hopf bifurcation the dynamics are dominated by a complex-conjugate
+pair of eigenvalues \eqn{\lambda = \sigma \pm i\omega} of the Jacobian, with
+\eqn{\sigma} small and period \eqn{T = 2\pi/|\omega|}. \code{getStability()}
+returns that pair as \code{hopf_eigenvalue} and its eigenvector as
+\code{hopf_eigenvector}. The linearised perturbation of the full state
+\eqn{x = (N, n_{pp})} is
+\deqn{\delta x(t) = A\,\operatorname{Re}[e^{i\omega t}\,\mathbf{v}],}
+where \eqn{\mathbf{v}} is that eigenvector and \eqn{A} is chosen so that the
+maximum perturbation \emph{relative to the steady state},
+\eqn{\max_{t,i}|\delta x_i(t)|/x^*_i}, equals \code{amplitude}. The state at each
+time is
+\deqn{x(t) = \max(x^* + \delta x(t),\; 0),}
+where the clipping matters only for cells that sit at exactly zero in the
+steady state; anywhere else an \code{amplitude} below 1 keeps the perturbation
+smaller than the state it perturbs. A cell with a positive steady value that
+is nevertheless driven negative is reported.
 
-Only the fish component of the eigenvector is used to shape the cycle. The
-resource is placed at its semichemostat equilibrium \eqn{n_{pp}^*(N(t))} for
-the perturbed fish state at each step, so that the resource in the returned
-object is consistent with the fish rather than oscillating independently.
+The fish and resource blocks of \eqn{\mathbf{v}} carry a single common
+normalisation, so the same \eqn{A} drives both and the resource oscillates
+with the amplitude and phase \emph{the mode gives it} — generally neither in step
+with the fish nor slaved to them. \code{amplitude} caps the whole state, so which
+of the two actually reaches it is a property of the mode. For \code{NS_params} at
+effort 1.5 the fish do: the resource's largest relative swing is about an
+eighth of theirs.
+
+The growth of the mode is deliberately dropped: \eqn{e^{\sigma t}} is
+omitted so that the cycle closes after one period. That is exact only at the
+bifurcation itself, where \eqn{\sigma = 0}; away from it the returned object
+shows the \emph{shape} of the oscillation, not its envelope. \eqn{\sigma} is
+recorded in the result's \code{sim_params} as \code{growth_rate}.
 
 The returned \linkS4class{MizerSim} has times running from 0 to \eqn{T}
 (the period in time steps, typically years).
