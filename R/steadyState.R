@@ -72,8 +72,8 @@
 #' parameterisation, or the (diverging) output of `solver = "project"`.
 #'
 #' Because the resource is held fixed either way, `solver = "newton"` here does
-#' not need the resource to be a semichemostat, unlike in [findSteadyState()]
-#' where the resource is one of the unknowns.
+#' not need the `steady_<resource_dynamics>()` companion that
+#' [findSteadyState()] uses when the resource is one of the unknowns.
 #'
 #' @template section_check_steady
 #'
@@ -107,9 +107,9 @@
 #'   actually returned.
 #'
 #'   With `solver = "newton"`: `solver_tol` (default `1e-6`), a tolerance on
-#'   the per-capita rate of change passed to [nleqslv::nleqslv()]. It was called
-#'   `residual_tol` before mizer 3.3, a name that now belongs to the biomass
-#'   drift criterion above; `maxit`
+#'   the scaled steady-state residual passed to [nleqslv::nleqslv()]. It was
+#'   called `residual_tol` before mizer 3.3, a name that now belongs to the
+#'   biomass drift criterion above; `maxit`
 #'   (default `200`); `jacobian`, either `"update"` (default, the Jacobian is
 #'   computed once and then updated cheaply each iteration — `nleqslv`'s
 #'   `"Broyden"`) or `"recompute"` (a numerical Jacobian at every iteration —
@@ -207,11 +207,19 @@ tuneSteadyState.MizerParams <- function(params,
 #' analysis with [getStability()].
 #'
 #' The Newton solver treats the resource densities as unknowns alongside the
-#' fish and appends the resource steady-state equation to the system, so the
+#' fish and appends a resource steady-state equation to the system, so the
 #' resource density and the feeding levels it implies are self-consistent even
-#' where consumers are satiated. That equation is written for the default
-#' semichemostat resource dynamics, so `solver = "newton"` stops with an error
-#' for any other `resource_dynamics`; use `solver = "project"` there.
+#' where consumers are satiated. It obtains that equation from a function named
+#' `steady_<resource_dynamics>()`, which returns the resource equilibrium
+#' implied by the rates at the current state. Mizer supplies companions for
+#' [resource_semichemostat()] and [resource_logistic()]. A custom resource
+#' dynamics function can support the Newton solver by supplying its own
+#' companion with the same naming and argument convention.
+#'
+#' Resource densities are solved for in log space and must therefore remain
+#' positive. For logistic resource dynamics this solver finds the positive
+#' branch only; use `solver = "project"` when a resource size class can be
+#' depleted to zero.
 #'
 #' The Newton iteration also needs the residual \eqn{F(N)} to be continuous. A
 #' custom rate function registered with [setRateFunction()] that jumps as a

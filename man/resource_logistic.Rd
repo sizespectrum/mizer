@@ -2,6 +2,7 @@
 % Please edit documentation in R/resource_logistic.R
 \name{resource_logistic}
 \alias{resource_logistic}
+\alias{steady_resource_logistic}
 \alias{balance_resource_logistic}
 \title{Project resource using logistic model}
 \usage{
@@ -13,6 +14,18 @@ resource_logistic(
   rates,
   t,
   dt,
+  resource_rate,
+  resource_capacity,
+  ...
+)
+
+steady_resource_logistic(
+  params,
+  n,
+  n_pp,
+  n_other,
+  rates,
+  t,
   resource_rate,
   resource_capacity,
   ...
@@ -44,6 +57,9 @@ balance_resource_logistic(params, resource_rate, resource_capacity)
 \value{
 Vector containing the resource number density in each size class at
 the next timestep
+
+\code{steady_resource_logistic()}: A vector containing the algebraic
+equilibrium resource number density in each size class.
 }
 \description{
 If you set your resource dynamics to use this function then the time
@@ -70,6 +86,12 @@ To set your model to use logistic dynamics for the resource you do
 where you should replace \code{params} with the name of the variable holding your
 MizerParams object. You can of course choose any value between 0 and 1 for
 the resource level.
+
+The \code{\link[=steady_resource_logistic]{steady_resource_logistic()}} function returns the algebraic resource
+equilibrium when all rates are held at the supplied values. It is the
+companion that direct steady-state solvers look up for
+\code{resource_logistic()}. A non-positive value means that no positive logistic
+equilibrium exists at that size.
 
 The \code{\link[=balance_resource_logistic]{balance_resource_logistic()}} function is called by \code{\link[=setResource]{setResource()}} to
 determine the values of the resource parameters that are needed to make the

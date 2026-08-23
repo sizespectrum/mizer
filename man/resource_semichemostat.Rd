@@ -2,6 +2,7 @@
 % Please edit documentation in R/resource_semichemostat.R
 \name{resource_semichemostat}
 \alias{resource_semichemostat}
+\alias{steady_resource_semichemostat}
 \alias{balance_resource_semichemostat}
 \title{Project resource using semichemostat model}
 \usage{
@@ -13,6 +14,18 @@ resource_semichemostat(
   rates,
   t,
   dt,
+  resource_rate,
+  resource_capacity,
+  ...
+)
+
+steady_resource_semichemostat(
+  params,
+  n,
+  n_pp,
+  n_other,
+  rates,
+  t,
   resource_rate,
   resource_capacity,
   ...
@@ -44,6 +57,9 @@ balance_resource_semichemostat(params, resource_rate, resource_capacity)
 \value{
 Vector containing the resource number density in each size class at
 the next timestep
+
+\code{steady_resource_semichemostat()}: A vector containing the
+equilibrium resource number density in each size class.
 }
 \description{
 If you set your resource dynamics to use this function then the time
@@ -70,6 +86,11 @@ To set your model to use semichemostat dynamics for the resource you do
 where you should replace \code{params} with the name of the variable holding your
 MizerParams object. You can of course choose any value between 0 and 1 for
 the resource level.
+
+The \code{\link[=steady_resource_semichemostat]{steady_resource_semichemostat()}} function returns the resource
+abundance at equilibrium when all rates are held at the supplied values. It
+is the companion that direct steady-state solvers look up for
+\code{resource_semichemostat()}.
 
 The \code{\link[=balance_resource_semichemostat]{balance_resource_semichemostat()}} function is called by \code{\link[=setResource]{setResource()}}
 to determine the values of the resource parameters that are needed to make

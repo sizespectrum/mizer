@@ -467,6 +467,23 @@ test_that("the Newton solver keeps an already-absent species at zero", {
     expect_true(any(initialN(pn)[3, ] > 0))
 })
 
+test_that("resource steady-state companions are resolved by convention", {
+    p <- NS_params_small
+    p@resource_dynamics <- "mizer_test_resource_dynamics"
+    companion_name <- "steady_mizer_test_resource_dynamics"
+
+    expect_error(mizer:::steady_resource_companion(p),
+                 "companion .* is not available")
+
+    companion <- function(params, n_pp, ...) n_pp
+    assign(companion_name, companion, envir = .GlobalEnv)
+    withr::defer(rm(list = companion_name, envir = .GlobalEnv))
+
+    resolved <- mizer:::steady_resource_companion(p)
+    expect_identical(resolved$name, companion_name)
+    expect_identical(resolved$fun, companion)
+})
+
 test_that("the stability analyses validate their numerical controls", {
     # These fire before any computation, so no steady state is needed.
     expect_error(getStability(NS_params_small, h = 0), "h not greater than 0")
