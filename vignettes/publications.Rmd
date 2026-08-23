@@ -1,72 +1,191 @@
 ---
 title: "Publications"
 output: html_document
+bibliography: publications.bib
+link-citations: true
 ---
 
-## Publications describing mizer
-* F. Scott, J.L. Blanchard and K.H. Andersen: mizer: an R package for multispecies, trait-based and community size spectrum ecological modelling. Methods in Ecology and Evolution 5(10) 1121-1125 (2014). _Contains the "official" announcement and description of mizer_
+<style>
+/* Publication list: keep each summary tucked under the entry it belongs to,
+   and put the white space between entries instead. */
+ul > li { margin-bottom: 0.9em; }
+ul > li > p { margin-bottom: 0.2em; }
+ul ul { margin-top: 0.2em; margin-bottom: 0; }
+ul ul > li { margin-bottom: 0; }
+</style>
 
-* K.H. Andersen, N.S. Jacobsen and K.D. Farnsworth (2016): [The theoretical foundations for size spectrum models of fish communities](https://www.nrcresearchpress.com/doi/abs/10.1139/cjfas-2015-0230#.XLGeHS97HOR). Canadian Journal of Fisheries and Aquatic Science 73(4): 575-588. _Describes the theoretical background of the three types of size spectrum models_
+## Publications describing mizer & theoretical foundations
 
-* K.H. Andersen (2019): Fish Ecology, Evolution, and Exploitation - a New Theoretical Synthesis. [Princeton University Press](https://press.princeton.edu/titles/13516.html).  _In depth theory_
+* @scott2014: **mizer: an R package for multispecies, trait-based and community size spectrum ecological modelling.** *Methods in Ecology and Evolution*, 5(10), 1121--1125. <https://doi.org/10.1111/2041-210X.12256>
+    * *Contains the official announcement and description of mizer.*
 
-## Publications using mizer
+* @andersen2016: **The theoretical foundations for size spectrum models of fish communities.** *Canadian Journal of Fisheries and Aquatic Sciences*, 73(4), 575--588. <https://doi.org/10.1139/cjfas-2015-0230>
+    * *Describes the theoretical background of the three types of size spectrum models.*
 
-* Benoit, D. M., Giacomini, H. C., Chu, C. & Jackson, D. A. Identifying influential parameters of a multi-species fish size spectrum model for a northern temperate lake through sensitivity analyses. Ecological Modelling 460, 109740 (2021).
+* @andersen2019: **Fish Ecology, Evolution, and Exploitation: A New Theoretical Synthesis.** *Princeton University Press*. <https://doi.org/10.23943/princeton/9780691192956.001.0001>
+    * *In-depth monograph on size-spectrum theory and ecological dynamics.*
 
-* Robinson, J. P. W. et al. Managing fisheries for maximum nutrient yield. Fish and Fisheries 23, 800–811 (2022).
-
-* Canales, T. M., Delius, G. W. & Law, R. Regulation of fish stocks without stock–recruitment relationships: The case of small pelagic fish. Fish and Fisheries 21, 857–871 (2020).
-
-* Wo, J. et al. Modeling the Dynamics of Multispecies Fisheries: A Case Study in the Coastal Water of North Yellow Sea, China. Front. Mar. Sci. 7, (2020).
-
-* Lindmark, M. Temperature- and body size scaling. Doctoral Thesis No 2020:8,
-Faculty of Natural Resources and Agricultural Sciences, SLU.
-https://pub.epsilon.slu.se/16711/ (2020).
-
-* Woodworth-Jefcoats, P. A., Blanchard, J. L. & Drazen, J. C. Relative Impacts of Simultaneous Stressors on a Pelagic Marine Ecosystem. Frontiers in Marine Science 6, 383 (2019).
-
-* Spence, M. A. et al. A general framework for combining ecosystem models. Fish and Fisheries 19, 1031–1042 (2018).
-
-* Zhang C, Chen Y, Xu B, Xue Y, Ren Y. Evaluating fishing effects on the stability of fish communities using a size-spectrum model. Fisheries Research. 2018 Jan 1;197:123-30.
-
-* Szuwalski CS, Burgess MG, Costello C, Gaines SD (2017) High fishery catches through trophic cascades in China. Proc Natl Acad Sci USA 114:717–721. _Application to the South-east China Sea_
-
-* N.S. Jacobsen, M. Burgess and K.H. Andersen (2017): Efficiency of fisheries is increasing at the ecosystem level. Fish and Fisheries 18(2) 199-211. doi:10.1111/faf.12171. _Appendix describes simple calibration procedure_
-
-* Zhang, C., Chen, Y., & Ren, Y. (2016). An evaluation of implementing long-term MSY in ecosystem-based fisheries management: Incorporating trophic interaction, bycatch and uncertainty. Fisheries Research, 174, 179-189.
-
-* Zhang C, Chen Y, Thompson K, Ren Y. Implementing a multispecies size-spectrum model in a data-poor ecosystem. Acta Oceanologica Sinica. 2016 Apr 1;35(4):63.
-
-* Zhang C, Chen Y, Ren Y. The efficacy of fisheries closure in rebuilding depleted stocks: Lessons from size-spectrum modeling. Ecological Modelling. 2016 Jul 24;332:59-66.
-
-* Spence M., Blackwell, P. & Blanchard J.L. (2016) Parameter uncertainty of a dynamic multispecies size spectrum model. Canadian Journal of Fisheries and Aquatic Sciences. 10.1139/cjfas-2015-0022 (In press)
-_Bayesian parameter estimation and uncertainty_
-
-* Datta, S. & Blanchard J.L. (2016) The effects of seasonal processes on size spectrum dynamics. Canadian Journal of Fisheries and Aquatic Sciences. 10.1139/cjfas-2015-0468
-
-* Zhang, C., Chen, Y., & Ren, Y. (2015). Assessing uncertainty of a multispecies size-spectrum model resulting from process and observation errors. ICES Journal of Marine Science: Journal du Conseil, 72(8), 2223-2233.
-
-* Jennings, S. & Collingridge, K. Predicting Consumer Biomass, Size-Structure,
-Production, Catch Potential, Responses to Fishing and Associated Uncertainties in the World’s Marine Ecosystems. (2015) PLoS ONE 10(7), e0133794.
-
-* J.L. Blanchard, K.H. Andersen, F. Scott, N.T. Hinzen, G. Piet, S. Jennings (2014): Evaluating targets and trade-offs among fisheries and conservation objectives using a multispecies size spectrum model. J. Applied Ecology, 51: 612–622. doi:10.1111/1365-2664.12238. _Application of Mizer on the North Sea_
+* @hartvig2011: **Food web framework for size-structured populations.** *Journal of Theoretical Biology*, 272(1), 113--122. <https://doi.org/10.1016/j.jtbi.2010.12.006>
+    * *Foundational continuous size-spectrum formulation underpinning mizer.*
 
 
-## Projects that have used/are using mizer
+## Systematic reviews of mizer
 
-The MINOUW Project European Commission Horizon 2020 Research and Innovation Programme under Grant Agreement No. 634495
+* @pennino2026: **A decade of mizer: A systematic review of advancements and applications of size spectrum modeling in aquatic ecosystems.** *Ecological Modelling*, 512, 111392. <https://doi.org/10.1016/j.ecolmodel.2025.111392>
+    * *Reviews 43 publications to map mizer applications, collaborations, and extensions, and identifies gaps in validation, optimisation, and policy uptake.*
 
-Rewiring marine food webs: predicting consequences of species range shifts. Australian Research Council Discovery Project DP170104240
+## Fisheries management, harvest policies & trade-offs
 
-Mesopelagic Southern Ocean Prey and Predators (MESOPP), European Commission H2020 (www.mesopp.eu)
+* @wo2024: **Species portfolio schemes buffering the risk of overexploitation in mixed fisheries management.** *Fisheries Research*, 274, 106980. <https://doi.org/10.1016/j.fishres.2024.106980>
+    * *Groups the species of a North Yellow Sea size-spectrum model into multispecies-TAC units by habitat, feeding mode, body size, or thermophily, finding that the size-based grouping buffers depletion risk best while conserving community productivity.*
 
-Expert Working Group on Benchmarks for Ecosystem Assessment under EBFM. Lenfest Ocean Program 
+* @dejuan2023: **A model of size-spectrum dynamics to estimate the effects of improving fisheries selectivity and reducing discards in Mediterranean mixed demersal fisheries.** *Fisheries Research*, 266, 106764. <https://doi.org/10.1016/j.fishres.2023.106764>
+    * *Evaluates gear selectivity improvements and discard mitigation in Mediterranean mixed demersal fisheries.*
 
-Marine Ecosystems Research Programme (MERP) (https://marine-ecosystems.org.uk). UK Defra - Natural Environmental Research Council
+* @robinson2022: **Managing fisheries for maximum nutrient yield.** *Fish and Fisheries*, 23(4), 800--811. <https://doi.org/10.1111/faf.12649>
+    * *Combines nutrient-composition data with size-spectrum simulations to show that fishing for maximum nutrient yield can require different strategies from fishing for maximum catch.*
 
-“Monitoring and Management of Deepwater Fisheries and Stocks” (Deepfishman) European Union Framework 7. 
+* @novaglio2022: **Exploring trade-offs in mixed fisheries by integrating fleet dynamics into multispecies size-spectrum models.** *Journal of Applied Ecology*, 59(3), 715--728. <https://doi.org/10.1111/1365-2664.14086>
+    * *Integrates fleet dynamics into a model of the Australian Southern and Eastern Scalefish and Shark Fishery to test ecological and economic effects of fleet competition, specialisation, and diversification.*
 
-“Developing fisheries management indicators and targets” (DEFINEIT) European Marifish Joint Research project. 
+* @wo2022: **A multispecies TAC approach to achieving long-term sustainability in multispecies mixed fisheries.** *ICES Journal of Marine Science*, 79(1), 218--229. <https://doi.org/10.1093/icesjms/fsab257>
+    * *Calibrates a 21-species size-spectrum model of the North Yellow Sea to simulate multispecies Total Allowable Catch (TAC) strategies.*
 
-“Indicators for fisheries Management in Europe” (IMAGE) European Union Framework 6. 
+* @spence2021: **Sustainable fishing can lead to improvements in marine ecosystem status: an ensemble-model forecast of the North Sea ecosystem.** *Marine Ecology Progress Series*, 680, 207--221. <https://doi.org/10.3354/meps13870>
+    * *Integrates five North Sea ecosystem models in a probabilistic ensemble forecast, predicting that fishing consistent with MSY policy lets the fish community recover in size structure and species composition, while trends in biomass, plankton, and top predators stay highly uncertain.*
+
+* @spence2020: **Fish should not be in isolation: Calculating maximum sustainable yield using an ensemble model.** *arXiv*. <https://doi.org/10.48550/arXiv.2005.02001>
+    * *Combines four North Sea multispecies models---EwE, LeMans, mizer, and FishSUMs---in an ensemble to estimate a multispecies MSY for nine species, finding that fishing all of them at their single-species MSY is impossible.*
+
+* @canales2020: **Regulation of fish stocks without stock--recruitment relationships: The case of small pelagic fish.** *Fish and Fisheries*, 21(5), 857--871. <https://doi.org/10.1111/faf.12465>
+    * *Uses a stochastic anchovy size-spectrum model to show that density-dependent growth, mortality, and cannibalism can regulate a stock even when no clear stock--recruitment relationship emerges.*
+
+* @wo2020: **Modeling the Dynamics of Multispecies Fisheries: A Case Study in the Coastal Water of North Yellow Sea, China.** *Frontiers in Marine Science*, 7, 524463. <https://doi.org/10.3389/fmars.2020.524463>
+    * *Applies mizer to model multispecies fisheries dynamics and community changes in coastal Chinese waters.*
+
+* @zhang2018: **Evaluating fishing effects on the stability of fish communities using a size-spectrum model.** *Fisheries Research*, 197, 123--130. <https://doi.org/10.1016/j.fishres.2017.09.004>
+    * *Examines how fishing pressure affects the dynamic stability and resilience of marine communities.*
+
+* @thorpe2017: **Risks and benefits of catching pretty good yield in multispecies mixed fisheries.** *ICES Journal of Marine Science*, 74(8), 2097--2106. <https://doi.org/10.1093/icesjms/fsx062>
+    * *Examines trade-offs between yield and the risk of stock collapse in North Sea multispecies mixed fisheries.*
+
+* @szuwalski2017: **High fishery catches through trophic cascades in China.** *Proceedings of the National Academy of Sciences*, 114(4), 717--721. <https://doi.org/10.1073/pnas.1612722114>
+    * *Application of mizer to the East China Sea demonstrating trophic cascades.*
+
+* @jacobsen2017: **Efficiency of fisheries is increasing at the ecosystem level.** *Fish and Fisheries*, 18(2), 199--211. <https://doi.org/10.1111/faf.12171>
+    * *Uses newly calibrated size-based models of five large marine ecosystems to assess Pareto efficiency in yield, profit, and ecosystem impact.*
+
+* @zhang2016msy: **An evaluation of implementing long-term MSY in ecosystem-based fisheries management: Incorporating trophic interaction, bycatch and uncertainty.** *Fisheries Research*, 174, 179--189. <https://doi.org/10.1016/j.fishres.2015.10.007>
+    * *Simulates single-species, stow-net, and trawl fisheries in a size-spectrum model, finding that a fishery without bycatch collapses its target stock at low fishing mortality while the multispecies fisheries sustain higher yields at a broader ecosystem cost.*
+
+* @zhang2016datapoor: **Implementing a multispecies size-spectrum model in a data-poor ecosystem.** *Acta Oceanologica Sinica*, 35(4), 63--73. <https://doi.org/10.1007/s13131-016-0822-0>
+    * *Documents the data collection and parameterisation behind a size-spectrum model of the Haizhou Bay fish community and shows that its ecological indicators respond strongly non-linearly to fishing effort.*
+
+* @zhang2016closure: **The efficacy of fisheries closure in rebuilding depleted stocks: Lessons from size-spectrum modeling.** *Ecological Modelling*, 332, 59--66. <https://doi.org/10.1016/j.ecolmodel.2016.04.001>
+    * *Simulates fishery closures with trophic interactions resolved, finding recovery times for a depleted large-bodied stock of ten to over a hundred years that lengthen as the community grows more complex.*
+
+* @thorpe2015: **Evaluation and management implications of uncertainty in a multispecies size-structured model of population and community responses to fishing.** *Methods in Ecology and Evolution*, 6(1), 49--58. <https://doi.org/10.1111/2041-210X.12292>
+    * *Uses an ensemble of parameterisations for a 21-species North Sea size-structured model to quantify uncertainty in reference points, indicators, and monitoring power.*
+
+* @jacobsen2014: **The consequences of balanced harvesting of fish communities.** *Proceedings of the Royal Society B: Biological Sciences*, 281(1775), 20132701. <https://doi.org/10.1098/rspb.2013.2701>
+    * *Compares balanced and unbalanced, selective and unselective harvesting, finding that unselective balanced fishing maximises total yield with relatively small changes in community biomass but targets small fish.*
+
+* @blanchard2014: **Evaluating targets and trade-offs among fisheries and conservation objectives using a multispecies size spectrum model.** *Journal of Applied Ecology*, 51(3), 612--622. <https://doi.org/10.1111/1365-2664.12238>
+    * *Early application of mizer to the North Sea exploring trade-offs between yield and ecological indicators.*
+
+## Climate change, ocean warming & environmental stressors
+
+* @ortegacisneros2025: **An integrated global-to-regional scale workflow for simulating climate change impacts on marine ecosystems.** *Earth's Future*, 13(2), e2024EF004826. <https://doi.org/10.1029/2024EF004826>
+    * *Sets out a FishMIP workflow that passes earth-system-model forcing to regional marine ecosystem models, mizer among them, so that global and regional climate projections can be compared.*
+
+* @reum2024: **Temperature-dependence assumptions drive projected responses of diverse size-based food webs to warming.** *Earth's Future*, 12(3), e2023EF003852. <https://doi.org/10.1029/2023EF003852>
+    * *Tests alternative size- and temperature-dependence assumptions for feeding, metabolism, and mortality across several species-resolved food webs and trait-based communities.*
+
+* @audzijonyte2023: **Changes in sea floor productivity are crucial to understanding the impact of climate change in temperate coastal ecosystems according to a new size-based model.** *PLOS Biology*, 21(12), e3002392. <https://doi.org/10.1371/journal.pbio.3002392>
+    * *Builds a size-spectrum model of shallow temperate reefs with separate benthic and pelagic energy pathways, calibrated on reef monitoring data, and predicts that changes in resource levels affect fish biomass and yields far more than the physiological effects of warming.*
+
+* @duskey2023: **Metabolic prioritization of fish in hypoxic waters: an integrative modeling approach.** *Frontiers in Marine Science*, 10, 1206506. <https://doi.org/10.3389/fmars.2023.1206506>
+    * *Combines a Baltic Sea multispecies size-spectrum model with a meta-analysis to test how fish prioritise feeding, assimilation, and reproduction as oxygen declines.*
+
+* @hansen2023: **Projecting fish community responses to dam removal---Data-limited modeling.** *Ecological Indicators*, 154, 110805. <https://doi.org/10.1016/j.ecolind.2023.110805>
+    * *Calibrates a size-spectrum model on electrofishing data from the Mörrum River in Sweden and projects 60 dam-removal scenarios, finding that removal mortality and reduced resource levels can delay recovery of community biomass by decades.*
+
+* @kuo2022: **Assessing warming impacts on marine fishes by integrating physiology-guided distribution projections, life-history changes and food web dynamics.** *Methods in Ecology and Evolution*, 13(6), 1343--1357. <https://doi.org/10.1111/2041-210X.13846>
+    * *Couples physiology-guided species distribution projections and life-history change with size-spectrum food-web dynamics, finding that warming generally reduces species biomass and leaves the community more vulnerable to top-down perturbation.*
+
+* @lindmark2022: **Temperature impacts on fish physiology and resource abundance lead to faster growth but smaller fish sizes and yields under warming.** *Global Change Biology*, 28(21), 6239--6253. <https://doi.org/10.1111/gcb.16341>
+    * *Warms a size-spectrum model of the offshore Baltic Sea food web through both physiology and resource productivity, finding that faster growth of young fish need not raise yields because lower resource carrying capacity reduces the abundance of large fish.*
+
+* @falciani2022: **Optimizing fisheries for blue carbon management: Why size matters.** *Limnology and Oceanography*, 67(S2), S171--S179. <https://doi.org/10.1002/lno.12249>
+    * *Uses theoretical size-spectrum simulations to identify fishing patterns that trade protein yield against carbon stored in living fish biomass, favouring conservation of larger species.*
+
+* @reum2020: **Ensemble Projections of Future Climate Change Impacts on the Eastern Bering Sea Food Web Using a Multispecies Size Spectrum Model.** *Frontiers in Marine Science*, 7, 124. <https://doi.org/10.3389/fmars.2020.00124>
+    * *Forces an eastern Bering Sea size-spectrum model with downscaled earth-system projections to attribute projection uncertainty to climate variability, model structure, and management, and projects end-of-century declines in spawner biomass, catches, and mean body size.*
+
+* @reum2019: **Species-specific ontogenetic diet shifts attenuate trophic cascades and lengthen food chains in exploited ecosystems.** *Oikos*, 128(7), 1051--1064. <https://doi.org/10.1111/oik.05630>
+    * *Tests size-spectrum models against an extensive eastern Bering Sea diet database, showing that species-specific prey preferences predict about three times more diet links and substantially weaken fishing-induced trophic cascades.*
+
+* @woodworthjefcoats2019: **Relative Impacts of Simultaneous Stressors on a Pelagic Marine Ecosystem.** *Frontiers in Marine Science*, 6, 383. <https://doi.org/10.3389/fmars.2019.00383>
+    * *Simulates the individual and combined effects of warming, changing food supply, and fishing on Hawaii's bigeye tuna longline fishery and its supporting pelagic ecosystem.*
+
+## Regional ecosystem models (marine & freshwater)
+
+* @ruizdiaz2025: **Trophic Reorganization and Energy Deficit: A Multispecies Size-Spectrum Model of the Grand Banks.** *EcoEvoRxiv*. <https://doi.org/10.32942/X22D24>
+    * *Uses a Grand Banks size-spectrum model to contrast the trophic reorganisation caused by changes in cod biomass with the community-wide energy deficits caused by forage-fish depletion.*
+
+* @benoit2022: **Size spectrum model reveals importance of considering species interactions in a freshwater fisheries management context.** *Ecosphere*, 13(7), e4163. <https://doi.org/10.1002/ecs2.4163>
+    * *Develops a calibrated multispecies size-spectrum model for Lake Nipissing and uses fishing scenarios to show why species interactions matter in freshwater fisheries management.*
+
+* @lin2022: **Simulating the impacts of fishing on central and eastern tropical Pacific ecosystem using multispecies size-spectrum model.** *Acta Oceanologica Sinica*, 41(3), 34--43. <https://doi.org/10.1007/s13131-021-1902-3>
+    * *Calibrates a 20-species size-spectrum model on Chinese tuna longline observer data from the central and eastern tropical Pacific and projects the community to 2050 under five constant-fishing-mortality scenarios.*
+
+* @benoit2021: **Identifying influential parameters of a multi-species fish size spectrum model for a northern temperate lake through sensitivity analyses.** *Ecological Modelling*, 460, 109740. <https://doi.org/10.1016/j.ecolmodel.2021.109740>
+    * *Uses Morris and Sobol global sensitivity analyses to show that growth parameters, especially for top predators, have the greatest influence on model outputs.*
+
+* @west2019: **An objective comparison between an Ecopath with Ecosim and a multispecies size-spectrum model of an isolated lagoon in the Ria Formosa.** Master's Thesis, *Universidade do Algarve*. <https://sapientia.ualg.pt/handle/10400.1/14138>
+    * *Comparative study of mizer and EwE in a coastal lagoon ecosystem.*
+
+* @jennings2015: **Predicting Consumer Biomass, Size-Structure, Production, Catch Potential, Responses to Fishing and Associated Uncertainties in the World's Marine Ecosystems.** *PLOS ONE*, 10(7), e0133794. <https://doi.org/10.1371/journal.pone.0133794>
+    * *Global application of size-based models to estimate marine biomass, production, and catch potential.*
+
+## Eco-evolutionary dynamics, uncertainty & size scaling
+
+* @forestier2021: **Modelling eco-evolutionary dynamics of species' traits in size-structured ecosystems.** Doctoral Thesis, *University of Tasmania*. <https://figshare.utas.edu.au/articles/thesis/Modelling_eco-evolutionary_dynamics_of_species_traits_in_size-structured_ecosystems/23253659>
+    * *Adds evolutionary dynamics to trait-based size-spectrum models by introducing new phenotypes through time (the mizerEvolution extension), and applies the model to fishing-induced evolution of maturation size, adaptation of thermal traits under warming, and the evolution of predator--prey size preference.*
+
+* @clements2019: **Early warning signals of recovery in complex systems.** *Nature Communications*, 10(1), 1681. <https://doi.org/10.1038/s41467-019-09684-y>
+    * *Shows with a trait-based size-spectrum model and real fisheries data that abundance- and trait-based early warning signals precede the recovery of overexploited stocks, not just their collapse, and work best combined.*
+
+* @forestier2020: **Interacting forces of predation and fishing affect species' maturation size.** *Ecology and Evolution*, 10(24), 14033--14051. <https://doi.org/10.1002/ece3.6995>
+    * *Uses physiologically structured size-spectrum models to explore how predation and fishing select on maturation size.*
+
+* @lindmark2020: **Temperature- and body size scaling: Effects on individuals, populations and food webs in aquatic ecosystems.** Doctoral Thesis, *Swedish University of Agricultural Sciences (SLU)*. <https://pub.epsilon.slu.se/16711/>
+    * *Collates the intraspecific scaling of growth, metabolism, and consumption in fish and adds temperature dependence to structured population and food-web models, finding that the optimum growth temperature falls as a fish grows and that faster growth under warming need not yield larger-sized populations when basal resources decline.*
+
+* @spence2018: **A general framework for combining ecosystem models.** *Fish and Fisheries*, 19(6), 1031--1042. <https://doi.org/10.1111/faf.12310>
+    * *Bayesian ensemble framework integrating mizer with other marine ecosystem models.*
+
+* @spence2016: **Parameter uncertainty of a dynamic multispecies size spectrum model.** *Canadian Journal of Fisheries and Aquatic Sciences*, 73(4), 589--597. <https://doi.org/10.1139/cjfas-2015-0022>
+    * *Bayesian parameter estimation and uncertainty quantification for mizer.*
+
+* @datta2016: **The effects of seasonal processes on size spectrum dynamics.** *Canadian Journal of Fisheries and Aquatic Sciences*, 73(4), 598--610. <https://doi.org/10.1139/cjfas-2015-0468>
+    * *Adds seasonal plankton blooms and species-specific batch spawning to a 12-species North Sea mizer model and examines their effects on population and community size spectra.*
+
+* @zhang2015: **Assessing uncertainty of a multispecies size-spectrum model resulting from process and observation errors.** *ICES Journal of Marine Science*, 72(8), 2223--2233. <https://doi.org/10.1093/icesjms/fsv086>
+    * *Traces model uncertainty to its sources, finding that errors in metabolic scaling parameters dominate, followed by life-history parameters, and that these produce alternative community states rather than merely statistical spread.*
+
+## Projects using mizer
+
+* **FishMIP** — Fisheries and Marine Ecosystem Model Intercomparison Project (<https://fishmip.org>)
+* **NECCTON** — New Commercial European Copernicus Marine Services and Technological Operations (<https://neccton.eu>)
+* **Pyramids of Life** — Working with nature for sustainable blue growth (UKRI Sustainable Management of Marine Resources)
+* **Rewiring Marine Food Webs** — Predicting consequences of species range shifts (Australian Research Council DP170104240)
+* **MINOUW Project** — Science, Technology, and Society Initiative to Minimize Unwanted Catches in European Fisheries (EU Horizon 2020)
+* **MESOPP** — Mesopelagic Southern Ocean Prey and Predators (EU Horizon 2020)
+* **MERP** — Marine Ecosystems Research Programme (UK Defra & NERC)
+* **Expert Working Group on Benchmarks for Ecosystem Assessment under EBFM** (Lenfest Ocean Program)
+* **Deepfishman** — Monitoring and Management of Deepwater Fisheries and Stocks (EU FP7)
+* **DEFINEIT** — Developing fisheries management indicators and targets (European Marifish)
+* **IMAGE** — Indicators for fisheries Management in Europe (EU FP6)
+
+## References
