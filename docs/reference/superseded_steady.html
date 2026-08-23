@@ -224,10 +224,10 @@ They are not used anywhere inside mizer and should not be used in new code.</p>
 
 
 <dt id="arg-t-per">t_per<a class="anchor" aria-label="anchor" href="#arg-t-per"></a></dt>
-<dd><p>The simulation is broken up into shorter runs of <code>t_per</code> years,
-after each of which we check for convergence. Default value is 1.5. This
-should be chosen as an odd multiple of the timestep <code>dt</code> in order to be
-able to detect period 2 cycles.</p></dd>
+<dd><p>The interval in years at which convergence is checked, and hence
+also the interval at which the trajectory is saved when
+<code>return_sim = TRUE</code>. In <code><a href="projectUntilSettled.html">projectUntilSettled()</a></code> these two roles have been
+separated into <code>t_check</code> and <code>t_save</code>.</p></dd>
 
 
 <dt id="arg-dt">dt<a class="anchor" aria-label="anchor" href="#arg-dt"></a></dt>
@@ -235,10 +235,9 @@ able to detect period 2 cycles.</p></dd>
 
 
 <dt id="arg-t-save">t_save<a class="anchor" aria-label="anchor" href="#arg-t-save"></a></dt>
-<dd><p>The interval at which a cheap per-species biomass summary is
-recorded for limit-cycle detection. Must be a positive multiple of <code>dt</code> and
-a divisor of <code>t_per</code>. Smaller values resolve the cycle period more finely at
-a small extra cost. Default is <code>dt</code>.</p></dd>
+<dd><p>Has no effect. It briefly controlled how finely the biomass
+series used for limit-cycle detection was sampled; that series is now
+sampled at every time step, which is what its default <code>dt</code> gave.</p></dd>
 
 
 <dt id="arg-tol">tol<a class="anchor" aria-label="anchor" href="#arg-tol"></a></dt>
@@ -311,35 +310,15 @@ effort stored in <code>params</code>.</p></dd>
 
 
 <dt id="arg-distance-func">distance_func<a class="anchor" aria-label="anchor" href="#arg-distance-func"></a></dt>
-<dd><p>A function that will be called after every <code>t_per</code> years
-with both the previous and the new state and that should return a number
+<dd><p>A function that will be called at every check with both
+the previous and the new state and that should return a number
 that in some sense measures the distance between the states. By default
 this uses the function <code><a href="distanceSSLogN.html">distanceSSLogN()</a></code> that you can use as a model for your
 own distance function.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Arguments for the chosen solver.</p>
-<p>With <code>solver = "project"</code>: <code>t_max</code>, <code>t_per</code>, <code>dt</code>, <code>t_save</code>,
-<code>distance_tol</code>, <code>residual_tol</code>, <code>amplitude_tol</code>, <code>amp_rel_tol</code>,
-<code>extinction_threshold</code>, <code>progress_bar</code> and <code>method</code>, all as described in
-<code><a href="projectUntilSettled.html">projectUntilSettled()</a></code>.
-Note that <code>distance_tol</code> here defaults to <code>0.1 * dt</code> and measures the
-largest relative change in egg production, because the distance function is
-<code><a href="distanceMaxRelRDI.html">distanceMaxRelRDI()</a></code>. <code>residual_tol</code> is judged on the model as the search
-sees it, with reproduction, the resource and the other components pinned;
-the residual reported in the result is measured again on the model that is
-actually returned.</p>
-<p>With <code>solver = "newton"</code>: <code>solver_tol</code> (default <code>1e-6</code>), a tolerance on
-the per-capita rate of change passed to <code><a href="https://bertcarnell.github.io/nleqslv/reference/nleqslv.html" class="external-link">nleqslv::nleqslv()</a></code>. It was called
-<code>residual_tol</code> before mizer 3.3, a name that now belongs to the biomass
-drift criterion above; <code>maxit</code>
-(default <code>200</code>); <code>jacobian</code>, either <code>"update"</code> (default, the Jacobian is
-computed once and then updated cheaply each iteration — <code>nleqslv</code>'s
-<code>"Broyden"</code>) or <code>"recompute"</code> (a numerical Jacobian at every iteration —
-<code>nleqslv</code>'s <code>"Newton"</code>); <code>global</code>, the globalisation strategy (default
-<code>"dbldog"</code>, a robust double-dogleg trust region); and <code>verbose</code> to trace
-the iterations.</p></dd>
+<dd><p>Further arguments will be passed on to your distance function.</p></dd>
 
 </dl></div>
     <div class="section level2">

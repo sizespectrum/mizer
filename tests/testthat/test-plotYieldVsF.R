@@ -6,7 +6,7 @@
 # yield of the one species asked for, that it hands scanModel() the setter and
 # the sweep order it is supposed to, and that its own arguments are checked.
 
-fast <- list(t_max = 6, t_per = 1.5, dt = 0.5, t_save = 0.5, t_sample = 3,
+fast <- list(t_max = 6, t_check = 1.5, dt = 0.5, t_sample = 3,
              progress_bar = FALSE)
 
 yield_vs_f <- function(...) {

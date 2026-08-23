@@ -64,7 +64,7 @@ converges even when the steady state is dynamically **unstable**, and discovers
 the support of the steady state automatically.
 
 **`tuneSteadyState()` returning is not proof that the model is steady.** Its
-stopping test is the relative change in egg production over `t_per`, a proxy for
+stopping test is the relative change in egg production over `t_check`, a proxy for
 the drift itself, and the run can also stop on a limit cycle, on a species going
 extinct, or simply at `t_max`. All four outcomes return a `MizerParams` object
 that looks the same. What distinguishes them is the `"convergence"` attribute,

@@ -36,10 +36,11 @@ default is taken from the \code{mizer_info_level} option, see
 
 \item{...}{Arguments for the chosen solver.
 
-With \code{solver = "project"}: \code{t_max}, \code{t_per}, \code{dt}, \code{t_save},
+With \code{solver = "project"}: \code{t_max}, \code{t_check}, \code{dt},
 \code{distance_tol}, \code{residual_tol}, \code{amplitude_tol}, \code{amp_rel_tol},
 \code{extinction_threshold}, \code{progress_bar} and \code{method}, all as described in
-\code{\link[=projectUntilSettled]{projectUntilSettled()}}.
+\code{\link[=projectUntilSettled]{projectUntilSettled()}}. There is no \code{t_save}, because no trajectory is
+returned.
 Note that \code{distance_tol} here defaults to \code{0.1 * dt} and measures the
 largest relative change in egg production, because the distance function is
 \code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}. \code{residual_tol} is judged on the model as the search

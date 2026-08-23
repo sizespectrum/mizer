@@ -8,7 +8,7 @@
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Project the dynamics until they settle — projectUntilSettled"><meta name="description" content='
 Run the full dynamics, as in project(), but stop once the run has settled:
 either the change has slowed down sufficiently, in the sense that the
-distance between states t_per years apart is less than distance_tol and
+distance between states t_check years apart is less than distance_tol and
 the state has stopped drifting, or the run has been recognised as being on a
 limit cycle. You determine how the distance
 is calculated.
@@ -21,7 +21,7 @@ findSteadyState() if what you want is the steady state itself rather than
 the trajectory leading to it.'><meta property="og:description" content='
 Run the full dynamics, as in project(), but stop once the run has settled:
 either the change has slowed down sufficiently, in the sense that the
-distance between states t_per years apart is less than distance_tol and
+distance between states t_check years apart is less than distance_tol and
 the state has stopped drifting, or the run has been recognised as being on a
 limit cycle. You determine how the distance
 is calculated.
@@ -116,7 +116,7 @@ the trajectory leading to it.'><meta property="og:image" content="https://sizesp
     <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a></p>
 <p>Run the full dynamics, as in <code><a href="project.html">project()</a></code>, but stop once the run has settled:
 either the change has slowed down sufficiently, in the sense that the
-distance between states <code>t_per</code> years apart is less than <code>distance_tol</code> and
+distance between states <code>t_check</code> years apart is less than <code>distance_tol</code> and
 the state has stopped drifting, or the run has been recognised as being on a
 limit cycle. You determine how the distance
 is calculated.</p>
@@ -135,11 +135,11 @@ the trajectory leading to it.</p>
 <span>  <span class="va">params</span>,</span>
 <span>  effort <span class="op">=</span> <span class="va">params</span><span class="op">@</span><span class="va">initial_effort</span>,</span>
 <span>  distance_func <span class="op">=</span> <span class="va">distanceSSLogN</span>,</span>
-<span>  t_per <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  t_check <span class="op">=</span> <span class="fl">15</span> <span class="op">*</span> <span class="va">dt</span>,</span>
 <span>  t_max <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  dt <span class="op">=</span> <span class="fl">0.1</span>,</span>
-<span>  t_save <span class="op">=</span> <span class="va">dt</span>,</span>
-<span>  distance_tol <span class="op">=</span> <span class="fl">0.1</span> <span class="op">*</span> <span class="va">t_per</span>,</span>
+<span>  t_save <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  distance_tol <span class="op">=</span> <span class="fl">0.1</span> <span class="op">*</span> <span class="va">t_check</span>,</span>
 <span>  residual_tol <span class="op">=</span> <span class="fu">steady_residual_tol</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  amplitude_tol <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>  amp_rel_tol <span class="op">=</span> <span class="fl">0.1</span>,</span>
@@ -167,18 +167,19 @@ entry per gear, or a named numeric vector for some or all gears.</p></dd>
 
 
 <dt id="arg-distance-func">distance_func<a class="anchor" aria-label="anchor" href="#arg-distance-func"></a></dt>
-<dd><p>A function that will be called after every <code>t_per</code> years
-with both the previous and the new state and that should return a number
+<dd><p>A function that will be called at every check with both
+the previous and the new state and that should return a number
 that in some sense measures the distance between the states. By default
 this uses the function <code><a href="distanceSSLogN.html">distanceSSLogN()</a></code> that you can use as a model for your
 own distance function.</p></dd>
 
 
-<dt id="arg-t-per">t_per<a class="anchor" aria-label="anchor" href="#arg-t-per"></a></dt>
-<dd><p>The simulation is broken up into shorter runs of <code>t_per</code> years,
-after each of which we check for convergence. Default value is 1.5. This
-should be chosen as an odd multiple of the timestep <code>dt</code> in order to be
-able to detect period 2 cycles.</p></dd>
+<dt id="arg-t-check">t_check<a class="anchor" aria-label="anchor" href="#arg-t-check"></a></dt>
+<dd><p>The interval in years at which the run pauses to check whether
+it has settled, and hence also the interval over which <code>distance_func</code>
+measures change. Must be a positive multiple of <code>dt</code>. The default
+<code>15 * dt</code> is an odd multiple of the time step, which is what lets a
+period-2 cycle be seen; you should rarely need to change it.</p></dd>
 
 
 <dt id="arg-t-max">t_max<a class="anchor" aria-label="anchor" href="#arg-t-max"></a></dt>
@@ -190,16 +191,17 @@ able to detect period 2 cycles.</p></dd>
 
 
 <dt id="arg-t-save">t_save<a class="anchor" aria-label="anchor" href="#arg-t-save"></a></dt>
-<dd><p>The interval at which a cheap per-species biomass summary is
-recorded for limit-cycle detection. Must be a positive multiple of <code>dt</code> and
-a divisor of <code>t_per</code>. Smaller values resolve the cycle period more finely at
-a small extra cost. Default is <code>dt</code>.</p></dd>
+<dd><p>The interval in years at which the state is stored in the
+returned <code>MizerSim</code>, as in <code><a href="project.html">project()</a></code>. Must be a positive multiple of
+<code>dt</code>, but need bear no relation to <code>t_check</code>. Default is 1. The state the
+run settles on is always the final time point, even when the run stops
+between two saves.</p></dd>
 
 
 <dt id="arg-distance-tol">distance_tol<a class="anchor" aria-label="anchor" href="#arg-distance-tol"></a></dt>
 <dd><p>The run stops when the number returned by <code>distance_func</code>
-for two states <code>t_per</code> years apart drops below <code>distance_tol</code>, provided the
-drift criterion below is also met. Its meaning therefore depends on the
+for two states <code>t_check</code> years apart drops below <code>distance_tol</code>, provided
+the drift criterion below is also met. Its meaning therefore depends on the
 distance function you supply. It was called <code>tol</code> before mizer 3.3.</p></dd>
 
 
@@ -267,8 +269,10 @@ See <code><a href="project.html">project()</a></code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>MizerSim</code> object containing the states saved every <code>t_per</code> years,
-up to and including the state the run settled on. Use <code><a href="getParams.html">finalParams()</a></code> to
+    <p>A <code>MizerSim</code> object containing the states saved every <code>t_save</code> years,
+with the state the run settled on as its final time point. That last
+interval is shorter than the others when the run stops between two saves.
+Use <code><a href="getParams.html">finalParams()</a></code> to
 extract that final state as a <code>MizerParams</code> object, or call
 <code><a href="findSteadyState.html">findSteadyState()</a></code> instead, which returns it directly.</p>
 <p>The returned object carries an attribute <code>"convergence"</code> describing the
@@ -301,7 +305,7 @@ entry to test before treating a result as a steady state.</p></dd>
 <dt><code>residual</code></dt>
 <dd><p>The largest per-capita rate of change, in 1/year, at the
 state that was reached, as returned by <code><a href="getSteadyResidual.html">getSteadyResidual()</a></code>. Unlike
-<code>distance</code>, which compares two states <code>t_per</code> apart on whatever scale
+<code>distance</code>, which compares two states <code>t_check</code> apart on whatever scale
 the distance function uses, this measures how far the state actually is
 from being a fixed point.</p></dd>
 
@@ -319,18 +323,20 @@ peak-to-trough biomass amplitude; otherwise <code>NA</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="how-the-run-is-organised">How the run is organised<a class="anchor" aria-label="anchor" href="#how-the-run-is-organised"></a></h2>
-    <p>The simulation is not run in one go but is broken into blocks of <code>t_per</code>
-years. Within a block the dynamics are advanced with time step <code>dt</code> exactly
-as in <code><a href="project.html">project()</a></code>. At the end of each block the function decides whether to
-stop, so <code>t_per</code> sets how often the stopping criteria are evaluated and also
-the interval over which change is measured. The run ends at the latest after
-<code>t_max</code> years, i.e. after <code>floor(t_max / t_per)</code> blocks.</p>
-<p>Independently of the blocks, a cheap scalar summary of the state (the biomass
-of each species) is recorded every <code>t_save</code> years. This finely resolved
-series is what the limit-cycle detection works on, so that a cycle can be
-found and its period measured even when that period bears no simple relation
-to <code>t_per</code>.</p>
-<p>At the end of each block the following checks are made, in this order.</p><div class="section">
+    <p>The dynamics are advanced with time step <code>dt</code> exactly as in <code><a href="project.html">project()</a></code>.
+Every <code>t_check</code> years the function pauses to decide whether to stop, so
+<code>t_check</code> sets how often the stopping criteria are evaluated and also the
+interval over which change is measured. You should not normally need to set it: it defaults
+to <code>15 * dt</code>, which is an odd multiple of the time step for the reason given
+below. The run ends at the latest after <code>t_max</code> years.</p>
+<p>Independently of that, the state is stored in the returned <code>MizerSim</code> every
+<code>t_save</code> years, exactly as in <code><a href="project.html">project()</a></code>, and a cheap scalar summary of the
+state (the biomass of each species) is recorded after every time step. That
+finely resolved series is what the limit-cycle detection works on, so that a
+cycle can be found and its period measured even when that period bears no
+simple relation to <code>t_check</code>. The three intervals are independent of each
+other; <code>t_check</code> and <code>t_save</code> need only be multiples of <code>dt</code>.</p>
+<p>At each check the following tests are made, in this order.</p><div class="section">
 <h3 id="-extinction">1. Extinction<a class="anchor" aria-label="anchor" href="#-extinction"></a></h3>
 
 
@@ -351,11 +357,12 @@ healthy species is never flagged.</p>
 <p>The recorded biomass series is examined to see whether the run has settled
 onto a limit cycle. If it has, the run stops with <code>type = "cycle"</code> and the
 period and amplitude of the cycle are reported.</p>
-<p>This check is made on every block, whether or not the state looks converged
-by the measure below. A cycle whose period divides <code>t_per</code> puts the two
+<p>It is made at every check, whether or not the state looks converged
+by the measure below. A cycle whose period divides <code>t_check</code> puts the two
 states that the distance function compares at the same phase, so it would
 otherwise be reported as a fixed point of zero width. The detection works on
-the finely sampled biomass series instead, which is blind to <code>t_per</code>.</p>
+the biomass series sampled at every time step instead, which is blind to
+<code>t_check</code>.</p>
 </div>
 
 <div class="section">
@@ -363,9 +370,9 @@ the finely sampled biomass series instead, which is blind to <code>t_per</code>.
 
 
 <p>Two things have to hold for the run to stop on a fixed point.</p>
-<p>First, <code>distance_func</code> is called with the state at the end of the previous
-block and the state at the end of the current block, i.e. with two states
-<code>t_per</code> years apart, and the number it returns must be less than
+<p>First, <code>distance_func</code> is called with the state at the previous check and the
+state at the current one, i.e. with two states
+<code>t_check</code> years apart, and the number it returns must be less than
 <code>distance_tol</code>. What
 "distance" means is entirely up to that function: the default
 <code><a href="distanceSSLogN.html">distanceSSLogN()</a></code> uses the sum of squared changes in log abundance, while
@@ -382,10 +389,11 @@ the run carries on rather than declaring a fixed point.</p>
 is deliberately not called <code>"steady"</code>: <code>residual_tol</code> is a working tolerance
 rather than a proof, and the <code>residual</code> entry of the <code>"convergence"</code>
 attribute reports the drift that was actually reached.</p>
-<p>Even so, <code>t_per</code> should be chosen as an <em>odd</em> multiple of <code>dt</code>. A period-2
-cycle (period <code>2 * dt</code>), the most common numerical oscillation, is otherwise
-sampled at the same phase in every block, and its amplitude can sit below
-<code>amplitude_tol</code> where the cycle detection deliberately ignores it.</p>
+<p>Even so, <code>t_check</code> should be an <em>odd</em> multiple of <code>dt</code>, which is why it
+defaults to <code>15 * dt</code>. A period-2 cycle (period <code>2 * dt</code>), the most common
+numerical oscillation, is otherwise sampled at the same phase at every check,
+and its amplitude can sit below <code>amplitude_tol</code> where the cycle detection
+deliberately ignores it.</p>
 <p>If none of the three checks fires before <code>t_max</code> is reached, the run stops
 with <code>type = "not_converged"</code>. In every case the outcome is recorded in the
 <code>"convergence"</code> attribute of the returned object, described under <em>Value</em>
@@ -396,8 +404,8 @@ below.</p>
     <div class="section level2">
     <h2 id="how-a-limit-cycle-is-detected">How a limit cycle is detected<a class="anchor" aria-label="anchor" href="#how-a-limit-cycle-is-detected"></a></h2>
     <p>The detection uses the community-total biomass, on a log scale and with its
-mean removed, as a scalar signal, sampled every <code>t_save</code> years. At least 20
-samples are needed before any cycle can be reported.</p><ol><li><p><strong>Candidate period.</strong> The autocorrelation function of the signal is
+mean removed, as a scalar signal, sampled after every time step. At least 20
+steps are needed before any cycle can be reported.</p><ol><li><p><strong>Candidate period.</strong> The autocorrelation function of the signal is
 computed up to a lag of half the length of the series, and the first local
 maximum with an autocorrelation above <code>0.5</code> is taken as the candidate
 period. If there is no such peak, or the peak is at a lag of one sample,
@@ -423,8 +431,8 @@ use <code><a href="getStability.html">getStability()</a></code> on the fixed poi
 <code><a href="findSteadyState.html">findSteadyState()</a></code>, which
 works out the eigenvalues of the linearised dynamics instead of watching
 a trajectory.</p>
-<p>The reported <code>period</code> is a multiple of <code>t_save</code>, so it is only resolved to
-that accuracy; reduce <code>t_save</code> if you need the period more precisely.</p>
+<p>The reported <code>period</code> is a multiple of <code>dt</code>, so it is only resolved to that
+accuracy; reduce <code>dt</code> if you need the period more precisely.</p>
     </div>
     <div class="section level2">
     <h2 id="what-you-get-back-may-not-be-a-steady-state">What you get back may not be a steady state<a class="anchor" aria-label="anchor" href="#what-you-get-back-may-not-be-a-steady-state"></a></h2>

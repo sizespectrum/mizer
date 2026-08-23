@@ -8,11 +8,11 @@ projectUntilSettled(
   params,
   effort = params@initial_effort,
   distance_func = distanceSSLogN,
-  t_per = 1.5,
+  t_check = 15 * dt,
   t_max = 100,
   dt = 0.1,
-  t_save = dt,
-  distance_tol = 0.1 * t_per,
+  t_save = 1,
+  distance_tol = 0.1 * t_check,
   residual_tol = steady_residual_tol(),
   amplitude_tol = 0.01,
   amp_rel_tol = 0.1,
@@ -31,29 +31,31 @@ This is validated by \code{\link[=validEffortVector]{validEffortVector()}} and c
 single numeric value used for all gears, an unnamed numeric vector with one
 entry per gear, or a named numeric vector for some or all gears.}
 
-\item{distance_func}{A function that will be called after every \code{t_per} years
-with both the previous and the new state and that should return a number
+\item{distance_func}{A function that will be called at every check with both
+the previous and the new state and that should return a number
 that in some sense measures the distance between the states. By default
 this uses the function \code{\link[=distanceSSLogN]{distanceSSLogN()}} that you can use as a model for your
 own distance function.}
 
-\item{t_per}{The simulation is broken up into shorter runs of \code{t_per} years,
-after each of which we check for convergence. Default value is 1.5. This
-should be chosen as an odd multiple of the timestep \code{dt} in order to be
-able to detect period 2 cycles.}
+\item{t_check}{The interval in years at which the run pauses to check whether
+it has settled, and hence also the interval over which \code{distance_func}
+measures change. Must be a positive multiple of \code{dt}. The default
+\code{15 * dt} is an odd multiple of the time step, which is what lets a
+period-2 cycle be seen; you should rarely need to change it.}
 
 \item{t_max}{The maximum number of years to run the simulation. Default is 100.}
 
 \item{dt}{The time step to use in \code{project()}.}
 
-\item{t_save}{The interval at which a cheap per-species biomass summary is
-recorded for limit-cycle detection. Must be a positive multiple of \code{dt} and
-a divisor of \code{t_per}. Smaller values resolve the cycle period more finely at
-a small extra cost. Default is \code{dt}.}
+\item{t_save}{The interval in years at which the state is stored in the
+returned \code{MizerSim}, as in \code{\link[=project]{project()}}. Must be a positive multiple of
+\code{dt}, but need bear no relation to \code{t_check}. Default is 1. The state the
+run settles on is always the final time point, even when the run stops
+between two saves.}
 
 \item{distance_tol}{The run stops when the number returned by \code{distance_func}
-for two states \code{t_per} years apart drops below \code{distance_tol}, provided the
-drift criterion below is also met. Its meaning therefore depends on the
+for two states \code{t_check} years apart drops below \code{distance_tol}, provided
+the drift criterion below is also met. Its meaning therefore depends on the
 distance function you supply. It was called \code{tol} before mizer 3.3.}
 
 \item{residual_tol}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -104,8 +106,10 @@ See \code{\link[=project]{project()}}.}
 \item{...}{Further arguments will be passed on to your distance function.}
 }
 \value{
-A \code{MizerSim} object containing the states saved every \code{t_per} years,
-up to and including the state the run settled on. Use \code{\link[=finalParams]{finalParams()}} to
+A \code{MizerSim} object containing the states saved every \code{t_save} years,
+with the state the run settled on as its final time point. That last
+interval is shorter than the others when the run stops between two saves.
+Use \code{\link[=finalParams]{finalParams()}} to
 extract that final state as a \code{MizerParams} object, or call
 \code{\link[=findSteadyState]{findSteadyState()}} instead, which returns it directly.
 
@@ -132,7 +136,7 @@ entry to test before treating a result as a steady state.}
 \item{\code{distance}}{The final value returned by \code{distance_func}.}
 \item{\code{residual}}{The largest per-capita rate of change, in 1/year, at the
 state that was reached, as returned by \code{\link[=getSteadyResidual]{getSteadyResidual()}}. Unlike
-\code{distance}, which compares two states \code{t_per} apart on whatever scale
+\code{distance}, which compares two states \code{t_check} apart on whatever scale
 the distance function uses, this measures how far the state actually is
 from being a fixed point.}
 \item{\code{years}}{The number of years simulated. \code{NA} for a direct solve.}
@@ -146,7 +150,7 @@ peak-to-trough biomass amplitude; otherwise \code{NA}.}
 
 Run the full dynamics, as in \code{\link[=project]{project()}}, but stop once the run has settled:
 either the change has slowed down sufficiently, in the sense that the
-distance between states \code{t_per} years apart is less than \code{distance_tol} and
+distance between states \code{t_check} years apart is less than \code{distance_tol} and
 the state has stopped drifting, or the run has been recognised as being on a
 limit cycle. You determine how the distance
 is calculated.
@@ -160,20 +164,22 @@ a steady state. See the section below on how to check, and use
 the trajectory leading to it.
 }
 \section{How the run is organised}{
-The simulation is not run in one go but is broken into blocks of \code{t_per}
-years. Within a block the dynamics are advanced with time step \code{dt} exactly
-as in \code{\link[=project]{project()}}. At the end of each block the function decides whether to
-stop, so \code{t_per} sets how often the stopping criteria are evaluated and also
-the interval over which change is measured. The run ends at the latest after
-\code{t_max} years, i.e. after \code{floor(t_max / t_per)} blocks.
+The dynamics are advanced with time step \code{dt} exactly as in \code{\link[=project]{project()}}.
+Every \code{t_check} years the function pauses to decide whether to stop, so
+\code{t_check} sets how often the stopping criteria are evaluated and also the
+interval over which change is measured. You should not normally need to set it: it defaults
+to \code{15 * dt}, which is an odd multiple of the time step for the reason given
+below. The run ends at the latest after \code{t_max} years.
 
-Independently of the blocks, a cheap scalar summary of the state (the biomass
-of each species) is recorded every \code{t_save} years. This finely resolved
-series is what the limit-cycle detection works on, so that a cycle can be
-found and its period measured even when that period bears no simple relation
-to \code{t_per}.
+Independently of that, the state is stored in the returned \code{MizerSim} every
+\code{t_save} years, exactly as in \code{\link[=project]{project()}}, and a cheap scalar summary of the
+state (the biomass of each species) is recorded after every time step. That
+finely resolved series is what the limit-cycle detection works on, so that a
+cycle can be found and its period measured even when that period bears no
+simple relation to \code{t_check}. The three intervals are independent of each
+other; \code{t_check} and \code{t_save} need only be multiples of \code{dt}.
 
-At the end of each block the following checks are made, in this order.
+At each check the following tests are made, in this order.
 \subsection{1. Extinction}{
 
 If the reproduction rate (RDD) of any species has fallen below
@@ -192,20 +198,21 @@ The recorded biomass series is examined to see whether the run has settled
 onto a limit cycle. If it has, the run stops with \code{type = "cycle"} and the
 period and amplitude of the cycle are reported.
 
-This check is made on every block, whether or not the state looks converged
-by the measure below. A cycle whose period divides \code{t_per} puts the two
+It is made at every check, whether or not the state looks converged
+by the measure below. A cycle whose period divides \code{t_check} puts the two
 states that the distance function compares at the same phase, so it would
 otherwise be reported as a fixed point of zero width. The detection works on
-the finely sampled biomass series instead, which is blind to \code{t_per}.
+the biomass series sampled at every time step instead, which is blind to
+\code{t_check}.
 }
 
 \subsection{3. Convergence to a fixed point}{
 
 Two things have to hold for the run to stop on a fixed point.
 
-First, \code{distance_func} is called with the state at the end of the previous
-block and the state at the end of the current block, i.e. with two states
-\code{t_per} years apart, and the number it returns must be less than
+First, \code{distance_func} is called with the state at the previous check and the
+state at the current one, i.e. with two states
+\code{t_check} years apart, and the number it returns must be less than
 \code{distance_tol}. What
 "distance" means is entirely up to that function: the default
 \code{\link[=distanceSSLogN]{distanceSSLogN()}} uses the sum of squared changes in log abundance, while
@@ -225,10 +232,11 @@ is deliberately not called \code{"steady"}: \code{residual_tol} is a working tol
 rather than a proof, and the \code{residual} entry of the \code{"convergence"}
 attribute reports the drift that was actually reached.
 
-Even so, \code{t_per} should be chosen as an \emph{odd} multiple of \code{dt}. A period-2
-cycle (period \code{2 * dt}), the most common numerical oscillation, is otherwise
-sampled at the same phase in every block, and its amplitude can sit below
-\code{amplitude_tol} where the cycle detection deliberately ignores it.
+Even so, \code{t_check} should be an \emph{odd} multiple of \code{dt}, which is why it
+defaults to \code{15 * dt}. A period-2 cycle (period \code{2 * dt}), the most common
+numerical oscillation, is otherwise sampled at the same phase at every check,
+and its amplitude can sit below \code{amplitude_tol} where the cycle detection
+deliberately ignores it.
 
 If none of the three checks fires before \code{t_max} is reached, the run stops
 with \code{type = "not_converged"}. In every case the outcome is recorded in the
@@ -239,8 +247,8 @@ below.
 
 \section{How a limit cycle is detected}{
 The detection uses the community-total biomass, on a log scale and with its
-mean removed, as a scalar signal, sampled every \code{t_save} years. At least 20
-samples are needed before any cycle can be reported.
+mean removed, as a scalar signal, sampled after every time step. At least 20
+steps are needed before any cycle can be reported.
 \enumerate{
 \item \strong{Candidate period.} The autocorrelation function of the signal is
 computed up to a lag of half the length of the series, and the first local
@@ -271,8 +279,8 @@ use \code{\link[=getStability]{getStability()}} on the fixed point found by
 works out the eigenvalues of the linearised dynamics instead of watching
 a trajectory.
 
-The reported \code{period} is a multiple of \code{t_save}, so it is only resolved to
-that accuracy; reduce \code{t_save} if you need the period more precisely.
+The reported \code{period} is a multiple of \code{dt}, so it is only resolved to that
+accuracy; reduce \code{dt} if you need the period more precisely.
 }
 
 \section{What you get back may not be a steady state}{

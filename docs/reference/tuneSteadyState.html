@@ -156,10 +156,11 @@ default is taken from the <code>mizer_info_level</code> option, see
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Arguments for the chosen solver.</p>
-<p>With <code>solver = "project"</code>: <code>t_max</code>, <code>t_per</code>, <code>dt</code>, <code>t_save</code>,
+<p>With <code>solver = "project"</code>: <code>t_max</code>, <code>t_check</code>, <code>dt</code>,
 <code>distance_tol</code>, <code>residual_tol</code>, <code>amplitude_tol</code>, <code>amp_rel_tol</code>,
 <code>extinction_threshold</code>, <code>progress_bar</code> and <code>method</code>, all as described in
-<code><a href="projectUntilSettled.html">projectUntilSettled()</a></code>.
+<code><a href="projectUntilSettled.html">projectUntilSettled()</a></code>. There is no <code>t_save</code>, because no trajectory is
+returned.
 Note that <code>distance_tol</code> here defaults to <code>0.1 * dt</code> and measures the
 largest relative change in egg production, because the distance function is
 <code><a href="distanceMaxRelRDI.html">distanceMaxRelRDI()</a></code>. <code>residual_tol</code> is judged on the model as the search

@@ -689,6 +689,14 @@ getReproductionLevel <- reproduction_level
 #' @inheritParams projectUntilSettled
 #' @param tol The simulation stops when the relative change in the egg
 #'   production RDI over t_per years is less than tol for every species.
+#' @param t_per The interval in years at which convergence is checked, and hence
+#'   also the interval at which the trajectory is saved when
+#'   `return_sim = TRUE`. In [projectUntilSettled()] these two roles have been
+#'   separated into `t_check` and `t_save`.
+#' @param t_save Has no effect. It briefly controlled how finely the biomass
+#'   series used for limit-cycle detection was sampled; that series is now
+#'   sampled at every time step, which is what its default `dt` gave.
+#' @param ... Further arguments will be passed on to your distance function.
 #' @param return_sim If TRUE, the function returns the MizerSim object holding
 #'   the result of the simulation run, saved at intervals of `t_per`. If FALSE
 #'   (default) the function returns a MizerParams object with the "initial"
@@ -726,8 +734,13 @@ steady.MizerParams <- function(params, t_max = 100, t_per = 1.5, dt = 0.1,
         params <- validParams(params)
         tune_steady_project(params, effort = params@initial_effort,
                             preserve = preserve,
-                            t_max = t_max, t_per = t_per, dt = dt,
-                            t_save = t_save, distance_tol = tol,
+                            t_max = t_max, t_check = t_per, dt = dt,
+                            # The trajectory these wrappers have always returned
+                            # is saved every `t_per`, so that is the save
+                            # interval they ask for. Their own `t_save` only
+                            # ever tuned the cycle detection, which no longer
+                            # has a knob.
+                            t_save = t_per, distance_tol = tol,
                             amplitude_tol = amplitude_tol,
                             amp_rel_tol = amp_rel_tol,
                             extinction_threshold = extinction_threshold,
@@ -784,8 +797,10 @@ projectToSteady.MizerParams <- function(params,
                                        "tr_bdf2"), ...) {
     project_until_settled(params, effort = effort,
                           distance_func = distance_func,
-                          t_per = t_per, t_max = t_max, dt = dt,
-                          t_save = t_save, distance_tol = tol,
+                          t_check = t_per, t_max = t_max, dt = dt,
+                          # As in steady() above: the trajectory keeps the
+                          # `t_per` spacing it has always had.
+                          t_save = t_per, distance_tol = tol,
                           amplitude_tol = amplitude_tol,
                           amp_rel_tol = amp_rel_tol,
                           extinction_threshold = extinction_threshold,

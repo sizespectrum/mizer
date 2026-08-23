@@ -68,7 +68,7 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'
 #' Run the full dynamics, as in [project()], but stop once the run has settled:
 #' either the change has slowed down sufficiently, in the sense that the
-#' distance between states `t_per` years apart is less than `distance_tol` and
+#' distance between states `t_check` years apart is less than `distance_tol` and
 #' the state has stopped drifting, or the run has been recognised as being on a
 #' limit cycle. You determine how the distance
 #' is calculated.
@@ -84,20 +84,22 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' @details
 #' # How the run is organised
 #'
-#' The simulation is not run in one go but is broken into blocks of `t_per`
-#' years. Within a block the dynamics are advanced with time step `dt` exactly
-#' as in [project()]. At the end of each block the function decides whether to
-#' stop, so `t_per` sets how often the stopping criteria are evaluated and also
-#' the interval over which change is measured. The run ends at the latest after
-#' `t_max` years, i.e. after `floor(t_max / t_per)` blocks.
+#' The dynamics are advanced with time step `dt` exactly as in [project()].
+#' Every `t_check` years the function pauses to decide whether to stop, so
+#' `t_check` sets how often the stopping criteria are evaluated and also the
+#' interval over which change is measured. You should not normally need to set it: it defaults
+#' to `15 * dt`, which is an odd multiple of the time step for the reason given
+#' below. The run ends at the latest after `t_max` years.
 #'
-#' Independently of the blocks, a cheap scalar summary of the state (the biomass
-#' of each species) is recorded every `t_save` years. This finely resolved
-#' series is what the limit-cycle detection works on, so that a cycle can be
-#' found and its period measured even when that period bears no simple relation
-#' to `t_per`.
+#' Independently of that, the state is stored in the returned `MizerSim` every
+#' `t_save` years, exactly as in [project()], and a cheap scalar summary of the
+#' state (the biomass of each species) is recorded after every time step. That
+#' finely resolved series is what the limit-cycle detection works on, so that a
+#' cycle can be found and its period measured even when that period bears no
+#' simple relation to `t_check`. The three intervals are independent of each
+#' other; `t_check` and `t_save` need only be multiples of `dt`.
 #'
-#' At the end of each block the following checks are made, in this order.
+#' At each check the following tests are made, in this order.
 #'
 #' ## 1. Extinction
 #'
@@ -116,19 +118,20 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' onto a limit cycle. If it has, the run stops with `type = "cycle"` and the
 #' period and amplitude of the cycle are reported.
 #'
-#' This check is made on every block, whether or not the state looks converged
-#' by the measure below. A cycle whose period divides `t_per` puts the two
+#' It is made at every check, whether or not the state looks converged
+#' by the measure below. A cycle whose period divides `t_check` puts the two
 #' states that the distance function compares at the same phase, so it would
 #' otherwise be reported as a fixed point of zero width. The detection works on
-#' the finely sampled biomass series instead, which is blind to `t_per`.
+#' the biomass series sampled at every time step instead, which is blind to
+#' `t_check`.
 #'
 #' ## 3. Convergence to a fixed point
 #'
 #' Two things have to hold for the run to stop on a fixed point.
 #'
-#' First, `distance_func` is called with the state at the end of the previous
-#' block and the state at the end of the current block, i.e. with two states
-#' `t_per` years apart, and the number it returns must be less than
+#' First, `distance_func` is called with the state at the previous check and the
+#' state at the current one, i.e. with two states
+#' `t_check` years apart, and the number it returns must be less than
 #' `distance_tol`. What
 #' "distance" means is entirely up to that function: the default
 #' [distanceSSLogN()] uses the sum of squared changes in log abundance, while
@@ -148,10 +151,11 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' rather than a proof, and the `residual` entry of the `"convergence"`
 #' attribute reports the drift that was actually reached.
 #'
-#' Even so, `t_per` should be chosen as an *odd* multiple of `dt`. A period-2
-#' cycle (period `2 * dt`), the most common numerical oscillation, is otherwise
-#' sampled at the same phase in every block, and its amplitude can sit below
-#' `amplitude_tol` where the cycle detection deliberately ignores it.
+#' Even so, `t_check` should be an *odd* multiple of `dt`, which is why it
+#' defaults to `15 * dt`. A period-2 cycle (period `2 * dt`), the most common
+#' numerical oscillation, is otherwise sampled at the same phase at every check,
+#' and its amplitude can sit below `amplitude_tol` where the cycle detection
+#' deliberately ignores it.
 #'
 #' If none of the three checks fires before `t_max` is reached, the run stops
 #' with `type = "not_converged"`. In every case the outcome is recorded in the
@@ -161,8 +165,8 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' # How a limit cycle is detected
 #'
 #' The detection uses the community-total biomass, on a log scale and with its
-#' mean removed, as a scalar signal, sampled every `t_save` years. At least 20
-#' samples are needed before any cycle can be reported.
+#' mean removed, as a scalar signal, sampled after every time step. At least 20
+#' steps are needed before any cycle can be reported.
 #'
 #' 1. **Candidate period.** The autocorrelation function of the signal is
 #'    computed up to a lag of half the length of the series, and the first local
@@ -192,8 +196,8 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #' works out the eigenvalues of the linearised dynamics instead of watching
 #' a trajectory.
 #'
-#' The reported `period` is a multiple of `t_save`, so it is only resolved to
-#' that accuracy; reduce `t_save` if you need the period more precisely.
+#' The reported `period` is a multiple of `dt`, so it is only resolved to that
+#' accuracy; reduce `dt` if you need the period more precisely.
 #'
 #' @template section_check_steady
 #' @param params A \linkS4class{MizerParams} object
@@ -201,24 +205,26 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   This is validated by [validEffortVector()] and can therefore be `NULL`, a
 #'   single numeric value used for all gears, an unnamed numeric vector with one
 #'   entry per gear, or a named numeric vector for some or all gears.
-#' @param distance_func A function that will be called after every `t_per` years
-#'   with both the previous and the new state and that should return a number
+#' @param distance_func A function that will be called at every check with both
+#'   the previous and the new state and that should return a number
 #'   that in some sense measures the distance between the states. By default
 #'   this uses the function [distanceSSLogN()] that you can use as a model for your
 #'   own distance function.
-#' @param t_per The simulation is broken up into shorter runs of `t_per` years,
-#'   after each of which we check for convergence. Default value is 1.5. This
-#'   should be chosen as an odd multiple of the timestep `dt` in order to be
-#'   able to detect period 2 cycles.
+#' @param t_check The interval in years at which the run pauses to check whether
+#'   it has settled, and hence also the interval over which `distance_func`
+#'   measures change. Must be a positive multiple of `dt`. The default
+#'   `15 * dt` is an odd multiple of the time step, which is what lets a
+#'   period-2 cycle be seen; you should rarely need to change it.
 #' @param t_max The maximum number of years to run the simulation. Default is 100.
 #' @param dt The time step to use in `project()`.
-#' @param t_save The interval at which a cheap per-species biomass summary is
-#'   recorded for limit-cycle detection. Must be a positive multiple of `dt` and
-#'   a divisor of `t_per`. Smaller values resolve the cycle period more finely at
-#'   a small extra cost. Default is `dt`.
+#' @param t_save The interval in years at which the state is stored in the
+#'   returned `MizerSim`, as in [project()]. Must be a positive multiple of
+#'   `dt`, but need bear no relation to `t_check`. Default is 1. The state the
+#'   run settles on is always the final time point, even when the run stops
+#'   between two saves.
 #' @param distance_tol The run stops when the number returned by `distance_func`
-#'   for two states `t_per` years apart drops below `distance_tol`, provided the
-#'   drift criterion below is also met. Its meaning therefore depends on the
+#'   for two states `t_check` years apart drops below `distance_tol`, provided
+#'   the drift criterion below is also met. Its meaning therefore depends on the
 #'   distance function you supply. It was called `tol` before mizer 3.3.
 #' @param residual_tol `r lifecycle::badge("experimental")`
 #'   The largest relative rate of biomass change, in 1/year, that a state may
@@ -260,8 +266,10 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'   See [project()].
 #' @param ... Further arguments will be passed on to your distance function.
 #'
-#' @return A `MizerSim` object containing the states saved every `t_per` years,
-#'   up to and including the state the run settled on. Use [finalParams()] to
+#' @return A `MizerSim` object containing the states saved every `t_save` years,
+#'   with the state the run settled on as its final time point. That last
+#'   interval is shorter than the others when the run stops between two saves.
+#'   Use [finalParams()] to
 #'   extract that final state as a `MizerParams` object, or call
 #'   [findSteadyState()] instead, which returns it directly.
 #'
@@ -288,7 +296,7 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'     \item{`distance`}{The final value returned by `distance_func`.}
 #'     \item{`residual`}{The largest per-capita rate of change, in 1/year, at the
 #'       state that was reached, as returned by [getSteadyResidual()]. Unlike
-#'       `distance`, which compares two states `t_per` apart on whatever scale
+#'       `distance`, which compares two states `t_check` apart on whatever scale
 #'       the distance function uses, this measures how far the state actually is
 #'       from being a fixed point.}
 #'     \item{`years`}{The number of years simulated. `NA` for a direct solve.}
@@ -303,11 +311,11 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 projectUntilSettled <- function(params,
                                 effort = params@initial_effort,
                                 distance_func = distanceSSLogN,
-                                t_per = 1.5,
+                                t_check = 15 * dt,
                                 t_max = 100,
                                 dt = 0.1,
-                                t_save = dt,
-                                distance_tol = 0.1 * t_per,
+                                t_save = 1,
+                                distance_tol = 0.1 * t_check,
                                 residual_tol = steady_residual_tol(),
                                 amplitude_tol = 0.01,
                                 amp_rel_tol = 0.1,
@@ -323,11 +331,11 @@ projectUntilSettled <- function(params,
 projectUntilSettled.MizerParams <- function(params,
                                 effort = params@initial_effort,
                                 distance_func = distanceSSLogN,
-                                t_per = 1.5,
+                                t_check = 15 * dt,
                                 t_max = 100,
                                 dt = 0.1,
-                                t_save = dt,
-                                distance_tol = 0.1 * t_per,
+                                t_save = 1,
+                                distance_tol = 0.1 * t_check,
                                 residual_tol = steady_residual_tol(),
                                 amplitude_tol = 0.01,
                                 amp_rel_tol = 0.1,
@@ -338,7 +346,7 @@ projectUntilSettled.MizerParams <- function(params,
                                            "tr_bdf2"), ...) {
     project_until_settled(params = params, effort = effort,
                           distance_func = distance_func,
-                          t_per = t_per, t_max = t_max, dt = dt,
+                          t_check = t_check, t_max = t_max, dt = dt,
                           t_save = t_save, distance_tol = distance_tol,
                           residual_tol = residual_tol,
                           amplitude_tol = amplitude_tol,
@@ -433,11 +441,11 @@ steady_attractor <- function(residual, residual_tol) {
 project_until_settled <- function(params,
                                 effort = params@initial_effort,
                                 distance_func = distanceSSLogN,
-                                t_per = 1.5,
+                                t_check = 15 * dt,
                                 t_max = 100,
                                 dt = 0.1,
-                                t_save = dt,
-                                distance_tol = 0.1 * t_per,
+                                t_save = 1,
+                                distance_tol = 0.1 * t_check,
                                 residual_tol = steady_residual_tol(),
                                 amplitude_tol = 0.01,
                                 amp_rel_tol = 0.1,
@@ -461,37 +469,52 @@ project_until_settled <- function(params,
     method <- normalise_project_method(method)
     effort <- validEffortVector(effort, params = params)
     params@initial_effort <- effort
-    assert_that(t_max >= t_per,
+    assert_that(t_max >= t_check,
                 distance_tol > 0,
                 is.number(residual_tol), residual_tol > 0,
                 amplitude_tol > 0,
                 extinction_threshold >= 0)
-    if ((t_per < dt) || !isTRUE(all.equal((t_per - round(t_per / dt) * dt), 0))) {
-        stop("t_per must be a positive multiple of dt")
+    if ((t_check < dt) ||
+        !isTRUE(all.equal((t_check - round(t_check / dt) * dt), 0))) {
+        stop("t_check must be a positive multiple of dt")
+    }
+    # A run that stops before the first save would otherwise return a sim
+    # holding only its starting state, so the save interval is capped at the
+    # length of the run, exactly as in project().
+    if (t_max < t_save) {
+        t_save <- t_max
     }
     if ((t_save < dt) || !isTRUE(all.equal((t_save - round(t_save / dt) * dt), 0))) {
         stop("t_save must be a positive multiple of dt")
     }
-    if ((t_per < t_save) ||
-        !isTRUE(all.equal((t_per - round(t_per / t_save) * t_save), 0))) {
-        stop("t_per must be a positive multiple of t_save")
-    }
-    t_dimnames <-  seq(0, t_max, by = t_per)
+    # `t_check` and `t_save` are independent grids: each has to land on the time
+    # steps, but neither has to be a multiple of the other. The run advances one
+    # `dt` at a time and tests both, so they need no common divisor beyond `dt`.
+    steps_total <- round(t_max / dt)
+    save_steps  <- round(t_save / dt)
+    check_steps <- round(t_check / dt)
+    t_dimnames <- seq(0, t_max, by = t_save)
 
     if (is(progress_bar, "Progress")) {
         # We have been passed a shiny progress object
         progress_bar$set(message = "Finding steady state", value = 0)
-        proginc <- 1 / ceiling(t_max/t_per)
+        proginc <- 1 / ceiling(t_max / t_check)
     }
 
     if (return_sim) {
-        # create MizerSim object
-        sim <- MizerSim(params, t_dimnames =  t_dimnames)
+        # create MizerSim object. The run stops at a `t_check` boundary, which
+        # need not be on the `t_save` grid, so one extra slot is kept for the
+        # state the run settled on; both the slot and any unused ones are
+        # trimmed at the end.
+        sim <- MizerSim(params, t_dimnames = c(t_dimnames, t_max + t_save))
         sim@sim_params <- list(method = method, dt = dt)
         sim@n[1, , ] <- params@initial_n
         sim@n_pp[1, ] <- params@initial_n_pp
         sim@n_other[1, ] <- params@initial_n_other
         sim@effort[1, ] <- params@initial_effort
+        # Index of the last row written, so that the settled state can be
+        # appended after the final save without overwriting it.
+        sim_idx <- 1L
     }
 
     # get functions
@@ -513,55 +536,58 @@ project_until_settled <- function(params,
     # Reference reproduction rate for the relative extinction test below.
     rdd_start <- r$rdd
 
-    # Record a cheap scalar summary (per-species biomass) at the fine `t_save`
-    # resolution so that a limit cycle can be detected and characterised even
-    # when its period is incommensurate with `t_per`.
+    # Record a cheap scalar summary (per-species biomass) after every time step,
+    # so that a limit cycle can be detected and characterised at the finest
+    # resolution the run has, whatever the period and whatever `t_check` is. It
+    # costs one matrix product per step against a whole rate evaluation, and it
+    # is why the cycle detection needs no tuning knob of its own.
     wdw <- params@w * params@dw
-    steps_per_save  <- round(t_save / dt)
-    saves_per_block <- round(t_per / t_save)
-    max_saves <- (length(t_dimnames) - 1) * saves_per_block + 1
-    bio_series <- matrix(NA_real_, nrow = max_saves,
+    bio_series <- matrix(NA_real_, nrow = steps_total + 1,
                          ncol = nrow(params@species_params))
     bio_series[1, ] <- as.numeric(previous$n %*% wdw)
-    save_idx <- 1L
 
     cycle <- NULL
     success <- FALSE
     extinct <- FALSE
     distance <- NA_real_
     residual <- NA_real_
-    for (i in 2:length(t_dimnames)) {
+    current <- previous
+    # The run advances one time step at a time and tests two independent grids:
+    # the state is stored every `save_steps` steps and the stopping criteria are
+    # evaluated every `check_steps` steps. Stepping singly rather than in blocks
+    # is what frees the two grids from having to be multiples of each other; it
+    # gives bit-identical results, because each step picks up where the last one
+    # left off, and costs a few percent. The time passed is the absolute time
+    # since the start of the run, exactly as project() passes it, so that a rate
+    # or component function that depends on `t` sees the same monotonically
+    # increasing time here as it would there.
+    for (k in seq_len(steps_total)) {
+        current <- project_simple(params, n = current$n, n_pp = current$n_pp,
+                                  n_other = current$n_other,
+                                  t = (k - 1) * dt,
+                                  dt = dt, steps = 1,
+                                  effort = params@initial_effort,
+                                  resource_dynamics_fn = resource_dynamics_fn,
+                                  other_dynamics_fns = other_dynamics_fns,
+                                  rates_fns = rates_fns,
+                                  method = method)
+        bio_series[k + 1, ] <- as.numeric(current$n %*% wdw)
+
+        if (return_sim && k %% save_steps == 0) {
+            # Store result
+            sim_idx <- sim_idx + 1L
+            sim@n[sim_idx, , ] <- current$n
+            sim@n_pp[sim_idx, ] <- current$n_pp
+            sim@n_other[sim_idx, ] <-
+                unserialize(serialize(current$n_other, NULL))
+            sim@effort[sim_idx, ] <- params@initial_effort
+        }
+
+        if (k %% check_steps != 0) next
+
         # advance shiny progress bar
         if (is(progress_bar, "Progress")) {
             progress_bar$inc(amount = proginc)
-        }
-        # Step the block in `t_save`-sized sub-steps, recording the biomass
-        # summary after each. The time passed is the absolute time since the
-        # start of the run, exactly as project() passes it, so that a rate or
-        # component function that depends on `t` sees the same monotonically
-        # increasing time here as it would there. Subdividing the block does not
-        # change the result: the sub-runs pick up where each other left off.
-        current <- previous
-        t_block <- (i - 2) * t_per
-        for (s in seq_len(saves_per_block)) {
-            current <- project_simple(params, n = current$n, n_pp = current$n_pp,
-                                      n_other = current$n_other,
-                                      t = t_block + (s - 1) * t_save,
-                                      dt = dt, steps = steps_per_save,
-                                      effort = params@initial_effort,
-                                      resource_dynamics_fn = resource_dynamics_fn,
-                                      other_dynamics_fns = other_dynamics_fns,
-                                      rates_fns = rates_fns,
-                                      method = method)
-            save_idx <- save_idx + 1L
-            bio_series[save_idx, ] <- as.numeric(current$n %*% wdw)
-        }
-        if (return_sim) {
-            # Store result
-            sim@n[i, , ] <- current$n
-            sim@n_pp[i, ] <- current$n_pp
-            sim@n_other[i, ] <- unserialize(serialize(current$n_other, NULL))
-            sim@effort[i, ] <- params@initial_effort
         }
 
         # A species whose reproduction has collapsed to a tiny fraction of its
@@ -581,12 +607,13 @@ project_until_settled <- function(params,
                                   previous = previous, ...)
 
         # Check for a limit cycle whether or not the distance criterion is met.
-        # A cycle whose period divides `t_per` is sampled at the same phase by
+        # A cycle whose period divides `t_check` is sampled at the same phase by
         # every call to the distance function, so on that evidence alone it is
         # indistinguishable from a fixed point; the detection below works on the
-        # finely sampled biomass series and is blind to `t_per`.
-        cycle <- detect_limit_cycle(bio_series[seq_len(save_idx), , drop = FALSE],
-                                    t_save, amplitude_tol, amp_rel_tol = amp_rel_tol)
+        # biomass series sampled at every time step and is blind to `t_check`.
+        cycle <- detect_limit_cycle(bio_series[seq_len(k + 1), , drop = FALSE],
+                                    dt, amplitude_tol,
+                                    amp_rel_tol = amp_rel_tol)
         if (!is.null(cycle)) {
             break
         }
@@ -615,15 +642,15 @@ project_until_settled <- function(params,
         previous <- current
     }
 
-    years <- (i - 1) * t_per
+    years <- k * dt
 
     params@initial_n[] <- current$n
     params@initial_n_pp[] <- current$n_pp
     params@initial_n_other[] <- current$n_other
 
     # How far the state that was reached actually is from a fixed point. The
-    # distance function above only compares two states `t_per` apart, which is a
-    # proxy; this is the thing itself. It is recorded even for a cycle or a
+    # distance function above only compares two states `t_check` apart, which
+    # is a proxy; this is the thing itself. It is recorded even for a cycle or a
     # non-converged run, where it says how far off the run stopped. On a
     # successful run it has already been measured at this very state, as the
     # second half of the convergence criterion, so it is not measured twice.
@@ -728,11 +755,29 @@ project_until_settled <- function(params,
 
     if (return_sim) {
         sim@params <- params
-        sel <- 1:i
+        times <- t_dimnames[seq_len(sim_idx)]
+        if (k %% save_steps != 0) {
+            # The run stopped between two saves, so the state it settled on is
+            # appended as the final time point. project() does the same when
+            # `t_max` is not a multiple of `t_save`: the last interval is
+            # shorter than the others rather than the final state being lost.
+            sim_idx <- sim_idx + 1L
+            sim@n[sim_idx, , ] <- current$n
+            sim@n_pp[sim_idx, ] <- current$n_pp
+            sim@n_other[sim_idx, ] <-
+                unserialize(serialize(current$n_other, NULL))
+            sim@effort[sim_idx, ] <- params@initial_effort
+            times <- c(times, years)
+        }
+        sel <- seq_len(sim_idx)
         sim@n <- sim@n[sel, , , drop = FALSE]
         sim@n_pp <- sim@n_pp[sel, , drop = FALSE]
         sim@n_other <- sim@n_other[sel, , drop = FALSE]
         sim@effort <- sim@effort[sel, , drop = FALSE]
+        dimnames(sim@n)$time <- times
+        dimnames(sim@n_pp)$time <- times
+        dimnames(sim@n_other)$time <- times
+        dimnames(sim@effort)$time <- times
         attr(sim, "convergence") <- convergence
         return(sim)
     } else {
@@ -747,8 +792,8 @@ project_until_settled <- function(params,
 #'
 #' Used by [projectUntilSettled()] to decide whether a run that is not settling to a
 #' fixed point has instead converged onto a limit cycle. Works on the per-species
-#' biomass sampled at the fine `t_save` resolution, so it is independent of
-#' whether the cycle period is commensurate with the block length `t_per`.
+#' biomass sampled at every time step, so it is independent of
+#' whether the cycle period is commensurate with the check interval `t_check`.
 #'
 #' The community-total log-biomass is used as a scalar signal. Its
 #' autocorrelation gives a candidate period (the first autocorrelation peak). The
@@ -761,17 +806,18 @@ project_until_settled <- function(params,
 #' is necessarily imperfect when the spectral radius is extremely close to 1,
 #' because such a spiral is indistinguishable from a cycle over any finite run.
 #'
-#' @param bio Numeric matrix of per-species biomass, one row per saved time step.
-#' @param t_save The sampling interval, so period `= lag * t_save`.
+#' @param bio Numeric matrix of per-species biomass, one row per sample.
+#' @param t_sample The sampling interval, so period `= lag * t_sample`.
 #' @param amplitude_tol Minimum relative amplitude for an oscillation to count as
 #'   a cycle.
 #' @param acf_threshold Minimum autocorrelation at the candidate period.
 #' @param amp_rel_tol Maximum relative change of amplitude between successive
 #'   periods for the cycle to count as settled.
 #' @return `NULL` if no settled cycle is detected, otherwise a list with the
-#'   `period` (in the same time units as `t_save`) and the relative `amplitude`.
+#'   `period` (in the same time units as `t_sample`) and the relative
+#'   `amplitude`.
 #' @noRd
-detect_limit_cycle <- function(bio, t_save, amplitude_tol,
+detect_limit_cycle <- function(bio, t_sample, amplitude_tol,
                                acf_threshold = 0.5,
                                amp_rel_tol = 0.1) {
     n <- nrow(bio)
@@ -798,7 +844,7 @@ detect_limit_cycle <- function(bio, t_save, amplitude_tol,
     if (abs(amp_mid - amp_old) / amp_mid > amp_rel_tol) return(NULL)
     # ... and there must be no net decay (which would signal a decaying spiral).
     if (amp_new < amp_old * (1 - amp_rel_tol)) return(NULL)
-    list(period = w * t_save, amplitude = amp_new)
+    list(period = w * t_sample, amplitude = amp_new)
 }
 
 #' Largest per-species relative peak-to-trough amplitude in a window

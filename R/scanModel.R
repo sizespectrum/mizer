@@ -111,12 +111,12 @@
 #'   deliberately: pass a decreasing `scan_values`.
 #' @param continuation Whether each scan value should start from the attractor
 #'   reached at the previous one. Default TRUE.
-#' @param distance_func A function that will be called after every `t_per` years
-#'   with both the previous and the new state and that should return a number
-#'   measuring the distance between them. See [distanceSSLogN()].
+#' @param distance_func A function that will be called at every convergence
+#'   check with both the previous and the new state and that should return a
+#'   number measuring the distance between them. See [distanceSSLogN()].
 #' @param distance_tol The projection at each scan value stops once the number
-#'   returned by `distance_func` for two states `t_per` years apart drops below
-#'   `distance_tol`.
+#'   returned by `distance_func` for two states `t_check` years apart drops
+#'   below `distance_tol`.
 #'   The default is tighter than the one [projectUntilSettled()] uses on its own,
 #'   because a scan produces a curve, and a loosely converged point does not
 #'   average away: it shows up as a kink in the curve and as spurious width in
@@ -126,12 +126,11 @@
 #'   which a scan point may still be recorded as a fixed point. See
 #'   [projectUntilSettled()]. A point that meets `distance_tol` but not this is not
 #'   sampled as a single value, which would draw it as a band of zero width.
-#' @param t_per The interval in years at which convergence is checked. Should be
-#'   an odd multiple of `dt`.
+#' @param t_check The interval in years at which convergence is checked, see
+#'   [projectUntilSettled()]. Must be a positive multiple of `dt`; the default
+#'   `15 * dt` is an odd multiple, which is what lets a period-2 cycle be seen.
 #' @param t_max The longest time to project at each scan value.
 #' @param dt The time step to use.
-#' @param t_save The interval at which the biomass summary used for limit-cycle
-#'   detection is recorded, see [projectUntilSettled()].
 #' @param amplitude_tol The minimum relative biomass amplitude for a persistent
 #'   oscillation to count as a limit cycle rather than a fixed point.
 #' @param amp_rel_tol Maximum relative change of amplitude between successive
@@ -194,8 +193,7 @@ scanModel <- function(params, scan_values, set_func,
                       continuation = TRUE,
                       distance_func = distanceSSLogN,
                       distance_tol = 0.001, residual_tol = steady_residual_tol(),
-                      t_per = 1.5, t_max = 100, dt = 0.1,
-                      t_save = dt,
+                      t_check = 15 * dt, t_max = 100, dt = 0.1,
                       amplitude_tol = 0.01, amp_rel_tol = 0.1,
                       extinction_threshold = 1e-6,
                       method = c("euler", "predictor_corrector", "tr_bdf2"),
@@ -217,8 +215,8 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
                                   distance_func = distanceSSLogN,
                                   distance_tol = 0.001,
                                   residual_tol = steady_residual_tol(),
-                                  t_per = 1.5, t_max = 100,
-                                  dt = 0.1, t_save = dt,
+                                  t_check = 15 * dt, t_max = 100,
+                                  dt = 0.1,
                                   amplitude_tol = 0.01, amp_rel_tol = 0.1,
                                   extinction_threshold = 1e-6,
                                   method = c("euler", "predictor_corrector",
@@ -233,7 +231,7 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
                 is.function(value_func),
                 is.number(distance_tol), distance_tol > 0,
                 is.number(residual_tol), residual_tol > 0,
-                is.number(t_per), t_per > 0,
+                is.number(t_check), t_check > 0,
                 is.number(t_max), t_max > 0,
                 is.number(dt), dt > 0,
                 is.number(t_sample), t_sample > 0,
@@ -311,7 +309,7 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
 
             settled <- project_until_settled(
                 p, distance_func = distance_func,
-                t_per = t_per, t_max = t_max, dt = dt, t_save = t_save,
+                t_check = t_check, t_max = t_max, dt = dt,
                 distance_tol = distance_tol, residual_tol = residual_tol,
                 amplitude_tol = amplitude_tol,
                 amp_rel_tol = amp_rel_tol,
@@ -384,7 +382,7 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
               reference_lines = reference_lines,
               settings = list(distance_tol = distance_tol,
                               residual_tol = residual_tol,
-                              t_per = t_per, t_max = t_max,
+                              t_check = t_check, t_max = t_max,
                               dt = dt, t_sample = t_sample,
                               continuation = continuation,
                               method = method))

@@ -20,10 +20,9 @@ scanModel(
   distance_func = distanceSSLogN,
   distance_tol = 0.001,
   residual_tol = steady_residual_tol(),
-  t_per = 1.5,
+  t_check = 15 * dt,
   t_max = 100,
   dt = 0.1,
-  t_save = dt,
   amplitude_tol = 0.01,
   amp_rel_tol = 0.1,
   extinction_threshold = 1e-06,
@@ -77,13 +76,13 @@ deliberately: pass a decreasing \code{scan_values}.}
 \item{continuation}{Whether each scan value should start from the attractor
 reached at the previous one. Default TRUE.}
 
-\item{distance_func}{A function that will be called after every \code{t_per} years
-with both the previous and the new state and that should return a number
-measuring the distance between them. See \code{\link[=distanceSSLogN]{distanceSSLogN()}}.}
+\item{distance_func}{A function that will be called at every convergence
+check with both the previous and the new state and that should return a
+number measuring the distance between them. See \code{\link[=distanceSSLogN]{distanceSSLogN()}}.}
 
 \item{distance_tol}{The projection at each scan value stops once the number
-returned by \code{distance_func} for two states \code{t_per} years apart drops below
-\code{distance_tol}.
+returned by \code{distance_func} for two states \code{t_check} years apart drops
+below \code{distance_tol}.
 The default is tighter than the one \code{\link[=projectUntilSettled]{projectUntilSettled()}} uses on its own,
 because a scan produces a curve, and a loosely converged point does not
 average away: it shows up as a kink in the curve and as spurious width in
@@ -95,15 +94,13 @@ which a scan point may still be recorded as a fixed point. See
 \code{\link[=projectUntilSettled]{projectUntilSettled()}}. A point that meets \code{distance_tol} but not this is not
 sampled as a single value, which would draw it as a band of zero width.}
 
-\item{t_per}{The interval in years at which convergence is checked. Should be
-an odd multiple of \code{dt}.}
+\item{t_check}{The interval in years at which convergence is checked, see
+\code{\link[=projectUntilSettled]{projectUntilSettled()}}. Must be a positive multiple of \code{dt}; the default
+\code{15 * dt} is an odd multiple, which is what lets a period-2 cycle be seen.}
 
 \item{t_max}{The longest time to project at each scan value.}
 
 \item{dt}{The time step to use.}
-
-\item{t_save}{The interval at which the biomass summary used for limit-cycle
-detection is recorded, see \code{\link[=projectUntilSettled]{projectUntilSettled()}}.}
 
 \item{amplitude_tol}{The minimum relative biomass amplitude for a persistent
 oscillation to count as a limit cycle rather than a fixed point.}

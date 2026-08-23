@@ -473,7 +473,7 @@ because those two were being read as one answer to three different questions:
 
 `distance`, `years`, `period` and `amplitude` are unchanged, and there is a new
 `residual`: how far the state reached actually is from a fixed point, which the
-`distance` field only approximates — `distance` compares two states `t_per`
+`distance` field only approximates — `distance` compares two states `t_check`
 apart on whatever scale the distance function uses, and a distance function can
 go quiet while the model is still moving.
 
@@ -543,7 +543,7 @@ run there does not stop until the drift is within `residual_tol` as well
 
 The remedy there is nearly always to look at what is moving, with
 `plot(getSteadyResidual(params))`, rather than to loosen `residual_tol`. Pass
-`t_max = t_per` for a deliberate single block, or `residual_tol = Inf` for the
+`t_max = t_check` to stop after a single check, or `residual_tol = Inf` for the
 wrappers' rule.
 
 <!-- agent-only -->
@@ -554,7 +554,7 @@ have switched to `tuneSteadyState()`, which is where the stricter rule lives.
 
 ### The steady-state run advances time like `project()` does
 
-`steady()` and `projectToSteady()` break the run into blocks of `t_per` years,
+`steady()` and `projectToSteady()` broke the run into blocks of `t_per` years,
 and each block used to start its clock again at `t = 0`. A rate function or a
 component's dynamics function that reads `t` therefore saw the same short
 interval over and over instead of a clock that runs. Seasonal forcing, a
@@ -641,10 +641,24 @@ densities among its unknowns and so needs the default semichemostat resource
 dynamics; `tuneSteadyState(solver = "newton")` holds the resource fixed and
 works with any.
 
+Three arguments are spelled differently on the new functions, because each of
+them did more than one job under the old name:
+
+| Superseded | New | |
+|---|---|---|
+| `tol` | `distance_tol` | the run now also has a tolerance on the biomass drift, `residual_tol` |
+| `t_per` | `t_check` | how often the run checks whether it has settled; defaults to `15 * dt`, so it can no longer contradict a `dt` you chose |
+| — | `t_save` | the interval at which the returned `MizerSim` is saved, as in `project()`; it is independent of `t_check` |
+
+`t_save` is only on `projectUntilSettled()`, which is the only new function that
+returns a trajectory. The limit-cycle detection samples the biomass at every
+time step and has no argument of its own.
+
 Nothing breaks: `steady()` and `projectToSteady()` are kept as thin wrappers
-that reproduce the old behaviour exactly, `return_sim` included. They do not
-warn, they will not be removed, and old code and old scripts keep running
-untouched. Renaming is a search and replace whenever you next touch the code.
+that reproduce the old behaviour exactly, `return_sim` and `t_per` included.
+They do not warn, they will not be removed, and old code and old scripts keep
+running untouched. Renaming is a search and replace whenever you next touch the
+code, plus the three arguments above.
 
 <!-- agent-only -->
 Because the wrappers do not warn, a user running old code sees no signal at all.

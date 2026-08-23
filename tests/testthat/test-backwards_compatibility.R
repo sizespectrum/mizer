@@ -313,11 +313,12 @@ test_that("steady() is tuneSteadyState() under the old name", {
   initialN(params)[1, ] <- initialN(params)[1, ] * 2
   # The wrapper keeps the argument name it shipped with; the new function uses
   # the name that says which of the two tolerances it is.
-  args <- list(t_per = 1, t_max = 3, dt = 0.5,
-               progress_bar = FALSE, info_level = 0)
-  old <- suppressMessages(do.call(steady, c(list(params), args, tol = 1e-3)))
+  args <- list(t_max = 3, dt = 0.5, progress_bar = FALSE, info_level = 0)
+  old <- suppressMessages(do.call(steady, c(list(params), args, t_per = 1,
+                                            tol = 1e-3)))
   new <- suppressMessages(do.call(tuneSteadyState,
-                                  c(list(params), args, distance_tol = 1e-3)))
+                                  c(list(params), args, t_check = 1,
+                                    distance_tol = 1e-3)))
   # Never identical(): the freeze mechanism writes a comment attribute onto
   # arrays that have been through a setter.
   expect_equal(unclass(old@initial_n), unclass(new@initial_n))
@@ -331,12 +332,13 @@ test_that("steady() is tuneSteadyState() under the old name", {
 test_that("projectToSteady() is findSteadyState() under the old name", {
   params <- NS_params_small
   initialN(params)[1, ] <- initialN(params)[1, ] * 2
-  args <- list(t_per = 1, t_max = 3, dt = 0.5,
-               progress_bar = FALSE, info_level = 0)
+  args <- list(t_max = 3, dt = 0.5, progress_bar = FALSE, info_level = 0)
   old <- suppressMessages(do.call(projectToSteady,
-                                  c(list(params), args, tol = 1e-3)))
+                                  c(list(params), args, t_per = 1,
+                                    tol = 1e-3)))
   new <- suppressMessages(do.call(findSteadyState,
-                                  c(list(params), args, distance_tol = 1e-3)))
+                                  c(list(params), args, t_check = 1,
+                                    distance_tol = 1e-3)))
   expect_equal(unclass(old@initial_n), unclass(new@initial_n))
   expect_equal(unclass(old@initial_n_pp), unclass(new@initial_n_pp))
   expect_equal(attr(old, "convergence"), attr(new, "convergence"))
@@ -376,12 +378,13 @@ test_that("the superseded finders keep their old stopping rule", {
   # one block instead of running to `t_max`.
   params <- NS_params_small
   initialN(params)[1, ] <- initialN(params)[1, ] * 3
-  args <- list(t_per = 1, t_max = 10, dt = 0.5, progress_bar = FALSE,
-               info_level = 0)
+  args <- list(t_max = 10, dt = 0.5, progress_bar = FALSE, info_level = 0)
 
-  old <- suppressMessages(do.call(steady, c(list(params), args, tol = 1e3)))
+  old <- suppressMessages(do.call(steady, c(list(params), args, t_per = 1,
+                                            tol = 1e3)))
   new <- suppressMessages(do.call(tuneSteadyState,
-                                  c(list(params), args, distance_tol = 1e3)))
+                                  c(list(params), args, t_check = 1,
+                                    distance_tol = 1e3)))
 
   conv_old <- attr(old, "convergence")
   conv_new <- attr(new, "convergence")

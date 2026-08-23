@@ -47,17 +47,16 @@ projectToSteady(
 
 \item{t_max}{The maximum number of years to run the simulation. Default is 100.}
 
-\item{t_per}{The simulation is broken up into shorter runs of \code{t_per} years,
-after each of which we check for convergence. Default value is 1.5. This
-should be chosen as an odd multiple of the timestep \code{dt} in order to be
-able to detect period 2 cycles.}
+\item{t_per}{The interval in years at which convergence is checked, and hence
+also the interval at which the trajectory is saved when
+\code{return_sim = TRUE}. In \code{\link[=projectUntilSettled]{projectUntilSettled()}} these two roles have been
+separated into \code{t_check} and \code{t_save}.}
 
 \item{dt}{The time step to use in \code{project()}.}
 
-\item{t_save}{The interval at which a cheap per-species biomass summary is
-recorded for limit-cycle detection. Must be a positive multiple of \code{dt} and
-a divisor of \code{t_per}. Smaller values resolve the cycle period more finely at
-a small extra cost. Default is \code{dt}.}
+\item{t_save}{Has no effect. It briefly controlled how finely the biomass
+series used for limit-cycle detection was sampled; that series is now
+sampled at every time step, which is what its default \code{dt} gave.}
 
 \item{tol}{The simulation stops when the relative change in the egg
 production RDI over t_per years is less than tol for every species.}
@@ -108,35 +107,13 @@ See \code{\link[=project]{project()}}.}
 \item{effort}{The fishing effort to use throughout. By default the initial
 effort stored in \code{params}.}
 
-\item{distance_func}{A function that will be called after every \code{t_per} years
-with both the previous and the new state and that should return a number
+\item{distance_func}{A function that will be called at every check with both
+the previous and the new state and that should return a number
 that in some sense measures the distance between the states. By default
 this uses the function \code{\link[=distanceSSLogN]{distanceSSLogN()}} that you can use as a model for your
 own distance function.}
 
-\item{...}{Arguments for the chosen solver.
-
-With \code{solver = "project"}: \code{t_max}, \code{t_per}, \code{dt}, \code{t_save},
-\code{distance_tol}, \code{residual_tol}, \code{amplitude_tol}, \code{amp_rel_tol},
-\code{extinction_threshold}, \code{progress_bar} and \code{method}, all as described in
-\code{\link[=projectUntilSettled]{projectUntilSettled()}}.
-Note that \code{distance_tol} here defaults to \code{0.1 * dt} and measures the
-largest relative change in egg production, because the distance function is
-\code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}. \code{residual_tol} is judged on the model as the search
-sees it, with reproduction, the resource and the other components pinned;
-the residual reported in the result is measured again on the model that is
-actually returned.
-
-With \code{solver = "newton"}: \code{solver_tol} (default \code{1e-6}), a tolerance on
-the per-capita rate of change passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}}. It was called
-\code{residual_tol} before mizer 3.3, a name that now belongs to the biomass
-drift criterion above; \code{maxit}
-(default \code{200}); \code{jacobian}, either \code{"update"} (default, the Jacobian is
-computed once and then updated cheaply each iteration — \code{nleqslv}'s
-\code{"Broyden"}) or \code{"recompute"} (a numerical Jacobian at every iteration —
-\code{nleqslv}'s \code{"Newton"}); \code{global}, the globalisation strategy (default
-\code{"dbldog"}, a robust double-dogleg trust region); and \code{verbose} to trace
-the iterations.}
+\item{...}{Further arguments will be passed on to your distance function.}
 }
 \value{
 A \code{MizerParams} object, or a \code{MizerSim} object if

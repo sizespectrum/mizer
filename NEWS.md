@@ -138,8 +138,8 @@ fixed, keeping the old names as silent aliases.
   still moving. The distance function dropping below `distance_tol` is only half
   the criterion: the model's biomass drift must also be within the new
   `residual_tol` argument (default `0.05`/year, the tolerance `isSteady()`
-  uses), and the limit-cycle detection runs on every block rather than only when
-  the distance criterion has failed. A cycle whose period divides `t_per` is
+  uses), and the limit-cycle detection runs at every check rather than only when
+  the distance criterion has failed. A cycle whose period divides `t_check` is
   sampled at one phase by the distance function and used to look perfectly
   converged; it is now recognised. `scanModel()` gains the same argument and no
   longer draws such a point as a band of zero width (#562).
@@ -218,7 +218,7 @@ fixed, keeping the old names as silent aliases.
 
 - The `"convergence"` attribute also carries a `residual` field giving how far
   the state reached actually is from a fixed point. The `distance` field only
-  compares two states `t_per` apart on whatever scale the distance function
+  compares two states `t_check` apart on whatever scale the distance function
   uses, whereas `residual` measures the thing itself, and `tuneSteadyState()`
   reports when the two disagree — a run declared converged whose biomasses are
   still visibly moving (#495).
@@ -650,6 +650,11 @@ fixed, keeping the old names as silent aliases.
   `findSteadyState()` changes no parameter and lets everything settle together.
   The two finders always return a `MizerParams` and `projectUntilSettled()`
   always returns a `MizerSim`, so `return_sim` is gone from the new functions.
+  Three arguments are spelled differently on the new functions: `tol` is
+  `distance_tol`, `t_per` is `t_check` and defaults to `15 * dt` so that it can
+  no longer contradict a `dt` you chose, and `projectUntilSettled()` gains
+  `t_save`, the interval at which the trajectory is saved, exactly as in
+  `project()` and independent of `t_check`.
   Nothing breaks: the old names are kept as thin wrappers that reproduce the old
   behaviour exactly, `return_sim` included. They do not warn and they are not
   going away.

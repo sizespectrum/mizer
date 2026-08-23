@@ -88,9 +88,9 @@ taken as a claim that the model is at a steady state.
 Stopping on a fixed point takes both a distance function below `distance_tol`
 and a drift within `residual_tol`; a state that meets the first but not the
 second keeps running. Limit cycles are detected from the per-species biomass
-series sampled at `t_save`, on every block rather than only when the distance
-criterion has failed, because a cycle whose period divides `t_per` is sampled at
-one phase and looks converged. The relative-amplitude floor for calling an
+series sampled at every time step, at every check rather than only when the
+distance criterion has failed, because a cycle whose period divides `t_check` is
+sampled at one phase and looks converged. The relative-amplitude floor for calling an
 oscillation a cycle is the `amplitude_tol` argument (default `0.01`).
 
 ### What the analysis covers

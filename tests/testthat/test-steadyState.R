@@ -34,7 +34,7 @@ test_that("tuneSteadyState works", {
     params <- tss_params
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)
-    p <- tuneSteadyState(params, t_per = 1, t_max = 1, dt = 1, distance_tol = 10) |>
+    p <- tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1, distance_tol = 10) |>
         suppressMessages()
     expect_s4_class(p, "MizerParams")
     expect_snapshot_value(getRDD(p), style = "deparse")
@@ -45,7 +45,7 @@ test_that("tuneSteadyState accepts consumer update method", {
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)
 
-    p <- tuneSteadyState(params, t_per = 1, t_max = 1, dt = 1, distance_tol = 10,
+    p <- tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1, distance_tol = 10,
                          method = "predictor_corrector") |>
         suppressMessages()
 
@@ -59,23 +59,23 @@ test_that("tuneSteadyState() preserves parameters", {
 
     params_rdd <- params
     params_rdd@rates_funcs$RDD <- "noRDD"
-    p_rdd <- tuneSteadyState(params_rdd, t_per = 1, t_max = 1, dt = 1) |>
+    p_rdd <- tuneSteadyState(params_rdd, t_check = 1, t_max = 1, dt = 1) |>
         suppressMessages()
     expect_equal(p_rdd@rates_funcs$RDD, "noRDD")
 
     params_rmax <- params
     species_params(params_rmax)$R_max <- 1.01 * species_params(params_rmax)$R_max
-    p_erepro <- tuneSteadyState(params_rmax, t_per = 1, t_max = 1, dt = 1,
+    p_erepro <- tuneSteadyState(params_rmax, t_check = 1, t_max = 1, dt = 1,
                                 distance_tol = 10, preserve = "erepro") |>
         suppressMessages()
     expect_equal(p_erepro@species_params$erepro, params_rmax@species_params$erepro)
-    p_rl <- tuneSteadyState(params_rmax, t_per = 1, t_max = 1, dt = 1, distance_tol = 10,
+    p_rl <- tuneSteadyState(params_rmax, t_check = 1, t_max = 1, dt = 1, distance_tol = 10,
                             preserve = "reproduction_level") |> suppressMessages()
     expect_equal(reproduction_level(p_rl), reproduction_level(params_rmax))
 
     params_erepro <- params
     species_params(params_erepro)$erepro <- 1.01 * species_params(params_erepro)$erepro
-    p_rmax <- tuneSteadyState(params_erepro, t_per = 1, t_max = 1, dt = 1,
+    p_rmax <- tuneSteadyState(params_erepro, t_check = 1, t_max = 1, dt = 1,
                               distance_tol = 10, preserve = "R_max") |> suppressMessages()
     expect_equal(p_rmax@species_params$R_max, params_erepro@species_params$R_max)
     expect_false(identical(p_rmax@time_modified, params_erepro@time_modified))
@@ -147,14 +147,14 @@ test_that("findSteadyState() returns a MizerParams at the settled state", {
     effort <- params@initial_effort * 1.1
     # A single crude block, stopped by an absurdly loose distance tolerance;
     # the drift criterion is switched off rather than pretended to be met.
-    expect_message(p <- findSteadyState(params, t_per = 1, dt = 1,
+    expect_message(p <- findSteadyState(params, t_check = 1, dt = 1,
                                         distance_tol = 1000,
                                         residual_tol = Inf, effort = effort),
                    "Reached the convergence tolerance")
     expect_s4_class(p, "MizerParams")
     expect_identical(p@initial_effort, effort)
     # It is exactly projectUntilSettled() with the trajectory thrown away.
-    sim <- suppressMessages(projectUntilSettled(params, t_per = 1, dt = 1,
+    sim <- suppressMessages(projectUntilSettled(params, t_check = 1, dt = 1,
                                                 distance_tol = 1000,
                                                 residual_tol = Inf,
                                                 effort = effort))
@@ -164,13 +164,13 @@ test_that("findSteadyState() returns a MizerParams at the settled state", {
 
 test_that("findSteadyState() accepts the documented effort forms", {
     params <- NS_params_small
-    p1 <- findSteadyState(params, effort = 0.5, t_per = 0.1,
+    p1 <- findSteadyState(params, effort = 0.5, t_check = 0.1,
                           t_max = 0.1, distance_tol = 10, info_level = 0)
     expect_equal(unname(p1@initial_effort), rep(0.5, length(initial_effort(params))))
 
     named <- initial_effort(params)[1:2]
     named[] <- c(0.2, NA)
-    p2 <- findSteadyState(params, effort = named, t_per = 0.1,
+    p2 <- findSteadyState(params, effort = named, t_check = 0.1,
                           t_max = 0.1, distance_tol = 10, info_level = 0)
     expected <- validEffortVector(named, params)
     expect_equal(p2@initial_effort, expected)
@@ -180,7 +180,7 @@ test_that("findSteadyState() reports non-convergence", {
     p <- tss_params
     initialN(p)[1, ] <- initialN(p)[1, ] * 3
     p <- suppressMessages(
-        findSteadyState(p, t_max = 0.5, t_per = 0.5, dt = 0.1,
+        findSteadyState(p, t_max = 0.5, t_check = 0.5, dt = 0.1,
                         distance_tol = 1e-12, info_level = 0)
     )
     conv <- attr(p, "convergence")
@@ -196,14 +196,14 @@ test_that("findSteadyState() changes no parameter", {
     initialN(p)[1, ] <- initialN(p)[1, ] * 3
     # One block and no drift criterion: what is under test is which parameters
     # the two functions touch, not where either of them ends up.
-    out <- suppressMessages(findSteadyState(p, t_per = 1, dt = 1, t_max = 1,
+    out <- suppressMessages(findSteadyState(p, t_check = 1, dt = 1, t_max = 1,
                                             distance_tol = 1000,
                                             residual_tol = Inf))
     expect_equal(out@species_params$erepro, p@species_params$erepro)
     expect_equal(out@species_params$R_max, p@species_params$R_max)
     expect_equal(unclass(out@cc_pp), unclass(p@cc_pp))
     # ... whereas tuneSteadyState() adjusts exactly those.
-    tuned <- suppressMessages(tuneSteadyState(p, t_per = 1, dt = 1, t_max = 1,
+    tuned <- suppressMessages(tuneSteadyState(p, t_check = 1, dt = 1, t_max = 1,
                                               distance_tol = 1000,
                                               residual_tol = Inf))
     expect_false(isTRUE(all.equal(unclass(tuned@cc_pp), unclass(p@cc_pp))))
@@ -431,7 +431,7 @@ test_that("tuneSteadyState() says when it has held a component fixed", {
     # this way and still need to be tuned.
     expect_warning(
         p_tuned <- suppressMessages(
-            tuneSteadyState(p, t_per = 1, t_max = 1, dt = 1,
+            tuneSteadyState(p, t_check = 1, t_max = 1, dt = 1,
                             distance_tol = 10, progress_bar = FALSE)),
         "has dynamics of their own|has\n?\\s*dynamics"
     )
@@ -468,7 +468,7 @@ test_that("tuneSteadyState() says when the resource could not be rebalanced", {
     # derive a capacity that makes the preserved abundance steady. It used to
     # skip the balancing without a word.
     expect_warning(
-        suppressMessages(tuneSteadyState(p, t_per = 1, t_max = 1, dt = 1,
+        suppressMessages(tuneSteadyState(p, t_check = 1, t_max = 1, dt = 1,
                                          distance_tol = 10,
                                          progress_bar = FALSE)),
         "could not be rebalanced"

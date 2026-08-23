@@ -161,10 +161,10 @@ expect_unchanged <- function(object, expected) {
 }
 
 # Fast settings for the scanModel() integration tests, so that they stay cheap.
-# Note that t_per must be a whole multiple of both dt and t_save. Shared here
+# Note that t_check must be a whole multiple of dt. Shared here
 # rather than repeated at the top of each test file, because testthat 3.x runs
 # every file's top-level code in the same .GlobalEnv.
-scan_fast_settings <- list(t_max = 6, t_per = 1.5, dt = 0.5, t_save = 0.5,
+scan_fast_settings <- list(t_max = 6, t_check = 1.5, dt = 0.5,
                            t_sample = 3, progress_bar = FALSE)
 
 scan_fast <- function(params, ...) {

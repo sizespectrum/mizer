@@ -94,10 +94,11 @@
 #'   [default_info_level()].
 #' @param ... Arguments for the chosen solver.
 #'
-#'   With `solver = "project"`: `t_max`, `t_per`, `dt`, `t_save`,
+#'   With `solver = "project"`: `t_max`, `t_check`, `dt`,
 #'   `distance_tol`, `residual_tol`, `amplitude_tol`, `amp_rel_tol`,
 #'   `extinction_threshold`, `progress_bar` and `method`, all as described in
-#'   [projectUntilSettled()].
+#'   [projectUntilSettled()]. There is no `t_save`, because no trajectory is
+#'   returned.
 #'   Note that `distance_tol` here defaults to `0.1 * dt` and measures the
 #'   largest relative change in egg production, because the distance function is
 #'   [distanceMaxRelRDI()]. `residual_tol` is judged on the model as the search
@@ -235,10 +236,11 @@ tuneSteadyState.MizerParams <- function(params,
 #' @inheritParams tuneSteadyState
 #' @param ... Arguments for the chosen solver.
 #'
-#'   With `solver = "project"`: `distance_func`, `t_max`, `t_per`, `dt`,
-#'   `t_save`, `distance_tol`, `residual_tol`, `amplitude_tol`, `amp_rel_tol`,
+#'   With `solver = "project"`: `distance_func`, `t_max`, `t_check`, `dt`,
+#'   `distance_tol`, `residual_tol`, `amplitude_tol`, `amp_rel_tol`,
 #'   `extinction_threshold`, `progress_bar` and `method`, all as described in
-#'   [projectUntilSettled()].
+#'   [projectUntilSettled()]. There is no `t_save`, because no trajectory is
+#'   returned.
 #'
 #'   With `solver = "newton"`: `extinction_floor` (default `1e-6`), the relative
 #'   abundance below which a species counts as extinct, plus `solver_tol`,
@@ -301,9 +303,11 @@ findSteadyState.MizerParams <- function(params,
 #' The defaults of the projection arguments are the ones `steady()` shipped
 #' with, which are not those of [projectUntilSettled()]: `distance_tol` is
 #' `0.1 * dt`
-#' rather than `0.1 * t_per` because the distance function is
+#' rather than `0.1 * t_check` because the distance function is
 #' [distanceMaxRelRDI()] rather than [distanceSSLogN()], and `amp_rel_tol` is
-#' `0.01` rather than `0.1`.
+#' `0.01` rather than `0.1`. `t_save` matters only to `steady(return_sim =
+#' TRUE)`, and defaults to `t_check` there so that the trajectory keeps the
+#' spacing that function has always given it.
 #'
 #' @inheritParams tuneSteadyState
 #' @inheritParams projectUntilSettled
@@ -316,8 +320,8 @@ findSteadyState.MizerParams <- function(params,
 #'   `"convergence"` attribute.
 #' @noRd
 tune_steady_project <- function(params, effort, preserve,
-                                t_max = 100, t_per = 1.5, dt = 0.1,
-                                t_save = dt, distance_tol = 0.1 * dt,
+                                t_max = 100, t_check = 15 * dt, dt = 0.1,
+                                t_save = t_check, distance_tol = 0.1 * dt,
                                 residual_tol = steady_residual_tol(),
                                 amplitude_tol = 0.01, amp_rel_tol = 0.01,
                                 extinction_threshold = 1e-6,
@@ -357,7 +361,7 @@ tune_steady_project <- function(params, effort, preserve,
     object <- project_until_settled(params,
                                     effort = effort,
                                     distance_func = distanceMaxRelRDI,
-                                    t_per = t_per,
+                                    t_check = t_check,
                                     t_max = t_max,
                                     dt = dt,
                                     t_save = t_save,

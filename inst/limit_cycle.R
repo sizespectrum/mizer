@@ -54,8 +54,8 @@ mort    <- ext_mort(params)
 mort[]  <- mu_b
 ext_mort(params) <- mort
 
-ss <- projectUntilSettled(params, t_max = 150, t_per = 0.2, dt = p$dt,
-                          method = p$method)
+ss <- projectUntilSettled(params, t_max = 150, t_check = 0.2, t_save = 0.2,
+                          dt = p$dt, method = p$method)
 plotBiomass(ss)
 conv <- attr(ss, "convergence")
 start <- conv$years - conv$period
@@ -84,8 +84,8 @@ getDiscreteStability(ps, dt = p$dt)$spectral_radius
 # Let's test that by making a small perturbation
 ps_pert <- ps
 initialN(ps_pert) <- initialN(ps) * 1.01
-sim <- projectUntilSettled(ps_pert, t_per = 0.2, dt = p$dt, tol = 1e-6,
-                           method = p$method)
+sim <- projectUntilSettled(ps_pert, t_check = 0.2, t_save = 0.2, dt = p$dt,
+                           distance_tol = 1e-6, method = p$method)
 plotBiomass(sim)
 
 
@@ -97,7 +97,7 @@ params <- finalParams(ss)
 
 mean_yield <- sapply(effort_seq, function(effort) {
     sim <- projectUntilSettled(params, dt = p$dt, method = p$method,
-                               t_per = 0.2, effort = effort)
+                               t_check = 0.2, t_save = 0.2, effort = effort)
     conv <- attr(sim, "convergence")
     start <- conv$years - conv$period
     mean(getYield(sim)[getTimes(sim) >= start, ])
