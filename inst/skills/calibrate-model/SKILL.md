@@ -9,10 +9,10 @@ description: >-
   matchNumbers, matchGrowth), supply those observations (the
   biomass_observed/biomass_cutoff or number_observed species-parameter columns,
   the yield_observed gear-parameter column), set the level of density-dependent
-  reproduction (reproduction_level<-), check convergence (isSteady, getSteadyResidual), or
-  diagnose a model that collapses, explodes or will not settle. To ask whether
-  the steady state you found is dynamically stable, see the analyse-stability
-  skill.
+  reproduction with the reproduction_level replacement accessor, check
+  convergence (isSteady, getSteadyResidual), or diagnose a model that collapses,
+  explodes or will not settle. To ask whether the steady state you found is
+  dynamically stable, see the analyse-stability skill.
 ---
 
 # Reaching steady state and calibrating

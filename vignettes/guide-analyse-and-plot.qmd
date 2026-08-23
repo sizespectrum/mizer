@@ -31,7 +31,7 @@ initial state). So [`getBiomass(sim)`](../reference/getBiomass.html) gives bioma
 gives biomass now.
 
 To get the single value **at one time step** of a simulation, extract a
-`MizerParams` snapshot with [`finalParams(sim)`](../reference/finalParams.html) (last step), [`initialParams(sim)`](../reference/initialParams.html)
+`MizerParams` snapshot with [`finalParams(sim)`](../reference/getParams.html) (last step), [`initialParams(sim)`](../reference/getParams.html)
 (first step), or [`getParams(sim, time_range = ...)`](../reference/getParams.html) (averaged over a range) and
 pass that in:
 

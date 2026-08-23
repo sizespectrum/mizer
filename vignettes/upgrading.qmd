@@ -1369,8 +1369,8 @@ or, when averaging over a time range, with
 [`getParams(sim, time_range, geometric_mean)`](../reference/getParams.html). This reflects a shift in
 interpretation: a `MizerParams` object now represents not just the model
 specification but also its current state (the abundances), which can be
-extracted from a simulation with `getParams()`, [`finalParams()`](../reference/finalParams.html) and
-[`initialParams()`](../reference/initialParams.html).
+extracted from a simulation with `getParams()`, [`finalParams()`](../reference/getParams.html) and
+[`initialParams()`](../reference/getParams.html).
 
 ### Growth can no longer be negative
 

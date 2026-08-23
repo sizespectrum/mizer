@@ -74,16 +74,19 @@ different ways:
 | **Predation mortality** on species $i$ | all **predators** big enough to eat $i$ | nothing (deaths counted, not mass) | the abundance of $i$'s **predators** — top-down |
 
 Same kernel $\phi$, same search volume $\gamma$, same interaction matrix
-$\theta$; even the satiation factor is shared, since a satiated predator both
-stops gaining mass and stops killing. The only differences are which variable is
-integrated out — prey size or predator size — and whether you weight by the
-prey's mass or just count the death.
+$\theta$; the same handling limitation also appears on both sides through the
+factor $1-f$. As a predator becomes satiated, its successful prey-removal rate
+per unit available prey falls, while its realised intake approaches the maximum
+intake rate rather than falling to zero. The other differences are which
+variable is integrated out — prey size or predator size — and whether you
+weight by the prey's mass or just count the death.
 
-This is why **you cannot make a species grow faster without making its prey die
-faster**, and why the food and predation feedback loops below are not
-independent dials. It also means a single diagnosis often covers both symptoms:
-if growth is wrong, the mortality that same predation imposes is wrong too, and
-the fix is in the shared parameters, not in one or the other.
+Changes to the encounter pathway therefore usually affect both predator growth
+and prey mortality, so those are not independent dials. But growth also depends
+on assimilation, metabolism and reproductive allocation: changing one of those
+can alter growth without changing prey removal. A joint growth-and-mortality
+problem points first to the shared encounter parameters; an isolated growth
+problem need not.
 
 Further consequences worth internalising:
 
@@ -291,19 +294,22 @@ Feeding level is the first thing to look at in almost every diagnosis, because
 it is dimensionless and has an absolute scale: you can tell at a glance whether
 a number is wrong. $f < 0.2$ anywhere in the juvenile range means the species is
 starving; $f > 0.9$ everywhere means the species is satiated and effectively
-decoupled from its prey — its growth will not respond to food very much, and
-neither will it exert much predation mortality (see below).
+decoupled from variation in its prey — its growth will not respond to food very
+much, and its predation pressure per unit prey is reduced by the $1-f$ factor
+(see below). Its total biomass intake can nevertheless remain near its maximum.
 
 **2 — Net available energy.** Assimilated intake ($\alpha$, default 0.6) minus
-standard metabolism, floored at zero. If it hits zero the fish has no surplus
-for growth or reproduction and simply stops.
+standard and activity metabolism, floored at zero. If it hits zero the fish has
+no surplus for growth or reproduction and simply stops.
 
-**3 — Allocation.** Below `w_mat` all net energy goes to somatic growth. Above
-it, a fraction $\psi_i(w)$ goes to reproduction and the rest to growth, with
-$\psi$ rising to 1 at `w_repro_max`, so growth halts there. This is what turns
-the species spectrum into a dome: growth decelerating towards `w_repro_max` piles
-individuals up (see the traffic-jam effect below) and then mortality removes
-them.
+**3 — Allocation.** Around maturity, an increasing fraction $\psi_i(w)$ goes to
+reproduction and the rest to growth; `w_mat` is the 50% point of the maturity
+ogive, not a hard threshold. Under defaults edition 1, $\psi$ is forced to 1
+above `w_repro_max`, so growth halts there. Under edition 2 it continues to
+follow the maturity ogive times the reproductive proportion and need not reach
+1. Increasing allocation still slows growth and helps turn the species spectrum
+into a dome: decelerating fish pile up (see the traffic-jam effect below) and
+mortality then removes them.
 
 ---
 
@@ -523,8 +529,8 @@ The shared factors $\gamma$, $\phi$ and $\theta$ are what makes these two sides
 of one coin. The $(1 - f_j)$ factor is worth noting: **satiated predators kill
 less**, and a species whose predators are all near $f = 1$ experiences less
 mortality than their abundance alone suggests. It applies to the growth side
-too — realised intake is $f_i h_i w^n = (1 - f_i) E_i$ — so satiation throttles
-both integrals together.
+too — realised intake is $f_i h_i w^n = (1 - f_i) E_i$. As $f_i$ approaches 1,
+that intake approaches the maximum $h_i w^n$; it does not approach zero.
 
 **Feeding level** from encountered food $E_i$ and maximum intake $h_i w^n$:
 
@@ -533,7 +539,7 @@ $$f_i(w) = \frac{E_i(w)}{E_i(w) + h_i w^n}$$
 **Net energy** after assimilation ($\alpha$) and metabolism ($k_s w^p$, plus an
 activity term $k w$ that defaults to zero):
 
-$$E_{\text{net},i}(w) = \max\big(0,\; \alpha_i f_i(w) h_i w^n - k_{s,i} w^p\big)$$
+$$E_{\text{net},i}(w) = \max\big(0,\; \alpha_i f_i(w) h_i w^n - k_{s,i} w^p - k_i w\big)$$
 
 **Growth**, after the reproductive allocation $\psi_i(w)$:
 

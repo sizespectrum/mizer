@@ -1,21 +1,14 @@
 ---
 name: create-extension-package
 description: >-
-  Turn a working mizer extension into a shareable R package, and maintain it.
-  Use whenever the user wants to package up custom rate functions or components
-  for reuse or distribution, or asks about registerExtension() and the .onLoad
-  hook, metadata-only versus dispatching extensions, marker classes and why not
-  to define them with setClass(), writing S3 methods that chain with
-  NextMethod(), recording the extension chain in params@extensions with
-  getRegisteredExtensions() and coerceToExtensionClass(), shipping MizerParams
-  or MizerSim objects in data/ and the active binding they need, reporting to
-  the user through signal_info() and info_level so an extension obeys the same
-  switch as mizer, running mizer's own test suite against a subclass, or
-  upgrading objects saved by an earlier version of the extension. This is the
-  sharing half of extending mizer: for the mechanisms themselves — external
-  encounter and mortality, replacing a rate function, adding a component — see
-  the extend-mizer skill, and for using someone else's extension package see
-  the use-extension-packages skill.
+  Turn a working mizer extension into a shareable R package and maintain it.
+  Use for packaging custom rates or components; registering an extension in
+  .onLoad; choosing metadata-only or dispatching marker classes; chaining S3
+  methods with NextMethod(); recording versions with recordExtension();
+  coercing, bundling, testing and upgrading extension objects; or making user
+  reports obey info_level. For implementing the underlying extension mechanisms
+  use the extend-mizer skill; for using an existing package use the
+  use-extension-packages skill.
 ---
 
 # Creating a mizer extension package
@@ -95,19 +88,33 @@ already registered (for example because the user called
 
 ### Recording the extension in `params@extensions`
 
-When your package creates or modifies a `MizerParams` object it should copy the
-session's registered extension chain into the `@extensions` slot:
+When your package creates or modifies a `MizerParams` object, record that your
+extension has actually been applied. Stamp the installed package version when
+the component is first created; on later modifications preserve the existing
+stamp:
 
 ```r
 setStarvation <- function(params, starv_coef = 10) {
     # ... set up the rate function, species parameters, etc. ...
-    params@extensions <- mizer::getRegisteredExtensions()
+    version <- if ("mizerStarvation" %in% names(params@extensions)) {
+        NULL
+    } else {
+        as.character(utils::packageVersion("mizerStarvation"))
+    }
+    params <- mizer::recordExtension(params, "mizerStarvation",
+                                     version = version)
     params
 }
 ```
 
-`getRegisteredExtensions()` returns the full chain that `.onLoad` hooks have
-built up. Storing this in the object serves two purposes:
+`recordExtension()` takes the installation requirement from the registered
+chain, preserves all existing entries and version stamps, and adds this
+extension in the correct dispatch position. Do not copy the entire active
+registry into the object: another extension can be loaded without having been
+applied to this particular model. As extension setup functions are applied,
+their individual `recordExtension()` calls build the object's chain.
+
+Storing this record serves two purposes:
 
 1. **Reproducibility record.** When the object is saved with `saveParams()` and
    later loaded with `readParams()`, mizer reads `@extensions` and warns if any
@@ -352,6 +359,7 @@ rate your extension modifies:
 
 | `setRateFunction()` key | S3 generic to override |
 |------------------------|------------------------|
+| `"Rates"` | `projectRates()` |
 | `"Encounter"` | `projectEncounter()` |
 | `"FeedingLevel"` | `projectFeedingLevel()` |
 | `"EReproAndGrowth"` | `projectEReproAndGrowth()` |
@@ -417,7 +425,9 @@ A constructor function that returns a `mizerShelf` object must end with these
 two lines:
 
 ```r
-params@extensions <- mizer::getRegisteredExtensions()
+params <- mizer::recordExtension(
+    params, "mizerShelf",
+    version = as.character(utils::packageVersion("mizerShelf")))
 params <- mizer::coerceToExtensionClass(params)
 ```
 
@@ -429,23 +439,28 @@ newDetritusCarrionParams <- function(species_params, ...) {
                                     resource_dynamics = "detritus_dynamics")
     # ... set up rate functions, components, colours ...
 
-    params@extensions <- mizer::getRegisteredExtensions()
+    params <- mizer::recordExtension(
+        params, "mizerShelf",
+        version = as.character(utils::packageVersion("mizerShelf")))
     params <- mizer::coerceToExtensionClass(params)
 }
 ```
 
-#### What `params@extensions <- getRegisteredExtensions()` does
+#### What `recordExtension()` does
 
-`getRegisteredExtensions()` returns the current session's extension chain —
-everything that has been registered via `.onLoad` hooks or with `registerExtension()` once R started.
-Storing this in the params object is like stamping the object with a bill of
-materials: it records exactly which extension packages were active when the
-object was created.
+`recordExtension()` adds the extension that created or modified this object,
+taking its installation requirement from the session registry. Existing
+entries keep their position and version stamps; a new entry is prepended so the
+object's chain stays ordered outermost first. The result is a bill of materials
+for the extensions actually applied to this model, not every extension package
+that happened to be loaded when it was created.
 
-Note that `@extensions` records the **full chain** that was active at creation
-time, not just the outermost extension. If `mizerShelf` was the only registered
-extension, `@extensions` will be `c(mizerShelf = "1.0.0")`. If a further outer
-extension was also loaded, both appear in the chain.
+The `version` stamp says which package version's object layout the new component
+conforms to. A constructor supplies it because it has just created that
+component. An ordinary modifier calls `recordExtension(params, "mizerShelf")`
+without `version`, preserving the stamp already on the object. If several
+extension setup functions are applied, their calls accumulate the full object
+chain.
 
 When the object is later loaded from disk with `readParams()`, mizer reads
 `@extensions` to check that all the recorded extensions are installed in the
@@ -568,8 +583,8 @@ When building a dispatching extension package, verify the following:
   `makeActiveBinding()` call in `.onLoad` so the object is coerced to the
   correct extension class on access. See [Bundled data objects].
 
-- [ ] End every constructor with `params@extensions <- getRegisteredExtensions()`
-  and `coerceToExtensionClass(params)`.
+- [ ] End every constructor by calling `recordExtension()` with the installed
+  package version, then `coerceToExtensionClass(params)`.
 - [ ] Register every S3 method in `NAMESPACE` (via `@method` + `@export`).
 - [ ] Call `NextMethod()` in every method override.
 - [ ] For each rate the package modifies during projection, define a
@@ -587,7 +602,8 @@ When building a dispatching extension package, verify the following:
 
 For metadata-only packages, only the `registerExtension()` call, the bundled-data
 binding and the reporting item apply, and `coerceToExtensionClass()` is not
-needed — just record `params@extensions <- getRegisteredExtensions()`.
+needed. Their setup functions should still call `recordExtension()`, stamping
+the package version when their component is first created.
 
 ## Running mizer's test suite against your subclass
 
@@ -666,9 +682,8 @@ extension chain is registered"*. This is an artefact of the shared session, not
 a problem with your extension, so exclude those files before running:
 
 ```r
-chain_tests <- c("test-extension-dispatch.R",
-                 "test-registerExtensions.R",
-                 "test-io.R")
+chain_tests <- c("test-registerExtensions.R",
+                 "test-saveParams.R")
 file.remove(file.path("tests/testthat", chain_tests))
 ```
 

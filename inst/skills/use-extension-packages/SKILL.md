@@ -55,7 +55,7 @@ Two rules cover almost everything:
 - **[mizerShelf](https://github.com/sizespectrum/mizerShelf)** — Adds detritus
   and carrion components for more realistic benthic ecosystem modelling on
   continental shelves.
-- **[MizerEvolution](https://github.com/baldrech/MizerEvolution)** — Enables
+- **[mizerEvolution](https://github.com/baldrech/mizerEvolution)** — Enables
   simulation of evolutionary trait changes and species invasions by treating
   species as pools of phenotypes subject to natural selection.
 - **[mizerSeasonal](https://github.com/gustavdelius/mizerSeasonal)** —
@@ -109,10 +109,10 @@ documentation for a required load order.
 
 ## Working with the extension chain
 
-### Restarting with a clean chain
+### Clearing the registry
 
-If the packages were loaded in the wrong order, clear the session's registry
-rather than restarting R:
+To replace the chain explicitly without restarting R, first clear the session's
+registry:
 
 ```r
 clearExtensionChain()
@@ -120,8 +120,10 @@ clearExtensionChain()
 
 `getRegisteredExtensions()` then returns an empty vector. Clearing the chain does
 **not** unload the packages themselves; it only removes their entries from
-mizer's registry, so you must reload or re-register the extensions before
-creating or using params objects that depend on them.
+mizer's registry. Calling `library()` for a package that is still loaded does
+not reliably rerun its `.onLoad()` hook, so either restart or unload and load the
+packages again, or restore the chain explicitly with `registerExtensions()`
+before creating or using dependent params objects.
 
 ### Setting the chain manually
 
@@ -142,8 +144,8 @@ builds itself.
 ## Params objects and the extension chain
 
 When an extension package creates a `MizerParams` object (for example
-`mizerShelf::newDetritusCarrionParams()`), it stamps the object with the full
-extension chain active at that moment, stored in the `extensions` slot:
+`mizerShelf::newDetritusCarrionParams()`), it records the extension packages
+actually applied to that object in the `extensions` slot:
 
 ```r
 params@extensions
@@ -151,8 +153,9 @@ params@extensions
 
 That record serves two purposes:
 
-1. **Reproducibility.** It says which extension packages, and which versions,
-   built the model.
+1. **Reproducibility.** It says which extension packages built the model, the
+   installation requirement for each, and the package version whose object
+   layout each component conforms to.
 2. **Class restoration.** On reload, mizer uses it to promote the object back to
    the correct S4 class, so that functions like `getBiomass()` keep dispatching
    to the right extension methods.
@@ -198,8 +201,10 @@ specifications stored in `params@extensions`:
 params <- readParams("my_model.rds", install_extensions = TRUE)
 ```
 
-This fetches the recorded version of each package from CRAN or GitHub as
-appropriate.
+This installs each package from the recorded requirement specification, such as
+a CRAN version requirement or a GitHub repository. The separate recorded
+version stamp describes the object layout for upgrade purposes; it does not
+necessarily pin installation to that exact package release.
 
 ## Built-in example models from extension packages
 
@@ -233,19 +238,30 @@ with `readParams("my_model.rds", install_extensions = TRUE)`.
 params@extensions
 ```
 
-The names are the package names; the values say where to get each one.
+The names are the extension identifiers. Current entries each contain a
+`requirement` (where or at what minimum version to install the package) and a
+`version` stamp (the package version whose object layout the component conforms
+to). Legacy objects may still show the older named-character-vector form;
+mizer accepts both.
 
 ### Packages were loaded in the wrong order
 
-Call `clearExtensionChain()`, then reload in the order you want — no need to
-restart R. Afterwards, create or re-read your params objects so they pick up the
-new chain.
+Either restart R and load the packages in the desired order, or explicitly
+register the desired chain. Merely calling `library()` again after
+`clearExtensionChain()` is insufficient when those namespaces are still
+loaded. `registerExtensions()` takes the chain in outermost-first order:
 
 ```r
 clearExtensionChain()
-library(mizerShelf)   # innermost (loaded first)
-library(mizerFoo)     # outermost (loaded last)
+registerExtensions(c(
+    mizerFoo = "owner/mizerFoo",                  # outermost
+    mizerShelf = "sizespectrum/mizerShelf"        # innermost
+))
 ```
+
+Afterwards, create or re-read the params objects that use that chain. In a fresh
+session the equivalent loading order is `library(mizerShelf)` followed by
+`library(mizerFoo)`.
 
 ### Making a script reproducible
 
@@ -259,10 +275,10 @@ itself in `.onLoad`, so sourcing the script fresh always rebuilds the same chain
 |---|---|---|
 | `readParams()`/`readSim()` errors "Some required extension packages are not installed" | The chain recorded in the file names a package this library does not have | Install it, or re-read with `install_extensions = TRUE` |
 | An extension's method is not called: results match plain mizer, no error | The object lost its marker class — usually read with `readRDS()` instead of `readParams()`, or the package was not loaded | `library(<pkg>)`, then `params <- coerceToExtensionClass(params)`; re-read the file with `readParams()` in future |
-| `params@extensions` is empty on a model an extension built | The model was built before the extension package was loaded | Load the package, rebuild (or `coerceToExtensionClass()` with an explicit chain) |
+| `params@extensions` is empty on a model an extension built | The extension's setup function did not record itself, or the object predates that mechanism | Load the package and rerun its setup/conversion function or rebuild the model; coercion alone does not persist the missing record |
 | `saveParams()` warns "Your model is using the functions …" | A custom rate, selectivity or kernel function lives only in the session | Ship the defining script alongside the `.rds`; the warning is not a failure |
-| Results change depending on the order of the `library()` calls | Two extensions override the same function and interact | Fix the order deliberately: `clearExtensionChain()`, reload, rebuild or re-read the objects |
-| `getRegisteredExtensions()` is empty although the package is attached | The registry was cleared, or `.onLoad` did not run | Reload the package, or `registerExtensions()` with the chain from `params@extensions` |
+| Results change depending on the order of the `library()` calls | Two extensions override the same function and interact | Fix the order deliberately in a fresh session, or call `registerExtensions()` with an explicit outermost-first chain, then rebuild or re-read the objects |
+| `getRegisteredExtensions()` is empty although the package is attached | The registry was cleared after the namespace loaded | Restart or unload and load the package so `.onLoad()` runs, or call `registerExtensions()` explicitly |
 
 Before writing a params object to disk in a project that loads any extension
 package, check that the code path uses `saveParams()`. `saveRDS()` produces a

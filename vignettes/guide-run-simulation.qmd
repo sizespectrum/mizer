@@ -105,7 +105,7 @@ params_t   <- getParams(sim, time_range = 2010:2015)  # averaged over a range
 sim_next   <- project(params_end, t_max = 20, effort = 0.5)
 ```
 
-[`finalParams(sim)`](../reference/finalParams.html) and [`initialParams(sim)`](../reference/initialParams.html) are shorthands for the final and
+[`finalParams(sim)`](../reference/getParams.html) and [`initialParams(sim)`](../reference/getParams.html) are shorthands for the final and
 initial steps of [`getParams()`](../reference/getParams.html). Prefer these over the **deprecated**
 [`setInitialValues(params, sim)`](../reference/setInitialValues.html).
 
