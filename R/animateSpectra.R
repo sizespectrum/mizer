@@ -315,9 +315,10 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
                             log_x, plot_size_xlab(size_axis)),
                         yaxis = plotly_axis(df$value, ylim, log_y, y_label),
                         legend = list(traceorder = "normal"))
-    plotly::animation_opts(p, frame = frame_duration,
-                           transition = transition_duration,
-                           easing = easing)
+    p <- plotly::animation_opts(p, frame = frame_duration,
+                                transition = transition_duration,
+                                easing = easing)
+    stable_plotly_ids(p) # nolint: object_usage_linter.
 }
 
 plotly_axis <- function(values, limits, log_axis, title) {

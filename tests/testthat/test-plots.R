@@ -169,6 +169,17 @@ test_that("plotHover(plot(...)) uses concise mizer tooltips", {
     expect_equal(tooltip_fields(gp), c("Species", "w", "Encounter rate"))
 })
 
+test_that("plotHover uses reproducible internal plotly ids", {
+    p1 <- plotHover(getBiomass(NS_sim_small))
+    p2 <- plotHover(getBiomass(NS_sim_small))
+
+    expect_identical(names(p1$x$attrs), "mizer-plotly-1")
+    expect_identical(names(p1$x$attrs), names(p2$x$attrs))
+    expect_identical(names(p1$x$visdat), names(p2$x$visdat))
+    expect_identical(p1$x$cur_data, p2$x$cur_data)
+    expect_error(plotly::plotly_build(p1), NA)
+})
+
 test_that("plotSpectra2 compares spectra from params and sims", {
     p_params <- plotSpectra2(params, params, name1 = "Original",
                              name2 = "Changed", species = species,
@@ -1505,6 +1516,47 @@ test_that("plotDataFrame supports area plots, wrapping and log x breaks", {
     expect_true(p$facet$params$free$y)
     expect_false(p$facet$params$free$x)
     expect_false(inherits(p$scales$scales[[2]]$breaks, "waiver"))
+})
+
+test_that("a log axis drops the values and limits it cannot show", {
+    params <- NS_params_small
+    sp <- species_params(params)$species[1:2]
+    df <- data.frame(
+        x = c(1, 10, 100, 1, 10, 100),
+        y = c(1, 2, 0, 2, 3, 4),
+        Species = rep(sp, each = 3)
+    )
+    # A y-limit of zero is impossible on a log axis and is auto-scaled instead,
+    # and the zero value is dropped rather than warned about.
+    p <- expect_no_warning(
+        ggplot2::ggplot_build(
+            plotDataFrame(df, params, ytrans = "log10", ylim = c(0, NA),
+                          legend_var = "Species")))
+    expect_equal(nrow(p$plot$data), 5)
+    expect_true(all(is.na(p$plot$scales$scales[[1]]$limits)))
+    # On a linear axis nothing is dropped and the limit is kept.
+    p2 <- plotDataFrame(df, params, ylim = c(0, NA), legend_var = "Species")
+    expect_equal(nrow(p2$data), 6)
+    expect_equal(p2$scales$scales[[1]]$limits, c(0, NA))
+})
+
+test_that("plotPredMort tolerates a log y axis", {
+    params <- NS_params_small
+    sim <- project(params, t_max = 1, effort = 1)
+    # Predation mortality is zero on the largest individuals and the plot asks
+    # for a y-axis starting at zero, so this used to warn twice.
+    expect_no_warning(ggplot2::ggplot_build(plotPredMort(sim, log_y = TRUE)))
+    expect_no_warning(ggplot2::ggplot_build(plotFMort(sim, log_y = TRUE)))
+})
+
+test_that("a log axis that would hide everything is left alone", {
+    params <- NS_params_small
+    df <- data.frame(x = 1:3, y = c(0, 0, 0),
+                     Species = species_params(params)$species[1])
+    # All values are unplottable, so dropping them would only replace the
+    # warning with the complaints of an empty plot.
+    p <- plotDataFrame(df, params, ytrans = "log10", legend_var = "Species")
+    expect_equal(nrow(p$data), 3)
 })
 
 # plotBiomass cutoff and time range ----

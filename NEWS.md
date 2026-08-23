@@ -29,39 +29,15 @@ fixed, keeping the old names as silent aliases.
   steady state by computing the eigenvalues of the linearised dynamics at the
   fixed point. Mizer discretises the size axis but not time, so the model is a
   system of ODEs on the size grid; `getStability()` differentiates their
-  right-hand side directly and returns the eigenvalues of that Jacobian. No time
-  step enters the calculation: the eigenvalues are a property of the model
-  rather than of any solver. It reports whether the steady state is stable or
+  right-hand side directly and returns the eigenvalues of that Jacobian.
+  It reports whether the steady state is stable or
   unstable (based on the real parts of the eigenvalues), the maximum real part,
   and — where the spectrum contains a complex pair — the
   `leading_oscillatory_eigenvalue`, the `oscillation_period` at which the model
-  rings and the `leading_oscillatory_eigenvector` of that mode. Those are named
-  after what they are rather than after a Hopf bifurcation, which a single
-  spectrum cannot establish: a comfortably stable model has a leading
-  oscillatory mode too, and it describes a transient rather than a cycle. Use
-  `scanModel()` to watch its real part cross zero. Fish and resource are
-  perturbed together, so the Jacobian is the full coupled one and any resource
-  dynamics function is supported; components registered with `setComponent()`
+  rings and the `leading_oscillatory_eigenvector` of that mode.
+  Components registered with `setComponent()`
   are held fixed and are not in the Jacobian, which mizer now warns about when
-  it meets one with dynamics of its own. Reproduction is part of the analysis in the same way: the model's
-  own `rates_funcs$RDD` is evaluated at each perturbed state, so the eigenvalues
-  describe the reproduction feedback that `project()` actually runs, and there
-  is no option to pin the reproduction rate at its value at the fixed point. A
-  model whose reproduction really is constant expresses that as a model, with
-  `rates_funcs$RDD = "constantRDD"`. This is why the stability of a steady state
-  depends on the reproduction parameters even though the steady state itself
-  does not: the `erepro`/`R_max` pairs that `setBevertonHolt()` moves between
-  all leave the fixed point where it is, but a `reproduction_level()` near 1
-  barely lets the reproduction rate respond to the energy invested in it, while
-  one near 0 lets it follow that energy proportionally. The stability list also
-  includes `leading_eigenvectors`, holding
-  the top two eigenvectors reshaped into the state space: `$fish`, a complex
-  array `(n_species, n_sizes, 2)`, and `$resource`, a complex matrix
-  `(n_w_full, 2)`, each normalised to maximum modulus 1. The rate functions are
-  only ever evaluated at states satisfying `N >= 0` — where a centred difference
-  would push a cell negative, the column is differenced forwards from the
-  unperturbed state instead — so a custom rate function registered with
-  `setRateFunction()` never has to be defined at negative abundances.
+  it meets one with dynamics of its own.
 
 - New experimental `getDiscreteStability()` asks the separate question of how
   mizer's *numerical* step behaves near the steady state: it linearises the
@@ -94,7 +70,7 @@ fixed, keeping the old names as silent aliases.
   wrapper over `scanModel()`, described below. It plots the yield of one species
   against the fishing mortality on that species, leaving the fishing on every
   other species alone, and marks the fishing mortality at which the yield is
-  largest, which is \eqn{F_{MSY}}. A limit cycle is drawn as a band around the
+  largest, which is $F_{MSY}$. A limit cycle is drawn as a band around the
   average rather than being silently averaged away, and if the species has an
   `F_MSY` species parameter it is drawn as a reference line for comparison.
   `getYieldVsF()` has not come with it: use `plotYieldVsF(return_data = TRUE)`,
@@ -112,13 +88,13 @@ fixed, keeping the old names as silent aliases.
 
   How the quantity is measured depends on what the model settled on, which
   `projectToSteady()` now reports. On a fixed point it is read straight off the
-  settled state with no further projection at all. On a limit cycle the model is
-  projected for **exactly one period** of the detected cycle and the quantity is
-  averaged over it, which is its long-term average; a window that is not a whole
-  number of periods would leave a residue of the oscillation in the average and
-  show up as a jagged curve. When the model settled on neither, the quantity is
-  averaged over `t_sample` years and the scan values concerned are named in a
-  message, because those points should not be relied on.
+  settled state. On a limit cycle the model is projected for **exactly one
+  period** of the detected cycle and the quantity is averaged over it, giving
+  its long-term average; a window that is not a whole number of periods would
+  leave a residue of the oscillation in the average. When the model settled on
+  neither, the quantity is averaged over `t_sample` years and the scan values
+  concerned are named in a message, because those points should not be relied
+  on.
 
   New `scanEffort()`, `scanFishingMortality()` and `scanSpeciesParam()` build the
   function that applies each scan value to the model; any function of
@@ -130,7 +106,7 @@ fixed, keeping the old names as silent aliases.
   attributes everything `plot()` needs to draw it — the axis names and units, the
   `MizerParams` the scan started from, optional reference lines, and `at_max`,
   the scanned value at which each series attains its largest value (which is
-  \eqn{F_{MSY}} on a yield-versus-fishing-mortality scan). It has `plot()`,
+  $F_{MSY}$ on a yield-versus-fishing-mortality scan). It has `plot()`,
   `print()`, `summary()`, `as.data.frame()`, `str()` and `[` methods; `[`
   recomputes `at_max` from the rows that remain, so a subset never carries a
   stale maximum.
@@ -219,12 +195,10 @@ fixed, keeping the old names as silent aliases.
   state?* It returns the rate at which each species' abundance would change if
   the model were projected forward, as a per-capita rate in 1/year, so zero
   means the model is on a fixed point. For the consumers the value is exact
-  rather than a finite difference: the backward-Euler transport coefficients
-  used by `project()` satisfy `A N - S = -dt dN/dt` identically. Everything is
-  evaluated with the model's own reproduction function and its own
-  `resource_dynamics`, so unlike `findSteadyState(solver = "newton")` it works
-  whatever the resource
-  dynamics are. The result is an `ArraySpeciesBySize`, so
+  rather than a finite difference. Everything is evaluated with the model's own
+  reproduction function and its own `resource_dynamics`, so unlike
+  `findSteadyState(solver = "newton")` it works whatever the resource dynamics
+  are. The result is an `ArraySpeciesBySize`, so
   `plot(getSteadyResidual(params))` shows which species and which sizes have
   moved (#495).
 
@@ -236,20 +210,18 @@ fixed, keeping the old names as silent aliases.
 - `project()` gains an experimental `check_steady` argument. With
   `check_steady = TRUE` it warns when it is handed a model that is not at its
   steady state, which catches the mistake of forgetting to re-run
-  `tuneSteadyState()`
-  after a `match…()` step. It defaults to `FALSE`, because projecting a model
-  away from its steady state is a perfectly normal thing to do. The check is
-  made at the effort stored in the params object rather than at the effort
-  passed to `project()`, so running a fishing scenario at a new effort does not
-  warn (#495).
+  `tuneSteadyState()` after a `match…()` step. It defaults to `FALSE`, because
+  projecting a model away from its steady state is a perfectly normal thing to
+  do. The check is made at the effort stored in the params object rather than at
+  the effort passed to `project()`, so running a fishing scenario at a new
+  effort does not warn (#495).
 
 - The `"convergence"` attribute also carries a `residual` field giving how far
   the state reached actually is from a fixed point. The `distance` field only
   compares two states `t_per` apart on whatever scale the distance function
-  uses; `residual` measures the thing itself, and `tuneSteadyState()` says when
-  the two
-  disagree — a run declared converged whose biomasses are still visibly moving
-  (#495).
+  uses, whereas `residual` measures the thing itself, and `tuneSteadyState()`
+  reports when the two disagree — a run declared converged whose biomasses are
+  still visibly moving (#495).
 
 - `steady()` and `projectToSteady()` no longer end a successful run by saying
   "Convergence was achieved in 12 years." They now say what was actually tested
@@ -259,12 +231,11 @@ fixed, keeping the old names as silent aliases.
   needs updating.
 
 - `matchBiomasses()`, `matchNumbers()` and `matchGrowth()` now say that they
-  have moved the model off its steady state, turning an
-  instruction the documentation had to keep repeating into something the package
-  says at the moment it becomes true. The `calibrate…()` functions and
-  `scaleModel()` deliberately do not: they apply one overall scaling factor,
-  which is an exact symmetry of the model and leaves the steady state untouched
-  (#495).
+  have moved the model off its steady state, turning an instruction the
+  documentation had to keep repeating into something the package says at the
+  moment it becomes true. The `calibrate…()` functions and `scaleModel()`
+  deliberately do not: they apply one overall scaling factor, which is an exact
+  symmetry of the model and leaves the steady state untouched (#495).
 
 - New `reproduction_level()` and `reproduction_level<-` accessor and replacement
   functions allow reading and changing the reproduction level while preserving
@@ -277,22 +248,20 @@ fixed, keeping the old names as silent aliases.
   actually honour theirs.
 
 - The biomass and the number variants of the calibration and matching functions
-  now share one implementation each. `calibrateBiomass()` and
+  now share one implementation each: `calibrateBiomass()` and
   `calibrateNumber()` differ only in whether the size integral carries a factor
   of the weight, as do `matchBiomasses()` and `matchNumbers()`, but each was a
-  separate copy of the code, and the copies had drifted apart. The four
-  functions behave exactly as before on the default quadrature scheme; what
-  changes is that a correction to how an observation is compared with the model
-  is now made once instead of once per variant (#504).
+  separate copy of the code and the copies had drifted apart. All four behave
+  exactly as before on the default quadrature scheme (#504).
 
 ## Integrals over the size spectrum
 
 - New experimental `sizeIntegral()` calculates any integral
-  \eqn{\int N_i(w)K_i(w)dw} over the size spectrum. It is now the recommended
+  $\int N_i(w)K_i(w)\,dw$ over the size spectrum. It is now the recommended
   way to write your own summary or indicator function: it selects the size
   range, applies the quadrature scheme the model is actually on and wraps the
   result in the appropriate mizer array class, so none of those rules need to
-  be remembered. It takes the weighting factor \eqn{K} via the `weighting`
+  be remembered. It takes the weighting factor $K$ via the `weighting`
   argument in any of the shapes mizer's own arrays come in, from a single
   number to a gear x species x size array, and keeps the extra dimensions in the
   result. `getBiomass()`, `getN()`, `getSSB()`, `getYield()`, `getYieldGear()`
@@ -324,10 +293,9 @@ fixed, keeping the old names as silent aliases.
   against a length axis (`size_axis = "l"`), and its units are restated from
   `1/g` to `1/cm`. This replaces the guess mizer used to make from the array's
   name and units, which recognised only densities that happened to be called
-  "Number density" or to have units "1/g" — and so missed `getFluxGradient()`,
-  whose values were plotted per gram against a length axis and labelled
-  `g^-1/year`. Arrays that declare no type still fall back to that guess, so
-  existing code and saved objects are unaffected.
+  "Number density" or to have units "1/g" — and so missed `getFluxGradient()`.
+  Arrays that declare no type still fall back to that guess, so existing code
+  and saved objects are unaffected.
 
   A `"proportion"` — `getFeedingLevel()`, `getCriticalFeedingLevel()`,
   `maturity()`, `repro_prop()`, `psi()`, `resource_level()` — is plotted on a
@@ -349,23 +317,24 @@ fixed, keeping the old names as silent aliases.
   by `...`.
 
 - `plotSpectra()`, `plotSpectra2()`, `plotCDF()`, `plotCDF2()` and `animate()`
-  now let you choose the plotted quantity with two independent arguments
-  instead of the single `power`: `biomass` selects a biomass density rather
-  than a number density and the new `per_log_size` selects a density with
-  respect to logarithmic size rather than with respect to size. The power of
-  the weight is the sum of the two, which is why `power = 1` was ambiguous: it
-  is both the biomass density and the number density in log size, and mizer had
-  to assume the former when choosing the y-axis label and the Jacobian for a
-  length axis. The number density in log size, `plotSpectra(sim, biomass =
-  FALSE, per_log_size = TRUE)`, is therefore now available for the first time
-  with the correct label and length conversion. The `power` argument keeps
-  working as before and remains the only way to ask for a power that is not the
-  sum of the two flags, but supplying it together with a contradictory flag is
-  now an error instead of silently ignoring the flag (#501). `plotCDF()` does
-  not accept `per_log_size`, because the cumulative distribution does not
-  depend on that choice. As a side effect, `plotlySpectra()`, `plotlyCDF()`,
-  `plotlySpectra2()` and `plotlyCDF2()` now honour `biomass`, which they used
-  to drop because they always passed `power` on internally.
+  now let you choose the plotted quantity with two independent arguments instead
+  of the single `power`: `biomass` selects a biomass density rather than a
+  number density and the new `per_log_size` selects a density with respect to
+  logarithmic size rather than with respect to size. The power of the weight is
+  the sum of the two, which is why `power = 1` was ambiguous: it is both the
+  biomass density and the number density in log size, and mizer had to assume
+  the former when choosing the y-axis label and the Jacobian for a length axis.
+  The number density in log size,
+  `plotSpectra(sim, biomass = FALSE, per_log_size = TRUE)`, is therefore now
+  available for the first time with the correct label and length conversion. The
+  `power` argument keeps working as before and remains the only way to ask for a
+  power that is not the sum of the two flags, but supplying it together with a
+  contradictory flag is now an error instead of silently ignoring the flag
+  (#501). `plotCDF()` does not accept `per_log_size`, because the cumulative
+  distribution does not depend on that choice. As a side effect,
+  `plotlySpectra()`, `plotlyCDF()`, `plotlySpectra2()` and `plotlyCDF2()` now
+  honour `biomass`, which they used to drop because they always passed `power`
+  on internally.
 
 - The resource can now be shown on length-based plots. `resource_params()`
   gains the weight-length parameters `a` and `b`, defaulting to the equivalent
@@ -376,9 +345,7 @@ fixed, keeping the old names as silent aliases.
   `animate()` gain `size_axis` and `llim`. The parameters feed none of the
   rates. Note that the resource then sits on the length axis at its own
   convention: a fish of a given weight is about 3.7 times longer than a sphere
-  of that weight. That difference is real rather than an artefact — a 1 mg
-  copepod really is shorter than a 1 mg fish larva — but it does mean the
-  resource and the species are measured differently.
+  of that weight, so the resource and the species are measured differently.
 
 - The total line is now shown on length-based plots, where it used to be
   dropped. A total can only be formed once every line sits on the same
@@ -393,23 +360,20 @@ fixed, keeping the old names as silent aliases.
   weight-axis total is unchanged.
 
   `plotSpectra2()`, `plotSpectraRelative()`, `plotCDF()` and `plotCDF2()` keep
-  their total on a length axis too. The comparison plots used to convert the
-  axis after assembling the two spectra, so the total they had been given —
-  summed at equal weight — arrived at the conversion with no species to convert
-  it by and was dropped. They now let `plotSpectra()` convert, so the total they
-  receive is already the total on the axis being plotted. As a result
-  `plotSpectra2()` also applies `ylim` the way `plotSpectra()` does on a length
-  axis: it could not before, because the values it was filtering were a Jacobian
-  away from the ones the limits described, so with `return_data = TRUE` it
-  returned values outside the limits that a single spectrum plot would have
-  dropped.
+  their total on a length axis too. They used to convert the axis after
+  assembling the two spectra, at which point the total they had been given —
+  summed at equal weight — had no species to convert it by and was dropped. They
+  now let `plotSpectra()` convert instead. As a result `plotSpectra2()` also
+  applies `ylim` the way `plotSpectra()` does on a length axis, which it could
+  not do before because the values it was filtering were a Jacobian away from
+  the ones the limits described.
 
   `total = TRUE` also now means the same thing everywhere: the total of
-  everything the object holds. For `plotSpectra()` that was already so — the
-  resource and every species, whatever is drawn — and it stays so. The array
-  plots have been brought into line: `plot(<array>, total = TRUE)` used to sum
-  only the species that were selected for display, and now sums the whole
-  array, so a plot of two species can be read against the community total.
+  everything the object holds. For `plotSpectra()` that was already so and stays
+  so. The array plots have been brought into line: `plot(<array>, total = TRUE)`
+  used to sum only the species that were selected for display and now sums the
+  whole array, so a plot of two species can be read against the community
+  total.
 
 - The array-plotting toolkit now covers every mizer array class. The resource
   classes `ArrayResourceBySize` (as returned by `getResourceMort()`,
@@ -519,12 +483,11 @@ fixed, keeping the old names as silent aliases.
 
 - The reporting mechanism is now exported, so that an extension package can tell
   the user what it decided on their behalf through the same channel mizer uses,
-  and have it obey the same switch:
-  `signal_info()` raises a report, `with_info_level()` collects the reports
-  raised inside a call and gives them together when it finishes,
-  `signal_not_recalculated()` is the standard report for a setter that left a
-  hand-set array alone, and `default_info_level()` reads the `mizer_info_level`
-  option. Give your own constructors and setters an
+  and have it obey the same switch: `signal_info()` raises a report,
+  `with_info_level()` collects the reports raised inside a call and gives them
+  together when it finishes, `signal_not_recalculated()` is the standard report
+  for a setter that left a hand-set array alone, and `default_info_level()`
+  reads the `mizer_info_level` option. Give your own constructors and setters an
   `info_level = default_info_level()` argument and forward it, rather than
   hard-coding a value in the call to `newMultispeciesParams()`, which would
   collide with a user's own `info_level`. All four are marked experimental: the
@@ -559,27 +522,25 @@ fixed, keeping the old names as silent aliases.
 
 - The two species parameter setters now avoid unnecessary recalculation.
   `given_species_params<-()` records every non-`NA` value as explicit input,
-  including a value equal to the current calculated value, but does not rebuild
-  the model for that provenance-only change. Changes to observation,
-  direct-runtime and unrelated custom columns also avoid the full `setParams()`
-  sequence. Standard parameters with cached dependants, arguments of active
-  custom predation kernels, demotions to calculated values and unknown columns
-  on extension objects retain the conservative rebuild path.
+  including a value equal to the current calculated value, but no longer
+  rebuilds the model for such a provenance-only change, and changes to
+  observation, direct-runtime and unrelated custom columns also skip the full
+  `setParams()` sequence. Changes that can reach a rate array keep the
+  conservative rebuild path.
 
 - Changing a species parameter that feeds a rate array you have set by hand now
   warns you that the change has no effect on the model. Previously
   `given_species_params<-()` recorded the new value in the species parameter
-  table but left the model unchanged, and said nothing: the rate setters do
-  emit a message in that situation, but the setter runs `suppressMessages()`
-  over the recalculation to quieten the routine chatter, so the message never
-  reached the user. The report is now a warning, which survives that, and it
-  names the species parameters that were ignored, the quantity that is holding
-  them back, and the call that puts the quantity back under the control of the
-  species parameters, for example `setMetabolicRate(params, reset = TRUE)`. It
-  is raised only when a parameter that actually feeds the frozen quantity
-  changed, so models that mizer itself freezes arrays in, like those from
-  `newTraitParams()` and `newCommunityParams()`, do not warn about unrelated
-  changes (#489).
+  table but left the model unchanged and said nothing, because the message the
+  rate setter does emit in that situation was swallowed by the
+  `suppressMessages()` that quietens the routine chatter of the recalculation.
+  The report is now a warning, which survives that, and it names the species
+  parameters that were ignored, the quantity that is holding them back, and the
+  call that puts that quantity back under the control of the species parameters,
+  for example `setMetabolicRate(params, reset = TRUE)`. It is raised only when a
+  parameter that actually feeds the frozen quantity changed, so models in which
+  mizer itself freezes arrays, like those from `newTraitParams()` and
+  `newCommunityParams()`, do not warn about unrelated changes (#489).
 
 - Changing a resource parameter that feeds a resource array you have set by
   hand now warns you that the change has no effect, the same way a species
@@ -635,8 +596,8 @@ fixed, keeping the old names as silent aliases.
 
 ## Other new functions
 
-- New `knife_edge_length()` selectivity function that applies a knife-edge cut
-  at a given **length** rather than a weight. Set `sel_func = "knife_edge_length"`
+- New `knife_edge_length()` selectivity function applies a knife-edge cut at a
+  given **length** rather than a weight. Set `sel_func = "knife_edge_length"`
   and provide a `knife_edge_length` column in `gear_params()`. The length is
   converted to a cut-off weight via the length–weight parameters `a` and `b`.
 
@@ -650,40 +611,31 @@ fixed, keeping the old names as silent aliases.
 ## Other improvements
 
 - `validParams()` is now about 15 times faster on an object that is already
-  valid (#461). It used to redo its full work on every call, which made it
-  expensive to apply the "validate at the boundary" principle consistently. The
-  repair work — rebuilding the species parameter tables and the `w_min_idx` and
-  `ft_mask` slots, and checking the structural validity of the object — is now
-  skipped for an object that has already been through it. Mizer recognises such
-  an object by a fingerprint calculated from the contents of the slots that the
-  repair and the structural checks depend on. The fingerprint is recalculated on
-  every call and is not stored on the object, so it cannot go stale: any change
-  to any of those slots, made by any route including a direct slot assignment,
-  gives a new fingerprint and triggers the full validation. The checks for
-  non-finite values in the rate arrays are still made on every call, because
-  they catch what the fingerprint cannot see. `validSim()` benefits
-  automatically, because most of its cost was its nested `validParams()` call.
-  One consequence: any warning or message that the repair issues about a
-  condition it does not itself fix (for example that a species has a maximum
-  size larger than the largest size in the model) is now issued only the first
-  time an object with that content is validated in a session.
+  valid (#461). The repair work — rebuilding the species parameter tables and
+  the `w_min_idx` and `ft_mask` slots, and checking the structural validity of
+  the object — is now skipped for an object that has already been through it.
+  Mizer recognises such an object by a fingerprint calculated from the slots
+  that the repair and the structural checks depend on. The fingerprint is
+  recalculated on every call and is not stored on the object, so it cannot go
+  stale: any change to any of those slots, made by any route including a direct
+  slot assignment, triggers the full validation. The checks for non-finite
+  values in the rate arrays are still made on every call, because they catch
+  what the fingerprint cannot see, and `validSim()` benefits automatically. One
+  consequence: a warning that the repair issues about a condition it does not
+  itself fix, for example that a species has a maximum size larger than the
+  largest size in the model, is now issued only the first time an object with
+  that content is validated in a session.
 
-- Two things introduced in earlier releases are now marked experimental, to say
-  explicitly that their interfaces may still change:
-  `record_given_species_params()`, which exposes the given/calculated provenance
-  machinery that has been reworked several times in this cycle, and the
-  `ArrayResourceBySize` and `ArrayTimeByResourceBySize` classes, which are still
-  gaining methods and whose weight-length convention for the resource is a
-  recent addition. Nothing about their behaviour changes.
+- `record_given_species_params()` and the `ArrayResourceBySize` and
+  `ArrayTimeByResourceBySize` classes are now marked experimental, to say
+  explicitly that their interfaces may still change. Nothing about their
+  behaviour changes.
 
 - `per_log_size` is now a formal argument of the `animate()` generic rather than
-  reaching the methods through `...`. Every `animate()` method already took it,
-  but the two array methods declared it in a position the generic did not have,
-  which made the generic and its methods inconsistent, and its `@param` entry
-  documented an argument that did not appear in the usage section. Nothing
-  changes for code that calls `animate()`, since the argument was always passed
-  through; an extension package that defines its own `animate()` method should
-  add `per_log_size` after `size_axis` to stay consistent with the generic.
+  reaching the methods through `...`. Nothing changes for code that calls
+  `animate()`, since the argument was always passed through; an extension
+  package that defines its own `animate()` method should add `per_log_size`
+  after `size_axis` to stay consistent with the generic.
 
 ## Deprecations
 
@@ -705,23 +657,21 @@ fixed, keeping the old names as silent aliases.
 - `matchYields()` and `calibrateYield()` have been removed. They were deprecated
   in mizer 2.6.0 and no use case for them was reported. Both worked by
   multiplying the abundance of a species at all sizes by a constant factor,
-  which is the wrong lever for a yield: use
-  `mizerExperimental::matchYield()`, which adjusts the catchability instead
-  (#526).
+  which is the wrong lever for a yield: use `mizerExperimental::matchYield()`,
+  which adjusts the catchability instead (#526).
 
 - Seventeen accessors that returned a value stored in the MizerParams object had
-  two names that did exactly the same thing. The
-  `get`-prefixed name is now superseded in favour of the bare name, which is the
-  one that also has a replacement function (`catchability(params) <- value` and
-  friends): `getCatchability()` → `catchability()`, `getSelectivity()` →
-  `selectivity()`, `getInitialEffort()` → `initial_effort()`,
-  `getInteraction()` → `interaction_matrix()`, `getResourceDynamics()` →
-  `resource_dynamics()`, `getResourceLevel()` → `resource_level()`,
-  `getResourceRate()` → `resource_rate()`, `getResourceCapacity()` →
-  `resource_capacity()`, `getPredKernel()` →
-  `pred_kernel()`, `getSearchVolume()` → `search_vol()`, `getMaxIntakeRate()` →
-  `intake_max()`, `getMetabolicRate()` → `metab()`, `getExtMort()` →
-  `ext_mort()`, `getExtEncounter()` → `ext_encounter()`,
+  two names that did exactly the same thing. The `get`-prefixed name is now
+  superseded in favour of the bare name, which is the one that also has a
+  replacement function (`catchability(params) <- value` and friends):
+  `getCatchability()` → `catchability()`, `getSelectivity()` → `selectivity()`,
+  `getInitialEffort()` → `initial_effort()`, `getInteraction()` →
+  `interaction_matrix()`, `getResourceDynamics()` → `resource_dynamics()`,
+  `getResourceLevel()` → `resource_level()`, `getResourceRate()` →
+  `resource_rate()`, `getResourceCapacity()` → `resource_capacity()`,
+  `getPredKernel()` → `pred_kernel()`, `getSearchVolume()` → `search_vol()`,
+  `getMaxIntakeRate()` → `intake_max()`, `getMetabolicRate()` → `metab()`,
+  `getExtMort()` → `ext_mort()`, `getExtEncounter()` → `ext_encounter()`,
   `getMaturityProportion()` → `maturity()`, `getReproductionProportion()` →
   `repro_prop()` and `getReproductionLevel()` → `reproduction_level()`. The
   `get` prefix is now reserved for the functions that *calculate* something from
@@ -731,10 +681,10 @@ fixed, keeping the old names as silent aliases.
   removed, so existing code and old scripts keep running unchanged. They are no
   longer used anywhere inside mizer and should not be used in new code. Note
   that `getInteraction()` and the four resource getters did warn in earlier
-  versions; they no longer do.
-  Because these are aliases rather than generics, an extension that defined a
-  method such as `getExtMort.MyClass` or `getInteraction.MizerParams` needs to
-  rename it to `ext_mort.MyClass` or `interaction_matrix.MizerParams`.
+  versions; they no longer do. Because these are aliases rather than generics,
+  an extension that defined a method such as `getExtMort.MyClass` or
+  `getInteraction.MizerParams` needs to rename it to `ext_mort.MyClass` or
+  `interaction_matrix.MizerParams`.
 
 - The `sim2` argument of `plotYield()` is deprecated in favour of
   `plot2(getYield(sim1), getYield(sim2))`.
@@ -748,6 +698,20 @@ fixed, keeping the old names as silent aliases.
 
 ## Bug fixes
 
+- The `gear_params` print method no longer reports each row as a gear. Every row
+  is a gear-species pair, so a single gear catching ten species was announced as
+  "gear parameters for 10 gears"; it now says how many pairs there are and how
+  many gears they belong to.
+
+- A logarithmic axis no longer warns about the values and limits it cannot
+  show. `plotPredMort(sim, log_y = TRUE)` warned twice: once because the
+  function asks for a y axis starting at zero, which is not a point on a log
+  axis, and once because predation mortality is exactly zero on the largest
+  individuals. A limit of zero or below is now auto-scaled away on a log axis,
+  and values that cannot be drawn there are dropped quietly, as `plotSpectra()`
+  has always done — unless dropping them would empty the plot, in which case
+  they are left for ggplot2 to complain about as before.
+
 - The summary plots `plot(sim)` and `plot(params)` now send the arguments that
   describe the plotted spectrum — `power`, `biomass`, `per_log_size` and
   `resource` — to `plotSpectra()` alone, instead of passing their `...` to every
@@ -760,10 +724,8 @@ fixed, keeping the old names as silent aliases.
   measures the energy available to a predator by giving it a search volume
   coefficient of 1, but it obtained that search volume by calling
   `setSearchVolume()`, which refuses to recalculate a `search_vol` array you
-  have set yourself. So mizer's own internal calculation was blocked along with
-  yours and the available energy was read off your array instead, making the
-  resulting `gamma` wrong by however much your array differed from the
-  unit-gamma one — many orders of magnitude in realistic models. Both
+  have set yourself, so the available energy was read off your array instead and
+  the resulting `gamma` could be wrong by many orders of magnitude. Both
   `get_gamma_default()` and `get_f0_default()` now compute the search volume
   they need directly from the species parameters, so they are unaffected by a
   frozen `search_vol` and remain exact inverses of each other (#488).
@@ -817,16 +779,16 @@ fixed, keeping the old names as silent aliases.
 
 - `setParams()` now gives an error when it is passed an argument that none of
   the setter functions it calls accepts. Every one of those setters declares its
-  `...` as unused, so any misspelled or misplaced argument was silently
-  accepted and ignored: `setParams(params, metabolic = 99)` did nothing and said
-  nothing. Arguments that belong to another function are named in the error
-  together with the function that does accept them. In particular
-  `setParams()` never called `setResource()`, so `setParams(params,
-  resource_rate = ...)` had no effect on the model; the error now points at
-  `setResource()`, and the deprecation warnings for `setResource(r_pp)` and
-  `setResource(kappa)`, which used to recommend `setParams()`, now recommend
-  `setResource()` too. `setResource()` likewise now errors on an argument it
-  does not have, instead of ignoring it (#491).
+  `...` as unused, so any misspelled or misplaced argument was silently accepted
+  and ignored: `setParams(params, metabolic = 99)` did nothing and said nothing.
+  Arguments that belong to another function are named in the error together with
+  the function that does accept them. In particular `setParams()` never called
+  `setResource()`, so `setParams(params, resource_rate = ...)` had no effect on
+  the model; the error now points at `setResource()`, and the deprecation
+  warnings for `setResource(r_pp)` and `setResource(kappa)`, which used to
+  recommend `setParams()`, now recommend `setResource()` too. `setResource()`
+  likewise now errors on an argument it does not have, instead of ignoring it
+  (#491).
 
 - `info_level = 0` now really does silence all the information about default
   values, including the reports that until now were plain messages: the notes
@@ -893,9 +855,9 @@ fixed, keeping the old names as silent aliases.
   builds under `second_order_w` — so the diet was uniformly too large by
   `(1 + beta) / 2`, where `beta` is the grid ratio (9.7% for `NS_params`).
   Summing the diet over prey now reproduces
-  `getEncounter() * (1 - getFeedingLevel())` under both schemes, on both the
-  FFT and the custom-kernel path. `getDiet(proportion = TRUE)`, the default,
-  was unaffected because the factor was uniform and divided out (#474).
+  `getEncounter() * (1 - getFeedingLevel())` under both schemes, on both the FFT
+  and the custom-kernel path. `getDiet(proportion = TRUE)`, the default, was
+  unaffected because the factor was uniform and divided out (#474).
 
 - `getTrophicLevel()` had the same quadrature mismatch: its
   trophic-level-weighted numerator was built from the point-sampled
@@ -906,10 +868,10 @@ fixed, keeping the old names as silent aliases.
   have trophic level 1 comes out at exactly 2 in both schemes (#474).
 
 - `steady()` now successfully converges when the advective flux scheme is set
-  to `"van_leer"` (via `second_order_w`). Previously, the time-stepping
-  iteration would fall into a limit cycle because the flux limiter weights
-  flipped wildly across cells. We resolved this by introducing an exponential
-  moving average relaxation to the limiter `chi` (#522).
+  to `"van_leer"` (via `second_order_w`). The time-stepping iteration used to
+  fall into a limit cycle because the flux limiter weights flipped wildly across
+  cells; the limiter `chi` is now relaxed with an exponential moving average
+  (#522).
 
 - Size-spectrum plots with `size_axis = "l"` now transform number and
   biomass densities from weight to length units using the species-specific
@@ -922,23 +884,38 @@ fixed, keeping the old names as silent aliases.
 
 ## Documentation
 
-- The "Multi Species Model" article has been brought up to date with the current
-  API. It used the deprecated `getInteraction()`, said that the `MizerParams`
-  object stores neither abundances nor fishing effort (it stores the initial
-  values of both), described `steady()` as re-tuning `erepro` when it now
-  preserves the `reproduction_level` by default and also rebalances the resource,
-  and contained Rd markup (`\eqn{}` and `[foo()]` links) that does not render in
-  an Rmd article.
+- The "Multi Species Model", "Community Model", "Trait-Based Model" and "The
+  General Mizer Size-spectrum Model" articles have been brought up to date with
+  the current API. Between them they used deprecated accessors, said that the
+  `MizerParams` object stores neither abundances nor fishing effort (it stores
+  the initial values of both), described `steady()` as re-tuning `erepro` when
+  it now preserves the `reproduction_level` by default and also rebalances the
+  resource, gave the wrong sign for the exponent in the default external
+  mortality $z0_i = z0_{pre}\,w_{\infty.i}^{n-1}$, said that the investment into
+  reproduction reaches one at `w_max` when since 3.1 that is `w_repro_max`,
+  claimed 100 size bins where `newTraitParams()` now chooses 161, and contained
+  Rd markup that does not render in an Rmd article.
 
-- The "Community Model", "Trait-Based Model" and "The General Mizer
-  Size-spectrum Model" articles have been checked against the current API in the
-  same way. The model description used the deprecated `getResourceRate()` and
-  `getResourceCapacity()`, gave the wrong sign for the exponent in the default
-  external mortality $z0_i = z0_{pre}\,w_{\infty.i}^{n-1}$, said that the
-  investment into reproduction reaches one at `w_max` when since 3.1 that is
-  `w_repro_max`, misspelled `BevertonHoltRDD()`, repeated a sentence three times,
-  and linked to a developer vignette that no longer exists. The trait-based
-  article claimed 100 size bins where `newTraitParams()` now chooses 161.
+- The "Community Model" article now uses mizer's own plotting functions in place
+  of the base-R and ggplot2 code it used to build by hand, and reaches the final
+  state of a simulation with `finalParams()` and `finalN()` instead of working
+  out the index of the last time step. The trophic cascade is now shown with
+  `plotSpectraRelative()` and `plotSpectra2()`, which make the alternating
+  increases and decreases far easier to see than the ratio plot did. It also no
+  longer claims that `w_mat` is `NA` in a community model, and it points at the
+  current guides rather than at the articles they replaced.
+
+- The "Trait-Based Model" article has had the same treatment. Its base-R figures
+  are now `plotSpectraRelative()` and `plot2()`, and the predation mortalities
+  are taken from `finalParams()` rather than by passing `finalN(sim)` alongside
+  the original `params`, which paired the final fish abundances with the model's
+  *initial* resource spectrum and was wrong by up to 12%. The text now also
+  mentions the extinctions its summary plot has always shown — at an effort of
+  0.75 six of the ten species go extinct — and explains why the summary table
+  lists the species sizes under `w_inf`: with diffusion off nothing grows past
+  `w_repro_max`, so `newTraitParams()` puts the grid boundary there instead of
+  leaving the usual `1.5 * w_inf` headroom, and `w_inf`, `w_repro_max` and
+  `w_max` all coincide.
 
 - "Extending mizer" and "Guide: Extending mizer" have been merged into a single
   guide at `guide-extend-mizer`, generated from the `extend-mizer` skill; the old
@@ -1009,12 +986,11 @@ fixed, keeping the old names as silent aliases.
   single-species, community and trait constructors too.
 
   There is now one guide per stage of the workflow, matching the skills one
-  for one. Two are new, covering topics that previously had a skill but no
-  article: **Running Simulations** (the arguments of `project()`, the four ways
-  of giving fishing effort, continuing and comparing runs, and when numerical
-  diffusion in the default upwind scheme can damp a real oscillation) and
-  **Extending mizer** (a short reference companion to the Extending mizer
-  article).
+  for one. Two are new: **Running Simulations** (the arguments of `project()`,
+  the four ways of giving fishing effort, continuing and comparing runs, and
+  when numerical diffusion in the default upwind scheme can damp a real
+  oscillation), which had a skill but no article, and **Extending mizer**, the
+  merged guide described above.
 
   The former "Model setup and calibration" article has been split into
   **Model setup** and **Steady state and calibration**, which are separate

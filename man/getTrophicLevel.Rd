@@ -117,8 +117,7 @@ Other summary functions:
 \code{\link[=getSteadyResidual]{getSteadyResidual()}},
 \code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
 \code{\link[=getYield]{getYield()}},
-\code{\link[=getYieldGear]{getYieldGear()}},
-\code{\link[=sizeIntegral]{sizeIntegral()}}
+\code{\link[=getYieldGear]{getYieldGear()}}
 }
 \concept{summary functions}
 \concept{summary_function}

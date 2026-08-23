@@ -1471,7 +1471,7 @@ get_h_default <- function(params) {
                 "age_mat", age_mat_vB(species_params),
                 strwrap("Because the age at maturity is not known, I need to
                         fall back to using von Bertalanffy parameters, where
-                        available, and this is not reliable.")
+                        available.")
             )
         w_mat <- species_params$w_mat
         w_min <- species_params$w_min

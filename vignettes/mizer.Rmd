@@ -36,8 +36,7 @@ puts them together into a complete, self-contained study of a real ecosystem —
 building, calibrating and projecting a Celtic Sea model.
 
 If you run into any difficulties or have any questions or suggestions, let us
-know about it by posting about it on our [issue tracker](https://github.com/sizespectrum/mizer/issues/new). You can also twitter
-to @[mizer_model](https://twitter.com/mizer_model). We love to hear from
+know about it by posting about it on our [issue tracker](https://github.com/sizespectrum/mizer/issues/new). We love to hear from
 you.
 
 ![Mizer workflow diagram](images/workflow.png)
@@ -59,7 +58,6 @@ Mizer is designed to make it easy to tailor a mizer model to your research quest
 You can also build on the work of others and share your work for others to build upon:
 
 -   [Guide: Using mizer extension packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
-
 -   [Guide: Creating a mizer extension package](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
 
 A good way to get into mizer is to follow the online [mizer course](https://mizer.course.sizespectrum.org).
@@ -110,7 +108,7 @@ particular platform.
 
 Alternatively, if you can not or do not want to install
 R on your computer, you can also work with R and RStudio in your internet
-browser by creating yourself a free account at <https://rstudio.cloud>. There
+browser by creating yourself a free account at <https://posit.cloud/plans/free>. There
 you can then install mizer as described above. Running mizer in the RStudio
 Cloud may be slightly slower than running it locally on your machine, but the
 speed is usually quite acceptable.
@@ -118,22 +116,21 @@ speed is usually quite acceptable.
 This guide assumes that you will be using RStudio to work with R. There is
 really no reason not to use RStudio and it makes a lot of things much easier.
 RStudio develops rapidly and adds useful features all the time and so it pays 
-to upgrade to the [latest version](https://posit.co/download/rstudio-desktop/) 
-frequently. This guide was written with version 2023.12.1.
+to upgrade to the [latest version](https://docs.posit.co/ide/user/#rstudio-ide-oss-downloads) 
+frequently.
 
 The source code for mizer is hosted on
 [GitHub](https://github.com/sizespectrum/mizer). If you are feeling brave and
 wish to try out a development version of mizer you can install the package from
-here using the R package devtools (which was used extensively in putting
-together mizer). If you have not yet installed devtools, do
+there, using the pak package. If you have not yet installed pak, do
 ```{r, eval=FALSE}
-install.packages("devtools")
+install.packages("pak")
 ```
 Then you can install the latest version from GitHub using
 ```{r, eval=FALSE}
-devtools::install_github("sizespectrum/mizer")
+pak::pak("sizespectrum/mizer")
 ```
-Using the same `devtools::install_github()` function you can also install code
+Using the same function you can also install code
 from forked mizer repositories or from other branches on the official
 repository.
 </details>
@@ -146,7 +143,7 @@ models using the same basic tools and methods.
     
 Setting the model parameters is done by creating an object of `class ?
 MizerParams`. This includes model parameters such as the life history parameters
-of each species, and the fishing gears. For each type of sizespectrum model
+of each species, resource parameters and the fishing gears. For each type of sizespectrum model
 there is a function for creating a new MizerParams object,
 `newSingleSpeciesParams()`,
 `newCommunityParams()`, `newTraitParams()` and `newMultispeciesParams()`.
@@ -171,9 +168,9 @@ because only a few species parameters were supplied, mizer has calculated
 default values for many others (for example the maximum intake rate `h` and the
 search volume `gamma`) using size-based theory. These notes are informational,
 not errors: they simply flag the parameters you may want to refine later once
-you calibrate the model to data. We have suppressed them here to keep the output
-short. Calibrating such a model to observed biomasses and yields is demonstrated
-in the [worked example](#a-worked-example-the-celtic-sea) below.
+you calibrate the model to data. Calibrating such a model to observed biomasses
+and yields is demonstrated in the [worked
+example](#a-worked-example-the-celtic-sea) below.
 
 
 
@@ -187,8 +184,7 @@ This produces an object of class `MizerSim` which contains the
 results of the simulation. In this example we chose to set some parameters
 of the `project()` function to specify that we want to project 10 years into
 the future, under the assumption of unit fishing effort. 
-You can see the help page for `project()` for more details and it is described
-fully in [the section on running a simulation.](https://sizespectrum.org/mizer/articles/running_a_simulation.html)
+You can find more details in the [https://sizespectrum.org/mizer/articles/guide-run-simulation.html](https://sizespectrum.org/mizer/articles/guide-run-simulation.html)
 
 ## Exploring the results
 After a simulation has been run, the results can be
@@ -211,8 +207,8 @@ getProportionOfLargeFish(sim,
 We can then use the full power of R to work with these results.
 
 The functionality provided by mizer to explore the simulation results is more
-fully described in
-[the section on exploring the simulation results.](https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html)
+fully described in the
+[Guide: Analysing and plotting results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.html)
 
 ## A worked example: the Celtic Sea
 
@@ -265,13 +261,13 @@ celtic_interaction    <- as.matrix(read.csv("celtic_interaction.csv",
 ```
 
 The species-parameter data frame has one row per species. Besides the required
-maximum size `w_max` it carries a few life-history parameters and, crucially,
+asymptotic size `l_inf` it carries a few life-history parameters and, crucially,
 the **observed** average biomass of each species (`biomass_observed`, in grams
 per square metre) that we will calibrate to. Some species have no observation
 and are left as `NA`.
 
 ```{r}
-celtic_species_params[, c("species", "w_max", "biomass_observed")]
+celtic_species_params[, c("species", "l_inf", "biomass_observed")]
 ```
 
 ### Building the model
@@ -400,7 +396,7 @@ project to the new steady state and record the total community yield — the yie
 that could be taken indefinitely at that effort.
 
 ```{r}
-efforts <- c(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2)
+efforts <- seq(0, 2, by = 0.2)
 sustainable_yield <- sapply(efforts, function(e) {
     p <- findSteadyState(cel, effort = e, t_max = 100,
                          progress_bar = FALSE)

@@ -141,6 +141,33 @@ utils::globalVariables(c("time", "value", "Species", "w", "l", "gear", "Age",
                          "Predator", "weight", "a", "b", "age", "w_max",
                          "Model", "rel_diff"))
 
+# A limit of zero or below cannot be shown on a logarithmic axis: it maps to
+# -Inf, which ggplot2 drops with a warning about infinite values. Such a limit
+# is only ever a request to start the axis at the bottom of the data, so on a
+# log10 axis we auto-scale instead of passing the impossible limit on.
+drop_nonpositive_limits <- function(lim, trans) {
+    if (identical(trans, "log10")) {
+        lim[!is.na(lim) & lim <= 0] <- NA
+    }
+    lim
+}
+
+# Values of zero or below have no place on a logarithmic axis either. ggplot2
+# discards them anyway, but only after warning about infinite values, which is
+# noise for the many mizer rates that are legitimately zero somewhere (fishing
+# mortality outside the selected sizes, predation mortality on the largest
+# individuals). We discard them ourselves instead.
+drop_nonpositive_values <- function(frame, var, trans) {
+    if (identical(trans, "log10")) {
+        keep <- is.na(frame[[var]]) | frame[[var]] > 0
+        # If nothing at all can be shown there is nothing to be gained by
+        # emptying the data frame, which would only trade the warning for the
+        # complaints that an empty plot draws.
+        if (any(keep)) frame <- frame[keep, , drop = FALSE]
+    }
+    frame
+}
+
 #' Make a plot from a data frame
 #'
 #' This is used internally by most plotting functions.
@@ -220,6 +247,10 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
     if (xtrans == "log10") xbreaks <- log_breaks()
     ybreaks <- waiver()
     if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
+    xlim <- drop_nonpositive_limits(xlim, xtrans)
+    ylim <- drop_nonpositive_limits(ylim, ytrans)
+    frame <- drop_nonpositive_values(frame, x_var, xtrans)
+    frame <- drop_nonpositive_values(frame, y_var, ytrans)
 
     # Set up axis limits. NA values mean auto-scale to data range.
     # The reason why below `group = species` is included first in `ggplot()`
@@ -401,6 +432,33 @@ mizer_tooltip_vars <- function(frame, group_var, x_var, y_var,
 #' @export
 plotHover <- function(x, ...) UseMethod("plotHover")
 
+# Plotly keys the data held inside each widget with an id returned by
+# `basename(tempfile())`. That makes two otherwise identical widgets differ
+# across R sessions and causes their pkgdown pages to be rewritten on every
+# build. The ids are private to a widget, so replace them with a stable sequence
+# while preserving all links between the internal lists.
+stable_plotly_ids <- function(widget) {
+    keyed_fields <- c("attrs", "visdat", "layoutAttrs")
+    old_ids <- unique(unlist(lapply(keyed_fields, function(field) {
+        names(widget$x[[field]])
+    }), use.names = FALSE))
+    old_ids <- old_ids[nzchar(old_ids)]
+    if (length(old_ids) == 0) return(widget)
+
+    new_ids <- paste0("mizer-plotly-", seq_along(old_ids))
+    for (field in keyed_fields) {
+        field_ids <- names(widget$x[[field]])
+        if (length(field_ids) > 0) {
+            names(widget$x[[field]]) <- new_ids[match(field_ids, old_ids)]
+        }
+    }
+    current <- match(widget$x$cur_data, old_ids)
+    if (length(current) == 1 && !is.na(current)) {
+        widget$x$cur_data <- new_ids[[current]]
+    }
+    widget
+}
+
 #' @rdname plotHover
 #' @usage NULL
 #' @export
@@ -408,7 +466,7 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
                                  tooltip = attr(x, "mizer_tooltip") %||%
                                      "all") {
     class(x) <- setdiff(class(x), "mizer_plot")
-    withCallingHandlers(
+    widget <- withCallingHandlers(
         plotly::ggplotly(x, ..., tooltip = tooltip),
         warning = function(w) {
             if (grepl("transformation introduced infinite values",
@@ -417,6 +475,7 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
             }
         }
     )
+    stable_plotly_ids(widget)
 }
 
 #' Make a plot comparing two data frames
@@ -485,6 +544,10 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
     if (xtrans == "log10") xbreaks <- log_breaks()
     ybreaks <- waiver()
     if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
+    xlim <- drop_nonpositive_limits(xlim, xtrans)
+    ylim <- drop_nonpositive_limits(ylim, ytrans)
+    frame <- drop_nonpositive_values(frame, x_var, xtrans)
+    frame <- drop_nonpositive_values(frame, y_var, ytrans)
 
     frame$LineSpec <- frame[[legend_var]]
     p <- ggplot(frame,

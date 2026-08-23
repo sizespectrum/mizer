@@ -348,7 +348,7 @@ gear_params <- function(object) {
 #' @usage NULL
 #' @export
 gear_params.MizerParams <- function(object) {
-    gp <- object@gear_params
+    object@gear_params
 }
 
 #' @rdname gear_params
@@ -505,7 +505,19 @@ check_gear_params <- function(x) {
 
 #' @export
 print.gear_params <- function(x, ...) {
-    cat("An object of class \"gear_params\" containing gear parameters for", nrow(x), "gears:\n")
+    # Each row is a gear-species pair, not a gear: one gear that catches ten
+    # species has ten rows.
+    n_gears <- if ("gear" %in% names(x)) {
+        length(unique(as.character(x$gear)))
+    } else {
+        NA_integer_
+    }
+    cat("An object of class \"gear_params\" containing", nrow(x),
+        "gear-species pairs")
+    if (!is.na(n_gears)) {
+        cat(" for", n_gears, if (n_gears == 1) "gear" else "gears")
+    }
+    cat(":\n")
     core_cols <- c("gear", "species", "sel_func", "catchability")
     cols_to_show <- intersect(core_cols, names(x))
     extra_cols <- setdiff(names(x), core_cols)

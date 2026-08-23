@@ -113,18 +113,4 @@ biomass[c("1972", "2010"), c("Herring", "Cod")]
 \seealso{
 \code{\link[=get_size_range_array]{get_size_range_array()}}, \code{\link[=bin_average_weight]{bin_average_weight()}},
 \code{\link[=second_order_w]{second_order_w()}}
-
-Other summary functions:
-\code{\link[=getBiomass]{getBiomass()}},
-\code{\link[=getDiet]{getDiet()}},
-\code{\link[=getGrowthCurves]{getGrowthCurves()}},
-\code{\link[=getN]{getN()}},
-\code{\link[=getSSB]{getSSB()}},
-\code{\link[=getSteadyResidual]{getSteadyResidual()}},
-\code{\link[=getTrophicLevel]{getTrophicLevel()}},
-\code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
-\code{\link[=getYield]{getYield()}},
-\code{\link[=getYieldGear]{getYieldGear()}}
 }
-\concept{summary functions}
-\concept{summary_function}

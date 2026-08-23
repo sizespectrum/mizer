@@ -24,6 +24,17 @@ test_that("animateSpectra returns a plotly object", {
     expect_s3_class(result, "plotly")
 })
 
+test_that("animateSpectra uses reproducible internal plotly ids", {
+    p1 <- animateSpectra(NS_sim_small, species = "Cod", resource = FALSE)
+    p2 <- animateSpectra(NS_sim_small, species = "Cod", resource = FALSE)
+
+    expect_identical(names(p1$x$attrs), names(p2$x$attrs))
+    expect_identical(names(p1$x$visdat), names(p2$x$visdat))
+    expect_identical(names(p1$x$layoutAttrs), names(p2$x$layoutAttrs))
+    expect_identical(p1$x$cur_data, p2$x$cur_data)
+    expect_error(plotly::plotly_build(p1), NA)
+})
+
 test_that("animateSpectra sets axis ranges without dropping vertices", {
     sim <- example_animate_sim
     result <- animateSpectra(sim, species = "Cod", tlim = c(1, 2),

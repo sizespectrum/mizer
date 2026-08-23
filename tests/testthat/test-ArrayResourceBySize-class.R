@@ -187,13 +187,17 @@ test_that("ArrayTimeByResourceBySize comparison methods slice and delegate", {
     expect_s3_class(p, "ggplot")
     expect_identical(levels(p$data$Model), c("First", "Second"))
 
-    # By default the final time step is shown, and `time` selects another
+    # By default the final time step is shown, and `time` selects another.
+    # The plots use a logarithmic y axis, which cannot show the sizes where the
+    # resource density is zero, so those are dropped before the data reaches
+    # the plot but not from `return_data`.
+    plottable <- function(x) x[x > 0]
     expect_equal(p$data[p$data$Model == "First", ][[2]],
-                 plot(n_resource_small, return_data = TRUE)[[2]])
+                 plottable(plot(n_resource_small, return_data = TRUE)[[2]]))
     p_first <- plot2(n_resource_small, n_resource_small, time = times[1])
     expect_equal(p_first$data[p_first$data$Model == "First", ][[2]],
-                 plot(n_resource_small, time = times[1],
-                      return_data = TRUE)[[2]])
+                 plottable(plot(n_resource_small, time = times[1],
+                                return_data = TRUE)[[2]]))
 
     pr <- plotRelative(n_resource_small, n_resource_small)
     expect_s3_class(pr, "ggplot")

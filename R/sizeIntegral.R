@@ -71,8 +71,6 @@
 #' @return The value of the integral, see the section "Shape of the result"
 #'   above.
 #' @export
-#' @family summary functions
-#' @concept summary_function
 #' @seealso [get_size_range_array()], [bin_average_weight()],
 #'   [second_order_w()]
 #' @examples

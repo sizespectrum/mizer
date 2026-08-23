@@ -40,8 +40,7 @@ Other summary functions:
 \code{\link[=getSteadyResidual]{getSteadyResidual()}},
 \code{\link[=getTrophicLevel]{getTrophicLevel()}},
 \code{\link[=getTrophicLevelBySpecies]{getTrophicLevelBySpecies()}},
-\code{\link[=getYield]{getYield()}},
-\code{\link[=sizeIntegral]{sizeIntegral()}}
+\code{\link[=getYield]{getYield()}}
 }
 \concept{summary functions}
 \concept{summary_function}

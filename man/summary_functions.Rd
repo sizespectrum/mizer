@@ -25,6 +25,25 @@ Function \tab Returns \tab Description \cr
 \code{\link[=sizeIntegral]{sizeIntegral()}} \tab Named vector (species) or two dimensional array (time x species) \tab Any integral over the size spectrum, from which all of the above are built. Use it to write your own summary function. \cr
 }
 }
+\section{Writing your own summary function}{
+
+The entry point is \code{\link[=sizeIntegral]{sizeIntegral()}}. It selects the size range, applies the
+bin-averaging appropriate to the model's \code{\link[=second_order_w]{second_order_w()}} setting and wraps
+the result in the right mizer array class, so a summary function built on it
+is automatically consistent with the quadrature the model is actually using.
+Pass the whole weighting factor \eqn{K(w)} evaluated on the size grid, but
+neither the bin widths \code{params@dw} nor any bin-averaging of your own:
+\code{sizeIntegral()} supplies both.
+
+If your quantity involves the predation kernel, take the kernel from
+\code{\link[=encounter_kernel]{encounter_kernel()}} rather than from \code{\link[=pred_kernel]{pred_kernel()}}, and pair it with the
+plain point prey weight \code{params@w_full * params@dw_full}. That weight is a
+normalisation which the kernel construction is built to cancel, not a
+quadrature weight, so it is the one place where you must \emph{not} bin-average.
+Pairing the point-sampled \code{\link[=pred_kernel]{pred_kernel()}} with a bin-averaged prey weight
+applies the prey-bin integral twice.
+}
+
 \seealso{
 \link{indicator_functions}, \link{plotting_functions}
 }

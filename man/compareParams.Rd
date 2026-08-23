@@ -25,5 +25,7 @@ Compare two MizerParams objects and print out differences
 params1 <- NS_params
 params2 <- params1
 species_params(params2)$w_mat[1] <- 10
+# Keep this example focused on the model parameter.
+params2@time_modified <- params1@time_modified
 compareParams(params1, params2)
 }

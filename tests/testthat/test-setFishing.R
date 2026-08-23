@@ -419,6 +419,21 @@ test_that("gear_params S3 class properties work", {
     expect_true(is.gear_params(gp_df))
 })
 
+test_that("gear_params returns visibly and prints what it holds", {
+    params <- NS_params_small
+    # The accessor used to end in an assignment, which made its value
+    # invisible, so typing `gear_params(params)` printed nothing at all.
+    expect_true(withVisible(gear_params(params))$visible)
+    # Each row is a gear-species pair, so a single gear catching several
+    # species must not be reported as several gears.
+    gp <- gear_params(params)
+    gp$gear <- "one_gear"
+    expect_output(print(gear_params(gp)),
+                  "containing 3 gear-species pairs for 1 gear:")
+    expect_output(print(params@gear_params),
+                  "containing 3 gear-species pairs for 3 gears:")
+})
+
 test_that("gear_params reactive validation works", {
     # 1. Misspelling warning
     df <- data.frame(species = "Sprat", gear = "g", selfunc = "knife_edge")
