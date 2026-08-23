@@ -143,6 +143,8 @@ from being a fixed point.}
 \item{\code{period}}{For a limit cycle, its period in years; otherwise \code{NA}.}
 \item{\code{amplitude}}{For a limit cycle, the largest per-species relative
 peak-to-trough biomass amplitude; otherwise \code{NA}.}
+\item{\code{extinct}}{Character vector naming any species that went extinct
+during the run, or \code{character(0)} if none.}
 }
 }
 \description{

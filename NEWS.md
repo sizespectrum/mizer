@@ -132,7 +132,8 @@ fixed, keeping the old names as silent aliases.
   `0.01`), independent of the fixed-point convergence tolerance, and a
   species is treated as extinct once its reproduction falls below the
   `extinction_threshold` fraction (default `1e-6`) of its value at the start of
-  the run.
+  the run. The species that went extinct are recorded in the new `extinct`
+  field of the `"convergence"` attribute.
 
 - `tuneSteadyState()` and `findSteadyState()` no longer stop at a state that is
   still moving. The distance function dropping below `distance_tol` is only half

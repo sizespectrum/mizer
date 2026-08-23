@@ -504,10 +504,9 @@ because those two were being read as one answer to three different questions:
 | `attractor` | What the state reached *is* | `"fixed_point"`, `"limit_cycle"`, `NA` |
 
 `distance`, `years`, `period` and `amplitude` are unchanged, and there is a new
-`residual`: how far the state reached actually is from a fixed point, which the
-`distance` field only approximates — `distance` compares two states `t_check`
-apart on whatever scale the distance function uses, and a distance function can
-go quiet while the model is still moving.
+`residual` (how far the state reached actually is from a fixed point) and
+`extinct` (a character vector naming any species that went extinct during the run,
+or `character(0)` if none).
 
 Code that tested `conv$type == "steady"` or `conv$settled` needs updating, and
 so does any `expect_named()` or `names()` check on the attribute. The

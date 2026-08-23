@@ -126,12 +126,13 @@ test_that("tuneSteadyState() attaches a 'convergence' attribute", {
     conv <- attr(p, "convergence")
     expect_type(conv, "list")
     expect_named(conv, c("termination", "converged", "attractor", "distance",
-                         "residual", "years", "period", "amplitude"))
+                         "residual", "years", "period", "amplitude", "extinct"))
     expect_identical(conv$termination, "residual_tolerance")
     expect_true(conv$converged)
     expect_identical(conv$attractor, "fixed_point")
     expect_true(is.na(conv$period))
     expect_true(is.na(conv$amplitude))
+    expect_identical(conv$extinct, character(0))
     # The residual measures how far the state actually is from a fixed point,
     # which the distance function only approximates.
     expect_true(is.finite(conv$residual))
@@ -288,13 +289,14 @@ test_that("the Newton solvers attach a well-formed 'convergence' attribute", {
         conv <- attr(p, "convergence")
         expect_named(conv, c("termination", "converged", "attractor",
                              "distance", "residual", "years", "period",
-                             "amplitude"))
+                             "amplitude", "extinct"))
         expect_identical(conv$termination, "solver_converged")
         expect_true(conv$converged)
         expect_identical(conv$attractor, "fixed_point")
         expect_true(is.finite(conv$residual))
         expect_true(is.na(conv$distance))
         expect_true(is.na(conv$years))
+        expect_identical(conv$extinct, character(0))
     }
 })
 
@@ -325,6 +327,7 @@ test_that("findSteadyState(solver = 'newton') handles extinctions", {
     expect_equal(pn_ext@initial_n[3, lo], 0)
     conv <- attr(pn_ext, "convergence")
     expect_identical(conv$termination, "extinction")
+    expect_identical(conv$extinct, "Cod")
     # `attractor` is not forced to NA here: the state left behind, with that
     # species at zero, may well be a perfectly good fixed point of what remains,
     # and it says so only if the measured drift agrees. `termination` is what

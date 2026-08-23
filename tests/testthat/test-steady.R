@@ -52,8 +52,11 @@ test_that("projectUntilSettled() works", {
     params@psi[1:2, ] <- 0
     sp1 <- params@species_params$species[1]
     sp2 <- params@species_params$species[2]
-    expect_warning(projectUntilSettled(params) |> suppressMessages(),
+    expect_warning(sim_ext <- projectUntilSettled(params) |> suppressMessages(),
                    paste0(sp1, ", ", sp2, " are going extinct."))
+    conv_ext <- attr(sim_ext, "convergence")
+    expect_identical(conv_ext$termination, "extinction")
+    expect_identical(conv_ext$extinct, c(sp1, sp2))
 })
 
 test_that("projectUntilSettled accepts the documented effort forms", {
@@ -297,6 +300,7 @@ test_that("projectUntilSettled() reports non-convergence", {
     expect_identical(conv$termination, "time_limit")
     expect_false(conv$converged)
     expect_true(is.na(conv$attractor))
+    expect_identical(conv$extinct, character(0))
 })
 test_that("stepping one dt at a time reproduces project()", {
     # The run advances a single time step at a time so that the check and save

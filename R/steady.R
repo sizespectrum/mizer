@@ -303,6 +303,8 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'     \item{`period`}{For a limit cycle, its period in years; otherwise `NA`.}
 #'     \item{`amplitude`}{For a limit cycle, the largest per-species relative
 #'       peak-to-trough biomass amplitude; otherwise `NA`.}
+#'     \item{`extinct`}{Character vector naming any species that went extinct
+#'       during the run, or `character(0)` if none.}
 #'   }
 #' @seealso [findSteadyState()], [tuneSteadyState()], [isSteady()],
 #'   [getSteadyResidual()], [distanceSSLogN()], [distanceMaxRelRDI()],
@@ -381,12 +383,14 @@ projectUntilSettled.MizerParams <- function(params,
 #' @param residual The biomass drift at the state reached, in 1/year.
 #' @param years The number of years simulated, or `NA` for a direct solve.
 #' @param period,amplitude The period and relative amplitude of a limit cycle.
+#' @param extinct Character vector naming species that went extinct.
 #' @return A named list.
 #' @noRd
 convergence_result <- function(termination, converged, attractor,
                                distance = NA_real_, residual = NA_real_,
                                years = NA_real_, period = NA_real_,
-                               amplitude = NA_real_) {
+                               amplitude = NA_real_,
+                               extinct = character(0)) {
     list(termination = termination,
          converged = converged,
          attractor = attractor,
@@ -394,7 +398,8 @@ convergence_result <- function(termination, converged, attractor,
          residual = residual,
          years = years,
          period = period,
-         amplitude = amplitude)
+         amplitude = amplitude,
+         extinct = extinct)
 }
 
 #' Whether a state counts as a fixed point
@@ -750,7 +755,12 @@ project_until_settled <- function(params,
         residual = residual,
         years = years,
         period = if (!is.null(cycle)) cycle$period else NA_real_,
-        amplitude = if (!is.null(cycle)) cycle$amplitude else NA_real_
+        amplitude = if (!is.null(cycle)) cycle$amplitude else NA_real_,
+        extinct = if (any(extinct)) {
+            params@species_params$species[extinct]
+        } else {
+            character(0)
+        }
     )
 
     if (return_sim) {

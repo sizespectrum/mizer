@@ -662,7 +662,12 @@ finish_newton <- function(params, sol, effort,
         termination = termination,
         converged = converged,
         attractor = steady_attractor(residual, residual_tol),
-        residual = residual
+        residual = residual,
+        extinct = if (any(sol$extinct)) {
+            names(sol$extinct)[sol$extinct]
+        } else {
+            character(0)
+        }
     )
     params
 }
