@@ -117,15 +117,16 @@ project(
   **\[experimental\]** If `TRUE`, warn when the model is not at its
   steady state before the projection starts, which catches the common
   mistake of forgetting to re-run
-  [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) after
-  a `match…`/`calibrate…` step. Default `FALSE`, because projecting a
-  model away from its steady state is a perfectly normal thing to do. It
-  is meant for a `MizerParams` object; when continuing from a `MizerSim`
-  the starting state is deliberately wherever the previous run ended, so
-  there is nothing to check. The check is made at the effort stored in
-  the params object rather than at the `effort` supplied here, so that
-  running a fishing scenario at a new effort — which legitimately starts
-  away from the steady state of that new effort — does not warn. See
+  [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+  after a `match…`/`calibrate…` step. Default `FALSE`, because
+  projecting a model away from its steady state is a perfectly normal
+  thing to do. It is meant for a `MizerParams` object; when continuing
+  from a `MizerSim` the starting state is deliberately wherever the
+  previous run ended, so there is nothing to check. The check is made at
+  the effort stored in the params object rather than at the `effort`
+  supplied here, so that running a fishing scenario at a new effort —
+  which legitimately starts away from the steady state of that new
+  effort — does not warn. See
   [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md).
 
 - ...:

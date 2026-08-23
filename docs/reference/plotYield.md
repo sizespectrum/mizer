@@ -106,7 +106,6 @@ Other plotting functions:
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
-[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),
@@ -122,6 +121,7 @@ Other plotting functions:
 [`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md),
 [`plotSpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md),
 [`plotYieldGear()`](https://sizespectrum.org/mizer/reference/plotYieldGear.md),
+[`plotYieldVsF()`](https://sizespectrum.org/mizer/reference/plotYieldVsF.md),
 [`plotting_functions`](https://sizespectrum.org/mizer/reference/plotting_functions.md)
 
 ## Examples
@@ -150,6 +150,6 @@ str(fr)
 #>  $ Year   : num  0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 ...
 #>  $ Yield  : num  2.21e+11 1.86e+11 1.60e+11 1.42e+11 1.30e+11 ...
 #>  $ Species: Factor w/ 12 levels "Sprat","Sandeel",..: 1 1 1 1 1 1 1 1 1 1 ...
-#>  $ Legend : Factor w/ 12 levels "Sprat","Sandeel",..: 1 1 1 1 1 1 1 1 1 1 ...
+#>  $ Legend : chr  "Sprat" "Sprat" "Sprat" "Sprat" ...
 # }
 ```

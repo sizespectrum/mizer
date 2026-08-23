@@ -495,13 +495,13 @@ simple_species <- data.frame(
 params <- newMultispeciesParams(simple_species)
 ```
 
-    No h provided for some species, so using age at maturity to calculate it.
-    Because you have n != p, the default value for `h` is not very good.
-    Because the age at maturity is not known, I need to fall back to using
-    von Bertalanffy parameters, where available, and this is not reliable.
-    For species where no growth information is available the parameter h has been set to h = 30.
-    Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
-    Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
+    ℹ No h provided for some species, so using age at maturity to calculate it.
+    ℹ Because you have n != p, the default value for `h` is not very good.
+    ℹ Because the age at maturity is not known, I need to fall back to using
+    von Bertalanffy parameters, where available.
+    ℹ For species where no growth information is available the parameter h has been set to h = 30.
+    ℹ Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
+    ℹ Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
 
 ``` r
 

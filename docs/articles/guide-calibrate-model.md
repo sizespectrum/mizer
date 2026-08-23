@@ -25,29 +25,44 @@ by [`project()`](https://sizespectrum.org/mizer/reference/project.md):
 
 ``` r
 
-params <- steady(params)
+params <- tuneSteadyState(params)
 ```
 
 | Function | Use |
 |----|----|
-| [`steady(params)`](https://sizespectrum.org/mizer/reference/steady.md) | run the dynamics to convergence **with births held fixed**, then store the result as the initial state (the default choice) |
-| [`steadySingleSpecies(params)`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md) | set each species to its single-species steady form, births held fixed, without changing the resource — a fast way to get a sensible starting spectrum before [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) |
-| [`projectToSteady(params)`](https://sizespectrum.org/mizer/reference/projectToSteady.md) | the lower-level routine [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) builds on, but with **births responding dynamically**; exposes `t_max`, `tol`, `return_sim` if you need to watch convergence |
-| [`steadyNewton(params)`](https://sizespectrum.org/mizer/reference/steadyNewton.md) | *(experimental)* solve the steady-state equation directly, converging even when the steady state is dynamically unstable |
+| [`tuneSteadyState(params)`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md) | solve for the spectra **with births and the resource held fixed**, then adjust the parameters that generate them so those held values are steady too (the default choice while calibrating) |
+| [`steadySingleSpecies(params)`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md) | set each species to its single-species steady form, births held fixed, without changing the resource — a fast way to get a sensible starting spectrum before [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md) |
+| [`findSteadyState(params)`](https://sizespectrum.org/mizer/reference/findSteadyState.md) | change **no parameter**: births, resource and spectra settle together wherever the parameters you already have put them |
+| [`projectUntilSettled(params)`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md) | the same run as [`findSteadyState(params)`](https://sizespectrum.org/mizer/reference/findSteadyState.md) but returning the [`MizerSim`](https://sizespectrum.org/mizer/reference/MizerSim.md), when you want to watch the approach |
 | [`isSteady(params)`](https://sizespectrum.org/mizer/reference/isSteady.md) | *(experimental)* ask whether a model **is** at its steady state (boolean) |
 | [`getSteadyResidual(params)`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md) | *(experimental)* per-capita rates of change across species and sizes, showing where it is not |
 
-During setup and calibration you almost always want
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) or
-[`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md),
-because holding births constant lets the dynamics settle reliably onto
-*a* steady state. Afterwards both re-tune the reproduction parameters so
-that density-dependent reproduction reproduces exactly that birth rate
-at the new steady state — use the `preserve` argument to choose whether
+The two finders differ in **what they keep**.
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+keeps the state — the birth rate and the resource abundance you supplied
+— and moves `erepro`/`R_max` and the resource capacity `cc_pp` to make
+it steady.
+[`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
+keeps every parameter and moves the state. During setup and calibration
+you almost always want
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md),
+or
+[`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
+first: holding births constant lets the search settle reliably onto *a*
+steady state. Use the `preserve` argument to choose whether
 [`reproduction_level`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
-(default), `R_max`, or `erepro` is held fixed during that re-tuning.
+(default), `R_max`, or `erepro` is held fixed while
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+re-tunes the reproduction parameters.
 
-**[`steady()`](https://sizespectrum.org/mizer/reference/steady.md)
+Both take a `solver` argument. The default `solver = "project"` runs the
+dynamics until they settle. `solver = "newton"` *(experimental, needs
+the `nleqslv` package)* instead solves the steady-state equation
+directly, which converges even when the steady state is dynamically
+**unstable**, and discovers the support of the steady state
+automatically.
+
+**[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
 returning is not proof that the model is steady.** Its stopping test is
 the relative change in egg production over `t_per`, a proxy for the
 drift itself, and the run can also stop on a limit cycle, on a species
@@ -58,28 +73,41 @@ result](#verifying-the-result):
 
 ``` r
 
-params <- steady(params)
-attr(params, "convergence")$type       # "steady", "cycle", "not_converged", "extinction"
-attr(params, "convergence")$residual   # largest biomass drift, in 1/year
-plot(getSteadyResidual(params))        # which species, and at which sizes
+params <- tuneSteadyState(params)
+attr(params, "convergence")$attractor    # "fixed_point", "limit_cycle" or NA
+attr(params, "convergence")$termination  # why the run stopped
+attr(params, "convergence")$residual     # largest biomass drift, in 1/year
+plot(getSteadyResidual(params))          # which species, and at which sizes
 ```
 
-`"steady"` with a `residual` above about `0.05` means `tol` was too
-loose: tighten it. `"cycle"` means the dynamics settled onto a limit
-cycle and the stored state is one point on it — see the [guide to
-analysing dynamic
+**`attractor` is the field to read.** It is set from the measured
+biomass drift of the model that is returned, so `"fixed_point"` means
+the drift is within `residual_tol` (default `0.05`/year) and nothing
+else does. `termination` says how the run ended and `converged` whether
+the solver was happy, neither of which is a claim about the state.
+
+A `termination` of `"residual_tolerance"` is the ordinary success: the
+distance function dropped below `distance_tol` *and* the drift was
+within `residual_tol`. `"cycle_detected"` means the search ran into a
+limit cycle — see the [guide to analysing dynamic
 stability](https://sizespectrum.org/mizer/articles/guide-analyse-stability.md).
-`"not_converged"` means the run ran out of time: raise `t_max`, or get a
+`"time_limit"` means the run ran out of time: raise `t_max`, or get a
 better starting spectrum from
 [`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
-first, and reach for
-[`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
-when the fixed point is dynamically unstable. `"extinction"` means a
-species is dying out, which is a modelling problem — see [Diagnosing
-calibration problems](#diagnosing-calibration-problems).
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) says
-all of this in its messages too, but `info_level = 0` suppresses those,
-so in a script the attribute is the reliable check.
+first, and reach for `solver = "newton"` when the fixed point is
+dynamically unstable. `"extinction"` means a species is dying out, which
+is a modelling problem — see [Diagnosing calibration
+problems](#diagnosing-calibration-problems).
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+says all of this in its messages too, but `info_level = 0` suppresses
+those, so in a script the attribute is the reliable check.
+
+A run that hits `t_max` having *met* `distance_tol` is worth
+recognising: the message names the drift as the reason, and it means the
+distance function went quiet while the model was still moving.
+Tightening `distance_tol` will not help;
+[`plot(getSteadyResidual(params))`](https://sizespectrum.org/mizer/reference/plot.md)
+shows what is actually moving.
 
 ------------------------------------------------------------------------
 
@@ -94,16 +122,17 @@ pair. The usual order:
 
 ``` r
 
-params <- steady(params)             # 1. settle onto the steady state
+params <- tuneSteadyState(params)    # 1. settle onto the steady state
 params <- calibrateBiomass(params)   # 2. scale kappa so total modelled biomass
                                      #    matches total observed
 params <- matchBiomasses(params)     # 3. adjust each species to its own observation
 params <- matchGrowth(params)        # 4. rescale h, gamma, ks, k so each species
                                      #    reaches w_mat / w_inf on schedule
-params <- steady(params)             # 5. re-converge after the changes
+params <- tuneSteadyState(params)    # 5. re-converge after the changes
 ```
 
-Re-run [`steady()`](https://sizespectrum.org/mizer/reference/steady.md)
+Re-run
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
 after **any `match…` step** — those rescale each species separately,
 which is not a symmetry of the model, so whatever steady state it was on
 it is no longer on. They say so when they do it. The `calibrate…()`
@@ -133,7 +162,7 @@ plot(getSteadyResidual(params))        # which species, and at which sizes
 and
 [`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md)
 pull on different parameters; alternate them, re-running
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md)
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
 between, until both are satisfied — usually a few passes.
 
 **If your observations are numbers rather than weights**, use
@@ -152,7 +181,7 @@ which its own observation column is `NA`.
 species_params(params)$number_observed <- c(Cod = 1e6, Herring = 4e8, ...)
 params <- calibrateNumber(params)
 params <- matchNumbers(params)
-params <- steady(params)
+params <- tuneSteadyState(params)
 ```
 
 Whichever pair you use, a `<to>_cutoff` value is the **smallest size the
@@ -227,12 +256,12 @@ results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.md).
 
 ## Diagnosing calibration problems
 
-- **[`steady()`](https://sizespectrum.org/mizer/reference/steady.md)
+- **[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
   will not settle.** The initial spectrum is probably far from the
   steady state. Run `steadySingleSpecies(params)` first to get a
   sensible starting spectrum, or take a smaller step in whatever
   parameter you changed and re-run. Persistent instability is a case for
-  [`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md).
+  `solver = "newton"`.
 - **A species collapses to near-zero.** Its mortality exceeds the growth
   it can fund. Check its predation-kernel parameters `beta` and `sigma`,
   its row of the interaction matrix, and whether its fishing mortality
@@ -244,19 +273,16 @@ results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.md).
   and
   [`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md),
   re-running
-  [`steady()`](https://sizespectrum.org/mizer/reference/steady.md)
+  [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
   between them.
-- **[`steady()`](https://sizespectrum.org/mizer/reference/steady.md)
+- **[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
   said it converged but the results still drift.** Check
   `attr(params, "convergence")$residual`, or `summary(params)`, for how
   far the state actually is from a fixed point, and reduce
-  [`steady()`](https://sizespectrum.org/mizer/reference/steady.md)’s
-  `tol` if it is too large.
-  [`steady()`](https://sizespectrum.org/mizer/reference/steady.md) warns
-  when the two disagree.
+  [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)’s
+  `tol` if it is too large. It warns when the two disagree.
 - **Results move even though nothing was changed.** The model was not at
-  its steady state to begin with.
-  [`plot(getSteadyResidual(params))`](https://sizespectrum.org/mizer/reference/plot.md)
+  its steady state to begin with. `plot(getSteadyResidual(params))`
   shows which species and which sizes are moving.
 
 ------------------------------------------------------------------------
@@ -266,9 +292,9 @@ results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.md).
 For hands-on tuning, the `mizerExperimental` package provides
 `tuneParams()`, a Shiny gadget that exposes sliders for the parameters
 above and re-runs
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) live.
-It is **not** part of core mizer — install and load `mizerExperimental`
-to use it.
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+live. It is **not** part of core mizer — install and load
+`mizerExperimental` to use it.
 
 ------------------------------------------------------------------------
 
@@ -277,17 +303,17 @@ to use it.
 ``` r
 
 # ── Steady state ──────────────────────────────────────────────────────────────
-params <- steady(params)
+params <- tuneSteadyState(params)
 params <- steadySingleSpecies(params)   # fast starting spectrum
-params <- steadyNewton(params)          # direct solve (experimental)
+params <- tuneSteadyState(params, solver = "newton")  # direct solve (experimental)
 
-# ── Calibrate to data (re-run steady() after each) ────────────────────────────
+# ── Calibrate to data (re-run tuneSteadyState() after each) ───────────────────
 params <- calibrateBiomass(params)      # total biomass  → kappa
 params <- matchBiomasses(params)        # per-species biomass
 params <- calibrateNumber(params)       # same, for `number_observed` instead
 params <- matchNumbers(params)          #   of `biomass_observed`
 params <- matchGrowth(params)           # growth → h, gamma, ks, k
-params <- steady(params)                # re-converge
+params <- tuneSteadyState(params)       # re-converge
 
 # ── Reproduction ──────────────────────────────────────────────────────────────
 reproduction_level(params) <- 0.25

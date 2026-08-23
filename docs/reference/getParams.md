@@ -3,14 +3,17 @@
 A `MizerParams` object describes the state of the ecosystem: its species
 parameters, size grid, rate functions, *and* the current abundances
 stored in the `initial_n`, `initial_n_pp`, `initial_n_other`, and
-`initial_effort` slots. `getParams()` extracts that state from a
-`MizerSim` object, averaged over a chosen time range (or at a single
-time point).
+`initial_effort` slots. These functions extract that state from a
+`MizerSim` object.
 
 ## Usage
 
 ``` r
 getParams(sim, time_range, geometric_mean = FALSE)
+
+initialParams(sim)
+
+finalParams(sim)
 ```
 
 ## Arguments
@@ -36,36 +39,37 @@ getParams(sim, time_range, geometric_mean = FALSE)
 ## Value
 
 A `MizerParams` object with `initial_n`, `initial_n_pp`,
-`initial_n_other`, and `initial_effort` set to the (averaged) values
-from the simulation.
+`initial_n_other`, and `initial_effort` set to the values from the
+selected time of the simulation.
 
 ## Details
 
-When no `time_range` is given, the state at the final time step is
-returned. Use
-[`initialParams()`](https://sizespectrum.org/mizer/reference/initialParams.md)
-or
-[`finalParams()`](https://sizespectrum.org/mizer/reference/finalParams.md)
-as convenient shorthand for the state at the initial and final time
-respectively.
+`getParams()` returns the state averaged over a chosen `time_range`, or
+at a single time point. When no `time_range` is given, the state at the
+final time step is returned.
 
-The abundances set in the returned `MizerParams` object are averages
-over the selected time range. By default this is an arithmetic mean; set
+`initialParams()` returns the state at the initial time of the
+simulation, i.e., the `MizerParams` object that the simulation started
+from.
+
+`finalParams()` returns the state at the *last* saved time step. It is a
+convenience wrapper around `getParams()` with no `time_range` argument.
+
+The abundances set by `getParams()` are averages over the selected time
+range. By default this is an arithmetic mean; set
 `geometric_mean = TRUE` to use a geometric mean instead (this does not
 affect the effort or other components, which are always averaged
 arithmetically).
-
-## See also
-
-[`initialParams()`](https://sizespectrum.org/mizer/reference/initialParams.md),
-[`finalParams()`](https://sizespectrum.org/mizer/reference/finalParams.md)
 
 ## Examples
 
 ``` r
 sim <- project(NS_params, t_max = 20, effort = 0.5)
-# Extract state at a specific time
-params_2010 <- getParams(sim, time_range = 10)
-# Extract state averaged over the last 10 years
+# State at a specific time
+params_10 <- getParams(sim, time_range = 10)
+# State averaged over the last 10 years
 params_avg <- getParams(sim, time_range = c(10, 20))
+# State at the start and at the end of the simulation
+params_start <- initialParams(sim)
+params_end <- finalParams(sim)
 ```

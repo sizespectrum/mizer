@@ -49,8 +49,9 @@ Arguments used by all methods:
 
 - `total`:
 
-  A boolean value that determines whether the total over all selected
-  species is plotted as well. Default is `FALSE`.
+  A boolean value that determines whether the total is plotted as well.
+  The total is the total of everything the array holds, every species
+  and every size, whatever is drawn. Default is `FALSE`.
 
 - `background`:
 
@@ -156,7 +157,6 @@ Other plotting functions:
 [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md),
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
-[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),
@@ -173,6 +173,7 @@ Other plotting functions:
 [`plotSpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md),
 [`plotYield()`](https://sizespectrum.org/mizer/reference/plotYield.md),
 [`plotYieldGear()`](https://sizespectrum.org/mizer/reference/plotYieldGear.md),
+[`plotYieldVsF()`](https://sizespectrum.org/mizer/reference/plotYieldVsF.md),
 [`plotting_functions`](https://sizespectrum.org/mizer/reference/plotting_functions.md)
 
 ## Examples

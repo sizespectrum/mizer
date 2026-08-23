@@ -17,7 +17,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -127,105 +127,114 @@
 </h2>
 <p>In a mizer model, a steady state represents an equilibrium where the
 abundance of every species at every size remains constant over time.
-While <code><a href="../reference/steady.html">steady()</a></code> attempts to find such a state by projecting
-the dynamics forward in time until changes stop, this only works if the
-steady state is <em>dynamically stable</em>.</p>
+While <code><a href="../reference/tuneSteadyState.html">tuneSteadyState()</a></code> attempts to find such a state by
+projecting the dynamics forward in time until changes stop, this only
+works if the steady state is <em>dynamically stable</em>.</p>
 <p>If a steady state is unstable, small perturbations will grow rather
 than decay, and the system will naturally move away from the steady
 state, often settling into persistent oscillations (a limit cycle) or
 more complex dynamics.</p>
-<p>Mizer provides the <code><a href="../reference/steadyNewton.html">steadyNewton()</a></code> function to find
-steady states irrespective of their stability by solving the algebraic
+<p>Mizer’s steady-state finders take a <code>solver</code> argument for
+exactly this case. With <code>solver = "newton"</code> they find steady
+states irrespective of their stability by solving the algebraic
 equilibrium equations directly. Once a steady state is found, its
 stability can be analysed using <code><a href="../reference/getStability.html">getStability()</a></code>.</p>
 <p>This vignette explains how to perform this stability analysis, what
 the results mean, how mizer’s steady-state finders detect and
 characterise limit cycles, and how to use the linearised limit cycle
-approximation provided by <code><a href="../reference/getLimitCycleSim.html">getLimitCycleSim()</a></code> to understand
-emergent oscillations around a Hopf bifurcation.</p>
+approximation provided by <code><a href="../reference/getOscillationModeSim.html">getOscillationModeSim()</a></code> to
+understand emergent oscillations around a Hopf bifurcation.</p>
 </div>
 <div class="section level2">
 <h2 id="linear-stability-analysis">Linear stability analysis<a class="anchor" aria-label="anchor" href="#linear-stability-analysis"></a>
 </h2>
-<p>Mizer projects the state of the ecosystem forward in discrete time
-steps. We can write this discrete-time map abstractly as:</p>
-<p><span class="math display">\[ N(t+\Delta t) = G(N(t)) \]</span></p>
-<p>where <span class="math inline">\(N(t)\)</span> represents the full
-state vector (abundances of all species at all sizes) at time <span class="math inline">\(t\)</span>. At a steady state <span class="math inline">\(N^*\)</span>, we have <span class="math inline">\(N^* = G(N^*)\)</span>.</p>
+<p>Mizer discretises the size axis but leaves time continuous. On the
+size grid the model is therefore a system of ordinary differential
+equations,</p>
+<p><span class="math display">\[ \frac{dN}{dt} = F(N), \]</span></p>
+<p>where <span class="math inline">\(N\)</span> is the full state vector
+(abundances of all species at all sizes) and <span class="math inline">\(F\)</span> collects the divergence of the growth
+flux, the mortality sink and the reproductive influx at the egg size. A
+steady state <span class="math inline">\(N^*\)</span> is a state at
+which <span class="math inline">\(F(N^*) = 0\)</span>.</p>
+<p>Close to <span class="math inline">\(N^*\)</span> a small
+perturbation <span class="math inline">\(\delta N(t) = N(t) -
+N^*\)</span> obeys the linearised equation <span class="math inline">\(d\,\delta N/dt = J\,\delta N\)</span>, where <span class="math inline">\(J = \partial F /
+\partial N\)</span> evaluated at <span class="math inline">\(N^*\)</span> is the Jacobian matrix. Its
+eigenvalues <span class="math inline">\(\lambda_i\)</span> decide
+everything: each mode of the perturbation evolves as <span class="math inline">\(e^{\lambda_i t}\)</span>, so the steady state is
+<strong>stable</strong> when every eigenvalue has negative real part and
+<strong>unstable</strong> as soon as one has a positive real part.</p>
 <p>Because abundances in a mizer model span dozens of orders of
 magnitude across the size spectrum, evaluating stability in terms of
-absolute perturbations (e.g., <span class="math inline">\(N(t) = N^* +
-\delta N(t)\)</span>) can be numerically poorly-scaled. Instead, it is
-more natural to consider <strong>multiplicative (relative)
+absolute perturbations can be numerically poorly-scaled. It is more
+natural to consider <strong>multiplicative (relative)
 perturbations</strong>, where we perturb the steady state by a small
 relative amount <span class="math inline">\(x(t)\)</span>:</p>
-<p><span class="math display">\[ N_i(t) = N_i^* \left(1 + x_i(t)\right)
+<p><span class="math display">\[ N_i(t) = N_i^* \left(1 + x_i(t)\right).
 \]</span></p>
-<p>Linearising the dynamics for these small relative perturbations <span class="math inline">\(x(t)\)</span> gives:</p>
-<p><span class="math display">\[ x(t+\Delta t) \approx K \, x(t)
-\]</span></p>
-<p>where <span class="math inline">\(K\)</span> is the relative Jacobian
-matrix. The elements of <span class="math inline">\(K\)</span> describe
-the proportional change in species <span class="math inline">\(i\)</span> resulting from a proportional change in
-species <span class="math inline">\(j\)</span>:</p>
-<p><span class="math display">\[ K_{ij} = \frac{\partial \log
-G_i}{\partial \log N_j}(N^*) = \frac{N_j^*}{N_i^*} \frac{\partial
-G_i}{\partial N_j}(N^*) \]</span></p>
-<p>Notice that <span class="math inline">\(K\)</span> is related to the
-standard absolute Jacobian <span class="math inline">\(L\)</span> (with
-elements <span class="math inline">\(L_{ij} = \frac{\partial
-G_i}{\partial N_j}\)</span>) by a similarity transform <span class="math inline">\(K = D^{-1} L D\)</span>, where <span class="math inline">\(D\)</span> is a diagonal matrix of the
+<p>The relative Jacobian <span class="math inline">\(K\)</span> that
+governs these relative perturbations,</p>
+<p><span class="math display">\[ K_{ij} = \frac{N_j^*}{N_i^*}
+\frac{\partial F_i}{\partial N_j}(N^*), \]</span></p>
+<p>is related to <span class="math inline">\(J\)</span> by a similarity
+transform <span class="math inline">\(K = D^{-1} J D\)</span>, where
+<span class="math inline">\(D\)</span> is a diagonal matrix of the
 steady-state abundances <span class="math inline">\(N^*\)</span>.
-Because <span class="math inline">\(K\)</span> and <span class="math inline">\(L\)</span> are similar matrices, <strong>they have
-exactly the same eigenvalues</strong> <span class="math inline">\(\mu_i\)</span>.</p>
-<p>While a pure discrete-time stability analysis would check if the
-spectral radius <span class="math inline">\(\max_i |\mu_i| &lt;
-1\)</span>, doing so evaluates the stability of the numerical scheme
-rather than the underlying mathematical model. Implicit numerical
-schemes like the one mizer uses introduce severe “temporal numerical
-diffusion” that artificially damps oscillations. To evaluate the true
-continuous-time stability, <code><a href="../reference/getStability.html">getStability()</a></code> maps these
-discrete eigenvalues back to the exact continuous-time eigenvalues <span class="math inline">\(\lambda_i\)</span> using the algebraic relation
-<span class="math inline">\(\lambda_i = (1 - 1/\mu_i) / \Delta
-t\)</span>.</p>
-<p><strong>Why does this exact mapping work?</strong> Mizer solves the
-continuous PDEs of the size spectrum using a fully implicit backward
-Euler step: <span class="math display">\[ N(t+\Delta t) = N(t) + \Delta
-t \, \frac{dN}{dt}(t+\Delta t) \]</span> If we define the continuous
-Jacobian as <span class="math inline">\(J = \partial(dN/dt)/\partial
-N\)</span> and the discrete Jacobian of the one-step map as <span class="math inline">\(L = \partial N(t+\Delta t)/\partial N(t)\)</span>,
-differentiating the implicit step yields: <span class="math display">\[
-L = I + \Delta t \, J \, L \quad \implies \quad (I - \Delta t \, J) L =
-I \quad \implies \quad J = \frac{1}{\Delta t}(I - L^{-1}) \]</span> This
-relates their eigenvalues exactly by <span class="math inline">\(\lambda_i = (1 - 1/\mu_i) / \Delta t\)</span>. By
-applying this mapping, we analytically strip away the temporal numerical
-diffusion of the implicit solver and recover the exact continuous-time
-stability.</p>
-<p>The stability of the continuous-time mathematical steady state is
-determined by the real parts of these continuous eigenvalues. If the
-maximum real part is negative (<span class="math inline">\(\max_i
-\text{Re}(\lambda_i) &lt; 0\)</span>), every perturbation decays and the
-steady state is stable; if any real part is positive, some perturbation
-grows and it is unstable.</p>
-<p>If you specifically want to study the numerical stability of mizer’s
-Euler method for a particular time step, <code><a href="../reference/getStability.html">getStability()</a></code>
-optionally accepts a <code>dt</code> argument. The discrete eigenvalues
-<span class="math inline">\(\mu_i\)</span> will then reflect the
-one-step map under that time step size, and the returned
-<strong>spectral radius</strong> <span class="math inline">\(\max_i
-|\mu_i|\)</span> determines numerical stability (stable if <span class="math inline">\(&lt;1\)</span>).</p>
-<p><em>(Note on numerical implementation: While analysing the relative
+Because <span class="math inline">\(K\)</span> and <span class="math inline">\(J\)</span> are similar matrices, <strong>they have
+exactly the same eigenvalues</strong>.</p>
+<p><code><a href="../reference/getStability.html">getStability()</a></code> computes <span class="math inline">\(J\)</span> by perturbing each state variable in
+turn and differencing the rates of change that mizer’s own rate
+functions return, so the eigenvalues it reports are those of the model
+as it is configured, including any rate function registered with
+<code><a href="../reference/setRateFunction.html">setRateFunction()</a></code> and whichever spatial scheme
+<code><a href="../reference/second_order_w.html">second_order_w()</a></code> selects. <strong>No time step enters this
+calculation.</strong> The eigenvalues are a property of the model, not
+of a solver, and they are what a simulation with a small enough time
+step converges to.</p>
+<p><em>(Note on numerical implementation: while analysing the relative
 Jacobian <span class="math inline">\(K\)</span> is conceptually natural,
 computing it requires dividing by <span class="math inline">\(N_i^*\)</span>, which causes floating-point
 overflow for structurally zero size classes (e.g., extinct species or
 truncated tails). Therefore, <code><a href="../reference/getStability.html">getStability()</a></code> numerically
-computes the absolute Jacobian <span class="math inline">\(L\)</span>
+computes the absolute Jacobian <span class="math inline">\(J\)</span>
 using finite-difference steps scaled multiplicatively to the local
 density. This is mathematically equivalent to the relative analysis but
-avoids dividing by zero, ensuring robust eigenvalue computation. Fast
-decaying modes map to <span class="math inline">\(\mu \approx
-0\)</span>, which can amplify numerical noise during the <span class="math inline">\(1/\mu\)</span> inversion, so mizer safely filters
-these out to isolate the dominant continuous eigenvalues.)</em></p>
+avoids dividing by zero.)</em></p>
+<div class="section level3">
+<h3 id="the-stability-of-the-model-and-the-stability-of-the-solver">The stability of the model and the stability of the solver<a class="anchor" aria-label="anchor" href="#the-stability-of-the-model-and-the-stability-of-the-solver"></a>
+</h3>
+<p>There is a second, quite different question one can ask: not whether
+the <em>model</em> is stable, but whether <em>mizer’s numerical time
+step</em> is. <code><a href="../reference/project.html">project()</a></code> advances the state by a discrete
+map</p>
+<p><span class="math display">\[ N(t+\Delta t) = G(N(t)), \]</span></p>
+<p>and the eigenvalues <span class="math inline">\(\mu_i\)</span> of the
+Jacobian of <span class="math inline">\(G\)</span> at the fixed point
+decide whether that map amplifies a perturbation: it does not when the
+<strong>spectral radius</strong> <span class="math inline">\(\max_i|\mu_i|\)</span> is below 1.
+<code><a href="../reference/getDiscreteStability.html">getDiscreteStability()</a></code> reports those numbers for a chosen
+step size <code>dt</code>.</p>
+<p>The two questions have different answers, and the difference matters.
+Mizer’s step solves the transport implicitly, and implicit schemes
+introduce a “temporal numerical diffusion” that artificially damps
+oscillations. At a large <code>dt</code> a steady state that the model
+does not hold can therefore have a spectral radius below 1 — the
+simulation settles down onto a state that is an artefact of the step
+size. We will see exactly that below.</p>
+<p>It is tempting to try to recover <span class="math inline">\(J\)</span> from <span class="math inline">\(G\)</span> algebraically. If mizer’s step were
+<em>fully</em> implicit, <span class="math inline">\(N^{t+\Delta t} =
+N^t + \Delta t\,F(N^{t+\Delta t})\)</span>, then the two Jacobians would
+be related exactly by <span class="math inline">\(\mu = 1/(1 - \Delta
+t\,\lambda)\)</span> and one could simply invert. But mizer’s step is
+not fully implicit: it evaluates all the rates — encounter, feeding
+level, predation mortality, growth — at the state at the <em>start</em>
+of the step, and only the transport solve that follows is implicit. The
+inversion is then correct only to first order in <span class="math inline">\(\Delta t\)</span>, and at <span class="math inline">\(\Delta t = 1\)</span> it is wrong by more than an
+order of magnitude. This is why <code><a href="../reference/getStability.html">getStability()</a></code>
+differentiates <span class="math inline">\(F\)</span> directly
+instead.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="driving-the-north-sea-model-unstable">Driving the North Sea model unstable<a class="anchor" aria-label="anchor" href="#driving-the-north-sea-model-unstable"></a>
@@ -241,13 +250,17 @@ the fishing pressure, setting the effort of every gear to
 <code>1.5</code>. This pushes the model across a <strong>Hopf
 bifurcation</strong> into a regime where the steady state is
 unstable.</p>
-<p>Because the steady state is now unstable, <code><a href="../reference/steady.html">steady()</a></code>
-cannot find it — projecting the dynamics forward would diverge away from
-it. This is exactly the situation <code><a href="../reference/steadyNewton.html">steadyNewton()</a></code> is
-designed for: it solves the equilibrium equations directly and therefore
-finds the steady state regardless of its stability.</p>
+<p>Because the steady state is now unstable, the default
+<code>solver = "project"</code> cannot find it — projecting the dynamics
+forward would diverge away from it. This is exactly the situation
+<code>solver = "newton"</code> is designed for: it solves the
+equilibrium equations directly and therefore finds the steady state
+regardless of its stability. We use <code><a href="../reference/findSteadyState.html">findSteadyState()</a></code>
+rather than <code><a href="../reference/tuneSteadyState.html">tuneSteadyState()</a></code> because we want the steady
+state of the model as it stands, with the reproduction parameters left
+alone.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">params_f15</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steadyNewton.html">steadyNewton</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">params_f15</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/findSteadyState.html">findSteadyState</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fl">1.5</span>, solver <span class="op">=</span> <span class="st">"newton"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="diagnosing-the-instability">Diagnosing the instability<a class="anchor" aria-label="anchor" href="#diagnosing-the-instability"></a>
@@ -255,104 +268,91 @@ finds the steady state regardless of its stability.</p>
 <p>Is this steady state stable? We compute its stability metrics with
 <code><a href="../reference/getStability.html">getStability()</a></code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">stab_default</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getStability.html">getStability</a></span><span class="op">(</span><span class="va">params_f15</span>, effort <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
-<span><span class="va">stab_default</span><span class="op">$</span><span class="va">spectral_radius</span></span>
-<span><span class="co">#&gt; [1] 0.9598178</span></span>
-<span><span class="va">stab_default</span><span class="op">$</span><span class="va">max_real_part</span></span>
-<span><span class="co">#&gt; [1] 1.698354</span></span></code></pre></div>
-<p>Notice the distinction between discrete numerical stability and
-continuous physical stability: - The <strong>spectral radius</strong>
-<span class="math inline">\(\max |\mu| = 0.96 &lt; 1\)</span>, which
-means the numerical one-step map of the default backward Euler solver at
-<span class="math inline">\(\Delta t = 1\)</span> is discretely stable.
-The temporal numerical diffusion of backward Euler artificially damps
-the oscillation. - Mapping back to continuous time reveals the true
-physical PDE stability with <strong><code>max_real_part</code></strong>
-<span class="math inline">\(\text{Re}(\lambda) = 1.7 &gt; 0\)</span>,
-showing that the continuous system is physically unstable.</p>
-<p>To convert discrete eigenvalues <span class="math inline">\(\mu\)</span> of the one-step map to continuous
-eigenvalues <span class="math inline">\(\lambda\)</span>,
-<code><a href="../reference/getStability.html">getStability()</a></code> uses the Backward Euler transformation:
-<span class="math display">\[ \lambda = \frac{1 - 1/\mu}{\Delta t}
-\]</span> To ensure mathematical consistency across all state variables
-and prevent fast-decaying modes from producing spurious eigenvalue
-artifacts due to near-zero matrix inversion noise,
-<code><a href="../reference/getStability.html">getStability()</a></code> evaluates the resource step using the same
-implicit Backward Euler scheme: <span class="math display">\[
-N_R(t+\Delta t) = \frac{N_R(t) + \Delta t \, r_R(w) c_R(w)}{1 + \Delta t
-\, (r_R(w) + \mu_R(w))} \]</span></p>
-<p>Although <code><a href="../reference/project.html">project()</a></code> uses the exact analytical resource
-solution (<span class="math inline">\(N_R(t+\Delta t) = N_R^* + (N_R(t)
-- N_R^*) e^{-(r_R + \mu_R)\Delta t}\)</span>) at each step, the discrete
-eigenvalues <span class="math inline">\(\mu\)</span> from
-<code><a href="../reference/getStability.html">getStability()</a></code> accurately reflect the numerical step in
-<code>project(method = "euler")</code>. For fast resource modes (<span class="math inline">\(r_R + \mu_R \gg 1\)</span>), both exact decay
-(<span class="math inline">\(\mu_{exact} = e^{-(r_R + \mu_R)\Delta t}
-\approx 0\)</span>) and Backward Euler (<span class="math inline">\(\mu_{BE} = \frac{1}{1 + (r_R + \mu_R)\Delta t}
-\approx 0\)</span>) damp out perturbations within a single timestep. For
-slow, coupled modes (<span class="math inline">\(|\mu| \approx
-1\)</span>) governing system stability, Taylor expanding around <span class="math inline">\(\Delta t = 0\)</span> shows that <span class="math inline">\(\mu_{BE} = 1 - k\Delta t + \mathcal{O}(\Delta
-t^2)\)</span> matches <span class="math inline">\(\mu_{exact} = 1 -
-k\Delta t + \mathcal{O}(\Delta t^2)\)</span> to first order.</p>
-<p>Furthermore, by default <code><a href="../reference/getStability.html">getStability()</a></code> treats the
-resource spectrum as a <em>quasi-static</em> fast variable that
-instantly equilibrates to the fish. Analysing the full coupled
-fish–resource system with <code>include_resource = TRUE</code> includes
-the resource dynamics:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">stab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getStability.html">getStability</a></span><span class="op">(</span><span class="va">params_f15</span>, effort <span class="op">=</span> <span class="fl">1.5</span>, include_resource <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">stab</span><span class="op">$</span><span class="va">spectral_radius</span></span>
-<span><span class="co">#&gt; [1] 1.136188</span></span>
+<code class="sourceCode R"><span><span class="va">stab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getStability.html">getStability</a></span><span class="op">(</span><span class="va">params_f15</span>, effort <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
 <span><span class="va">stab</span><span class="op">$</span><span class="va">max_real_part</span></span>
-<span><span class="co">#&gt; [1] 1.235902</span></span>
-<span><span class="va">stab</span><span class="op">$</span><span class="va">stable</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
-<p>With the full coupled fish–resource dynamics included, both the
-discrete numerical solver (<span class="math inline">\(\max |\mu| = 1.14
-&gt; 1\)</span>) and the continuous PDE (<span class="math inline">\(\text{Re}(\lambda) = 1.24 &gt; 0\)</span>) are
-unstable.</p>
+<span><span class="va">stab</span><span class="op">$</span><span class="va">stable</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; [1] 0.07095636</span></span>
+<span><span class="co">#&gt; [1] FALSE</span></span></code></pre>
+<p>The largest real part among the eigenvalues, <span class="math inline">\(\text{Re}(\lambda) =
+0.071 &gt; 0\)</span>, so the steady state is unstable: a perturbation
+grows at that exponential rate, roughly a factor <span class="math inline">\(e\)</span> every 14 years.</p>
+<div class="section level3">
+<h3 id="what-mizers-time-step-makes-of-it">What mizer’s time step makes of it<a class="anchor" aria-label="anchor" href="#what-mizers-time-step-makes-of-it"></a>
+</h3>
+<p>The instability is a property of the model. Whether you <em>see</em>
+it in a simulation depends on the time step, and
+<code><a href="../reference/getDiscreteStability.html">getDiscreteStability()</a></code> says by how much. It reports the
+spectral radius <span class="math inline">\(\max_i|\mu_i|\)</span> of
+the one-step map; converting that into a growth rate per year, <span class="math inline">\(\log(\max_i|\mu_i|)/\Delta t\)</span>, puts it on
+the same footing as <code>max_real_part</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">growth_rate</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dt</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">rho</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getDiscreteStability.html">getDiscreteStability</a></span><span class="op">(</span><span class="va">params_f15</span>, effort <span class="op">=</span> <span class="fl">1.5</span>, dt <span class="op">=</span> <span class="va">dt</span><span class="op">)</span><span class="op">$</span><span class="va">spectral_radius</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">rho</span><span class="op">)</span> <span class="op">/</span> <span class="va">dt</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>, <span class="va">growth_rate</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; [1] -0.005132024 -0.040072184  0.101244950</span></span></code></pre>
+<p>Against the model’s own 0.071 per year, mizer’s default
+<code>euler</code> step gets none of these right, and not in a tidy
+direction either. At <span class="math inline">\(\Delta t = 0.1\)</span>
+the implicit transport solve damps the growing oscillation almost
+exactly as fast as the model grows it, so the scheme sits at the edge of
+stability and a run started near the steady state stays flat — a steady
+state that looks perfectly settled and is an artefact of the step size.
+We watch that happen below. At <span class="math inline">\(\Delta t =
+0.5\)</span> the map is firmly stable; at <span class="math inline">\(\Delta t = 1\)</span> it is unstable once more,
+but oscillating with a period near 3.4 years that belongs to no mode of
+the model.</p>
+<p>This is the practical reason to keep an eye on <code>dt</code>, to
+prefer <code>method = "tr_bdf2"</code> when the dynamics matter, and the
+reason <code><a href="../reference/getStability.html">getStability()</a></code> does not go through the one-step map
+at all.</p>
 <p>To see <em>how</em> it is unstable, we look at the dominant
 eigenvalue (the one with the largest real part).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stab</span><span class="op">$</span><span class="va">eigenvalues</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
-<span><span class="co">#&gt; [1] 1.235902+0.8479324i</span></span></code></pre></div>
-<p>It is <strong>complex</strong> with a positive real part (<span class="math inline">\(\lambda \approx 1.24 + 0.85i\)</span>). A purely
+<span><span class="co">#&gt; [1] 0.07095636+1.273383i</span></span></code></pre></div>
+<p>It is <strong>complex</strong> with a positive real part (<span class="math inline">\(\lambda \approx 0.071 + 1.273i\)</span>). A purely
 real, positive eigenvalue would signal monotone growth, but a complex
 pair with a positive real part means the perturbation grows <em>while
-oscillating</em> — a Hopf (or Neimark–Sacker) bifurcation. The period of
-this oscillation is set by the imaginary part of the eigenvalue,</p>
+oscillating</em> — a Hopf bifurcation. The period of this oscillation is
+set by the imaginary part of the eigenvalue,</p>
 <p><span class="math display">\[ \text{Period} =
 \frac{2\pi}{|\text{Im}(\lambda)|} \text{ years}, \]</span></p>
 <p>which mizer reports as <code>dominant_period</code>:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stab</span><span class="op">$</span><span class="va">dominant_period</span></span>
-<span><span class="co">#&gt; [1] 7.410008</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 4.934245</span></span></code></pre></div>
 <p>So the linear analysis predicts a growing oscillation with a period
-of roughly 7.4 years.</p>
+of roughly 4.93 years.</p>
+</div>
 </div>
 <div class="section level2">
-<h2 id="watching-the-limit-cycle-emerge-with-projecttosteady">Watching the limit cycle emerge with
-<code>projectToSteady()</code><a class="anchor" aria-label="anchor" href="#watching-the-limit-cycle-emerge-with-projecttosteady"></a>
+<h2 id="watching-the-limit-cycle-emerge-with-projectuntilsettled">Watching the limit cycle emerge with
+<code>projectUntilSettled()</code><a class="anchor" aria-label="anchor" href="#watching-the-limit-cycle-emerge-with-projectuntilsettled"></a>
 </h2>
 <p>We can confirm these predictions by projecting the dynamics with
-<code><a href="../reference/projectToSteady.html">projectToSteady()</a></code>.</p>
+<code><a href="../reference/projectUntilSettled.html">projectUntilSettled()</a></code>.</p>
 <p>Because the steady state is unstable, running the dynamics forward
 will never “converge” to a fixed point in the usual sense.
-<code><a href="../reference/projectToSteady.html">projectToSteady()</a></code> recognises this: it attaches a
+<code><a href="../reference/projectUntilSettled.html">projectUntilSettled()</a></code> recognises this: it attaches a
 <code>"convergence"</code> attribute to its result that reports whether
 the trajectory settled on a stable fixed point or a limit cycle, along
-with its period and relative amplitude. By passing
-<code>return_sim = TRUE</code>, it returns a full <code>MizerSim</code>
-object covering the run.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sim_cycle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projectToSteady.html">projectToSteady</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fl">1.5</span>, t_max <span class="op">=</span> <span class="fl">200</span>, t_per <span class="op">=</span> <span class="fl">0.2</span>,</span>
-<span>                             return_sim <span class="op">=</span> <span class="cn">TRUE</span>, method <span class="op">=</span> <span class="st">"tr_bdf2"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sim_cycle</span>, <span class="st">"convergence"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $type</span></span>
-<span><span class="co">#&gt; [1] "cycle"</span></span>
+with its period and relative amplitude. It returns a full
+<code>MizerSim</code> object covering the run, which is what we want
+here — the approach to the cycle is the thing to look at.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sim_cycle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projectUntilSettled.html">projectUntilSettled</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fl">1.5</span>, t_max <span class="op">=</span> <span class="fl">200</span>,</span>
+<span>                                 t_per <span class="op">=</span> <span class="fl">0.2</span>, method <span class="op">=</span> <span class="st">"tr_bdf2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sim_cycle</span>, <span class="st">"convergence"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; $termination</span></span>
+<span><span class="co">#&gt; [1] "cycle_detected"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $converged</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $attractor</span></span>
+<span><span class="co">#&gt; [1] "limit_cycle"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $distance</span></span>
 <span><span class="co">#&gt; [1] 6.144612</span></span>
@@ -367,50 +367,231 @@ object covering the run.</p>
 <span><span class="co">#&gt; [1] 5.4</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $amplitude</span></span>
-<span><span class="co">#&gt; [1] 0.6581569</span></span></code></pre></div>
-<p><code><a href="../reference/projectToSteady.html">projectToSteady()</a></code> correctly identifies the attractor as
-a limit cycle with a period of about 5.4 years and a peak-to-trough
+<span><span class="co">#&gt; [1] 0.6581569</span></span></code></pre>
+<p><code><a href="../reference/projectUntilSettled.html">projectUntilSettled()</a></code> correctly identifies the attractor
+as a limit cycle with a period of about 5.4 years and a peak-to-trough
 biomass amplitude of about 66% of the mean. Applied to a model with a
 genuine stable steady state (such as the default <code>params</code> at
-effort 0), the function reports <code>type = "steady"</code>
-instead:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu"><a href="../reference/projectToSteady.html">projectToSteady</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>, <span class="st">"convergence"</span><span class="op">)</span><span class="op">$</span><span class="va">type</span></span>
-<span><span class="co">#&gt; [1] "steady"</span></span></code></pre></div>
-<p>Because <code>return_sim = TRUE</code> returns a standard
-<code>MizerSim</code> object, we can plot the emergence of the limit
-cycle directly:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+effort 0), the same call reports <code>attractor = "fixed_point"</code>,
+which it does only when the biomasses have actually stopped drifting and
+not merely because the distance function went quiet:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu"><a href="../reference/projectUntilSettled.html">projectUntilSettled</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>, <span class="st">"convergence"</span><span class="op">)</span><span class="op">$</span><span class="va">attractor</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; [1] "fixed_point"</span></span></code></pre>
+<p>Because it is a standard <code>MizerSim</code> object, we can plot
+the emergence of the limit cycle directly:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim_cycle</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dynamic_stability_files/figure-html/plot_lcs_biomass2-1.png" class="r-plt" alt="" width="700"></p>
-<p>Notice that the detected nonlinear period (about 5.4 years) is
-slightly shorter than the <code>dominant_period</code> of about 7.4
-years from the linear PDE analysis. This is expected: at effort 1.5 we
-are beyond the bifurcation where nonlinearities reshape the
-large-amplitude cycle. Close to the bifurcation point the two agree
-closely; further from it the linear analysis remains an excellent
-qualitative guide, correctly predicting an oscillatory instability.</p>
+<p><img src="dynamic_stability_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="700"></p>
+<p>Notice how well the detected nonlinear period (about 5.4 years)
+agrees with the <code>dominant_period</code> of about 4.93 years from
+the linear analysis, even though the cycle we are looking at is anything
+but small: its relative amplitude is about 66% of the mean. The linear
+analysis is a prediction about infinitesimal perturbations of the steady
+state, so the remaining difference of under six percent is what the
+nonlinearity does to the shape of the large-amplitude cycle. Close to
+the bifurcation point the two agree even more closely.</p>
 </div>
 <div class="section level2">
 <h2 id="visualising-the-oscillation-shape">Visualising the oscillation shape<a class="anchor" aria-label="anchor" href="#visualising-the-oscillation-shape"></a>
 </h2>
-<p>Finally, <code><a href="../reference/getLimitCycleSim.html">getLimitCycleSim()</a></code> constructs a
+<p>Finally, <code><a href="../reference/getOscillationModeSim.html">getOscillationModeSim()</a></code> constructs a
 <code>MizerSim</code> object covering one period of the oscillation
-<em>in the linear approximation</em>, using the leading complex
-eigenvector. This isolates the pure <strong>shape</strong> of the cycle
-— which species and sizes participate and with what phase — without the
-growth or the nonlinear distortion of the full run.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lcs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getLimitCycleSim.html">getLimitCycleSim</a></span><span class="op">(</span><span class="va">params_f15</span>, include_resource <span class="op">=</span> <span class="cn">TRUE</span>, amplitude <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<em>in the linear approximation</em>, using the eigenvector of the
+dominant oscillatory mode. This isolates the pure <strong>shape</strong>
+of the cycle — which species and sizes participate and with what phase —
+without the growth or the nonlinear distortion of the full run. Fish and
+resource are driven by the same eigenvector and the same scale factor,
+so the resource carries the phase the mode gives it: on this model it
+leads the total fish biomass by about 0.3 years of the 5.12-year
+period.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lcs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getOscillationModeSim.html">getOscillationModeSim</a></span><span class="op">(</span><span class="va">params_f15</span>, amplitude <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
 <p>Because <code>lcs</code> is an ordinary <code>MizerSim</code> object,
 any of the standard mizer plotting functions can be used to explore it.
 For example, the biomass over one period:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">lcs</span><span class="op">)</span></span></code></pre></div>
-<p><img src="dynamic_stability_files/figure-html/plot_lcs_biomass-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="dynamic_stability_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="700"></p>
 <p>This linearised cycle gives a clear picture of the cohort-resonance
 pattern driving the oscillation — the mode shape that the full nonlinear
 limit cycle grows out of.</p>
+</div>
+<div class="section level2">
+<h2 id="tracing-the-bifurcation-with-scanmodel">Tracing the bifurcation with <code>scanModel()</code><a class="anchor" aria-label="anchor" href="#tracing-the-bifurcation-with-scanmodel"></a>
+</h2>
+<p>Everything so far has looked at a single fishing effort.
+<code><a href="../reference/scanModel.html">scanModel()</a></code> varies one aspect of a model over a range of
+values and measures a quantity on whatever attractor the model settles
+onto at each of them — which is what a bifurcation diagram is. Here we
+scan the effort of every gear from below the bifurcation to well above
+it, measuring the biomass of Saithe, the species with the largest
+response. <code><a href="../reference/scanEffort.html">scanEffort()</a></code> supplies the function that applies
+each effort to the model.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">scan</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scanModel.html">scanModel</a></span><span class="op">(</span><span class="va">params</span>, scan_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1.0</span>, <span class="fl">1.5</span>, <span class="fl">0.05</span><span class="op">)</span>,</span>
+<span>                  set_func <span class="op">=</span> <span class="fu"><a href="../reference/scanEffort.html">scanEffort</a></span><span class="op">(</span><span class="op">)</span>, value_func <span class="op">=</span> <span class="va">getBiomass</span>,</span>
+<span>                  species <span class="op">=</span> <span class="st">"Saithe"</span>, method <span class="op">=</span> <span class="st">"tr_bdf2"</span>,</span>
+<span>                  t_max <span class="op">=</span> <span class="fl">2000</span>, amp_rel_tol <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span></code></pre></div>
+<p>The long <code>t_max</code> and the tight <code>amp_rel_tol</code>
+are deliberate. Close to a Hopf bifurcation the leading eigenvalue is
+near zero, so the approach to the attractor is correspondingly slow, and
+a shorter run reports a cycle that is still growing rather than the one
+the model ends up on.</p>
+<p>Plotting with <code>style = "envelope"</code> draws the smallest and
+the largest value reached on the attractor, so a fixed point appears as
+a single line and a limit cycle as the band between its extremes:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">scan</span>, style <span class="op">=</span> <span class="st">"envelope"</span>, log_y <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="dynamic_stability_files/figure-html/plot_bifurcation-1.png" class="r-plt" alt="" width="700"></p>
+<p>The band has zero width up to an effort of 1.05 and opens
+continuously above it. That is the signature of a
+<strong>supercritical</strong> Hopf bifurcation: the limit cycle is born
+at the bifurcation with zero amplitude and grows from there. In the
+subcritical case a cycle of finite size would appear abruptly instead,
+and the model would show hysteresis — a different attractor depending on
+whether the effort was being raised or lowered.</p>
+<p>The attractor found at each effort is recorded in the scan, along
+with the period of the cycle where there is one:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>effort <span class="op">=</span> <span class="va">scan</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, attractor <span class="op">=</span> <span class="va">scan</span><span class="op">$</span><span class="va">attractor</span>,</span>
+<span>           period <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">scan</span><span class="op">$</span><span class="va">period</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    effort   attractor period</span></span>
+<span><span class="co">#&gt; 1    1.00 fixed_point     NA</span></span>
+<span><span class="co">#&gt; 2    1.05 fixed_point     NA</span></span>
+<span><span class="co">#&gt; 3    1.10 limit_cycle    5.2</span></span>
+<span><span class="co">#&gt; 4    1.15 limit_cycle    5.2</span></span>
+<span><span class="co">#&gt; 5    1.20 limit_cycle    5.3</span></span>
+<span><span class="co">#&gt; 6    1.25 limit_cycle    5.4</span></span>
+<span><span class="co">#&gt; 7    1.30 limit_cycle    5.4</span></span>
+<span><span class="co">#&gt; 8    1.35 limit_cycle    5.5</span></span>
+<span><span class="co">#&gt; 9    1.40 limit_cycle    5.4</span></span>
+<span><span class="co">#&gt; 10   1.45 limit_cycle    5.4</span></span>
+<span><span class="co">#&gt; 11   1.50 limit_cycle    5.4</span></span></code></pre></div>
+<p>The period stays close to the <code>dominant_period</code> that the
+linear analysis predicted, right across the range.</p>
+<p>A supercritical Hopf bifurcation also predicts <em>how</em> the cycle
+grows: its amplitude rises like the square root of the distance past the
+bifurcation, so the squared amplitude should be a straight line in the
+effort. The scan carries the minimum and maximum over the attractor in
+its <code>ymin</code> and <code>ymax</code> columns, so the relative
+amplitude is one subtraction away:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">effort</span> <span class="op">&lt;-</span> <span class="va">scan</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="va">amplitude</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">scan</span><span class="op">$</span><span class="va">ymax</span> <span class="op">-</span> <span class="va">scan</span><span class="op">$</span><span class="va">ymin</span><span class="op">)</span> <span class="op">/</span> <span class="va">scan</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="va">cycles</span> <span class="op">&lt;-</span> <span class="va">scan</span><span class="op">$</span><span class="va">attractor</span> <span class="op">==</span> <span class="st">"limit_cycle"</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">amplitude</span><span class="op">[</span><span class="va">cycles</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span> <span class="op">~</span> <span class="va">effort</span><span class="op">[</span><span class="va">cycles</span><span class="op">]</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>effort <span class="op">=</span> <span class="va">effort</span><span class="op">[</span><span class="va">cycles</span><span class="op">]</span>,</span>
+<span>                           squared_amplitude <span class="op">=</span> <span class="va">amplitude</span><span class="op">[</span><span class="va">cycles</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>,</span>
+<span>                <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">effort</span>, <span class="va">squared_amplitude</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span>, formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Fishing effort"</span>, y <span class="op">=</span> <span class="st">"Squared relative amplitude"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="dynamic_stability_files/figure-html/sqrt_law-1.png" class="r-plt" alt="" width="700"></p>
+<p>It is: the fit has an <span class="math inline">\(R^2\)</span> of
+0.999, and holds not only close to the bifurcation but over the whole
+range scanned.</p>
+<p>Extrapolating that line back to zero amplitude puts the bifurcation
+at an effort of about 1.088. The eigenvalues give an independent
+estimate: we find the steady state at a few efforts with
+<code>solver = "newton"</code> — which works on either side of the
+bifurcation, since it does not care about stability — and ask where the
+leading real part changes sign.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">efforts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.00</span>, <span class="fl">1.05</span>, <span class="fl">1.10</span>, <span class="fl">1.15</span><span class="op">)</span></span>
+<span><span class="va">max_real</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">efforts</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">p_e</span> <span class="op">&lt;-</span> <span class="va">params</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">efforts</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">p_e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/findSteadyState.html">findSteadyState</a></span><span class="op">(</span><span class="va">p_e</span>, effort <span class="op">=</span> <span class="va">efforts</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, solver <span class="op">=</span> <span class="st">"newton"</span><span class="op">)</span></span>
+<span>    <span class="va">max_real</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getStability.html">getStability</a></span><span class="op">(</span><span class="va">p_e</span>, effort <span class="op">=</span> <span class="va">efforts</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">max_real_part</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>effort <span class="op">=</span> <span class="va">efforts</span>, max_real_part <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">max_real</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt;   effort max_real_part</span></span>
+<span><span class="co">#&gt; 1   1.00      -0.01740</span></span>
+<span><span class="co">#&gt; 2   1.05      -0.00354</span></span>
+<span><span class="co">#&gt; 3   1.10       0.00862</span></span>
+<span><span class="co">#&gt; 4   1.15       0.01940</span></span></code></pre>
+<p>The leading real part crosses zero at an effort of about 1.065, a
+little below the 1.088 that the amplitude line extrapolates to. The two
+are calculated in completely different ways — one from the Jacobian at a
+steady state, the other from the size of the cycles the dynamics settle
+onto — and the small gap between them is the price of the projections: a
+finite time step leaves a little numerical damping behind, which pushes
+the apparent onset to slightly higher effort. The next section shows how
+much damping that can be.</p>
+</div>
+<div class="section level2">
+<h2 id="what-the-default-time-step-makes-of-the-same-model">What the default time step makes of the same model<a class="anchor" aria-label="anchor" href="#what-the-default-time-step-makes-of-the-same-model"></a>
+</h2>
+<p>Every projection above chose <code>method = "tr_bdf2"</code>
+deliberately. It is worth seeing what mizer’s default <code>euler</code>
+step does with the same model, because the answer depends on where the
+run starts and neither case reports the model.</p>
+<p>Repeat the run of the previous section with the default step. The
+trajectory still settles on a limit cycle — but not on the model’s
+one:</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sim_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projectUntilSettled.html">projectUntilSettled</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fl">1.5</span>, t_max <span class="op">=</span> <span class="fl">200</span>,</span>
+<span>                                 t_per <span class="op">=</span> <span class="fl">0.2</span>, method <span class="op">=</span> <span class="st">"euler"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sim_euler</span>, <span class="st">"convergence"</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"attractor"</span>, <span class="st">"period"</span>, <span class="st">"amplitude"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; $attractor</span></span>
+<span><span class="co">#&gt; [1] "limit_cycle"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $period</span></span>
+<span><span class="co">#&gt; [1] 5.1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $amplitude</span></span>
+<span><span class="co">#&gt; [1] 0.1663231</span></span></code></pre>
+<p>The period is close to the one <code>tr_bdf2</code> found, but the
+amplitude is only about 17% of the mean against the 66% of the true
+cycle, smaller by a factor of about 4. The numerical damping does not
+remove the oscillation here; it shrinks it.</p>
+<p>Start near the steady state instead and the same damping removes it
+altogether. We nudge the fixed point by 5% and project twice, changing
+nothing but the method:</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">params_nudged</span> <span class="op">&lt;-</span> <span class="va">params_f15</span></span>
+<span><span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params_nudged</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params_f15</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.05</span></span>
+<span><span class="va">run</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">method</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="../reference/projectUntilSettled.html">projectUntilSettled</a></span><span class="op">(</span><span class="va">params_nudged</span>, effort <span class="op">=</span> <span class="fl">1.5</span>, t_max <span class="op">=</span> <span class="fl">200</span>,</span>
+<span>                        t_per <span class="op">=</span> <span class="fl">0.2</span>, method <span class="op">=</span> <span class="va">method</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">sim_nudged_euler</span> <span class="op">&lt;-</span> <span class="fu">run</span><span class="op">(</span><span class="st">"euler"</span><span class="op">)</span></span>
+<span><span class="va">sim_nudged_trbdf2</span> <span class="op">&lt;-</span> <span class="fu">run</span><span class="op">(</span><span class="st">"tr_bdf2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sim_nudged_euler</span>, <span class="st">"convergence"</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"attractor"</span>, <span class="st">"residual"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sim_nudged_trbdf2</span>, <span class="st">"convergence"</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"attractor"</span>, <span class="st">"period"</span>, <span class="st">"amplitude"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; $attractor</span></span>
+<span><span class="co">#&gt; [1] "fixed_point"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $residual</span></span>
+<span><span class="co">#&gt; [1] 0.02056507</span></span>
+<span><span class="co">#&gt; $attractor</span></span>
+<span><span class="co">#&gt; [1] "limit_cycle"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $period</span></span>
+<span><span class="co">#&gt; [1] 5.2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $amplitude</span></span>
+<span><span class="co">#&gt; [1] 0.6349932</span></span></code></pre>
+<p>Stepped with <code>euler</code> the nudge decays back to the fixed
+point and the run reports <code>attractor = "fixed_point"</code>, with a
+residual drift small enough that mizer’s own test calls the state
+settled:</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/isSteady.html">isSteady</a></span><span class="op">(</span><span class="fu"><a href="../reference/getParams.html">finalParams</a></span><span class="op">(</span><span class="va">sim_nudged_euler</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; [1] TRUE</span></span></code></pre>
+<p>Stepped with <code>tr_bdf2</code> the same nudge grows, at the rate
+the eigenvalue predicts, into a cycle of period 5.2 years and relative
+amplitude 0.63.</p>
+<p>So the two failure modes are different, and both are decided by the
+step rather than by the model: near the steady state the default step
+turns an unstable fixed point into a stable-looking one, and far from
+it, it leaves the oscillation in place but understates how big it is.
+This is why <code><a href="../reference/getStability.html">getStability()</a></code> works from the model’s own rates
+of change, and why it is worth checking a suspicious steady state with a
+smaller <code>dt</code> or with <code>method = "tr_bdf2"</code> before
+believing it.</p>
 </div>
 <div class="section level2">
 <h2 id="a-caveat-the-analysis-assumes-a-smooth-model">A caveat: the analysis assumes a smooth model<a class="anchor" aria-label="anchor" href="#a-caveat-the-analysis-assumes-a-smooth-model"></a>
@@ -420,12 +601,12 @@ differentiable at the steady state, so that the finite-difference
 Jacobian means something. That holds for models built from mizer’s own
 rate functions, but not necessarily for a model carrying a custom rate
 registered with <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code>. If such a rate jumps as
-a function of the abundances, <code><a href="../reference/steadyNewton.html">steadyNewton()</a></code> may stall and
-<code><a href="../reference/getStability.html">getStability()</a></code> can return a plausible-looking number that
-describes neither branch of the dynamics.</p>
+a function of the abundances, <code>solver = "newton"</code> may stall
+and <code><a href="../reference/getStability.html">getStability()</a></code> can return a plausible-looking number
+that describes neither branch of the dynamics.</p>
 <p>The cheapest check is to re-run <code><a href="../reference/getStability.html">getStability()</a></code> with a
-different <code>h</code>: on a smooth model the spectral radius is
-unchanged to several figures. See <a href="discontinuous_rates.html">Discontinuous rate functions</a>.</p>
+different <code>h</code>: on a smooth model <code>max_real_part</code>
+is unchanged to several figures. See <a href="discontinuous_rates.html">Discontinuous rate functions</a>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -438,7 +619,7 @@ unchanged to several figures. See <a href="discontinuous_rates.html">Discontinuo
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

@@ -1,8 +1,8 @@
 # The default level of information that mizer gives
 
-Returns the `mizer_info_level` option if it is set and `fallback`
-otherwise. This is the default of the `info_level` argument of the
-functions that report information, so that
+**\[experimental\]** Returns the `mizer_info_level` option if it is set
+and `fallback` otherwise. This is the default of the `info_level`
+argument of the functions that report information, so that
 `options(mizer_info_level = 0)` quietens mizer as a whole, including the
 functions that have no `info_level` argument of their own, such as
 [`species_params<-()`](https://sizespectrum.org/mizer/reference/species_params.md)

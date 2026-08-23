@@ -117,11 +117,18 @@ suppressMessages(devtools::load_all("..", quiet = TRUE))
 params <- NS_params
 ```
 
+```{r load_saved, include = FALSE}
+# The long-running calculations below are pre-computed by
+# dev_scripts/save_dynamic_stability.R, which shares its code with this
+# article. Re-run that script whenever a calculation here changes.
+list2env(readRDS("dynamic_stability.rds"), envir = knitr::knit_global())
+```
+
 The North Sea model at its default fishing effort is dynamically stable, so it makes a rather uneventful example: perturb it and it simply settles back down. To see something more interesting we increase the fishing pressure, setting the effort of every gear to `1.5`. This pushes the model across a **Hopf bifurcation** into a regime where the steady state is unstable.
 
 Because the steady state is now unstable, the default `solver = "project"` cannot find it — projecting the dynamics forward would diverge away from it. This is exactly the situation `solver = "newton"` is designed for: it solves the equilibrium equations directly and therefore finds the steady state regardless of its stability. We use `findSteadyState()` rather than `tuneSteadyState()` because we want the steady state of the model as it stands, with the reproduction parameters left alone.
 
-```{r find_steady}
+```{r find_steady, eval = FALSE}
 params_f15 <- findSteadyState(params, effort = 1.5, solver = "newton")
 ```
 
@@ -130,8 +137,12 @@ params_f15 <- findSteadyState(params, effort = 1.5, solver = "newton")
 Is this steady state stable? We compute its stability metrics with
 `getStability()`.
 
-```{r coupled_stability}
+```{r coupled_stability, eval = FALSE}
 stab <- getStability(params_f15, effort = 1.5)
+stab$max_real_part
+stab$stable
+```
+```{r echo = FALSE}
 stab$max_real_part
 stab$stable
 ```
@@ -149,20 +160,24 @@ reports the spectral radius $\max_i|\mu_i|$ of the one-step map; converting that
 into a growth rate per year, $\log(\max_i|\mu_i|)/\Delta t$, puts it on the same
 footing as `max_real_part`:
 
-```{r discrete_stability}
+```{r discrete_stability, eval = FALSE}
 growth_rate <- function(dt) {
     rho <- getDiscreteStability(params_f15, effort = 1.5, dt = dt)$spectral_radius
     log(rho) / dt
 }
 sapply(c(0.1, 0.5, 1), growth_rate)
 ```
+```{r echo = FALSE}
+growth_rates
+```
 
 Against the model's own `r round(stab$max_real_part, 3)` per year, mizer's
 default `euler` step gets none of these right, and not in a tidy direction
 either. At $\Delta t = 0.1$ the implicit transport solve damps the growing
 oscillation almost exactly as fast as the model grows it, so the scheme sits at
-the edge of stability and a century-long run stays flat — a steady state that
-looks perfectly settled and is an artefact of the step size. At
+the edge of stability and a run started near the steady state stays flat — a
+steady state that looks perfectly settled and is an artefact of the step size.
+We watch that happen below. At
 $\Delta t = 0.5$ the map is firmly stable; at $\Delta t = 1$ it is unstable once
 more, but oscillating with a period near 3.4 years that belongs to no mode of
 the model.
@@ -195,41 +210,228 @@ We can confirm these predictions by projecting the dynamics with `projectUntilSe
 
 Because the steady state is unstable, running the dynamics forward will never "converge" to a fixed point in the usual sense. `projectUntilSettled()` recognises this: it attaches a `"convergence"` attribute to its result that reports whether the trajectory settled on a stable fixed point or a limit cycle, along with its period and relative amplitude. It returns a full `MizerSim` object covering the run, which is what we want here — the approach to the cycle is the thing to look at.
 
-```{r pts_trbdf2}
+```{r pts_trbdf2, eval = FALSE}
 sim_cycle <- projectUntilSettled(params, effort = 1.5, t_max = 200,
                                  t_per = 0.2, method = "tr_bdf2")
 attr(sim_cycle, "convergence")
 ```
+```{r echo = FALSE}
+conv_cycle
+```
 
-`projectUntilSettled()` correctly identifies the attractor as a limit cycle with a period of about `r round(attr(sim_cycle, "convergence")$period, 1)` years and a peak-to-trough biomass amplitude of about `r round(100 * attr(sim_cycle, "convergence")$amplitude)`% of the mean. Applied to a model with a genuine stable steady state (such as the default `params` at effort 0), the same call reports `attractor = "fixed_point"`, which it does only when the biomasses have actually stopped drifting and not merely because the distance function went quiet:
+`projectUntilSettled()` correctly identifies the attractor as a limit cycle with a period of about `r round(conv_cycle$period, 1)` years and a peak-to-trough biomass amplitude of about `r round(100 * conv_cycle$amplitude)`% of the mean. Applied to a model with a genuine stable steady state (such as the default `params` at effort 0), the same call reports `attractor = "fixed_point"`, which it does only when the biomasses have actually stopped drifting and not merely because the distance function went quiet:
 
-```{r pts_steady}
+```{r pts_steady, eval = FALSE}
 attr(projectUntilSettled(params, t_max = 100), "convergence")$attractor
+```
+```{r echo = FALSE}
+attractor_steady
 ```
 
 Because it is a standard `MizerSim` object, we can plot the emergence of the limit cycle directly:
 
-```{r plot_lcs_biomass2}
+```{r plot_lcs_biomass2, eval = FALSE}
 plotBiomass(sim_cycle)
 ```
+```{r echo = FALSE}
+# `plotBiomass(sim)` is `plot(getBiomass(sim))`, and the biomass array is what
+# was saved.
+plot(biomass_cycle)
+```
 
-Notice how well the detected nonlinear period (about `r round(attr(sim_cycle, "convergence")$period, 1)` years) agrees with the `dominant_period` of about `r round(stab$dominant_period, 2)` years from the linear analysis, even though the cycle we are looking at is anything but small: its relative amplitude is about `r round(100 * attr(sim_cycle, "convergence")$amplitude)`% of the mean. The linear analysis is a prediction about infinitesimal perturbations of the steady state, so the remaining difference of under six percent is what the nonlinearity does to the shape of the large-amplitude cycle. Close to the bifurcation point the two agree even more closely.
+Notice how well the detected nonlinear period (about `r round(conv_cycle$period, 1)` years) agrees with the `dominant_period` of about `r round(stab$dominant_period, 2)` years from the linear analysis, even though the cycle we are looking at is anything but small: its relative amplitude is about `r round(100 * conv_cycle$amplitude)`% of the mean. The linear analysis is a prediction about infinitesimal perturbations of the steady state, so the remaining difference of under six percent is what the nonlinearity does to the shape of the large-amplitude cycle. Close to the bifurcation point the two agree even more closely.
 
 ## Visualising the oscillation shape
 
 Finally, `getOscillationModeSim()` constructs a `MizerSim` object covering one period of the oscillation *in the linear approximation*, using the eigenvector of the dominant oscillatory mode. This isolates the pure **shape** of the cycle — which species and sizes participate and with what phase — without the growth or the nonlinear distortion of the full run. Fish and resource are driven by the same eigenvector and the same scale factor, so the resource carries the phase the mode gives it: on this model it leads the total fish biomass by about 0.3 years of the 5.12-year period.
 
-```{r limit_cycle}
+```{r limit_cycle, eval = FALSE}
 lcs <- getOscillationModeSim(params_f15, amplitude = 0.1)
 ```
 
 Because `lcs` is an ordinary `MizerSim` object, any of the standard mizer plotting functions can be used to explore it. For example, the biomass over one period:
 
-```{r plot_lcs_biomass}
+```{r plot_lcs_biomass, eval = FALSE}
 plotBiomass(lcs)
+```
+```{r echo = FALSE}
+plot(biomass_lcs)
 ```
 
 This linearised cycle gives a clear picture of the cohort-resonance pattern driving the oscillation — the mode shape that the full nonlinear limit cycle grows out of.
+
+## Tracing the bifurcation with `scanModel()`
+
+Everything so far has looked at a single fishing effort. `scanModel()` varies
+one aspect of a model over a range of values and measures a quantity on
+whatever attractor the model settles onto at each of them — which is what a
+bifurcation diagram is. Here we scan the effort of every gear from below the
+bifurcation to well above it, measuring the biomass of Saithe, the species with
+the largest response. `scanEffort()` supplies the function that applies each
+effort to the model.
+
+```{r bifurcation_scan, eval = FALSE}
+scan <- scanModel(params, scan_values = seq(1.0, 1.5, 0.05),
+                  set_func = scanEffort(), value_func = getBiomass,
+                  species = "Saithe", method = "tr_bdf2",
+                  t_max = 2000, amp_rel_tol = 0.01)
+```
+
+The long `t_max` and the tight `amp_rel_tol` are deliberate. Close to a Hopf
+bifurcation the leading eigenvalue is near zero, so the approach to the
+attractor is correspondingly slow, and a shorter run reports a cycle that is
+still growing rather than the one the model ends up on.
+
+Plotting with `style = "envelope"` draws the smallest and the largest value
+reached on the attractor, so a fixed point appears as a single line and a limit
+cycle as the band between its extremes:
+
+```{r plot_bifurcation}
+plot(scan, style = "envelope", log_y = FALSE)
+```
+
+The band has zero width up to an effort of
+`r max(scan[[1]][scan$attractor != "limit_cycle"])`
+and opens continuously above it. That is the signature of a **supercritical**
+Hopf bifurcation: the limit cycle is born at the bifurcation with zero amplitude
+and grows from there. In the subcritical case a cycle of finite size would
+appear abruptly instead, and the model would show hysteresis — a different
+attractor depending on whether the effort was being raised or lowered.
+
+The attractor found at each effort is recorded in the scan, along with the
+period of the cycle where there is one:
+
+```{r scan_types}
+data.frame(effort = scan[[1]], attractor = scan$attractor,
+           period = round(scan$period, 1))
+```
+
+The period stays close to the `dominant_period` that the linear analysis
+predicted, right across the range.
+
+A supercritical Hopf bifurcation also predicts *how* the cycle grows: its
+amplitude rises like the square root of the distance past the bifurcation, so
+the squared amplitude should be a straight line in the effort. The scan carries
+the minimum and maximum over the attractor in its `ymin` and `ymax` columns, so
+the relative amplitude is one subtraction away:
+
+```{r sqrt_law}
+effort <- scan[[1]]
+amplitude <- (scan$ymax - scan$ymin) / scan[[2]]
+cycles <- scan$attractor == "limit_cycle"
+fit <- lm(amplitude[cycles]^2 ~ effort[cycles])
+
+ggplot2::ggplot(data.frame(effort = effort[cycles],
+                           squared_amplitude = amplitude[cycles]^2),
+                ggplot2::aes(effort, squared_amplitude)) +
+    ggplot2::geom_smooth(method = "lm", formula = y ~ x, se = FALSE) +
+    ggplot2::geom_point() +
+    ggplot2::labs(x = "Fishing effort", y = "Squared relative amplitude")
+```
+
+It is: the fit has an $R^2$ of `r round(summary(fit)$r.squared, 3)`, and holds
+not only close to the bifurcation but over the whole range scanned.
+
+Extrapolating that line back to zero amplitude puts the bifurcation at an effort
+of about `r round(-coef(fit)[[1]] / coef(fit)[[2]], 3)`. The eigenvalues give an
+independent estimate: we find the steady state at a few efforts with
+`solver = "newton"` — which works on either side of the bifurcation, since it
+does not care about stability — and ask where the leading real part changes
+sign.
+
+```{r hopf_eigenvalues, eval = FALSE}
+efforts <- c(1.00, 1.05, 1.10, 1.15)
+max_real <- numeric(length(efforts))
+p_e <- params
+for (i in seq_along(efforts)) {
+    p_e <- findSteadyState(p_e, effort = efforts[i], solver = "newton")
+    max_real[i] <- getStability(p_e, effort = efforts[i])$max_real_part
+}
+data.frame(effort = efforts, max_real_part = signif(max_real, 3))
+```
+```{r echo = FALSE}
+data.frame(effort = efforts, max_real_part = signif(max_real, 3))
+```
+
+The leading real part crosses zero at an effort of about
+`r round(stats::approx(max_real, efforts, xout = 0)$y, 3)`, a little below the
+`r round(-coef(fit)[[1]] / coef(fit)[[2]], 3)` that the amplitude line
+extrapolates to. The two are calculated in completely different ways — one from
+the Jacobian at a steady state, the other from the size of the cycles the
+dynamics settle onto — and the small gap between them is the price of the
+projections: a finite time step leaves a little numerical damping behind, which
+pushes the apparent onset to slightly higher effort. The next section shows how
+much damping that can be.
+
+## What the default time step makes of the same model
+
+Every projection above chose `method = "tr_bdf2"` deliberately. It is worth
+seeing what mizer's default `euler` step does with the same model, because the
+answer depends on where the run starts and neither case reports the model.
+
+Repeat the run of the previous section with the default step. The trajectory
+still settles on a limit cycle — but not on the model's one:
+
+```{r pts_euler, eval = FALSE}
+sim_euler <- projectUntilSettled(params, effort = 1.5, t_max = 200,
+                                 t_per = 0.2, method = "euler")
+attr(sim_euler, "convergence")[c("attractor", "period", "amplitude")]
+```
+```{r echo = FALSE}
+conv_euler[c("attractor", "period", "amplitude")]
+```
+
+The period is close to the one `tr_bdf2` found, but the amplitude is only about
+`r round(100 * conv_euler$amplitude)`% of the mean against
+the `r round(100 * conv_cycle$amplitude)`% of the true
+cycle, smaller by a factor of about
+`r round(conv_cycle$amplitude / conv_euler$amplitude, 1)`.
+The numerical damping does not remove the oscillation here; it shrinks it.
+
+Start near the steady state instead and the same damping removes it altogether.
+We nudge the fixed point by 5% and project twice, changing nothing but the
+method:
+
+```{r euler_vs_trbdf2, eval = FALSE}
+params_nudged <- params_f15
+initialN(params_nudged) <- initialN(params_f15) * 1.05
+run <- function(method) {
+    projectUntilSettled(params_nudged, effort = 1.5, t_max = 200,
+                        t_per = 0.2, method = method)
+}
+sim_nudged_euler <- run("euler")
+sim_nudged_trbdf2 <- run("tr_bdf2")
+attr(sim_nudged_euler, "convergence")[c("attractor", "residual")]
+attr(sim_nudged_trbdf2, "convergence")[c("attractor", "period", "amplitude")]
+```
+```{r echo = FALSE}
+conv_nudged_euler[c("attractor", "residual")]
+conv_nudged_trbdf2[c("attractor", "period", "amplitude")]
+```
+
+Stepped with `euler` the nudge decays back to the fixed point and the run
+reports `attractor = "fixed_point"`, with a residual drift small enough that
+mizer's own test calls the state settled:
+
+```{r euler_isSteady, eval = FALSE}
+isSteady(finalParams(sim_nudged_euler))
+```
+```{r echo = FALSE}
+steady_nudged_euler
+```
+
+Stepped with `tr_bdf2` the same nudge grows, at the rate the eigenvalue
+predicts, into a cycle of period
+`r round(conv_nudged_trbdf2$period, 1)` years and relative
+amplitude `r round(conv_nudged_trbdf2$amplitude, 2)`.
+
+So the two failure modes are different, and both are decided by the step rather
+than by the model: near the steady state the default step turns an unstable
+fixed point into a stable-looking one, and far from it, it leaves the
+oscillation in place but understates how big it is. This is why
+`getStability()` works from the model's own rates of change, and why it is
+worth checking a suspicious steady state with a smaller `dt` or with
+`method = "tr_bdf2"` before believing it.
 
 ## A caveat: the analysis assumes a smooth model
 

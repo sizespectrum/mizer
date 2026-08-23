@@ -1,10 +1,10 @@
 # S3 class for resource size spectra
 
-Several functions in mizer return a vector over the full size grid
-holding a resource-related quantity such as the resource number density,
-the resource mortality, the intrinsic resource birth rate or carrying
-capacity. The `ArrayResourceBySize` class wraps these vectors to provide
-convenient
+**\[experimental\]** Several functions in mizer return a vector over the
+full size grid holding a resource-related quantity such as the resource
+number density, the resource mortality, the intrinsic resource birth
+rate or carrying capacity. The `ArrayResourceBySize` class wraps these
+vectors to provide convenient
 [`print()`](https://sizespectrum.org/mizer/reference/print.md),
 [`summary()`](https://sizespectrum.org/mizer/reference/summary.md),
 [`plot()`](https://sizespectrum.org/mizer/reference/plot.md), and

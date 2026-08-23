@@ -1,11 +1,12 @@
 # Collect and report the information signals raised while setting parameters
 
-While mizer sets up or changes a model it raises conditions of class
-`info_about_default` to tell the user about the choices it made on their
-behalf and about the instructions it could not carry out. This function
-evaluates `expr` with a calling handler that collects those conditions
-and reports them together once `expr` has finished, so that the user
-gets one report rather than a stream of messages.
+**\[experimental\]** While mizer sets up or changes a model it raises
+conditions of class `info_about_default` to tell the user about the
+choices it made on their behalf and about the instructions it could not
+carry out. This function evaluates `expr` with a calling handler that
+collects those conditions and reports them together once `expr` has
+finished, so that the user gets one report rather than a stream of
+messages.
 
 ## Usage
 
@@ -97,8 +98,8 @@ myConstructor <- function(x, info_level = default_info_level()) {
     })
 }
 myConstructor(1)
-#> No `h` provided, using a default.
-#> Calculating `gamma` from `f0`.
+#> ℹ No `h` provided, using a default.
+#> ℹ Calculating `gamma` from `f0`.
 #> [1] 1
 
 # `info_level = 1` keeps only the report that was marked important.

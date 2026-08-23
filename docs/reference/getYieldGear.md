@@ -40,8 +40,7 @@ Other summary functions:
 [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md),
 [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md),
 [`getTrophicLevelBySpecies()`](https://sizespectrum.org/mizer/reference/getTrophicLevelBySpecies.md),
-[`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md),
-[`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md)
+[`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md)
 
 ## Examples
 

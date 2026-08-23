@@ -88,12 +88,14 @@ parameter that mizer reads from
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md).
 `species_params<-()` stays quiet about all three.
 
-**Turning the commentary up or down.** Mizer reports the choices it
-makes — defaults it filled in, inputs it adjusted, instructions it could
-not carry out — at a level set by `info_level`. Most `set…()` and
-`new…()` functions take it as an argument; for the ones that do not,
-including `species_params(params) <-` and the rate setters, set the
-option instead:
+### Turning the commentary up or down
+
+Mizer reports the choices it makes — defaults it filled in, inputs it
+adjusted, instructions it could not carry out — at a level set by
+`info_level`. Most `set…()` and `new…()` functions take it as an
+argument; for the ones that do not, including
+`species_params(params) <-` and the rate setters, set the option
+instead:
 
 ``` r
 
@@ -139,6 +141,26 @@ Columns come back as named vectors:
 species_params(params)$w_mat        # named by species
 given_species_params(params)$gamma  # NA where you never set it
 ```
+
+### Length and weight columns: the changed value wins
+
+Size parameters can be supplied as weights (`w_inf`, `w_max`, `w_mat`,
+`w_mat25`, `w_repro_max`, `w_min`) or, when `a` and `b` are available,
+as the corresponding lengths (`l_inf`, `l_max`, `l_mat`, `l_mat25`,
+`l_repro_max`, `l_min`). Mizer keeps each pair consistent when the table
+is assigned back to the model.
+
+`species_params(params) <- value` compares `value` with the model’s
+current table, so the side you changed wins: changing only `l_mat`
+recalculates `w_mat`, while changing only `w_mat` recalculates `l_mat`.
+If both disagree and both count as changed at the same time, the weight
+wins and mizer reports that it adjusted the length.
+
+Editing a species-parameter table on its own performs no validation or
+conversion; those happen only when the table is assigned back. A fresh
+plain data frame has no model history against which to identify the last
+change, so disagreeing length and weight values count as simultaneous
+input and the weight wins.
 
 For a fuller description of the individual parameters see the help page
 of

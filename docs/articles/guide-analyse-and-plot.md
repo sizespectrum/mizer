@@ -19,9 +19,9 @@ gives biomass over time, `getBiomass(params)` gives biomass now.
 
 To get the single value **at one time step** of a simulation, extract a
 `MizerParams` snapshot with
-[`finalParams(sim)`](https://sizespectrum.org/mizer/reference/finalParams.md)
+[`finalParams(sim)`](https://sizespectrum.org/mizer/reference/getParams.md)
 (last step),
-[`initialParams(sim)`](https://sizespectrum.org/mizer/reference/initialParams.md)
+[`initialParams(sim)`](https://sizespectrum.org/mizer/reference/getParams.md)
 (first step), or
 [`getParams(sim, time_range = ...)`](https://sizespectrum.org/mizer/reference/getParams.md)
 (averaged over a range) and pass that in:
@@ -254,6 +254,24 @@ plotRelative(getEGrowth(params), getEGrowth(params2))  # relative difference
 plotHover(getBiomass(sim))     # interactive (hover) version of any array plot
 ```
 
+[`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md) and
+[`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md)
+prepare each of their two arrays separately, using the model attached to
+that array. This matters when the two models differ in the length-weight
+relationship `w = a l^b`: with `size_axis = "l"` each spectrum is then
+drawn at its own lengths, and a density is rescaled by its own Jacobian.
+The two length grids no longer coincide when that happens, so
+[`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md)
+interpolates both series (linearly in the logarithm of size) onto the
+union of their coordinates, restricted to the range both cover. On a
+weight axis, and whenever the two models agree, the grids coincide and
+nothing is approximated.
+
+The two arrays must hold the same kind of value: comparing a `"density"`
+with a `"value"` is an error, because the `type` decides both the
+Jacobian and the y-axis scaling and there is no pair of axes that
+carries both. A differing `value_name` or differing units only warn.
+
 ### Common arguments
 
 Most analysis and plotting functions — including
@@ -270,6 +288,7 @@ arguments:
 | `ylim` | numeric vector `c(min, max)` — restrict the value (y) axis |
 | `highlight` | character vector — draw named species with thicker lines |
 | `total` | logical — add a line for the community total. The total of *everything the object holds*, so it does not change when you select species or hide the resource; on a length axis it is summed at equal length |
+| `background` | logical — whether species marked with [`markBackground()`](https://sizespectrum.org/mizer/reference/markBackground.md) are drawn. They are drawn only when the selection asks for them, always under a single grey `"Background"` legend entry; `background = FALSE` removes them |
 | `log_x`, `log_y` | logical — log-scale the x or y axis |
 | `size_axis` | `"w"` (default) or `"l"` — plot against weight or against length |
 
@@ -468,6 +487,118 @@ animate(NResource(sim))      # an ArrayTimeByResourceBySize over time
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md)
 accepts most of the common arguments from
 [`plot()`](https://sizespectrum.org/mizer/reference/plot.md).
+
+------------------------------------------------------------------------
+
+## Scanning a model over a range — `scanModel()`
+
+Everything above measures one model.
+[`scanModel()`](https://sizespectrum.org/mizer/reference/scanModel.md)
+measures a *family* of them: it varies one aspect of the model over a
+range of values and, at each value, projects until the model settles and
+measures a quantity on the attractor it settled on. The result is a
+[`MizerScan`](https://sizespectrum.org/mizer/reference/MizerScan.md), a
+data frame that knows how to plot itself.
+
+``` r
+
+scan <- scanModel(params,
+                  scan_values = seq(0, 1.5, 0.1),
+                  set_func    = scanFishingMortality("Cod"),  # what to vary
+                  value_func  = getYield,                      # what to measure
+                  species     = "Cod")
+plot(scan)
+attr(scan, "at_max")      # the F at which the yield is largest, i.e. F_MSY
+```
+
+- **`set_func(params, value)`** returns a modified `MizerParams`.
+  Ready-made ones:
+  [`scanEffort(gear)`](https://sizespectrum.org/mizer/reference/scanEffort.md)
+  for fishing effort, `scanFishingMortality(species, gear)` for the
+  fishing mortality on one species with the rest of the fishing left
+  alone,
+  [`scanSpeciesParam(species, parameter)`](https://sizespectrum.org/mizer/reference/scanEffort.md)
+  for a species parameter. Any function of `(params, value)` will do, as
+  long as it is **idempotent** — with `continuation = TRUE` it is handed
+  the object it returned at the previous scan value, so it must set
+  rather than accumulate.
+- **`value_func(sim)`** returns a time-by-series object. `getBiomass`,
+  `getYield`, `getSSB`, `getN` and `sizeIntegral` all work unchanged,
+  and so does a plain numeric vector over time such as `getMeanWeight`.
+  Give extra arguments with a closure, not through `...`:
+  `value_func = function(sim) getBiomass(sim, min_w = 10)`.
+
+Scanning something that has nothing to do with fishing needs no more
+than a two-line setter, because
+[`project()`](https://sizespectrum.org/mizer/reference/project.md) takes
+the effort from the params object:
+
+``` r
+
+plot(scanModel(params,
+               scan_values = 10^seq(10, 12, length.out = 9),
+               set_func = function(params, value) {
+                   resource_params(params)$kappa <- value
+                   params
+               },
+               scan_name = "Resource capacity", scan_units = "g"),
+     log_x = TRUE)
+```
+
+### What the band means
+
+How the quantity is measured depends on what the model settled on, which
+[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
+reports:
+
+| Attractor | What is measured |
+|----|----|
+| fixed point | read off the settled state, no further projection; `ymin == ymax` |
+| limit cycle | averaged over **exactly one period**; `ymin`/`ymax` give the range |
+| neither | averaged over `t_sample` years, and the scan values are named in a message |
+
+So the band on the plot is the range of the oscillation, and a Hopf
+bifurcation appears as the scan value at which it opens up. Averaging
+over exactly one period is what keeps the curve smooth: a window that is
+not a whole number of periods leaves a residue of the oscillation in the
+average. If you need the average more accurately, reduce `dt` — do
+**not** lengthen the window.
+
+Points where the model settled on neither are marked with a cross, and
+the `residual` column says how fast the abundances were still changing
+there, in 1/year. Treat those points as provisional and raise `t_max`.
+
+[`plot()`](https://sizespectrum.org/mizer/reference/plot.md) takes
+`style = "ribbon"` (default: the average as a line inside the band),
+`"envelope"` (lines along the edges, no average) or `"line"` (no band),
+plus `mark_max`, `reference_lines` and the usual `log_x`/`log_y`/`ylim`
+arguments. A bifurcation diagram over fishing effort is
+[`scanEffort()`](https://sizespectrum.org/mizer/reference/scanEffort.md)
+with `style = "envelope"`.
+
+### `plotYieldVsF()`
+
+The one scan common enough to have its own function.
+`plotYieldVsF(params, species)` is
+[`scanModel()`](https://sizespectrum.org/mizer/reference/scanModel.md)
+with
+[`scanFishingMortality()`](https://sizespectrum.org/mizer/reference/scanEffort.md)
+and
+[`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md),
+drawn with the peak marked, so the fishing mortality at the peak is
+(F\_{MSY}):
+
+``` r
+
+plotYieldVsF(NS_params, "Cod", F_max = 1.5)
+scan <- plotYieldVsF(NS_params, "Cod", F_max = 1.5, return_data = TRUE)
+attr(scan, "at_max")      # F_MSY for Cod
+```
+
+The y axis is linear by default, because the yield is exactly zero at
+`F = 0`. If the species already has an `F_MSY` species parameter it is
+drawn as a reference line, so the value the model gives can be compared
+with the value assumed.
 
 ------------------------------------------------------------------------
 

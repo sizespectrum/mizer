@@ -573,8 +573,8 @@ nothing. With diffusion, density would otherwise leak to sizes above
 \\w\_{max}\\; the boundary condition holds it at zero there instead.
 Because the location of \\j\_{max}\\ is fixed by \\w\_{max}\\ and the
 scheme — not by the densities — it is the same at every time step and at
-the steady state, so the steady-state solver (\[steadyNewton()\]) solves
-on exactly this support and its solution is a fixed point of the
+the steady state, so the steady-state solver (`solver = "newton"`)
+solves on exactly this support and its solution is a fixed point of the
 dynamics.
 
 ## Numerical Diffusion
@@ -1118,8 +1118,7 @@ reads the same boundary coefficients and
 [`get_steady_state_n()`](https://sizespectrum.org/mizer/reference/get_steady_state_n.md)
 solves the same system. The exponential moving average under-relaxation
 in the van Leer weight \\\chi\\ allows both the single-species steady
-state solver and the full multispecies
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md)
+state solver and the full multispecies `solver = "project"`
 time-stepping iteration to converge to the true discrete fixed point
 without falling into a limit cycle. Both
 [`getRequiredRDD()`](https://sizespectrum.org/mizer/reference/getRequiredRDD.md)
@@ -1131,23 +1130,22 @@ at the steady state of exactly the scheme that
 use, and that state is preserved to machine precision by all three
 time-stepping methods.
 
-The direct solver
-[`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
-reads its set of unknowns from where the supplied abundances are
-non-zero, rather than from \\w\_{max}\\. This keeps it robust when
-\\w\_{max}\\ is set far above the largest fish (a common choice, so that
-the grid need not change when a parameter update produces larger fish):
-the structurally-zero classes below such a \\w\_{max}\\ are simply
-excluded. The growth rate alone could not be used to find the support,
-because the main reason fish grow past \\w\_{repro\\max}\\ is diffusion,
-whose rate only grows with \\w\\ and never vanishes; the abundance is
-the only reliable indicator of where the (possibly diffusion-fed) tail
-has died away. With the van Leer limiter the residual is only Lipschitz,
-so the Newton iteration converges to a fixed point of the dynamics but
-not to machine precision; the unlimited centred reconstruction — which
-admits an undamped odd-even mode at a steady state with no physical
-diffusion — gives an ill-conditioned steady-state Jacobian for which the
-direct solver is not expected to converge.
+The direct solver reads its set of unknowns from where the supplied
+abundances are non-zero, rather than from \\w\_{max}\\. This keeps it
+robust when \\w\_{max}\\ is set far above the largest fish (a common
+choice, so that the grid need not change when a parameter update
+produces larger fish): the structurally-zero classes below such a
+\\w\_{max}\\ are simply excluded. The growth rate alone could not be
+used to find the support, because the main reason fish grow past
+\\w\_{repro\\max}\\ is diffusion, whose rate only grows with \\w\\ and
+never vanishes; the abundance is the only reliable indicator of where
+the (possibly diffusion-fed) tail has died away. With the van Leer
+limiter the residual is only Lipschitz, so the Newton iteration
+converges to a fixed point of the dynamics but not to machine precision;
+the unlimited centred reconstruction — which admits an undamped odd-even
+mode at a steady state with no physical diffusion — gives an
+ill-conditioned steady-state Jacobian for which the direct solver is not
+expected to converge.
 
 ## Steady-State Solution
 
@@ -1231,18 +1229,19 @@ calculation are therefore just the rates evaluated at \\N^\*\\. The
 predictor-corrector method affects the transient path to the steady
 state, not the steady state itself.
 
-## Direct Steady-State Solver (`steadyNewton`)
+## Direct Steady-State Solver (`solver = "newton"`)
 
-The function
-[`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
-finds the steady state by directly solving the discretised algebraic
+With `solver = "newton"`,
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+and
+[`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
+find the steady state by directly solving the discretised algebraic
 equation \\F(N) = 0\\ (derived in the sections above) using a
-Newton-type root finder. This allows it to converge to the steady state
-even when the state is dynamically unstable.
+Newton-type root finder. This allows them to converge to the steady
+state even when the state is dynamically unstable.
 
 To make the nonlinear algebraic system well-behaved for the root finder,
-[`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
-employs several numerical strategies:
+the solver employs several numerical strategies:
 
 1.  **Log-space solve:** The consumer densities are solved for in
     logarithmic space (\\x = \log N\\). This enforces strict positivity

@@ -2,9 +2,9 @@
 
 Used internally by
 [`plotSpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md)
-and similar functions. The two data frames are joined on their shared
-variables and the relative difference of their y-values is plotted
-against the x-variable.
+and similar functions. The two data frames are matched up on their
+shared variables and the relative difference of their y-values is
+plotted against the x-variable.
 
 ## Usage
 
@@ -19,9 +19,7 @@ plotRelativeDataFrame(
   ylim = c(NA, NA),
   highlight = NULL,
   legend_var = "Legend",
-  size_axis = NULL,
-  total_dat1 = NULL,
-  total_dat2 = NULL
+  interpolate = FALSE
 )
 ```
 
@@ -58,11 +56,23 @@ plotRelativeDataFrame(
   Name of the variable used in the legend and to determine the line
   colour.
 
-- size_axis:
+- interpolate:
 
-  Optional. If non-NULL, the x-axis is converted to weight (`"w"`) or
-  length (`"l"`).
+  Whether the two series may sit on different x-grids and should be
+  interpolated onto a common one, see
+  [`interpolate_relative_frames()`](https://sizespectrum.org/mizer/reference/interpolate_relative_frames.md).
+  `TRUE` for a size axis, where the two models can convert weight to
+  length differently; `FALSE` for a time axis, where they share the
+  saved times or share nothing.
 
 ## Value
 
 A `mizer_plot` (ggplot2) object showing the relative difference.
+
+## Details
+
+Both data frames must arrive ready to plot, on the axis they will be
+drawn against and with any total line already among their rows. See
+[`plotComparisonDataFrame()`](https://sizespectrum.org/mizer/reference/plotComparisonDataFrame.md)
+for why the preparation belongs to whatever produced each operand rather
+than here.

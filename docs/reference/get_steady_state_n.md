@@ -78,8 +78,6 @@ same upper boundary condition that
 [`project()`](https://sizespectrum.org/mizer/reference/project.md)
 imposes (via `zero_above_support()` in
 [`project_n()`](https://sizespectrum.org/mizer/reference/project_n.md))
-and that
-[`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
-solves on. Without this the bottom-up solve would carry density above
-`w_max` whenever growth is still positive there or diffusion pushes
-density past it.
+and that the Newton solver solves on. Without this the bottom-up solve
+would carry density above `w_max` whenever growth is still positive
+there or diffusion pushes density past it.

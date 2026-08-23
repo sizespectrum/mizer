@@ -70,6 +70,22 @@ $`r max(species_params(params)$w_max)`$. The rather strange-looking values for t
 sizes is due to the fact that the size classes are equally spaced on a
 logarithmic scale.
 
+The summary lists those sizes under `w_inf`, the von Bertalanffy asymptotic
+size. In a general mizer model that is not the same thing as `w_max`, which is
+the upper boundary of the size grid and by default sits 50% above `w_inf` to
+leave room for individuals that grow past the asymptotic size. The trait-based
+model switches diffusion off, so growth is deterministic and no individual ever
+grows beyond `w_repro_max`, the size at which all available income is invested
+into reproduction. There is then nothing to leave room for, and
+`newTraitParams()` puts all three at the same value:
+
+```{r label=trait_w_max_equals_w_inf}
+species_params(params)[, c("w_inf", "w_repro_max", "w_max")]
+```
+
+So in this article the "maximum size" of a species is unambiguous: it is the
+asymptotic size, the size at which growth stops and the size grid ends.
+
 The size at maturity (`w_mat`) is linearly related to the maximum size. Each
 species has the same preferred predator-prey mass ratio parameter values (`beta`
 and `sigma`, see 
@@ -86,7 +102,7 @@ trait-based model through time using the `project()` function. Here we project
 the model for 75 years without any fishing (the `effort` argument is set to 0).
 We use the default initial population abundances so there is no need to pass in
 any initial population values (see 
-[the section on setting the initial abundances](running_a_simulation.html#sec:setting_initial_abundances)).
+[the guide on running a simulation](guide-run-simulation.html)).
 
 
 ```{r label=trait_project_no_fishing}
@@ -157,7 +173,7 @@ Now we simulate with fishing. Here, we use an effort of 0.75. As mentioned in
 the fishing
 mortality on a species is calculated as the product of effort, catchability and
 selectivity (see 
-[the section on fishing gears](multispecies_model.html#sec:fishing_gear) 
+[the guide on setting up fishing](guide-set-up-fishing.html) 
 for more details). Selectivity
 ranges between 0 (not selected) and 1 (fully selected). The default value of
 catchability is 1. Therefore, in this simulation the fishing mortality of a
@@ -179,72 +195,77 @@ the fishing mortality panel:
 plot(sim1)
 ```
 
-The trophic cascade can be explored by comparing the total abundances of all
-species at size when the community is fished and unfished. As mentioned above,
-we obtain the abundances with  `N(sim)`, which returns a three dimensional array
-with dimensions time x species x size. Here we have `r dim(N(sim0))[1]` time
-steps (75 from the simulation plus one which stores the initial population),
-`r dim(N(sim0))[2]` species and `r dim(N(sim0))[3]` sizes:
+The biomass panel of that plot deserves a second look: an effort of 0.75 is
+severe enough that six of the ten species are driven to extinction. Only species
+1, 4, 5 and 6 survive. Species 4 and 5 in fact end up more abundant than they
+were before fishing started, because they are too small to be caught themselves
+and have lost the larger species that used to eat them. The trophic cascade we
+look at next therefore plays out in a community that fishing has also
+reshaped.
 
-```{r label=trait_dim_n}
-dim(N(sim0))
-```
-
-As with the community model, we are interested in the relative total abundances
-by size in the final time step so we use the `finalN()` function. This gives us
-a matrix with one row per species and one column per size bin. We sum in each
-column to get a vector with the total abundance per size bin:
-
-```{r label = total_abund_trait}
-total_abund0 <- colSums(finalN(sim0))
-total_abund1 <- colSums(finalN(sim1))
-```
-
-We can then use these vectors to calculate the relative abundances:
-
-```{r label='relative_comm_abundance2'}
-relative_abundance <- total_abund1 / total_abund0
-```
-
-This can be plotted using the commands below:
+The trophic cascade can be explored by comparing the abundance densities of all
+species at size when the community is fished and unfished. 
+As with the community model, we are interested in the abundances in the final
+time step. We do not need to plot that ratio by hand, because `plotSpectraRelative()` makes
+exactly this comparison for us. It plots the difference between two spectra
+relative to their average, $2(N_1(w) - N_0(w)) / (N_1(w) + N_0(w))$, which
+stays between $-2$ and $2$ however extreme the change is. We ask for the
+community `total` and `highlight` it so that it stands out from the individual
+species:
 
 ```{r label=plot_relative_comm_abund2}
 #| fig.alt: >
-#|   Relative abundances from the unfished (dashed line) and fished (solid line)
-#|   trait-based model.
-plot(x = w(params), y = relative_abundance, log = "xy", type = "n", 
-     xlab = "Size (g)", ylab = "Relative abundance", ylim = c(0.1, 10))
-lines(x = w(params), y = relative_abundance)
-lines(x = c(min(w(params)), max(w(params))), y = c(1, 1), lty = 2)
+#|   The relative difference between the fished and the unfished trait-based
+#|   model at each size. The thick black total line rises above zero around
+#|   0.1 g, dips below it between 1 and 100 g and collapses above 1000 g.
+#|   Several species lie flat at -2 because fishing has driven them extinct.
+plotSpectraRelative(sim0, sim1, total = TRUE, resource = FALSE,
+                    highlight = "Total")
 ```
 
-The impact of fishing on species larger than 1000 g can be clearly seen. The
-fishing pressure lowers the abundance of large fish ($> 1000$ g). This then
-relieves the predation pressure on their smaller prey (the preferred
-predator-prey size ratio is given by the $\beta$ parameter, which is set to 100
-by default), leading to an increase in their abundance. This in turn increases
-the predation mortality on their smaller prey, which reduces their abundance and
-so on.
+The impact of fishing on individuals larger than 1000 g can be clearly seen: the
+total drops to $-2$ there, meaning that those sizes have essentially been
+emptied. This relieves the predation pressure on their smaller prey (the
+preferred predator-prey size ratio is given by the $\beta$ parameter, which is
+set to 100 by default), leading to an increase in their abundance. This in turn
+increases the predation mortality on *their* smaller prey, which reduces their
+abundance and so on, giving the total line its alternating rises and dips as we
+move down the spectrum. The lines lying flat at $-2$ belong to species that have
+been driven to extinction. Not all six of them appear: two have declined so far
+that their densities have underflowed to zero, and a zero cannot be shown on the
+logarithmic scale the spectra are prepared on.
 
 This impact can also be seen by looking at the predation mortality by size. The
-predation mortalities are retrieved using the `getPredMort()` function. As
-mentioned above, for the trait based model the predation mortality by size is
-the same for each species. Therefore we only look at the predation mortality of
-the first species.
+predation mortalities are retrieved using the `getPredMort()` function, applied
+to the state of each simulation at its final time step. `finalParams()` gives us
+that state as a `MizerParams` object, carrying the resource spectrum along with
+the fish abundances:
 
 ```{r label='get_M2_trait'}
-m2_no_fishing <- getPredMort(params, finalN(sim0))[1, ]
-m2_with_fishing <- getPredMort(params, finalN(sim1))[1, ]
+m2_no_fishing <- getPredMort(finalParams(sim0))
+m2_with_fishing <- getPredMort(finalParams(sim1))
 ```
 
-The predation mortalities can then be plotted.
+In the trait-based model every species experiences the same predation mortality
+at a given size, so it is enough to look at one of them. We ask for the first
+species and for `all.sizes`, so that the curve is drawn over the whole size
+range rather than only over the sizes that species 1 itself reaches. The two
+mortalities are compared with `plot2()`, which draws two compatible mizer arrays
+in one plot:
 
-```{r label=plot_relative_trait_m2, fig.cap="Predation mortalities from the unfished (dashed line) and fished (solid line) trait-based model."}
-plot(x = w(params), y = m2_with_fishing, log = "x", type = "n", 
-     xlab = "Size [g]", ylab = "Predation Mortality [1/year]")
-lines(x = w(params), y = m2_no_fishing, lty = 2)
-lines(x = w(params), y = m2_with_fishing)
+```{r label=plot_relative_trait_m2}
+#| fig.alt: >
+#|   Predation mortality against size in the unfished (solid) and fished
+#|   (dashed) trait-based model. Fishing lowers the mortality on the smallest
+#|   individuals and raises it by more than a factor of two around 5 g.
+plot2(m2_no_fishing, m2_with_fishing, name1 = "Unfished", name2 = "Fished",
+      species = 1, all.sizes = TRUE)
 ```
+
+The peak of the predation mortality has moved: the small individuals that used
+to be eaten most heavily are now much safer, while individuals around 5 g face
+more than twice the mortality they did before. That shift is the mechanism
+behind the cascade in the abundances above.
 
 
 ## Setting up an industrial fishing gear {#sec:trait_additional_gear}
@@ -296,15 +317,17 @@ gear_params(params_multi_gear)$knife_edge_size <-
 Now we want to assign each species to either the *industrial* or *other* gear.
 
 ```{r label=trait_industrial_gear_names}
-no_sp <- 10
-gear <- rep("Industrial", no_sp)
+gear <- rep("Industrial", nrow(species_params(params)))
 gear[species_params(params)$w_max > 500] <- "Other"
 gear_params(params_multi_gear)$gear <- gear
 ```
 To check what has just happened let us look at the new gear parameter data
-frame:
+frame. Its print method shows the four columns that every gear needs and only
+names the selectivity parameters at the bottom, so we print the knife-edge sizes
+separately:
 ```{r label=looking_at_trait_species_params}
 gear_params(params_multi_gear)
+gear_params(params_multi_gear)$knife_edge_size
 ```
 
 Having created our `MizerParams` object with multiple gears, we can now turn our
@@ -361,28 +384,32 @@ of the fished (`sim_industrial1`) and unfished (`sim_industrial0`) cases:
 sim_industrial0 <- project(params_multi_gear, t_max = 75, effort = 0)
 sim_industrial1 <- project(params_multi_gear, t_max = 75,
     effort = c(Industrial = 0.75, Other = 0))
-total_abund0 <- apply(finalN(sim_industrial0), 2, sum)
-total_abund1 <- apply(finalN(sim_industrial1), 2, sum)
-relative_abundance <- total_abund1 / total_abund0
 ```
 
-And plot the relative abundances:
+And compare them in the same way as before:
 
 ```{r label=plot_relative_comm_abund_industrial}
 #| fig.alt: >
-#|   Relative abundances from the unfished (dashed line) and fished (solid line)
-plot(x = w(params), y = relative_abundance, log = "xy", type = "n", 
-     xlab = "Size [g]", ylab = "Relative abundance", ylim = c(0.1, 10))
-lines(x = w(params), y = relative_abundance)
-lines(x = c(min(w(params)), max(w(params))), y = c(1, 1), lty = 2)
+#|   The relative difference between the industrially fished and the unfished
+#|   trait-based model at each size, showing a cascade that spreads both
+#|   upwards and downwards from the small species that are being caught. Three
+#|   of the four targeted species lie flat at -2, having gone extinct.
+plotSpectraRelative(sim_industrial0, sim_industrial1, total = TRUE,
+                    resource = FALSE, highlight = "Total")
 ```
 
 This shows another trophic cascade, although this time one driven by fishing the
-species at the midrange part of the spectrum, not the largest individuals as
+small species at the lower end of the spectrum, not the largest individuals as
 before. This trophic cascade acts in both directions. The cascade upwards is
 driven by the lack of food for predators leading to smaller realised maximum
 sizes. The cascade downwards has the same mechanism as fishing on large fish, a
 combination of predation mortality and food limitation.
+
+Here too the fishing is hard enough to remove species outright: three of the
+four species the *Industrial* gear catches go extinct, which is why several of
+the coloured lines sit flat at $-2$. The larger species that the gear does not
+touch are affected only through the food web: their lines stay between roughly
+$-1.6$ and $+1.2$, well short of the $-2$ that marks a disappearance.
 
 The next section explains how to setup the more general 
 [multispecies model.](multispecies_model.html)

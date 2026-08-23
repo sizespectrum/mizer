@@ -57,7 +57,7 @@ Two rules cover almost everything:
 - **[mizerShelf](https://github.com/sizespectrum/mizerShelf)** — Adds
   detritus and carrion components for more realistic benthic ecosystem
   modelling on continental shelves.
-- **[MizerEvolution](https://github.com/baldrech/MizerEvolution)** —
+- **[mizerEvolution](https://github.com/baldrech/mizerEvolution)** —
   Enables simulation of evolutionary trait changes and species invasions
   by treating species as pools of phenotypes subject to natural
   selection.
@@ -123,10 +123,10 @@ computed. Check each package’s documentation for a required load order.
 
 ## Working with the extension chain
 
-### Restarting with a clean chain
+### Clearing the registry
 
-If the packages were loaded in the wrong order, clear the session’s
-registry rather than restarting R:
+To replace the chain explicitly without restarting R, first clear the
+session’s registry:
 
 ``` r
 
@@ -136,8 +136,12 @@ clearExtensionChain()
 [`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md)
 then returns an empty vector. Clearing the chain does **not** unload the
 packages themselves; it only removes their entries from mizer’s
-registry, so you must reload or re-register the extensions before
-creating or using params objects that depend on them.
+registry. Calling [`library()`](https://rdrr.io/r/base/library.html) for
+a package that is still loaded does not reliably rerun its `.onLoad()`
+hook, so either restart or unload and load the packages again, or
+restore the chain explicitly with
+[`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md)
+before creating or using dependent params objects.
 
 ### Setting the chain manually
 
@@ -164,10 +168,9 @@ and the chain builds itself.
 
 When an extension package creates a
 [`MizerParams`](https://sizespectrum.org/mizer/reference/MizerParams.md)
-object (for example
-[`mizerShelf::newDetritusCarrionParams()`](https://sizespectrum.org/mizerShelf/reference/newDetritusCarrionParams.html)),
-it stamps the object with the full extension chain active at that
-moment, stored in the `extensions` slot:
+object (for example `mizerShelf::newDetritusCarrionParams()`), it
+records the extension packages actually applied to that object in the
+`extensions` slot:
 
 ``` r
 
@@ -176,8 +179,9 @@ params@extensions
 
 That record serves two purposes:
 
-1.  **Reproducibility.** It says which extension packages, and which
-    versions, built the model.
+1.  **Reproducibility.** It says which extension packages built the
+    model, the installation requirement for each, and the package
+    version whose object layout each component conforms to.
 2.  **Class restoration.** On reload, mizer uses it to promote the
     object back to the correct S4 class, so that functions like
     [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md)
@@ -244,8 +248,10 @@ specifications stored in `params@extensions`:
 params <- readParams("my_model.rds", install_extensions = TRUE)
 ```
 
-This fetches the recorded version of each package from CRAN or GitHub as
-appropriate.
+This installs each package from the recorded requirement specification,
+such as a CRAN version requirement or a GitHub repository. The separate
+recorded version stamp describes the object layout for upgrade purposes;
+it does not necessarily pin installation to that exact package release.
 
 ------------------------------------------------------------------------
 
@@ -284,21 +290,35 @@ reload with `readParams("my_model.rds", install_extensions = TRUE)`.
 params@extensions
 ```
 
-The names are the package names; the values say where to get each one.
+The names are the extension identifiers. Current entries each contain a
+`requirement` (where or at what minimum version to install the package)
+and a `version` stamp (the package version whose object layout the
+component conforms to). Legacy objects may still show the older
+named-character-vector form; mizer accepts both.
 
 ### Packages were loaded in the wrong order
 
-Call
-[`clearExtensionChain()`](https://sizespectrum.org/mizer/reference/clearExtensionChain.md),
-then reload in the order you want — no need to restart R. Afterwards,
-create or re-read your params objects so they pick up the new chain.
+Either restart R and load the packages in the desired order, or
+explicitly register the desired chain. Merely calling
+[`library()`](https://rdrr.io/r/base/library.html) again after
+[`clearExtensionChain()`](https://sizespectrum.org/mizer/reference/clearExtensionChain.md)
+is insufficient when those namespaces are still loaded.
+[`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md)
+takes the chain in outermost-first order:
 
 ``` r
 
 clearExtensionChain()
-library(mizerShelf)   # innermost (loaded first)
-library(mizerFoo)     # outermost (loaded last)
+registerExtensions(c(
+    mizerFoo = "owner/mizerFoo",                  # outermost
+    mizerShelf = "sizespectrum/mizerShelf"        # innermost
+))
 ```
+
+Afterwards, create or re-read the params objects that use that chain. In
+a fresh session the equivalent loading order is
+[`library(mizerShelf)`](https://rdrr.io/r/base/library.html) followed by
+[`library(mizerFoo)`](https://rdrr.io/r/base/library.html).
 
 ### Making a script reproducible
 

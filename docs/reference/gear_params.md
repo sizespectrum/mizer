@@ -108,6 +108,21 @@ params <- NS_params
 
 # gears set up in example
 gear_params(params)
+#> An object of class "gear_params" containing 12 gear-species pairs for 4 gears:
+#>        gear species   sel_func catchability
+#>  Industrial   Sprat knife_edge            1
+#>  Industrial Sandeel knife_edge            1
+#>  Industrial  N.pout knife_edge            1
+#>     Pelagic Herring knife_edge            1
+#>        Beam     Dab knife_edge            1
+#>       Otter Whiting knife_edge            1
+#>        Beam    Sole knife_edge            1
+#>       Otter Gurnard knife_edge            1
+#>        Beam  Plaice knife_edge            1
+#>       Otter Haddock knife_edge            1
+#>       Otter     Cod knife_edge            1
+#>       Otter  Saithe knife_edge            1
+#> With 1 other parameters: knife_edge_size 
 
 # setting totally different gears
 gear_params(params) <- data.frame(
@@ -120,6 +135,12 @@ gear_params(params) <- data.frame(
     knife_edge_size = c(NA, 1000, NA)
     )
 gear_params(params)
+#> An object of class "gear_params" containing 3 gear-species pairs for 2 gears:
+#>   gear species       sel_func catchability
+#>  gear1     Cod sigmoid_weight          0.5
+#>  gear2     Cod     knife_edge          2.0
+#>  gear1 Haddock sigmoid_weight          1.0
+#> With 3 other parameters: sigmoidal_weight, sigmoidal_sigma, knife_edge_size 
 
 # changing an individual entry
 gear_params(params)["Cod, gear1", "catchability"] <- 0.8

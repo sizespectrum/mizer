@@ -5,15 +5,13 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Extract the model state from a simulation — getParams"><meta name="description" content="A MizerParams object describes the state of the ecosystem: its species
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Extract the model state from a simulation — getParams"><meta name="description" content="A MizerParams object describes the state of the ecosystem: its species
 parameters, size grid, rate functions, and the current abundances stored in
 the initial_n, initial_n_pp, initial_n_other, and initial_effort
-slots. getParams() extracts that state from a MizerSim object, averaged
-over a chosen time range (or at a single time point)."><meta property="og:description" content="A MizerParams object describes the state of the ecosystem: its species
+slots. These functions extract that state from a MizerSim object."><meta property="og:description" content="A MizerParams object describes the state of the ecosystem: its species
 parameters, size grid, rate functions, and the current abundances stored in
 the initial_n, initial_n_pp, initial_n_other, and initial_effort
-slots. getParams() extracts that state from a MizerSim object, averaged
-over a chosen time range (or at a single time point)."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+slots. These functions extract that state from a MizerSim object."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -21,7 +19,7 @@ over a chosen time range (or at a single time point)."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,13 +96,16 @@ over a chosen time range (or at a single time point)."><meta property="og:image"
     <p>A <code>MizerParams</code> object describes the state of the ecosystem: its species
 parameters, size grid, rate functions, <em>and</em> the current abundances stored in
 the <code>initial_n</code>, <code>initial_n_pp</code>, <code>initial_n_other</code>, and <code>initial_effort</code>
-slots. <code>getParams()</code> extracts that state from a <code>MizerSim</code> object, averaged
-over a chosen time range (or at a single time point).</p>
+slots. These functions extract that state from a <code>MizerSim</code> object.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getParams</span><span class="op">(</span><span class="va">sim</span>, <span class="va">time_range</span>, geometric_mean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getParams</span><span class="op">(</span><span class="va">sim</span>, <span class="va">time_range</span>, geometric_mean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">initialParams</span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">finalParams</span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -132,31 +133,34 @@ average of the effort or of other components, which is always arithmetic.</p></d
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>MizerParams</code> object with <code>initial_n</code>, <code>initial_n_pp</code>,
-<code>initial_n_other</code>, and <code>initial_effort</code> set to the (averaged) values from
-the simulation.</p>
+<code>initial_n_other</code>, and <code>initial_effort</code> set to the values from the selected
+time of the simulation.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>When no <code>time_range</code> is given, the state at the final time step is returned.
-Use <code><a href="initialParams.html">initialParams()</a></code> or <code><a href="finalParams.html">finalParams()</a></code> as convenient shorthand for the
-state at the initial and final time respectively.</p>
-<p>The abundances set in the returned <code>MizerParams</code> object are averages over the
-selected time range. By default this is an arithmetic mean; set
-<code>geometric_mean = TRUE</code> to use a geometric mean instead (this does not affect
-the effort or other components, which are always averaged arithmetically).</p>
-    </div>
-    <div class="section level2">
-    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="initialParams.html">initialParams()</a></code>, <code><a href="finalParams.html">finalParams()</a></code></p></div>
+    <p><code>getParams()</code> returns the state averaged over a chosen <code>time_range</code>, or at a
+single time point. When no <code>time_range</code> is given, the state at the final time
+step is returned.</p>
+<p><code>initialParams()</code> returns the state at the initial time of the simulation,
+i.e., the <code>MizerParams</code> object that the simulation started from.</p>
+<p><code>finalParams()</code> returns the state at the <em>last</em> saved time step. It is a
+convenience wrapper around <code>getParams()</code> with no <code>time_range</code> argument.</p>
+<p>The abundances set by <code>getParams()</code> are averages over the selected time
+range. By default this is an arithmetic mean; set <code>geometric_mean = TRUE</code> to
+use a geometric mean instead (this does not affect the effort or other
+components, which are always averaged arithmetically).</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="project.html">project</a></span><span class="op">(</span><span class="va">NS_params</span>, t_max <span class="op">=</span> <span class="fl">20</span>, effort <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># Extract state at a specific time</span></span></span>
-<span class="r-in"><span><span class="va">params_2010</span> <span class="op">&lt;-</span> <span class="fu">getParams</span><span class="op">(</span><span class="va">sim</span>, time_range <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># Extract state averaged over the last 10 years</span></span></span>
+<span class="r-in"><span><span class="co"># State at a specific time</span></span></span>
+<span class="r-in"><span><span class="va">params_10</span> <span class="op">&lt;-</span> <span class="fu">getParams</span><span class="op">(</span><span class="va">sim</span>, time_range <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># State averaged over the last 10 years</span></span></span>
 <span class="r-in"><span><span class="va">params_avg</span> <span class="op">&lt;-</span> <span class="fu">getParams</span><span class="op">(</span><span class="va">sim</span>, time_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># State at the start and at the end of the simulation</span></span></span>
+<span class="r-in"><span><span class="va">params_start</span> <span class="op">&lt;-</span> <span class="fu">initialParams</span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">params_end</span> <span class="op">&lt;-</span> <span class="fu">finalParams</span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -168,7 +172,7 @@ the effort or other components, which are always averaged arithmetically).</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

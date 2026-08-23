@@ -114,22 +114,37 @@ twice), it returns silently.
 
 ### Recording the extension in `params@extensions`
 
-When your package creates or modifies a `MizerParams` object it should
-copy the session’s registered extension chain into the `@extensions`
-slot:
+When your package creates or modifies a `MizerParams` object, record
+that your extension has actually been applied. Stamp the installed
+package version when the component is first created; on later
+modifications preserve the existing stamp:
 
 ``` r
 
 setStarvation <- function(params, starv_coef = 10) {
     # ... set up the rate function, species parameters, etc. ...
-    params@extensions <- mizer::getRegisteredExtensions()
+    version <- if ("mizerStarvation" %in% names(params@extensions)) {
+        NULL
+    } else {
+        as.character(utils::packageVersion("mizerStarvation"))
+    }
+    params <- mizer::recordExtension(params, "mizerStarvation",
+                                     version = version)
     params
 }
 ```
 
-[`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md)
-returns the full chain that `.onLoad` hooks have built up. Storing this
-in the object serves two purposes:
+[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
+takes the installation requirement from the registered chain, preserves
+all existing entries and version stamps, and adds this extension in the
+correct dispatch position. Do not copy the entire active registry into
+the object: another extension can be loaded without having been applied
+to this particular model. As extension setup functions are applied,
+their individual
+[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
+calls build the object’s chain.
+
+Storing this record serves two purposes:
 
 1.  **Reproducibility record.** When the object is saved with
     [`saveParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
@@ -428,6 +443,7 @@ Define a method for whichever rate your extension modifies:
 
 | [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) key | S3 generic to override |
 |----|----|
+| `"Rates"` | [`projectRates()`](https://sizespectrum.org/mizer/reference/mizerRates.md) |
 | `"Encounter"` | [`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md) |
 | `"FeedingLevel"` | [`projectFeedingLevel()`](https://sizespectrum.org/mizer/reference/mizerFeedingLevel.md) |
 | `"EReproAndGrowth"` | [`projectEReproAndGrowth()`](https://sizespectrum.org/mizer/reference/mizerEReproAndGrowth.md) |
@@ -507,7 +523,9 @@ these two lines:
 
 ``` r
 
-params@extensions <- mizer::getRegisteredExtensions()
+params <- mizer::recordExtension(
+    params, "mizerShelf",
+    version = as.character(utils::packageVersion("mizerShelf")))
 params <- mizer::coerceToExtensionClass(params)
 ```
 
@@ -520,26 +538,29 @@ newDetritusCarrionParams <- function(species_params, ...) {
                                     resource_dynamics = "detritus_dynamics")
     # ... set up rate functions, components, colours ...
 
-    params@extensions <- mizer::getRegisteredExtensions()
+    params <- mizer::recordExtension(
+        params, "mizerShelf",
+        version = as.character(utils::packageVersion("mizerShelf")))
     params <- mizer::coerceToExtensionClass(params)
 }
 ```
 
-#### What `params@extensions <- getRegisteredExtensions()` does
+#### What `recordExtension()` does
 
-[`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md)
-returns the current session’s extension chain — everything that has been
-registered via `.onLoad` hooks or with
-[`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md)
-once R started. Storing this in the params object is like stamping the
-object with a bill of materials: it records exactly which extension
-packages were active when the object was created.
+[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
+adds the extension that created or modified this object, taking its
+installation requirement from the session registry. Existing entries
+keep their position and version stamps; a new entry is prepended so the
+object’s chain stays ordered outermost first. The result is a bill of
+materials for the extensions actually applied to this model, not every
+extension package that happened to be loaded when it was created.
 
-Note that `@extensions` records the **full chain** that was active at
-creation time, not just the outermost extension. If `mizerShelf` was the
-only registered extension, `@extensions` will be
-`c(mizerShelf = "1.0.0")`. If a further outer extension was also loaded,
-both appear in the chain.
+The `version` stamp says which package version’s object layout the new
+component conforms to. A constructor supplies it because it has just
+created that component. An ordinary modifier calls
+`recordExtension(params, "mizerShelf")` without `version`, preserving
+the stamp already on the object. If several extension setup functions
+are applied, their calls accumulate the full object chain.
 
 When the object is later loaded from disk with
 [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md),
@@ -694,8 +715,9 @@ For every `MizerParams` or `MizerSim` object bundled in `data/`, add a
 `.onLoad` so the object is coerced to the correct extension class on
 access. See [Bundled data objects](#bundled-data-objects).
 
-End every constructor with
-`params@extensions <- getRegisteredExtensions()` and
+End every constructor by calling
+[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
+with the installed package version, then
 `coerceToExtensionClass(params)`.
 
 Register every S3 method in `NAMESPACE` (via `@method` + `@export`).
@@ -734,8 +756,9 @@ For metadata-only packages, only the
 [`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md)
 call, the bundled-data binding and the reporting item apply, and
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
-is not needed — just record
-`params@extensions <- getRegisteredExtensions()`.
+is not needed. Their setup functions should still call
+[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md),
+stamping the package version when their component is first created.
 
 ------------------------------------------------------------------------
 
@@ -829,9 +852,8 @@ problem with your extension, so exclude those files before running:
 
 ``` r
 
-chain_tests <- c("test-extension-dispatch.R",
-                 "test-registerExtensions.R",
-                 "test-io.R")
+chain_tests <- c("test-registerExtensions.R",
+                 "test-saveParams.R")
 file.remove(file.path("tests/testthat", chain_tests))
 ```
 

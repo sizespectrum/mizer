@@ -24,11 +24,7 @@ plotComparisonDataFrame(
   ylim = c(NA, NA),
   y_ticks = 6,
   highlight = NULL,
-  legend_var = "Legend",
-  size_axis = NULL,
-  density_wrt = NA_character_,
-  per_log_size = NULL,
-  total_dat = NULL
+  legend_var = "Legend"
 )
 ```
 
@@ -73,30 +69,16 @@ plotComparisonDataFrame(
   Name of the variable used in the legend and to determine the line
   colour.
 
-- size_axis:
-
-  Optional. If non-NULL, the x-axis is converted to weight (`"w"`) or
-  length (`"l"`).
-
-- density_wrt:
-
-  The measure the values are a density with respect to, see
-  [density_measures](https://sizespectrum.org/mizer/reference/density_measures.md).
-  `NA` (the default) means the values are not a density and are left
-  alone when the size axis changes.
-
-- per_log_size:
-
-  Whether to express a density per logarithmic size. `NULL` (the
-  default) keeps whichever the values already are.
-
-- total_dat:
-
-  Optional data frame of the contributors to a total, with a `Model`
-  column identifying which of the two they belong to. The total is
-  summed from them after the size axis has been converted, see
-  [`add_total_line()`](https://sizespectrum.org/mizer/reference/add_total_line.md).
-
 ## Value
 
 A `mizer_plot` (ggplot2) object.
+
+## Details
+
+Both data frames must arrive ready to plot: on the axis they will be
+drawn against, with any total line already among their rows. Each
+operand is prepared by whatever produced it, using *its own* model,
+because a length axis and a density Jacobian both depend on the
+weight-length relationship of the model the values came from. Doing it
+here instead would silently impose the first model's parameters on the
+second.

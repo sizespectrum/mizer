@@ -1,6 +1,6 @@
 # Alias for `setBevertonHolt()`
 
-**\[deprecated\]**
+**\[superseded\]**
 
 An alias provided for backward compatibility with mizer version \<=
 2.0.4

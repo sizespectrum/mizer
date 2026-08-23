@@ -17,7 +17,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -185,8 +185,8 @@
 </tr>
 </tbody>
 </table>
-<p>Same kernel <span class="math inline">\(\phi\)</span>, same search volume <span class="math inline">\(\gamma\)</span>, same interaction matrix <span class="math inline">\(\theta\)</span>; even the satiation factor is shared, since a satiated predator both stops gaining mass and stops killing. The only differences are which variable is integrated out — prey size or predator size — and whether you weight by the prey’s mass or just count the death.</p>
-<p>This is why <strong>you cannot make a species grow faster without making its prey die faster</strong>, and why the food and predation feedback loops below are not independent dials. It also means a single diagnosis often covers both symptoms: if growth is wrong, the mortality that same predation imposes is wrong too, and the fix is in the shared parameters, not in one or the other.</p>
+<p>Same kernel <span class="math inline">\(\phi\)</span>, same search volume <span class="math inline">\(\gamma\)</span>, same interaction matrix <span class="math inline">\(\theta\)</span>; the same handling limitation also appears on both sides through the factor <span class="math inline">\(1-f\)</span>. As a predator becomes satiated, its successful prey-removal rate per unit available prey falls, while its realised intake approaches the maximum intake rate rather than falling to zero. The other differences are which variable is integrated out — prey size or predator size — and whether you weight by the prey’s mass or just count the death.</p>
+<p>Changes to the encounter pathway therefore usually affect both predator growth and prey mortality, so those are not independent dials. But growth also depends on assimilation, metabolism and reproductive allocation: changing one of those can alter growth without changing prey removal. A joint growth-and-mortality problem points first to the shared encounter parameters; an isolated growth problem need not.</p>
 <p>Further consequences worth internalising:</p>
 <ul>
 <li>
@@ -194,7 +194,7 @@
 <li>
 <strong>Everything is coupled through abundance.</strong> Changing one species’ parameters changes its abundance, which changes the food available to its predators and the mortality on its prey. There are no isolated species.</li>
 <li>
-<strong>A steady state is a fixed point of that coupling</strong>, not a property you can set species by species. This is why <a href="../reference/steady.html"><code>steady()</code></a> exists.</li>
+<strong>A steady state is a fixed point of that coupling</strong>, not a property you can set species by species. This is why <a href="../reference/tuneSteadyState.html"><code>tuneSteadyState()</code></a> exists.</li>
 </ul>
 <hr></section></section><section class="level2"><h2 id="the-size-spectrum-as-state-variable">The size spectrum as state variable<a class="anchor" aria-label="anchor" href="#the-size-spectrum-as-state-variable"></a>
 </h2>
@@ -214,8 +214,7 @@
 <blockquote>
 <p><strong>rate of change = what grows in − what grows out − what dies</strong></p>
 </blockquote>
-<p>That is the whole content of the McKendrick–von Foerster equation. The quantity doing the growing-in and growing-out is the <strong>flux</strong> <span class="math inline">\(J_i(w)\)</span>: the rate</p>
-<p>(individuals per year) at which fish of species <span class="math inline">\(i\)</span> grow past size <span class="math inline">\(w\)</span>. It is just density times speed, <span class="math inline">\(g_i(w) N_i(w)\)</span> — how many fish are sitting at that size, times how fast they are moving through it. The dying term is <span class="math inline">\(\mu_i(w) N_i(w)\)</span>.</p>
+<p>That is the whole content of the McKendrick–von Foerster equation. The quantity doing the growing-in and growing-out is the <strong>flux</strong> <span class="math inline">\(J_i(w)\)</span>: the rate (individuals per year) at which fish of species <span class="math inline">\(i\)</span> grow past size <span class="math inline">\(w\)</span>. It is just density times speed, <span class="math inline">\(g_i(w) N_i(w)\)</span> — how many fish are sitting at that size, times how fast they are moving through it. The dying term is <span class="math inline">\(\mu_i(w) N_i(w)\)</span>.</p>
 <p>Three things follow, and they cover most of what you need:</p>
 <ul>
 <li>
@@ -261,17 +260,17 @@
 <li>
 <strong>A freshly built model has its resource at capacity.</strong> <a href="../reference/newMultispeciesParams.html"><code>newMultispeciesParams()</code></a> sets <span class="math inline">\(c_R = \kappa w^{-\lambda}\)</span>, which is also the initial abundance, so <span class="math inline">\(L = 1\)</span> everywhere and the resource is <em>not</em> at a fixed point: replenishment is zero while consumption is not. Project such a model and the resource is drawn down, feeding levels fall, and growth slows — with nothing having been changed. This is normal, and it is why calibration comes before interpretation.</li>
 <li>
-<strong><code><a href="../reference/steady.html">steady()</a></code> rebalances the resource at the end.</strong> It holds the resource fixed while converging the fish, then recomputes the capacity from the (preserved) rate so that the converged state is a steady state of the resource too. The abundance you calibrated against is kept; the capacity moves above it. So after <code><a href="../reference/steady.html">steady()</a></code> the resource level is an emergent, size-dependent quantity — lowest where the fish feed hardest, near 1 where consumption is negligible.</li>
+<strong><code><a href="../reference/tuneSteadyState.html">tuneSteadyState()</a></code> rebalances the resource at the end.</strong> It holds the resource fixed while converging the fish, then recomputes the capacity from the (preserved) rate so that the converged state is a steady state of the resource too. The abundance you calibrated against is kept; the capacity moves above it. So after <code><a href="../reference/tuneSteadyState.html">tuneSteadyState()</a></code> the resource level is an emergent, size-dependent quantity — lowest where the fish feed hardest, near 1 where consumption is negligible.</li>
 </ul></section><section class="level3"><h3 id="the-resource-runs-on-its-own-clock">The resource runs on its own clock<a class="anchor" aria-label="anchor" href="#the-resource-runs-on-its-own-clock"></a>
 </h3>
-<p><span class="math inline">\(r_R \propto w^{n-1}\)</span>, the same <span class="math inline">\(w^{-1/3}\)</span> gradient as everything else, but spread over far more orders of magnitude: with the default <code>r_pp</code> of 10, the smallest resource sizes replenish tens of thousands of times a year, while at the <code>w_pp_cutoff</code> of 10 g the rate is under 5 per year — comparable to fish rates, and precisely at the sizes fish eat most. So the resource is a fast, quasi-static variable at the bottom (which is what <a href="../reference/getStability.html"><code>getStability()</code></a> assumes by default; see the <a href="guide-analyse-stability.html">guide to analysing dynamic stability</a>) and a genuinely dynamical one at the top. Raising <code>r_pp</code> makes the resource stiffer and the model less sensitive to competition for food; lowering it makes the resource a slow variable that can carry oscillations of its own.</p>
+<p><span class="math inline">\(r_R \propto w^{n-1}\)</span>, the same <span class="math inline">\(w^{-1/3}\)</span> gradient as everything else, but spread over far more orders of magnitude: with the default <code>r_pp</code> of 10, the smallest resource sizes replenish tens of thousands of times a year, while at the <code>w_pp_cutoff</code> of 10 g the rate is under 5 per year — comparable to fish rates, and precisely at the sizes fish eat most. So the resource is a fast, quasi-static variable at the bottom and a genuinely dynamical one at the top — which is why <a href="../reference/getStability.html"><code>getStability()</code></a> always perturbs it alongside the fish rather than slaving it to them; see the <a href="guide-analyse-stability.html">guide to analysing dynamic stability</a>. Raising <code>r_pp</code> makes the resource stiffer and the model less sensitive to competition for food; lowering it makes the resource a slow variable that can carry oscillations of its own.</p>
 <hr></section></section><section class="level2"><h2 id="individual-energetics">Individual energetics<a class="anchor" aria-label="anchor" href="#individual-energetics"></a>
 </h2>
 <p>Energy flows through an individual in three stages.</p>
 <p><strong>1 — Encounter and feeding level.</strong> A predator of size <span class="math inline">\(w\)</span> searches volume <span class="math inline">\(\gamma_i w^q\)</span> and encounters prey according to the predation kernel and the interaction matrix. Encountered food is turned into a dimensionless <strong>feeding level</strong> <span class="math inline">\(f_i(w) \in [0,1]\)</span> by a Holling type II response — <span class="math inline">\(f = 0\)</span> is starvation, <span class="math inline">\(f = 1\)</span> is complete satiation. Mizer targets <span class="math inline">\(f_0 \approx 0.6\)</span> by default.</p>
-<p>Feeding level is the first thing to look at in almost every diagnosis, because it is dimensionless and has an absolute scale: you can tell at a glance whether a number is wrong. <span class="math inline">\(f &lt; 0.2\)</span> anywhere in the juvenile range means the species is starving; <span class="math inline">\(f &gt; 0.9\)</span> everywhere means the species is satiated and effectively decoupled from its prey — its growth will not respond to food very much, and neither will it exert much predation mortality (see below).</p>
-<p><strong>2 — Net available energy.</strong> Assimilated intake (<span class="math inline">\(\alpha\)</span>, default 0.6) minus standard metabolism, floored at zero. If it hits zero the fish has no surplus for growth or reproduction and simply stops.</p>
-<p><strong>3 — Allocation.</strong> Below <code>w_mat</code> all net energy goes to somatic growth. Above it, a fraction <span class="math inline">\(\psi_i(w)\)</span> goes to reproduction and the rest to growth, with <span class="math inline">\(\psi\)</span> rising to 1 at <code>w_repro_max</code>, so growth halts there. This is what turns the species spectrum into a dome: growth decelerating towards <code>w_repro_max</code> piles individuals up (see the traffic-jam effect below) and then mortality removes them.</p>
+<p>Feeding level is the first thing to look at in almost every diagnosis, because it is dimensionless and has an absolute scale: you can tell at a glance whether a number is wrong. <span class="math inline">\(f &lt; 0.2\)</span> anywhere in the juvenile range means the species is starving; <span class="math inline">\(f &gt; 0.9\)</span> everywhere means the species is satiated and effectively decoupled from variation in its prey — its growth will not respond to food very much, and its predation pressure per unit prey is reduced by the <span class="math inline">\(1-f\)</span> factor (see below). Its total biomass intake can nevertheless remain near its maximum.</p>
+<p><strong>2 — Net available energy.</strong> Assimilated intake (<span class="math inline">\(\alpha\)</span>, default 0.6) minus standard and activity metabolism, floored at zero. If it hits zero the fish has no surplus for growth or reproduction and simply stops.</p>
+<p><strong>3 — Allocation.</strong> Around maturity, an increasing fraction <span class="math inline">\(\psi_i(w)\)</span> goes to reproduction and the rest to growth; <code>w_mat</code> is the 50% point of the maturity ogive, not a hard threshold. Under defaults edition 1, <span class="math inline">\(\psi\)</span> is forced to 1 above <code>w_repro_max</code>, so growth halts there. Under edition 2 it continues to follow the maturity ogive times the reproductive proportion and need not reach 1. Increasing allocation still slows growth and helps turn the species spectrum into a dome: decelerating fish pile up (see the traffic-jam effect below) and mortality then removes them.</p>
 <hr></section><section class="level2"><h2 id="what-sets-the-slope">What sets the slope<a class="anchor" aria-label="anchor" href="#what-sets-the-slope"></a>
 </h2>
 <p>Two different slopes get called “the slope”, and they are not the same object. The <strong>species</strong> slope is the one that follows from the bookkeeping. The <strong>community</strong> slope, <span class="math inline">\(-\lambda\)</span>, is a property of the sum over all species and the resource; it is discussed after.</p>
@@ -306,7 +305,7 @@ w_{\max}^{1/3}\)</span>. A species 1000× larger takes roughly 10× longer to ma
 <li>
 <strong>Oscillation periods track generation time</strong>, so a limit cycle in a large slow species has a long period and needs a correspondingly long <a href="../reference/project.html"><code>project()</code></a> run to even be visible.</li>
 <li>
-<strong>Equilibration is set by the slowest species.</strong> A <code><a href="../reference/steady.html">steady()</a></code> run that looks converged for small species may be nowhere near it for large ones.</li>
+<strong>Equilibration is set by the slowest species.</strong> A <code><a href="../reference/tuneSteadyState.html">tuneSteadyState()</a></code> run that looks converged for small species may be nowhere near it for large ones.</li>
 <li>
 <strong>Small species and juvenile size classes respond first</strong> to any perturbation; the large-fish response arrives a generation later. A transient that looks like a cascade may just be different species running at different speeds.</li>
 </ul>
@@ -371,7 +370,7 @@ w_{\max}^{1/3}\)</span>. A species 1000× larger takes roughly 10× longer to ma
 <td><strong>Feeding levels drift down during <a href="../reference/project.html"><code>project()</code></a> although nothing was changed</strong></td>
 <td>The resource was left at its capacity (<span class="math inline">\(L = 1\)</span>, as freshly built) and is being eaten down towards its true fixed point</td>
 <td>
-<a href="../reference/setResource.html"><code>resource_level()</code></a>, <a href="../reference/plot.html"><code>plot(initialNResource(params))</code></a>; run <a href="../reference/steady.html"><code>steady()</code></a> first</td>
+<a href="../reference/setResource.html"><code>resource_level()</code></a>, <a href="../reference/plot.html"><code>plot(initialNResource(params))</code></a>; run <a href="../reference/tuneSteadyState.html"><code>tuneSteadyState()</code></a> first</td>
 </tr>
 <tr class="odd">
 <td><strong>Growth is not what <a href="../reference/matchGrowth.html"><code>matchGrowth()</code></a> asked for</strong></td>
@@ -412,7 +411,7 @@ w_{\max}^{1/3}\)</span>. A species 1000× larger takes roughly 10× longer to ma
 <td><strong>Species won’t stay at steady state</strong></td>
 <td>Fixed point is dynamically unstable, not a numerical failure</td>
 <td>
-<a href="../reference/getSteadyResidual.html"><code>getSteadyResidual()</code></a>, <a href="../reference/steadyNewton.html"><code>steadyNewton()</code></a>
+<a href="../reference/getSteadyResidual.html"><code>getSteadyResidual()</code></a>, <a href="../reference/findSteadyState.html"><code>findSteadyState(solver = "newton")</code></a>
 </td>
 </tr>
 </tbody>
@@ -427,11 +426,11 @@ w_{\max}^{1/3}\)</span>. A species 1000× larger takes roughly 10× longer to ma
 <p><span class="math display">\[E_i(w) = \gamma_i(w) \int \Big(\theta_{ip} N_R(w_p) + \sum_j \theta_{ij} N_j(w_p)\Big)\, \phi_i(w/w_p)\, w_p\, dw_p\]</span></p>
 <p>Predation mortality — integrate the same thing over <strong>predator</strong> size <span class="math inline">\(w'\)</span>, counting deaths rather than mass:</p>
 <p><span class="math display">\[\mu_{p,i}(w) = \sum_j \int \theta_{ji}\,\big(1 - f_j(w')\big)\,\gamma_j (w')^q\,\phi_j(w'/w)\,N_j(w')\,dw'\]</span></p>
-<p>The shared factors <span class="math inline">\(\gamma\)</span>, <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\theta\)</span> are what makes these two sides of one coin. The <span class="math inline">\((1 - f_j)\)</span> factor is worth noting: <strong>satiated predators kill less</strong>, and a species whose predators are all near <span class="math inline">\(f = 1\)</span> experiences less mortality than their abundance alone suggests. It applies to the growth side too — realised intake is <span class="math inline">\(f_i h_i w^n = (1 - f_i) E_i\)</span> — so satiation throttles both integrals together.</p>
+<p>The shared factors <span class="math inline">\(\gamma\)</span>, <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\theta\)</span> are what makes these two sides of one coin. The <span class="math inline">\((1 - f_j)\)</span> factor is worth noting: <strong>satiated predators kill less</strong>, and a species whose predators are all near <span class="math inline">\(f = 1\)</span> experiences less mortality than their abundance alone suggests. It applies to the growth side too — realised intake is <span class="math inline">\(f_i h_i w^n = (1 - f_i) E_i\)</span>. As <span class="math inline">\(f_i\)</span> approaches 1, that intake approaches the maximum <span class="math inline">\(h_i w^n\)</span>; it does not approach zero.</p>
 <p><strong>Feeding level</strong> from encountered food <span class="math inline">\(E_i\)</span> and maximum intake <span class="math inline">\(h_i w^n\)</span>:</p>
 <p><span class="math display">\[f_i(w) = \frac{E_i(w)}{E_i(w) + h_i w^n}\]</span></p>
 <p><strong>Net energy</strong> after assimilation (<span class="math inline">\(\alpha\)</span>) and metabolism (<span class="math inline">\(k_s w^p\)</span>, plus an activity term <span class="math inline">\(k w\)</span> that defaults to zero):</p>
-<p><span class="math display">\[E_{\text{net},i}(w) = \max\big(0,\; \alpha_i f_i(w) h_i w^n - k_{s,i} w^p\big)\]</span></p>
+<p><span class="math display">\[E_{\text{net},i}(w) = \max\big(0,\; \alpha_i f_i(w) h_i w^n - k_{s,i} w^p - k_i w\big)\]</span></p>
 <p><strong>Growth</strong>, after the reproductive allocation <span class="math inline">\(\psi_i(w)\)</span>:</p>
 <p><span class="math display">\[g_i(w) = \big(1 - \psi_i(w)\big) E_{\text{net},i}(w)\]</span></p>
 <p><strong>Predation kernel</strong> (lognormal, the default), for mass ratio <span class="math inline">\(\text{ppmr} = w/w_p \ge 1\)</span> and zero below:</p>
@@ -538,7 +537,7 @@ R_i = \frac{R_{\max,i} R_{p,i}}{R_{\max,i} + R_{p,i}}\]</span></p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

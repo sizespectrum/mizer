@@ -1,6 +1,6 @@
 # Alias for `validSpeciesParams()`
 
-**\[deprecated\]**
+**\[superseded\]**
 
 An alias provided for backward compatibility with mizer version \<=
 2.5.2

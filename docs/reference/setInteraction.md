@@ -104,12 +104,10 @@ Other functions for setting parameters:
 
 ``` r
 params <- newTraitParams(no_sp = 3)
-inter <- getInteraction(params)
-#> Warning: `getInteraction()` was deprecated in mizer 2.4.0.
-#> ℹ Please use `interaction_matrix()` instead.
+inter <- interaction_matrix(params)
 inter[1, 2:3] <- 0
 params <- setInteraction(params, interaction = inter)
-getInteraction(params)
+interaction_matrix(params)
 #>         prey
 #> predator 1 2 3
 #>        1 1 0 0

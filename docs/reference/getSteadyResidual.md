@@ -78,8 +78,7 @@ therefore answers exactly "if I called
 [`project()`](https://sizespectrum.org/mizer/reference/project.md) now,
 would anything move?", which is why it works for every model rather than
 only for the semichemostat resource that
-[`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
-requires.
+`findSteadyState(solver = "newton")` requires.
 
 ### Reading the result
 
@@ -124,8 +123,8 @@ to find out *whether* it is.
 ## See also
 
 [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md),
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md),
-[`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md),
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md),
+[`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md),
 [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
 
 Other summary functions:
@@ -137,8 +136,7 @@ Other summary functions:
 [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md),
 [`getTrophicLevelBySpecies()`](https://sizespectrum.org/mizer/reference/getTrophicLevelBySpecies.md),
 [`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md),
-[`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md),
-[`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md)
+[`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md)
 
 ## Examples
 
@@ -169,7 +167,7 @@ species_params(params)$biomass_observed <-
 species_params(params)$biomass_cutoff <- 10
 params <- calibrateBiomass(params)
 params <- matchBiomasses(params)
-#> `matchBiomasses()` has rescaled the model and so moved it off its steady state. Run `steady()` to settle it again. You can check with `getSteadyResidual()`.
+#> `matchBiomasses()` has rescaled the model and so moved it off its steady state. Run `tuneSteadyState()` to settle it again. You can check with `getSteadyResidual()`.
 plot(getSteadyResidual(params))
 
 # }

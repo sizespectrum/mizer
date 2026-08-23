@@ -43,9 +43,9 @@ The function works by multiplying for each species the number density at
 all sizes by the same factor. This will of course not give a steady
 state solution, even if the initial number densities were at steady
 state. So after using this function you may want to use
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) to run
-the model to steady state, after which of course the numbers will no
-longer match exactly. You could then iterate this process. This is
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+to run the model to steady state, after which of course the numbers will
+no longer match exactly. You could then iterate this process. This is
 described in the blog post at
 <https://blog.mizer.sizespectrum.org/posts/2021-08-20-a-5-step-recipe-for-tuning-the-model-steady-state/>.
 
@@ -69,5 +69,5 @@ species_params(params)$number_observed <-
 species_params(params)$number_cutoff <- 10
 params <- calibrateNumber(params)
 params <- matchNumbers(params)
-#> `matchNumbers()` has rescaled the model and so moved it off its steady state. Run `steady()` to settle it again. You can check with `getSteadyResidual()`.
+#> `matchNumbers()` has rescaled the model and so moved it off its steady state. Run `tuneSteadyState()` to settle it again. You can check with `getSteadyResidual()`.
 ```

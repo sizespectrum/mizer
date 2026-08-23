@@ -1,0 +1,649 @@
+# Guide: Understanding size-spectrum dynamics
+
+This guide gives a concise overview of the core principles of
+size-spectrum modelling in mizer: physiology, emergent growth and
+mortality, density dependence, and trophic feedbacks. For the full
+mathematical formulation, see the [model
+description](https://sizespectrum.org/mizer/articles/model_description.md)
+article.
+
+Mizer models fish communities structured by **individual body size**
+rather than age or fixed trophic levels. To diagnose model behaviour you
+have to reason from size-structured principles, not from age-based or
+biomass-pool intuition.
+
+------------------------------------------------------------------------
+
+## What you impose vs. what the model produces
+
+The single most useful habit is knowing which side of the line a
+quantity sits on: what you set, and what the model works out for itself.
+This is the distinction that explains most surprises.
+
+**What you impose** is never an outcome. It is:
+
+- **The predation process** — search volume \\\gamma_i w^q\\, the
+  size-preference kernel (`beta`, `sigma`), the interaction matrix
+  \\\theta\_{ij}\\. Together these give a *rate of predation events per
+  predator–prey size pair*: how fast a predator of size \\w\\ would eat
+  prey of size \\w_p\\ if it met them.
+- **Individual physiology** — maximum intake \\h_i w^n\\, metabolic cost
+  \\k\_{s,i} w^p\\, assimilation efficiency \\\alpha\\, and the split
+  between growth and reproduction (`w_mat`, `w_repro_max`).
+- **Everything outside predation among the modelled fish** — the
+  resource *capacity* and *replenishment rate* (`kappa`, `lambda`,
+  `w_pp_cutoff`, `r_pp`), external mortality `z0`, fishing effort and
+  selectivity, `erepro` and `R_max`.
+
+**What the model produces** is everything you would actually want to
+observe: the feeding level \\f_i(w)\\, the growth rate \\g_i(w)\\
+(including whether a fish reaches `w_mat` at all), the predation
+mortality \\\mu_p(w)\\, the abundance spectra \\N_i(w)\\ and their
+slope, the realised recruitment \\R_i\\ and reproduction level \\r_i\\,
+the resource abundance \\N_R(w)\\ — and the steady state itself.
+
+Note where the resource sits: you impose the ceiling it grows towards
+and the speed at which it grows there, but the standing resource
+abundance is emergent, because the fish eat it. See “The resource is a
+state variable too” below.
+
+### Growth and mortality are one process seen from two ends
+
+The most important consequence, and the one most often missed: **growth
+and predation mortality are not two mechanisms. They are the same
+predation events, counted twice.**
+
+When a predator of size \\w\\ eats a prey of size \\w_p\\, one event has
+two bookkeeping consequences: the predator gains mass \\w_p\\, and the
+prey dies. So mizer takes the *one* pairwise predation rate above and
+integrates it two different ways:
+
+| Emergent quantity | Sum the same predation rate over… | Weighted by | So it responds to |
+|----|----|----|----|
+| **Encounter → feeding level → growth** of species \\i\\ | all **prey** small enough for \\i\\ to eat | prey mass \\w_p\\ (mass gained) | the abundance of \\i\\’s **prey** — bottom-up |
+| **Predation mortality** on species \\i\\ | all **predators** big enough to eat \\i\\ | nothing (deaths counted, not mass) | the abundance of \\i\\’s **predators** — top-down |
+
+Same kernel \\\phi\\, same search volume \\\gamma\\, same interaction
+matrix \\\theta\\; the same handling limitation also appears on both
+sides through the factor \\1-f\\. As a predator becomes satiated, its
+successful prey-removal rate per unit available prey falls, while its
+realised intake approaches the maximum intake rate rather than falling
+to zero. The other differences are which variable is integrated out —
+prey size or predator size — and whether you weight by the prey’s mass
+or just count the death.
+
+Changes to the encounter pathway therefore usually affect both predator
+growth and prey mortality, so those are not independent dials. But
+growth also depends on assimilation, metabolism and reproductive
+allocation: changing one of those can alter growth without changing prey
+removal. A joint growth-and-mortality problem points first to the shared
+encounter parameters; an isolated growth problem need not.
+
+Further consequences worth internalising:
+
+- **You cannot set a growth rate.**
+  [`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md)
+  adjusts physiological coefficients until the *emergent* growth matches
+  observation; it does not write a growth curve into the model. Same for
+  mortality. See the [guide to reaching steady state and
+  calibrating](https://sizespectrum.org/mizer/articles/guide-calibrate-model.md).
+- **Everything is coupled through abundance.** Changing one species’
+  parameters changes its abundance, which changes the food available to
+  its predators and the mortality on its prey. There are no isolated
+  species.
+- **A steady state is a fixed point of that coupling**, not a property
+  you can set species by species. This is why
+  [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+  exists.
+
+------------------------------------------------------------------------
+
+## The size spectrum as state variable
+
+- **Number density \\N_i(w)\\**: the state variable for species \\i\\ is
+  the density of individuals per unit weight; the number of fish in
+  \\\[w, w + dw\]\\ is \\N_i(w)\\dw\\.
+- **Biomass density**: \\w N_i(w)\\. On a logarithmic size grid, the
+  biomass in a bin of constant logarithmic width is \\w N_i(w)\\d(\ln
+  w)\\. Plotting choices matter:
+  [`plotSpectra(params, power = 2)`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
+  shows biomass per log size bin, which is the view in which the Sheldon
+  spectrum is flat.
+- **Sheldon’s size spectrum**: across an aquatic ecosystem, biomass
+  density is roughly uniform across logarithmic size octaves, so
+  abundance scales as \\N(w) \propto w^{-\lambda}\\ with \\\lambda
+  \approx 2.05\\. In mizer this is an *input*, not a prediction:
+  `lambda` sets the resource spectrum the fish feed against. See “The
+  community slope” below.
+- **Community vs species spectra** — keep these apart, they behave
+  differently and have different slopes: the *combined* community
+  spectrum is a steady downward power law, but each *species* forms a
+  **dome** spanning from its egg size `w_min` up to `w_max`. A species
+  spectrum that looks like a power law over its whole range is a species
+  that is not experiencing the maturity-driven growth slowdown — usually
+  a sign something is wrong.
+
+------------------------------------------------------------------------
+
+## Bookkeeping in a size bracket
+
+All the dynamics come from one piece of accounting. Pick a size bracket
+\\\[w, w + dw\]\\ and ask what changes the number of fish in it.
+Individuals do not jump around the size axis: they enter only by growing
+in through the bottom edge, and leave only by growing out through the
+top edge or by dying. So
+
+> **rate of change = what grows in − what grows out − what dies**
+
+That is the whole content of the McKendrick–von Foerster equation. The
+quantity doing the growing-in and growing-out is the **flux**
+\\J_i(w)\\: the rate (individuals per year) at which fish of species
+\\i\\ grow past size \\w\\. It is just density times speed, \\g_i(w)
+N_i(w)\\ — how many fish are sitting at that size, times how fast they
+are moving through it. The dying term is \\\mu_i(w) N_i(w)\\.
+
+Three things follow, and they cover most of what you need:
+
+- **The traffic jam effect.** If more fish grow *in* at the bottom of a
+  bracket than grow *out* at the top, the bracket fills up. That happens
+  wherever growth **slows** — exactly like traffic on a motorway, where
+  density rises where cars slow down, not where more cars are added.
+  Where growth accelerates, density drops. **A bump in a spectrum is
+  usually a growth slowdown, not a recruitment event**, and the dome
+  shape of a species spectrum is mostly the growth slowdown at
+  `w_repro_max` piling fish up before mortality removes them.
+- **Nothing enters except at the egg size.** There is no immigration
+  term, so the only way into the spectrum is through the bottom
+  boundary, where the flux is set to the recruitment rate \\R_i(t)\\.
+  Everything at every larger size got there by growing.
+- **Steady state is not “nothing happening”.** At a fixed point the
+  three terms cancel at every size while fish are still growing and
+  dying at full rate. A steady state can be maintained by fast growth
+  against heavy mortality or by slow growth against light mortality —
+  the balance is what is fixed, not the rates. This is why the *ratio*
+  of mortality to growth, not either one alone, sets the shape (see
+  below).
+
+With growth diffusion switched on (off by default) individuals of the
+same size grow at slightly different speeds, which adds a spreading term
+to the flux; the bookkeeping is unchanged.
+
+------------------------------------------------------------------------
+
+## The two feedback loops
+
+Close the abundance dependence on the two integrals above — let the prey
+and predator abundances themselves respond — and each becomes a feedback
+loop. Nearly every dynamical surprise in mizer comes from one of the
+two. Both run *through* body size, which is what makes them different
+from food-web models.
+
+**The food loop (bottom-up, stabilising for the consumer).** More
+consumers → prey depleted → encountered food \\E_i(w)\\ falls → feeding
+level \\f_i(w)\\ falls → growth slows → fish spend longer at small sizes
+where mortality is high → fewer consumers. Diagnose with
+[`plotFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md)
+and
+[`resource_level()`](https://sizespectrum.org/mizer/reference/setResource.md).
+
+**The predation loop (top-down, and the source of cascades).** More
+predators → predation mortality \\\mu_p\\ on their prey sizes rises →
+prey abundance falls → which relieves predation on whatever the prey
+were eating. Diagnose with
+[`plotPredMort()`](https://sizespectrum.org/mizer/reference/plotPredMort.md)
+and
+[`plotDiet()`](https://sizespectrum.org/mizer/reference/plotDiet.md).
+
+The loops act on **different sizes of the same species at the same
+time**. A fish is prey early and predator late, so a change can travel
+up the spectrum through one loop and back down through the other. That
+round trip is what produces trophic cascades and, when the delay around
+it matches a generation time, oscillations.
+
+Two knobs decide how tightly the loops are coupled:
+
+- **`beta`** (preferred predator/prey mass ratio, default **30**): a
+  predator eats prey about 30× lighter — roughly 1.5 orders of magnitude
+  down the spectrum. This sets how far apart in size two species have to
+  be before one eats the other.
+- **`sigma`** (kernel width in natural log, default **2**): wide. At
+  \\\pm 1\\ s.d. the kernel spans mass ratios from about 4 to 200, and
+  it is cut off at ratio 1 (nothing eats prey larger than itself). A
+  **narrow** kernel couples narrow size bands tightly and is a classic
+  cause of limit cycles; a wide one averages over many prey sizes and
+  damps oscillations.
+
+------------------------------------------------------------------------
+
+## The resource is a state variable too
+
+The food loop bottoms out in the resource spectrum, and the resource is
+**not a fixed food supply**: by default it has dynamics of its own and
+gets eaten down. What you impose is a **capacity** \\c_R(w) = \kappa
+w^{-\lambda}\\ (up to `w_pp_cutoff`, zero above) and a **replenishment
+rate** \\r_R(w) = r\_{pp} w^{n-1}\\; the standing abundance \\N_R(w)\\
+that fish actually feed on is emergent. The default dynamics
+([`resource_semichemostat()`](https://sizespectrum.org/mizer/reference/resource_semichemostat.md))
+let each size replenish towards its capacity and be consumed at the rate
+\\\mu_R(w)\\ that the fish impose
+([`getResourceMort()`](https://sizespectrum.org/mizer/reference/getResourceMort.md)).
+
+Note what is *absent*: there is no flux along the size axis. Resource
+sizes do not grow into one another, so a hole eaten in the resource at
+one size stays at that size and can spread only through fish that feed
+across it.
+
+### The resource level is the mirror of the reproduction level
+
+The dimensionless diagnostic is the **resource level** \\L(w) =
+N_R(w)/c_R(w)\\
+([`resource_level()`](https://sizespectrum.org/mizer/reference/setResource.md))
+— how close the resource is running to its ceiling. At the semichemostat
+steady state \\N_R = r_R c_R/(r_R + \mu_R)\\, so \\L = r_R/(r_R +
+\mu_R)\\ and
+
+\\\frac{d \ln N_R}{d \ln \mu_R} = -(1 - L)\\
+
+Read exactly like \\1 - r_i\\ for recruitment: **\\1 - L\\ is the
+fraction of a change in consumption pressure that actually shows up in
+food availability.**
+
+- **\\L \to 1\\**: replenishment overwhelms consumption, the resource
+  sits at its ceiling and barely notices being eaten. The food loop is
+  effectively switched off — an infinite pantry. Species compete for
+  food only weakly, growth does not respond to abundance, and one route
+  to emergent density dependence is gone.
+- **\\L \to 0\\**: consumption is winning, the standing stock is far
+  below capacity, and every change in consumption passes almost undamped
+  into food availability. Strong competition, strong bottom-up
+  regulation, and a candidate source of oscillations.
+
+Because \\L\\ is a ratio at a *given* abundance, it is the dial to turn
+after calibration:
+[`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
+with `resource_level = 0.5` sets the capacity from the current
+abundance, leaving the steady state exactly where it was and changing
+only how stiff the food supply is around it.
+`resource_dynamics = "resource_constant"` is the limit \\L \to 1\\ taken
+exactly, and is the clean way to switch the food loop off deliberately
+when isolating a feedback (see the [guide to running a mizer
+simulation](https://sizespectrum.org/mizer/articles/guide-run-simulation.md)).
+
+### Two things that surprise people
+
+- **A freshly built model has its resource at capacity.**
+  [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)
+  sets \\c_R = \kappa w^{-\lambda}\\, which is also the initial
+  abundance, so \\L = 1\\ everywhere and the resource is *not* at a
+  fixed point: replenishment is zero while consumption is not. Project
+  such a model and the resource is drawn down, feeding levels fall, and
+  growth slows — with nothing having been changed. This is normal, and
+  it is why calibration comes before interpretation.
+- **[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+  rebalances the resource at the end.** It holds the resource fixed
+  while converging the fish, then recomputes the capacity from the
+  (preserved) rate so that the converged state is a steady state of the
+  resource too. The abundance you calibrated against is kept; the
+  capacity moves above it. So after
+  [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+  the resource level is an emergent, size-dependent quantity — lowest
+  where the fish feed hardest, near 1 where consumption is negligible.
+
+### The resource runs on its own clock
+
+\\r_R \propto w^{n-1}\\, the same \\w^{-1/3}\\ gradient as everything
+else, but spread over far more orders of magnitude: with the default
+`r_pp` of 10, the smallest resource sizes replenish tens of thousands of
+times a year, while at the `w_pp_cutoff` of 10 g the rate is under 5 per
+year — comparable to fish rates, and precisely at the sizes fish eat
+most. So the resource is a fast, quasi-static variable at the bottom and
+a genuinely dynamical one at the top — which is why
+[`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
+always perturbs it alongside the fish rather than slaving it to them;
+see the [guide to analysing dynamic
+stability](https://sizespectrum.org/mizer/articles/guide-analyse-stability.md).
+Raising `r_pp` makes the resource stiffer and the model less sensitive
+to competition for food; lowering it makes the resource a slow variable
+that can carry oscillations of its own.
+
+------------------------------------------------------------------------
+
+## Individual energetics
+
+Energy flows through an individual in three stages.
+
+**1 — Encounter and feeding level.** A predator of size \\w\\ searches
+volume \\\gamma_i w^q\\ and encounters prey according to the predation
+kernel and the interaction matrix. Encountered food is turned into a
+dimensionless **feeding level** \\f_i(w) \in \[0,1\]\\ by a Holling type
+II response — \\f = 0\\ is starvation, \\f = 1\\ is complete satiation.
+Mizer targets \\f_0 \approx 0.6\\ by default.
+
+Feeding level is the first thing to look at in almost every diagnosis,
+because it is dimensionless and has an absolute scale: you can tell at a
+glance whether a number is wrong. \\f \< 0.2\\ anywhere in the juvenile
+range means the species is starving; \\f \> 0.9\\ everywhere means the
+species is satiated and effectively decoupled from variation in its prey
+— its growth will not respond to food very much, and its predation
+pressure per unit prey is reduced by the \\1-f\\ factor (see below). Its
+total biomass intake can nevertheless remain near its maximum.
+
+**2 — Net available energy.** Assimilated intake (\\\alpha\\, default
+0.6) minus standard and activity metabolism, floored at zero. If it hits
+zero the fish has no surplus for growth or reproduction and simply
+stops.
+
+**3 — Allocation.** Around maturity, an increasing fraction
+\\\psi_i(w)\\ goes to reproduction and the rest to growth; `w_mat` is
+the 50% point of the maturity ogive, not a hard threshold. Under
+defaults edition 1, \\\psi\\ is forced to 1 above `w_repro_max`, so
+growth halts there. Under edition 2 it continues to follow the maturity
+ogive times the reproductive proportion and need not reach 1. Increasing
+allocation still slows growth and helps turn the species spectrum into a
+dome: decelerating fish pile up (see the traffic-jam effect below) and
+mortality then removes them.
+
+------------------------------------------------------------------------
+
+## What sets the slope
+
+Two different slopes get called “the slope”, and they are not the same
+object. The **species** slope is the one that follows from the
+bookkeeping. The **community** slope, \\-\lambda\\, is a property of the
+sum over all species and the resource; it is discussed after.
+
+### The species slope
+
+This is the bookkeeping above, made quantitative. For one species \\i\\,
+setting “in − out − deaths” to zero and solving gives the local log-log
+slope of *that species’* spectrum, ignoring diffusion:
+
+\\\frac{d \ln N_i}{d \ln w} = -\frac{\mu_i(w)}{g_i(w)/w} - \frac{d \ln
+g_i}{d \ln w}\\
+
+Read it as: **the slope is minus the ratio of mortality to mass-specific
+growth**, minus how fast growth itself is accelerating. With allometric
+rates \\g \propto w^n\\ the second term is just \\n\\ (the `n` species
+parameter;
+[`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)
+sets 2/3 by default).
+
+This one ratio explains most species-spectrum shapes. High mortality or
+stunted growth ⇒ steep drop, few fish survive to large size. Fast growth
+relative to mortality ⇒ shallow spectrum. Note that nothing here
+mentions \\\lambda\\: a species’ slope is set by its own mortality and
+growth, whatever the community around it is doing.
+
+### The community slope, and where \\\lambda\\ actually comes from
+
+\\\lambda\\ is **not derived by the model**. It is a parameter you set
+(`lambda`, default 2.05): the exponent of the resource spectrum the fish
+feed against. What mizer does is not to predict \\\lambda\\ but to keep
+the model **self-consistent** with it, in four steps:
+
+1.  **Assume** the prey a fish sees is distributed as \\N(w) \propto
+    w^{-\lambda}\\.
+2.  **Choose \\q\\ to match it.** Mizer defaults `q` to \\\lambda - 2 +
+    n\\. Against a \\w^{-\lambda}\\ background, a predator searching at
+    rate \\\gamma w^q\\ encounters food scaling as \\w^{q + 2 -
+    \lambda}\\; that default is exactly the \\q\\ making it \\w^n\\ —
+    the same power as maximum intake \\h w^n\\. Numerator and
+    denominator of the feeding level then scale together, so **\\f\\
+    comes out independent of size**. (Verify on any fresh model:
+    [`getFeedingLevel()`](https://sizespectrum.org/mizer/reference/getFeedingLevel.md)
+    is flat at `f0` across the juvenile range.)
+3.  **Each species’ slope therefore goes constant.** This is the
+    equation above. With \\f\\ size-independent, \\g \propto w^n\\ and
+    \\\mu \propto w^{n-1}\\, so \\\mu/(g/w)\\ is constant — a constant
+    slope, i.e. a straight line on log-log axes over each species’
+    juvenile range.
+4.  **The community reproduces the assumption.** Sum those species
+    spectra — overlapping domes staggered by `w_max` — together with the
+    resource, and you get back approximately \\w^{-\lambda}\\. The loop
+    closes.
+
+Step 4 is exact only in the idealised scaling model, where many species
+are spread evenly over a wide range of `w_max`. In a model with a
+handful of real species it is approximate: the resource carries the
+small-size end, and the community spectrum is bumpy where species domes
+overlap unevenly. Do not expect a fitted community slope to come out at
+exactly `lambda`.
+
+The practical value of this is diagnostic. **The consistency is a chain,
+and breaking any link shows up in the feeding level first.** Change
+`lambda` without letting `q` follow, set `q` by hand, or deplete the
+resource away from its assumed power law, and \\f\\ acquires a trend in
+size; species spectra then curve instead of running straight, and the
+community spectrum stops being a power law. So when a spectrum looks
+curved, check
+[`plotFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md)
+for a size trend before touching anything structural.
+
+------------------------------------------------------------------------
+
+## What sets the timescales
+
+Size sets speed, and this is why age-based intuition misleads.
+
+Mass-specific growth \\g/w \propto w^{n-1} \approx w^{-1/3}\\: a fish
+1000× heavier grows 10× more slowly in relative terms. Mortality scales
+the same way (\\\mu \propto w^{n-1}\\; mizer’s default external
+mortality is \\z_0 = 0.6\\w\_{\inf}^{\\n-1}\\). So **small fish live
+fast and die young, large fish live slow** — and the whole spectrum runs
+on a gradient of timescales rather than a single one.
+
+Time to grow from egg to `w_max` scales as \\w\_{\max}^{\\1-n} \approx
+w\_{\max}^{1/3}\\. A species 1000× larger takes roughly 10× longer to
+mature. Practical consequences:
+
+- **Oscillation periods track generation time**, so a limit cycle in a
+  large slow species has a long period and needs a correspondingly long
+  [`project()`](https://sizespectrum.org/mizer/reference/project.md) run
+  to even be visible.
+- **Equilibration is set by the slowest species.** A
+  [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+  run that looks converged for small species may be nowhere near it for
+  large ones.
+- **Small species and juvenile size classes respond first** to any
+  perturbation; the large-fish response arrives a generation later. A
+  transient that looks like a cascade may just be different species
+  running at different speeds.
+
+------------------------------------------------------------------------
+
+## Density dependence comes in two kinds
+
+This distinction decides how a model responds to fishing, and confusing
+the two is a common source of wrong conclusions.
+
+**1 — Imposed, via `R_max`.** Egg production \\R\_{p}\\ is converted to
+realised recruitment \\R\\ by a Beverton–Holt relation, summarised by
+the **reproduction level** \\r_i = R_i/R\_{\max,i} \in \[0,1)\\
+([`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md))
+— the fraction of its ceiling that a species’ recruitment is currently
+running at.
+
+The number that matters is how much of a change in egg production
+survives into recruitment. For Beverton–Holt that elasticity works out
+to exactly \\\frac{d \ln R_i}{d \ln R\_{p,i}} = 1 - r_i\\ so the
+reproduction level reads directly as the fraction of the response that
+gets *suppressed*. This makes the direction easy to keep straight:
+
+- **Low \\r_i\\ (→ 0), weak density dependence**: recruitment sits far
+  below its ceiling, so it tracks egg production almost proportionally
+  (\\1 - r_i \approx 1\\). The species responds strongly to anything
+  that changes adult biomass — responsive to fishing, and susceptible to
+  cohort blooms and persistent limit cycles. **This is mizer’s
+  default**: `R_max` defaults to \\\infty\\, which is \\r_i = 0\\ and no
+  imposed density dependence at all.
+- **High \\r_i\\ (→ 1), strong density dependence**: recruitment is
+  pressed up against \\R\_{\max}\\, so almost none of a change in egg
+  production gets through (\\1 - r_i \approx 0\\). Fishing that halves
+  adult biomass barely moves recruitment — the stock is buffered. Very
+  stable, and *insensitive to fishing* in a way that is imposed by
+  assumption rather than earned by the dynamics.
+
+Sanity check if you ever doubt the direction: \\R\_{\max} = \infty\\
+must mean *no* density dependence, and it gives \\r_i = 0\\. Low means
+weak.
+
+**2 — Emergent, via the two feedback loops.** With \\R\_{\max} =
+\infty\\ a species still is not unregulated: more juveniles deplete the
+shared resource (food loop) and attract predation (predation loop). This
+regulation is *produced* by the model, is size-structured, and spills
+over onto other species. In a default mizer model it is the **only**
+density dependence there is.
+
+How much of it there is at the resource end is set by the resource
+level: at \\L \to 1\\ the shared resource cannot be depleted, so that
+half of the emergent regulation is missing, whatever `R_max` says.
+
+Why it matters: both can stabilise a model, but they respond to fishing
+completely differently. Imposed density dependence is species-local and
+unmoved by ecosystem change; emergent density dependence weakens when
+you fish down the predators supplying it. **A model made stable by a low
+`R_max` is a different ecosystem from one that is stable on its own.**
+If a species seems inert to fishing, check
+[`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+first — a high value means you are looking at an assumption, not a
+result.
+
+------------------------------------------------------------------------
+
+## Size-structured trophic feedbacks
+
+Because trophic role changes with size, mizer shows feedbacks absent
+from classical food-web models:
+
+- **Predation release with a starvation bottleneck**: fishing large
+  predators lowers \\\mu_p\\ on small fish; the surge in small fish
+  overconsumes the resource, feeding levels collapse, and the growth of
+  the predator’s *own* larvae is stunted. The cascade comes back around
+  and bites the species that started it.
+- **Cultivation–depensation**: large predators eat forage fish, but
+  forage fish compete with — or prey on — the larvae of those same
+  predators. Deplete the adults and the forage fish can suppress
+  predator recruitment, holding the predator down even after fishing
+  stops.
+- **Travelling cohort waves**: a pulse of recruits eats its way up the
+  size axis, leaving a moving depression in prey abundance and a wake of
+  reduced mortality behind it. Note that the default numerical scheme
+  damps these — see the [guide to running a mizer
+  simulation](https://sizespectrum.org/mizer/articles/guide-run-simulation.md)
+  on numerical diffusion before concluding a wave is physically absent.
+
+------------------------------------------------------------------------
+
+## Diagnostic reasoning heuristics
+
+Check emergent properties before changing structural parameters.
+
+| Symptom | Likely cause | What to inspect |
+|----|----|----|
+| **Species collapses during [`project()`](https://sizespectrum.org/mizer/reference/project.md)** | Starving larvae, intense juvenile predation, or too little egg production | [`plotFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md), [`plotDiet()`](https://sizespectrum.org/mizer/reference/plotDiet.md), [`getPredMort()`](https://sizespectrum.org/mizer/reference/getPredMort.md) |
+| **Biomass oscillates in regular cycles** | Reproduction level near 0 (little recruitment damping — mizer’s default), narrow kernel (`sigma` too small), or knife-edge fishing | [`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md), [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md) (see the [guide to analysing dynamic stability](https://sizespectrum.org/mizer/articles/guide-analyse-stability.md)) |
+| **Growth slows before `w_mat`** | Food limitation at intermediate sizes; resource depleted or `w_pp_cutoff` too low | [`plotGrowthCurves()`](https://sizespectrum.org/mizer/reference/plotGrowthCurves.md), [`resource_level()`](https://sizespectrum.org/mizer/reference/setResource.md), [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md) |
+| **Feeding levels drift down during [`project()`](https://sizespectrum.org/mizer/reference/project.md) although nothing was changed** | The resource was left at its capacity (\\L = 1\\, as freshly built) and is being eaten down towards its true fixed point | [`resource_level()`](https://sizespectrum.org/mizer/reference/setResource.md), [`plot(initialNResource(params))`](https://sizespectrum.org/mizer/reference/plot.md); run [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md) first |
+| **Growth is not what [`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md) asked for** | Growth is emergent — the food to support it is not there | [`plotFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md), then the [guide to reaching steady state and calibrating](https://sizespectrum.org/mizer/articles/guide-calibrate-model.md) |
+| **Tuning one species drops another** | Predation overlap or resource competition in shared juvenile size bins | [`interaction_matrix()`](https://sizespectrum.org/mizer/reference/setInteraction.md), [`plotDiet()`](https://sizespectrum.org/mizer/reference/plotDiet.md) |
+| **Species insensitive to fishing** | Strong imposed density dependence (\\r_i\\ **high**, near 1 — only \\1-r_i\\ of any change in egg production gets through), or an effectively infinite resource | [`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md), [`resource_level()`](https://sizespectrum.org/mizer/reference/setResource.md) |
+| **Species spectrum curves instead of running straight** | `lambda`, `q` and `n` no longer mutually consistent, so feeding level is size-dependent | [`plotFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md) — is it flat in size? |
+| **Community slope isn’t `lambda`** | Expected only in the idealised scaling model; with few species the domes don’t sum to a clean power law | [`getCommunitySlope()`](https://sizespectrum.org/mizer/reference/getCommunitySlope.md), [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md) — compare against species domes, not against `lambda` |
+| **Species won’t stay at steady state** | Fixed point is dynamically unstable, not a numerical failure | [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md), [`findSteadyState(solver = "newton")`](https://sizespectrum.org/mizer/reference/findSteadyState.md) |
+
+------------------------------------------------------------------------
+
+## Reference formulas
+
+The equations behind the reasoning above, for when you need the exact
+form.
+
+**Dynamics** — the McKendrick–von Foerster equation: the “in − out −
+deaths” balance above, written as a continuity equation in size.
+
+\\\frac{\partial N_i(w,t)}{\partial t} + \frac{\partial
+J_i(w,t)}{\partial w} = -\mu_i(w,t) N_i(w,t)\\
+
+The derivative \\\partial J_i/\partial w\\ is the net loss by growth:
+flux out at the top of the bracket minus flux in at the bottom. The
+right-hand side is the loss by death. Growth flux \\J_i = g_i N_i\\,
+boundary condition \\J_i(w\_{\min}, t) = R_i(t)\\ at the egg size,
+\\g_i\\ in \\\text{g}\cdot\text{year}^{-1}\\ and \\\mu_i\\ in
+\\\text{year}^{-1}\\. With growth diffusion switched on (`D_ext > 0`,
+**off by default**) the flux gains a term \\-\tfrac{1}{2}\\\partial(D_i
+N_i)/\partial w\\, which smooths sharp peaks and spreads cohorts.
+
+**The two integrals of the same predation rate.** Encountered food —
+integrate over **prey** size \\w_p\\, weighting by the mass \\w_p\\
+gained:
+
+\\E_i(w) = \gamma_i(w) \int \Big(\theta\_{ip} N_R(w_p) + \sum_j
+\theta\_{ij} N_j(w_p)\Big)\\ \phi_i(w/w_p)\\ w_p\\ dw_p\\
+
+Predation mortality — integrate the same thing over **predator** size
+\\w'\\, counting deaths rather than mass:
+
+\\\mu\_{p,i}(w) = \sum_j \int \theta\_{ji}\\\big(1 -
+f_j(w')\big)\\\gamma_j (w')^q\\\phi_j(w'/w)\\N_j(w')\\dw'\\
+
+The shared factors \\\gamma\\, \\\phi\\ and \\\theta\\ are what makes
+these two sides of one coin. The \\(1 - f_j)\\ factor is worth noting:
+**satiated predators kill less**, and a species whose predators are all
+near \\f = 1\\ experiences less mortality than their abundance alone
+suggests. It applies to the growth side too — realised intake is \\f_i
+h_i w^n = (1 - f_i) E_i\\. As \\f_i\\ approaches 1, that intake
+approaches the maximum \\h_i w^n\\; it does not approach zero.
+
+**Feeding level** from encountered food \\E_i\\ and maximum intake \\h_i
+w^n\\:
+
+\\f_i(w) = \frac{E_i(w)}{E_i(w) + h_i w^n}\\
+
+**Net energy** after assimilation (\\\alpha\\) and metabolism (\\k_s
+w^p\\, plus an activity term \\k w\\ that defaults to zero):
+
+\\E\_{\text{net},i}(w) = \max\big(0,\\ \alpha_i f_i(w) h_i w^n -
+k\_{s,i} w^p - k_i w\big)\\
+
+**Growth**, after the reproductive allocation \\\psi_i(w)\\:
+
+\\g_i(w) = \big(1 - \psi_i(w)\big) E\_{\text{net},i}(w)\\
+
+**Predation kernel** (lognormal, the default), for mass ratio
+\\\text{ppmr} = w/w_p \ge 1\\ and zero below:
+
+\\\phi_i(\text{ppmr}) =
+\exp\\\left\[\frac{-\big(\ln(\text{ppmr}/\beta_i)\big)^2}{2\sigma_i^2}\right\]\\
+
+**Resource dynamics** — the default semichemostat, applied to each size
+independently (no transport along the size axis):
+
+\\\frac{\partial N_R(w,t)}{\partial t} = r_R(w)\big\[c_R(w) -
+N_R(w,t)\big\] - \mu_R(w,t) N_R(w,t)\\
+
+with replenishment rate \\r_R(w) = r\_{pp} w^{n-1}\\, capacity \\c_R(w)
+= \kappa w^{-\lambda}\\ below `w_pp_cutoff` and zero above, and
+\\\mu_R\\ the consumption by the fish. The steady state is \\N_R = r_R
+c_R/(r_R + \mu_R)\\, i.e. resource level \\L = N_R/c_R = r_R/(r_R +
+\mu_R)\\.
+[`resource_logistic()`](https://sizespectrum.org/mizer/reference/resource_logistic.md)
+replaces the bracket by \\N_R(1 - N_R/c_R)\\ and
+[`resource_constant()`](https://sizespectrum.org/mizer/reference/resource_constant.md)
+holds \\N_R\\ fixed.
+
+**Egg production** and Beverton–Holt density dependence:
+
+\\R\_{p,i} = \frac{\epsilon_i}{2 w\_{\min}} \int \psi_i(w)\\
+E\_{\text{net},i}(w)\\ N_i(w)\\ dw, \qquad R_i = \frac{R\_{\max,i}
+R\_{p,i}}{R\_{\max,i} + R\_{p,i}}\\
+
+**Defaults worth remembering**: `beta` 30, `sigma` 2, `lambda` 2.05,
+`w_pp_cutoff` 10 g, `kappa` 1e11, `r_pp` 10,
+[`resource_dynamics`](https://sizespectrum.org/mizer/reference/setResource.md)
+`"resource_semichemostat"`, `alpha` 0.6, `f0` 0.6, `n` 2/3, `p` 0.7, `q`
+\\= \lambda - 2 + n\\, `erepro` 1, `R_max` \\\infty\\, `w_min` 0.001 g,
+`w_mat` \\= w\_{\inf}/4\\, `z0` \\= 0.6\\w\_{\inf}^{\\n-1}\\.
+
+For the complete mathematical formulation see the [model
+description](https://sizespectrum.org/mizer/articles/model_description.md)
+article.

@@ -24,6 +24,33 @@ A list of available summary functions is given in the table below.
 | [`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md) | Two dimensional array (time x species) | Total yield of each species across all gears through time. |
 | [`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md) | Named vector (species) or two dimensional array (time x species) | Any integral over the size spectrum, from which all of the above are built. Use it to write your own summary function. |
 
+## Writing your own summary function
+
+The entry point is
+[`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md).
+It selects the size range, applies the bin-averaging appropriate to the
+model's
+[`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md)
+setting and wraps the result in the right mizer array class, so a
+summary function built on it is automatically consistent with the
+quadrature the model is actually using. Pass the whole weighting factor
+\\K(w)\\ evaluated on the size grid, but neither the bin widths
+`params@dw` nor any bin-averaging of your own:
+[`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md)
+supplies both.
+
+If your quantity involves the predation kernel, take the kernel from
+[`encounter_kernel()`](https://sizespectrum.org/mizer/reference/encounter_kernel.md)
+rather than from
+[`pred_kernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md),
+and pair it with the plain point prey weight
+`params@w_full * params@dw_full`. That weight is a normalisation which
+the kernel construction is built to cancel, not a quadrature weight, so
+it is the one place where you must *not* bin-average. Pairing the
+point-sampled
+[`pred_kernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
+with a bin-averaged prey weight applies the prey-bin integral twice.
+
 ## See also
 
 [indicator_functions](https://sizespectrum.org/mizer/reference/indicator_functions.md),

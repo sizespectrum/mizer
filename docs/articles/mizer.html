@@ -17,7 +17,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -144,8 +144,7 @@ a real ecosystem — building, calibrating and projecting a Celtic Sea
 model.</p>
 <p>If you run into any difficulties or have any questions or
 suggestions, let us know about it by posting about it on our <a href="https://github.com/sizespectrum/mizer/issues/new" class="external-link">issue
-tracker</a>. You can also twitter to @<a href="https://twitter.com/mizer_model" class="external-link">mizer_model</a>. We love to hear
-from you.</p>
+tracker</a>. We love to hear from you.</p>
 <div class="float">
 <img src="images/workflow.png" alt="Mizer workflow diagram"><div class="figcaption">Mizer workflow diagram</div>
 </div>
@@ -176,10 +175,10 @@ Extending mizer</a></li>
 <p>You can also build on the work of others and share your work for
 others to build upon:</p>
 <ul>
-<li><p><a href="https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html">Guide:
-Using mizer extension packages</a></p></li>
-<li><p><a href="https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html">Guide:
-Creating a mizer extension package</a></p></li>
+<li><a href="https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html">Guide:
+Using mizer extension packages</a></li>
+<li><a href="https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html">Guide:
+Creating a mizer extension package</a></li>
 </ul>
 <p>A good way to get into mizer is to follow the online <a href="https://mizer.course.sizespectrum.org" class="external-link">mizer course</a>. This
 course has three parts, each consisting of several tutorials with
@@ -227,28 +226,26 @@ on your computer by following the instructions at <a href="https://cran.r-projec
 platform.</p>
 <p>Alternatively, if you can not or do not want to install R on your
 computer, you can also work with R and RStudio in your internet browser
-by creating yourself a free account at <a href="https://rstudio.cloud" class="external-link uri">https://rstudio.cloud</a>. There you can then install mizer
-as described above. Running mizer in the RStudio Cloud may be slightly
-slower than running it locally on your machine, but the speed is usually
-quite acceptable.</p>
+by creating yourself a free account at <a href="https://posit.cloud/plans/free" class="external-link uri">https://posit.cloud/plans/free</a>. There you can then
+install mizer as described above. Running mizer in the RStudio Cloud may
+be slightly slower than running it locally on your machine, but the
+speed is usually quite acceptable.</p>
 <p>This guide assumes that you will be using RStudio to work with R.
 There is really no reason not to use RStudio and it makes a lot of
 things much easier. RStudio develops rapidly and adds useful features
-all the time and so it pays to upgrade to the <a href="https://posit.co/download/rstudio-desktop/" class="external-link">latest version</a>
-frequently. This guide was written with version 2023.12.1.</p>
+all the time and so it pays to upgrade to the <a href="https://docs.posit.co/ide/user/#rstudio-ide-oss-downloads" class="external-link">latest
+version</a> frequently.</p>
 <p>The source code for mizer is hosted on <a href="https://github.com/sizespectrum/mizer" class="external-link">GitHub</a>. If you are
 feeling brave and wish to try out a development version of mizer you can
-install the package from here using the R package devtools (which was
-used extensively in putting together mizer). If you have not yet
-installed devtools, do</p>
+install the package from there, using the pak package. If you have not
+yet installed pak, do</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span></code></pre></div>
 <p>Then you can install the latest version from GitHub using</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"sizespectrum/mizer"</span><span class="op">)</span></span></code></pre></div>
-Using the same <code><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">devtools::install_github()</a></code> function you can
-also install code from forked mizer repositories or from other branches
-on the official repository.
+<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"sizespectrum/mizer"</span><span class="op">)</span></span></code></pre></div>
+Using the same function you can also install code from forked mizer
+repositories or from other branches on the official repository.
 </details>
 </div>
 <div class="section level2">
@@ -258,9 +255,10 @@ on the official repository.
 size-spectrum models using the same basic tools and methods.</p>
 <p>Setting the model parameters is done by creating an object of
 <code><a href="../reference/MizerParams-class.html">class ? MizerParams</a></code>. This includes model parameters such as
-the life history parameters of each species, and the fishing gears. For
-each type of sizespectrum model there is a function for creating a new
-MizerParams object, <code><a href="../reference/newSingleSpeciesParams.html">newSingleSpeciesParams()</a></code>,
+the life history parameters of each species, resource parameters and the
+fishing gears. For each type of sizespectrum model there is a function
+for creating a new MizerParams object,
+<code><a href="../reference/newSingleSpeciesParams.html">newSingleSpeciesParams()</a></code>,
 <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code>, <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code> and
 <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>.</p>
 <p>These functions make reasonable default choices for many of the model
@@ -282,10 +280,8 @@ calculated default values for many others (for example the maximum
 intake rate <code>h</code> and the search volume <code>gamma</code>)
 using size-based theory. These notes are informational, not errors: they
 simply flag the parameters you may want to refine later once you
-calibrate the model to data. We have suppressed them here to keep the
-output short. Calibrating such a model to observed biomasses and yields
-is demonstrated in the <a href="#a-worked-example-the-celtic-sea">worked
-example</a> below.</p>
+calibrate the model to data. Calibrating such a model to observed
+biomasses and yields is demonstrated in the <a href="#a-worked-example-the-celtic-sea">worked example</a> below.</p>
 </div>
 <div class="section level2">
 <h2 id="running-a-simulation">Running a simulation<a class="anchor" aria-label="anchor" href="#running-a-simulation"></a>
@@ -298,9 +294,7 @@ example</a> below.</p>
 the results of the simulation. In this example we chose to set some
 parameters of the <code><a href="../reference/project.html">project()</a></code> function to specify that we
 want to project 10 years into the future, under the assumption of unit
-fishing effort. You can see the help page for <code><a href="../reference/project.html">project()</a></code> for
-more details and it is described fully in <a href="https://sizespectrum.org/mizer/articles/running_a_simulation.html">the
-section on running a simulation.</a></p>
+fishing effort. You can find more details in the <a href="https://sizespectrum.org/mizer/articles/guide-run-simulation.html">https://sizespectrum.org/mizer/articles/guide-run-simulation.html</a></p>
 </div>
 <div class="section level2">
 <h2 id="exploring-the-results">Exploring the results<a class="anchor" aria-label="anchor" href="#exploring-the-results"></a>
@@ -328,8 +322,8 @@ years:</p>
 <span><span class="co">## 0.5976582 0.5539731 0.5763835</span></span></code></pre>
 <p>We can then use the full power of R to work with these results.</p>
 <p>The functionality provided by mizer to explore the simulation results
-is more fully described in <a href="https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html">the
-section on exploring the simulation results.</a></p>
+is more fully described in the <a href="https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.html">Guide:
+Analysing and plotting results</a></p>
 </div>
 <div class="section level2">
 <h2 id="a-worked-example-the-celtic-sea">A worked example: the Celtic Sea<a class="anchor" aria-label="anchor" href="#a-worked-example-the-celtic-sea"></a>
@@ -386,31 +380,31 @@ it.</p>
 <span><span class="va">celtic_interaction</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"celtic_interaction.csv"</span>,</span>
 <span>                                             row.names <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>The species-parameter data frame has one row per species. Besides the
-required maximum size <code>w_max</code> it carries a few life-history
-parameters and, crucially, the <strong>observed</strong> average biomass
-of each species (<code>biomass_observed</code>, in grams per square
-metre) that we will calibrate to. Some species have no observation and
-are left as <code>NA</code>.</p>
+required asymptotic size <code>l_inf</code> it carries a few
+life-history parameters and, crucially, the <strong>observed</strong>
+average biomass of each species (<code>biomass_observed</code>, in grams
+per square metre) that we will calibrate to. Some species have no
+observation and are left as <code>NA</code>.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">celtic_species_params</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"species"</span>, <span class="st">"w_max"</span>, <span class="st">"biomass_observed"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">##           species       w_max biomass_observed</span></span>
-<span><span class="co">## 1         Herring   307.31559      0.300000000</span></span>
-<span><span class="co">## 2           Sprat    35.84195      0.295749801</span></span>
-<span><span class="co">## 3             Cod 41561.32628      0.008179382</span></span>
-<span><span class="co">## 4         Haddock  6669.92227      0.067381049</span></span>
-<span><span class="co">## 5         Whiting  2611.42837      0.070079361</span></span>
-<span><span class="co">## 6    Blue whiting   599.82211      1.188248745</span></span>
-<span><span class="co">## 7     Norway Pout   319.77787      0.172520253</span></span>
-<span><span class="co">## 8        Poor Cod   711.87913               NA</span></span>
-<span><span class="co">## 9   European Hake 15506.13615      0.164362236</span></span>
-<span><span class="co">## 10       Monkfish 21478.67091      0.048720611</span></span>
-<span><span class="co">## 11 Horse Mackerel   518.58232               NA</span></span>
-<span><span class="co">## 12       Mackerel  1857.47965               NA</span></span>
-<span><span class="co">## 13     Common Dab   640.30873               NA</span></span>
-<span><span class="co">## 14         Plaice  3133.64249      0.022404698</span></span>
-<span><span class="co">## 15         Megrim  1556.92834      0.074079322</span></span>
-<span><span class="co">## 16           Sole  1979.31808      0.063519261</span></span>
-<span><span class="co">## 17       Boarfish   278.92128               NA</span></span></code></pre>
+<code class="sourceCode R"><span><span class="va">celtic_species_params</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"species"</span>, <span class="st">"l_inf"</span>, <span class="st">"biomass_observed"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">##           species  l_inf biomass_observed</span></span>
+<span><span class="co">## 1         Herring  31.10      0.300000000</span></span>
+<span><span class="co">## 2           Sprat  14.65      0.295749801</span></span>
+<span><span class="co">## 3             Cod 110.00      0.008179382</span></span>
+<span><span class="co">## 4         Haddock  69.00      0.067381049</span></span>
+<span><span class="co">## 5         Whiting  41.30      0.070079361</span></span>
+<span><span class="co">## 6    Blue whiting  36.00      1.188248745</span></span>
+<span><span class="co">## 7     Norway Pout  21.55      0.172520253</span></span>
+<span><span class="co">## 8        Poor Cod  24.70               NA</span></span>
+<span><span class="co">## 9   European Hake  82.80      0.164362236</span></span>
+<span><span class="co">## 10       Monkfish 137.00      0.048720611</span></span>
+<span><span class="co">## 11 Horse Mackerel  40.85               NA</span></span>
+<span><span class="co">## 12       Mackerel  42.00               NA</span></span>
+<span><span class="co">## 13     Common Dab  33.20               NA</span></span>
+<span><span class="co">## 14         Plaice  54.40      0.022404698</span></span>
+<span><span class="co">## 15         Megrim  50.40      0.074079322</span></span>
+<span><span class="co">## 16           Sole  38.30      0.063519261</span></span>
+<span><span class="co">## 17       Boarfish  14.40               NA</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="building-the-model">Building the model<a class="anchor" aria-label="anchor" href="#building-the-model"></a>
@@ -435,11 +429,14 @@ have suppressed them here to keep the output short.</p>
 <h3 id="finding-the-steady-state">Finding the steady state<a class="anchor" aria-label="anchor" href="#finding-the-steady-state"></a>
 </h3>
 <p>A freshly built model has only a rough spectrum.
-<code><a href="../reference/steady.html">steady()</a></code> runs the size-spectrum dynamics, holding
+<code><a href="../reference/tuneSteadyState.html">tuneSteadyState()</a></code> runs the size-spectrum dynamics, holding
 reproduction and the resource fixed, until the community settles onto a
-steady state.</p>
+steady state. It then adjusts the reproduction and resource parameters
+so that the held values are steady too — which is why it is called
+<em>tuning</em> the model to a steady state rather than merely finding
+one.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">cel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tuneSteadyState.html">tuneSteadyState</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">cel</span>, per_log_size <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mizer_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="700"></p>
 <p>Each curve is now a smooth species spectrum, and together they line
@@ -451,9 +448,9 @@ size-spectrum model.</p>
 </h3>
 <p>The steady state is self-consistent, but its species abundances are
 still arbitrary. Calibration rescales them to match observation. We do
-this in stages, <strong>re-running <code><a href="../reference/steady.html">steady()</a></code> after every
-adjustment</strong> because each change pushes the community off its
-steady state:</p>
+this in stages, <strong>re-running <code><a href="../reference/tuneSteadyState.html">tuneSteadyState()</a></code> after
+every adjustment</strong> because each change pushes the community off
+its steady state:</p>
 <ul>
 <li>
 <code><a href="../reference/calibrateBiomass.html">calibrateBiomass()</a></code> sets the overall abundance scale
@@ -474,7 +471,7 @@ until both are satisfied.</p>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">cel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchBiomasses.html">matchBiomasses</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span></span>
 <span>    <span class="va">cel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/matchGrowth.html">matchGrowth</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span></span>
-<span>    <span class="va">cel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steady.html">steady</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span></span>
+<span>    <span class="va">cel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tuneSteadyState.html">tuneSteadyState</a></span><span class="op">(</span><span class="va">cel</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><code><a href="../reference/plotBiomassObservedVsModel.html">plotBiomassObservedVsModel()</a></code> shows how well the
 calibrated steady state reproduces the observations: points on the
@@ -538,10 +535,10 @@ each level we project to the new steady state and record the total
 community yield — the yield that could be taken indefinitely at that
 effort.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">efforts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">1</span>, <span class="fl">1.25</span>, <span class="fl">1.5</span>, <span class="fl">2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">efforts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, by <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
 <span><span class="va">sustainable_yield</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">efforts</span>, <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projectToSteady.html">projectToSteady</a></span><span class="op">(</span><span class="va">cel</span>, effort <span class="op">=</span> <span class="va">e</span>, t_max <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>                         return_sim <span class="op">=</span> <span class="cn">FALSE</span>, progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>    <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/findSteadyState.html">findSteadyState</a></span><span class="op">(</span><span class="va">cel</span>, effort <span class="op">=</span> <span class="va">e</span>, t_max <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>                         progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/getYield.html">getYield</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span></span>
@@ -569,7 +566,7 @@ purely from the model we calibrated to biomass and growth.</p>
 <p>This is only the beginning of what the calibrated model can tell you.
 From here you could look at individual species’ yield curves to find
 each stock’s own <span class="math inline">\(F_\text{MSY}\)</span>
-(<code><a href="https://sizespectrum.org/mizerExperimental/reference/plotYieldVsF.html">plotYieldVsF()</a></code>), change the gear selectivity to protect
+(<code><a href="../reference/plotYieldVsF.html">plotYieldVsF()</a></code>), change the gear selectivity to protect
 juveniles, or explore how the community size spectrum flattens under
 fishing. The <a href="https://mizer.course.sizespectrum.org/use/" class="external-link">Use
 part of the course</a> develops several such scenarios.</p>
@@ -855,7 +852,7 @@ Multi-Species Models.”</span> <em>Fish and Fisheries</em> 22 (4):
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

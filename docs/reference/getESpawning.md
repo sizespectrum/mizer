@@ -1,6 +1,6 @@
 # Alias for `getERepro()`
 
-**\[deprecated\]** An alias provided for backward compatibility with
+**\[superseded\]** An alias provided for backward compatibility with
 mizer version \<= 1.0
 
 ## Usage

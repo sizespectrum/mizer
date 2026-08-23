@@ -250,12 +250,12 @@ constructor method:
 params <- newMultispeciesParams(species_params)
 ```
 
-    ## No h provided for some species, so using age at maturity to calculate it.
-    ## Because you have n != p, the default value for `h` is not very good.
-    ## Because the age at maturity is not known, I need to fall back to using
-    ## von Bertalanffy parameters, where available, and this is not reliable.
-    ## Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
-    ## Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
+    ## ℹ No h provided for some species, so using age at maturity to calculate it.
+    ## ℹ Because you have n != p, the default value for `h` is not very good.
+    ## ℹ Because the age at maturity is not known, I need to fall back to using
+    ## von Bertalanffy parameters, where available.
+    ## ℹ Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
+    ## ℹ Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
 
 We have just created a `MizerParams` object:
 
@@ -311,6 +311,22 @@ one that we can access with
 gear_params(params)
 ```
 
+    ## An object of class "gear_params" containing 12 gear-species pairs for 1 gear:
+    ##             gear species   sel_func catchability
+    ##  knife_edge_gear   Sprat knife_edge            1
+    ##  knife_edge_gear Sandeel knife_edge            1
+    ##  knife_edge_gear  N.pout knife_edge            1
+    ##  knife_edge_gear Herring knife_edge            1
+    ##  knife_edge_gear     Dab knife_edge            1
+    ##  knife_edge_gear Whiting knife_edge            1
+    ##  knife_edge_gear    Sole knife_edge            1
+    ##  knife_edge_gear Gurnard knife_edge            1
+    ##  knife_edge_gear  Plaice knife_edge            1
+    ##  knife_edge_gear Haddock knife_edge            1
+    ##  knife_edge_gear     Cod knife_edge            1
+    ##  knife_edge_gear  Saithe knife_edge            1
+    ## With 1 other parameters: knife_edge_size
+
 All species are caught by a gear called “knife_edge_gear”. The
 selectivity function for each fishing gear has been set in the
 `sel_func` column to the default function,
@@ -331,9 +347,9 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.2.1.9004
-    ## Created: 2026-08-20 12:36:24
-    ## Modified: 2026-08-20 12:36:24
+    ## mizer version: 3.3.0
+    ## Created: 2026-08-23 15:18:08
+    ## Modified: 2026-08-23 15:18:08
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066
@@ -343,7 +359,7 @@ summary(params)
     ##  maximum size:   8.48399
     ##  no. size bins:  166 (215 size bins in total)
     ## Steady state:
-    ##  biomass drift:  1.4 /year   (not at steady state - run steady())
+    ##  biomass drift:  1.4 /year   (not at steady state - run tuneSteadyState())
     ## Species details:
     ## An object of class "species_params" containing parameters for 12 species:
     ##  species w_inf w_mat w_min   beta sigma
@@ -513,12 +529,12 @@ scratch with our interaction matrix by passing it to
 params_new <- newMultispeciesParams(species_params, interaction = inter)
 ```
 
-    ## No h provided for some species, so using age at maturity to calculate it.
-    ## Because you have n != p, the default value for `h` is not very good.
-    ## Because the age at maturity is not known, I need to fall back to using
-    ## von Bertalanffy parameters, where available, and this is not reliable.
-    ## Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
-    ## Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
+    ## ℹ No h provided for some species, so using age at maturity to calculate it.
+    ## ℹ Because you have n != p, the default value for `h` is not very good.
+    ## ℹ Because the age at maturity is not known, I need to fall back to using
+    ## von Bertalanffy parameters, where available.
+    ## ℹ Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
+    ## ℹ Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
 
 Note that the first argument must be the species parameters data.frame.
 The remaining arguments can be in any order but should be named. We are
@@ -538,6 +554,22 @@ provided.
 
 gear_params(params)
 ```
+
+    ## An object of class "gear_params" containing 12 gear-species pairs for 1 gear:
+    ##             gear species   sel_func catchability
+    ##  knife_edge_gear   Sprat knife_edge            1
+    ##  knife_edge_gear Sandeel knife_edge            1
+    ##  knife_edge_gear  N.pout knife_edge            1
+    ##  knife_edge_gear Herring knife_edge            1
+    ##  knife_edge_gear     Dab knife_edge            1
+    ##  knife_edge_gear Whiting knife_edge            1
+    ##  knife_edge_gear    Sole knife_edge            1
+    ##  knife_edge_gear Gurnard knife_edge            1
+    ##  knife_edge_gear  Plaice knife_edge            1
+    ##  knife_edge_gear Haddock knife_edge            1
+    ##  knife_edge_gear     Cod knife_edge            1
+    ##  knife_edge_gear  Saithe knife_edge            1
+    ## With 1 other parameters: knife_edge_size
 
 Here, we look at an example where we set up four different gears:
 Industrial, Pelagic, Beam and Otter trawl, that catch different
@@ -562,9 +594,9 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.2.1.9004
-    ## Created: 2026-08-20 12:36:24
-    ## Modified: 2026-08-20 12:36:25
+    ## mizer version: 3.3.0
+    ## Created: 2026-08-23 15:18:08
+    ## Modified: 2026-08-23 15:18:09
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066
@@ -574,7 +606,7 @@ summary(params)
     ##  maximum size:   8.48399
     ##  no. size bins:  166 (215 size bins in total)
     ## Steady state:
-    ##  biomass drift:  1.4 /year   (not at steady state - run steady())
+    ##  biomass drift:  1.4 /year   (not at steady state - run tuneSteadyState())
     ## Species details:
     ## An object of class "species_params" containing parameters for 12 species:
     ##  species w_inf w_mat w_min   beta sigma
@@ -619,44 +651,44 @@ be done simply by running the model using
 [`project()`](https://sizespectrum.org/mizer/reference/project.md) until
 it reaches steady state. However, this method is not guaranteed to work,
 and there is a function called
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) that is
-more reliable. The function
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) must be
-supplied with a MizerParams object. It takes that MizerParams object,
-looks at the initial system state, computes the rates of reproduction of
-the different species, holds them fixed, and evolves the system until a
-steady state is reached (or more precisely, until the amount that the
-population abundances change during a time-step is below some small
-tolerance level). The resource is rebalanced at the same time, so that
-the state returned is a steady state of the resource as well as of the
-consumers.
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+that is more reliable. It must be supplied with a MizerParams object. It
+takes that MizerParams object, looks at the initial system state,
+computes the rates of reproduction of the different species, holds them
+fixed, and evolves the system until a steady state is reached (or more
+precisely, until the amount that the population abundances change during
+a time-step is below some small tolerance level). The resource is
+rebalanced at the same time, so that the state returned is a steady
+state of the resource as well as of the consumers.
 
 After this, the reproduction parameters of each species are re-tuned so
 that when the reproduction dynamics are turned back on (i.e., when we
 stop holding the reproduction rates fixed), the reproduction rates at
 which we held the system fixed will indeed be realised. By default it is
 the `reproduction_level` of each species that is preserved by this
-re-tuning; the `preserve` argument of
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) lets
-you preserve the maximum reproduction rate `R_max` or the reproductive
-efficiency `erepro` instead. See
+re-tuning; the `preserve` argument lets you preserve the maximum
+reproduction rate `R_max` or the reproductive efficiency `erepro`
+instead. See
 [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
 for an explanation of the reproduction level.
 
-The [`steady()`](https://sizespectrum.org/mizer/reference/steady.md)
+The
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
 function is not sure to converge, and the way it re-tunes the
 reproduction parameters may not be realistic, but the idea is to alter
-the other parameters in the system until
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) does
-arrive at a steady state with sensible parameter values. The returned
-object carries a `"convergence"` attribute that describes what was found
-(a steady state, a limit cycle, or no convergence), and
+the other parameters in the system until it does arrive at a steady
+state with sensible parameter values. The returned object carries a
+`"convergence"` attribute that describes what was found (a steady state,
+a limit cycle, or no convergence), and
 [`summary()`](https://sizespectrum.org/mizer/reference/summary.md)
-reports how far the model is from steady state. There is also
-[`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md),
-which solves for the steady state directly instead of by running the
-dynamics. Calibrating a model to observations is discussed in the [guide
-to calibrating a
+reports how far the model is from steady state. Passing
+`solver = "newton"` solves for the steady state directly instead of by
+running the dynamics, which works even where the steady state is
+dynamically unstable. Its counterpart
+[`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
+changes no parameter at all and instead reports the steady state that
+the parameters you already have imply. Calibrating a model to
+observations is discussed in the [guide to calibrating a
 model](https://sizespectrum.org/mizer/articles/guide-calibrate-model.md).
 
 Now that we know how to create a multispecies model we shall discuss how

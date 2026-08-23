@@ -91,9 +91,16 @@ Useful optional arguments to
 |----|----|
 | `interaction` | species × species matrix of dimensionless overlaps in `[0, 1]` (1 = full interaction, the default for every pair); scales encounter and predation mortality |
 | `kappa`, `lambda`, `w_pp_cutoff` | resource spectrum coefficient, exponent, and cutoff size |
-| `no_w` | number of size bins on the logarithmic grid (default 100; the size range is determined automatically from the species parameters) |
+| `no_w` | number of consumer size bins on the logarithmic grid (default 100) |
+| `min_w` | default egg size for species without `w_min` (default 0.001 g); the consumer grid starts at the smallest resulting species egg size |
+| `max_w` | largest consumer-grid size; by default the largest species `w_max`, and it cannot be smaller than any species’ `w_max` |
+| `min_w_pp` | smallest target size for the resource grid; it must be below the consumer grid and resolves to `1e-12` g when omitted |
 | [`gear_params`](https://sizespectrum.org/mizer/reference/gear_params.md) | fishing gear definitions (usually omitted and configured later — see the [guide to setting up fishing](https://sizespectrum.org/mizer/articles/guide-set-up-fishing.md); defaults to a knife-edge gear catching every species) |
 | [`second_order_w`](https://sizespectrum.org/mizer/reference/second_order_w.md) | use the second-order size-advection scheme; see the section “Numerical scheme: watch for numerical diffusion” in the [guide to running a mizer simulation](https://sizespectrum.org/mizer/articles/guide-run-simulation.md) |
+
+The `no_w` bins are equally spaced in log weight between the resulting
+consumer-grid minimum and `max_w`. The resource uses the same spacing
+and adds smaller bins until `min_w_pp` lies in its smallest bin.
 
 Change gears later with `gear_params(params) <- ...` or
 [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md)

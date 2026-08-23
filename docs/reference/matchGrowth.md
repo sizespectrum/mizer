@@ -75,7 +75,7 @@ that species will not be changed.
 species_params(NS_params)["Cod", "gamma"]
 #> [1] 1.599016e-10
 params <- matchGrowth(NS_params)
-#> `matchGrowth()` has rescaled the model and so moved it off its steady state. Run `steady()` to settle it again. You can check with `getSteadyResidual()`.
+#> `matchGrowth()` has rescaled the model and so moved it off its steady state. Run `tuneSteadyState()` to settle it again. You can check with `getSteadyResidual()`.
 species_params(params)["Cod", "gamma"]
 #> [1] 2.351462e-10
 age_mat(params)["Cod"]

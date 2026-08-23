@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet"><script src="extra.js"></script><meta property="og:title" content="AI Agent Instructions for mizer"><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+</script><script src="lightswitch.js"></script><script src="deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet"><script src="extra.js"></script><meta property="og:title" content="AI Agent Instructions for mizer"><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,6 +98,7 @@
 <p><strong>Two quadrature schemes</strong>: the <code>second_order_w</code> slot selects how the model is discretised on the size grid — <code>flux</code> picks the advective reconstruction, and <code>bin_average</code> decides whether size-dependent factors are integrated over their bin or point-sampled at the left bin boundary. Both default to the first-order scheme, so previous mizer versions reproduce byte-for-byte. This is invisible in the code you are likely to be reading: a function that ignores <code>bin_average</code> still looks correct and still passes its tests on the default path. Anything that integrates over the size grid must handle both schemes and be tested under both.</p>
 <p><strong>Gated validation</strong>: <code><a href="reference/validParams.html">validParams()</a></code> splits into three jobs — upgrade (gated on the version string), repair plus <code>validObject()</code> (gated on a fingerprint), and the unconditional <code><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.finite()</a></code> scans of the rate arrays. The fingerprint, <code><a href="reference/validation_key.html">validation_key()</a></code>, is a hash of every slot that <code><a href="reference/repair_params.html">repair_params()</a></code> reads or writes and every slot that <code>validMizerParams()</code> inspects, taking only the dimensions and dimension names of the big rate arrays, never their values. It is recalculated on every call and never stored on the object, so it cannot go stale. This gate stays sound only as long as that correspondence holds: <strong>if you make <code><a href="reference/repair_params.html">repair_params()</a></code> or <code>validMizerParams()</code> depend on a slot, add that slot to <code><a href="reference/validation_key.html">validation_key()</a></code></strong>, or the new logic will be silently skipped for objects mizer has already seen. Values inside the rate arrays are deliberately out of the fingerprint and are guarded by <code><a href="reference/check_finite.html">check_finite()</a></code> instead.</p>
 <p><strong>Auto-generated files</strong> — never edit <code>NAMESPACE</code>, <code>man/</code>, <code>RcppExports.R</code>, or <code>RcppExports.cpp</code> directly. The <code>vignettes/guide-*.Rmd</code> articles are also generated: their single source is <code>inst/skills/&lt;topic&gt;/SKILL.md</code>, which doubles as the agent skill. Edit the skill and re-run <code>source("dev_scripts/build_guides.R"); build_guides()</code>. Content that belongs in the skill but not in the article (an agent’s diagnostic procedure, a lookup table keyed by symptom rather than by topic) goes in an <code>&lt;!-- agent-only --&gt;</code> block, which the generator drops. Likewise <code>docs/llms.txt</code> and <code>inst/llms.txt</code> are generated: pkgdown writes a raw <code>docs/llms.txt</code> during <code>build_site()</code>, and <code>source("dev_scripts/build_llms.R"); build_llms()</code> then swaps its README-derived preamble for <code>pkgdown/llms-header.md</code> — the file to edit — and copies the result to <code>inst/llms.txt</code>. That installed copy is how <code><a href="https://sizespectrum.github.io/mizerAgents/reference/setup_mizer_agent.html" class="external-link">mizerAgents::setup_mizer_agent()</a></code> points an agent at the API index for the mizer it has, so it must ship: do not add it to <code>.Rbuildignore</code>. Follow <code>.claude/skills/build-documentation.md</code>.</p>
+<p><strong>Articles with pre-computed results</strong> — <code>vignettes/discontinuous_rates.Rmd</code> and <code>vignettes/dynamic_stability.Rmd</code> would each take many minutes to knit, so their long-running calculations live in <code>dev_scripts/save_&lt;article&gt;.R</code>, which writes <code>vignettes/&lt;article&gt;.rds</code>. The article loads that file in its setup chunk, shows the expensive code with <code>eval = FALSE</code>, and displays the saved objects from a following <code>echo = FALSE</code> chunk. The script and the article therefore hold the same code twice: <strong>change one and you must change the other and re-run the script</strong>, or the article will show numbers that its own code no longer produces. Save small objects — a rate array or a summary data frame, not a <code>MizerSim</code>; <code>plotBiomass(sim)</code> is <code>plot(getBiomass(sim))</code>, and the biomass array carries everything the plot needs.</p>
 </div>
 <div class="section level2">
 <h2 id="domain-architecture--workflows">Domain Architecture &amp; Workflows<a class="anchor" aria-label="anchor" href="#domain-architecture--workflows"></a></h2>
@@ -106,7 +107,7 @@
 <th>Consult skill</th>
 </tr></thead><tbody><tr><td>Modifying parameter accessors, downward propagation, rate setters, or freeze mechanisms</td>
 <td><code>inst/skills/change-parameters/SKILL.md</code></td>
-</tr><tr><td>Calibration functions (<code>steady</code>, <code>calibrateBiomass</code>, <code>matchGrowth</code>), steady states, or reproduction levels</td>
+</tr><tr><td>Calibration functions (<code>tuneSteadyState</code>, <code>calibrateBiomass</code>, <code>matchGrowth</code>), steady states, or reproduction levels</td>
 <td><code>inst/skills/calibrate-model/SKILL.md</code></td>
 </tr><tr><td>Extension points (<code>setExtEncounter</code>, <code>setExtMort</code>, <code>setComponent</code>, <code>setRateFunction</code>)</td>
 <td><code>inst/skills/extend-mizer/SKILL.md</code></td>
@@ -121,7 +122,7 @@
 <td><code>inst/skills/set-up-fishing/SKILL.md</code></td>
 </tr><tr><td>Simulation stepping, projection methods, or effort scenarios</td>
 <td><code>inst/skills/run-simulation/SKILL.md</code></td>
-</tr><tr><td>Stability analysis, limit cycles, <code>steadyNewton</code>, or <code>getStability</code>
+</tr><tr><td>Stability analysis, limit cycles, the <code>solver</code> argument, or <code>getStability</code>
 </td>
 <td><code>inst/skills/analyse-stability/SKILL.md</code></td>
 </tr><tr><td>Summary or plotting functions</td>
@@ -180,7 +181,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

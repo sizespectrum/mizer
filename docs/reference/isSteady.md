@@ -46,8 +46,8 @@ is considered to be at steady state.
 ## See also
 
 [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md),
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md),
-[`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md),
+[`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
 
 ## Examples
 

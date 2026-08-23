@@ -354,7 +354,7 @@ test_that("resource comparisons use each model's own length relationship", {
 
     p2 <- plot2(mort1, mort2, size_axis = "l")
     expect_equal(sort(unique(p2$data$l[p2$data$Model == "Second"])),
-                 sort(unique(dat2$l)))
+                 sort(unique(dat2$l[dat2[[2]] > 0])))
 })
 
 test_that("plotRelative interpolates two resource spectra onto a common grid", {

@@ -70,10 +70,10 @@ plotSpectraRelative(
 
 - total:
 
-  A boolean value that determines whether the total over all species in
-  the system is plotted as well. Note that even if the plot only shows a
-  selection of species, the total is including all species. Default is
-  FALSE.
+  A boolean value that determines whether the total is plotted as well.
+  The total is the total of everything the object holds — every species
+  and the resource — whatever is drawn, so it does not move when
+  `species`, `resource` or `background` change. Default is FALSE.
 
 - resource:
 
@@ -127,7 +127,6 @@ Other plotting functions:
 [`animate()`](https://sizespectrum.org/mizer/reference/animate.md),
 [`plot`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
-[`plotBifurcation()`](https://sizespectrum.org/mizer/reference/plotBifurcation.md),
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md),
 [`plotCDF()`](https://sizespectrum.org/mizer/reference/plotCDF.md),
 [`plotCDF2()`](https://sizespectrum.org/mizer/reference/plotCDF2.md),
@@ -143,6 +142,7 @@ Other plotting functions:
 [`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md),
 [`plotYield()`](https://sizespectrum.org/mizer/reference/plotYield.md),
 [`plotYieldGear()`](https://sizespectrum.org/mizer/reference/plotYieldGear.md),
+[`plotYieldVsF()`](https://sizespectrum.org/mizer/reference/plotYieldVsF.md),
 [`plotting_functions`](https://sizespectrum.org/mizer/reference/plotting_functions.md)
 
 ## Examples

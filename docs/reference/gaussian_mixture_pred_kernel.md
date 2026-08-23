@@ -1,7 +1,7 @@
 # Gaussian-mixture predation kernel
 
-A predation kernel for which the log predator/prey mass ratio follows a
-mixture of Gaussian distributions.
+**\[experimental\]** A predation kernel for which the log predator/prey
+mass ratio follows a mixture of Gaussian distributions.
 
 ## Usage
 

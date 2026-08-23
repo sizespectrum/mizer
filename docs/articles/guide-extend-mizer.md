@@ -43,8 +43,9 @@ added to
 and `ext_mort` (1/year, added to mortality).
 
 ``` r
-ext_mort(params) <- my_mort_array)       # e.g. outside predators
-ext_encounter(params) <- my_food_array)  # extra unmodelled food
+
+ext_mort(params) <- my_mort_array        # e.g. outside predators
+ext_encounter(params) <- my_food_array   # extra unmodelled food
 ```
 
 Build the array from the model’s own grid rather than from literal
@@ -129,8 +130,7 @@ discontinuously is not. Mizer’s time steppers freeze the rates during
 each density update, so they cannot see a threshold being crossed within
 a step. A rule like `if (biomass < threshold) effort <- 0` gives a
 trajectory that keeps changing as `dt` is refined, makes
-[`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
-stall, and makes
+`solver = "newton"` stall, and makes
 [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
 return a confident but meaningless answer — with no warning from mizer.
 Choosing `method = "tr_bdf2"` does not help. Give the switch a finite
@@ -164,14 +164,15 @@ mid-projection.
 | `FeedingLevel` | `function(params, n, n_pp, n_other, t, encounter, ...)` | numeric matrix, species × size |
 | `EReproAndGrowth` | `function(params, n, n_pp, n_other, t, encounter, feeding_level, ...)` | numeric matrix, species × size |
 | `ERepro` | `function(params, n, n_pp, n_other, t, e, ...)` | numeric matrix, species × size |
-| `EGrowth` | `function(params, n, n_pp, n_other, t, e, e_repro, ...)` | numeric matrix, species × size |
+| `EGrowth` | `function(params, n, n_pp, n_other, t, e_repro, e, ...)` | numeric matrix, species × size |
 | `PredRate` | `function(params, n, n_pp, n_other, t, feeding_level, ...)` | numeric matrix, species × **full** size grid |
 | `PredMort` | `function(params, n, n_pp, n_other, t, pred_rate, ...)` | numeric matrix, species × size |
 | `FMort` | `function(params, n, n_pp, n_other, t, effort, e_growth, pred_mort, ...)` | numeric matrix, species × size |
 | `Mort` | `function(params, n, n_pp, n_other, t, f_mort, pred_mort, ...)` | numeric matrix, species × size |
-| `RDI` | `function(params, n, n_pp, n_other, t, e_growth, mort, e_repro, ...)` | numeric vector, one value per species |
+| `RDI` | `function(params, n, n_pp, n_other, t, e_growth, mort, e_repro, diffusion, ...)` | numeric vector, one value per species |
 | `RDD` | `function(rdi, species_params, params, t, ...)` | numeric vector, one value per species |
 | `ResourceMort` | `function(params, n, n_pp, n_other, t, pred_rate, ...)` | numeric vector, one value per full size bin |
+| `Diffusion` | `function(params, n, n_pp, n_other, t, feeding_level, ...)` | numeric matrix, species × size |
 | `Rates` | `function(params, n, n_pp, n_other, t, effort, rates_fns, ...)` | named list with all standard rate components |
 
 Three rules that follow from the table:
@@ -334,7 +335,7 @@ enc_ext <- getEncounter(params_ext)
 range(enc_ext - enc_base, na.rm = TRUE)
 ```
 
-    ## [1] 5.623413e-04 2.820537e+02
+    [1] 5.623413e-04 2.820537e+02
 
 External mortality works the same way — note the negative exponent,
 since mortality falls with size where the extra food rose with it:
@@ -381,7 +382,7 @@ enc_quarter <- getEncounter(params2, t = 0.25)
 range(enc_quarter / enc0, na.rm = TRUE)
 ```
 
-    ## [1] 1.2 1.2
+    [1] 1.2 1.2
 
 At `t = 0.25` the multiplier is at its maximum, `1 + season_amplitude`,
 exactly as intended. The seasonality then carries through a projection:

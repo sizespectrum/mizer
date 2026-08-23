@@ -237,8 +237,6 @@ reference:
     or extract the ecosystem state as a `MizerParams` object.
   contents:
   - getParams
-  - initialParams
-  - finalParams
   - "N"
   - NResource
   - finalN
@@ -256,6 +254,8 @@ reference:
   - getFeedingLevel
   - getCriticalFeedingLevel
   - bin_average_weight
+  - sizeIntegral
+  - encounter_kernel
   - "w"
 - title: Calculating rates
   description: >
@@ -335,7 +335,6 @@ reference:
   contents:
   - setParams
   - setPredKernel
-  - encounter_kernel
   - setSearchVolume
   - setInteraction
   - setMaxIntakeRate

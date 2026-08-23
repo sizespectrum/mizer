@@ -108,8 +108,9 @@ plot(
 
 - total:
 
-  A boolean value that determines whether the total over all selected
-  species is plotted as well. Default is `FALSE`.
+  A boolean value that determines whether the total is plotted as well.
+  The total is the total of everything the array holds, every species
+  and every size, whatever is drawn. Default is `FALSE`.
 
 - background:
 

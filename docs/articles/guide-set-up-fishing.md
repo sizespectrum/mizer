@@ -23,15 +23,14 @@ effort is set at run time.
 
 One row per **gear–species combination** (a gear that catches three
 species contributes three rows). Read and replace the table with
-`gear_params(params)` and `gear_params(params) <- ...`. Required
-columns:
+`gear_params(params)` and `gear_params(params) <- ...`. Core columns:
 
-| Column         | Meaning                                                    |
-|----------------|------------------------------------------------------------|
-| `gear`         | gear name                                                  |
-| `species`      | species this row applies to                                |
-| `sel_func`     | name of the selectivity function (e.g. `"sigmoid_length"`) |
-| `catchability` | scales `F` for this gear–species pair (default 1)          |
+| Column | Meaning |
+|----|----|
+| `gear` | gear name; the column is required, but an `NA` entry defaults to the species name |
+| `species` | species this row applies to; required |
+| `sel_func` | name of the selectivity function (e.g. `"sigmoid_length"`); defaults to `"knife_edge"` |
+| `catchability` | scales `F` for this gear–species pair; defaults to 1 under defaults edition 1 and 0.3 under edition 2 |
 
 Plus **one column per parameter of the chosen `sel_func`**, named
 exactly like the function’s argument (see below). Row names follow the
@@ -57,12 +56,12 @@ gear_params(params) <- gp                 # assignment triggers recalculation
 ```
 
 **Setting one up from scratch.** Assign a fresh data frame with one row
-per gear–species combination. Only `species` is strictly required:
-`gear` defaults to the species name, `sel_func` to
-[`knife_edge`](https://sizespectrum.org/mizer/reference/knife_edge.md),
-`catchability` to 1, and the `knife_edge` cut-off to `w_mat`. You must,
-however, supply the parameter columns of whatever `sel_func` you choose.
-Here two gears fish cod, each with its own length-based selectivity:
+per gear–species combination. Both the `species` and `gear` columns must
+be present, although `NA` gear entries are replaced by their species
+name. Mizer fills the other core columns with the defaults shown in the
+table above. You must supply the parameter columns of whatever
+non-default `sel_func` you choose. Here two gears fish cod, each with
+its own length-based selectivity:
 
 ``` r
 
@@ -130,11 +129,12 @@ can read them, and — when a `sel_func` cannot express the shape you need
 | `catchability(params)` | \\Q\_{g,i}\\    | gear × species        |
 | `selectivity(params)`  | \\S\_{g,i}(w)\\ | gear × species × size |
 
-([`getCatchability()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
+([`getCatchability()`](https://sizespectrum.org/mizer/reference/superseded_accessors.md)
 and
-[`getSelectivity()`](https://sizespectrum.org/mizer/reference/deprecated_accessors.md)
-are deprecated aliases of these.) Each has a matching setter that pushes
-an array straight into the model (this routes through
+[`getSelectivity()`](https://sizespectrum.org/mizer/reference/superseded_accessors.md)
+are superseded aliases of these: they still work but should not be used
+in new code.) Each has a matching setter that pushes an array straight
+into the model (this routes through
 [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md),
 so validation still runs):
 

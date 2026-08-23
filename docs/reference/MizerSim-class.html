@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="A class to hold the results of a simulation — MizerSim-class"><meta name="description" content="A class that holds the results of projecting a MizerParams
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="A class to hold the results of a simulation — MizerSim-class"><meta name="description" content="A class that holds the results of projecting a MizerParams
 object through time using project()."><meta property="og:description" content="A class that holds the results of projecting a MizerParams
 object through time using project()."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -15,7 +15,7 @@ object through time using project()."><meta property="og:image" content="https:/
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,8 +108,8 @@ returns the fishing effort of each gear through time.
 were stored and <code><a href="finalN.html">idxFinalT()</a></code> returns the index with which to access
 specifically the value at the final time in the arrays returned by the other
 functions. <code><a href="getParams.html">getParams()</a></code> extracts the ecosystem state as a <code>MizerParams</code>
-object with initial abundances set to values from the simulation; <code><a href="finalParams.html">finalParams()</a></code>
-and <code><a href="initialParams.html">initialParams()</a></code> are convenient shorthands for the final and initial
+object with initial abundances set to values from the simulation; <code><a href="getParams.html">finalParams()</a></code>
+and <code><a href="getParams.html">initialParams()</a></code> are convenient shorthands for the final and initial
 time steps. There are also several
 <a href="summary_functions.html">summary_functions</a> and <a href="plotting_functions.html">plotting_functions</a>
 available to explore the contents of a <code>MizerSim</code> object.</p>
@@ -159,7 +159,7 @@ and gear.</p></dd>
 
 <dt><code>sim_params</code></dt>
 <dd><p>A named list of the parameters passed to <code><a href="project.html">project()</a></code> or
-<code><a href="projectToSteady.html">projectToSteady()</a></code> to produce this simulation, such as <code>method</code> and <code>dt</code>.</p></dd>
+<code><a href="projectUntilSettled.html">projectUntilSettled()</a></code> to produce this simulation, such as <code>method</code> and <code>dt</code>.</p></dd>
 
 
 </dl></div>
@@ -173,7 +173,7 @@ and gear.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

@@ -1,10 +1,11 @@
 # Record the species parameters that have changed
 
-Compares the new species parameters in `value` against the old ones in
-`old_sp` and records the entries that have changed in the given species
-parameter data frame `given`. This is the change detection used by
-`species_params<-()`, exported so that code which updates the species
-parameters by other means can record its changes the same way.
+**\[experimental\]** Compares the new species parameters in `value`
+against the old ones in `old_sp` and records the entries that have
+changed in the given species parameter data frame `given`. This is the
+change detection used by `species_params<-()`, exported so that code
+which updates the species parameters by other means can record its
+changes the same way.
 
 ## Usage
 

@@ -353,10 +353,11 @@ stab_hard
 ```
 
 The coarsest step is the only one whose perturbations reach across the
-threshold, and it moves the answer by nearly twelve per cent. Note what the two
-finer steps do: they agree to seven figures, because at that size no
-perturbation crosses the threshold at all. That agreement is the second failure
-mode below, not a clean bill of health.
+threshold, and the growth rate it reports comes out at
+`r signif(stab_hard[[1]], 3)` against the `r signif(stab_hard[[2]], 3)` that the
+finer steps agree on. Note what those two do: they agree to seven figures,
+because at that size no perturbation crosses the threshold at all. That
+agreement is the second failure mode below, not a clean bill of health.
 
 Contrast the ramped model, where the answer is the same to five figures whatever
 `h` you choose:

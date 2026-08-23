@@ -127,7 +127,7 @@ summary(NS_sim)
 #>  maximum size:   9.82091
 #>  no. size bins:  171 (218 size bins in total)
 #> Steady state:
-#>  biomass drift:  0.91 /year  (not at steady state - run steady())
+#>  biomass drift:  0.91 /year  (not at steady state - run tuneSteadyState())
 #> Species details:
 #> An object of class "species_params" containing parameters for 12 species:
 #>  species   w_inf w_mat w_min   beta sigma

@@ -121,8 +121,7 @@ Other summary functions:
 [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md),
 [`getTrophicLevelBySpecies()`](https://sizespectrum.org/mizer/reference/getTrophicLevelBySpecies.md),
 [`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md),
-[`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md),
-[`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md)
+[`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md)
 
 ## Examples
 

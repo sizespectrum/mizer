@@ -86,9 +86,9 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.2.1.9004
-    ## Created: 2026-08-20 12:31:54
-    ## Modified: 2026-08-20 12:31:54
+    ## mizer version: 3.3.0
+    ## Created: 2026-08-23 15:16:37
+    ## Modified: 2026-08-23 15:16:37
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   1e+06
@@ -98,7 +98,7 @@ summary(params)
     ##  maximum size:   0.000811131
     ##  no. size bins:  78  (178 size bins in total)
     ## Steady state:
-    ##  biomass drift:  4.2 /year   (not at steady state - run steady())
+    ##  biomass drift:  4.2 /year   (not at steady state - run tuneSteadyState())
     ## Species details:
     ## An object of class "species_params" containing parameters for 1 species:
     ##    species w_inf  w_mat w_min  f0 beta sigma
@@ -114,11 +114,21 @@ has been set from \\0.001\\ to \\10^{6}\\ and this is divided into
 \\100\\ size bins. Similar information is available for the resource
 spectrum. Additionally, the community is made up of only one species,
 called *Community*, which has an maximum size of \\10^{6}\\ and a
-preferred predator prey mass ratio of \\100\\. The `w_mat` parameter has
-been set to `NA` as it is not used when running a community model. These
-values have all been set by default using the
+preferred predator prey mass ratio of \\100\\. The `w_mat` parameter is
+filled in with its usual default but plays no role in a community model:
+the reproduction rate is held constant and individuals invest none of
+their income into reproduction. These values have all been set by
+default using the
 [`newCommunityParams()`](https://sizespectrum.org/mizer/reference/newCommunityParams.md)
 function.
+
+The summary also reports how far the model is from steady state,
+measured by the rate at which the biomass is currently drifting. We have
+not tuned this model to a steady state, so the abundances will change
+when we start to project the model through time. For a model you intend
+to use for projections you would normally first find its steady state;
+see the guide on [calibrating a
+model](https://sizespectrum.org/mizer/articles/guide-calibrate-model.md).
 
 ## Running the community model
 
@@ -131,8 +141,8 @@ perform a simulation and project the community through time. In the
 [`project()`](https://sizespectrum.org/mizer/reference/project.md)
 function. You can see the help page for
 [`project()`](https://sizespectrum.org/mizer/reference/project.md) for
-more details and it is described fully in [the section on running a
-simulation.](https://sizespectrum.org/mizer/articles/running_a_simulation.md)
+more details and it is described fully in [the guide on running a
+simulation.](https://sizespectrum.org/mizer/articles/guide-run-simulation.md)
 We will ignore the details for the moment and just use
 [`project()`](https://sizespectrum.org/mizer/reference/project.md) to
 run some simple projections. The arguments for
@@ -166,13 +176,13 @@ class(sim)
 
 This class holds the results of the simulation, including the community
 and resource abundances at size through time, as well as the original
-model parameters. It is explained in detail in [the section on running a
-simulation.](https://sizespectrum.org/mizer/articles/running_a_simulation.md)
+model parameters. It is explained in detail in [the guide on running a
+simulation.](https://sizespectrum.org/mizer/articles/guide-run-simulation.md)
 
 After running the projection, it is possible to explore the results
 using a range of plots and analyses. These are described fully in [the
-section on exploring the simulation
-results.](https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.md)
+guide on analysing and plotting
+results.](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.md)
 
 To quickly look at the results of the projection you can call the
 [`plot()`](https://sizespectrum.org/mizer/reference/plot.md) method.
@@ -221,92 +231,93 @@ described as ‘big things eating little things’. Given this, what is
 eating the very biggest things? Without fishing pressure, the mortality
 of the largest individuals is only from the external mortality
 (determined by the `z0` argument) and the mortality from predation is
-almost 0. This is difficult to see in the plot due to the predation
-mortality being so high for the smaller individuals.
+almost 0. This is difficult to see in the summary plot because the
+predation mortality is so high for the smaller individuals.
 
-We can see this more clearly by extracting the predation mortality
-information from the `MizerSim` object, `sim`, that we created above.
-This is easily done by using the
-[`getPredMort()`](https://sizespectrum.org/mizer/reference/getPredMort.md)
-function (see the help page for more details). There are several
-functions that can be used for extracting information from a `MizerSim`
-object,
-e.g. [`getFeedingLevel()`](https://sizespectrum.org/mizer/reference/getFeedingLevel.md)
+Each panel of the summary plot is also available as a plot function of
+its own. Here we use
+[`plotPredMort()`](https://sizespectrum.org/mizer/reference/plotPredMort.md)
+to look at the predation mortality alone. Because the predation
+mortality spans many orders of magnitude we ask for a logarithmic y axis
+as well as the logarithmic x axis that these plots use by default:
+
+``` r
+
+plotPredMort(sim, log_y = TRUE)
+```
+
+![The plot shows the predation mortality at size in the final time step
+of the community model projection. Both axes are on a log scale. The
+predation mortality declines to almost zero for the largest
+sizes.](community_model_files/figure-html/print_plot_comm_m2-1.png)
+
+Now the decline of the predation mortality to almost zero for the
+largest sizes is clearly visible. There are analogous functions for the
+other panels of the summary plot:
+[`plotFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md),
+[`plotFMort()`](https://sizespectrum.org/mizer/reference/plotFMort.md),
+[`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md)
 and
-[`getFMort()`](https://sizespectrum.org/mizer/reference/getFMort.md).
-For more information see [the section on exploring the simulation
-results](https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.md).
-Here we just call
-[`getPredMort()`](https://sizespectrum.org/mizer/reference/getPredMort.md)
-using the `sim` object:
+[`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md).
+They all accept a `MizerSim` object, in which case they show the final
+time step of the simulation, or a `MizerParams` object, in which case
+they show the state that the `MizerParams` object describes.
+
+If you want the numbers behind such a plot rather than the picture,
+there is a `get...()` function for each of them. Here we use
+[`getPredMort()`](https://sizespectrum.org/mizer/reference/getPredMort.md):
 
 ``` r
 
 pred_mort <- getPredMort(sim)
+dim(pred_mort)
 ```
 
-The resulting `pred_mort` object is an array that contains the predation
-mortality at time by species by size. Here we only have one species so
-the species dimension is dropped, leaving us with a two dimensional
-array of time by size. We projected the model for \\50\\ time steps but
-the length of the time dimension is \\51\\ as the initial population is
-also included as a time step. We can get the index of the final time
-with
+    ## [1]  51 100
+
+The resulting `pred_mort` object contains the predation mortality at
+time by species by size. Here we have only one species, so the species
+dimension is dropped, leaving us with a two-dimensional array of time by
+size. We projected the model for \\50\\ time steps but the length of the
+time dimension is \\51\\ because the initial state is also stored.
+
+Rather than picking the final row out of that array by hand, you extract
+the state of the model at the final time step with
+[`finalParams()`](https://sizespectrum.org/mizer/reference/getParams.md).
+This returns a `MizerParams` object holding the abundances at the end of
+the simulation, which you can then hand to any of the `get...()` or
+`plot...()` functions:
 
 ``` r
 
-idxFinalT(sim)
+pred_mort_final <- getPredMort(finalParams(sim))
 ```
 
-    ## [1] 51
+The related function `getParams(sim, time_range = ...)` gives you the
+state averaged over any period of the simulation, and
+`initialParams(sim)` gives the state the simulation started from.
 
-To pull out the predation mortality at size in the final time step we
-use:
+The object returned by
+[`getPredMort()`](https://sizespectrum.org/mizer/reference/getPredMort.md)
+is a mizer array that knows its own units and the model it came from, so
+it can plot itself. The following produces the same plot as
+[`plotPredMort()`](https://sizespectrum.org/mizer/reference/plotPredMort.md)
+above:
 
 ``` r
 
-pred_mort_final <- pred_mort[idxFinalT(sim), ]
+plot(pred_mort_final, log_y = TRUE)
 ```
 
-If you plot this predation mortality on a log-log scale you can see how
-the predation mortality declines to almost zero for the largest sizes.
+![The predation mortality at size in the final time step, plotted
+directly from the array returned by
+getPredMort().](community_model_files/figure-html/plot_m2_array-1.png)
 
-``` r
-
-plot(x = w(params), y = pred_mort_final, log = "xy", type = "l", 
-     xlab = "Size [g]", ylab = "Predation mortality [1/year]")
-```
-
-![The plot shows the predation mortality at size in the final time step
-of the community model projection. The x-axis is on a log scale. The
-predation mortality declines to almost zero for the largest
-sizes.](community_model_files/figure-html/print_plot_comm_m2-1.png)
-
-Note how we used `w(params)` to get the vector of sizes to plot along
-the x-axis and how we specified that we wanted to have logarithmic axes.
-
-In the long run it is worthwhile to use the ggplot2 package for creating
-plots, so we show also how you would create the above graph with
-[`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html). For
-more detail see the section on [using ggplot2 and plotly with
-mizer](https://sizespectrum.org/mizer/articles/plotting.md).
-
-``` r
-
-library(ggplot2)
-sd <- data.frame(x = w(params), y = pred_mort_final)
-ggplot(sd, aes(x = x, y = y)) +
-  geom_line() +
-  scale_x_log10() + scale_y_log10() +
-  xlab("Size [g]") + ylab("Predation mortality [1/year]")
-```
-
-    ## Warning in scale_y_log10(): log-10 transformation introduced
-    ## infinite values.
-
-![The plot shows the predation mortality at size in the final time step
-of the community model projection. This plot was created with
-ggplot2.](community_model_files/figure-html/unnamed-chunk-4-1.png)
+This works for the result of any of the summary functions, so you rarely
+need to write plotting code of your own. See the guide on [analysing and
+plotting
+results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.md)
+for the full set of functions and the arguments they share.
 
 ## Example of a trophic cascade with the community model
 
@@ -338,9 +349,9 @@ sim0 <- project(params_knife, effort = 0, t_max = 50)
 
 Now we want to simulate again, this time with fishing. In the
 simulations, fishing mortality is calculated as the product of the
-fishing selectivity, effort and catchability (see [the section on
-fishing
-gears](https://sizespectrum.org/mizer/articles/multispecies_model.html#sec:fishing_gear)
+fishing selectivity, effort and catchability (see [the guide on setting
+up
+fishing](https://sizespectrum.org/mizer/articles/guide-set-up-fishing.md)
 for more details). By default catchability is set to 1. This means that
 a fishing effort of 1 will result in a fishing mortality of 1/year for
 fully selected sizes. Here we run a simulation with fishing effort set
@@ -365,14 +376,14 @@ plot(sim1, biomass = TRUE, per_log_size = TRUE)
 ![A summary plot of the simulation with
 fishing.](community_model_files/figure-html/print_plot_comm_fmort-1.png)
 
-To explore the presence of a trophic cascade, we are interested in
-looking at the relative change in abundance when the community is fished
-compared to when it is not fished. To do this we need to get the
-abundances at size from the simulation objects. This is done with the
+To explore the presence of a trophic cascade, we are interested in the
+change in abundance when the community is fished compared to when it is
+not fished. The abundances at size are held in the `MizerSim` object and
+are obtained with the
 [`N()`](https://sizespectrum.org/mizer/reference/N.md) function, which
 returns a three dimensional array with dimensions time x species x size.
 Here we have 51 time steps (50 from the simulation plus one which stores
-the initial population), 1 species and 100 sizes:
+the initial state), 1 species and 100 sizes:
 
 ``` r
 
@@ -381,46 +392,70 @@ dim(N(sim0))
 
     ## [1]  51   1 100
 
-We want the abundances in the final time step, and we can use these to
-calculate the relative abundances:
-
-``` r
-
-relative_abundance <- N(sim1)[51, , ] / N(sim0)[51, , ]
-```
-
-For convenience, to save you from having to determine the index of the
-final time, mizer provides the function
-[`finalN()`](https://sizespectrum.org/mizer/reference/finalN.md), so we
-could have done
+We are interested in the abundances at the final time step. Instead of
+working out the index of the final time yourself, use
+[`finalN()`](https://sizespectrum.org/mizer/reference/finalN.md), which
+is the counterpart of
+[`finalParams()`](https://sizespectrum.org/mizer/reference/getParams.md)
+for the abundances alone. The ratio of the two gives us the abundance in
+the fished community relative to the unfished one:
 
 ``` r
 
 relative_abundance <- finalN(sim1) / finalN(sim0)
+range(relative_abundance)
 ```
 
-This can then be plotted using basic R plotting commands.
+    ## [1] 3.496447e-21 2.548582e+00
+
+We do not need to plot that by hand, though, because mizer has a
+function for exactly this comparison.
+[`plotSpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md)
+takes two models or simulations and plots the difference between their
+spectra relative to their average, i.e. \\2(N_1(w) - N_0(w)) / (N_1(w) +
+N_0(w))\\. This is a more comfortable measure than the plain ratio,
+because it stays in the range from \\-2\\ to \\2\\ however extreme the
+change is: values above zero mark sizes that are more abundant in the
+fished community, values below zero sizes that are less abundant.
+Because the factors of \\w\\ cancel in a relative difference, it makes
+no difference here whether you think in terms of number density or
+biomass density.
 
 ``` r
 
-plot(x = w(params), y = relative_abundance, log = "x", type = "n",
-    xlab = "Size (g)", ylab = "Relative abundance")
-lines(x = w(params), y = relative_abundance)
-lines(x = c(min(w(params)), max(w(params))), y = c(1, 1), lty = 2)
+plotSpectraRelative(sim0, sim1)
 ```
 
-![The plot shows the relative abundance of the community when fished
-compared to when not
-fished.](community_model_files/figure-html/plot_relative_comm_abund-1.png)
+![The plot shows the relative difference between the abundance of the
+fished and the unfished community at each size, with a strong reduction
+above 1000 g and alternating increases and decreases at smaller
+sizes.](community_model_files/figure-html/plot_relative_comm_abund-1.png)
 
-The impact of fishing on species larger than 1000g can be clearly seen.
-The fishing pressure lowers the abundance of large fish (the decrease in
-relative abundance at 1000 g). This then relieves the predation pressure
-on their smaller prey (the preferred predator-prey size ratio is given
-by the \\\beta\\ parameter, which is set to 100 by default), leading to
-an increase in their abundance. This in turn increases the predation
-mortality on their smaller prey, which reduces their abundance and so
-on.
+If you would rather see the two spectra themselves instead of their
+difference,
+[`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md)
+overlays them. Fishing removes the large individuals almost entirely, so
+we use `ylim` to cut off the very bottom of the y axis and keep the
+interesting part of the plot readable:
+
+``` r
+
+plotSpectra2(sim0, sim1, name1 = "Unfished", name2 = "Fished",
+             per_log_size = TRUE, ylim = c(1, NA))
+```
+
+![The biomass density spectra of the unfished and the fished community
+overlaid, showing the collapse of the fished spectrum above 1000 g and
+the alternating bumps and dips it develops at smaller
+sizes.](community_model_files/figure-html/plot_spectra2_comm-1.png)
+
+The impact of fishing on individuals larger than 1000 g can be clearly
+seen. The fishing pressure lowers the abundance of large fish. This then
+relieves the predation pressure on their smaller prey (the preferred
+predator-prey size ratio is given by the \\\beta\\ parameter, which is
+set to 100 by default), leading to an increase in their abundance. This
+in turn increases the predation mortality on *their* smaller prey, which
+reduces their abundance and so on down the spectrum.
 
 ## The impact of changing \\\sigma\\
 
@@ -431,8 +466,8 @@ value of \\\sigma\\ can affect the dynamics of the community.
 In the examples above, \\\sigma\\ is set in the
 [`newCommunityParams()`](https://sizespectrum.org/mizer/reference/newCommunityParams.md)
 function by default to a value of \\2\\. We can see this by looking at
-the `sigma` column of the species_params data frame that is contained in
-the MizerParams object:
+the `sigma` column of the species parameter data frame that is contained
+in the MizerParams object:
 
 ``` r
 
@@ -502,7 +537,10 @@ ecological significance of the change in dynamics, and of the ability of
 simple community models to show chaotic behaviour, is still being
 debated. It can be argued that the size of the oscillations are too
 large to be ‘true’. Additionally, when a trait-based model is
-implemented, the magnitude of the oscillations are much smaller.
+implemented, the magnitude of the oscillations are much smaller. Mizer
+provides tools for investigating when a model loses its stability in
+this way; see the guide on [analysing the stability of a
+model](https://sizespectrum.org/mizer/articles/guide-analyse-stability.md).
 
 The next section is about [the trait based
 model.](https://sizespectrum.org/mizer/articles/trait_model.md)

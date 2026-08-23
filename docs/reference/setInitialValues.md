@@ -2,9 +2,9 @@
 
 **\[deprecated\]** This function is deprecated. Use
 [`getParams()`](https://sizespectrum.org/mizer/reference/getParams.md),
-[`initialParams()`](https://sizespectrum.org/mizer/reference/initialParams.md),
+[`initialParams()`](https://sizespectrum.org/mizer/reference/getParams.md),
 or
-[`finalParams()`](https://sizespectrum.org/mizer/reference/finalParams.md)
+[`finalParams()`](https://sizespectrum.org/mizer/reference/getParams.md)
 instead. These functions return a `MizerParams` object with the
 ecosystem state extracted from a simulation.
 

@@ -2,6 +2,7 @@
 # and saves the results to vignettes/discontinuous_rates.rds
 
 devtools::load_all(".")
+source("dev_scripts/saved_results.R")
 
 params <- NS_params
 initial_effort(params)["Otter"] <- 1.5
@@ -130,5 +131,4 @@ res <- list(
     stab_hard_settled = stab_hard_settled
 )
 
-saveRDS(res, "vignettes/discontinuous_rates.rds")
-message("Saved vignettes/discontinuous_rates.rds")
+save_with_report(res, "vignettes/discontinuous_rates.rds")

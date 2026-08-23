@@ -138,9 +138,7 @@ density update and so cannot see a threshold being crossed within a
 step.
 
 The symptoms are quiet: mizer issues no warning, but the trajectory
-keeps changing as you refine `dt`,
-[`steadyNewton()`](https://sizespectrum.org/mizer/reference/steadyNewton.md)
-stalls, and
+keeps changing as you refine `dt`, the Newton solver stalls, and
 [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
 reports a confident but meaningless answer. Choosing the L-stable
 `method = "tr_bdf2"` in

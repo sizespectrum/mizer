@@ -1,6 +1,6 @@
 # Signal information about a choice mizer made
 
-Raises the condition that
+**\[experimental\]** Raises the condition that
 [`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.md)
 collects. This is the way for mizer, and for anything extending it, to
 tell the user about a default it filled in, an input it adjusted or an

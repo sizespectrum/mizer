@@ -101,6 +101,20 @@ points an agent at the API index for the mizer it has, so it must ship:
 do not add it to `.Rbuildignore`. Follow
 `.claude/skills/build-documentation.md`.
 
+**Articles with pre-computed results** —
+`vignettes/discontinuous_rates.Rmd` and
+`vignettes/dynamic_stability.Rmd` would each take many minutes to knit,
+so their long-running calculations live in
+`dev_scripts/save_<article>.R`, which writes `vignettes/<article>.rds`.
+The article loads that file in its setup chunk, shows the expensive code
+with `eval = FALSE`, and displays the saved objects from a following
+`echo = FALSE` chunk. The script and the article therefore hold the same
+code twice: **change one and you must change the other and re-run the
+script**, or the article will show numbers that its own code no longer
+produces. Save small objects — a rate array or a summary data frame, not
+a `MizerSim`; `plotBiomass(sim)` is `plot(getBiomass(sim))`, and the
+biomass array carries everything the plot needs.
+
 ## Domain Architecture & Workflows
 
 Before modifying, designing, or debugging core features, consult the
@@ -110,14 +124,14 @@ documented in `inst/skills/`:
 | When working on… | Consult skill |
 |----|----|
 | Modifying parameter accessors, downward propagation, rate setters, or freeze mechanisms | `inst/skills/change-parameters/SKILL.md` |
-| Calibration functions (`steady`, `calibrateBiomass`, `matchGrowth`), steady states, or reproduction levels | `inst/skills/calibrate-model/SKILL.md` |
+| Calibration functions (`tuneSteadyState`, `calibrateBiomass`, `matchGrowth`), steady states, or reproduction levels | `inst/skills/calibrate-model/SKILL.md` |
 | Extension points (`setExtEncounter`, `setExtMort`, `setComponent`, `setRateFunction`) | `inst/skills/extend-mizer/SKILL.md` |
 | Packaging an extension: `.onLoad` registration, marker classes, [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) dispatch, bundled data, upgrading saved objects | `inst/skills/create-extension-package/SKILL.md` |
 | The extension chain, or saving/reading params and sim objects | `inst/skills/use-extension-packages/SKILL.md` |
 | Model constructors (`newMultispeciesParams`, etc.), size grids, or allometric defaults | `inst/skills/build-model/SKILL.md` |
 | Fishing gears, selectivity functions, catchability, or `gear_params` | `inst/skills/set-up-fishing/SKILL.md` |
 | Simulation stepping, projection methods, or effort scenarios | `inst/skills/run-simulation/SKILL.md` |
-| Stability analysis, limit cycles, `steadyNewton`, or `getStability` | `inst/skills/analyse-stability/SKILL.md` |
+| Stability analysis, limit cycles, the `solver` argument, or `getStability` | `inst/skills/analyse-stability/SKILL.md` |
 | Summary or plotting functions | `inst/skills/analyse-and-plot/SKILL.md` |
 | Renaming/deprecating arguments, changing defaults, or investigating breaking changes | `inst/skills/upgrade-mizer-code/SKILL.md` |
 

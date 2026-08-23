@@ -24,8 +24,7 @@ ecosystem — building, calibrating and projecting a Celtic Sea model.
 
 If you run into any difficulties or have any questions or suggestions,
 let us know about it by posting about it on our [issue
-tracker](https://github.com/sizespectrum/mizer/issues/new). You can also
-twitter to @[mizer_model](https://twitter.com/mizer_model). We love to
+tracker](https://github.com/sizespectrum/mizer/issues/new). We love to
 hear from you.
 
 ![Mizer workflow diagram](images/workflow.png)
@@ -60,7 +59,6 @@ to build upon:
 
 - [Guide: Using mizer extension
   packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
-
 - [Guide: Creating a mizer extension
   package](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
 
@@ -123,41 +121,38 @@ your computer by following the instructions at
 
 Alternatively, if you can not or do not want to install R on your
 computer, you can also work with R and RStudio in your internet browser
-by creating yourself a free account at <https://rstudio.cloud>. There
-you can then install mizer as described above. Running mizer in the
-RStudio Cloud may be slightly slower than running it locally on your
+by creating yourself a free account at <https://posit.cloud/plans/free>.
+There you can then install mizer as described above. Running mizer in
+the RStudio Cloud may be slightly slower than running it locally on your
 machine, but the speed is usually quite acceptable.
 
 This guide assumes that you will be using RStudio to work with R. There
 is really no reason not to use RStudio and it makes a lot of things much
 easier. RStudio develops rapidly and adds useful features all the time
 and so it pays to upgrade to the [latest
-version](https://posit.co/download/rstudio-desktop/) frequently. This
-guide was written with version 2023.12.1.
+version](https://docs.posit.co/ide/user/#rstudio-ide-oss-downloads)
+frequently.
 
 The source code for mizer is hosted on
 [GitHub](https://github.com/sizespectrum/mizer). If you are feeling
 brave and wish to try out a development version of mizer you can install
-the package from here using the R package devtools (which was used
-extensively in putting together mizer). If you have not yet installed
-devtools, do
+the package from there, using the pak package. If you have not yet
+installed pak, do
 
 ``` r
 
-install.packages("devtools")
+install.packages("pak")
 ```
 
 Then you can install the latest version from GitHub using
 
 ``` r
 
-devtools::install_github("sizespectrum/mizer")
+pak::pak("sizespectrum/mizer")
 ```
 
-Using the same
-[`devtools::install_github()`](https://devtools.r-lib.org/reference/install-deprecated.html)
-function you can also install code from forked mizer repositories or
-from other branches on the official repository.
+Using the same function you can also install code from forked mizer
+repositories or from other branches on the official repository.
 
 ## Setting the model parameters
 
@@ -167,8 +162,9 @@ size-spectrum models using the same basic tools and methods.
 Setting the model parameters is done by creating an object of
 [`class ? MizerParams`](https://sizespectrum.org/mizer/reference/MizerParams-class.md).
 This includes model parameters such as the life history parameters of
-each species, and the fishing gears. For each type of sizespectrum model
-there is a function for creating a new MizerParams object,
+each species, resource parameters and the fishing gears. For each type
+of sizespectrum model there is a function for creating a new MizerParams
+object,
 [`newSingleSpeciesParams()`](https://sizespectrum.org/mizer/reference/newSingleSpeciesParams.md),
 [`newCommunityParams()`](https://sizespectrum.org/mizer/reference/newCommunityParams.md),
 [`newTraitParams()`](https://sizespectrum.org/mizer/reference/newTraitParams.md)
@@ -202,9 +198,9 @@ calculated default values for many others (for example the maximum
 intake rate `h` and the search volume `gamma`) using size-based theory.
 These notes are informational, not errors: they simply flag the
 parameters you may want to refine later once you calibrate the model to
-data. We have suppressed them here to keep the output short. Calibrating
-such a model to observed biomasses and yields is demonstrated in the
-[worked example](#a-worked-example-the-celtic-sea) below.
+data. Calibrating such a model to observed biomasses and yields is
+demonstrated in the [worked example](#a-worked-example-the-celtic-sea)
+below.
 
 ## Running a simulation
 
@@ -221,10 +217,9 @@ This produces an object of class `MizerSim` which contains the results
 of the simulation. In this example we chose to set some parameters of
 the [`project()`](https://sizespectrum.org/mizer/reference/project.md)
 function to specify that we want to project 10 years into the future,
-under the assumption of unit fishing effort. You can see the help page
-for [`project()`](https://sizespectrum.org/mizer/reference/project.md)
-for more details and it is described fully in [the section on running a
-simulation.](https://sizespectrum.org/mizer/articles/running_a_simulation.html)
+under the assumption of unit fishing effort. You can find more details
+in the
+<https://sizespectrum.org/mizer/articles/guide-run-simulation.html>
 
 ## Exploring the results
 
@@ -264,8 +259,8 @@ getProportionOfLargeFish(sim,
 We can then use the full power of R to work with these results.
 
 The functionality provided by mizer to explore the simulation results is
-more fully described in [the section on exploring the simulation
-results.](https://sizespectrum.org/mizer/articles/exploring_the_simulation_results.html)
+more fully described in the [Guide: Analysing and plotting
+results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.html)
 
 ## A worked example: the Celtic Sea
 
@@ -318,34 +313,34 @@ celtic_interaction    <- as.matrix(read.csv("celtic_interaction.csv",
 ```
 
 The species-parameter data frame has one row per species. Besides the
-required maximum size `w_max` it carries a few life-history parameters
-and, crucially, the **observed** average biomass of each species
-(`biomass_observed`, in grams per square metre) that we will calibrate
-to. Some species have no observation and are left as `NA`.
+required asymptotic size `l_inf` it carries a few life-history
+parameters and, crucially, the **observed** average biomass of each
+species (`biomass_observed`, in grams per square metre) that we will
+calibrate to. Some species have no observation and are left as `NA`.
 
 ``` r
 
-celtic_species_params[, c("species", "w_max", "biomass_observed")]
+celtic_species_params[, c("species", "l_inf", "biomass_observed")]
 ```
 
-    ##           species       w_max biomass_observed
-    ## 1         Herring   307.31559      0.300000000
-    ## 2           Sprat    35.84195      0.295749801
-    ## 3             Cod 41561.32628      0.008179382
-    ## 4         Haddock  6669.92227      0.067381049
-    ## 5         Whiting  2611.42837      0.070079361
-    ## 6    Blue whiting   599.82211      1.188248745
-    ## 7     Norway Pout   319.77787      0.172520253
-    ## 8        Poor Cod   711.87913               NA
-    ## 9   European Hake 15506.13615      0.164362236
-    ## 10       Monkfish 21478.67091      0.048720611
-    ## 11 Horse Mackerel   518.58232               NA
-    ## 12       Mackerel  1857.47965               NA
-    ## 13     Common Dab   640.30873               NA
-    ## 14         Plaice  3133.64249      0.022404698
-    ## 15         Megrim  1556.92834      0.074079322
-    ## 16           Sole  1979.31808      0.063519261
-    ## 17       Boarfish   278.92128               NA
+    ##           species  l_inf biomass_observed
+    ## 1         Herring  31.10      0.300000000
+    ## 2           Sprat  14.65      0.295749801
+    ## 3             Cod 110.00      0.008179382
+    ## 4         Haddock  69.00      0.067381049
+    ## 5         Whiting  41.30      0.070079361
+    ## 6    Blue whiting  36.00      1.188248745
+    ## 7     Norway Pout  21.55      0.172520253
+    ## 8        Poor Cod  24.70               NA
+    ## 9   European Hake  82.80      0.164362236
+    ## 10       Monkfish 137.00      0.048720611
+    ## 11 Horse Mackerel  40.85               NA
+    ## 12       Mackerel  42.00               NA
+    ## 13     Common Dab  33.20               NA
+    ## 14         Plaice  54.40      0.022404698
+    ## 15         Megrim  50.40      0.074079322
+    ## 16           Sole  38.30      0.063519261
+    ## 17       Boarfish  14.40               NA
 
 ### Building the model
 
@@ -372,13 +367,16 @@ suppressed them here to keep the output short.
 ### Finding the steady state
 
 A freshly built model has only a rough spectrum.
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) runs
-the size-spectrum dynamics, holding reproduction and the resource fixed,
-until the community settles onto a steady state.
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+runs the size-spectrum dynamics, holding reproduction and the resource
+fixed, until the community settles onto a steady state. It then adjusts
+the reproduction and resource parameters so that the held values are
+steady too — which is why it is called *tuning* the model to a steady
+state rather than merely finding one.
 
 ``` r
 
-cel <- steady(cel)
+cel <- tuneSteadyState(cel)
 plotSpectra(cel, per_log_size = TRUE)
 ```
 
@@ -393,9 +391,9 @@ size-spectrum model.
 The steady state is self-consistent, but its species abundances are
 still arbitrary. Calibration rescales them to match observation. We do
 this in stages, **re-running
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) after
-every adjustment** because each change pushes the community off its
-steady state:
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+after every adjustment** because each change pushes the community off
+its steady state:
 
 - [`calibrateBiomass()`](https://sizespectrum.org/mizer/reference/calibrateBiomass.md)
   sets the overall abundance scale (the resource level `kappa`) so that
@@ -419,7 +417,7 @@ cel <- calibrateBiomass(cel)
 for (i in 1:4) {
     cel <- matchBiomasses(cel)
     cel <- matchGrowth(cel)
-    cel <- steady(cel)
+    cel <- tuneSteadyState(cel)
 }
 ```
 
@@ -498,10 +496,10 @@ yield — the yield that could be taken indefinitely at that effort.
 
 ``` r
 
-efforts <- c(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2)
+efforts <- seq(0, 2, by = 0.2)
 sustainable_yield <- sapply(efforts, function(e) {
-    p <- projectToSteady(cel, effort = e, t_max = 100,
-                         return_sim = FALSE, progress_bar = FALSE)
+    p <- findSteadyState(cel, effort = e, t_max = 100,
+                         progress_bar = FALSE)
     sum(getYield(p))
 })
 
@@ -532,7 +530,7 @@ calibrated to biomass and growth.
 This is only the beginning of what the calibrated model can tell you.
 From here you could look at individual species’ yield curves to find
 each stock’s own \\F\_\text{MSY}\\
-([`plotYieldVsF()`](https://sizespectrum.org/mizerExperimental/reference/plotYieldVsF.html)),
+([`plotYieldVsF()`](https://sizespectrum.org/mizer/reference/plotYieldVsF.md)),
 change the gear selectivity to protect juveniles, or explore how the
 community size spectrum flattens under fishing. The [Use part of the
 course](https://mizer.course.sizespectrum.org/use/) develops several

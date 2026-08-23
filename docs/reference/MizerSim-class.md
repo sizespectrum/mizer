@@ -30,9 +30,9 @@ final time in the arrays returned by the other functions.
 [`getParams()`](https://sizespectrum.org/mizer/reference/getParams.md)
 extracts the ecosystem state as a `MizerParams` object with initial
 abundances set to values from the simulation;
-[`finalParams()`](https://sizespectrum.org/mizer/reference/finalParams.md)
+[`finalParams()`](https://sizespectrum.org/mizer/reference/getParams.md)
 and
-[`initialParams()`](https://sizespectrum.org/mizer/reference/initialParams.md)
+[`initialParams()`](https://sizespectrum.org/mizer/reference/getParams.md)
 are convenient shorthands for the final and initial time steps. There
 are also several
 [summary_functions](https://sizespectrum.org/mizer/reference/summary_functions.md)
@@ -91,5 +91,5 @@ upgrade it with
 
   A named list of the parameters passed to
   [`project()`](https://sizespectrum.org/mizer/reference/project.md) or
-  [`projectToSteady()`](https://sizespectrum.org/mizer/reference/projectToSteady.md)
+  [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
   to produce this simulation, such as `method` and `dt`.

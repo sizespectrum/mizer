@@ -5,15 +5,15 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Analyse the dynamic stability of a mizer steady state — getStability"><meta name="description" content="
-Computes the eigenvalues of the linearised one-step-ahead map at the steady
-state stored in params@initial_n. These eigenvalues determine whether
-the steady state is dynamically stable and, when a Hopf bifurcation is
-approached, the period of the emergent limit cycle."><meta property="og:description" content="
-Computes the eigenvalues of the linearised one-step-ahead map at the steady
-state stored in params@initial_n. These eigenvalues determine whether
-the steady state is dynamically stable and, when a Hopf bifurcation is
-approached, the period of the emergent limit cycle."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Analyse the dynamic stability of a mizer steady state — getStability"><meta name="description" content="
+Computes the eigenvalues of the linearised dynamics at the steady state
+stored in params@initial_n. These eigenvalues determine whether the steady
+state is dynamically stable and, where the spectrum contains a complex pair,
+the period at which the model oscillates."><meta property="og:description" content="
+Computes the eigenvalues of the linearised dynamics at the steady state
+stored in params@initial_n. These eigenvalues determine whether the steady
+state is dynamically stable and, where the spectrum contains a complex pair,
+the period at which the model oscillates."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -21,7 +21,7 @@ approached, the period of the emergent limit cycle."><meta property="og:image" c
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.2.1.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,23 +96,15 @@ approached, the period of the emergent limit cycle."><meta property="og:image" c
 
     <div class="ref-description section level2">
     <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a>
-Computes the eigenvalues of the linearised one-step-ahead map at the steady
-state stored in <code>params@initial_n</code>. These eigenvalues determine whether
-the steady state is dynamically stable and, when a Hopf bifurcation is
-approached, the period of the emergent limit cycle.</p>
+Computes the eigenvalues of the linearised dynamics at the steady state
+stored in <code>params@initial_n</code>. These eigenvalues determine whether the steady
+state is dynamically stable and, where the spectrum contains a complex pair,
+the period at which the model oscillates.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getStability</span><span class="op">(</span></span>
-<span>  <span class="va">params</span>,</span>
-<span>  reproduction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fixed"</span>, <span class="st">"dynamic"</span><span class="op">)</span>,</span>
-<span>  effort <span class="op">=</span> <span class="va">params</span><span class="op">@</span><span class="va">initial_effort</span>,</span>
-<span>  include_resource <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  extinction_floor <span class="op">=</span> <span class="fl">1e-06</span>,</span>
-<span>  h <span class="op">=</span> <span class="fl">1e-04</span>,</span>
-<span>  dt <span class="op">=</span> <span class="fl">1</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getStability</span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="va">params</span><span class="op">@</span><span class="va">initial_effort</span>, h <span class="op">=</span> <span class="fl">1e-04</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -121,13 +113,7 @@ approached, the period of the emergent limit cycle.</p>
 
 <dl><dt id="arg-params">params<a class="anchor" aria-label="anchor" href="#arg-params"></a></dt>
 <dd><p>A <a href="MizerParams-class.html">MizerParams</a> object whose <code>initial_n</code> holds the
-steady state to analyse. Typically the output of <code><a href="steadyNewton.html">steadyNewton()</a></code>.</p></dd>
-
-
-<dt id="arg-reproduction">reproduction<a class="anchor" aria-label="anchor" href="#arg-reproduction"></a></dt>
-<dd><p>Whether the reproduction rate is held fixed (<code>"fixed"</code>,
-default) or run dynamically (<code>"dynamic"</code>) during the one-step evaluation.
-Must match the choice used when the steady state was computed.</p></dd>
+steady state to analyse. Typically the output of <code><a href="findSteadyState.html">findSteadyState()</a></code>.</p></dd>
 
 
 <dt id="arg-effort">effort<a class="anchor" aria-label="anchor" href="#arg-effort"></a></dt>
@@ -135,53 +121,20 @@ Must match the choice used when the steady state was computed.</p></dd>
 stored in <code>params</code>.</p></dd>
 
 
-<dt id="arg-include-resource">include_resource<a class="anchor" aria-label="anchor" href="#arg-include-resource"></a></dt>
-<dd><p>If <code>FALSE</code> (default) the resource is treated as a
-quasi-static fast variable: for each perturbed fish abundance the resource
-is set to its analytic steady-state value conditioned on that fish
-abundance (valid only for semichemostat resource dynamics).  If <code>TRUE</code>,
-both fish and resource cells are perturbed independently and the resource
-is evolved with the full resource dynamics function stored in
-<code>params@resource_dynamics</code>, giving the complete coupled Jacobian.</p></dd>
-
-
-<dt id="arg-extinction-floor">extinction_floor<a class="anchor" aria-label="anchor" href="#arg-extinction-floor"></a></dt>
-<dd><p>Relative abundance floor for the dynamic reproduction
-case. Default is <code>1e-6</code>.</p></dd>
-
-
 <dt id="arg-h">h<a class="anchor" aria-label="anchor" href="#arg-h"></a></dt>
 <dd><p>Relative step size for centred finite differences. Default <code>1e-4</code>.
-The result should not depend on this choice. If it does, the one-step map
-is not smooth at the state being analysed — see the section below.</p></dd>
-
-
-<dt id="arg-dt">dt<a class="anchor" aria-label="anchor" href="#arg-dt"></a></dt>
-<dd><p>The time step size to use for evaluating the numerical one-step map.
-Default <code>1</code>. The continuous eigenvalues are independent of this choice, but
-the discrete eigenvalues and <code>spectral_radius</code> returned will reflect the
-stability of mizer's numerical Euler method exactly for this step size.</p></dd>
+The result should not depend on this choice. If it does, the dynamics are
+not smooth at the state being analysed — see the section below.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A named list with the following components:</p><dl><dt><code>eigenvalues</code></dt>
-<dd><p>Complex vector of the valid continuous-time
-eigenvalues (\(\lambda_i = (1 - 1/\mu_i) / dt\)), sorted by decreasing real part.
-These describe the stability of the underlying continuous ODEs/PDEs.</p></dd>
-
-<dt><code>discrete_eigenvalues</code></dt>
-<dd><p>Complex vector of the raw discrete eigenvalues
-\(\mu_i\) of the numerical one-step map (evaluated at step size <code>dt</code>), sorted by decreasing real part
-of their continuous counterparts.</p></dd>
-
-<dt><code>spectral_radius</code></dt>
-<dd><p>The spectral radius of the numerical one-step map
-evaluated at step size <code>dt</code>: \(\max_i|\mu_i|\). A value less than 1 indicates
-that the numerical scheme is stable.</p></dd>
+<dd><p>Complex vector of the continuous-time eigenvalues
+\(\lambda_i\), sorted by decreasing real part.</p></dd>
 
 <dt><code>max_real_part</code></dt>
-<dd><p>The largest real part of the continuous eigenvalues:
+<dd><p>The largest real part of the eigenvalues:
 \(\max_i \text{Re}(\lambda_i)\). Greater than 0 means unstable.</p></dd>
 
 <dt><code>stable</code></dt>
@@ -189,32 +142,53 @@ that the numerical scheme is stable.</p></dd>
 
 <dt><code>dominant_period</code></dt>
 <dd><p>The period (in years) of the dominant
-continuous eigenvalue: <code>2*pi / abs(Im(lambda_1))</code>. <code>Inf</code> for a real positive
+eigenvalue: <code>2*pi / abs(Im(lambda_1))</code>. <code>Inf</code> for a real
 dominant eigenvalue (monotone dynamics).</p></dd>
 
-<dt><code>hopf_period</code></dt>
-<dd><p>Period (in years) of the complex continuous eigenvalue
-with the largest real part; <code>NULL</code> when no complex eigenvalue
-exists.  This is the expected limit-cycle period near a Hopf
-bifurcation.</p></dd>
+<dt><code>oscillation_period</code></dt>
+<dd><p>Period (in years) of the oscillatory mode
+below, \(2\pi/|\omega|\); <code>NULL</code> when no complex eigenvalue exists.
+It is the period at which the model rings, and only at a Hopf
+bifurcation — where the real part is zero — the period of a limit
+cycle.</p></dd>
+
+<dt><code>leading_oscillatory_eigenvalue</code></dt>
+<dd><p>The complex eigenvalue with the
+largest real part, or <code>NULL</code> when there is none. Its real part is the
+rate at which that oscillation grows, so a strongly negative one means
+the ringing is a transient, not a cycle the model settles onto.</p></dd>
+
+<dt><code>leading_oscillatory_eigenvector</code></dt>
+<dd><p>Its eigenvector, as a list with <code>$fish</code>, a
+complex <code>(n_species, n_sizes)</code> matrix, and <code>$resource</code>, a complex
+vector of length <code>n_w_full</code>. This is the mode <code><a href="getOscillationModeSim.html">getOscillationModeSim()</a></code>
+draws, and it is not in general one of <code>leading_eigenvectors</code>: the
+dominant mode of the system can be real while the dominant
+<em>oscillatory</em> mode is well down the spectrum.</p></dd>
 
 <dt><code>n_active</code></dt>
-<dd><p>Dimension of the Jacobian: number of active fish cells
-when <code>include_resource = FALSE</code>, or fish cells plus all resource cells
-when <code>include_resource = TRUE</code>.</p></dd>
+<dd><p>Dimension of the Jacobian: the number of active fish
+cells plus all resource cells.</p></dd>
 
 <dt><code>leading_eigenvectors</code></dt>
-<dd><p>The eigenvectors of the two largest-modulus
-eigenvalues, reshaped back into the fish abundance space.
-When <code>include_resource = FALSE</code>: a complex array of shape
-<code>(n_species, n_sizes, 2)</code> with the same species and size dimnames as
-<code>params@initial_n</code>. When <code>include_resource = TRUE</code>: a list with
-<code>$fish</code> (the same array) and <code>$resource</code> (a complex matrix of shape
-<code>(n_w_full, 2)</code> for the resource component).
-Each eigenvector is normalised so that its maximum modulus equals 1.
-The real and imaginary parts of eigenvector 1 span the two-dimensional
-oscillation plane of the dominant mode; <code><a href="https://rdrr.io/r/base/complex.html" class="external-link">Mod()</a></code> gives the amplitude
-pattern across species and sizes.</p></dd>
+<dd><p>The eigenvectors of the two eigenvalues
+with the largest real part, reshaped back into the state space: a list
+with <code>$fish</code>, a complex array of shape <code>(n_species, n_sizes, 2)</code> with
+the same species and size dimnames as <code>params@initial_n</code>, and
+<code>$resource</code>, a complex matrix of shape <code>(n_w_full, 2)</code>.
+Each eigenvector is normalised by a single scalar covering both
+blocks, so that the relative amplitude and phase between fish and
+resource are those of the mode. The scalar is chosen so that the
+largest perturbation <em>relative to the steady state</em>,
+\(|v_i| / x^*_i\), is 1 somewhere in the state: an absolute
+normalisation would be set entirely by the resource, whose densities
+dwarf the fish abundances. <code>Mod(fish[, , 1]) / initialN(params)</code> is
+therefore the relative amplitude pattern, peaking at 1 in whichever
+cell swings hardest. The real and imaginary parts of eigenvector 1
+span the two-dimensional oscillation plane of the dominant mode.</p></dd>
+
+<dt><code>params</code></dt>
+<dd><p>The validated <code>params</code> object the analysis was made at.</p></dd>
 
 
 </dl></div>
@@ -225,70 +199,106 @@ pattern across species and sizes.</p></dd>
 <h3 id="mathematical-background">Mathematical background<a class="anchor" aria-label="anchor" href="#mathematical-background"></a></h3>
 
 
-<p>The mizer time step applies a backward-Euler transport solve for the fish:
-$$A(N^t, n_{pp}^t)\,N^{t+1} = S(N^t, n_{pp}^t),$$
-and an exact semi-chemostat update for the resource:
-$$n_{pp}^{t+1} = n_{pp}^* + (n_{pp}^t - n_{pp}^*)\,e^{-\mu^t\,dt},$$
-where \(n_{pp}^* = r_{pp}\,c_{pp}/\mu^t\) is the resource steady state
-conditioned on the mortality \(\mu^t\) due to consumers at time \(t\).
-Note that this function evaluates the Jacobian of this specific first-order
-backward-Euler time step, regardless of which <code>method</code> you might later pass
-to <code><a href="project.html">project()</a></code>. However, it fully respects any higher-order spatial scheme
-configured via <code><a href="second_order_w.html">second_order_w()</a></code>.</p>
-<p>The stability is determined by the Jacobian of the full one-step-ahead map
-\(G : (N, n_{pp}) \mapsto (N^{t+1}, n_{pp}^{t+1})\) at the fixed point.</p>
-<p>When <code>include_resource = FALSE</code> (the default), the resource is treated as a
-fast variable that adjusts <em>instantaneously</em> to the consumer abundance: for
-each perturbed \(N\), \(n_{pp}\) is set to its quasi-static equilibrium
-\(n_{pp}^*(N)\).  The resulting reduced Jacobian \(L_{\text{red}}\) has
-dimension equal to the number of active fish cells.  This is equivalent to
-projecting the full dynamics onto the slow manifold \(n_{pp} = n_{pp}^*(N)\).</p>
-<p>When <code>include_resource = TRUE</code>, both fish and resource cells are perturbed
-independently and the full coupled Jacobian \(L_{\text{full}}\) is
-returned.  Its eigenvalues include both the slow fish modes and a cluster of
-fast resource-relaxation modes (with modulus \(e^{-\mu\,dt} \ll 1\)).
-Comparing the dominant eigenvalues of the two analyses shows how much the
-quasi-static approximation affects the stability conclusion.</p>
-<p>The discrete eigenvalues \(\mu_i\) of the numerical Jacobian are mapped back
-to their exact continuous-time equivalents \(\lambda_i = (1 - 1/\mu_i) / dt\) to
-remove the artificial temporal numerical diffusion introduced by the backward
-Euler solver. The steady state is <strong>stable</strong> when all continuous-time
-eigenvalues satisfy \(\text{Re}(\lambda_i) &lt; 0\) and <strong>unstable</strong> when at
-least one exceeds 0.</p>
-<p>A <strong>Hopf bifurcation</strong> occurs when a complex-conjugate pair of eigenvalues
-crosses the imaginary axis, giving a limit-cycle period
-$$T = \frac{2\pi}{|\text{Im}(\lambda)|} \text{ years.}$$</p>
-<p>Both branches use the same <code>project_n_loop()</code> C++ Thomas solver as the
-regular dynamics, evaluating the transport coefficients with the exact
-spatial scheme configured in <code>params</code> (e.g., first-order upwind or a
-second-order limiter). The Jacobian is computed numerically using a
-multiplicative (relative) finite-difference step \(h \cdot N^*\). Where a
-cell sits at exactly zero and so has no scale of its own, the step is floored
-at the local scale of the spectrum, interpolated from the nonzero neighbours,
-so that the cell still gets a resolved derivative rather than a column of
-rounding error.</p>
-<p>Every state at which the rate functions are evaluated satisfies
-\(N \ge 0\): where a centred step would push a cell negative — which can
-only happen for a cell at (or below) the floor described above — the column is
-differenced forwards from the unperturbed state instead. At the boundary of
-the physical cone the one-sided derivative is the appropriate object anyway,
-since the dynamics never visit the states a centred step would sample. A rate
-function registered with <code><a href="setRateFunction.html">setRateFunction()</a></code> therefore never has to be defined
-at negative abundances. Such columns are first order in <code>h</code> rather than
-second, so they respond slightly more to a change of <code>h</code> than the rest.</p>
+<p>Mizer discretises the size axis but not time: on the size grid the model is a
+system of ordinary differential equations
+$$\frac{dN}{dt} = F(N, n_{pp}),$$
+where \(F\) collects the divergence of the growth flux, the mortality sink
+and the reproductive influx at the egg size, assembled with the spatial
+scheme configured via <code><a href="second_order_w.html">second_order_w()</a></code>. <code>getStability()</code> differentiates
+\(F\) directly, by centred finite differences in each state variable, and
+returns the eigenvalues \(\lambda_i\) of the resulting Jacobian
+\(J = \partial F/\partial N\). The steady state is <strong>stable</strong> when all of
+them satisfy \(\text{Re}(\lambda_i) &lt; 0\) and <strong>unstable</strong> when at least
+one exceeds 0.</p>
+<p>No time step enters this calculation. The eigenvalues are a property of the
+model, not of any solver: they describe the continuous-time dynamics of the
+semi-discretised model, and are what a simulation with a small enough time
+step converges to. The stability of the numerical step itself is a separate
+question, answered by <code><a href="getDiscreteStability.html">getDiscreteStability()</a></code>.</p>
+<p>A complex-conjugate pair \(\lambda = \sigma \pm i\omega\) is an
+oscillatory mode: a perturbation along it rings with period
+$$T = \frac{2\pi}{|\omega|} \text{ years,}$$
+growing or decaying as \(e^{\sigma t}\). The pair with the largest
+\(\sigma\) is returned as <code>leading_oscillatory_eigenvalue</code>, with its
+period and eigenvector.</p>
+<p>That is a statement about the mode, not about a bifurcation. A <strong>Hopf
+bifurcation</strong> is the event of such a pair <em>crossing</em> the imaginary axis, and
+a single spectrum cannot show a crossing: the leading oscillatory mode of a
+comfortably stable model can sit far to the left, ringing only as a transient
+on the way back to the fixed point. Establishing a Hopf bifurcation means
+watching \(\sigma\) pass through zero as a parameter is varied, which is
+what <code><a href="scanModel.html">scanModel()</a></code> is for. Only then is \(T\) the period of an emerging
+limit cycle; otherwise it is the period of a damped (or growing) oscillation.</p>
+</div>
+
+<div class="section">
+<h3 id="what-is-in-the-jacobian">What is in the Jacobian<a class="anchor" aria-label="anchor" href="#what-is-in-the-jacobian"></a></h3>
+
+
+<p>The resource is a state variable of the system like any other: fish and
+resource cells are perturbed independently, giving the full coupled Jacobian.
+Its eigenvalues include both the slow fish modes and a cluster of fast
+resource-relaxation modes, at \(\lambda \approx -(r_{pp} + \mu_R)\). Any
+resource dynamics function is supported: the semichemostat derivative is
+written down analytically, and anything else is differenced over a short step.</p>
+<p>Components registered with <code><a href="setComponent.html">setComponent()</a></code> are <em>not</em> state variables here.
+They are held at their stored values while the fish and the resource are
+perturbed, so the spectrum is that of the consumer-resource subsystem with
+the components frozen. This is exact when a component is a fixed input, and a
+good approximation when it is much faster or much slower than the fish, but
+it is not the full model, and mizer says so with a warning when it meets one.
+Giving extension components an explicit residual and Jacobian is the work
+that would lift this restriction.</p>
+<p>Reproduction is a state-dependent rate like any other: the reproduction
+function stored in <code>params@rates_funcs$RDD</code> is evaluated at each perturbed
+state, so the feedback from the spectra back onto the influx of eggs is part
+of the Jacobian, exactly as it is part of <code><a href="project.html">project()</a></code>. There is no option to
+pin the reproduction rate at its value at the fixed point. A model in which
+reproduction really is constant expresses that as a model: with
+<code>rates_funcs$RDD = "constantRDD"</code> the derivative of the reproduction rate is
+zero and the pinned Jacobian is what the analysis returns.</p>
+<p>This is why the stability of a steady state depends on the reproduction
+parameters even though the steady state itself does not.
+<code><a href="setBevertonHolt.html">setBevertonHolt()</a></code> moves along a family of <code>erepro</code>/<code>R_max</code> pairs that all
+leave the same fixed point, but they do not all leave the same dynamics: at a
+<code><a href="setBevertonHolt.html">reproduction_level()</a></code> near 1 the reproduction rate barely responds to the
+energy invested in it, approaching the constant-reproduction case, while at a
+level near 0 it follows that energy proportionally. The two ends can differ
+in their verdict, so the analysis has to read the model rather than take an
+argument.</p>
+</div>
+
+<div class="section">
+<h3 id="numerical-details">Numerical details<a class="anchor" aria-label="anchor" href="#numerical-details"></a></h3>
+
+
+<p>The Jacobian is computed numerically using a multiplicative (relative)
+finite-difference step \(h \cdot N^*\). Where a cell sits at exactly zero
+and so has no scale of its own, the step is floored at the local scale of the
+spectrum, interpolated from the nonzero neighbours, so that the cell still
+gets a resolved derivative rather than a column of rounding error.</p>
+<p>Every state at which the rates are evaluated satisfies \(N \ge 0\): where
+a centred step would push a cell negative — which can only happen for a cell
+at (or below) the floor described above — the column is differenced forwards
+from the unperturbed state instead. At the boundary of the physical cone the
+one-sided derivative is the appropriate object anyway, since the dynamics
+never visit the states a centred step would sample. A rate function
+registered with <code><a href="setRateFunction.html">setRateFunction()</a></code> therefore never has to be defined at
+negative abundances. Such columns are first order in <code>h</code> rather than second,
+so they respond slightly more to a change of <code>h</code> than the rest.</p>
 </div>
 
     </div>
     <div class="section level2">
-    <h2 id="requires-a-smooth-one-step-map">Requires a smooth one-step map<a class="anchor" aria-label="anchor" href="#requires-a-smooth-one-step-map"></a></h2>
+    <h2 id="requires-smooth-dynamics">Requires smooth dynamics<a class="anchor" aria-label="anchor" href="#requires-smooth-dynamics"></a></h2>
 
 
-<p>The finite-difference Jacobian is only meaningful if the one-step map is
+<p>The finite-difference Jacobian is only meaningful if the rates of change are
 differentiable at \(N^*\). A custom rate function registered with
 <code><a href="setRateFunction.html">setRateFunction()</a></code> that jumps as a function of the abundances breaks this in
 two ways. If the state sits on the switching threshold, some perturbations
-straddle it and pick up the jump, and the reported spectral radius then
-varies wildly with <code>h</code>. If the state is near but not on the threshold, no
+straddle it and pick up the jump, and the reported eigenvalues then vary
+wildly with <code>h</code>. If the state is near but not on the threshold, no
 perturbation crosses it, and the function silently returns the stability of
 the single branch the state happens to lie on — which can read as <code>stable</code>
 for a model whose simulations never settle.</p>
@@ -297,7 +307,7 @@ do not trust it. See <a href="https://sizespectrum.org/mizer/articles/discontinu
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="steadyNewton.html">steadyNewton()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="findSteadyState.html">findSteadyState()</a></code>, <code><a href="getDiscreteStability.html">getDiscreteStability()</a></code>, <code><a href="getOscillationModeSim.html">getOscillationModeSim()</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -309,7 +319,7 @@ do not trust it. See <a href="https://sizespectrum.org/mizer/articles/discontinu
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

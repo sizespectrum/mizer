@@ -2,7 +2,7 @@
 
 Returns the named list of arguments passed to
 [`project()`](https://sizespectrum.org/mizer/reference/project.md) or
-[`projectToSteady()`](https://sizespectrum.org/mizer/reference/projectToSteady.md)
+[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
 when producing this `MizerSim` object, such as `method` and `dt`.
 Returns an empty list for simulations produced by older versions of
 mizer.

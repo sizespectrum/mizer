@@ -73,7 +73,7 @@ file becomes slow, add it there.
 
 Tests of functions marked `lifecycle::badge("experimental")` may be put behind an
 opt-in flag when they are slow. This currently covers `test-steadyState.R`,
-`test-steadyNewton.R` and `test-getLimitCycleSim.R`, which together were a third
+`test-steadyNewton.R` and `test-getOscillationModeSim.R`, which together were a third
 of the suite's runtime.
 
 Gate each block with the helper from `helper.R`:

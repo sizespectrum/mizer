@@ -1,6 +1,6 @@
 # Alias for `NS_interaction`
 
-**\[deprecated\]** An alias provided for backward compatibility with
+**\[superseded\]** An alias provided for backward compatibility with
 mizer version \<= 2.3
 
 ## Usage

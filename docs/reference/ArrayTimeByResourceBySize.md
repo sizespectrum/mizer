@@ -1,9 +1,10 @@
 # S3 class for time x resource-size arrays
 
-The [`NResource()`](https://sizespectrum.org/mizer/reference/N.md)
-function returns a two-dimensional array (time x size) holding the
-resource number density through time. The `ArrayTimeByResourceBySize`
-class wraps this array to provide convenient
+**\[experimental\]** The
+[`NResource()`](https://sizespectrum.org/mizer/reference/N.md) function
+returns a two-dimensional array (time x size) holding the resource
+number density through time. The `ArrayTimeByResourceBySize` class wraps
+this array to provide convenient
 [`print()`](https://sizespectrum.org/mizer/reference/print.md),
 [`summary()`](https://sizespectrum.org/mizer/reference/summary.md),
 [`plot()`](https://sizespectrum.org/mizer/reference/plot.md), and

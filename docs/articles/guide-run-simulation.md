@@ -79,8 +79,10 @@ fishing](https://sizespectrum.org/mizer/articles/guide-set-up-fishing.md).
 
 **Run to a new steady state after a change.** To get the equilibrium a
 change implies, rather than a fixed number of years, use
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) or
-[`projectToSteady()`](https://sizespectrum.org/mizer/reference/projectToSteady.md)
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md),
+[`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
+or
+[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
 from the [guide to reaching steady state and
 calibrating](https://sizespectrum.org/mizer/articles/guide-calibrate-model.md)
 instead of a long
@@ -106,9 +108,9 @@ params_t   <- getParams(sim, time_range = 2010:2015)  # averaged over a range
 sim_next   <- project(params_end, t_max = 20, effort = 0.5)
 ```
 
-[`finalParams(sim)`](https://sizespectrum.org/mizer/reference/finalParams.md)
+[`finalParams(sim)`](https://sizespectrum.org/mizer/reference/getParams.md)
 and
-[`initialParams(sim)`](https://sizespectrum.org/mizer/reference/initialParams.md)
+[`initialParams(sim)`](https://sizespectrum.org/mizer/reference/getParams.md)
 are shorthands for the final and initial steps of
 [`getParams()`](https://sizespectrum.org/mizer/reference/getParams.md).
 Prefer these over the **deprecated**
@@ -185,10 +187,11 @@ The scheme lives in the `MizerParams`, so a `MizerSim` carries it:
 comparing a run made under one setting with a run made under the other
 compares two discretisations as well as two scenarios. Recalibrate after
 switching it on —
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) handles
-the `van_leer` flux from mizer 3.3 onwards. On earlier versions it fell
-into a limit cycle there and never converged, so a model built with
-`second_order_w = TRUE` had to be settled under the default flux first.
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+handles the `van_leer` flux from mizer 3.3 onwards. On earlier versions
+it fell into a limit cycle there and never converged, so a model built
+with `second_order_w = TRUE` had to be settled under the default flux
+first.
 
 **Isolating a feedback loop.** To switch off the resource → growth
 feedback (the “phantom jam”) while keeping everything else — for example

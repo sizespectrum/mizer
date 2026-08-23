@@ -1,10 +1,11 @@
 # Signal that a rate array was not recalculated because it is frozen
 
-Raised by the rate setters when they leave a frozen array alone although
-the species parameters say that it should have a different value. It is
-reported as a message, and `info_level = 0` silences it along with the
-other information. Where no handler is collecting, for example when a
-rate setter is called directly rather than via
+**\[experimental\]** Raised by the rate setters when they leave a frozen
+array alone although the species parameters say that it should have a
+different value. It is reported as a message, and `info_level = 0`
+silences it along with the other information. Where no handler is
+collecting, for example when a rate setter is called directly rather
+than via
 [`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md),
 it is shown anyway, because it may then be all the user hears. The
 stronger

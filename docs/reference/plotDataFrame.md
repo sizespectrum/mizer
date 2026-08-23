@@ -44,9 +44,13 @@ plotDataFrame(
 - style:
 
   The style of the plot. Available options are `"line"` for
-  [`geom_line()`](https://ggplot2.tidyverse.org/reference/geom_path.html)
-  and `"area"` for
-  [`geom_area()`](https://ggplot2.tidyverse.org/reference/geom_ribbon.html).
+  [`geom_line()`](https://ggplot2.tidyverse.org/reference/geom_path.html),
+  `"area"` for
+  [`geom_area()`](https://ggplot2.tidyverse.org/reference/geom_ribbon.html),
+  and `"ribbon"` and `"envelope"` for a band drawn between the `ymin`
+  and `ymax` variables, which must then be present in `frame`.
+  `"ribbon"` draws the y variable as a line inside the band;
+  `"envelope"` draws lines along the two edges of the band instead.
   Default is `"line"`.
 
 - xlab:

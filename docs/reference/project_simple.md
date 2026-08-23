@@ -110,10 +110,9 @@ The reason the function does not do that itself is to shave 20
 microseconds of its running time, which pays when the function is called
 hundreds of times in a row.
 
-This function is also used in
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md). In
-between calls to `project_simple()` the
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md)
+This function is also used by the steady-state finders. In between calls
+to `project_simple()` the
+[`steady()`](https://sizespectrum.org/mizer/reference/superseded_steady.md)
 function checks whether the values are still changing significantly, so
 that it can stop when a steady state has been approached. Mizer
 extension packages might have a similar need to run a simulation

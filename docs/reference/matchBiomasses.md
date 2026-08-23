@@ -43,10 +43,10 @@ The function works by multiplying for each species the abundance density
 at all sizes by the same factor. This will of course not give a steady
 state solution, even if the initial abundance densities were at steady
 state. So after using this function you may want to use
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.md) to run
-the model to steady state, after which of course the biomasses will no
-longer match exactly. You could then iterate this process. This is
-described in the blog post at
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+to run the model to steady state, after which of course the biomasses
+will no longer match exactly. You could then iterate this process. This
+is described in the blog post at
 <https://blog.mizer.sizespectrum.org/posts/2021-08-20-a-5-step-recipe-for-tuning-the-model-steady-state/>.
 
 Before you can use this function you will need to have added a
@@ -69,6 +69,6 @@ species_params(params)$biomass_observed <-
 species_params(params)$biomass_cutoff <- 10
 params <- calibrateBiomass(params)
 params <- matchBiomasses(params)
-#> `matchBiomasses()` has rescaled the model and so moved it off its steady state. Run `steady()` to settle it again. You can check with `getSteadyResidual()`.
+#> `matchBiomasses()` has rescaled the model and so moved it off its steady state. Run `tuneSteadyState()` to settle it again. You can check with `getSteadyResidual()`.
 plotBiomassObservedVsModel(params)
 ```

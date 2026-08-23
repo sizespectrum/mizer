@@ -3,7 +3,7 @@
 **\[experimental\]**
 
 This function can be used in
-[`projectToSteady()`](https://sizespectrum.org/mizer/reference/projectToSteady.md)
+[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
 to decide when sufficient convergence to steady state has been achieved.
 
 ## Usage
