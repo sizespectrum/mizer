@@ -167,3 +167,14 @@ test_that("scan_gear_installed() requires the name to be the scan's alone", {
     expect_equal(unclass(getFMort(r2))["Herring", ],
                  unclass(getFMort(r1))["Herring", ])
 })
+
+test_that("scanFishingMortality() provides reference_lines attribute", {
+    f <- scanFishingMortality("Cod")
+    ref_fn <- attr(f, "reference_lines")
+    expect_true(is.function(ref_fn))
+    expect_identical(ref_fn(NS_params_small), c("Current F" = 0.5))
+
+    p <- NS_params_small
+    p@species_params$F_MSY <- c(NA, NA, 0.35)
+    expect_identical(ref_fn(p), c("Current F" = 0.5, F_MSY = 0.35))
+})

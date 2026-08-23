@@ -45,8 +45,9 @@ inside the band.}
 \item{mark_max}{Whether to mark the fishing mortality at which the yield is
 largest, which is \eqn{F_{MSY}}. Default TRUE.}
 
-\item{reference_lines}{Whether to draw the \code{F_MSY} species parameter, if the
-species has one, as a vertical line. See \code{\link[=plot.MizerScan]{plot.MizerScan()}}.}
+\item{reference_lines}{Whether to draw reference lines (the current fishing
+mortality as "Current F", and the \code{F_MSY} species parameter if the species
+has one) as vertical lines. See \code{\link[=plot.MizerScan]{plot.MizerScan()}}.}
 
 \item{log_y, log}{Whether to use a logarithmic y-axis, see \code{\link[=parsePlotLog]{parsePlotLog()}}.
 Unlike most mizer plots this defaults to FALSE, because the yield is

@@ -7,9 +7,9 @@
 #
 # It is `scanModel()` with `scanFishingMortality()` as its setter and
 # `getYield()` as the quantity measured. Everything that makes the picture
-# readable — the axis labels, the `F_MSY` reference line, the sweep outwards
-# from the current fishing mortality — is already carried by the setter or by
-# `scanModel()`, so nothing here is reimplemented.
+# readable — the axis labels, the reference lines ("Current F" and `F_MSY`),
+# the sweep outwards from the current fishing mortality — is already carried
+# by the setter or by `scanModel()`, so nothing here is reimplemented.
 
 #' Plot the yield of a species against the fishing mortality on it
 #'
@@ -53,8 +53,9 @@
 #'   inside the band.
 #' @param mark_max Whether to mark the fishing mortality at which the yield is
 #'   largest, which is \eqn{F_{MSY}}. Default TRUE.
-#' @param reference_lines Whether to draw the `F_MSY` species parameter, if the
-#'   species has one, as a vertical line. See [plot.MizerScan()].
+#' @param reference_lines Whether to draw reference lines (the current fishing
+#'   mortality as "Current F", and the `F_MSY` species parameter if the species
+#'   has one) as vertical lines. See [plot.MizerScan()].
 #' @param log_y,log Whether to use a logarithmic y-axis, see [parsePlotLog()].
 #'   Unlike most mizer plots this defaults to FALSE, because the yield is
 #'   exactly zero at zero fishing mortality and a logarithmic axis would drop

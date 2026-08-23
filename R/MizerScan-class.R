@@ -613,10 +613,33 @@ add_scan_annotations <- function(p, x, plot_dat, reference_lines = TRUE,
         p <- p + geom_vline(xintercept = unname(refs), linetype = "dashed",
                             colour = "grey50")
         if (!is.null(names(refs)) && all(nzchar(names(refs)))) {
-            p <- p + annotate("text", x = unname(refs),
-                              y = Inf, label = names(refs),
-                              hjust = -0.1, vjust = 1.5, size = 3,
-                              colour = "grey40")
+            y_scale <- p$scales$get_scales("y")
+            is_log <- isTRUE(y_scale$trans$name == "log-10")
+            y_bottom <- if (is_log) {
+                min(plot_dat[[2]][plot_dat[[2]] > 0], na.rm = TRUE)
+            } else {
+                -Inf
+            }
+            ref_df <- data.frame(
+                x = unname(refs),
+                y = y_bottom,
+                label = names(refs)
+            )
+            p <- p + ggrepel::geom_text_repel(
+                data = ref_df,
+                aes(x = .data[["x"]], y = .data[["y"]],
+                    label = .data[["label"]]),
+                hjust = -0.1,
+                vjust = -0.5,
+                direction = "y",
+                size = 3,
+                colour = "grey40",
+                segment.color = "grey60",
+                segment.size = 0.3,
+                inherit.aes = FALSE,
+                show.legend = FALSE,
+                seed = 42
+            )
         }
     }
 

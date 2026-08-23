@@ -61,11 +61,14 @@ test_that("F_range is built from F_min, F_max and no_steps when missing", {
     expect_setequal(unique(d[[1]]), seq(0, 0.9, length.out = 4))
 })
 
-test_that("an F_MSY species parameter is carried through as a reference line", {
+test_that("Current F and F_MSY species parameters are carried through as reference lines", {
+    d <- yield_vs_f(NS_params_small, "Cod", F_range = c(0.2, 0.6), return_data = TRUE)
+    expect_identical(attr(d, "reference_lines"), c("Current F" = 0.5))
+
     p <- NS_params_small
     p@species_params$F_MSY <- c(NA, NA, 0.35)
     d <- yield_vs_f(p, "Cod", F_range = c(0.2, 0.6), return_data = TRUE)
-    expect_identical(attr(d, "reference_lines"), c(F_MSY = 0.35))
+    expect_identical(attr(d, "reference_lines"), c("Current F" = 0.5, F_MSY = 0.35))
 })
 
 test_that("plotYieldVsF validates its arguments", {

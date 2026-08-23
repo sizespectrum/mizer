@@ -70,9 +70,10 @@ fixed, keeping the old names as silent aliases.
   wrapper over `scanModel()`, described below. It plots the yield of one species
   against the fishing mortality on that species, leaving the fishing on every
   other species alone, and marks the fishing mortality at which the yield is
-  largest, which is $F_{MSY}$. A limit cycle is drawn as a band around the
+  largest, which is $F_{MSY}$. The current fishing mortality is drawn as a
+  "Current F" reference line. A limit cycle is drawn as a band around the
   average rather than being silently averaged away, and if the species has an
-  `F_MSY` species parameter it is drawn as a reference line for comparison.
+  `F_MSY` species parameter it is also drawn as a reference line for comparison.
   `getYieldVsF()` has not come with it: use `plotYieldVsF(return_data = TRUE)`,
   which returns the `MizerScan` object behind the plot, or `scanModel()` itself.
 

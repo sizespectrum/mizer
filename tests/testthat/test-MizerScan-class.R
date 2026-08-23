@@ -70,6 +70,8 @@ test_that("plot.MizerScan() draws all three styles", {
     expect_s3_class(plot(scan, return_data = TRUE), "data.frame")
     # Reference lines can be given explicitly as well as stored
     expect_s3_class(plot(scan, reference_lines = c(F_MSY = 0.5)), "ggplot")
+    expect_s3_class(plot(scan, reference_lines = c("Current F" = 0.5, "F_MSY" = 0.5, "Target" = 0.52)),
+                    "ggplot")
     expect_s3_class(plot(scan, mark_max = TRUE), "ggplot")
 
     # A scan that has lost its params, as dplyr::filter() would leave it,

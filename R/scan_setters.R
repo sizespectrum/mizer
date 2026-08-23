@@ -129,12 +129,21 @@ scanFishingMortality <- function(species, gear = NULL) {
         sum(initial_effort(params)[gp$gear[sel]] * gp$catchability[sel])
     }
     attr(f, "reference_lines") <- function(params) {
+        current_f <- attr(f, "current_scan_value")(params)
+        refs <- if (is.numeric(current_f) && is.finite(current_f)) {
+            c("Current F" = current_f)
+        } else {
+            NULL
+        }
         sp <- params@species_params
-        if (!("F_MSY" %in% names(sp))) return(NULL)
+        if (!("F_MSY" %in% names(sp))) return(refs)
         idx <- match(species, sp$species)
-        if (is.na(idx)) return(NULL)
+        if (is.na(idx)) return(refs)
         value <- sp$F_MSY[[idx]]
-        if (is.na(value)) NULL else c(F_MSY = value)
+        if (!is.na(value) && is.finite(value)) {
+            refs <- c(refs, F_MSY = value)
+        }
+        refs
     }
     f
 }
