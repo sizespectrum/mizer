@@ -501,8 +501,6 @@ test_that("Predation diffusion changes simulation trajectory", {
 
 test_that("callback works during simulation", {
     params <- NS_params_small
-    pdf(NULL)
-    on.exit(dev.off())
     
     # Test callback execution
     counter <- 0

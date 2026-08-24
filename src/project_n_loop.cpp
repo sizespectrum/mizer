@@ -3,7 +3,7 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 NumericMatrix project_n_loop(NumericMatrix n, NumericMatrix a, NumericMatrix b, NumericMatrix c, 
-                             NumericMatrix S, NumericVector w_min_idx) {
+                             NumericMatrix S, IntegerVector w_min_idx) {
     n = Rcpp::clone(n);
     int no_sp = n.nrow();
     int no_w = n.ncol();
@@ -17,7 +17,7 @@ NumericMatrix project_n_loop(NumericMatrix n, NumericMatrix a, NumericMatrix b, 
         // R uses 1-based indexing for w_min_idx, so subtract 1
         int j_start = w_min_idx[i] - 1; 
         
-        if (j_start >= no_w) continue;
+        if (j_start < 0 || j_start >= no_w) continue;
         
         // Thomas Algorithm
         // Solve A * n = S for the species range [j_start, no_w-1]
