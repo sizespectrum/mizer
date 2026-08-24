@@ -120,10 +120,9 @@ whatever state the projection happened to stop at.</p>
 <span>  distance_func <span class="op">=</span> <span class="va">distanceSSLogN</span>,</span>
 <span>  distance_tol <span class="op">=</span> <span class="fl">0.001</span>,</span>
 <span>  residual_tol <span class="op">=</span> <span class="fu">steady_residual_tol</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  t_per <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  t_check <span class="op">=</span> <span class="fl">15</span> <span class="op">*</span> <span class="va">dt</span>,</span>
 <span>  t_max <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  dt <span class="op">=</span> <span class="fl">0.1</span>,</span>
-<span>  t_save <span class="op">=</span> <span class="va">dt</span>,</span>
 <span>  amplitude_tol <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>  amp_rel_tol <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  extinction_threshold <span class="op">=</span> <span class="fl">1e-06</span>,</span>
@@ -206,15 +205,15 @@ reached at the previous one. Default TRUE.</p></dd>
 
 
 <dt id="arg-distance-func">distance_func<a class="anchor" aria-label="anchor" href="#arg-distance-func"></a></dt>
-<dd><p>A function that will be called after every <code>t_per</code> years
-with both the previous and the new state and that should return a number
-measuring the distance between them. See <code><a href="distanceSSLogN.html">distanceSSLogN()</a></code>.</p></dd>
+<dd><p>A function that will be called at every convergence
+check with both the previous and the new state and that should return a
+number measuring the distance between them. See <code><a href="distanceSSLogN.html">distanceSSLogN()</a></code>.</p></dd>
 
 
 <dt id="arg-distance-tol">distance_tol<a class="anchor" aria-label="anchor" href="#arg-distance-tol"></a></dt>
 <dd><p>The projection at each scan value stops once the number
-returned by <code>distance_func</code> for two states <code>t_per</code> years apart drops below
-<code>distance_tol</code>.
+returned by <code>distance_func</code> for two states <code>t_check</code> years apart drops
+below <code>distance_tol</code>.
 The default is tighter than the one <code><a href="projectUntilSettled.html">projectUntilSettled()</a></code> uses on its own,
 because a scan produces a curve, and a loosely converged point does not
 average away: it shows up as a kink in the curve and as spurious width in
@@ -229,9 +228,10 @@ which a scan point may still be recorded as a fixed point. See
 sampled as a single value, which would draw it as a band of zero width.</p></dd>
 
 
-<dt id="arg-t-per">t_per<a class="anchor" aria-label="anchor" href="#arg-t-per"></a></dt>
-<dd><p>The interval in years at which convergence is checked. Should be
-an odd multiple of <code>dt</code>.</p></dd>
+<dt id="arg-t-check">t_check<a class="anchor" aria-label="anchor" href="#arg-t-check"></a></dt>
+<dd><p>The interval in years at which convergence is checked, see
+<code><a href="projectUntilSettled.html">projectUntilSettled()</a></code>. Must be a positive multiple of <code>dt</code>; the default
+<code>15 * dt</code> is an odd multiple, which is what lets a period-2 cycle be seen.</p></dd>
 
 
 <dt id="arg-t-max">t_max<a class="anchor" aria-label="anchor" href="#arg-t-max"></a></dt>
@@ -240,11 +240,6 @@ an odd multiple of <code>dt</code>.</p></dd>
 
 <dt id="arg-dt">dt<a class="anchor" aria-label="anchor" href="#arg-dt"></a></dt>
 <dd><p>The time step to use.</p></dd>
-
-
-<dt id="arg-t-save">t_save<a class="anchor" aria-label="anchor" href="#arg-t-save"></a></dt>
-<dd><p>The interval at which the biomass summary used for limit-cycle
-detection is recorded, see <code><a href="projectUntilSettled.html">projectUntilSettled()</a></code>.</p></dd>
 
 
 <dt id="arg-amplitude-tol">amplitude_tol<a class="anchor" aria-label="anchor" href="#arg-amplitude-tol"></a></dt>

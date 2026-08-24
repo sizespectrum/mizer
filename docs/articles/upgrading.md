@@ -635,11 +635,9 @@ different questions:
 | `attractor` | What the state reached *is* | `"fixed_point"`, `"limit_cycle"`, `NA` |
 
 `distance`, `years`, `period` and `amplitude` are unchanged, and there
-is a new `residual`: how far the state reached actually is from a fixed
-point, which the `distance` field only approximates — `distance`
-compares two states `t_per` apart on whatever scale the distance
-function uses, and a distance function can go quiet while the model is
-still moving.
+is a new `residual` (how far the state reached actually is from a fixed
+point) and `extinct` (a character vector naming any species that went
+extinct during the run, or `character(0)` if none).
 
 Code that tested `conv$type == "steady"` or `conv$settled` needs
 updating, and so does any `expect_named()` or
@@ -716,7 +714,7 @@ within `residual_tol` as well (default `0.05`/year), and carries on to
 
 The remedy there is nearly always to look at what is moving, with
 `plot(getSteadyResidual(params))`, rather than to loosen `residual_tol`.
-Pass `t_max = t_per` for a deliberate single block, or
+Pass `t_max = t_check` to stop after a single check, or
 `residual_tol = Inf` for the wrappers’ rule.
 
 ### The steady-state run advances time like `project()` does
@@ -724,7 +722,7 @@ Pass `t_max = t_per` for a deliberate single block, or
 [`steady()`](https://sizespectrum.org/mizer/reference/superseded_steady.md)
 and
 [`projectToSteady()`](https://sizespectrum.org/mizer/reference/superseded_steady.md)
-break the run into blocks of `t_per` years, and each block used to start
+broke the run into blocks of `t_per` years, and each block used to start
 its clock again at `t = 0`. A rate function or a component’s dynamics
 function that reads `t` therefore saw the same short interval over and
 over instead of a clock that runs. Seasonal forcing, a time-dependent
@@ -830,14 +828,30 @@ among its unknowns and so needs the default semichemostat resource
 dynamics; `tuneSteadyState(solver = "newton")` holds the resource fixed
 and works with any.
 
+Three arguments are spelled differently on the new functions, because
+each of them did more than one job under the old name:
+
+| Superseded | New |  |
+|----|----|----|
+| `tol` | `distance_tol` | the run now also has a tolerance on the biomass drift, `residual_tol` |
+| `t_per` | `t_check` | how often the run checks whether it has settled; defaults to `15 * dt`, so it can no longer contradict a `dt` you chose |
+| — | `t_save` | the interval at which the returned [`MizerSim`](https://sizespectrum.org/mizer/reference/MizerSim.md) is saved, as in [`project()`](https://sizespectrum.org/mizer/reference/project.md); it is independent of `t_check` |
+
+`t_save` is only on
+[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md),
+which is the only new function that returns a trajectory. The
+limit-cycle detection samples the biomass at every time step and has no
+argument of its own.
+
 Nothing breaks:
 [`steady()`](https://sizespectrum.org/mizer/reference/superseded_steady.md)
 and
 [`projectToSteady()`](https://sizespectrum.org/mizer/reference/superseded_steady.md)
 are kept as thin wrappers that reproduce the old behaviour exactly,
-`return_sim` included. They do not warn, they will not be removed, and
-old code and old scripts keep running untouched. Renaming is a search
-and replace whenever you next touch the code.
+`return_sim` and `t_per` included. They do not warn, they will not be
+removed, and old code and old scripts keep running untouched. Renaming
+is a search and replace whenever you next touch the code, plus the three
+arguments above.
 
 ### `getStability()` checks that it was given a steady state
 

@@ -366,7 +366,7 @@
 </tr>
 </tbody>
 </table>
-<p><code>distance</code>, <code>years</code>, <code>period</code> and <code>amplitude</code> are unchanged, and there is a new <code>residual</code>: how far the state reached actually is from a fixed point, which the <code>distance</code> field only approximates — <code>distance</code> compares two states <code>t_per</code> apart on whatever scale the distance function uses, and a distance function can go quiet while the model is still moving.</p>
+<p><code>distance</code>, <code>years</code>, <code>period</code> and <code>amplitude</code> are unchanged, and there is a new <code>residual</code> (how far the state reached actually is from a fixed point) and <code>extinct</code> (a character vector naming any species that went extinct during the run, or <code>character(0)</code> if none).</p>
 <p>Code that tested <code>conv$type == "steady"</code> or <code>conv$settled</code> needs updating, and so does any <code>expect_named()</code> or <code><a href="https://rdrr.io/r/base/names.html" class="external-link">names()</a></code> check on the attribute. The translation:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
@@ -399,10 +399,10 @@
 <span><span class="co">#&gt; returned 0.0002, which is below the distance tolerance, but the biomasses are</span></span>
 <span><span class="co">#&gt; still changing at up to 0.4 per year, which is above the residual tolerance,</span></span>
 <span><span class="co">#&gt; so this state is not a fixed point.</span></span></code></pre>
-<p>The remedy there is nearly always to look at what is moving, with <code>plot(getSteadyResidual(params))</code>, rather than to loosen <code>residual_tol</code>. Pass <code>t_max = t_per</code> for a deliberate single block, or <code>residual_tol = Inf</code> for the wrappers’ rule.</p>
+<p>The remedy there is nearly always to look at what is moving, with <code>plot(getSteadyResidual(params))</code>, rather than to loosen <code>residual_tol</code>. Pass <code>t_max = t_check</code> to stop after a single check, or <code>residual_tol = Inf</code> for the wrappers’ rule.</p>
 </section><section class="level3"><h3 id="the-steady-state-run-advances-time-like-project-does">The steady-state run advances time like <code>project()</code> does<a class="anchor" aria-label="anchor" href="#the-steady-state-run-advances-time-like-project-does"></a>
 </h3>
-<p><code><a href="../reference/superseded_steady.html">steady()</a></code> and <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> break the run into blocks of <code>t_per</code> years, and each block used to start its clock again at <code>t = 0</code>. A rate function or a component’s dynamics function that reads <code>t</code> therefore saw the same short interval over and over instead of a clock that runs. Seasonal forcing, a time-dependent external mortality, or anything else registered with <a href="../reference/setRateFunction.html"><code>setRateFunction()</code></a> or <a href="../reference/setComponent.html"><code>setComponent()</code></a> that depends on <code>t</code> was affected; the result differed from <a href="../reference/project.html"><code>project()</code></a> over the same period and could not settle onto a forced cycle.</p>
+<p><code><a href="../reference/superseded_steady.html">steady()</a></code> and <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> broke the run into blocks of <code>t_per</code> years, and each block used to start its clock again at <code>t = 0</code>. A rate function or a component’s dynamics function that reads <code>t</code> therefore saw the same short interval over and over instead of a clock that runs. Seasonal forcing, a time-dependent external mortality, or anything else registered with <a href="../reference/setRateFunction.html"><code>setRateFunction()</code></a> or <a href="../reference/setComponent.html"><code>setComponent()</code></a> that depends on <code>t</code> was affected; the result differed from <a href="../reference/project.html"><code>project()</code></a> over the same period and could not settle onto a forced cycle.</p>
 <p>The clock now runs from 0 to the end of the run, exactly as in <code><a href="../reference/project.html">project()</a></code>. Results move for models with time-dependent dynamics, and the new numbers are the right ones. Models whose rates do not depend on <code>t</code> — which is nearly all of them — are unaffected to the last digit.</p>
 </section><section class="level3"><h3 id="steady-reports-the-tolerance-it-reached-rather-than-announcing-convergence">
 <code>steady()</code> reports the tolerance it reached rather than announcing convergence<a class="anchor" aria-label="anchor" href="#steady-reports-the-tolerance-it-reached-rather-than-announcing-convergence"></a>
@@ -447,7 +447,35 @@
 </div>
 <p>It is called “settled” rather than “steady” because a run may equally settle on a limit cycle, which is what the <code>settled</code> field of the <code>"convergence"</code> attribute has always meant.</p>
 <p>Both finders gained a <code>solver</code> argument. The default <code>solver = "project"</code> runs the dynamics until they settle, which is the old behaviour. <code>solver = "newton"</code> instead solves the steady-state equation directly with a Newton-type root finder from the <code>nleqslv</code> package, so it converges even when the steady state is dynamically unstable, where the time-stepping solver diverges away from it. <code>findSteadyState(solver = "newton")</code> carries the resource densities among its unknowns and so needs the default semichemostat resource dynamics; <code>tuneSteadyState(solver = "newton")</code> holds the resource fixed and works with any.</p>
-<p>Nothing breaks: <code><a href="../reference/superseded_steady.html">steady()</a></code> and <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> are kept as thin wrappers that reproduce the old behaviour exactly, <code>return_sim</code> included. They do not warn, they will not be removed, and old code and old scripts keep running untouched. Renaming is a search and replace whenever you next touch the code.</p>
+<p>Three arguments are spelled differently on the new functions, because each of them did more than one job under the old name:</p>
+<table class="table caption-top">
+<thead><tr class="header">
+<th>Superseded</th>
+<th>New</th>
+<th></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>tol</code></td>
+<td><code>distance_tol</code></td>
+<td>the run now also has a tolerance on the biomass drift, <code>residual_tol</code>
+</td>
+</tr>
+<tr class="even">
+<td><code>t_per</code></td>
+<td><code>t_check</code></td>
+<td>how often the run checks whether it has settled; defaults to <code>15 * dt</code>, so it can no longer contradict a <code>dt</code> you chose</td>
+</tr>
+<tr class="odd">
+<td>—</td>
+<td><code>t_save</code></td>
+<td>the interval at which the returned <a href="../reference/MizerSim.html"><code>MizerSim</code></a> is saved, as in <a href="../reference/project.html"><code>project()</code></a>; it is independent of <code>t_check</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p><code>t_save</code> is only on <code><a href="../reference/projectUntilSettled.html">projectUntilSettled()</a></code>, which is the only new function that returns a trajectory. The limit-cycle detection samples the biomass at every time step and has no argument of its own.</p>
+<p>Nothing breaks: <code><a href="../reference/superseded_steady.html">steady()</a></code> and <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> are kept as thin wrappers that reproduce the old behaviour exactly, <code>return_sim</code> and <code>t_per</code> included. They do not warn, they will not be removed, and old code and old scripts keep running untouched. Renaming is a search and replace whenever you next touch the code, plus the three arguments above.</p>
 </section><section class="level3"><h3 id="getstability-checks-that-it-was-given-a-steady-state">
 <code>getStability()</code> checks that it was given a steady state<a class="anchor" aria-label="anchor" href="#getstability-checks-that-it-was-given-a-steady-state"></a>
 </h3>

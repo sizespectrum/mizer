@@ -259,7 +259,8 @@ the approach to the cycle is the thing to look at.
 ``` r
 
 sim_cycle <- projectUntilSettled(params, effort = 1.5, t_max = 200,
-                                 t_per = 0.2, method = "tr_bdf2")
+                                 t_check = 0.2, t_save = 0.2,
+                                 method = "tr_bdf2")
 attr(sim_cycle, "convergence")
 ```
 
@@ -495,7 +496,8 @@ trajectory still settles on a limit cycle — but not on the model’s one:
 ``` r
 
 sim_euler <- projectUntilSettled(params, effort = 1.5, t_max = 200,
-                                 t_per = 0.2, method = "euler")
+                                 t_check = 0.2, t_save = 0.2,
+                                 method = "euler")
 attr(sim_euler, "convergence")[c("attractor", "period", "amplitude")]
 ```
 
@@ -523,7 +525,7 @@ params_nudged <- params_f15
 initialN(params_nudged) <- initialN(params_f15) * 1.05
 run <- function(method) {
     projectUntilSettled(params_nudged, effort = 1.5, t_max = 200,
-                        t_per = 0.2, method = method)
+                        t_check = 0.2, t_save = 0.2, method = method)
 }
 sim_nudged_euler <- run("euler")
 sim_nudged_trbdf2 <- run("tr_bdf2")

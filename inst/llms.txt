@@ -187,8 +187,9 @@ reproduces the observations.
 - [`getDiscreteStability()`](https://sizespectrum.org/mizer/reference/getDiscreteStability.md)
   **\[experimental\]** : Analyse the stability of mizer's numerical time
   step
-- [`getLimitCycleSim()`](https://sizespectrum.org/mizer/reference/getLimitCycleSim.md)
-  : Construct a MizerSim of the linearised limit cycle
+- [`getOscillationModeSim()`](https://sizespectrum.org/mizer/reference/getOscillationModeSim.md)
+  **\[experimental\]** : Construct a MizerSim of the leading oscillatory
+  mode
 - [`scanModel()`](https://sizespectrum.org/mizer/reference/scanModel.md)
   **\[experimental\]** : Scan a model over a range of values
 - [`scanEffort()`](https://sizespectrum.org/mizer/reference/scanEffort.md)
@@ -272,11 +273,9 @@ and resource size spectra and fishing effort at each saved time step, or
 extract the ecosystem state as a `MizerParams` object.
 
 - [`getParams()`](https://sizespectrum.org/mizer/reference/getParams.md)
+  [`initialParams()`](https://sizespectrum.org/mizer/reference/getParams.md)
+  [`finalParams()`](https://sizespectrum.org/mizer/reference/getParams.md)
   : Extract the model state from a simulation
-- [`initialParams()`](https://sizespectrum.org/mizer/reference/initialParams.md)
-  : Extract the initial state from a simulation
-- [`finalParams()`](https://sizespectrum.org/mizer/reference/finalParams.md)
-  : Extract the final state from a simulation
 - [`N()`](https://sizespectrum.org/mizer/reference/N.md)
   [`NResource()`](https://sizespectrum.org/mizer/reference/N.md) : Time
   series of size spectra
@@ -321,8 +320,6 @@ introduces these functions.
 - [`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md)
   : Calculate the rate at which biomass of each species is fished by
   each gear
-- [`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md)
-  **\[experimental\]** : Integrate a quantity over the size spectrum
 - [`getFeedingLevel()`](https://sizespectrum.org/mizer/reference/getFeedingLevel.md)
   : Get feeding level
 - [`getCriticalFeedingLevel()`](https://sizespectrum.org/mizer/reference/getCriticalFeedingLevel.md)
@@ -330,6 +327,11 @@ introduces these functions.
 - [`bin_average_weight()`](https://sizespectrum.org/mizer/reference/bin_average_weight.md)
   **\[experimental\]** : Bin-average the weight of a size-spectrum
   integral
+- [`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md)
+  **\[experimental\]** : Integrate a quantity over the size spectrum
+- [`encounter_kernel()`](https://sizespectrum.org/mizer/reference/encounter_kernel.md)
+  **\[experimental\]** : The predation kernel as used by the encounter
+  quadrature
 - [`w()`](https://sizespectrum.org/mizer/reference/w.md)
   [`w_full()`](https://sizespectrum.org/mizer/reference/w.md)
   [`dw()`](https://sizespectrum.org/mizer/reference/w.md)
@@ -547,9 +549,6 @@ and gear parameters with your own rate arrays.
   [`pred_kernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
   [`` `pred_kernel<-`() ``](https://sizespectrum.org/mizer/reference/setPredKernel.md)
   : Set predation kernel
-- [`encounter_kernel()`](https://sizespectrum.org/mizer/reference/encounter_kernel.md)
-  **\[experimental\]** : The predation kernel as used by the encounter
-  quadrature
 - [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md)
   [`search_vol()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md)
   [`` `search_vol<-`() ``](https://sizespectrum.org/mizer/reference/setSearchVolume.md)

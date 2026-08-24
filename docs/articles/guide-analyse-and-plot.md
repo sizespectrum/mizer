@@ -596,9 +596,10 @@ attr(scan, "at_max")      # F_MSY for Cod
 ```
 
 The y axis is linear by default, because the yield is exactly zero at
-`F = 0`. If the species already has an `F_MSY` species parameter it is
-drawn as a reference line, so the value the model gives can be compared
-with the value assumed.
+`F = 0`. The current fishing mortality is drawn as a `"Current F"`
+reference line. If the species already has an `F_MSY` species parameter
+it is also drawn as a reference line, so the value the model gives can
+be compared with the value assumed.
 
 ------------------------------------------------------------------------
 

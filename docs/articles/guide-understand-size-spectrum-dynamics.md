@@ -67,10 +67,10 @@ Same kernel \\\phi\\, same search volume \\\gamma\\, same interaction
 matrix \\\theta\\; the same handling limitation also appears on both
 sides through the factor \\1-f\\. As a predator becomes satiated, its
 successful prey-removal rate per unit available prey falls, while its
-realised intake approaches the maximum intake rate rather than falling
-to zero. The other differences are which variable is integrated out —
-prey size or predator size — and whether you weight by the prey’s mass
-or just count the death.
+realised intake approaches the maximum intake rate. The other
+differences are which variable is integrated out — prey size or predator
+size — and whether you weight by the prey’s mass or just count the
+death.
 
 Changes to the encounter pathway therefore usually affect both predator
 growth and prey mortality, so those are not independent dials. But

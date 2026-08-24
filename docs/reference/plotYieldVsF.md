@@ -97,8 +97,9 @@ plotYieldVsF(
 
 - reference_lines:
 
-  Whether to draw the `F_MSY` species parameter, if the species has one,
-  as a vertical line. See
+  Whether to draw reference lines (the current fishing mortality as
+  "Current F", and the `F_MSY` species parameter if the species has one)
+  as vertical lines. See
   [`plot.MizerScan()`](https://sizespectrum.org/mizer/reference/plot.MizerScan.md).
 
 - log_y, log:

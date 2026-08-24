@@ -60,14 +60,14 @@ tuneSteadyState(
 
   Arguments for the chosen solver.
 
-  With `solver = "project"`: `t_max`, `t_per`, `dt`, `t_save`,
-  `distance_tol`, `residual_tol`, `amplitude_tol`, `amp_rel_tol`,
+  With `solver = "project"`: `t_max`, `t_check`, `dt`, `distance_tol`,
+  `residual_tol`, `amplitude_tol`, `amp_rel_tol`,
   `extinction_threshold`, `progress_bar` and `method`, all as described
   in
   [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md).
-  Note that `distance_tol` here defaults to `0.1 * dt` and measures the
-  largest relative change in egg production, because the distance
-  function is
+  There is no `t_save`, because no trajectory is returned. Note that
+  `distance_tol` here defaults to `0.1 * dt` and measures the largest
+  relative change in egg production, because the distance function is
   [`distanceMaxRelRDI()`](https://sizespectrum.org/mizer/reference/distanceMaxRelRDI.md).
   `residual_tol` is judged on the model as the search sees it, with
   reproduction, the resource and the other components pinned; the

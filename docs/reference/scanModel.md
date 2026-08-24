@@ -25,10 +25,9 @@ scanModel(
   distance_func = distanceSSLogN,
   distance_tol = 0.001,
   residual_tol = steady_residual_tol(),
-  t_per = 1.5,
+  t_check = 15 * dt,
   t_max = 100,
   dt = 0.1,
-  t_save = dt,
   amplitude_tol = 0.01,
   amp_rel_tol = 0.1,
   extinction_threshold = 1e-06,
@@ -115,15 +114,15 @@ scanModel(
 
 - distance_func:
 
-  A function that will be called after every `t_per` years with both the
-  previous and the new state and that should return a number measuring
-  the distance between them. See
+  A function that will be called at every convergence check with both
+  the previous and the new state and that should return a number
+  measuring the distance between them. See
   [`distanceSSLogN()`](https://sizespectrum.org/mizer/reference/distanceSSLogN.md).
 
 - distance_tol:
 
   The projection at each scan value stops once the number returned by
-  `distance_func` for two states `t_per` years apart drops below
+  `distance_func` for two states `t_check` years apart drops below
   `distance_tol`. The default is tighter than the one
   [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
   uses on its own, because a scan produces a curve, and a loosely
@@ -140,10 +139,12 @@ scanModel(
   A point that meets `distance_tol` but not this is not sampled as a
   single value, which would draw it as a band of zero width.
 
-- t_per:
+- t_check:
 
-  The interval in years at which convergence is checked. Should be an
-  odd multiple of `dt`.
+  The interval in years at which convergence is checked, see
+  [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md).
+  Must be a positive multiple of `dt`; the default `15 * dt` is an odd
+  multiple, which is what lets a period-2 cycle be seen.
 
 - t_max:
 
@@ -152,12 +153,6 @@ scanModel(
 - dt:
 
   The time step to use.
-
-- t_save:
-
-  The interval at which the biomass summary used for limit-cycle
-  detection is recorded, see
-  [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md).
 
 - amplitude_tol:
 

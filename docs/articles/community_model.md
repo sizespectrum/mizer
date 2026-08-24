@@ -87,8 +87,8 @@ summary(params)
 
     ## An object of class "MizerParams" 
     ## mizer version: 3.3.0
-    ## Created: 2026-08-23 15:16:37
-    ## Modified: 2026-08-23 15:16:37
+    ## Created: 2026-08-23 22:17:04
+    ## Modified: 2026-08-23 22:17:04
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   1e+06

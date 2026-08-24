@@ -89,10 +89,11 @@ names as silent aliases.
   described below. It plots the yield of one species against the fishing
   mortality on that species, leaving the fishing on every other species
   alone, and marks the fishing mortality at which the yield is largest,
-  which is \\F\_{MSY}\\. A limit cycle is drawn as a band around the
-  average rather than being silently averaged away, and if the species
-  has an `F_MSY` species parameter it is drawn as a reference line for
-  comparison.
+  which is \\F\_{MSY}\\. The current fishing mortality is drawn as a
+  “Current F” reference line. A limit cycle is drawn as a band around
+  the average rather than being silently averaged away, and if the
+  species has an `F_MSY` species parameter it is also drawn as a
+  reference line for comparison.
   [`getYieldVsF()`](https://sizespectrum.org/mizerExperimental/reference/getYieldVsF.html)
   has not come with it: use `plotYieldVsF(return_data = TRUE)`, which
   returns the `MizerScan` object behind the plot, or
@@ -183,7 +184,8 @@ names as silent aliases.
   (default `0.01`), independent of the fixed-point convergence
   tolerance, and a species is treated as extinct once its reproduction
   falls below the `extinction_threshold` fraction (default `1e-6`) of
-  its value at the start of the run.
+  its value at the start of the run. The species that went extinct are
+  recorded in the new `extinct` field of the `"convergence"` attribute.
 
 - [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
   and
@@ -193,9 +195,9 @@ names as silent aliases.
   biomass drift must also be within the new `residual_tol` argument
   (default `0.05`/year, the tolerance
   [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
-  uses), and the limit-cycle detection runs on every block rather than
+  uses), and the limit-cycle detection runs at every check rather than
   only when the distance criterion has failed. A cycle whose period
-  divides `t_per` is sampled at one phase by the distance function and
+  divides `t_check` is sampled at one phase by the distance function and
   used to look perfectly converged; it is now recognised.
   [`scanModel()`](https://sizespectrum.org/mizer/reference/scanModel.md)
   gains the same argument and no longer draws such a point as a band of
@@ -308,7 +310,7 @@ names as silent aliases.
 
 - The `"convergence"` attribute also carries a `residual` field giving
   how far the state reached actually is from a fixed point. The
-  `distance` field only compares two states `t_per` apart on whatever
+  `distance` field only compares two states `t_check` apart on whatever
   scale the distance function uses, whereas `residual` measures the
   thing itself, and
   [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
@@ -954,9 +956,16 @@ names as silent aliases.
   finders always return a `MizerParams` and
   [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
   always returns a `MizerSim`, so `return_sim` is gone from the new
-  functions. Nothing breaks: the old names are kept as thin wrappers
-  that reproduce the old behaviour exactly, `return_sim` included. They
-  do not warn and they are not going away.
+  functions. Three arguments are spelled differently on the new
+  functions: `tol` is `distance_tol`, `t_per` is `t_check` and defaults
+  to `15 * dt` so that it can no longer contradict a `dt` you chose, and
+  [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
+  gains `t_save`, the interval at which the trajectory is saved, exactly
+  as in
+  [`project()`](https://sizespectrum.org/mizer/reference/project.md) and
+  independent of `t_check`. Nothing breaks: the old names are kept as
+  thin wrappers that reproduce the old behaviour exactly, `return_sim`
+  included. They do not warn and they are not going away.
 
 - `matchYields()` and `calibrateYield()` have been removed. They were
   deprecated in mizer 2.6.0 and no use case for them was reported. Both

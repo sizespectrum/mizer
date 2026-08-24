@@ -97,10 +97,11 @@ projectToSteady(
 
 - t_per:
 
-  The simulation is broken up into shorter runs of `t_per` years, after
-  each of which we check for convergence. Default value is 1.5. This
-  should be chosen as an odd multiple of the timestep `dt` in order to
-  be able to detect period 2 cycles.
+  The interval in years at which convergence is checked, and hence also
+  the interval at which the trajectory is saved when
+  `return_sim = TRUE`. In
+  [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
+  these two roles have been separated into `t_check` and `t_save`.
 
 - dt:
 
@@ -109,10 +110,9 @@ projectToSteady(
 
 - t_save:
 
-  The interval at which a cheap per-species biomass summary is recorded
-  for limit-cycle detection. Must be a positive multiple of `dt` and a
-  divisor of `t_per`. Smaller values resolve the cycle period more
-  finely at a small extra cost. Default is `dt`.
+  Has no effect. It briefly controlled how finely the biomass series
+  used for limit-cycle detection was sampled; that series is now sampled
+  at every time step, which is what its default `dt` gave.
 
 - tol:
 
@@ -184,42 +184,16 @@ projectToSteady(
 
 - distance_func:
 
-  A function that will be called after every `t_per` years with both the
-  previous and the new state and that should return a number that in
-  some sense measures the distance between the states. By default this
-  uses the function
+  A function that will be called at every check with both the previous
+  and the new state and that should return a number that in some sense
+  measures the distance between the states. By default this uses the
+  function
   [`distanceSSLogN()`](https://sizespectrum.org/mizer/reference/distanceSSLogN.md)
   that you can use as a model for your own distance function.
 
 - ...:
 
-  Arguments for the chosen solver.
-
-  With `solver = "project"`: `t_max`, `t_per`, `dt`, `t_save`,
-  `distance_tol`, `residual_tol`, `amplitude_tol`, `amp_rel_tol`,
-  `extinction_threshold`, `progress_bar` and `method`, all as described
-  in
-  [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md).
-  Note that `distance_tol` here defaults to `0.1 * dt` and measures the
-  largest relative change in egg production, because the distance
-  function is
-  [`distanceMaxRelRDI()`](https://sizespectrum.org/mizer/reference/distanceMaxRelRDI.md).
-  `residual_tol` is judged on the model as the search sees it, with
-  reproduction, the resource and the other components pinned; the
-  residual reported in the result is measured again on the model that is
-  actually returned.
-
-  With `solver = "newton"`: `solver_tol` (default `1e-6`), a tolerance
-  on the per-capita rate of change passed to
-  [`nleqslv::nleqslv()`](https://bertcarnell.github.io/nleqslv/reference/nleqslv.html).
-  It was called `residual_tol` before mizer 3.3, a name that now belongs
-  to the biomass drift criterion above; `maxit` (default `200`);
-  `jacobian`, either `"update"` (default, the Jacobian is computed once
-  and then updated cheaply each iteration — `nleqslv`'s `"Broyden"`) or
-  `"recompute"` (a numerical Jacobian at every iteration — `nleqslv`'s
-  `"Newton"`); `global`, the globalisation strategy (default `"dbldog"`,
-  a robust double-dogleg trust region); and `verbose` to trace the
-  iterations.
+  Further arguments will be passed on to your distance function.
 
 ## Value
 

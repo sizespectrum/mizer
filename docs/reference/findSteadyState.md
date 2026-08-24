@@ -48,11 +48,12 @@ findSteadyState(
 
   Arguments for the chosen solver.
 
-  With `solver = "project"`: `distance_func`, `t_max`, `t_per`, `dt`,
-  `t_save`, `distance_tol`, `residual_tol`, `amplitude_tol`,
-  `amp_rel_tol`, `extinction_threshold`, `progress_bar` and `method`,
-  all as described in
+  With `solver = "project"`: `distance_func`, `t_max`, `t_check`, `dt`,
+  `distance_tol`, `residual_tol`, `amplitude_tol`, `amp_rel_tol`,
+  `extinction_threshold`, `progress_bar` and `method`, all as described
+  in
   [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md).
+  There is no `t_save`, because no trajectory is returned.
 
   With `solver = "newton"`: `extinction_floor` (default `1e-6`), the
   relative abundance below which a species counts as extinct, plus

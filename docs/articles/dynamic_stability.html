@@ -343,7 +343,8 @@ with its period and relative amplitude. It returns a full
 here — the approach to the cycle is the thing to look at.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_cycle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projectUntilSettled.html">projectUntilSettled</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fl">1.5</span>, t_max <span class="op">=</span> <span class="fl">200</span>,</span>
-<span>                                 t_per <span class="op">=</span> <span class="fl">0.2</span>, method <span class="op">=</span> <span class="st">"tr_bdf2"</span><span class="op">)</span></span>
+<span>                                 t_check <span class="op">=</span> <span class="fl">0.2</span>, t_save <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>                                 method <span class="op">=</span> <span class="st">"tr_bdf2"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sim_cycle</span>, <span class="st">"convergence"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; $termination</span></span>
 <span><span class="co">#&gt; [1] "cycle_detected"</span></span>
@@ -533,7 +534,8 @@ trajectory still settles on a limit cycle — but not on the model’s
 one:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projectUntilSettled.html">projectUntilSettled</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fl">1.5</span>, t_max <span class="op">=</span> <span class="fl">200</span>,</span>
-<span>                                 t_per <span class="op">=</span> <span class="fl">0.2</span>, method <span class="op">=</span> <span class="st">"euler"</span><span class="op">)</span></span>
+<span>                                 t_check <span class="op">=</span> <span class="fl">0.2</span>, t_save <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>                                 method <span class="op">=</span> <span class="st">"euler"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sim_euler</span>, <span class="st">"convergence"</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"attractor"</span>, <span class="st">"period"</span>, <span class="st">"amplitude"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; $attractor</span></span>
 <span><span class="co">#&gt; [1] "limit_cycle"</span></span>
@@ -555,7 +557,7 @@ nothing but the method:</p>
 <span><span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params_nudged</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params_f15</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.05</span></span>
 <span><span class="va">run</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">method</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="../reference/projectUntilSettled.html">projectUntilSettled</a></span><span class="op">(</span><span class="va">params_nudged</span>, effort <span class="op">=</span> <span class="fl">1.5</span>, t_max <span class="op">=</span> <span class="fl">200</span>,</span>
-<span>                        t_per <span class="op">=</span> <span class="fl">0.2</span>, method <span class="op">=</span> <span class="va">method</span><span class="op">)</span></span>
+<span>                        t_check <span class="op">=</span> <span class="fl">0.2</span>, t_save <span class="op">=</span> <span class="fl">0.2</span>, method <span class="op">=</span> <span class="va">method</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="va">sim_nudged_euler</span> <span class="op">&lt;-</span> <span class="fu">run</span><span class="op">(</span><span class="st">"euler"</span><span class="op">)</span></span>
 <span><span class="va">sim_nudged_trbdf2</span> <span class="op">&lt;-</span> <span class="fu">run</span><span class="op">(</span><span class="st">"tr_bdf2"</span><span class="op">)</span></span>
