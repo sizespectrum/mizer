@@ -1,6 +1,6 @@
 ## Test environments
 
-### devtools::check_win_devel()
+### devtools::check_win_release()
 
   Status: OK
 
