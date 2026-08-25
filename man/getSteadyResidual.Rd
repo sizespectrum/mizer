@@ -4,7 +4,12 @@
 \alias{getSteadyResidual}
 \title{How far a model is from its steady state}
 \usage{
-getSteadyResidual(params, effort = params@initial_effort, dt = 1e-04)
+getSteadyResidual(
+  params,
+  effort = params@initial_effort,
+  dt = 1e-04,
+  biomass_share_cutoff = steady_share_cutoff()
+)
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object.}
@@ -16,11 +21,19 @@ model's steady state belongs to.}
 \item{dt}{The step length used for the resource and other components, whose
 dynamics functions are only available as one-step maps. Smaller is more
 accurate. Not used for the consumers, whose rate is exact.}
+
+\item{biomass_share_cutoff}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+The share of a species' biomass that a size class must hold for its rate to
+be reported. Classes below it hold nothing that any summary or plot of this
+array should be dominated by, and are returned as \code{NA} alongside the empty
+ones. \code{0} reports every class. The same cutoff decides which classes
+\code{\link[=distanceSSLogN]{distanceSSLogN()}} measures convergence on.}
 }
 \value{
 An \link{ArraySpeciesBySize} object (species x size) of per-capita rates
-of change in 1/year, \code{NA} where the density is zero. It carries two
-further attributes:
+of change in 1/year, \code{NA} where the size class holds no fish — either no
+density at all or less than \code{biomass_share_cutoff} of the species'
+biomass. It carries two further attributes:
 \describe{
 \item{\code{resource}}{The per-capita rate of change of the resource, a
 numeric vector over \code{w_full}, \code{NA} where the resource density is zero.}
@@ -76,6 +89,15 @@ off in one species, or one part of the size range, and the plot says which.
 Size classes with no fish in them carry no information about steadiness — the
 relative rate of change of a zero density is undefined — so they are returned
 as \code{NA}. Use \code{na.rm = TRUE} in any summary, as the examples above do.
+
+A class holding a \emph{negligible} density says no more than an empty one does,
+and says it loudly. Above a size where growth stops, the density decays
+exponentially and \code{dN/dt} decays with it, so the per-capita rate sits at
+minus the mortality rate for ever while the mass in the class falls through
+\eqn{10^{-100}} and beyond. Such classes are returned as \code{NA} too: a size
+class counts only if it holds at least \code{biomass_share_cutoff} of its species'
+biomass. Pass \code{biomass_share_cutoff = 0} to get every class back, including
+the ones on their way to zero.
 }
 
 \subsection{Do not reduce this to its maximum}{

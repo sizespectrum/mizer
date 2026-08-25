@@ -4,7 +4,13 @@
 \alias{distanceSSLogN}
 \title{Measure distance between current and previous state in terms of fish abundances}
 \usage{
-distanceSSLogN(params, current, previous)
+distanceSSLogN(
+  params,
+  current,
+  previous,
+  biomass_share_cutoff = steady_share_cutoff(),
+  ...
+)
 }
 \arguments{
 \item{params}{MizerParams}
@@ -14,11 +20,20 @@ describing the current state}
 
 \item{previous}{A named list with entries \code{n}, \code{n_pp} and \code{n_other}
 describing the previous state}
+
+\item{biomass_share_cutoff}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+The share of a species' biomass that a size class must hold in the current
+state to be measured. \code{0} measures every class with a nonzero density in
+both states, which is what this function did before mizer 3.3. The same
+cutoff decides which classes \code{\link[=getSteadyResidual]{getSteadyResidual()}} reports.}
+
+\item{...}{Unused. Accepted because \code{\link[=projectUntilSettled]{projectUntilSettled()}} forwards its own
+\code{...} to both the rate functions and the distance function, so an argument
+meant for one arrives at the other.}
 }
 \value{
-The sum of squares of the difference in the logs of the (nonzero)
-fish abundances \code{n}, ignoring entries where either state has zero
-abundance:
+The sum of squares of the difference in the logs of the fish
+abundances \code{n}, over the size classes that hold fish in both states:
 \code{sum((log(current$n) - log(previous$n))^2)}
 }
 \description{
@@ -27,6 +42,17 @@ abundance:
 Calculates the sum squared difference between log(N) in current and previous
 state. This function can be used in \code{\link[=projectUntilSettled]{projectUntilSettled()}} to decide when
 sufficient convergence to steady state has been achieved.
+
+Only the size classes that hold fish are measured. A class whose density is
+zero in either state has no log to take, and one holding a negligible share
+of its species' biomass has a log that never stops moving: above a size where
+growth stops the density decays exponentially, so \code{log(n)} falls by the same
+amount between every pair of states, for ever. Left in the sum, a single such
+class holding \eqn{10^{-92}} g of fish can hold the distance above any
+tolerance indefinitely and stop \code{\link[=projectUntilSettled]{projectUntilSettled()}} from ever converging,
+while the biomass drift correctly reports a fixed point. Excluding it changes
+nothing for a model that does not have one, because the classes that hold the
+fish are exactly the classes that are kept.
 }
 \seealso{
 Other distance functions:

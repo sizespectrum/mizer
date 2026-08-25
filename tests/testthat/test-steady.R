@@ -226,6 +226,86 @@ test_that("distance functions implement their documented formulas", {
     expect_equal(distanceSSLogN(params, previous, previous), 0)
 })
 
+test_that("distanceSSLogN() ignores a size class holding negligible biomass", {
+    params <- NS_params_small
+    j <- length(w(params))
+    n <- initialN(params)
+    # A trace of fish in the largest size class, decaying because nothing grows
+    # into it. Its density falls by a constant factor between any two states, so
+    # left in the sum it contributes the same amount to the distance for ever.
+    n[1, j] <- 1e-100
+    previous <- list(n = n, n_pp = initialNResource(params), n_other = list())
+    current <- previous
+    current$n[1, j] <- n[1, j] * exp(-1.5)
+
+    expect_equal(distanceSSLogN(params, current, previous), 0)
+    expect_equal(distanceSSLogN(params, current, previous,
+                                biomass_share_cutoff = 0),
+                 1.5^2)
+})
+
+test_that("distanceSSLogN() is unchanged where every size class holds fish", {
+    params <- NS_params_small
+    previous <- list(n = initialN(params), n_pp = initialNResource(params),
+                     n_other = list())
+    current <- previous
+    current$n <- current$n * 1.2
+
+    # The claim that justifies the cutoff: on a model without a negligible
+    # trace, every class the cutoff removes is one that was already excluded
+    # for having no density at all, so the number returned is untouched and
+    # every existing `distance_tol` keeps its meaning.
+    expect_identical(distanceSSLogN(params, current, previous),
+                     distanceSSLogN(params, current, previous,
+                                    biomass_share_cutoff = 0))
+    expect_true(all(negligible_cells(params, current$n) == (current$n == 0)))
+})
+
+test_that("projectUntilSettled() is not blocked by a negligible dying trace", {
+    # A model already at its steady state, so that the trace added below is the
+    # only thing that could keep the run from converging.
+    params <- NS_params_steady_small
+    j <- length(w(params))
+    n <- initialN(params)
+    n[1, j] <- 1e-100
+    initialN(params) <- n
+
+    sim <- projectUntilSettled(params, t_max = 20, distance_tol = 1e-3,
+                               progress_bar = FALSE, info_level = 0)
+    conv <- attr(sim, "convergence")
+    expect_true(conv$converged)
+    expect_identical(conv$attractor, "fixed_point")
+    expect_lt(conv$years, 20)
+
+    # Without the cutoff the same run cannot converge, however long it is
+    # given: nothing grows into that class, so its density falls by the same
+    # factor over every check and its contribution to the distance never
+    # shrinks. The state it stops at is a fixed point all the same, which is the
+    # pair of answers that used to read as a contradiction.
+    sim0 <- projectUntilSettled(params, t_max = 20, distance_tol = 1e-3,
+                                progress_bar = FALSE, info_level = 0,
+                                biomass_share_cutoff = 0)
+    conv0 <- attr(sim0, "convergence")
+    expect_false(conv0$converged)
+    expect_identical(conv0$termination, "time_limit")
+    expect_identical(conv0$attractor, "fixed_point")
+    expect_gt(conv0$distance, conv$distance)
+})
+
+test_that("a fixed point reached at the time limit is reported as one", {
+    params <- NS_params_steady_small
+    j <- length(w(params))
+    n <- initialN(params)
+    n[1, j] <- 1e-100
+    initialN(params) <- n
+
+    expect_message(
+        projectUntilSettled(params, t_max = 20, distance_tol = 1e-3,
+                            progress_bar = FALSE, info_level = 3,
+                            biomass_share_cutoff = 0),
+        "the state reached is a fixed point")
+})
+
 # limit cycle detection ----
 
 # Limit-cycle detection and the "convergence" attribute --------------------

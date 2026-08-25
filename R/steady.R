@@ -40,24 +40,50 @@ distanceMaxRelRDI.MizerParams <- function(params, current, previous) {
 #' state. This function can be used in [projectUntilSettled()] to decide when
 #' sufficient convergence to steady state has been achieved.
 #'
+#' Only the size classes that hold fish are measured. A class whose density is
+#' zero in either state has no log to take, and one holding a negligible share
+#' of its species' biomass has a log that never stops moving: above a size where
+#' growth stops the density decays exponentially, so `log(n)` falls by the same
+#' amount between every pair of states, for ever. Left in the sum, a single such
+#' class holding \eqn{10^{-92}} g of fish can hold the distance above any
+#' tolerance indefinitely and stop [projectUntilSettled()] from ever converging,
+#' while the biomass drift correctly reports a fixed point. Excluding it changes
+#' nothing for a model that does not have one, because the classes that hold the
+#' fish are exactly the classes that are kept.
+#'
 #' @param params MizerParams
 #' @param current A named list with entries `n`, `n_pp` and `n_other`
 #'   describing the current state
 #' @param previous A named list with entries `n`, `n_pp` and `n_other`
 #'   describing the previous state
-#' @return The sum of squares of the difference in the logs of the (nonzero)
-#'   fish abundances `n`, ignoring entries where either state has zero
-#'   abundance:
+#' @param biomass_share_cutoff `r lifecycle::badge("experimental")`
+#'   The share of a species' biomass that a size class must hold in the current
+#'   state to be measured. `0` measures every class with a nonzero density in
+#'   both states, which is what this function did before mizer 3.3. The same
+#'   cutoff decides which classes [getSteadyResidual()] reports.
+#' @param ... Unused. Accepted because [projectUntilSettled()] forwards its own
+#'   `...` to both the rate functions and the distance function, so an argument
+#'   meant for one arrives at the other.
+#' @return The sum of squares of the difference in the logs of the fish
+#'   abundances `n`, over the size classes that hold fish in both states:
 #'   `sum((log(current$n) - log(previous$n))^2)`
 #' @family distance functions
 #' @concept helper
 #' @export
-distanceSSLogN <- function(params, current, previous) {
+distanceSSLogN <- function(params, current, previous,
+                           biomass_share_cutoff = steady_share_cutoff(), ...) {
     UseMethod("distanceSSLogN")
 }
 #' @export
-distanceSSLogN.MizerParams <- function(params, current, previous) {
-    sel <- current$n > 0 & previous$n > 0
+distanceSSLogN.MizerParams <- function(params, current, previous,
+                                       biomass_share_cutoff =
+                                           steady_share_cutoff(), ...) {
+    # The cutoff is applied to the current state, the one the run has reached
+    # and the one the verdict is about. A class filling up from nothing joins
+    # the sum as soon as it holds anything; a dying one leaves it as soon as it
+    # does not.
+    sel <- current$n > 0 & previous$n > 0 &
+        !negligible_cells(params, current$n, biomass_share_cutoff)
     sum((log(current$n[sel]) - log(previous$n[sel]))^2)
 }
 
@@ -294,8 +320,15 @@ distanceSSLogN.MizerParams <- function(params, current, previous) {
 #'       — a run stopped in mid-flight, or a species on its way out. This is the
 #'       entry to test before treating a result as a steady state.}
 #'     \item{`distance`}{The final value returned by `distance_func`.}
-#'     \item{`residual`}{The largest per-capita rate of change, in 1/year, at the
-#'       state that was reached, as returned by [getSteadyResidual()]. Unlike
+#'     \item{`residual`}{The largest absolute relative rate of biomass change,
+#'       in 1/year, at the state that was reached. For each consumer species
+#'       this is \eqn{(dB_i/dt) / B_i}, a biomass-weighted aggregate over its
+#'       size classes; the resource is treated the same way and the other
+#'       components contribute their own relative rates. It is **not** the
+#'       largest cellwise value of [getSteadyResidual()], which is dominated by
+#'       fast-turnover size classes holding almost no mass and should not be
+#'       reduced to its maximum. This is the quantity `residual_tol` is a
+#'       tolerance on, so the two cannot mean different things. Unlike
 #'       `distance`, which compares two states `t_check` apart on whatever scale
 #'       the distance function uses, this measures how far the state actually is
 #'       from being a fixed point.}
@@ -739,6 +772,21 @@ project_until_settled <- function(params,
                    "biomasses are still changing at up to ",
                    signif(residual, 2), " per year, which is above the ",
                    "residual tolerance, so this state is not a fixed point.")
+        } else if (identical(attractor, "fixed_point")) {
+            # The opposite case, and the one that reads as a contradiction
+            # until it is spelled out: the distance function is still
+            # unsatisfied while the state it is unsatisfied about has stopped
+            # drifting. `converged` and `attractor` answer different questions,
+            # so say which is which rather than leaving the two entries of the
+            # convergence attribute to be compared.
+            paste0("The distance function returned ", signif(distance, 3),
+                   ", which is above the distance tolerance, but the state ",
+                   "reached is a fixed point: the biomasses change at only ",
+                   signif(residual, 2), " per year. The distance function is ",
+                   "measuring motion that the biomasses do not see, so ",
+                   "`attractor` is \"fixed_point\" even though `converged` is ",
+                   "FALSE. Loosen `distance_tol`, or use a distance function ",
+                   "that ignores what this one is still seeing.")
         } else {
             paste0("Value returned by the distance function was: ", distance)
         }

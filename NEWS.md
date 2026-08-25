@@ -705,6 +705,43 @@ fixed, keeping the old names as silent aliases.
 
 ## Bug fixes
 
+- A size class holding a negligible density no longer stops
+  `projectUntilSettled()` from ever converging, and no longer dominates the
+  summary and plot of `getSteadyResidual()` (#570). Above a size where growth
+  stops, the density decays exponentially and `dN/dt` decays with it, so the
+  per-capita rate stays equal to minus the mortality rate for ever while the
+  mass in the class falls through 1e-100 and beyond. `distanceSSLogN()` counted
+  every class with a positive density, so one such trace — in the reported
+  example holding 3e-92 g of Herring — contributed 2.393 of a total distance of
+  2.3957 at every check, for ever, and the run stopped at `t_max` reporting
+  `converged = FALSE` while the biomass drift correctly reported a fixed point.
+
+  Both `distanceSSLogN()` and `getSteadyResidual()` now gain a
+  `biomass_share_cutoff` argument, defaulting to `1e-8`: a size class counts
+  only if it holds at least that share of its species' biomass. Relevance is
+  measured as a share of biomass rather than of density, because density falls
+  fifteen orders or more across a healthy spectrum for entirely good reasons.
+  Nothing changes for a model without such a trace — every class the cutoff
+  removes there is one that already had no density at all — so existing
+  `distance_tol` values keep their meaning. Pass `biomass_share_cutoff = 0` for
+  the old behaviour. What decides whether a state is a fixed point is unchanged
+  and still integrates over every size class, cut off or not, so the cutoff
+  cannot make a drifting model look settled.
+
+- `projectUntilSettled()` now says so when a run that stopped at `t_max`
+  nonetheless reached a fixed point. `converged = FALSE` beside
+  `attractor = "fixed_point"` is correct — they answer different questions —
+  but read as a contradiction until the message said which was which (#570).
+
+- The `residual` entry of the `"convergence"` attribute was documented as the
+  largest per-capita rate of change returned by `getSteadyResidual()`. It is
+  the largest relative rate of *biomass* change, `(dB_i/dt) / B_i` per consumer
+  species — a biomass-weighted aggregate, and the quantity `residual_tol` is a
+  tolerance on. The two descriptions disagreed with each other and with the
+  `getSteadyResidual()` help page, which warns against reducing its array to
+  its maximum. Corrected here and for the `residual` column of a `MizerScan`,
+  which is filled from the same attribute (#572).
+
 - The `gear_params` print method no longer reports each row as a gear. Every row
   is a gear-species pair, so a single gear catching ten species was announced as
   "gear parameters for 10 gears"; it now says how many pairs there are and how

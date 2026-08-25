@@ -77,8 +77,12 @@ and whether the solver met its own criterion. Both come from the
 result, and neither is a claim about the state — see \code{attractor} for
 that.}
 \item{\code{period}}{The period of the limit cycle in years, or \code{NA}.}
-\item{\code{residual}}{How far the state still is from a fixed point, as a
-per-capita rate in 1/year, see \code{\link[=getSteadyResidual]{getSteadyResidual()}}.}
+\item{\code{residual}}{How far the state still is from a fixed point: the
+largest absolute relative rate of biomass change, in 1/year, taken from
+the \code{"convergence"} attribute that \code{\link[=projectUntilSettled]{projectUntilSettled()}} attaches to
+its result and described there. It is a biomass-weighted aggregate over
+each species' size classes, not the largest cellwise value of
+\code{\link[=getSteadyResidual]{getSteadyResidual()}}.}
 }
 
 The first three columns are the x, y and grouping variable in that order,

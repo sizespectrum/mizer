@@ -38,6 +38,42 @@ test_that("getSteadyResidual() is NA exactly where there are no fish", {
                      initialN(off_steady_params) == 0)
 })
 
+test_that("getSteadyResidual() reports nothing for a negligible size class", {
+    # A settled model, where every genuine cell rate is below 1e-3, so that the
+    # trace added below is the only thing that could dominate a summary.
+    p <- residual_params
+    j <- length(w(p))
+    n <- initialN(p)
+    # A trace of fish in the largest size class. Nothing grows into it, so its
+    # per-capita rate is minus its mortality and stays there for ever while the
+    # density falls through 1e-100 and beyond. Reporting it would let a class
+    # holding no mass dominate the summary and the plot.
+    n[1, j] <- 1e-100
+    initialN(p) <- n
+
+    full <- getSteadyResidual(p, biomass_share_cutoff = 0)
+    trimmed <- getSteadyResidual(p)
+
+    expect_false(is.na(full[1, j]))
+    expect_equal(unname(full[1, j]), unname(-getMort(p)[1, j]))
+    expect_true(is.na(trimmed[1, j]))
+    # Nothing else moved: exactly the one class was withdrawn.
+    expect_identical(sum(is.na(unclass(trimmed))),
+                     sum(is.na(unclass(full))) + 1L)
+    # This is what #570 reported: the trace dominates the default summary of a
+    # model that is otherwise settled to within 1e-3.
+    expect_lt(summary(full)$per_species$Min[1], -0.01)
+    expect_gt(summary(trimmed)$per_species$Min[1], -1e-3)
+})
+
+test_that("getSteadyResidual() is unchanged where every class holds fish", {
+    # The cutoff only ever removes classes that hold no mass, so on a model
+    # without such a class it changes nothing at all.
+    expect_identical(unclass(getSteadyResidual(off_steady_params)),
+                     unclass(getSteadyResidual(off_steady_params,
+                                               biomass_share_cutoff = 0)))
+})
+
 test_that("getSteadyResidual() predicts the drift that project() produces", {
     # This is the property that defines the residual: it is dN/dt. A projection
     # over a short step must reproduce it, with an error that is first order in

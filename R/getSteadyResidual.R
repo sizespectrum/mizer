@@ -42,6 +42,75 @@ steady_residual_tol <- function() {
     0.05
 }
 
+#' Below what share of a species' biomass a size class holds nothing
+#'
+#' A size class can carry a positive density and still hold no fish. Above a
+#' size where the growth rate vanishes the density decays exponentially: both
+#' `dN/dt` and `N` shrink together, so the per-capita rate stays equal to minus
+#' the mortality rate for ever, however small the density becomes. Such a class
+#' is not evidence that a model is still moving; it is the arithmetic of a
+#' number on its way to zero.
+#'
+#' This is the share of a species' biomass below which a size class is treated
+#' as holding nothing. Relevance is measured as a share of biomass rather than
+#' of density, because the density in a size spectrum falls by fifteen orders or
+#' more between the egg size and `w_max` for entirely healthy reasons, so no
+#' threshold on density can separate a dying trace from real large fish. The bin
+#' biomass, \eqn{N_i(w) w \Delta w} against the species total, can. Measured
+#' shares:
+#'
+#' | Size class | Share of the species' biomass |
+#' |---|---|
+#' | one holding an appreciable number of fish | above 1e-6 |
+#' | Saithe at 7 kg in a Datta North Sea reconstruction | 1e-11 |
+#' | the inaccessible 17-42 kg Saithe tail there | 1e-137 |
+#'
+#' `1e-8` therefore sits two orders below anything that holds fish and three or
+#' more above the traces it is meant to remove. Erring on the large side is the
+#' safe direction: whether a state is a fixed point is decided by
+#' `steady_biomass_drift()`, which integrates over *every* size class, cut off
+#' or not, so a generous cutoff here cannot make a drifting model look settled.
+#' All it can do is stop a class with no mass in it from dominating a diagnostic
+#' or a convergence test.
+#'
+#' @return The cutoff, a single number.
+#' @noRd
+steady_share_cutoff <- function() {
+    1e-8
+}
+
+#' Which size classes hold a negligible share of their species' biomass
+#'
+#' The single definition behind the cutoff in [getSteadyResidual()] and the one
+#' in [distanceSSLogN()], so that a size class hidden from the residual plot is
+#' exactly a size class the convergence test ignores.
+#'
+#' The bin biomass is formed with [bin_average_weight()], so the shares are
+#' taken with whichever quadrature scheme the model is on and sum to one under
+#' both.
+#'
+#' A species with no biomass at all has no size class holding a share of it, so
+#' all of its classes count as negligible and nothing is divided by zero.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @param n Consumer densities (species x size).
+#' @param cutoff The share of a species' biomass below which a size class is
+#'   treated as holding nothing. `0` selects nothing, which is how the callers
+#'   behaved before this cutoff existed.
+#' @return A logical matrix (species x size), `TRUE` where the size class is
+#'   negligible.
+#' @noRd
+negligible_cells <- function(params, n, cutoff = steady_share_cutoff()) {
+    if (cutoff <= 0) {
+        return(matrix(FALSE, nrow = nrow(n), ncol = ncol(n)))
+    }
+    wdw <- bin_average_weight(params@w, params) * params@dw
+    bin_biomass <- n * rep(wdw, each = nrow(n))
+    # `<=` rather than `<` so that a species with no biomass at all, where both
+    # sides are zero, comes back all-negligible rather than all-relevant.
+    bin_biomass <= cutoff * rowSums(bin_biomass)
+}
+
 #' How far a model is from its steady state
 #'
 #' `r lifecycle::badge("experimental")`
@@ -92,6 +161,15 @@ steady_residual_tol <- function() {
 #' relative rate of change of a zero density is undefined — so they are returned
 #' as `NA`. Use `na.rm = TRUE` in any summary, as the examples above do.
 #'
+#' A class holding a *negligible* density says no more than an empty one does,
+#' and says it loudly. Above a size where growth stops, the density decays
+#' exponentially and `dN/dt` decays with it, so the per-capita rate sits at
+#' minus the mortality rate for ever while the mass in the class falls through
+#' \eqn{10^{-100}} and beyond. Such classes are returned as `NA` too: a size
+#' class counts only if it holds at least `biomass_share_cutoff` of its species'
+#' biomass. Pass `biomass_share_cutoff = 0` to get every class back, including
+#' the ones on their way to zero.
+#'
 #' ## Do not reduce this to its maximum
 #'
 #' `max(abs(res))` is a tempting single-number verdict and a misleading one. The
@@ -116,9 +194,16 @@ steady_residual_tol <- function() {
 #' @param dt The step length used for the resource and other components, whose
 #'   dynamics functions are only available as one-step maps. Smaller is more
 #'   accurate. Not used for the consumers, whose rate is exact.
+#' @param biomass_share_cutoff `r lifecycle::badge("experimental")`
+#'   The share of a species' biomass that a size class must hold for its rate to
+#'   be reported. Classes below it hold nothing that any summary or plot of this
+#'   array should be dominated by, and are returned as `NA` alongside the empty
+#'   ones. `0` reports every class. The same cutoff decides which classes
+#'   [distanceSSLogN()] measures convergence on.
 #' @return An [ArraySpeciesBySize] object (species x size) of per-capita rates
-#'   of change in 1/year, `NA` where the density is zero. It carries two
-#'   further attributes:
+#'   of change in 1/year, `NA` where the size class holds no fish — either no
+#'   density at all or less than `biomass_share_cutoff` of the species'
+#'   biomass. It carries two further attributes:
 #'   \describe{
 #'     \item{`resource`}{The per-capita rate of change of the resource, a
 #'       numeric vector over `w_full`, `NA` where the resource density is zero.}
@@ -145,12 +230,18 @@ steady_residual_tol <- function() {
 #' plot(getSteadyResidual(params))
 #' }
 getSteadyResidual <- function(params, effort = params@initial_effort,
-                              dt = 1e-4) {
+                              dt = 1e-4,
+                              biomass_share_cutoff = steady_share_cutoff()) {
     rates <- steady_rates(params, effort = effort, dt = dt)
 
     n <- rates$n
     residual <- rates$dNdt / n
+    # A class with no density has no relative rate, and one with a negligible
+    # density has one that says nothing: both are reported as absent rather than
+    # left to dominate the summary and the plot.
     residual[n == 0] <- NA_real_
+    negligible <- negligible_cells(rates$params, n, biomass_share_cutoff)
+    residual[negligible] <- NA_real_
     resource <- rates$dn_pp_dt / rates$n_pp
     resource[rates$n_pp == 0] <- NA_real_
 
