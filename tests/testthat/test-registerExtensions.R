@@ -40,6 +40,14 @@ test_that("registerExtensions accepts suffixes and prepended superchains", {
     registerExtensions(inner)
     expect_identical(getRegisteredExtensions(), full)
 
+    # Registering a suffix also repairs the active superchain.
+    expect_true(methods::removeClass(ext_b))
+    expect_true(methods::removeClass(simExtensionClass(ext_b)))
+    registerExtensions(inner)
+    expect_true(methods::extends(ext_b, ext_a))
+    expect_true(methods::extends(simExtensionClass(ext_b),
+                                 simExtensionClass(ext_a)))
+
     expect_error(registerExtensions(incompatible),
                  "different extension chain is already active")
 })
@@ -168,6 +176,19 @@ test_that("registerExtension is idempotent", {
 
     registerExtension(ext_b)
     expect_identical(getRegisteredExtensions(), full_chain)
+
+    # Idempotent registration also repairs marker classes lost during reload.
+    expect_true(methods::removeClass(ext_b))
+    expect_true(methods::removeClass(simExtensionClass(ext_b)))
+    registerExtension(ext_b)
+    expect_identical(getRegisteredExtensions(), full_chain)
+    expect_true(methods::extends(ext_b, ext_a))
+    expect_true(methods::extends(simExtensionClass(ext_b),
+                                 simExtensionClass(ext_a)))
+
+    params <- NS_params_small
+    params@extensions <- full_chain
+    expect_s4_class(coerceToExtensionClass(params), ext_b)
 })
 
 test_that("registerExtension coerces objects to correct subclass", {

@@ -1290,6 +1290,10 @@ existing code to these changes.
 
 ## Extension framework
 
+- Repeated `registerExtension()` and `registerExtensions()` calls now recreate
+  dynamic marker classes that disappeared during an extension-package reload,
+  while leaving the registered extension chain unchanged (#569).
+
 - An installed extension package is now recognised as a dispatching extension
   from the S3 methods it registers for its marker class (e.g.
   `getEncounter.mizerMR`), rather than only from a statically defined S4 marker

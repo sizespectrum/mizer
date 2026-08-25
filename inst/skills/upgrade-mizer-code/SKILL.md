@@ -150,6 +150,7 @@ function` — carry no such quote, so match those rows on the function name.
 | A link to `articles/using-extension-packages.html` | renamed to **guide-use-extension-packages** when it became a generated guide; the old address redirects | The cheatsheet articles are now called guides |
 | A link to `articles/extending-mizer.html` | merged into **guide-extend-mizer**, which was previously a separate shorter guide; the old address redirects | The cheatsheet articles are now called guides |
 | A link to `articles/creating-extension-packages.html` | renamed to **guide-create-extension-package** when it became a generated guide; the old address redirects | The cheatsheet articles are now called guides |
+| After `devtools::load_all()`, `coerceToExtensionClass()` says an extension is not a defined class | repeated registration left a missing dynamic marker class unrestored | Repeated extension registration restores missing marker classes |
 
 ### mizer 3.1 → 3.2 — `references/mizer-3.2.md`
 
@@ -215,4 +216,3 @@ Only changes that can alter the behaviour of *existing* code are listed. The
 many purely additive features (new functions, new optional arguments, new
 plots) are described in the [changelog](https://sizespectrum.org/mizer/news/index.html)
 and are not repeated here.
-

@@ -1040,6 +1040,18 @@ them with `setClass("myExtension", contains = "MizerParams")`, which mizer
 with another, because a sealed class cannot be re-parented into the chain. Let
 mizer create the classes; see the `create-extension-package` skill.
 
+### Repeated extension registration restores missing marker classes
+
+`registerExtension()` is designed to be called from an extension package's
+`.onLoad()` hook, including when `devtools::load_all()` reloads that package in
+the same session. Previously, if the extension was still present in mizer's
+session registry but its dynamic marker class had disappeared during the
+reload, the repeated registration returned without recreating the class. The
+next `coerceToExtensionClass()` call then failed because the extension was not a
+defined class. Repeated `registerExtension()` and `registerExtensions()` calls
+now restore any missing dynamic marker classes while leaving the registered
+chain unchanged.
+
 "Extending mizer" and "Guide: Extending mizer" were two articles on one topic,
 the guide a short companion to the article. They are now a single guide,
 generated from the `extend-mizer` skill, holding both the article's worked
@@ -1078,4 +1090,3 @@ In mizer 3.3, the autocorrelation step uses only the second half of the series
 ignore the initial transient. A cycle will now be found earlier (because the
 check does not wait for the long-settled cycle to outweigh the transient), and
 some cycles that were previously missed entirely will now be correctly reported.
-

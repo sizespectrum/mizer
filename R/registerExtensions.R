@@ -14,9 +14,9 @@
 #' package loaded ends up outermost.
 #'
 #' The call is idempotent: if the extension is already registered at any
-#' position in the chain, the function returns silently without modifying the
-#' chain. This makes it safe to call from `devtools::load_all()`, which
-#' re-executes `.onLoad`.
+#' position in the chain, the function leaves the chain unchanged and recreates
+#' any missing dynamic marker classes. This makes it safe to call from
+#' `devtools::load_all()`, which re-executes `.onLoad`.
 #'
 #' @param name A syntactically valid R name identifying the extension (e.g.
 #'   `"mizerExtA"`). This name is used as the S4 marker class name.
@@ -41,6 +41,8 @@ registerExtension <- function(name, requirement = NA_character_, install = FALSE
     current <- getRegisteredExtensions()
 
     if (name %in% names(current)) {
+        ensureExtensionNamespaces(current, install = install)
+        defineExtensionClasses(current)
         return(invisible(current))
     }
 
@@ -94,7 +96,8 @@ registerExtensions <- function(extensions, install = FALSE) {
     relation <- compareExtensionChains(old, extensions)
 
     if (relation %in% c("identical", "new_is_suffix")) {
-        ensureExtensionNamespaces(extensions, install = install)
+        ensureExtensionNamespaces(old, install = install)
+        defineExtensionClasses(old)
         return(invisible(old))
     }
 
