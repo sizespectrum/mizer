@@ -29,9 +29,11 @@ package loaded ends up outermost.
 }
 \details{
 The call is idempotent: if the extension is already registered at any
-position in the chain, the function leaves the chain unchanged and recreates
-any missing dynamic marker classes. This makes it safe to call from
-\code{devtools::load_all()}, which re-executes \code{.onLoad}.
+position in the chain, the function leaves the chain unchanged, including the
+requirement recorded at first registration, and repairs the dynamic marker
+classes if any of them went missing. This makes it safe to call from
+\code{devtools::load_all()}, which re-executes \code{.onLoad} after removing the
+classes that the reloaded package's namespace held.
 }
 \seealso{
 \code{\link[=registerExtensions]{registerExtensions()}} for registering an explicit full chain.

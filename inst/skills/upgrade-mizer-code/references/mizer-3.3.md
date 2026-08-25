@@ -1040,17 +1040,30 @@ them with `setClass("myExtension", contains = "MizerParams")`, which mizer
 with another, because a sealed class cannot be re-parented into the chain. Let
 mizer create the classes; see the `create-extension-package` skill.
 
-### Repeated extension registration restores missing marker classes
+### Repeated extension registration rebuilds missing marker classes
 
 `registerExtension()` is designed to be called from an extension package's
 `.onLoad()` hook, including when `devtools::load_all()` reloads that package in
-the same session. Previously, if the extension was still present in mizer's
-session registry but its dynamic marker class had disappeared during the
-reload, the repeated registration returned without recreating the class. The
-next `coerceToExtensionClass()` call then failed because the extension was not a
-defined class. Repeated `registerExtension()` and `registerExtensions()` calls
-now restore any missing dynamic marker classes while leaving the registered
-chain unchanged.
+the same session. The reload removes the S4 classes the package's namespace
+held, which can take a dynamic marker class out of the registered chain.
+Previously the repeated registration returned without recreating it, and the
+next `coerceToExtensionClass()` call failed with base R's coercion error, `no
+method or default for coercing "MizerParams" to ...`.
+
+Repeated `registerExtension()` and `registerExtensions()` calls now rebuild the
+chain's dynamic marker classes while leaving the registered chain unchanged.
+The whole chain is rebuilt rather than just the class that went missing,
+because R prunes a removed class from the `contains` list of its subclasses: a
+marker class that used to sit outside the missing one is left parented directly
+on `MizerParams`, so recreating only the missing class would leave the chain
+still broken. An intact chain is inspected and left untouched, so the usual
+repeated registration does no work.
+
+The repair never installs or version-checks anything. `registerExtensions()`
+loads only the namespaces of the extensions you pass it, as before, and the
+repeated `registerExtension()` call touches no namespaces at all — an
+extension registered earlier in the session but no longer installed cannot
+make a package's `.onLoad()` fail.
 
 "Extending mizer" and "Guide: Extending mizer" were two articles on one topic,
 the guide a short companion to the article. They are now a single guide,
@@ -1090,3 +1103,4 @@ In mizer 3.3, the autocorrelation step uses only the second half of the series
 ignore the initial transient. A cycle will now be found earlier (because the
 check does not wait for the long-settled cycle to outweigh the transient), and
 some cycles that were previously missed entirely will now be correctly reported.
+

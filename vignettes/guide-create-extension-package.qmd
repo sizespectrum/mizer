@@ -99,8 +99,8 @@ needs to install the package automatically. For packages on CRAN you can use a
 minimum version string such as `"1.2.0"` instead; for GitHub-only packages use
 the `"owner/repo"` form (e.g. `"sizespectrum/mizerStarvation"`). You can also specify a specific branch or version of the package, using the same syntax that the `{pak}` package uses. The call is safe to repeat: if the package is
 already registered (for example because the user called
-`devtools::load_all()` twice), it leaves the chain unchanged and recreates any
-dynamic marker class that disappeared during the reload.
+`devtools::load_all()` twice), it leaves the chain unchanged and rebuilds the
+chain's dynamic marker classes if the reload removed any of them.
 
 ### Recording the extension in `params@extensions`
 

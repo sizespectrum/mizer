@@ -705,6 +705,13 @@ fixed, keeping the old names as silent aliases.
 
 ## Bug fixes
 
+- Repeated `registerExtension()` and `registerExtensions()` calls now rebuild
+  the dynamic marker classes of the active extension chain when any of them
+  disappeared during an extension-package reload, while leaving the registered
+  chain unchanged. Recreating only the class that went missing is not enough,
+  because R prunes it from the `contains` list of the marker classes outside
+  it, so the whole chain is rebuilt (#569).
+
 - The `gear_params` print method no longer reports each row as a gear. Every row
   is a gear-species pair, so a single gear catching ten species was announced as
   "gear parameters for 10 gears"; it now says how many pairs there are and how
@@ -1289,10 +1296,6 @@ See the new `vignette("upgrading")` ("Upgrading mizer") for how to adapt
 existing code to these changes.
 
 ## Extension framework
-
-- Repeated `registerExtension()` and `registerExtensions()` calls now recreate
-  dynamic marker classes that disappeared during an extension-package reload,
-  while leaving the registered extension chain unchanged (#569).
 
 - An installed extension package is now recognised as a dispatching extension
   from the S3 methods it registers for its marker class (e.g.
