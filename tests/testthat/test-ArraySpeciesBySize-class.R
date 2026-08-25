@@ -93,6 +93,47 @@ test_that("summary.ArraySpeciesBySize works", {
     expect_output(print(s), "Encounter rate")
 })
 
+test_that("summary.ArraySpeciesBySize covers the same sizes as plot()", {
+    # The asymmetry this fixes: plot() has always dropped the values outside a
+    # species' size range, and summary() reported them, so the two described
+    # different arrays. The out-of-range values are also the extreme ones — the
+    # encounter rate a fish far larger than its `w_max` would have — so it was
+    # the summary's Min and Max that disagreed.
+    s <- summary(enc_small)$per_species
+    pd <- plot(enc_small, return_data = TRUE)
+    for (sp in s$Species) {
+        vals <- pd[[2]][pd$Species == sp]
+        expect_equal(s$Max[s$Species == sp], max(vals))
+        expect_equal(s$Min[s$Species == sp], min(vals))
+    }
+
+    # `all.sizes = TRUE` gives the whole grid back, which for a rate that grows
+    # with size means a strictly larger maximum.
+    all_sizes <- summary(enc_small, all.sizes = TRUE)$per_species
+    expect_equal(all_sizes$Max, unname(apply(unclass(enc_small), 1, max)))
+    # Never smaller, and strictly larger for a species whose `w_max` is below
+    # the top of the grid, which is where a rate that grows with size peaks.
+    expect_true(all(all_sizes$Max >= s$Max))
+    expect_true(any(all_sizes$Max > s$Max))
+})
+
+test_that("summary.ArraySpeciesBySize reports NA for an empty species", {
+    # Every size class masked out must give NA, not the -Inf/Inf that `min()`
+    # and `max()` of an empty selection return, with a warning.
+    x <- enc_small
+    x[1, ] <- NA
+    s <- expect_no_warning(summary(x, all.sizes = TRUE)$per_species)
+    expect_true(is.na(s$Min[1]) && is.na(s$Mean[1]) && is.na(s$Max[1]))
+    expect_false(anyNA(s$Min[-1]))
+})
+
+test_that("summary.ArraySpeciesBySize keeps species the model does not know", {
+    # An array whose rows are not model species has no range to be outside of.
+    x <- ArraySpeciesBySize(matrix(1:6, nrow = 2,
+                                   dimnames = list(c("a", "b"), NULL)))
+    expect_identical(summary(x)$per_species$Max, c(5L, 6L))
+})
+
 test_that("str.ArraySpeciesBySize works", {
     expect_output(str(enc_small), "ArraySpeciesBySize")
     expect_output(str(enc_small), "Encounter rate")

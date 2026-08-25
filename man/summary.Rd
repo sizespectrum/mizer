@@ -9,14 +9,18 @@
 \alias{summary.MizerParams}
 \title{Summarise mizer objects}
 \usage{
-\method{summary}{ArraySpeciesBySize}(object, ...)
+\method{summary}{ArraySpeciesBySize}(object, all.sizes = FALSE, ...)
 \method{summary}{ArrayTimeBySpecies}(object, ...)
-\method{summary}{ArrayTimeBySpeciesBySize}(object, ...)
+\method{summary}{ArrayTimeBySpeciesBySize}(object, all.sizes = FALSE, ...)
 \method{summary}{MizerSim}(object, ...)
 \method{summary}{MizerParams}(object, ...)
 }
 \arguments{
 \item{object}{The object to summarise.}
+
+\item{all.sizes}{If \code{FALSE} (the default), values outside a species' size
+range (\code{w_min} to \code{w_max}) are left out, as in \code{\link[=plot]{plot()}}. Only for the
+classes with a size dimension.}
 
 \item{...}{Further arguments. They are currently ignored by the mizer
 methods.}
@@ -41,6 +45,14 @@ For \code{\link[=ArraySpeciesBySize]{ArraySpeciesBySize()}}, \code{\link[=ArrayT
 the value name, units, dimensions and a per-species data frame containing
 minimum, mean and maximum values. Printing that summary object gives the same
 compact table in a human-readable form.
+
+For the two classes that have a size dimension, those values are taken over
+each species' own size range, from its \code{w_min} to its \code{w_max}, which is the
+range \code{\link[=plot]{plot()}} draws. A rate array is defined on the whole size grid, but the
+values outside a species' range describe an animal that does not exist — the
+encounter rate a 40 kg Sprat would have — and they are usually the extreme
+ones, so a summary that included them reported the size grid rather than the
+species. Pass \code{all.sizes = TRUE} for the whole grid.
 }
 \examples{
 \donttest{

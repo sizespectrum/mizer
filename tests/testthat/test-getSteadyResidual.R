@@ -110,7 +110,10 @@ test_that("a size class holding a trace cannot dominate the biomass measure", {
     pc <- getSteadyResidual(p, measure = "per_capita")
 
     expect_equal(unname(pc[1, j]), unname(-getMort(p)[1, j]))
-    expect_lt(summary(pc)$per_species$Min[1], -0.01)
+    # `all.sizes = TRUE` isolates the biomass rule from the size-range one:
+    # this class is above its species' `w_max`, so the default summary would
+    # leave it out on that ground alone.
+    expect_lt(summary(pc, all.sizes = TRUE)$per_species$Min[1], -0.01)
     # The same class, weighted by the biomass it holds, is nothing at all.
     expect_lt(abs(res[1, j]), 1e-90)
     expect_lt(max(abs(rowSums(res))), 1e-3)

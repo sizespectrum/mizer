@@ -1,8 +1,8 @@
 ## Upgrading from mizer 3.3 to 3.4
 
-Two things change, both in the steady-state tools: what `getSteadyResidual()`
-measures, and which size classes `distanceSSLogN()` counts. Everything that
-decides whether a state is a fixed point is untouched.
+Three things change: what `getSteadyResidual()` measures, which sizes
+`summary()` of an array covers, and which size classes `distanceSSLogN()`
+counts. Everything that decides whether a state is a fixed point is untouched.
 
 ### `getSteadyResidual()` measures biomass drift by default
 
@@ -64,6 +64,48 @@ upgrading, check which number they are reading. The verdict — `isSteady()`,
 biomass-weighted in 3.3 and is unchanged. Only the diagnostic array moved. A
 drop of one to three orders of magnitude in `max(abs(getSteadyResidual(params)))`
 is the expected sign of the new default, not a change in the model.
+<!-- /agent-only -->
+
+### `summary()` of an array covers the same sizes as `plot()`
+
+`plot()` of a species-by-size array draws each species over its own size range,
+from its `w_min` to its `w_max`, and has done since it gained `all.sizes`.
+`summary()` of the same array reduced the whole size grid, so the two described
+different arrays. The values outside a species' range describe an animal that
+does not exist, and because a rate usually grows with size they are also the
+extreme ones, so it was `Min` and `Max` that were reported wrongly:
+
+```r
+summary(getEncounter(NS_params))$per_species[1, ]
+#> before:  Species Sprat   Min 0.299   Mean 2929   Max 39573
+#> now:     Species Sprat   Min 0.299   Mean 37.9   Max 240
+```
+
+40000 g/year is the encounter rate a 40 kg Sprat would have. 240 g/year is the
+rate over the sizes a Sprat reaches.
+
+Both `summary()` methods with a size dimension — `ArraySpeciesBySize` and
+`ArrayTimeBySpeciesBySize` — now take `all.sizes`, defaulting to `FALSE` as
+`plot()` does. Pass `all.sizes = TRUE` for the whole grid:
+
+```r
+summary(getEncounter(NS_params), all.sizes = TRUE)   # as before
+```
+
+A species with no values left in range now comes back as `NA` rather than as
+the `-Inf`/`Inf` and warning that `min()` and `max()` of an empty selection
+give.
+
+`print()` and `as.data.frame()` are unchanged: they show the array as it is,
+without interpreting it. Nothing about the arrays themselves changed, so any
+code that indexes them directly is unaffected.
+
+<!-- agent-only -->
+If a user reports that a summary number "changed by orders of magnitude" between
+3.3 and 3.4, check whether it came from `summary()` of a rate array before
+looking anywhere else — this is much the largest such change, and the new number
+is the right one. `summary(x, all.sizes = TRUE)` reproduces the old value
+exactly, which is the quickest way to confirm the diagnosis.
 <!-- /agent-only -->
 
 ### A size class holding no fish no longer blocks convergence

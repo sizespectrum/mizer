@@ -68,7 +68,18 @@ NULL
 #' minimum, mean and maximum values. Printing that summary object gives the same
 #' compact table in a human-readable form.
 #'
+#' For the two classes that have a size dimension, those values are taken over
+#' each species' own size range, from its `w_min` to its `w_max`, which is the
+#' range [plot()] draws. A rate array is defined on the whole size grid, but the
+#' values outside a species' range describe an animal that does not exist — the
+#' encounter rate a 40 kg Sprat would have — and they are usually the extreme
+#' ones, so a summary that included them reported the size grid rather than the
+#' species. Pass `all.sizes = TRUE` for the whole grid.
+#'
 #' @param object The object to summarise.
+#' @param all.sizes If `FALSE` (the default), values outside a species' size
+#'   range (`w_min` to `w_max`) are left out, as in [plot()]. Only for the
+#'   classes with a size dimension.
 #' @param ... Further arguments. They are currently ignored by the mizer
 #'   methods.
 #'
@@ -78,9 +89,9 @@ NULL
 #' `summary.ArrayTimeBySpecies` or `summary.ArrayTimeBySpeciesBySize`.
 #'
 #' @usage
-#' \method{summary}{ArraySpeciesBySize}(object, ...)
+#' \method{summary}{ArraySpeciesBySize}(object, all.sizes = FALSE, ...)
 #' \method{summary}{ArrayTimeBySpecies}(object, ...)
-#' \method{summary}{ArrayTimeBySpeciesBySize}(object, ...)
+#' \method{summary}{ArrayTimeBySpeciesBySize}(object, all.sizes = FALSE, ...)
 #' \method{summary}{MizerSim}(object, ...)
 #' \method{summary}{MizerParams}(object, ...)
 #' @aliases summary.ArraySpeciesBySize summary.ArrayTimeBySpecies summary.ArrayTimeBySpeciesBySize summary.MizerSim summary.MizerParams
