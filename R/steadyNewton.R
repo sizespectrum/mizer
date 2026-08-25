@@ -34,13 +34,14 @@
 #'   [tuneSteadyState()] passes the rate of the state it was given;
 #'   [findSteadyState()] passes `NULL`.
 #' * `resource = "solve"` adds the resource densities to the unknowns and
-#'   appends the semichemostat steady-state equation to the residual, so the
-#'   resource density and the feeding levels it implies are self-consistent even
-#'   where consumers are satiated. This requires the default semichemostat
-#'   resource dynamics and is what [findSteadyState()] uses. `resource = "fixed"`
-#'   leaves the resource out of the system entirely, holding it at the density
-#'   in `initial_n_pp`; the caller is then responsible for rebalancing the
-#'   capacity afterwards, which is what [tuneSteadyState()] does.
+#'   appends the resource steady-state equation to the residual, so the resource
+#'   density and the feeding levels it implies are self-consistent even where
+#'   consumers are satiated. The equation is supplied by the
+#'   `steady_<resource_dynamics>()` companion and this is what
+#'   [findSteadyState()] uses. `resource = "fixed"` leaves the resource out of
+#'   the system entirely, holding it at the density in `initial_n_pp`; the
+#'   caller is then responsible for rebalancing the capacity afterwards, which
+#'   is what [tuneSteadyState()] does.
 #'
 #' Restoring density-dependent reproduction after a `rdd_const` solve is the
 #' caller's job too, so that both solvers share one implementation of it.
@@ -97,16 +98,14 @@ newton_steady_state <- function(params, effort, rdd_const,
         stop("The Newton solver requires the 'nleqslv' package. ",
              "Install it with install.packages('nleqslv').")
     }
-    if (resource == "solve" &&
-        params@resource_dynamics != "resource_semichemostat") {
-        stop("`solver = \"newton\"` can only solve for the resource with the ",
-             "default semichemostat resource dynamics ",
-             "(resource_dynamics = 'resource_semichemostat'). Use ",
-             "`tuneSteadyState()`, which holds the resource fixed, or ",
-             "`solver = \"project\"`.")
-    }
 
     n_other <- params@initial_n_other
+    rates_fns <- projectRateFunctions(params)
+    steady_resource <- if (resource == "solve") {
+        steady_resource_companion(params)
+    } else {
+        NULL
+    }
 
     active <- steady_active_set(params, resource = resource)
     if (active$n_fish_active == 0) {
@@ -127,14 +126,30 @@ newton_steady_state <- function(params, effort, rdd_const,
                                  active$w_top)
 
     residual_fn <- steady_state_residual(params, rdd_const, n_other, effort,
-                                         active, extinction_floor = extinction_floor,
-                                         N0 = N0)
+                                         active,
+                                         extinction_floor = extinction_floor,
+                                         N0 = N0, rates_fns = rates_fns,
+                                         steady_resource = steady_resource)
 
     x0 <- log(N0[active$mask])
     if (resource == "solve") {
         x0_n_pp <- as.numeric(params@initial_n_pp[active$mask_pp])
         x0_n_pp[x0_n_pp <= 0] <- params@cc_pp[active$mask_pp][x0_n_pp <= 0]
         x0 <- c(x0, log(x0_n_pp))
+
+        initial <- active$unpack(x0)
+        resource_eq <- resource_companion_value(params,
+                                                n = initial$N,
+                                                n_pp = initial$n_pp,
+                                                n_other = n_other,
+                                                effort = effort,
+                                                rates_fns = rates_fns,
+                                                steady_resource =
+                                                    steady_resource)
+        check_resource_equilibrium(resource_eq$n_pp,
+                                   active$mask_pp,
+                                   steady_resource$name,
+                                   where = "at the starting state")
     }
 
     control <- list(maxit = maxit, ftol = solver_tol, xtol = solver_tol,
@@ -174,7 +189,14 @@ newton_steady_state <- function(params, effort, rdd_const,
     }
 
     if (resource == "solve") {
-        n_pp <- resource_steady_semichemostat(params, N, n_other)
+        n_pp <- resource_steady_from_companion(params,
+                                               n = N, n_pp = n_pp,
+                                               n_other = n_other,
+                                               effort = effort,
+                                               rates_fns = rates_fns,
+                                               steady_resource =
+                                                   steady_resource,
+                                               mask_pp = active$mask_pp)
     }
 
     list(n = N, n_pp = n_pp, extinct = is_extinct, absent = active$absent,
@@ -324,33 +346,120 @@ fd_step_scale <- function(x, local_scale) {
     pmax(abs(x), local_scale)
 }
 
-#' Analytic semichemostat resource steady state
+#' Look up the steady-state companion for resource dynamics
 #'
-#' Returns the resource number density that is in equilibrium with the consumer
-#' densities `N`. For the semichemostat resource the equilibrium is
-#' `n_pp* = rr_pp * cc_pp / (rr_pp + mu_R(N))`, where the resource predation
-#' mortality `mu_R` depends only on the consumer densities (not on the resource
-#' density itself), so the substitution is exact. This is the `n_steady` of
-#' [resource_semichemostat()].
+#' Resource dynamics named `foo` opt into the resource-solving Newton branch by
+#' supplying a function named `steady_foo()`. It returns the resource abundance
+#' that would be steady with the rates held at their supplied values, just as a
+#' `balance_foo()` companion supplies parameters that balance those dynamics.
 #'
 #' @param params A \linkS4class{MizerParams} object.
-#' @param N Consumer densities (species x size).
+#' @return A list containing the companion's `name` and resolved function `fun`.
+#' @noRd
+steady_resource_companion <- function(params) {
+    name <- paste0("steady_", params@resource_dynamics)
+    fun <- get0(name)
+    if (!is.function(fun)) {
+        stop("`solver = \"newton\"` cannot solve for the resource with `",
+             params@resource_dynamics, "()` because its companion `", name,
+             "()` is not available. Define that function or use ",
+             "`solver = \"project\"`.", call. = FALSE)
+    }
+    list(name = name, fun = fun)
+}
+
+#' Evaluate a steady-resource companion and the rates it uses
+#'
+#' Calculates the same complete rate list that the resource dynamics receives
+#' during projection, then asks its steady-state companion for the equilibrium
+#' implied by those frozen rates. Keeping the rates and the companion result
+#' together lets the Newton residual reuse the rates for the consumer equation.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @param n Consumer densities (species x size).
+#' @param n_pp Resource density.
 #' @param n_other Abundances of other components.
+#' @param effort Fishing effort.
+#' @param rates_fns Resolved rate functions from `projectRateFunctions()`.
+#' @param steady_resource The result of `steady_resource_companion()`.
+#' @return A list containing the equilibrium `n_pp` and the complete `rates`.
+#' @noRd
+resource_companion_value <- function(params, n, n_pp, n_other, effort,
+                                     rates_fns, steady_resource) {
+    rates <- rates_fns$Rates(params,
+                             n = n, n_pp = n_pp, n_other = n_other, t = 0,
+                             effort = effort, rates_fns = rates_fns)
+    n_pp_steady <- steady_resource$fun(params,
+                                       n = n, n_pp = n_pp,
+                                       n_other = n_other, rates = rates, t = 0,
+                                       resource_rate = params@rr_pp,
+                                       resource_capacity = params@cc_pp)
+    if (!is.numeric(n_pp_steady) || !is.null(dim(n_pp_steady)) ||
+            length(n_pp_steady) != length(params@w_full)) {
+        stop("`", steady_resource$name, "()` must return a numeric vector of ",
+             "length ", length(params@w_full), ", one value for each resource ",
+             "size class.", call. = FALSE)
+    }
+    list(n_pp = as.numeric(n_pp_steady), rates = rates)
+}
+
+#' Require the positive resource branch used by the Newton solver
+#'
+#' Resource densities are log-space unknowns and are therefore strictly
+#' positive. A companion result at or below zero belongs to a boundary branch
+#' that this solver does not yet represent.
+#'
+#' @param n_pp_steady The equilibrium returned by a resource companion.
+#' @param mask_pp Resource size classes included in the Newton system.
+#' @param companion_name Name of the resource companion.
+#' @param where Description of the state at which it was evaluated.
+#' @return `NULL` invisibly, or an error.
+#' @noRd
+check_resource_equilibrium <- function(n_pp_steady, mask_pp,
+                                       companion_name, where) {
+    bad <- mask_pp & (!is.finite(n_pp_steady) | n_pp_steady <= 0)
+    if (!any(bad)) {
+        return(invisible(NULL))
+    }
+    stop("`", companion_name, "()` does not give a finite, positive resource ",
+         "equilibrium in ", sum(bad), " size ",
+         if (sum(bad) == 1) "class " else "classes ", where, ". The Newton ",
+         "solver currently supports only positive resource equilibria; use ",
+         "`solver = \"project\"` when resource size classes can be depleted ",
+         "to zero.", call. = FALSE)
+}
+
+#' Re-equilibrate the resource through its steady-state companion
+#'
+#' Repeats the frozen-rate equilibrium calculation because consumer satiation
+#' makes resource mortality depend indirectly on resource abundance. This is
+#' the dynamics-agnostic replacement for the former semichemostat equation.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @param n Consumer densities (species x size).
+#' @param n_pp Resource density from the coupled Newton solve.
+#' @param n_other Abundances of other components.
+#' @param effort Fishing effort.
+#' @param rates_fns Resolved rate functions from `projectRateFunctions()`.
+#' @param steady_resource The result of `steady_resource_companion()`.
+#' @param mask_pp Resource size classes included in the Newton system.
 #' @return The steady-state resource number density vector.
 #' @noRd
-resource_steady_semichemostat <- function(params, N, n_other) {
-    n_pp <- params@initial_n_pp
+resource_steady_from_companion <- function(params, n, n_pp, n_other, effort,
+                                           rates_fns, steady_resource,
+                                           mask_pp) {
     for (i in 1:8) {
-        mu_R <- as.numeric(getResourceMort(params, n = N,
-                                           n_pp = n_pp,
-                                           n_other = n_other, t = 0))
-        mur <- params@rr_pp + mu_R
-        n_pp_new <- params@rr_pp * params@cc_pp / mur
-        # Where both rate and mortality vanish the steady state is undetermined;
-        # keep the initial value.
-        sel <- !is.finite(n_pp_new)
-        n_pp_new[sel] <- params@initial_n_pp[sel]
-        n_pp <- n_pp_new
+        resource_eq <- resource_companion_value(params,
+                                                n = n, n_pp = n_pp,
+                                                n_other = n_other,
+                                                effort = effort,
+                                                rates_fns = rates_fns,
+                                                steady_resource =
+                                                    steady_resource)
+        check_resource_equilibrium(resource_eq$n_pp,
+                                   mask_pp, steady_resource$name,
+                                   where = "after the Newton solve")
+        n_pp <- resource_eq$n_pp
     }
     n_pp
 }
@@ -458,10 +567,12 @@ state_rdd <- function(params, n, n_pp, n_other, rates) {
 #' Returns a closure `f(x)` suitable for [nleqslv::nleqslv()]. The argument `x`
 #' is the vector of log-densities of the active size classes (see
 #' `steady_active_set()`). The closure rebuilds the full density matrix,
-#' substitutes the analytic resource steady state, and calls
-#' `consumer_residual()` for the steady-state residual
+#' calls `consumer_residual()` for the consumer steady-state residual
 #' \eqn{F_j = a_j N_{j-1} + b_j N_j + c_j N_{j+1} - S_j}, to which it adds the
-#' scaling, masking and penalty floor that the root finder needs.
+#' scaling, masking and penalty floor that the root finder needs. When the
+#' resource is part of the solve, the closure obtains its frozen-rate
+#' equilibrium from the `steady_<resource_dynamics>()` companion and appends
+#' the relative difference between that equilibrium and the current resource.
 #' The residual is divided by `N`, turning it into a per-capita rate of change
 #' that is dimensionless and O(1) across the many orders of magnitude spanned by
 #' the densities — the natural scaling to pair with the log-space unknowns.
@@ -475,18 +586,22 @@ state_rdd <- function(params, n, n_pp, n_other, rates) {
 #' @param n_other Abundances of other components (held constant).
 #' @param effort The fishing effort vector.
 #' @param active The active-set list from `steady_active_set()`.
+#' @param rates_fns Resolved rate functions from `projectRateFunctions()`.
+#' @param steady_resource The result of `steady_resource_companion()`, or `NULL`
+#'   when the resource is fixed.
 #' @return A function of the packed log-density vector returning the packed
 #'   scaled residual.
 #' @noRd
 steady_state_residual <- function(params, rdd_const, n_other, effort, active,
-                                  extinction_floor = 1e-6, N0 = NULL) {
+                                  extinction_floor = 1e-6, N0 = NULL,
+                                  rates_fns = projectRateFunctions(params),
+                                  steady_resource = NULL) {
     no_w <- length(params@w)
     mask <- active$mask
     mask_pp <- active$mask_pp
     n_fish_active <- active$n_fish_active
     flux_limiter <- flux_limiter_scheme(params)
-    rates_fns <- projectRateFunctions(params)
-    
+
     if (is.null(N0)) {
         x0_initial <- params@initial_n
     } else {
@@ -502,7 +617,8 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
     }
     x_floor <- support_floor[mask]
 
-    if (is.null(rdd_const) && !is.null(extinction_floor) && extinction_floor > 0) {
+    if (is.null(rdd_const) && !is.null(extinction_floor) &&
+            extinction_floor > 0) {
         ext_floor <- x0 + log(extinction_floor)
         x_floor <- pmax(x_floor, ext_floor)
     }
@@ -512,10 +628,28 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
         N <- unpacked$N
         n_pp <- unpacked$n_pp
 
+        resource_eq <- NULL
+        rates <- NULL
+        if (any(mask_pp)) {
+            resource_eq <- resource_companion_value(params,
+                                                    n = N, n_pp = n_pp,
+                                                    n_other = n_other,
+                                                    effort = effort,
+                                                    rates_fns = rates_fns,
+                                                    steady_resource =
+                                                        steady_resource)
+            if (any(!is.finite(resource_eq$n_pp))) {
+                stop("`", steady_resource$name, "()` returned non-finite ",
+                     "resource equilibria during the Newton iteration.",
+                     call. = FALSE)
+            }
+            rates <- resource_eq$rates
+        }
+
         res <- consumer_residual(params, n = N, n_pp = n_pp, n_other = n_other,
                                  effort = effort, rdd = rdd_const,
                                  rates_fns = rates_fns,
-                                 flux_limiter = flux_limiter)
+                                 flux_limiter = flux_limiter, rates = rates)
 
         # Scale to a per-capita rate of change (N > 0 on the active set).
         if (is.null(rdd_const)) {
@@ -530,15 +664,12 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
             penalty <- 0.5 * (y - sqrt(y^2 + delta^2))
             r_ss <- r_ss + penalty
         }
-        
+
         # Resource residual, only when the resource is part of the system.
         if (!any(mask_pp)) {
             return(r_ss)
         }
-        mu_R <- as.numeric(getResourceMort(params, n = N,
-                                           n_pp = n_pp,
-                                           n_other = n_other, t = 0))
-        r_pp_ss <- (params@rr_pp * params@cc_pp / n_pp - (params@rr_pp + mu_R))[mask_pp]
+        r_pp_ss <- ((resource_eq$n_pp - n_pp) / n_pp)[mask_pp]
 
         c(r_ss, as.numeric(r_pp_ss))
     }

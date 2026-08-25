@@ -21,9 +21,14 @@ fixed, keeping the old names as silent aliases.
   dynamics to convergence. Unlike the default `solver = "project"` it converges
   even when the steady state is dynamically unstable, and it discovers the
   support of the steady state automatically. `findSteadyState(solver = "newton")`
-  carries the resource densities among its unknowns and so needs the default
-  semichemostat resource dynamics; `tuneSteadyState(solver = "newton")` holds
-  the resource fixed and works with any.
+  carries the resource densities among its unknowns and obtains their
+  equilibrium from a `steady_<resource_dynamics>()` companion. Mizer supplies
+  the new `steady_resource_semichemostat()` and `steady_resource_logistic()`
+  companions, so both built-in dynamics are supported (the logistic solve is
+  currently restricted to its positive-resource branch). Extension authors can
+  supply the same companion for custom resource dynamics.
+  `tuneSteadyState(solver = "newton")` holds the resource fixed and works with
+  any dynamics.
 
 - New experimental `getStability()` analyses the dynamic stability of a mizer
   steady state by computing the eigenvalues of the linearised dynamics at the

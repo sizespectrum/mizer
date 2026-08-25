@@ -636,9 +636,11 @@ the dynamics until they settle, which is the old behaviour.
 Newton-type root finder from the `nleqslv` package, so it converges even when
 the steady state is dynamically unstable, where the time-stepping solver
 diverges away from it. `findSteadyState(solver = "newton")` carries the resource
-densities among its unknowns and so needs the default semichemostat resource
-dynamics; `tuneSteadyState(solver = "newton")` holds the resource fixed and
-works with any.
+densities among its unknowns and obtains their equilibrium from a
+`steady_<resource_dynamics>()` companion. Mizer supplies companions for its
+semichemostat and logistic resource dynamics, with the logistic solver currently
+restricted to positive resource equilibria. `tuneSteadyState(solver = "newton")`
+holds the resource fixed and works with any dynamics.
 
 Three arguments are spelled differently on the new functions, because each of
 them did more than one job under the old name:
@@ -1078,4 +1080,3 @@ In mizer 3.3, the autocorrelation step uses only the second half of the series
 ignore the initial transient. A cycle will now be found earlier (because the
 check does not wait for the long-settled cycle to outweigh the transient), and
 some cycles that were previously missed entirely will now be correctly reported.
-

@@ -61,7 +61,10 @@ Both take a `solver` argument. The default `solver = "project"` runs the
 dynamics until they settle. `solver = "newton"` *(experimental, needs the
 `nleqslv` package)* instead solves the steady-state equation directly, which
 converges even when the steady state is dynamically **unstable**, and discovers
-the support of the steady state automatically.
+the support of the consumer steady state automatically. The resource-solving
+branch supports semichemostat and positive logistic resource equilibria; a
+custom resource dynamics function needs a matching
+`steady_<resource_dynamics>()` companion.
 
 **`tuneSteadyState()` returning is not proof that the model is steady.** Its
 stopping test is the relative change in egg production over `t_check`, a proxy for

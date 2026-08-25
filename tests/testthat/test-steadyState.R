@@ -337,14 +337,47 @@ test_that("findSteadyState(solver = 'newton') handles extinctions", {
     expect_true(is.finite(conv$residual))
 })
 
-test_that("only the resource-solving Newton branch needs a semichemostat", {
+test_that("findSteadyState(solver = 'newton') supports logistic resources", {
+    skip_unless_experimental()
+    p_log <- setResource(p_steady, resource_dynamics = "resource_logistic",
+                         resource_level = 0.5)
+    rate_before <- p_log@rr_pp
+    capacity_before <- p_log@cc_pp
+    r_max_before <- p_log@species_params$R_max
+    erepro_before <- p_log@species_params$erepro
+
+    pn <- findSteadyState(p_log, solver = "newton")
+
+    expect_identical(pn@resource_dynamics, "resource_logistic")
+    expect_equal(pn@rr_pp, rate_before)
+    expect_equal(pn@cc_pp, capacity_before)
+    expect_equal(pn@species_params$R_max, r_max_before)
+    expect_equal(pn@species_params$erepro, erepro_before)
+    expect_identical(attr(pn, "convergence")$termination,
+                     "solver_converged")
+    expect_lt(steady_biomass_drift(pn), 1e-5)
+
+    sim <- project(pn, t_max = 0.25, dt = 0.25, t_save = 0.25)
+    resource_change <- abs(finalNResource(sim) / initialNResource(pn) - 1)
+    expect_lt(max(resource_change[is.finite(resource_change)]), 1e-4)
+})
+
+test_that("the Newton solver rejects a non-positive logistic resource branch", {
+    skip_unless_experimental()
+    p_log <- setResource(p_steady, resource_dynamics = "resource_logistic",
+                         resource_level = 0.5)
+    mortality <- as.numeric(getResourceMort(p_log))
+    k <- which(p_log@cc_pp > 0 & mortality > 0)[1]
+    p_log@rr_pp[k] <- mortality[k] / 2
+
+    expect_error(findSteadyState(p_log, solver = "newton"),
+                 "supports only positive resource equilibria")
+})
+
+test_that("tuneSteadyState(solver = 'newton') holds any resource fixed", {
     skip_unless_experimental()
     p_log <- setResource(NS_params_small,
                          resource_dynamics = "resource_logistic")
-    # findSteadyState() makes the resource an unknown, so it needs the
-    # semichemostat equation ...
-    expect_error(findSteadyState(p_log, solver = "newton"), "semichemostat")
-    # ... whereas tuneSteadyState() holds the resource fixed and does not.
     pn <- suppressWarnings(tuneSteadyState(p_log, solver = "newton"))
     expect_s4_class(pn, "MizerParams")
     expect_true(all(is.finite(pn@initial_n)))

@@ -164,6 +164,32 @@ Three rules that follow from the table:
   inherited. Most bugs in extension code are the right numbers in the wrong
   shape.
 
+## Custom resource dynamics
+
+Set a custom resource update function with `resource_dynamics(params) <-
+"my_resource"`. It receives `params`, the state (`n`, `n_pp`, `n_other`), the
+complete `rates` list, `t`, `dt`, `resource_rate` and `resource_capacity`, and
+returns the resource density at the end of the step.
+
+Two optional companion functions let the steady-state tools work with it:
+
+- `balance_my_resource(params, resource_rate, resource_capacity)` derives one
+  resource parameter from the other so that `tuneSteadyState()` can preserve
+  the resource abundance.
+- `steady_my_resource(params, n, n_pp, n_other, rates, t, resource_rate,
+  resource_capacity, ...)` returns a plain numeric vector over `w_full` giving
+  the resource equilibrium implied by the supplied frozen rates. This lets
+  `findSteadyState(solver = "newton")` carry the resource among its unknowns.
+
+The names are formed mechanically from the value stored in
+`resource_dynamics(params)`, so both companions must be defined in the global
+environment or exported by an installed package. Start from
+`steady_resource_semichemostat()` or `steady_resource_logistic()`. The current
+Newton parameterisation uses log resource densities, so a companion used there
+must return finite, positive values on every size class with positive capacity;
+use the projecting solver for a dynamics whose steady state includes depleted
+resource classes.
+
 ## Respecting the model's quadrature scheme
 
 A model may be on either of two quadrature schemes, selected by the
