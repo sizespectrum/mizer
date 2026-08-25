@@ -74,6 +74,41 @@ test_that("getSteadyResidual() is unchanged where every class holds fish", {
                                                biomass_share_cutoff = 0)))
 })
 
+test_that("the biomass-share cutoff is validated", {
+    params <- NS_params_small
+    n <- initialN(params)
+
+    invalid_cutoffs <- list(c(0, 1), NA_real_, Inf, -0.1, 1.1)
+    for (cutoff in invalid_cutoffs) {
+        expect_error(negligible_cells(params, n, cutoff = cutoff),
+                     "must be a finite number between 0 and 1", fixed = TRUE)
+    }
+    expect_error(getSteadyResidual(params, biomass_share_cutoff = Inf),
+                 "`biomass_share_cutoff` must be", fixed = TRUE)
+})
+
+test_that("the biomass-share cutoff uses the selected quadrature", {
+    for (bin_average in c(FALSE, TRUE)) {
+        params <- NS_params_small
+        second_order_w(params) <- c(bin_average = bin_average)
+        n <- initialN(params) * 0
+        j <- ncol(n)
+        # Give the first and last bins exactly half the species' biomass under
+        # the selected quadrature. The top-bin weight is one-sided, so this also
+        # distinguishes the two quadrature schemes rather than merely scaling
+        # every bin by the same constant.
+        wdw <- bin_average_weight(w(params), params) * dw(params)
+        n[1, c(1, j)] <- 1 / wdw[c(1, j)]
+
+        negligible <- negligible_cells(params, n, cutoff = 0.5)
+
+        # A cell exactly on the cutoff is kept; the strict cutoff removes only
+        # cells below it. Species with no biomass have no relevant cells.
+        expect_identical(unname(which(!negligible[1, ])), c(1L, j))
+        expect_true(all(negligible[-1, ]))
+    }
+})
+
 test_that("getSteadyResidual() predicts the drift that project() produces", {
     # This is the property that defines the residual: it is dN/dt. A projection
     # over a short step must reproduce it, with an error that is first order in

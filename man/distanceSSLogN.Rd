@@ -22,10 +22,11 @@ describing the current state}
 describing the previous state}
 
 \item{biomass_share_cutoff}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-The share of a species' biomass that a size class must hold in the current
-state to be measured. \code{0} measures every class with a nonzero density in
-both states, which is what this function did before mizer 3.3. The same
-cutoff decides which classes \code{\link[=getSteadyResidual]{getSteadyResidual()}} reports.}
+A finite number between 0 and 1, inclusive, giving the share of a species'
+biomass that a size class must hold in the current state to be measured.
+\code{0} measures every class with a nonzero density in both states, which is
+what this function did before mizer 3.3. The same cutoff decides which
+classes \code{\link[=getSteadyResidual]{getSteadyResidual()}} reports.}
 
 \item{...}{Unused. Accepted because \code{\link[=projectUntilSettled]{projectUntilSettled()}} forwards its own
 \code{...} to both the rate functions and the distance function, so an argument

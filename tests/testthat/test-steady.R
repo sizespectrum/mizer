@@ -224,24 +224,35 @@ test_that("distance functions implement their documented formulas", {
     expect_true(dist_log >= 0)
     expect_equal(length(dist_log), 1)
     expect_equal(distanceSSLogN(params, previous, previous), 0)
+    expect_error(
+        distanceSSLogN(params, current, previous,
+                       biomass_share_cutoff = Inf),
+        "`biomass_share_cutoff` must be",
+        fixed = TRUE
+    )
 })
 
 test_that("distanceSSLogN() ignores a size class holding negligible biomass", {
-    params <- NS_params_small
-    j <- length(w(params))
-    n <- initialN(params)
-    # A trace of fish in the largest size class, decaying because nothing grows
-    # into it. Its density falls by a constant factor between any two states, so
-    # left in the sum it contributes the same amount to the distance for ever.
-    n[1, j] <- 1e-100
-    previous <- list(n = n, n_pp = initialNResource(params), n_other = list())
-    current <- previous
-    current$n[1, j] <- n[1, j] * exp(-1.5)
+    for (bin_average in c(FALSE, TRUE)) {
+        params <- NS_params_small
+        second_order_w(params) <- c(bin_average = bin_average)
+        j <- length(w(params))
+        n <- initialN(params)
+        # A trace of fish in the largest size class, decaying because nothing
+        # grows into it. Its density falls by a constant factor between any two
+        # states, so left in the sum it contributes the same amount to the
+        # distance for ever.
+        n[1, j] <- 1e-100
+        previous <- list(n = n, n_pp = initialNResource(params),
+                         n_other = list())
+        current <- previous
+        current$n[1, j] <- n[1, j] * exp(-1.5)
 
-    expect_equal(distanceSSLogN(params, current, previous), 0)
-    expect_equal(distanceSSLogN(params, current, previous,
-                                biomass_share_cutoff = 0),
-                 1.5^2)
+        expect_equal(distanceSSLogN(params, current, previous), 0)
+        expect_equal(distanceSSLogN(params, current, previous,
+                                    biomass_share_cutoff = 0),
+                     1.5^2)
+    }
 })
 
 test_that("distanceSSLogN() is unchanged where every size class holds fish", {

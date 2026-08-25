@@ -94,21 +94,31 @@ steady_share_cutoff <- function() {
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @param n Consumer densities (species x size).
-#' @param cutoff The share of a species' biomass below which a size class is
-#'   treated as holding nothing. `0` selects nothing, which is how the callers
-#'   behaved before this cutoff existed.
+#' @param cutoff A finite number between 0 and 1, inclusive, giving the share of
+#'   a species' biomass below which a size class is treated as holding nothing.
+#'   `0` selects nothing, which is how the callers behaved before this cutoff
+#'   existed.
 #' @return A logical matrix (species x size), `TRUE` where the size class is
 #'   negligible.
 #' @noRd
 negligible_cells <- function(params, n, cutoff = steady_share_cutoff()) {
-    if (cutoff <= 0) {
+    if (!is.number(cutoff) || !is.finite(cutoff) ||
+            cutoff < 0 || cutoff > 1) {
+        stop("`biomass_share_cutoff` must be a finite number between 0 and ",
+             "1 (inclusive).", call. = FALSE)
+    }
+    if (cutoff == 0) {
         return(matrix(FALSE, nrow = nrow(n), ncol = ncol(n)))
     }
     wdw <- bin_average_weight(params@w, params) * params@dw
     bin_biomass <- n * rep(wdw, each = nrow(n))
-    # `<=` rather than `<` so that a species with no biomass at all, where both
-    # sides are zero, comes back all-negligible rather than all-relevant.
-    bin_biomass <= cutoff * rowSums(bin_biomass)
+    total_biomass <- rowSums(bin_biomass)
+    negligible <- bin_biomass < cutoff * total_biomass
+    # A species with no biomass has no size class holding a share of it. Handle
+    # that case explicitly rather than changing the documented strict cutoff
+    # into an inclusive one for every other species.
+    negligible[total_biomass == 0, ] <- TRUE
+    negligible
 }
 
 #' How far a model is from its steady state
@@ -195,10 +205,11 @@ negligible_cells <- function(params, n, cutoff = steady_share_cutoff()) {
 #'   dynamics functions are only available as one-step maps. Smaller is more
 #'   accurate. Not used for the consumers, whose rate is exact.
 #' @param biomass_share_cutoff `r lifecycle::badge("experimental")`
-#'   The share of a species' biomass that a size class must hold for its rate to
-#'   be reported. Classes below it hold nothing that any summary or plot of this
-#'   array should be dominated by, and are returned as `NA` alongside the empty
-#'   ones. `0` reports every class. The same cutoff decides which classes
+#'   A finite number between 0 and 1, inclusive, giving the share of a species'
+#'   biomass that a size class must hold for its rate to be reported. Classes
+#'   below it hold nothing that any summary or plot of this array should be
+#'   dominated by, and are returned as `NA` alongside the empty ones. `0`
+#'   reports every class. The same cutoff decides which classes
 #'   [distanceSSLogN()] measures convergence on.
 #' @return An [ArraySpeciesBySize] object (species x size) of per-capita rates
 #'   of change in 1/year, `NA` where the size class holds no fish — either no

@@ -57,10 +57,11 @@ distanceMaxRelRDI.MizerParams <- function(params, current, previous) {
 #' @param previous A named list with entries `n`, `n_pp` and `n_other`
 #'   describing the previous state
 #' @param biomass_share_cutoff `r lifecycle::badge("experimental")`
-#'   The share of a species' biomass that a size class must hold in the current
-#'   state to be measured. `0` measures every class with a nonzero density in
-#'   both states, which is what this function did before mizer 3.3. The same
-#'   cutoff decides which classes [getSteadyResidual()] reports.
+#'   A finite number between 0 and 1, inclusive, giving the share of a species'
+#'   biomass that a size class must hold in the current state to be measured.
+#'   `0` measures every class with a nonzero density in both states, which is
+#'   what this function did before mizer 3.3. The same cutoff decides which
+#'   classes [getSteadyResidual()] reports.
 #' @param ... Unused. Accepted because [projectUntilSettled()] forwards its own
 #'   `...` to both the rate functions and the distance function, so an argument
 #'   meant for one arrives at the other.

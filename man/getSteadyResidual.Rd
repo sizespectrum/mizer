@@ -23,10 +23,11 @@ dynamics functions are only available as one-step maps. Smaller is more
 accurate. Not used for the consumers, whose rate is exact.}
 
 \item{biomass_share_cutoff}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-The share of a species' biomass that a size class must hold for its rate to
-be reported. Classes below it hold nothing that any summary or plot of this
-array should be dominated by, and are returned as \code{NA} alongside the empty
-ones. \code{0} reports every class. The same cutoff decides which classes
+A finite number between 0 and 1, inclusive, giving the share of a species'
+biomass that a size class must hold for its rate to be reported. Classes
+below it hold nothing that any summary or plot of this array should be
+dominated by, and are returned as \code{NA} alongside the empty ones. \code{0}
+reports every class. The same cutoff decides which classes
 \code{\link[=distanceSSLogN]{distanceSSLogN()}} measures convergence on.}
 }
 \value{
