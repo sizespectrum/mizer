@@ -27,6 +27,13 @@
 
 ## Bug fixes
 
+- Repeated `registerExtension()` and `registerExtensions()` calls now rebuild
+  the dynamic marker classes of the active extension chain when any of them
+  disappeared during an extension-package reload, while leaving the registered
+  chain unchanged. Recreating only the class that went missing is not enough,
+  because R prunes it from the `contains` list of the marker classes outside
+  it, so the whole chain is rebuilt (#569).
+
 - `summary()` of a species-by-size array now covers the same sizes as `plot()`
   of the same array: each species' own size range, from its `w_min` to its
   `w_max`. `plot()` has dropped the values outside that range since it gained
@@ -786,13 +793,6 @@ fixed, keeping the old names as silent aliases.
   scheduled for removal.
 
 ## Bug fixes
-
-- Repeated `registerExtension()` and `registerExtensions()` calls now rebuild
-  the dynamic marker classes of the active extension chain when any of them
-  disappeared during an extension-package reload, while leaving the registered
-  chain unchanged. Recreating only the class that went missing is not enough,
-  because R prunes it from the `contains` list of the marker classes outside
-  it, so the whole chain is rebuilt (#569).
 
 - The `gear_params` print method no longer reports each row as a gear. Every row
   is a gear-species pair, so a single gear catching ten species was announced as
