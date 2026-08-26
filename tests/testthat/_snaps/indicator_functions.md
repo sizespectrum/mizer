@@ -14,6 +14,14 @@
               0       0.5         1       1.5         2 
       100.45567  42.70443  44.76858  57.97524  70.01602 
 
+# getMeanLength works
+
+    Code
+      ml
+    Output
+             0      0.5        1      1.5        2 
+      12.56335 11.06810 11.13484 11.76676 12.18632 
+
 # getMeanMaxWeight works
 
     Code

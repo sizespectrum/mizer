@@ -71,7 +71,7 @@ Commonly supplied:
 | `sigma` | Width of the lognormal predation kernel (default 2) |
 | `k_vb` | von Bertalanffy K — used to derive `h` (and then `gamma`) if `h`/`gamma` absent |
 | `h`, `gamma` | Max intake coefficient and search-volume coefficient (alternative to `k_vb`) |
-| `a`, `b` | Length–weight conversion parameters ($w = a l^b$, defaults 0.006 and 3) |
+| `a`, `b` | Length–weight conversion parameters ($w = a l^b$, defaults 0.01 and 3) |
 | `alpha` | Assimilation efficiency (default 0.6) |
 | `biomass_observed` | Observed biomass, for calibration |
 

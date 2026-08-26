@@ -158,6 +158,74 @@ test_that("getMeanWeight works for MizerParams", {
     )
 })
 
+# getMeanLength ----
+test_that("getMeanLength works", {
+    p <- params
+    p@species_params$a <- c(0.01, 0.02, 0.03)
+    p@species_params$b <- c(3, 3.1, 2.9)
+    sim <- project(p, t_max = 2, dt = 0.5, t_save = 0.5)
+    l <- t(sapply(1:3, function(i) (p@w / p@species_params$a[i]) ^
+                      (1 / p@species_params$b[i])))
+    # all species, all size range
+    total_length <- apply(sweep(sim@n * rep(l, each = dim(sim@n)[[1]]), 3,
+                                p@dw, "*"), 1, sum)
+    total_n <- apply(sweep(sim@n, 3, p@dw, "*"), 1, sum)
+    expect_equal(getMeanLength(sim), total_length / total_n,
+                 ignore_attr = TRUE)
+    # select species
+    species <- p@species_params$species[3:2]
+    idx <- 3:2
+    total_length <- apply(sweep(sim@n[, idx, ] *
+                                    rep(l[idx, ], each = dim(sim@n)[[1]]), 3,
+                                p@dw, "*"), 1, sum)
+    total_n <- apply(sweep(sim@n[, idx, ], 3, p@dw, "*"), 1, sum)
+    expect_equal(getMeanLength(sim, species = species), total_length / total_n,
+                 ignore_attr = TRUE)
+    # select size range
+    size_n <- get_size_range_array(p, min_w = 10, max_w = 10000)
+    n_in_range <- sweep(sim@n, c(2, 3), size_n, "*")
+    total_length <- apply(sweep(n_in_range * rep(l, each = dim(sim@n)[[1]]), 3,
+                                p@dw, "*"), 1, sum)
+    total_n <- apply(sweep(n_in_range, 3, p@dw, "*"), 1, sum)
+    ml <- getMeanLength(sim, min_w = 10, max_w = 10000)
+    expect_equal(ml, total_length / total_n, ignore_attr = TRUE)
+    expect_snapshot(ml)
+})
+
+test_that("getMeanLength works for MizerParams", {
+    p <- params
+    p@species_params$a <- c(0.01, 0.02, 0.03)
+    p@species_params$b <- c(3, 3.1, 2.9)
+    species <- p@species_params$species[1:2]
+    # A size range given in lengths selects the same sizes as the
+    # corresponding weights
+    min_w <- p@species_params$a * 5 ^ p@species_params$b
+    expect_equal(getMeanLength(p, species = species, min_l = 5),
+                 getMeanLength(p, species = species, min_w = min_w))
+    # The MizerParams value is the value at the start of a simulation
+    sim <- project(p, t_max = 1, t_save = 1)
+    expect_equal(getMeanLength(p, species = species),
+                 getMeanLength(sim, species = species)[[1]],
+                 ignore_attr = TRUE)
+    # For a species with b = 1 and a = 1 the mean length is the mean weight
+    p1 <- p
+    p1@species_params$a <- rep(1, 3)
+    p1@species_params$b <- rep(1, 3)
+    expect_equal(getMeanLength(p1), getMeanWeight(p1))
+})
+
+test_that("getMeanLength needs the length-weight parameters", {
+    # Modern models always have `a` and `b`, but an old params object may not
+    p <- params
+    p@species_params$a <- NULL
+    p@species_params$b <- NULL
+    expect_error(getMeanLength(p), "must have columns 'a' and 'b'")
+    p <- params
+    p@species_params$a <- c(0.01, NA, 0.03)
+    p@species_params$b <- c(3, 3.1, 2.9)
+    expect_error(getMeanLength(p), "no NAs in the species_params columns")
+})
+
 # getMeanMaxWeight ----
 test_that("getMeanMaxWeight works", {
     expect_error(getMeanMaxWeight(sim, measure = NA),

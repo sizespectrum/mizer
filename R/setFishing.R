@@ -926,12 +926,19 @@ calc_selectivity <- function(params) {
                               w = w_names
               )
         )
+    # A selectivity function is handed the species parameters only so that it
+    # can convert between length and weight, so its formals say whether this
+    # gear selects on length.
+    length_based <- character(0)
     for (g in seq_len(nrow(gear_params))) {
         species <- gear_params[g, "species"]
         gear <- gear_params[g, "gear"]
         sel_func <- as.character(gear_params[g, "sel_func"])
         # get args
         arg <- names(formals(sel_func))
+        if ("species_params" %in% arg) {
+            length_based <- c(length_based, species)
+        }
         # lop off the arguments that we will supply
         arg <- arg[!(arg %in% c("w", "species_params", "..."))]
         missing <- setdiff(arg, colnames(gear_params))
@@ -965,5 +972,49 @@ calc_selectivity <- function(params) {
         }
         selectivity[gear, species, ] <- sel
     }
+    signal_defaulted_length_weight(params, unique(length_based))
     return(selectivity)
+}
+
+#' Report a selectivity built from a defaulted weight-length relationship
+#'
+#' Internal helper for [calc_selectivity()]. A length-based selectivity
+#' function converts the lengths in [gear_params()] to weights with the
+#' species' `a` and `b`. When those were filled in by mizer rather than
+#' supplied, the selectivity curve sits at weights mizer invented, and the
+#' fishing mortality is wrong in a way nothing else reveals. So it is reported
+#' where the conversion happens and not only where the default is filled in.
+#'
+#' @param params A MizerParams object.
+#' @param species The species whose selectivity is set from their length.
+#' @return `NULL`, invisibly. Called for the report it raises.
+#' @concept helper
+#' @keywords internal
+signal_defaulted_length_weight <- function(params, species) {
+    if (length(species) == 0) return(invisible(NULL))
+    given <- params@given_species_params
+    # A parameter is defaulted for a species if the user's own table has no
+    # such column, or holds no value for that species.
+    defaulted <- function(par) {
+        if (!(par %in% names(given))) return(species)
+        species[is.na(given[[par]][match(species, given$species)])]
+    }
+    a_missing <- defaulted("a")
+    b_missing <- defaulted("b")
+    # Keep the species in the order they appear in the model
+    affected <- species[species %in% c(a_missing, b_missing)]
+    if (length(affected) == 0) return(invisible(NULL))
+    which_par <- c(length(a_missing) > 0, length(b_missing) > 0)
+    pars <- c("`a`", "`b`")[which_par]
+    signal_info("selectivity", paste0(
+        "The gear selectivity for ", toString(affected), " is set by length, ",
+        "but ", paste(pars, collapse = " and "), " ",
+        if (length(pars) == 1) "was" else "were",
+        " not supplied, so the conversion to weight used mizer's defaults (",
+        paste(c("a = 0.01", "b = 3")[which_par], collapse = ", "),
+        "). The selectivity therefore sits at weights that are unlikely to be ",
+        "the ones you intend. Supply the weight-length parameters in the ",
+        "species parameters."),
+        level = 1, unhandled = "show")
+    invisible(NULL)
 }

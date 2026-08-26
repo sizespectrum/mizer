@@ -19,6 +19,7 @@
 #'   Function \tab Returns \tab Description \cr
 #'   [getProportionOfLargeFish()] \tab A vector with values at each time step (or a single value for MizerParams). \tab Calculates the proportion of large fish through time. The threshold value can be specified. It is possible to calculation the proportion of large fish based on either length or weight. \cr
 #'   [getMeanWeight()] \tab A vector with values at each saved time step (or a single value for MizerParams). \tab The mean weight of the community through time. This is calculated as the total biomass of the community divided by the total abundance. \cr
+#'   [getMeanLength()] \tab A vector with values at each saved time step (or a single value for MizerParams). \tab The mean length of the community through time. This is calculated as the total length of all individuals divided by their number, using the length-weight relationship of each species. \cr
 #'   [getMeanMaxWeight()] \tab Depends on the measure argument. If measure = “both” then you get a matrix with two columns, one with values by numbers, the other with values by biomass at each saved time step (or a named vector for MizerParams). If measure = “numbers” or “biomass” you get a vector of the respective values at each saved time step (or a single value for MizerParams). \tab The mean maximum weight of the community through time. This can be calculated by numbers or by biomass. See the help file for more details. \cr
 #'   [getCommunitySlope()] \tab A data.frame with four columns: time step, slope, intercept and the coefficient of determination (or a single-row data.frame for MizerParams). \tab Calculates the slope of the community abundance spectrum through time by performing a linear regression on the logged total numerical abundance and logged body size. \cr
 #' }
@@ -125,21 +126,33 @@ getProportionOfLargeFish.MizerParams <- function(object,
 }
 
 
-#' Calculate the mean weight of the community
+#' Calculate the mean size of the community
 #'
-#' Calculates the mean weight of the community. This is simply the total biomass
-#' of the community divided by the abundance in numbers. You can specify minimum
-#' and maximum weight or length for the included size range. Lengths take
-#' precedence over weights (i.e. if both min_l and min_w are supplied, only
-#' min_l will be used). You can also specify the species to be used in the
-#' calculation.
+#' `getMeanWeight()` calculates the mean weight of the community. This is simply
+#' the total biomass of the community divided by the abundance in numbers.
+#' `getMeanLength()` calculates the mean length of the community, i.e. the total
+#' length of all individuals divided by their number, where the length of an
+#' individual of weight \eqn{w} of species \eqn{i} is obtained from the
+#' length-weight relationship \eqn{w = a_i l^{b_i}} with the species parameters
+#' `a` and `b`.
+#'
+#' The length-weight parameters `a` and `b` are taken from the species parameter
+#' data frame, where they are given the defaults `a = 0.01` and `b = 3` when a
+#' model is created. `getMeanLength()` gives an error if a model is so old that
+#' it has no such columns.
+#'
+#' You can specify minimum and maximum weight or length for the included size
+#' range. Lengths take precedence over weights (i.e. if both min_l and min_w are
+#' supplied, only min_l will be used). You can also specify the species to be
+#' used in the calculation.
 #'
 #' @param object A \linkS4class{MizerSim} or \linkS4class{MizerParams} object
 #' @inheritParams valid_species_arg
 #' @inheritDotParams get_size_range_array -params
 #'
-#' @return A vector containing the mean weight of the community through time,
-#'   or a single value if called with a `MizerParams` object.
+#' @return A vector containing the mean weight (in grams) or the mean length (in
+#'   cm) of the community through time, or a single value if called with a
+#'   `MizerParams` object.
 #' @export
 #' @family functions for calculating indicators
 #' @concept summary_function
@@ -171,6 +184,63 @@ getMeanWeight.MizerParams <- function(object, species = NULL, ...) {
     n_total <- sum(getN(params, ...)[species])
     biomass_total <- sum(getBiomass(params, ...)[species])
     biomass_total / n_total
+}
+
+#' @rdname getMeanWeight
+#' @export
+#' @examples
+#'
+#' mean_length <- getMeanLength(NS_sim)
+#' mean_length[years]
+#' getMeanLength(NS_sim, species = c("Herring", "Sprat", "N.pout"))[years]
+#' getMeanLength(NS_sim, min_l = 10, max_l = 50)[years]
+#' getMeanLength(NS_sim@params)
+getMeanLength <- function(object, species = NULL, ...) {
+    UseMethod("getMeanLength")
+}
+#' @export
+getMeanLength.MizerSim <- function(object, species = NULL, ...) {
+    sim <- object
+    assert_that(is(sim, "MizerSim"))
+    species <- valid_species_arg(sim, species)
+    l <- length_at_size(sim@params)
+    n_species <- getN(sim, ...)
+    length_species <- sizeIntegral(sim, weighting = l, ...)
+    n_total <- apply(n_species[, species, drop = FALSE], 1, sum)
+    length_total <- apply(length_species[, species, drop = FALSE], 1, sum)
+    length_total / n_total
+}
+#' @export
+getMeanLength.MizerParams <- function(object, species = NULL, ...) {
+    params <- object
+    species <- valid_species_arg(params, species)
+    l <- length_at_size(params)
+    n_total <- sum(getN(params, ...)[species])
+    length_total <- sum(sizeIntegral(params, weighting = l, ...)[species])
+    length_total / n_total
+}
+
+#' Length of an individual at each weight on the size grid
+#'
+#' Internal helper for [getMeanLength()]. Inverts the length-weight relationship
+#' \eqn{w = a_i l^{b_i}} of each species at every weight in `params@w`. The
+#' result is a weighting factor for [sizeIntegral()], so it is a point value on
+#' the grid and is not bin-averaged here.
+#'
+#' @param params A MizerParams object.
+#' @return A species x size matrix of lengths in cm.
+#' @concept helper
+#' @keywords internal
+length_at_size <- function(params) {
+    sp <- params@species_params
+    if (!all(c("a", "b") %in% names(sp))) {
+        stop("The species_params slot must have columns 'a' and 'b' for ",
+             "length-weight conversion.")
+    }
+    if (anyNA(sp[["a"]]) || anyNA(sp[["b"]])) {
+        stop("There must be no NAs in the species_params columns 'a' and 'b'.")
+    }
+    sweep(outer(1 / sp[["a"]], params@w), 1, 1 / sp[["b"]], "^")
 }
 
 

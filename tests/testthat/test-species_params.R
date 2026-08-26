@@ -29,6 +29,19 @@ test_that("set_species_param_default sets default correctly", {
 
 
 
+test_that("the length-weight defaults report themselves", {
+    sp <- data.frame(species = c("a", "b"), w_max = c(10, 100))
+    expect_condition(species_params(sp), "using a = 0.01",
+                     class = "info_about_default")
+    expect_condition(species_params(sp), "isometric default b = 3",
+                     class = "info_about_default")
+    # but say nothing when the user has supplied the parameters
+    sp$a <- c(0.01, 0.02)
+    sp$b <- c(3, 3.1)
+    msgs <- capture_messages(with_info_level(species_params(sp), info_level = 3))
+    expect_false(any(grepl("w = a l^b", msgs, fixed = TRUE)))
+})
+
 test_that("default for gamma is correct", {
     params <- NS_params_small
     # check that missing h is o.k.

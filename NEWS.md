@@ -49,6 +49,34 @@
   refuses a component name that a free-standing contribution is already
   registered under, rather than silently taking it over (#579).
 
+## Species parameters
+
+- Mizer now reports the length-weight defaults `a = 0.01` and `b = 3` when it
+  fills them in, alongside the other defaults it reports. They were applied
+  silently before, which mattered because a length-based selectivity function
+  (`sigmoid_length`, `double_sigmoid_length`, `knife_edge_length`) converts the
+  lengths in `gear_params()` to weights through `a` and `b`: a defaulted
+  relationship silently puts the selectivity curve at the wrong weights. The
+  defaults themselves are unchanged, and `info_level = 0` silences the report
+  as it does the rest.
+
+- `setFishing()` additionally reports a gear whose selectivity is set from a
+  length while the species' `a` or `b` was defaulted, naming those species and
+  the parameter that was missing. That is the case in which an invented
+  weight-length relationship changes the dynamics rather than just a diagnostic,
+  so the report is at `info_level = 1` and is shown even when
+  `calc_selectivity()` or `setFishing()` is called on its own. Whether a gear
+  selects on length is decided from the selectivity function's formals, so a
+  custom `sel_func` taking `species_params` is covered too.
+
+## Indicator functions
+
+- New `getMeanLength()` calculates the mean length of the community, the
+  counterpart of `getMeanWeight()`, with which it now shares a help page. It
+  divides the total length of all individuals in the selected species and size
+  range by their number, converting weight to length with the length-weight
+  parameters `a` and `b` of each species.
+
 ## Bug fixes
 
 - Invalid `w_mat25` values are now reported as missing values for which the
