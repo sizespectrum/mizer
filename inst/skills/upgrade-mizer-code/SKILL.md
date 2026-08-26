@@ -70,6 +70,10 @@ function` — carry no such quote, so match those rows on the function name.
 | `projectUntilSettled()` or `tuneSteadyState()` converges where it used to run to `t_max`, or `distanceSSLogN()` returns a smaller number | size classes holding a negligible share of a species' biomass are no longer counted | A size class holding no fish no longer blocks convergence |
 | Message `"reached is a fixed point: the biomasses change at only"` | a run stopped at `t_max` on a state that is a fixed point all the same | A size class holding no fish no longer blocks convergence |
 | After `devtools::load_all()` on an extension package, `coerceToExtensionClass()` reports no method or default for coercing `MizerParams` to the extension class | repeated registration left the chain's dynamic marker classes unrepaired | Repeated extension registration rebuilds missing marker classes |
+| Message `"I have removed the species parameter column"` | a column missing from an assigned species parameter table is now withdrawn | A column dropped from an assigned species parameter table is removed |
+| Species parameters the code never touched have moved, or been dropped, after assigning a table built from a few columns | the columns left out of that table counted as withdrawn | A column dropped from an assigned species parameter table is removed |
+| `given_species_params(params)$gamma <- NULL` now changes `species_params(params)$gamma` | a removal hands the parameter back to mizer's calculation and rebuilds | A column dropped from an assigned species parameter table is removed |
+| A custom species parameter column disappears where it used to survive, or `calculated_species_params()` no longer reports it | mizer cannot recalculate a column of your own, so withdrawing it removes it | A column dropped from an assigned species parameter table is removed |
 
 ### mizer 3.2 → 3.3 — `references/mizer-3.3.md`
 

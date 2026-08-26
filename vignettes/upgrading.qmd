@@ -198,6 +198,54 @@ repeated `registerExtension()` call touches no namespaces at all — an
 extension registered earlier in the session but no longer installed cannot
 make a package's `.onLoad()` fail.
 
+### A column dropped from an assigned species parameter table is removed
+
+The species parameter setters now read the *absence* of a column as an
+instruction. A column that the table you assign does not have is one you no
+longer supply, so it is taken out of [`given_species_params()`](../reference/species_params.html). Mizer then
+calculates afresh the parameters it knows how to calculate, and the ones it
+does not know about leave the model:
+
+```{r eval=FALSE}
+species_params(params)$gamma  <- NULL   # gamma is calculated again
+species_params(params)$my_col <- NULL   # my_col is gone
+```
+
+`given_species_params(params)$… <- NULL` follows the same rule. Removing a
+column is reported at `info_level` 3, with a message beginning `I have removed
+the species parameter column`.
+
+Previously neither route removed anything. Dropping a column from the table
+assigned to `species_params<-()` did nothing at all: the column was restored
+from the given species parameters, still recorded as given. Dropping one from
+the table assigned to `given_species_params<-()` did take it out of the given
+table, but left its value standing in [`species_params()`](../reference/species_params.html), where
+[`calculated_species_params()`](../reference/species_params.html) reported the user's own number as one mizer had
+calculated. Nor did the removal recalculate anything, so
+`given_species_params(params)$gamma <- NULL` left the previously given `gamma`
+in place instead of handing it back to mizer; it is now the same instruction as
+setting that entry to `NA`.
+
+Two things to watch for in existing code:
+
+- **Assigning a table with only some of the model's columns now withdraws the
+  rest.** This used to be a way of updating a few columns and leaving the others
+  alone. Edit the table you get from `species_params(params)` instead of
+  building a new one. The scope for surprise is limited, because
+  `species_params<-()` has always validated what it is given: a table without
+  `species` and one of `w_inf`, `w_max` or `w_repro_max` is an error, not a
+  partial update.
+- **A rebuild now happens where it did not before.** Removing a column from the
+  given species parameters goes through [`setParams()`](../reference/setParams.html), so a parameter that was
+  derived from the withdrawn one moves to its calculated value. That is the
+  point of the change, but it means numbers can shift where previously nothing
+  did.
+
+For extension packages this is the supported way to withdraw a species
+parameter column when the user switches the extension off, replacing the
+`params@species_params[["my_col"]] <- NULL` slot manipulation that was the only
+thing that worked before.
+
 ---
 
 ## Upgrading from mizer 3.2 to 3.3
@@ -492,7 +540,7 @@ current model:
 given_species_params(params)$q <- species_params(params)$q
 ```
 
-The setters rebuild through [`setParams()`](../reference/setParams.html) only when the model can change.
+The setters rebuild through `setParams()` only when the model can change.
 Provenance-only changes, observations, direct-runtime parameters and unrelated
 custom columns on a base `MizerParams` object are stored without rebuilding all
 rate arrays. Dependent parameters, demotions to calculated values, arguments of
@@ -512,8 +560,8 @@ or use `options(mizer_info_level = 0)` when the warning is not wanted (#489).
 Finally, defaults added while validating a `species_params<-()` assignment are
 no longer mistaken for values the user supplied. In particular, an unrelated
 edit no longer freezes newly filled `a` and `b` values. Such values can now move
-again when their inputs change and appear in [`calculated_species_params()`](../reference/species_params.html)
-rather than [`given_species_params()`](../reference/species_params.html). Set a value explicitly if it should remain
+again when their inputs change and appear in `calculated_species_params()`
+rather than `given_species_params()`. Set a value explicitly if it should remain
 fixed (#496).
 
 ### One report, one switch
@@ -535,7 +583,7 @@ for existing code:
 
 ### `$` on a parameter table no longer partially matches
 
-`$` on a [`species_params`](../reference/species_params.html) or `gear_params` table now matches column names
+`$` on a `species_params` or `gear_params` table now matches column names
 exactly. Partial matching was silently returning the wrong parameter: in a model
 without the length-weight parameters `a` and `b`,
 

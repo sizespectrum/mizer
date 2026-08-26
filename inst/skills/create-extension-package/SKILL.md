@@ -123,6 +123,29 @@ Storing this record serves two purposes:
 2. **Class coercion.** For dispatching extensions (see below), `readParams()`
    uses `@extensions` to restore the correct S4 class automatically.
 
+### Taking a species parameter column away again
+
+An extension that adds a species parameter column usually needs to remove it
+when the user switches the extension off. Assign a table without the column and
+mizer takes it out of both `species_params()` and `given_species_params()`:
+
+```r
+setStarvation <- function(params, starv_coef = 10) {
+    if (all(starv_coef == 0)) {
+        species_params(params)$starv_coef <- NULL   # withdraw the column
+        return(params)
+    }
+    species_params(params)$starv_coef <- starv_coef
+    # ... set up the rate function ...
+}
+```
+
+Do **not** reach into `params@species_params` to do this. The rule is the same
+for `given_species_params(params)$starv_coef <- NULL`: a column mizer knows how
+to calculate comes back as a calculated value, and a column of your own — which
+mizer has no way of recalculating — is gone. Before mizer 3.4 neither of these
+worked, so a package that needs the behaviour has to require that version.
+
 ## Dispatching extensions: mizerShelf
 
 [mizerShelf](https://github.com/sizespectrum/mizerShelf) adds two dynamical
@@ -593,6 +616,11 @@ When building a dispatching extension package, verify the following:
   calling `setRateFunction()`. See [Replacing `setRateFunction()` with method dispatch].
 - [ ] Store all extension-specific state in `other_params(params)` or in
   new components created with `setComponent()`, never in new S4 slots.
+- [ ] Add and remove any species parameter column of your own through
+  `species_params(params)$my_col <- value` and
+  `species_params(params)$my_col <- NULL`, never by writing into the
+  `@species_params` slot. See
+  [Taking a species parameter column away again].
 - [ ] Report anything you tell the user with `signal_info()` inside a
   `with_info_level()`, never a bare `message()` or `warning()`, and give every
   entry point an `info_level = default_info_level()` argument that it forwards.

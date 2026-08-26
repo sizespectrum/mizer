@@ -210,6 +210,140 @@ test_that("`given_species_params<-()` can remove columns", {
     expect_error(given_species_params(params)$species <- NULL)
 })
 
+test_that("`species_params<-()` removes a column the table drops (#578)", {
+    params <- NS_params_small
+    species_params(params)$my_col <- 1
+    expect_true("my_col" %in% names(given_species_params(params)))
+
+    sp <- species_params(params)
+    sp$my_col <- NULL
+    expect_message(species_params(params) <- sp,
+                   "removed the species parameter column `my_col`",
+                   fixed = TRUE)
+
+    # Gone from the model, from the record of what the user gave, and from the
+    # values mizer claims to have calculated.
+    expect_false("my_col" %in% names(species_params(params)))
+    expect_false("my_col" %in% names(given_species_params(params)))
+    expect_false("my_col" %in% names(calculated_species_params(params)))
+})
+
+test_that("the `$` and `[[` idioms remove a species parameter column (#578)", {
+    params <- NS_params_small
+    species_params(params)$my_col <- 1
+    suppressMessages(species_params(params)$my_col <- NULL)
+    expect_false("my_col" %in% names(species_params(params)))
+    expect_false("my_col" %in% names(given_species_params(params)))
+
+    species_params(params)$my_col <- 1
+    suppressMessages(species_params(params)[["my_col"]] <- NULL)
+    expect_false("my_col" %in% names(species_params(params)))
+    expect_false("my_col" %in% names(given_species_params(params)))
+})
+
+test_that("`given_species_params<-()` removes what mizer cannot calculate (#578)", {
+    params <- NS_params_small
+    species_params(params)$my_col <- 1
+    suppressMessages(given_species_params(params)$my_col <- NULL)
+    # Nothing recalculates a column mizer knows nothing about, so leaving it in
+    # the species parameters would report the user's own value as one that
+    # mizer had produced.
+    expect_false("my_col" %in% names(species_params(params)))
+    expect_false("my_col" %in% names(calculated_species_params(params)))
+})
+
+test_that("withdrawing a calculated parameter hands it back to mizer (#578)", {
+    params <- NS_params_small
+    sp <- species_params(params)
+    sp$gamma <- NULL
+    suppressMessages(species_params(params) <- sp)
+
+    # `gamma` is one that mizer knows how to calculate, so it comes straight
+    # back -- as a calculated value that follows `f0` again.
+    expect_true("gamma" %in% names(species_params(params)))
+    expect_false("gamma" %in% names(given_species_params(params)))
+    expect_true("gamma" %in% names(calculated_species_params(params)))
+
+    gamma <- species_params(params)$gamma
+    suppressMessages(given_species_params(params)$f0 <- 0.1)
+    expect_gt(sum(gamma - species_params(params)$gamma), 0)
+})
+
+test_that("withdrawing a parameter warns when its rate is frozen (#578)", {
+    params <- NS_params_small
+    search_vol(params) <- search_vol(params)
+    withr::local_options(mizer_info_level = 1)
+
+    expect_warning(given_species_params(params)$gamma <- NULL,
+                   paste0("Your change to the species parameter `gamma`.*",
+                          "search volume"))
+})
+
+test_that("a column is withdrawn without recalculation too (#578)", {
+    params <- NS_params_small
+    species_params(params)$my_col <- 1
+    sp <- species_params(params)
+    sp$my_col <- NULL
+    metab_before <- params@metab
+
+    suppressMessages(species_params(params, recalculate = FALSE) <- sp)
+
+    expect_false("my_col" %in% names(species_params(params)))
+    expect_false("my_col" %in% names(given_species_params(params)))
+    # The two tables agree even though nothing was rebuilt.
+    expect_equal(params@metab, metab_before, ignore_attr = TRUE)
+})
+
+test_that("withdrawing a required species parameter errors (#578)", {
+    params <- NS_params_small
+    sp <- species_params(params)
+    sp$w_inf <- NULL
+    sp$w_max <- NULL
+    sp$w_repro_max <- NULL
+    expect_error(species_params(params) <- sp,
+                 "You need to specify the asymptotic size")
+})
+
+test_that("the removal of a column is reported at info level 3 (#578)", {
+    params <- NS_params_small
+    species_params(params)$my_col <- 1
+    species_params(params)$my_other_col <- 2
+    sp <- species_params(params)
+    sp$my_col <- NULL
+    sp$my_other_col <- NULL
+    expect_message(species_params(params) <- sp,
+                   "columns `my_col`, `my_other_col`", fixed = TRUE)
+
+    # Removing a column is what the user asked for, not something that went
+    # differently from how they asked, so it is not one of the level-1 reports.
+    params <- NS_params_small
+    species_params(params)$my_col <- 1
+    sp <- species_params(params)
+    sp$my_col <- NULL
+    withr::local_options(mizer_info_level = 1)
+    expect_message(species_params(params) <- sp, NA)
+})
+
+test_that("a failed replacement does not report a removal (#578)", {
+    params <- NS_params_small
+    species_params(params)$my_col <- 1
+    sp <- species_params(params)
+    sp$my_col <- NULL
+    sp$pred_kernel_type <- "definitely_missing"
+    messages <- character()
+
+    expect_error(
+        withCallingHandlers(
+            species_params(params) <- sp,
+            message = function(cnd) {
+                messages <<- c(messages, conditionMessage(cnd))
+                invokeRestart("muffleMessage")
+            }),
+        "pred_kernel_func is not a function")
+    expect_length(messages, 0)
+    expect_true("my_col" %in% names(species_params(params)))
+})
+
 test_that("calculated_species_params returns only non-given values", {
     params <- NS_params_small
 
@@ -544,6 +678,17 @@ length_based_params <- function() {
     suppressMessages(species_params(params) <- sp)
     params
 }
+
+test_that("a column restored during validation is not reported as removed", {
+    params <- length_based_params()
+    # With `a` and `b` explicitly given, validating the given length also puts
+    # its matching weight back into the given table.
+    given_species_params(params)$a <- species_params(params)$a
+    given_species_params(params)$b <- species_params(params)$b
+
+    expect_message(species_params(params)$w_mat <- NULL, NA)
+    expect_true("w_mat" %in% names(given_species_params(params)))
+})
 
 test_that("setting a weight parameter is not converted away by its length", {
     params <- length_based_params()

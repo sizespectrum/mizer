@@ -409,6 +409,7 @@ reference:
   - signal_frozen_changes
   - signal_ignored_changes
   - signal_gear_params_changes
+  - signal_removed_species_params
   - frozen_rate_params
   - has_concept("info signalling functions")
 - title: Internal helper functions

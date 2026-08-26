@@ -188,3 +188,51 @@ loads only the namespaces of the extensions you pass it, as before, and the
 repeated `registerExtension()` call touches no namespaces at all — an
 extension registered earlier in the session but no longer installed cannot
 make a package's `.onLoad()` fail.
+
+### A column dropped from an assigned species parameter table is removed
+
+The species parameter setters now read the *absence* of a column as an
+instruction. A column that the table you assign does not have is one you no
+longer supply, so it is taken out of `given_species_params()`. Mizer then
+calculates afresh the parameters it knows how to calculate, and the ones it
+does not know about leave the model:
+
+```r
+species_params(params)$gamma  <- NULL   # gamma is calculated again
+species_params(params)$my_col <- NULL   # my_col is gone
+```
+
+`given_species_params(params)$… <- NULL` follows the same rule. Removing a
+column is reported at `info_level` 3, with a message beginning `I have removed
+the species parameter column`.
+
+Previously neither route removed anything. Dropping a column from the table
+assigned to `species_params<-()` did nothing at all: the column was restored
+from the given species parameters, still recorded as given. Dropping one from
+the table assigned to `given_species_params<-()` did take it out of the given
+table, but left its value standing in `species_params()`, where
+`calculated_species_params()` reported the user's own number as one mizer had
+calculated. Nor did the removal recalculate anything, so
+`given_species_params(params)$gamma <- NULL` left the previously given `gamma`
+in place instead of handing it back to mizer; it is now the same instruction as
+setting that entry to `NA`.
+
+Two things to watch for in existing code:
+
+- **Assigning a table with only some of the model's columns now withdraws the
+  rest.** This used to be a way of updating a few columns and leaving the others
+  alone. Edit the table you get from `species_params(params)` instead of
+  building a new one. The scope for surprise is limited, because
+  `species_params<-()` has always validated what it is given: a table without
+  `species` and one of `w_inf`, `w_max` or `w_repro_max` is an error, not a
+  partial update.
+- **A rebuild now happens where it did not before.** Removing a column from the
+  given species parameters goes through `setParams()`, so a parameter that was
+  derived from the withdrawn one moves to its calculated value. That is the
+  point of the change, but it means numbers can shift where previously nothing
+  did.
+
+For extension packages this is the supported way to withdraw a species
+parameter column when the user switches the extension off, replacing the
+`params@species_params[["my_col"]] <- NULL` slot manipulation that was the only
+thing that worked before.
