@@ -405,29 +405,33 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
         object@given_species_params <-
             set_column(object@given_species_params, col, NULL)
     }
-    signal_removed_species_params(withdrawn)
     if (!recalculate) {
         # Store the supplied parameters as they are. The calculated species
         # parameters are not re-derived and the rates are not recalculated, so
         # it is up to the caller to keep them consistent with the new values.
         object@species_params <- value
-        return(object)
+    } else {
+        changed <- species_param_changes(value, object@species_params)
+        if (!needs_species_recalculation(object, value, changed)) {
+            object@species_params <- value
+            object@time_modified <- lubridate::now()
+        } else {
+            # Deliberately quiet about the changes that will have no impact,
+            # either because another given parameter takes precedence or
+            # because the rate array they feed has been set by hand. Only
+            # `given_species_params<-()` reports those, so that this setter stays
+            # usable in scripts without producing diagnostics they did not ask
+            # for. See the note on the two setters in the documentation of
+            # `given_species_params<-()`.
+            object <- rebuild_from_given(object, value)
+        }
     }
 
-    changed <- species_param_changes(value, object@species_params)
-    if (!needs_species_recalculation(object, value, changed)) {
-        object@species_params <- value
-        object@time_modified <- lubridate::now()
-        return(object)
-    }
-
-    # Deliberately quiet about the changes that will have no impact, either
-    # because another given parameter takes precedence or because the rate
-    # array they feed has been set by hand. Only `given_species_params<-()`
-    # reports those, so that this setter stays usable in scripts without
-    # producing diagnostics they did not ask for. See the note on the two
-    # setters in the documentation of `given_species_params<-()`.
-    rebuild_from_given(object, value)
+    # Report only after the replacement succeeded, and only for columns that
+    # validation did not restore to the given species parameters.
+    signal_removed_species_params(
+        setdiff(withdrawn, names(object@given_species_params)))
+    object
 }
 
 # Rebuild the species parameters from the given species parameters and
@@ -1382,12 +1386,13 @@ is.given_species_params <- function(x) {
 
     # Warn about the changes that will have no impact, either because another
     # given parameter takes precedence or because the rate array they feed has
-    # been set by hand.
+    # been set by hand. A withdrawn column is a change too, although it is not
+    # present in the table that `changed` is built from.
+    changed_names <- union(names(changed), withdrawn)
     with_info_level({
         signal_ignored_changes(old_given, specified)
-        signal_gear_params_changes(changed)
-        signal_frozen_changes(params, names(changed))
-        signal_removed_species_params(withdrawn)
+        signal_gear_params_changes(changed_names)
+        signal_frozen_changes(params, changed_names)
     })
 
     params@given_species_params <- value
@@ -1396,20 +1401,25 @@ is.given_species_params <- function(x) {
         sp <- params@species_params
         params@species_params <- merge_given_species_params(sp, value, changed)
         params@time_modified <- lubridate::now()
-        return(params)
+    } else {
+        # The user has edited the given species parameters and not the full
+        # table, so it is the model's own species parameters whose columns are
+        # carried over where they are not rebuilt from the given ones. Not the
+        # withdrawn ones though: `validSpeciesParams()` and the rate setters put
+        # back the ones mizer knows how to calculate, and one it cannot
+        # calculate would otherwise survive here and be reported by
+        # `calculated_species_params()` as a value mizer had produced.
+        keep <- params@species_params
+        for (col in withdrawn) {
+            keep <- set_column(keep, col, NULL)
+        }
+        params <- rebuild_from_given(params, keep)
     }
-    # The user has edited the given species parameters and not the full table,
-    # so it is the model's own species parameters whose columns are carried
-    # over where they are not rebuilt from the given ones. Not the withdrawn
-    # ones though: `validSpeciesParams()` and the rate setters put back the
-    # ones mizer knows how to calculate, and one it cannot calculate would
-    # otherwise survive here and be reported by `calculated_species_params()`
-    # as a value mizer had produced.
-    keep <- params@species_params
-    for (col in withdrawn) {
-        keep <- set_column(keep, col, NULL)
-    }
-    rebuild_from_given(params, keep)
+    # Report only after the replacement succeeded, and only for columns that
+    # validation did not restore to the given species parameters.
+    signal_removed_species_params(
+        setdiff(withdrawn, names(params@given_species_params)))
+    params
 }
 
 #' @rdname species_params
