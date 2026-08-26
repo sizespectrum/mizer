@@ -122,17 +122,27 @@ print.ArrayTimeBySpeciesBySize <- function(x, ...) {
 }
 
 #' @export
-summary.ArrayTimeBySpeciesBySize <- function(object, ...) {
+summary.ArrayTimeBySpeciesBySize <- function(object, all.sizes = FALSE, ...) {
     value_name <- attr(object, "value_name") %||% "ArrayTimeBySpeciesBySize"
     units_str <- attr(object, "units")
     sp_names <- dimnames(object)[[2]]
     arr <- unclass(object)
 
+    # The same size range the plot of a time slice draws. The mask runs over
+    # species and size; the array has time in front, so each of its entries
+    # covers the whole time dimension.
+    if (!all.sizes) {
+        keep <- species_size_range_mask(attr(object, "params"),
+                                        get_ArrayTimeBySpeciesBySize_w(object),
+                                        sp_names)
+        arr[!rep(as.vector(keep), each = dim(arr)[1])] <- NA
+    }
+
     df <- data.frame(
         Species = sp_names,
-        Min = apply(arr, 2, min, na.rm = TRUE),
-        Mean = apply(arr, 2, mean, na.rm = TRUE),
-        Max = apply(arr, 2, max, na.rm = TRUE),
+        Min = apply(arr, 2, range_stat, f = min),
+        Mean = apply(arr, 2, range_stat, f = mean),
+        Max = apply(arr, 2, range_stat, f = max),
         row.names = NULL,
         stringsAsFactors = FALSE
     )

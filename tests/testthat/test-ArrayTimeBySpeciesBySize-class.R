@@ -67,6 +67,20 @@ test_that("summary.ArrayTimeBySpeciesBySize works", {
     expect_output(print(s), "times x")
 })
 
+test_that("summary.ArrayTimeBySpeciesBySize respects the species size range", {
+    s <- summary(fmort_small)$per_species
+    all_sizes <- summary(fmort_small, all.sizes = TRUE)$per_species
+    expect_equal(all_sizes$Max, unname(apply(unclass(fmort_small), 2, max)))
+    # The mask runs over species and size and has to cover the whole time
+    # dimension; getting that broadcast wrong would leave the two equal.
+    expect_false(isTRUE(all.equal(s$Mean, all_sizes$Mean)))
+
+    # The same sizes the plot of a time slice draws.
+    pd <- plot(fmort_small, return_data = TRUE)
+    sp <- s$Species[1]
+    expect_equal(s$Max[1], max(pd[[2]][pd$Species == sp]))
+})
+
 test_that("str.ArrayTimeBySpeciesBySize works", {
     expect_output(str(fmort_small), "ArrayTimeBySpeciesBySize")
     expect_output(str(fmort_small), "Fishing mortality")

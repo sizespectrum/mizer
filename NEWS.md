@@ -27,6 +27,24 @@
 
 ## Bug fixes
 
+- `summary()` of a species-by-size array now covers the same sizes as `plot()`
+  of the same array: each species' own size range, from its `w_min` to its
+  `w_max`. `plot()` has dropped the values outside that range since it gained
+  its `all.sizes` argument, and `summary()` reported them, so the table and the
+  figure described different arrays. The out-of-range values describe an animal
+  that does not exist — `summary(getEncounter(NS_params))` gave Sprat a maximum
+  encounter rate of 40000 g/year, which is the rate a 40 kg Sprat would have,
+  against 240 g/year over the sizes a Sprat reaches — and because a rate usually
+  grows with size they were also the extreme ones, so it was the `Min` and `Max`
+  columns that were affected most. Both `summary()` methods that have a size
+  dimension take `all.sizes = TRUE` for the old behaviour. The size range is now
+  applied from one definition shared with `plot()`, so the two cannot disagree
+  again.
+
+- `summary()` of an array now reports `NA` for a species with no values left,
+  rather than the `-Inf`/`Inf` and warning that `min()` and `max()` of an empty
+  selection give.
+
 - A size class holding a negligible density no longer stops
   `projectUntilSettled()` from ever converging (#570). Above a size where growth
   stops, the density decays exponentially and `dN/dt` decays with it, so the

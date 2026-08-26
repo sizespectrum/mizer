@@ -32,9 +32,9 @@ and are not repeated here.
 
 ## Upgrading from mizer 3.3 to 3.4
 
-Two things change, both in the steady-state tools: what [`getSteadyResidual()`](../reference/getSteadyResidual.html)
-measures, and which size classes [`distanceSSLogN()`](../reference/distanceSSLogN.html) counts. Everything that
-decides whether a state is a fixed point is untouched.
+Three things change: what [`getSteadyResidual()`](../reference/getSteadyResidual.html) measures, which sizes
+`summary()` of an array covers, and which size classes [`distanceSSLogN()`](../reference/distanceSSLogN.html)
+counts. Everything that decides whether a state is a fixed point is untouched.
 
 ### `getSteadyResidual()` measures biomass drift by default
 
@@ -88,6 +88,41 @@ The `resource` attribute of the result follows the same measure, so it too sums
 to the resource's relative rate of biomass change. The `other` attribute is
 unchanged: components with their own dynamics have no size grid to weight over,
 so their rates stay relative ones.
+
+
+### `summary()` of an array covers the same sizes as `plot()`
+
+`plot()` of a species-by-size array draws each species over its own size range,
+from its `w_min` to its `w_max`, and has done since it gained `all.sizes`.
+`summary()` of the same array reduced the whole size grid, so the two described
+different arrays. The values outside a species' range describe an animal that
+does not exist, and because a rate usually grows with size they are also the
+extreme ones, so it was `Min` and `Max` that were reported wrongly:
+
+```{r eval=FALSE}
+summary(getEncounter(NS_params))$per_species[1, ]
+#> before:  Species Sprat   Min 0.299   Mean 2929   Max 39573
+#> now:     Species Sprat   Min 0.299   Mean 37.9   Max 240
+```
+
+40000 g/year is the encounter rate a 40 kg Sprat would have. 240 g/year is the
+rate over the sizes a Sprat reaches.
+
+Both `summary()` methods with a size dimension — [`ArraySpeciesBySize`](../reference/ArraySpeciesBySize.html) and
+[`ArrayTimeBySpeciesBySize`](../reference/ArrayTimeBySpeciesBySize.html) — now take `all.sizes`, defaulting to `FALSE` as
+`plot()` does. Pass `all.sizes = TRUE` for the whole grid:
+
+```{r eval=FALSE}
+summary(getEncounter(NS_params), all.sizes = TRUE)   # as before
+```
+
+A species with no values left in range now comes back as `NA` rather than as
+the `-Inf`/`Inf` and warning that `min()` and `max()` of an empty selection
+give.
+
+`print()` and `as.data.frame()` are unchanged: they show the array as it is,
+without interpreting it. Nothing about the arrays themselves changed, so any
+code that indexes them directly is unaffected.
 
 
 ### A size class holding no fish no longer blocks convergence
@@ -352,7 +387,7 @@ species that has gone from present to absent.
 
 ### Bin averages are drawn at the bin centres in time-by-size plots
 
-`plot()` on an [`ArrayTimeBySpeciesBySize`](../reference/ArrayTimeBySpeciesBySize.html) took its time slice by hand rather
+`plot()` on an `ArrayTimeBySpeciesBySize` took its time slice by hand rather
 than through the slice helper the other methods use, and lost the array's
 `representation` tag on the way. In a model with second-order bin-averaging
 switched on with [`second_order_w()`](../reference/second_order_w.html), a bin-averaged quantity such as
@@ -1324,7 +1359,7 @@ directly on a bare data frame will see the extra columns and stricter checks
 
 ### Printing of mizer array objects shows the values
 
-`print()` on the array objects returned by the rate getters ([`ArraySpeciesBySize`](../reference/ArraySpeciesBySize.html),
+`print()` on the array objects returned by the rate getters (`ArraySpeciesBySize`,
 [`ArrayTimeBySpecies`](../reference/ArrayTimeBySpecies.html), [`ArrayResourceBySize`](../reference/ArrayResourceBySize.html), [`ArrayTimeByResourceBySize`](../reference/ArrayTimeByResourceBySize.html) and
 `ArrayTimeBySpeciesBySize`, as returned by `getEncounter()`, `getBiomass()`,
 `getFMort()`, `NResource()` and similar) now truncates the output instead of
