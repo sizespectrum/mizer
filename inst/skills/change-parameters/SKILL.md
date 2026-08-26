@@ -90,6 +90,30 @@ given, it feeds a rate array you set by hand, or it is a gear parameter that
 mizer reads from `gear_params()`. `species_params<-()` stays quiet about all
 three.
 
+### Removing a column
+
+A column that is missing from the table you assign is one you no longer supply,
+and both setters take it out of `given_species_params()`. What happens next
+depends on whether mizer can produce the parameter itself:
+
+```r
+species_params(params)$gamma <- NULL    # mizer calculates gamma again
+species_params(params)$my_col <- NULL   # mizer knows no `my_col`: it is gone
+```
+
+`given_species_params(params)$… <- NULL` does the same. So a parameter mizer
+knows comes straight back as a *calculated* value — removing its column is
+another way of saying `given_species_params(params)$gamma <- NA` — while a
+custom column leaves the model altogether. That second case is how an extension
+package withdraws a species parameter it added when the user switches the
+extension off; there is no need to write into the `params@species_params` slot.
+
+Because the whole table is compared, a table with only some of the model's
+columns withdraws all the others. `species_params<-()` validates what you give
+it, so a table without `species` and a maximum size is an error rather than a
+partial update — but edit the table you got from the accessor rather than
+building a new one from a handful of columns.
+
 ### Turning the commentary up or down
 
 Mizer reports the choices it makes —
@@ -603,7 +627,8 @@ whole new ecosystem component.
 |---|---|
 | a per-species value (`beta`, `w_mat`, `h`, `erepro`, …) | `species_params(params) <- …` |
 | protect a value mizer has calculated | copy it from `species_params(params)` into `given_species_params(params)` |
-| let mizer calculate a value again | set it to `NA` in `given_species_params(params)` |
+| let mizer calculate a value again | set it to `NA` in `given_species_params(params)`, or drop its column |
+| remove a custom species parameter column altogether | `species_params(params)$my_col <- NULL` |
 | fishing gears / selectivity / catchability | `gear_params(params) <- …` |
 | baseline effort or selectivity/catchability arrays | `setFishing(params, …)` |
 | the resource (`kappa`, `lambda`, `r_pp`, …) | `resource_params(params) <- …` |

@@ -27,6 +27,27 @@
 
 ## Bug fixes
 
+- A species parameter column can be removed by dropping it from the table you
+  assign, with either setter (#578). A column that is missing from the assigned
+  table is one you no longer supply: mizer takes it out of
+  `given_species_params()`, calculates afresh the parameters it knows how to
+  calculate, and removes the ones it does not. Both
+  `species_params(params)$my_col <- NULL` and
+  `given_species_params(params)$my_col <- NULL` therefore now do what they look
+  like they do. Previously the first silently restored the column from the given
+  table, and the second left it in `species_params()` where
+  `calculated_species_params()` reported the user's own value as one mizer had
+  produced. This is what an extension package needs in order to withdraw a
+  species parameter it added when the user switches the extension off, without
+  writing to the `species_params` slot directly. The removal is reported at
+  `info_level` 3.
+
+- Removing a column from `given_species_params()` now recalculates the parameter
+  it handed back. `given_species_params(params)$gamma <- NULL` used to leave the
+  previously given value sitting in `species_params()` untouched, because a
+  removal on its own registered as no change at all; it is now the same
+  instruction as `given_species_params(params)$gamma <- NA`.
+
 - Repeated `registerExtension()` and `registerExtensions()` calls now rebuild
   the dynamic marker classes of the active extension chain when any of them
   disappeared during an extension-package reload, while leaving the registered

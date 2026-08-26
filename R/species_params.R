@@ -199,6 +199,39 @@
 #' that is exactly the case where existing code changes its meaning. The same
 #' holds for [gear_params()].
 #'
+#' @section Removing a species parameter column:
+#' A column that is missing from the table you assign is one you no longer
+#' supply, and mizer takes it out of the given species parameters. What happens
+#' next depends on whether mizer knows how to produce the parameter itself: one
+#' that it calculates comes straight back as a calculated value, while one that
+#' it knows nothing about leaves the model altogether. Both setters work this
+#' way, so either of these removes a custom column:
+#'
+#' ```
+#' species_params(params)$my_col <- NULL
+#' given_species_params(params)$my_col <- NULL
+#' ```
+#'
+#' and either of these hands a parameter you had given back to mizer, exactly as
+#' setting it to `NA` in the given species parameters does:
+#'
+#' ```
+#' species_params(params)$gamma <- NULL
+#' given_species_params(params)$gamma <- NULL
+#' ```
+#'
+#' This is how an extension package withdraws a species parameter it added when
+#' the user switches the extension off, without reaching into the
+#' `species_params` slot. Mizer reports the removal at `info_level` 3, see
+#' [setParams()].
+#'
+#' Because the whole table is compared, assigning a table with only some of the
+#' model's columns withdraws all the others. There is not much room for
+#' surprise: `species_params<-()` validates what you give it, so a table without
+#' `species` and one of `w_inf`, `w_max` or `w_repro_max` is an error rather
+#' than a partial update. Still, edit the table you got from the accessor rather
+#' than building a new one from a handful of columns.
+#'
 #' @section Setting species parameters without recalculation:
 #' `species_params(params, recalculate = FALSE) <- value` records the values you
 #' changed among the given species parameters, so that they are not calculated
@@ -225,10 +258,12 @@
 #'
 #'   `species_params<-()`: Updates the `given_species_params` with any
 #'   parameters you have changed, and recalculates the full species parameter
-#'   table and model parameters when a changed column has cached dependants.
-#'   With `recalculate = FALSE` it only does the recording and stores the
-#'   parameters you supplied, see the section "Setting species parameters
-#'   without recalculation" below.
+#'   table and model parameters when a changed column has cached dependants. A
+#'   column that `value` does not have is one you no longer supply and is
+#'   removed from the given species parameters, see the section "Removing a
+#'   species parameter column" below. With `recalculate = FALSE` it only does
+#'   the recording and stores the parameters you supplied, see the section
+#'   "Setting species parameters without recalculation" below.
 #'
 #'   `given_species_params()`: Data frame containing the species parameter
 #'   values that were supplied explicitly by the user.
@@ -238,9 +273,12 @@
 #'   is recorded as given, even when it is numerically equal to the value
 #'   currently in `species_params()`. This lets you protect a calculated value
 #'   against future recalculation. An `NA` entry, or removal of a column, hands
-#'   a previously given parameter back to mizer's calculation. Dependent
-#'   quantities are recalculated only when the replacement can change them;
-#'   merely marking the current value as given does not rebuild the model.
+#'   a previously given parameter back to mizer's calculation -- and where there
+#'   is no mizer calculation to hand it back to, removing the column removes the
+#'   parameter from the model, see the section "Removing a species parameter
+#'   column" below. Dependent quantities are recalculated only when the
+#'   replacement can change them; merely marking the current value as given does
+#'   not rebuild the model.
 #'
 #'   This setter also warns when a change you asked for cannot take effect,
 #'   namely when the parameter is
@@ -323,6 +361,13 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     # recorded as a given species parameter, freezing it against every later
     # recalculation.
     supplied_cols <- names(value)
+    # Columns the model has and the assigned table does not. The user is no
+    # longer supplying them, so they are dropped from the given species
+    # parameters below: mizer then calculates afresh the ones it knows how to
+    # calculate, and the ones it does not know simply go away. `species` cannot
+    # be withdrawn; `validSpeciesParams()` rejects a table without it.
+    withdrawn <- setdiff(names(object@species_params),
+                         c(supplied_cols, "species"))
     # A length parameter whose weight has just been set has to follow the new
     # weight before anything converts the weight away again.
     value <- reconcile_length_weight(value, object@species_params)
@@ -346,15 +391,21 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     }
 
     # Find what changed compared to old species_params and record it among the
-    # given species parameters. Columns that mizer itself filled in are hidden
-    # from the recording: they are neither in the model nor in what the user
-    # supplied, so they are defaults, not user input.
-    filled_in <- setdiff(names(value),
-                         c(supplied_cols, names(object@species_params)))
+    # given species parameters. Only what the user actually supplied is user
+    # input: a default that mizer filled in is not, and neither is the default
+    # it may have just put back into a column the user has withdrawn.
     object@given_species_params <-
         record_given_species_params(object@given_species_params,
-                                    value[setdiff(names(value), filled_in)],
+                                    value[intersect(names(value),
+                                                    supplied_cols)],
                                     object@species_params)
+    # The withdrawn columns leave the given species parameters, so that the
+    # rebuild below no longer regenerates them from there.
+    for (col in withdrawn) {
+        object@given_species_params <-
+            set_column(object@given_species_params, col, NULL)
+    }
+    signal_removed_species_params(withdrawn)
     if (!recalculate) {
         # Store the supplied parameters as they are. The calculated species
         # parameters are not re-derived and the rates are not recalculated, so
@@ -464,6 +515,25 @@ recalculation_species_params <- function(params, value) {
 # explicitly given value.
 needs_species_recalculation <- function(params, value, changed,
                                         old_given = NULL) {
+    no_sp <- nrow(value)
+    # A column the new given table no longer has is one the user has withdrawn.
+    # It never shows up among the changes, which are indexed by the columns the
+    # new table does have, so it is looked for first: a withdrawal on its own
+    # is a change to the model even when nothing else moved.
+    removed <- if (is.null(old_given)) {
+        character()
+    } else {
+        setdiff(names(old_given), names(value))
+    }
+    for (col in removed) {
+        # Either the withdrawn value was feeding the model, or the column is
+        # still standing in the species parameters and has to be taken out of
+        # them too. Only the rebuild does either.
+        if (any(explicit_species_param_entries(old_given[[col]], no_sp)) ||
+                col %in% names(params@species_params)) {
+            return(TRUE)
+        }
+    }
     if (length(changed) == 0) {
         # A no-op `species_params<-()` call has historically been a way to
         # rebuild an object after package code changed its slots directly.
@@ -473,21 +543,14 @@ needs_species_recalculation <- function(params, value, changed,
     }
     required <- recalculation_species_params(params, value)
     if (is.null(old_given)) {
-        # `record_given_species_params()` deliberately does not interpret a
-        # missing column as a request to remove it from the given table. Keep
-        # the established rebuild behaviour for such replacements.
+        # A column the assigned table no longer has is one the user has
+        # withdrawn. `species_params<-()` has already taken it out of the given
+        # species parameters, and only the rebuild can work out what the model
+        # looks like without it.
         if (any(!names(changed) %in% names(value))) {
             return(TRUE)
         }
         return(any(names(changed) %in% required))
-    }
-
-    no_sp <- nrow(value)
-    removed <- setdiff(names(old_given), names(value))
-    for (col in removed) {
-        if (any(explicit_species_param_entries(old_given[[col]], no_sp))) {
-            return(TRUE)
-        }
     }
 
     for (col in names(changed)) {
@@ -1298,6 +1361,9 @@ is.given_species_params <- function(x) {
     # no change while clearing a given value to `NA` is one: the user is then
     # handing that parameter back to mizer's calculation.
     old_given <- params@given_species_params
+    # Columns the user has withdrawn. They never appear among the changes
+    # below, which are indexed by the columns the new table has.
+    withdrawn <- setdiff(names(old_given), names(value))
     no_sp <- nrow(value)
     changed <- lapply(names(value), function(col) {
         changed_entries(value[[col]], old_given[[col]], no_sp)
@@ -1321,6 +1387,7 @@ is.given_species_params <- function(x) {
         signal_ignored_changes(old_given, specified)
         signal_gear_params_changes(changed)
         signal_frozen_changes(params, names(changed))
+        signal_removed_species_params(withdrawn)
     })
 
     params@given_species_params <- value
@@ -1333,8 +1400,16 @@ is.given_species_params <- function(x) {
     }
     # The user has edited the given species parameters and not the full table,
     # so it is the model's own species parameters whose columns are carried
-    # over where they are not rebuilt from the given ones.
-    rebuild_from_given(params, params@species_params)
+    # over where they are not rebuilt from the given ones. Not the withdrawn
+    # ones though: `validSpeciesParams()` and the rate setters put back the
+    # ones mizer knows how to calculate, and one it cannot calculate would
+    # otherwise survive here and be reported by `calculated_species_params()`
+    # as a value mizer had produced.
+    keep <- params@species_params
+    for (col in withdrawn) {
+        keep <- set_column(keep, col, NULL)
+    }
+    rebuild_from_given(params, keep)
 }
 
 #' @rdname species_params

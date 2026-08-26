@@ -520,3 +520,35 @@ signal_gear_params_changes <- function(changed) {
     }
     invisible(NULL)
 }
+
+#' Signal that species parameter columns have been removed
+#'
+#' A column that is absent from the table assigned to [species_params<-()] or
+#' [given_species_params<-()] is one the user no longer supplies. Mizer
+#' calculates afresh those it knows how to calculate, and the rest leave the
+#' model altogether. This reports the ones that leave the given species
+#' parameters, whether or not mizer puts a calculated value back.
+#'
+#' The report is made at level 3, so it is visible in ordinary use and silent
+#' from `info_level` 1 downwards: removing a column is what the user asked for,
+#' not something that went differently from how they asked. It carries the
+#' class `info_about_removed` for code that wants to catch it in particular.
+#'
+#' @param withdrawn A character vector of the withdrawn column names. Nothing is
+#'   signalled when it is empty.
+#'
+#' @return `NULL` invisibly. Called for its side effect of signalling.
+#' @concept info signalling functions
+signal_removed_species_params <- function(withdrawn) {
+    if (length(withdrawn) == 0) {
+        return(invisible(NULL))
+    }
+    with_info_level({
+        signal_info("species_params", paste0(
+            "I have removed the species parameter column",
+            if (length(withdrawn) > 1) "s " else " ",
+            paste0("`", withdrawn, "`", collapse = ", "), "."),
+            level = 3, class = "info_about_removed")
+    })
+    invisible(NULL)
+}
