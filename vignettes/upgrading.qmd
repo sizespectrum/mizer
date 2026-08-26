@@ -30,6 +30,112 @@ and are not repeated here.
 
 ---
 
+## Upgrading from mizer 3.3 to 3.4
+
+Two things change, both in the steady-state tools: what [`getSteadyResidual()`](../reference/getSteadyResidual.html)
+measures, and which size classes [`distanceSSLogN()`](../reference/distanceSSLogN.html) counts. Everything that
+decides whether a state is a fixed point is untouched.
+
+### `getSteadyResidual()` measures biomass drift by default
+
+`getSteadyResidual()` used to return a per-capita rate of change,
+`(dN_i(w)/dt) / N_i(w)`, for every size class. It now returns, by default, the
+contribution of each size class to the relative rate of change of its species'
+*biomass*:
+
+```{r eval=FALSE}
+rowSums(getSteadyResidual(params))    # (dB_i/dt) / B_i, one per species
+```
+
+The largest of those numbers, together with the resource and any other
+components, is exactly what [`isSteady()`](../reference/isSteady.html), the `summary()` line of a
+[`MizerParams`](../reference/MizerParams.html) object and [`project(check_steady = TRUE)`](../reference/project.html) judge a model by. The
+array therefore now says *where* a model is unsteady in the same currency that
+mizer uses to decide *whether* it is, and `max(abs(...))` of it is no longer a
+trap.
+
+It was a trap before. The per-capita rate of a single size class is dominated by
+the fastest-relaxing cells, and those are the ones holding no mass: on
+[`NS_params`](../reference/NS_params.html) the largest per-capita rate is 1.2/year, in a cell holding 2e-8 of
+its species' biomass, while the biomass drift is 0.014/year and the model counts
+as settled. Under the second-order scheme the gap is wide enough to reverse the
+ordering between a converged model and one that has just been knocked off its
+steady state.
+
+The numbers are therefore much smaller than they were, and a `plot()` of the
+result has a different shape — mass-carrying sizes now stand out where fast
+empty ones used to. Nothing about the model has changed. To get the old
+quantity back:
+
+```{r eval=FALSE}
+getSteadyResidual(params, measure = "per_capita")
+```
+
+That measure is still the right one for a question about the *structure* of a
+model rather than about its drift: it shows a size class whose growth and
+mortality are out of balance even where the class holds a millionth of its
+species' biomass. Just do not reduce it to its maximum.
+
+One further consequence of the new default: a size class with no fish in it is
+no longer `NA`. `dN/dt` is well defined there — an empty class can be filling up
+— so its contribution is reported like any other. Only a species with no biomass
+at all is `NA`, for every one of its size classes. Code that passed
+`na.rm = TRUE` is unaffected; code that relied on `is.na()` to find the empty
+classes should test [`initialN(params)`](../reference/initialN-set.html) instead. With `measure = "per_capita"`
+the `NA`s are exactly where they were.
+
+The `resource` attribute of the result follows the same measure, so it too sums
+to the resource's relative rate of biomass change. The `other` attribute is
+unchanged: components with their own dynamics have no size grid to weight over,
+so their rates stay relative ones.
+
+
+### A size class holding no fish no longer blocks convergence
+
+Above a size where the growth rate vanishes, a species' density decays
+exponentially and `dN/dt` decays with it, so the density in the class falls
+through 1e-100 and beyond while never reaching zero. `distanceSSLogN()` counted
+every class with a positive density, so `log(n)` in such a class fell by the
+same amount between every pair of states and its contribution to the distance
+never shrank. One trace holding 3e-92 g of fish could therefore hold the
+distance above any tolerance indefinitely, and the run stopped at `t_max`
+reporting `converged = FALSE` while the biomass drift correctly reported a fixed
+point.
+
+`distanceSSLogN()` now takes a `biomass_share_cutoff`, defaulting to `1e-8`: a
+size class counts only if it holds at least that share of its species' biomass.
+Relevance is measured as a share of biomass rather than of density, because
+density falls fifteen orders or more across a healthy spectrum for entirely good
+reasons, so no density threshold could tell a dying trace from real large fish.
+
+Nothing changes for a model without such a trace. There, every class the cutoff
+removes is one that already had no density at all and was already excluded, so
+the number `distanceSSLogN()` returns is unchanged to the last bit and any
+`distance_tol` you have tuned keeps its meaning. What changes is the model that
+has one: a run that used to reach `t_max` now converges.
+
+Pass `biomass_share_cutoff = 0`, to `distanceSSLogN()` directly or through
+[`projectUntilSettled()`](../reference/projectUntilSettled.html), for the old behaviour. Note that this is unrelated to
+the `biomass_cutoff` *species parameter* used by [`calibrateBiomass()`](../reference/calibrateBiomass.html) and
+[`matchBiomasses()`](../reference/matchBiomasses.html), which is a size in grams. `getSteadyResidual()` has no such
+argument and needs none: weighting by biomass gives a trace the weight it
+deserves without a threshold.
+
+What decides whether a state is a fixed point is untouched: `residual_tol` is
+measured against a biomass drift that integrates over every size class, cut off
+or not, so the cutoff cannot make a drifting model look settled.
+
+A run that stops at `t_max` on a state that is nonetheless a fixed point now
+says so, instead of reporting only the distance:
+
+```
+#> Simulation run did not converge after 100 years. The distance function
+#> returned 2.4, which is above the distance tolerance, but the state reached is
+#> a fixed point: the biomasses change at only 0.0003 per year.
+```
+
+---
+
 ## Upgrading from mizer 3.2 to 3.3
 
 Most of the changes in this release are corrections. Results move only for
@@ -84,7 +190,7 @@ to multiply the values by a Jacobian, because a density per gram is not a
 density per centimetre. mizer used to decide which arrays those were by looking
 at their metadata strings, treating an array as a density if it was named
 `"Number density"` or had units `"1/g"`. For mizer's own number spectra —
-[`initialN()`](../reference/initialN-set.html), [`N()`](../reference/N.html), [`finalN()`](../reference/finalN.html), [`NResource()`](../reference/N.html), [`resource_capacity()`](../reference/setResource.html) — nothing
+`initialN()`, [`N()`](../reference/N.html), [`finalN()`](../reference/finalN.html), [`NResource()`](../reference/N.html), [`resource_capacity()`](../reference/setResource.html) — nothing
 changes; they were recognised before and are tagged now. What changes is
 [`getFluxGradient()`](../reference/getFluxGradient.html): it is a rate of change of a number density, with units
 `g^-1/year`, and neither of the old string tests recognised it, so on a length
@@ -170,7 +276,7 @@ the total of a selection, sum the selection yourself.
 ### Comparison plots transform each array with its own model
 
 [`plot2()`](../reference/plot2.html) and [`plotRelative()`](../reference/plotRelative.html) used to convert both of their operands together,
-with the [`MizerParams`](../reference/MizerParams.html) attached to the *first* one. That is invisible while the
+with the `MizerParams` attached to the *first* one. That is invisible while the
 two models agree, and wrong as soon as they do not. The weight-length
 relationship `w = a l^b` is a species parameter, so with `size_axis = "l"`
 the second array was drawn at the first model's lengths, and a density was
@@ -392,7 +498,7 @@ bin-averaging was switched on with `second_order_w()`, and are now consistent
 with [`getEncounter()`](../reference/getEncounter.html):
 
 - **[`getDiet(proportion = FALSE)`](../reference/getDiet.html)** was uniformly too large by a factor
-  `(1 + beta) / 2`, where `beta` is the grid ratio — 9.7% for [`NS_params`](../reference/NS_params.html).
+  `(1 + beta) / 2`, where `beta` is the grid ratio — 9.7% for `NS_params`.
   Summing the diet over prey now reproduces
   `getEncounter() * (1 - getFeedingLevel())` under both schemes (#474).
   `getDiet(proportion = TRUE)`, the default, was unaffected: the factor was
@@ -427,7 +533,7 @@ first-order scheme, nothing changes (#494).
 
 ### The calibration and matching functions respect the quadrature scheme
 
-[`calibrateBiomass()`](../reference/calibrateBiomass.html), [`calibrateNumber()`](../reference/calibrateNumber.html), [`matchNumbers()`](../reference/matchNumbers.html),
+`calibrateBiomass()`, [`calibrateNumber()`](../reference/calibrateNumber.html), [`matchNumbers()`](../reference/matchNumbers.html),
 [`plotBiomassObservedVsModel()`](../reference/plotBiomassObservedVsModel.html) and `plotYieldObservedVsModel()` each wrote out
 their own sum over the size grid rather than using mizer's size integral, so
 they stayed on the first-order quadrature and cut the size range at a bin
@@ -447,7 +553,7 @@ computed from them, so it told you the model under-predicted the yields when it
 did not. If you have read a yield calibration off that plot under
 `second_order_w()`, re-read it.
 
-`matchNumbers()` also gains the empty-selection guard that [`matchBiomasses()`](../reference/matchBiomasses.html)
+`matchNumbers()` also gains the empty-selection guard that `matchBiomasses()`
 already had. Its own guard could never fire, so when it had nothing to match —
 no `number_observed` values, or none for the species you asked for — it left the
 abundances alone but still called [`setBevertonHolt()`](../reference/setBevertonHolt.html), updated `time_modified`
@@ -489,7 +595,7 @@ Steady state:
 ```
 
 Code that parses the output of `summary()` by line position needs updating. The
-same number is available directly as [`getSteadyResidual()`](../reference/getSteadyResidual.html).
+same number is available directly as `getSteadyResidual()`.
 
 ### The convergence attribute has a new shape
 
@@ -546,7 +652,7 @@ one.
 
 What has changed is that they now measure the model's biomass drift at the state
 they stop on, and say so. Where that drift is above `0.05`/year — the tolerance
-[`isSteady()`](../reference/isSteady.html) uses — the state is not a fixed point, and the `"convergence"`
+`isSteady()` uses — the state is not a fixed point, and the `"convergence"`
 attribute records `termination = "distance_tolerance"` (the distance criterion,
 and only that, was met) with `attractor = NA`:
 
@@ -586,7 +692,7 @@ component's dynamics function that reads `t` therefore saw the same short
 interval over and over instead of a clock that runs. Seasonal forcing, a
 time-dependent external mortality, or anything else registered with
 [`setRateFunction()`](../reference/setRateFunction.html) or [`setComponent()`](../reference/setComponent.html) that depends on `t` was affected; the
-result differed from [`project()`](../reference/project.html) over the same period and could not settle onto
+result differed from `project()` over the same period and could not settle onto
 a forced cycle.
 
 The clock now runs from 0 to the end of the run, exactly as in `project()`.
