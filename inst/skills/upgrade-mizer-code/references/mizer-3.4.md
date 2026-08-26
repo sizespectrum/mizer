@@ -3,6 +3,9 @@
 Three things change: what `getSteadyResidual()` measures, which sizes
 `summary()` of an array covers, and which size classes `distanceSSLogN()`
 counts. Everything that decides whether a state is a fixed point is untouched.
+A fourth section records a fix rather than a change: repeated extension
+registration now rebuilds the dynamic marker classes that reloading an
+extension package removed.
 
 ### `getSteadyResidual()` measures biomass drift by default
 
@@ -160,3 +163,28 @@ a flat line at minus the mortality rate above the size where growth stops. On
 3.4 and later the cutoff already handles it; before that, the remedy is to zero
 the trace with `initialN(params)[initialN(params) < 1e-30] <- 0`.
 <!-- /agent-only -->
+
+### Repeated extension registration rebuilds missing marker classes
+
+`registerExtension()` is designed to be called from an extension package's
+`.onLoad()` hook, including when `devtools::load_all()` reloads that package in
+the same session. The reload removes the S4 classes the package's namespace
+held, which can take a dynamic marker class out of the registered chain.
+Previously the repeated registration returned without recreating it, and the
+next `coerceToExtensionClass()` call failed with base R's coercion error, `no
+method or default for coercing "MizerParams" to ...`.
+
+Repeated `registerExtension()` and `registerExtensions()` calls now rebuild the
+chain's dynamic marker classes while leaving the registered chain unchanged.
+The whole chain is rebuilt rather than just the class that went missing,
+because R prunes a removed class from the `contains` list of its subclasses: a
+marker class that used to sit outside the missing one is left parented directly
+on `MizerParams`, so recreating only the missing class would leave the chain
+still broken. An intact chain is inspected and left untouched, so the usual
+repeated registration does no work.
+
+The repair never installs or version-checks anything. `registerExtensions()`
+loads only the namespaces of the extensions you pass it, as before, and the
+repeated `registerExtension()` call touches no namespaces at all — an
+extension registered earlier in the session but no longer installed cannot
+make a package's `.onLoad()` fail.

@@ -391,7 +391,15 @@ skill_to_guide <- function(skill, spec, index, map, pkg_root = ".") {
             out <- c(out, ln)
             next
         }
-        if (grepl("^## ", ln)) out <- c(out, "---", "")
+        if (grepl("^## ", ln)) {
+            # A `---` sitting directly under a line of text is a setext
+            # heading marker, not a section break, so the rule has to be
+            # separated from whatever precedes it by a blank line.
+            if (length(out) > 0 && nzchar(out[[length(out)]])) {
+                out <- c(out, "")
+            }
+            out <- c(out, "---", "")
+        }
         # Headings are never linked: a link inside a heading nests inside the
         # table-of-contents entry, which is itself a link. The name keeps its
         # first-mention link, which lands on the prose below instead.

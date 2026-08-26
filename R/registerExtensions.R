@@ -14,9 +14,11 @@
 #' package loaded ends up outermost.
 #'
 #' The call is idempotent: if the extension is already registered at any
-#' position in the chain, the function returns silently without modifying the
-#' chain. This makes it safe to call from `devtools::load_all()`, which
-#' re-executes `.onLoad`.
+#' position in the chain, the function leaves the chain unchanged, including the
+#' requirement recorded at first registration, and repairs the dynamic marker
+#' classes if any of them went missing. This makes it safe to call from
+#' `devtools::load_all()`, which re-executes `.onLoad` after removing the
+#' classes that the reloaded package's namespace held.
 #'
 #' @param name A syntactically valid R name identifying the extension (e.g.
 #'   `"mizerExtA"`). This name is used as the S4 marker class name.
@@ -41,6 +43,7 @@ registerExtension <- function(name, requirement = NA_character_, install = FALSE
     current <- getRegisteredExtensions()
 
     if (name %in% names(current)) {
+        repairExtensionClasses(current)
         return(invisible(current))
     }
 
@@ -64,6 +67,12 @@ registerExtension <- function(name, requirement = NA_character_, install = FALSE
 #' registered maximal chain. For example, after registering
 #' `c(mizerExtB = "1.2.0", mizerExtA = "0.4.1")`, objects using only
 #' `c(mizerExtA = "0.4.1")` are also valid.
+#'
+#' Re-registering the active chain, or any suffix of it, leaves the registered
+#' chain unchanged and repairs the dynamic marker classes if any of them went
+#' missing. Only the namespaces of the extensions actually passed in
+#' `extensions` are loaded or installed; the repair itself never installs
+#' anything.
 #'
 #' For extension packages that register themselves incrementally from `.onLoad`,
 #' use [registerExtension()] instead.
@@ -95,6 +104,7 @@ registerExtensions <- function(extensions, install = FALSE) {
 
     if (relation %in% c("identical", "new_is_suffix")) {
         ensureExtensionNamespaces(extensions, install = install)
+        repairExtensionClasses(old)
         return(invisible(old))
     }
 
@@ -605,6 +615,90 @@ usesExtensionDispatch <- function(object) {
         return(!identical(class(object)[[1]], "MizerSim"))
     }
     stop("Can only check dispatch for MizerParams or MizerSim objects.")
+}
+
+#' Is a marker class one that mizer created dynamically?
+#'
+#' Marker classes that mizer creates in [defineExtensionClasses()] live in
+#' `.GlobalEnv`, so mizer is free to remove and rebuild them. A class of the
+#' same name that an extension package defines statically belongs to that
+#' package's namespace and must never be touched.
+#'
+#' @param class Character string — the S4 class name to test.
+#' @return `TRUE` if `class` exists and was defined in `.GlobalEnv`.
+#' @keywords internal
+isDynamicMarkerClass <- function(class) {
+    if (!methods::isClass(class)) {
+        return(FALSE)
+    }
+    definition <- methods::getClassDef(class)
+    !is.null(definition) && identical(definition@package, ".GlobalEnv")
+}
+
+#' Is the S4 marker class chain for a set of extensions intact?
+#'
+#' Checks that every dispatch extension has both its params and its sim marker
+#' class defined and that each one still extends the next class down the chain.
+#'
+#' @param extensions Named character vector of extensions (full chain or
+#'   dispatch subset).
+#' @return `TRUE` if nothing needs repairing.
+#' @keywords internal
+extensionClassesIntact <- function(extensions) {
+    extensions <- dispatchExtensions(extensions)
+    parent_params <- "MizerParams"
+    parent_sim <- "MizerSim"
+
+    for (extension in rev(names(extensions))) {
+        sim_class <- simExtensionClass(extension)
+        params_ok <- methods::isClass(extension) &&
+            methods::extends(extension, parent_params)
+        sim_ok <- methods::isClass(sim_class) &&
+            methods::extends(sim_class, parent_sim)
+        if (!params_ok || !sim_ok) {
+            return(FALSE)
+        }
+        parent_params <- extension
+        parent_sim <- sim_class
+    }
+
+    TRUE
+}
+
+#' Rebuild the marker classes of an extension chain if any went missing
+#'
+#' `devtools::load_all()` removes the S4 classes held by the namespace it
+#' reloads, which can take a marker class out of the chain. Recreating only the
+#' missing class is not enough: R prunes a removed superclass from the
+#' `contains` list of its subclasses, so a marker class that used to sit outside
+#' the missing one is left parented directly on `MizerParams` and would make
+#' [defineOrCheckClass()] stop. The whole dynamic chain is therefore removed and
+#' rebuilt, outermost first so that no class is removed while a subclass of it
+#' still exists.
+#'
+#' The chain is inspected first and left completely untouched when it is intact,
+#' which is the usual case on the repeated-registration path.
+#'
+#' @param extensions Named character vector of extensions (full chain or
+#'   dispatch subset).
+#' @return Invisibly, `TRUE` if a repair was carried out, `FALSE` otherwise.
+#' @keywords internal
+repairExtensionClasses <- function(extensions) {
+    extensions <- validateExtensionsVector(extensions)
+    if (extensionClassesIntact(extensions)) {
+        return(invisible(FALSE))
+    }
+
+    for (extension in names(dispatchExtensions(extensions))) {
+        for (class in c(extension, simExtensionClass(extension))) {
+            if (isDynamicMarkerClass(class)) {
+                methods::removeClass(class, where = .GlobalEnv)
+            }
+        }
+    }
+    defineExtensionClasses(extensions)
+
+    invisible(TRUE)
 }
 
 #' Define an S4 class or verify it extends the expected parent

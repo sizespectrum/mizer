@@ -36,6 +36,12 @@ registered maximal chain. For example, after registering
 \code{c(mizerExtB = "1.2.0", mizerExtA = "0.4.1")}, objects using only
 \code{c(mizerExtA = "0.4.1")} are also valid.
 
+Re-registering the active chain, or any suffix of it, leaves the registered
+chain unchanged and repairs the dynamic marker classes if any of them went
+missing. Only the namespaces of the extensions actually passed in
+\code{extensions} are loaded or installed; the repair itself never installs
+anything.
+
 For extension packages that register themselves incrementally from \code{.onLoad},
 use \code{\link[=registerExtension]{registerExtension()}} instead.
 }
