@@ -54,6 +54,14 @@ You can specify minimum and maximum weight or length for the included size
 range. Lengths take precedence over weights (i.e. if both min_l and min_w are
 supplied, only min_l will be used). You can also specify the species to be
 used in the calculation.
+
+You will usually want to give a minimum size. Over the full size range the
+community is dominated in numbers by the smallest individuals, so both means
+describe the larvae rather than the fish, and in the case of
+\code{getMeanLength()} they do so with a length-weight relationship that was
+fitted to observed fish and is being extrapolated far below the sizes it
+describes. A minimum size also makes the indicator comparable to one
+calculated from survey data, which sees only the sizes the gear catches.
 }
 \examples{
 mean_weight <- getMeanWeight(NS_sim)
@@ -65,9 +73,13 @@ getMeanWeight(NS_params)
 
 mean_length <- getMeanLength(NS_sim)
 mean_length[years]
-getMeanLength(NS_sim, species = c("Herring", "Sprat", "N.pout"))[years]
-getMeanLength(NS_sim, min_l = 10, max_l = 50)[years]
-getMeanLength(NS_sim@params)
+# Only a couple of centimetres, because the larvae outnumber everything
+# else. Give a minimum size to get an indicator about fish:
+getMeanLength(NS_sim, min_l = 10)[years]
+getMeanLength(NS_sim, min_w = 10, max_w = 5000)[years]
+getMeanLength(NS_sim, species = c("Herring", "Sprat", "N.pout"),
+              min_l = 10)[years]
+getMeanLength(NS_sim@params, min_l = 10)
 }
 \seealso{
 Other functions for calculating indicators:

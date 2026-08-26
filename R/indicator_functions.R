@@ -146,6 +146,14 @@ getProportionOfLargeFish.MizerParams <- function(object,
 #' supplied, only min_l will be used). You can also specify the species to be
 #' used in the calculation.
 #'
+#' You will usually want to give a minimum size. Over the full size range the
+#' community is dominated in numbers by the smallest individuals, so both means
+#' describe the larvae rather than the fish, and in the case of
+#' `getMeanLength()` they do so with a length-weight relationship that was
+#' fitted to observed fish and is being extrapolated far below the sizes it
+#' describes. A minimum size also makes the indicator comparable to one
+#' calculated from survey data, which sees only the sizes the gear catches.
+#'
 #' @param object A \linkS4class{MizerSim} or \linkS4class{MizerParams} object
 #' @inheritParams valid_species_arg
 #' @inheritDotParams get_size_range_array -params
@@ -192,9 +200,13 @@ getMeanWeight.MizerParams <- function(object, species = NULL, ...) {
 #'
 #' mean_length <- getMeanLength(NS_sim)
 #' mean_length[years]
-#' getMeanLength(NS_sim, species = c("Herring", "Sprat", "N.pout"))[years]
-#' getMeanLength(NS_sim, min_l = 10, max_l = 50)[years]
-#' getMeanLength(NS_sim@params)
+#' # Only a couple of centimetres, because the larvae outnumber everything
+#' # else. Give a minimum size to get an indicator about fish:
+#' getMeanLength(NS_sim, min_l = 10)[years]
+#' getMeanLength(NS_sim, min_w = 10, max_w = 5000)[years]
+#' getMeanLength(NS_sim, species = c("Herring", "Sprat", "N.pout"),
+#'               min_l = 10)[years]
+#' getMeanLength(NS_sim@params, min_l = 10)
 getMeanLength <- function(object, species = NULL, ...) {
     UseMethod("getMeanLength")
 }
