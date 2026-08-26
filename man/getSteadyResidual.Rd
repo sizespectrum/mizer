@@ -8,7 +8,7 @@ getSteadyResidual(
   params,
   effort = params@initial_effort,
   dt = 1e-04,
-  biomass_share_cutoff = steady_share_cutoff()
+  measure = c("biomass", "per_capita")
 )
 }
 \arguments{
@@ -22,22 +22,23 @@ model's steady state belongs to.}
 dynamics functions are only available as one-step maps. Smaller is more
 accurate. Not used for the consumers, whose rate is exact.}
 
-\item{biomass_share_cutoff}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-A finite number between 0 and 1, inclusive, giving the share of a species'
-biomass that a size class must hold for its rate to be reported. Classes
-below it hold nothing that any summary or plot of this array should be
-dominated by, and are returned as \code{NA} alongside the empty ones. \code{0}
-reports every class. The same cutoff decides which classes
-\code{\link[=distanceSSLogN]{distanceSSLogN()}} measures convergence on.}
+\item{measure}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+Which rate of change to report. \code{"biomass"} (the default) gives the
+contribution of each size class to the relative rate of change of its
+species' biomass, which sums over sizes to the drift that \code{\link[=isSteady]{isSteady()}}
+judges a model by. \code{"per_capita"} gives the rate of change of each size
+class relative to its own density. See the sections above.}
 }
 \value{
-An \link{ArraySpeciesBySize} object (species x size) of per-capita rates
-of change in 1/year, \code{NA} where the size class holds no fish — either no
-density at all or less than \code{biomass_share_cutoff} of the species'
-biomass. It carries two further attributes:
+An \link{ArraySpeciesBySize} object (species x size) of rates in 1/year:
+with \code{measure = "biomass"}, contributions to each species' relative rate of
+biomass change, which sum over sizes to that rate and are \code{NA} only for a
+species with no biomass at all; with \code{measure = "per_capita"}, per-capita
+rates of change, \code{NA} where the size class holds no fish. It carries two
+further attributes:
 \describe{
-\item{\code{resource}}{The per-capita rate of change of the resource, a
-numeric vector over \code{w_full}, \code{NA} where the resource density is zero.}
+\item{\code{resource}}{The same measure for the resource, a numeric vector
+over \code{w_full}.}
 \item{\code{other}}{A named list with one entry per other component, holding
 its per-capita rate of change, or \code{NA} for a component whose state is
 not numeric.}
@@ -46,21 +47,67 @@ not numeric.}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Returns the rate at which the abundances would change if the model were
-projected forward from its current initial state, relative to those
-abundances. At a steady state this is zero, so it answers the question that
-every calibration workflow otherwise has to remember to ask: \emph{is this model
-still at its steady state?}
+projected forward from its current initial state, resolved by species and by
+size. At a steady state this is zero, so it answers the question that every
+calibration workflow otherwise has to remember to ask: \emph{is this model still
+at its steady state?}
 }
 \details{
-The value is a \strong{per-capita rate of change, in units of 1/year}:
-\deqn{R_i(w) = \frac{1}{N_i(w)}\frac{dN_i(w)}{dt}.}
-A value of \code{1e-8} means nothing is moving. A value of \code{0.05} means that size
-class would change by about 5\% over the first year of a projection, and
-\code{-0.05} that it would shrink by about that much. The sign is therefore the
-direction the model would drift.
+There are two ways to say how fast a size class is changing, and \code{measure}
+selects between them. Both are in units of 1/year.
+\subsection{\code{measure = "biomass"}, the default}{
 
-For the consumers this is exact, not a finite-difference approximation: the
-backward-Euler transport coefficients used by \code{\link[=project]{project()}} satisfy
+How much of its species' biomass each size class is adding or removing per
+year:
+\deqn{C_i(w) = \frac{1}{B_i}\,\frac{dN_i(w)}{dt}\,w\,\Delta w,
+      \qquad B_i = \int N_i(w)\,w\,dw.}
+The bin weight \eqn{w\,\Delta w} is the one \code{\link[=sizeIntegral]{sizeIntegral()}} uses for a
+biomass, so it follows whichever quadrature scheme the model is on (see
+\code{\link[=second_order_w]{second_order_w()}}), and the values \strong{add up over sizes to the relative rate
+of change of the species' biomass}:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{rowSums(getSteadyResidual(params))    # (dB_i/dt) / B_i, one per species
+}\if{html}{\out{</div>}}
+
+That total is the number \code{\link[=isSteady]{isSteady()}}, the \code{summary()} line of a
+\linkS4class{MizerParams} object and \code{project(check_steady = TRUE)} all judge
+a model by, and it is the drift that would actually show up in
+\code{\link[=plotBiomass]{plotBiomass()}}. This array therefore says \emph{where} a model is unsteady in the
+same currency that mizer uses to decide \emph{whether} it is, and a size class can
+only be conspicuous in it if it is moving enough biomass to matter.
+
+That last property is why this is the default. A size class near the egg size
+turns over in hours, and one above the size where growth stops decays
+exponentially towards zero for ever; both carry enormous \emph{per-capita} rates
+while holding no mass at all. Weighting by biomass gives them the weight they
+deserve, which is none, with no need for a threshold below which a class is
+declared to hold nothing.
+}
+
+\subsection{\code{measure = "per_capita"}}{
+
+The rate of change of each size class relative to its own density,
+\deqn{R_i(w) = \frac{1}{N_i(w)}\frac{dN_i(w)}{dt}.}
+A value of \code{0.05} means that size class would grow by about 5\% over the first
+year of a projection, and \code{-0.05} that it would shrink by about that much.
+This is the scale-free reading. It shows a size class whose growth and
+mortality are out of balance even when the class holds a millionth of its
+species' biomass, which is a real statement about the structure of a model,
+but not one about whether anything observable is moving.
+
+Do not reduce this measure to \code{max(abs(...))}. Its extremes belong to the
+fastest-relaxing cells, which are exactly the ones holding no mass: on
+\code{NS_params} the largest per-capita rate is 1.2/year, in a cell holding 2e-8
+of its species' biomass, while the biomass drift is 0.014/year and the model
+counts as settled. Under the second-order scheme this is severe enough to
+reverse the ordering between a converged model and one that has just been
+knocked off its steady state.
+}
+
+\subsection{How the rates are obtained}{
+
+For the consumers \code{dN/dt} is exact, not a finite-difference approximation:
+the backward-Euler transport coefficients used by \code{\link[=project]{project()}} satisfy
 \eqn{A N - S = -dt\,dN/dt} identically, so evaluating them at \code{dt = 1} gives
 the instantaneous rate with no time-discretisation error. The resource and
 other components have arbitrary user-supplied dynamics functions, so their
@@ -74,53 +121,36 @@ fixed. The number therefore answers exactly "if I called \code{\link[=project]{p
 would anything move?", which is why it works for every model rather than only
 for the semichemostat resource that \code{findSteadyState(solver = "newton")}
 requires.
+}
+
 \subsection{Reading the result}{
 
 The returned array is an \link{ArraySpeciesBySize} object, so it prints,
 summarises and plots itself:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{res <- getSteadyResidual(params)
-summary(res)                  # per-species minimum, mean and maximum
+rowSums(res)                  # the biomass drift of each species
 plot(res)                     # which species, and at which sizes
 }\if{html}{\out{</div>}}
 
 The plot is the diagnostic one: a model that is off steady state is usually
 off in one species, or one part of the size range, and the plot says which.
+Mizer's size grid is logarithmic, so the bin widths are proportional to \code{w}
+and the default measure keeps the shape of a density per unit of log size
+when drawn against a logarithmic size axis: equal areas under the curve are
+equal contributions to the drift.
 
-Size classes with no fish in them carry no information about steadiness — the
-relative rate of change of a zero density is undefined — so they are returned
-as \code{NA}. Use \code{na.rm = TRUE} in any summary, as the examples above do.
-
-A class holding a \emph{negligible} density says no more than an empty one does,
-and says it loudly. Above a size where growth stops, the density decays
-exponentially and \code{dN/dt} decays with it, so the per-capita rate sits at
-minus the mortality rate for ever while the mass in the class falls through
-\eqn{10^{-100}} and beyond. Such classes are returned as \code{NA} too: a size
-class counts only if it holds at least \code{biomass_share_cutoff} of its species'
-biomass. Pass \code{biomass_share_cutoff = 0} to get every class back, including
-the ones on their way to zero.
-}
-
-\subsection{Do not reduce this to its maximum}{
-
-\code{max(abs(res))} is a tempting single-number verdict and a misleading one. The
-per-capita rate of a single size class is dominated by the fastest-relaxing
-cells, and near the egg size those turn over in hours: a model settled for
-every practical purpose can carry a cell rate of \eqn{10^4}/year there while
-nothing observable moves. Under the second-order scheme (see
-\code{\link[=second_order_w]{second_order_w()}}) this is severe enough to reverse the ordering between a
-converged model and one that has just been knocked off its steady state.
-
-What mizer's own checks — the \code{summary()} line, and
-\code{project(check_steady = TRUE)} — judge instead is the relative rate of change
-of each species' \emph{biomass}, which weights each size class by the mass it
-holds, and is the drift the user would actually see in \code{\link[=plotBiomass]{plotBiomass()}}. Use
-this array to find out \emph{where} a model is unsteady, and those checks to find
-out \emph{whether} it is.
+With \code{measure = "per_capita"} a size class with no fish in it has no relative
+rate of change — it is \code{0/0} — and is returned as \code{NA}, so pass
+\code{na.rm = TRUE} to any summary. The default measure needs no such exception:
+\code{dN/dt} is perfectly well defined in a class with no fish in it, which can be
+filling up, and its contribution to the biomass drift is reported like any
+other.
 }
 }
 \examples{
-summary(getSteadyResidual(NS_params))
+# The relative rate of change of each species' biomass, in 1/year
+rowSums(getSteadyResidual(NS_params))
 \donttest{
 # Matching biomasses moves the model off its steady state, and the plot
 # shows which species and which sizes have moved.

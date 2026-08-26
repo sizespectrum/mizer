@@ -25,8 +25,7 @@ describing the previous state}
 A finite number between 0 and 1, inclusive, giving the share of a species'
 biomass that a size class must hold in the current state to be measured.
 \code{0} measures every class with a nonzero density in both states, which is
-what this function did before mizer 3.3. The same cutoff decides which
-classes \code{\link[=getSteadyResidual]{getSteadyResidual()}} reports.}
+what this function did before mizer 3.3.}
 
 \item{...}{Unused. Accepted because \code{\link[=projectUntilSettled]{projectUntilSettled()}} forwards its own
 \code{...} to both the rate functions and the distance function, so an argument

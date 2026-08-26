@@ -551,65 +551,6 @@ its stopping rule is untouched. Check `t_max`, the model size, and whether they
 have switched to `tuneSteadyState()`, which is where the stricter rule lives.
 <!-- /agent-only -->
 
-### A size class holding no fish no longer blocks convergence
-
-Above a size where the growth rate vanishes, a species' density decays
-exponentially and `dN/dt` decays with it, so the per-capita rate of change stays
-equal to minus the mortality rate for ever while the mass in the class falls
-through 1e-100 and beyond. `distanceSSLogN()` counted every class with a
-positive density, so `log(n)` in such a class fell by the same amount between
-every pair of states and its contribution to the distance never shrank. One
-trace holding 3e-92 g of fish could therefore hold the distance above any
-tolerance indefinitely, and the run stopped at `t_max` reporting
-`converged = FALSE` while the biomass drift correctly reported a fixed point.
-
-`distanceSSLogN()` and `getSteadyResidual()` now both take a
-`biomass_share_cutoff`, defaulting to `1e-8`: a size class counts only if it
-holds at least that share of its species' biomass. Relevance is measured as a
-share of biomass rather than of density, because density falls fifteen orders or
-more across a healthy spectrum for entirely good reasons, so no density
-threshold could tell a dying trace from real large fish.
-
-Nothing changes for a model without such a trace. There, every class the cutoff
-removes is one that already had no density at all and was already excluded, so
-the number `distanceSSLogN()` returns is unchanged to the last bit and any
-`distance_tol` you have tuned keeps its meaning. What changes is the model that
-has one: a run that used to reach `t_max` now converges, and
-`getSteadyResidual()` returns `NA` for the class instead of minus its mortality
-rate, so `summary()` and `plot()` of the residual no longer show it.
-
-```r
-res <- getSteadyResidual(params)                          # trace reported as NA
-res <- getSteadyResidual(params, biomass_share_cutoff = 0) # every class, as before
-```
-
-Pass `biomass_share_cutoff = 0` to either function, or through
-`projectUntilSettled()`, for the old behaviour. Note that this is unrelated to
-the `biomass_cutoff` *species parameter* used by `calibrateBiomass()` and
-`matchBiomasses()`, which is a size in grams.
-
-What decides whether a state is a fixed point is untouched: `residual_tol` is
-measured against a biomass drift that integrates over every size class, cut off
-or not, so the cutoff cannot make a drifting model look settled.
-
-A run that stops at `t_max` on a state that is nonetheless a fixed point now
-says so, instead of reporting only the distance:
-
-```
-#> Simulation run did not converge after 100 years. The distance function
-#> returned 2.4, which is above the distance tolerance, but the state reached is
-#> a fixed point: the biomasses change at only 0.0003 per year.
-```
-
-<!-- agent-only -->
-If a user reports that `projectUntilSettled()` never converges on a model that
-`isSteady()` calls steady, this is the first thing to check, on any mizer
-version: `plot(getSteadyResidual(params, biomass_share_cutoff = 0))` and look
-for a flat line at minus the mortality rate above the size where growth stops.
-On 3.3 and later the cutoff already handles it; before that, the remedy is to
-zero the trace with `initialN(params)[initialN(params) < 1e-30] <- 0`.
-<!-- /agent-only -->
-
 ### The steady-state run advances time like `project()` does
 
 `steady()` and `projectToSteady()` broke the run into blocks of `t_per` years,
