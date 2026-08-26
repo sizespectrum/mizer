@@ -317,8 +317,11 @@ species_params.MizerSim <- function(object, ...) {
 #' @rdname species_params
 #' @usage NULL
 #' @export
-species_params.data.frame <- function(object, strict = FALSE, ...) {
-    sp <- given_species_params(object, strict = strict)
+species_params.data.frame <- function(
+    object, strict = FALSE,
+    check_misspellings = !is.species_params(object), ...) {
+    sp <- given_species_params(object, strict = strict,
+                               check_misspellings = check_misspellings)
     if ("w_inf" %in% names(sp)) {
         sp <- set_species_param_default(sp, "w_max", 1.5 * sp$w_inf)
         sp <- set_species_param_default(sp, "w_repro_max", sp$w_inf)
@@ -361,6 +364,10 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     # recorded as a given species parameter, freezing it against every later
     # recalculation.
     supplied_cols <- names(value)
+    new_cols <- setdiff(supplied_cols, names(object@species_params))
+    check_for_misspellings(new_cols, known_species_params_columns(),
+                           "species parameter",
+                           curated_species_params_misspellings())
     # Columns the model has and the assigned table does not. The user is no
     # longer supplying them, so they are dropped from the given species
     # parameters below: mizer then calculates afresh the ones it knows how to
@@ -372,7 +379,8 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     # weight before anything converts the weight away again.
     value <- reconcile_length_weight(value, object@species_params)
     if (recalculate) {
-        value <- validSpeciesParams(value)
+        value <- species_params(value, strict = TRUE,
+                                check_misspellings = FALSE)
     } else {
         # Only the checks and conversions that writing into the
         # `@species_params` slot triggers anyway. In particular no default
@@ -1031,10 +1039,6 @@ check_f0 <- function(f0, species = NULL) {
 }
 
 check_and_convert_species_params <- function(x) {
-    check_for_misspellings(names(x), known_species_params_columns(),
-                           "species parameter",
-                           curated_species_params_misspellings())
-
     if ("f0" %in% names(x)) {
         check_f0(x[["f0"]], x[["species"]])
     }
@@ -1189,14 +1193,18 @@ given_species_params.MizerSim <- function(object, ...) {
 #' @rdname species_params
 #' @usage NULL
 #' @export
-given_species_params.data.frame <- function(object, strict = FALSE, ...) {
+given_species_params.data.frame <- function(
+    object, strict = FALSE,
+    check_misspellings = !is.species_params(object), ...) {
     assert_that(is.data.frame(object))
     # Convert a tibble back to an ordinary data frame
     sp <- as.data.frame(object, stringsAsFactors = FALSE)
 
-    check_for_misspellings(names(sp), known_species_params_columns(),
-                           "species parameter",
-                           curated_species_params_misspellings())
+    if (check_misspellings) {
+        check_for_misspellings(names(sp), known_species_params_columns(),
+                               "species parameter",
+                               curated_species_params_misspellings())
+    }
 
     # check species
     if (!("species" %in% colnames(sp))) {
@@ -1266,14 +1274,17 @@ given_species_params.data.frame <- function(object, strict = FALSE, ...) {
 
         # check w_mat25
         if ("w_mat25" %in% names(sp)) {
-            wrong <- !is.na(sp$w_mat) & !is.na(sp$w_mat25) & sp$w_mat25 >= sp$w_mat
+            wrong <- !is.na(sp$w_mat) & !is.na(sp$w_mat25) &
+                sp$w_mat25 >= sp$w_mat
             if (any(wrong)) {
-                signal_info("w_mat25", paste0(
-                    "For the species ",
-                    paste(sp$species[wrong], collapse = ", "),
-                    " the value for `w_mat25` is not smaller than that of `w_mat`.",
-                    " I have corrected that by setting it to NA."),
-                    level = 1, severity = "warning", unhandled = "show")
+                msg <- paste0("For the species ",
+                              paste(sp$species[wrong], collapse = ", "),
+                              " the value for `w_mat25` is not smaller than ",
+                              "that of `w_mat`. I have corrected that by ",
+                              "marking it as missing so that its default will ",
+                              "be used.")
+                signal_info("w_mat25", msg, level = 1, severity = "warning",
+                            unhandled = "show")
                 sp$w_mat25[wrong] <- NA
             }
         }
@@ -1337,6 +1348,13 @@ is.given_species_params <- function(x) {
 #' @export
 `given_species_params<-.MizerParams` <- function(object, value) {
     params <- object
+    supplied_cols <- names(value)
+    old_cols <- union(names(params@species_params),
+                      names(params@given_species_params))
+    new_cols <- setdiff(supplied_cols, old_cols)
+    check_for_misspellings(new_cols, known_species_params_columns(),
+                           "species parameter",
+                           curated_species_params_misspellings())
     # The length/weight rules need `a` and `b`, which the given species
     # parameters need not contain, so the model's values stand in while they
     # are applied.
@@ -1352,7 +1370,8 @@ is.given_species_params <- function(x) {
     # rule that `species_params<-()` applies, here comparing the incoming given
     # species parameters against the model's.
     value <- reconcile_length_weight(value, params@given_species_params)
-    value <- validGivenSpeciesParams(value)
+    value <- given_species_params(value, strict = TRUE,
+                                  check_misspellings = FALSE)
     value <- restore_length_weight_params(value, supplied_ab)
     if (!all(value$species == params@species_params$species)) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")

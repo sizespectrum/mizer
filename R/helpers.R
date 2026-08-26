@@ -381,12 +381,16 @@ check_for_misspellings <- function(actual, known, df_type,
         }
     }
     if (length(hits) > 0) {
-        suggestions <- ifelse(is.na(guess), paste0("`", hits, "`"),
-                              paste0("`", hits, "` (did you mean `", guess, "`?)"))
-        warning("Some column names in your ", df_type, " data ",
-                "frame are very close to standard parameter names: ",
-                paste(suggestions, collapse = ", "),
-                ". Please check for mis-spellings.")
+        suggestions <- ifelse(is.na(guess),
+                              paste0("`", hits, "`"),
+                              paste0("`", hits, "` (did you mean `", guess,
+                                     "`?)"))
+        signal_info(paste0(gsub(" ", "_", df_type), "_column_names"),
+                    paste0("Some column names in your ", df_type, " data ",
+                           "frame are very close to standard parameter names: ",
+                           paste(suggestions, collapse = ", "),
+                           ". Please check for mis-spellings."),
+                    level = 1, severity = "warning", unhandled = "show")
     }
     invisible(NULL)
 }

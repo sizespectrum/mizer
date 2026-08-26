@@ -51,6 +51,15 @@
 
 ## Bug fixes
 
+- Invalid `w_mat25` values are now reported as missing values for which the
+  default will be used, matching the value ultimately stored in the model
+  (#580).
+
+- Assigning a likely misspelling of a species parameter now produces one
+  warning when the column is introduced. The warning is no longer repeated
+  during the internal rebuild or by later changes to unrelated parameters
+  (#581).
+
 - The defaults for `gamma` and `f0` are no longer measured through the
   extension chain (#577). `get_gamma_default()` gives every species a search
   volume coefficient of 1 and measures the energy available to it in a power-law

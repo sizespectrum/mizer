@@ -1275,15 +1275,12 @@ test_that("Validation and conversions work", {
     # 1. Misspelling warnings
     df <- data.frame(species = c("Sprat", "Herring"), w_inf = c(10, 100))
     df$wmin <- 0.1
-    # (the misspelling check runs at both validation stages, hence the
-    # `suppressWarnings()` around the expectation to swallow the duplicate)
-    suppressWarnings(
-        expect_warning(species_params(df),
-                       "very close to standard parameter names"))
+    expect_warning(species_params(df),
+                   "very close to standard parameter names")
     # Fuzzy typo of a recognised name is flagged with a suggestion ...
     df2 <- data.frame(species = c("Sprat", "Herring"), w_inf = c(10, 100),
                       w_maxx = 100)
-    suppressWarnings(expect_warning(species_params(df2), "did you mean `w_max`"))
+    expect_warning(species_params(df2), "did you mean `w_max`")
     # ... but a genuine custom column is not
     df3 <- data.frame(species = c("Sprat", "Herring"), w_inf = c(10, 100),
                       my_note = "x")
@@ -1317,6 +1314,25 @@ test_that("Validation and conversions work", {
     suppressWarnings(
         expect_warning(species_params(sp),
                        "the value for `w_mat` is not smaller than that of `w_inf`"))
+})
+
+test_that("species parameter corrections and typos are reported accurately", {
+    params <- NS_params_small
+    warnings <- capture_warnings({
+        species_params(params)$w_mat25 <- species_params(params)$w_mat
+    })
+    expect_length(warnings, 1)
+    expect_match(warnings,
+                 "marking it as missing so that its default will be used",
+                 fixed = TRUE)
+    expect_false(any(is.na(species_params(params)$w_mat25)))
+
+    params <- NS_params_small
+    warnings <- capture_warnings(species_params(params)$wmat <- 100)
+    expect_length(warnings, 1)
+    expect_match(warnings, "did you mean `w_mat`", fixed = TRUE)
+
+    expect_no_warning(species_params(params)$b <- 3.1)
 })
 
 test_that("Print and Summary methods work", {
