@@ -59,6 +59,17 @@ those first: they are what the user pasted. Messages mizer does not compose
 itself — the lifecycle deprecation sentences, base R's `could not find
 function` — carry no such quote, so match those rows on the function name.
 
+### mizer 3.3 → 3.4 — `references/mizer-3.4.md`
+
+| Symptom | Cause | Section |
+|---|---|---|
+| `getSteadyResidual()` returns numbers one to three orders of magnitude smaller, or its `plot()` has a different shape | the default measure is now each size class's contribution to its species' biomass drift | `getSteadyResidual()` measures biomass drift by default |
+| `getSteadyResidual()` no longer returns `NA` for a size class with no fish in it | `dN/dt` is well defined there, and its contribution to the drift is reported | `getSteadyResidual()` measures biomass drift by default |
+| `summary()` of a rate array gives a much smaller `Max` (or larger `Min`) than before | it now covers each species' own size range, as `plot()` always has | `summary()` of an array covers the same sizes as `plot()` |
+| `summary()` of an array reports `NA` where it used to report `Inf` or `-Inf` | an empty selection is now reported as missing rather than reduced | `summary()` of an array covers the same sizes as `plot()` |
+| `projectUntilSettled()` or `tuneSteadyState()` converges where it used to run to `t_max`, or `distanceSSLogN()` returns a smaller number | size classes holding a negligible share of a species' biomass are no longer counted | A size class holding no fish no longer blocks convergence |
+| Message `"reached is a fixed point: the biomasses change at only"` | a run stopped at `t_max` on a state that is a fixed point all the same | A size class holding no fish no longer blocks convergence |
+
 ### mizer 3.2 → 3.3 — `references/mizer-3.3.md`
 
 | Symptom | Cause | Section |

@@ -34,8 +34,12 @@
 #'     result, and neither is a claim about the state — see `attractor` for
 #'     that.}
 #'   \item{`period`}{The period of the limit cycle in years, or `NA`.}
-#'   \item{`residual`}{How far the state still is from a fixed point, as a
-#'     per-capita rate in 1/year, see [getSteadyResidual()].}
+#'   \item{`residual`}{How far the state still is from a fixed point: the
+#'     largest absolute relative rate of biomass change, in 1/year, taken from
+#'     the `"convergence"` attribute that [projectUntilSettled()] attaches to
+#'     its result and described there. It is a biomass-weighted aggregate over
+#'     each species' size classes, not the largest cellwise value of
+#'     [getSteadyResidual()].}
 #' }
 #'
 #' The first three columns are the x, y and grouping variable in that order,

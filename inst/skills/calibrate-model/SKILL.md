@@ -40,7 +40,7 @@ params <- tuneSteadyState(params)
 | `findSteadyState(params)` | change **no parameter**: births, resource and spectra settle together wherever the parameters you already have put them |
 | `projectUntilSettled(params)` | the same run as `findSteadyState(params)` but returning the `MizerSim`, when you want to watch the approach |
 | `isSteady(params)` | *(experimental)* ask whether a model **is** at its steady state (boolean) |
-| `getSteadyResidual(params)` | *(experimental)* per-capita rates of change across species and sizes, showing where it is not |
+| `getSteadyResidual(params)` | *(experimental)* each size class's contribution to its species' biomass drift, showing where it is not; `rowSums()` gives the per-species drift |
 
 The two finders differ in **what they keep**. `tuneSteadyState()` keeps the
 state — the birth rate and the resource abundance you supplied — and moves

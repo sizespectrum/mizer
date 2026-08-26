@@ -1,3 +1,85 @@
+# mizer 3.3.0.9000
+
+## Steady state and calibration
+
+- `getSteadyResidual()` gains an experimental `measure` argument and changes
+  what it reports by default. Each value is now the contribution of that size
+  class to the relative rate of change of its species' biomass, in 1/year, so
+  the values add up over sizes to the biomass drift:
+  `rowSums(getSteadyResidual(params))` is `(dB_i/dt) / B_i` per species, and the
+  largest of those is the number `isSteady()`, the `summary()` line and
+  `project(check_steady = TRUE)` all judge a model by. The array therefore says
+  *where* a model is unsteady in the same currency that mizer uses to decide
+  *whether* it is, and the help page no longer has to warn against reducing it
+  to its maximum. Pass `measure = "per_capita"` for the previous default,
+  `(dN/dt)/N`, which is the scale-free reading: it shows a size class whose
+  growth and mortality are out of balance even where it holds almost no biomass,
+  but its extremes belong to the fastest-relaxing cells, which are the ones
+  holding no mass.
+
+- `getSteadyResidual()` reports every size class, including the ones holding no
+  fish. `dN/dt` is well defined in an empty class — it can be filling up — and
+  under the new default measure its contribution to the drift is reported like
+  any other, so only a species with no biomass at all comes back as `NA`. With
+  `measure = "per_capita"` the `NA`s are where they always were. Weighting by
+  biomass is what makes a threshold unnecessary here: a class holding a trace
+  contributes a trace.
+
+## Bug fixes
+
+- `summary()` of a species-by-size array now covers the same sizes as `plot()`
+  of the same array: each species' own size range, from its `w_min` to its
+  `w_max`. `plot()` has dropped the values outside that range since it gained
+  its `all.sizes` argument, and `summary()` reported them, so the table and the
+  figure described different arrays. The out-of-range values describe an animal
+  that does not exist — `summary(getEncounter(NS_params))` gave Sprat a maximum
+  encounter rate of 40000 g/year, which is the rate a 40 kg Sprat would have,
+  against 240 g/year over the sizes a Sprat reaches — and because a rate usually
+  grows with size they were also the extreme ones, so it was the `Min` and `Max`
+  columns that were affected most. Both `summary()` methods that have a size
+  dimension take `all.sizes = TRUE` for the old behaviour. The size range is now
+  applied from one definition shared with `plot()`, so the two cannot disagree
+  again.
+
+- `summary()` of an array now reports `NA` for a species with no values left,
+  rather than the `-Inf`/`Inf` and warning that `min()` and `max()` of an empty
+  selection give.
+
+- A size class holding a negligible density no longer stops
+  `projectUntilSettled()` from ever converging (#570). Above a size where growth
+  stops, the density decays exponentially and `dN/dt` decays with it, so the
+  density falls through 1e-100 and beyond while never reaching zero.
+  `distanceSSLogN()` counted every class with a positive density, so one such
+  trace — in the reported example holding 3e-92 g of Herring — contributed 2.393
+  of a total distance of 2.3957 at every check, for ever, and the run stopped at
+  `t_max` reporting `converged = FALSE` while the biomass drift correctly
+  reported a fixed point.
+
+  `distanceSSLogN()` therefore gains a `biomass_share_cutoff` argument,
+  defaulting to `1e-8`: a size class counts only if it holds at least that share
+  of its species' biomass. Relevance is measured as a share of biomass rather
+  than of density, because density falls fifteen orders or more across a healthy
+  spectrum for entirely good reasons. Nothing changes for a model without such a
+  trace — every class the cutoff removes there is one that already had no
+  density at all — so existing `distance_tol` values keep their meaning. Pass
+  `biomass_share_cutoff = 0` for the old behaviour. What decides whether a state
+  is a fixed point is unchanged and still integrates over every size class, cut
+  off or not, so the cutoff cannot make a drifting model look settled.
+
+- `projectUntilSettled()` now says so when a run that stopped at `t_max`
+  nonetheless reached a fixed point. `converged = FALSE` beside
+  `attractor = "fixed_point"` is correct — they answer different questions —
+  but read as a contradiction until the message said which was which (#570).
+
+- The `residual` entry of the `"convergence"` attribute was documented as the
+  largest per-capita rate of change returned by `getSteadyResidual()`. It is
+  the largest relative rate of *biomass* change, `(dB_i/dt) / B_i` per consumer
+  species — a biomass-weighted aggregate, and the quantity `residual_tol` is a
+  tolerance on. The two descriptions disagreed with each other and with the
+  `getSteadyResidual()` help page. Corrected here and for the `residual` column
+  of a `MizerScan`, which is filled from the same attribute (#572). It is now
+  also the number `rowSums(getSteadyResidual(params))` gives, per species.
+
 # mizer 3.3.0
 
 This release adds experimental tools for analysing the dynamic stability of

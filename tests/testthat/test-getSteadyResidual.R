@@ -21,21 +21,135 @@ test_that("getSteadyResidual() returns a labelled ArraySpeciesBySize", {
     expect_identical(dim(res), dim(initialN(residual_params)))
     expect_identical(dimnames(res), dimnames(initialN(residual_params)))
     expect_identical(attr(res, "units"), "1/year")
-    expect_identical(attr(res, "value_name"), "Steady-state residual")
+    expect_identical(attr(res, "value_name"), "Biomass drift contribution")
+    # Each value is an integral over its bin, so it is drawn at the bin centre.
+    expect_identical(attr(res, "representation"), "average")
     # The resource and the other components travel as attributes.
     expect_length(attr(res, "resource"), length(residual_params@w_full))
     expect_type(attr(res, "other"), "list")
+
+    # The two measures are different quantities and have to say so, or `plot2()`
+    # would draw one on top of the other without complaint.
+    pc <- getSteadyResidual(residual_params, measure = "per_capita")
+    expect_identical(attr(pc, "value_name"), "Per-capita rate of change")
+    expect_identical(attr(pc, "representation"), "point")
+})
+
+test_that("getSteadyResidual() rejects an unknown measure", {
+    expect_error(getSteadyResidual(residual_params, measure = "cell"),
+                 "should be one of")
 })
 
 test_that("getSteadyResidual() is ~zero at a steady state and not otherwise", {
-    expect_lt(max(abs(getSteadyResidual(residual_params)), na.rm = TRUE), 1e-3)
-    expect_gt(max(abs(getSteadyResidual(off_steady_params)), na.rm = TRUE), 0.1)
+    expect_lt(max(abs(rowSums(getSteadyResidual(residual_params)))), 1e-3)
+    expect_gt(max(abs(rowSums(getSteadyResidual(off_steady_params)))), 0.1)
 })
 
-test_that("getSteadyResidual() is NA exactly where there are no fish", {
-    res <- getSteadyResidual(off_steady_params)
+test_that("the biomass measure sums over sizes to the biomass drift", {
+    # This is the property the default measure exists for: the array says where
+    # a model is unsteady in the same currency that `isSteady()` uses to decide
+    # whether it is. It has to hold under both quadrature schemes, since the bin
+    # weights differ between them.
+    for (bin_average in c(FALSE, TRUE)) {
+        p <- off_steady_params
+        second_order_w(p) <- c(bin_average = bin_average)
+        res <- getSteadyResidual(p)
+
+        rates <- mizer:::steady_rates(p)
+        biomass <- sizeIntegral(p, weighting = w(p), n = rates$n)
+        dBdt <- sizeIntegral(p, weighting = w(p), n = rates$dNdt)
+        expect_equal(rowSums(res), as.numeric(dBdt) / as.numeric(biomass),
+                     ignore_attr = TRUE)
+
+        # The resource attribute is the same measure on the resource grid, so it
+        # sums to the resource drift, and the largest of all of them is the
+        # scalar every steady-state check is stated against.
+        wdw <- w_full(p) * dw_full(p)
+        resource_drift <- sum(rates$dn_pp_dt * wdw) / sum(rates$n_pp * wdw)
+        expect_equal(sum(attr(res, "resource")), resource_drift)
+        expect_equal(max(abs(c(rowSums(res), sum(attr(res, "resource"))))),
+                     mizer:::steady_biomass_drift(p))
+    }
+})
+
+test_that("the per-capita measure is NA exactly where there are no fish", {
+    res <- getSteadyResidual(off_steady_params, measure = "per_capita")
     expect_identical(is.na(unclass(res)) & TRUE,
                      initialN(off_steady_params) == 0)
+})
+
+test_that("the biomass measure reports every class, including empty ones", {
+    # `dN/dt` is well defined in a class with no fish in it — it can be filling
+    # up — so the default measure has nothing to withdraw. Only a species with
+    # no biomass at all has no relative rate of change of it.
+    p <- off_steady_params
+    initialN(p)[1, ncol(initialN(p))] <- 0
+    res <- getSteadyResidual(p)
+    expect_false(anyNA(res))
+
+    empty <- p
+    initialN(empty)[1, ] <- 0
+    res <- getSteadyResidual(empty)
+    expect_true(all(is.na(res[1, ])))
+    expect_false(anyNA(res[-1, ]))
+})
+
+test_that("a size class holding a trace cannot dominate the biomass measure", {
+    # What #570 reported. A trace of fish in the largest size class has nothing
+    # growing into it, so its per-capita rate is minus its mortality and stays
+    # there for ever while the density falls through 1e-100 and beyond. The
+    # default measure needs no cutoff to disregard it: the class holds no mass,
+    # so it contributes none of the drift.
+    p <- residual_params
+    j <- length(w(p))
+    n <- initialN(p)
+    n[1, j] <- 1e-100
+    initialN(p) <- n
+
+    res <- getSteadyResidual(p)
+    pc <- getSteadyResidual(p, measure = "per_capita")
+
+    expect_equal(unname(pc[1, j]), unname(-getMort(p)[1, j]))
+    # `all.sizes = TRUE` isolates the biomass rule from the size-range one:
+    # this class is above its species' `w_max`, so the default summary would
+    # leave it out on that ground alone.
+    expect_lt(summary(pc, all.sizes = TRUE)$per_species$Min[1], -0.01)
+    # The same class, weighted by the biomass it holds, is nothing at all.
+    expect_lt(abs(res[1, j]), 1e-90)
+    expect_lt(max(abs(rowSums(res))), 1e-3)
+})
+
+test_that("the biomass-share cutoff is validated", {
+    params <- NS_params_small
+    n <- initialN(params)
+
+    invalid_cutoffs <- list(c(0, 1), NA_real_, Inf, -0.1, 1.1)
+    for (cutoff in invalid_cutoffs) {
+        expect_error(negligible_cells(params, n, cutoff = cutoff),
+                     "must be a finite number between 0 and 1", fixed = TRUE)
+    }
+})
+
+test_that("the biomass-share cutoff uses the selected quadrature", {
+    for (bin_average in c(FALSE, TRUE)) {
+        params <- NS_params_small
+        second_order_w(params) <- c(bin_average = bin_average)
+        n <- initialN(params) * 0
+        j <- ncol(n)
+        # Give the first and last bins exactly half the species' biomass under
+        # the selected quadrature. The top-bin weight is one-sided, so this also
+        # distinguishes the two quadrature schemes rather than merely scaling
+        # every bin by the same constant.
+        wdw <- bin_average_weight(w(params), params) * dw(params)
+        n[1, c(1, j)] <- 1 / wdw[c(1, j)]
+
+        negligible <- negligible_cells(params, n, cutoff = 0.5)
+
+        # A cell exactly on the cutoff is kept; the strict cutoff removes only
+        # cells below it. Species with no biomass have no relevant cells.
+        expect_identical(unname(which(!negligible[1, ])), c(1L, j))
+        expect_true(all(negligible[-1, ]))
+    }
 })
 
 test_that("getSteadyResidual() predicts the drift that project() produces", {
@@ -44,7 +158,7 @@ test_that("getSteadyResidual() predicts the drift that project() produces", {
     # the step size. Checking the convergence rate rather than a fixed
     # tolerance is what makes this a test of the identity rather than of one
     # arbitrary step length.
-    predicted <- getSteadyResidual(off_steady_params)
+    predicted <- getSteadyResidual(off_steady_params, measure = "per_capita")
     err <- vapply(c(1e-4, 1e-5), function(dt) {
         sim <- project(off_steady_params, t_max = 2 * dt, dt = dt, t_save = dt,
                        progress_bar = FALSE)
@@ -76,9 +190,10 @@ test_that("getSteadyResidual() honours the effort it is given", {
 test_that("getSteadyResidual() works under the second-order scheme", {
     p <- residual_params
     second_order_w(p) <- TRUE
-    res <- getSteadyResidual(p)
-    expect_s3_class(res, "ArraySpeciesBySize")
-    expect_true(all(is.finite(res[initialN(p) > 0])))
+    expect_s3_class(getSteadyResidual(p), "ArraySpeciesBySize")
+    expect_true(all(is.finite(getSteadyResidual(p))))
+    pc <- getSteadyResidual(p, measure = "per_capita")
+    expect_true(all(is.finite(pc[initialN(p) > 0])))
 })
 
 test_that("getSteadyResidual() rejects a non-positive dt", {
@@ -115,7 +230,9 @@ test_that("steady_biomass_drift() ignores fast cells that hold no biomass", {
     # the fastest-relaxing size classes, which carry negligible mass. The two
     # measures must therefore disagree by orders of magnitude on a settled
     # model, and it is the biomass one that reads as settled.
-    cell_max <- max(abs(getSteadyResidual(residual_params)), na.rm = TRUE)
+    cell_max <- max(abs(getSteadyResidual(residual_params,
+                                          measure = "per_capita")),
+                    na.rm = TRUE)
     expect_lt(steady_biomass_drift(residual_params), cell_max)
 })
 

@@ -132,17 +132,26 @@ print_ArraySpeciesBySize_body <- function(x) {
 }
 
 #' @export
-summary.ArraySpeciesBySize <- function(object, ...) {
+summary.ArraySpeciesBySize <- function(object, all.sizes = FALSE, ...) {
     value_name <- attr(object, "value_name") %||% "ArraySpeciesBySize"
     units_str <- attr(object, "units")
     sp_names <- rownames(object)
     mat <- unclass(object)
 
+    # The same size range `plot()` draws, so that the table and the figure
+    # describe the same array.
+    if (!all.sizes) {
+        keep <- species_size_range_mask(attr(object, "params"),
+                                        get_ArraySpeciesBySize_w(object),
+                                        sp_names)
+        mat[!keep] <- NA
+    }
+
     df <- data.frame(
         Species = sp_names,
-        Min = apply(mat, 1, min, na.rm = TRUE),
-        Mean = apply(mat, 1, mean, na.rm = TRUE),
-        Max = apply(mat, 1, max, na.rm = TRUE),
+        Min = apply(mat, 1, range_stat, f = min),
+        Mean = apply(mat, 1, range_stat, f = mean),
+        Max = apply(mat, 1, range_stat, f = max),
         row.names = NULL,
         stringsAsFactors = FALSE
     )
@@ -1201,15 +1210,10 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
     )
 
     if (!all.sizes && !is.null(params)) {
-        sp_params <- params@species_params
-        for (sp in species) {
-            if (sp %in% sp_params$species) {
-                sp_row <- sp_params[sp_params$species == sp, ]
-                plot_dat$value[plot_dat$Species == sp &
-                                   (plot_dat$w < sp_row$w_min[1] |
-                                        plot_dat$w > sp_row$w_max[1])] <- NA
-            }
-        }
+        # `plot_dat` is the matrix unrolled column-major, species fastest, so
+        # the mask unrolls the same way.
+        keep <- species_size_range_mask(params, w, rownames(mat))
+        plot_dat$value[!as.vector(keep)] <- NA
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
 
@@ -1278,6 +1282,57 @@ as.data.frame.ArraySpeciesBySize <- function(x, row.names = NULL,
         check.names = !optional,
         stringsAsFactors = FALSE
     )
+}
+
+#' Which size classes lie inside each species' own size range
+#'
+#' A rate array is defined on the whole size grid, but a species only occupies
+#' the part of it between its `w_min` and `w_max`. The values outside that range
+#' are arithmetic rather than biology — the encounter rate a 40 kg Sprat would
+#' have — so `plot()` and `summary()` leave them out unless asked for them with
+#' `all.sizes = TRUE`. This is the single definition of which classes those are,
+#' so that the two cannot disagree about what the array contains.
+#'
+#' A species that the model does not know about — a row whose name is not in
+#' `species_params`, or any row at all when the array carries no `params` — has
+#' no range to be outside of, so all of its size classes are kept.
+#'
+#' @param params A \linkS4class{MizerParams} object, or `NULL`.
+#' @param w The size represented by each column, from
+#'   `get_ArraySpeciesBySize_w()`. Passed in rather than read from `params`
+#'   because a bin-averaged array is drawn at the bin centres.
+#' @param species Character vector of the species, one per row.
+#' @return A logical matrix (species x size), `TRUE` where the size class lies
+#'   inside that species' size range.
+#' @keywords internal
+species_size_range_mask <- function(params, w, species) {
+    mask <- matrix(TRUE, nrow = length(species), ncol = length(w),
+                   dimnames = list(species, NULL))
+    if (is.null(params)) return(mask)
+    sp_params <- params@species_params
+    rows <- match(species, sp_params$species)
+    for (i in seq_along(species)) {
+        if (is.na(rows[i])) next
+        mask[i, ] <- w >= sp_params$w_min[rows[i]] &
+            w <= sp_params$w_max[rows[i]]
+    }
+    mask
+}
+
+#' Reduce the values that are there, and report NA when none are
+#'
+#' `min()` and `max()` of an empty selection are `-Inf` and `Inf` and come with
+#' a warning, which is not what a summary row for a species whose every size
+#' class has been masked out should say. `mean()` of nothing is `NaN`.
+#'
+#' @param x A numeric vector, possibly all `NA`.
+#' @param f The reducer, `min`, `mean` or `max`.
+#' @return `f(x)` over the non-missing values, or `NA_real_` if there are none.
+#' @noRd
+range_stat <- function(x, f) {
+    x <- x[!is.na(x)]
+    if (length(x) == 0) return(NA_real_)
+    f(x)
 }
 
 #' Get the size grid for an ArraySpeciesBySize object
