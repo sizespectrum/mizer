@@ -138,11 +138,7 @@ entry to test before treating a result as a steady state.}
 in 1/year, at the state that was reached. For each consumer species
 this is \eqn{(dB_i/dt) / B_i}, a biomass-weighted aggregate over its
 size classes; the resource is treated the same way and the other
-components contribute their own relative rates. It is \strong{not} the
-largest cellwise value of \code{\link[=getSteadyResidual]{getSteadyResidual()}}, which is dominated by
-fast-turnover size classes holding almost no mass and should not be
-reduced to its maximum. This is the quantity \code{residual_tol} is a
-tolerance on, so the two cannot mean different things. Unlike
+components contribute their own relative rates. Unlike
 \code{distance}, which compares two states \code{t_check} apart on whatever scale
 the distance function uses, this measures how far the state actually is
 from being a fixed point.}

@@ -324,11 +324,7 @@ distanceSSLogN.MizerParams <- function(params, current, previous,
 #'       in 1/year, at the state that was reached. For each consumer species
 #'       this is \eqn{(dB_i/dt) / B_i}, a biomass-weighted aggregate over its
 #'       size classes; the resource is treated the same way and the other
-#'       components contribute their own relative rates. It is **not** the
-#'       largest cellwise value of [getSteadyResidual()], which is dominated by
-#'       fast-turnover size classes holding almost no mass and should not be
-#'       reduced to its maximum. This is the quantity `residual_tol` is a
-#'       tolerance on, so the two cannot mean different things. Unlike
+#'       components contribute their own relative rates. Unlike
 #'       `distance`, which compares two states `t_check` apart on whatever scale
 #'       the distance function uses, this measures how far the state actually is
 #'       from being a fixed point.}
@@ -880,14 +876,14 @@ detect_limit_cycle <- function(bio, t_sample, amplitude_tol,
                                amp_rel_tol = 0.1) {
     n <- nrow(bio)
     if (n < 20) return(NULL)
-    
+
     window_length <- max(20, ceiling(n / 2))
     recent_bio <- bio[(n - window_length + 1):n, , drop = FALSE]
-    
+
     s <- log(rowSums(recent_bio))
     s <- s - mean(s)
     if (all(abs(s) < .Machine$double.eps)) return(NULL)
-    
+
     lag_max <- floor(window_length / 2)
     ac <- stats::acf(s, lag.max = lag_max, plot = FALSE, demean = TRUE)$acf[, 1, 1]
     w <- find_first_acf_peak(ac, acf_threshold)
