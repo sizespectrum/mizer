@@ -333,7 +333,53 @@ test_that("an unmeasurable component state is reported as such", {
     report <- steady_drift_report(p)
     expect_named(report$other, "opaque")
     expect_true(is.na(report$other[["opaque"]]))
-    expect_match(component_drift_txt(report), "not measurable")
+    # It is not evidence of motion, so it is not reported as motion. The
+    # component's dynamics here return the state unchanged, and a non-numeric
+    # state yields `NA` either way, so calling that a drift would call this
+    # model unsteady for ever.
+    groups <- component_groups(report)
+    expect_length(groups$moving, 0)
+    expect_identical(groups$unmeasured, "opaque")
+    expect_identical(component_drift_txt(report), "")
+    expect_match(component_unmeasured_txt(report), "could not be determined")
+    expect_match(component_unmeasured_txt(report), "`opaque`")
+})
+
+test_that("an unmeasurable component does not make the model unsteady", {
+    p <- setComponent(residual_params, "opaque",
+                      initial_value = list(a = "not numeric"),
+                      dynamics_fun = "opaque_component")
+    expect_true(isSteady(p))
+    # The report says what could not be checked, and claims nothing beyond it.
+    w <- expect_warning(warn_if_not_steady(p, "Context."),
+                        "could not be determined")
+    expect_no_match(conditionMessage(w), "is not at its steady state")
+    expect_no_match(conditionMessage(w), "but the model as a whole is not")
+})
+
+test_that("a moving component and an unmeasurable one are reported apart", {
+    p <- setComponent(component_params, "opaque",
+                      initial_value = list(a = "not numeric"),
+                      dynamics_fun = "opaque_component")
+    report <- steady_drift_report(p)
+    groups <- component_groups(report)
+    expect_named(groups$moving, "drifter")
+    expect_identical(groups$unmeasured, "opaque")
+    w <- expect_warning(warn_if_not_steady(p, "Context."),
+                        "but the model as a whole is not")
+    expect_match(conditionMessage(w), "`drifter`")
+    expect_match(conditionMessage(w), "`opaque`")
+})
+
+test_that("the component sentence suits a caller that advances them", {
+    report <- steady_drift_report(component_params)
+    expect_match(component_drift_txt(report),
+                 "steady-state machinery does not settle them")
+    # `project_until_settled()` does advance them, so the standing sentence
+    # would contradict what the run just did.
+    advanced <- component_drift_txt(report, advanced = TRUE)
+    expect_match(advanced, "this run does advance them")
+    expect_no_match(advanced, "does not settle them")
 })
 
 # The exclusion of other components ----

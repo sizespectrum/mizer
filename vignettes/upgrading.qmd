@@ -151,16 +151,26 @@ number anonymous:
 #>         drift above, and mizer's steady-state machinery does not settle them
 ```
 
-To settle the components as well, project the model:
+A component whose state is not a numeric object cannot be differenced at all,
+so mizer has no rate of change for it. That is reported as a separate thing from
+a component that is moving — it is a statement about what could not be measured,
+not evidence that the model is drifting — and it never makes `isSteady()`
+`FALSE`.
+
+To settle the components as well, project the model rather than tuning it:
 
 ```{r eval=FALSE}
-params <- projectUntilSettled(params, return_sim = FALSE)
+params <- findSteadyState(params, solver = "project")
+# or, keeping the trajectory:
+sim <- projectUntilSettled(params)
+params <- finalParams(sim)
 ```
 
-[`projectUntilSettled()`](../reference/projectUntilSettled.html) advances the components like every other state variable,
-and is the one function whose stopping rule still waits for them — there they
-are live rather than held fixed, so a run that stopped while a component was
-moving would be stopping short of something it could settle.
+Both advance the components like every other state variable, and their stopping
+rule still waits for them — there the components are live rather than held
+fixed, so a run that stopped while one was moving would be stopping short of
+something it could settle. `tuneSteadyState()` and
+`findSteadyState(solver = "newton")` freeze them and cannot.
 
 Whether a component should be able to re-enter the criterion, by declaring its
 own reduction to a drift in 1/year, is issue #589.
@@ -226,7 +236,7 @@ the number `distanceSSLogN()` returns is unchanged to the last bit and any
 has one: a run that used to reach `t_max` now converges.
 
 Pass `biomass_share_cutoff = 0`, to `distanceSSLogN()` directly or through
-`projectUntilSettled()`, for the old behaviour. Note that this is unrelated to
+[`projectUntilSettled()`](../reference/projectUntilSettled.html), for the old behaviour. Note that this is unrelated to
 the `biomass_cutoff` *species parameter* used by [`calibrateBiomass()`](../reference/calibrateBiomass.html) and
 [`matchBiomasses()`](../reference/matchBiomasses.html), which is a size in grams. `getSteadyResidual()` has no such
 argument and needs none: weighting by biomass gives a trace the weight it

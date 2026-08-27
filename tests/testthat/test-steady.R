@@ -48,6 +48,30 @@ test_that("projectUntilSettled() waits for a component that is still moving", {
         "drifter")
 })
 
+test_that("a run held open by a component is diagnosed as such", {
+    # When the distance function is satisfied and the consumers and resource
+    # have settled, the only thing left holding the gate open is a component.
+    # The diagnosis has to say so: the branch that would otherwise fire tells
+    # the user the distance function was *above* its tolerance, which is the
+    # opposite of what happened.
+    params <- setComponent(small_steady_params, "drifter",
+                           initial_value = c(1, 2),
+                           dynamics_fun = "settled_drifting_component")
+    msg <- capture_messages(
+        sim <- projectUntilSettled(params, t_max = 2, t_check = 1, dt = 0.1,
+                                   distance_tol = 1000))
+    msg <- paste(msg, collapse = " ")
+    expect_match(msg, "below the distance tolerance")
+    expect_match(msg, "consumers and the resource have settled")
+    expect_match(msg, "a component of the model had not settled")
+    expect_no_match(msg, "above the distance tolerance")
+    expect_no_match(msg, "Loosen `distance_tol`")
+    # And the message does not tell the user that mizer will not settle the
+    # components, in a message from the one function that does advance them.
+    expect_match(msg, "this run does advance them")
+    expect_no_match(msg, "does not settle them")
+})
+
 test_that("projectUntilSettled() is unaffected by a component that has settled", {
     params <- setComponent(small_steady_params, "still",
                            initial_value = c(1, 2),

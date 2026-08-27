@@ -127,6 +127,12 @@ number anonymous:
 #>         drift above, and mizer's steady-state machinery does not settle them
 ```
 
+A component whose state is not a numeric object cannot be differenced at all,
+so mizer has no rate of change for it. That is reported as a separate thing from
+a component that is moving — it is a statement about what could not be measured,
+not evidence that the model is drifting — and it never makes `isSteady()`
+`FALSE`.
+
 To settle the components as well, project the model rather than tuning it:
 
 ```r

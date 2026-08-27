@@ -687,6 +687,34 @@ steady_variable_txt <- function(report, quote = TRUE) {
     }
 }
 
+#' Which components are drifting, and which could not be measured
+#'
+#' Splits the components into the two groups the reports have to treat
+#' differently. A measured drift above the tolerance is evidence that the model
+#' is moving; a drift that could not be measured is evidence of nothing at all,
+#' and must not be reported as if it were. A component whose state is not
+#' numeric yields `NA` whether or not its dynamics leave the state alone, so
+#' treating `NA` as motion would call every such model unsteady for ever.
+#'
+#' A component that has settled is in neither group: it is not news, and the
+#' point of naming a component is that the name is what the user could not
+#' otherwise find out.
+#'
+#' @param report The value of `steady_drift_report()`.
+#' @param tol The tolerance to judge the components against.
+#' @return A list with the named numeric vector `moving` and the character
+#'   vector `unmeasured` of component names.
+#' @noRd
+component_groups <- function(report, tol = steady_residual_tol()) {
+    other <- report$other
+    if (length(other) == 0) {
+        return(list(moving = numeric(0), unmeasured = character(0)))
+    }
+    measured <- is.finite(other)
+    list(moving = other[measured & other > tol],
+         unmeasured = names(other)[!measured])
+}
+
 #' Report the components that are drifting
 #'
 #' The sentence that keeps option D of issue #589 honest. Taking the components
@@ -694,36 +722,59 @@ steady_variable_txt <- function(report, quote = TRUE) {
 #' report that issue came from; the difference has to be that mizer says so
 #' itself, so every place that reports the drift appends this.
 #'
-#' Only components above the tolerance, or whose drift could not be measured at
-#' all, are named: a component that has settled is not news, and the whole point
-#' of naming them is that the name is the thing the user could not otherwise
-#' find out.
-#'
 #' @param report The value of `steady_drift_report()`.
 #' @param tol The tolerance to judge the components against.
+#' @param advanced Whether the caller advances the components itself. `TRUE` for
+#'   `project_until_settled()`, which does, and where the standing sentence
+#'   about mizer not settling components would contradict what the run just did.
 #' @return A string beginning with a space, to be appended to a report, or `""`
-#'   if there is nothing to say.
+#'   if no component is moving.
 #' @noRd
-component_drift_txt <- function(report, tol = steady_residual_tol()) {
-    other <- report$other
-    if (length(other) == 0) return("")
-    moving <- other[!is.finite(other) | other > tol]
+component_drift_txt <- function(report, tol = steady_residual_tol(),
+                                advanced = FALSE) {
+    moving <- component_groups(report, tol)$moving
     if (length(moving) == 0) return("")
     described <- vapply(seq_along(moving), function(i) {
-        paste0("`", names(moving)[[i]], "` (",
-               if (is.finite(moving[[i]])) {
-                   paste0("up to ", signif(moving[[i]], 2), " per year")
-               } else {
-                   "rate of change not measurable"
-               }, ")")
+        paste0("`", names(moving)[[i]], "` (up to ",
+               signif(moving[[i]], 2), " per year)")
     }, character(1))
     paste0(" The component", if (length(moving) > 1) "s " else " ",
            paste(described, collapse = ", "),
            if (length(moving) > 1) " are" else " is",
            " also changing. Components are not included in the biomass drift ",
-           "above, and mizer's steady-state machinery does not settle them; ",
+           "above",
+           if (advanced) {
+               ", although this run does advance them; "
+           } else {
+               ", and mizer's steady-state machinery does not settle them; "
+           },
            "see `attr(getSteadyResidual(params), \"other\")` for the rates ",
            "themselves.")
+}
+
+#' Report the components whose drift could not be measured
+#'
+#' Kept apart from `component_drift_txt()` because it is a statement about what
+#' mizer could not find out, not about the model. A component whose state is not
+#' a numeric object cannot be differenced at all, so mizer has nothing to say
+#' about whether it is steady -- and saying nothing at all would leave the user
+#' believing the check covered it.
+#'
+#' @param report The value of `steady_drift_report()`.
+#' @param tol The tolerance to judge the components against.
+#' @return A string beginning with a space, to be appended to a report, or `""`
+#'   if every component could be measured.
+#' @noRd
+component_unmeasured_txt <- function(report, tol = steady_residual_tol()) {
+    unmeasured <- component_groups(report, tol)$unmeasured
+    if (length(unmeasured) == 0) return("")
+    paste0(" Whether the component",
+           if (length(unmeasured) > 1) "s " else " ",
+           paste0("`", unmeasured, "`", collapse = ", "),
+           if (length(unmeasured) > 1) " are" else " is",
+           " steady could not be determined, because mizer cannot difference ",
+           if (length(unmeasured) > 1) "their states" else "its state",
+           ".")
 }
 
 #' Report that a function has moved the model off its steady state
@@ -771,6 +822,12 @@ signal_off_steady <- function(fname) {
 #' settled and a component has not is exactly the one that taking the components
 #' out of the scalar newly admits, and it must not be the quiet one.
 #'
+#' A component whose drift could not be measured is a third case, and is kept
+#' apart from the second. A non-numeric state yields `NA` whether or not it is
+#' moving, so treating that as drift would call every model holding such a
+#' component unsteady for ever, on no evidence. The report says what could not
+#' be checked instead of claiming the model is off its steady state.
+#'
 #' `severity = "warning"` because the user is being told that something they
 #' probably assumed is not true, and `level = 1` because it survives
 #' `info_level = 1`; both follow the rule that a report about an assumption that
@@ -789,7 +846,8 @@ warn_if_not_steady <- function(params, context,
     if (isTRUE(default_info_level() == 0)) return(invisible(FALSE))
     report <- tryCatch(steady_drift_report(params), error = function(e) NULL)
     if (is.null(report)) return(invisible(FALSE))
-    components <- component_drift_txt(report, tol = tol)
+    moving <- component_drift_txt(report, tol = tol)
+    unmeasured <- component_unmeasured_txt(report, tol = tol)
     if (is.finite(report$drift) && report$drift > tol) {
         signal_info("steady", paste0(
             "This model is not at its steady state: the biomass of ",
@@ -797,15 +855,24 @@ warn_if_not_steady <- function(params, context,
             signif(report$drift, 2), " per year. ", context,
             " Run `tuneSteadyState(params)` if that was not intended, or ",
             "check `getSteadyResidual(params)` to see where the drift is.",
-            components),
+            moving, unmeasured),
             level = 1, severity = "warning", unhandled = "show")
         return(invisible(TRUE))
     }
-    if (nzchar(components)) {
+    if (nzchar(moving)) {
         signal_info("steady", paste0(
             "The consumers and the resource in this model are at their ",
             "steady state, but the model as a whole is not.",
-            components, " ", context),
+            moving, unmeasured, " ", context),
+            level = 1, severity = "warning", unhandled = "show")
+        return(invisible(TRUE))
+    }
+    # An unmeasurable component is not evidence that the model is moving, so
+    # this says what could not be checked and claims nothing beyond it.
+    if (nzchar(unmeasured)) {
+        signal_info("steady", paste0(
+            "The consumers and the resource in this model are at their ",
+            "steady state.", unmeasured, " ", context),
             level = 1, severity = "warning", unhandled = "show")
         return(invisible(TRUE))
     }

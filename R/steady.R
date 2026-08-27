@@ -717,8 +717,16 @@ project_until_settled <- function(params,
     components_txt <- if (is.null(report)) {
         ""
     } else {
-        component_drift_txt(report)
+        paste0(component_drift_txt(report, advanced = TRUE),
+               component_unmeasured_txt(report))
     }
+    # Whether a component is what kept the run going, which the diagnosis below
+    # needs to tell apart from a distance function that is still unsatisfied.
+    # Judged at `residual_tol`, because that is the tolerance the gate itself
+    # used, unlike the reporting text above.
+    held_by_component <- !is.null(report) && require_steady &&
+        is.finite(residual) && residual <= residual_tol &&
+        length(component_groups(report, tol = residual_tol)$moving) > 0
     residual_txt <- if (is.finite(residual)) {
         paste0(" The biomasses change at up to ", signif(residual, 2),
                " per year.")
@@ -787,15 +795,32 @@ project_until_settled <- function(params,
         # A run that has met the distance criterion but is still drifting is
         # the case the two-part test exists for. Saying so is the difference
         # between a puzzling long run and a diagnosis.
-        why <- if (!any(extinct) && is.finite(distance) &&
-                   distance < distance_tol && is.finite(residual) &&
+        distance_met <- !any(extinct) && is.finite(distance) &&
+            distance < distance_tol
+        why <- if (distance_met && is.finite(residual) &&
                    residual > residual_tol) {
             paste0("The distance function returned ", signif(distance, 3),
                    ", which is below the distance tolerance, but the ",
                    "biomasses are still changing at up to ",
                    signif(residual, 2), " per year, which is above the ",
                    "residual tolerance, so this state is not a fixed point.")
-        } else if (identical(attractor, "fixed_point")) {
+        } else if (distance_met && held_by_component) {
+            # Both halves of the test on the consumers and the resource are
+            # met, and the run kept going only because the gate also waits for
+            # the components this run advances. Without this branch the check
+            # below would fire and tell the user that the distance function was
+            # above its tolerance, which is the opposite of what happened.
+            # `components_txt` names the components and their rates, so this
+            # says only why the run continued.
+            paste0("The distance function returned ", signif(distance, 3),
+                   ", which is below the distance tolerance, and the ",
+                   "consumers and the resource have settled: they change at ",
+                   "only ",
+                   signif(residual, 2), " per year. The run continued because ",
+                   "a component of the model had not settled, and ran out of ",
+                   "time. Raise `t_max`, or set `residual_tol = Inf` to stop ",
+                   "on the distance criterion alone.")
+        } else if (!distance_met && identical(attractor, "fixed_point")) {
             # The opposite case, and the one that reads as a contradiction
             # until it is spelled out: the distance function is still
             # unsatisfied while the state it is unsatisfied about has stopped
