@@ -7,7 +7,7 @@
 markerClassPresent(class)
 }
 \arguments{
-\item{class}{Character string -- the S4 class name to test.}
+\item{class}{Character string — the S4 class name to test.}
 }
 \value{
 \code{TRUE} if the class can still be resolved.

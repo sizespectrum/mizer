@@ -7,7 +7,7 @@
 removeDynamicMarkerClass(class)
 }
 \arguments{
-\item{class}{Character string -- the S4 class name to remove.}
+\item{class}{Character string — the S4 class name to remove.}
 }
 \value{
 Invisibly, whether \code{methods} reported removing the class.

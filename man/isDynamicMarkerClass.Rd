@@ -10,13 +10,15 @@ isDynamicMarkerClass(class)
 \item{class}{Character string — the S4 class name to test.}
 }
 \value{
-\code{TRUE} if \code{class} exists and was defined in \code{.GlobalEnv}.
+\code{TRUE} if \code{class} exists and carries the \code{.GlobalEnv} package
+identity that marks it as one of mizer's dynamic classes.
 }
 \description{
 Marker classes that mizer creates in \code{\link[=defineExtensionClasses]{defineExtensionClasses()}} belong to
 \code{.GlobalEnv} in the S4 class registry, although their metadata bindings live
-in mizer's persistent class environment. This means mizer is free to remove
-and rebuild them. A class of the same name that an extension package defines
+in mizer's persistent class environment (see
+\code{\link[=extensionClassEnvironment]{extensionClassEnvironment()}}). This means mizer is free to remove and
+rebuild them. A class of the same name that an extension package defines
 statically belongs to that package's namespace and must never be touched.
 }
 \keyword{internal}
