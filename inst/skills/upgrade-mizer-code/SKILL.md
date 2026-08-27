@@ -78,7 +78,7 @@ function` — carry no such quote, so match those rows on the function name.
 | Error `"Could not calculate gamma."` from `species_params<-()` or `upgradeParams()` on an extension model | the extension zeroed the encounter rate for a species while the `gamma` default was being measured through it | Defaults for `gamma` and `f0` ignore the extension chain |
 | `gamma` or `f0` changes on a model with an encounter function registered by `setRateFunction()` | that function no longer enters the calculation of these two defaults | Defaults for `gamma` and `f0` ignore the extension chain |
 | `setComponent()` errors `"already a rate contribution registered under the name"` | the name is already taken by a free-standing `other_mort()` or `other_encounter()` entry, which the component used to take over silently | `other_mort()` and `other_encounter()` register contributions that have no component |
-| A component's `encounter_fun` errors about an unused `t` argument | encounter contributions now receive the current simulation time, matching mortality contributions | `other_mort()` and `other_encounter()` register contributions that have no component |
+| A component's `encounter_fun` without `...` errors about an unused `t` argument | encounter contributions now receive the current simulation time, matching mortality contributions | `other_mort()` and `other_encounter()` register contributions that have no component |
 
 ### mizer 3.2 → 3.3 — `references/mizer-3.3.md`
 
