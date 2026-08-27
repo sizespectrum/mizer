@@ -27,6 +27,22 @@
 
 ## Bug fixes
 
+- The defaults for `gamma` and `f0` are no longer measured through the
+  extension chain (#577). `get_gamma_default()` gives every species a search
+  volume coefficient of 1 and measures the energy available to it in a power-law
+  prey spectrum. It used to do the measuring with `getEncounter()`, so on an
+  extension object the measurement went through the extension's
+  `projectEncounter()` method, and any modification the extension makes to the
+  encounter rate was folded into mizer's own `gamma`. Because `gamma` in turn
+  determines the search volume, the modification was re-applied on every
+  rebuild: an extension that halves the search volume doubled `gamma` each time
+  the species parameters were touched, and one whose factor is zero for some
+  species turned the calculation into the error `Could not calculate gamma.`
+  Both `get_gamma_default()` and its inverse `get_f0_default()` now measure with
+  `mizerEncounter()`, which also means a rate function registered with
+  `setRateFunction()` no longer enters the calculation. These defaults are a
+  property of the species parameters, not of the model's dynamics.
+
 - A species parameter column can be removed by dropping it from the table you
   assign, with either setter (#578). A column that is missing from the assigned
   table is one you no longer supply: mizer takes it out of

@@ -74,6 +74,9 @@ function` — carry no such quote, so match those rows on the function name.
 | Species parameters the code never touched have moved, or been dropped, after assigning a table built from a few columns | the columns left out of that table counted as withdrawn | A column dropped from an assigned species parameter table is removed |
 | `given_species_params(params)$gamma <- NULL` now changes `species_params(params)$gamma` | a removal hands the parameter back to mizer's calculation and rebuilds | A column dropped from an assigned species parameter table is removed |
 | A custom species parameter column disappears where it used to survive, or `calculated_species_params()` no longer reports it | mizer cannot recalculate a column of your own, so withdrawing it removes it | A column dropped from an assigned species parameter table is removed |
+| On a model using an extension that changes the encounter rate, `species_params(params)$gamma` moves by the same factor every time the species parameters are touched | the `gamma` default used to be measured through the extension's `projectEncounter()` method | Defaults for `gamma` and `f0` ignore the extension chain |
+| Error `"Could not calculate gamma."` from `species_params<-()` or `upgradeParams()` on an extension model | the extension zeroed the encounter rate for a species while the `gamma` default was being measured through it | Defaults for `gamma` and `f0` ignore the extension chain |
+| `gamma` or `f0` changes on a model with an encounter function registered by `setRateFunction()` | that function no longer enters the calculation of these two defaults | Defaults for `gamma` and `f0` ignore the extension chain |
 
 ### mizer 3.2 → 3.3 — `references/mizer-3.3.md`
 
