@@ -5,6 +5,82 @@ small_steady_params <- suppressMessages(
                    min_w = 1e-3, w_pp_cutoff = 5, ks = 4,
                    reproduction_level = 0.25, info_level = 0)
 )
+# A component that never settles, for the tests of what the stopping gate
+# covers. Its relative rate of change is 2 per year, whatever `dt` is.
+e <- globalenv()
+e$settled_drifting_component <- function(params, n_other, component, dt, ...) {
+    n_other[[component]] * exp(2 * dt)
+}
+
+test_that("projectUntilSettled() waits for a component that is still moving", {
+    # The projection advances the other components along with everything else,
+    # so unlike the steady-state criterion its stopping gate does take them in:
+    # a run that stopped here while a component was still moving would be
+    # stopping short of something it could have settled. See #589.
+    params <- setComponent(small_steady_params, "drifter",
+                           initial_value = c(1, 2),
+                           dynamics_fun = "settled_drifting_component")
+    expect_message(
+        sim <- projectUntilSettled(params, t_max = 2, t_check = 1, dt = 0.1,
+                                   distance_tol = 1000),
+        "did not converge")
+    # ... and it says which component held it up, since the biomass drift it
+    # reports no longer covers that.
+    expect_message(
+        projectUntilSettled(params, t_max = 2, t_check = 1, dt = 0.1,
+                            distance_tol = 1000),
+        "drifter")
+    conv <- attr(sim, "convergence")
+    expect_false(conv$converged)
+    # The reported residual covers the consumers and resource only, so it is
+    # small even though the run did not converge, and nowhere near the 2 per
+    # year of the component that held the run open.
+    expect_lt(conv$residual, steady_residual_tol())
+    other <- attr(getSteadyResidual(finalParams(sim)), "other")
+    expect_equal(max(abs(other$drifter)), 2, tolerance = 1e-2)
+
+    # With the drift gate switched off the run stops on the distance criterion
+    # alone, and the component is named there too rather than passing in
+    # silence behind a "reached the convergence tolerance".
+    expect_message(
+        projectUntilSettled(params, t_max = 2, t_check = 1, dt = 0.1,
+                            distance_tol = 1000, residual_tol = Inf),
+        "drifter")
+})
+
+test_that("a run held open by a component is diagnosed as such", {
+    # When the distance function is satisfied and the consumers and resource
+    # have settled, the only thing left holding the gate open is a component.
+    # The diagnosis has to say so: the branch that would otherwise fire tells
+    # the user the distance function was *above* its tolerance, which is the
+    # opposite of what happened.
+    params <- setComponent(small_steady_params, "drifter",
+                           initial_value = c(1, 2),
+                           dynamics_fun = "settled_drifting_component")
+    msg <- capture_messages(
+        sim <- projectUntilSettled(params, t_max = 2, t_check = 1, dt = 0.1,
+                                   distance_tol = 1000))
+    msg <- paste(msg, collapse = " ")
+    expect_match(msg, "below the distance tolerance")
+    expect_match(msg, "consumers and the resource have settled")
+    expect_match(msg, "a component of the model had not settled")
+    expect_no_match(msg, "above the distance tolerance")
+    expect_no_match(msg, "Loosen `distance_tol`")
+    # And the message does not tell the user that mizer will not settle the
+    # components, in a message from the one function that does advance them.
+    expect_match(msg, "this run does advance them")
+    expect_no_match(msg, "does not settle them")
+})
+
+test_that("projectUntilSettled() is unaffected by a component that has settled", {
+    params <- setComponent(small_steady_params, "still",
+                           initial_value = c(1, 2),
+                           dynamics_fun = "constant_other")
+    expect_message(projectUntilSettled(params, t_check = 1, dt = 1,
+                                       distance_tol = 1000, residual_tol = Inf),
+                   "Reached the convergence tolerance")
+})
+
 test_that("projectUntilSettled() works", {
     params <- small_steady_params
     effort <- params@initial_effort * 1.1
