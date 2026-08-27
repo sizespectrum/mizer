@@ -141,6 +141,13 @@
   because R prunes it from the `contains` list of the marker classes outside
   it, so the whole chain is rebuilt (#569).
 
+- Dynamic extension marker classes now live in a mizer-owned persistent
+  environment instead of `.GlobalEnv`. They therefore survive the `cleanEx()`
+  wipe between package examples and users clearing their workspace. Integrity
+  checks also verify the actual class metadata binding rather than trusting
+  `methods::isClass()`'s stale cache, so an explicitly removed binding can be
+  repaired (#587).
+
 - `summary()` of a species-by-size array now covers the same sizes as `plot()`
   of the same array: each species' own size range, from its `w_min` to its
   `w_max`. `plot()` has dropped the values outside that range since it gained

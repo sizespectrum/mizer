@@ -6,6 +6,8 @@
 .mizerSession <- new.env(parent = emptyenv())
 .mizerSession$extensions <- character()
 
+.extensionClassEnvName <- "mizer:extension-classes"
+
 #' Register a single mizer extension for this R session
 #'
 #' Prepends one extension to the front of the active extension chain, giving it
@@ -617,12 +619,71 @@ usesExtensionDispatch <- function(object) {
     stop("Can only check dispatch for MizerParams or MizerSim objects.")
 }
 
+#' Get the environment holding mizer's dynamic marker classes
+#'
+#' The environment is attached lazily so that its class definitions are visible
+#' to S4 dispatch but survive `cleanEx()` and users clearing `.GlobalEnv`. It is
+#' deliberately left mutable because rebuilding an extension chain requires
+#' removing and re-parenting its classes.
+#'
+#' @param create Logical. If `TRUE`, create and attach the environment when it
+#'   does not yet exist. If `FALSE`, return `NULL` instead.
+#' @return The attached environment, or `NULL` when it does not exist and
+#'   `create = FALSE`.
+#' @keywords internal
+extensionClassEnvironment <- function(create = TRUE) {
+    position <- match(.extensionClassEnvName, search())
+    if (!is.na(position)) {
+        return(as.environment(position))
+    }
+    if (!create) {
+        return(NULL)
+    }
+
+    attach(NULL, name = .extensionClassEnvName, warn.conflicts = FALSE)
+    class_environment <- as.environment(.extensionClassEnvName)
+    methods::setPackageName(".GlobalEnv", class_environment)
+    class_environment
+}
+
+#' Is a marker class definition backed by a live binding?
+#'
+#' `methods::isClass()` can keep returning `TRUE` after `rm()` has deleted the
+#' class metadata binding. Package-owned classes are not susceptible to that
+#' global-environment wipe. For a dynamically defined class, however, the
+#' binding must still exist either in mizer's persistent class environment or,
+#' for compatibility with classes created by earlier mizer versions, in
+#' `.GlobalEnv`.
+#'
+#' @param class Character string -- the S4 class name to test.
+#' @return `TRUE` if the class can still be resolved.
+#' @keywords internal
+markerClassPresent <- function(class) {
+    if (!methods::isClass(class)) {
+        return(FALSE)
+    }
+    definition <- methods::getClassDef(class)
+    if (is.null(definition)) {
+        return(FALSE)
+    }
+    if (!identical(definition@package, ".GlobalEnv")) {
+        return(TRUE)
+    }
+
+    metadata_name <- methods::classMetaName(class)
+    class_environment <- extensionClassEnvironment(create = FALSE)
+    (!is.null(class_environment) &&
+         exists(metadata_name, envir = class_environment, inherits = FALSE)) ||
+        exists(metadata_name, envir = .GlobalEnv, inherits = FALSE)
+}
+
 #' Is a marker class one that mizer created dynamically?
 #'
-#' Marker classes that mizer creates in [defineExtensionClasses()] live in
-#' `.GlobalEnv`, so mizer is free to remove and rebuild them. A class of the
-#' same name that an extension package defines statically belongs to that
-#' package's namespace and must never be touched.
+#' Marker classes that mizer creates in [defineExtensionClasses()] belong to
+#' `.GlobalEnv` in the S4 class registry, although their metadata bindings live
+#' in mizer's persistent class environment. This means mizer is free to remove
+#' and rebuild them. A class of the same name that an extension package defines
+#' statically belongs to that package's namespace and must never be touched.
 #'
 #' @param class Character string — the S4 class name to test.
 #' @return `TRUE` if `class` exists and was defined in `.GlobalEnv`.
@@ -633,6 +694,31 @@ isDynamicMarkerClass <- function(class) {
     }
     definition <- methods::getClassDef(class)
     !is.null(definition) && identical(definition@package, ".GlobalEnv")
+}
+
+#' Remove a dynamic marker class, including a stale cached definition
+#'
+#' @param class Character string -- the S4 class name to remove.
+#' @return Invisibly, whether `methods` reported removing the class.
+#' @keywords internal
+removeDynamicMarkerClass <- function(class) {
+    metadata_name <- methods::classMetaName(class)
+    class_environment <- extensionClassEnvironment(create = FALSE)
+
+    if (!is.null(class_environment) &&
+            exists(metadata_name, envir = class_environment,
+                   inherits = FALSE)) {
+        return(invisible(methods::removeClass(
+            class, where = class_environment
+        )))
+    }
+
+    # `rm()` can delete the metadata binding while leaving the definition in
+    # methods:::.classTable. removeClass() still clears that cache, but warns
+    # that the already-missing binding could not be removed.
+    invisible(suppressWarnings(methods::removeClass(
+        class, where = .GlobalEnv
+    )))
 }
 
 #' Is the S4 marker class chain for a set of extensions intact?
@@ -651,9 +737,9 @@ extensionClassesIntact <- function(extensions) {
 
     for (extension in rev(names(extensions))) {
         sim_class <- simExtensionClass(extension)
-        params_ok <- methods::isClass(extension) &&
+        params_ok <- markerClassPresent(extension) &&
             methods::extends(extension, parent_params)
-        sim_ok <- methods::isClass(sim_class) &&
+        sim_ok <- markerClassPresent(sim_class) &&
             methods::extends(sim_class, parent_sim)
         if (!params_ok || !sim_ok) {
             return(FALSE)
@@ -692,7 +778,7 @@ repairExtensionClasses <- function(extensions) {
     for (extension in names(dispatchExtensions(extensions))) {
         for (class in c(extension, simExtensionClass(extension))) {
             if (isDynamicMarkerClass(class)) {
-                methods::removeClass(class, where = .GlobalEnv)
+                removeDynamicMarkerClass(class)
             }
         }
     }
@@ -704,16 +790,21 @@ repairExtensionClasses <- function(extensions) {
 #' Define an S4 class or verify it extends the expected parent
 #'
 #' If `class` does not yet exist, defines it as a virtual-free S4 class that
-#' contains `parent`, registered in `.GlobalEnv`. If `class` already exists,
-#' stops with an error unless it already extends `parent`.
+#' contains `parent`, registered in mizer's persistent class environment. If
+#' `class` already exists, stops with an error unless it already extends
+#' `parent`.
 #'
 #' @param class Character string — the S4 class name to define or check.
 #' @param parent Character string — the required parent class.
 #' @return Invisibly, `class`.
 #' @keywords internal
 defineOrCheckClass <- function(class, parent) {
-    if (!methods::isClass(class)) {
-        methods::setClass(class, contains = parent, where = .GlobalEnv)
+    if (!markerClassPresent(class)) {
+        if (isDynamicMarkerClass(class)) {
+            removeDynamicMarkerClass(class)
+        }
+        methods::setClass(class, contains = parent,
+                          where = extensionClassEnvironment())
         return(invisible(class))
     }
 

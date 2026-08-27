@@ -263,6 +263,62 @@ test_that("marker class repair leaves an intact chain untouched", {
     expect_true(extensionClassesIntact(getRegisteredExtensions()))
 })
 
+test_that("dynamic marker classes survive a cleanEx global wipe", {
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
+
+    ext_a <- paste0("mizerTestCleanExA", Sys.getpid())
+    chain <- setNames(NA_character_, ext_a)
+    registerExtensions(chain)
+
+    classes <- c(ext_a, simExtensionClass(ext_a))
+    metadata_names <- vapply(classes, methods::classMetaName, character(1))
+    class_environment <- extensionClassEnvironment(create = FALSE)
+    expect_true(all(vapply(metadata_names, exists, logical(1),
+                           envir = class_environment, inherits = FALSE)))
+    expect_false(any(vapply(metadata_names, exists, logical(1),
+                            envir = .GlobalEnv, inherits = FALSE)))
+
+    # Remove exactly the bindings that cleanEx() would have removed under the
+    # old implementation. The persistent bindings must remain resolvable from
+    # inside mizer's namespace without another registration call.
+    global_bindings <- metadata_names[vapply(
+        metadata_names, exists, logical(1), envir = .GlobalEnv,
+        inherits = FALSE
+    )]
+    if (length(global_bindings) > 0) {
+        rm(list = global_bindings, envir = .GlobalEnv)
+    }
+
+    params <- NS_params_small
+    params@extensions <- chain
+    expect_s4_class(coerceToExtensionClass(params), ext_a)
+    expect_true(extensionClassesIntact(chain))
+})
+
+test_that("marker class repair detects a missing metadata binding", {
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
+
+    ext_a <- paste0("mizerTestBindingA", Sys.getpid())
+    chain <- setNames(NA_character_, ext_a)
+    registerExtensions(chain)
+
+    class_environment <- extensionClassEnvironment(create = FALSE)
+    metadata_name <- methods::classMetaName(ext_a)
+    rm(list = metadata_name, envir = class_environment)
+
+    # rm() leaves methods' class cache behind, reproducing the state that made
+    # isClass() an insufficient integrity check in #587.
+    expect_true(methods::isClass(ext_a))
+    expect_false(markerClassPresent(ext_a))
+    expect_false(extensionClassesIntact(chain))
+
+    expect_true(repairExtensionClasses(chain))
+    expect_true(markerClassPresent(ext_a))
+    expect_true(extensionClassesIntact(chain))
+})
+
 test_that("marker class repair covers extensions with version requirements", {
     clearExtensionChain()
     withr::defer(clearExtensionChain())
