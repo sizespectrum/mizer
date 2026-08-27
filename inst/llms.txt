@@ -414,8 +414,10 @@ weight, mean maximum weight, and the Large Fish Index.
   : Calculate the slope of the community abundance
 - [`getMeanMaxWeight()`](https://sizespectrum.org/mizer/reference/getMeanMaxWeight.md)
   : Calculate the mean maximum weight of the community
+- [`getMeanLength()`](https://sizespectrum.org/mizer/reference/getMeanWeight.md)
+  : Calculate the mean size of the community
 - [`getMeanWeight()`](https://sizespectrum.org/mizer/reference/getMeanWeight.md)
-  : Calculate the mean weight of the community
+  : Calculate the mean size of the community
 - [`getProportionOfLargeFish()`](https://sizespectrum.org/mizer/reference/getProportionOfLargeFish.md)
   : Calculate the proportion of large fish
 

@@ -1,13 +1,14 @@
 ## Upgrading from mizer 3.3 to 3.4
 
-Three things change for everyone: what `getSteadyResidual()` measures, which
-sizes `summary()` of an array covers, and which size classes `distanceSSLogN()`
-counts. Everything that decides whether a state is a fixed point is untouched.
-A fourth change concerns anyone who assigns a species parameter table: a column
-missing from the table you assign is now withdrawn from the model. Three further
-sections concern extensions: repeated extension registration now rebuilds the
-dynamic marker classes that reloading an extension package removed, the
-defaults for `gamma` and `f0` are no longer measured through the extension
+Four things change for everyone: what `getSteadyResidual()` measures, which
+sizes `summary()` of an array covers, which size classes `distanceSSLogN()`
+counts, and the fact that mizer now says when it invents a weight-length
+relationship. Everything that decides whether a state is a fixed point is
+untouched. A fifth change concerns anyone who assigns a species parameter table:
+a column missing from the table you assign is now withdrawn from the model.
+Three further sections concern extensions: repeated extension registration now
+rebuilds the dynamic marker classes that reloading an extension package removed,
+the defaults for `gamma` and `f0` are no longer measured through the extension
 chain, and the extra contributions to the mortality and encounter rates have
 gained accessors of their own.
 
@@ -167,6 +168,64 @@ a flat line at minus the mortality rate above the size where growth stops. On
 3.4 and later the cutoff already handles it; before that, the remedy is to zero
 the trace with `initialN(params)[initialN(params) < 1e-30] <- 0`.
 <!-- /agent-only -->
+
+### Mizer says when it defaults the weight-length parameters
+
+A species parameter data frame with no `a` or `b` column has always been given
+the defaults `a = 0.01` and `b = 3`, silently. Building a model from such a
+data frame now reports them among the other defaults it fills in:
+
+```
+i No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+i No `b` column so using the isometric default b = 3 in w = a l^b.
+```
+
+Nothing about the model changes; only the report is new, and it is at
+`info_level = 3`, so `info_level = 0` silences it as it does the rest of the
+chatter.
+
+It is worth reading rather than silencing. `a = 0.01` with weights in grams and
+lengths in cm is Fulton's condition factor K = 1, the textbook fusiform fish,
+and `b = 3` is isometry. The exponent is a good default — it varies little
+across species — but `a` follows body shape over roughly two orders of
+magnitude, from around 0.001 for eel-like species to a few hundredths for
+deep-bodied ones, so for a specific species it is a placeholder rather than an
+estimate. On the twelve North Sea species shipped with mizer, whose fitted
+values span `a` = 0.001 to 0.010, the default gives lengths that are 1% to 42%
+short of the fitted relationship at a weight of 1 g.
+
+That matters wherever a length reaches the model rather than a plot: the
+`sigmoid_length`, `double_sigmoid_length` and `knife_edge_length` selectivity
+functions convert `l50`, `l25` and `knife_edge_length` from `gear_params()`
+into weights through `a` and `b`, so a defaulted relationship puts the
+selectivity curve at the wrong weights and changes the dynamics. The same
+applies to `min_l` and `max_l` in the summary and indicator functions, to
+`getMeanLength()`, and to plots drawn with `size_axis = "l"`.
+
+Because that case is the one that changes results, `setFishing()` reports it a
+second time, where the conversion actually happens:
+
+```
+i The gear selectivity for Sprat, Cod is set by length, but `a` and `b` were
+  not supplied, so the conversion to weight used mizer's defaults (a = 0.01,
+  b = 3). The selectivity therefore sits at weights that are unlikely to be the
+  ones you intend. Supply the weight-length parameters in the species
+  parameters.
+```
+
+This one is at `info_level = 1`, so it survives the setting that silences the
+routine chatter, and it is shown even when `calc_selectivity()` or
+`setFishing()` is called on its own rather than through `setParams()`. It names
+only the species whose selectivity is set from a length and whose `a` or `b`
+mizer had to fill in, and only the parameter that was missing — supply `a` and
+`b` for those species and it goes away. A gear that selects on weight
+(`knife_edge`, `sigmoid_weight`) never triggers it, whatever the species
+parameters say.
+
+The test is on the selectivity function's formals: mizer hands a selectivity
+function the species parameters only so that it can convert between length and
+weight, so a custom `sel_func` with a `species_params` argument is covered
+too.
 
 ### Repeated extension registration rebuilds missing marker classes
 

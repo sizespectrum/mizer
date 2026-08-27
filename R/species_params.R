@@ -341,8 +341,15 @@ species_params.data.frame <- function(object, strict = FALSE,
     sp <- set_species_param_default(sp, "alpha", 0.6)
     sp <- set_species_param_default(sp, "n", 3/4)
     sp <- set_species_param_default(sp, "is_background", FALSE)
-    sp <- set_species_param_default(sp, "a", 0.01)
-    sp <- set_species_param_default(sp, "b", 3)
+    # These are reported like the other defaults because a defaulted
+    # weight-length relationship silently moves a length-based selectivity
+    # curve, and `a` is a placeholder rather than an estimate: it follows body
+    # shape over about two orders of magnitude.
+    a_msg <- paste("No `a` column so using a = 0.01 in w = a l^b,",
+                   "with w in g and l in cm.")
+    b_msg <- "No `b` column so using the isometric default b = 3 in w = a l^b."
+    sp <- set_species_param_default(sp, "a", 0.01, a_msg)
+    sp <- set_species_param_default(sp, "b", 3, b_msg)
     class(sp) <- c("species_params", setdiff(class(sp), c("given_species_params", "species_params")))
     check_and_convert_species_params(sp)
 }

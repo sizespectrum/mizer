@@ -525,6 +525,59 @@ test_that("calc_selectivity errors for missing or NA selectivity parameters", {
     expect_error(calc_selectivity(params_na), "Some selectivity parameters are NA")
 })
 
+test_that("calc_selectivity reports a defaulted weight-length relationship", {
+    sp <- data.frame(species = c("A", "B"), w_max = c(100, 1000))
+    gp <- data.frame(gear = "net", species = c("A", "B"),
+                     sel_func = "sigmoid_length", l50 = c(5, 10),
+                     l25 = c(4, 8), catchability = 1)
+    params <- newMultispeciesParams(sp, gear_params = gp, info_level = 0)
+    expect_condition(calc_selectivity(params),
+                     "gear selectivity for A, B is set by length",
+                     class = "info_about_default")
+    expect_condition(calc_selectivity(params),
+                     "`a` and `b` were not supplied",
+                     class = "info_about_default")
+    # The report is shown even when nothing is collecting, because a rate
+    # setter can be called on its own.
+    expect_message(calc_selectivity(params), "mizer's defaults")
+
+    # Only the parameter that was defaulted is named
+    sp$b <- c(3.1, 3.2)
+    params <- newMultispeciesParams(sp, gear_params = gp, info_level = 0)
+    expect_condition(calc_selectivity(params), "but `a` was not supplied",
+                     class = "info_about_default")
+
+    # Nothing is said once both are supplied
+    sp$a <- c(0.005, 0.006)
+    params <- newMultispeciesParams(sp, gear_params = gp, info_level = 0)
+    expect_message(calc_selectivity(params), NA)
+})
+
+test_that("calc_selectivity says nothing about weight-based gears", {
+    # The species have no `a` or `b`, but no gear needs them
+    sp <- data.frame(species = c("A", "B"), w_max = c(100, 1000))
+    gp <- data.frame(gear = "net", species = c("A", "B"),
+                     sel_func = "knife_edge", knife_edge_size = c(5, 10),
+                     catchability = 1)
+    params <- newMultispeciesParams(sp, gear_params = gp, info_level = 0)
+    expect_false("a" %in% names(params@given_species_params))
+    expect_message(calc_selectivity(params), NA)
+})
+
+test_that("calc_selectivity reports only the species selected by length", {
+    sp <- data.frame(species = c("A", "B"), w_max = c(100, 1000),
+                     a = c(NA, 0.006), b = c(NA, 3.2))
+    gp <- data.frame(gear = c("net", "trawl"), species = c("A", "B"),
+                     sel_func = c("sigmoid_length", "knife_edge_length"),
+                     l50 = c(5, NA), l25 = c(4, NA),
+                     knife_edge_length = c(NA, 10), catchability = 1)
+    params <- newMultispeciesParams(sp, gear_params = gp, info_level = 0)
+    # B has its own values, so only A is reported
+    expect_condition(calc_selectivity(params),
+                     "gear selectivity for A is set by length",
+                     class = "info_about_default")
+})
+
 test_that("$ on gear_params does not partially match column names", {
     gp <- gear_params(NS_params_small)
     expect_true("catchability" %in% names(gp))

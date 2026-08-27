@@ -2,9 +2,12 @@
 % Please edit documentation in R/indicator_functions.R
 \name{getMeanWeight}
 \alias{getMeanWeight}
-\title{Calculate the mean weight of the community}
+\alias{getMeanLength}
+\title{Calculate the mean size of the community}
 \usage{
 getMeanWeight(object, species = NULL, ...)
+
+getMeanLength(object, species = NULL, ...)
 }
 \arguments{
 \item{object}{A \linkS4class{MizerSim} or \linkS4class{MizerParams} object}
@@ -28,16 +31,37 @@ over \code{max_w}.}
   }}
 }
 \value{
-A vector containing the mean weight of the community through time,
-or a single value if called with a \code{MizerParams} object.
+A vector containing the mean weight (in grams) or the mean length (in
+cm) of the community through time, or a single value if called with a
+\code{MizerParams} object.
 }
 \description{
-Calculates the mean weight of the community. This is simply the total biomass
-of the community divided by the abundance in numbers. You can specify minimum
-and maximum weight or length for the included size range. Lengths take
-precedence over weights (i.e. if both min_l and min_w are supplied, only
-min_l will be used). You can also specify the species to be used in the
-calculation.
+\code{getMeanWeight()} calculates the mean weight of the community. This is simply
+the total biomass of the community divided by the abundance in numbers.
+\code{getMeanLength()} calculates the mean length of the community, i.e. the total
+length of all individuals divided by their number, where the length of an
+individual of weight \eqn{w} of species \eqn{i} is obtained from the
+length-weight relationship \eqn{w = a_i l^{b_i}} with the species parameters
+\code{a} and \code{b}.
+}
+\details{
+The length-weight parameters \code{a} and \code{b} are taken from the species parameter
+data frame, where they are given the defaults \code{a = 0.01} and \code{b = 3} when a
+model is created. \code{getMeanLength()} gives an error if a model is so old that
+it has no such columns.
+
+You can specify minimum and maximum weight or length for the included size
+range. Lengths take precedence over weights (i.e. if both min_l and min_w are
+supplied, only min_l will be used). You can also specify the species to be
+used in the calculation.
+
+You will usually want to give a minimum size. Over the full size range the
+community is dominated in numbers by the smallest individuals, so both means
+describe the larvae rather than the fish, and in the case of
+\code{getMeanLength()} they do so with a length-weight relationship that was
+fitted to observed fish and is being extrapolated far below the sizes it
+describes. A minimum size also makes the indicator comparable to one
+calculated from survey data, which sees only the sizes the gear catches.
 }
 \examples{
 mean_weight <- getMeanWeight(NS_sim)
@@ -46,6 +70,16 @@ mean_weight[years]
 getMeanWeight(NS_sim, species = c("Herring", "Sprat", "N.pout"))[years]
 getMeanWeight(NS_sim, min_w = 10, max_w = 5000)[years]
 getMeanWeight(NS_params)
+
+mean_length <- getMeanLength(NS_sim)
+mean_length[years]
+# Only a couple of centimetres, because the larvae outnumber everything
+# else. Give a minimum size to get an indicator about fish:
+getMeanLength(NS_sim, min_l = 10)[years]
+getMeanLength(NS_sim, min_w = 10, max_w = 5000)[years]
+getMeanLength(NS_sim, species = c("Herring", "Sprat", "N.pout"),
+              min_l = 10)[years]
+getMeanLength(NS_sim@params, min_l = 10)
 }
 \seealso{
 Other functions for calculating indicators:

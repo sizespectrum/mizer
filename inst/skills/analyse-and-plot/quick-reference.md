@@ -26,6 +26,7 @@ getTrophicLevelBySpecies(params) # mean trophic level (species)
 # ── Community indicators (time series) ────────────────────────────────────────
 getProportionOfLargeFish(sim, threshold_w = 100)
 getMeanWeight(sim)
+getMeanLength(sim)               # needs species_params `a` and `b`
 getMeanMaxWeight(sim)
 getCommunitySlope(sim)          # returns data.frame with slope, intercept, R²
 

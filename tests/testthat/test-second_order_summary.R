@@ -95,6 +95,18 @@ test_that("second-order getSSB uses the bin-averaged maturity*w weight", {
                  unname(rowSums(p@initial_n * weight)))
 })
 
+test_that("second-order getMeanLength uses the bin-averaged length weight", {
+    p <- NS_params_small
+    second_order_w(p) <- c(bin_average = TRUE)
+    l <- length_at_size(p)
+    weight <- sweep(trapezoidal_bin_average(l), 2, p@dw, "*")
+    expect_equal(getMeanLength(p),
+                 sum(p@initial_n * weight) / sum(getN(p)))
+    # and it moves the answer away from the default scheme
+    expect_false(isTRUE(all.equal(getMeanLength(p),
+                                  getMeanLength(NS_params_small))))
+})
+
 test_that("second-order getYield uses the bin-averaged F*w weight", {
     p <- NS_params_small
     second_order_w(p) <- c(bin_average = TRUE)

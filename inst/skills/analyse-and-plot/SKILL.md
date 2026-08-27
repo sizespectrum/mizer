@@ -100,6 +100,7 @@ These compute community-level indicators. All accept `MizerSim` (time series) or
 |---|---|---|
 | `getProportionOfLargeFish(sim)` | `threshold_w = 100`, `biomass_proportion` | proportion of large fish through time |
 | `getMeanWeight(sim)` | `min_w`, `max_w`, `species` | mean community weight through time |
+| `getMeanLength(sim)` | `min_w`, `max_w`, `species` | mean community length through time |
 | `getMeanMaxWeight(sim)` | `measure = "both"/"numbers"/"biomass"` | mean asymptotic weight through time |
 | `getCommunitySlope(sim)` | `min_w`, `max_w`, `species` | slope, intercept, R² through time |
 
