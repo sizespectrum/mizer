@@ -365,7 +365,7 @@ projectEncounter.MizerParams <- function(params, n, n_pp, n_other,
         encounter <- encounter +
             do.call(params@other_encounter[[i]],
                     list(params = params,
-                         n = n, n_pp = n_pp, n_other = n_other,
+                         n = n, n_pp = n_pp, n_other = n_other, t = t,
                          component = names(params@other_encounter)[[i]], ...))
     }
 

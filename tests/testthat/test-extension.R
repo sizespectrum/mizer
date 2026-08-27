@@ -148,6 +148,17 @@ test_that("Contributions belonging to a component are hidden and preserved", {
     other_mort(p) <- NULL
     expect_identical(p@other_mort, list(test = "test_dyn"))
     expect_identical(getComponent(p, "test")$mort_fun, "test_dyn")
+
+    # A round trip also preserves an interleaved registry exactly
+    p2 <- params
+    other_mort(p2) <- list(starvation = "test_dyn")
+    p2 <- setComponent(p2, "test", 1, dynamics_fun = "test_dyn",
+                       mort_fun = "test_dyn")
+    other_mort(p2)[["senescence"]] <- "test_dyn"
+    before <- p2@other_mort
+    expect_identical(names(before), c("starvation", "test", "senescence"))
+    other_mort(p2) <- other_mort(p2)
+    expect_identical(p2@other_mort, before)
 })
 
 test_that("Rate contribution accessors validate their input", {
@@ -161,6 +172,8 @@ test_that("Rate contribution accessors validate their input", {
                  "should be a named list")
     expect_error(other_mort(params) <- list("test_dyn"),
                  "need to be named")
+    expect_error(other_mort(params) <- list(x = "test_dyn", x = "test_dyn"),
+                 "need unique names")
     expect_error(other_mort(params) <- list(starvation = "no_such_function"),
                  "needs to be the name of a function")
     expect_error(other_encounter(params) <- list(scavenging = 5),

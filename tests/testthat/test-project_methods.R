@@ -32,6 +32,9 @@ n_full <- abs(rnorm(no_w_full)) * 1e9
 
 # Helper: strip params attribute before snapshot to avoid JSON roundtrip failure
 drop_params <- function(x) { attr(x, "params") <- NULL; x }
+assign("rate_contribution_at_time", function(params, t, ...) {
+    0 * params@mu_b + t
+}, envir = globalenv())
 
 params2 <- params
 params2@initial_n <- params2@initial_n / 2
@@ -62,6 +65,17 @@ test_that("mizerEReproAndGrowth, mizerERepro and mizerEGrowth follow formulas", 
     e_growth <- mizerEGrowth(params, n = n, n_pp = n_full, n_other = list(),
                              t = 0, e_repro = e_repro, e = e_test)
     expect_equal(e_growth, pmax(e_test, 0) - e_repro)
+})
+
+test_that("Mortality and encounter contributions receive the current time", {
+    e <- getEncounter(params, t = 2)
+    m <- getMort(params, t = 2)
+    p <- params
+    p@other_mort <- list(test = "rate_contribution_at_time")
+    expect_equal(getMort(p, t = 2), m + 2, ignore_attr = TRUE)
+    p <- params
+    p@other_encounter <- list(test = "rate_contribution_at_time")
+    expect_equal(getEncounter(p, t = 2), e + 2, ignore_attr = TRUE)
 })
 
 test_that("mizerFMortGear, mizerFMort, mizerPredMort and mizerResourceMort follow formulas", {

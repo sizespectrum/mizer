@@ -20,7 +20,7 @@ other_encounter(params) <- value
 
 \item{value}{A named list of function names, or \code{NULL} to remove all
 contributions that do not belong to a component. You choose the names, but
-they must not clash with the name of a component.}
+they must be unique and must not clash with the name of a component.}
 }
 \value{
 A named list with the names of the functions contributing to the

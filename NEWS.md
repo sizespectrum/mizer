@@ -43,9 +43,11 @@
   the new accessors hide the entries belonging to a component created with
   `setComponent()`: those are reported by `getComponent()` and removed by
   `removeComponent()`, and assigning a whole list through `other_mort()` can no
-  longer wipe them out. `setComponent()` now also refuses a component name that
-  a free-standing contribution is already registered under, rather than silently
-  taking it over (#579).
+  longer wipe them out or change their positions. Contribution names must be
+  unique. Encounter contributions now receive the current simulation time as
+  `t`, as mortality contributions already did. `setComponent()` now also
+  refuses a component name that a free-standing contribution is already
+  registered under, rather than silently taking it over (#579).
 
 ## Bug fixes
 

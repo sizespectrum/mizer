@@ -351,7 +351,7 @@ other_params <- function(params) {
 #' @param params A MizerParams object
 #' @param value A named list of function names, or `NULL` to remove all
 #'   contributions that do not belong to a component. You choose the names, but
-#'   they must not clash with the name of a component.
+#'   they must be unique and must not clash with the name of a component.
 #' @return A named list with the names of the functions contributing to the
 #'   rate, excluding any that belong to a component.
 #' @export
@@ -451,6 +451,9 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
     if (length(value) > 0 && !rlang::is_named(value)) {
         stop("All entries of `", slot_name, "` need to be named.")
     }
+    if (anyDuplicated(names(value)) > 0) {
+        stop("All entries of `", slot_name, "` need unique names.")
+    }
     clash <- intersect(names(value), names(params@other_dynamics))
     if (length(clash) > 0) {
         stop("`", toString(clash), "` ",
@@ -465,8 +468,25 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
                  "` needs to be the name of a function.")
         }
     }
-    slot(params, slot_name) <-
-        c(componentRateContributions(params, slot_name), value)
+    # Keep component entries in their existing positions and fill the
+    # free-standing positions from `value` in its order. This preserves the
+    # complete registry when the getter's result is assigned back unchanged.
+    funs <- slot(params, slot_name)
+    is_component <- names(funs) %in% names(params@other_dynamics)
+    updated <- list()
+    value_i <- 1L
+    for (i in seq_along(funs)) {
+        if (is_component[[i]]) {
+            updated <- c(updated, funs[i])
+        } else if (value_i <= length(value)) {
+            updated <- c(updated, value[value_i])
+            value_i <- value_i + 1L
+        }
+    }
+    if (value_i <= length(value)) {
+        updated <- c(updated, value[value_i:length(value)])
+    }
+    slot(params, slot_name) <- updated
 
     params@time_modified <- lubridate::now()
     params

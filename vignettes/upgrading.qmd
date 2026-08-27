@@ -314,7 +314,14 @@ other_encounter(params)[["scavenging"]] <- "scavengingEncounter"
 ```
 
 which checks that the name really is a function and that it does not collide
-with a component's. Assigning `NULL` to an entry removes it.
+with a component's. Names must be unique, and assigning `NULL` to an entry
+removes it.
+
+Encounter contributions are now passed the current simulation time as `t`, as
+mortality contributions already were. This makes a time-dependent extra
+encounter possible. An existing component `encounter_fun` whose exact signature
+accepts neither `t` nor `...` will now error; add one of those arguments to the
+function.
 
 Like [`other_params()`](../reference/setRateFunction.html), the new accessors show only what does not belong to a
 component. An entry created by `setComponent(mort_fun = )` stays the property of
