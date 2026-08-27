@@ -272,6 +272,31 @@ Passing the component's own abundance to `mizerEncounter()` as `n_pp`, as
 prey spectrum: it is then eaten through the ordinary predation kernel and shows
 up in `getDiet()` without further work.
 
+### Components and the steady state
+
+A component you give a `dynamics_fun` is outside mizer's steady-state
+machinery, in both directions, and a model with one needs checking accordingly:
+
+- `tuneSteadyState()`, `findSteadyState(solver = "newton")` and `getStability()`
+  hold the component at its stored value and solve the consumer-resource
+  subsystem around it. Mizer warns when it meets a component with dynamics of
+  its own.
+- `isSteady()`, the `summary()` drift line and `project(check_steady = TRUE)`
+  judge that same subsystem. A component's state can be any object at all, so
+  mizer cannot form a biomass for it and does not fold its rate of change into
+  the number. **A model can be `isSteady()` while your component is moving.**
+
+Mizer names any component that is moving whenever it reports on the drift, and
+`attr(getSteadyResidual(params), "other")` holds the per-cell relative rates of
+change it measured, reduced by `max(abs(...))` for reporting — an overestimate
+whenever the component has fast cells holding almost nothing, which is why that
+number is reported rather than compared against a tolerance.
+
+To settle a component along with everything else, use `projectUntilSettled()`,
+which advances it like every other state variable; its stopping rule does wait
+for the component. Issue #589 tracks giving components a way to declare their
+own reduction and so re-enter the criterion.
+
 <!-- article-only -->
 
 ## Worked example: external encounter and mortality

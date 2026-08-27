@@ -156,9 +156,10 @@ tuneSteadyState.MizerParams <- function(params,
         params@initial_effort <- effort
         warn_other_components_fixed(params, paste(
             "The model returned is therefore at a fixed point of the",
-            "consumer-resource dynamics; check the `residual` entry of its",
-            "`\"convergence\"` attribute, which does cover the components,",
-            "before treating it as a steady state of the whole model."))
+            "consumer-resource dynamics, which is not the same thing as a",
+            "steady state of the whole model. Use `projectUntilSettled()`,",
+            "which advances the components like everything else, if they need",
+            "to settle too."))
         if (solver == "project") {
             tune_steady_project(params, effort = effort, preserve = preserve,
                                 info_level = info_level, ...)
@@ -509,8 +510,13 @@ find_steady_newton <- function(params, effort, extinction_floor = 1e-6,
 #' user is the one who knows which. Refusing would also lock every model built
 #' with [setComponent()] out of these functions. What the user must not be
 #' allowed to do is *assume* the components were covered, which is why this is a
-#' warning rather than a quiet note, and why the returned `residual` — which
-#' does cover them — is reported alongside.
+#' warning rather than a quiet note.
+#'
+#' The reported `residual` does not cover them either — see
+#' `steady_drift_report()` for why it stopped trying to — so this says where
+#' their rates of change can be found instead. The two halves belong together:
+#' this report names the components that are being held fixed, and
+#' `warn_if_not_steady()` names the ones that are actually moving, with numbers.
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @param context A sentence naming what is being claimed, appended to the
@@ -529,7 +535,12 @@ warn_other_components_fixed <- function(params, context) {
         " dynamics of their own, and mizer's steady-state and stability ",
         "machinery covers the consumers and the resource only: ",
         if (length(dynamic) > 1) "they are" else "it is",
-        " held at the stored value throughout. ", context),
+        " held at the stored value throughout and ",
+        if (length(dynamic) > 1) "are" else "is",
+        " not included in the biomass drift that mizer reports. See ",
+        "`attr(getSteadyResidual(params), \"other\")` for ",
+        if (length(dynamic) > 1) "their" else "its",
+        " rate of change. ", context),
         level = 1, severity = "warning", unhandled = "show")
     invisible(TRUE)
 }

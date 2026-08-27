@@ -70,6 +70,7 @@ params <- tuneSteadyState(params)
 attr(params, "convergence")$attractor    # "fixed_point", "limit_cycle" or NA
 attr(params, "convergence")$termination  # why the run stopped
 attr(params, "convergence")$residual     # largest biomass drift, in 1/year
+                                         # (consumers and resource only)
 plot(getSteadyResidual(params))          # which species, and at which sizes
 ```
 
@@ -190,11 +191,21 @@ changing it.
 ```r
 isSteady(params)                       # TRUE if settled within tolerance
 summary(params)                        # still at the steady state?
+attr(getSteadyResidual(params), "other")  # components, if the model has any
 plotSpectra(params)                    # sensible, overlapping spectra?
 plotGrowthCurves(params, species = "Cod")
 plotBiomassObservedVsModel(params)     # points near the 1:1 line?
 plotYieldObservedVsModel(params)
 ```
+
+**A model with components registered by `setComponent()` needs the extra line.**
+`isSteady()` and the `summary()` drift cover the consumers and the resource
+only: a component's state can be any object at all, so mizer cannot form a
+biomass for it, and the functions that find steady states hold it fixed anyway.
+Mizer names any component that is moving whenever it reports on the drift, and
+`summary()` lists them on their own lines, but the number in front of you is not
+about them. `projectUntilSettled()` is what settles them along with everything
+else.
 
 `project(params, check_steady = TRUE)` makes the same check at the point where it
 matters, warning if the run is about to start from a state that is not a fixed

@@ -659,16 +659,29 @@ project_until_settled <- function(params,
             # here whatever `require_steady` says, because the answer is
             # reported either way; only whether it can hold the run open
             # depends on that argument.
-            residual <- tryCatch(
-                steady_biomass_drift(params, effort = effort,
-                                     n = current$n, n_pp = current$n_pp,
-                                     n_other = current$n_other),
-                error = function(e) NA_real_)
+            report <- tryCatch(
+                steady_drift_report(params, effort = effort,
+                                    n = current$n, n_pp = current$n_pp,
+                                    n_other = current$n_other),
+                error = function(e) NULL)
+            residual <- if (is.null(report)) NA_real_ else report$drift
+            # The gate, unlike the criterion, takes the other components in.
+            # This is the one place where they are live -- the run advances
+            # whatever `other_dynamics` says -- so a run that stops here while a
+            # component is still moving would be stopping short of something it
+            # could have settled. `tune_steady_project()` pins its components
+            # for the duration of its run, so they contribute nothing when the
+            # gate is reached from there.
+            gate <- if (is.null(report)) {
+                NA_real_
+            } else {
+                steady_total_drift(report)
+            }
             # An unmeasurable drift is no reason to keep running: the distance
             # criterion the user asked for has been met, and `residual` records
             # that the check could not be made.
-            if (!require_steady || !is.finite(residual) ||
-                residual <= residual_tol) {
+            if (!require_steady || !is.finite(gate) ||
+                gate <= residual_tol) {
                 success <- TRUE
                 break
             }
@@ -689,8 +702,22 @@ project_until_settled <- function(params,
     # successful run it has already been measured at this very state, as the
     # second half of the convergence criterion, so it is not measured twice.
     if (!success) {
-        residual <- tryCatch(steady_biomass_drift(params, effort = effort),
-                             error = function(e) NA_real_)
+        report <- tryCatch(steady_drift_report(params, effort = effort),
+                           error = function(e) NULL)
+        residual <- if (is.null(report)) NA_real_ else report$drift
+    }
+    # Whatever the run did, a component that is still moving has to be named:
+    # the drift above no longer covers it, and "fixed point" said over a
+    # component drifting at 6 per year is the failure this reporting exists to
+    # prevent. It is judged against the package tolerance rather than
+    # `residual_tol`, as the advisory `caveat` below is -- this is a statement
+    # about the model, not about the stopping rule the user chose, so switching
+    # the gate off with `residual_tol = Inf` must not also switch off the one
+    # report that says a component is moving.
+    components_txt <- if (is.null(report)) {
+        ""
+    } else {
+        component_drift_txt(report)
     }
     residual_txt <- if (is.finite(residual)) {
         paste0(" The biomasses change at up to ", signif(residual, 2),
@@ -744,7 +771,7 @@ project_until_settled <- function(params,
         }
         signal_info("convergence",
                     paste0("Reached the convergence tolerance after ", years,
-                           " years.", residual_txt, caveat),
+                           " years.", residual_txt, caveat, components_txt),
                     unhandled = "show")
     } else {
         termination <- if (any(extinct)) "extinction" else "time_limit"
@@ -787,7 +814,8 @@ project_until_settled <- function(params,
             paste0("Value returned by the distance function was: ", distance)
         }
         signal_info("convergence", paste0(
-            "Simulation run did not converge after ", years, " years. ", why),
+            "Simulation run did not converge after ", years, " years. ", why,
+            components_txt),
             unhandled = "show")
     }
 

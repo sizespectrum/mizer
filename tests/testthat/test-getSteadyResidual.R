@@ -13,6 +13,25 @@ off_steady_params <- local({
     p
 })
 
+# Component dynamics for the tests of what the drift does and does not cover.
+# The state is grown by a fixed exponential factor each step, so its relative
+# rate of change is a known constant, independent of `dt` to first order.
+e <- globalenv()
+e$drifting_component <- function(params, n_other, component, dt, ...) {
+    n_other[[component]] * exp(2 * dt)
+}
+e$settled_component <- function(params, n_other, component, ...) {
+    n_other[[component]]
+}
+e$opaque_component <- function(params, n_other, component, ...) {
+    n_other[[component]]
+}
+
+# A settled model carrying one component that never settles.
+component_params <- setComponent(
+    residual_params, "drifter", initial_value = c(1, 2, 3),
+    dynamics_fun = "drifting_component")
+
 # getSteadyResidual ----
 
 test_that("getSteadyResidual() returns a labelled ArraySpeciesBySize", {
@@ -234,6 +253,151 @@ test_that("steady_biomass_drift() ignores fast cells that hold no biomass", {
                                           measure = "per_capita")),
                     na.rm = TRUE)
     expect_lt(steady_biomass_drift(residual_params), cell_max)
+})
+
+# steady_drift_report ----
+
+test_that("steady_drift_report() names the state variable responsible", {
+    # Reporting the number without the name is what sent the reporter of #589
+    # to the wrong place. Whichever variable wins, the name has to be the one
+    # that achieves the reported drift.
+    for (p in list(residual_params, off_steady_params)) {
+        report <- steady_drift_report(p)
+        expect_identical(report$drift, steady_biomass_drift(p))
+        species <- abs(rowSums(getSteadyResidual(p)))
+        wdw <- w_full(p) * dw_full(p)
+        rates <- steady_rates(p)
+        resource <- abs(sum(rates$dn_pp_dt * wdw) / sum(rates$n_pp * wdw))
+        if (report$is_resource) {
+            expect_equal(report$drift, resource)
+            expect_gte(resource, max(species))
+        } else {
+            expect_equal(report$drift, species[[report$variable]])
+            expect_gte(species[[report$variable]], resource)
+        }
+    }
+})
+
+test_that("steady_drift_report() names a species when a species is worst", {
+    # Pinning the resource takes it out of the running, so a species must win.
+    # Tripling one consumer also triples the predation on the resource, which
+    # is why the resource is otherwise the worst offender on this model.
+    p <- off_steady_params
+    resource_dynamics(p) <- "resource_constant"
+    report <- steady_drift_report(p)
+    expect_false(report$is_resource)
+    expect_identical(report$variable,
+                     as.character(species_params(p)$species[[1]]))
+    expect_identical(steady_variable_txt(report),
+                     paste0("`", report$variable, "`"))
+    expect_identical(steady_variable_txt(report, quote = FALSE),
+                     report$variable)
+})
+
+test_that("steady_drift_report() reports the resource as the resource", {
+    p <- residual_params
+    initialNResource(p) <- initialNResource(p) * 3
+    report <- steady_drift_report(p)
+    expect_true(report$is_resource)
+    expect_identical(steady_variable_txt(report), "the resource")
+    expect_identical(steady_variable_txt(report, quote = FALSE), "the resource")
+})
+
+test_that("steady_drift_report() covers only components that can move", {
+    # A component pinned with `constant_other()` cannot drift, so listing it
+    # would bury the ones that can. This is the same set that
+    # `warn_other_components_fixed()` names.
+    expect_length(steady_drift_report(residual_params)$other, 0)
+    p <- setComponent(residual_params, "fixed", initial_value = c(1, 2),
+                      dynamics_fun = "constant_other")
+    expect_length(steady_drift_report(p)$other, 0)
+
+    p <- setComponent(p, "still", initial_value = c(1, 2),
+                      dynamics_fun = "settled_component")
+    report <- steady_drift_report(p)
+    expect_named(report$other, "still")
+    expect_equal(report$other[["still"]], 0)
+})
+
+test_that("steady_drift_report() measures a component's rate of change", {
+    report <- steady_drift_report(component_params)
+    expect_named(report$other, "drifter")
+    # `exp(2 dt)` per step is a relative rate of 2 per year.
+    expect_equal(report$other[["drifter"]], 2, tolerance = 1e-3)
+})
+
+test_that("an unmeasurable component state is reported as such", {
+    p <- setComponent(residual_params, "opaque",
+                      initial_value = list(a = "not numeric"),
+                      dynamics_fun = "opaque_component")
+    report <- steady_drift_report(p)
+    expect_named(report$other, "opaque")
+    expect_true(is.na(report$other[["opaque"]]))
+    expect_match(component_drift_txt(report), "not measurable")
+})
+
+# The exclusion of other components ----
+
+test_that("the biomass drift excludes the other components", {
+    # The heart of the change made for #589: a component with dynamics of its
+    # own no longer enters the scalar the tolerances are stated against, so a
+    # model whose consumers and resource have settled reads as steady even
+    # while the component moves at 2 per year.
+    expect_equal(steady_biomass_drift(component_params),
+                 steady_biomass_drift(residual_params))
+    expect_true(isSteady(component_params))
+    expect_lt(steady_biomass_drift(component_params), steady_residual_tol())
+})
+
+test_that("the excluded component is still measured and reported", {
+    # Excluding it from the scalar must not mean not measuring it: the rate is
+    # still there for the user to find, and `steady_rates()` still steps the
+    # component to get it.
+    other <- attr(getSteadyResidual(component_params), "other")
+    expect_named(other, "drifter")
+    expect_equal(other$drifter, rep(2, 3), tolerance = 1e-3)
+    expect_equal(max(abs(other$drifter)),
+                 steady_drift_report(component_params)$other[["drifter"]])
+})
+
+test_that("a drifting component is named even when the consumers are steady", {
+    # The loud half of the bargain. Taking the components out of the scalar is
+    # the workaround that hid a 2-3/year drift in the report behind #589; what
+    # makes it safe here is that mizer says so itself, and names the component.
+    expect_warning(warn_if_not_steady(component_params, "Context."),
+                   "drifter")
+    expect_warning(warn_if_not_steady(component_params, "Context."),
+                   "not included in the biomass drift")
+    # And it says that the consumers are not the problem, rather than sending
+    # the user off to look at species that have settled.
+    expect_warning(warn_if_not_steady(component_params, "Context."),
+                   "consumers and the resource in this model are at their steady state")
+})
+
+test_that("a drifting component is named alongside a drifting species", {
+    p <- component_params
+    initialN(p)[1, ] <- initialN(p)[1, ] * 3
+    w <- expect_warning(warn_if_not_steady(p, "Context."),
+                        "not at its steady state")
+    expect_warning(warn_if_not_steady(p, "Context."), "drifter")
+})
+
+test_that("a settled component is not named", {
+    p <- setComponent(residual_params, "still", initial_value = c(1, 2),
+                      dynamics_fun = "settled_component")
+    expect_identical(component_drift_txt(steady_drift_report(p)), "")
+    expect_silent(warn_if_not_steady(p, "Context."))
+})
+
+test_that("steady_total_drift() folds the components back in", {
+    # The one caller that needs them: `project_until_settled()`, where the
+    # components are live rather than pinned.
+    report <- steady_drift_report(component_params)
+    expect_equal(steady_total_drift(report), 2, tolerance = 1e-3)
+    expect_gt(steady_total_drift(report), report$drift)
+    # With nothing to fold in it is just the drift.
+    expect_identical(steady_total_drift(steady_drift_report(residual_params)),
+                     steady_biomass_drift(residual_params))
 })
 
 # warn_if_not_steady ----

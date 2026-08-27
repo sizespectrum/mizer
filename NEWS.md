@@ -25,6 +25,31 @@
   biomass is what makes a threshold unnecessary here: a class holding a trace
   contributes a trace.
 
+- Components registered with `setComponent()` are no longer folded into the
+  biomass drift that `isSteady()`, the `summary()` line,
+  `project(check_steady = TRUE)`, the `residual` and `attractor` entries of the
+  `"convergence"` attribute and the guards in `getStability()` judge a model by.
+  A component's state can be any R object at all, so mizer knows neither what
+  currency its entries are in nor which of its dimensions is size, and had to
+  fall back on the largest per-cell relative rate — the reduction dominated by
+  the fastest-relaxing cells, which are the ones holding nothing. Worse, every
+  function that finds a steady state holds the components fixed, so a criterion
+  that included them was one those functions could not satisfy: a model whose
+  consumers had settled to 1e-11 could report a drift of 6/year with no way to
+  improve it. The criterion now measures exactly the subsystem those functions
+  act on, and the components are reported separately, through
+  `attr(getSteadyResidual(params), "other")` and on their own lines in
+  `summary()`. A model can therefore be `isSteady()` while a component of it is
+  drifting; mizer names any component that is moving whenever it reports on the
+  drift, and `projectUntilSettled()`, which advances components like every other
+  state variable, is what settles them (#589).
+
+- Mizer now names the state variable responsible for a model's drift. The report
+  used to say that "a biomass" was changing and then send the user to look at
+  "which species are moving", which is misleading when the species have settled
+  and something else has not; it now names the species or the resource, and
+  names any component that is drifting alongside it (#589).
+
 ## Extensions
 
 - New accessors `other_mort()` and `other_encounter()`, with their replacement
