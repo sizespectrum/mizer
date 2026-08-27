@@ -29,10 +29,27 @@ tolerance), \code{FALSE} otherwise.
 }
 \details{
 Steadiness is judged by computing the relative rate of change of biomass
-across all consumer species, resource, and other components (see
-\code{\link[=getSteadyResidual]{getSteadyResidual()}}). If the largest biomass drift is less than or equal to
-\code{tol}, the model is considered to be at steady state.
+across all consumer species and the resource (see \code{\link[=getSteadyResidual]{getSteadyResidual()}}). If
+the largest biomass drift is less than or equal to \code{tol}, the model is
+considered to be at steady state.
 }
+\section{Components are not included}{
+Components registered with \code{\link[=setComponent]{setComponent()}} are deliberately left out of this
+judgement. Their state can be any object at all, so mizer does not know what
+currency its entries are in and cannot form a biomass for them; and
+\code{\link[=tuneSteadyState]{tuneSteadyState()}}, \code{\link[=findSteadyState]{findSteadyState()}} and \code{\link[=getStability]{getStability()}} all hold them
+fixed, so a criterion that included them could be one that no mizer function
+is able to satisfy.
+
+A model can therefore be \code{isSteady()} while a component of it is still
+changing. If your model has components with dynamics of their own, check them
+as well: \code{attr(getSteadyResidual(params), "other")} holds their rates of
+change, and mizer names any that are moving whenever it reports on the
+model's steady state. To settle them along with everything else, project the
+model with \code{\link[=projectUntilSettled]{projectUntilSettled()}}, which advances the components like every
+other state variable.
+}
+
 \examples{
 isSteady(NS_params)
 

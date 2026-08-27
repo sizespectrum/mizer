@@ -659,16 +659,29 @@ project_until_settled <- function(params,
             # here whatever `require_steady` says, because the answer is
             # reported either way; only whether it can hold the run open
             # depends on that argument.
-            residual <- tryCatch(
-                steady_biomass_drift(params, effort = effort,
-                                     n = current$n, n_pp = current$n_pp,
-                                     n_other = current$n_other),
-                error = function(e) NA_real_)
+            report <- tryCatch(
+                steady_drift_report(params, effort = effort,
+                                    n = current$n, n_pp = current$n_pp,
+                                    n_other = current$n_other),
+                error = function(e) NULL)
+            residual <- if (is.null(report)) NA_real_ else report$drift
+            # The gate, unlike the criterion, takes the other components in.
+            # This is the one place where they are live -- the run advances
+            # whatever `other_dynamics` says -- so a run that stops here while a
+            # component is still moving would be stopping short of something it
+            # could have settled. `tune_steady_project()` pins its components
+            # for the duration of its run, so they contribute nothing when the
+            # gate is reached from there.
+            gate <- if (is.null(report)) {
+                NA_real_
+            } else {
+                steady_total_drift(report)
+            }
             # An unmeasurable drift is no reason to keep running: the distance
             # criterion the user asked for has been met, and `residual` records
             # that the check could not be made.
-            if (!require_steady || !is.finite(residual) ||
-                residual <= residual_tol) {
+            if (!require_steady || !is.finite(gate) ||
+                gate <= residual_tol) {
                 success <- TRUE
                 break
             }
@@ -689,9 +702,31 @@ project_until_settled <- function(params,
     # successful run it has already been measured at this very state, as the
     # second half of the convergence criterion, so it is not measured twice.
     if (!success) {
-        residual <- tryCatch(steady_biomass_drift(params, effort = effort),
-                             error = function(e) NA_real_)
+        report <- tryCatch(steady_drift_report(params, effort = effort),
+                           error = function(e) NULL)
+        residual <- if (is.null(report)) NA_real_ else report$drift
     }
+    # Whatever the run did, a component that is still moving has to be named:
+    # the drift above no longer covers it, and "fixed point" said over a
+    # component drifting at 6 per year is the failure this reporting exists to
+    # prevent. It is judged against the package tolerance rather than
+    # `residual_tol`, as the advisory `caveat` below is -- this is a statement
+    # about the model, not about the stopping rule the user chose, so switching
+    # the gate off with `residual_tol = Inf` must not also switch off the one
+    # report that says a component is moving.
+    components_txt <- if (is.null(report)) {
+        ""
+    } else {
+        paste0(component_drift_txt(report, advanced = TRUE),
+               component_unmeasured_txt(report))
+    }
+    # Whether a component is what kept the run going, which the diagnosis below
+    # needs to tell apart from a distance function that is still unsatisfied.
+    # Judged at `residual_tol`, because that is the tolerance the gate itself
+    # used, unlike the reporting text above.
+    held_by_component <- !is.null(report) && require_steady &&
+        is.finite(residual) && residual <= residual_tol &&
+        length(component_groups(report, tol = residual_tol)$moving) > 0
     residual_txt <- if (is.finite(residual)) {
         paste0(" The biomasses change at up to ", signif(residual, 2),
                " per year.")
@@ -744,7 +779,7 @@ project_until_settled <- function(params,
         }
         signal_info("convergence",
                     paste0("Reached the convergence tolerance after ", years,
-                           " years.", residual_txt, caveat),
+                           " years.", residual_txt, caveat, components_txt),
                     unhandled = "show")
     } else {
         termination <- if (any(extinct)) "extinction" else "time_limit"
@@ -760,15 +795,32 @@ project_until_settled <- function(params,
         # A run that has met the distance criterion but is still drifting is
         # the case the two-part test exists for. Saying so is the difference
         # between a puzzling long run and a diagnosis.
-        why <- if (!any(extinct) && is.finite(distance) &&
-                   distance < distance_tol && is.finite(residual) &&
+        distance_met <- !any(extinct) && is.finite(distance) &&
+            distance < distance_tol
+        why <- if (distance_met && is.finite(residual) &&
                    residual > residual_tol) {
             paste0("The distance function returned ", signif(distance, 3),
                    ", which is below the distance tolerance, but the ",
                    "biomasses are still changing at up to ",
                    signif(residual, 2), " per year, which is above the ",
                    "residual tolerance, so this state is not a fixed point.")
-        } else if (identical(attractor, "fixed_point")) {
+        } else if (distance_met && held_by_component) {
+            # Both halves of the test on the consumers and the resource are
+            # met, and the run kept going only because the gate also waits for
+            # the components this run advances. Without this branch the check
+            # below would fire and tell the user that the distance function was
+            # above its tolerance, which is the opposite of what happened.
+            # `components_txt` names the components and their rates, so this
+            # says only why the run continued.
+            paste0("The distance function returned ", signif(distance, 3),
+                   ", which is below the distance tolerance, and the ",
+                   "consumers and the resource have settled: they change at ",
+                   "only ",
+                   signif(residual, 2), " per year. The run continued because ",
+                   "a component of the model had not settled, and ran out of ",
+                   "time. Raise `t_max`, or set `residual_tol = Inf` to stop ",
+                   "on the distance criterion alone.")
+        } else if (!distance_met && identical(attractor, "fixed_point")) {
             # The opposite case, and the one that reads as a contradiction
             # until it is spelled out: the distance function is still
             # unsatisfied while the state it is unsatisfied about has stopped
@@ -787,7 +839,8 @@ project_until_settled <- function(params,
             paste0("Value returned by the distance function was: ", distance)
         }
         signal_info("convergence", paste0(
-            "Simulation run did not converge after ", years, " years. ", why),
+            "Simulation run did not converge after ", years, " years. ", why,
+            components_txt),
             unhandled = "show")
     }
 

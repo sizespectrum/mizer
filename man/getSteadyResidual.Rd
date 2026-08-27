@@ -41,7 +41,9 @@ further attributes:
 over \code{w_full}.}
 \item{\code{other}}{A named list with one entry per other component, holding
 its per-capita rate of change, or \code{NA} for a component whose state is
-not numeric.}
+not numeric. These are reported but not folded into the biomass drift
+that \code{\link[=isSteady]{isSteady()}} judges a model by: mizer does not know what a
+component's state is measured in, so it cannot form a biomass for it.}
 }
 }
 \description{

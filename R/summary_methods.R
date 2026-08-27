@@ -966,16 +966,36 @@ summary.MizerParams <- function(object, ...) {
     # Whether the model is at its steady state is not visible from any of the
     # parameters above, and getting it wrong is the most common way a
     # calibration goes quietly wrong, so it is reported here.
-    residual <- tryCatch(steady_biomass_drift(params),
-                         error = function(e) NA_real_)
+    report <- tryCatch(steady_drift_report(params), error = function(e) NULL)
+    residual <- if (is.null(report)) NA_real_ else report$drift
+    header_shown <- FALSE
     if (is.finite(residual)) {
         cat("Steady state:\n")
+        header_shown <- TRUE
         cat("\tbiomass drift:\t", signif(residual, 2), " /year\t",
             if (residual <= steady_residual_tol()) {
                 "(at steady state)"
             } else {
-                "(not at steady state - run tuneSteadyState())"
+                paste0("(not at steady state, largest in ",
+                       steady_variable_txt(report, quote = FALSE),
+                       " - run tuneSteadyState())")
             }, "\n", sep = "")
+    }
+    # The components are not in the drift above, so a model with a drifting
+    # component reads as steady on that line alone. Listing them here is what
+    # stops this block being misleading for exactly the models that need it.
+    if (!is.null(report) && length(report$other) > 0) {
+        if (!header_shown) cat("Steady state:\n")
+        for (component in names(report$other)) {
+            drift <- report$other[[component]]
+            cat("\t", component, " drift:\t",
+                if (is.finite(drift)) {
+                    paste0(signif(drift, 2), " /year")
+                } else {
+                    "not measurable"
+                },
+                "\t(not included in the biomass drift)\n", sep = "")
+        }
     }
     cat("Species details:\n")
     sel_params <- intersect(c("species", "w_inf", "w_mat", "w_min", "f0", "fc",

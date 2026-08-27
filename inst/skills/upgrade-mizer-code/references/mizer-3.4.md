@@ -3,8 +3,10 @@
 Four things change for everyone: what `getSteadyResidual()` measures, which
 sizes `summary()` of an array covers, which size classes `distanceSSLogN()`
 counts, and the fact that mizer now says when it invents a weight-length
-relationship. Everything that decides whether a state is a fixed point is
-untouched. A fifth change concerns anyone who assigns a species parameter table:
+relationship. For a model without components registered by `setComponent()`,
+everything that decides whether a state is a fixed point is untouched; for a
+model with one, the criterion no longer includes it. 
+A fifth change concerns anyone who assigns a species parameter table:
 a column missing from the table you assign is now withdrawn from the model.
 Four further sections concern extensions: repeated extension registration now
 rebuilds the dynamic marker classes that reloading an extension package removed,
@@ -24,8 +26,8 @@ contribution of each size class to the relative rate of change of its species'
 rowSums(getSteadyResidual(params))    # (dB_i/dt) / B_i, one per species
 ```
 
-The largest of those numbers, together with the resource and any other
-components, is exactly what `isSteady()`, the `summary()` line of a
+The largest of those numbers, together with the resource, is exactly what
+`isSteady()`, the `summary()` line of a
 `MizerParams` object and `project(check_steady = TRUE)` judge a model by. The
 array therefore now says *where* a model is unsteady in the same currency that
 mizer uses to decide *whether* it is, and `max(abs(...))` of it is no longer a
@@ -64,7 +66,8 @@ the `NA`s are exactly where they were.
 The `resource` attribute of the result follows the same measure, so it too sums
 to the resource's relative rate of biomass change. The `other` attribute is
 unchanged: components with their own dynamics have no size grid to weight over,
-so their rates stay relative ones.
+so their rates stay relative ones. What did change is that those rates are no
+longer part of the verdict — see the next section.
 
 <!-- agent-only -->
 If a user reports that a model "became less steady" or "more steady" after
@@ -73,6 +76,95 @@ upgrading, check which number they are reading. The verdict — `isSteady()`,
 biomass-weighted in 3.3 and is unchanged. Only the diagnostic array moved. A
 drop of one to three orders of magnitude in `max(abs(getSteadyResidual(params)))`
 is the expected sign of the new default, not a change in the model.
+<!-- /agent-only -->
+
+### Other components are no longer part of the steady-state criterion
+
+This section is only about models that register a component with
+`setComponent()` and give it a `dynamics_fun` — an extra resource spectrum, a
+detritus or carrion pool, a nutrient budget. Extensions that do this include
+mizerMR, mizerReef and mizerShelf. Nothing below affects a model without one.
+
+`isSteady()`, the `summary()` drift line, `project(check_steady = TRUE)`, the
+`residual` and `attractor` entries of the `"convergence"` attribute, and the
+guards in `getStability()` all used to fold in a component's rate of change
+alongside the consumer and resource biomass drifts. They no longer do. They now
+measure the consumers and the resource, and report the components separately.
+
+**A model can therefore now be `isSteady()` while a component of it is
+drifting.** If you have been reading `isSteady()` or `residual` as a statement
+about the whole model, it never quite was one, and now it is explicitly not.
+What to read instead:
+
+```r
+attr(getSteadyResidual(params), "other")   # per-component rates of change
+summary(params)                            # lists them on their own lines
+```
+
+Two reasons for the change. First, a component's state is any R object at all,
+so mizer knows neither what currency its entries are in nor which of its
+dimensions, if any, is size. It could not form a biomass for it, and so had to
+fall back on the largest per-cell relative rate — the reduction that is
+dominated by the fastest-relaxing cells, which are the ones holding nothing. The
+number that went into the criterion was in the wrong currency and usually far
+too large.
+
+Second, `tuneSteadyState()`, `findSteadyState(solver = "newton")` and the
+stability analyses all hold the components fixed while they work. A criterion
+that included them was one those functions could not satisfy: a model whose
+consumers had settled to 1e-11 could report a drift of 6/year, `attractor` of
+`NA`, and no way to improve either. That is what happened in issue #589.
+
+The reports say which state variable is responsible now, rather than leaving the
+number anonymous:
+
+```
+#> before: This model is not at its steady state: a biomass is changing at up to
+#>         6.2 per year. [...] check `getSteadyResidual(params)` to see which
+#>         species are moving.
+#> now:    The consumers and the resource in this model are at their steady
+#>         state, but the model as a whole is not. The component `MR` (up to 6.2
+#>         per year) is also changing. Components are not included in the biomass
+#>         drift above, and mizer's steady-state machinery does not settle them
+```
+
+A component whose state is not a numeric object cannot be differenced at all,
+so mizer has no rate of change for it. That is reported as a separate thing from
+a component that is moving — it is a statement about what could not be measured,
+not evidence that the model is drifting — and it never makes `isSteady()`
+`FALSE`.
+
+To settle the components as well, project the model rather than tuning it:
+
+```r
+params <- findSteadyState(params, solver = "project")
+# or, keeping the trajectory:
+sim <- projectUntilSettled(params)
+params <- finalParams(sim)
+```
+
+Both advance the components like every other state variable, and their stopping
+rule still waits for them — there the components are live rather than held
+fixed, so a run that stopped while one was moving would be stopping short of
+something it could settle. `tuneSteadyState()` and
+`findSteadyState(solver = "newton")` freeze them and cannot.
+
+Whether a component should be able to re-enter the criterion, by declaring its
+own reduction to a drift in 1/year, is issue #589.
+
+<!-- agent-only -->
+Recognise this one from the pairing: a user reports `isSteady()` disagreeing
+with a residual they remember, or `attractor` of `NA` on a model whose species
+residuals are at machine precision, and the model loads an extension that
+registers a component (mizerMR, mizerReef, mizerShelf). In 3.3 the symptom was
+the false `FALSE`; in 3.4 it is the reverse, a `TRUE` on a model with a moving
+component. Both times the answer is the same: read
+`attr(getSteadyResidual(params), "other")`, and settle the components with
+`projectUntilSettled()` rather than `tuneSteadyState()`, which freezes them.
+
+Do not tell the user to judge convergence from species-only residuals computed
+by hand. That is the workaround that hid a 2-3/year resource drift in the report
+behind #589. Mizer's own reports name the moving component; use those.
 <!-- /agent-only -->
 
 ### `summary()` of an array covers the same sizes as `plot()`
