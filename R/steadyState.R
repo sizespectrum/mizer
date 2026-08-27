@@ -563,7 +563,14 @@ rebalance_resource <- function(params, resource_dynamics) {
     # the restored dynamics. `setResource()` can only do it where a
     # `balance_<dynamics>()` function exists, and otherwise says nothing, so a
     # custom resource would silently come back off its own fixed point.
-    if (!is.function(get0(paste0("balance_", resource_dynamics)))) {
+    #
+    # `resource_constant()` is the exception that needs no balancing: it hands
+    # back the abundance it was given, so the preserved abundance is a steady
+    # state of it whatever the capacity is. Warning there would fire on every
+    # model that switches the built-in resource off, which includes every model
+    # of an extension that supplies its own resources.
+    if (resource_dynamics != "resource_constant" &&
+        !is.function(get0(paste0("balance_", resource_dynamics)))) {
         signal_info("cc_pp", paste0(
             "There is no `balance_", resource_dynamics, "()` function, so the ",
             "resource capacity could not be rebalanced and the preserved ",

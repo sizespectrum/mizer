@@ -477,3 +477,16 @@ test_that("tuneSteadyState() says when the resource could not be rebalanced", {
         "could not be rebalanced"
     )
 })
+
+test_that("tuneSteadyState() does not complain about a constant resource", {
+    # `resource_constant()` hands back the abundance it was given, so the
+    # preserved abundance is steady whatever the capacity is and there is
+    # nothing to rebalance and nothing to report.
+    p <- NS_params_small
+    p@resource_dynamics <- "resource_constant"
+    expect_no_warning(
+        suppressMessages(tuneSteadyState(p, t_check = 1, t_max = 1, dt = 1,
+                                         distance_tol = 10,
+                                         progress_bar = FALSE))
+    )
+})

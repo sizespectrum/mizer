@@ -50,6 +50,16 @@
   and something else has not; it now names the species or the resource, and
   names any component that is drifting alongside it (#589).
 
+- `tuneSteadyState()` no longer reports that it could not rebalance the resource
+  capacity when the resource dynamics is `resource_constant()`. A constant
+  resource hands back the abundance it was given, so the abundance the search
+  preserved is a steady state of it whatever the capacity is, and there is
+  nothing to rebalance. The report was aimed at a custom resource dynamics with
+  no `balance_<dynamics>()` function, where the resource really can come back
+  off its own fixed point; it kept firing on every model that switches the
+  built-in resource off, which includes every model of an extension package that
+  supplies its own resources.
+
 ## Extensions
 
 - New accessors `other_mort()` and `other_encounter()`, with their replacement
