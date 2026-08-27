@@ -100,6 +100,103 @@ test_that("We can set and get other params", {
     expect_null(other_params(params)$test)
 })
 
+# other_mort and other_encounter ----
+test_that("We can set and get free-standing rate contributions", {
+    expect_length(other_mort(params), 0)
+    expect_length(other_encounter(params), 0)
+
+    other_mort(params) <- list(starvation = "test_dyn")
+    expect_identical(other_mort(params), list(starvation = "test_dyn"))
+    expect_identical(params@other_mort, list(starvation = "test_dyn"))
+    other_encounter(params) <- list(scavenging = "test_dyn")
+    expect_identical(other_encounter(params), list(scavenging = "test_dyn"))
+
+    # Assigning back what the getter returned changes nothing
+    p <- params
+    other_mort(p) <- other_mort(p)
+    expect_identical(p@other_mort, params@other_mort)
+
+    # Single entries can be added and removed
+    other_mort(params)[["senescence"]] <- "test_dyn"
+    expect_length(other_mort(params), 2)
+    other_mort(params)[["senescence"]] <- NULL
+    expect_identical(other_mort(params), list(starvation = "test_dyn"))
+
+    # NULL clears them all
+    other_mort(params) <- NULL
+    expect_length(other_mort(params), 0)
+})
+
+test_that("Contributions belonging to a component are hidden and preserved", {
+    p <- setComponent(params, "test", 1,
+                      dynamics_fun = "test_dyn",
+                      encounter_fun = "test_dyn",
+                      mort_fun = "test_dyn")
+    # The component's entries are not listed by the accessors ...
+    expect_length(other_mort(p), 0)
+    expect_length(other_encounter(p), 0)
+    # ... but are reported by their owner
+    expect_identical(getComponent(p, "test")$mort_fun, "test_dyn")
+
+    other_mort(p) <- list(starvation = "test_dyn")
+    expect_identical(other_mort(p), list(starvation = "test_dyn"))
+    # The component's entry survived the assignment
+    expect_identical(getComponent(p, "test")$mort_fun, "test_dyn")
+    expect_setequal(names(p@other_mort), c("test", "starvation"))
+
+    # Clearing the free-standing entries leaves the component's alone
+    other_mort(p) <- NULL
+    expect_identical(p@other_mort, list(test = "test_dyn"))
+    expect_identical(getComponent(p, "test")$mort_fun, "test_dyn")
+})
+
+test_that("Rate contribution accessors validate their input", {
+    p <- setComponent(params, "test", 1, dynamics_fun = "test_dyn",
+                      mort_fun = "test_dyn")
+    expect_error(other_mort(p) <- list(test = "test_dyn"),
+                 "`test` is a component")
+    expect_error(other_encounter(p) <- list(test = "test_dyn"),
+                 "`test` is a component")
+    expect_error(other_mort(params) <- 5,
+                 "should be a named list")
+    expect_error(other_mort(params) <- list("test_dyn"),
+                 "need to be named")
+    expect_error(other_mort(params) <- list(starvation = "no_such_function"),
+                 "needs to be the name of a function")
+    expect_error(other_encounter(params) <- list(scavenging = 5),
+                 "needs to be the name of a function")
+})
+
+test_that("Free-standing contributions are added to the rates", {
+    e <- getEncounter(params)
+    m <- getMort(params)
+    p <- params
+    other_mort(p) <- list(starvation = "test_dyn")
+    expect_equal(getMort(p), m + 111, ignore_attr = TRUE)
+    expect_equal(getEncounter(p), e, ignore_attr = TRUE)
+    p <- params
+    other_encounter(p) <- list(scavenging = "test_dyn")
+    expect_equal(getEncounter(p), e + 111, ignore_attr = TRUE)
+})
+
+test_that("A model with only free-standing contributions can be projected", {
+    p <- params
+    other_mort(p) <- list(starvation = "test_dyn")
+    expect_length(p@other_dynamics, 0)
+    sim <- project(p, t_max = 0.2, t_save = 0.1)
+    expect_identical(dim(sim@n_other)[[2]], 0L)
+})
+
+test_that("setComponent refuses a name already used by a rate contribution", {
+    p <- params
+    other_mort(p) <- list(starvation = "test_dyn")
+    expect_error(setComponent(p, "starvation", 1, dynamics_fun = "test_dyn"),
+                 "already a rate contribution registered under the name")
+    # Other names are fine, and an existing component can still be re-set
+    p2 <- setComponent(p, "detritus", 1, dynamics_fun = "test_dyn")
+    expect_no_error(setComponent(p2, "detritus", 2, dynamics_fun = "test_dyn"))
+})
+
 # components ----
 test_that("We can set, get and remove components", {
     expect_error(setComponent(params, "test", 1),
@@ -249,6 +346,18 @@ test_that("setRateFunction updates `time_modified`", {
 test_that("other_params<- updates `time_modified`", {
     p <- params
     other_params(p) <- list(test = 1)
+    expect_false(identical(p@time_modified, params@time_modified))
+})
+
+test_that("other_mort<- updates `time_modified`", {
+    p <- params
+    other_mort(p) <- list(starvation = "test_dyn")
+    expect_false(identical(p@time_modified, params@time_modified))
+})
+
+test_that("other_encounter<- updates `time_modified`", {
+    p <- params
+    other_encounter(p) <- list(scavenging = "test_dyn")
     expect_false(identical(p@time_modified, params@time_modified))
 })
 

@@ -4,11 +4,12 @@ Three things change for everyone: what `getSteadyResidual()` measures, which
 sizes `summary()` of an array covers, and which size classes `distanceSSLogN()`
 counts. Everything that decides whether a state is a fixed point is untouched.
 A fourth change concerns anyone who assigns a species parameter table: a column
-missing from the table you assign is now withdrawn from the model. The two
-remaining sections record fixes rather than changes, and both matter mainly to
-extension packages: repeated extension registration now rebuilds the dynamic
-marker classes that reloading an extension package removed, and the defaults for
-`gamma` and `f0` are no longer measured through the extension chain.
+missing from the table you assign is now withdrawn from the model. Three further
+sections concern extensions: repeated extension registration now rebuilds the
+dynamic marker classes that reloading an extension package removed, the
+defaults for `gamma` and `f0` are no longer measured through the extension
+chain, and the extra contributions to the mortality and encounter rates have
+gained accessors of their own.
 
 ### `getSteadyResidual()` measures biomass drift by default
 
@@ -287,3 +288,41 @@ volume, which is what a dynamic modulation such as a temperature scalar is
 meant to modulate. Models that carried a `gamma` inflated (or deflated) by the
 extension's factor will get different numbers from this release, and those
 numbers are the right ones.
+
+### `other_mort()` and `other_encounter()` register contributions that have no component
+
+`getMort()` and `getEncounter()` add the result of every function listed in
+`params@other_mort` and `params@other_encounter`. Until now the only exported
+way to write into those lists was `setComponent()`, which needs a
+`dynamics_fun` and an `initial_value`, so an extension adding a term that
+depends on the model state but keeps no state of its own — a starvation or
+senescence mortality — had to assign into the slot directly. That still works,
+but the supported way is now
+
+```r
+other_mort(params)[["starvation"]] <- "starvMort"
+other_encounter(params)[["scavenging"]] <- "scavengingEncounter"
+```
+
+which checks that the name really is a function and that it does not collide
+with a component's. Assigning `NULL` to an entry removes it.
+
+Like `other_params()`, the new accessors show only what does not belong to a
+component. An entry created by `setComponent(mort_fun = )` stays the property of
+its component: `getComponent()` reports it, `removeComponent()` removes it, and
+`other_mort()` does not list it — so assigning a whole list through the
+accessor can no longer wipe it out.
+
+One case that used to pass now stops. `setComponent()` refuses a component name
+that a free-standing contribution is already registered under:
+
+```
+#> Error: There is already a rate contribution registered under the name
+#> 'starvation'. Remove it with `other_mort()` or `other_encounter()` first, or
+#> choose a different component name.
+```
+
+Previously the component silently took the entry over, which left it live but
+invisible to the accessors. This can only affect code that both writes into
+`@other_mort` (or `@other_encounter`) by hand and then creates a component of
+the same name.

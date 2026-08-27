@@ -22,6 +22,7 @@ heavier one only when the lighter one cannot do the job. All setters return a ne
 | Goal | Use |
 |---|---|
 | Add a fixed external food or mortality source (no new state variable) | `ext_encounter()` / `ext_mort()` |
+| Add an extra encounter or mortality that depends on the model state but has no state of its own | `other_encounter()` / `other_mort()` |
 | Change how one built-in rate is calculated | `setRateFunction()` |
 | Add a new dynamical pool (detritus, carrion, oxygen, second resource…) | `setComponent()` |
 | Store parameters for your custom code | `other_params()` (model-wide) or `component_params` (one component) |
@@ -219,6 +220,23 @@ params <- setComponent(
 Access components with `getComponent()`, remove them with `removeComponent()`.
 Component state is available to all custom functions as `n_other[["detritus"]]`,
 and its parameters via `component_params`.
+
+If there is nothing for `dynamics_fun` to update — a starvation or senescence
+mortality reads the state but keeps none of its own — do not invent a component
+for it. Register the function on its own instead:
+
+```r
+other_mort(params)[["starvation"]] <- "starvMort"
+other_encounter(params)[["scavenging"]] <- "scavengingEncounter"
+```
+
+`getMort()` and `getEncounter()` add the result of every function registered
+this way, exactly as they do for a component's `mort_fun` and `encounter_fun`.
+The two registries do not overlap: an entry that belongs to a component is
+owned by `setComponent()`, reported by `getComponent()` and removed by
+`removeComponent()`, and `other_mort()` deliberately does not list it — the
+same split `other_params()` makes for component parameters. Assigning `NULL`
+removes a free-standing entry.
 
 The functions named in that call take the component's name as a `component`
 argument, so one implementation can serve several components, and reach their
