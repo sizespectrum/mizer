@@ -37,14 +37,15 @@ sizes `summary()` of an array covers, which size classes [`distanceSSLogN()`](..
 counts, and the fact that mizer now says when it invents a weight-length
 relationship. For a model without components registered by [`setComponent()`](../reference/setComponent.html),
 everything that decides whether a state is a fixed point is untouched; for a
-model with one, the criterion no longer includes it. A fifth change concerns
-anyone who assigns a species parameter table: a column missing from the table
-you assign is now withdrawn from the model.
-Three further sections concern extensions: repeated extension registration now
+model with one, the criterion no longer includes it. 
+A fifth change concerns anyone who assigns a species parameter table:
+a column missing from the table you assign is now withdrawn from the model.
+Four further sections concern extensions: repeated extension registration now
 rebuilds the dynamic marker classes that reloading an extension package removed,
-the defaults for `gamma` and `f0` are no longer measured through the extension
-chain, and the extra contributions to the mortality and encounter rates have
-gained accessors of their own.
+those marker classes now survive a cleared workspace, the defaults for `gamma`
+and `f0` are no longer measured through the extension chain, and the extra
+contributions to the mortality and encounter rates have gained accessors of
+their own.
 
 ### `getSteadyResidual()` measures biomass drift by default
 
@@ -338,6 +339,38 @@ loads only the namespaces of the extensions you pass it, as before, and the
 repeated `registerExtension()` call touches no namespaces at all — an
 extension registered earlier in the session but no longer installed cannot
 make a package's `.onLoad()` fail.
+
+### Extension marker classes survive a cleared workspace
+
+The dynamic S4 marker classes that mizer creates for a dispatching extension
+used to be defined in `.GlobalEnv`. Anything that empties the global
+environment therefore destroyed them: your own `rm(list = ls())`, and the
+`cleanEx()` that `R CMD check` runs before every example. R's class cache went
+on reporting the class as present, so mizer's repair did not fire and there was
+no way back short of restarting R, not even [`clearExtensionChain()`](../reference/clearExtensionChain.html) followed by
+`registerExtensions()`. The next mizer call that had to resolve the class
+failed with base R's error that the class is not defined. For an extension
+package with examples that touch a params object, that meant a failing
+`R CMD check`.
+
+The marker classes now live in an environment that mizer attaches to the search
+path, `mizer:extension-classes`, which clearing the workspace does not reach.
+It is attached the first time a dispatching extension needs a marker class, so
+it turns up in `search()` only in a session that uses such an extension, and it
+holds nothing but class metadata. There is nothing to change in your own code.
+If you have been working around the old behaviour by defining the marker
+classes by hand, as in
+
+```{r eval=FALSE}
+setClass("mizerShelf", contains = "MizerParams", where = globalenv())
+```
+
+you can drop that.
+
+The integrity check no longer trusts `methods::isClass()`, which keeps
+reporting a class whose definition `rm()` has deleted. It now looks at the
+class metadata binding itself, so a marker class lost that way is detected and
+rebuilt by the next `registerExtension()` or `registerExtensions()` call.
 
 ### A column dropped from an assigned species parameter table is removed
 

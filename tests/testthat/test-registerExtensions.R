@@ -263,6 +263,92 @@ test_that("marker class repair leaves an intact chain untouched", {
     expect_true(extensionClassesIntact(getRegisteredExtensions()))
 })
 
+test_that("dynamic marker class metadata is out of reach of cleanEx()", {
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
+
+    ext_a <- paste0("mizerTestCleanExA", Sys.getpid())
+    chain <- setNames(NA_character_, ext_a)
+    registerExtensions(chain)
+
+    classes <- c(ext_a, simExtensionClass(ext_a))
+    metadata_names <- vapply(classes, methods::classMetaName, character(1))
+    class_environment <- extensionClassEnvironment(create = FALSE)
+    expect_true(all(vapply(metadata_names, exists, logical(1),
+                           envir = class_environment, inherits = FALSE)))
+
+    # What cleanEx() destroys is `.GlobalEnv`, so nothing may be left there.
+    # This test cannot perform the wipe itself, because testthat shares
+    # `.GlobalEnv` with every other test file.
+    expect_false(any(vapply(metadata_names, exists, logical(1),
+                            envir = .GlobalEnv, inherits = FALSE)))
+
+    # The environment has to be on the search path, not merely held by mizer.
+    # A params object saved before mizer created marker classes dynamically
+    # carries a class attribute whose package slot names the extension package,
+    # and methods then resolves the class with an inheriting lookup that starts
+    # in that package's namespace. Such a lookup passes through `.GlobalEnv`
+    # and the search path but never through mizer's own namespace, so only the
+    # search path serves every case.
+    expect_true(.extensionClassEnvName %in% search())
+    expect_true(all(vapply(metadata_names, exists, logical(1),
+                           envir = asNamespace("stats"), inherits = TRUE)))
+
+    params <- NS_params_small
+    params@extensions <- chain
+    expect_s4_class(coerceToExtensionClass(params), ext_a)
+    expect_true(extensionClassesIntact(chain))
+})
+
+test_that("a marker class resolves through a stale package slot", {
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
+
+    ext_a <- paste0("mizerTestPkgSlotA", Sys.getpid())
+    chain <- setNames(NA_character_, ext_a)
+    registerExtensions(chain)
+
+    params <- NS_params_small
+    params@extensions <- chain
+    params <- coerceToExtensionClass(params)
+
+    # Rewrite the class attribute the way a params object saved by an older
+    # extension package carries it: the package slot names the package that
+    # used to define the marker class statically, not `.GlobalEnv`. methods
+    # then resolves the class by an inheriting lookup from that package's
+    # namespace, which reaches `.GlobalEnv` and the search path but never
+    # mizer's own namespace. Any slot assignment goes through that lookup, and
+    # it is where #587 failed.
+    stale_class <- class(params)
+    attr(stale_class, "package") <- "stats"
+    class(params) <- stale_class
+
+    expect_no_error(params@extensions <- chain)
+})
+
+test_that("marker class repair detects a missing metadata binding", {
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
+
+    ext_a <- paste0("mizerTestBindingA", Sys.getpid())
+    chain <- setNames(NA_character_, ext_a)
+    registerExtensions(chain)
+
+    class_environment <- extensionClassEnvironment(create = FALSE)
+    metadata_name <- methods::classMetaName(ext_a)
+    rm(list = metadata_name, envir = class_environment)
+
+    # rm() leaves methods' class cache behind, reproducing the state that made
+    # isClass() an insufficient integrity check in #587.
+    expect_true(methods::isClass(ext_a))
+    expect_false(markerClassPresent(ext_a))
+    expect_false(extensionClassesIntact(chain))
+
+    expect_true(repairExtensionClasses(chain))
+    expect_true(markerClassPresent(ext_a))
+    expect_true(extensionClassesIntact(chain))
+})
+
 test_that("marker class repair covers extensions with version requirements", {
     clearExtensionChain()
     withr::defer(clearExtensionChain())

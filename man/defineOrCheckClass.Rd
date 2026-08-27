@@ -16,7 +16,8 @@ Invisibly, \code{class}.
 }
 \description{
 If \code{class} does not yet exist, defines it as a virtual-free S4 class that
-contains \code{parent}, registered in \code{.GlobalEnv}. If \code{class} already exists,
-stops with an error unless it already extends \code{parent}.
+contains \code{parent}, registered in mizer's persistent class environment. If
+\code{class} already exists, stops with an error unless it already extends
+\code{parent}.
 }
 \keyword{internal}
