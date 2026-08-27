@@ -70,6 +70,16 @@ test_that("emptyParams validates min_w_pp against min_w", {
 })
 
 # validMizerParams ----
+test_that("emptyParams reports a misspelled column only once", {
+    # It validates the same table twice, so without a collecting handler the
+    # report is made twice. That repetition is what #581 was about.
+    sp <- data.frame(species = c("A", "B"), w_max = c(100, 1000),
+                     w_inf = c(80, 800), wmat = 1)
+    warnings <- capture_warnings(suppressMessages(emptyParams(sp, no_w = 20)))
+    expect_length(warnings, 1)
+    expect_match(warnings, "did you mean `w_mat`", fixed = TRUE)
+})
+
 test_that("Slots are allowed to have comments", {
     params <- NS_params_small
     comment(params) <- "All slots are given comments"

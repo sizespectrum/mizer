@@ -51,6 +51,24 @@
 
 ## Bug fixes
 
+- Invalid `w_mat25` values are now reported as missing values for which the
+  default will be used, matching the value ultimately stored in the model
+  (#580). Where the model also carries `l_mat25`, that is cleared with it.
+  Previously the rejected value was put straight back by the length-to-weight
+  conversion, landing within rounding error of `w_mat`, which passed the
+  `w_mat25 < w_mat` check and turned the maturity ogive into a step function.
+
+- Assigning a likely misspelling of a species parameter now produces one
+  warning when the column is introduced. The warning is no longer repeated
+  during the internal rebuild or by later changes to unrelated parameters
+  (#581). `newMultispeciesParams()`, `emptyParams()` and `addSpecies()` each
+  report such a column once rather than once per validation pass.
+
+- The misspelling report now goes through the information-signal mechanism, so
+  it is collected with mizer's other reports and follows `info_level`. One
+  consequence is that `info_level = 0`, or `options(mizer_info_level = 0)`,
+  now silences it along with everything else mizer says.
+
 - The defaults for `gamma` and `f0` are no longer measured through the
   extension chain (#577). `get_gamma_default()` gives every species a search
   volume coefficient of 1 and measures the energy available to it in a power-law

@@ -29,7 +29,8 @@
 #'
 #' Some inconsistencies in the size parameters are resolved as follows:
 #' * Any `w_mat` that is not smaller than `w_inf` is set to `w_inf / 4`.
-#' * Any `w_mat25` that is not smaller than `w_mat` is set to NA.
+#' * Any `w_mat25` that is not smaller than `w_mat` is marked as missing, as
+#'   is the corresponding `l_mat25`, so that the default is used instead.
 #' * Any `w_min` that is not smaller than `w_mat` is set to `0.001` or
 #'   `w_mat /10`, whichever is smaller.
 #' * Any `w_repro_max` that is not larger than `w_mat` is set to `4 * w_mat`.
@@ -40,7 +41,12 @@
 #' 
 #' The function tests for some typical misspellings of parameter names, like
 #' wrong capitalisation or missing underscores and issues a warning if it 
-#' detects such a name.
+#' detects such a name. Pass `check_misspellings = FALSE` to skip that test,
+#' as mizer does when it re-validates a table it has already checked, so that
+#' the report is made once, when the column is introduced.
+#'
+#' @param check_misspellings Whether to report column names that look like
+#'   misspellings of standard species parameter names. `TRUE` by default.
 #' 
 #' `validSpeciesParams()` first calls `validGivenSpeciesParams()` but then
 #' goes further by adding default values for species parameters that were not
@@ -85,16 +91,19 @@
 #' @seealso [species_params()], [validGearParams()], [validParams()], [validSim()]
 #' @concept helper
 #' @export
-validSpeciesParams <- function(species_params) {
-    species_params(species_params, strict = TRUE)
+validSpeciesParams <- function(species_params, check_misspellings = TRUE) {
+    species_params(species_params, strict = TRUE,
+                   check_misspellings = check_misspellings)
 }
 
 #' @rdname validSpeciesParams
 #' @return For `validGivenSpeciesParams()`: A valid species parameter data frame
 #'   without additional parameters.
 #' @export
-validGivenSpeciesParams <- function(species_params) {
-    given_species_params(species_params, strict = TRUE)
+validGivenSpeciesParams <- function(species_params,
+                                    check_misspellings = TRUE) {
+    given_species_params(species_params, strict = TRUE,
+                         check_misspellings = check_misspellings)
 }
 
 # Set weight-based parameter from length-based parameter

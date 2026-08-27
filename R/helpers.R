@@ -340,22 +340,28 @@ get_steady_state_n <- function(params, g, mu, D, N0,
 #' Warn about column names that look like mis-spelled parameter names
 #'
 #' Compares the actual column names of a parameter data frame against the set of
-#' recognised names and issues a single warning about any names that are a near
-#' match (a likely typo) but not an exact match. Names are not corrected, only
-#' flagged, so that legitimate custom columns are left untouched.
+#' recognised names and raises a single [signal_info()] report about any names
+#' that are a near match (a likely typo) but not an exact match. Names are not
+#' corrected, only flagged, so that legitimate custom columns are left
+#' untouched.
 #'
 #' @param actual Character vector of the column names present in the data frame.
 #' @param known Character vector of recognised parameter names.
-#' @param df_type A short description of the data frame used in the warning
-#'   message, e.g. `"gear parameter"` or `"species parameter"`.
+#' @param df_type A short description of the data frame used in the message,
+#'   e.g. `"gear parameter"` or `"species parameter"`.
+#' @param var A string naming the quantity the report is about, see
+#'   [signal_info()]. Given explicitly rather than derived from `df_type`, which
+#'   is prose and may be reworded: `var` is the key that handlers and
+#'   `with_info_level(except = )` match on.
 #' @param curated Character vector of known problematic names that should always
 #'   be flagged even when they are further than the fuzzy-match threshold from
 #'   any recognised name (e.g. familiar abbreviations).
 #'
-#' @return Called for its side effect (a warning). Returns `NULL` invisibly.
+#' @return Called for its side effect (an information signal). Returns `NULL`
+#'   invisibly.
 #' @concept helper
 #' @noRd
-check_for_misspellings <- function(actual, known, df_type,
+check_for_misspellings <- function(actual, known, df_type, var,
                                    curated = character(0)) {
     unknown <- setdiff(actual, known)
     if (length(unknown) == 0) {
@@ -381,12 +387,16 @@ check_for_misspellings <- function(actual, known, df_type,
         }
     }
     if (length(hits) > 0) {
-        suggestions <- ifelse(is.na(guess), paste0("`", hits, "`"),
-                              paste0("`", hits, "` (did you mean `", guess, "`?)"))
-        warning("Some column names in your ", df_type, " data ",
-                "frame are very close to standard parameter names: ",
-                paste(suggestions, collapse = ", "),
-                ". Please check for mis-spellings.")
+        suggestions <- ifelse(is.na(guess),
+                              paste0("`", hits, "`"),
+                              paste0("`", hits, "` (did you mean `", guess,
+                                     "`?)"))
+        signal_info(var,
+                    paste0("Some column names in your ", df_type, " data ",
+                           "frame are very close to standard parameter names: ",
+                           paste(suggestions, collapse = ", "),
+                           ". Please check for mis-spellings."),
+                    level = 1, severity = "warning", unhandled = "show")
     }
     invisible(NULL)
 }
