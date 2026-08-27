@@ -401,6 +401,7 @@ Previously the component silently took the entry over, which left it live but
 invisible to the accessors. This can only affect code that both writes into
 `@other_mort` (or `@other_encounter`) by hand and then creates a component of
 the same name.
+
 ### A misspelled species parameter column is reported once, and quietly
 
 Mizer flags a column name that looks like a typo of a standard species
