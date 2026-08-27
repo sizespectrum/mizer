@@ -79,6 +79,10 @@ function` — carry no such quote, so match those rows on the function name.
 | `gamma` or `f0` changes on a model with an encounter function registered by `setRateFunction()` | that function no longer enters the calculation of these two defaults | Defaults for `gamma` and `f0` ignore the extension chain |
 | `setComponent()` errors `"already a rate contribution registered under the name"` | the name is already taken by a free-standing `other_mort()` or `other_encounter()` entry, which the component used to take over silently | `other_mort()` and `other_encounter()` register contributions that have no component |
 | A component's `encounter_fun` without `...` errors about an unused `t` argument | encounter contributions now receive the current simulation time, matching mortality contributions | `other_mort()` and `other_encounter()` register contributions that have no component |
+| Warning `"very close to standard parameter names"` appears once where it used to appear many times, or a warning count in a test has changed | the misspelling check now runs once, where a column enters the model | A misspelled species parameter column is reported once, and quietly |
+| A misspelled species parameter column is no longer flagged at all | the report now follows `info_level`, and the model was built with `info_level = 0` | A misspelled species parameter column is reported once, and quietly |
+| Warning `"marking it as missing so that its default will"` be used, where the message used to say the value was set to `NA` | the message now names the value that is actually stored | An invalid `w_mat25` is replaced by its default |
+| Maturity, or a rate derived from it, has changed in a model whose species parameters carry `l_mat25` | a rejected `w_mat25` is no longer restored from its length, so the default is used | An invalid `w_mat25` is replaced by its default |
 
 ### mizer 3.2 → 3.3 — `references/mizer-3.3.md`
 

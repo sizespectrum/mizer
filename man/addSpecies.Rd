@@ -11,7 +11,7 @@ addSpecies(
   initial_effort,
   interaction,
   steady = TRUE,
-  info_level = 3,
+  info_level = default_info_level(),
   ...
 )
 }

@@ -548,6 +548,11 @@ emptyParams <- function(species_params,
                 is.data.frame(gear_params),
                 no_w > 10)
 
+    # Collect the information signals raised while the object is built and
+    # report them together at the end. Without this the two validation calls
+    # below each report a misspelled column separately.
+    with_info_level({
+
     ## Set defaults ----
     if (is.na(min_w_pp)) min_w_pp <- 1e-12
     species_params <- set_species_param_default(species_params, "w_min", min_w)
@@ -780,6 +785,7 @@ emptyParams <- function(species_params,
         use_predation_diffusion = FALSE,
         second_order_w = list(flux = "upwind", bin_average = FALSE)
     )
+    })
 
     return(params)
 }
@@ -1088,9 +1094,14 @@ validation_key <- function(params) {
 #' @return The repaired MizerParams object.
 #' @keywords internal
 repair_params <- function(params) {
+    # No misspelling check on either table: they are already part of a model,
+    # so their columns were checked when the user supplied them. Checking here
+    # would repeat the report on every validation of the object.
     params@given_species_params <-
-        validGivenSpeciesParams(params@given_species_params)
-    params@species_params <- validSpeciesParams(params@species_params)
+        validGivenSpeciesParams(params@given_species_params,
+                                check_misspellings = FALSE)
+    params@species_params <-
+        validSpeciesParams(params@species_params, check_misspellings = FALSE)
     if (!inherits(params@gear_params, "gear_params")) {
         class(params@gear_params) <- c("gear_params", class(params@gear_params))
     }

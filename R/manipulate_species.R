@@ -73,7 +73,8 @@
 #' @rdname addSpecies
 addSpecies <- function(params, species_params,
                        gear_params = data.frame(), initial_effort,
-                       interaction, steady = TRUE, info_level = 3, ...) {
+                       interaction, steady = TRUE,
+                       info_level = default_info_level(), ...) {
     UseMethod("addSpecies")
 }
 
@@ -122,7 +123,12 @@ copyParamsComments <- function(params, old_params) {
 #' @export
 addSpecies.MizerParams <- function(params, species_params, gear_params = data.frame(),
                                    initial_effort = NULL, interaction = NULL,
-                                   steady = TRUE, info_level = 3, ...) {
+                                   steady = TRUE,
+                                   info_level = default_info_level(), ...) {
+    # Collect the information signals raised while the species are added and
+    # report them together at the end. Without this the two validation calls
+    # below each report a misspelled column separately.
+    with_info_level(info_level = info_level, {
     # check validity of parameters ----
     original_params <- params
     params <- validParams(params)
@@ -356,6 +362,7 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     }
 
     p <- restoreParamsClass(p, target_class)
+    })
 
     return(p)
 }

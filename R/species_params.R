@@ -171,6 +171,13 @@
 #' @param object A MizerParams object, a MizerSim object or a data frame
 #' @param params A MizerParams object.
 #' @param value A data frame with the new species parameters.
+#' @param strict Whether to raise an error, rather than correct silently, for
+#'   the inconsistencies that can be corrected. Used internally.
+#' @param check_misspellings Whether to report column names that look like
+#'   misspellings of standard species parameter names. `TRUE` by default.
+#'   Mizer passes `FALSE` when it re-validates a table whose columns it has
+#'   already checked, so that the report is made once, when the column is
+#'   introduced, rather than again on every rebuild.
 #' @param recalculate Whether `species_params<-()` should be allowed to
 #'   re-derive calculated species parameters and rates that depend on a changed
 #'   parameter. Defaults to `TRUE`; mizer still skips the rebuild when all
@@ -317,9 +324,8 @@ species_params.MizerSim <- function(object, ...) {
 #' @rdname species_params
 #' @usage NULL
 #' @export
-species_params.data.frame <- function(
-    object, strict = FALSE,
-    check_misspellings = !is.species_params(object), ...) {
+species_params.data.frame <- function(object, strict = FALSE,
+                                      check_misspellings = TRUE, ...) {
     sp <- given_species_params(object, strict = strict,
                                check_misspellings = check_misspellings)
     if ("w_inf" %in% names(sp)) {
@@ -364,10 +370,14 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     # recorded as a given species parameter, freezing it against every later
     # recalculation.
     supplied_cols <- names(value)
-    new_cols <- setdiff(supplied_cols, names(object@species_params))
-    check_for_misspellings(new_cols, known_species_params_columns(),
-                           "species parameter",
-                           curated_species_params_misspellings())
+    # Report a likely misspelling only for a column the model does not have
+    # yet, so that it is reported when it is introduced and not again on every
+    # later edit of an unrelated parameter. Both tables are consulted, the same
+    # baseline `given_species_params<-()` uses, so that the two setters cannot
+    # disagree about which columns are new.
+    check_species_params_misspellings(
+        setdiff(supplied_cols, union(names(object@species_params),
+                                     names(object@given_species_params))))
     # Columns the model has and the assigned table does not. The user is no
     # longer supplying them, so they are dropped from the given species
     # parameters below: mizer then calculates afresh the ones it knows how to
@@ -379,8 +389,7 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
     # weight before anything converts the weight away again.
     value <- reconcile_length_weight(value, object@species_params)
     if (recalculate) {
-        value <- species_params(value, strict = TRUE,
-                                check_misspellings = FALSE)
+        value <- validSpeciesParams(value, check_misspellings = FALSE)
     } else {
         # Only the checks and conversions that writing into the
         # `@species_params` slot triggers anyway. In particular no default
@@ -458,7 +467,11 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
 # parameter it has been recorded among the given species parameters and so is
 # already part of the rebuilt table.
 rebuild_from_given <- function(object, keep) {
-    new_sp <- validSpeciesParams(object@given_species_params)
+    # No misspelling check: these columns came from the user through one of the
+    # setters, which checked them as they arrived. Checking again here would
+    # repeat the report on every rebuild, which is what #581 was.
+    new_sp <- validSpeciesParams(object@given_species_params,
+                                 check_misspellings = FALSE)
     extra_cols <- setdiff(names(keep),
                           c(names(new_sp), setter_owned_species_params()))
     for (col in extra_cols) {
@@ -806,6 +819,15 @@ curated_species_params_misspellings <- function() {
     c("wmin", "wmax", "wmat", "wmat25", "w_mat_25", "Rmax",
       "Species", "Gamma", "Beta", "Sigma", "Alpha",
       "W_min", "W_max", "W_mat", "e_repro", "Age_mat", "w_max_mat")
+}
+
+# The misspelling check for species parameter columns. The three constants it
+# needs are always the same, and the `var` is what handlers key on, so it is
+# named in exactly one place rather than repeated at every call site.
+check_species_params_misspellings <- function(cols) {
+    check_for_misspellings(cols, known_species_params_columns(),
+                           "species parameter", "species_params",
+                           curated_species_params_misspellings())
 }
 
 # The size parameters that can be given either as a weight or as a length. The
@@ -1193,17 +1215,14 @@ given_species_params.MizerSim <- function(object, ...) {
 #' @rdname species_params
 #' @usage NULL
 #' @export
-given_species_params.data.frame <- function(
-    object, strict = FALSE,
-    check_misspellings = !is.species_params(object), ...) {
+given_species_params.data.frame <- function(object, strict = FALSE,
+                                            check_misspellings = TRUE, ...) {
     assert_that(is.data.frame(object))
     # Convert a tibble back to an ordinary data frame
     sp <- as.data.frame(object, stringsAsFactors = FALSE)
 
     if (check_misspellings) {
-        check_for_misspellings(names(sp), known_species_params_columns(),
-                               "species parameter",
-                               curated_species_params_misspellings())
+        check_species_params_misspellings(names(sp))
     }
 
     # check species
@@ -1286,6 +1305,16 @@ given_species_params.data.frame <- function(
                 signal_info("w_mat25", msg, level = 1, severity = "warning",
                             unhandled = "show")
                 sp$w_mat25[wrong] <- NA
+                # The length has to go with it. Otherwise
+                # `check_and_convert_species_params()` below fills the missing
+                # weight back in from `l_mat25` and the rejected value returns,
+                # leaving the message above untrue. What comes back is `w_mat`
+                # to within rounding error, small enough to pass the
+                # `w_mat25 < w_mat` assertion in `setReproduction()` and large
+                # enough to collapse the maturity ogive to a step function.
+                if ("l_mat25" %in% names(sp)) {
+                    sp$l_mat25[wrong] <- NA
+                }
             }
         }
 
@@ -1312,7 +1341,7 @@ given_species_params.data.frame <- function(
                 "For the species ",
                 paste(sp$species[wrong], collapse = ", "),
                 " the value for `w_repro_max` is smaller than that of `w_mat`.",
-                " I have corrected that by setting it to 4 times `w_mat."),
+                " I have corrected that by setting it to 4 times `w_mat`."),
                 level = 1, severity = "warning", unhandled = "show")
             sp$w_repro_max[wrong] <- 4 * sp$w_mat[wrong]
         }
@@ -1348,13 +1377,14 @@ is.given_species_params <- function(x) {
 #' @export
 `given_species_params<-.MizerParams` <- function(object, value) {
     params <- object
-    supplied_cols <- names(value)
-    old_cols <- union(names(params@species_params),
-                      names(params@given_species_params))
-    new_cols <- setdiff(supplied_cols, old_cols)
-    check_for_misspellings(new_cols, known_species_params_columns(),
-                           "species parameter",
-                           curated_species_params_misspellings())
+    # Worked out here, before the length/weight rules below rewrite `value`.
+    # Only the columns the model does not have yet, so that a likely
+    # misspelling is reported when it is introduced and not again on every
+    # later edit of an unrelated parameter. Reported further down, together
+    # with the other diagnostics this setter gives.
+    new_cols <- setdiff(names(value),
+                        union(names(params@species_params),
+                              names(params@given_species_params)))
     # The length/weight rules need `a` and `b`, which the given species
     # parameters need not contain, so the model's values stand in while they
     # are applied.
@@ -1370,8 +1400,7 @@ is.given_species_params <- function(x) {
     # rule that `species_params<-()` applies, here comparing the incoming given
     # species parameters against the model's.
     value <- reconcile_length_weight(value, params@given_species_params)
-    value <- given_species_params(value, strict = TRUE,
-                                  check_misspellings = FALSE)
+    value <- validGivenSpeciesParams(value, check_misspellings = FALSE)
     value <- restore_length_weight_params(value, supplied_ab)
     if (!all(value$species == params@species_params$species)) {
         stop("The species names in the new species parameter data frame do not match the species names in the model.")
@@ -1409,6 +1438,7 @@ is.given_species_params <- function(x) {
     # present in the table that `changed` is built from.
     changed_names <- union(names(changed), withdrawn)
     with_info_level({
+        check_species_params_misspellings(new_cols)
         signal_ignored_changes(old_given, specified)
         signal_gear_params_changes(changed_names)
         signal_frozen_changes(params, changed_names)

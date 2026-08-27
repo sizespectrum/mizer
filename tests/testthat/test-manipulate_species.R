@@ -42,6 +42,15 @@ test_that("addSpecies works when adding a second identical species", {
     pr <- removeSpecies(pa, "new")
 
 })
+test_that("addSpecies reports a misspelled column only once", {
+    # Same two-validations-one-report question as `emptyParams()`, see #581.
+    new_sp <- data.frame(species = "new", w_max = 1000, w_inf = 800, wmat = 1)
+    warnings <- capture_warnings(suppressMessages(
+        addSpecies(ns_manipulate_params, new_sp)))
+    expect_length(warnings, 1)
+    expect_match(warnings, "did you mean `w_mat`", fixed = TRUE)
+})
+
 test_that("addSpecies does not allow duplicate species", {
     p <- example_manipulate_params
     species_params <- p@species_params[3, ]

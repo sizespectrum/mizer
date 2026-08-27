@@ -1316,7 +1316,7 @@ test_that("Validation and conversions work", {
                        "the value for `w_mat` is not smaller than that of `w_inf`"))
 })
 
-test_that("species parameter corrections and typos are reported accurately", {
+test_that("an invalid w_mat25 really is replaced by its default (#580)", {
     params <- NS_params_small
     warnings <- capture_warnings({
         species_params(params)$w_mat25 <- species_params(params)$w_mat
@@ -1325,14 +1325,68 @@ test_that("species parameter corrections and typos are reported accurately", {
     expect_match(warnings,
                  "marking it as missing so that its default will be used",
                  fixed = TRUE)
+    # The message promises the default, so the stored value has to be it.
     expect_false(any(is.na(species_params(params)$w_mat25)))
+    expect_equal(species_params(params)$w_mat25,
+                 species_params(params)$w_mat / (3 ^ (1 / 10)),
+                 ignore_attr = TRUE)
+})
 
+test_that("an invalid w_mat25 is not restored from its length (#580)", {
+    # With `l_mat25` present, clearing `w_mat25` alone is not enough: the
+    # length/weight conversion fills the missing weight straight back in from
+    # the length, the rejected value returns to within rounding of `w_mat`, and
+    # the maturity ogive degenerates into a step function.
+    sp <- data.frame(species = c("A", "B"), w_max = c(100, 1000),
+                     w_mat = c(10, 100), a = 0.01, b = 3)
+    sp$l_mat25 <- (sp$w_mat / sp$a) ^ (1 / sp$b)
+    sp$w_mat25 <- sp$w_mat
+    valid <- suppressWarnings(given_species_params(sp))
+    expect_true(all(is.na(valid$w_mat25)))
+    expect_true(all(is.na(valid$l_mat25)))
+
+    params <- suppressMessages(suppressWarnings(
+        newMultispeciesParams(sp, no_w = 20)))
+    expect_equal(species_params(params)$w_mat25,
+                 species_params(params)$w_mat / (3 ^ (1 / 10)),
+                 ignore_attr = TRUE)
+    # A genuine sigmoid, not the two-valued step function that an almost-equal
+    # w_mat25 produces.
+    expect_gt(length(unique(as.vector(params@maturity))), 2)
+})
+
+test_that("a misspelled column is reported once, when it appears (#581)", {
     params <- NS_params_small
     warnings <- capture_warnings(species_params(params)$wmat <- 100)
     expect_length(warnings, 1)
     expect_match(warnings, "did you mean `w_mat`", fixed = TRUE)
 
+    # `params` still carries the `wmat` column from above; changing an
+    # unrelated parameter must not report it again. That repetition is the
+    # second half of #581.
     expect_no_warning(species_params(params)$b <- 3.1)
+
+    # The same for the other setter, which keeps its own baseline.
+    params <- NS_params_small
+    warnings <- capture_warnings(given_species_params(params)$wmat <- 100)
+    expect_length(warnings, 1)
+    expect_match(warnings, "did you mean `w_mat`", fixed = TRUE)
+    expect_no_warning(given_species_params(params)$b <- 3.1)
+})
+
+test_that("the misspelling check is not skipped for a classed table", {
+    # A table that has already been through `species_params()` keeps its class,
+    # and a typo added afterwards still has to be reported.
+    sp <- species_params(data.frame(species = c("A", "B"),
+                                    w_max = c(100, 1000)))
+    sp$wmat <- 1
+    expect_true(is.species_params(sp))
+    expect_warning(species_params(sp), "did you mean `w_mat`")
+    expect_warning(validSpeciesParams(sp), "did you mean `w_mat`")
+    expect_warning(suppressMessages(newMultispeciesParams(sp, no_w = 20)),
+                   "did you mean `w_mat`")
+    # ... and mizer can still ask for it to be skipped.
+    expect_no_warning(species_params(sp, check_misspellings = FALSE))
 })
 
 test_that("Print and Summary methods work", {

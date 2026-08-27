@@ -412,7 +412,8 @@ check_gear_params <- function(x) {
     }
     curated <- c("selfunc", "selectivity_function", "catch", "catchab",
                  "sigmoid_weight", "sigmoid_sigma", "knife_edge")
-    check_for_misspellings(names(x), known, "gear parameter", curated)
+    check_for_misspellings(names(x), known, "gear parameter",
+                           "gear_params", curated)
 
     # Auto-populate missing argument columns for selectivity functions
     if ("sel_func" %in% names(x)) {

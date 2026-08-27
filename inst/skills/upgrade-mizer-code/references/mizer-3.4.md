@@ -333,3 +333,42 @@ Previously the component silently took the entry over, which left it live but
 invisible to the accessors. This can only affect code that both writes into
 `@other_mort` (or `@other_encounter`) by hand and then creates a component of
 the same name.
+### A misspelled species parameter column is reported once, and quietly
+
+Mizer flags a column name that looks like a typo of a standard species
+parameter. It used to run that check inside every validation pass, so building
+a model reported the same column many times over — 31 warnings from one
+`newMultispeciesParams()` call — and every later edit of an unrelated parameter
+reported it again. The check now runs once, where a column enters the model, and
+looks only at the columns the model does not already have.
+
+Two things to watch for in existing code:
+
+- **The report follows `info_level`.** It is now raised through the same
+  mechanism as everything else mizer says while it sets up a model, so
+  `info_level = 0` and `options(mizer_info_level = 0)` silence it. Code that
+  built models quietly and relied on a typo still being flagged no longer gets
+  the warning. Build at the default `info_level` when you want the check.
+- **A test that counted warnings will see a different number.** Anything
+  wrapping model construction in `expect_warning()` with a count, or in
+  `suppressWarnings()` to swallow a known run of duplicates, is now looking at
+  one warning rather than many.
+
+The message itself is unchanged: `"very close to standard parameter names"`.
+
+### An invalid `w_mat25` is replaced by its default
+
+`validSpeciesParams()` rejects a `w_mat25` that is not smaller than `w_mat`. It
+used to say that it had corrected that *by setting it to NA*, which described a
+step the user never saw: `setReproduction()` fills the default in straight
+afterwards. It now says it is
+`"marking it as missing so that its default will"` be used.
+
+Where the species parameters also carry `l_mat25`, this is a change in results
+and not only in wording. The length used to survive the correction and the
+length-to-weight conversion put the rejected value straight back, a rounding
+error below `w_mat` — small enough to pass the `w_mat25 < w_mat` assertion in
+`setReproduction()`, and large enough to collapse the maturity ogive to a step
+function. Such a model now gets the intended default,
+`w_mat / 3^(1/10)`, and a smooth ogive. Maturity, and everything downstream of
+it, will differ.
