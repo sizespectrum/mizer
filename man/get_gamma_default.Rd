@@ -21,6 +21,12 @@ feeding level \eqn{f_0}. Only for internal use.
 See the \href{https://sizespectrum.org/mizer/articles/default_parameters.html#gamma-default}{Search Volume Coefficient}
 section of the "Calculation of Default Parameter Values" vignette for the
 mathematical derivation.
+
+The available energy is measured with mizer's own encounter rate,
+\code{\link[=mizerEncounter]{mizerEncounter()}}. It is a property of the species parameters and of the
+resource power law rather than of the model's dynamics, so the measurement
+deliberately does not go through the extension dispatch chain, nor through an
+encounter function registered with \code{\link[=setRateFunction]{setRateFunction()}}.
 }
 \seealso{
 Other functions calculating defaults:

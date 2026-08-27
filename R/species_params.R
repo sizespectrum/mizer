@@ -1578,6 +1578,46 @@ get_h_default <- function(params) {
 }
 
 
+#' Measure the available energy in a power-law prey spectrum
+#'
+#' Puts the model into the reference state used for deriving the default
+#' `gamma` and `f0`: no fish, and a resource spectrum given by the power law
+#' \eqn{\kappa w^{-\lambda}}. It then measures the resulting encounter rate at
+#' the largest size and divides out its power-law dependence on size, so that
+#' the returned number for each species is the coefficient \eqn{A_i} in
+#' \eqn{E_i(w) = A_i\, w^{2 + q_i - \lambda}}.
+#'
+#' The measurement uses [mizerEncounter()] rather than [getEncounter()]. What is
+#' wanted here is a property of the species parameters, not of the model's
+#' dynamics, so it must not go through the extension dispatch chain or through a
+#' rate function that the user has registered with [setRateFunction()]. An
+#' extension that scales the search volume would otherwise fold its own factor
+#' into mizer's `gamma` default, and because that default then determines the
+#' search volume, the factor would be re-applied on every rebuild (issue #577).
+#'
+#' The caller is responsible for having set the `q` and `gamma` species
+#' parameters and the `search_vol` slot that the measurement is to use.
+#'
+#' @param params A MizerParams object
+#' @return A vector with one number for each species
+#' @noRd
+measure_avail_energy <- function(params) {
+    params@initial_n[] <- 0
+    if (defaults_edition() < 2) {
+        # See issue #238
+        params@species_params$interaction_resource <- 1
+    }
+    params@initial_n_pp[] <- resource_power_law(
+        params, params@resource_params$kappa,
+        params@resource_params$lambda)
+    encounter <- mizerEncounter(params, n = params@initial_n,
+                                n_pp = params@initial_n_pp,
+                                n_other = params@initial_n_other, t = 0)
+    encounter[, length(params@w)] /
+        params@w[length(params@w)] ^
+        (2 + params@species_params[["q"]] - params@resource_params$lambda)
+}
+
 #' Get default value for gamma
 #'
 #' Fills in any missing values for gamma so that fish feeding on a resource
@@ -1588,6 +1628,12 @@ get_h_default <- function(params) {
 #' https://sizespectrum.org/mizer/articles/default_parameters.html#gamma-default)
 #' section of the "Calculation of Default Parameter Values" vignette for the
 #' mathematical derivation.
+#'
+#' The available energy is measured with mizer's own encounter rate,
+#' [mizerEncounter()]. It is a property of the species parameters and of the
+#' resource power law rather than of the model's dynamics, so the measurement
+#' deliberately does not go through the extension dispatch chain, nor through an
+#' encounter function registered with [setRateFunction()].
 #'
 #' @param params A MizerParams object
 #' @return A vector with the values of gamma for all species
@@ -1622,17 +1668,7 @@ get_gamma_default <- function(params) {
         params <- set_q_default(params)
         params@search_vol[] <- compute_search_vol(params)
         # and setting a power-law prey spectrum
-        params@initial_n[] <- 0
-        if (defaults_edition() < 2) {
-            # See issue #238
-            params@species_params$interaction_resource <- 1
-        }
-        params@initial_n_pp[] <- resource_power_law(
-            params, params@resource_params$kappa,
-            params@resource_params$lambda)
-        avail_energy <- getEncounter(params)[, length(params@w)] /
-            params@w[length(params@w)] ^
-            (2 + params@species_params[["q"]] - params@resource_params$lambda)
+        avail_energy <- measure_avail_energy(params)
         # Now set gamma so that this available energy leads to f0
         if (any(is.infinite(species_params[["h"]][missing]))) {
             stop("Cannot calculate default `gamma` for species with `h = Inf`. Please supply `gamma` explicitly.")
@@ -1665,6 +1701,12 @@ get_gamma_default <- function(params) {
 #' section of the "Calculation of Default Parameter Values" vignette for the
 #' mathematical derivation.
 #'
+#' The available energy is measured with mizer's own encounter rate,
+#' [mizerEncounter()]. It is a property of the species parameters and of the
+#' resource power law rather than of the model's dynamics, so the measurement
+#' deliberately does not go through the extension dispatch chain, nor through an
+#' encounter function registered with [setRateFunction()].
+#'
 #' @param params A MizerParams object
 #' @return A vector with the values of f0 for all species
 #' @export
@@ -1695,16 +1737,7 @@ get_f0_default <- function(params) {
         params <- set_q_default(params)
         params@search_vol[given, ] <- compute_search_vol(params)[given, ]
         # Calculate available energy by setting a power-law prey spectrum
-        params@initial_n[] <- 0
-        if (defaults_edition() < 2) {
-            params@species_params$interaction_resource <- 1
-        }
-        params@initial_n_pp[] <- resource_power_law(
-            params, params@resource_params$kappa,
-            params@resource_params$lambda)
-        avail_energy <- getEncounter(params)[, length(params@w)] /
-            params@w[length(params@w)] ^
-            (2 + params@species_params[["q"]] - params@resource_params$lambda)
+        avail_energy <- measure_avail_energy(params)
         # Now set f0 so that this available energy leads to f0
         f0_default <- 1 / (species_params[["h"]] / avail_energy + 1)
         if (any(is.na(f0_default[given]))) {

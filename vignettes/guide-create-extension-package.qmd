@@ -460,6 +460,24 @@ extension package modifies via `projectEncounter.mizerMyExtension`, your
 method will be silently bypassed for that object. It is worth documenting this
 limitation for your users.
 
+#### Mizer's default parameters do not go through your method
+
+Mizer calculates some species parameters by putting the model into a reference
+state and measuring a rate in it. [`get_gamma_default()`](../reference/get_gamma_default.html) is the one to know
+about: it gives each species a search volume coefficient of 1, puts a power-law
+prey spectrum in front of it, and measures the available energy to find the
+`gamma` that delivers the target feeding level `f0`. [`get_f0_default()`](../reference/get_f0_default.html) does the
+inverse.
+
+Those measurements use `mizerEncounter()`, not [`getEncounter()`](../reference/getEncounter.html), so they do not
+dispatch through your `projectEncounter` method and are unaffected by a
+`setRateFunction()` registration. The `gamma` mizer calculates therefore
+describes the species' *baseline* search volume — which is exactly what a
+dynamic modulation such as a temperature scalar is meant to modulate. Do not
+declare `gamma` as a given species parameter merely to protect it from your own
+method; that is no longer necessary, and it costs the model the ability to let
+`gamma` follow `f0`.
+
 ### Creating objects: the two commands
 
 A constructor function that returns a `mizerShelf` object must end with these

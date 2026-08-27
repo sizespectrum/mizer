@@ -1,11 +1,14 @@
 ## Upgrading from mizer 3.3 to 3.4
 
-Three things change: what `getSteadyResidual()` measures, which sizes
-`summary()` of an array covers, and which size classes `distanceSSLogN()`
+Three things change for everyone: what `getSteadyResidual()` measures, which
+sizes `summary()` of an array covers, and which size classes `distanceSSLogN()`
 counts. Everything that decides whether a state is a fixed point is untouched.
-A fourth section records a fix rather than a change: repeated extension
-registration now rebuilds the dynamic marker classes that reloading an
-extension package removed.
+A fourth change concerns anyone who assigns a species parameter table: a column
+missing from the table you assign is now withdrawn from the model. The two
+remaining sections record fixes rather than changes, and both matter mainly to
+extension packages: repeated extension registration now rebuilds the dynamic
+marker classes that reloading an extension package removed, and the defaults for
+`gamma` and `f0` are no longer measured through the extension chain.
 
 ### `getSteadyResidual()` measures biomass drift by default
 
@@ -236,3 +239,51 @@ For extension packages this is the supported way to withdraw a species
 parameter column when the user switches the extension off, replacing the
 `params@species_params[["my_col"]] <- NULL` slot manipulation that was the only
 thing that worked before.
+
+### Defaults for `gamma` and `f0` ignore the extension chain
+
+`get_gamma_default()` works out the search volume coefficient `gamma` that gives
+a species the target feeding level `f0`. It does that by giving the species a
+search volume coefficient of 1, putting a power-law spectrum in front of it and
+measuring the energy that becomes available. It used to measure with
+`getEncounter()`, which on an object carrying an extension marker class
+dispatches through the extension's `projectEncounter()` method. So an extension
+that changes the encounter rate had its change folded into mizer's own `gamma` —
+the one quantity the function goes out of its way to derive from the species
+parameters alone. `get_f0_default()`, the inverse, had the same problem. Both
+now measure with `mizerEncounter()`.
+
+The consequence was not a one-off offset. `gamma` is a calculated species
+parameter, so it is recomputed on every rebuild, and the recomputed `gamma` is
+what the search volume is then built from — so the extension's factor was
+re-applied each time:
+
+```r
+species_params(params)$gamma
+#> Doubled on every assignment to species_params(), on an extension that
+#> halves the search volume; now stays put.
+```
+
+Where an extension's factor is zero for some species — a therMizer species
+sitting exactly on its `temp_min`, evaluated at the arbitrary `t = 0` the
+default calculation uses — the available energy came out as zero and the
+calculation failed outright with `Could not calculate gamma.`
+
+The same now applies to an encounter function registered with
+`setRateFunction()`: it no longer enters these two defaults. If your model
+relied on that, supply `gamma` (or `f0`) explicitly in the species parameters
+instead.
+
+**If you are an extension author** who worked around this by declaring the
+current `gamma` as a given species parameter, you can drop the workaround and
+let `gamma` follow `f0` again:
+
+```r
+given_species_params(params)$gamma <- NULL
+```
+
+The `gamma` that mizer then calculates describes the species' baseline search
+volume, which is what a dynamic modulation such as a temperature scalar is
+meant to modulate. Models that carried a `gamma` inflated (or deflated) by the
+extension's factor will get different numbers from this release, and those
+numbers are the right ones.

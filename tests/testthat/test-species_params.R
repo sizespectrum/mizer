@@ -69,7 +69,10 @@ test_that("gamma and f0 defaults ignore a frozen search volume (#488)", {
     # coefficient of 1, so the user's array must not enter the calculation.
     params@species_params$gamma[] <- NA
     frozen@species_params$gamma[] <- NA
-    expect_equal(get_gamma_default(frozen), get_gamma_default(params))
+    # `gamma` is of order 1e-11, far below the default tolerance, so the
+    # comparison has to be of the ratio.
+    expect_equal(unname(get_gamma_default(frozen) / get_gamma_default(params)),
+                 rep(1, nrow(species_params(params))))
 
     # `get_f0_default()` is the inverse and must use the search volume implied
     # by `gamma`, not the frozen one.
@@ -79,6 +82,103 @@ test_that("gamma and f0 defaults ignore a frozen search volume (#488)", {
 
     # The frozen array itself is left untouched by the default calculations.
     expect_equal(search_vol(frozen), sv, ignore_attr = TRUE)
+})
+
+test_that("gamma and f0 defaults ignore extension dispatch (#577)", {
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
+
+    ext <- paste0("mizerTestGammaExt", Sys.getpid())
+    chain <- setNames(NA_character_, ext)
+    registerExtensions(chain)
+    # An extension that scales the search volume, the way therMizer scales it
+    # with its temperature scalar.
+    registerS3method(
+        "projectEncounter", ext,
+        function(params, ...) {
+            scalar <- params@other_params[["test_scalar"]]
+            if (is.null(scalar)) scalar <- 0.5
+            params@search_vol <- params@search_vol * scalar
+            NextMethod()
+        },
+        envir = asNamespace("mizer")
+    )
+
+    params <- NS_params_small
+    ext_params <- params
+    ext_params@extensions <- chain
+    ext_params <- coerceToExtensionClass(ext_params)
+
+    # The extension really does change the encounter rate ...
+    expect_equal(getEncounter(ext_params), getEncounter(params) / 2,
+                 ignore_attr = TRUE)
+    # ... but it must not change the defaults, which measure the available
+    # energy with mizer's own encounter rate.
+    expect_equal(get_f0_default(ext_params), get_f0_default(params))
+    params@species_params$gamma[] <- NA
+    ext_params@species_params$gamma[] <- NA
+    # `gamma` is of order 1e-11, far below the default tolerance, so the
+    # comparison has to be of the ratio.
+    expect_equal(unname(get_gamma_default(ext_params) /
+                            get_gamma_default(params)),
+                 rep(1, nrow(species_params(params))))
+
+    # A scalar of zero for one species used to turn this into an error
+    zero <- ext_params
+    zero@other_params$test_scalar <- c(1, 0, 1)
+    expect_equal(unname(get_gamma_default(zero) / get_gamma_default(params)),
+                 rep(1, nrow(species_params(params))))
+})
+
+test_that("a rebuild on an extension object leaves gamma alone (#577)", {
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
+
+    ext <- paste0("mizerTestGammaRebuild", Sys.getpid())
+    chain <- setNames(NA_character_, ext)
+    registerExtensions(chain)
+    registerS3method(
+        "projectEncounter", ext,
+        function(params, ...) {
+            params@search_vol <- params@search_vol / 2
+            NextMethod()
+        },
+        envir = asNamespace("mizer")
+    )
+
+    # Hand `gamma` back to mizer so that it is recalculated on every rebuild
+    params <- NS_params_small
+    suppressMessages(given_species_params(params)$gamma <- NULL)
+    params@extensions <- chain
+    params <- coerceToExtensionClass(params)
+    gamma <- species_params(params)$gamma
+
+    # Adding a column of the extension's own triggers a rebuild but changes
+    # nothing that the encounter rate depends on
+    suppressMessages(
+        species_params(params)$my_extension_note <-
+            seq_len(nrow(species_params(params)))
+    )
+    expect_equal(unname(species_params(params)$gamma / gamma),
+                 rep(1, length(gamma)))
+})
+
+test_that("gamma and f0 defaults ignore a custom encounter function", {
+    e <- globalenv()
+    e$test_half_encounter <- function(params, n, n_pp, n_other, t = 0, ...) {
+        mizerEncounter(params, n = n, n_pp = n_pp, n_other = n_other,
+                       t = t, ...) / 2
+    }
+    withr::defer(rm("test_half_encounter", envir = e))
+
+    params <- NS_params_small
+    custom <- setRateFunction(params, "Encounter", "test_half_encounter")
+    expect_equal(get_f0_default(custom), get_f0_default(params))
+
+    params@species_params$gamma[] <- NA
+    custom@species_params$gamma[] <- NA
+    expect_equal(unname(get_gamma_default(custom) / get_gamma_default(params)),
+                 rep(1, nrow(species_params(params))))
 })
 
 test_that("invalid f0 is rejected even when gamma is given (#517)", {
