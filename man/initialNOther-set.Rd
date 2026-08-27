@@ -32,6 +32,7 @@ Other extension tools:
 \code{\link[=clearExtensionChain]{clearExtensionChain()}},
 \code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
 \code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
+\code{\link[=other_mort]{other_mort()}},
 \code{\link[=recordExtension]{recordExtension()}},
 \code{\link[=registerExtension]{registerExtension()}},
 \code{\link[=registerExtensions]{registerExtensions()}},

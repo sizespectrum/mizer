@@ -25,6 +25,30 @@
   biomass is what makes a threshold unnecessary here: a class holding a trace
   contributes a trace.
 
+## Extensions
+
+- New accessors `other_mort()` and `other_encounter()`, with their replacement
+  forms, for the extra contributions to the mortality and encounter rates that
+  `getMort()` and `getEncounter()` sum into their results. An extension that
+  adds a term depending on the state of the model but carrying no state of its
+  own — a starvation or senescence mortality, say — can now register it with
+
+  ```r
+  other_mort(params)[["starvation"]] <- "starvMort"
+  ```
+
+  where previously the only route was to assign into `params@other_mort`
+  directly, since `setComponent()` requires a `dynamics_fun` and an
+  `initial_value` that such a term has nothing to supply. Like `other_params()`,
+  the new accessors hide the entries belonging to a component created with
+  `setComponent()`: those are reported by `getComponent()` and removed by
+  `removeComponent()`, and assigning a whole list through `other_mort()` can no
+  longer wipe them out or change their positions. Contribution names must be
+  unique. Encounter contributions now receive the current simulation time as
+  `t`, as mortality contributions already did. `setComponent()` now also
+  refuses a component name that a free-standing contribution is already
+  registered under, rather than silently taking it over (#579).
+
 ## Bug fixes
 
 - The defaults for `gamma` and `f0` are no longer measured through the

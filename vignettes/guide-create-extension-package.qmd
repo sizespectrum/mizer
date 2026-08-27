@@ -36,7 +36,7 @@ There are two kinds of extension package:
 - A **metadata-only** extension registers itself in `params@extensions` for
   record-keeping, but does not change how any mizer generic function behaves.
   [mizerStarvation](https://sizespectrum.org/mizerStarvation/) is an
-  example: it adds starvation mortality via the `other_mort` pipeline, but it
+  example: it adds starvation mortality via the [`other_mort`](../reference/other_mort.html) pipeline, but it
   does not need to override any user-facing mizer functions.
 
 - A **dispatching** extension additionally defines a new object type so that
@@ -78,9 +78,41 @@ worthwhile when you want:
 
 [mizerStarvation](https://github.com/sizespectrum/mizerStarvation) adds
 starvation mortality — an extra per-capita mortality term that kicks in when a
-fish's energy balance is negative. It does this via the `other_mort` argument in `setComponent()`: supplying a
-function that [`getMort()`](../reference/getMort.html) calls and adds to the mizer mortality at every time step.
-No mizer generic function needs to be overridden.
+fish's energy balance is negative. It does this through the `other_mort`
+pipeline: `setStarvation()` registers the name of its rate function, and
+[`getMort()`](../reference/getMort.html) calls every function registered there and adds the result to the
+mortality rate at every time step. No mizer generic function needs to be
+overridden.
+
+That is the right mechanism for an extra mortality that depends on the state of
+the model but carries no state of its own, and `other_mort()` is how you
+register it:
+
+```{r eval=FALSE}
+setStarvation <- function(params, starv_coef = 10) {
+    # ... set up the species parameters the rate function needs ...
+    other_mort(params)[["starvation"]] <- "starvMort"
+    params
+}
+```
+
+[`other_encounter()`](../reference/other_mort.html) does the same for a contribution to the encounter rate. Two
+neighbouring mechanisms are easy to confuse with these:
+
+- If the contribution is a **fixed array** rather than a function of the model
+  state, use [`ext_mort()`](../reference/setExtMort.html) or [`ext_encounter()`](../reference/setExtEncounter.html) instead. Those are cheaper and
+  are what mizer's own external mortality and external encounter use.
+- If the contribution comes from a **component with dynamics of its own** — a
+  detritus or carrion pool that is itself updated each time step — create it
+  with `setComponent()` and give the contribution as its `mort_fun` or
+  `encounter_fun` argument. That entry then belongs to the component:
+  [`getComponent()`](../reference/setComponent.html) reports it and [`removeComponent()`](../reference/setComponent.html) removes it, and
+  `other_mort()` deliberately does not list it.
+
+Do not assign into `params@other_mort` directly, even though older versions of
+mizer left no alternative and mizerStarvation still does so. A bare slot
+assignment skips the check that the name really is a function and that it does
+not collide with a component's.
 
 ### Registering in `.onLoad`
 
@@ -660,6 +692,10 @@ When building a dispatching extension package, verify the following:
   `species_params(params)$my_col <- NULL`, never by writing into the
   `@species_params` slot. See
   [Taking a species parameter column away again].
+- [ ] Register an extra mortality or encounter term that carries no state of its
+  own with `other_mort()` or `other_encounter()`, never by assigning into
+  `params@other_mort` or `params@other_encounter` directly. See
+  [Metadata-only extensions: mizerStarvation].
 - [ ] Report anything you tell the user with `signal_info()` inside a
   `with_info_level()`, never a bare `message()` or `warning()`, and give every
   entry point an `info_level = default_info_level()` argument that it forwards.
@@ -668,10 +704,11 @@ When building a dispatching extension package, verify the following:
   that your overrides do not break core behaviour. See
   [Running mizer's test suite against your subclass].
 
-For metadata-only packages, only the `registerExtension()` call, the bundled-data
-binding and the reporting item apply, and `coerceToExtensionClass()` is not
-needed. Their setup functions should still call `recordExtension()`, stamping
-the package version when their component is first created.
+For metadata-only packages, only the `registerExtension()` call, the
+bundled-data binding, the storage item and the reporting item apply, and
+`coerceToExtensionClass()` is not needed. Their setup functions should still
+call `recordExtension()`, stamping the package version when their component is
+first created.
 
 ---
 
