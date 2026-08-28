@@ -2,14 +2,19 @@
 
 **\[experimental\]** Returns the rate at which the abundances would
 change if the model were projected forward from its current initial
-state, relative to those abundances. At a steady state this is zero, so
-it answers the question that every calibration workflow otherwise has to
-remember to ask: *is this model still at its steady state?*
+state, resolved by species and by size. At a steady state this is zero,
+so it answers the question that every calibration workflow otherwise has
+to remember to ask: *is this model still at its steady state?*
 
 ## Usage
 
 ``` r
-getSteadyResidual(params, effort = params@initial_effort, dt = 1e-04)
+getSteadyResidual(
+  params,
+  effort = params@initial_effort,
+  dt = 1e-04,
+  measure = c("biomass", "per_capita")
+)
 ```
 
 ## Arguments
@@ -32,35 +37,102 @@ getSteadyResidual(params, effort = params@initial_effort, dt = 1e-04)
   dynamics functions are only available as one-step maps. Smaller is
   more accurate. Not used for the consumers, whose rate is exact.
 
+- measure:
+
+  **\[experimental\]** Which rate of change to report. `"biomass"` (the
+  default) gives the contribution of each size class to the relative
+  rate of change of its species' biomass, which sums over sizes to the
+  drift that
+  [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
+  judges a model by. `"per_capita"` gives the rate of change of each
+  size class relative to its own density. See the sections above.
+
 ## Value
 
 An
 [ArraySpeciesBySize](https://sizespectrum.org/mizer/reference/ArraySpeciesBySize.md)
-object (species x size) of per-capita rates of change in 1/year, `NA`
-where the density is zero. It carries two further attributes:
+object (species x size) of rates in 1/year: with `measure = "biomass"`,
+contributions to each species' relative rate of biomass change, which
+sum over sizes to that rate and are `NA` only for a species with no
+biomass at all; with `measure = "per_capita"`, per-capita rates of
+change, `NA` where the size class holds no fish. It carries two further
+attributes:
 
 - `resource`:
 
-  The per-capita rate of change of the resource, a numeric vector over
-  `w_full`, `NA` where the resource density is zero.
+  The same measure for the resource, a numeric vector over `w_full`.
 
 - `other`:
 
   A named list with one entry per other component, holding its
   per-capita rate of change, or `NA` for a component whose state is not
-  numeric.
+  numeric. These are reported but not folded into the biomass drift that
+  [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
+  judges a model by: mizer does not know what a component's state is
+  measured in, so it cannot form a biomass for it.
 
 ## Details
 
-The value is a **per-capita rate of change, in units of 1/year**:
-\$\$R_i(w) = \frac{1}{N_i(w)}\frac{dN_i(w)}{dt}.\$\$ A value of `1e-8`
-means nothing is moving. A value of `0.05` means that size class would
-change by about 5% over the first year of a projection, and `-0.05` that
-it would shrink by about that much. The sign is therefore the direction
-the model would drift.
+There are two ways to say how fast a size class is changing, and
+`measure` selects between them. Both are in units of 1/year.
 
-For the consumers this is exact, not a finite-difference approximation:
-the backward-Euler transport coefficients used by
+### `measure = "biomass"`, the default
+
+How much of its species' biomass each size class is adding or removing
+per year: \$\$C_i(w) = \frac{1}{B_i}\\\frac{dN_i(w)}{dt}\\w\\\Delta w,
+\qquad B_i = \int N_i(w)\\w\\dw.\$\$ The bin weight \\w\\\Delta w\\ is
+the one
+[`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md)
+uses for a biomass, so it follows whichever quadrature scheme the model
+is on (see
+[`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md)),
+and the values **add up over sizes to the relative rate of change of the
+species' biomass**:
+
+    rowSums(getSteadyResidual(params))    # (dB_i/dt) / B_i, one per species
+
+That total is the number
+[`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md),
+the [`summary()`](https://sizespectrum.org/mizer/reference/summary.md)
+line of a
+[MizerParams](https://sizespectrum.org/mizer/reference/MizerParams-class.md)
+object and `project(check_steady = TRUE)` all judge a model by, and it
+is the drift that would actually show up in
+[`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md).
+This array therefore says *where* a model is unsteady in the same
+currency that mizer uses to decide *whether* it is, and a size class can
+only be conspicuous in it if it is moving enough biomass to matter.
+
+That last property is why this is the default. A size class near the egg
+size turns over in hours, and one above the size where growth stops
+decays exponentially towards zero for ever; both carry enormous
+*per-capita* rates while holding no mass at all. Weighting by biomass
+gives them the weight they deserve, which is none, with no need for a
+threshold below which a class is declared to hold nothing.
+
+### `measure = "per_capita"`
+
+The rate of change of each size class relative to its own density,
+\$\$R_i(w) = \frac{1}{N_i(w)}\frac{dN_i(w)}{dt}.\$\$ A value of `0.05`
+means that size class would grow by about 5% over the first year of a
+projection, and `-0.05` that it would shrink by about that much. This is
+the scale-free reading. It shows a size class whose growth and mortality
+are out of balance even when the class holds a millionth of its species'
+biomass, which is a real statement about the structure of a model, but
+not one about whether anything observable is moving.
+
+Do not reduce this measure to `max(abs(...))`. Its extremes belong to
+the fastest-relaxing cells, which are exactly the ones holding no mass:
+on `NS_params` the largest per-capita rate is 1.2/year, in a cell
+holding 2e-8 of its species' biomass, while the biomass drift is
+0.014/year and the model counts as settled. Under the second-order
+scheme this is severe enough to reverse the ordering between a converged
+model and one that has just been knocked off its steady state.
+
+### How the rates are obtained
+
+For the consumers `dN/dt` is exact, not a finite-difference
+approximation: the backward-Euler transport coefficients used by
 [`project()`](https://sizespectrum.org/mizer/reference/project.md)
 satisfy \\A N - S = -dt\\dN/dt\\ identically, so evaluating them at
 `dt = 1` gives the instantaneous rate with no time-discretisation error.
@@ -87,38 +159,22 @@ The returned array is an
 object, so it prints, summarises and plots itself:
 
     res <- getSteadyResidual(params)
-    summary(res)                  # per-species minimum, mean and maximum
+    rowSums(res)                  # the biomass drift of each species
     plot(res)                     # which species, and at which sizes
 
 The plot is the diagnostic one: a model that is off steady state is
 usually off in one species, or one part of the size range, and the plot
-says which.
+says which. Mizer's size grid is logarithmic, so the bin widths are
+proportional to `w` and the default measure keeps the shape of a density
+per unit of log size when drawn against a logarithmic size axis: equal
+areas under the curve are equal contributions to the drift.
 
-Size classes with no fish in them carry no information about steadiness
-— the relative rate of change of a zero density is undefined — so they
-are returned as `NA`. Use `na.rm = TRUE` in any summary, as the examples
-above do.
-
-### Do not reduce this to its maximum
-
-`max(abs(res))` is a tempting single-number verdict and a misleading
-one. The per-capita rate of a single size class is dominated by the
-fastest-relaxing cells, and near the egg size those turn over in hours:
-a model settled for every practical purpose can carry a cell rate of
-\\10^4\\/year there while nothing observable moves. Under the
-second-order scheme (see
-[`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md))
-this is severe enough to reverse the ordering between a converged model
-and one that has just been knocked off its steady state.
-
-What mizer's own checks — the
-[`summary()`](https://sizespectrum.org/mizer/reference/summary.md) line,
-and `project(check_steady = TRUE)` — judge instead is the relative rate
-of change of each species' *biomass*, which weights each size class by
-the mass it holds, and is the drift the user would actually see in
-[`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md).
-Use this array to find out *where* a model is unsteady, and those checks
-to find out *whether* it is.
+With `measure = "per_capita"` a size class with no fish in it has no
+relative rate of change — it is `0/0` — and is returned as `NA`, so pass
+`na.rm = TRUE` to any summary. The default measure needs no such
+exception: `dN/dt` is perfectly well defined in a class with no fish in
+it, which can be filling up, and its contribution to the biomass drift
+is reported like any other.
 
 ## See also
 
@@ -141,23 +197,14 @@ Other summary functions:
 ## Examples
 
 ``` r
-summary(getSteadyResidual(NS_params))
-#> Steady-state residual [1/year] 
-#> 12 species x 100 sizes
-#> 
-#>  Species         Min          Mean        Max
-#>    Sprat -0.32010387  0.0014932474 0.01010982
-#>  Sandeel -0.54637042 -0.0057605610 0.01148404
-#>   N.pout -0.77251244  0.0065228584 0.03400740
-#>  Herring -0.17077775  0.0019195590 0.02414716
-#>      Dab -0.78476050 -0.0005368299 0.01726561
-#>  Whiting -0.68433745  0.0024537842 0.02278352
-#>     Sole -0.55536026 -0.0009899767 0.01048570
-#>  Gurnard -0.04784682  0.0091143308 0.01765771
-#>   Plaice -0.25831571  0.0065772666 0.02037855
-#>  Haddock -0.84155214  0.0038039116 0.02842493
-#>      Cod -1.23640575 -0.0047555940 0.01977439
-#>   Saithe -0.84979728 -0.0040508052 0.01096811
+# The relative rate of change of each species' biomass, in 1/year
+rowSums(getSteadyResidual(NS_params))
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#>        Sprat      Sandeel       N.pout      Herring          Dab      Whiting 
+#> 0.0032783633 0.0013206130 0.0138556255 0.0080776332 0.0050505885 0.0037296515 
+#>         Sole      Gurnard       Plaice      Haddock          Cod       Saithe 
+#> 0.0032863902 0.0091832161 0.0068072048 0.0080561894 0.0002875087 0.0021111526 
 # \donttest{
 # Matching biomasses moves the model off its steady state, and the plot
 # shows which species and which sizes have moved.

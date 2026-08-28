@@ -116,6 +116,16 @@ slower than the fish. Mizer warns when it meets a component with
 dynamics of its own. `findSteadyState(solver = "project")` is the one
 that advances everything.
 
+The reported `residual` measures that same subsystem: a component’s rate
+of change is not folded into it, because mizer does not know what a
+component’s state is measured in and so cannot form a biomass for it. So
+`attractor == "fixed_point"` is a claim about the consumers and the
+resource, not about the whole model. Mizer names any component that is
+moving in the same message, and
+`attr(getSteadyResidual(params), "other")` holds the rates themselves.
+To settle the components too, project the model with
+[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md).
+
 ------------------------------------------------------------------------
 
 ## Is mizer’s time step stable? — `getDiscreteStability()`

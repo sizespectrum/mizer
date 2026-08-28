@@ -250,6 +250,8 @@ constructor method:
 params <- newMultispeciesParams(species_params)
 ```
 
+    ## ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ## ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
     ## ℹ No h provided for some species, so using age at maturity to calculate it.
     ## ℹ Because you have n != p, the default value for `h` is not very good.
     ## ℹ Because the age at maturity is not known, I need to fall back to using
@@ -347,9 +349,9 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.3.0
-    ## Created: 2026-08-23 22:18:50
-    ## Modified: 2026-08-23 22:18:50
+    ## mizer version: 3.3.1
+    ## Created: 2026-08-28 11:48:35
+    ## Modified: 2026-08-28 11:48:35
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066
@@ -359,7 +361,7 @@ summary(params)
     ##  maximum size:   8.48399
     ##  no. size bins:  166 (215 size bins in total)
     ## Steady state:
-    ##  biomass drift:  1.4 /year   (not at steady state - run tuneSteadyState())
+    ##  biomass drift:  1.4 /year   (not at steady state, largest in Sandeel - run tuneSteadyState())
     ## Species details:
     ## An object of class "species_params" containing parameters for 12 species:
     ##  species w_inf w_mat w_min   beta sigma
@@ -529,6 +531,8 @@ scratch with our interaction matrix by passing it to
 params_new <- newMultispeciesParams(species_params, interaction = inter)
 ```
 
+    ## ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ## ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
     ## ℹ No h provided for some species, so using age at maturity to calculate it.
     ## ℹ Because you have n != p, the default value for `h` is not very good.
     ## ℹ Because the age at maturity is not known, I need to fall back to using
@@ -594,9 +598,9 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.3.0
-    ## Created: 2026-08-23 22:18:50
-    ## Modified: 2026-08-23 22:18:51
+    ## mizer version: 3.3.1
+    ## Created: 2026-08-28 11:48:35
+    ## Modified: 2026-08-28 11:48:36
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066
@@ -606,7 +610,7 @@ summary(params)
     ##  maximum size:   8.48399
     ##  no. size bins:  166 (215 size bins in total)
     ## Steady state:
-    ##  biomass drift:  1.4 /year   (not at steady state - run tuneSteadyState())
+    ##  biomass drift:  1.4 /year   (not at steady state, largest in Sandeel - run tuneSteadyState())
     ## Species details:
     ## An object of class "species_params" containing parameters for 12 species:
     ##  species w_inf w_mat w_min   beta sigma

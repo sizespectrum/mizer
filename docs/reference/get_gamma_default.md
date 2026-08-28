@@ -27,6 +27,18 @@ Coefficient](https://sizespectrum.org/mizer/articles/default_parameters.html#gam
 section of the "Calculation of Default Parameter Values" vignette for
 the mathematical derivation.
 
+The available energy is measured with the predation part of mizer's own
+encounter rate,
+[`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md).
+It is a property of the species parameters and of the resource power law
+rather than of the model's dynamics, so external encounter and
+contributions registered with
+[`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+(including component encounter functions) are excluded. The measurement
+also deliberately does not go through the extension dispatch chain, nor
+through an encounter function registered with
+[`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md).
+
 ## See also
 
 Other functions calculating defaults:

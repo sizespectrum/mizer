@@ -117,6 +117,14 @@ Other rate functions:
 params <- NS_params
 # Predation rate in initial state
 pred_rate <- getPredRate(params)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 str(pred_rate)
 #>  'ArraySpeciesBySize' num [1:12, 1:226] 8.35e-17 6.05e-10 9.75e-16 1.19e-05 1.04e-17 ...
 #>  - attr(*, "dimnames")=List of 2
@@ -129,8 +137,14 @@ str(pred_rate)
 #>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Get the feeding level at one time step
 pred_rate <- getPredRate(params, n = N(sim)[15, , ],
                          n_pp = NResource(sim)[15, ], t = 15)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # }
 ```

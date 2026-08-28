@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -437,6 +437,7 @@
 <hr></section><section class="level3"><h3 id="gamma-default">2. Search Volume Coefficient (<span class="math inline">\(\gamma\)</span>)<a class="anchor" aria-label="anchor" href="#gamma-default"></a>
 </h3>
 <p>The search volume coefficient <span class="math inline">\(\gamma_i\)</span> is calculated by <code><a href="../reference/get_gamma_default.html">get_gamma_default()</a></code>. It is selected such that if the prey abundance were described by a power-law resource spectrum: <span class="math display">\[N_R(w_p) = \kappa w_p^{-\lambda}\]</span> then the resulting encounter rate would lead to the target feeding level <span class="math inline">\(f_0\)</span> (default <span class="math inline">\(0.6\)</span>).</p>
+<p>This reference encounter contains only predation on the power-law resource. External encounter and functions registered with <code><a href="../reference/other_mort.html">other_encounter()</a></code> — including a component’s <code>encounter_fun</code> — still add to the realised encounter rate, but do not enter the calculation of the <code>gamma</code> and <code>f0</code> defaults.</p>
 <p>The encounter rate <span class="math inline">\(E_i(w)\)</span> of predator species <span class="math inline">\(i\)</span> at size <span class="math inline">\(w\)</span> is: <span class="math display">\[E_i(w) = \gamma_i w^q \int \theta_{iR} N_R(w_p) \phi_i(w, w_p) w_p \, dw_p\]</span></p>
 <p>Substituting the power-law resource spectrum: <span class="math display">\[E_i(w) = \gamma_i w^q \theta_{iR} \kappa \int w_p^{1-\lambda} \phi_i(w, w_p) \, dw_p\]</span></p>
 <p>If the predation kernel depends only on the predator/prey mass ratio <span class="math inline">\(x = w/w_p\)</span>, then we can substitute <span class="math inline">\(w_p = w/x\)</span> and <span class="math inline">\(dw_p = -w/x^2 \, dx\)</span>: <span class="math display">\[\int w_p^{1-\lambda} \phi_i(w/w_p) \, dw_p = w^{2-\lambda} \int_0^\infty x^{\lambda - 2} \phi_i(x) \, dx\]</span></p>
@@ -491,7 +492,9 @@
 <span><span class="co"># Initialize parameters</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">simple_species</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>ℹ No h provided for some species, so using age at maturity to calculate it.
+<pre><code>ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No h provided for some species, so using age at maturity to calculate it.
 ℹ Because you have n != p, the default value for `h` is not very good.
 ℹ Because the age at maturity is not known, I need to fall back to using
 von Bertalanffy parameters, where available.

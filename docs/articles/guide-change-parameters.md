@@ -88,6 +88,35 @@ parameter that mizer reads from
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md).
 `species_params<-()` stays quiet about all three.
 
+### Removing a column
+
+A column that is missing from the table you assign is one you no longer
+supply, and both setters take it out of
+[`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md).
+What happens next depends on whether mizer can produce the parameter
+itself:
+
+``` r
+
+species_params(params)$gamma <- NULL    # mizer calculates gamma again
+species_params(params)$my_col <- NULL   # mizer knows no `my_col`: it is gone
+```
+
+`given_species_params(params)$… <- NULL` does the same. So a parameter
+mizer knows comes straight back as a *calculated* value — removing its
+column is another way of saying
+`given_species_params(params)$gamma <- NA` — while a custom column
+leaves the model altogether. That second case is how an extension
+package withdraws a species parameter it added when the user switches
+the extension off; there is no need to write into the
+`params@species_params` slot.
+
+Because the whole table is compared, a table with only some of the
+model’s columns withdraws all the others. `species_params<-()` validates
+what you give it, so a table without `species` and a maximum size is an
+error rather than a partial update — but edit the table you got from the
+accessor rather than building a new one from a handful of columns.
+
 ### Turning the commentary up or down
 
 Mizer reports the choices it makes — defaults it filled in, inputs it
@@ -316,8 +345,12 @@ explicitly — a given value is never recalculated.
 against your model: a pure power-law resource `kappa * w^-lambda`, with
 all fish abundances set to zero, and — under
 [`defaults_edition() < 2`](https://sizespectrum.org/mizer/reference/defaults_edition.md)
-— with `interaction_resource` forced to 1. So `f0` is the feeding level
-a species *would* have in that world.
+— with `interaction_resource` forced to 1. External encounter and
+functions registered with
+[`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+— including a component’s `encounter_fun` — are also left out. So `f0`
+is the feeding level a species *would* have on the power-law resource
+alone, before those realised-dynamics additions.
 
 - The **realised** feeding level in an assembled model differs, often a
   lot. In `NS_params` the feeding levels at `w_mat` run from 0.58 to
@@ -694,7 +727,8 @@ which adds a whole new ecosystem component.
 |----|----|
 | a per-species value (`beta`, `w_mat`, `h`, `erepro`, …) | [`species_params(params) <- …`](https://sizespectrum.org/mizer/reference/species_params.md) |
 | protect a value mizer has calculated | copy it from [`species_params(params)`](https://sizespectrum.org/mizer/reference/species_params.md) into [`given_species_params(params)`](https://sizespectrum.org/mizer/reference/species_params.md) |
-| let mizer calculate a value again | set it to `NA` in [`given_species_params(params)`](https://sizespectrum.org/mizer/reference/species_params.md) |
+| let mizer calculate a value again | set it to `NA` in [`given_species_params(params)`](https://sizespectrum.org/mizer/reference/species_params.md), or drop its column |
+| remove a custom species parameter column altogether | [`species_params(params)$my_col <- NULL`](https://sizespectrum.org/mizer/reference/species_params.md) |
 | fishing gears / selectivity / catchability | [`gear_params(params) <- …`](https://sizespectrum.org/mizer/reference/gear_params.md) |
 | baseline effort or selectivity/catchability arrays | [`setFishing(params, …)`](https://sizespectrum.org/mizer/reference/setFishing.md) |
 | the resource (`kappa`, `lambda`, `r_pp`, …) | [`resource_params(params) <- …`](https://sizespectrum.org/mizer/reference/resource_params.md) |
@@ -718,6 +752,8 @@ species_params(params)                     # view all (given + calculated)
 calculated_species_params(params)          # only what mizer derived
 given_species_params(params)$q <- species_params(params)$q  # protect current q
 given_species_params(params)$q <- NA        # let mizer calculate q again
+species_params(params)$q <- NULL            # same: dropping the column withdraws it
+species_params(params)$my_col <- NULL       # a custom column is removed outright
 
 # ── Size-dependent rate arrays ────────────────────────────────────────────────
 params <- setMetabolicRate(params)         # recompute from species params

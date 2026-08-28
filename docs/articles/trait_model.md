@@ -67,9 +67,9 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.3.0
-    ## Created: 2026-08-23 22:19:49
-    ## Modified: 2026-08-23 22:19:49
+    ## mizer version: 3.3.1
+    ## Created: 2026-08-28 11:49:49
+    ## Modified: 2026-08-28 11:49:50
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   1e+05
@@ -79,7 +79,7 @@ summary(params)
     ##  maximum size:   2.23872
     ##  no. size bins:  208 (301 size bins in total)
     ## Steady state:
-    ##  biomass drift:  0.25 /year  (not at steady state - run tuneSteadyState())
+    ##  biomass drift:  0.25 /year  (not at steady state, largest in 1 - run tuneSteadyState())
     ## Species details:
     ## An object of class "species_params" containing parameters for 10 species:
     ##  species        w_inf        w_mat w_min  f0   fc beta

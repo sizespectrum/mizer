@@ -21,7 +21,7 @@ mizer methods.'><meta property="og:image" content="https://sizespectrum.org/mize
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -138,6 +138,11 @@ source.</p></dd>
 registered maximal chain. For example, after registering
 <code>c(mizerExtB = "1.2.0", mizerExtA = "0.4.1")</code>, objects using only
 <code>c(mizerExtA = "0.4.1")</code> are also valid.</p>
+<p>Re-registering the active chain, or any suffix of it, leaves the registered
+chain unchanged and repairs the dynamic marker classes if any of them went
+missing. Only the namespaces of the extensions actually passed in
+<code>extensions</code> are loaded or installed; the repair itself never installs
+anything.</p>
 <p>For extension packages that register themselves incrementally from <code>.onLoad</code>,
 use <code><a href="registerExtension.html">registerExtension()</a></code> instead.</p>
     </div>
@@ -153,6 +158,7 @@ The <a href="https://sizespectrum.org/mizer/articles/guide-use-extension-package
 <code><a href="coerceToExtensionClass.html">coerceToExtensionClass()</a></code>,
 <code><a href="getRegisteredExtensions.html">getRegisteredExtensions()</a></code>,
 <code><a href="initialNOther-set.html">initialNOther&lt;-()</a></code>,
+<code><a href="other_mort.html">other_mort()</a></code>,
 <code><a href="recordExtension.html">recordExtension()</a></code>,
 <code><a href="registerExtension.html">registerExtension()</a></code>,
 <code><a href="setComponent.html">setComponent()</a></code>,

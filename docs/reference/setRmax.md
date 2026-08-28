@@ -142,6 +142,8 @@ species_params(params)$erepro
 #>       1       1 
 # Attempting to set the same erepro for all species
 params <- setBevertonHolt(params, erepro = 0.1)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> Warning: For the following species `erepro` has been increased to the smallest possible value: erepro[Gurnard] = 0.558; erepro[Plaice] = 0.921
 t(species_params(params)[, c("erepro", "R_max")])
 #>               Sprat      Sandeel       N.pout      Herring          Dab
@@ -155,6 +157,8 @@ t(species_params(params)[, c("erepro", "R_max")])
 #> R_max  1.145835e+11
 # Setting erepro for some species
 params <- setBevertonHolt(params, erepro = c("Gurnard" = 0.6, "Plaice" = 0.95))
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 t(species_params(params)[, c("erepro", "R_max")])
 #>               Sprat      Sandeel       N.pout      Herring          Dab
 #> erepro 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01
@@ -168,6 +172,8 @@ t(species_params(params)[, c("erepro", "R_max")])
 # Setting R_max
 R_max <- 1e17 * species_params(params)$w_max^-1
 params <- setBevertonHolt(NS_params, R_max = R_max)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> Warning: The following species require an unrealistic value greater than 1 for `erepro`: Plaice
 t(species_params(params)[, c("erepro", "R_max")])
 #>               Sprat      Sandeel       N.pout      Herring          Dab
@@ -181,6 +187,8 @@ t(species_params(params)[, c("erepro", "R_max")])
 #> R_max  2.509328e+12 2.521521e+12
 # Setting reproduction_level
 params <- setBevertonHolt(params, reproduction_level = 0.3)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> Warning: The following species require an unrealistic value greater than 1 for `erepro`: Plaice
 t(species_params(params)[, c("erepro", "R_max")])
 #>               Sprat      Sandeel       N.pout      Herring          Dab
@@ -195,6 +203,16 @@ t(species_params(params)[, c("erepro", "R_max")])
 
 # Inspecting reproduction level
 reproduction_level(NS_params)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>      Sprat    Sandeel     N.pout    Herring        Dab    Whiting       Sole 
 #> 0.99074238 0.99987053 0.92829319 0.99198802 0.99578514 0.98718674 0.99643774 
 #>    Gurnard     Plaice    Haddock        Cod     Saithe 
@@ -202,8 +220,20 @@ reproduction_level(NS_params)
 
 # The reproduction level can be changed without changing the steady state:
 reproduction_level(params) <- 0.9
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> Warning: The following species require an unrealistic value greater than 1 for `erepro`: Gurnard, Plaice
 reproduction_level(params)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>   Sprat Sandeel  N.pout Herring     Dab Whiting    Sole Gurnard  Plaice Haddock 
 #>     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9 
 #>     Cod  Saithe 

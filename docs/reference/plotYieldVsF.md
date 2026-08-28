@@ -176,11 +176,15 @@ Other scan functions:
 ``` r
 # \donttest{
 plotYieldVsF(NS_params, "Cod", F_max = 1.5, no_steps = 8)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 
 
 # The fishing mortality that maximises the yield
 scan <- plotYieldVsF(NS_params, "Cod", F_max = 1.5, no_steps = 8,
                      return_data = TRUE)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 attr(scan, "at_max")
 #>       Cod 
 #> 0.8571429 

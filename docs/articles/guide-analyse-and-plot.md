@@ -104,6 +104,7 @@ series) or `MizerParams` (single value from the initial state). See
 |----|----|----|
 | [`getProportionOfLargeFish(sim)`](https://sizespectrum.org/mizer/reference/getProportionOfLargeFish.md) | `threshold_w = 100`, `biomass_proportion` | proportion of large fish through time |
 | [`getMeanWeight(sim)`](https://sizespectrum.org/mizer/reference/getMeanWeight.md) | `min_w`, `max_w`, `species` | mean community weight through time |
+| [`getMeanLength(sim)`](https://sizespectrum.org/mizer/reference/getMeanWeight.md) | `min_w`, `max_w`, `species` | mean community length through time |
 | [`getMeanMaxWeight(sim)`](https://sizespectrum.org/mizer/reference/getMeanMaxWeight.md) | `measure = "both"/"numbers"/"biomass"` | mean asymptotic weight through time |
 | [`getCommunitySlope(sim)`](https://sizespectrum.org/mizer/reference/getCommunitySlope.md) | `min_w`, `max_w`, `species` | slope, intercept, R² through time |
 
@@ -707,6 +708,7 @@ getTrophicLevelBySpecies(params) # mean trophic level (species)
 # ── Community indicators (time series) ────────────────────────────────────────
 getProportionOfLargeFish(sim, threshold_w = 100)
 getMeanWeight(sim)
+getMeanLength(sim)               # needs species_params `a` and `b`
 getMeanMaxWeight(sim)
 getCommunitySlope(sim)          # returns data.frame with slope, intercept, R²
 

@@ -7,11 +7,11 @@ specialised array classes returned by many mizer functions.
 
 ``` r
 # S3 method for class 'ArraySpeciesBySize'
-summary(object, ...)
+summary(object, all.sizes = FALSE, ...)
 # S3 method for class 'ArrayTimeBySpecies'
 summary(object, ...)
 # S3 method for class 'ArrayTimeBySpeciesBySize'
-summary(object, ...)
+summary(object, all.sizes = FALSE, ...)
 # S3 method for class 'MizerSim'
 summary(object, ...)
 # S3 method for class 'MizerParams'
@@ -23,6 +23,13 @@ summary(object, ...)
 - object:
 
   The object to summarise.
+
+- all.sizes:
+
+  If `FALSE` (the default), values outside a species' size range
+  (`w_min` to `w_max`) are left out, as in
+  [`plot()`](https://sizespectrum.org/mizer/reference/plot.md). Only for
+  the classes with a size dimension.
 
 - ...:
 
@@ -58,6 +65,16 @@ dimensions and a per-species data frame containing minimum, mean and
 maximum values. Printing that summary object gives the same compact
 table in a human-readable form.
 
+For the two classes that have a size dimension, those values are taken
+over each species' own size range, from its `w_min` to its `w_max`,
+which is the range
+[`plot()`](https://sizespectrum.org/mizer/reference/plot.md) draws. A
+rate array is defined on the whole size grid, but the values outside a
+species' range describe an animal that does not exist — the encounter
+rate a 40 kg Sprat would have — and they are usually the extreme ones,
+so a summary that included them reported the size grid rather than the
+species. Pass `all.sizes = TRUE` for the whole grid.
+
 ## See also
 
 [`print()`](https://sizespectrum.org/mizer/reference/print.md),
@@ -74,6 +91,8 @@ table in a human-readable form.
 ``` r
 # \donttest{
 summary(NS_params)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> An object of class "MizerParams" 
 #> mizer version: 3.0.0.9003
 #> Created: 2021-09-03 20:29:38
@@ -127,7 +146,7 @@ summary(NS_sim)
 #>  maximum size:   9.82091
 #>  no. size bins:  171 (218 size bins in total)
 #> Steady state:
-#>  biomass drift:  0.91 /year  (not at steady state - run tuneSteadyState())
+#>  biomass drift:  0.91 /year  (not at steady state, largest in Cod - run tuneSteadyState())
 #> Species details:
 #> An object of class "species_params" containing parameters for 12 species:
 #>  species   w_inf w_mat w_min   beta sigma
@@ -165,38 +184,46 @@ summary(NS_sim)
 #>  Output stored every 1 years
 #>  Time step   Method: 
 summary(getEncounter(NS_params))
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> Encounter rate [g/year] 
 #> 12 species x 100 sizes
 #> 
-#>  Species       Min      Mean       Max
-#>    Sprat 0.2992076  2929.178  39573.31
-#>  Sandeel 0.4528175  3768.983  45507.81
-#>   N.pout 0.5019776 16840.828 147886.62
-#>  Herring 0.5752333  6241.503  80375.40
-#>      Dab 0.4916095 24004.843 266704.99
-#>  Whiting 0.4362525 17348.364 137539.48
-#>     Sole 0.3646753 12087.308 148784.12
-#>  Gurnard 0.3122260 11327.057 135351.68
-#>   Plaice 0.2323659 11800.440 113242.16
-#>  Haddock 0.5964130 24932.923 334719.58
-#>      Cod 0.9658343 52646.610 436916.91
-#>   Saithe 0.7709631 16377.321 187775.81
+#>  Species       Min        Mean         Max
+#>    Sprat 0.2992076    37.92979    239.6706
+#>  Sandeel 0.4528175    67.08030    434.6202
+#>   N.pout 0.5019776   237.84164   2613.4140
+#>  Herring 0.5752333   282.49597   2203.3821
+#>      Dab 0.4916095   395.38383   4473.2748
+#>  Whiting 0.4362525  2507.48128  28974.8976
+#>     Sole 0.3646753   474.92455   5616.2042
+#>  Gurnard 0.3122260   318.45335   3726.8753
+#>   Plaice 0.2323659  1898.07284  24800.9828
+#>  Haddock 0.5964130  3547.12149  49555.6495
+#>      Cod 0.9658343 52646.61006 436916.9135
+#>   Saithe 0.7709631 14646.02285 160506.0739
 summary(getFMort(NS_sim))
 #> Fishing mortality [1/year] 
 #> 44 times x 12 species x 100 sizes
 #> 
 #>  Species          Min       Mean       Max
-#>    Sprat 0.0000000000 0.33743869 2.1827924
-#>  Sandeel 0.0000000000 0.26816487 1.3102141
-#>   N.pout 0.0000000000 0.30707882 2.1827924
-#>  Herring 0.0077894362 0.32918211 1.9100547
-#>      Dab 0.0017746971 0.04908083 0.1734253
-#>  Whiting 0.0126246154 0.33123701 1.3975648
-#>     Sole 0.0268320133 0.30068824 1.1274436
-#>  Gurnard 0.0000000000 0.01269037 0.1307616
-#>   Plaice 0.0089964121 0.24671481 0.8671267
-#>  Haddock 0.0015854377 0.31410333 1.4275908
-#>      Cod 0.0494762790 0.37063678 1.0721081
-#>   Saithe 0.0009633361 0.15709914 1.2032865
+#>    Sprat 0.0000000000 0.12879552 2.1827923
+#>  Sandeel 0.0000000000 0.11611087 1.3076336
+#>   N.pout 0.0000000000 0.13718398 2.1228994
+#>  Herring 0.0077894362 0.18281500 1.4419293
+#>      Dab 0.0017746971 0.02322755 0.1633433
+#>  Whiting 0.0126246154 0.17579846 1.3138868
+#>     Sole 0.0268320133 0.15939358 1.0259979
+#>  Gurnard 0.0000000000 0.00541050 0.1054407
+#>   Plaice 0.0089964121 0.18786555 0.8670560
+#>  Haddock 0.0015854377 0.22672527 1.4275500
+#>      Cod 0.0494762790 0.36512704 1.0721072
+#>   Saithe 0.0009633361 0.15208058 1.2032857
 # }
 ```

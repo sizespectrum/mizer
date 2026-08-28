@@ -15,7 +15,7 @@ An alias provided for backward compatibility with mizer version &amp;lt;= 2.5.2"
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,7 +95,7 @@ An alias provided for backward compatibility with mizer version &amp;lt;= 2.5.2"
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">completeSpeciesParams</span><span class="op">(</span><span class="va">species_params</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">completeSpeciesParams</span><span class="op">(</span><span class="va">species_params</span>, check_misspellings <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -105,43 +105,10 @@ An alias provided for backward compatibility with mizer version &amp;lt;= 2.5.2"
 <dl><dt id="arg-species-params">species_params<a class="anchor" aria-label="anchor" href="#arg-species-params"></a></dt>
 <dd><p>The user-supplied species parameter data frame</p></dd>
 
-</dl></div>
-    <div class="section level2">
-    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>For <code><a href="validSpeciesParams.html">validSpeciesParams()</a></code>: A valid species parameter data frame with
-additional parameters with default values.</p>
-<p>For <code><a href="validSpeciesParams.html">validGivenSpeciesParams()</a></code>: A valid species parameter data frame
-without additional parameters.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code><a href="validSpeciesParams.html">validGivenSpeciesParams()</a></code> checks the validity of the given species
-parameters. It throws an error if</p><ul><li><p>the <code>species</code> column does not exist or contains duplicates</p></li>
-<li><p>the asymptotic size <code>w_inf</code> is not specified for all species (but see the
-backwards-compatibility note below)</p></li>
-</ul><p>If a weight-based parameter is missing but the corresponding length-based
-parameter is given, as well as the <code>a</code> and <code>b</code> parameters for length-weight
-conversion, then the weight-based parameters are added. If both length and
-weight are given, then weight is used and an <code>info_about_default</code> condition
-is signalled if the two are inconsistent.</p>
-<p>The required maximum-size parameter is <code>w_inf</code>, the von Bertalanffy
-asymptotic size of an average individual. For backwards compatibility, if no
-<code>w_inf</code> column is given, its values are taken from the <code>w_repro_max</code> column
-if that is present, or otherwise from the <code>w_max</code> column, and an
-informational message is issued. (<code>w_repro_max</code> is preferred over <code>w_max</code>
-because in earlier versions of mizer it was the size at which growth stopped
-and is therefore the closest analogue to the asymptotic size.)</p>
-<p>Some inconsistencies in the size parameters are resolved as follows:</p><ul><li><p>Any <code>w_mat</code> that is not smaller than <code>w_inf</code> is set to <code>w_inf / 4</code>.</p></li>
-<li><p>Any <code>w_mat25</code> that is not smaller than <code>w_mat</code> is set to NA.</p></li>
-<li><p>Any <code>w_min</code> that is not smaller than <code>w_mat</code> is set to <code>0.001</code> or
-<code>w_mat /10</code>, whichever is smaller.</p></li>
-<li><p>Any <code>w_repro_max</code> that is not larger than <code>w_mat</code> is set to <code>4 * w_mat</code>.</p></li>
-</ul><p>The row names of the returned data frame will be the species names.
-If <code>species_params</code> was provided as a tibble it is converted back to an
-ordinary data frame.</p>
-<p>The function tests for some typical misspellings of parameter names, like
-wrong capitalisation or missing underscores and issues a warning if it
-detects such a name.</p>
+
+<dt id="arg-check-misspellings">check_misspellings<a class="anchor" aria-label="anchor" href="#arg-check-misspellings"></a></dt>
+<dd><p>Whether to report column names that look like
+misspellings of standard species parameter names. <code>TRUE</code> by default.</p>
 <p><code><a href="validSpeciesParams.html">validSpeciesParams()</a></code> first calls <code><a href="validSpeciesParams.html">validGivenSpeciesParams()</a></code> but then
 goes further by adding default values for species parameters that were not
 provided. It only sets defaults for those species parameters that are not
@@ -173,7 +140,48 @@ functions.</p>
 <p>Note that the species parameters returned by these functions are not
 guaranteed to produce a viable model. More checks of the parameters are
 performed by the individual rate-setting functions (see <code><a href="setParams.html">setParams()</a></code> for the
-list of these functions).</p>
+list of these functions).</p></dd>
+
+</dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>For <code><a href="validSpeciesParams.html">validSpeciesParams()</a></code>: A valid species parameter data frame with
+additional parameters with default values.</p>
+<p>For <code><a href="validSpeciesParams.html">validGivenSpeciesParams()</a></code>: A valid species parameter data frame
+without additional parameters.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p><code><a href="validSpeciesParams.html">validGivenSpeciesParams()</a></code> checks the validity of the given species
+parameters. It throws an error if</p><ul><li><p>the <code>species</code> column does not exist or contains duplicates</p></li>
+<li><p>the asymptotic size <code>w_inf</code> is not specified for all species (but see the
+backwards-compatibility note below)</p></li>
+</ul><p>If a weight-based parameter is missing but the corresponding length-based
+parameter is given, as well as the <code>a</code> and <code>b</code> parameters for length-weight
+conversion, then the weight-based parameters are added. If both length and
+weight are given, then weight is used and an <code>info_about_default</code> condition
+is signalled if the two are inconsistent.</p>
+<p>The required maximum-size parameter is <code>w_inf</code>, the von Bertalanffy
+asymptotic size of an average individual. For backwards compatibility, if no
+<code>w_inf</code> column is given, its values are taken from the <code>w_repro_max</code> column
+if that is present, or otherwise from the <code>w_max</code> column, and an
+informational message is issued. (<code>w_repro_max</code> is preferred over <code>w_max</code>
+because in earlier versions of mizer it was the size at which growth stopped
+and is therefore the closest analogue to the asymptotic size.)</p>
+<p>Some inconsistencies in the size parameters are resolved as follows:</p><ul><li><p>Any <code>w_mat</code> that is not smaller than <code>w_inf</code> is set to <code>w_inf / 4</code>.</p></li>
+<li><p>Any <code>w_mat25</code> that is not smaller than <code>w_mat</code> is marked as missing, as
+is the corresponding <code>l_mat25</code>, so that the default is used instead.</p></li>
+<li><p>Any <code>w_min</code> that is not smaller than <code>w_mat</code> is set to <code>0.001</code> or
+<code>w_mat /10</code>, whichever is smaller.</p></li>
+<li><p>Any <code>w_repro_max</code> that is not larger than <code>w_mat</code> is set to <code>4 * w_mat</code>.</p></li>
+</ul><p>The row names of the returned data frame will be the species names.
+If <code>species_params</code> was provided as a tibble it is converted back to an
+ordinary data frame.</p>
+<p>The function tests for some typical misspellings of parameter names, like
+wrong capitalisation or missing underscores and issues a warning if it
+detects such a name. Pass <code>check_misspellings = FALSE</code> to skip that test,
+as mizer does when it re-validates a table it has already checked, so that
+the report is made once, when the column is introduced.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -88,11 +88,21 @@ Other rate functions:
 
 ``` r
 rates <- getRates(NS_params)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 names(rates)
 #>  [1] "encounter"     "feeding_level" "e"             "e_repro"      
 #>  [5] "e_growth"      "diffusion"     "pred_rate"     "pred_mort"    
 #>  [9] "f_mort"        "mort"          "rdi"           "rdd"          
 #> [13] "resource_mort"
 identical(rates$encounter, getEncounter(NS_params))
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> [1] FALSE
 ```

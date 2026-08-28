@@ -152,6 +152,8 @@ for the North Sea species.
 params <- newMultispeciesParams(NS_species_params, NS_interaction)
 ```
 
+    ## ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ## ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
     ## ℹ No h provided for some species, so using age at maturity to calculate it.
     ## ℹ Because you have n != p, the default value for `h` is not very good.
     ## ℹ Because the age at maturity is not known, I need to fall back to using

@@ -177,6 +177,8 @@ params <- set_community_model(f0=0.7, z0=0.2, recruitment=3e7)
 #> Warning: `set_community_model()` was deprecated in mizer 2.0.0.
 #> ℹ Please use `newCommunityParams()` instead.
 #> Note: No m column in species data frame so using m = 1.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # This is now achieved with
 params <- newCommunityParams(f0 = 0.7, z0 = 0.2)
 sim <- project(params, effort = 0, t_max = 100, dt=0.1)

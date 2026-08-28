@@ -68,5 +68,7 @@ params <- MizerParams(NS_species_params_gears)
 #> Note: No gamma column in species data frame so using f0, h, beta, sigma, lambda and kappa to calculate it.
 #> Note: No ks column in species data frame so using ks = h * 0.2.
 #> Note: No m column in species data frame so using m = 1.
-#> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
 ```

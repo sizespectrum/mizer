@@ -137,12 +137,18 @@ Other plotting functions:
 ``` r
 # \donttest{
 plotDiet(NS_params, species = "Cod")
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 
 plotDiet(NS_params, species = 5:9)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 
 
 # Returning the data frame
 fr <- plotDiet(NS_params, species = "Cod", return_data = TRUE)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 str(fr)
 #> 'data.frame':    800 obs. of  4 variables:
 #>  $ Predator  : Factor w/ 1 level "Cod": 1 1 1 1 1 1 1 1 1 1 ...

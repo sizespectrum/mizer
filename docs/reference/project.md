@@ -240,9 +240,13 @@ article for the symptoms and the remedy.
 params <- NS_params
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # With constant fishing effort which is different for each gear
 effort <- c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5)
 sim <- project(params, t_max = 20, effort = effort)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # With fishing effort that varies through time for each gear
 gear_names <- c("Industrial", "Pelagic", "Beam", "Otter")
 times <- seq(from = 1, to = 10, by = 1)
@@ -255,10 +259,16 @@ effort_array[, "Pelagic"] <- seq(from = 1, to = 2, length = length(times))
 effort_array[, "Beam"] <- seq(from = 1, to = 0, length = length(times))
 effort_array[, "Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 sim <- project(params, effort = effort_array)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Extend a simulation beyond the effort array times
 # Effort values from the final time are used for the extension
 sim <- project(params, effort = effort_array, t_max = 15)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Control save times with an effort array using t_save
 sim <- project(params, effort = effort_array, t_save = 2)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # }
 ```

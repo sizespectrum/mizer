@@ -125,6 +125,8 @@ Other scan functions:
 # \donttest{
 scan <- scanModel(NS_params, scan_values = seq(0, 1, 0.25),
                   set_func = scanEffort(), species = c("Cod", "Herring"))
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 plot(scan)
 
 plot(scan, style = "envelope", mark_max = TRUE)

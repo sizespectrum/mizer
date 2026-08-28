@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -173,7 +173,7 @@
 <tr class="even">
 <td><a href="../reference/getSteadyResidual.html"><code>getSteadyResidual(params)</code></a></td>
 <td>
-<em>(experimental)</em> per-capita rates of change across species and sizes, showing where it is not</td>
+<em>(experimental)</em> each size class’s contribution to its species’ biomass drift, showing where it is not; <code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums()</a></code> gives the per-species drift</td>
 </tr>
 </tbody>
 </table>
@@ -186,6 +186,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"convergence"</span><span class="op">)</span><span class="op">$</span><span class="va">attractor</span>    <span class="co"># "fixed_point", "limit_cycle" or NA</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"convergence"</span><span class="op">)</span><span class="op">$</span><span class="va">termination</span>  <span class="co"># why the run stopped</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"convergence"</span><span class="op">)</span><span class="op">$</span><span class="va">residual</span>     <span class="co"># largest biomass drift, in 1/year</span></span>
+<span>                                         <span class="co"># (consumers and resource only)</span></span>
 <span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/getSteadyResidual.html">getSteadyResidual</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>          <span class="co"># which species, and at which sizes</span></span></code></pre></div>
 </div>
 <p><strong><code>attractor</code> is the field to read.</strong> It is set from the measured biomass drift of the model that is returned, so <code>"fixed_point"</code> means the drift is within <code>residual_tol</code> (default <code>0.05</code>/year) and nothing else does. <code>termination</code> says how the run ended and <code>converged</code> whether the solver was happy, neither of which is a claim about the state.</p>
@@ -269,11 +270,13 @@
 <div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/isSteady.html">isSteady</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>                       <span class="co"># TRUE if settled within tolerance</span></span>
 <span><span class="fu"><a href="../reference/summary.html">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>                        <span class="co"># still at the steady state?</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu"><a href="../reference/getSteadyResidual.html">getSteadyResidual</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="st">"other"</span><span class="op">)</span>  <span class="co"># components, if the model has any</span></span>
 <span><span class="fu"><a href="../reference/plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>                    <span class="co"># sensible, overlapping spectra?</span></span>
 <span><span class="fu"><a href="../reference/plotGrowthCurves.html">plotGrowthCurves</a></span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotBiomassObservedVsModel.html">plotBiomassObservedVsModel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>     <span class="co"># points near the 1:1 line?</span></span>
 <span><span class="fu"><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 </div>
+<p><strong>A model with components registered by <a href="../reference/setComponent.html"><code>setComponent()</code></a> needs the extra line.</strong> <code><a href="../reference/isSteady.html">isSteady()</a></code> and the <code><a href="../reference/summary.html">summary()</a></code> drift cover the consumers and the resource only: a component’s state can be any object at all, so mizer cannot form a biomass for it, and the functions that find steady states hold it fixed anyway. Mizer names any component that is moving whenever it reports on the drift, and <code><a href="../reference/summary.html">summary()</a></code> lists them on their own lines, but the number in front of you is not about them. <code><a href="../reference/projectUntilSettled.html">projectUntilSettled()</a></code> is what settles them along with everything else.</p>
 <p><code>project(params, check_steady = TRUE)</code> makes the same check at the point where it matters, warning if the run is about to start from a state that is not a fixed point. It is off by default, because projecting a model away from its steady state is a normal thing to do.</p>
 <p>When the model looks right, project it forward with the <a href="guide-run-simulation.html">guide to running a mizer simulation</a> and analyse the results with the <a href="guide-analyse-and-plot.html">guide to analysing and plotting mizer results</a>.</p>
 <hr></section><section class="level2"><h2 id="diagnosing-calibration-problems">Diagnosing calibration problems<a class="anchor" aria-label="anchor" href="#diagnosing-calibration-problems"></a>

@@ -460,6 +460,14 @@ str(NS_sim)
 #>      ..$ component: NULL 
 #>  @ sim_params          :  list()
 str(getEncounter(NS_params))
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>  'ArraySpeciesBySize' num [1:12, 1:100] 0.299 0.453 0.502 0.575 0.492 ...
 #>  - attr(*, "dimnames")=List of 2
 #>   ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...

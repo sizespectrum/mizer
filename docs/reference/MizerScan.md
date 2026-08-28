@@ -124,8 +124,13 @@ order:
 
 - `residual`:
 
-  How far the state still is from a fixed point, as a per-capita rate in
-  1/year, see
+  How far the state still is from a fixed point: the largest absolute
+  relative rate of biomass change, in 1/year, taken from the
+  `"convergence"` attribute that
+  [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
+  attaches to its result and described there. It is a biomass-weighted
+  aggregate over each species' size classes, not the largest cellwise
+  value of
   [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md).
 
 The first three columns are the x, y and grouping variable in that
@@ -200,6 +205,8 @@ Other scan functions:
 # \donttest{
 scan <- scanModel(NS_params, scan_values = c(0, 0.5, 1),
                   set_func = scanEffort(), species = "Cod")
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 scan
 #> Biomass [g] vs Fishing effort 
 #> 3 scan values x 1 series

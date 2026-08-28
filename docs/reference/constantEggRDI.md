@@ -66,6 +66,8 @@ Other functions calculating density-dependent reproduction rate:
 params <- NS_params
 # We set the reproduction rate functions
 params <- setRateFunction(params, "RDI", "constantEggRDI")
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 params <- setRateFunction(params, "RDD", "noRDD")
 # Now the egg density should stay fixed no matter how we fish
 sim <- project(params, effort = 10, progress_bar = FALSE)

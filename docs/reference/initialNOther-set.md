@@ -39,6 +39,7 @@ Other extension tools:
 [`clearExtensionChain()`](https://sizespectrum.org/mizer/reference/clearExtensionChain.md),
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md),
 [`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md),
+[`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md),
 [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md),
 [`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md),
 [`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md),

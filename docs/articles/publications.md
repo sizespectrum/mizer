@@ -371,21 +371,26 @@
 - **NECCTON** — New Commercial European Copernicus Marine Services and
   Technological Operations (<https://neccton.eu>)
 - **Pyramids of Life** — Working with nature for sustainable blue growth
-  (UKRI Sustainable Management of Marine Resources)
+  (UKRI Sustainable Management of Marine Resources,
+  <https://www.smmr.org.uk/funded-projects/pyramids-of-life-working-with-nature/>)
 - **Rewiring Marine Food Webs** — Predicting consequences of species
-  range shifts (Australian Research Council DP170104240)
+  range shifts (Australian Research Council DP170104240,
+  <https://dataportal.arc.gov.au/NCGP/Web/Grant/Grant/DP170104240>)
 - **MINOUW Project** — Science, Technology, and Society Initiative to
-  Minimize Unwanted Catches in European Fisheries (EU Horizon 2020)
+  Minimize Unwanted Catches in European Fisheries (EU Horizon 2020,
+  <https://cordis.europa.eu/project/id/634495>)
 - **MESOPP** — Mesopelagic Southern Ocean Prey and Predators (EU Horizon
-  2020)
-- **MERP** — Marine Ecosystems Research Programme (UK Defra & NERC)
+  2020, <https://cordis.europa.eu/project/id/692173>)
+- **MERP** — Marine Ecosystems Research Programme (UK Defra & NERC,
+  <https://www.marine-ecosystems.org.uk>)
 - **Expert Working Group on Benchmarks for Ecosystem Assessment under
-  EBFM** (Lenfest Ocean Program)
+  EBFM** (Lenfest Ocean Program, <https://www.lenfestocean.org>)
 - **Deepfishman** — Monitoring and Management of Deepwater Fisheries and
-  Stocks (EU FP7)
+  Stocks (EU FP7, <https://cordis.europa.eu/project/id/227390>)
 - **DEFINEIT** — Developing fisheries management indicators and targets
-  (European Marifish)
-- **IMAGE** — Indicators for fisheries Management in Europe (EU FP6)
+  (European Marifish, <https://imbriw.hcmr.gr/defineit-marifish/>)
+- **IMAGE** — Indicators for fisheries Management in Europe (EU FP6,
+  <https://cordis.europa.eu/project/id/44227>)
 
 ## References
 

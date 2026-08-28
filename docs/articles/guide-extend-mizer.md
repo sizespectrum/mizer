@@ -17,6 +17,7 @@ All setters return a new
 | Goal | Use |
 |----|----|
 | Add a fixed external food or mortality source (no new state variable) | [`ext_encounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md) / [`ext_mort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) |
+| Add an extra encounter or mortality that depends on the model state but has no state of its own | [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md) / [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md) |
 | Change how one built-in rate is calculated | [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) |
 | Add a new dynamical pool (detritus, carrion, oxygen, second resource…) | [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md) |
 | Store parameters for your custom code | [`other_params()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) (model-wide) or `component_params` (one component) |
@@ -64,6 +65,16 @@ ext_encounter(params_ext) <- ext_encounter(params_ext) + extra_food
 This is the right choice when the extra process is not itself depleted
 or replenished, and the fish do not feed back on it. If it needs to
 respond to the fish, you need a component instead.
+
+External encounter changes the realised encounter and feeding level, but
+it does not enter the power-law reference state used by
+[`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
+and
+[`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md).
+Those defaults likewise exclude functions registered with
+[`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md),
+including a component’s `encounter_fun`: they describe feeding on the
+reference resource alone, before extra food sources are added.
 
 ------------------------------------------------------------------------
 
@@ -283,6 +294,33 @@ remove them with
 Component state is available to all custom functions as
 `n_other[["detritus"]]`, and its parameters via `component_params`.
 
+If there is nothing for `dynamics_fun` to update — a starvation or
+senescence mortality reads the state but keeps none of its own — do not
+invent a component for it. Register the function on its own instead:
+
+``` r
+
+other_mort(params)[["starvation"]] <- "starvMort"
+other_encounter(params)[["scavenging"]] <- "scavengingEncounter"
+```
+
+[`getMort()`](https://sizespectrum.org/mizer/reference/getMort.md) and
+[`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md)
+add the result of every function registered this way, exactly as they do
+for a component’s `mort_fun` and `encounter_fun`. The two registries do
+not overlap: an entry that belongs to a component is owned by
+[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
+reported by
+[`getComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+and removed by
+[`removeComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
+and
+[`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+deliberately does not list it — the same split
+[`other_params()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
+makes for component parameters. Assigning `NULL` removes a free-standing
+entry.
+
 The functions named in that call take the component’s name as a
 `component` argument, so one implementation can serve several
 components, and reach their own state as `n_other[[component]]` and
@@ -322,6 +360,42 @@ ordinary predation kernel and shows up in
 [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md)
 without further work.
 
+### Components and the steady state
+
+A component you give a `dynamics_fun` is outside mizer’s steady-state
+machinery, in both directions, and a model with one needs checking
+accordingly:
+
+- [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md),
+  [`findSteadyState(solver = "newton")`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
+  and
+  [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
+  hold the component at its stored value and solve the consumer-resource
+  subsystem around it. Mizer warns when it meets a component with
+  dynamics of its own.
+- [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md),
+  the [`summary()`](https://sizespectrum.org/mizer/reference/summary.md)
+  drift line and
+  [`project(check_steady = TRUE)`](https://sizespectrum.org/mizer/reference/project.md)
+  judge that same subsystem. A component’s state can be any object at
+  all, so mizer cannot form a biomass for it and does not fold its rate
+  of change into the number. **A model can be
+  [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
+  while your component is moving.**
+
+Mizer names any component that is moving whenever it reports on the
+drift, and `attr(getSteadyResidual(params), "other")` holds the per-cell
+relative rates of change it measured, reduced by `max(abs(...))` for
+reporting — an overestimate whenever the component has fast cells
+holding almost nothing, which is why that number is reported rather than
+compared against a tolerance.
+
+To settle a component along with everything else, use
+[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md),
+which advances it like every other state variable; its stopping rule
+does wait for the component. Issue \#589 tracks giving components a way
+to declare their own reduction and so re-enter the criterion.
+
 ------------------------------------------------------------------------
 
 ## Worked example: external encounter and mortality
@@ -331,7 +405,33 @@ The `extra_food` built above adds straight to the total encounter rate:
 ``` r
 
 enc_base <- getEncounter(NS_params)
+```
+
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+
+``` r
+
 enc_ext <- getEncounter(params_ext)
+```
+
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+
+``` r
+
 range(enc_ext - enc_base, na.rm = TRUE)
 ```
 
@@ -377,6 +477,13 @@ Registered by name, the rate now moves with `t`:
 ``` r
 
 params2 <- setRateFunction(params, "Encounter", "seasonalEncounter")
+```
+
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+
+``` r
+
 enc0 <- getEncounter(params2, t = 0)
 enc_quarter <- getEncounter(params2, t = 0.25)
 range(enc_quarter / enc0, na.rm = TRUE)
@@ -413,6 +520,12 @@ at half the capacity it relaxes towards:
 
 detritus_params <- list(capacity = initialNResource(params),
                         rate = params@rr_pp)
+```
+
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+
+``` r
 
 params3 <- setComponent(
     params,
@@ -425,6 +538,9 @@ params3 <- setComponent(
 )
 ```
 
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+
 Its initial state is now in
 [`initialNOther(params3)$Detritus`](https://sizespectrum.org/mizer/reference/initialNOther-set.md)
 and its settings in `getComponent(params3, "Detritus")`. Because it is
@@ -435,6 +551,9 @@ no further work:
 
 plotDiet(params3, species = "Cod")
 ```
+
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 
 ![](guide-extend-mizer_files/figure-html/detritus-diet-1.png)
 

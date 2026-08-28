@@ -113,6 +113,8 @@ Other rate functions:
 params <- NS_params
 # Predation mortality in initial state
 M2 <- getPredMort(params)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 str(M2)
 #>  'ArraySpeciesBySize' num [1:12, 1:100] 3.64 4.43 4.31 4.89 4.8 ...
 #>  - attr(*, "dimnames")=List of 2
@@ -125,8 +127,12 @@ str(M2)
 #>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Get predation mortality at one time step
 M2 <- getPredMort(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ])
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Get predation mortality at all saved time steps
 M2 <- getPredMort(sim)
 str(M2)

@@ -137,6 +137,8 @@ Other plotting functions:
 # \donttest{
 params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 0.2, progress_bar = FALSE)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 plotYieldGear(sim)
 
 plotYieldGear(sim, species = c("Cod", "Herring"), total = TRUE)

@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -136,7 +136,7 @@
 <hr>
 <section class="level2"><h2 id="upgrading-from-mizer-3-2-to-3-3">Upgrading from mizer 3.2 to 3.3<a class="anchor" aria-label="anchor" href="#upgrading-from-mizer-3-2-to-3-3"></a>
 </h2>
-<p>Most of the changes in this release are corrections. Results move only for models that had opted in to second-order bin-averaging or to the <code>van_leer</code> flux, that set <code>min_w</code> below the default, that specify sizes as lengths, that or that change the resource power law after constructing the model. Two interfaces change: the spectrum plots, and the names of the steady-state finders.</p>
+<p>Most of the changes in this release are corrections, so for many models nothing moves at all. Results change for a model that had opted in to second-order bin-averaging or to the <code>van_leer</code> flux, that sets <code>min_w</code> below the default, that specifies sizes as lengths, that changes the resource power law after constructing the model, that lets mizer fill in a <code>gamma</code> or <code>f0</code> while carrying a hand-set search volume, an extension or extra food, or that assigns a species parameter table holding only some of the model’s columns. Three interfaces change: the spectrum plots, the names of the steady-state finders, and the <code>"convergence"</code> attribute they attach. Everything else is a new report, and <code>info_level = 0</code> silences the lot.</p>
 <section class="level3"><h3 id="biomass-and-per_log_size-replace-power">
 <code>biomass</code> and <code>per_log_size</code> replace <code>power</code>
 <a class="anchor" aria-label="anchor" href="#biomass-and-per_log_size-replace-power"></a>
@@ -214,23 +214,51 @@
 <strong>An empty background group no longer aborts the plot</strong> with <code>replacement has 1 row, data has 0</code>. That happened whenever no background value survived the filtering, for instance when a background species had died out.</li>
 </ul>
 <p>Separately, these plots no longer discard values of zero or less when the y axis is linear. The floor at <code>1e-20</code> belongs to a logarithmic axis, where such values cannot be shown, and is still applied there. On a linear axis they are data like any other, and a quantity that can go negative used to lose exactly the part of it that was interesting. <code><a href="../reference/plotRelative.html">plotRelative()</a></code> on a time-by-species array is drawn on a linear axis, so it keeps them too, which is what lets it show the -2 of a species that has gone from present to absent.</p>
-</section><section class="level3"><h3 id="bin-averages-are-drawn-at-the-bin-centres-in-time-by-size-plots">Bin averages are drawn at the bin centres in time-by-size plots<a class="anchor" aria-label="anchor" href="#bin-averages-are-drawn-at-the-bin-centres-in-time-by-size-plots"></a>
-</h3>
-<p><code><a href="../reference/plot.html">plot()</a></code> on an <a href="../reference/ArrayTimeBySpeciesBySize.html"><code>ArrayTimeBySpeciesBySize</code></a> took its time slice by hand rather than through the slice helper the other methods use, and lost the array’s <code>representation</code> tag on the way. In a model with second-order bin-averaging switched on with <a href="../reference/second_order_w.html"><code>second_order_w()</code></a>, a bin-averaged quantity such as <a href="../reference/getFMort.html"><code>getFMort(sim)</code></a> or <code>getFeedingLevel(sim)</code> was therefore drawn at the left bin edges instead of the geometric bin centres where it lives — one bin to the left of the right place. Only the drawn location moves; the values are unchanged, as is every plot on the default first-order scheme.</p>
 </section><section class="level3"><h3 id="animations-follow-the-array-type-and-the-size-axis">Animations follow the array type and the size axis<a class="anchor" aria-label="anchor" href="#animations-follow-the-array-type-and-the-size-axis"></a>
 </h3>
-<p><code><a href="../reference/animate.html">animate()</a></code> now applies the axis handling the static plots have. Three changes, each of them a case the animations were missing:</p>
+<p><code><a href="../reference/animate.html">animate()</a></code> now applies the axis handling the static plots have:</p>
 <ul>
 <li>A resource animation with <code>size_axis = "l"</code> labels its y axis <code>1/cm</code>. It used to convert the values to a density per centimetre but keep the <code>1/g</code> of the weight axis in the label, which named the curve wrongly.</li>
 <li>An animation of a <code>"proportion"</code> — <code>getFeedingLevel(sim)</code>, or a resource level through time — is drawn on a linear y axis showing the whole of the interval from 0 to 1, as a static plot of one is. Pass <code>log_y = TRUE</code> or an explicit <code>ylim</code> to override it.</li>
-<li>
-<code>llim</code> and <code>tlim</code> are checked for length like the other limit arguments, rather than being used as given.</li>
-</ul></section><section class="level3"><h3 id="length-and-weight-parameters-follow-the-one-you-gave-last">Length and weight parameters follow the one you gave last<a class="anchor" aria-label="anchor" href="#length-and-weight-parameters-follow-the-one-you-gave-last"></a>
+</ul></section><section class="level3"><h3 id="summary-of-an-array-covers-the-same-sizes-as-plot">
+<code>summary()</code> of an array covers the same sizes as <code>plot()</code>
+<a class="anchor" aria-label="anchor" href="#summary-of-an-array-covers-the-same-sizes-as-plot"></a>
+</h3>
+<p><code><a href="../reference/plot.html">plot()</a></code> of a species-by-size array draws each species over its own size range, from its <code>w_min</code> to its <code>w_max</code>. <code><a href="../reference/summary.html">summary()</a></code> of the same array reduced the whole size grid, so the two described different arrays. The values outside a species’ range describe an animal that does not exist, and because a rate usually grows with size they are also the extreme ones, so it was <code>Min</code> and <code>Max</code> that were reported wrongly:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/summary.html">summary</a></span><span class="op">(</span><span class="fu"><a href="../reference/getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">per_species</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span>
+<span><span class="co">#&gt; before:  Species Sprat   Min 0.299   Mean 2929   Max 39573</span></span>
+<span><span class="co">#&gt; now:     Species Sprat   Min 0.299   Mean 37.9   Max 240</span></span></code></pre></div>
+</div>
+<p>40000 g/year is the encounter rate a 40 kg Sprat would have. 240 g/year is the rate over the sizes a Sprat reaches.</p>
+<p>Both <code><a href="../reference/summary.html">summary()</a></code> methods with a size dimension — <a href="../reference/ArraySpeciesBySize.html"><code>ArraySpeciesBySize</code></a> and <a href="../reference/ArrayTimeBySpeciesBySize.html"><code>ArrayTimeBySpeciesBySize</code></a> — now take <code>all.sizes</code>, defaulting to <code>FALSE</code> as <code><a href="../reference/plot.html">plot()</a></code> does. Pass <code>all.sizes = TRUE</code> for the whole grid:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/summary.html">summary</a></span><span class="op">(</span><span class="fu"><a href="../reference/getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span>, all.sizes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>   <span class="co"># as before</span></span></code></pre></div>
+</div>
+<p>A species with no values left in range now comes back as <code>NA</code> rather than as the <code>-Inf</code>/<code>Inf</code> and warning that <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min()</a></code> and <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max()</a></code> of an empty selection give.</p>
+<p><code><a href="../reference/print.html">print()</a></code> and <code><a href="../reference/as.data.frame.html">as.data.frame()</a></code> are unchanged: they show the array as it is, without interpreting it. Nothing about the arrays themselves changed, so any code that indexes them directly is unaffected.</p>
+</section><section class="level3"><h3 id="getproportionoflargefish-on-a-mizerparams-object-was-wrong">
+<code>getProportionOfLargeFish()</code> on a <code>MizerParams</code> object was wrong<a class="anchor" aria-label="anchor" href="#getproportionoflargefish-on-a-mizerparams-object-was-wrong"></a>
+</h3>
+<p>The <code>MizerParams</code> method multiplied the species x size abundance array by the vector of weights, which R recycles down the columns of the array rather than along the size axis, so every species but the first was weighted by the wrong sizes. Only the <code>MizerParams</code> method was affected; the <a href="../reference/MizerSim.html"><code>MizerSim</code></a> method was always right, and the two now agree when applied to the same state (#494). Any Large Fish Index computed from a <code>MizerParams</code> object in a model with more than one species needs recomputing.</p>
+</section><section class="level3"><h3 id="yield_observed-belongs-to-the-gear-parameters">
+<code>yield_observed</code> belongs to the gear parameters<a class="anchor" aria-label="anchor" href="#yield_observed-belongs-to-the-gear-parameters"></a>
+</h3>
+<p><a href="../reference/plotYieldObservedVsModel.html"><code>plotYieldObservedVsModel()</code></a> now takes the observed yield from the <code>yield_observed</code> column of <a href="../reference/gear_params.html"><code>gear_params()</code></a>, where the yield is given for each gear-species pair and the plot adds it up over the gears:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod, Otter"</span>, <span class="st">"yield_observed"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">3e11</span></span>
+<span><span class="fu"><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>Nothing breaks if your model keeps <code>yield_observed</code> among the species parameters: a species that has no observation in the gear parameters takes its value from there. What changes is that a model following mizer’s own advice — <code>given_species_params&lt;-()</code> has been telling you to use <code>gear_params()&lt;-</code> — now works, where before the plot stopped with “You have not provided values for the column ‘yield_observed’”.</p>
+</section><section class="level3"><h3 id="length-and-weight-parameters-follow-the-one-you-gave-last">Length and weight parameters follow the one you gave last<a class="anchor" aria-label="anchor" href="#length-and-weight-parameters-follow-the-one-you-gave-last"></a>
 </h3>
 <p>A size can be given either as a weight (<code>w_mat</code>, <code>w_max</code>, …) or as the length it converts to (<code>l_mat</code>, <code>l_max</code>, …). Mizer used to derive the weight from the length whenever both were present, so on a model specified by lengths a weight could not be set at all: the value you assigned was replaced on the spot by the one calculated from the unchanged length.</p>
 <p>Both now follow one rule: <strong>the one you gave last wins, and if you gave both at the same time the weight wins.</strong> The other is set to match, so the two never disagree, and mizer warns, naming the species, when it changes a length to match a weight it disagrees with.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">sp</span><span class="op">)</span>   <span class="co"># sp specifies l_mat, a and b</span></span>
 <span></span>
 <span><span class="co"># Used to be silently undone, now it takes effect and l_mat follows</span></span>
@@ -238,6 +266,25 @@
 </div>
 <p>The rule is applied when a data frame is assigned into a model, which is when mizer can tell which values changed. A data frame you have taken out of a model and are editing on its own is left exactly as you write it — the conversions, checks and warnings happen on assignment. One that was never in a model, for example one passed to <a href="../reference/validSpeciesParams.html"><code>validSpeciesParams()</code></a>, carries no such history, so a length and a weight that disagree there count as given at the same time and the weight wins.</p>
 <p><code>species_params&lt;-()</code> and <code>given_species_params&lt;-()</code> apply the rule identically (#490). Previously only <code>species_params&lt;-()</code> did, so the same edit made through <code>given_species_params&lt;-()</code> was discarded — a maturity weight differing by up to 73% — and the given species parameters were left permanently inconsistent, which made mizer repeat the “not consistent” warning at every later parameter change. If you worked around this by setting the weight and the length together, you can now set either one on its own.</p>
+</section><section class="level3"><h3 id="an-invalid-w_mat25-is-replaced-by-its-default">An invalid <code>w_mat25</code> is replaced by its default<a class="anchor" aria-label="anchor" href="#an-invalid-w_mat25-is-replaced-by-its-default"></a>
+</h3>
+<p><code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code> rejects a <code>w_mat25</code> that is not smaller than <code>w_mat</code>. It used to say that it had corrected that <em>by setting it to NA</em>, which described a step the user never saw: <a href="../reference/setReproduction.html"><code>setReproduction()</code></a> fills the default in straight afterwards. It now says it is <code>"marking it as missing so that its default will"</code> be used.</p>
+<p>Where the species parameters also carry <code>l_mat25</code>, this is a change in results and not only in wording. The length used to survive the correction and the length-to-weight conversion put the rejected value straight back, a rounding error below <code>w_mat</code> — small enough to pass the <code>w_mat25 &lt; w_mat</code> assertion in <code><a href="../reference/setReproduction.html">setReproduction()</a></code>, and large enough to collapse the maturity ogive to a step function. Such a model now gets the intended default, <code>w_mat / 3^(1/10)</code>, and a smooth ogive. Maturity, and everything downstream of it, will differ (#580).</p>
+</section><section class="level3"><h3 id="mizer-says-when-it-defaults-the-weight-length-parameters">Mizer says when it defaults the weight-length parameters<a class="anchor" aria-label="anchor" href="#mizer-says-when-it-defaults-the-weight-length-parameters"></a>
+</h3>
+<p>A species parameter data frame with no <code>a</code> or <code>b</code> column has always been given the defaults <code>a = 0.01</code> and <code>b = 3</code>, silently. Building a model from such a data frame now reports them among the other defaults it fills in:</p>
+<pre><code>i No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+i No `b` column so using the isometric default b = 3 in w = a l^b.</code></pre>
+<p>Nothing about the model changes; only the report is new, and it is at <code>info_level = 3</code>, so <code>info_level = 0</code> silences it as it does the rest of the chatter.</p>
+<p>It is worth reading rather than silencing. <code>a = 0.01</code> with weights in grams and lengths in cm is Fulton’s condition factor K = 1, the textbook fusiform fish, and <code>b = 3</code> is isometry. The exponent is a good default — it varies little across species — but <code>a</code> follows body shape over roughly two orders of magnitude, from around 0.001 for eel-like species to a few hundredths for deep-bodied ones, so for a specific species it is a placeholder rather than an estimate. On the twelve North Sea species shipped with mizer, whose fitted values span <code>a</code> = 0.001 to 0.010, the default gives lengths that are 1% to 42% short of the fitted relationship at a weight of 1 g.</p>
+<p>That matters wherever a length reaches the model rather than a plot: the <a href="../reference/sigmoid_length.html"><code>sigmoid_length</code></a>, <a href="../reference/double_sigmoid_length.html"><code>double_sigmoid_length</code></a> and <a href="../reference/knife_edge_length.html"><code>knife_edge_length</code></a> selectivity functions convert <code>l50</code>, <code>l25</code> and <code>knife_edge_length</code> from <code><a href="../reference/gear_params.html">gear_params()</a></code> into weights through <code>a</code> and <code>b</code>, so a defaulted relationship puts the selectivity curve at the wrong weights and changes the dynamics. The same applies to <code>min_l</code> and <code>max_l</code> in the summary and indicator functions, to <a href="../reference/getMeanWeight.html"><code>getMeanLength()</code></a>, and to plots drawn with <code>size_axis = "l"</code>.</p>
+<p>Because that case is the one that changes results, <a href="../reference/setFishing.html"><code>setFishing()</code></a> reports it a second time, where the conversion actually happens:</p>
+<pre><code>i The gear selectivity for Sprat, Cod is set by length, but `a` and `b` were
+  not supplied, so the conversion to weight used mizer's defaults (a = 0.01,
+  b = 3). The selectivity therefore sits at weights that are unlikely to be the
+  ones you intend. Supply the weight-length parameters in the species
+  parameters.</code></pre>
+<p>This one is at <code>info_level = 1</code>, so it survives the setting that silences the routine chatter, and it is shown even when <a href="../reference/calc_selectivity.html"><code>calc_selectivity()</code></a> or <code><a href="../reference/setFishing.html">setFishing()</a></code> is called on its own rather than through <a href="../reference/setParams.html"><code>setParams()</code></a>. It names only the species whose selectivity is set from a length and whose <code>a</code> or <code>b</code> mizer had to fill in, and only the parameter that was missing — supply <code>a</code> and <code>b</code> for those species and it goes away. A gear that selects on weight (<a href="../reference/knife_edge.html"><code>knife_edge</code></a>, <a href="../reference/sigmoid_weight.html"><code>sigmoid_weight</code></a>) never triggers it, whatever the species parameters say.</p>
 </section><section class="level3"><h3 id="species-parameter-setters-distinguish-edits-from-declarations">Species parameter setters distinguish edits from declarations<a class="anchor" aria-label="anchor" href="#species-parameter-setters-distinguish-edits-from-declarations"></a>
 </h3>
 <p>The setters now express two different intentions:</p>
@@ -263,157 +310,125 @@
 </table>
 <p>This makes it possible to protect a calculated value without changing the current model:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">q</span></span></code></pre></div>
 </div>
-<p>The setters rebuild through <a href="../reference/setParams.html"><code>setParams()</code></a> only when the model can change. Provenance-only changes, observations, direct-runtime parameters and unrelated custom columns on a base <code>MizerParams</code> object are stored without rebuilding all rate arrays. Dependent parameters, demotions to calculated values, arguments of the active predation kernel and unknown columns on extension objects retain the conservative rebuild path. Call <code><a href="../reference/setParams.html">setParams()</a></code> explicitly if the intention is to repair an object after direct slot manipulation.</p>
-<p><code>given_species_params&lt;-()</code> also reports instructions that cannot take effect; <code>species_params&lt;-()</code> stays quiet. It warns when a parameter is overruled by another given parameter, feeds a rate array set by hand, or belongs in <a href="../reference/gear_params.html"><code>gear_params()</code></a>. Clearing an actually given value to <code>NA</code> counts as a change; adding an all-<code>NA</code> column does not. A frozen resource array is handled the same way. These warnings expose an existing no-op rather than changing the model: reset the named array to return it to parameter control, set the array directly, or use <code>options(mizer_info_level = 0)</code> when the warning is not wanted (#489).</p>
+<p>The setters rebuild through <code><a href="../reference/setParams.html">setParams()</a></code> only when the model can change. Provenance-only changes, observations, direct-runtime parameters and unrelated custom columns on a base <code>MizerParams</code> object are stored without rebuilding all rate arrays. Dependent parameters, demotions to calculated values, arguments of the active predation kernel and unknown columns on extension objects retain the conservative rebuild path. Call <code><a href="../reference/setParams.html">setParams()</a></code> explicitly if the intention is to repair an object after direct slot manipulation.</p>
+<p><code>given_species_params&lt;-()</code> also reports instructions that cannot take effect; <code>species_params&lt;-()</code> stays quiet. It warns when a parameter is overruled by another given parameter, feeds a rate array set by hand, or belongs in <code><a href="../reference/gear_params.html">gear_params()</a></code>. Clearing an actually given value to <code>NA</code> counts as a change; adding an all-<code>NA</code> column does not. A frozen resource array is handled the same way. These warnings expose an existing no-op rather than changing the model: reset the named array to return it to parameter control, set the array directly, or use <code>options(mizer_info_level = 0)</code> when the warning is not wanted (#489).</p>
 <p>Finally, defaults added while validating a <code>species_params&lt;-()</code> assignment are no longer mistaken for values the user supplied. In particular, an unrelated edit no longer freezes newly filled <code>a</code> and <code>b</code> values. Such values can now move again when their inputs change and appear in <a href="../reference/species_params.html"><code>calculated_species_params()</code></a> rather than <a href="../reference/species_params.html"><code>given_species_params()</code></a>. Set a value explicitly if it should remain fixed (#496).</p>
-</section><section class="level3"><h3 id="one-report-one-switch">One report, one switch<a class="anchor" aria-label="anchor" href="#one-report-one-switch"></a>
+</section><section class="level3"><h3 id="a-column-dropped-from-an-assigned-species-parameter-table-is-removed">A column dropped from an assigned species parameter table is removed<a class="anchor" aria-label="anchor" href="#a-column-dropped-from-an-assigned-species-parameter-table-is-removed"></a>
 </h3>
-<p>Nearly everything mizer says while building or changing a model now goes through the same mechanism, including the reports in <a href="../reference/superseded_steady.html"><code>steady()</code></a>, <a href="../reference/superseded_steady.html"><code>projectToSteady()</code></a>, <a href="../reference/validParams.html"><code>validParams()</code></a>, <a href="../reference/setInteraction.html"><code>setInteraction()</code></a>, <a href="../reference/setReproduction.html"><code>setReproduction()</code></a>, <a href="../reference/setResource.html"><code>setResource()</code></a>, <a href="../reference/newTraitParams.html"><code>newTraitParams()</code></a>, <a href="../reference/newSingleSpeciesParams.html"><code>newSingleSpeciesParams()</code></a> and <a href="../reference/plotYieldObservedVsModel.html"><code>plotYieldObservedVsModel()</code></a>. Two consequences for existing code:</p>
+<p>The species parameter setters also read the <em>absence</em> of a column as an instruction. A column that the table you assign does not have is one you no longer supply, so it is taken out of <code><a href="../reference/species_params.html">given_species_params()</a></code>. Mizer then calculates afresh the parameters it knows how to calculate, and the ones it does not know about leave the model:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span>  <span class="op">&lt;-</span> <span class="cn">NULL</span>   <span class="co"># gamma is calculated again</span></span>
+<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">my_col</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>   <span class="co"># my_col is gone</span></span></code></pre></div>
+</div>
+<p><code>given_species_params(params)$… &lt;- NULL</code> follows the same rule. Removing a column is reported at <code>info_level</code> 3, with a message beginning <code>I have removed the species parameter column</code>.</p>
+<p>Previously neither route removed anything. Dropping a column from the table assigned to <code>species_params&lt;-()</code> did nothing at all: the column was restored from the given species parameters, still recorded as given. Dropping one from the table assigned to <code>given_species_params&lt;-()</code> did take it out of the given table, but left its value standing in <a href="../reference/species_params.html"><code>species_params()</code></a>, where <code><a href="../reference/species_params.html">calculated_species_params()</a></code> reported the user’s own number as one mizer had calculated. Nor did the removal recalculate anything, so <code>given_species_params(params)$gamma &lt;- NULL</code> left the previously given <code>gamma</code> in place instead of handing it back to mizer; it is now the same instruction as setting that entry to <code>NA</code> (#578).</p>
+<p>Two things to watch for in existing code:</p>
 <ul>
 <li>
-<strong><code>info_level = 0</code> now means silence.</strong> Reports that were plain <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> calls ignored <code>info_level</code> altogether and appeared anyway; they no longer do. If your code relied on seeing one of them, drop the <code>info_level = 0</code>.</li>
+<strong>Assigning a table with only some of the model’s columns now withdraws the rest.</strong> This used to be a way of updating a few columns and leaving the others alone. Edit the table you get from <code>species_params(params)</code> instead of building a new one. The scope for surprise is limited, because <code>species_params&lt;-()</code> has always validated what it is given: a table without <code>species</code> and one of <code>w_inf</code>, <code>w_max</code> or <code>w_repro_max</code> is an error, not a partial update.</li>
 <li>
-<strong>Reports are collected and given at the end of the call</strong>, one message and one warning rather than a stream. A test doing <code>expect_message()</code> on an individual report inside a longer call may need adjusting, and the text now arrives with any others in the same message.</li>
-</ul></section><section class="level3"><h3 id="on-a-parameter-table-no-longer-partially-matches">
+<strong>A rebuild now happens where it did not before.</strong> Removing a column from the given species parameters goes through <code><a href="../reference/setParams.html">setParams()</a></code>, so a parameter that was derived from the withdrawn one moves to its calculated value. That is the point of the change, but it means numbers can shift where previously nothing did.</li>
+</ul>
+<p>For extension packages this is the supported way to withdraw a species parameter column when the user switches the extension off, replacing the <code>params@species_params[["my_col"]] &lt;- NULL</code> slot manipulation that was the only thing that worked before.</p>
+</section><section class="level3"><h3 id="on-a-parameter-table-no-longer-partially-matches">
 <code>$</code> on a parameter table no longer partially matches<a class="anchor" aria-label="anchor" href="#on-a-parameter-table-no-longer-partially-matches"></a>
 </h3>
-<p><code>$</code> on a <a href="../reference/species_params.html"><code>species_params</code></a> or <code>gear_params</code> table now matches column names exactly. Partial matching was silently returning the wrong parameter: in a model without the length-weight parameters <code>a</code> and <code>b</code>,</p>
+<p><code>$</code> on a <code>species_params</code> or <code>gear_params</code> table now matches column names exactly. Partial matching was silently returning the wrong parameter: in a model without the length-weight parameters <code>a</code> and <code>b</code>,</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">$</span><span class="va">a</span>   <span class="co"># used to return the `alpha` column</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">$</span><span class="va">b</span>   <span class="co"># used to return the `beta` column</span></span></code></pre></div>
 </div>
 <p>complete with per-species names, so code converting weights to lengths got the assimilation efficiency and the preferred predator/prey mass ratio instead. Writing was never partially matched (<code>sp$b &lt;- 3</code> always created a new column <code>b</code>), so reads and writes disagreed about what <code>$b</code> meant.</p>
 <p>A name that is not a column now gives <code>NULL</code>. If the name would have partially matched a single column, you also get a warning naming that column. So <code>is.null(species_params(params)$foo)</code> is now a reliable test for whether a parameter is present, and any code that was relying on the abbreviation should spell the column out in full (#487).</p>
-</section><section class="level3"><h3 id="quadrature-fixes-under-second_order_w">Quadrature fixes under <code>second_order_w</code>
-<a class="anchor" aria-label="anchor" href="#quadrature-fixes-under-second_order_w"></a>
-</h3>
-<p>Two diagnostics were applying the prey-bin quadrature twice when second-order bin-averaging was switched on with <code><a href="../reference/second_order_w.html">second_order_w()</a></code>, and are now consistent with <a href="../reference/getEncounter.html"><code>getEncounter()</code></a>:</p>
-<ul>
-<li>
-<strong><a href="../reference/getDiet.html"><code>getDiet(proportion = FALSE)</code></a></strong> was uniformly too large by a factor <code>(1 + beta) / 2</code>, where <code>beta</code> is the grid ratio — 9.7% for <a href="../reference/NS_params.html"><code>NS_params</code></a>. Summing the diet over prey now reproduces <code>getEncounter() * (1 - getFeedingLevel())</code> under both schemes (#474). <code>getDiet(proportion = TRUE)</code>, the default, was unaffected: the factor was uniform and divided out.</li>
-<li>
-<strong><a href="../reference/getTrophicLevel.html"><code>getTrophicLevel()</code></a></strong> built its numerator and denominator from different quadratures, so reported trophic levels were off by up to 0.06. A predator whose prey all have trophic level 1 now comes out at exactly 2 under both schemes (#474).</li>
-</ul>
-<p>Models on the default (first-order) scheme are unchanged. If you have published absolute diet values or trophic levels computed under <code>second_order_w</code>, they need recomputing.</p>
-</section><section class="level3"><h3 id="getproportionoflargefish-on-a-mizerparams-object-was-wrong">
-<code>getProportionOfLargeFish()</code> on a <code>MizerParams</code> object was wrong<a class="anchor" aria-label="anchor" href="#getproportionoflargefish-on-a-mizerparams-object-was-wrong"></a>
-</h3>
-<p>The <code>MizerParams</code> method multiplied the species x size abundance array by the vector of weights, which R recycles down the columns of the array rather than along the size axis, so every species but the first was weighted by the wrong sizes. Only the <code>MizerParams</code> method was affected; the <a href="../reference/MizerSim.html"><code>MizerSim</code></a> method was always right, and the two now agree when applied to the same state (#494). Any Large Fish Index computed from a <code>MizerParams</code> object in a model with more than one species needs recomputing.</p>
-</section><section class="level3"><h3 id="getn-respects-the-quadrature-scheme-at-the-ends-of-the-size-range">
-<code>getN()</code> respects the quadrature scheme at the ends of the size range<a class="anchor" aria-label="anchor" href="#getn-respects-the-quadrature-scheme-at-the-ends-of-the-size-range"></a>
-</h3>
-<p><a href="../reference/getN.html"><code>getN(params, min_w = ...)</code></a> now bin-averages the size-range window when second-order bin-averaging is switched on with <code><a href="../reference/second_order_w.html">second_order_w()</a></code>, so the bin straddling <code>min_w</code> or <code>max_w</code> contributes only partially — as <a href="../reference/getBiomass.html"><code>getBiomass()</code></a> already did. Numbers over a restricted size range therefore change slightly under <code>second_order_w</code>; over the full size range, and on the default first-order scheme, nothing changes (#494).</p>
-</section><section class="level3"><h3 id="the-calibration-and-matching-functions-respect-the-quadrature-scheme">The calibration and matching functions respect the quadrature scheme<a class="anchor" aria-label="anchor" href="#the-calibration-and-matching-functions-respect-the-quadrature-scheme"></a>
-</h3>
-<p><a href="../reference/calibrateBiomass.html"><code>calibrateBiomass()</code></a>, <a href="../reference/calibrateNumber.html"><code>calibrateNumber()</code></a>, <a href="../reference/matchNumbers.html"><code>matchNumbers()</code></a>, <a href="../reference/plotBiomassObservedVsModel.html"><code>plotBiomassObservedVsModel()</code></a> and <code><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel()</a></code> each wrote out their own sum over the size grid rather than using mizer’s size integral, so they stayed on the first-order quadrature and cut the size range at a bin boundary even in a model with second-order bin-averaging switched on with <code><a href="../reference/second_order_w.html">second_order_w()</a></code>. In such a model the calibration functions left the abundances at values that disagreed with the <code><a href="../reference/getBiomass.html">getBiomass()</a></code> or <code><a href="../reference/getN.html">getN()</a></code> you would check them against, and a species matched to its observed biomass was then plotted off the 1:1 line. All five now integrate the same way <code><a href="../reference/getBiomass.html">getBiomass()</a></code>, <code><a href="../reference/getN.html">getN()</a></code> and <a href="../reference/getYield.html"><code>getYield()</code></a> do, so a matched species really does come out at its observation. On the default first-order scheme nothing changes (#504, #529).</p>
-<p><code><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel()</a></code> is the one where the size of the error matters. Its model yields were 10-20% below <code><a href="../reference/getYield.html">getYield()</a></code> for a model on the second-order scheme, and the total relative error in the plot caption is computed from them, so it told you the model under-predicted the yields when it did not. If you have read a yield calibration off that plot under <code><a href="../reference/second_order_w.html">second_order_w()</a></code>, re-read it.</p>
-<p><code><a href="../reference/matchNumbers.html">matchNumbers()</a></code> also gains the empty-selection guard that <a href="../reference/matchBiomasses.html"><code>matchBiomasses()</code></a> already had. Its own guard could never fire, so when it had nothing to match — no <code>number_observed</code> values, or none for the species you asked for — it left the abundances alone but still called <a href="../reference/setBevertonHolt.html"><code>setBevertonHolt()</code></a>, updated <code>time_modified</code> and announced that it had moved the model off its steady state. It now returns the model unchanged, as <code><a href="../reference/matchBiomasses.html">matchBiomasses()</a></code> always did. Code that relied on the incidental re-tuning of the reproduction parameters should call <code><a href="../reference/setBevertonHolt.html">setBevertonHolt()</a></code> itself.</p>
 </section><section class="level3"><h3 id="w_min-survives-a-rebuild-of-the-species-parameters">
 <code>w_min</code> survives a rebuild of the species parameters<a class="anchor" aria-label="anchor" href="#w_min-survives-a-rebuild-of-the-species-parameters"></a>
 </h3>
 <p><code>w_min</code> is now part of <code>given_species_params</code>, so the <code>min_w</code> argument to <a href="../reference/newMultispeciesParams.html"><code>newMultispeciesParams()</code></a> and <a href="../reference/emptyParams.html"><code>emptyParams()</code></a> is preserved across any operation that rebuilds the species parameters. Previously a <code>given_species_params&lt;-</code> round-trip silently reset <code>w_min</code> to 0.001 when <code>min_w</code> was smaller, and emitted a spurious warning when it was larger (#460). Code that set a small <code>min_w</code> and worked around the reset — or that unknowingly ran on the reset grid — now gets the size grid it asked for, and results change accordingly.</p>
-</section><section class="level3"><h3 id="the-match-functions-announce-that-they-broke-the-steady-state">The <code>match…()</code> functions announce that they broke the steady state<a class="anchor" aria-label="anchor" href="#the-match-functions-announce-that-they-broke-the-steady-state"></a>
+</section><section class="level3"><h3 id="the-defaults-for-gamma-and-f0-are-measured-on-mizers-own-reference-state">The defaults for <code>gamma</code> and <code>f0</code> are measured on mizer’s own reference state<a class="anchor" aria-label="anchor" href="#the-defaults-for-gamma-and-f0-are-measured-on-mizers-own-reference-state"></a>
 </h3>
-<p><code><a href="../reference/matchBiomasses.html">matchBiomasses()</a></code>, <code><a href="../reference/matchNumbers.html">matchNumbers()</a></code> and <a href="../reference/matchGrowth.html"><code>matchGrowth()</code></a> now report that they have moved the model off its steady state. This is a message, so <code>info_level = 0</code> or <code>options(mizer_info_level = 0)</code> silences it, as does the <code>info_level</code> argument, which <code><a href="../reference/matchGrowth.html">matchGrowth()</a></code> gains and which <code><a href="../reference/matchBiomasses.html">matchBiomasses()</a></code> and <code><a href="../reference/matchNumbers.html">matchNumbers()</a></code> previously accepted but ignored.</p>
-<p>The <code>calibrate…()</code> functions and <a href="../reference/scaleModel.html"><code>scaleModel()</code></a> say nothing, because they do not break the steady state: they apply one overall scaling factor, which is an exact symmetry of the model. If your workflow re-ran <code><a href="../reference/superseded_steady.html">steady()</a></code> after every <code>calibrate…()</code> step, that step was never necessary.</p>
-</section><section class="level3"><h3 id="summary-reports-the-steady-state">
-<code>summary()</code> reports the steady state<a class="anchor" aria-label="anchor" href="#summary-reports-the-steady-state"></a>
-</h3>
-<p><code><a href="../reference/summary.html">summary()</a></code> of a <code>MizerParams</code> object has a new block:</p>
-<pre><code>Steady state:
-    biomass drift:  3.2e-05 /year   (at steady state)</code></pre>
-<p>Code that parses the output of <code><a href="../reference/summary.html">summary()</a></code> by line position needs updating. The same number is available directly as <a href="../reference/getSteadyResidual.html"><code>getSteadyResidual()</code></a>.</p>
-</section><section class="level3"><h3 id="the-convergence-attribute-has-a-new-shape">The convergence attribute has a new shape<a class="anchor" aria-label="anchor" href="#the-convergence-attribute-has-a-new-shape"></a>
-</h3>
-<p>The <code>"convergence"</code> attribute attached by <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> and <code><a href="../reference/superseded_steady.html">steady()</a></code> used to carry <code>type</code> and <code>settled</code>. It now carries three fields in their place, because those two were being read as one answer to three different questions:</p>
-<table class="table caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead><tr class="header">
-<th>Field</th>
-<th>Answers</th>
-<th>Values</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code>termination</code></td>
-<td>Why the run stopped</td>
-<td>
-<code>"residual_tolerance"</code>, <code>"cycle_detected"</code>, <code>"time_limit"</code>, <code>"extinction"</code>, and from the Newton solver <code>"solver_converged"</code>, <code>"solver_failed"</code>
-</td>
-</tr>
-<tr class="even">
-<td><code>converged</code></td>
-<td>Whether the solver met its own criterion</td>
-<td>
-<code>TRUE</code>/<code>FALSE</code>
-</td>
-</tr>
-<tr class="odd">
-<td><code>attractor</code></td>
-<td>What the state reached <em>is</em>
-</td>
-<td>
-<code>"fixed_point"</code>, <code>"limit_cycle"</code>, <code>NA</code>
-</td>
-</tr>
-</tbody>
-</table>
-<p><code>distance</code>, <code>years</code>, <code>period</code> and <code>amplitude</code> are unchanged, and there is a new <code>residual</code> (how far the state reached actually is from a fixed point) and <code>extinct</code> (a character vector naming any species that went extinct during the run, or <code>character(0)</code> if none).</p>
-<p>Code that tested <code>conv$type == "steady"</code> or <code>conv$settled</code> needs updating, and so does any <code>expect_named()</code> or <code><a href="https://rdrr.io/r/base/names.html" class="external-link">names()</a></code> check on the attribute. The translation:</p>
+<p><a href="../reference/get_gamma_default.html"><code>get_gamma_default()</code></a> works out the search volume coefficient <code>gamma</code> that gives a species the target feeding level <code>f0</code>. It does that by giving the species a search volume coefficient of 1, putting a power-law resource spectrum in front of it and measuring the energy that becomes available. <a href="../reference/get_f0_default.html"><code>get_f0_default()</code></a> is its inverse. Three separate things used to leak into that measurement, and none of them does now. All three change the species parameters of the models they affected, and the new values are the right ones.</p>
+<p><strong>A search volume you set by hand.</strong> The measurement used to build its unit search volume by calling <a href="../reference/setSearchVolume.html"><code>setSearchVolume()</code></a>, which refuses to recalculate a <a href="../reference/setSearchVolume.html"><code>search_vol</code></a> array you have frozen — so mizer’s own internal call was blocked along with yours, and the available energy was measured with <em>your</em> array. The resulting <code>gamma</code> was wrong by whatever factor separated your array from the unit-gamma one, which in a realistic model is many orders of magnitude. Both functions now build the search volume they need directly from the species parameters (#488).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># old</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="va">conv</span><span class="op">$</span><span class="va">settled</span> <span class="op">&amp;&amp;</span> <span class="va">conv</span><span class="op">$</span><span class="va">type</span> <span class="op">==</span> <span class="st">"below_tolerance"</span><span class="op">)</span> <span class="va">...</span></span>
-<span><span class="co"># new — the question is almost always about the state, not the run</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">conv</span><span class="op">$</span><span class="va">attractor</span>, <span class="st">"fixed_point"</span><span class="op">)</span><span class="op">)</span> <span class="va">...</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setSearchVolume.html">search_vol</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/setSearchVolume.html">search_vol</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">sv</span> <span class="op">*</span> <span class="fl">10</span>          <span class="co"># freeze the search volume</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span> <span class="op">&lt;-</span> <span class="cn">NA</span>   <span class="co"># ask mizer to recalculate gamma</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span></span>
+<span><span class="co">#&gt; Used to come back ~1e9 times too large; now the same value you would</span></span>
+<span><span class="co">#&gt; get without the frozen search volume.</span></span></code></pre></div>
 </div>
-<p><code>attractor</code> is the only one of the three that may be read as a claim that the model is at a steady state: it is set from the measured biomass drift, so it is <code>"fixed_point"</code> only where that drift is within tolerance. <code>converged</code> says the numerics went well, which is a different thing and is why a limit cycle could previously be reported as a converged fixed point.</p>
-<p>When the distance function is satisfied but the drift is not negligible, <code><a href="../reference/superseded_steady.html">steady()</a></code> appends to its convergence message:</p>
-<pre><code><span><span class="co">#&gt; Reached the convergence tolerance after 12 years. The biomasses change at up</span></span>
-<span><span class="co">#&gt; to 0.42 per year. Reduce the tolerance on the distance function to converge</span></span>
-<span><span class="co">#&gt; further.</span></span></code></pre>
-<p>It is a message, not a warning, because convergence at the <code>tol</code> you asked for did happen.</p>
-</section><section class="level3"><h3 id="steady-says-when-it-stopped-short-of-a-fixed-point">
-<code>steady()</code> says when it stopped short of a fixed point<a class="anchor" aria-label="anchor" href="#steady-says-when-it-stopped-short-of-a-fixed-point"></a>
-</h3>
-<p><code><a href="../reference/superseded_steady.html">steady()</a></code> and <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> stop as soon as the distance function drops below <code>tol</code>, exactly as they always did. <strong>Their stopping rule has not changed</strong>, and a script that relies on a loose <code>tol</code> to get a quick, rough run still gets one.</p>
-<p>What has changed is that they now measure the model’s biomass drift at the state they stop on, and say so. Where that drift is above <code>0.05</code>/year — the tolerance <a href="../reference/isSteady.html"><code>isSteady()</code></a> uses — the state is not a fixed point, and the <code>"convergence"</code> attribute records <code>termination = "distance_tolerance"</code> (the distance criterion, and only that, was met) with <code>attractor = NA</code>:</p>
+<p>The recalculated <code>gamma</code> still has no effect on the model while the search volume stays frozen — mizer warns about that separately, see <em>Species parameter setters distinguish edits from declarations</em> above. Call <code>setSearchVolume(params, reset = TRUE)</code> to put the search volume back under the control of the species parameters.</p>
+<p><strong>The extension chain.</strong> The measurement used <a href="../reference/getEncounter.html"><code>getEncounter()</code></a>, which on an object carrying an extension marker class dispatches through the extension’s <a href="../reference/mizerEncounter.html"><code>projectEncounter()</code></a> method. So an extension that changes the encounter rate had its change folded into mizer’s own <code>gamma</code> — the one quantity the function goes out of its way to derive from the species parameters alone. Both functions now measure with <a href="../reference/mizerEncounter.html"><code>mizerEncounter()</code></a> (#577).</p>
+<p>The consequence was not a one-off offset. <code>gamma</code> is a calculated species parameter, so it is recomputed on every rebuild, and the recomputed <code>gamma</code> is what the search volume is then built from — so the extension’s factor was re-applied each time: an extension that halves the search volume doubled <code>gamma</code> on every assignment to <code><a href="../reference/species_params.html">species_params()</a></code>. Where an extension’s factor is zero for some species — a therMizer species sitting exactly on its <code>temp_min</code>, evaluated at the arbitrary <code>t = 0</code> the default calculation uses — the available energy came out as zero and the calculation failed outright. An encounter function registered with <a href="../reference/setRateFunction.html"><code>setRateFunction()</code></a> no longer enters these defaults either; if your model relied on that, supply <code>gamma</code> or <code>f0</code> explicitly.</p>
+<p><strong>Additive encounter contributions.</strong> The <a href="../reference/setExtEncounter.html"><code>ext_encounter</code></a> array and every function registered with <a href="../reference/other_mort.html"><code>other_encounter()</code></a>, including a component’s <code>encounter_fun</code>, are now excluded too (#586). They used to enter the call to <code><a href="../reference/mizerEncounter.html">mizerEncounter()</a></code> used for the measurement, combined with a search volume coefficient of 1 for <code><a href="../reference/get_gamma_default.html">get_gamma_default()</a></code> — where they were negligible beside the predation encounter — but with the species’ real <code>gamma</code> for <code><a href="../reference/get_f0_default.html">get_f0_default()</a></code>, where they counted at full strength. The two therefore stopped being inverses, and a model with extra food could report a substantially higher calculated <code>f0</code> than the target its <code>gamma</code> had been derived from. A lower recalculated <code>f0</code> is the intended reference-state value; use <code><a href="../reference/getFeedingLevel.html">getFeedingLevel()</a></code> to inspect feeding with the extra sources present.</p>
+<p>When no default <code>gamma</code> can be calculated the error now names the species concerned and reports the energy measured for them. One model that used to build now raises it: a species with no predation encounter in the reference state at all — <code>interaction_resource = 0</code>, or a predation kernel that does not overlap the resource — but with an additive contribution to fall back on. The <code>gamma</code> it used to get was derived from that contribution alone and was many orders of magnitude away from a search volume coefficient, so the model it produced was not one to keep. Supply <code>gamma</code> explicitly for such a species.</p>
+<p><strong>If you are an extension author</strong> who worked around any of this by declaring the current <code>gamma</code> as a given species parameter, you can drop the workaround and let <code>gamma</code> follow <code>f0</code> again:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">conv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu"><a href="../reference/superseded_steady.html">steady</a></span><span class="op">(</span><span class="va">params</span>, tol <span class="op">=</span> <span class="fl">1e3</span><span class="op">)</span>, <span class="st">"convergence"</span><span class="op">)</span></span>
-<span><span class="va">conv</span><span class="op">$</span><span class="va">termination</span>   <span class="co"># "distance_tolerance"</span></span>
-<span><span class="va">conv</span><span class="op">$</span><span class="va">attractor</span>     <span class="co"># NA — not a fixed point</span></span>
-<span><span class="va">conv</span><span class="op">$</span><span class="va">residual</span>      <span class="co"># how fast it is still moving, in 1/year</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span></code></pre></div>
 </div>
-<p>The successful case is <code>termination = "residual_tolerance"</code> with <code>attractor = "fixed_point"</code>. Nothing errors or warns in either case; code that ignores the attribute is unaffected.</p>
-<p>The new <a href="../reference/tuneSteadyState.html"><code>tuneSteadyState()</code></a> and <a href="../reference/findSteadyState.html"><code>findSteadyState()</code></a> take the stricter line: a run there does not stop until the drift is within <code>residual_tol</code> as well (default <code>0.05</code>/year), and carries on to <code>t_max</code> otherwise, reporting</p>
-<pre><code><span><span class="co">#&gt; Simulation run did not converge after 100 years. The distance function</span></span>
-<span><span class="co">#&gt; returned 0.0002, which is below the distance tolerance, but the biomasses are</span></span>
-<span><span class="co">#&gt; still changing at up to 0.4 per year, which is above the residual tolerance,</span></span>
-<span><span class="co">#&gt; so this state is not a fixed point.</span></span></code></pre>
-<p>The remedy there is nearly always to look at what is moving, with <code>plot(getSteadyResidual(params))</code>, rather than to loosen <code>residual_tol</code>. Pass <code>t_max = t_check</code> to stop after a single check, or <code>residual_tol = Inf</code> for the wrappers’ rule.</p>
-</section><section class="level3"><h3 id="the-steady-state-run-advances-time-like-project-does">The steady-state run advances time like <code>project()</code> does<a class="anchor" aria-label="anchor" href="#the-steady-state-run-advances-time-like-project-does"></a>
+<p>The <code>gamma</code> that mizer then calculates describes the species’ baseline search volume, which is what a dynamic modulation such as a temperature scalar is meant to modulate.</p>
+</section><section class="level3"><h3 id="f0-is-always-validated">
+<code>f0</code> is always validated<a class="anchor" aria-label="anchor" href="#f0-is-always-validated"></a>
 </h3>
-<p><code><a href="../reference/superseded_steady.html">steady()</a></code> and <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> broke the run into blocks of <code>t_per</code> years, and each block used to start its clock again at <code>t = 0</code>. A rate function or a component’s dynamics function that reads <code>t</code> therefore saw the same short interval over and over instead of a clock that runs. Seasonal forcing, a time-dependent external mortality, or anything else registered with <a href="../reference/setRateFunction.html"><code>setRateFunction()</code></a> or <a href="../reference/setComponent.html"><code>setComponent()</code></a> that depends on <code>t</code> was affected; the result differed from <a href="../reference/project.html"><code>project()</code></a> over the same period and could not settle onto a forced cycle.</p>
-<p>The clock now runs from 0 to the end of the run, exactly as in <code><a href="../reference/project.html">project()</a></code>. Results move for models with time-dependent dynamics, and the new numbers are the right ones. Models whose rates do not depend on <code>t</code> — which is nearly all of them — are unaffected to the last digit.</p>
-</section><section class="level3"><h3 id="steady-reports-the-tolerance-it-reached-rather-than-announcing-convergence">
-<code>steady()</code> reports the tolerance it reached rather than announcing convergence<a class="anchor" aria-label="anchor" href="#steady-reports-the-tolerance-it-reached-rather-than-announcing-convergence"></a>
+<p>Every non-missing target feeding level <code>f0</code> must now be finite and in the interval <code>[0, 1)</code>, whether or not a search-volume coefficient <code>gamma</code> is also supplied. Previously <code>f0 = 1</code> divided by zero when mizer calculated <code>gamma</code>, silently creating an infinite <code>gamma</code> and a non-finite <code>search_vol</code>; values above 1 created negative search volumes. If <code>gamma</code> was supplied explicitly, the same invalid <code>f0</code> could instead be accepted and ignored.</p>
+<p>If code now errors here, choose a physically attainable feeding level below 1. When <code>gamma</code> is the parameter you intend to control, omit the <code>f0</code> value or use a valid value; <code>gamma</code> will still take precedence (#517).</p>
+</section><section class="level3"><h3 id="resource-scalars-refresh-calculated-gamma-and-q">Resource scalars refresh calculated <code>gamma</code> and <code>q</code>
+<a class="anchor" aria-label="anchor" href="#resource-scalars-refresh-calculated-gamma-and-q"></a>
 </h3>
-<p><code><a href="../reference/superseded_steady.html">steady()</a></code> and <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> used to end a successful run with</p>
-<pre><code><span><span class="co">#&gt; Convergence was achieved in 12 years.</span></span></code></pre>
-<p>They now say what was actually tested — the distance function dropped below <code>tol</code>, which is not the same thing as having reached a fixed point — and they report the biomass drift every time rather than only when it is large:</p>
-<pre><code><span><span class="co">#&gt; Reached the convergence tolerance after 12 years. The biomasses change at up</span></span>
-<span><span class="co">#&gt; to 3.2e-05 per year.</span></span></code></pre>
-<p>Code that matched the old wording needs the new string: an <code>expect_message()</code> in an extension package’s tests, or a script grepping the output. In a script the <code>"convergence"</code> attribute is the better check anyway, since <code>info_level = 0</code> suppresses the message entirely.</p>
-<p>The same reasoning reshaped that attribute; see <em>The convergence attribute has a new shape</em> above. Nothing in it now reads as a promise that the state is a fixed point unless it is one: <code>attractor</code> is the field that answers that, and it is set from the measured drift.</p>
+<p>The resource power law is also the reference spectrum used to calculate search volume parameters. Changing <code>lambda</code> through <code>resource_params&lt;-()</code> or <a href="../reference/setResource.html"><code>setResource()</code></a> now recalculates every <code>q</code> and <code>gamma</code> entry that mizer owns; changing <code>kappa</code> recalculates every mizer-owned <code>gamma</code>. A value you supplied explicitly remains protected, including when only some species in a column were given (#497).</p>
+<p>Previously the resource capacity was rebuilt but the calculated species parameters and <code>search_vol</code> were left at the values for the old resource:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">sp</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/resource_params.html">resource_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">lambda</span> <span class="op">&lt;-</span> <span class="fl">2.2</span></span>
+<span></span>
+<span><span class="co"># These now follow the new lambda automatically</span></span>
+<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">q</span></span>
+<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span></span></code></pre></div>
+</div>
+<p>If existing code deliberately wanted to keep the old values, record them as given before changing the resource:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">given</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
+<span><span class="va">given</span><span class="op">$</span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">q</span></span>
+<span><span class="va">given</span><span class="op">$</span><span class="va">gamma</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span></span>
+<span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">given</span></span>
+<span><span class="fu"><a href="../reference/resource_params.html">resource_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">lambda</span> <span class="op">&lt;-</span> <span class="fl">2.2</span></span></code></pre></div>
+</div>
+</section><section class="level3"><h3 id="setextmort-warns-when-z0pre-or-z0exp-is-ignored">
+<code>setExtMort()</code> warns when <code>z0pre</code> or <code>z0exp</code> is ignored<a class="anchor" aria-label="anchor" href="#setextmort-warns-when-z0pre-or-z0exp-is-ignored"></a>
+</h3>
+<p>The <code>z0pre</code> and <code>z0exp</code> arguments of <a href="../reference/setExtMort.html"><code>setExtMort()</code></a> are used only to calculate values of the <code>z0</code> species parameter that are not present in <code><a href="../reference/species_params.html">given_species_params()</a></code>. If <code>z0</code> is given for every species, calls such as</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setExtMort.html">setExtMort</a></span><span class="op">(</span><span class="va">params</span>, z0pre <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setParams.html">setParams</a></span><span class="op">(</span><span class="va">params</span>, z0exp <span class="op">=</span> <span class="op">-</span><span class="fl">0.25</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>were accepted but changed nothing. They now warn that the arguments were ignored. <code>reset = TRUE</code> does not make them applicable: it hands the external-mortality array back to the species parameters but does not remove the given <code>z0</code> values.</p>
+<p>Set <code>z0</code> explicitly when changing an existing model:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">z0</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">w_inf</span><span class="op">^</span><span class="op">(</span><span class="op">-</span><span class="fl">0.25</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>The arguments still work wherever <code>z0</code> is not given. A <code>z0</code> value present only in <code><a href="../reference/species_params.html">species_params()</a></code> is the cached result of an earlier calculation and is recalculated. If either argument was supplied explicitly, the newly calculated <code>z0</code> values are recorded in <code><a href="../reference/species_params.html">given_species_params()</a></code> so that they survive later rebuilds. Values calculated from the default <code>z0pre = 0.6</code> and <code>z0exp = n - 1</code> remain calculated parameters and are not recorded there (#493).</p>
+</section><section class="level3"><h3 id="one-report-one-switch">One report, one switch<a class="anchor" aria-label="anchor" href="#one-report-one-switch"></a>
+</h3>
+<p>Nearly everything mizer says while building or changing a model now goes through the same mechanism, including the reports in <a href="../reference/superseded_steady.html"><code>steady()</code></a>, <a href="../reference/superseded_steady.html"><code>projectToSteady()</code></a>, <a href="../reference/validParams.html"><code>validParams()</code></a>, <a href="../reference/setInteraction.html"><code>setInteraction()</code></a>, <code><a href="../reference/setReproduction.html">setReproduction()</a></code>, <code><a href="../reference/setResource.html">setResource()</a></code>, <a href="../reference/newTraitParams.html"><code>newTraitParams()</code></a>, <a href="../reference/newSingleSpeciesParams.html"><code>newSingleSpeciesParams()</code></a> and <code><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel()</a></code>. Two consequences for existing code:</p>
+<ul>
+<li>
+<strong><code>info_level = 0</code> now means silence.</strong> Reports that were plain <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> calls ignored <code>info_level</code> altogether and appeared anyway; they no longer do. If your code relied on seeing one of them, drop the <code>info_level = 0</code>.</li>
+<li>
+<strong>Reports are collected and given at the end of the call</strong>, one message and one warning rather than a stream. A test doing <code>expect_message()</code> on an individual report inside a longer call may need adjusting, and the text now arrives with any others in the same message.</li>
+</ul>
+<p>The check for a column name that looks like a typo of a standard species parameter moved onto this mechanism too, and at the same time stopped repeating itself (#581). It used to run inside every validation pass, so building a model reported the same column many times over — 31 warnings from one <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code> call — and every later edit of an unrelated parameter reported it again. It now runs once, where a column enters the model, and looks only at the columns the model does not already have. Two things follow: code that built models quietly with <code>info_level = 0</code> no longer sees the warning at all, and a test wrapping model construction in <code>expect_warning()</code> with a count, or in <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings()</a></code> to swallow a known run of duplicates, is now looking at one warning rather than many. The message itself is unchanged: <code>"very close to standard parameter names"</code>.</p>
 </section><section class="level3"><h3 id="the-steady-state-finders-have-new-names">The steady-state finders have new names<a class="anchor" aria-label="anchor" href="#the-steady-state-finders-have-new-names"></a>
 </h3>
 <p>Neither <code><a href="../reference/superseded_steady.html">steady()</a></code> nor <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> said what distinguished them, and <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> returned a different class depending on an argument. Both are superseded:</p>
@@ -437,7 +452,7 @@
 <p>The new names say what each one keeps. <code><a href="../reference/tuneSteadyState.html">tuneSteadyState()</a></code> holds the inputs to the fish dynamics — the reproduction rate and the resource abundance — at the values you supply while the spectra settle, and then adjusts the parameters that generate them, <code>erepro</code>/<code>R_max</code> and the resource capacity <code>cc_pp</code>, so that those held values are steady too. That is what <code><a href="../reference/superseded_steady.html">steady()</a></code> always did. <code><a href="../reference/findSteadyState.html">findSteadyState()</a></code> changes no parameter and lets reproduction, the resource and the spectra settle together, which is what <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> did.</p>
 <p><code><a href="../reference/projectUntilSettled.html">projectUntilSettled()</a></code> is the run itself and always returns a <code>MizerSim</code>; the two finders always return a <code>MizerParams</code>. So the <code>return_sim</code> argument is gone from the new functions:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># old</span></span>
 <span><span class="va">sim</span>    <span class="op">&lt;-</span> <span class="fu"><a href="../reference/superseded_steady.html">projectToSteady</a></span><span class="op">(</span><span class="va">params</span>, return_sim <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/superseded_steady.html">projectToSteady</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
@@ -445,7 +460,7 @@
 <span><span class="va">sim</span>    <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projectUntilSettled.html">projectUntilSettled</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/findSteadyState.html">findSteadyState</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>It is called “settled” rather than “steady” because a run may equally settle on a limit cycle, which is what the <code>settled</code> field of the <code>"convergence"</code> attribute has always meant.</p>
+<p>It is called “settled” rather than “steady” because a run may equally settle on a limit cycle.</p>
 <p>Both finders gained a <code>solver</code> argument. The default <code>solver = "project"</code> runs the dynamics until they settle, which is the old behaviour. <code>solver = "newton"</code> instead solves the steady-state equation directly with a Newton-type root finder from the <code>nleqslv</code> package, so it converges even when the steady state is dynamically unstable, where the time-stepping solver diverges away from it. <code>findSteadyState(solver = "newton")</code> carries the resource densities among its unknowns and so needs the default semichemostat resource dynamics; <code>tuneSteadyState(solver = "newton")</code> holds the resource fixed and works with any.</p>
 <p>Three arguments are spelled differently on the new functions, because each of them did more than one job under the old name:</p>
 <table class="table caption-top">
@@ -476,104 +491,156 @@
 </table>
 <p><code>t_save</code> is only on <code><a href="../reference/projectUntilSettled.html">projectUntilSettled()</a></code>, which is the only new function that returns a trajectory. The limit-cycle detection samples the biomass at every time step and has no argument of its own.</p>
 <p>Nothing breaks: <code><a href="../reference/superseded_steady.html">steady()</a></code> and <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> are kept as thin wrappers that reproduce the old behaviour exactly, <code>return_sim</code> and <code>t_per</code> included. They do not warn, they will not be removed, and old code and old scripts keep running untouched. Renaming is a search and replace whenever you next touch the code, plus the three arguments above.</p>
-</section><section class="level3"><h3 id="getstability-checks-that-it-was-given-a-steady-state">
-<code>getStability()</code> checks that it was given a steady state<a class="anchor" aria-label="anchor" href="#getstability-checks-that-it-was-given-a-steady-state"></a>
+</section><section class="level3"><h3 id="the-convergence-attribute-has-a-new-shape">The convergence attribute has a new shape<a class="anchor" aria-label="anchor" href="#the-convergence-attribute-has-a-new-shape"></a>
 </h3>
-<p>Both <a href="../reference/getStability.html"><code>getStability()</code></a> and <a href="../reference/getOscillationModeSim.html"><code>getOscillationModeSim()</code></a> linearise the dynamics <em>at</em> <code>initialN(params)</code>. If that state is not a fixed point, the eigenvalues describe the neighbourhood of a point the model is not sitting at and the verdict on stability is meaningless. Both now warn in that case. Run <code>findSteadyState(params, solver = "newton")</code> first, or silence with <code>options(mizer_info_level = 0)</code> if you know what you are doing.</p>
-</section><section class="level3"><h3 id="the-steady-state-and-stability-tools-say-that-they-cover-fish-and-resource">The steady-state and stability tools say that they cover fish and resource<a class="anchor" aria-label="anchor" href="#the-steady-state-and-stability-tools-say-that-they-cover-fish-and-resource"></a>
+<p>The <code>"convergence"</code> attribute attached by <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> and <code><a href="../reference/superseded_steady.html">steady()</a></code> used to carry <code>type</code> and <code>settled</code>. It now carries three fields in their place, because those two were being read as one answer to three different questions:</p>
+<table class="table caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead><tr class="header">
+<th>Field</th>
+<th>Answers</th>
+<th>Values</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>termination</code></td>
+<td>Why the run stopped</td>
+<td>
+<code>"residual_tolerance"</code>, <code>"distance_tolerance"</code>, <code>"cycle_detected"</code>, <code>"time_limit"</code>, <code>"extinction"</code>, and from the Newton solver <code>"solver_converged"</code>, <code>"solver_failed"</code>
+</td>
+</tr>
+<tr class="even">
+<td><code>converged</code></td>
+<td>Whether the solver met its own criterion</td>
+<td>
+<code>TRUE</code>/<code>FALSE</code>
+</td>
+</tr>
+<tr class="odd">
+<td><code>attractor</code></td>
+<td>What the state reached <em>is</em>
+</td>
+<td>
+<code>"fixed_point"</code>, <code>"limit_cycle"</code>, <code>NA</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p><code>distance</code>, <code>years</code>, <code>period</code> and <code>amplitude</code> are unchanged, and there is a new <code>residual</code> (the largest relative rate of biomass change at the state reached, in 1/year) and <code>extinct</code> (a character vector naming any species that went extinct during the run, or <code>character(0)</code> if none).</p>
+<p>Code that tested <code>conv$type == "steady"</code> or <code>conv$settled</code> needs updating, and so does any <code>expect_named()</code> or <code><a href="https://rdrr.io/r/base/names.html" class="external-link">names()</a></code> check on the attribute. The translation:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># old</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="va">conv</span><span class="op">$</span><span class="va">settled</span> <span class="op">&amp;&amp;</span> <span class="va">conv</span><span class="op">$</span><span class="va">type</span> <span class="op">==</span> <span class="st">"below_tolerance"</span><span class="op">)</span> <span class="va">...</span></span>
+<span><span class="co"># new — the question is almost always about the state, not the run</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">conv</span><span class="op">$</span><span class="va">attractor</span>, <span class="st">"fixed_point"</span><span class="op">)</span><span class="op">)</span> <span class="va">...</span></span></code></pre></div>
+</div>
+<p><code>attractor</code> is the only one of the three that may be read as a claim that the model is at a steady state: it is set from the measured biomass drift, so it is <code>"fixed_point"</code> only where that drift is within tolerance. <code>converged</code> says the numerics went well, which is a different thing and is why a limit cycle could previously be reported as a converged fixed point.</p>
+<p><strong><code><a href="../reference/superseded_steady.html">steady()</a></code> and <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> still stop as soon as the distance function drops below <code>tol</code>.</strong> Their stopping rule has not changed, and a script that relies on a loose <code>tol</code> to get a quick, rough run still gets one. What is new is that they measure the model’s biomass drift at the state they stop on, and record it. Where that drift is above <code>0.05</code>/year the state is not a fixed point, and the attribute says so:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">conv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu"><a href="../reference/superseded_steady.html">steady</a></span><span class="op">(</span><span class="va">params</span>, tol <span class="op">=</span> <span class="fl">1e3</span><span class="op">)</span>, <span class="st">"convergence"</span><span class="op">)</span></span>
+<span><span class="va">conv</span><span class="op">$</span><span class="va">termination</span>   <span class="co"># "distance_tolerance" — that criterion, and only that, was met</span></span>
+<span><span class="va">conv</span><span class="op">$</span><span class="va">attractor</span>     <span class="co"># NA — not a fixed point</span></span>
+<span><span class="va">conv</span><span class="op">$</span><span class="va">residual</span>      <span class="co"># how fast it is still moving, in 1/year</span></span></code></pre></div>
+</div>
+<p>The successful case is <code>termination = "residual_tolerance"</code> with <code>attractor = "fixed_point"</code>. Nothing errors or warns in either case; code that ignores the attribute is unaffected.</p>
+<p>The new <code><a href="../reference/tuneSteadyState.html">tuneSteadyState()</a></code> and <code><a href="../reference/findSteadyState.html">findSteadyState()</a></code> take the stricter line: a run there does not stop until the drift is within <code>residual_tol</code> as well (default <code>0.05</code>/year), and carries on to <code>t_max</code> otherwise, reporting</p>
+<pre><code><span><span class="co">#&gt; Simulation run did not converge after 100 years. The distance function</span></span>
+<span><span class="co">#&gt; returned 0.0002, which is below the distance tolerance, but the biomasses are</span></span>
+<span><span class="co">#&gt; still changing at up to 0.4 per year, which is above the residual tolerance,</span></span>
+<span><span class="co">#&gt; so this state is not a fixed point.</span></span></code></pre>
+<p>The remedy there is nearly always to look at what is moving, with <code>plot(getSteadyResidual(params))</code>, rather than to loosen <code>residual_tol</code>. Pass <code>t_max = t_check</code> to stop after a single check, or <code>residual_tol = Inf</code> for the wrappers’ rule.</p>
+</section><section class="level3"><h3 id="steady-reports-the-tolerance-it-reached-rather-than-announcing-convergence">
+<code>steady()</code> reports the tolerance it reached rather than announcing convergence<a class="anchor" aria-label="anchor" href="#steady-reports-the-tolerance-it-reached-rather-than-announcing-convergence"></a>
 </h3>
-<p><code><a href="../reference/tuneSteadyState.html">tuneSteadyState()</a></code> holds the components registered with <code><a href="../reference/setComponent.html">setComponent()</a></code> at their stored values while it solves for the spectra, and puts their dynamics back afterwards without solving or rebalancing them. <code><a href="../reference/getStability.html">getStability()</a></code> and <a href="../reference/getDiscreteStability.html"><code>getDiscreteStability()</code></a> likewise give the Jacobian a row for every fish cell and every resource cell and none for any component. That has always been true and was never said, so a model built with <code><a href="../reference/setComponent.html">setComponent()</a></code> could come back described as being at a fixed point of dynamics that had not been solved.</p>
-<p>Both now warn when they meet a component whose <code>dynamics_fun</code> is not <a href="../reference/constant_other.html"><code>constant_other</code></a>:</p>
+<p><code><a href="../reference/superseded_steady.html">steady()</a></code> and <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> used to end a successful run with</p>
+<pre><code><span><span class="co">#&gt; Convergence was achieved in 12 years.</span></span></code></pre>
+<p>They now say what was actually tested — the distance function dropped below <code>tol</code>, which is not the same thing as having reached a fixed point — and they report the biomass drift every time rather than only when it is large:</p>
+<pre><code><span><span class="co">#&gt; Reached the convergence tolerance after 12 years. The biomasses change at up</span></span>
+<span><span class="co">#&gt; to 3.2e-05 per year.</span></span></code></pre>
+<p>Where the distance function is satisfied but the drift is not negligible, the message adds <code>Reduce the tolerance on the distance function to converge further.</code> It is a message, not a warning, because convergence at the <code>tol</code> you asked for did happen.</p>
+<p>Code that matched the old wording needs the new string: an <code>expect_message()</code> in an extension package’s tests, or a script grepping the output. In a script the <code>"convergence"</code> attribute is the better check anyway, since <code>info_level = 0</code> suppresses the message entirely.</p>
+</section><section class="level3"><h3 id="the-steady-state-run-advances-time-like-project-does">The steady-state run advances time like <code>project()</code> does<a class="anchor" aria-label="anchor" href="#the-steady-state-run-advances-time-like-project-does"></a>
+</h3>
+<p><code><a href="../reference/superseded_steady.html">steady()</a></code> and <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> broke the run into blocks of <code>t_per</code> years, and each block used to start its clock again at <code>t = 0</code>. A rate function or a component’s dynamics function that reads <code>t</code> therefore saw the same short interval over and over instead of a clock that runs. Seasonal forcing, a time-dependent external mortality, or anything else registered with <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code> or <a href="../reference/setComponent.html"><code>setComponent()</code></a> that depends on <code>t</code> was affected; the result differed from <code><a href="../reference/project.html">project()</a></code> over the same period and could not settle onto a forced cycle.</p>
+<p>The clock now runs from 0 to the end of the run, exactly as in <code><a href="../reference/project.html">project()</a></code>. Results move for models with time-dependent dynamics, and the new numbers are the right ones. Models whose rates do not depend on <code>t</code> — which is nearly all of them — are unaffected to the last digit.</p>
+</section><section class="level3"><h3 id="projecttosteady-ignores-initial-transients">
+<code>projectToSteady()</code> ignores initial transients<a class="anchor" aria-label="anchor" href="#projecttosteady-ignores-initial-transients"></a>
+</h3>
+<p>To decide whether a simulation has settled onto a limit cycle, <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> calculates the autocorrelation of a fine-resolution biomass series. Previously it used the entire history from the start of the run. A large initial transient could therefore dominate the autocorrelation and obscure a cycle that had settled more recently. The autocorrelation step now uses only the second half of the series (or the most recent 20 samples if the series is shorter). A cycle will be found earlier, and some cycles that were previously missed entirely will now be correctly reported.</p>
+</section><section class="level3"><h3 id="a-size-class-holding-no-fish-no-longer-blocks-convergence">A size class holding no fish no longer blocks convergence<a class="anchor" aria-label="anchor" href="#a-size-class-holding-no-fish-no-longer-blocks-convergence"></a>
+</h3>
+<p>Above a size where the growth rate vanishes, a species’ density decays exponentially and <code>dN/dt</code> decays with it, so the density in the class falls through 1e-100 and beyond while never reaching zero. <a href="../reference/distanceSSLogN.html"><code>distanceSSLogN()</code></a> counted every class with a positive density, so <code>log(n)</code> in such a class fell by the same amount between every pair of states and its contribution to the distance never shrank. One trace holding 3e-92 g of fish could therefore hold the distance above any tolerance indefinitely, and the run stopped at <code>t_max</code> reporting <code>converged = FALSE</code> (#570).</p>
+<p><code><a href="../reference/distanceSSLogN.html">distanceSSLogN()</a></code> now takes a <code>biomass_share_cutoff</code>, defaulting to <code>1e-8</code>: a size class counts only if it holds at least that share of its species’ biomass. Relevance is measured as a share of biomass rather than of density, because density falls fifteen orders or more across a healthy spectrum for entirely good reasons, so no density threshold could tell a dying trace from real large fish.</p>
+<p>Nothing changes for a model without such a trace. There, every class the cutoff removes is one that already had no density at all and was already excluded, so the number <code><a href="../reference/distanceSSLogN.html">distanceSSLogN()</a></code> returns is unchanged to the last bit and any <code>distance_tol</code> you have tuned keeps its meaning. What changes is the model that has one: a run that used to reach <code>t_max</code> now converges.</p>
+<p>Pass <code>biomass_share_cutoff = 0</code>, to <code><a href="../reference/distanceSSLogN.html">distanceSSLogN()</a></code> directly or through <code><a href="../reference/projectUntilSettled.html">projectUntilSettled()</a></code>, for the old behaviour. Note that this is unrelated to the <code>biomass_cutoff</code> <em>species parameter</em> used by <a href="../reference/calibrateBiomass.html"><code>calibrateBiomass()</code></a> and <a href="../reference/matchBiomasses.html"><code>matchBiomasses()</code></a>, which is a size in grams. What decides whether a state is a fixed point is untouched: <code>residual_tol</code> is measured against a biomass drift that integrates over every size class, cut off or not, so the cutoff cannot make a drifting model look settled.</p>
+<p>A run that stops at <code>t_max</code> on a state that is nonetheless a fixed point now says so, instead of reporting only the distance:</p>
+<pre><code><span><span class="co">#&gt; Simulation run did not converge after 100 years. The distance function</span></span>
+<span><span class="co">#&gt; returned 2.4, which is above the distance tolerance, but the state reached is</span></span>
+<span><span class="co">#&gt; a fixed point: the biomasses change at only 0.0003 per year.</span></span></code></pre>
+</section><section class="level3"><h3 id="the-steady-state-tools-hold-other-components-fixed">The steady-state tools hold other components fixed<a class="anchor" aria-label="anchor" href="#the-steady-state-tools-hold-other-components-fixed"></a>
+</h3>
+<p><code><a href="../reference/tuneSteadyState.html">tuneSteadyState()</a></code> holds the components registered with <code><a href="../reference/setComponent.html">setComponent()</a></code> at their stored values while it solves for the spectra, and puts their dynamics back afterwards without solving them. The stability analyses likewise give the Jacobian a row for every fish cell and every resource cell and none for any component. That has always been true and was never said, so a model built with <code><a href="../reference/setComponent.html">setComponent()</a></code> could come back described as being at a fixed point of dynamics that had not been solved.</p>
+<p>Mizer now warns when it meets a component whose <code>dynamics_fun</code> is not <a href="../reference/constant_other.html"><code>constant_other</code></a>:</p>
 <pre><code><span><span class="co">#&gt; The component `detritus` has dynamics of their own, and mizer's steady-state</span></span>
 <span><span class="co">#&gt; and stability machinery covers the consumers and the resource only: it is</span></span>
-<span><span class="co">#&gt; held at the stored value throughout.</span></span></code></pre>
-<p>Nothing is refused: the analysis is the right one whenever the component is slaved to the fish or moves on a very different timescale, and only the user knows which. What has changed is that the assumption is now visible, and that the <code>residual</code> in the <code>"convergence"</code> attribute — which <em>does</em> cover the components — is measured on the model that is actually returned. Use <code>findSteadyState(solver = "project")</code> where the components need to settle too: the projection advances them like everything else and is not restricted.</p>
+<span><span class="co">#&gt; held at the stored value throughout and is not included in the biomass drift</span></span>
+<span><span class="co">#&gt; that mizer reports. See `attr(getSteadyResidual(params), "other")` for its</span></span>
+<span><span class="co">#&gt; rate of change.</span></span></code></pre>
+<p>Nothing is refused: the analysis is the right one whenever the component is slaved to the fish or moves on a very different timescale, and only the user knows which. What has changed is that the assumption is now visible. Use <code>findSteadyState(solver = "project")</code>, or <code><a href="../reference/projectUntilSettled.html">projectUntilSettled()</a></code> for the trajectory, where the components need to settle too: the projection advances them like everything else and is not restricted.</p>
 <p>A model with a custom <a href="../reference/setResource.html"><code>resource_dynamics</code></a> and no matching <code>balance_&lt;dynamics&gt;()</code> function gets a second warning from <code><a href="../reference/tuneSteadyState.html">tuneSteadyState()</a></code>, because the resource capacity that would make the preserved resource abundance steady cannot be derived:</p>
 <pre><code><span><span class="co">#&gt; There is no `balance_my_resource()` function, so the resource capacity could</span></span>
 <span><span class="co">#&gt; not be rebalanced and the preserved resource abundance need not be a steady</span></span>
 <span><span class="co">#&gt; state of `my_resource()`.</span></span></code></pre>
-<p>This too used to happen silently. Supply a <code>balance_&lt;dynamics&gt;()</code> function (see <a href="../reference/resource_semichemostat.html"><code>balance_resource_semichemostat()</code></a> for the shape of one), or read the reported residual and decide whether the drift matters.</p>
+<p>This too used to happen silently. Supply a <code>balance_&lt;dynamics&gt;()</code> function (see <a href="../reference/resource_semichemostat.html"><code>balance_resource_semichemostat()</code></a> for the shape of one), or read the reported residual and decide whether the drift matters. <a href="../reference/resource_constant.html"><code>resource_constant()</code></a> is exempt: it hands back the abundance it was given, so there is nothing to rebalance.</p>
 <p>An extension package whose tests assert that these calls are silent will see them fail. That is the point of the change; suppress with <code>options(mizer_info_level = 0)</code> where the assumption is deliberate.</p>
-</section><section class="level3"><h3 id="steady-converges-under-the-van_leer-flux-scheme">
-<code>steady()</code> converges under the <code>van_leer</code> flux scheme<a class="anchor" aria-label="anchor" href="#steady-converges-under-the-van_leer-flux-scheme"></a>
+</section><section class="level3"><h3 id="summary-reports-the-steady-state">
+<code>summary()</code> reports the steady state<a class="anchor" aria-label="anchor" href="#summary-reports-the-steady-state"></a>
 </h3>
-<p>On a model whose <code><a href="../reference/second_order_w.html">second_order_w()</a></code> selects the <code>"van_leer"</code> flux, <code><a href="../reference/superseded_steady.html">steady()</a></code> used to fall into a limit cycle instead of converging: the flux limiter weights flipped from one cell to the next between iterations, and the iteration chased itself. The limiter is now relaxed with an exponential moving average, and the run converges (#522).</p>
-<p>Code that worked around this — a <code><a href="../reference/superseded_steady.html">steady()</a></code> call wrapped in <code><a href="https://rdrr.io/r/base/try.html" class="external-link">try()</a></code>, a hand-set <code>t_max</code>, or a fall-back to the default upwind flux — is no longer needed. The steady state it now reaches is the one the <code>van_leer</code> discretisation actually has, so it differs from the upwind steady state the workaround was settling on; recalibrate rather than treat the difference as a regression.</p>
-</section><section class="level3"><h3 id="compareparams-compares-small-parameters-properly">
-<code>compareParams()</code> compares small parameters properly<a class="anchor" aria-label="anchor" href="#compareparams-compares-small-parameters-properly"></a>
+<p><code><a href="../reference/summary.html">summary()</a></code> of a <code>MizerParams</code> object has a new block:</p>
+<pre><code>Steady state:
+    biomass drift:  3.2e-05 /year   (at steady state)</code></pre>
+<p>Code that parses the output of <code><a href="../reference/summary.html">summary()</a></code> by line position needs updating. The same number is available directly as <code>rowSums(getSteadyResidual(params))</code>.</p>
+</section><section class="level3"><h3 id="the-match-functions-announce-that-they-broke-the-steady-state">The <code>match…()</code> functions announce that they broke the steady state<a class="anchor" aria-label="anchor" href="#the-match-functions-announce-that-they-broke-the-steady-state"></a>
 </h3>
-<p><a href="../reference/compareParams.html"><code>compareParams()</code></a> now uses a relative tolerance for species parameters, so small-magnitude parameters such as <code>gamma</code> (~1e-8) are no longer treated as equal when they differ by up to ~10%. Comparisons that previously reported two models as identical may now report differences — those differences were always there.</p>
-</section><section class="level3"><h3 id="resource-scalars-refresh-calculated-gamma-and-q">Resource scalars refresh calculated <code>gamma</code> and <code>q</code>
-<a class="anchor" aria-label="anchor" href="#resource-scalars-refresh-calculated-gamma-and-q"></a>
+<p><code><a href="../reference/matchBiomasses.html">matchBiomasses()</a></code>, <a href="../reference/matchNumbers.html"><code>matchNumbers()</code></a> and <a href="../reference/matchGrowth.html"><code>matchGrowth()</code></a> now report that they have moved the model off its steady state. This is a message, so <code>info_level = 0</code> or <code>options(mizer_info_level = 0)</code> silences it, as does the <code>info_level</code> argument, which <code><a href="../reference/matchGrowth.html">matchGrowth()</a></code> gains and which <code><a href="../reference/matchBiomasses.html">matchBiomasses()</a></code> and <code><a href="../reference/matchNumbers.html">matchNumbers()</a></code> previously accepted but ignored.</p>
+<p>The <code>calibrate…()</code> functions and <a href="../reference/scaleModel.html"><code>scaleModel()</code></a> say nothing, because they do not break the steady state: they apply one overall scaling factor, which is an exact symmetry of the model. If your workflow re-ran <code><a href="../reference/superseded_steady.html">steady()</a></code> after every <code>calibrate…()</code> step, that step was never necessary.</p>
+<p><code><a href="../reference/matchNumbers.html">matchNumbers()</a></code> also gains the empty-selection guard that <code><a href="../reference/matchBiomasses.html">matchBiomasses()</a></code> already had. Its own guard could never fire, so when it had nothing to match — no <code>number_observed</code> values, or none for the species you asked for — it left the abundances alone but still called <a href="../reference/setBevertonHolt.html"><code>setBevertonHolt()</code></a>, updated <code>time_modified</code> and announced that it had moved the model off its steady state. It now returns the model unchanged, as <code><a href="../reference/matchBiomasses.html">matchBiomasses()</a></code> always did. Code that relied on the incidental re-tuning of the reproduction parameters should call <code><a href="../reference/setBevertonHolt.html">setBevertonHolt()</a></code> itself.</p>
+</section><section class="level3"><h3 id="fixes-under-the-second-order-size-scheme">Fixes under the second-order size scheme<a class="anchor" aria-label="anchor" href="#fixes-under-the-second-order-size-scheme"></a>
 </h3>
-<p>The resource power law is also the reference spectrum used to calculate search volume parameters. Changing <code>lambda</code> through <code>resource_params&lt;-()</code> or <code><a href="../reference/setResource.html">setResource()</a></code> now recalculates every <code>q</code> and <code>gamma</code> entry that mizer owns; changing <code>kappa</code> recalculates every mizer-owned <code>gamma</code>. A value you supplied explicitly remains protected, including when only some species in a column were given (#497).</p>
-<p>Previously the resource capacity was rebuilt but the calculated species parameters and <a href="../reference/setSearchVolume.html"><code>search_vol</code></a> were left at the values for the old resource:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">sp</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/resource_params.html">resource_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">lambda</span> <span class="op">&lt;-</span> <span class="fl">2.2</span></span>
-<span></span>
-<span><span class="co"># These now follow the new lambda automatically</span></span>
-<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">q</span></span>
-<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span></span></code></pre></div>
-</div>
-<p>If existing code deliberately wanted to keep the old values, record them as given before changing the resource:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">given</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
-<span><span class="va">given</span><span class="op">$</span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">q</span></span>
-<span><span class="va">given</span><span class="op">$</span><span class="va">gamma</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span></span>
-<span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">given</span></span>
-<span><span class="fu"><a href="../reference/resource_params.html">resource_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">lambda</span> <span class="op">&lt;-</span> <span class="fl">2.2</span></span></code></pre></div>
-</div>
-</section><section class="level3"><h3 id="defaults-for-gamma-and-f0-ignore-a-hand-set-search-volume">Defaults for <code>gamma</code> and <code>f0</code> ignore a hand-set search volume<a class="anchor" aria-label="anchor" href="#defaults-for-gamma-and-f0-ignore-a-hand-set-search-volume"></a>
-</h3>
-<p><a href="../reference/get_gamma_default.html"><code>get_gamma_default()</code></a> works out how much energy is available to a predator by giving it a search volume coefficient of 1. It used to obtain that search volume by calling <a href="../reference/setSearchVolume.html"><code>setSearchVolume()</code></a>, which refuses to recalculate a <code>search_vol</code> array you have set by hand — so mizer’s own internal call was blocked along with yours, and the available energy was measured with <em>your</em> array. The resulting <code>gamma</code> was wrong by whatever factor separated your array from the unit-gamma one, which in a realistic model is many orders of magnitude. <a href="../reference/get_f0_default.html"><code>get_f0_default()</code></a>, the inverse, had the same problem. Both now build the search volume they need directly from the species parameters (#488).</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setSearchVolume.html">search_vol</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/setSearchVolume.html">search_vol</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">sv</span> <span class="op">*</span> <span class="fl">10</span>          <span class="co"># freeze the search volume</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span> <span class="op">&lt;-</span> <span class="cn">NA</span>   <span class="co"># ask mizer to recalculate gamma</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span></span>
-<span><span class="co">#&gt; Used to come back ~1e9 times too large; now the same value you would</span></span>
-<span><span class="co">#&gt; get without the frozen search volume.</span></span></code></pre></div>
-</div>
-<p>If you have a model in which you set <code>search_vol</code> by hand and then let mizer fill in a missing <code>gamma</code> or <code>f0</code>, that model’s species parameters were wrong and change with this release. Note that the recalculated <code>gamma</code> still has no effect on the model while the search volume stays frozen — mizer now warns you about that separately, see “Species parameter setters distinguish edits from declarations” above. Call <code>setSearchVolume(params, reset = TRUE)</code> to put the search volume back under the control of the species parameters.</p>
-</section><section class="level3"><h3 id="f0-is-always-validated">
-<code>f0</code> is always validated<a class="anchor" aria-label="anchor" href="#f0-is-always-validated"></a>
-</h3>
-<p>Every non-missing target feeding level <code>f0</code> must now be finite and in the interval <code>[0, 1)</code>, whether or not a search-volume coefficient <code>gamma</code> is also supplied. Previously <code>f0 = 1</code> divided by zero when mizer calculated <code>gamma</code>, silently creating an infinite <code>gamma</code> and a non-finite <code>search_vol</code>; values above 1 created negative search volumes. If <code>gamma</code> was supplied explicitly, the same invalid <code>f0</code> could instead be accepted and ignored.</p>
-<p>If code now errors here, choose a physically attainable feeding level below 1. When <code>gamma</code> is the parameter you intend to control, omit the <code>f0</code> value or use a valid value; <code>gamma</code> will still take precedence (#517).</p>
-</section><section class="level3"><h3 id="setextmort-warns-when-z0pre-or-z0exp-is-ignored">
-<code>setExtMort()</code> warns when <code>z0pre</code> or <code>z0exp</code> is ignored<a class="anchor" aria-label="anchor" href="#setextmort-warns-when-z0pre-or-z0exp-is-ignored"></a>
-</h3>
-<p>The <code>z0pre</code> and <code>z0exp</code> arguments of <a href="../reference/setExtMort.html"><code>setExtMort()</code></a> are used only to calculate values of the <code>z0</code> species parameter that are not present in <code><a href="../reference/species_params.html">given_species_params()</a></code>. If <code>z0</code> is given for every species, calls such as</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setExtMort.html">setExtMort</a></span><span class="op">(</span><span class="va">params</span>, z0pre <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setParams.html">setParams</a></span><span class="op">(</span><span class="va">params</span>, z0exp <span class="op">=</span> <span class="op">-</span><span class="fl">0.25</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>were accepted but changed nothing. They now warn that the arguments were ignored. <code>reset = TRUE</code> does not make them applicable: it hands the external-mortality array back to the species parameters but does not remove the given <code>z0</code> values.</p>
-<p>Set <code>z0</code> explicitly when changing an existing model:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">z0</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">w_inf</span><span class="op">^</span><span class="op">(</span><span class="op">-</span><span class="fl">0.25</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>The arguments still work wherever <code>z0</code> is not given. A <code>z0</code> value present only in <code><a href="../reference/species_params.html">species_params()</a></code> is the cached result of an earlier calculation and is recalculated. If either argument was supplied explicitly, the newly calculated <code>z0</code> values are recorded in <code><a href="../reference/species_params.html">given_species_params()</a></code> so that they survive later rebuilds. Values calculated from the default <code>z0pre = 0.6</code> and <code>z0exp = n - 1</code> remain calculated parameters and are not recorded there (#493).</p>
+<p>These all concern a model that has opted in to second-order bin-averaging or to the <code>van_leer</code> flux with <a href="../reference/second_order_w.html"><code>second_order_w()</code></a>. <strong>On the default first-order scheme nothing in this section changes anything.</strong> Under the second-order scheme, several functions were hand-rolling a first-order sum over the size grid instead of using the model’s own quadrature, and are now consistent with it:</p>
+<ul>
+<li>
+<strong><a href="../reference/getDiet.html"><code>getDiet(proportion = FALSE)</code></a></strong> was applying the prey-bin quadrature twice, making it uniformly too large by a factor <code>(1 + beta) / 2</code>, where <code>beta</code> is the grid ratio — 9.7% for <a href="../reference/NS_params.html"><code>NS_params</code></a>. Summing the diet over prey now reproduces <code>getEncounter() * (1 - getFeedingLevel())</code> (#474). <code>getDiet(proportion = TRUE)</code>, the default, was unaffected: the factor was uniform and divided out.</li>
+<li>
+<strong><a href="../reference/getTrophicLevel.html"><code>getTrophicLevel()</code></a></strong> built its numerator and denominator from different quadratures, so reported trophic levels were off by up to 0.06. A predator whose prey all have trophic level 1 now comes out at exactly 2 (#474).</li>
+<li>
+<strong><a href="../reference/getN.html"><code>getN(params, min_w = ...)</code></a></strong> now bin-averages the size-range window, so the bin straddling <code>min_w</code> or <code>max_w</code> contributes only partially — as <a href="../reference/getBiomass.html"><code>getBiomass()</code></a> already did. Numbers over a restricted size range therefore change slightly; over the full size range nothing changes (#494).</li>
+<li>
+<strong><code><a href="../reference/calibrateBiomass.html">calibrateBiomass()</a></code>, <a href="../reference/calibrateNumber.html"><code>calibrateNumber()</code></a>, <code><a href="../reference/matchNumbers.html">matchNumbers()</a></code>, <a href="../reference/plotBiomassObservedVsModel.html"><code>plotBiomassObservedVsModel()</code></a> and <code><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel()</a></code></strong> each wrote out their own sum over the size grid and cut the size range at a bin boundary. The calibration functions therefore left the abundances at values that disagreed with the <code><a href="../reference/getBiomass.html">getBiomass()</a></code> or <code><a href="../reference/getN.html">getN()</a></code> you would check them against, and a species matched to its observed biomass was then plotted off the 1:1 line. All five now integrate the same way <code><a href="../reference/getBiomass.html">getBiomass()</a></code>, <code><a href="../reference/getN.html">getN()</a></code> and <a href="../reference/getYield.html"><code>getYield()</code></a> do, so a matched species really does come out at its observation (#504, #529). <code><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel()</a></code> is where the size of the error matters: its model yields were 10-20% below <code><a href="../reference/getYield.html">getYield()</a></code>, and the total relative error in the plot caption is computed from them, so it told you the model under-predicted the yields when it did not. If you have read a yield calibration off that plot, re-read it.</li>
+<li>
+<strong><code><a href="../reference/plot.html">plot()</a></code> on an <code>ArrayTimeBySpeciesBySize</code></strong> took its time slice by hand and lost the array’s <code>representation</code> tag, so a bin-averaged quantity such as <a href="../reference/getFMort.html"><code>getFMort(sim)</code></a> or <code>getFeedingLevel(sim)</code> was drawn at the left bin edges instead of the geometric bin centres where it lives — one bin to the left of the right place. Only the drawn location moves; the values are unchanged.</li>
+<li>
+<strong><code><a href="../reference/superseded_steady.html">steady()</a></code> under the <code>van_leer</code> flux</strong> used to fall into a limit cycle instead of converging: the flux limiter weights flipped from one cell to the next between iterations, and the iteration chased itself. The limiter is now relaxed with an exponential moving average, and the run converges (#522). A workaround — a <code><a href="../reference/superseded_steady.html">steady()</a></code> call wrapped in <code><a href="https://rdrr.io/r/base/try.html" class="external-link">try()</a></code>, a hand-set <code>t_max</code>, or a fall-back to the default upwind flux — is no longer needed. The steady state it now reaches is the one the <code>van_leer</code> discretisation actually has, so it differs from the upwind steady state the workaround was settling on; recalibrate rather than treat the difference as a regression.</li>
+</ul>
+<p>If you have published absolute diet values, trophic levels or calibrated abundances computed under <code>second_order_w</code>, they need recomputing.</p>
 </section><section class="level3"><h3 id="setparams-rejects-arguments-it-does-not-use">
 <code>setParams()</code> rejects arguments it does not use<a class="anchor" aria-label="anchor" href="#setparams-rejects-arguments-it-does-not-use"></a>
 </h3>
 <p><code><a href="../reference/setParams.html">setParams()</a></code> passes its <code>...</code> on to the rate setters, each of which declares its own <code>...</code> as unused. Any argument that none of them recognises was therefore accepted and ignored without a word. It is now an error, and the error says where the argument belongs when it belongs somewhere:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setParams.html">setParams</a></span><span class="op">(</span><span class="va">params</span>, metabolic <span class="op">=</span> <span class="fl">99</span><span class="op">)</span>        <span class="co"># was: silently ignored</span></span>
 <span><span class="fu"><a href="../reference/setParams.html">setParams</a></span><span class="op">(</span><span class="va">params</span>, resource_rate <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>     <span class="co"># was: silently ignored</span></span></code></pre></div>
 </div>
 <p>The resource case is the one most likely to have bitten: <code><a href="../reference/setParams.html">setParams()</a></code> never called <code><a href="../reference/setResource.html">setResource()</a></code>, so no resource argument ever reached the model, and the deprecation warnings for <code>setResource(r_pp)</code> and <code>setResource(kappa)</code> used to recommend <code>setParams(resource_rate)</code> and <code>setParams(resource_capacity)</code>, which do nothing. Use <code><a href="../reference/setResource.html">setResource()</a></code> for all of these:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setResource.html">setResource</a></span><span class="op">(</span><span class="va">params</span>, resource_rate <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Likewise <code>gear_params</code> goes to <code>gear_params&lt;-()</code>, and <code>second_order_w</code> and <a href="../reference/use_predation_diffusion.html"><code>use_predation_diffusion</code></a> to their own assignment functions. <code><a href="../reference/setResource.html">setResource()</a></code> itself now applies the same check to its own <code>...</code>, so a misspelled resource argument errors there too.</p>
@@ -660,22 +727,12 @@
 </table>
 <p>Nothing breaks: the old names are kept as plain aliases of the new ones. They do not warn, they will not be removed, and they return exactly the same value, so old code and old scripts keep running untouched. Renaming is a search and replace whenever you next touch the code.</p>
 <p>The <code>get</code> prefix now means one thing — a function that <em>calculates</em> something from the current state of a model, like <code><a href="../reference/getEncounter.html">getEncounter()</a></code>, <code><a href="../reference/getFMort.html">getFMort()</a></code> or <code><a href="../reference/getBiomass.html">getBiomass()</a></code>. The functions above only hand back a value that is already stored in the object.</p>
-</section><section class="level3"><h3 id="yield_observed-belongs-to-the-gear-parameters">
-<code>yield_observed</code> belongs to the gear parameters<a class="anchor" aria-label="anchor" href="#yield_observed-belongs-to-the-gear-parameters"></a>
-</h3>
-<p><code><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel()</a></code> now takes the observed yield from the <code>yield_observed</code> column of <code><a href="../reference/gear_params.html">gear_params()</a></code>, where the yield is given for each gear-species pair and the plot adds it up over the gears:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod, Otter"</span>, <span class="st">"yield_observed"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">3e11</span></span>
-<span><span class="fu"><a href="../reference/plotYieldObservedVsModel.html">plotYieldObservedVsModel</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>Nothing breaks if your model keeps <code>yield_observed</code> among the species parameters: a species that has no observation in the gear parameters takes its value from there. What changes is that a model following mizer’s own advice — <code>given_species_params&lt;-()</code> has been telling you to use <code>gear_params()&lt;-</code> — now works, where before the plot stopped with “You have not provided values for the column ‘yield_observed’”.</p>
 </section><section class="level3"><h3 id="matchyields-and-calibrateyield-have-been-removed">
 <code>matchYields()</code> and <code>calibrateYield()</code> have been removed<a class="anchor" aria-label="anchor" href="#matchyields-and-calibrateyield-have-been-removed"></a>
 </h3>
 <p>Both were deprecated in mizer 2.6.0 and nobody reported a use for them. They adjusted the <em>abundance</em> of a species to move its yield, which is the wrong lever: the yield is what the model predicts from the abundance and the fishing. Replace <code>matchYields()</code> with <code><a href="https://sizespectrum.org/mizerExperimental/reference/matchYield.html">mizerExperimental::matchYield()</a></code>, which adjusts the catchability instead:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Old</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">calibrateYield</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">matchYields</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
@@ -683,9 +740,39 @@
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">mizerExperimental</span><span class="fu">::</span><span class="fu"><a href="https://sizespectrum.org/mizerExperimental/reference/matchYield.html">matchYield</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p><code>calibrateYield()</code> has no replacement. It rescaled the whole model so that the total yield summed over all species matched the total observation. If you were using it to set the scale of your model, use <code><a href="../reference/calibrateBiomass.html">calibrateBiomass()</a></code> with observed biomasses, or <code><a href="../reference/scaleModel.html">scaleModel()</a></code> with a factor of your own choosing.</p>
-</section><section class="level3"><h3 id="the-cheatsheet-articles-are-now-called-guides">The cheatsheet articles are now called guides<a class="anchor" aria-label="anchor" href="#the-cheatsheet-articles-are-now-called-guides"></a>
+</section><section class="level3"><h3 id="compareparams-compares-small-parameters-properly">
+<code>compareParams()</code> compares small parameters properly<a class="anchor" aria-label="anchor" href="#compareparams-compares-small-parameters-properly"></a>
 </h3>
-<p>The topic articles that used to be called cheatsheets are called guides. A cheatsheet reminds you of something you already know; these articles assume no prior knowledge, so the name was wrong. Each article is now named after the agent skill it is generated from, so that a topic has one name rather than three, and its title is that skill’s own heading:</p>
+<p><a href="../reference/compareParams.html"><code>compareParams()</code></a> now uses a relative tolerance for species parameters, so small-magnitude parameters such as <code>gamma</code> (~1e-8) are no longer treated as equal when they differ by up to ~10%. Comparisons that previously reported two models as identical may now report differences — those differences were always there.</p>
+</section><section class="level3"><h3 id="extension-marker-classes-are-created-and-repaired-by-mizer">Extension marker classes are created and repaired by mizer<a class="anchor" aria-label="anchor" href="#extension-marker-classes-are-created-and-repaired-by-mizer"></a>
+</h3>
+<p>Two fixes to the dynamic S4 marker classes that mizer 3.2 introduced, both for extension authors.</p>
+<p>They used to be defined in <code>.GlobalEnv</code>, so anything that empties the global environment destroyed them: your own <code>rm(list = ls())</code>, and the <code>cleanEx()</code> that <code>R CMD check</code> runs before every example. R’s class cache went on reporting the class as present, so mizer’s repair did not fire and there was no way back short of restarting R. The next mizer call that had to resolve the class failed with base R’s error that the class is not defined — which for an extension package with examples that touch a params object meant a failing <code>R CMD check</code>. The marker classes now live in an environment that mizer attaches to the search path, <code>mizer:extension-classes</code>, which clearing the workspace does not reach (#587). If you have been working around the old behaviour by defining the marker classes by hand, as in</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">setClass</span><span class="op">(</span><span class="st">"mizerShelf"</span>, contains <span class="op">=</span> <span class="st">"MizerParams"</span>, where <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">globalenv</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>you can drop that.</p>
+<p>Separately, <a href="../reference/registerExtension.html"><code>registerExtension()</code></a> and <a href="../reference/registerExtensions.html"><code>registerExtensions()</code></a> now rebuild the chain’s dynamic marker classes when a class went missing during an extension-package reload — the case <code><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">devtools::load_all()</a></code> creates, where the reload removes the S4 classes the package’s namespace held and the next <a href="../reference/coerceToExtensionClass.html"><code>coerceToExtensionClass()</code></a> failed with base R’s coercion error. The whole chain is rebuilt rather than just the missing class, because R prunes a removed class from the <code>contains</code> list of its subclasses (#569). An intact chain is inspected and left untouched, so the usual repeated registration does no work, and the repair never installs, version-checks or loads anything.</p>
+</section><section class="level3"><h3 id="other_mort-and-other_encounter-register-contributions-that-have-no-component">
+<code>other_mort()</code> and <code>other_encounter()</code> register contributions that have no component<a class="anchor" aria-label="anchor" href="#other_mort-and-other_encounter-register-contributions-that-have-no-component"></a>
+</h3>
+<p><a href="../reference/getMort.html"><code>getMort()</code></a> and <code><a href="../reference/getEncounter.html">getEncounter()</a></code> add the result of every function listed in <code>params@other_mort</code> and <code>params@other_encounter</code>. Until now the only exported way to write into those lists was <code><a href="../reference/setComponent.html">setComponent()</a></code>, which needs a <code>dynamics_fun</code> and an <code>initial_value</code>, so an extension adding a term that depends on the model state but keeps no state of its own — a starvation or senescence mortality — had to assign into the slot directly. That still works, but the supported way is now</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/other_mort.html">other_mort</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[[</span><span class="st">"starvation"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"starvMort"</span></span>
+<span><span class="fu"><a href="../reference/other_mort.html">other_encounter</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[[</span><span class="st">"scavenging"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"scavengingEncounter"</span></span></code></pre></div>
+</div>
+<p>which checks that the name really is a function and that it does not collide with a component’s. Names must be unique, and assigning <code>NULL</code> to an entry removes it. Like <a href="../reference/setRateFunction.html"><code>other_params()</code></a>, the new accessors show only what does not belong to a component, so assigning a whole list through the accessor can no longer wipe a component’s entry out (#579).</p>
+<p>Two things can break existing code:</p>
+<ul>
+<li>
+<strong>Encounter contributions are now passed the current simulation time as <code>t</code></strong>, as mortality contributions already were. This makes a time-dependent extra encounter possible, but an existing component <code>encounter_fun</code> whose exact signature accepts neither <code>t</code> nor <code>...</code> will now error. Add one of those arguments to the function.</li>
+<li>
+<strong><code><a href="../reference/setComponent.html">setComponent()</a></code> refuses a component name that a free-standing contribution is already registered under</strong>, where it used to take the entry over silently, leaving it live but invisible to the accessors. This can only affect code that both writes into <code>@other_mort</code> (or <code>@other_encounter</code>) by hand and then creates a component of the same name.</li>
+</ul></section><section class="level3"><h3 id="the-cheatsheet-articles-are-now-called-guides">The cheatsheet articles are now called guides<a class="anchor" aria-label="anchor" href="#the-cheatsheet-articles-are-now-called-guides"></a>
+</h3>
+<p>The topic articles that used to be called cheatsheets are called guides. A cheatsheet reminds you of something you already know; these articles assume no prior knowledge, so the name was wrong. Each article is now named after the agent skill it is generated from, and its title is that skill’s own heading:</p>
 <table class="table caption-top">
 <colgroup>
 <col style="width: 33%">
@@ -743,61 +830,33 @@
 <td><code>guide-extend-mizer</code></td>
 <td>Guide: Extending mizer</td>
 </tr>
-</tbody>
-</table>
-<p>“Using mizer extension packages” and “Creating a mizer extension package” are now generated from skills too, so they are named after those skills like the rest:</p>
-<table class="table caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead><tr class="header">
-<th>Old article</th>
-<th>New article</th>
-<th>New title</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
+<tr class="even">
 <td><code>using-extension-packages</code></td>
 <td><code>guide-use-extension-packages</code></td>
 <td>Guide: Using mizer extension packages</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>creating-extension-packages</code></td>
 <td><code>guide-create-extension-package</code></td>
 <td>Guide: Creating a mizer extension package</td>
 </tr>
-</tbody>
-</table>
-<p>The packaging article became a skill so that an agent helping you package an extension can find it; it was previously the only extension document that was not generated from one. Everything in the <a href="guide-extend-mizer.html">guide to extending mizer</a> that only matters once you share an extension moved into it at the same time, so the articles split along that line: the mechanisms for changing mizer’s dynamics in <strong>guide-extend-mizer</strong>, and everything about turning that into a package other people can install in <strong>guide-create-extension-package</strong>.</p>
-<p>Its advice on marker classes was also corrected. It still told you to define them with <code>setClass("myExtension", contains = "MizerParams")</code>, which mizer 3.2 made unnecessary and which actively prevents your package from being chained with another, because a sealed class cannot be re-parented into the chain. Let mizer create the classes; see the <a href="guide-create-extension-package.html">guide to creating a mizer extension package</a>.</p>
-<p>“Extending mizer” and “Guide: Extending mizer” were two articles on one topic, the guide a short companion to the article. They are now a single guide, generated from the <a href="guide-extend-mizer.html">guide to extending mizer</a>, holding both the article’s worked examples and the guide’s rules on quadrature schemes and discontinuous rates:</p>
-<table class="table caption-top">
-<thead><tr class="header">
-<th>Old article</th>
-<th>New article</th>
-<th>New title</th>
-</tr></thead>
-<tbody><tr class="odd">
+<tr class="even">
 <td><code>extending-mizer</code></td>
 <td><code>guide-extend-mizer</code></td>
 <td>Guide: Extending mizer</td>
-</tr></tbody>
+</tr>
+</tbody>
 </table>
 <p>On the website the old addresses redirect, so a bookmark or a link in your own writing still works. In R the old name does not resolve, because a vignette is looked up by exactly its file name:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Old</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"cheatsheet-fishing"</span><span class="op">)</span></span>
 <span><span class="co"># New</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"guide-set-up-fishing"</span><span class="op">)</span></span></code></pre></div>
 </div>
+<p>Two of those rows are more than a rename. “Extending mizer” and “Guide: Extending mizer” were two articles on one topic; they are now the single <strong>guide-extend-mizer</strong>, holding both the article’s worked examples and the guide’s rules on quadrature schemes and discontinuous rates. Everything that only matters once you share an extension moved into <strong>guide-create-extension-package</strong>, so the two articles split along that line: the mechanisms for changing mizer’s dynamics in one, and turning that into a package other people can install in the other. Its advice on marker classes was corrected at the same time — it still told you to define them with <code>setClass("myExtension", contains = "MizerParams")</code>, which mizer 3.2 made unnecessary and which actively prevents your package from being chained with another, because a sealed class cannot be re-parented into the chain.</p>
 <p>The <code>build-multispecies-model</code> skill was renamed to <strong>build-model</strong> in the same pass: it covers <code><a href="../reference/newTraitParams.html">newTraitParams()</a></code>, <a href="../reference/newCommunityParams.html"><code>newCommunityParams()</code></a> and <code><a href="../reference/newSingleSpeciesParams.html">newSingleSpeciesParams()</a></code> as well, so its name claimed a narrower scope than it has. If you install mizer’s skills with <code><a href="https://sizespectrum.github.io/mizerAgents/reference/setup_mizer_agent.html" class="external-link">mizerAgents::setup_mizer_agent()</a></code>, re-run it to pick up the new name.</p>
-</section><section class="level3"><h3 id="projecttosteady-ignores-initial-transients">
-<code>projectToSteady()</code> ignores initial transients<a class="anchor" aria-label="anchor" href="#projecttosteady-ignores-initial-transients"></a>
-</h3>
-<p>To decide whether a simulation has settled onto a limit cycle, <code><a href="../reference/superseded_steady.html">projectToSteady()</a></code> calculates the autocorrelation of a fine-resolution biomass series. Previously it used the entire history from the start of the run. A large initial transient could therefore dominate the autocorrelation and obscure a cycle that had settled more recently. In mizer 3.3, the autocorrelation step uses only the second half of the series (or the most recent 20 samples if the series is shorter). This allows it to ignore the initial transient. A cycle will now be found earlier (because the check does not wait for the long-settled cycle to outweigh the transient), and some cycles that were previously missed entirely will now be correctly reported.</p>
 <hr></section></section><section class="level2"><h2 id="upgrading-from-mizer-3-1-to-3-2">Upgrading from mizer 3.1 to 3.2<a class="anchor" aria-label="anchor" href="#upgrading-from-mizer-3-1-to-3-2"></a>
 </h2>
 <section class="level3"><h3 id="species_params--now-detects-and-protects-changes">
@@ -829,7 +888,7 @@
 <p><em>Balancing</em> means adjusting the rate and capacity together so that the resource replenishes at exactly the rate at which it is consumed, keeping it at its steady state. Assigning to <code><a href="../reference/resource_params.html">resource_params()</a></code> rebuilds the arrays from the scalars but does <strong>not</strong> balance, so the resource steady state generally shifts.</p>
 <p>Balancing is now solely a feature of <code><a href="../reference/setResource.html">setResource()</a></code>. To change a resource coefficient <em>and</em> keep the resource balanced, call <code><a href="../reference/setResource.html">setResource()</a></code> rather than assigning to <code><a href="../reference/resource_params.html">resource_params()</a></code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Rebuild the capacity from a new coefficient and rebalance the rate,</span></span>
 <span><span class="co"># so the steady state is preserved:</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setResource.html">setResource</a></span><span class="op">(</span><span class="va">params</span>, resource_capacity <span class="op">=</span> <span class="va">new_kappa</span><span class="op">)</span></span>
@@ -841,7 +900,7 @@
 </h4>
 <p><code>resource_rate&lt;-</code>, <code>resource_capacity&lt;-</code>, <code>resource_level&lt;-</code> and <code>resource_dynamics&lt;-</code> still balance by default (unchanged behaviour), but they now accept a <code>balance</code> argument so you can switch balancing off:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set the capacity but leave the rate untouched (do not rebalance):</span></span>
 <span><span class="fu"><a href="../reference/setResource.html">resource_capacity</a></span><span class="op">(</span><span class="va">params</span>, balance <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">my_capacity</span></span></code></pre></div>
 </div>
@@ -856,7 +915,7 @@
 </h3>
 <p>Extracting a single column from a <code>species_params</code> or <code>gear_params</code> object with <code>$</code> now returns a vector named by species (or by <code>"species, gear"</code> for <code>gear_params</code>):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">w_mat</span></span>
 <span><span class="co">#&gt;   Sprat  Herring      Cod</span></span>
 <span><span class="co">#&gt;    ...      ...      ...</span></span></code></pre></div>
@@ -866,7 +925,7 @@
 </h3>
 <p>Assigning a selectivity function name to a <code>gear_params</code> object now automatically adds the argument columns that the function needs (as <code>NA</code>), ready to be filled in:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gp</span><span class="op">$</span><span class="va">sel_func</span> <span class="op">&lt;-</span> <span class="st">"sigmoid_length"</span></span>
 <span><span class="co"># gp now has l25 and l50 columns, both NA</span></span></code></pre></div>
 </div>
@@ -876,7 +935,7 @@
 <p>Calling <code><a href="../reference/species_params.html">species_params()</a></code> or <code><a href="../reference/species_params.html">given_species_params()</a></code> on a plain data frame now runs the same validation and defaults that <code><a href="../reference/validSpeciesParams.html">validSpeciesParams()</a></code> and <a href="../reference/validSpeciesParams.html"><code>validGivenSpeciesParams()</code></a> apply, rather than only checking for misspellings and converting lengths to weights. <code>species_params(df)</code> fills in the default columns (<code>w_max</code>, <code>alpha</code>, <code>n</code>, <code>p</code>, <code>interaction_resource</code>, <code>z_ext</code>, and the rest), and <code>given_species_params(df)</code> applies the consistency corrections (for example clamping <code>w_mat</code> below <code>w_inf</code>), derives <code>w_inf</code> from <code>w_max</code>/<code>w_repro_max</code> when it is absent, and now stops if the frame has duplicate species rows. Models built or modified through <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>, <code><a href="../reference/setParams.html">setParams()</a></code> and the <code>species_params()&lt;-</code> / <code>given_species_params()&lt;-</code> setters are unaffected, because those already ran this validation. Only code that called the two accessors directly on a bare data frame will see the extra columns and stricter checks (#432).</p>
 </section><section class="level3"><h3 id="printing-of-mizer-array-objects-shows-the-values">Printing of mizer array objects shows the values<a class="anchor" aria-label="anchor" href="#printing-of-mizer-array-objects-shows-the-values"></a>
 </h3>
-<p><code><a href="../reference/print.html">print()</a></code> on the array objects returned by the rate getters (<a href="../reference/ArraySpeciesBySize.html"><code>ArraySpeciesBySize</code></a>, <a href="../reference/ArrayTimeBySpecies.html"><code>ArrayTimeBySpecies</code></a>, <a href="../reference/ArrayResourceBySize.html"><code>ArrayResourceBySize</code></a>, <a href="../reference/ArrayTimeByResourceBySize.html"><code>ArrayTimeByResourceBySize</code></a> and <code>ArrayTimeBySpeciesBySize</code>, as returned by <code><a href="../reference/getEncounter.html">getEncounter()</a></code>, <code><a href="../reference/getBiomass.html">getBiomass()</a></code>, <code><a href="../reference/getFMort.html">getFMort()</a></code>, <code><a href="../reference/N.html">NResource()</a></code> and similar) now truncates the output instead of flooding the console with all the array entries. If your code or reports relied on the old printed format, use <code><a href="../reference/as.data.frame.html">as.data.frame()</a></code> to go back to the full output.</p>
+<p><code><a href="../reference/print.html">print()</a></code> on the array objects returned by the rate getters (<code>ArraySpeciesBySize</code>, <a href="../reference/ArrayTimeBySpecies.html"><code>ArrayTimeBySpecies</code></a>, <a href="../reference/ArrayResourceBySize.html"><code>ArrayResourceBySize</code></a>, <a href="../reference/ArrayTimeByResourceBySize.html"><code>ArrayTimeByResourceBySize</code></a> and <code>ArrayTimeBySpeciesBySize</code>, as returned by <code><a href="../reference/getEncounter.html">getEncounter()</a></code>, <code><a href="../reference/getBiomass.html">getBiomass()</a></code>, <code><a href="../reference/getFMort.html">getFMort()</a></code>, <code><a href="../reference/N.html">NResource()</a></code> and similar) now truncates the output instead of flooding the console with all the array entries. If your code or reports relied on the old printed format, use <code><a href="../reference/as.data.frame.html">as.data.frame()</a></code> to go back to the full output.</p>
 </section><section class="level3"><h3 id="upper-boundary-condition-at-w_max">Upper boundary condition at <code>w_max</code>
 <a class="anchor" aria-label="anchor" href="#upper-boundary-condition-at-w_max"></a>
 </h3>
@@ -937,7 +996,7 @@
 <li>
 <strong><code><a href="../reference/plotDiet.html">plotDiet()</a></code> no longer accepts a <code>time_range</code> argument.</strong> Remove it from your calls. (In 3.1 a <code>time_range</code> argument returns for the <code>MizerSim</code> method — see above.)</li>
 <li>
-<strong>Dimnames of <a href="../reference/getMort.html"><code>getMort()</code></a> and <a href="../reference/getPredRate.html"><code>getPredRate()</code></a></strong> arrays are now <code>sp</code> and <code>w</code> (matching <code><a href="../reference/getFMort.html">getFMort()</a></code> and the other rate getters). Code that referred to the old dimnames by name must be updated.</li>
+<strong>Dimnames of <code><a href="../reference/getMort.html">getMort()</a></code> and <a href="../reference/getPredRate.html"><code>getPredRate()</code></a></strong> arrays are now <code>sp</code> and <code>w</code> (matching <code><a href="../reference/getFMort.html">getFMort()</a></code> and the other rate getters). Code that referred to the old dimnames by name must be updated.</li>
 </ul></section><section class="level3"><h3 id="rate-getters-return-classed-array-objects">Rate getters return classed array objects<a class="anchor" aria-label="anchor" href="#rate-getters-return-classed-array-objects"></a>
 </h3>
 <p>Functions that return arrays of the form (species × size), (time × species) or (time × species × size) now attach extra attributes and an S3 class (<code>ArraySpeciesBySize</code>, <code>ArrayTimeBySpecies</code> or <code>ArrayTimeBySpeciesBySize</code>). The numeric values and ordinary matrix behaviour (arithmetic, subsetting) are unchanged, but the extra class and attributes mean that a strict comparison such as <code>identical(getMort(params), old_value)</code> can now report a difference where the numbers agree. Use <code><a href="https://rdrr.io/r/base/class.html" class="external-link">unclass()</a></code>, or compare with <code><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal()</a></code> on the values, if you need to ignore the class. These objects also carry <code><a href="../reference/print.html">print()</a></code>, <code><a href="../reference/summary.html">summary()</a></code>, <code><a href="../reference/plot.html">plot()</a></code> and <code><a href="../reference/as.data.frame.html">as.data.frame()</a></code> methods, so printing them looks different from a bare matrix.</p>
@@ -946,12 +1005,12 @@
 </h3>
 <p><a href="../reference/setInitialValues.html"><code>setInitialValues()</code></a> is deprecated. Replace</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setInitialValues.html">setInitialValues</a></span><span class="op">(</span><span class="va">params</span>, <span class="va">sim</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>with</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getParams.html">finalParams</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>or, when averaging over a time range, with <a href="../reference/getParams.html"><code>getParams(sim, time_range, geometric_mean)</code></a>. This reflects a shift in interpretation: a <code>MizerParams</code> object now represents not just the model specification but also its current state (the abundances), which can be extracted from a simulation with <code><a href="../reference/getParams.html">getParams()</a></code>, <a href="../reference/getParams.html"><code>finalParams()</code></a> and <a href="../reference/getParams.html"><code>initialParams()</code></a>.</p>

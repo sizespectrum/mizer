@@ -21,7 +21,7 @@ addSpecies(
   initial_effort,
   interaction,
   steady = TRUE,
-  info_level = 3,
+  info_level = default_info_level(),
   ...
 )
 ```
@@ -125,6 +125,7 @@ species_params <- data.frame(
     b = 3.11
 )
 params <- addSpecies(params, species_params)
-#> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
+#> ℹ The species parameter data frame is missing a `w_inf` column. I am using the values from the `w_max` column instead. 
+#> ℹ Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
 plotSpectra(params)
 ```

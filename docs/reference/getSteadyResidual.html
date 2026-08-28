@@ -7,15 +7,15 @@
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="How far a model is from its steady state — getSteadyResidual"><meta name="description" content="
 Returns the rate at which the abundances would change if the model were
-projected forward from its current initial state, relative to those
-abundances. At a steady state this is zero, so it answers the question that
-every calibration workflow otherwise has to remember to ask: is this model
-still at its steady state?"><meta property="og:description" content="
+projected forward from its current initial state, resolved by species and by
+size. At a steady state this is zero, so it answers the question that every
+calibration workflow otherwise has to remember to ask: is this model still
+at its steady state?"><meta property="og:description" content="
 Returns the rate at which the abundances would change if the model were
-projected forward from its current initial state, relative to those
-abundances. At a steady state this is zero, so it answers the question that
-every calibration workflow otherwise has to remember to ask: is this model
-still at its steady state?"><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+projected forward from its current initial state, resolved by species and by
+size. At a steady state this is zero, so it answers the question that every
+calibration workflow otherwise has to remember to ask: is this model still
+at its steady state?"><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -23,7 +23,7 @@ still at its steady state?"><meta property="og:image" content="https://sizespect
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,15 +99,20 @@ still at its steady state?"><meta property="og:image" content="https://sizespect
     <div class="ref-description section level2">
     <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a>
 Returns the rate at which the abundances would change if the model were
-projected forward from its current initial state, relative to those
-abundances. At a steady state this is zero, so it answers the question that
-every calibration workflow otherwise has to remember to ask: <em>is this model
-still at its steady state?</em></p>
+projected forward from its current initial state, resolved by species and by
+size. At a steady state this is zero, so it answers the question that every
+calibration workflow otherwise has to remember to ask: <em>is this model still
+at its steady state?</em></p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getSteadyResidual</span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="va">params</span><span class="op">@</span><span class="va">initial_effort</span>, dt <span class="op">=</span> <span class="fl">1e-04</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getSteadyResidual</span><span class="op">(</span></span>
+<span>  <span class="va">params</span>,</span>
+<span>  effort <span class="op">=</span> <span class="va">params</span><span class="op">@</span><span class="va">initial_effort</span>,</span>
+<span>  dt <span class="op">=</span> <span class="fl">1e-04</span>,</span>
+<span>  measure <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"biomass"</span>, <span class="st">"per_capita"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -129,32 +134,93 @@ model's steady state belongs to.</p></dd>
 dynamics functions are only available as one-step maps. Smaller is more
 accurate. Not used for the consumers, whose rate is exact.</p></dd>
 
+
+<dt id="arg-measure">measure<a class="anchor" aria-label="anchor" href="#arg-measure"></a></dt>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a>
+Which rate of change to report. <code>"biomass"</code> (the default) gives the
+contribution of each size class to the relative rate of change of its
+species' biomass, which sums over sizes to the drift that <code><a href="isSteady.html">isSteady()</a></code>
+judges a model by. <code>"per_capita"</code> gives the rate of change of each size
+class relative to its own density. See the sections above.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An <a href="ArraySpeciesBySize.html">ArraySpeciesBySize</a> object (species x size) of per-capita rates
-of change in 1/year, <code>NA</code> where the density is zero. It carries two
+    <p>An <a href="ArraySpeciesBySize.html">ArraySpeciesBySize</a> object (species x size) of rates in 1/year:
+with <code>measure = "biomass"</code>, contributions to each species' relative rate of
+biomass change, which sum over sizes to that rate and are <code>NA</code> only for a
+species with no biomass at all; with <code>measure = "per_capita"</code>, per-capita
+rates of change, <code>NA</code> where the size class holds no fish. It carries two
 further attributes:</p><dl><dt><code>resource</code></dt>
-<dd><p>The per-capita rate of change of the resource, a
-numeric vector over <code>w_full</code>, <code>NA</code> where the resource density is zero.</p></dd>
+<dd><p>The same measure for the resource, a numeric vector
+over <code>w_full</code>.</p></dd>
 
 <dt><code>other</code></dt>
 <dd><p>A named list with one entry per other component, holding
 its per-capita rate of change, or <code>NA</code> for a component whose state is
-not numeric.</p></dd>
+not numeric. These are reported but not folded into the biomass drift
+that <code><a href="isSteady.html">isSteady()</a></code> judges a model by: mizer does not know what a
+component's state is measured in, so it cannot form a biomass for it.</p></dd>
 
 
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The value is a <strong>per-capita rate of change, in units of 1/year</strong>:
+    <p>There are two ways to say how fast a size class is changing, and <code>measure</code>
+selects between them. Both are in units of 1/year.</p><div class="section">
+<h3 id="measure-biomass-the-default"><code>measure = "biomass"</code>, the default<a class="anchor" aria-label="anchor" href="#measure-biomass-the-default"></a></h3>
+
+
+<p>How much of its species' biomass each size class is adding or removing per
+year:
+$$C_i(w) = \frac{1}{B_i}\,\frac{dN_i(w)}{dt}\,w\,\Delta w,
+      \qquad B_i = \int N_i(w)\,w\,dw.$$
+The bin weight \(w\,\Delta w\) is the one <code><a href="sizeIntegral.html">sizeIntegral()</a></code> uses for a
+biomass, so it follows whichever quadrature scheme the model is on (see
+<code><a href="second_order_w.html">second_order_w()</a></code>), and the values <strong>add up over sizes to the relative rate
+of change of the species' biomass</strong>:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu"><a href="../reference/getSteadyResidual.html">getSteadyResidual</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>    <span class="co"># (dB_i/dt) / B_i, one per species</span></span></code></pre><p></p></div>
+<p>That total is the number <code><a href="isSteady.html">isSteady()</a></code>, the <code><a href="summary.html">summary()</a></code> line of a
+<a href="MizerParams-class.html">MizerParams</a> object and <code>project(check_steady = TRUE)</code> all judge
+a model by, and it is the drift that would actually show up in
+<code><a href="plotBiomass.html">plotBiomass()</a></code>. This array therefore says <em>where</em> a model is unsteady in the
+same currency that mizer uses to decide <em>whether</em> it is, and a size class can
+only be conspicuous in it if it is moving enough biomass to matter.</p>
+<p>That last property is why this is the default. A size class near the egg size
+turns over in hours, and one above the size where growth stops decays
+exponentially towards zero for ever; both carry enormous <em>per-capita</em> rates
+while holding no mass at all. Weighting by biomass gives them the weight they
+deserve, which is none, with no need for a threshold below which a class is
+declared to hold nothing.</p>
+</div>
+
+<div class="section">
+<h3 id="measure-per-capita-"><code>measure = "per_capita"</code><a class="anchor" aria-label="anchor" href="#measure-per-capita-"></a></h3>
+
+
+<p>The rate of change of each size class relative to its own density,
 $$R_i(w) = \frac{1}{N_i(w)}\frac{dN_i(w)}{dt}.$$
-A value of <code>1e-8</code> means nothing is moving. A value of <code>0.05</code> means that size
-class would change by about 5% over the first year of a projection, and
-<code>-0.05</code> that it would shrink by about that much. The sign is therefore the
-direction the model would drift.</p>
-<p>For the consumers this is exact, not a finite-difference approximation: the
-backward-Euler transport coefficients used by <code><a href="project.html">project()</a></code> satisfy
+A value of <code>0.05</code> means that size class would grow by about 5% over the first
+year of a projection, and <code>-0.05</code> that it would shrink by about that much.
+This is the scale-free reading. It shows a size class whose growth and
+mortality are out of balance even when the class holds a millionth of its
+species' biomass, which is a real statement about the structure of a model,
+but not one about whether anything observable is moving.</p>
+<p>Do not reduce this measure to <code>max(abs(...))</code>. Its extremes belong to the
+fastest-relaxing cells, which are exactly the ones holding no mass: on
+<code>NS_params</code> the largest per-capita rate is 1.2/year, in a cell holding 2e-8
+of its species' biomass, while the biomass drift is 0.014/year and the model
+counts as settled. Under the second-order scheme this is severe enough to
+reverse the ordering between a converged model and one that has just been
+knocked off its steady state.</p>
+</div>
+
+<div class="section">
+<h3 id="how-the-rates-are-obtained">How the rates are obtained<a class="anchor" aria-label="anchor" href="#how-the-rates-are-obtained"></a></h3>
+
+
+<p>For the consumers <code>dN/dt</code> is exact, not a finite-difference approximation:
+the backward-Euler transport coefficients used by <code><a href="project.html">project()</a></code> satisfy
 \(A N - S = -dt\,dN/dt\) identically, so evaluating them at <code>dt = 1</code> gives
 the instantaneous rate with no time-discretisation error. The resource and
 other components have arbitrary user-supplied dynamics functions, so their
@@ -166,39 +232,30 @@ function and its own <code>resource_dynamics</code>. Nothing is substituted or h
 fixed. The number therefore answers exactly "if I called <code><a href="project.html">project()</a></code> now,
 would anything move?", which is why it works for every model rather than only
 for the semichemostat resource that <code>findSteadyState(solver = "newton")</code>
-requires.</p><div class="section">
+requires.</p>
+</div>
+
+<div class="section">
 <h3 id="reading-the-result">Reading the result<a class="anchor" aria-label="anchor" href="#reading-the-result"></a></h3>
 
 
 <p>The returned array is an <a href="ArraySpeciesBySize.html">ArraySpeciesBySize</a> object, so it prints,
 summarises and plots itself:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getSteadyResidual.html">getSteadyResidual</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/summary.html">summary</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span>                  <span class="co"># per-species minimum, mean and maximum</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span>                  <span class="co"># the biomass drift of each species</span></span>
 <span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span>                     <span class="co"># which species, and at which sizes</span></span></code></pre><p></p></div>
 <p>The plot is the diagnostic one: a model that is off steady state is usually
-off in one species, or one part of the size range, and the plot says which.</p>
-<p>Size classes with no fish in them carry no information about steadiness — the
-relative rate of change of a zero density is undefined — so they are returned
-as <code>NA</code>. Use <code>na.rm = TRUE</code> in any summary, as the examples above do.</p>
-</div>
-
-<div class="section">
-<h3 id="do-not-reduce-this-to-its-maximum">Do not reduce this to its maximum<a class="anchor" aria-label="anchor" href="#do-not-reduce-this-to-its-maximum"></a></h3>
-
-
-<p><code>max(abs(res))</code> is a tempting single-number verdict and a misleading one. The
-per-capita rate of a single size class is dominated by the fastest-relaxing
-cells, and near the egg size those turn over in hours: a model settled for
-every practical purpose can carry a cell rate of \(10^4\)/year there while
-nothing observable moves. Under the second-order scheme (see
-<code><a href="second_order_w.html">second_order_w()</a></code>) this is severe enough to reverse the ordering between a
-converged model and one that has just been knocked off its steady state.</p>
-<p>What mizer's own checks — the <code><a href="summary.html">summary()</a></code> line, and
-<code>project(check_steady = TRUE)</code> — judge instead is the relative rate of change
-of each species' <em>biomass</em>, which weights each size class by the mass it
-holds, and is the drift the user would actually see in <code><a href="plotBiomass.html">plotBiomass()</a></code>. Use
-this array to find out <em>where</em> a model is unsteady, and those checks to find
-out <em>whether</em> it is.</p>
+off in one species, or one part of the size range, and the plot says which.
+Mizer's size grid is logarithmic, so the bin widths are proportional to <code>w</code>
+and the default measure keeps the shape of a density per unit of log size
+when drawn against a logarithmic size axis: equal areas under the curve are
+equal contributions to the drift.</p>
+<p>With <code>measure = "per_capita"</code> a size class with no fish in it has no relative
+rate of change — it is <code>0/0</code> — and is returned as <code>NA</code>, so pass
+<code>na.rm = TRUE</code> to any summary. The default measure needs no such exception:
+<code>dN/dt</code> is perfectly well defined in a class with no fish in it, which can be
+filling up, and its contribution to the biomass drift is reported like any
+other.</p>
 </div>
 
     </div>
@@ -220,23 +277,14 @@ out <em>whether</em> it is.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="summary.html">summary</a></span><span class="op">(</span><span class="fu">getSteadyResidual</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Steady-state residual [1/year] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12 species x 100 sizes</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Species         Min          Mean        Max</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Sprat -0.32010387  0.0014932474 0.01010982</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Sandeel -0.54637042 -0.0057605610 0.01148404</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   N.pout -0.77251244  0.0065228584 0.03400740</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Herring -0.17077775  0.0019195590 0.02414716</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      Dab -0.78476050 -0.0005368299 0.01726561</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Whiting -0.68433745  0.0024537842 0.02278352</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Sole -0.55536026 -0.0009899767 0.01048570</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Gurnard -0.04784682  0.0091143308 0.01765771</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice -0.25831571  0.0065772666 0.02037855</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Haddock -0.84155214  0.0038039116 0.02842493</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      Cod -1.23640575 -0.0047555940 0.01977439</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe -0.84979728 -0.0040508052 0.01096811</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># The relative rate of change of each species' biomass, in 1/year</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu">getSteadyResidual</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Sprat      Sandeel       N.pout      Herring          Dab      Whiting </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0032783633 0.0013206130 0.0138556255 0.0080776332 0.0050505885 0.0037296515 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Sole      Gurnard       Plaice      Haddock          Cod       Saithe </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0032863902 0.0091832161 0.0068072048 0.0080561894 0.0002875087 0.0021111526 </span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co"># Matching biomasses moves the model off its steady state, and the plot</span></span></span>
 <span class="r-in"><span><span class="co"># shows which species and which sizes have moved.</span></span></span>

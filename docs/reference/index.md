@@ -391,7 +391,8 @@ weight, mean maximum weight, and the Large Fish Index.
 - [`getMeanMaxWeight()`](https://sizespectrum.org/mizer/reference/getMeanMaxWeight.md)
   : Calculate the mean maximum weight of the community
 - [`getMeanWeight()`](https://sizespectrum.org/mizer/reference/getMeanWeight.md)
-  : Calculate the mean weight of the community
+  [`getMeanLength()`](https://sizespectrum.org/mizer/reference/getMeanWeight.md)
+  : Calculate the mean size of the community
 - [`getProportionOfLargeFish()`](https://sizespectrum.org/mizer/reference/getProportionOfLargeFish.md)
   : Calculate the proportion of large fish
 
@@ -598,6 +599,11 @@ for more details.
   : Coerce a mizer object to its registered extension class
 - [`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md)
   : Get the registered mizer extension chain
+- [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+  [`` `other_mort<-`() ``](https://sizespectrum.org/mizer/reference/other_mort.md)
+  [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+  [`` `other_encounter<-`() ``](https://sizespectrum.org/mizer/reference/other_mort.md)
+  : Extra contributions to the mortality and encounter rates
 - [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
   : Record an extension and its version stamp on a mizer object
 - [`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md)
@@ -779,6 +785,8 @@ are collected along with mizer’s own.
   given
 - [`signal_gear_params_changes()`](https://sizespectrum.org/mizer/reference/signal_gear_params_changes.md)
   : Signal a gear parameter changed through the given species parameters
+- [`signal_removed_species_params()`](https://sizespectrum.org/mizer/reference/signal_removed_species_params.md)
+  : Signal that species parameter columns have been removed
 - [`frozen_rate_params()`](https://sizespectrum.org/mizer/reference/frozen_rate_params.md)
   : Which parameters feed which frozen array
 

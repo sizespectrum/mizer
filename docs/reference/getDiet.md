@@ -121,6 +121,12 @@ Other summary functions:
 
 ``` r
 diet <- getDiet(NS_params)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 str(diet)
 #>  num [1:12, 1:100, 1:14] 8.94e-18 6.86e-19 3.46e-18 1.75e-09 1.12e-17 ...
 #>  - attr(*, "dimnames")=List of 3
@@ -130,6 +136,8 @@ str(diet)
 # \donttest{
 # For a MizerSim the diet is returned at each saved time step
 sim <- project(NS_params, t_max = 20, effort = 0.5)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Diet at the saved time steps over years 15 - 20
 diet <- getDiet(sim, time_range = c(15, 20))
 str(diet)

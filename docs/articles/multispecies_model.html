@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -182,8 +182,7 @@ holds an <em>initial state</em>: the initial abundances of the species
 and of the resource and the initial fishing effort. These are the values
 a simulation starts from. The values of the abundances and the effort at
 all the later times of a simulation are stored in the
-<code>MizerSim</code> class which we will come to later in <a href="running_a_simulation.html#sec:projection">the section on running a
-simulation.</a></p>
+<code>MizerSim</code> class.</p>
 <p>Although the <code>MizerParams</code> class contains a lot of
 information, it is relatively straightforward to set up and use. Objects
 of class <code>MizerParams</code> are created using the constructor
@@ -258,7 +257,7 @@ can be found on the help page for <code><a href="../reference/setFishing.html">s
 effort, which you can inspect and change with
 <code><a href="../reference/initial_effort.html">initial_effort()</a></code>. The effort that is actually used during a
 simulation is set when the simulation is run and can vary through time
-(see <a href="running_a_simulation.html">the section on running a
+(see <a href="guide-run-simulation.html">Guide: Running a mizer
 simulation</a>).</p>
 </div>
 <div class="section level3">
@@ -343,7 +342,9 @@ parameter data.frame into the <code><a href="../reference/newMultispeciesParams.
 constructor method:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #0000BB;">ℹ</span> No h provided for some species, so using age at maturity to calculate it.</span></span>
+<pre><code><span><span class="co">## <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span></span>
+<span><span class="co">## <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span></span>
+<span><span class="co">## <span style="color: #0000BB;">ℹ</span> No h provided for some species, so using age at maturity to calculate it.</span></span>
 <span><span class="co">## <span style="color: #0000BB;">ℹ</span> Because you have n != p, the default value for `h` is not very good.</span></span>
 <span><span class="co">## <span style="color: #0000BB;">ℹ</span> Because the age at maturity is not known, I need to fall back to using</span></span>
 <span><span class="co">## von Bertalanffy parameters, where available.</span></span>
@@ -416,9 +417,9 @@ objects which prints a useful summary of the model parameters:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary.html">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "MizerParams" </span></span>
-<span><span class="co">## mizer version: 3.3.0</span></span>
-<span><span class="co">## Created: 2026-08-23 22:18:50</span></span>
-<span><span class="co">## Modified: 2026-08-23 22:18:50</span></span>
+<span><span class="co">## mizer version: 3.3.0.9000</span></span>
+<span><span class="co">## Created: 2026-08-28 12:08:27</span></span>
+<span><span class="co">## Modified: 2026-08-28 12:08:27</span></span>
 <span><span class="co">## Consumer size spectrum:</span></span>
 <span><span class="co">##  minimum size:   0.001</span></span>
 <span><span class="co">##  maximum size:   60066</span></span>
@@ -428,7 +429,7 @@ objects which prints a useful summary of the model parameters:</p>
 <span><span class="co">##  maximum size:   8.48399</span></span>
 <span><span class="co">##  no. size bins:  166 (215 size bins in total)</span></span>
 <span><span class="co">## Steady state:</span></span>
-<span><span class="co">##  biomass drift:  1.4 /year   (not at steady state - run tuneSteadyState())</span></span>
+<span><span class="co">##  biomass drift:  1.4 /year   (not at steady state, largest in Sandeel - run tuneSteadyState())</span></span>
 <span><span class="co">## Species details:</span></span>
 <span><span class="co">## An object of class "species_params" containing parameters for 12 species:</span></span>
 <span><span class="co">##  species w_inf w_mat w_min   beta sigma</span></span>
@@ -565,7 +566,9 @@ scratch with our interaction matrix by passing it to
 <code><a href="../reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span>, interaction <span class="op">=</span> <span class="va">inter</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #0000BB;">ℹ</span> No h provided for some species, so using age at maturity to calculate it.</span></span>
+<pre><code><span><span class="co">## <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span></span>
+<span><span class="co">## <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span></span>
+<span><span class="co">## <span style="color: #0000BB;">ℹ</span> No h provided for some species, so using age at maturity to calculate it.</span></span>
 <span><span class="co">## <span style="color: #0000BB;">ℹ</span> Because you have n != p, the default value for `h` is not very good.</span></span>
 <span><span class="co">## <span style="color: #0000BB;">ℹ</span> Because the age at maturity is not known, I need to fall back to using</span></span>
 <span><span class="co">## von Bertalanffy parameters, where available.</span></span>
@@ -615,9 +618,9 @@ combinations of species. We can achieve that by only changing the
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary.html">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "MizerParams" </span></span>
-<span><span class="co">## mizer version: 3.3.0</span></span>
-<span><span class="co">## Created: 2026-08-23 22:18:50</span></span>
-<span><span class="co">## Modified: 2026-08-23 22:18:51</span></span>
+<span><span class="co">## mizer version: 3.3.0.9000</span></span>
+<span><span class="co">## Created: 2026-08-28 12:08:27</span></span>
+<span><span class="co">## Modified: 2026-08-28 12:08:28</span></span>
 <span><span class="co">## Consumer size spectrum:</span></span>
 <span><span class="co">##  minimum size:   0.001</span></span>
 <span><span class="co">##  maximum size:   60066</span></span>
@@ -627,7 +630,7 @@ combinations of species. We can achieve that by only changing the
 <span><span class="co">##  maximum size:   8.48399</span></span>
 <span><span class="co">##  no. size bins:  166 (215 size bins in total)</span></span>
 <span><span class="co">## Steady state:</span></span>
-<span><span class="co">##  biomass drift:  1.4 /year   (not at steady state - run tuneSteadyState())</span></span>
+<span><span class="co">##  biomass drift:  1.4 /year   (not at steady state, largest in Sandeel - run tuneSteadyState())</span></span>
 <span><span class="co">## Species details:</span></span>
 <span><span class="co">## An object of class "species_params" containing parameters for 12 species:</span></span>
 <span><span class="co">##  species w_inf w_mat w_min   beta sigma</span></span>
@@ -653,14 +656,12 @@ combinations of species. We can achieve that by only changing the
 <span><span class="co">## Otter          0.00   Whiting, Gurnard, Haddock, Cod, Saithe</span></span></code></pre>
 <p>In this example the same gear now catches multiple stocks. For
 example, the <em>Industrial</em> gear catches Sprat, Sandeel and Norway
-Pout. Why would we want to set up the gears like this? In the next
-section on <a href="running_a_simulation.html">running a multispecies
-model</a> we will see that to project the model through time you can
-specify the fishing effort for each gear through time. By setting the
-gears up in this way you can run different management scenarios of
-changing the efforts of the fishing gears rather than on individual
-species. It also means that after a simulation has been run you can
-examine the catches by gear.</p>
+Pout. Why would we want to set up the gears like this? In the <a href="guide-run-simulation.html">guide-run-simulation.html</a> we will
+see that to project the model through time you can specify the fishing
+effort for each gear through time. By setting the gears up in this way
+you can run different management scenarios of changing the efforts of
+the fishing gears rather than on individual species. It also means that
+after a simulation has been run you can examine the catches by gear.</p>
 </div>
 <div class="section level3">
 <h3 id="setting-to-steady-state">Setting to steady state<a class="anchor" aria-label="anchor" href="#setting-to-steady-state"></a>
@@ -702,9 +703,6 @@ even where the steady state is dynamically unstable. Its counterpart
 <code><a href="../reference/findSteadyState.html">findSteadyState()</a></code> changes no parameter at all and instead
 reports the steady state that the parameters you already have imply.
 Calibrating a model to observations is discussed in the <a href="guide-calibrate-model.html">guide to calibrating a model</a>.</p>
-<p>Now that we know how to create a multispecies model we shall discuss
-how to <a href="running_a_simulation.html">run a multispecies
-model.</a></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

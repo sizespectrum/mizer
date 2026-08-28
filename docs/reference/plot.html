@@ -19,7 +19,7 @@ output). plotHover() creates an interactive version of the same figure."><meta p
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -239,11 +239,23 @@ defaults: <code><a href="plot.ArraySpeciesBySize.html">plot.ArraySpeciesBySize()
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-plt img"><img src="plot-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getFeedingLevel.html">getFeedingLevel</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span>, species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Herring"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-plt img"><img src="plot-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getPredMort.html">getPredMort</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span>, species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Herring"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>     size_axis <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-plt img"><img src="plot-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot-4.png" alt="" width="700" height="433"></span>
@@ -254,8 +266,12 @@ defaults: <code><a href="plot.ArraySpeciesBySize.html">plot.ArraySpeciesBySize()
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getFMort.html">getFMort</a></span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span>, time <span class="op">=</span> <span class="fl">2010</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="getResourceMort.html">getResourceMort</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-plt img"><img src="plot-8.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-plt img"><img src="plot-9.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="fu"><a href="N.html">NResource</a></span><span class="op">(</span><span class="va">NS_sim</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot-10.png" alt="" width="700" height="433"></span>

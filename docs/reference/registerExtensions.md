@@ -43,6 +43,12 @@ registered maximal chain. For example, after registering
 `c(mizerExtB = "1.2.0", mizerExtA = "0.4.1")`, objects using only
 `c(mizerExtA = "0.4.1")` are also valid.
 
+Re-registering the active chain, or any suffix of it, leaves the
+registered chain unchanged and repairs the dynamic marker classes if any
+of them went missing. Only the namespaces of the extensions actually
+passed in `extensions` are loaded or installed; the repair itself never
+installs anything.
+
 For extension packages that register themselves incrementally from
 `.onLoad`, use
 [`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md)
@@ -63,6 +69,7 @@ Other extension tools:
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md),
 [`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md),
 [`initialNOther<-()`](https://sizespectrum.org/mizer/reference/initialNOther-set.md),
+[`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md),
 [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md),
 [`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md),
 [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),

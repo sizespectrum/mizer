@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -123,10 +123,12 @@ human-readable format.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">params1</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span></span>
 <span class="r-in"><span><span class="va">params2</span> <span class="op">&lt;-</span> <span class="va">params1</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params2</span><span class="op">)</span><span class="op">$</span><span class="va">w_mat</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">10</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>For the species Sprat the value for `w_mat25` is not smaller than that of `w_mat`. I have corrected that by setting it to NA.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>For the species Sprat the value for `w_mat25` is not smaller than that of `w_mat`. I have corrected that by marking it as missing so that its default will be used.</span>
 <span class="r-in"><span><span class="co"># Keep this example focused on the model parameter.</span></span></span>
 <span class="r-in"><span><span class="va">params2</span><span class="op">@</span><span class="va">time_modified</span> <span class="op">&lt;-</span> <span class="va">params1</span><span class="op">@</span><span class="va">time_modified</span></span></span>
 <span class="r-in"><span><span class="fu">compareParams</span><span class="op">(</span><span class="va">params1</span>, <span class="va">params2</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> The following species parameters differ: Component "w_mat": Mean relative difference: 0.2307692, Component "w_mat25": Mean relative difference: 0.2307692</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> params2 has the following additional given species parameters: w_mat25</span>

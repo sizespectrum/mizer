@@ -832,6 +832,14 @@ reference <- project(
     t_max = t_max,
     method = "tr_bdf2"
 )
+```
+
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+
+Code
+
+``` r
 
 accuracy <- do.call(rbind, lapply(dt_values, function(dt) {
     euler <- project(params, dt = dt, t_max = t_max, t_save = t_max,
@@ -848,6 +856,54 @@ accuracy <- do.call(rbind, lapply(dt_values, function(dt) {
         tr_bdf2_error = relative_l2_error(trbdf2, reference)
     )
 }))
+```
+
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+
+Code
+
+``` r
 
 accuracy
 ```

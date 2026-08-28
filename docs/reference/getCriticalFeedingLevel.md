@@ -26,6 +26,8 @@ feeding level
 ``` r
 # \donttest{
 str(getFeedingLevel(NS_params))
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>  'ArraySpeciesBySize' num [1:12, 1:100] 0.622 0.622 0.605 0.621 0.616 ...
 #>  - attr(*, "dimnames")=List of 2
 #>   ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...

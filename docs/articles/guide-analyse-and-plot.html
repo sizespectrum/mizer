@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -293,11 +293,18 @@
 <td>mean community weight through time</td>
 </tr>
 <tr class="odd">
+<td><a href="../reference/getMeanWeight.html"><code>getMeanLength(sim)</code></a></td>
+<td>
+<code>min_w</code>, <code>max_w</code>, <code>species</code>
+</td>
+<td>mean community length through time</td>
+</tr>
+<tr class="even">
 <td><a href="../reference/getMeanMaxWeight.html"><code>getMeanMaxWeight(sim)</code></a></td>
 <td><code>measure = "both"/"numbers"/"biomass"</code></td>
 <td>mean asymptotic weight through time</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="../reference/getCommunitySlope.html"><code>getCommunitySlope(sim)</code></a></td>
 <td>
 <code>min_w</code>, <code>max_w</code>, <code>species</code>
@@ -840,6 +847,7 @@
 <span><span class="co"># ── Community indicators (time series) ────────────────────────────────────────</span></span>
 <span><span class="fu"><a href="../reference/getProportionOfLargeFish.html">getProportionOfLargeFish</a></span><span class="op">(</span><span class="va">sim</span>, threshold_w <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/getMeanWeight.html">getMeanWeight</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/getMeanWeight.html">getMeanLength</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>               <span class="co"># needs species_params `a` and `b`</span></span>
 <span><span class="fu"><a href="../reference/getMeanMaxWeight.html">getMeanMaxWeight</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/getCommunitySlope.html">getCommunitySlope</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>          <span class="co"># returns data.frame with slope, intercept, R²</span></span>
 <span></span>

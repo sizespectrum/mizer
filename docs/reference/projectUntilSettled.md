@@ -217,12 +217,14 @@ answer three different questions and should not be read as one:
 
 - `residual`:
 
-  The largest per-capita rate of change, in 1/year, at the state that
-  was reached, as returned by
-  [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md).
-  Unlike `distance`, which compares two states `t_check` apart on
-  whatever scale the distance function uses, this measures how far the
-  state actually is from being a fixed point.
+  The largest absolute relative rate of biomass change, in 1/year, at
+  the state that was reached. For each consumer species this is
+  \\(dB_i/dt) / B_i\\, a biomass-weighted aggregate over its size
+  classes; the resource is treated the same way and the other components
+  contribute their own relative rates. Unlike `distance`, which compares
+  two states `t_check` apart on whatever scale the distance function
+  uses, this measures how far the state actually is from being a fixed
+  point.
 
 - `years`:
 

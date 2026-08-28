@@ -92,6 +92,8 @@ str(dw_full(NS_params))
 
 # Calculating the biomass of Cod in each bin in the North Sea model
 biomass <- initialN(NS_params)["Cod", ] * dw(NS_params) * w(NS_params)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Summing to get total biomass
 sum(biomass)
 #> [1] 601591842546

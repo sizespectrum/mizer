@@ -26,7 +26,8 @@ There are two kinds of extension package:
 - A **metadata-only** extension registers itself in `params@extensions`
   for record-keeping, but does not change how any mizer generic function
   behaves. [mizerStarvation](https://sizespectrum.org/mizerStarvation/)
-  is an example: it adds starvation mortality via the `other_mort`
+  is an example: it adds starvation mortality via the
+  [`other_mort`](https://sizespectrum.org/mizer/reference/other_mort.md)
   pipeline, but it does not need to override any user-facing mizer
   functions.
 
@@ -77,13 +78,56 @@ worthwhile when you want:
 
 [mizerStarvation](https://github.com/sizespectrum/mizerStarvation) adds
 starvation mortality — an extra per-capita mortality term that kicks in
-when a fish’s energy balance is negative. It does this via the
-`other_mort` argument in
-[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md):
-supplying a function that
+when a fish’s energy balance is negative. It does this through the
+`other_mort` pipeline: `setStarvation()` registers the name of its rate
+function, and
 [`getMort()`](https://sizespectrum.org/mizer/reference/getMort.md) calls
-and adds to the mizer mortality at every time step. No mizer generic
-function needs to be overridden.
+every function registered there and adds the result to the mortality
+rate at every time step. No mizer generic function needs to be
+overridden.
+
+That is the right mechanism for an extra mortality that depends on the
+state of the model but carries no state of its own, and
+[`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+is how you register it:
+
+``` r
+
+setStarvation <- function(params, starv_coef = 10) {
+    # ... set up the species parameters the rate function needs ...
+    other_mort(params)[["starvation"]] <- "starvMort"
+    params
+}
+```
+
+[`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+does the same for a contribution to the encounter rate. Two neighbouring
+mechanisms are easy to confuse with these:
+
+- If the contribution is a **fixed array** rather than a function of the
+  model state, use
+  [`ext_mort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)
+  or
+  [`ext_encounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md)
+  instead. Those are cheaper and are what mizer’s own external mortality
+  and external encounter use.
+- If the contribution comes from a **component with dynamics of its
+  own** — a detritus or carrion pool that is itself updated each time
+  step — create it with
+  [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+  and give the contribution as its `mort_fun` or `encounter_fun`
+  argument. That entry then belongs to the component:
+  [`getComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+  reports it and
+  [`removeComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+  removes it, and
+  [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+  deliberately does not list it.
+
+Do not assign into `params@other_mort` directly, even though older
+versions of mizer left no alternative and mizerStarvation still does so.
+A bare slot assignment skips the check that the name really is a
+function and that it does not collide with a component’s.
 
 ### Registering in `.onLoad`
 
@@ -110,7 +154,8 @@ branch or version of the package, using the same syntax that the
 if the package is already registered (for example because the user
 called
 [`devtools::load_all()`](https://devtools.r-lib.org/reference/load_all.html)
-twice), it returns silently.
+twice), it leaves the chain unchanged and rebuilds the chain’s dynamic
+marker classes if the reload removed any of them.
 
 ### Recording the extension in `params@extensions`
 
@@ -155,6 +200,34 @@ Storing this record serves two purposes:
 2.  **Class coercion.** For dispatching extensions (see below),
     [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
     uses `@extensions` to restore the correct S4 class automatically.
+
+### Taking a species parameter column away again
+
+An extension that adds a species parameter column usually needs to
+remove it when the user switches the extension off. Assign a table
+without the column and mizer takes it out of both
+[`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+and
+[`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md):
+
+``` r
+
+setStarvation <- function(params, starv_coef = 10) {
+    if (all(starv_coef == 0)) {
+        species_params(params)$starv_coef <- NULL   # withdraw the column
+        return(params)
+    }
+    species_params(params)$starv_coef <- starv_coef
+    # ... set up the rate function ...
+}
+```
+
+Do **not** reach into `params@species_params` to do this. The rule is
+the same for `given_species_params(params)$starv_coef <- NULL`: a column
+mizer knows how to calculate comes back as a calculated value, and a
+column of your own — which mizer has no way of recalculating — is gone.
+Before mizer 3.3.1 neither of these worked, so a package that needs the
+behaviour has to require that version.
 
 ------------------------------------------------------------------------
 
@@ -516,6 +589,36 @@ to a rate that your extension package modifies via
 bypassed for that object. It is worth documenting this limitation for
 your users.
 
+#### Mizer’s default parameters do not go through your method
+
+Mizer calculates some species parameters by putting the model into a
+reference state and measuring a rate in it.
+[`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
+is the one to know about: it gives each species a search volume
+coefficient of 1, puts a power-law prey spectrum in front of it, and
+measures the available energy to find the `gamma` that delivers the
+target feeding level `f0`.
+[`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md)
+does the inverse.
+
+Those measurements use
+[`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md),
+not
+[`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md),
+so they do not dispatch through your `projectEncounter` method and are
+unaffected by a
+[`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
+registration. They also exclude the `ext_encounter` array and functions
+registered with
+[`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md),
+including a component’s `encounter_fun`. The `gamma` mizer calculates
+therefore describes the species’ *baseline* search volume on the
+reference resource — which is exactly what a dynamic modulation such as
+a temperature scalar is meant to modulate. Do not declare `gamma` as a
+given species parameter merely to protect it from your own method or
+component; that is no longer necessary, and it costs the model the
+ability to let `gamma` follow `f0`.
+
 ### Creating objects: the two commands
 
 A constructor function that returns a `mizerShelf` object must end with
@@ -737,6 +840,21 @@ components created with
 [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
 never in new S4 slots.
 
+Add and remove any species parameter column of your own through
+`species_params(params)$my_col <- value` and
+`species_params(params)$my_col <- NULL`, never by writing into the
+`@species_params` slot. See [Taking a species parameter column away
+again](#taking-a-species-parameter-column-away-again).
+
+Register an extra mortality or encounter term that carries no state of
+its own with
+[`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+or
+[`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md),
+never by assigning into `params@other_mort` or `params@other_encounter`
+directly. See [Metadata-only extensions:
+mizerStarvation](#metadata-only-extensions-mizerstarvation).
+
 Report anything you tell the user with
 [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.md)
 inside a
@@ -754,7 +872,8 @@ subclass](#running-mizers-test-suite-against-your-subclass).
 
 For metadata-only packages, only the
 [`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md)
-call, the bundled-data binding and the reporting item apply, and
+call, the bundled-data binding, the storage item and the reporting item
+apply, and
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
 is not needed. Their setup functions should still call
 [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md),

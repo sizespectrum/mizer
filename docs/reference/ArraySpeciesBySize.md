@@ -100,24 +100,32 @@ attributes:
 ``` r
 # \donttest{
 enc <- getEncounter(NS_params)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 is.ArraySpeciesBySize(enc)
 #> [1] TRUE
 summary(enc)
 #> Encounter rate [g/year] 
 #> 12 species x 100 sizes
 #> 
-#>  Species       Min      Mean       Max
-#>    Sprat 0.2992076  2929.178  39573.31
-#>  Sandeel 0.4528175  3768.983  45507.81
-#>   N.pout 0.5019776 16840.828 147886.62
-#>  Herring 0.5752333  6241.503  80375.40
-#>      Dab 0.4916095 24004.843 266704.99
-#>  Whiting 0.4362525 17348.364 137539.48
-#>     Sole 0.3646753 12087.308 148784.12
-#>  Gurnard 0.3122260 11327.057 135351.68
-#>   Plaice 0.2323659 11800.440 113242.16
-#>  Haddock 0.5964130 24932.923 334719.58
-#>      Cod 0.9658343 52646.610 436916.91
-#>   Saithe 0.7709631 16377.321 187775.81
+#>  Species       Min        Mean         Max
+#>    Sprat 0.2992076    37.92979    239.6706
+#>  Sandeel 0.4528175    67.08030    434.6202
+#>   N.pout 0.5019776   237.84164   2613.4140
+#>  Herring 0.5752333   282.49597   2203.3821
+#>      Dab 0.4916095   395.38383   4473.2748
+#>  Whiting 0.4362525  2507.48128  28974.8976
+#>     Sole 0.3646753   474.92455   5616.2042
+#>  Gurnard 0.3122260   318.45335   3726.8753
+#>   Plaice 0.2323659  1898.07284  24800.9828
+#>  Haddock 0.5964130  3547.12149  49555.6495
+#>      Cod 0.9658343 52646.61006 436916.9135
+#>   Saithe 0.7709631 14646.02285 160506.0739
 # }
 ```

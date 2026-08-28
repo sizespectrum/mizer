@@ -35,7 +35,7 @@ params <- tuneSteadyState(params)
 | [`findSteadyState(params)`](https://sizespectrum.org/mizer/reference/findSteadyState.md) | change **no parameter**: births, resource and spectra settle together wherever the parameters you already have put them |
 | [`projectUntilSettled(params)`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md) | the same run as [`findSteadyState(params)`](https://sizespectrum.org/mizer/reference/findSteadyState.md) but returning the [`MizerSim`](https://sizespectrum.org/mizer/reference/MizerSim.md), when you want to watch the approach |
 | [`isSteady(params)`](https://sizespectrum.org/mizer/reference/isSteady.md) | *(experimental)* ask whether a model **is** at its steady state (boolean) |
-| [`getSteadyResidual(params)`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md) | *(experimental)* per-capita rates of change across species and sizes, showing where it is not |
+| [`getSteadyResidual(params)`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md) | *(experimental)* each size class’s contribution to its species’ biomass drift, showing where it is not; [`rowSums()`](https://rdrr.io/r/base/colSums.html) gives the per-species drift |
 
 The two finders differ in **what they keep**.
 [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
@@ -77,6 +77,7 @@ params <- tuneSteadyState(params)
 attr(params, "convergence")$attractor    # "fixed_point", "limit_cycle" or NA
 attr(params, "convergence")$termination  # why the run stopped
 attr(params, "convergence")$residual     # largest biomass drift, in 1/year
+                                         # (consumers and resource only)
 plot(getSteadyResidual(params))          # which species, and at which sizes
 ```
 
@@ -235,11 +236,27 @@ before changing it.
 
 isSteady(params)                       # TRUE if settled within tolerance
 summary(params)                        # still at the steady state?
+attr(getSteadyResidual(params), "other")  # components, if the model has any
 plotSpectra(params)                    # sensible, overlapping spectra?
 plotGrowthCurves(params, species = "Cod")
 plotBiomassObservedVsModel(params)     # points near the 1:1 line?
 plotYieldObservedVsModel(params)
 ```
+
+**A model with components registered by
+[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+needs the extra line.**
+[`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md) and
+the [`summary()`](https://sizespectrum.org/mizer/reference/summary.md)
+drift cover the consumers and the resource only: a component’s state can
+be any object at all, so mizer cannot form a biomass for it, and the
+functions that find steady states hold it fixed anyway. Mizer names any
+component that is moving whenever it reports on the drift, and
+[`summary()`](https://sizespectrum.org/mizer/reference/summary.md) lists
+them on their own lines, but the number in front of you is not about
+them.
+[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
+is what settles them along with everything else.
 
 `project(params, check_steady = TRUE)` makes the same check at the point
 where it matters, warning if the run is about to start from a state that

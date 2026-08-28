@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -237,7 +237,9 @@ included with the package. Here we also use a species interaction matrix
 for the North Sea species.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">NS_species_params</span>, <span class="va">NS_interaction</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #0000BB;">ℹ</span> No h provided for some species, so using age at maturity to calculate it.</span></span>
+<pre><code><span><span class="co">## <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span></span>
+<span><span class="co">## <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span></span>
+<span><span class="co">## <span style="color: #0000BB;">ℹ</span> No h provided for some species, so using age at maturity to calculate it.</span></span>
 <span><span class="co">## <span style="color: #0000BB;">ℹ</span> Because you have n != p, the default value for `h` is not very good.</span></span>
 <span><span class="co">## <span style="color: #0000BB;">ℹ</span> Because the age at maturity is not known, I need to fall back to using</span></span>
 <span><span class="co">## von Bertalanffy parameters, where available.</span></span>

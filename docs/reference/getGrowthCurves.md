@@ -56,6 +56,14 @@ Other summary functions:
 
 ``` r
 growth_curves <- getGrowthCurves(NS_params, species = c("Cod", "Haddock"))
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 str(growth_curves)
 #>  num [1:2, 1:50] 0.001 0.001 0.87 2.546 4.499 ...
 #>  - attr(*, "dimnames")=List of 2

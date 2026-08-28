@@ -65,6 +65,8 @@ arithmetically).
 
 ``` r
 sim <- project(NS_params, t_max = 20, effort = 0.5)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # State at a specific time
 params_10 <- getParams(sim, time_range = 10)
 # State averaged over the last 10 years

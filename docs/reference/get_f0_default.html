@@ -21,7 +21,7 @@ Only for internal use."><meta property="og:image" content="https://sizespectrum.
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -127,6 +127,13 @@ parameter data frame or it is set to 0.6 if it is not provided.</p>
 <p>See the <a href="https://sizespectrum.org/mizer/articles/default_parameters.html#f0-default">Target Feeding Level</a>
 section of the "Calculation of Default Parameter Values" vignette for the
 mathematical derivation.</p>
+<p>The available energy is measured with the predation part of mizer's own
+encounter rate, <code><a href="mizerEncounter.html">mizerEncounter()</a></code>. It is a property of the species
+parameters and of the resource power law rather than of the model's dynamics,
+so external encounter and contributions registered with <code><a href="other_mort.html">other_encounter()</a></code>
+(including component encounter functions) are excluded. The measurement also
+deliberately does not go through the extension dispatch chain, nor through an
+encounter function registered with <code><a href="setRateFunction.html">setRateFunction()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

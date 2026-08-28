@@ -56,6 +56,8 @@ The `params` object with updated initial values and initial effort.
 # \donttest{
 params <- NS_params
 sim <- project(params, t_max = 20, effort = 0.5)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 params <- setInitialValues(params, sim)
 #> Warning: `setInitialValues()` was deprecated in mizer 3.0.0.
 #> ℹ Use `getParams(sim, time_range, geometric_mean)` to extract a MizerParams

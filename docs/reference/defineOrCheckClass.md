@@ -1,8 +1,9 @@
 # Define an S4 class or verify it extends the expected parent
 
 If `class` does not yet exist, defines it as a virtual-free S4 class
-that contains `parent`, registered in `.GlobalEnv`. If `class` already
-exists, stops with an error unless it already extends `parent`.
+that contains `parent`, registered in mizer's persistent class
+environment. If `class` already exists, stops with an error unless it
+already extends `parent`.
 
 ## Usage
 

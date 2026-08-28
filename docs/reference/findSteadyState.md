@@ -196,7 +196,9 @@ the dynamics themselves would run away from.
 ``` r
 # \donttest{
 params <- findSteadyState(NS_params, solver = "newton")
-#> The biomasses of the solution change at up to 6e-07 per year.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ The biomasses of the solution change at up to 6e-07 per year.
 plotSpectra(params)
 
 # }

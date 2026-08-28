@@ -49,7 +49,7 @@ reached at the previous value."><meta property="og:image" content="https://sizes
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -275,11 +275,15 @@ available from that object as <code>attr(scan, "at_max")</code>.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu">plotYieldVsF</span><span class="op">(</span><span class="va">NS_params</span>, <span class="st">"Cod"</span>, F_max <span class="op">=</span> <span class="fl">1.5</span>, no_steps <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-plt img"><img src="plotYieldVsF-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The fishing mortality that maximises the yield</span></span></span>
 <span class="r-in"><span><span class="va">scan</span> <span class="op">&lt;-</span> <span class="fu">plotYieldVsF</span><span class="op">(</span><span class="va">NS_params</span>, <span class="st">"Cod"</span>, F_max <span class="op">=</span> <span class="fl">1.5</span>, no_steps <span class="op">=</span> <span class="fl">8</span>,</span></span>
 <span class="r-in"><span>                     return_data <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">scan</span>, <span class="st">"at_max"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Cod </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.8571429 </span>

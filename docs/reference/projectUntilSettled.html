@@ -39,7 +39,7 @@ the trajectory leading to it.'><meta property="og:image" content="https://sizesp
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -303,8 +303,11 @@ entry to test before treating a result as a steady state.</p></dd>
 <dd><p>The final value returned by <code>distance_func</code>.</p></dd>
 
 <dt><code>residual</code></dt>
-<dd><p>The largest per-capita rate of change, in 1/year, at the
-state that was reached, as returned by <code><a href="getSteadyResidual.html">getSteadyResidual()</a></code>. Unlike
+<dd><p>The largest absolute relative rate of biomass change,
+in 1/year, at the state that was reached. For each consumer species
+this is \((dB_i/dt) / B_i\), a biomass-weighted aggregate over its
+size classes; the resource is treated the same way and the other
+components contribute their own relative rates. Unlike
 <code>distance</code>, which compares two states <code>t_check</code> apart on whatever scale
 the distance function uses, this measures how far the state actually is
 from being a fixed point.</p></dd>

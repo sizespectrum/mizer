@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -157,6 +157,7 @@
 <section class="level3"><h3 id="what-the-analysis-covers">What the analysis covers<a class="anchor" aria-label="anchor" href="#what-the-analysis-covers"></a>
 </h3>
 <p><code><a href="../reference/getStability.html">getStability()</a></code>, <code><a href="../reference/getDiscreteStability.html">getDiscreteStability()</a></code>, <code><a href="../reference/tuneSteadyState.html">tuneSteadyState()</a></code> and <code>findSteadyState(solver = "newton")</code> all treat components registered with <a href="../reference/setComponent.html"><code>setComponent()</code></a> as fixed inputs: they are held at their stored values and have no rows in the Jacobian. The verdict is therefore about the consumer-resource subsystem with the components frozen, which is exact when a component is a fixed input and a good approximation when it is much faster or much slower than the fish. Mizer warns when it meets a component with dynamics of its own. <code>findSteadyState(solver = "project")</code> is the one that advances everything.</p>
+<p>The reported <code>residual</code> measures that same subsystem: a component’s rate of change is not folded into it, because mizer does not know what a component’s state is measured in and so cannot form a biomass for it. So <code>attractor == "fixed_point"</code> is a claim about the consumers and the resource, not about the whole model. Mizer names any component that is moving in the same message, and <code>attr(getSteadyResidual(params), "other")</code> holds the rates themselves. To settle the components too, project the model with <a href="../reference/projectUntilSettled.html"><code>projectUntilSettled()</code></a>.</p>
 <hr></section></section><section class="level2"><h2 id="is-mizers-time-step-stable-getdiscretestability">Is mizer’s time step stable? — <code>getDiscreteStability()</code>
 <a class="anchor" aria-label="anchor" href="#is-mizers-time-step-stable-getdiscretestability"></a>
 </h2>
@@ -191,7 +192,7 @@
 <ul>
 <li>
 <code>set_func</code> says what to vary — <a href="../reference/scanEffort.html"><code>scanEffort()</code></a> for the fishing effort of every gear together, <a href="../reference/scanEffort.html"><code>scanFishingMortality()</code></a> for the fishing mortality on one species, <a href="../reference/scanEffort.html"><code>scanSpeciesParam()</code></a> for any species parameter. <code>value_func</code> says what to measure: any of <a href="../reference/getBiomass.html"><code>getBiomass()</code></a>, <a href="../reference/getYield.html"><code>getYield()</code></a>, <a href="../reference/getSSB.html"><code>getSSB()</code></a>, <a href="../reference/getN.html"><code>getN()</code></a>. <code>species</code> restricts which series are shown. See the <a href="guide-analyse-and-plot.html">guide to analysing and plotting mizer results</a>.</li>
-<li>The settling stage runs <a href="../reference/projectUntilSettled.html"><code>projectUntilSettled()</code></a>, whose <code>distance_tol</code>, <code>residual_tol</code>, <code>amplitude_tol</code> and <code>extinction_threshold</code> are exposed for tuning when a run is slow to settle or a species is collapsing.</li>
+<li>The settling stage runs <code><a href="../reference/projectUntilSettled.html">projectUntilSettled()</a></code>, whose <code>distance_tol</code>, <code>residual_tol</code>, <code>amplitude_tol</code> and <code>extinction_threshold</code> are exposed for tuning when a run is slow to settle or a species is collapsing.</li>
 <li>The returned <a href="../reference/MizerScan.html"><code>MizerScan</code></a> object is a data frame, so the numbers behind the diagram are available without re-running the scan.</li>
 </ul>
 <hr></section><section class="level2"><h2 id="numerical-caveat">Numerical caveat<a class="anchor" aria-label="anchor" href="#numerical-caveat"></a>

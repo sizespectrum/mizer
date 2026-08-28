@@ -35,6 +35,14 @@ by summing `dw / g(w)` over all size bins with `w < w_mat`.
 
 ``` r
 age_mat(NS_params)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>     Sprat   Sandeel    N.pout   Herring       Dab   Whiting      Sole   Gurnard 
 #> 2.5560864 0.9832776 1.7962884 3.0382630 1.9612689 2.7122876 4.4940829 4.1384558 
 #>    Plaice   Haddock       Cod    Saithe 

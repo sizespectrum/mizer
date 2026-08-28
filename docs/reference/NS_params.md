@@ -31,6 +31,8 @@ Other example parameter objects:
 # \donttest{
 sim = project(NS_params, effort = c(Industrial = 0, Pelagic = 1, 
                                     Beam = 0.5, Otter = 0.5))
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 plot(sim)
 
 # }

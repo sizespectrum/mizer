@@ -88,6 +88,8 @@ Other summary functions:
 
 ``` r
 getTrophicLevelBySpecies(NS_params)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>    Sprat  Sandeel   N.pout  Herring      Dab  Whiting     Sole  Gurnard 
 #> 3.845388 3.702670 4.723848 3.596897 4.760884 4.958668 4.751892 4.302460 
 #>   Plaice  Haddock      Cod   Saithe 

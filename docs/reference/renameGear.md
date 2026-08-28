@@ -39,6 +39,8 @@ An object of type
 ``` r
 replace <- c(Industrial = "Trawl", Otter = "Beam_Trawl")
 params <- renameGear(NS_params, replace)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 gear_params(params)$gear
 #>        Sprat, Trawl      Sandeel, Trawl       N.pout, Trawl    Herring, Pelagic 
 #>             "Trawl"             "Trawl"             "Trawl"           "Pelagic" 

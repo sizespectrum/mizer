@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -146,23 +146,29 @@
 </td>
 </tr>
 <tr class="even">
+<td>Add an extra encounter or mortality that depends on the model state but has no state of its own</td>
+<td>
+<a href="../reference/other_mort.html"><code>other_encounter()</code></a> / <a href="../reference/other_mort.html"><code>other_mort()</code></a>
+</td>
+</tr>
+<tr class="odd">
 <td>Change how one built-in rate is calculated</td>
 <td><a href="../reference/setRateFunction.html"><code>setRateFunction()</code></a></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Add a new dynamical pool (detritus, carrion, oxygen, second resource…)</td>
 <td><a href="../reference/setComponent.html"><code>setComponent()</code></a></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Store parameters for your custom code</td>
 <td>
 <a href="../reference/setRateFunction.html"><code>other_params()</code></a> (model-wide) or <code>component_params</code> (one component)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Extend plots/summaries for a custom model type</td>
 <td>S3 methods on an S4 subclass</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Replace arbitrary internal mizer code (last resort)</td>
 <td><a href="../reference/customFunction.html"><code>customFunction()</code></a></td>
 </tr>
@@ -187,6 +193,7 @@
 <span><span class="fu"><a href="../reference/setExtEncounter.html">ext_encounter</a></span><span class="op">(</span><span class="va">params_ext</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setExtEncounter.html">ext_encounter</a></span><span class="op">(</span><span class="va">params_ext</span><span class="op">)</span> <span class="op">+</span> <span class="va">extra_food</span></span></code></pre></div>
 </div>
 <p>This is the right choice when the extra process is not itself depleted or replenished, and the fish do not feed back on it. If it needs to respond to the fish, you need a component instead.</p>
+<p>External encounter changes the realised encounter and feeding level, but it does not enter the power-law reference state used by <a href="../reference/get_gamma_default.html"><code>get_gamma_default()</code></a> and <a href="../reference/get_f0_default.html"><code>get_f0_default()</code></a>. Those defaults likewise exclude functions registered with <code><a href="../reference/other_mort.html">other_encounter()</a></code>, including a component’s <code>encounter_fun</code>: they describe feeding on the reference resource alone, before extra food sources are added.</p>
 <hr></section><section class="level2"><h2 id="replacing-a-rate-function">Replacing a rate function<a class="anchor" aria-label="anchor" href="#replacing-a-rate-function"></a>
 </h2>
 <p>Use when the model still follows mizer’s standard flow but one step should be computed differently — a time-dependent encounter, an alternative growth or recruitment formulation, and so on. Mizer stores the <strong>function name</strong>, so the function must be findable by name in the global environment or an installed package; a function defined inside another function cannot be found.</p>
@@ -353,9 +360,16 @@
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Access components with <a href="../reference/setComponent.html"><code>getComponent()</code></a>, remove them with <a href="../reference/setComponent.html"><code>removeComponent()</code></a>. Component state is available to all custom functions as <code>n_other[["detritus"]]</code>, and its parameters via <code>component_params</code>.</p>
-<p>The functions named in that call take the component’s name as a <code>component</code> argument, so one implementation can serve several components, and reach their own state as <code>n_other[[component]]</code> and their own parameters as <code>params@other_params[[component]]</code>. A dynamics function additionally receives the current <code>rates</code> and the step length <code>dt</code>, and returns the component’s <strong>new state</strong> — not a rate of change, so integrate the step yourself. This pair makes a detritus pool that fish eat and that relaxes back towards a capacity:</p>
+<p>If there is nothing for <code>dynamics_fun</code> to update — a starvation or senescence mortality reads the state but keeps none of its own — do not invent a component for it. Register the function on its own instead:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/other_mort.html">other_mort</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[[</span><span class="st">"starvation"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"starvMort"</span></span>
+<span><span class="fu"><a href="../reference/other_mort.html">other_encounter</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[[</span><span class="st">"scavenging"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"scavengingEncounter"</span></span></code></pre></div>
+</div>
+<p><code><a href="../reference/getMort.html">getMort()</a></code> and <code><a href="../reference/getEncounter.html">getEncounter()</a></code> add the result of every function registered this way, exactly as they do for a component’s <code>mort_fun</code> and <code>encounter_fun</code>. The two registries do not overlap: an entry that belongs to a component is owned by <code><a href="../reference/setComponent.html">setComponent()</a></code>, reported by <code><a href="../reference/setComponent.html">getComponent()</a></code> and removed by <code><a href="../reference/setComponent.html">removeComponent()</a></code>, and <code><a href="../reference/other_mort.html">other_mort()</a></code> deliberately does not list it — the same split <code><a href="../reference/setRateFunction.html">other_params()</a></code> makes for component parameters. Assigning <code>NULL</code> removes a free-standing entry.</p>
+<p>The functions named in that call take the component’s name as a <code>component</code> argument, so one implementation can serve several components, and reach their own state as <code>n_other[[component]]</code> and their own parameters as <code>params@other_params[[component]]</code>. A dynamics function additionally receives the current <code>rates</code> and the step length <code>dt</code>, and returns the component’s <strong>new state</strong> — not a rate of change, so integrate the step yourself. This pair makes a detritus pool that fish eat and that relaxes back towards a capacity:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">detritusEncounter</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">n_pp</span>, <span class="va">n_other</span>, <span class="va">component</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">params2</span> <span class="op">&lt;-</span> <span class="va">params</span></span>
 <span>    <span class="co"># Drop this component before delegating, or mizerEncounter() calls back</span></span>
@@ -376,21 +390,55 @@
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <p>Passing the component’s own abundance to <code><a href="../reference/mizerEncounter.html">mizerEncounter()</a></code> as <code>n_pp</code>, as <code>detritusEncounter()</code> does, is the trick for making a component act as an extra prey spectrum: it is then eaten through the ordinary predation kernel and shows up in <a href="../reference/getDiet.html"><code>getDiet()</code></a> without further work.</p>
-<hr></section><section class="level2"><h2 id="worked-example-external-encounter-and-mortality">Worked example: external encounter and mortality<a class="anchor" aria-label="anchor" href="#worked-example-external-encounter-and-mortality"></a>
+<section class="level3"><h3 id="components-and-the-steady-state">Components and the steady state<a class="anchor" aria-label="anchor" href="#components-and-the-steady-state"></a>
+</h3>
+<p>A component you give a <code>dynamics_fun</code> is outside mizer’s steady-state machinery, in both directions, and a model with one needs checking accordingly:</p>
+<ul>
+<li>
+<a href="../reference/tuneSteadyState.html"><code>tuneSteadyState()</code></a>, <a href="../reference/findSteadyState.html"><code>findSteadyState(solver = "newton")</code></a> and <code><a href="../reference/getStability.html">getStability()</a></code> hold the component at its stored value and solve the consumer-resource subsystem around it. Mizer warns when it meets a component with dynamics of its own.</li>
+<li>
+<a href="../reference/isSteady.html"><code>isSteady()</code></a>, the <a href="../reference/summary.html"><code>summary()</code></a> drift line and <a href="../reference/project.html"><code>project(check_steady = TRUE)</code></a> judge that same subsystem. A component’s state can be any object at all, so mizer cannot form a biomass for it and does not fold its rate of change into the number. <strong>A model can be <code><a href="../reference/isSteady.html">isSteady()</a></code> while your component is moving.</strong>
+</li>
+</ul>
+<p>Mizer names any component that is moving whenever it reports on the drift, and <code>attr(getSteadyResidual(params), "other")</code> holds the per-cell relative rates of change it measured, reduced by <code>max(abs(...))</code> for reporting — an overestimate whenever the component has fast cells holding almost nothing, which is why that number is reported rather than compared against a tolerance.</p>
+<p>To settle a component along with everything else, use <a href="../reference/projectUntilSettled.html"><code>projectUntilSettled()</code></a>, which advances it like every other state variable; its stopping rule does wait for the component. Issue #589 tracks giving components a way to declare their own reduction and so re-enter the criterion.</p>
+<hr></section></section><section class="level2"><h2 id="worked-example-external-encounter-and-mortality">Worked example: external encounter and mortality<a class="anchor" aria-label="anchor" href="#worked-example-external-encounter-and-mortality"></a>
 </h2>
 <p>The <code>extra_food</code> built above adds straight to the total encounter rate:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">enc_base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></span>
-<span><span class="va">enc_ext</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">params_ext</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">enc_ext</span> <span class="op">-</span> <span class="va">enc_base</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enc_base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enc_ext</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">params_ext</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">enc_ext</span> <span class="op">-</span> <span class="va">enc_base</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 5.623413e-04 2.820537e+02</code></pre>
 </div>
 </div>
 <p>External mortality works the same way — note the negative exponent, since mortality falls with size where the extra food rose with it:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_mort</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span>
 <span><span class="va">extra_mort</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params_mort</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                    <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params_mort</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="op">-</span><span class="fl">1</span><span class="op">/</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
@@ -400,12 +448,12 @@
 </h2>
 <p>Wrapping a built-in rate, in full. This one takes the amplitude and period of a seasonal cycle from <code><a href="../reference/setRateFunction.html">other_params()</a></code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span>
 <span><span class="fu"><a href="../reference/setRateFunction.html">other_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>season_amplitude <span class="op">=</span> <span class="fl">0.2</span>, season_period <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seasonalEncounter</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">n_pp</span>, <span class="va">n_other</span>, <span class="va">t</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">other_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span>    <span class="va">multiplier</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">p</span><span class="op">$</span><span class="va">season_amplitude</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">t</span> <span class="op">/</span> <span class="va">p</span><span class="op">$</span><span class="va">season_period</span><span class="op">)</span></span>
@@ -415,9 +463,14 @@
 </div>
 <p>Registered by name, the rate now moves with <code>t</code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">params2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"Encounter"</span>, <span class="st">"seasonalEncounter"</span><span class="op">)</span></span>
-<span><span class="va">enc0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">params2</span>, t <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">params2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"Encounter"</span>, <span class="st">"seasonalEncounter"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">enc0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">params2</span>, t <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">enc_quarter</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">params2</span>, t <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">enc_quarter</span> <span class="op">/</span> <span class="va">enc0</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -426,7 +479,7 @@
 </div>
 <p>At <code>t = 0.25</code> the multiplier is at its maximum, <code>1 + season_amplitude</code>, exactly as intended. The seasonality then carries through a projection:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params2</span>, t_max <span class="op">=</span> <span class="fl">2</span>, t_save <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
@@ -441,11 +494,15 @@
 </h2>
 <p>Putting <code>detritusEncounter()</code> and <code>detritusDynamics()</code> from above to work. The component is stored on the full resource size grid, and starts at half the capacity it relaxes towards:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">detritus_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>capacity <span class="op">=</span> <span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>,</span>
-<span>                        rate <span class="op">=</span> <span class="va">params</span><span class="op">@</span><span class="va">rr_pp</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">params3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setComponent.html">setComponent</a></span><span class="op">(</span></span>
+<span>                        rate <span class="op">=</span> <span class="va">params</span><span class="op">@</span><span class="va">rr_pp</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">params3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setComponent.html">setComponent</a></span><span class="op">(</span></span>
 <span>    <span class="va">params</span>,</span>
 <span>    component <span class="op">=</span> <span class="st">"Detritus"</span>,</span>
 <span>    initial_value <span class="op">=</span> <span class="fu"><a href="../reference/initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>,</span>
@@ -454,11 +511,19 @@
 <span>    component_params <span class="op">=</span> <span class="va">detritus_params</span>,</span>
 <span>    colour <span class="op">=</span> <span class="st">"orange"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.</code></pre>
+</div>
 </div>
 <p>Its initial state is now in <a href="../reference/initialNOther-set.html"><code>initialNOther(params3)$Detritus</code></a> and its settings in <code>getComponent(params3, "Detritus")</code>. Because it is eaten through the ordinary predation kernel, it appears in the diet with no further work:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotDiet.html">plotDiet</a></span><span class="op">(</span><span class="va">params3</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.</code></pre>
+</div>
 <div class="cell-output-display">
 <div>
 <figure><p><img src="guide-extend-mizer_files/figure-html/detritus-diet-1.png" width="672"></p>
@@ -487,7 +552,7 @@
 <hr></section><section class="level2"><h2 id="testing-and-packaging">Testing and packaging<a class="anchor" aria-label="anchor" href="#testing-and-packaging"></a>
 </h2>
 <ul>
-<li>Test <strong>both</strong> halves: that <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code> or <code><a href="../reference/setComponent.html">setComponent()</a></code> succeeds, and that the downstream function you actually care about — <code><a href="../reference/getEncounter.html">getEncounter()</a></code>, <code><a href="../reference/getDiet.html">getDiet()</a></code>, <a href="../reference/project.html"><code>project()</code></a> — uses your extension as intended.</li>
+<li>Test <strong>both</strong> halves: that <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code> or <code><a href="../reference/setComponent.html">setComponent()</a></code> succeeds, and that the downstream function you actually care about — <code><a href="../reference/getEncounter.html">getEncounter()</a></code>, <code><a href="../reference/getDiet.html">getDiet()</a></code>, <code><a href="../reference/project.html">project()</a></code> — uses your extension as intended.</li>
 <li>After registering a custom rate, run <code><a href="../reference/project.html">project()</a></code> on a short horizon and check the affected <code>get…()</code> output looks right; write a <code>testthat</code> test that compares against a hand-computed value on a small model.</li>
 <li>If a custom rate depends on the abundances through a threshold, read <a href="discontinuous_rates.html">Discontinuous rate functions</a> before trusting any results.</li>
 <li>Once an extension is useful in more than one project, or you want to give it to someone else, make it a package: a stable namespace mizer can resolve function names in, somewhere for tests and documentation to live, and a version that gets recorded in <code>params@extensions</code>. Everything that only matters once you share — <code>.onLoad</code> registration, marker classes, dispatch via <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code>, bundled data objects, reporting through <code>info_level</code>, and upgrading objects saved by an earlier version — is in the <a href="guide-create-extension-package.html">guide to creating a mizer extension package</a>. For the other side of it, loading and saving a model that needs an extension package, see the <a href="guide-use-extension-packages.html">guide to using mizer extension packages</a>.</li>

@@ -79,6 +79,8 @@ K <- get_size_range_array(params, min_w = 10)   # species x size, 0/1
 K <- sweep(K, 2, params@w, "*")                 # weight by w to get biomass
 K <- bin_average_weight(K, params)              # gated on second_order_w
 rowSums(sweep(initialN(params) * K, 2, params@dw, "*"))
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>        Sprat      Sandeel       N.pout      Herring          Dab      Whiting 
 #> 2.441192e+11 4.589606e+12 2.388476e+11 1.273446e+12 8.373096e+09 1.622396e+11 
 #>         Sole      Gurnard       Plaice      Haddock          Cod       Saithe 

@@ -31,6 +31,19 @@ calculated_species_params(params)
 
   Other arguments passed to methods.
 
+- strict:
+
+  Whether to raise an error, rather than correct silently, for the
+  inconsistencies that can be corrected. Used internally.
+
+- check_misspellings:
+
+  Whether to report column names that look like misspellings of standard
+  species parameter names. `TRUE` by default. Mizer passes `FALSE` when
+  it re-validates a table whose columns it has already checked, so that
+  the report is made once, when the column is introduced, rather than
+  again on every rebuild.
+
 - recalculate:
 
   Whether `species_params<-()` should be allowed to re-derive calculated
@@ -60,9 +73,11 @@ currently stored in the model.
 `species_params<-()`: Updates the `given_species_params` with any
 parameters you have changed, and recalculates the full species parameter
 table and model parameters when a changed column has cached dependants.
-With `recalculate = FALSE` it only does the recording and stores the
-parameters you supplied, see the section "Setting species parameters
-without recalculation" below.
+A column that `value` does not have is one you no longer supply and is
+removed from the given species parameters, see the section "Removing a
+species parameter column" below. With `recalculate = FALSE` it only does
+the recording and stores the parameters you supplied, see the section
+"Setting species parameters without recalculation" below.
 
 `given_species_params()`: Data frame containing the species parameter
 values that were supplied explicitly by the user.
@@ -73,9 +88,11 @@ entry in `value` is recorded as given, even when it is numerically equal
 to the value currently in `species_params()`. This lets you protect a
 calculated value against future recalculation. An `NA` entry, or removal
 of a column, hands a previously given parameter back to mizer's
-calculation. Dependent quantities are recalculated only when the
-replacement can change them; merely marking the current value as given
-does not rebuild the model.
+calculation – and where there is no mizer calculation to hand it back
+to, removing the column removes the parameter from the model, see the
+section "Removing a species parameter column" below. Dependent
+quantities are recalculated only when the replacement can change them;
+merely marking the current value as given does not rebuild the model.
 
 This setter also warns when a change you asked for cannot take effect,
 namely when the parameter is overridden by another one you have already
@@ -331,6 +348,37 @@ a column under the old behaviour you also get a warning naming that
 column, because that is exactly the case where existing code changes its
 meaning. The same holds for
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md).
+
+## Removing a species parameter column
+
+A column that is missing from the table you assign is one you no longer
+supply, and mizer takes it out of the given species parameters. What
+happens next depends on whether mizer knows how to produce the parameter
+itself: one that it calculates comes straight back as a calculated
+value, while one that it knows nothing about leaves the model
+altogether. Both setters work this way, so either of these removes a
+custom column:
+
+    species_params(params)$my_col <- NULL
+    given_species_params(params)$my_col <- NULL
+
+and either of these hands a parameter you had given back to mizer,
+exactly as setting it to `NA` in the given species parameters does:
+
+    species_params(params)$gamma <- NULL
+    given_species_params(params)$gamma <- NULL
+
+This is how an extension package withdraws a species parameter it added
+when the user switches the extension off, without reaching into the
+`species_params` slot. Mizer reports the removal at `info_level` 3, see
+[`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md).
+
+Because the whole table is compared, assigning a table with only some of
+the model's columns withdraws all the others. There is not much room for
+surprise: `species_params<-()` validates what you give it, so a table
+without `species` and one of `w_inf`, `w_max` or `w_repro_max` is an
+error rather than a partial update. Still, edit the table you got from
+the accessor rather than building a new one from a handful of columns.
 
 ## Setting species parameters without recalculation
 

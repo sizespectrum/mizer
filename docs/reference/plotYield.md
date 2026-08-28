@@ -95,6 +95,7 @@ plotYield(
 
 A ggplot2 object, unless `return_data = TRUE`, in which case a data
 frame with the three variables 'Year', 'Yield', 'Species' is returned.
+If `sim2` is supplied, the data frame also has a 'Simulation' variable.
 
 ## See also
 
@@ -130,6 +131,8 @@ Other plotting functions:
 # \donttest{
 params <- NS_params
 sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 plotYield(sim)
 
 plotYield(sim, species = c("Cod", "Herring"), total = TRUE)
@@ -137,6 +140,8 @@ plotYield(sim, species = c("Cod", "Herring"), total = TRUE)
 
 # Comparing with yield from twice the effort
 sim2 <- project(params, effort=2, t_max=20, t_save = 0.2, progress_bar = FALSE)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
 #> Warning: The `sim2` argument of `plotYield()` is deprecated as of mizer 2.6.0.
 #> ℹ Please use `plot2()` instead.
@@ -146,10 +151,9 @@ plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
 # Returning the data frame
 fr <- plotYield(sim, return_data = TRUE)
 str(fr)
-#> 'data.frame':    1212 obs. of  4 variables:
+#> 'data.frame':    1212 obs. of  3 variables:
 #>  $ Year   : num  0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 ...
 #>  $ Yield  : num  2.21e+11 1.86e+11 1.60e+11 1.42e+11 1.30e+11 ...
 #>  $ Species: Factor w/ 12 levels "Sprat","Sandeel",..: 1 1 1 1 1 1 1 1 1 1 ...
-#>  $ Legend : chr  "Sprat" "Sprat" "Sprat" "Sprat" ...
 # }
 ```

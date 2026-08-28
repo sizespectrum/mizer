@@ -21,7 +21,7 @@ carrying, in addition, everything that plot() needs to draw it."><meta property=
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -205,8 +205,12 @@ that.</p></dd>
 <dd><p>The period of the limit cycle in years, or <code>NA</code>.</p></dd>
 
 <dt><code>residual</code></dt>
-<dd><p>How far the state still is from a fixed point, as a
-per-capita rate in 1/year, see <code><a href="getSteadyResidual.html">getSteadyResidual()</a></code>.</p></dd>
+<dd><p>How far the state still is from a fixed point: the
+largest absolute relative rate of biomass change, in 1/year, taken from
+the <code>"convergence"</code> attribute that <code><a href="projectUntilSettled.html">projectUntilSettled()</a></code> attaches to
+its result and described there. It is a biomass-weighted aggregate over
+each species' size classes, not the largest cellwise value of
+<code><a href="getSteadyResidual.html">getSteadyResidual()</a></code>.</p></dd>
 
 
 </dl><p>The first three columns are the x, y and grouping variable in that order,
@@ -268,6 +272,8 @@ or rebuild the object with <code>MizerScan()</code>.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">scan</span> <span class="op">&lt;-</span> <span class="fu"><a href="scanModel.html">scanModel</a></span><span class="op">(</span><span class="va">NS_params</span>, scan_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                  set_func <span class="op">=</span> <span class="fu"><a href="scanEffort.html">scanEffort</a></span><span class="op">(</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="va">scan</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Biomass [g] vs Fishing effort </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3 scan values x 1 series</span>

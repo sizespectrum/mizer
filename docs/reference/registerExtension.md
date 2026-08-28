@@ -36,10 +36,13 @@ The updated extension chain, invisibly.
 ## Details
 
 The call is idempotent: if the extension is already registered at any
-position in the chain, the function returns silently without modifying
-the chain. This makes it safe to call from
+position in the chain, the function leaves the chain unchanged,
+including the requirement recorded at first registration, and repairs
+the dynamic marker classes if any of them went missing. This makes it
+safe to call from
 [`devtools::load_all()`](https://devtools.r-lib.org/reference/load_all.html),
-which re-executes `.onLoad`.
+which re-executes `.onLoad` after removing the classes that the reloaded
+package's namespace held.
 
 ## See also
 
@@ -56,6 +59,7 @@ Other extension tools:
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md),
 [`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md),
 [`initialNOther<-()`](https://sizespectrum.org/mizer/reference/initialNOther-set.md),
+[`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md),
 [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md),
 [`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md),
 [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),

@@ -353,6 +353,13 @@ power-law resource spectrum: \\N_R(w_p) = \kappa w_p^{-\lambda}\\ then
 the resulting encounter rate would lead to the target feeding level
 \\f_0\\ (default \\0.6\\).
 
+This reference encounter contains only predation on the power-law
+resource. External encounter and functions registered with
+[`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+— including a component’s `encounter_fun` — still add to the realised
+encounter rate, but do not enter the calculation of the `gamma` and `f0`
+defaults.
+
 The encounter rate \\E_i(w)\\ of predator species \\i\\ at size \\w\\
 is: \\E_i(w) = \gamma_i w^q \int \theta\_{iR} N_R(w_p) \phi_i(w, w_p)
 w_p \\ dw_p\\
@@ -495,6 +502,8 @@ simple_species <- data.frame(
 params <- newMultispeciesParams(simple_species)
 ```
 
+    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
     ℹ No h provided for some species, so using age at maturity to calculate it.
     ℹ Because you have n != p, the default value for `h` is not very good.
     ℹ Because the age at maturity is not known, I need to fall back to using

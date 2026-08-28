@@ -8,10 +8,30 @@
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Measure distance between current and previous state in terms of fish abundances — distanceSSLogN"><meta name="description" content="
 Calculates the sum squared difference between log(N) in current and previous
 state. This function can be used in projectUntilSettled() to decide when
-sufficient convergence to steady state has been achieved."><meta property="og:description" content="
+sufficient convergence to steady state has been achieved.
+Only the size classes that hold fish are measured. A class whose density is
+zero in either state has no log to take, and one holding a negligible share
+of its species' biomass has a log that never stops moving: above a size where
+growth stops the density decays exponentially, so log(n) falls by the same
+amount between every pair of states, for ever. Left in the sum, a single such
+class holding \(10^{-92}\) g of fish can hold the distance above any
+tolerance indefinitely and stop projectUntilSettled() from ever converging,
+while the biomass drift correctly reports a fixed point. Excluding it changes
+nothing for a model that does not have one, because the classes that hold the
+fish are exactly the classes that are kept."><meta property="og:description" content="
 Calculates the sum squared difference between log(N) in current and previous
 state. This function can be used in projectUntilSettled() to decide when
-sufficient convergence to steady state has been achieved."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+sufficient convergence to steady state has been achieved.
+Only the size classes that hold fish are measured. A class whose density is
+zero in either state has no log to take, and one holding a negligible share
+of its species' biomass has a log that never stops moving: above a size where
+growth stops the density decays exponentially, so log(n) falls by the same
+amount between every pair of states, for ever. Left in the sum, a single such
+class holding \(10^{-92}\) g of fish can hold the distance above any
+tolerance indefinitely and stop projectUntilSettled() from ever converging,
+while the biomass drift correctly reports a fixed point. Excluding it changes
+nothing for a model that does not have one, because the classes that hold the
+fish are exactly the classes that are kept."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -19,7 +39,7 @@ sufficient convergence to steady state has been achieved."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,11 +117,27 @@ sufficient convergence to steady state has been achieved."><meta property="og:im
 <p>Calculates the sum squared difference between log(N) in current and previous
 state. This function can be used in <code><a href="projectUntilSettled.html">projectUntilSettled()</a></code> to decide when
 sufficient convergence to steady state has been achieved.</p>
+<p>Only the size classes that hold fish are measured. A class whose density is
+zero in either state has no log to take, and one holding a negligible share
+of its species' biomass has a log that never stops moving: above a size where
+growth stops the density decays exponentially, so <code>log(n)</code> falls by the same
+amount between every pair of states, for ever. Left in the sum, a single such
+class holding \(10^{-92}\) g of fish can hold the distance above any
+tolerance indefinitely and stop <code><a href="projectUntilSettled.html">projectUntilSettled()</a></code> from ever converging,
+while the biomass drift correctly reports a fixed point. Excluding it changes
+nothing for a model that does not have one, because the classes that hold the
+fish are exactly the classes that are kept.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">distanceSSLogN</span><span class="op">(</span><span class="va">params</span>, <span class="va">current</span>, <span class="va">previous</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">distanceSSLogN</span><span class="op">(</span></span>
+<span>  <span class="va">params</span>,</span>
+<span>  <span class="va">current</span>,</span>
+<span>  <span class="va">previous</span>,</span>
+<span>  biomass_share_cutoff <span class="op">=</span> <span class="fu">steady_share_cutoff</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -121,12 +157,25 @@ describing the current state</p></dd>
 <dd><p>A named list with entries <code>n</code>, <code>n_pp</code> and <code>n_other</code>
 describing the previous state</p></dd>
 
+
+<dt id="arg-biomass-share-cutoff">biomass_share_cutoff<a class="anchor" aria-label="anchor" href="#arg-biomass-share-cutoff"></a></dt>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a>
+A finite number between 0 and 1, inclusive, giving the share of a species'
+biomass that a size class must hold in the current state to be measured.
+<code>0</code> measures every class with a nonzero density in both states, which is
+what this function did before mizer 3.3.</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Unused. Accepted because <code><a href="projectUntilSettled.html">projectUntilSettled()</a></code> forwards its own
+<code>...</code> to both the rate functions and the distance function, so an argument
+meant for one arrives at the other.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The sum of squares of the difference in the logs of the (nonzero)
-fish abundances <code>n</code>, ignoring entries where either state has zero
-abundance:
+    <p>The sum of squares of the difference in the logs of the fish
+abundances <code>n</code>, over the size classes that hold fish in both states:
 <code>sum((log(current$n) - log(previous$n))^2)</code></p>
     </div>
     <div class="section level2">

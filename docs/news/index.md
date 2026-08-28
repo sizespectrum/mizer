@@ -1,6 +1,300 @@
 # Changelog
 
+## mizer 3.3.1
+
+This patch release changes what
+[`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md)
+measures and takes components registered with
+[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+out of the criterion by which mizer decides whether a model is at steady
+state. It adds
+[`getMeanLength()`](https://sizespectrum.org/mizer/reference/getMeanWeight.md)
+and accessors for the extra contributions to the mortality and encounter
+rates, and it fixes bugs in the species parameter setters, in the
+defaults for `gamma` and `f0`, in the dynamic extension marker classes
+and in
+[`summary()`](https://sizespectrum.org/mizer/reference/summary.md) of an
+array.
+
+### Steady state and calibration
+
+- [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md)
+  now reports, for each size class, its contribution to the relative
+  rate of change of its species’ biomass, in 1/year, so that
+  `rowSums(getSteadyResidual(params))` is the drift `(dB_i/dt) / B_i`
+  that
+  [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md),
+  the [`summary()`](https://sizespectrum.org/mizer/reference/summary.md)
+  line and `project(check_steady = TRUE)` judge a model by. The array
+  therefore says *where* a model is unsteady in the same currency that
+  mizer uses to decide *whether* it is. Pass the experimental
+  `measure = "per_capita"` for the previous default, `(dN/dt)/N`.
+
+- [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md)
+  reports every size class, including the ones holding no fish, so only
+  a species with no biomass at all comes back as `NA`. Under the new
+  default measure a class holding a trace contributes a trace, which is
+  what makes a threshold unnecessary. With `measure = "per_capita"` the
+  `NA`s are where they always were.
+
+- Components registered with
+  [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+  are no longer folded into the biomass drift that
+  [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md),
+  the [`summary()`](https://sizespectrum.org/mizer/reference/summary.md)
+  line, `project(check_steady = TRUE)`, the `"convergence"` attribute
+  and
+  [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
+  judge a model by. Every function that finds a steady state holds the
+  components fixed, so a criterion that included them was one those
+  functions could not satisfy. Components are now reported separately,
+  through `attr(getSteadyResidual(params), "other")` and on their own
+  lines in
+  [`summary()`](https://sizespectrum.org/mizer/reference/summary.md); a
+  model can therefore be
+  [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
+  while a component of it is drifting, and
+  [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
+  is what settles it
+  ([\#589](https://github.com/sizespectrum/mizer/issues/589)).
+
+- Mizer now names the species, resource or component responsible for a
+  model’s drift, instead of reporting that “a biomass” is changing and
+  sending the user to look at which species are moving
+  ([\#589](https://github.com/sizespectrum/mizer/issues/589)).
+
+- Fixed: a size class holding a negligible density could stop
+  [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
+  from ever converging
+  ([\#570](https://github.com/sizespectrum/mizer/issues/570)). Above the
+  size where growth stops, the density decays exponentially without ever
+  reaching zero, and
+  [`distanceSSLogN()`](https://sizespectrum.org/mizer/reference/distanceSSLogN.md)
+  counted every class with a positive density, so a trace of 3e-92 g
+  contributed almost the whole distance at every check. It gains a
+  `biomass_share_cutoff` argument, defaulting to `1e-8`: a size class
+  counts only if it holds at least that share of its species’ biomass.
+  Nothing changes for a model without such a trace, so existing
+  `distance_tol` values keep their meaning, and what decides whether a
+  state is a fixed point is unchanged and still integrates over every
+  size class.
+
+- Fixed:
+  [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
+  now says so when a run that stopped at `t_max` nonetheless reached a
+  fixed point. `converged = FALSE` beside `attractor = "fixed_point"` is
+  correct — they answer different questions — but read as a
+  contradiction
+  ([\#570](https://github.com/sizespectrum/mizer/issues/570)).
+
+- Fixed:
+  [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+  no longer reports that it could not rebalance the resource capacity
+  when the resource dynamics is
+  [`resource_constant()`](https://sizespectrum.org/mizer/reference/resource_constant.md).
+  A constant resource hands back the abundance it was given, so there is
+  nothing to rebalance. The report is meant for a custom resource
+  dynamics with no `balance_<dynamics>()` function, but it fired on
+  every model that switches the built-in resource off, which includes
+  every model of an extension package that supplies its own resources.
+
+- Fixed: the `residual` entry of the `"convergence"` attribute, and the
+  `residual` column of a `MizerScan` filled from it, were documented as
+  the largest per-capita rate of change. They hold the largest relative
+  rate of *biomass* change, which is the quantity `residual_tol` is a
+  tolerance on and the number `rowSums(getSteadyResidual(params))` gives
+  ([\#572](https://github.com/sizespectrum/mizer/issues/572)).
+
+### Species parameters
+
+- Mizer now reports the length-weight defaults `a = 0.01` and `b = 3`
+  when it fills them in, alongside the other defaults it reports. This
+  matters because a length-based selectivity function converts the
+  lengths in
+  [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
+  to weights through `a` and `b`, so a defaulted relationship silently
+  puts the selectivity curve at the wrong weights. The defaults
+  themselves are unchanged, and `info_level = 0` silences the report as
+  it does the rest.
+
+- [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md)
+  additionally names any species whose gear selects on length while its
+  `a` or `b` was defaulted. That is the case in which an invented
+  weight-length relationship changes the dynamics rather than just a
+  diagnostic, so the report is at `info_level = 1` and is shown even
+  when
+  [`calc_selectivity()`](https://sizespectrum.org/mizer/reference/calc_selectivity.md)
+  or
+  [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md)
+  is called on its own. Whether a gear selects on length is decided from
+  the selectivity function’s formals, so a custom `sel_func` taking
+  `species_params` is covered too.
+
+- Fixed: an invalid `w_mat25` is now reported as a missing value for
+  which the default will be used, and any `l_mat25` is cleared with it.
+  Previously the rejected value was put straight back by the
+  length-to-weight conversion, landing within rounding error of `w_mat`,
+  which passed the `w_mat25 < w_mat` check and turned the maturity ogive
+  into a step function
+  ([\#580](https://github.com/sizespectrum/mizer/issues/580)).
+
+- Fixed: assigning a likely misspelling of a species parameter now
+  produces one warning, when the column is introduced, rather than one
+  per validation pass
+  ([\#581](https://github.com/sizespectrum/mizer/issues/581)). The
+  report also goes through the information-signal mechanism, so it is
+  collected with mizer’s other reports and `info_level = 0` silences it
+  along with everything else mizer says.
+
+- Fixed: the defaults for `gamma` and `f0` are no longer measured
+  through the extension chain
+  ([\#577](https://github.com/sizespectrum/mizer/issues/577)).
+  [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
+  measured the energy available to a species with
+  [`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md),
+  so on an extension object any modification the extension makes to the
+  encounter rate was folded into mizer’s own `gamma` and re-applied on
+  every rebuild: an extension that halves the search volume doubled
+  `gamma` each time the species parameters were touched, and one whose
+  factor is zero turned the calculation into an error. Both
+  [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
+  and its inverse
+  [`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md)
+  now measure with
+  [`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md),
+  so a rate function registered with
+  [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
+  no longer enters the calculation either. These defaults are a property
+  of the species parameters, not of the model’s dynamics.
+
+- Fixed: the defaults for `gamma` and `f0` now also exclude external
+  encounter and the functions registered through
+  [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md),
+  including a component’s `encounter_fun`
+  ([\#586](https://github.com/sizespectrum/mizer/issues/586)). These
+  additive contributions still affect the realised encounter and feeding
+  level, but the defaults describe feeding on the reference power-law
+  resource alone. Previously
+  [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
+  measured them where they were negligible while
+  [`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md)
+  counted them at full scale, so the two were not inverses. When no
+  default `gamma` can be calculated, the error now names the species
+  concerned and reports the energy measured for them.
+
+- Fixed: a species parameter column can be removed by dropping it from
+  the table you assign, with either setter
+  ([\#578](https://github.com/sizespectrum/mizer/issues/578)). Mizer
+  takes the column out of
+  [`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md),
+  recalculates the parameters it knows how to calculate and removes the
+  ones it does not, so `species_params(params)$my_col <- NULL` and
+  `given_species_params(params)$my_col <- NULL` now do what they look
+  like they do. Previously the first silently restored the column from
+  the given table and the second left it in
+  [`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+  reported as one mizer had calculated. Removing a column from
+  [`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+  now also recalculates the parameter it handed back, which makes it the
+  same instruction as setting that parameter to `NA`. This is what an
+  extension package needs in order to withdraw a species parameter it
+  added when the user switches the extension off. The removal is
+  reported at `info_level` 3.
+
+### Extensions
+
+- New accessors
+  [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+  and
+  [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md),
+  with their replacement forms, for the extra contributions to the
+  mortality and encounter rates that
+  [`getMort()`](https://sizespectrum.org/mizer/reference/getMort.md) and
+  [`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md)
+  sum into their results:
+
+  ``` r
+
+  other_mort(params)[["starvation"]] <- "starvMort"
+  ```
+
+  An extension that adds a term depending on the state of the model but
+  carrying no state of its own can now register it this way, where
+  previously the only route was to assign into `params@other_mort`
+  directly, since
+  [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+  requires a `dynamics_fun` and an `initial_value` that such a term has
+  nothing to supply. Like
+  [`other_params()`](https://sizespectrum.org/mizer/reference/setRateFunction.md),
+  the new accessors hide the entries belonging to a component created
+  with
+  [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
+  so assigning a whole list can no longer wipe them out. Encounter
+  contributions now receive the current simulation time as `t`, as
+  mortality contributions already did, and
+  [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+  refuses a component name that a free-standing contribution is already
+  registered under
+  ([\#579](https://github.com/sizespectrum/mizer/issues/579)).
+
+- Fixed: repeated
+  [`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md)
+  and
+  [`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md)
+  calls now rebuild the dynamic marker classes of the active extension
+  chain when any of them disappeared during an extension-package reload,
+  while leaving the registered chain unchanged. Recreating only the
+  class that went missing is not enough, because R prunes it from the
+  `contains` list of the marker classes outside it
+  ([\#569](https://github.com/sizespectrum/mizer/issues/569)).
+
+- Fixed: dynamic extension marker classes now live in an environment
+  that mizer attaches, called `mizer:extension-classes`, instead of in
+  `.GlobalEnv`. They therefore survive both a user clearing their
+  workspace and the `cleanEx()` that `R CMD check` runs between package
+  examples, which used to leave every example after the first failing
+  with `"<extension>" is not a defined class`. The environment is
+  attached only once a dispatching extension needs a marker class
+  ([\#587](https://github.com/sizespectrum/mizer/issues/587)).
+
+### Summaries and plots
+
+- New
+  [`getMeanLength()`](https://sizespectrum.org/mizer/reference/getMeanWeight.md)
+  calculates the mean length of the community, the counterpart of
+  [`getMeanWeight()`](https://sizespectrum.org/mizer/reference/getMeanWeight.md),
+  with which it shares a help page.
+
+- Fixed:
+  [`summary()`](https://sizespectrum.org/mizer/reference/summary.md) of
+  a species-by-size array now covers the same sizes as
+  [`plot()`](https://sizespectrum.org/mizer/reference/plot.md) of the
+  same array, namely each species’ own range from `w_min` to `w_max`.
+  The two described different arrays: `summary(getEncounter(NS_params))`
+  gave Sprat a maximum encounter rate of 40000 g/year, the rate a 40 kg
+  Sprat would have, against 240 g/year over the sizes a Sprat reaches.
+  Because a rate usually grows with size, the `Min` and `Max` columns
+  were affected most. Both
+  [`summary()`](https://sizespectrum.org/mizer/reference/summary.md)
+  methods with a size dimension take `all.sizes = TRUE` for the old
+  behaviour.
+
+- Fixed:
+  [`summary()`](https://sizespectrum.org/mizer/reference/summary.md) of
+  an array now reports `NA` for a species with no values left, rather
+  than the `-Inf`/`Inf` and warning that
+  [`min()`](https://rdrr.io/r/base/Extremes.html) and
+  [`max()`](https://rdrr.io/r/base/Extremes.html) of an empty selection
+  give.
+
+- Fixed: `plotYield(return_data = TRUE)` once again returns only the
+  three documented columns `Year`, `Yield` and `Species`. In mizer 3.3.0
+  it also returned the internal `Legend` column
+  ([\#593](https://github.com/sizespectrum/mizer/issues/593)).
+
 ## mizer 3.3.0
+
+CRAN release: 2026-08-24
 
 This release adds experimental tools for analysing the dynamic stability
 of steady states and for scanning a model over a range of parameter
@@ -17,6 +311,10 @@ AI-agent skills have become one set of documents, so that there is now
 one guide per stage of the modelling workflow. It also renames the
 steady-state finders after what each one keeps fixed, keeping the old
 names as silent aliases.
+
+For an overview see the [release
+announcement](https://blog.mizer.sizespectrum.org/posts/2026-08-21-mizer-3-3-announcement/)
+on the mizer blog.
 
 ### Dynamic stability
 
@@ -93,10 +391,9 @@ names as silent aliases.
   “Current F” reference line. A limit cycle is drawn as a band around
   the average rather than being silently averaged away, and if the
   species has an `F_MSY` species parameter it is also drawn as a
-  reference line for comparison.
-  [`getYieldVsF()`](https://sizespectrum.org/mizerExperimental/reference/getYieldVsF.html)
-  has not come with it: use `plotYieldVsF(return_data = TRUE)`, which
-  returns the `MizerScan` object behind the plot, or
+  reference line for comparison. `getYieldVsF()` has not come with it:
+  use `plotYieldVsF(return_data = TRUE)`, which returns the `MizerScan`
+  object behind the plot, or
   [`scanModel()`](https://sizespectrum.org/mizer/reference/scanModel.md)
   itself.
 

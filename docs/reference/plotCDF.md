@@ -210,6 +210,10 @@ Other plotting functions:
 ``` r
 # \donttest{
 plotCDF(NS_params, species = c("Cod", "Herring"))
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 
 plotCDF(NS_sim, power = 0, normalise = FALSE)
 

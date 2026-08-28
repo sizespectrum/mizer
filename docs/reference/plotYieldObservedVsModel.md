@@ -121,16 +121,22 @@ gear_params(params)$yield_observed <-
 
 # Plot with default options
 plotYieldObservedVsModel(params)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> The following species are not being fished in your model and will not be included in the plot: Sprat, Sandeel, N.pout.
 
 
 # Plot including also species without observations
 plotYieldObservedVsModel(params, show_unobserved = TRUE)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> The following species are not being fished in your model and will not be included in the plot: Sprat, Sandeel, N.pout.
 
 
 # Show the ratio instead
 plotYieldObservedVsModel(params, ratio = TRUE)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> The following species are not being fished in your model and will not be included in the plot: Sprat, Sandeel, N.pout.
 
 
@@ -145,5 +151,7 @@ gear_params(params) <- rbind(gp, extra)
 
 # Compare only the catch of the Otter gear against its observation
 plotYieldObservedVsModel(params, gear = "Otter")
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> The following species are not being caught by the selected gear and will not be included in the plot: Sprat, Sandeel, N.pout, Herring, Dab, Sole, Plaice.
 ```

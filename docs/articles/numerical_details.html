@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -580,9 +580,13 @@ S^{BDF2} &amp;= c_1 N^{t+\gamma} - c_0 N^t + \alpha\Delta t\, q.
 <span>    dt <span class="op">=</span> <span class="va">reference_dt</span>,</span>
 <span>    t_max <span class="op">=</span> <span class="va">t_max</span>,</span>
 <span>    method <span class="op">=</span> <span class="st">"tr_bdf2"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">accuracy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">dt_values</span>, <span class="kw">function</span><span class="op">(</span><span class="va">dt</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</details><div class="cell-output cell-output-stderr">
+<pre><code>ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.</code></pre>
+</div>
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">accuracy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">dt_values</span>, <span class="kw">function</span><span class="op">(</span><span class="va">dt</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">euler</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, dt <span class="op">=</span> <span class="va">dt</span>, t_max <span class="op">=</span> <span class="va">t_max</span>, t_save <span class="op">=</span> <span class="va">t_max</span>,</span>
 <span>                     method <span class="op">=</span> <span class="st">"euler"</span><span class="op">)</span></span>
 <span>    <span class="va">pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, dt <span class="op">=</span> <span class="va">dt</span>, t_max <span class="op">=</span> <span class="va">t_max</span>, t_save <span class="op">=</span> <span class="va">t_max</span>,</span>
@@ -596,9 +600,53 @@ S^{BDF2} &amp;= c_1 N^{t+\gamma} - c_0 N^t + \alpha\Delta t\, q.
 <span>        predictor_corrector_error <span class="op">=</span> <span class="fu">relative_l2_error</span><span class="op">(</span><span class="va">pc</span>, <span class="va">reference</span><span class="op">)</span>,</span>
 <span>        tr_bdf2_error <span class="op">=</span> <span class="fu">relative_l2_error</span><span class="op">(</span><span class="va">trbdf2</span>, <span class="va">reference</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">accuracy</span></span></code></pre></div>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</details><div class="cell-output cell-output-stderr">
+<pre><code>ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+ℹ No `b` column so using the isometric default b = 3 in w = a l^b.</code></pre>
+</div>
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">accuracy</span></span></code></pre></div>
 </details><div class="cell-output cell-output-stdout">
 <pre><code>     dt euler_error predictor_corrector_error tr_bdf2_error
 1 1.600  0.31596647              3.4780282823  0.1485219020
@@ -611,7 +659,7 @@ S^{BDF2} &amp;= c_1 N^{t+\gamma} - c_0 N^t + \alpha\Delta t\, q.
 </div>
 </div>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span></span>
 <span>    <span class="va">euler_error</span> <span class="op">~</span> <span class="va">dt</span>,</span>
 <span>    data <span class="op">=</span> <span class="va">accuracy</span>,</span>
@@ -723,7 +771,7 @@ r_j=\frac{N_{j-1}-N_{j-2}}{N_j-N_{j-1}},
 <li>At and below the first two faces above the recruitment boundary (<span class="math inline">\(j \le j_{min} + 2\)</span>), the weight <span class="math inline">\(\chi_j\)</span> is forced to 0. This keeps the advective flux leaving the recruitment boundary first-order upwind and avoids referencing the non-smooth recruitment boundary cell <span class="math inline">\(N_{j_{min}}\)</span> (and the inactive region below it) when calculating the smoothness ratio, preventing ragged or oscillating solutions near the boundary.</li>
 </ul>
 <p>The two types are selected with</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/second_order_w.html">second_order_w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">flux</span> <span class="op">&lt;-</span> <span class="st">"van_leer"</span> <span class="co"># TVD, the default for TRUE</span></span>
 <span><span class="fu"><a href="../reference/second_order_w.html">second_order_w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">flux</span> <span class="op">&lt;-</span> <span class="st">"centred"</span>   <span class="co"># unlimited, true 2nd order</span></span></code></pre></div>
 <p>The default (<code>TRUE</code>) is van Leer, the safe choice for production runs; the centred reconstruction is most useful for smooth problems that carry some physical diffusion.</p>

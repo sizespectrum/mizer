@@ -21,7 +21,7 @@ built-in summary and indicator functions call it for you."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -169,6 +169,8 @@ affect the second-order accuracy of the totals.</p>
 <span class="r-in"><span><span class="va">K</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sweep.html" class="external-link">sweep</a></span><span class="op">(</span><span class="va">K</span>, <span class="fl">2</span>, <span class="va">params</span><span class="op">@</span><span class="va">w</span>, <span class="st">"*"</span><span class="op">)</span>                 <span class="co"># weight by w to get biomass</span></span></span>
 <span class="r-in"><span><span class="va">K</span> <span class="op">&lt;-</span> <span class="fu">bin_average_weight</span><span class="op">(</span><span class="va">K</span>, <span class="va">params</span><span class="op">)</span>              <span class="co"># gated on second_order_w</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sweep.html" class="external-link">sweep</a></span><span class="op">(</span><span class="fu"><a href="initialN-set.html">initialN</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">*</span> <span class="va">K</span>, <span class="fl">2</span>, <span class="va">params</span><span class="op">@</span><span class="va">dw</span>, <span class="st">"*"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Sprat      Sandeel       N.pout      Herring          Dab      Whiting </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2.441192e+11 4.589606e+12 2.388476e+11 1.273446e+12 8.373096e+09 1.622396e+11 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         Sole      Gurnard       Plaice      Haddock          Cod       Saithe </span>
