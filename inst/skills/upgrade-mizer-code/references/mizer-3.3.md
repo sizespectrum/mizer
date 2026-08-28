@@ -34,9 +34,9 @@ things change:
   call is honoured: `plotSpectra(sim, power = 1, biomass = FALSE)` used to plot
   the biomass density, and now plots the number density with respect to
   logarithmic size — the same numbers, but labelled correctly and, with
-  `size_axis = "l"`, converted to a length axis with the logarithmic Jacobian
-  rather than the density one. If you meant the biomass density, drop the
-  `biomass` argument. The same applies to `plotlySpectra()`, `plotlyCDF()`,
+  `size_axis = "l"`, converted to a length axis with the logarithmic Jacobian.
+  If you meant the biomass density, set `biomass = TRUE`.
+  The same applies to `plotlySpectra()`, `plotlyCDF()`,
   `plotlySpectra2()` and `plotlyCDF2()`, which passed `power` on internally and
   so ignored `biomass` even when you gave only `biomass`: those calls now plot
   what they were asked for.
@@ -78,7 +78,8 @@ consequences:
 - `plot(resource_level(params))` gets a linear y axis instead of a logarithmic
   one. Pass `log_y = TRUE` to get the old axis back; any explicit `log_y` or
   `log` you already pass is respected.
-- The range is only ever *widened* to include the data, never narrowed to the
+- The range is only ever *widened* to include the data, never narrowed to less
+  than the
   interval from 0 to 1. So `plotFeedingLevel(include_critical = TRUE)` now shows
   a critical feeding level above 1, which the old fixed window drew off the top
   of the plot. Nothing is ever hidden, and an explicit `ylim` still wins.
@@ -89,11 +90,11 @@ you do not pass it, the old string tests still run as a fallback, so existing
 code that named an array `"Number density"` or gave it units `"1/g"` keeps
 working, and arrays saved by earlier versions keep working when they are loaded.
 
-Extension packages that called the unexported plotting helpers directly should
-note that `plotComparisonDataFrame()` and the internal `animate_plotly()` take a
-single `density_wrt` argument in place of `spectrum_power` and
-`spectrum_per_log_size`, and that the internal `array_spectrum_power()` is gone.
-The `power`-based interface of `plotSpectra()` and friends is unchanged.
+If you called the unexported plotting helpers directly, note that
+`plotComparisonDataFrame()` and the internal `animate_plotly()` take a single
+`density_wrt` argument in place of `spectrum_power` and `spectrum_per_log_size`,
+and that the internal `array_spectrum_power()` is gone. The `power`-based
+interface of `plotSpectra()` and friends is unchanged.
 
 ### The total is summed on the axis it is plotted against
 

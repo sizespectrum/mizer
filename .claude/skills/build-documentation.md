@@ -85,8 +85,9 @@ A full build is slow; rebuild single targets during development:
 
 ```r
 pkgdown::build_article("model_description")
-pkgdown::build_reference()
+pkgdown::build_reference(topic = "getBiomass")
 pkgdown::build_home()    # from index.md / README.md
+pkgdown::build_news()
 ```
 
 ---

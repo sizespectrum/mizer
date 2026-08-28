@@ -188,7 +188,7 @@ switched the second-order scheme on. Three rules:
   grid — right for plotting, and the form in which you *supply* a custom kernel,
   but not the bin-integrated coefficients the convolution consumes. Pair
   `encounter_kernel()` with the plain point prey weight
-  `params@w_full * params@dw_full`, which is a normalisation the kernel is built
+  `w_full(params) * dw_full(params)`, which is a normalisation the kernel is built
   to cancel, so it must not itself be bin-averaged.
 - **If your setter precomputes an array from a size-dependent parameter,** gate
   it on `params@second_order_w[["bin_average"]]` the way `setExtMort()` and
