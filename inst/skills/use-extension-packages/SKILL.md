@@ -65,81 +65,36 @@ Two rules cover almost everything:
   determine predator size-selectivity functions by fitting them to stomach
   content data.
 
-## The extension chain
+## The extension list and S3 dispatch
 
-Every mizer extension package announces itself to mizer when it is loaded.
-Internally, mizer maintains a list of all the currently loaded extensions, in
-the order they registered themselves. This list is called the **extension
-chain**.
+When an extension package creates or modifies a model, it stamps itself on the
+model object's `extensions` slot:
 
 ```r
-getRegisteredExtensions()
+params@extensions
 ```
 
-The result is a named character vector. The **names** are the extension
-identifiers (which double as S3 class names). The **values** are installation
-specifications — a version string such as `"1.2.0"` for packages on CRAN, or a
-GitHub path such as `"sizespectrum/mizerShelf"` for packages that are only on
-GitHub. The first element is the *outermost* extension (the one with the highest
-dispatch priority), the last is the innermost.
+The entries record each attached extension, its installation specification,
+and its version stamp. The model's S3 class vector (e.g.
+`c("mizerShelf", "MizerParams")`) determines how R dispatches method calls.
+When you call generic functions like `getBiomass(params)` or `projectRates(params)`,
+R executes the extension's method first. Calling `NextMethod()` in that method
+passes control down to the next extension in the class vector, and finally to
+base mizer.
 
-If no extension packages are loaded, `getRegisteredExtensions()` returns an
-empty, unnamed character vector.
-
-## Why loading order matters
+## Combining multiple extensions
 
 When two extensions both override the same mizer function — say `getBiomass()` —
-R decides which version to call first from the class of the `params` object,
-working through the class hierarchy from outermost to innermost. The outermost
-extension gets the first say, and each extension can modify the result of the
-extensions below it.
-
-So **the package loaded last is outermost**:
+the order of classes in `class(params)` decides which version runs first. The
+outermost extension gets the first say, calls `NextMethod()`, and extends the
+result returned by the inner extensions.
 
 ```r
-library(mizerShelf)   # innermost
-library(mizerFoo)     # outermost: its getBiomass() runs first and wraps the rest
+params <- setMultipleResources(params, ...) # adds mizerMR
+params <- setShelf(params, ...)             # adds mizerShelf on top
+class(params)
+# [1] "mizerShelf" "mizerMR" "MizerParams"
 ```
-
-Both extensions contribute either way, so in most cases the two orderings give
-the same answer, because the extensions touch different parts of the
-calculation. The order matters only when the extensions interact — when one
-extension's contribution depends on what another computed. Check each package's
-documentation for a required load order.
-
-## Working with the extension chain
-
-### Clearing the registry
-
-To replace the chain explicitly without restarting R, first clear the session's
-registry:
-
-```r
-clearExtensionChain()
-```
-
-`getRegisteredExtensions()` then returns an empty vector. Clearing the chain does
-**not** unload the packages themselves; it only removes their entries from
-mizer's registry. Calling `library()` for a package that is still loaded does
-not reliably rerun its `.onLoad()` hook, so either restart or unload and load the
-packages again, or restore the chain explicitly with `registerExtensions()`
-before creating or using dependent params objects.
-
-### Setting the chain manually
-
-To take full control — for example to reproduce the exact chain recorded in a
-collaborator's params object — set it directly with `registerExtensions()`:
-
-```r
-chain <- c(mizerFoo = "owner/mizerFoo", mizerShelf = "sizespectrum/mizerShelf")
-registerExtensions(chain)
-```
-
-The names must match the identifiers each package uses when it registers itself
-(normally the package name). The values are installation specifications, used
-when a missing package has to be installed automatically. This is an advanced
-manoeuvre: in normal use you call `library()` for each extension and the chain
-builds itself.
 
 ## Params objects and the extension chain
 
@@ -172,15 +127,14 @@ defined only in your R session — a custom rate function, selectivity function 
 predation kernel written in a script. Those functions are not stored in the
 file, so the script has to travel with the `.rds`.
 
-`readParams()` upgrades the object if it was written by an older mizer, reads
-`params@extensions`, calls `registerExtensions()` so the session knows the saved
-chain, and promotes the object to the correct S3 class. As long as the required
-packages are installed, this is seamless; if one is missing, `readParams()` stops
-with an error naming it.
+`readParams()` upgrades the object if it was written by an older mizer, loads
+the required extension packages, and promotes the object to the correct S3
+class. As long as the required packages are installed, this is seamless; if one
+is missing, `readParams()` stops with an error naming it.
 
-`MizerSim` objects carry their params object inside them, so the chain is
+`MizerSim` objects carry their params object inside them, so the extensions are
 embedded there too. Use `saveSim()` and `readSim()`, which do the same
-registration and coercion:
+loading and coercion:
 
 ```r
 sim <- project(params, t_max = 10)
@@ -244,41 +198,20 @@ The names are the extension identifiers. Current entries each contain a
 to). Legacy objects may still show the older named-character-vector form;
 mizer accepts both.
 
-### Packages were loaded in the wrong order
-
-Either restart R and load the packages in the desired order, or explicitly
-register the desired chain. Merely calling `library()` again after
-`clearExtensionChain()` is insufficient when those namespaces are still
-loaded. `registerExtensions()` takes the chain in outermost-first order:
-
-```r
-clearExtensionChain()
-registerExtensions(c(
-    mizerFoo = "owner/mizerFoo",                  # outermost
-    mizerShelf = "sizespectrum/mizerShelf"        # innermost
-))
-```
-
-Afterwards, create or re-read the params objects that use that chain. In a fresh
-session the equivalent loading order is `library(mizerShelf)` followed by
-`library(mizerFoo)`.
-
 ### Making a script reproducible
 
-Put the `library()` calls at the top in a fixed order. Each package registers
-itself in `.onLoad`, so sourcing the script fresh always rebuilds the same chain.
+Put the `library()` calls at the top in a fixed order, and use `saveParams()` and
+`readParams()` to persist and reload models.
 
 <!-- agent-only -->
 ## Symptom index
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `readParams()`/`readSim()` errors "Some required extension packages are not installed" | The chain recorded in the file names a package this library does not have | Install it, or re-read with `install_extensions = TRUE` |
-| An extension's method is not called: results match plain mizer, no error | The object lost its marker class — usually read with `readRDS()` instead of `readParams()`, or the package was not loaded | `library(<pkg>)`, then `params <- coerceToExtensionClass(params)`; re-read the file with `readParams()` in future |
+| `readParams()`/`readSim()` errors "Some required extension packages are not installed" | The extensions recorded in the file name a package this library does not have | Install it, or re-read with `install_extensions = TRUE` |
+| An extension's method is not called: results match plain mizer, no error | The object lost its extension class — usually read with `readRDS()` instead of `readParams()`, or the package was not loaded | `library(<pkg>)`, then `params <- coerceToExtensionClass(params)`; re-read the file with `readParams()` in future |
 | `params@extensions` is empty on a model an extension built | The extension's setup function did not record itself, or the object predates that mechanism | Load the package and rerun its setup/conversion function or rebuild the model; coercion alone does not persist the missing record |
 | `saveParams()` warns "Your model is using the functions …" | A custom rate, selectivity or kernel function lives only in the session | Ship the defining script alongside the `.rds`; the warning is not a failure |
-| Results change depending on the order of the `library()` calls | Two extensions override the same function and interact | Fix the order deliberately in a fresh session, or call `registerExtensions()` with an explicit outermost-first chain, then rebuild or re-read the objects |
-| `getRegisteredExtensions()` is empty although the package is attached | The registry was cleared after the namespace loaded | Restart or unload and load the package so `.onLoad()` runs, or call `registerExtensions()` explicitly |
 
 Before writing a params object to disk in a project that loads any extension
 package, check that the code path uses `saveParams()`. `saveRDS()` produces a
@@ -290,6 +223,5 @@ file that loads without error and silently dispatches to base mizer.
 - The `extend-mizer` skill — the mechanisms an extension is built from.
 - [Creating a mizer extension package](guide-create-extension-package.html) — how to
   package your own extension and make it composable with others.
-- `?registerExtension`, `?registerExtensions`, `?getRegisteredExtensions`,
-  `?clearExtensionChain`, `?coerceToExtensionClass`
+- `?coerceToExtensionClass`, `?recordExtension`
 - `?saveParams`, `?readParams`, `?saveSim`, `?readSim`

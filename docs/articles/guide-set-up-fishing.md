@@ -25,11 +25,11 @@ One row per **gear–species combination** (a gear that catches three
 species contributes three rows). Read and replace the table with
 `gear_params(params)` and `gear_params(params) <- ...`. Core columns:
 
-| Column | Meaning |
-|----|----|
-| `gear` | gear name; the column is required, but an `NA` entry defaults to the species name |
-| `species` | species this row applies to; required |
-| `sel_func` | name of the selectivity function (e.g. `"sigmoid_length"`); defaults to `"knife_edge"` |
+| Column         | Meaning                                                                                               |
+|----------------|-------------------------------------------------------------------------------------------------------|
+| `gear`         | gear name; the column is required, but an `NA` entry defaults to the species name                     |
+| `species`      | species this row applies to; required                                                                 |
+| `sel_func`     | name of the selectivity function (e.g. `"sigmoid_length"`); defaults to `"knife_edge"`                |
 | `catchability` | scales `F` for this gear–species pair; defaults to 1 under defaults edition 1 and 0.3 under edition 2 |
 
 Plus **one column per parameter of the chosen `sel_func`**, named
@@ -49,7 +49,6 @@ and assign it back — the assignment triggers recalculation of the
 selectivity and catchability arrays:
 
 ``` r
-
 gp <- gear_params(params)
 gp["Cod, Otter", "catchability"] <- 0.8
 gear_params(params) <- gp                 # assignment triggers recalculation
@@ -64,7 +63,6 @@ non-default `sel_func` you choose. Here two gears fish cod, each with
 its own length-based selectivity:
 
 ``` r
-
 gear_params(params) <- data.frame(
     gear         = c("Otter", "Beam"),
     species      = c("Cod",   "Cod"),
@@ -94,20 +92,19 @@ mortality. Every selectivity function takes `w` as its first argument
 and returns a value in `[0, 1]` at each size. Its other arguments must
 appear as columns in `gear_params`.
 
-| `sel_func` | Parameter column(s) | Shape |
-|----|----|----|
-| [`knife_edge`](https://sizespectrum.org/mizer/reference/knife_edge.md) (default) | `knife_edge_size` | step from 0 to 1 at that **weight** (default `w_mat`) |
-| [`knife_edge_length`](https://sizespectrum.org/mizer/reference/knife_edge_length.md) | [`knife_edge_length`](https://sizespectrum.org/mizer/reference/knife_edge_length.md) | step from 0 to 1 at that **length** |
-| [`sigmoid_length`](https://sizespectrum.org/mizer/reference/sigmoid_length.md) | `l50`, `l25` | smooth; lengths (cm) at 50% and 25% selection |
-| [`double_sigmoid_length`](https://sizespectrum.org/mizer/reference/double_sigmoid_length.md) | `l50`, `l25`, `l50_right`, `l25_right` | dome-shaped (selects a length band) |
-| [`sigmoid_weight`](https://sizespectrum.org/mizer/reference/sigmoid_weight.md) | `sigmoidal_weight`, `sigmoidal_sigma` | smooth transition in weight |
+| `sel_func`                                                                                   | Parameter column(s)                                                                  | Shape                                                 |
+|----------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-------------------------------------------------------|
+| [`knife_edge`](https://sizespectrum.org/mizer/reference/knife_edge.md) (default)             | `knife_edge_size`                                                                    | step from 0 to 1 at that **weight** (default `w_mat`) |
+| [`knife_edge_length`](https://sizespectrum.org/mizer/reference/knife_edge_length.md)         | [`knife_edge_length`](https://sizespectrum.org/mizer/reference/knife_edge_length.md) | step from 0 to 1 at that **length**                   |
+| [`sigmoid_length`](https://sizespectrum.org/mizer/reference/sigmoid_length.md)               | `l50`, `l25`                                                                         | smooth; lengths (cm) at 50% and 25% selection         |
+| [`double_sigmoid_length`](https://sizespectrum.org/mizer/reference/double_sigmoid_length.md) | `l50`, `l25`, `l50_right`, `l25_right`                                               | dome-shaped (selects a length band)                   |
+| [`sigmoid_weight`](https://sizespectrum.org/mizer/reference/sigmoid_weight.md)               | `sigmoidal_weight`, `sigmoidal_sigma`                                                | smooth transition in weight                           |
 
 `sigmoid_length` is the most commonly used. You can also supply your own
 function (first argument `w`, returns selectivity at size) and name it
 in `sel_func`.
 
 ``` r
-
 gp <- gear_params(params)
 gp$sel_func <- "sigmoid_length"
 gp$l50 <- 25            # 50% selected at 25 cm
@@ -139,7 +136,6 @@ into the model (this routes through
 so validation still runs):
 
 ``` r
-
 catchability(params)                       # gear × species matrix of Q
 selectivity(params)["Otter", "Cod", ]      # the S curve for one gear–species pair
 
@@ -169,7 +165,6 @@ directly when supplying a `selectivity` or `catchability` **array**,
 setting a baseline effort, or rebuilding from scratch:
 
 ``` r
-
 params <- setFishing(params, initial_effort = c(Otter = 1, Beam = 0.5))
 params <- setFishing(params, reset = TRUE)   # rebuild arrays from gear_params
 ```
@@ -182,14 +177,13 @@ The model stores a **baseline effort** per gear, used when
 [`project()`](https://sizespectrum.org/mizer/reference/project.md) is
 called without an explicit `effort` argument.
 
-| Function | Use |
-|----|----|
-| [`initial_effort(params)`](https://sizespectrum.org/mizer/reference/initial_effort.md) | read baseline effort (a named vector) |
-| [`initial_effort(params) <-`](https://sizespectrum.org/mizer/reference/initial_effort.md) | set baseline effort |
-| [`getEffort(sim)`](https://sizespectrum.org/mizer/reference/getEffort.md) | effort actually used over time in a simulation |
+| Function                                                                                  | Use                                            |
+|-------------------------------------------------------------------------------------------|------------------------------------------------|
+| [`initial_effort(params)`](https://sizespectrum.org/mizer/reference/initial_effort.md)    | read baseline effort (a named vector)          |
+| [`initial_effort(params) <-`](https://sizespectrum.org/mizer/reference/initial_effort.md) | set baseline effort                            |
+| [`getEffort(sim)`](https://sizespectrum.org/mizer/reference/getEffort.md)                 | effort actually used over time in a simulation |
 
 ``` r
-
 initial_effort(params) <- c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5)
 ```
 
@@ -198,7 +192,6 @@ At run time,
 accepts `effort` in four forms:
 
 ``` r
-
 project(params, effort = 1)                        # scalar: all gears, constant
 project(params, effort = c(Otter = 0.5, Beam = 1)) # named vector: per gear, constant
 project(params, effort = c(0.5, 1, 0, 0.5))        # vector in gear order, constant
@@ -209,7 +202,6 @@ For a time-varying scenario, build a `time × gear` array with numeric,
 increasing row names and gear column names:
 
 ``` r
-
 gears <- names(initial_effort(params))
 years <- 2010:2030
 effort_array <- array(1, dim = c(length(years), length(gears)),
@@ -248,7 +240,6 @@ depends on the fishing setup being fixed first.
 ## Inspecting the fishing setup
 
 ``` r
-
 gear_params(params)        # the gear table
 catchability(params)       # Q array (gear × species)
 selectivity(params)        # S array (gear × species × size)
@@ -268,7 +259,6 @@ Inspect that gear with
 slicing out its own mortality:
 
 ``` r
-
 getFMortGear(params)["Survey", , ]   # species × size, for one gear only
 ```
 
@@ -277,7 +267,6 @@ getFMortGear(params)["Survey", , ]   # species × size, for one gear only
 ## Quick reference
 
 ``` r
-
 # ── Gears and selectivity ─────────────────────────────────────────────────────
 gp <- gear_params(params)
 gp$sel_func <- "sigmoid_length"

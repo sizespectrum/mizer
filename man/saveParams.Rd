@@ -22,8 +22,7 @@ readSim(file, install_extensions = FALSE)
 to or read from.}
 
 \item{install_extensions}{Logical. Should \code{\link[=readParams]{readParams()}} or \code{\link[=readSim]{readSim()}}
-attempt to install missing extension packages before registering the saved
-extension chain?}
+attempt to install missing extension packages before loading them?}
 
 \item{sim}{A MizerSim object}
 }
@@ -73,7 +72,7 @@ Before saving a model you may want to set its metadata with \code{\link[=setMeta
 \item They \strong{upgrade} an object saved by an older version of mizer to the
 current structure (see \code{\link[=upgradeParams]{upgradeParams()}}), so that models saved years ago
 still load correctly.
-\item They \strong{re-register the extension packages} that the model needs and,
+\item They \strong{load the extension packages} that the model needs and,
 optionally, install any that are missing (see \code{install_extensions}),
 before restoring the object's extension class.
 \item They \strong{coerce the object back to its extension class} and revalidate it,

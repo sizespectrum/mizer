@@ -126,14 +126,10 @@ article for the full story, the diagnostics and the fix.
 
 Other extension tools:
 \code{\link[=NOther]{NOther()}},
-\code{\link[=clearExtensionChain]{clearExtensionChain()}},
 \code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
-\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=other_mort]{other_mort()}},
 \code{\link[=recordExtension]{recordExtension()}},
-\code{\link[=registerExtension]{registerExtension()}},
-\code{\link[=registerExtensions]{registerExtensions()}},
 \code{\link[=setComponent]{setComponent()}}
 }
 \concept{extension tools}

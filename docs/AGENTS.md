@@ -5,32 +5,33 @@ of fish communities.
 
 ## Architecture
 
-**`MizerParams`** (S4) — central object passed to nearly all functions.
+**`MizerParams`** (S3) — central object passed to nearly all functions.
+Stored as a list with class `"MizerParams"` (or
+`c(extensions, "MizerParams")`). Slots/fields are accessible via `@` and
+`@<-` for full backwards compatibility or via standard `$` and `[[]]`.
 Modified via setter functions that return new copies:
 `setFishing(params, ...)`, etc.
 
-**`MizerSim`** (S4) — stores simulation output: arrays `n` (time ×
+**`MizerSim`** (S3) — stores simulation output: arrays `n` (time ×
 species × size), `n_pp`, `n_other`, `effort`, and the `MizerParams`
-used.
+used. Accessible via `@` / `$` / `[[]]`.
 
 **`ArraySpeciesBySize`** / **`ArrayTimeBySpecies`** /
 **`ArrayTimeBySpeciesBySize`** (S3) — wrap some arrays with metadata.
-When assigning back to S4 slots, use `slot[] <- value` (not
-`slot <- value`) to strip the class. Follow
-`.claude/skills/array-wrapper-classes.md`.
+Follow `.claude/skills/array-wrapper-classes.md`.
 
 **`species_params`** / **`given_species_params`** / **`gear_params`**
-(S3) — parameter tables subclassing `data.frame` stored in S4 slots.
-Users should access/modify these tables via S3 generics
+(S3) — parameter tables subclassing `data.frame` stored in `params`
+elements. Users should access/modify these tables via S3 generics
 (e.g. `species_params(params)` or `gear_params(params)`), but package
-code and developers can modify slots directly
-(e.g. `params@species_params`) when appropriate. Editing one of these
-tables on its own does nothing but edit it: the subclass is preserved
-(by the base `data.frame` methods — there are deliberately no `[<-`,
-`$<-` or `[[<-` methods), and no validation, conversion or warning
-happens. The checks and conversions (misspelled column names,
-length-to-weight, consistency) run when the table is validated, which is
-what
+code and developers can modify elements directly
+(e.g. `params$species_params` or `params@species_params`) when
+appropriate. Editing one of these tables on its own does nothing but
+edit it: the subclass is preserved (by the base `data.frame` methods —
+there are deliberately no `[<-`, `$<-` or `[[<-` methods), and no
+validation, conversion or warning happens. The checks and conversions
+(misspelled column names, length-to-weight, consistency) run when the
+table is validated, which is what
 [`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)/[`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
 do to a plain data frame and what `species_params<-()`/`gear_params<-()`
 do to the table they are given. This is also what makes the
@@ -62,7 +63,9 @@ over the size grid must handle both schemes and be tested under both.
 **Gated validation**:
 [`validParams()`](https://sizespectrum.org/mizer/reference/validParams.md)
 splits into three jobs — upgrade (gated on the version string), repair
-plus `validObject()` (gated on a fingerprint), and the unconditional
+plus
+[`validObject()`](https://sizespectrum.org/mizer/reference/validObject.md)
+(gated on a fingerprint), and the unconditional
 [`is.finite()`](https://rdrr.io/r/base/is.finite.html) scans of the rate
 arrays. The fingerprint,
 [`validation_key()`](https://sizespectrum.org/mizer/reference/validation_key.md),
@@ -121,19 +124,19 @@ Before modifying, designing, or debugging core features, consult the
 design intent, mathematical formulations, and user-facing workflows
 documented in `inst/skills/`:
 
-| When working on… | Consult skill |
-|----|----|
-| Modifying parameter accessors, downward propagation, rate setters, or freeze mechanisms | `inst/skills/change-parameters/SKILL.md` |
-| Calibration functions (`tuneSteadyState`, `calibrateBiomass`, `matchGrowth`), steady states, or reproduction levels | `inst/skills/calibrate-model/SKILL.md` |
-| Extension points (`setExtEncounter`, `setExtMort`, `setComponent`, `setRateFunction`) | `inst/skills/extend-mizer/SKILL.md` |
-| Packaging an extension: `.onLoad` registration, marker classes, [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) dispatch, bundled data, upgrading saved objects | `inst/skills/create-extension-package/SKILL.md` |
-| The extension chain, or saving/reading params and sim objects | `inst/skills/use-extension-packages/SKILL.md` |
-| Model constructors (`newMultispeciesParams`, etc.), size grids, or allometric defaults | `inst/skills/build-model/SKILL.md` |
-| Fishing gears, selectivity functions, catchability, or `gear_params` | `inst/skills/set-up-fishing/SKILL.md` |
-| Simulation stepping, projection methods, or effort scenarios | `inst/skills/run-simulation/SKILL.md` |
-| Stability analysis, limit cycles, the `solver` argument, or `getStability` | `inst/skills/analyse-stability/SKILL.md` |
-| Summary or plotting functions | `inst/skills/analyse-and-plot/SKILL.md` |
-| Renaming/deprecating arguments, changing defaults, or investigating breaking changes | `inst/skills/upgrade-mizer-code/SKILL.md` |
+| When working on…                                                                                                                                                                                                                          | Consult skill                                   |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
+| Modifying parameter accessors, downward propagation, rate setters, or freeze mechanisms                                                                                                                                                   | `inst/skills/change-parameters/SKILL.md`        |
+| Calibration functions (`tuneSteadyState`, `calibrateBiomass`, `matchGrowth`), steady states, or reproduction levels                                                                                                                       | `inst/skills/calibrate-model/SKILL.md`          |
+| Extension points (`setExtEncounter`, `setExtMort`, `setComponent`, `setRateFunction`)                                                                                                                                                     | `inst/skills/extend-mizer/SKILL.md`             |
+| Packaging an extension: S3 extension classes, [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md), [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) dispatch, bundled data, upgrading saved objects | `inst/skills/create-extension-package/SKILL.md` |
+| Using extension packages, or saving/reading params and sim objects                                                                                                                                                                        | `inst/skills/use-extension-packages/SKILL.md`   |
+| Model constructors (`newMultispeciesParams`, etc.), size grids, or allometric defaults                                                                                                                                                    | `inst/skills/build-model/SKILL.md`              |
+| Fishing gears, selectivity functions, catchability, or `gear_params`                                                                                                                                                                      | `inst/skills/set-up-fishing/SKILL.md`           |
+| Simulation stepping, projection methods, or effort scenarios                                                                                                                                                                              | `inst/skills/run-simulation/SKILL.md`           |
+| Stability analysis, limit cycles, the `solver` argument, or `getStability`                                                                                                                                                                | `inst/skills/analyse-stability/SKILL.md`        |
+| Summary or plotting functions                                                                                                                                                                                                             | `inst/skills/analyse-and-plot/SKILL.md`         |
+| Renaming/deprecating arguments, changing defaults, or investigating breaking changes                                                                                                                                                      | `inst/skills/upgrade-mizer-code/SKILL.md`       |
 
 ## Code Conventions
 

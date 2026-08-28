@@ -29,20 +29,21 @@ calculated_species_params(params)
 
 - ...:
 
-  Other arguments passed to methods.
+  Other arguments passed to methods. The methods for a data frame
+  accept:
 
-- strict:
+  strict
 
-  Whether to raise an error, rather than correct silently, for the
-  inconsistencies that can be corrected. Used internally.
+  :   Whether to raise an error, rather than correct silently, for the
+      inconsistencies that can be corrected. Used internally.
 
-- check_misspellings:
+  check_misspellings
 
-  Whether to report column names that look like misspellings of standard
-  species parameter names. `TRUE` by default. Mizer passes `FALSE` when
-  it re-validates a table whose columns it has already checked, so that
-  the report is made once, when the column is introduced, rather than
-  again on every rebuild.
+  :   Whether to report column names that look like misspellings of
+      standard species parameter names. `TRUE` by default. Mizer passes
+      `FALSE` when it re-validates a table whose columns it has already
+      checked, so that the report is made once, when the column is
+      introduced, rather than again on every rebuild.
 
 - recalculate:
 

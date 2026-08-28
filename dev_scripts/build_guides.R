@@ -117,7 +117,7 @@ guide_topics <- list(
     `create-extension-package` = list(
         lead   = paste("This guide covers turning a working mizer extension",
                        "into a shareable R package and maintaining it:",
-                       "registration in `.onLoad`, marker classes and method",
+                       "registration in `.onLoad`, S3 extension classes and method",
                        "dispatch, bundled data objects, reporting to the user,",
                        "running mizer's test suite against your subclass, and",
                        "upgrading objects saved by an earlier version. For the",

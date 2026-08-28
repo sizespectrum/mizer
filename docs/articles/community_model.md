@@ -53,7 +53,6 @@ following line sets up the parameters with `z0` = 0.05, `f0` = 0.5. All
 other parameters will have their default value:
 
 ``` r
-
 params <- newCommunityParams(z0 = 0.05, f0 = 0.5)
 ```
 
@@ -62,13 +61,10 @@ Calling the function creates and returns an object of type
 [`class()`](https://rdrr.io/r/base/class.html) function.
 
 ``` r
-
 class(params)
 ```
 
     ## [1] "MizerParams"
-    ## attr(,"package")
-    ## [1] "mizer"
 
 To work with mizer you do not have to worry about how this object is
 realised internally. All you need to know is that it contains all the
@@ -81,14 +77,13 @@ object can be seen by calling the
 method on it:
 
 ``` r
-
 summary(params)
 ```
 
     ## An object of class "MizerParams" 
     ## mizer version: 3.3.1
-    ## Created: 2026-08-28 11:46:34
-    ## Modified: 2026-08-28 11:46:34
+    ## Created: 2026-08-28 14:48:58
+    ## Modified: 2026-08-28 14:48:58
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   1e+06
@@ -159,20 +154,16 @@ To run a projection for 50 years, with no fishing effort (i.e. we want
 to model an unexploited community) we run:
 
 ``` r
-
 sim <- project(params, t_max = 50, effort = 0)
 ```
 
 The resulting object, `sim`, is of type `MizerSim`.
 
 ``` r
-
 class(sim)
 ```
 
     ## [1] "MizerSim"
-    ## attr(,"package")
-    ## [1] "mizer"
 
 This class holds the results of the simulation, including the community
 and resource abundances at size through time, as well as the original
@@ -192,7 +183,6 @@ biomass through time. Each of the plots can be shown individually if
 desired.
 
 ``` r
-
 plot(sim)
 ```
 
@@ -242,7 +232,6 @@ mortality spans many orders of magnitude we ask for a logarithmic y axis
 as well as the logarithmic x axis that these plots use by default:
 
 ``` r
-
 plotPredMort(sim, log_y = TRUE)
 ```
 
@@ -268,7 +257,6 @@ there is a `get...()` function for each of them. Here we use
 [`getPredMort()`](https://sizespectrum.org/mizer/reference/getPredMort.md):
 
 ``` r
-
 pred_mort <- getPredMort(sim)
 dim(pred_mort)
 ```
@@ -289,7 +277,6 @@ the simulation, which you can then hand to any of the `get...()` or
 `plot...()` functions:
 
 ``` r
-
 pred_mort_final <- getPredMort(finalParams(sim))
 ```
 
@@ -305,7 +292,6 @@ it can plot itself. The following produces the same plot as
 above:
 
 ``` r
-
 plot(pred_mort_final, log_y = TRUE)
 ```
 
@@ -335,7 +321,6 @@ use the default knife-edge selectivity. We set up the parameter object
 with default parameters:
 
 ``` r
-
 params_knife <- newCommunityParams()
 ```
 
@@ -343,7 +328,6 @@ First we perform a simulation without fishing in the same way we did
 above by setting the `effort` argument to 0:
 
 ``` r
-
 sim0 <- project(params_knife, effort = 0, t_max = 50)
 ```
 
@@ -358,7 +342,6 @@ fully selected sizes. Here we run a simulation with fishing effort set
 to 1 for the duration of the simulation:
 
 ``` r
-
 sim1 <- project(params_knife, effort = 1, t_max = 50)
 ```
 
@@ -369,7 +352,6 @@ knife-edge selectivity at 1000 g can be clearly seen and an effort of 1
 has resulted in a fishing mortality of 1 for the fully selected sizes.
 
 ``` r
-
 plot(sim1, biomass = TRUE, per_log_size = TRUE)
 ```
 
@@ -386,7 +368,6 @@ Here we have 51 time steps (50 from the simulation plus one which stores
 the initial state), 1 species and 100 sizes:
 
 ``` r
-
 dim(N(sim0))
 ```
 
@@ -401,7 +382,6 @@ for the abundances alone. The ratio of the two gives us the abundance in
 the fished community relative to the unfished one:
 
 ``` r
-
 relative_abundance <- finalN(sim1) / finalN(sim0)
 range(relative_abundance)
 ```
@@ -422,7 +402,6 @@ no difference here whether you think in terms of number density or
 biomass density.
 
 ``` r
-
 plotSpectraRelative(sim0, sim1)
 ```
 
@@ -439,7 +418,6 @@ we use `ylim` to cut off the very bottom of the y axis and keep the
 interesting part of the plot readable:
 
 ``` r
-
 plotSpectra2(sim0, sim1, name1 = "Unfished", name2 = "Fished",
              per_log_size = TRUE, ylim = c(1, NA))
 ```
@@ -470,7 +448,6 @@ the `sigma` column of the species parameter data frame that is contained
 in the MizerParams object:
 
 ``` r
-
 species_params(params)$sigma
 ```
 
@@ -484,7 +461,6 @@ value of \\\sigma\\ into
 [`newCommunityParams()`](https://sizespectrum.org/mizer/reference/newCommunityParams.md).
 
 ``` r
-
 params_sigma1 <- newCommunityParams(sigma = 1)
 ```
 
@@ -494,7 +470,6 @@ function. Here we project the new parameter object for 50 time steps
 without fishing and save at intervals of 0.1 years (`t_save = 0.1`):
 
 ``` r
-
 sim_sigma1 <- project(params_sigma1, effort = 0, t_max = 50, 
                       dt = 0.01, t_save = 0.1)
 ```
@@ -522,7 +497,6 @@ this with the
 function:
 
 ``` r
-
 plotBiomass(sim_sigma1)
 ```
 

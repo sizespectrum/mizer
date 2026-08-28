@@ -61,7 +61,6 @@ The code in
 implements this:
 
 ``` r
-
 avail_energy <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) *
                                      mvfft(base::t(prey)),
                            inverse = TRUE))) / length(params@w_full)
@@ -83,7 +82,6 @@ D\[n\]\\, we need to define a reversed kernel \\\psi\[m\] =
 calculates `ft_pred_kernel_p` using a reversed version of the kernel.
 
 ``` r
-
 # R/setPredKernel.R
 ri <- min(max(which(phi > 0)), no_w_full - 1)  # index of largest ppmr
 phi_p <- rep(0, no_w_full)
@@ -260,7 +258,6 @@ models reproduce exactly. To build the bin-integrated kernels, set the
 `bin_average` entry of the `second_order_w` slot,
 
 ``` r
-
 second_order_w(params) <- TRUE
 ```
 
@@ -308,7 +305,6 @@ In
 [`mizerPredRate()`](https://sizespectrum.org/mizer/reference/mizerPredRate.md):
 
 ``` r
-
 return(pred_rate * params@ft_mask)
 ```
 

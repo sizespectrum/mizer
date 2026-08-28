@@ -35,7 +35,7 @@
 #' - They **upgrade** an object saved by an older version of mizer to the
 #'   current structure (see [upgradeParams()]), so that models saved years ago
 #'   still load correctly.
-#' - They **re-register the extension packages** that the model needs and,
+#' - They **load the extension packages** that the model needs and,
 #'   optionally, install any that are missing (see `install_extensions`),
 #'   before restoring the object's extension class.
 #' - They **coerce the object back to its extension class** and revalidate it,
@@ -51,8 +51,7 @@
 #' @param file The name of the file or a connection where the object is saved
 #'   to or read from.
 #' @param install_extensions Logical. Should [readParams()] or [readSim()]
-#'   attempt to install missing extension packages before registering the saved
-#'   extension chain?
+#'   attempt to install missing extension packages before loading them?
 #' @return `saveParams()` and `saveSim()` return NULL invisibly.
 #'   `readParams()` returns a MizerParams object. `readSim()` returns a MizerSim
 #'   object.
@@ -95,8 +94,8 @@ readParams <- function(file, install_extensions = FALSE) {
     }
 
     if (length(params$extensions) > 0) {
-        registerExtensions(extensionRequirements(params$extensions),
-                           install = install_extensions)
+        ensureExtensionNamespaces(extensionRequirements(params$extensions),
+                                  install = install_extensions)
     }
 
     params <- coerceToExtensionClass(params)
@@ -140,8 +139,8 @@ readSim <- function(file, install_extensions = FALSE) {
     }
 
     if (length(sim$params$extensions) > 0) {
-        registerExtensions(extensionRequirements(sim$params$extensions),
-                           install = install_extensions)
+        ensureExtensionNamespaces(extensionRequirements(sim$params$extensions),
+                                  install = install_extensions)
     }
 
     sim$params <- coerceToExtensionClass(sim$params)

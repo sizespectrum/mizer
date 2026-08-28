@@ -2,24 +2,24 @@
 % Please edit documentation in R/registerExtensions.R
 \name{coerceToExtensionClass}
 \alias{coerceToExtensionClass}
-\title{Coerce a mizer object to its registered extension class}
+\title{Coerce a mizer object to its extension class}
 \usage{
 coerceToExtensionClass(object, extensions = objectExtensions(object))
 }
 \arguments{
 \item{object}{A \code{MizerParams} or \code{MizerSim} object.}
 
-\item{extensions}{Optional extension chain. Defaults to the chain stored in
+\item{extensions}{Optional extension list or vector. Defaults to the extensions stored in
 \code{object}, or in \code{object$params} for \code{MizerSim}.}
 }
 \value{
 The same object coerced to the appropriate S3 class vector, or to the
-base class for an empty extension chain.
+base class for an empty extension list.
 }
 \description{
 Coerces a \code{MizerParams} or \code{MizerSim} object to the S3 class hierarchy
-corresponding to the object's own extension chain. For \code{MizerSim}, the
-extension chain is read from \code{sim$params$extensions} (or \code{sim@params@extensions}).
+corresponding to the object's own extension list. For \code{MizerSim}, the
+extension names are read from \code{sim$params$extensions} (or \code{sim@params@extensions}).
 }
 \seealso{
 "Creating a mizer extension package":
@@ -27,13 +27,9 @@ extension chain is read from \code{sim$params$extensions} (or \code{sim@params@e
 
 Other extension tools:
 \code{\link[=NOther]{NOther()}},
-\code{\link[=clearExtensionChain]{clearExtensionChain()}},
-\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=other_mort]{other_mort()}},
 \code{\link[=recordExtension]{recordExtension()}},
-\code{\link[=registerExtension]{registerExtension()}},
-\code{\link[=registerExtensions]{registerExtensions()}},
 \code{\link[=setComponent]{setComponent()}},
 \code{\link[=setRateFunction]{setRateFunction()}}
 }

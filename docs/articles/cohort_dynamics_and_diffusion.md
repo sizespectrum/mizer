@@ -16,7 +16,6 @@ cohort. With diffusion, individuals spread out in size, causing the
 cohort to broaden as it ages.
 
 ``` r
-
 library(mizer)
 library(ggplot2)
 library(plotly)
@@ -31,7 +30,6 @@ that the encounter rate scales as \\w^{3/4}\\ and the mortality rate
 scales as \\w^{-1/4}\\.
 
 ``` r
-
 params <- newSingleSpeciesParams(h = 10, no_w = 400)
 ```
 
@@ -45,7 +43,6 @@ reproduction on (smoothly) only during a short window at the start of
 each year and off at all other times.
 
 ``` r
-
 # Custom RDD function: pulsed reproduction using a fixed rate
 pulse_width <- 0.1  # Reproduce during first 10% of each year
 
@@ -74,7 +71,6 @@ We start from an empty spectrum (no fish) and let the pulsed
 reproduction create cohorts from scratch.
 
 ``` r
-
 initialN(params)[] <- 0
 
 second_order_w(params) <- TRUE
@@ -105,7 +101,6 @@ section](https://sizespectrum.org/mizer/articles/model_description.html#diffusio
 of the general mizer model description.
 
 ``` r
-
 params_pred_diff <- params
 use_predation_diffusion(params_pred_diff) <- TRUE
 sim_pred_diff <- project(params_pred_diff, t_max = 5, dt = 0.01,
@@ -122,7 +117,6 @@ sooner. To see this more clearly we plot the biomass density at time
 \\t=5\\ for both cases:
 
 ``` r
-
 plotSpectra2(sim_no_diff, sim_pred_diff,
              name1 = "No diffusion", name2 = "Predation diffusion",
              resource = FALSE, power = 2, log = "x")
@@ -134,7 +128,6 @@ The diffusion rate is a power law in \\w\\ with exponent \\7/4\\. The
 coefficient is
 
 ``` r
-
 (getDiffusion(params_pred_diff) / w(params)^(7/4))[1]
 ```
 
@@ -156,7 +149,6 @@ We now run the model with two different levels of external diffusion in
 order to compare the effects.
 
 ``` r
-
 species_params(params)$D_ext <- 0.1
 sim_medium_diff <- project(params, t_max = 5, dt = 0.01,
                       t_save = 0.05, progress_bar = FALSE,
@@ -172,7 +164,6 @@ Let’s compare simulations with no diffusion, only predation diffusion, a
 medium level of diffusion and a level of diffusion at time \\t=5\\:
 
 ``` r
-
 w <- w(params)
 snapshot_data <- rbind(
     data.frame(x = w, y = finalN(sim_no_diff)[1, ] * w^2,
@@ -201,7 +192,6 @@ widen and merge into each other. Let us look at an animation of the
 high-diffusion case:
 
 ``` r
-
 animate(sim_high_diff, log_x = TRUE, log_y = FALSE, power = 2, resource = FALSE,
         transition_duration = 0, frame_duration = 200)
 ```
@@ -222,7 +212,6 @@ the size spectrum evolves continuously over time. Here we look at the
 case of high diffusion:
 
 ``` r
-
 sim <- sim_high_diff
 all_times <- getTimes(sim)
 w <- w(params)

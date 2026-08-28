@@ -1,6 +1,6 @@
-# Get the extension chain stored in a mizer object
+# Get the extensions stored in a mizer object
 
-Get the extension chain stored in a mizer object
+Get the extensions stored in a mizer object
 
 ## Usage
 

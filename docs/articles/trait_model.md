@@ -51,7 +51,6 @@ Here we set up the model to have 10 species, with maximum sizes ranging
 from 10 g to 100 kg. All the other parameters have default values.
 
 ``` r
-
 params <- newTraitParams(no_sp = 10, min_w_max = 10, max_w_max = 1e5)
 ```
 
@@ -62,14 +61,13 @@ on the community
 model](https://sizespectrum.org/mizer/articles/community_model.md).
 
 ``` r
-
 summary(params)
 ```
 
     ## An object of class "MizerParams" 
     ## mizer version: 3.3.1
-    ## Created: 2026-08-28 11:49:49
-    ## Modified: 2026-08-28 11:49:50
+    ## Created: 2026-08-28 14:51:43
+    ## Modified: 2026-08-28 14:51:44
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   1e+05
@@ -117,7 +115,6 @@ is then nothing to leave room for, and
 puts all three at the same value:
 
 ``` r
-
 species_params(params)[, c("w_inf", "w_repro_max", "w_max")]
 ```
 
@@ -159,7 +156,6 @@ population values (see [the guide on running a
 simulation](https://sizespectrum.org/mizer/articles/guide-run-simulation.md)).
 
 ``` r
-
 sim <- project(params, t_max = 75, effort = 0)
 ```
 
@@ -170,7 +166,6 @@ overview of the results of the simulation by calling the
 [`plot()`](https://sizespectrum.org/mizer/reference/plot.md) method:
 
 ``` r
-
 plot(sim)
 ```
 
@@ -219,7 +214,6 @@ To set up the trait-based model to have fishing we set up the
 the `knife_edge_size` argument is explicitly passed in for clarity:
 
 ``` r
-
 params_knife <- newTraitParams(no_sp = 10, min_w_max = 10, max_w_max = 1e5,
     knife_edge_size = 1000)
 ```
@@ -228,7 +222,6 @@ First we perform a simulation without fishing in the same way we did
 above by setting the `effort` argument to 0:
 
 ``` r
-
 sim0 <- project(params_knife, effort = 0, t_max = 75)
 ```
 
@@ -245,7 +238,6 @@ simply equal to the effort. This effort is constant throughout the
 duration of the simulation (however, mizer does allow variable effort).
 
 ``` r
-
 sim1 <- project(params_knife, effort = 0.75, t_max = 75)
 ```
 
@@ -255,7 +247,6 @@ The knife-edge selectivity at 1000 g can be clearly seen in the fishing
 mortality panel:
 
 ``` r
-
 plot(sim1)
 ```
 
@@ -282,7 +273,6 @@ change is. We ask for the community `total` and `highlight` it so that
 it stands out from the individual species:
 
 ``` r
-
 plotSpectraRelative(sim0, sim1, total = TRUE, resource = FALSE,
                     highlight = "Total")
 ```
@@ -316,7 +306,6 @@ gives us that state as a `MizerParams` object, carrying the resource
 spectrum along with the fish abundances:
 
 ``` r
-
 m2_no_fishing <- getPredMort(finalParams(sim0))
 m2_with_fishing <- getPredMort(finalParams(sim1))
 ```
@@ -330,7 +319,6 @@ species 1 itself reaches. The two mortalities are compared with
 draws two compatible mizer arrays in one plot:
 
 ``` r
-
 plot2(m2_no_fishing, m2_with_fishing, name1 = "Unfished", name2 = "Fished",
       species = 1, all.sizes = TRUE)
 ```
@@ -357,7 +345,6 @@ that only selected species larger than 1 kg. We can see that when we
 look at the gear parameters
 
 ``` r
-
 gear_params(params)
 ```
 
@@ -396,7 +383,6 @@ to keep the original model, we should first make a copy before making
 modifications.
 
 ``` r
-
 params_multi_gear <- params
 ```
 
@@ -408,7 +394,6 @@ sizes to set a vector of knife edge sizes that are 0.05 times the
 maximum size:
 
 ``` r
-
 gear_params(params_multi_gear)$knife_edge_size <- 
   species_params(params)$w_max * 0.05
 ```
@@ -417,7 +402,6 @@ Now we want to assign each species to either the *industrial* or *other*
 gear.
 
 ``` r
-
 gear <- rep("Industrial", nrow(species_params(params)))
 gear[species_params(params)$w_max > 500] <- "Other"
 gear_params(params_multi_gear)$gear <- gear
@@ -429,7 +413,6 @@ needs and only names the selectivity parameters at the bottom, so we
 print the knife-edge sizes separately:
 
 ``` r
-
 gear_params(params_multi_gear)
 ```
 
@@ -448,7 +431,6 @@ gear_params(params_multi_gear)
     ## With 1 other parameters: knife_edge_size
 
 ``` r
-
 gear_params(params_multi_gear)$knife_edge_size
 ```
 
@@ -466,7 +448,6 @@ single value. This fixes the fishing effort for all gears in the model,
 for all time steps. We can do this with our multi-gear parameter object:
 
 ``` r
-
 sim_multi_gear <- project(params_multi_gear, t_max = 75, effort = 0.5)
 ```
 
@@ -475,7 +456,6 @@ now has a different selectivity pattern, and that the position of the
 selectivity knife-edge is given by the maximum size of the species.
 
 ``` r
-
 plot(sim_multi_gear)
 ```
 
@@ -494,7 +474,6 @@ as a named vector. Here we set the effort for the *Industrial* gear to
 off).
 
 ``` r
-
 sim_multi_gear <- project(params_multi_gear, t_max = 75,
     effort = c(Industrial = 0.75, Other = 0))
 ```
@@ -503,7 +482,6 @@ Now you can see that the *Industrial* gear has been operating and that
 fishing mortality for species larger than 500 g is 0.
 
 ``` r
-
 plot(sim_multi_gear)
 ```
 
@@ -519,7 +497,6 @@ compare abundances of the fished (`sim_industrial1`) and unfished
 (`sim_industrial0`) cases:
 
 ``` r
-
 sim_industrial0 <- project(params_multi_gear, t_max = 75, effort = 0)
 sim_industrial1 <- project(params_multi_gear, t_max = 75,
     effort = c(Industrial = 0.75, Other = 0))
@@ -528,7 +505,6 @@ sim_industrial1 <- project(params_multi_gear, t_max = 75,
 And compare them in the same way as before:
 
 ``` r
-
 plotSpectraRelative(sim_industrial0, sim_industrial1, total = TRUE,
                     resource = FALSE, highlight = "Total")
 ```

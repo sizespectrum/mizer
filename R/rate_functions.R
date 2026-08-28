@@ -108,7 +108,7 @@ getEncounter.MizerParams <- function(object, n = initialN(object),
                 identical(length(n_pp), length(params@initial_n_pp)),
                 identical(length(n_other), length(params@initial_n_other))
     )
-    if (usesExtensionDispatch(params)) {
+    if (params@rates_funcs$Encounter == "mizerEncounter") {
         encounter <- projectEncounter(params, n = n, n_pp = n_pp,
                                       n_other = n_other, t = t, ...)
     } else {
@@ -177,7 +177,7 @@ getFeedingLevel.MizerParams <- function(object, n, n_pp, n_other,
     if (missing(n_other)) n_other <- params@initial_n_other
     # calculate feeding level
     encounter <- getEncounter(params, n, n_pp, n_other, t = t)
-    if (usesExtensionDispatch(params)) {
+    if (params@rates_funcs$FeedingLevel == "mizerFeedingLevel") {
         feeding_level <- projectFeedingLevel(
             params, n = n, n_pp = n_pp, n_other = n_other,
             encounter = encounter, t = t)
@@ -269,7 +269,7 @@ getEReproAndGrowth.MizerParams <- function(object, n = initialN(object),
     params <- validParams(object)
     encounter <- getEncounter(params, n, n_pp, n_other, t = t)
     feeding_level <- getFeedingLevel(params, n, n_pp, n_other, time_range = t)
-    if (usesExtensionDispatch(params)) {
+    if (params@rates_funcs$EReproAndGrowth == "mizerEReproAndGrowth") {
         e <- projectEReproAndGrowth(
             params, n = n, n_pp = n_pp, n_other = n_other, t = t,
             encounter = encounter, feeding_level = feeding_level)
@@ -338,7 +338,7 @@ getPredRate.MizerParams <- function(object, n = initialN(object),
     params <- validParams(object)
     feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp,
                                      n_other = n_other, time_range = t)
-    if (usesExtensionDispatch(params)) {
+    if (params@rates_funcs$PredRate == "mizerPredRate") {
         pred_rate <- projectPredRate(
             params, n = n, n_pp = n_pp, n_other = n_other, t = t,
             feeding_level = feeding_level)
@@ -414,7 +414,7 @@ getPredMort.MizerParams <- function(object, n, n_pp, n_other,
 
     pred_rate <- getPredRate(params, n = n, n_pp = n_pp, n_other = n_other,
                              t = t)
-    if (usesExtensionDispatch(params)) {
+    if (params@rates_funcs$PredMort == "mizerPredMort") {
         pred_mort <- projectPredMort(
             params, n = n, n_pp = n_pp, n_other = n_other, t = t,
             pred_rate = pred_rate)
@@ -485,7 +485,7 @@ getResourceMort.MizerParams <- function(params, n = initialN(params),
 
     pred_rate <- getPredRate(params, n = n, n_pp = n_pp, n_other = n_other,
                              t = t)
-    if (usesExtensionDispatch(params)) {
+    if (params@rates_funcs$ResourceMort == "mizerResourceMort") {
         mort <- projectResourceMort(
             params, n = n, n_pp = n_pp, n_other = n_other,
             t = t, pred_rate = pred_rate)
@@ -761,7 +761,7 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE,
     if (missing(n_pp)) n_pp <- params@initial_n_pp
     if (missing(n_other)) n_other <- params@initial_n_other
     no_gears <- dim(params@catchability)[[1]]
-    f <- if (usesExtensionDispatch(params)) {
+    f <- if (params@rates_funcs$FMort == "mizerFMort") {
         projectFMort
     } else {
         get(params@rates_funcs$FMort)
@@ -963,7 +963,7 @@ getERepro.MizerParams <- function(object, n = initialN(object),
     params <- validParams(object)
     e <- getEReproAndGrowth(params, n = n, n_pp = n_pp, n_other = n_other,
                             t = t)
-    if (usesExtensionDispatch(params)) {
+    if (params@rates_funcs$ERepro == "mizerERepro") {
         erepro <- projectERepro(params, n = n, n_pp = n_pp, n_other = n_other,
                                 t = t, e = e)
     } else {
@@ -1039,7 +1039,7 @@ getEGrowth.MizerParams <- function(object, n = initialN(object),
                          t = t)
     e <- getEReproAndGrowth(params, n = n, n_pp = n_pp,
                             n_other = n_other, t = t)
-    if (usesExtensionDispatch(params)) {
+    if (params@rates_funcs$EGrowth == "mizerEGrowth") {
         g <- projectEGrowth(params, n = n, n_pp = n_pp, n_other = n_other,
                             t = t, e_repro = e_repro, e = e)
     } else {
@@ -1100,7 +1100,7 @@ getRDI.MizerParams <- function(object, n = initialN(object),
     diffusion <- getDiffusion(params, n = n, n_pp = n_pp, n_other = n_other,
                               t = t)
     mort <- getMort(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
-    if (usesExtensionDispatch(params)) {
+    if (params@rates_funcs$RDI == "mizerRDI") {
         rdi <- projectRDI(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                           e_repro = e_repro, e_growth = e_growth, mort = mort,
                           diffusion = diffusion)
@@ -1184,19 +1184,8 @@ getRDD.MizerParams <- function(object, n = initialN(object),
                    rdi = getRDI(object, n = n, n_pp = n_pp,
                                 n_other = n_other, t = t), ...) {
     params <- validParams(object)
-    if (usesExtensionDispatch(params)) {
-        rdd <- projectRDD(params, rdi = rdi, species_params = params@species_params,
-                          t = t, ...)
-    } else {
-        # Avoid getting into infinite loops
-        if (params@rates_funcs$RDD == "getRDD") {
-            stop('"getRDD" is not a valid name for the function giving the density',
-                 'dependent reproductive rate.')
-        }
-        f <- get(params@rates_funcs$RDD)
-        rdd <- f(rdi = rdi, species_params = params@species_params,
-                 params = params, t = t)
-    }
+    rdd <- projectRDD(params, rdi = rdi, species_params = params@species_params,
+                      t = t, ...)
     names(rdd) <- params@species_params$species
     rdd
 }

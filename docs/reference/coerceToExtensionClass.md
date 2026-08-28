@@ -1,8 +1,9 @@
-# Coerce a mizer object to its registered extension class
+# Coerce a mizer object to its extension class
 
-Coerces a `MizerParams` or `MizerSim` object to the S4 marker class
-corresponding to the object's own extension chain. For `MizerSim`, the
-extension chain is read from `sim@params@extensions`.
+Coerces a `MizerParams` or `MizerSim` object to the S3 class hierarchy
+corresponding to the object's own extension list. For `MizerSim`, the
+extension names are read from `sim$params$extensions` (or
+`sim@params@extensions`).
 
 ## Usage
 
@@ -18,13 +19,13 @@ coerceToExtensionClass(object, extensions = objectExtensions(object))
 
 - extensions:
 
-  Optional extension chain. Defaults to the chain stored in `object`, or
-  in `object@params` for `MizerSim`.
+  Optional extension list or vector. Defaults to the extensions stored
+  in `object`, or in `object$params` for `MizerSim`.
 
 ## Value
 
-The same object coerced to the appropriate marker class, or to the base
-class for an empty extension chain.
+The same object coerced to the appropriate S3 class vector, or to the
+base class for an empty extension list.
 
 ## See also
 
@@ -33,12 +34,8 @@ package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.
 
 Other extension tools:
 [`NOther()`](https://sizespectrum.org/mizer/reference/NOther.md),
-[`clearExtensionChain()`](https://sizespectrum.org/mizer/reference/clearExtensionChain.md),
-[`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md),
 [`initialNOther<-()`](https://sizespectrum.org/mizer/reference/initialNOther-set.md),
 [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md),
 [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md),
-[`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md),
-[`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md),
 [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
 [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)

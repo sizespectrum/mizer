@@ -1330,7 +1330,7 @@ setClass("mizerShelf", contains = "MizerParams", where = globalenv())
 
 you can drop that.
 
-Separately, [`registerExtension()`](../reference/registerExtension.html) and [`registerExtensions()`](../reference/registerExtensions.html) now rebuild the
+Separately, `registerExtension()` and `registerExtensions()` now rebuild the
 chain's dynamic marker classes when a class went missing during an
 extension-package reload — the case `devtools::load_all()` creates, where the
 reload removes the S4 classes the package's namespace held and the next

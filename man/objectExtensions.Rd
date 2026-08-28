@@ -2,7 +2,7 @@
 % Please edit documentation in R/registerExtensions.R
 \name{objectExtensions}
 \alias{objectExtensions}
-\title{Get the extension chain stored in a mizer object}
+\title{Get the extensions stored in a mizer object}
 \usage{
 objectExtensions(object)
 }
@@ -14,6 +14,6 @@ A named character vector of extensions, or an empty character vector
 if the object carries no extensions.
 }
 \description{
-Get the extension chain stored in a mizer object
+Get the extensions stored in a mizer object
 }
 \keyword{internal}

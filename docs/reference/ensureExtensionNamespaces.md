@@ -1,10 +1,6 @@
 # Load (and optionally install) namespaces for all non-NA extensions
 
-For each extension whose requirement is not `NA_character_`, checks that
-the package is installed and up-to-date, installs or upgrades via
-[`pak::pkg_install()`](https://pak.r-lib.org/reference/pkg_install.html)
-if `install = TRUE`, then calls
-[`loadNamespace()`](https://rdrr.io/r/base/ns-load.html).
+Load (and optionally install) namespaces for all non-NA extensions
 
 ## Usage
 

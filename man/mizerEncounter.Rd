@@ -81,7 +81,7 @@ the encounters of these components will be included in the returned value.
 \section{Extension hook}{
 
 \code{projectEncounter()} is the S3 generic used by extension-aware projections.
-Extension packages can add methods for their marker classes and call
+Extension packages can add methods for their extension classes and call
 \code{NextMethod()} to compose encounter-rate changes. The \code{MizerParams} method
 contains the standard mizer calculation and is also exported as
 \code{mizerEncounter()} for compatibility.

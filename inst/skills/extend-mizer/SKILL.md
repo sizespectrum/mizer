@@ -26,7 +26,7 @@ heavier one only when the lighter one cannot do the job. All setters return a ne
 | Change how one built-in rate is calculated | `setRateFunction()` |
 | Add a new dynamical pool (detritus, carrion, oxygen, second resource…) | `setComponent()` |
 | Store parameters for your custom code | `other_params()` (model-wide) or `component_params` (one component) |
-| Extend plots/summaries for a custom model type | S3 methods on an S3 marker class |
+| Extend plots/summaries for a custom model type | S3 methods on an S3 extension class |
 | Replace arbitrary internal mizer code (last resort) | `customFunction()` |
 
 If you only need to change one rate, prefer `setRateFunction()` over replacing
@@ -399,19 +399,20 @@ To let the component kill fish as well as feed them, give `setComponent()` a
 
 <!-- /article-only -->
 
-## Extending plots and summaries: S3 methods on an S3 marker class
+## Extending plots and summaries: S3 methods on an S3 extension class
 
 This is the most flexible route that still works with mizer's public generics.
 `MizerParams` and `MizerSim` are S3 classes, and an extension package defines S3
-methods for its own marker class — `getBiomass.MyMizerSim()`,
+methods for its own extension class — `getBiomass.MyMizerSim()`,
 `plotBiomass.MyMizerSim()`, `summary.MyMizerParams()` — which is what makes a
 summary or plot account for components the extension added. Every such method
 must call `NextMethod()`, so that several extensions loaded at once compose
 instead of overwriting each other.
 
-Writing that package — the marker class, the `.onLoad` registration and the
-methods — is the subject of the `create-extension-package` skill, and the order
-the methods then run in is the subject of the `use-extension-packages` skill.
+Writing that package — the extension class, recording with `recordExtension()`
+and the methods — is the subject of the `create-extension-package` skill, and
+the order the methods then run in is the subject of the
+`use-extension-packages` skill.
 
 ## Storing parameters
 
@@ -446,7 +447,7 @@ nothing checks that it is.
   to someone else, make it a package: a stable namespace mizer can resolve
   function names in, somewhere for tests and documentation to live, and a version
   that gets recorded in `params@extensions`. Everything that only matters once
-  you share — `.onLoad` registration, marker classes, dispatch via
+  you share — S3 extension classes, `recordExtension()`, dispatch via
   `NextMethod()`, bundled data objects, reporting through `info_level`, and
   upgrading objects saved by an earlier version — is in the
   `create-extension-package` skill. For the other side of it, loading and saving

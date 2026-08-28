@@ -17,6 +17,6 @@ The \verb{$extensions} element may be stored either as a named character vector 
 requirement strings (the legacy/unversioned form) or as a named list whose
 entries are length-2 character vectors \code{c(requirement = ..., version = ...)}.
 This helper returns the requirement strings as a plain named character
-vector, which is the form used for dispatch and suffix comparison.
+vector.
 }
 \keyword{internal}

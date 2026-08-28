@@ -64,9 +64,7 @@ Besides the model parameters, a `MizerParams` object also holds an
 *initial state*: the initial abundances of the species and of the
 resource and the initial fishing effort. These are the values a
 simulation starts from. The values of the abundances and the effort at
-all the later times of a simulation are stored in the `MizerSim` class
-which we will come to later in [the section on running a
-simulation.](https://sizespectrum.org/mizer/articles/running_a_simulation.html#sec:projection)
+all the later times of a simulation are stored in the `MizerSim` class.
 
 Although the `MizerParams` class contains a lot of information, it is
 relatively straightforward to set up and use. Objects of class
@@ -142,9 +140,8 @@ The MizerParams object stores only the *initial* fishing effort, which
 you can inspect and change with
 [`initial_effort()`](https://sizespectrum.org/mizer/reference/initial_effort.md).
 The effort that is actually used during a simulation is set when the
-simulation is run and can vary through time (see [the section on running
-a
-simulation](https://sizespectrum.org/mizer/articles/running_a_simulation.md)).
+simulation is run and can vary through time (see [Guide: Running a mizer
+simulation](https://sizespectrum.org/mizer/articles/guide-run-simulation.md)).
 
 ### Example of making `MizerParams` objects
 
@@ -161,7 +158,6 @@ parameters for a multispecies North Sea model. The location of the file
 can be found by running
 
 ``` r
-
 params_location <- system.file("extdata", "NS_species_params.csv",
                                package = "mizer")
 ```
@@ -170,7 +166,6 @@ This file can be opened with most spreadsheets or a text editor for you
 to inspect. This can be loaded into R with
 
 ``` r
-
 species_params <- read.csv(params_location)
 ```
 
@@ -178,7 +173,6 @@ This reads the .csv file into R in the form of a data.frame. You can
 check this with the `class`:
 
 ``` r
-
 class(species_params)
 ```
 
@@ -187,7 +181,6 @@ class(species_params)
 Let’s have a look at the data frame:
 
 ``` r
-
 species_params
 ```
 
@@ -246,7 +239,6 @@ data.frame into the
 constructor method:
 
 ``` r
-
 params <- newMultispeciesParams(species_params)
 ```
 
@@ -262,20 +254,16 @@ params <- newMultispeciesParams(species_params)
 We have just created a `MizerParams` object:
 
 ``` r
-
 class(params)
 ```
 
     ## [1] "MizerParams"
-    ## attr(,"package")
-    ## [1] "mizer"
 
 The MizerParams object also stores a copy of the species parameter data
 frame that we provided. We can look at it with
 [`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md):
 
 ``` r
-
 species_params(params)
 ```
 
@@ -309,7 +297,6 @@ did not provide a gear parameter data frame, the MizerParams object has
 one that we can access with
 
 ``` r
-
 gear_params(params)
 ```
 
@@ -344,14 +331,13 @@ method for `MizerParams` objects which prints a useful summary of the
 model parameters:
 
 ``` r
-
 summary(params)
 ```
 
     ## An object of class "MizerParams" 
     ## mizer version: 3.3.1
-    ## Created: 2026-08-28 11:48:35
-    ## Modified: 2026-08-28 11:48:35
+    ## Created: 2026-08-28 14:50:37
+    ## Modified: 2026-08-28 14:50:38
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066
@@ -391,7 +377,6 @@ controlled by the arguments `no_w`, `min_w` and `max_w` respectively.
 For example, if we wanted 200 size classes in the model we would use:
 
 ``` r
-
 params200 <- newMultispeciesParams(species_params, no_w = 200)
 summary(params200)
 ```
@@ -421,7 +406,6 @@ with each other, i.e. the species are spread homogeneously across the
 model area.
 
 ``` r
-
 interaction_matrix(params)
 ```
 
@@ -463,7 +447,6 @@ An example interaction matrix for the North Sea has been included in
 running:
 
 ``` r
-
 inter_location <- system.file("extdata", "NS_interaction.csv",
                               package = "mizer")
 ```
@@ -477,7 +460,6 @@ row names. We therefore use an additional argument to the
 `row.names`.
 
 ``` r
-
 inter <- read.csv(inter_location, row.names = 1)
 inter
 ```
@@ -514,7 +496,6 @@ We can set the interaction matrix in our existing MizerParams object
 [`interaction_matrix()`](https://sizespectrum.org/mizer/reference/setInteraction.md):
 
 ``` r
-
 interaction_matrix(params) <- inter
 ```
 
@@ -527,7 +508,6 @@ scratch with our interaction matrix by passing it to
 [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md):
 
 ``` r
-
 params_new <- newMultispeciesParams(species_params, interaction = inter)
 ```
 
@@ -555,7 +535,6 @@ In the above example, each species is caught by the same gear (named
 provided.
 
 ``` r
-
 gear_params(params)
 ```
 
@@ -581,7 +560,6 @@ combinations of species. We can achieve that by only changing the `gear`
 column in the `gear_params` data frame.
 
 ``` r
-
 gear_params(params)$gear <- c("Industrial", "Industrial", "Industrial",
                               "Pelagic", "Beam", "Otter",
                               "Beam", "Otter", "Beam",
@@ -593,14 +571,13 @@ You can see the result by calling
 the `params` object.
 
 ``` r
-
 summary(params)
 ```
 
     ## An object of class "MizerParams" 
     ## mizer version: 3.3.1
-    ## Created: 2026-08-28 11:48:35
-    ## Modified: 2026-08-28 11:48:36
+    ## Created: 2026-08-28 14:50:37
+    ## Modified: 2026-08-28 14:50:39
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066
@@ -637,9 +614,8 @@ summary(params)
 
 In this example the same gear now catches multiple stocks. For example,
 the *Industrial* gear catches Sprat, Sandeel and Norway Pout. Why would
-we want to set up the gears like this? In the next section on [running a
-multispecies
-model](https://sizespectrum.org/mizer/articles/running_a_simulation.md)
+we want to set up the gears like this? In the
+[guide-run-simulation.html](https://sizespectrum.org/mizer/articles/guide-run-simulation.md)
 we will see that to project the model through time you can specify the
 fishing effort for each gear through time. By setting the gears up in
 this way you can run different management scenarios of changing the
@@ -694,7 +670,3 @@ changes no parameter at all and instead reports the steady state that
 the parameters you already have imply. Calibrating a model to
 observations is discussed in the [guide to calibrating a
 model](https://sizespectrum.org/mizer/articles/guide-calibrate-model.md).
-
-Now that we know how to create a multispecies model we shall discuss how
-to [run a multispecies
-model.](https://sizespectrum.org/mizer/articles/running_a_simulation.md)

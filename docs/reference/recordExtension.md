@@ -1,18 +1,14 @@
 # Record an extension and its version stamp on a mizer object
 
-Writes an entry for `name` into the object's `@extensions` slot,
-converting the slot to the versioned list form. Existing entries (and
-their version stamps) are preserved, keeping their position in the
-chain. A genuinely new entry is prepended to the front of the chain so
-that it stays ordered outermost-first, matching
-[`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md).
-The requirement is taken from the existing entry if present, otherwise
-from the registered extension chain.
+Writes an entry for `name` into the object's `$extensions` element,
+converting it to the versioned list form. Existing entries (and their
+version stamps) are preserved, keeping their position in the chain. A
+genuinely new entry is prepended to the front of the list.
 
 ## Usage
 
 ``` r
-recordExtension(params, name, version = NULL)
+recordExtension(params, name, version = NULL, requirement = NULL)
 ```
 
 ## Arguments
@@ -23,24 +19,21 @@ recordExtension(params, name, version = NULL)
 
 - name:
 
-  The extension identifier (its S4 marker class name).
+  The extension identifier (package/class name).
 
 - version:
 
   Optional version string to stamp. If `NULL` (default) the existing
   stamp is preserved.
 
+- requirement:
+
+  Optional requirement string (e.g. `"sizespectrum/mizerMR"` or
+  `"1.0.0"`).
+
 ## Value
 
-The `params` object with the updated `@extensions` slot.
-
-## Details
-
-Extension packages should call this instead of assigning to
-`@extensions` directly. Pass `version` (typically
-`packageVersion(name)`) only when the object has just been created or
-upgraded to conform to that version; leave it `NULL` for ordinary
-modifications so the existing stamp is preserved.
+The `params` object with the updated `$extensions` element.
 
 ## See also
 
@@ -49,12 +42,8 @@ package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.
 
 Other extension tools:
 [`NOther()`](https://sizespectrum.org/mizer/reference/NOther.md),
-[`clearExtensionChain()`](https://sizespectrum.org/mizer/reference/clearExtensionChain.md),
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md),
-[`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md),
 [`initialNOther<-()`](https://sizespectrum.org/mizer/reference/initialNOther-set.md),
 [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md),
-[`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md),
-[`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md),
 [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
 [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)

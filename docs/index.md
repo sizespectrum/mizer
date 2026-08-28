@@ -60,7 +60,6 @@ The package is on [CRAN](https://cran.r-project.org/package=mizer) and
 therefore available from R’s built-in package manager.
 
 ``` r
-
 # Install latest released version from CRAN
 install.packages("mizer")
 
@@ -76,7 +75,6 @@ up the parameters for the mizer model, and runs a simulation for 10
 years.
 
 ``` r
-
 library(mizer)
 params <- newMultispeciesParams(NS_species_params, NS_interaction)
 sim <- project(params, t_max = 10, effort = 0)
@@ -86,7 +84,6 @@ The results of the simulation can then be analysed, for example via
 plots:
 
 ``` r
-
 plot(sim)
 ```
 

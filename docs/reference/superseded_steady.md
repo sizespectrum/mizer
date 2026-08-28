@@ -6,10 +6,10 @@ Neither of these names says what distinguishes the two functions, and
 `projectToSteady()` returns a different class depending on an argument.
 Both have been replaced:
 
-|  |  |
-|----|----|
-| Superseded | Use instead |
-| `steady()` | [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md) |
+|                     |                                                                                                                                                                                                      |
+|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Superseded          | Use instead                                                                                                                                                                                          |
+| `steady()`          | [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)                                                                                                                   |
 | `projectToSteady()` | [`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md), or [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md) for the trajectory |
 
 The distinction the new names carry is what each one holds fixed.

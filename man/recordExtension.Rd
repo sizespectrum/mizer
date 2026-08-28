@@ -4,15 +4,18 @@
 \alias{recordExtension}
 \title{Record an extension and its version stamp on a mizer object}
 \usage{
-recordExtension(params, name, version = NULL)
+recordExtension(params, name, version = NULL, requirement = NULL)
 }
 \arguments{
 \item{params}{A \code{MizerParams} object.}
 
-\item{name}{The extension identifier.}
+\item{name}{The extension identifier (package/class name).}
 
 \item{version}{Optional version string to stamp. If \code{NULL} (default) the
 existing stamp is preserved.}
+
+\item{requirement}{Optional requirement string (e.g. \code{"sizespectrum/mizerMR"}
+or \code{"1.0.0"}).}
 }
 \value{
 The \code{params} object with the updated \verb{$extensions} element.
@@ -21,9 +24,7 @@ The \code{params} object with the updated \verb{$extensions} element.
 Writes an entry for \code{name} into the object's \verb{$extensions} element, converting
 it to the versioned list form. Existing entries (and their version stamps)
 are preserved, keeping their position in the chain. A genuinely new entry is
-prepended to the front of the chain so that it stays ordered outermost-first,
-matching \code{\link[=registerExtension]{registerExtension()}}. The requirement is taken from the existing
-entry if present, otherwise from the registered extension chain.
+prepended to the front of the list.
 }
 \seealso{
 "Creating a mizer extension package":
@@ -31,13 +32,9 @@ entry if present, otherwise from the registered extension chain.
 
 Other extension tools:
 \code{\link[=NOther]{NOther()}},
-\code{\link[=clearExtensionChain]{clearExtensionChain()}},
 \code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
-\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=other_mort]{other_mort()}},
-\code{\link[=registerExtension]{registerExtension()}},
-\code{\link[=registerExtensions]{registerExtensions()}},
 \code{\link[=setComponent]{setComponent()}},
 \code{\link[=setRateFunction]{setRateFunction()}}
 }

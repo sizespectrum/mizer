@@ -294,7 +294,7 @@ validMizerParams <- function(object) {
 #' @slot mizer_version The package version of mizer (as returned by
 #'   `packageVersion("mizer")`) that created or upgraded the model.
 #' @slot extensions Describes the extension chain needed to run the model. The
-#'   entries are named by extension identifier (also the S4 marker class name)
+#'   entries are named by extension identifier (also the S3 extension class name)
 #'   and ordered in S3 dispatch order, from outermost to innermost extension.
 #'   It is either a named character vector whose values are requirement strings
 #'   (version strings, installation specifications, or `NA_character_`), or a
@@ -302,8 +302,7 @@ validMizerParams <- function(object) {
 #'   `c(requirement = ..., version = ...)`. The `version` records the version of
 #'   the extension package that last upgraded the object (`NA` if unknown) and
 #'   is used by [needs_upgrading()]. Use [recordExtension()] to write entries
-#'   rather than modifying the slot directly. Extension subclasses are marker
-#'   classes only and must not add slots.
+#'   rather than modifying the slot directly.
 #' @slot time_created A POSIXct date-time object with the creation time.
 #' @slot time_modified A POSIXct date-time object with the last modified time.
 #' @slot w The size grid for the fish part of the spectrum. An increasing

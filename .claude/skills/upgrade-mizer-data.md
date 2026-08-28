@@ -1,7 +1,7 @@
 # Upgrade MizerParams / MizerSim data objects
 
-Use this skill after any change to the `MizerParams` or `MizerSim` S4 class
-definition — new slots, removed slots, changed slot types, or new entries in
+Use this skill after any change to the `MizerParams` or `MizerSim` class
+structure — new slots/elements, removed slots, changed slot types, or new entries in
 named lists such as `@rates_funcs`.
 
 ## Steps
@@ -67,4 +67,4 @@ rather than the real cause (stale stored objects).
 
 ## User code and behavioural upgrades
 
-This skill only covers upgrading saved S4 data structures. If the change also alters user-facing function signatures, deprecates arguments, renames functions, or changes numerical results, also record the change in `inst/skills/upgrade-mizer-code/references/mizer-<version>.md` and its user symptoms in that skill's `SKILL.md` index, then rebuild the guides (`source("dev_scripts/build_guides.R"); build_guides()`).
+This skill only covers upgrading saved data structures. If the change also alters user-facing function signatures, deprecates arguments, renames functions, or changes numerical results, also record the change in `inst/skills/upgrade-mizer-code/references/mizer-<version>.md` and its user symptoms in that skill's `SKILL.md` index, then rebuild the guides (`source("dev_scripts/build_guides.R"); build_guides()`).

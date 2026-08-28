@@ -173,9 +173,7 @@ parameters will have their default value:</p>
 <code><a href="https://rdrr.io/r/base/class.html" class="external-link">class()</a></code> function.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "MizerParams"</span></span>
-<span><span class="co">## attr(,"package")</span></span>
-<span><span class="co">## [1] "mizer"</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "MizerParams"</span></span></code></pre>
 <p>To work with mizer you do not have to worry about how this object is
 realised internally. All you need to know is that it contains all the
 information needed to run model simulations and that mizer provides you
@@ -187,8 +185,8 @@ it:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary.html">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "MizerParams" </span></span>
 <span><span class="co">## mizer version: 3.3.1</span></span>
-<span><span class="co">## Created: 2026-08-28 11:46:34</span></span>
-<span><span class="co">## Modified: 2026-08-28 11:46:34</span></span>
+<span><span class="co">## Created: 2026-08-28 14:48:58</span></span>
+<span><span class="co">## Modified: 2026-08-28 14:48:58</span></span>
 <span><span class="co">## Consumer size spectrum:</span></span>
 <span><span class="co">##  minimum size:   0.001</span></span>
 <span><span class="co">##  maximum size:   1e+06</span></span>
@@ -255,9 +253,7 @@ want to model an unexploited community) we run:</p>
 <code>MizerSim</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "MizerSim"</span></span>
-<span><span class="co">## attr(,"package")</span></span>
-<span><span class="co">## [1] "mizer"</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "MizerSim"</span></span></code></pre>
 <p>This class holds the results of the simulation, including the
 community and resource abundances at size through time, as well as the
 original model parameters. It is explained in detail in <a href="guide-run-simulation.html">the guide on running a
