@@ -39,7 +39,7 @@ minor_version <- function(version) {
         if (!identical(minor_version(last_seen), minor_version(current))) {
             packageStartupMessage(
                 "This is mizer version ", current,
-                ". See https://blog.mizer.sizespectrum.org/posts/2026-07-17-mizer-3-2-announcement/ for what has changed."
+                ". See https://blog.mizer.sizespectrum.org/posts/2026-08-21-mizer-3-3-announcement/ for what has changed."
             )
             dir.create(config_dir, showWarnings = FALSE, recursive = TRUE)
             # Use write() rather than writeLines()/cat() so that R CMD check's
