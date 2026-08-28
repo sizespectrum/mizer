@@ -61,7 +61,8 @@ used for the plot is returned instead of the plot itself. Default is FALSE.}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data
-frame with the three variables 'Year', 'Yield', 'Species' is returned.
+frame with the three variables 'Year', 'Yield', 'Species' is returned. If
+\code{sim2} is supplied, the data frame also has a 'Simulation' variable.
 }
 \description{
 After running a projection, the total yield of each species across all
