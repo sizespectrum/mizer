@@ -61,6 +61,12 @@ This is the right choice when the extra process is not itself depleted or
 replenished, and the fish do not feed back on it. If it needs to respond to the
 fish, you need a component instead.
 
+External encounter changes the realised encounter and feeding level, but it does
+not enter the power-law reference state used by `get_gamma_default()` and
+`get_f0_default()`. Those defaults likewise exclude functions registered with
+`other_encounter()`, including a component's `encounter_fun`: they describe
+feeding on the reference resource alone, before extra food sources are added.
+
 ## Replacing a rate function
 
 Use when the model still follows mizer's standard flow but one step should be

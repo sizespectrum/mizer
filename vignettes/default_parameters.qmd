@@ -263,6 +263,11 @@ The search volume coefficient $\gamma_i$ is calculated by `get_gamma_default()`.
 $$N_R(w_p) = \kappa w_p^{-\lambda}$$
 then the resulting encounter rate would lead to the target feeding level $f_0$ (default $0.6$).
 
+This reference encounter contains only predation on the power-law resource.
+External encounter and functions registered with `other_encounter()` — including
+a component's `encounter_fun` — still add to the realised encounter rate, but do
+not enter the calculation of the `gamma` and `f0` defaults.
+
 The encounter rate $E_i(w)$ of predator species $i$ at size $w$ is:
 $$E_i(w) = \gamma_i w^q \int \theta_{iR} N_R(w_p) \phi_i(w, w_p) w_p \, dw_p$$
 

@@ -22,9 +22,11 @@ See the \href{https://sizespectrum.org/mizer/articles/default_parameters.html#ga
 section of the "Calculation of Default Parameter Values" vignette for the
 mathematical derivation.
 
-The available energy is measured with mizer's own encounter rate,
-\code{\link[=mizerEncounter]{mizerEncounter()}}. It is a property of the species parameters and of the
-resource power law rather than of the model's dynamics, so the measurement
+The available energy is measured with the predation part of mizer's own
+encounter rate, \code{\link[=mizerEncounter]{mizerEncounter()}}. It is a property of the species
+parameters and of the resource power law rather than of the model's dynamics,
+so external encounter and contributions registered with \code{\link[=other_encounter]{other_encounter()}}
+(including component encounter functions) are excluded. The measurement also
 deliberately does not go through the extension dispatch chain, nor through an
 encounter function registered with \code{\link[=setRateFunction]{setRateFunction()}}.
 }

@@ -1650,6 +1650,8 @@ get_h_default <- function(params) {
 #' extension that scales the search volume would otherwise fold its own factor
 #' into mizer's `gamma` default, and because that default then determines the
 #' search volume, the factor would be re-applied on every rebuild (issue #577).
+#' Additive encounter contributions from `ext_encounter` and `other_encounter`
+#' are excluded for the same reason (issue #586).
 #'
 #' The caller is responsible for having set the `q` and `gamma` species
 #' parameters and the `search_vol` slot that the measurement is to use.
@@ -1659,6 +1661,8 @@ get_h_default <- function(params) {
 #' @noRd
 measure_avail_energy <- function(params) {
     params@initial_n[] <- 0
+    params@ext_encounter[] <- 0
+    params@other_encounter <- list()
     if (defaults_edition() < 2) {
         # See issue #238
         params@species_params$interaction_resource <- 1
@@ -1685,9 +1689,11 @@ measure_avail_energy <- function(params) {
 #' section of the "Calculation of Default Parameter Values" vignette for the
 #' mathematical derivation.
 #'
-#' The available energy is measured with mizer's own encounter rate,
-#' [mizerEncounter()]. It is a property of the species parameters and of the
-#' resource power law rather than of the model's dynamics, so the measurement
+#' The available energy is measured with the predation part of mizer's own
+#' encounter rate, [mizerEncounter()]. It is a property of the species
+#' parameters and of the resource power law rather than of the model's dynamics,
+#' so external encounter and contributions registered with [other_encounter()]
+#' (including component encounter functions) are excluded. The measurement also
 #' deliberately does not go through the extension dispatch chain, nor through an
 #' encounter function registered with [setRateFunction()].
 #'
@@ -1732,8 +1738,16 @@ get_gamma_default <- function(params) {
         gamma_default <- (species_params[["h"]] / avail_energy) *
             (species_params$f0 / (1 - species_params$f0))
         # Only overwrite missing gammas with calculated values
-        if (any(!is.finite(gamma_default[missing]))) {
-            stop("Could not calculate gamma.")
+        bad <- missing & !is.finite(gamma_default)
+        if (any(bad)) {
+            stop("Could not calculate a default `gamma` for the following ",
+                 "species: ", toString(species_params$species[bad]),
+                 ". The available energy measured for them in the reference ",
+                 "state, where the only prey is the power-law resource, was ",
+                 toString(avail_energy[bad]),
+                 ". A species that does not encounter that resource, for ",
+                 "example because its `interaction_resource` is zero, needs ",
+                 "its `gamma` supplied explicitly.")
         }
         species_params$gamma[missing] <- gamma_default[missing]
     }
@@ -1757,9 +1771,11 @@ get_gamma_default <- function(params) {
 #' section of the "Calculation of Default Parameter Values" vignette for the
 #' mathematical derivation.
 #'
-#' The available energy is measured with mizer's own encounter rate,
-#' [mizerEncounter()]. It is a property of the species parameters and of the
-#' resource power law rather than of the model's dynamics, so the measurement
+#' The available energy is measured with the predation part of mizer's own
+#' encounter rate, [mizerEncounter()]. It is a property of the species
+#' parameters and of the resource power law rather than of the model's dynamics,
+#' so external encounter and contributions registered with [other_encounter()]
+#' (including component encounter functions) are excluded. The measurement also
 #' deliberately does not go through the extension dispatch chain, nor through an
 #' encounter function registered with [setRateFunction()].
 #'

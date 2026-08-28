@@ -194,6 +194,93 @@ test_that("gamma and f0 defaults ignore a custom encounter function", {
                  rep(1, nrow(species_params(params))))
 })
 
+test_that("gamma and f0 defaults ignore additive encounters (#586)", {
+    e <- globalenv()
+    e$test_component_dynamics_586 <- function(params, n_other, component, ...) {
+        n_other[[component]]
+    }
+    e$test_component_encounter_586 <- function(params, ...) {
+        params@intake_max / 4
+    }
+    withr::defer(rm(list = c("test_component_dynamics_586",
+                             "test_component_encounter_586"), envir = e))
+
+    for (bin_average in c(FALSE, TRUE)) {
+        params <- NS_params_small
+        suppressMessages(
+            second_order_w(params) <- c(bin_average = bin_average)
+        )
+        no_sp <- nrow(species_params(params))
+        base_encounter <- getEncounter(params)
+        base_f0 <- get_f0_default(params)
+        target_f0 <- species_params(params)$f0
+
+        with_ext <- params
+        with_ext@ext_encounter[] <- with_ext@ext_encounter +
+            with_ext@intake_max / 2
+        expect_gt(sum(getEncounter(with_ext) - base_encounter), 0)
+        expect_equal(get_f0_default(with_ext), base_f0)
+
+        with_component <- setComponent(
+            params,
+            component = "test_food_586",
+            initial_value = 0,
+            dynamics_fun = "test_component_dynamics_586",
+            encounter_fun = "test_component_encounter_586"
+        )
+        expect_gt(sum(getEncounter(with_component) - base_encounter), 0)
+        expect_equal(get_f0_default(with_component), base_f0)
+
+        no_gamma <- params
+        no_gamma@species_params$gamma[] <- NA
+        ext_no_gamma <- with_ext
+        ext_no_gamma@species_params$gamma[] <- NA
+        component_no_gamma <- with_component
+        component_no_gamma@species_params$gamma[] <- NA
+        gamma <- suppressMessages(get_gamma_default(no_gamma))
+        expect_equal(
+            unname(suppressMessages(get_gamma_default(ext_no_gamma)) / gamma),
+            rep(1, no_sp), tolerance = 1e-14
+        )
+        expect_equal(
+            unname(suppressMessages(get_gamma_default(component_no_gamma)) /
+                       gamma),
+            rep(1, no_sp), tolerance = 1e-14
+        )
+
+        with_both <- setComponent(
+            with_ext,
+            component = "test_food_586",
+            initial_value = 0,
+            dynamics_fun = "test_component_dynamics_586",
+            encounter_fun = "test_component_encounter_586"
+        )
+        with_both@species_params$gamma[] <- NA
+        with_both@species_params$gamma <-
+            suppressMessages(get_gamma_default(with_both))
+        expect_equal(get_f0_default(with_both), target_f0)
+    }
+})
+
+test_that("a gamma that cannot be defaulted names the species (#586)", {
+    withr::local_options(list(mizer_defaults_edition = 2))
+    params <- NS_params_small
+    sp <- species_params(params)$species
+    # A species that eats nothing in the reference state has no `gamma` that
+    # can give it the target feeding level. Under edition 2 the zero
+    # interaction is respected, so the available energy comes out as zero.
+    params@species_params$interaction_resource <- c(0, 0, 1)
+    params@species_params$gamma[] <- NA
+    # An external encounter used to stand in for the missing predation
+    # encounter and produce a `gamma` off by orders of magnitude
+    params@ext_encounter[] <- params@intake_max
+    expect_error(suppressMessages(get_gamma_default(params)),
+                 paste0("Could not calculate a default `gamma` for the ",
+                        "following species: ", sp[[1]], ", ", sp[[2]], "\\. ",
+                        "The available energy measured for them .* was 0, 0\\."),
+                 fixed = FALSE)
+})
+
 test_that("invalid f0 is rejected even when gamma is given (#517)", {
     sp <- data.frame(species = "a", w_inf = 100)
     params <- newMultispeciesParams(sp, info_level = 0)
