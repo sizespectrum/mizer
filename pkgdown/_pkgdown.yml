@@ -345,17 +345,24 @@ reference:
   - setExtEncounter
   - setReproduction
   - setFishing
-- title: Extending Mizer
-  desc: See the [guide to extending mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html),
-   [Using mizer extension packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
-    and [Creating a mizer extension package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html) for more details.
+- title: Extending mizer
+  desc: Functions for customising a model with new rate functions or ecosystem
+    components. See the [guide to extending mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html).
   contents:
   - setRateFunction
+  - other_mort
   - setComponent
   - initialNOther<-
   - NOther
-  - has_concept("extension tools")
   - customFunction
+- title: Creating extension packages
+  desc: Infrastructure used by extension package constructors to record their
+    package and apply its S3 class. Model users do not need to call these
+    functions; `readParams()` and validation manage existing objects. See the
+    [guide to creating an extension package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html).
+  contents:
+  - recordExtension
+  - coerceToExtensionClass
 - title: Predation kernels
   description: Functions that determine the size preference of predators for prey,
     i.e. the probability of a predator of a given size eating prey of a given size.
@@ -420,7 +427,7 @@ reference:
   - has_concept("helper")
   - defaults_edition
 - title: Classes
-  description: The S4 and S3 classes used by mizer, together with functions for
+  description: The S3 classes used by mizer, together with functions for
     constructing, inspecting, comparing, and validating them.
   contents:
   - MizerParams-class

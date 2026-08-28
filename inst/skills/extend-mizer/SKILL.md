@@ -446,7 +446,7 @@ nothing checks that it is.
 - Once an extension is useful in more than one project, or you want to give it
   to someone else, make it a package: a stable namespace mizer can resolve
   function names in, somewhere for tests and documentation to live, and a version
-  that gets recorded in `params@extensions`. Everything that only matters once
+  that gets recorded in the model metadata. Everything that only matters once
   you share — S3 extension classes, `recordExtension()`, dispatch via
   `NextMethod()`, bundled data objects, reporting through `info_level`, and
   upgrading objects saved by an earlier version — is in the

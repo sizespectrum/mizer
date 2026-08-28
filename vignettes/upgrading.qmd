@@ -1340,6 +1340,20 @@ from the `contains` list of its subclasses (#569). An intact chain is inspected
 and left untouched, so the usual repeated registration does no work, and the
 repair never installs, version-checks or loads anything.
 
+### Saved extension objects retain their class
+
+[`saveParams()`](../reference/saveParams.html) and [`saveSim()`](../reference/saveParams.html) now write the complete S3 class vector. A bare
+`readRDS()` of a newly saved extension object therefore returns the extension
+class as well as the base `MizerParams` or `MizerSim` class, where files written
+by earlier versions deliberately contained only the base class. Code that
+inspects the raw RDS file should expect the same class as the object passed to
+the save helper.
+
+Continue to use [`readParams()`](../reference/saveParams.html) and [`readSim()`](../reference/saveParams.html) for normal loading. Their extra
+work is still needed to load required extension packages, upgrade old objects
+and validate them. Validation also reconstructs the extension class of a legacy
+base-class file, so existing saved models remain compatible.
+
 ### `other_mort()` and `other_encounter()` register contributions that have no component
 
 [`getMort()`](../reference/getMort.html) and `getEncounter()` add the result of every function listed in

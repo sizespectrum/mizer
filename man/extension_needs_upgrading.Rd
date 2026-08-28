@@ -13,8 +13,8 @@ extension_needs_upgrading(params)
 TRUE or FALSE.
 }
 \description{
-Returns TRUE if, for any extension recorded in the object's \verb{@extensions}
-slot whose package is installed, the recorded version stamp is missing (\code{NA})
+Returns TRUE if, for any extension recorded on the object whose package is
+installed, the recorded version stamp is missing (\code{NA})
 or older than the installed version of that package. A missing stamp counts
 as needing an upgrade so that objects created before extension-version
 tracking are brought up to date (and stamped) on first use; this is safe

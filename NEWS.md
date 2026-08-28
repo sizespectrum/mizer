@@ -186,6 +186,15 @@ it fixes bugs in the species parameter setters, in the defaults for `gamma` and
   `c("mizerShelf", "MizerParams")`), completely replacing dynamic S4 marker
   class generation, runtime `setClass()` calls, and search-path attachment.
 
+- `saveParams()` and `saveSim()` now store the object's complete S3 class
+  vector instead of stripping extension classes before serialisation.
+  `readParams()` and `readSim()` still repair the class on legacy files through
+  their normal validation, but no longer need a separate coercion step.
+
+- The reference index now separates model-level extension functions from the
+  `recordExtension()` and `coerceToExtensionClass()` infrastructure intended
+  only for extension package authors.
+
 ## Summaries and plots
 
 - New `getMeanLength()` calculates the mean length of the community, the
@@ -1171,9 +1180,9 @@ on the mizer blog.
   `using-extension-packages` to `guide-use-extension-packages`; the old address
   redirects. It gains a statement of the two rules that cover almost every
   problem — load the packages before using a model that needs them, and persist
-  models with `saveParams()` and `readParams()` rather than `saveRDS()`, since
-  the file deliberately holds a base-class object and only `readParams()` puts
-  the extension class back.
+  models with `saveParams()` and `readParams()` rather than bare
+  `saveRDS()`/`readRDS()`, because the mizer helpers validate and upgrade the
+  object and load its extension packages.
 
 - The "Point values and bin averages" section of `vignette("numerical_details")`
   now explains where each bin integral is performed and why it must be applied

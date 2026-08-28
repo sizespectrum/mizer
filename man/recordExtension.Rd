@@ -18,13 +18,18 @@ existing stamp is preserved.}
 or \code{"1.0.0"}).}
 }
 \value{
-The \code{params} object with the updated \verb{$extensions} element.
+The \code{params} object with updated extension metadata.
 }
 \description{
-Writes an entry for \code{name} into the object's \verb{$extensions} element, converting
+Writes an entry for \code{name} into the object's extension metadata, converting
 it to the versioned list form. Existing entries (and their version stamps)
 are preserved, keeping their position in the chain. A genuinely new entry is
 prepended to the front of the list.
+}
+\details{
+This is infrastructure for extension package authors. An extension
+constructor normally calls \code{recordExtension()} and then
+\code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}}. Ordinary model users do not need either call.
 }
 \seealso{
 "Creating a mizer extension package":

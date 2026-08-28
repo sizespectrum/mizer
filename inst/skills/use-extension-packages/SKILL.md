@@ -26,11 +26,11 @@ Two rules cover almost everything:
 1. **Load the extension packages with `library()` before you build, read or use
    a model that needs them.** The chain is rebuilt in load order every session.
 2. **Persist models with `saveParams()`/`readParams()` (or
-   `saveSim()`/`readSim()`), never with `saveRDS()`/`readRDS()`.** The file on
-   disk deliberately holds a *base-class* object; the extension class is
-   restored on the way back in by `readParams()`. So a bare `readRDS()` of a
-   perfectly good file returns an object whose extension methods are no longer
-   called — the model quietly gives base-mizer answers instead of failing.
+   `saveSim()`/`readSim()`) rather than bare `saveRDS()`/`readRDS()`.** The S3
+   class is preserved either way, but mizer's helpers also validate and upgrade
+   the object, check its custom functions, and load any extension packages it
+   needs. A bare `readRDS()` does none of that, so the class can be present while
+   its extension methods are not registered in the session.
 
 ## Available extension packages
 
@@ -65,13 +65,13 @@ Two rules cover almost everything:
   determine predator size-selectivity functions by fitting them to stomach
   content data.
 
-## The extension list and S3 dispatch
+## The extension record and S3 dispatch
 
 When an extension package creates or modifies a model, it stamps itself on the
-model object's `extensions` slot:
+model's metadata. Inspect that record through the public metadata accessor:
 
 ```r
-params@extensions
+getMetadata(params)$extensions
 ```
 
 The entries record each attached extension, its installation specification,
@@ -100,10 +100,10 @@ class(params)
 
 When an extension package creates a `MizerParams` object (for example
 `mizerShelf::newDetritusCarrionParams()`), it records the extension packages
-actually applied to that object in the `extensions` slot:
+actually applied to that object in its metadata:
 
 ```r
-params@extensions
+getMetadata(params)$extensions
 ```
 
 That record serves two purposes:
@@ -111,9 +111,10 @@ That record serves two purposes:
 1. **Reproducibility.** It says which extension packages built the model, the
    installation requirement for each, and the package version whose object
    layout each component conforms to.
-2. **Class restoration.** On reload, mizer uses it to promote the object back to
-   the correct S3 class, so that functions like `getBiomass()` keep dispatching
-   to the right extension methods.
+2. **Class consistency.** Mizer uses it to construct and validate the S3 class
+   vector, so that functions like `getBiomass()` dispatch to the right extension
+   methods. This also repairs legacy files in which the extension classes were
+   not stored.
 
 ### Saving and loading
 
@@ -127,10 +128,11 @@ defined only in your R session — a custom rate function, selectivity function 
 predation kernel written in a script. Those functions are not stored in the
 file, so the script has to travel with the `.rds`.
 
-`readParams()` upgrades the object if it was written by an older mizer, loads
-the required extension packages, and promotes the object to the correct S3
-class. As long as the required packages are installed, this is seamless; if one
-is missing, `readParams()` stops with an error naming it.
+`saveParams()` stores the object's complete S3 class vector. `readParams()`
+upgrades the object if it was written by an older mizer, loads the required
+extension packages, and validates that class vector against the recorded
+extension chain. As long as the required packages are installed, this is
+seamless; if one is missing, `readParams()` stops with an error naming it.
 
 `MizerSim` objects carry their params object inside them, so the extensions are
 embedded there too. Use `saveSim()` and `readSim()`, which do the same
@@ -149,7 +151,7 @@ For the metadata that should accompany a model you intend to share
 
 A collaborator needs the same extension packages installed. `readParams()` and
 `readSim()` tell them which are missing. To install them automatically from the
-specifications stored in `params@extensions`:
+specifications stored in the model's extension metadata:
 
 ```r
 params <- readParams("my_model.rds", install_extensions = TRUE)
@@ -171,8 +173,10 @@ library(mizerShelf)
 NWMed_params   # already has the correct extension class -- no extra steps needed
 ```
 
-An object from an older package that does not behave as expected can be repaired
-with `coerceToExtensionClass()`.
+If an object from an older package does not behave as expected, load that
+package and repair the object with `validParams()` (or `validSim()` for a
+simulation). Direct calls to `coerceToExtensionClass()` and `recordExtension()`
+are for extension package authors, not model users.
 
 ## Common scenarios
 
@@ -189,7 +193,7 @@ with `readParams("my_model.rds", install_extensions = TRUE)`.
 ### Checking what a params object requires
 
 ```r
-params@extensions
+getMetadata(params)$extensions
 ```
 
 The names are the extension identifiers. Current entries each contain a
@@ -209,13 +213,14 @@ Put the `library()` calls at the top in a fixed order, and use `saveParams()` an
 | Symptom | Cause | Fix |
 |---|---|---|
 | `readParams()`/`readSim()` errors "Some required extension packages are not installed" | The extensions recorded in the file name a package this library does not have | Install it, or re-read with `install_extensions = TRUE` |
-| An extension's method is not called: results match plain mizer, no error | The object lost its extension class — usually read with `readRDS()` instead of `readParams()`, or the package was not loaded | `library(<pkg>)`, then `params <- coerceToExtensionClass(params)`; re-read the file with `readParams()` in future |
-| `params@extensions` is empty on a model an extension built | The extension's setup function did not record itself, or the object predates that mechanism | Load the package and rerun its setup/conversion function or rebuild the model; coercion alone does not persist the missing record |
+| An extension's method is not called: results match plain mizer, no error | The extension package was not loaded, or the object has a stale or legacy class vector | `library(<pkg>)`, then `params <- validParams(params)`; use `readParams()` rather than bare `readRDS()` in future |
+| `getMetadata(params)$extensions` is empty on a model an extension built | The extension's setup function did not record itself, or the object predates that mechanism | Load the package and rerun its setup/conversion function or rebuild the model; coercion alone does not persist the missing record |
 | `saveParams()` warns "Your model is using the functions …" | A custom rate, selectivity or kernel function lives only in the session | Ship the defining script alongside the `.rds`; the warning is not a failure |
 
 Before writing a params object to disk in a project that loads any extension
-package, check that the code path uses `saveParams()`. `saveRDS()` produces a
-file that loads without error and silently dispatches to base mizer.
+package, check that the code path uses `saveParams()`. Although `saveRDS()` now
+preserves the S3 class, it skips mizer's validation, portability checks and
+custom-function warning; `readRDS()` also skips extension loading and upgrades.
 <!-- /agent-only -->
 
 ## See also
@@ -223,5 +228,4 @@ file that loads without error and silently dispatches to base mizer.
 - The `extend-mizer` skill — the mechanisms an extension is built from.
 - [Creating a mizer extension package](guide-create-extension-package.html) — how to
   package your own extension and make it composable with others.
-- `?coerceToExtensionClass`, `?recordExtension`
 - `?saveParams`, `?readParams`, `?saveSim`, `?readSim`

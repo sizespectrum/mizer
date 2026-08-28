@@ -51,8 +51,9 @@ with \code{\link[=validSim]{validSim()}}.
 \describe{
 \item{\code{params}}{An object of type \linkS4class{MizerParams}.
 If this params object uses extensions, the \code{MizerSim} object uses the same
-extension chain via \code{params@extensions}; \code{MizerSim} has no separate
-extension slot.}
+extension chain, which can be inspected with
+\code{getMetadata(params)$extensions}; \code{MizerSim} has no separate extension
+record.}
 
 \item{\code{n}}{Three-dimensional array (time x species x size) that stores the
 projected community number densities.}

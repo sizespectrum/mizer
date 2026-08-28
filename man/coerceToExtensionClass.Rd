@@ -19,7 +19,12 @@ base class for an empty extension list.
 \description{
 Coerces a \code{MizerParams} or \code{MizerSim} object to the S3 class hierarchy
 corresponding to the object's own extension list. For \code{MizerSim}, the
-extension names are read from \code{sim$params$extensions} (or \code{sim@params@extensions}).
+extension names are read from the embedded \code{MizerParams} object.
+}
+\details{
+This is infrastructure for extension package authors. Ordinary users should
+load saved models with \code{\link[=readParams]{readParams()}} or \code{\link[=readSim]{readSim()}}; \code{\link[=validParams]{validParams()}} and
+\code{\link[=validSim]{validSim()}} repair the class vector of an object that is already in memory.
 }
 \seealso{
 "Creating a mizer extension package":

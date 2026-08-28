@@ -7,7 +7,11 @@
 #'
 #' Coerces a `MizerParams` or `MizerSim` object to the S3 class hierarchy
 #' corresponding to the object's own extension list. For `MizerSim`, the
-#' extension names are read from `sim$params$extensions` (or `sim@params@extensions`).
+#' extension names are read from the embedded `MizerParams` object.
+#'
+#' This is infrastructure for extension package authors. Ordinary users should
+#' load saved models with [readParams()] or [readSim()]; [validParams()] and
+#' [validSim()] repair the class vector of an object that is already in memory.
 #'
 #' @param object A `MizerParams` or `MizerSim` object.
 #' @param extensions Optional extension list or vector. Defaults to the extensions stored in
@@ -141,10 +145,14 @@ makeExtensions <- function(requirements, versions = character()) {
 
 #' Record an extension and its version stamp on a mizer object
 #'
-#' Writes an entry for `name` into the object's `$extensions` element, converting
+#' Writes an entry for `name` into the object's extension metadata, converting
 #' it to the versioned list form. Existing entries (and their version stamps)
 #' are preserved, keeping their position in the chain. A genuinely new entry is
 #' prepended to the front of the list.
+#'
+#' This is infrastructure for extension package authors. An extension
+#' constructor normally calls `recordExtension()` and then
+#' [coerceToExtensionClass()]. Ordinary model users do not need either call.
 #'
 #' @param params A `MizerParams` object.
 #' @param name The extension identifier (package/class name).
@@ -152,7 +160,7 @@ makeExtensions <- function(requirements, versions = character()) {
 #'   existing stamp is preserved.
 #' @param requirement Optional requirement string (e.g. `"sizespectrum/mizerMR"`
 #'   or `"1.0.0"`).
-#' @return The `params` object with the updated `$extensions` element.
+#' @return The `params` object with updated extension metadata.
 #' @seealso "Creating a mizer extension package":
 #'   \href{https://sizespectrum.org/mizer/articles/guide-create-extension-package.html}{Creating a mizer extension package}
 #' @export
@@ -321,28 +329,4 @@ ensureExtensionNamespaces <- function(extensions, install = FALSE) {
 #' @keywords internal
 isVersionRequirement <- function(requirement) {
     grepl("^[0-9]+(\\.[0-9]+)*$", requirement)
-}
-
-#' Strip extension classes from a mizer object
-#'
-#' Coerces a `MizerParams` or `MizerSim` object back to its plain base class,
-#' removing any S3 extension classes. For `MizerSim`, also strips the
-#' extension class from the embedded `params` element.
-#'
-#' @param object A `MizerParams` or `MizerSim` object.
-#' @return The same object coerced to `MizerParams` or `MizerSim`.
-#' @keywords internal
-baseMizerClass <- function(object) {
-    if (inherits(object, "MizerParams")) {
-        class(object) <- "MizerParams"
-        object
-    } else if (inherits(object, "MizerSim")) {
-        class(object) <- "MizerSim"
-        if (inherits(object$params, "MizerParams")) {
-            class(object$params) <- "MizerParams"
-        }
-        object
-    } else {
-        stop("Can only strip extension classes from MizerParams or MizerSim objects.")
-    }
 }

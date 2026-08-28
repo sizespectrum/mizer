@@ -54,27 +54,6 @@ test_that("base objects remain valid MizerParams", {
     expect_identical(class(sim), "MizerSim")
 })
 
-test_that("readParams restores extension class on saved objects", {
-    ext_a <- paste0("mizerTestReadA", Sys.getpid())
-    chain <- setNames(NA_character_, ext_a)
-
-    params <- NS_params_small
-    params@extensions <- chain
-    params <- coerceToExtensionClass(params)
-
-    tmp <- tempfile(fileext = ".rds")
-    withr::defer(unlink(tmp))
-    saveParams(params, tmp)
-
-    saved <- readRDS(tmp)
-    expect_s3_class(saved, "MizerParams")
-    expect_identical(saved@extensions, chain)
-
-    params2 <- readParams(tmp)
-    expect_s3_class(params2, ext_a)
-    expect_identical(class(params2), c(ext_a, "MizerParams"))
-})
-
 # extension dispatch ----
 
 test_that("getEncounter dispatches through extension class", {

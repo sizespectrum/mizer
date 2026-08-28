@@ -10,6 +10,42 @@ test_that("saveParams/readParams round-trip", {
     expect_identical(params2@species_params$species, params@species_params$species)
 })
 
+test_that("saveParams preserves extension classes", {
+    ext_a <- paste0("mizerTestParamsSaveA", Sys.getpid())
+    chain <- setNames(NA_character_, ext_a)
+
+    params <- NS_params_small
+    params@extensions <- chain
+    params <- coerceToExtensionClass(params)
+
+    tmp <- tempfile(fileext = ".rds")
+    withr::defer(unlink(tmp))
+    saveParams(params, tmp)
+
+    saved <- readRDS(tmp)
+    expect_identical(class(saved), c(ext_a, "MizerParams"))
+    expect_identical(saved@extensions, chain)
+
+    params2 <- readParams(tmp)
+    expect_identical(class(params2), class(params))
+})
+
+test_that("readParams repairs extension classes on legacy files", {
+    ext_a <- paste0("mizerTestParamsReadA", Sys.getpid())
+    chain <- setNames(NA_character_, ext_a)
+
+    params <- NS_params_small
+    params@extensions <- chain
+    class(params) <- "MizerParams"
+
+    tmp <- tempfile(fileext = ".rds")
+    withr::defer(unlink(tmp))
+    saveRDS(params, tmp)
+
+    params2 <- readParams(tmp)
+    expect_identical(class(params2), c(ext_a, "MizerParams"))
+})
+
 test_that("saveParams reports missing extension packages by name", {
     params <- NS_params_small
     params@extensions <- c(definitelyMissingPkg = "github::owner/repo")
@@ -36,7 +72,7 @@ test_that("saveSim/readSim round-trip", {
     expect_identical(dimnames(sim2@effort), dimnames(sim@effort))
 })
 
-test_that("saveSim stores base classes and readSim restores extension classes", {
+test_that("saveSim preserves extension classes", {
     ext_a <- paste0("mizerTestSimReadA", Sys.getpid())
     chain <- setNames(NA_character_, ext_a)
 
@@ -50,12 +86,32 @@ test_that("saveSim stores base classes and readSim restores extension classes", 
     saveSim(sim, tmp)
 
     saved <- readRDS(tmp)
-    expect_s3_class(saved, "MizerSim")
-    expect_s3_class(saved@params, "MizerParams")
-    sim2 <- readSim(tmp)
+    expect_identical(class(saved), c(simExtensionClass(ext_a), "MizerSim"))
+    expect_identical(class(saved@params), c(ext_a, "MizerParams"))
 
-    expect_s3_class(sim2, simExtensionClass(ext_a))
-    expect_s3_class(sim2@params, ext_a)
+    sim2 <- readSim(tmp)
+    expect_identical(class(sim2), class(sim))
+    expect_identical(class(sim2@params), class(params))
+})
+
+test_that("readSim repairs extension classes on legacy files", {
+    ext_a <- paste0("mizerTestSimReadA", Sys.getpid())
+    chain <- setNames(NA_character_, ext_a)
+
+    params <- NS_params_small
+    params@extensions <- chain
+    params <- coerceToExtensionClass(params)
+    sim <- project(params, t_max = 0.1, t_save = 0.1)
+    class(sim) <- "MizerSim"
+    class(sim@params) <- "MizerParams"
+
+    tmp <- tempfile(fileext = ".rds")
+    withr::defer(unlink(tmp))
+    saveRDS(sim, tmp)
+
+    sim2 <- readSim(tmp)
+    expect_identical(class(sim2), c(simExtensionClass(ext_a), "MizerSim"))
+    expect_identical(class(sim2@params), c(ext_a, "MizerParams"))
 })
 
 test_that("readParams reconciles the species parameters", {
