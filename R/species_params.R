@@ -171,13 +171,6 @@
 #' @param object A MizerParams object, a MizerSim object or a data frame
 #' @param params A MizerParams object.
 #' @param value A data frame with the new species parameters.
-#' @param strict Whether to raise an error, rather than correct silently, for
-#'   the inconsistencies that can be corrected. Used internally.
-#' @param check_misspellings Whether to report column names that look like
-#'   misspellings of standard species parameter names. `TRUE` by default.
-#'   Mizer passes `FALSE` when it re-validates a table whose columns it has
-#'   already checked, so that the report is made once, when the column is
-#'   introduced, rather than again on every rebuild.
 #' @param recalculate Whether `species_params<-()` should be allowed to
 #'   re-derive calculated species parameters and rates that depend on a changed
 #'   parameter. Defaults to `TRUE`; mizer still skips the rebuild when all
@@ -186,7 +179,17 @@
 #'   `FALSE`.
 #' @param x An object to test with `is.species_params()` or
 #'   `is.given_species_params()`.
-#' @param ... Other arguments passed to methods.
+#' @param ... Other arguments passed to methods. The methods for a data
+#'   frame accept:
+#'   \describe{
+#'   \item{strict}{Whether to raise an error, rather than correct silently,
+#'     for the inconsistencies that can be corrected. Used internally.}
+#'   \item{check_misspellings}{Whether to report column names that look like
+#'     misspellings of standard species parameter names. `TRUE` by default.
+#'     Mizer passes `FALSE` when it re-validates a table whose columns it has
+#'     already checked, so that the report is made once, when the column is
+#'     introduced, rather than again on every rebuild.}
+#'   }
 #' @section Extracting a column with `$`:
 #' `species_params(params)$w_mat` returns the column as a vector named after the
 #' species. Unlike `$` on an ordinary data frame, it does **not** partially

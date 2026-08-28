@@ -119,20 +119,20 @@ stored in a MizerParams object.</p>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Other arguments passed to methods.</p></dd>
+<dd><p>Other arguments passed to methods. The methods for a data
+frame accept:</p><dl><dt>strict</dt>
+<dd><p>Whether to raise an error, rather than correct silently,
+for the inconsistencies that can be corrected. Used internally.</p></dd>
 
-
-<dt id="arg-strict">strict<a class="anchor" aria-label="anchor" href="#arg-strict"></a></dt>
-<dd><p>Whether to raise an error, rather than correct silently, for
-the inconsistencies that can be corrected. Used internally.</p></dd>
-
-
-<dt id="arg-check-misspellings">check_misspellings<a class="anchor" aria-label="anchor" href="#arg-check-misspellings"></a></dt>
+<dt>check_misspellings</dt>
 <dd><p>Whether to report column names that look like
 misspellings of standard species parameter names. <code>TRUE</code> by default.
 Mizer passes <code>FALSE</code> when it re-validates a table whose columns it has
 already checked, so that the report is made once, when the column is
 introduced, rather than again on every rebuild.</p></dd>
+
+
+</dl></dd>
 
 
 <dt id="arg-recalculate">recalculate<a class="anchor" aria-label="anchor" href="#arg-recalculate"></a></dt>

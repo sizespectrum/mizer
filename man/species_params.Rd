@@ -37,16 +37,17 @@ calculated_species_params(params)
 \arguments{
 \item{object}{A MizerParams object, a MizerSim object or a data frame}
 
-\item{...}{Other arguments passed to methods.}
-
-\item{strict}{Whether to raise an error, rather than correct silently, for
-the inconsistencies that can be corrected. Used internally.}
-
+\item{...}{Other arguments passed to methods. The methods for a data
+frame accept:
+\describe{
+\item{strict}{Whether to raise an error, rather than correct silently,
+for the inconsistencies that can be corrected. Used internally.}
 \item{check_misspellings}{Whether to report column names that look like
 misspellings of standard species parameter names. \code{TRUE} by default.
 Mizer passes \code{FALSE} when it re-validates a table whose columns it has
 already checked, so that the report is made once, when the column is
 introduced, rather than again on every rebuild.}
+}}
 
 \item{recalculate}{Whether \verb{species_params<-()} should be allowed to
 re-derive calculated species parameters and rates that depend on a changed
