@@ -548,17 +548,19 @@ runExtensionUpgrades <- function(params) {
 }
 
 reinstateParamsClass <- function(params, original_params) {
-    original_class <- class(original_params)[[1]]
+    original_class <- class(original_params)
     if (identical(original_class, "MizerParams")) {
         return(params)
     }
 
-    params <- as(params, original_class)
-    extra_slots <- setdiff(slotNames(original_params), slotNames("MizerParams"))
+    if (isS4(params)) {
+        params <- as(params, original_class[[1]])
+    } else {
+        class(params) <- original_class
+    }
+    extra_slots <- setdiff(names(original_params), names(params))
     for (slot in extra_slots) {
-        if (.hasSlot(params, slot)) {
-            slot(params, slot) <- slot(original_params, slot)
-        }
+        params[[slot]] <- original_params[[slot]]
     }
     validObject(params)
     params

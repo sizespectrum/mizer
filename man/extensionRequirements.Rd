@@ -7,13 +7,13 @@
 extensionRequirements(ext)
 }
 \arguments{
-\item{ext}{The contents of an \verb{@extensions} slot (character vector or list).}
+\item{ext}{The contents of an \verb{$extensions} element (character vector or list).}
 }
 \value{
 A named character vector of requirement strings.
 }
 \description{
-The \verb{@extensions} slot may be stored either as a named character vector of
+The \verb{$extensions} element may be stored either as a named character vector of
 requirement strings (the legacy/unversioned form) or as a named list whose
 entries are length-2 character vectors \code{c(requirement = ..., version = ...)}.
 This helper returns the requirement strings as a plain named character

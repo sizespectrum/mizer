@@ -17,7 +17,7 @@ assertExtensionChain(
 Defaults to \code{\link[=objectExtensions]{objectExtensions()}} applied to \code{object}.}
 
 \item{check_class}{Logical. If \code{TRUE} (default), also verify that \code{object}
-inherits from the expected S4 marker class.}
+inherits from the expected class.}
 }
 \value{
 Invisibly \code{TRUE}. Called for its side-effect of stopping on
@@ -26,6 +26,6 @@ incompatibility.
 \description{
 Stops with an informative error if the object's extension chain is not a
 suffix of the session's registered maximal chain, or (when \code{check_class} is
-\code{TRUE}) if the object does not inherit from the expected S4 marker class.
+\code{TRUE}) if the object does not inherit from the expected class.
 }
 \keyword{internal}

@@ -10,16 +10,16 @@ coerceToExtensionClass(object, extensions = objectExtensions(object))
 \item{object}{A \code{MizerParams} or \code{MizerSim} object.}
 
 \item{extensions}{Optional extension chain. Defaults to the chain stored in
-\code{object}, or in \code{object@params} for \code{MizerSim}.}
+\code{object}, or in \code{object$params} for \code{MizerSim}.}
 }
 \value{
-The same object coerced to the appropriate marker class, or to the
+The same object coerced to the appropriate S3 class vector, or to the
 base class for an empty extension chain.
 }
 \description{
-Coerces a \code{MizerParams} or \code{MizerSim} object to the S4 marker class
+Coerces a \code{MizerParams} or \code{MizerSim} object to the S3 class hierarchy
 corresponding to the object's own extension chain. For \code{MizerSim}, the
-extension chain is read from \code{sim@params@extensions}.
+extension chain is read from \code{sim$params$extensions} (or \code{sim@params@extensions}).
 }
 \seealso{
 "Creating a mizer extension package":

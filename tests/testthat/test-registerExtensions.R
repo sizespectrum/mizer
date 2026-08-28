@@ -1,4 +1,4 @@
-test_that("registerExtensions creates marker class chains in dispatch order", {
+test_that("registerExtensions sets extension chain and coerces in dispatch order", {
     clearExtensionChain()
     withr::defer(clearExtensionChain())
 
@@ -8,16 +8,20 @@ test_that("registerExtensions creates marker class chains in dispatch order", {
 
     expect_invisible(registerExtensions(chain))
     expect_identical(getRegisteredExtensions(), chain)
-    expect_true(methods::extends(ext_b, ext_a))
-    expect_true(methods::extends(ext_a, "MizerParams"))
-    expect_true(methods::extends(simExtensionClass(ext_b), simExtensionClass(ext_a)))
-    expect_true(methods::extends(simExtensionClass(ext_a), "MizerSim"))
 
     params <- NS_params_small
     params@extensions <- chain
     params <- coerceToExtensionClass(params)
-    expect_s4_class(params, ext_b)
-    expect_true(is(params, ext_a))
+    expect_s3_class(params, ext_b)
+    expect_true(inherits(params, ext_a))
+    expect_true(inherits(params, "MizerParams"))
+    expect_identical(class(params), c(ext_b, ext_a, "MizerParams"))
+
+    sim <- MizerSim(params, t_dimnames = 0)
+    expect_s3_class(sim, simExtensionClass(ext_b))
+    expect_true(inherits(sim, simExtensionClass(ext_a)))
+    expect_true(inherits(sim, "MizerSim"))
+    expect_identical(class(sim), c(simExtensionClass(ext_b), simExtensionClass(ext_a), "MizerSim"))
 })
 
 test_that("registerExtensions accepts suffixes and prepended superchains", {
@@ -40,20 +44,6 @@ test_that("registerExtensions accepts suffixes and prepended superchains", {
     registerExtensions(inner)
     expect_identical(getRegisteredExtensions(), full)
 
-    # Registering a suffix also repairs the active superchain. Removing the
-    # inner class is what a reload of the inner package does, and it also
-    # strips `ext_a` from the `contains` list of `ext_b`, so the outer class
-    # has to be rebuilt as well.
-    expect_true(methods::removeClass(ext_a))
-    expect_true(methods::removeClass(simExtensionClass(ext_a)))
-    registerExtensions(inner)
-    expect_identical(getRegisteredExtensions(), full)
-    expect_true(methods::extends(ext_b, ext_a))
-    expect_true(methods::extends(ext_a, "MizerParams"))
-    expect_true(methods::extends(simExtensionClass(ext_b),
-                                 simExtensionClass(ext_a)))
-    expect_true(methods::extends(simExtensionClass(ext_a), "MizerSim"))
-
     expect_error(registerExtensions(incompatible),
                  "different extension chain is already active")
 })
@@ -71,12 +61,13 @@ test_that("coercion uses the object's own suffix chain", {
     params <- NS_params_small
     params@extensions <- suffix
     params <- coerceToExtensionClass(params)
-    expect_s4_class(params, ext_a)
-    expect_false(is(params, ext_b))
+    expect_s3_class(params, ext_a)
+    expect_false(inherits(params, ext_b))
+    expect_identical(class(params), c(ext_a, "MizerParams"))
 
     sim <- MizerSim(params, t_dimnames = 0)
-    expect_s4_class(sim, simExtensionClass(ext_a))
-    expect_false(is(sim, simExtensionClass(ext_b)))
+    expect_s3_class(sim, simExtensionClass(ext_a))
+    expect_false(inherits(sim, simExtensionClass(ext_b)))
 })
 
 test_that("S3 dispatch follows registered extension order", {
@@ -117,10 +108,12 @@ test_that("base objects remain valid in extension sessions", {
     registerExtensions(setNames(NA_character_, ext_a))
 
     params <- validParams(NS_params_small)
-    expect_s4_class(params, "MizerParams")
+    expect_s3_class(params, "MizerParams")
+    expect_identical(class(params), "MizerParams")
 
     sim <- MizerSim(params, t_dimnames = 0)
-    expect_s4_class(sim, "MizerSim")
+    expect_s3_class(sim, "MizerSim")
+    expect_identical(class(sim), "MizerSim")
 })
 
 test_that("classless extensions remain metadata only", {
@@ -134,12 +127,14 @@ test_that("classless extensions remain metadata only", {
     params@extensions <- chain
     params <- coerceToExtensionClass(params)
 
-    expect_s4_class(params, "MizerParams")
+    expect_s3_class(params, "MizerParams")
+    expect_identical(class(params), "MizerParams")
     expect_false(usesExtensionDispatch(params))
     expect_identical(params@extensions, chain)
 
     sim <- MizerSim(params, t_dimnames = 0)
-    expect_s4_class(sim, "MizerSim")
+    expect_s3_class(sim, "MizerSim")
+    expect_identical(class(sim), "MizerSim")
     expect_identical(sim@params@extensions, chain)
 })
 
@@ -158,12 +153,10 @@ test_that("registerExtension prepends to chain in load order", {
     expected <- setNames(rep(NA_character_, 2), c(ext_b, ext_a))
     expect_identical(getRegisteredExtensions(), expected)
 
-    # B is outermost: extends A extends MizerParams
-    expect_true(methods::extends(ext_b, ext_a))
-    expect_true(methods::extends(ext_a, "MizerParams"))
-    expect_true(methods::extends(simExtensionClass(ext_b),
-                                 simExtensionClass(ext_a)))
-    expect_true(methods::extends(simExtensionClass(ext_a), "MizerSim"))
+    params <- NS_params_small
+    params@extensions <- expected
+    params <- coerceToExtensionClass(params)
+    expect_identical(class(params), c(ext_b, ext_a, "MizerParams"))
 })
 
 test_that("registerExtension is idempotent", {
@@ -184,208 +177,11 @@ test_that("registerExtension is idempotent", {
     registerExtension(ext_b)
     expect_identical(getRegisteredExtensions(), full_chain)
 
-    # Idempotent registration also repairs marker classes lost during reload,
-    # whether the reloaded package is the outermost one or an inner one.
-    expect_true(methods::removeClass(ext_b))
-    expect_true(methods::removeClass(simExtensionClass(ext_b)))
-    registerExtension(ext_b)
-    expect_identical(getRegisteredExtensions(), full_chain)
-    expect_true(methods::extends(ext_b, ext_a))
-    expect_true(methods::extends(simExtensionClass(ext_b),
-                                 simExtensionClass(ext_a)))
-
-    expect_true(methods::removeClass(ext_a))
-    expect_true(methods::removeClass(simExtensionClass(ext_a)))
-    registerExtension(ext_a)
-    expect_identical(getRegisteredExtensions(), full_chain)
-    expect_true(methods::extends(ext_b, ext_a))
-    expect_true(methods::extends(ext_a, "MizerParams"))
-    expect_true(methods::extends(simExtensionClass(ext_b),
-                                 simExtensionClass(ext_a)))
-    expect_true(methods::extends(simExtensionClass(ext_a), "MizerSim"))
-
     params <- NS_params_small
     params@extensions <- full_chain
-    expect_s4_class(coerceToExtensionClass(params), ext_b)
-})
-
-test_that("marker class repair rebuilds a middle class of a longer chain", {
-    clearExtensionChain()
-    withr::defer(clearExtensionChain())
-
-    ext_a <- paste0("mizerTestMidA", Sys.getpid())
-    ext_b <- paste0("mizerTestMidB", Sys.getpid())
-    ext_c <- paste0("mizerTestMidC", Sys.getpid())
-
-    registerExtension(ext_a)
-    registerExtension(ext_b)
-    registerExtension(ext_c)
-    full_chain <- getRegisteredExtensions()
-
-    expect_true(methods::removeClass(ext_b))
-    expect_true(methods::removeClass(simExtensionClass(ext_b)))
-    registerExtension(ext_b)
-
-    expect_identical(getRegisteredExtensions(), full_chain)
-    expect_true(methods::extends(ext_c, ext_b))
-    expect_true(methods::extends(ext_b, ext_a))
-    expect_true(methods::extends(ext_a, "MizerParams"))
-    expect_true(methods::extends(simExtensionClass(ext_c),
-                                 simExtensionClass(ext_b)))
-    expect_true(methods::extends(simExtensionClass(ext_b),
-                                 simExtensionClass(ext_a)))
-
-    params <- NS_params_small
-    params@extensions <- full_chain
-    expect_s4_class(coerceToExtensionClass(params), ext_c)
-})
-
-test_that("marker class repair leaves an intact chain untouched", {
-    clearExtensionChain()
-    withr::defer(clearExtensionChain())
-
-    ext_a <- paste0("mizerTestIntactA", Sys.getpid())
-    ext_b <- paste0("mizerTestIntactB", Sys.getpid())
-
-    registerExtension(ext_a)
-    registerExtension(ext_b)
-
-    # An intact chain is reported as needing no work and is not rebuilt.
-    expect_true(extensionClassesIntact(getRegisteredExtensions()))
-    definition <- methods::getClassDef(ext_b)
-    expect_false(repairExtensionClasses(getRegisteredExtensions()))
-    expect_identical(methods::getClassDef(ext_b), definition)
-
-    # A broken chain is detected and rebuilt.
-    expect_true(methods::removeClass(ext_a))
-    expect_false(extensionClassesIntact(getRegisteredExtensions()))
-    expect_true(repairExtensionClasses(getRegisteredExtensions()))
-    expect_true(extensionClassesIntact(getRegisteredExtensions()))
-})
-
-test_that("dynamic marker class metadata is out of reach of cleanEx()", {
-    clearExtensionChain()
-    withr::defer(clearExtensionChain())
-
-    ext_a <- paste0("mizerTestCleanExA", Sys.getpid())
-    chain <- setNames(NA_character_, ext_a)
-    registerExtensions(chain)
-
-    classes <- c(ext_a, simExtensionClass(ext_a))
-    metadata_names <- vapply(classes, methods::classMetaName, character(1))
-    class_environment <- extensionClassEnvironment(create = FALSE)
-    expect_true(all(vapply(metadata_names, exists, logical(1),
-                           envir = class_environment, inherits = FALSE)))
-
-    # What cleanEx() destroys is `.GlobalEnv`, so nothing may be left there.
-    # This test cannot perform the wipe itself, because testthat shares
-    # `.GlobalEnv` with every other test file.
-    expect_false(any(vapply(metadata_names, exists, logical(1),
-                            envir = .GlobalEnv, inherits = FALSE)))
-
-    # The environment has to be on the search path, not merely held by mizer.
-    # A params object saved before mizer created marker classes dynamically
-    # carries a class attribute whose package slot names the extension package,
-    # and methods then resolves the class with an inheriting lookup that starts
-    # in that package's namespace. Such a lookup passes through `.GlobalEnv`
-    # and the search path but never through mizer's own namespace, so only the
-    # search path serves every case.
-    expect_true(.extensionClassEnvName %in% search())
-    expect_true(all(vapply(metadata_names, exists, logical(1),
-                           envir = asNamespace("stats"), inherits = TRUE)))
-
-    params <- NS_params_small
-    params@extensions <- chain
-    expect_s4_class(coerceToExtensionClass(params), ext_a)
-    expect_true(extensionClassesIntact(chain))
-})
-
-test_that("a marker class resolves through a stale package slot", {
-    clearExtensionChain()
-    withr::defer(clearExtensionChain())
-
-    ext_a <- paste0("mizerTestPkgSlotA", Sys.getpid())
-    chain <- setNames(NA_character_, ext_a)
-    registerExtensions(chain)
-
-    params <- NS_params_small
-    params@extensions <- chain
-    params <- coerceToExtensionClass(params)
-
-    # Rewrite the class attribute the way a params object saved by an older
-    # extension package carries it: the package slot names the package that
-    # used to define the marker class statically, not `.GlobalEnv`. methods
-    # then resolves the class by an inheriting lookup from that package's
-    # namespace, which reaches `.GlobalEnv` and the search path but never
-    # mizer's own namespace. Any slot assignment goes through that lookup, and
-    # it is where #587 failed.
-    stale_class <- class(params)
-    attr(stale_class, "package") <- "stats"
-    class(params) <- stale_class
-
-    expect_no_error(params@extensions <- chain)
-})
-
-test_that("marker class repair detects a missing metadata binding", {
-    clearExtensionChain()
-    withr::defer(clearExtensionChain())
-
-    ext_a <- paste0("mizerTestBindingA", Sys.getpid())
-    chain <- setNames(NA_character_, ext_a)
-    registerExtensions(chain)
-
-    class_environment <- extensionClassEnvironment(create = FALSE)
-    metadata_name <- methods::classMetaName(ext_a)
-    rm(list = metadata_name, envir = class_environment)
-
-    # rm() leaves methods' class cache behind, reproducing the state that made
-    # isClass() an insufficient integrity check in #587.
-    expect_true(methods::isClass(ext_a))
-    expect_false(markerClassPresent(ext_a))
-    expect_false(extensionClassesIntact(chain))
-
-    expect_true(repairExtensionClasses(chain))
-    expect_true(markerClassPresent(ext_a))
-    expect_true(extensionClassesIntact(chain))
-})
-
-test_that("marker class repair covers extensions with version requirements", {
-    clearExtensionChain()
-    withr::defer(clearExtensionChain())
-
-    ext_a <- paste0("mizerTestVerA", Sys.getpid())
-    ext_b <- paste0("mizerTestVerB", Sys.getpid())
-    chain <- setNames(c("1.2.0", "0.4.1"), c(ext_b, ext_a))
-
-    # Stand in for two installed extension packages that register S3 dispatch
-    # methods for their marker classes. With a non-NA requirement,
-    # `dispatchExtensions()` can no longer fall back on `isClass()` once the
-    # class has gone, so keeping the extension in the chain rests entirely on
-    # `providesDispatchMethods()`.
-    local_mocked_bindings(
-        ensureExtensionNamespaces = function(extensions, install = FALSE) {
-            invisible(TRUE)
-        },
-        providesDispatchMethods = function(name) {
-            name %in% c(ext_a, ext_b, simExtensionClass(ext_a),
-                        simExtensionClass(ext_b))
-        }
-    )
-
-    registerExtensions(chain)
-    expect_true(methods::extends(ext_b, ext_a))
-
-    expect_true(methods::removeClass(ext_a))
-    expect_true(methods::removeClass(simExtensionClass(ext_a)))
-    expect_false(methods::isClass(ext_a))
-
-    registerExtension(ext_a, "0.4.1")
-    expect_identical(getRegisteredExtensions(), chain)
-    expect_true(methods::extends(ext_a, "MizerParams"))
-    expect_true(methods::extends(ext_b, ext_a))
-    expect_true(methods::extends(simExtensionClass(ext_a), "MizerSim"))
-    expect_true(methods::extends(simExtensionClass(ext_b),
-                                 simExtensionClass(ext_a)))
+    expect_s3_class(coerceToExtensionClass(params), ext_b)
+    expect_identical(class(coerceToExtensionClass(params)),
+                     c(ext_b, ext_a, "MizerParams"))
 })
 
 test_that("registerExtension does not install or check other extensions", {
@@ -407,7 +203,6 @@ test_that("registerExtension does not install or check other extensions", {
     withr::defer(.mizerSession$extensions <- character())
 
     expect_no_error(registerExtension(ext_b))
-    expect_true(methods::extends(ext_b, ext_a))
 })
 
 test_that("registerExtension coerces objects to correct subclass", {
@@ -425,15 +220,15 @@ test_that("registerExtension coerces objects to correct subclass", {
     params_a <- NS_params_small
     params_a@extensions <- setNames(NA_character_, ext_a)
     params_a <- coerceToExtensionClass(params_a)
-    expect_s4_class(params_a, ext_a)
-    expect_false(is(params_a, ext_b))
+    expect_s3_class(params_a, ext_a)
+    expect_false(inherits(params_a, ext_b))
 
     # Object carrying the full chain coerces to ext_b
     params_b <- NS_params_small
     params_b@extensions <- full_chain
     params_b <- coerceToExtensionClass(params_b)
-    expect_s4_class(params_b, ext_b)
-    expect_true(is(params_b, ext_a))
+    expect_s3_class(params_b, ext_b)
+    expect_true(inherits(params_b, ext_a))
 })
 
 test_that("readParams registers and coerces saved extension objects", {
@@ -453,13 +248,13 @@ test_that("readParams registers and coerces saved extension objects", {
     saveParams(params, tmp)
 
     saved <- readRDS(tmp)
-    expect_s4_class(saved, "MizerParams")
+    expect_s3_class(saved, "MizerParams")
     expect_identical(saved@extensions, chain)
 
     clearExtensionChain()
     params2 <- readParams(tmp)
     expect_identical(getRegisteredExtensions(), chain)
-    expect_s4_class(params2, ext_a)
+    expect_s3_class(params2, ext_a)
 })
 
 # extension dispatch ----
@@ -536,7 +331,7 @@ test_that("getEncounter composes a two-extension chain outermost-first", {
     params <- coerceToExtensionClass(params)
     # The object is coerced to the outermost class, extending extA and MizerParams.
     expect_identical(class(params)[[1]], extB)
-    expect_true(is(params, extA))
+    expect_true(inherits(params, extA))
 
     base <- projectEncounter.MizerParams(
         params,
@@ -674,10 +469,6 @@ test_that("classless extensions do not trigger project dispatch", {
 })
 
 test_that("dispatch extensions are detected from their registered S3 methods", {
-    # An installed extension participates in dispatch if its package registers
-    # S3 methods for its marker class, even with a non-NA requirement and no
-    # statically defined S4 class. This lets packages omit the static setClass
-    # and let mizer build the class hierarchy dynamically so they can be chained.
     ns <- asNamespace("mizer")
     orig <- getNamespaceInfo(ns, "S3methods")
     withr::defer(setNamespaceInfo(ns, "S3methods", orig))
@@ -687,8 +478,6 @@ test_that("dispatch extensions are detected from their registered S3 methods", {
     expect_true("mizer" %in%
                     names(dispatchExtensions(c(mizer = "1.0.0"))))
 
-    # A package that registers no methods for its own name is not a dispatcher,
-    # nor is an unloaded package name.
     expect_false(providesDispatchMethods("methods"))
     expect_false(providesDispatchMethods("nonexistent_pkg_xyz_123"))
     expect_false("stats" %in% names(dispatchExtensions(c(stats = "0.0"))))
@@ -721,7 +510,7 @@ test_that("extensionRequirements / extensionVersions read both slot forms", {
 })
 
 test_that("recordExtension stamps without disturbing other entries", {
-    p <- NS_params
+    p <- validParams(NS_params)
     p@extensions <- list(other = c(requirement = NA_character_,
                                    version = NA_character_),
                          extA = c(requirement = "owner/repo",
@@ -739,7 +528,7 @@ test_that("recordExtension stamps without disturbing other entries", {
 })
 
 test_that("recordExtension prepends genuinely new entries", {
-    p <- NS_params
+    p <- validParams(NS_params)
     p@extensions <- list(extA = c(requirement = "owner/repo",
                                   version = NA_character_))
 
@@ -761,7 +550,7 @@ test_that("recordExtension prepends genuinely new entries", {
 })
 
 test_that("recordExtension can stamp onto an empty slot", {
-    p <- NS_params
+    p <- validParams(NS_params)
     expect_length(p@extensions, 0)
     p <- recordExtension(p, "extA", version = "1.0.0")
     expect_true(is.list(p@extensions))
@@ -779,7 +568,7 @@ test_that("registerExtensions accepts the versioned list form", {
 })
 
 test_that("extension_needs_upgrading reacts to missing/stale stamps", {
-    p <- NS_params
+    p <- validParams(NS_params)
     # No extensions -> never needs upgrading on extension grounds
     expect_false(extension_needs_upgrading(p))
 

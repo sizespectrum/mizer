@@ -9,28 +9,21 @@ recordExtension(params, name, version = NULL)
 \arguments{
 \item{params}{A \code{MizerParams} object.}
 
-\item{name}{The extension identifier (its S4 marker class name).}
+\item{name}{The extension identifier.}
 
 \item{version}{Optional version string to stamp. If \code{NULL} (default) the
 existing stamp is preserved.}
 }
 \value{
-The \code{params} object with the updated \verb{@extensions} slot.
+The \code{params} object with the updated \verb{$extensions} element.
 }
 \description{
-Writes an entry for \code{name} into the object's \verb{@extensions} slot, converting
-the slot to the versioned list form. Existing entries (and their version
-stamps) are preserved, keeping their position in the chain. A genuinely new
-entry is prepended to the front of the chain so that it stays ordered
-outermost-first, matching \code{\link[=registerExtension]{registerExtension()}}. The requirement is taken
-from the existing entry if present, otherwise from the registered extension
-chain.
-}
-\details{
-Extension packages should call this instead of assigning to \verb{@extensions}
-directly. Pass \code{version} (typically \code{packageVersion(name)}) only when the
-object has just been created or upgraded to conform to that version; leave it
-\code{NULL} for ordinary modifications so the existing stamp is preserved.
+Writes an entry for \code{name} into the object's \verb{$extensions} element, converting
+it to the versioned list form. Existing entries (and their version stamps)
+are preserved, keeping their position in the chain. A genuinely new entry is
+prepended to the front of the chain so that it stays ordered outermost-first,
+matching \code{\link[=registerExtension]{registerExtension()}}. The requirement is taken from the existing
+entry if present, otherwise from the registered extension chain.
 }
 \seealso{
 "Creating a mizer extension package":

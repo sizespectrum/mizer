@@ -178,20 +178,13 @@ it fixes bugs in the species parameter setters, in the defaults for `gamma` and
   `setComponent()` refuses a component name that a free-standing contribution is
   already registered under (#579).
 
-- Fixed: repeated `registerExtension()` and `registerExtensions()` calls now
-  rebuild the dynamic marker classes of the active extension chain when any of
-  them disappeared during an extension-package reload, while leaving the
-  registered chain unchanged. Recreating only the class that went missing is not
-  enough, because R prunes it from the `contains` list of the marker classes
-  outside it (#569).
-
-- Fixed: dynamic extension marker classes now live in an environment that mizer
-  attaches, called `mizer:extension-classes`, instead of in `.GlobalEnv`. They
-  therefore survive both a user clearing their workspace and the `cleanEx()`
-  that `R CMD check` runs between package examples, which used to leave every
-  example after the first failing with `"<extension>" is not a defined class`.
-  The environment is attached only once a dispatching extension needs a marker
-  class (#587).
+- `MizerParams` and `MizerSim` have been converted from S4 classes to pure S3
+  classes based on named lists. Backwards compatibility for `@` and `@<-` slot
+  access is fully preserved via S3 `@` operator methods, and legacy S4 objects
+  from earlier mizer versions are automatically upgraded to S3 lists on access.
+  Extension packages now chain using standard S3 class vectors (e.g.
+  `c("mizerShelf", "MizerParams")`), completely replacing dynamic S4 marker
+  class generation, runtime `setClass()` calls, and search-path attachment.
 
 ## Summaries and plots
 

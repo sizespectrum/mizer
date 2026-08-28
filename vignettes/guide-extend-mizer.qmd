@@ -34,7 +34,7 @@ heavier one only when the lighter one cannot do the job. All setters return a ne
 | Change how one built-in rate is calculated | [`setRateFunction()`](../reference/setRateFunction.html) |
 | Add a new dynamical pool (detritus, carrion, oxygen, second resource…) | [`setComponent()`](../reference/setComponent.html) |
 | Store parameters for your custom code | [`other_params()`](../reference/setRateFunction.html) (model-wide) or `component_params` (one component) |
-| Extend plots/summaries for a custom model type | S3 methods on an S4 subclass |
+| Extend plots/summaries for a custom model type | S3 methods on an S3 marker class |
 | Replace arbitrary internal mizer code (last resort) | [`customFunction()`](../reference/customFunction.html) |
 
 If you only need to change one rate, prefer `setRateFunction()` over replacing
@@ -421,22 +421,19 @@ To let the component kill fish as well as feed them, give `setComponent()` a
 
 ---
 
-## Extending plots and summaries: S3 methods on an S4 subclass
+## Extending plots and summaries: S3 methods on an S3 marker class
 
 This is the most flexible route that still works with mizer's public generics.
-Although `MizerParams` and [`MizerSim`](../reference/MizerSim.html) are S4 classes, mizer registers most of its
-user-facing methods as **S3** methods. So an extension defines a formal S4
-subclass of these objects and provides S3 methods for it —
-`getBiomass.MyMizerSim()`, `plotBiomass.MyMizerSim()`,
-`summary.MyMizerParams()` — which is what makes a summary or plot account for
-components the extension added. Every such method must call `NextMethod()`, so
-that several extensions loaded at once compose instead of overwriting each other.
+`MizerParams` and [`MizerSim`](../reference/MizerSim.html) are S3 classes, and an extension package defines S3
+methods for its own marker class — `getBiomass.MyMizerSim()`,
+`plotBiomass.MyMizerSim()`, `summary.MyMizerParams()` — which is what makes a
+summary or plot account for components the extension added. Every such method
+must call `NextMethod()`, so that several extensions loaded at once compose
+instead of overwriting each other.
 
-This only really works inside a package, because the marker class is created by
-mizer when the package loads. Writing that package — the class, the `.onLoad`
-registration and the methods — is the subject of the
-[guide to creating a mizer extension package](guide-create-extension-package.html), and the order the methods then run in is the
-subject of the [guide to using mizer extension packages](guide-use-extension-packages.html).
+Writing that package — the marker class, the `.onLoad` registration and the
+methods — is the subject of the [guide to creating a mizer extension package](guide-create-extension-package.html), and the order
+the methods then run in is the subject of the [guide to using mizer extension packages](guide-use-extension-packages.html).
 
 ---
 

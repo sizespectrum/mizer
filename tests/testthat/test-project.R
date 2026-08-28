@@ -126,7 +126,7 @@ test_that("project method selects consumer time stepper", {
                                 method = "predictor_corrector"),
         "method"
     )
-    expect_s4_class(sim_appended, "MizerSim")
+    expect_s3_class(sim_appended, "MizerSim")
     expect_equal(dim(sim_appended@n)[1], 3)
 })
 
@@ -508,7 +508,7 @@ test_that("callback works during simulation", {
         counter <<- counter + 1
     }
     sim <- project(params, t_max = 2, callback = test_callback, progress_bar = FALSE)
-    expect_s4_class(sim, "MizerSim")
+    expect_s3_class(sim, "MizerSim")
     expect_equal(counter, 3)
 })
 

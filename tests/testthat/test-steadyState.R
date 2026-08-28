@@ -36,7 +36,7 @@ test_that("tuneSteadyState works", {
     params <- setSearchVolume(params)
     p <- tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1, distance_tol = 10) |>
         suppressMessages()
-    expect_s4_class(p, "MizerParams")
+    expect_s3_class(p, "MizerParams")
     expect_snapshot_value(getRDD(p), style = "deparse")
 })
 
@@ -49,7 +49,7 @@ test_that("tuneSteadyState accepts consumer update method", {
                          method = "predictor_corrector") |>
         suppressMessages()
 
-    expect_s4_class(p, "MizerParams")
+    expect_s3_class(p, "MizerParams")
     expect_true(all(is.finite(p@initial_n)))
     expect_true(all(p@initial_n >= 0))
 })
@@ -152,7 +152,7 @@ test_that("findSteadyState() returns a MizerParams at the settled state", {
                                         distance_tol = 1000,
                                         residual_tol = Inf, effort = effort),
                    "Reached the convergence tolerance")
-    expect_s4_class(p, "MizerParams")
+    expect_s3_class(p, "MizerParams")
     expect_identical(p@initial_effort, effort)
     # It is exactly projectUntilSettled() with the trajectory thrown away.
     sim <- suppressMessages(projectUntilSettled(params, t_check = 1, dt = 1,
@@ -216,7 +216,7 @@ test_that("findSteadyState() changes no parameter", {
 test_that("tuneSteadyState(solver = 'newton') returns a fixed point", {
     skip_unless_experimental()
     pn <- tuneSteadyState(p_steady, solver = "newton")
-    expect_s4_class(pn, "MizerParams")
+    expect_s3_class(pn, "MizerParams")
 
     # The returned spectra should barely move when projected forward.
     sim <- project(pn, t_max = 1, dt = 0.25, t_save = 1)
@@ -230,7 +230,7 @@ test_that("tuneSteadyState(solver = 'newton') returns a fixed point", {
 test_that("findSteadyState(solver = 'newton') returns a fixed point", {
     skip_unless_experimental()
     pn <- findSteadyState(p_steady, solver = "newton")
-    expect_s4_class(pn, "MizerParams")
+    expect_s3_class(pn, "MizerParams")
     sim <- project(pn, t_max = 1, dt = 0.25, t_save = 1)
     n0 <- pn@initial_n
     support <- n0 > 0
@@ -346,7 +346,7 @@ test_that("only the resource-solving Newton branch needs a semichemostat", {
     expect_error(findSteadyState(p_log, solver = "newton"), "semichemostat")
     # ... whereas tuneSteadyState() holds the resource fixed and does not.
     pn <- suppressWarnings(tuneSteadyState(p_log, solver = "newton"))
-    expect_s4_class(pn, "MizerParams")
+    expect_s3_class(pn, "MizerParams")
     expect_true(all(is.finite(pn@initial_n)))
 })
 
@@ -360,7 +360,7 @@ test_that("the Newton solver works with the second-order (van Leer) scheme", {
     ps <- tuneSteadyState(p, t_max = 100, progress_bar = FALSE)
 
     pn <- tuneSteadyState(ps, solver = "newton")
-    expect_s4_class(pn, "MizerParams")
+    expect_s3_class(pn, "MizerParams")
     # The returned state must still be a fixed point of the (second-order)
     # dynamics. The van Leer limiter is only Lipschitz, so the Newton residual
     # cannot be driven to machine precision, but the projected drift is the
@@ -387,7 +387,7 @@ test_that("the Newton solver handles initial guesses that are non-zero above the
     }
 
     pn <- tuneSteadyState(p, solver = "newton")
-    expect_s4_class(pn, "MizerParams")
+    expect_s3_class(pn, "MizerParams")
 
     # The tail should be correctly zeroed out in the result
     if (length(idx_zeros) > 0) {
@@ -438,7 +438,7 @@ test_that("tuneSteadyState() says when it has held a component fixed", {
                             distance_tol = 10, progress_bar = FALSE)),
         "has dynamics of their own|has\n?\\s*dynamics"
     )
-    expect_s4_class(p_tuned, "MizerParams")
+    expect_s3_class(p_tuned, "MizerParams")
 
     # And the residual it reports does cover the component, so the number the
     # warning points at is one that would notice.

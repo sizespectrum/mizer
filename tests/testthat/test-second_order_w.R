@@ -50,7 +50,7 @@ test_that("second_order_w setter re-runs setParams", {
     second_order_w(params) <- TRUE
     expect_identical(second_order_w(params),
                      list(flux = "van_leer", bin_average = TRUE))
-    expect_s4_class(params, "MizerParams")
+    expect_s3_class(params, "MizerParams")
 })
 
 test_that("flux can be set to a reconstruction scheme name", {

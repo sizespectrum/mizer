@@ -9,10 +9,9 @@ registerExtensions(extensions, install = FALSE)
 \arguments{
 \item{extensions}{A named character vector. Names are extension identifiers.
 Values are version strings, installation specifications, or
-\code{NA_character_}. Installed extensions only participate in S3 dispatch if
-they provide an S4 marker class with the same name. \code{NA_character_} entries
-are treated as in-development dispatch extensions and mizer creates their
-marker classes automatically.}
+\code{NA_character_}. Installed extensions participate in S3 dispatch if they
+provide S3 methods for their class name. \code{NA_character_} entries are
+treated as in-development dispatch extensions.}
 
 \item{install}{Logical. If \code{TRUE}, missing or outdated extension packages are
 installed via \code{\link[pak:pkg_install]{pak::pkg_install()}}. Version strings install from CRAN;
@@ -35,12 +34,6 @@ A session can handle objects whose extension chain is a suffix of the
 registered maximal chain. For example, after registering
 \code{c(mizerExtB = "1.2.0", mizerExtA = "0.4.1")}, objects using only
 \code{c(mizerExtA = "0.4.1")} are also valid.
-
-Re-registering the active chain, or any suffix of it, leaves the registered
-chain unchanged and repairs the dynamic marker classes if any of them went
-missing. Only the namespaces of the extensions actually passed in
-\code{extensions} are loaded or installed; the repair itself never installs
-anything.
 
 For extension packages that register themselves incrementally from \code{.onLoad},
 use \code{\link[=registerExtension]{registerExtension()}} instead.

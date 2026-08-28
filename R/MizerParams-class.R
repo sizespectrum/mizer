@@ -430,63 +430,26 @@ validMizerParams <- function(object) {
 #'   [emptyParams()] [newMultispeciesParams()]
 #'   [newCommunityParams()]
 #'   [newTraitParams()]
+#' @name MizerParams-class
+#' @rdname MizerParams-class
 #' @export
-setClass(
-    "MizerParams",
-    slots = c(
-        metadata = "list",
-        mizer_version = "ANY",
-        extensions = "ANY",
-        time_created = "POSIXct",
-        time_modified = "POSIXct",
-        w = "numeric",
-        dw = "numeric",
-        w_full = "numeric",
-        dw_full = "numeric",
-        w_min_idx = "numeric",
-        maturity = "array",
-        psi = "array",
-        initial_n = "array",
-        intake_max = "array",
-        search_vol = "array",
-        metab = "array",
-        pred_kernel = "array",
-        ft_pred_kernel_e = "array",
-        ft_pred_kernel_p = "array",
-        ft_pred_kernel_d = "array",
-        mu_b = "array",
-        ext_encounter = "array",
-        ext_diffusion = "array",
-        rr_pp = "numeric",
-        cc_pp = "numeric",
-        resource_dynamics = "character",
-        resource_params = "list",
-        other_dynamics = "list",
-        other_params = "list",
-        other_encounter = "list",
-        other_mort = "list",
-        rates_funcs = "list",
-        sc = "numeric",
-        initial_n_pp = "numeric",
-        initial_n_other = "list",
-        species_params = "data.frame",
-        given_species_params = "data.frame",
-        interaction = "array",
-        gear_params = "data.frame",
-        selectivity = "array",
-        catchability = "array",
-        initial_effort = "numeric",
-        A = "numeric",
-        linecolour = "character",
-        linetype = "character",
-        ft_mask = "array",
-        use_predation_diffusion = "logical",
-        second_order_w = "list"
-    ),
-)
+`@.MizerParams` <- function(object, name) {
+    name_str <- as.character(substitute(name))
+    if (isS4(object)) {
+        object <- upgrade_s4_to_s3(object)
+    }
+    object[[name_str]]
+}
 
-setValidity("MizerParams", validMizerParams)
-remove(validMizerParams)
+#' @export
+`@<-.MizerParams` <- function(object, name, value) {
+    name_str <- as.character(substitute(name))
+    if (isS4(object)) {
+        object <- upgrade_s4_to_s3(object)
+    }
+    object[[name_str]] <- value
+    object
+}
 
 
 #' Create empty MizerParams object of the right size
@@ -721,69 +684,72 @@ emptyParams <- function(species_params,
 
     # Make object ----
     # Should Z0, rrPP and ccPP have names (species names etc)?
-    params <- new(
-        "MizerParams",
-        metadata = list(),
-        mizer_version = packageVersion("mizer"),
-        extensions = vector(mode = "character"),
-        time_created = lubridate::now(),
-        time_modified = lubridate::now(),
-        w = w,
-        dw = dw,
-        w_full = w_full,
-        dw_full = dw_full,
-        w_min_idx = w_min_idx,
-        maturity = mat1,
-        psi = mat1,
-        initial_n = mat1,
-        intake_max = mat1,
-        search_vol = mat1,
-        metab = mat1,
-        mu_b = mat1,
-        ext_encounter = mat1,
-        ext_diffusion = mat1,
-        ft_pred_kernel_e = ft_pred_kernel,
-        ft_pred_kernel_p = ft_pred_kernel,
-        ft_pred_kernel_d = ft_pred_kernel,
-        pred_kernel = array(),
-        gear_params = gear_params,
-        selectivity = selectivity,
-        catchability = catchability,
-        initial_effort = initial_effort,
-        rr_pp = vec1,
-        cc_pp = vec1,
-        sc = w,
-        initial_n_pp = vec1,
-        species_params = species_params,
-        given_species_params = given_species_params,
-        interaction = interaction,
-        other_dynamics = list(),
-        other_encounter = list(),
-        other_mort = list(),
-        rates_funcs = list(
-            Rates = "mizerRates",
-            Encounter = "mizerEncounter",
-            FeedingLevel = "mizerFeedingLevel",
-            EReproAndGrowth = "mizerEReproAndGrowth",
-            PredRate = "mizerPredRate",
-            PredMort = "mizerPredMort",
-            FMort = "mizerFMort",
-            Mort = "mizerMort",
-            ERepro = "mizerERepro",
-            EGrowth = "mizerEGrowth",
-            Diffusion = "mizerDiffusion",
-            ResourceMort = "mizerResourceMort",
-            RDI = "mizerRDI",
-            RDD = "BevertonHoltRDD"),
-        resource_dynamics = "resource_semichemostat",
-        other_params = list(),
-        initial_n_other = list(),
-        A = as.numeric(rep(NA, no_sp)),
-        linecolour = linecolour,
-        linetype = linetype,
-        ft_mask = ft_mask,
-        use_predation_diffusion = FALSE,
-        second_order_w = list(flux = "upwind", bin_average = FALSE)
+    params <- structure(
+        list(
+            metadata = list(),
+            mizer_version = packageVersion("mizer"),
+            extensions = vector(mode = "character"),
+            time_created = lubridate::now(),
+            time_modified = lubridate::now(),
+            w = w,
+            dw = dw,
+            w_full = w_full,
+            dw_full = dw_full,
+            w_min_idx = w_min_idx,
+            maturity = mat1,
+            psi = mat1,
+            initial_n = mat1,
+            intake_max = mat1,
+            search_vol = mat1,
+            metab = mat1,
+            mu_b = mat1,
+            ext_encounter = mat1,
+            ext_diffusion = mat1,
+            ft_pred_kernel_e = ft_pred_kernel,
+            ft_pred_kernel_p = ft_pred_kernel,
+            ft_pred_kernel_d = ft_pred_kernel,
+            pred_kernel = array(),
+            gear_params = gear_params,
+            selectivity = selectivity,
+            catchability = catchability,
+            initial_effort = initial_effort,
+            rr_pp = vec1,
+            cc_pp = vec1,
+            sc = w,
+            initial_n_pp = vec1,
+            species_params = species_params,
+            given_species_params = given_species_params,
+            interaction = interaction,
+            other_dynamics = list(),
+            other_encounter = list(),
+            other_mort = list(),
+            rates_funcs = list(
+                Rates = "mizerRates",
+                Encounter = "mizerEncounter",
+                FeedingLevel = "mizerFeedingLevel",
+                EReproAndGrowth = "mizerEReproAndGrowth",
+                PredRate = "mizerPredRate",
+                PredMort = "mizerPredMort",
+                FMort = "mizerFMort",
+                Mort = "mizerMort",
+                ERepro = "mizerERepro",
+                EGrowth = "mizerEGrowth",
+                Diffusion = "mizerDiffusion",
+                ResourceMort = "mizerResourceMort",
+                RDI = "mizerRDI",
+                RDD = "BevertonHoltRDD"),
+            resource_dynamics = "resource_semichemostat",
+            other_params = list(),
+            initial_n_other = list(),
+            resource_params = list(),
+            A = as.numeric(rep(NA, no_sp)),
+            linecolour = linecolour,
+            linetype = linetype,
+            ft_mask = ft_mask,
+            use_predation_diffusion = FALSE,
+            second_order_w = list(flux = "upwind", bin_average = FALSE)
+        ),
+        class = "MizerParams"
     )
     })
 
@@ -946,10 +912,16 @@ dw_full <- function(params) {
 #' @return A valid MizerParams object
 #' @export
 validParams <- function(params, info_level = default_info_level()) {
+    if (isS4(params)) {
+        params <- upgrade_s4_to_s3(params)
+    }
     UseMethod("validParams")
 }
 #' @export
 validParams.MizerParams <- function(params, info_level = default_info_level()) {
+    if (isS4(params)) {
+        params <- upgrade_s4_to_s3(params)
+    }
     with_info_level(info_level = info_level, {
 
     # 1. Upgrade old objects. This is already cheaply gated on a comparison of

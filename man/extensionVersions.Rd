@@ -7,7 +7,7 @@
 extensionVersions(ext)
 }
 \arguments{
-\item{ext}{The contents of an \verb{@extensions} slot (character vector or list).}
+\item{ext}{The contents of an \verb{$extensions} element (character vector or list).}
 }
 \value{
 A named character vector of version strings (\code{NA} where unknown).

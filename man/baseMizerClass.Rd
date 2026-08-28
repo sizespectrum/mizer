@@ -14,7 +14,7 @@ The same object coerced to \code{MizerParams} or \code{MizerSim}.
 }
 \description{
 Coerces a \code{MizerParams} or \code{MizerSim} object back to its plain base class,
-removing any S4 extension marker classes. For \code{MizerSim}, also strips the
-extension class from the embedded \code{params} slot.
+removing any S3 extension classes. For \code{MizerSim}, also strips the
+extension class from the embedded \code{params} element.
 }
 \keyword{internal}

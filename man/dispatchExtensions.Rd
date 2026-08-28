@@ -2,7 +2,7 @@
 % Please edit documentation in R/registerExtensions.R
 \name{dispatchExtensions}
 \alias{dispatchExtensions}
-\title{Filter an extension vector to those that participate in S3/S4 dispatch}
+\title{Filter an extension vector to those that participate in S3 dispatch}
 \usage{
 dispatchExtensions(extensions)
 }
@@ -14,11 +14,6 @@ A named character vector containing only the dispatch extensions,
 preserving order.
 }
 \description{
-An extension participates in dispatch if its requirement is \code{NA_character_}
-(in-development), if an S4 class with its name already exists, or if its
-loaded package registers S3 dispatch methods for its marker class (see
-\code{\link[=providesDispatchMethods]{providesDispatchMethods()}}). The last case lets an installed extension
-package participate without defining its marker class statically; mizer
-creates the class dynamically in \code{\link[=defineExtensionClasses]{defineExtensionClasses()}}.
+Filter an extension vector to those that participate in S3 dispatch
 }
 \keyword{internal}

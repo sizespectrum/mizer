@@ -2,7 +2,7 @@
 % Please edit documentation in R/registerExtensions.R
 \name{usesExtensionDispatch}
 \alias{usesExtensionDispatch}
-\title{Test whether a mizer object uses extension S4 dispatch}
+\title{Test whether a mizer object uses extension S3 dispatch}
 \usage{
 usesExtensionDispatch(object)
 }
@@ -13,6 +13,6 @@ usesExtensionDispatch(object)
 \code{TRUE} if the object's primary class is not the plain base class.
 }
 \description{
-Test whether a mizer object uses extension S4 dispatch
+Test whether a mizer object uses extension S3 dispatch
 }
 \keyword{internal}

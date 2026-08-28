@@ -1223,11 +1223,8 @@ test_that("custom predation-kernel arguments require recalculation", {
 })
 
 test_that("extension objects treat unknown species parameters conservatively", {
-    class_name <- "SpeciesParamsDependencyTestParams"
-    if (!methods::isClass(class_name)) {
-        methods::setClass(class_name, contains = "MizerParams")
-    }
-    params <- methods::as(NS_params_small, class_name)
+    params <- NS_params_small
+    class(params) <- c("SpeciesParamsDependencyTestParams", "MizerParams")
     sp <- species_params(params)
     sp$extension_parameter <- seq_len(nrow(sp))
 

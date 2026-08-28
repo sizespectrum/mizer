@@ -77,7 +77,7 @@ getRegisteredExtensions()
 ```
 
 The result is a named character vector. The **names** are the extension
-identifiers (which double as S4 class names). The **values** are installation
+identifiers (which double as S3 class names). The **values** are installation
 specifications — a version string such as `"1.2.0"` for packages on CRAN, or a
 GitHub path such as `"sizespectrum/mizerShelf"` for packages that are only on
 GitHub. The first element is the *outermost* extension (the one with the highest
@@ -157,7 +157,7 @@ That record serves two purposes:
    installation requirement for each, and the package version whose object
    layout each component conforms to.
 2. **Class restoration.** On reload, mizer uses it to promote the object back to
-   the correct S4 class, so that functions like `getBiomass()` keep dispatching
+   the correct S3 class, so that functions like `getBiomass()` keep dispatching
    to the right extension methods.
 
 ### Saving and loading
@@ -174,7 +174,7 @@ file, so the script has to travel with the `.rds`.
 
 `readParams()` upgrades the object if it was written by an older mizer, reads
 `params@extensions`, calls `registerExtensions()` so the session knows the saved
-chain, and promotes the object to the correct S4 class. As long as the required
+chain, and promotes the object to the correct S3 class. As long as the required
 packages are installed, this is seamless; if one is missing, `readParams()` stops
 with an error naming it.
 

@@ -191,12 +191,10 @@ bin_midpoints <- function(params, w_full = FALSE) {
 #' @concept helper
 l2w <- function(l, species_params) {
     # The checks avoid `assert_that()`, which builds its message whether or not
-    # it is needed, and only consult the S4 class hierarchy for objects that
-    # are actually S4. Together that is most of the cost of a call, and this
-    # function is short enough that callers may use it inside a loop.
+    # it is needed.
     if (!is.numeric(l)) stop("l is not a numeric or integer vector")
     sp <- species_params
-    if (isS4(species_params) && is(species_params, "MizerParams")) {
+    if (inherits(species_params, "MizerParams")) {
         sp <- species_params@species_params
     }
     if (!is.data.frame(sp)) {
@@ -216,11 +214,9 @@ l2w <- function(l, species_params) {
 #' @rdname l2w
 #' @export
 w2l <- function(w, species_params) {
-    # See the note in `l2w()` about why these checks avoid `assert_that()`
-    # and `is()`.
     if (!is.numeric(w)) stop("w is not a numeric or integer vector")
     sp <- species_params
-    if (isS4(species_params) && is(species_params, "MizerParams")) {
+    if (inherits(species_params, "MizerParams")) {
         sp <- species_params@species_params
     }
     if (!is.data.frame(sp)) {
@@ -399,4 +395,121 @@ check_for_misspellings <- function(actual, known, df_type, var,
                     level = 1, severity = "warning", unhandled = "show")
     }
     invisible(NULL)
+}
+
+#' Convert an S4 MizerParams or MizerSim object to an S3 object
+#'
+#' @param object An S4 MizerParams or MizerSim object.
+#' @return An S3 MizerParams or MizerSim object (a list).
+#' @keywords internal
+upgrade_s4_to_s3 <- function(object) {
+    if (!isS4(object)) return(object)
+    attrs <- attributes(object)
+    sl_names <- setdiff(names(attrs), c("class", "comment", "dotData"))
+    obj_list <- lapply(sl_names, function(s) attrs[[s]])
+    names(obj_list) <- sl_names
+    cl <- class(object)
+    attr(cl, "package") <- NULL
+    class(obj_list) <- cl
+    if ("comment" %in% names(attrs)) {
+        comment(obj_list) <- attrs[["comment"]]
+    }
+    if (inherits(obj_list, "MizerSim") && isS4(obj_list$params)) {
+        obj_list$params <- upgrade_s4_to_s3(obj_list$params)
+    }
+    obj_list
+}
+
+#' S4/S3 compatibility slot access helper
+#'
+#' @param object An object (S4 or S3).
+#' @param name Name of the slot / list element.
+#' @param ... Additional arguments.
+#' @return The value of the slot or list element.
+#' @keywords internal
+slot <- function(object, name, ...) {
+    if (isS4(object)) {
+        object <- upgrade_s4_to_s3(object)
+    }
+    object[[name]]
+}
+
+#' S4/S3 compatibility slot assignment helper
+#'
+#' @param object An object (S4 or S3).
+#' @param name Name of the slot / list element.
+#' @param check Logical.
+#' @param value Value to assign.
+#' @return The modified object.
+#' @keywords internal
+`slot<-` <- function(object, name, check = TRUE, value) {
+    if (isS4(object)) {
+        object <- upgrade_s4_to_s3(object)
+    }
+    object[[name]] <- value
+    object
+}
+
+#' S4/S3 compatibility .hasSlot helper
+#'
+#' @param object An object (S4 or S3).
+#' @param name Name of the slot / list element.
+#' @return Logical.
+#' @keywords internal
+.hasSlot <- function(object, name) {
+    if (isS4(object)) {
+        methods::.hasSlot(object, name)
+    } else {
+        name %in% names(object)
+    }
+}
+
+#' S4/S3 compatibility slotNames helper
+#'
+#' @param x An object (S4 or S3) or class name.
+#' @return Character vector of slot / element names.
+#' @keywords internal
+slotNames <- function(x) {
+    if (isS4(x)) {
+        methods::slotNames(x)
+    } else if (is.character(x)) {
+        if (identical(x, "MizerParams")) {
+            names(emptyParams(c(1, 2), 1))
+        } else if (identical(x, "MizerSim")) {
+            c("params", "n", "n_pp", "n_other", "effort", "sim_params")
+        } else {
+            methods::slotNames(x)
+        }
+    } else if (is.list(x)) {
+        names(x)
+    } else {
+        methods::slotNames(x)
+    }
+}
+
+#' Validity checker compatibility helper
+#'
+#' @param object A MizerParams or MizerSim object.
+#' @param ... Additional arguments.
+#' @return TRUE invisibly if valid, or stops with error.
+#' @keywords internal
+validObject <- function(object, ...) {
+    if (isS4(object)) {
+        return(methods::validObject(object, ...))
+    }
+    if (inherits(object, "MizerParams")) {
+        val <- validMizerParams(object)
+        if (!isTRUE(val)) {
+            stop(paste(val, collapse = "\n"))
+        }
+        return(invisible(TRUE))
+    }
+    if (inherits(object, "MizerSim")) {
+        val <- valid_MizerSim(object)
+        if (!isTRUE(val)) {
+            stop(paste(val, collapse = "\n"))
+        }
+        return(invisible(TRUE))
+    }
+    invisible(TRUE)
 }

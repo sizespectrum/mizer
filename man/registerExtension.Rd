@@ -8,12 +8,12 @@ registerExtension(name, requirement = NA_character_, install = FALSE)
 }
 \arguments{
 \item{name}{A syntactically valid R name identifying the extension (e.g.
-\code{"mizerExtA"}). This name is used as the S4 marker class name.}
+\code{"mizerExtA"}). This name is used as the S3 marker class name.}
 
 \item{requirement}{A version string, installation specification, or
 \code{NA_character_} (the default). \code{NA_character_} marks an in-development
-extension whose S4 marker class mizer creates automatically. A version
-string such as \code{"1.2.0"} records the minimum required package version.}
+extension. A version string such as \code{"1.2.0"} records the minimum required
+package version.}
 
 \item{install}{Logical. If \code{TRUE}, attempt to install a missing extension
 package.}
@@ -30,10 +30,7 @@ package loaded ends up outermost.
 \details{
 The call is idempotent: if the extension is already registered at any
 position in the chain, the function leaves the chain unchanged, including the
-requirement recorded at first registration, and repairs the dynamic marker
-classes if any of them went missing. This makes it safe to call from
-\code{devtools::load_all()}, which re-executes \code{.onLoad} after removing the
-classes that the reloaded package's namespace held.
+requirement recorded at first registration.
 }
 \seealso{
 \code{\link[=registerExtensions]{registerExtensions()}} for registering an explicit full chain.

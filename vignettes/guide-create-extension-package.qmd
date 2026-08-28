@@ -262,33 +262,25 @@ mizer method at the bottom of the chain.
 
 ### Marker classes: do not define them yourself
 
-Your params objects carry a distinctive class label, an **S4 marker class** that
-extends `MizerParams` but adds no new data. All extension-specific data lives in
-[`other_params(params)`](../reference/setRateFunction.html) or in component parameters; the class is only a label.
+Your params objects carry a distinctive class label, an **S3 marker class** that
+prepends your class name to `"MizerParams"` (e.g. `c("mizerShelf", "MizerParams")`)
+but adds no new data. All extension-specific data lives in [`other_params(params)`](../reference/setRateFunction.html) or
+in component parameters; the class is only a label for S3 dispatch.
 
-**Do not create it with `setClass()`.** Mizer creates it for you when your
-package is loaded. `registerExtension()` recognises your package as a
-dispatching extension from the S3 methods it registers for its marker class —
-`getBiomass.mizerShelf()` and the like — which it can see because registering an
-S3 method does not require the class to exist yet. It then defines the class at
-the right point in the hierarchy relative to whatever other extensions are
-loaded.
-
-That last part is why the static definition is worse than merely redundant.
-`setClass("mizerShelf", contains = "MizerParams")` fixes your class as a direct
-child of `MizerParams`, a sibling of every other extension, and seals it; mizer
-cannot then re-parent it into the chain, so your package can no longer be
-combined with another. Leaving the class to mizer is what lets two independently
-developed extensions be loaded together in either order.
+**Do not call `setClass()`.** Mizer manages the S3 class hierarchy for you.
+`registerExtension()` recognises your package as a dispatching extension from the S3
+methods it registers for its marker class — `getBiomass.mizerShelf()` and the like.
+[`coerceToExtensionClass()`](../reference/coerceToExtensionClass.html) then arranges the S3 class vector in dispatch order
+relative to whatever other extensions are loaded.
 
 So `R/myextension-class.R` holds documentation and no code:
 
 ```{r eval=FALSE}
 #' mizerShelf marker classes
 #'
-#' S4 marker subclasses of MizerParams and MizerSim that enable S3 dispatch for
-#' the methods defined in this package. They add no slots and are created by
-#' mizer when the package is loaded, not by a setClass() call here.
+#' S3 marker classes for MizerParams and MizerSim that enable S3 dispatch for
+#' the methods defined in this package. They add no fields and are managed by
+#' mizer when the package is loaded.
 #'
 #' @name mizerShelf-class
 #' @keywords internal
@@ -331,7 +323,7 @@ this chain, so dispatch proceeds in the right order automatically.
 If your package ships a ready-made `MizerParams` or `MizerSim` object in its
 `data/` directory, you need one extra step in `.onLoad`. R's lazy-loading
 mechanism delivers data objects exactly as they were serialised, without
-calling [`coerceToExtensionClass()`](../reference/coerceToExtensionClass.html). If you do nothing, users get a plain
+calling `coerceToExtensionClass()`. If you do nothing, users get a plain
 `MizerParams` with the wrong S4 class and method dispatch silently misfires.
 
 The fix is to replace the lazy-loaded binding with an **active binding** that
@@ -565,22 +557,16 @@ At this point `params` is still a plain `MizerParams` object as far as R is
 concerned. If you called `getBiomass(params)` now, R would call the standard
 mizer `getBiomass.MizerParams` rather than `getBiomass.mizerShelf`.
 
-`coerceToExtensionClass()` reads `params@extensions`, finds the outermost
-extension in the object's own recorded chain that provides a dispatch class,
-and promotes the object to that S4 class. In our example, `params` becomes
-`c("mizerShelf", "MizerParams")` and R will dispatch to
-`getBiomass.mizerShelf` automatically. `readParams()` calls this automatically
-when restoring an object from disk.
+`coerceToExtensionClass()` reads `params@extensions`, finds the registered
+dispatch extensions in the object's own recorded chain, and sets the S3 class
+vector. In our example, `params` becomes `c("mizerShelf", "MizerParams")` and R
+will dispatch to `getBiomass.mizerShelf` automatically. `readParams()` calls
+this automatically when restoring an object from disk.
 
 Note that coercion is driven by the object's recorded chain, not by what
 extensions happen to be loaded in the current session. An object created with
 only `mizerShelf` registered will remain a `mizerShelf` object even if
 `mizerOuter` is also loaded.
-
-This step cannot be replaced with a simple `class(params) <- "mizerShelf"`:
-because `MizerParams` is a formal S4 class, R enforces the class hierarchy
-strictly and the direct assignment would fail. `coerceToExtensionClass()` uses
-the appropriate S4 machinery internally.
 
 ### What about `MizerSim` objects?
 

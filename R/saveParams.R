@@ -87,12 +87,15 @@ saveParams.MizerParams <- function(params, file) {
 #' @export
 readParams <- function(file, install_extensions = FALSE) {
     params <- readRDS(file)
+    if (isS4(params)) {
+        params <- upgrade_s4_to_s3(params)
+    }
     if (needs_upgrading(params)) {
         params <- suppressWarnings(upgradeParams(params))
     }
 
-    if (length(params@extensions) > 0) {
-        registerExtensions(extensionRequirements(params@extensions),
+    if (length(params$extensions) > 0) {
+        registerExtensions(extensionRequirements(params$extensions),
                            install = install_extensions)
     }
 
@@ -102,36 +105,6 @@ readParams <- function(file, install_extensions = FALSE) {
     # the `species_params` slot and so are not recorded as given. The next
     # recalculation would silently undo them, so they are recorded now.
     params <- reconcileSpeciesParams(params)
-
-    # # Check for missing packages
-    # packages <- names(params@extensions)
-    # missing <- !sapply(packages, require, quietly = TRUE)
-    # if (any(missing)) {
-    #     warning("Some required extension packages are not installed: ",
-    #             paste(missing, collapse = ", "),
-    #             ". Shall I install them now? Enter 1 for Yes, ",
-    #             " 0 for No.")
-    #     ans <- as.integer(readline())
-    #     if (ans != 1) return(FALSE)
-    #     sapply(packages[missing], remotes::install_github)
-    # }
-    #
-    # # Check for missing functions
-    # funs <- c(params@rates_funcs,
-    #           params@resource_dynamics,
-    #           params@other_dynamics,
-    #           params@other_encounter,
-    #           params@other_mort,
-    #           unique(params@gear_params$sel_func),
-    #           paste0(unique(params@species_params$pred_kernel_type),
-    #                  "_pred_kernel"))
-    # missing <- !sapply(funs, exists, mode = "function")
-    # if (any(missing)) {
-    #     warning("This model is using the functions ",
-    #             paste(funs[missing], collapse = ", "),
-    #             ". You need an R script or R Markdown file ",
-    #             "defining these functions.")
-    # }
 
     params
 }
@@ -146,8 +119,8 @@ saveSim <- function(sim, file) {
 #' @export
 saveSim.MizerSim <- function(sim, file) {
     sim <- validateSimForSaving(sim)
-    checkRequiredExtensionPackages(sim@params)
-    checkCustomFunctions(sim@params)
+    checkRequiredExtensionPackages(sim$params)
+    checkCustomFunctions(sim$params)
 
     saveRDS(baseMizerClass(sim), file = file)
 }
@@ -156,16 +129,22 @@ saveSim.MizerSim <- function(sim, file) {
 #' @export
 readSim <- function(file, install_extensions = FALSE) {
     sim <- readRDS(file)
+    if (isS4(sim)) {
+        sim <- upgrade_s4_to_s3(sim)
+        if (isS4(sim$params)) {
+            sim$params <- upgrade_s4_to_s3(sim$params)
+        }
+    }
     if (needs_upgrading(sim)) {
         sim <- suppressWarnings(upgradeSim(sim))
     }
 
-    if (length(sim@params@extensions) > 0) {
-        registerExtensions(extensionRequirements(sim@params@extensions),
+    if (length(sim$params$extensions) > 0) {
+        registerExtensions(extensionRequirements(sim$params$extensions),
                            install = install_extensions)
     }
 
-    sim@params <- coerceToExtensionClass(sim@params)
+    sim$params <- coerceToExtensionClass(sim$params)
     sim <- coerceToExtensionClass(sim)
     sim <- validSim(sim)
 

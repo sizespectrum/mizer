@@ -79,8 +79,8 @@ addSpecies <- function(params, species_params,
 }
 
 getPreservedParamsClass <- function(original_params, params) {
-    original_class <- class(original_params)[[1]]
-    target_class <- class(params)[[1]]
+    original_class <- class(original_params)
+    target_class <- class(params)
     if (identical(target_class, "MizerParams") &&
         !identical(original_class, "MizerParams")) {
         return(original_class)
@@ -89,8 +89,14 @@ getPreservedParamsClass <- function(original_params, params) {
 }
 
 restoreParamsClass <- function(params, target_class) {
-    if (target_class != "MizerParams") {
-        params <- as(params, target_class)
+    if (isS4(params)) {
+        if (target_class[[1]] != "MizerParams") {
+            params <- as(params, target_class[[1]])
+        }
+    } else {
+        if (is.character(target_class)) {
+            class(params) <- target_class
+        }
     }
     params
 }
@@ -600,7 +606,7 @@ adjustSizeGrid.MizerParams <- function(params,
                                        preserve_species = params@species_params$species,
                                        tol = 1e-6,
                                        ...) {
-    target_class <- class(params)[[1]]
+    target_class <- class(params)
     sp_sel <- valid_species_arg(params, preserve_species, return.logical = TRUE)
     min_w <- min(params@w)
     max_w <- max(params@w)

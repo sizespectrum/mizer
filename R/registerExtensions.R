@@ -6,8 +6,6 @@
 .mizerSession <- new.env(parent = emptyenv())
 .mizerSession$extensions <- character()
 
-.extensionClassEnvName <- "mizer:extension-classes"
-
 #' Register a single mizer extension for this R session
 #'
 #' Prepends one extension to the front of the active extension chain, giving it
@@ -17,17 +15,14 @@
 #'
 #' The call is idempotent: if the extension is already registered at any
 #' position in the chain, the function leaves the chain unchanged, including the
-#' requirement recorded at first registration, and repairs the dynamic marker
-#' classes if any of them went missing. This makes it safe to call from
-#' `devtools::load_all()`, which re-executes `.onLoad` after removing the
-#' classes that the reloaded package's namespace held.
+#' requirement recorded at first registration.
 #'
 #' @param name A syntactically valid R name identifying the extension (e.g.
-#'   `"mizerExtA"`). This name is used as the S4 marker class name.
+#'   `"mizerExtA"`). This name is used as the S3 marker class name.
 #' @param requirement A version string, installation specification, or
 #'   `NA_character_` (the default). `NA_character_` marks an in-development
-#'   extension whose S4 marker class mizer creates automatically. A version
-#'   string such as `"1.2.0"` records the minimum required package version.
+#'   extension. A version string such as `"1.2.0"` records the minimum required
+#'   package version.
 #' @param install Logical. If `TRUE`, attempt to install a missing extension
 #'   package.
 #'
@@ -45,13 +40,11 @@ registerExtension <- function(name, requirement = NA_character_, install = FALSE
     current <- getRegisteredExtensions()
 
     if (name %in% names(current)) {
-        repairExtensionClasses(current)
         return(invisible(current))
     }
 
     new_chain <- c(extension, current)
     ensureExtensionNamespaces(new_chain, install = install)
-    defineExtensionClasses(new_chain)
     .mizerSession$extensions <- new_chain
 
     invisible(new_chain)
@@ -70,21 +63,14 @@ registerExtension <- function(name, requirement = NA_character_, install = FALSE
 #' `c(mizerExtB = "1.2.0", mizerExtA = "0.4.1")`, objects using only
 #' `c(mizerExtA = "0.4.1")` are also valid.
 #'
-#' Re-registering the active chain, or any suffix of it, leaves the registered
-#' chain unchanged and repairs the dynamic marker classes if any of them went
-#' missing. Only the namespaces of the extensions actually passed in
-#' `extensions` are loaded or installed; the repair itself never installs
-#' anything.
-#'
 #' For extension packages that register themselves incrementally from `.onLoad`,
 #' use [registerExtension()] instead.
 #'
 #' @param extensions A named character vector. Names are extension identifiers.
 #'   Values are version strings, installation specifications, or
-#'   `NA_character_`. Installed extensions only participate in S3 dispatch if
-#'   they provide an S4 marker class with the same name. `NA_character_` entries
-#'   are treated as in-development dispatch extensions and mizer creates their
-#'   marker classes automatically.
+#'   `NA_character_`. Installed extensions participate in S3 dispatch if they
+#'   provide S3 methods for their class name. `NA_character_` entries are
+#'   treated as in-development dispatch extensions.
 #' @param install Logical. If `TRUE`, missing or outdated extension packages are
 #'   installed via [pak::pkg_install()]. Version strings install from CRAN;
 #'   other requirement strings (e.g. `"user/repo@v1.2.0"`) are passed directly
@@ -106,13 +92,11 @@ registerExtensions <- function(extensions, install = FALSE) {
 
     if (relation %in% c("identical", "new_is_suffix")) {
         ensureExtensionNamespaces(extensions, install = install)
-        repairExtensionClasses(old)
         return(invisible(old))
     }
 
     if (relation == "old_is_suffix") {
         ensureExtensionNamespaces(extensions, install = install)
-        defineExtensionClasses(extensions)
         .mizerSession$extensions <- extensions
         return(invisible(extensions))
     }
@@ -137,27 +121,25 @@ getRegisteredExtensions <- function() {
 
 #' Coerce a mizer object to its registered extension class
 #'
-#' Coerces a `MizerParams` or `MizerSim` object to the S4 marker class
+#' Coerces a `MizerParams` or `MizerSim` object to the S3 class hierarchy
 #' corresponding to the object's own extension chain. For `MizerSim`, the
-#' extension chain is read from `sim@params@extensions`.
+#' extension chain is read from `sim$params$extensions` (or `sim@params@extensions`).
 #'
 #' @param object A `MizerParams` or `MizerSim` object.
 #' @param extensions Optional extension chain. Defaults to the chain stored in
-#'   `object`, or in `object@params` for `MizerSim`.
+#'   `object`, or in `object$params` for `MizerSim`.
 #'
-#' @return The same object coerced to the appropriate marker class, or to the
+#' @return The same object coerced to the appropriate S3 class vector, or to the
 #'   base class for an empty extension chain.
 #' @seealso "Creating a mizer extension package":
 #'   \href{https://sizespectrum.org/mizer/articles/guide-create-extension-package.html}{Creating a mizer extension package}
 #' @export
 #' @family extension tools
 coerceToExtensionClass <- function(object, extensions = objectExtensions(object)) {
-    if (is(object, "MizerParams")) {
+    if (inherits(object, "MizerParams")) {
         family <- "params"
-        base_class <- "MizerParams"
-    } else if (is(object, "MizerSim")) {
+    } else if (inherits(object, "MizerSim")) {
         family <- "sim"
-        base_class <- "MizerSim"
     } else {
         stop("Can only coerce MizerParams or MizerSim objects.")
     }
@@ -167,16 +149,14 @@ coerceToExtensionClass <- function(object, extensions = objectExtensions(object)
 
     dispatch_extensions <- dispatchExtensions(extensions)
 
-    if (length(dispatch_extensions) == 0) {
-        return(methods::as(object, base_class))
+    if (family == "params") {
+        class(object) <- c(names(dispatch_extensions), "MizerParams")
+    } else {
+        sim_classes <- if (length(dispatch_extensions) > 0) paste0(names(dispatch_extensions), "Sim") else character()
+        class(object) <- c(sim_classes, "MizerSim")
     }
 
-    target_class <- names(dispatch_extensions)[1]
-    if (family == "sim") {
-        target_class <- simExtensionClass(target_class)
-    }
-
-    methods::as(object, target_class)
+    object
 }
 
 #' Get the extension chain stored in a mizer object
@@ -186,24 +166,24 @@ coerceToExtensionClass <- function(object, extensions = objectExtensions(object)
 #'   if the object carries no extensions.
 #' @keywords internal
 objectExtensions <- function(object) {
-    if (is(object, "MizerParams")) {
-        return(extensionRequirements(object@extensions))
+    if (inherits(object, "MizerParams")) {
+        return(extensionRequirements(object$extensions))
     }
-    if (is(object, "MizerSim")) {
-        return(extensionRequirements(object@params@extensions))
+    if (inherits(object, "MizerSim")) {
+        return(extensionRequirements(object$params$extensions))
     }
     stop("Can only get extensions for MizerParams or MizerSim objects.")
 }
 
 #' Extract the requirement view of an extension chain
 #'
-#' The `@extensions` slot may be stored either as a named character vector of
+#' The `$extensions` element may be stored either as a named character vector of
 #' requirement strings (the legacy/unversioned form) or as a named list whose
 #' entries are length-2 character vectors `c(requirement = ..., version = ...)`.
 #' This helper returns the requirement strings as a plain named character
 #' vector, which is the form used for dispatch and suffix comparison.
 #'
-#' @param ext The contents of an `@extensions` slot (character vector or list).
+#' @param ext The contents of an `$extensions` element (character vector or list).
 #' @return A named character vector of requirement strings.
 #' @keywords internal
 extensionRequirements <- function(ext) {
@@ -230,7 +210,7 @@ extensionRequirements <- function(ext) {
 #' for each extension, or `NA_character_` where no stamp is recorded (including
 #' the legacy character-vector form, which carries no versions).
 #'
-#' @param ext The contents of an `@extensions` slot (character vector or list).
+#' @param ext The contents of an `$extensions` element (character vector or list).
 #' @return A named character vector of version strings (`NA` where unknown).
 #' @keywords internal
 extensionVersions <- function(ext) {
@@ -279,31 +259,28 @@ makeExtensions <- function(requirements, versions = character()) {
 
 #' Record an extension and its version stamp on a mizer object
 #'
-#' Writes an entry for `name` into the object's `@extensions` slot, converting
-#' the slot to the versioned list form. Existing entries (and their version
-#' stamps) are preserved, keeping their position in the chain. A genuinely new
-#' entry is prepended to the front of the chain so that it stays ordered
-#' outermost-first, matching [registerExtension()]. The requirement is taken
-#' from the existing entry if present, otherwise from the registered extension
-#' chain.
-#'
-#' Extension packages should call this instead of assigning to `@extensions`
-#' directly. Pass `version` (typically `packageVersion(name)`) only when the
-#' object has just been created or upgraded to conform to that version; leave it
-#' `NULL` for ordinary modifications so the existing stamp is preserved.
+#' Writes an entry for `name` into the object's `$extensions` element, converting
+#' it to the versioned list form. Existing entries (and their version stamps)
+#' are preserved, keeping their position in the chain. A genuinely new entry is
+#' prepended to the front of the chain so that it stays ordered outermost-first,
+#' matching [registerExtension()]. The requirement is taken from the existing
+#' entry if present, otherwise from the registered extension chain.
 #'
 #' @param params A `MizerParams` object.
-#' @param name The extension identifier (its S4 marker class name).
+#' @param name The extension identifier.
 #' @param version Optional version string to stamp. If `NULL` (default) the
 #'   existing stamp is preserved.
-#' @return The `params` object with the updated `@extensions` slot.
+#' @return The `params` object with the updated `$extensions` element.
 #' @seealso "Creating a mizer extension package":
 #'   \href{https://sizespectrum.org/mizer/articles/guide-create-extension-package.html}{Creating a mizer extension package}
 #' @export
 #' @family extension tools
 recordExtension <- function(params, name, version = NULL) {
-    assert_that(is(params, "MizerParams"), is.string(name))
-    ext <- params@extensions
+    if (isS4(params)) {
+        params <- upgrade_s4_to_s3(params)
+    }
+    assert_that(inherits(params, "MizerParams"), is.string(name))
+    ext <- params$extensions
     reqs <- extensionRequirements(ext)
     present <- name %in% names(reqs)
 
@@ -320,12 +297,7 @@ recordExtension <- function(params, name, version = NULL) {
     }
 
     if (is.null(version)) {
-        # Preserve the existing stamp. If the entry already exists, leave the
-        # slot exactly as it is so ordinary modifications do not perturb it.
         if (present) return(params)
-        # Otherwise add an unversioned entry at the front, keeping the slot's
-        # current form. New entries are prepended so the chain stays
-        # outermost-first, matching registerExtension().
         if (is.list(ext)) {
             entry <- setNames(list(c(requirement = req, version = NA_character_)),
                               name)
@@ -333,24 +305,21 @@ recordExtension <- function(params, name, version = NULL) {
         } else {
             ext <- c(setNames(req, name), ext)
         }
-        params@extensions <- ext
+        params$extensions <- ext
         return(params)
     }
 
-    # Stamping a version requires the versioned list form for this entry.
     if (!is.list(ext)) {
         ext <- makeExtensions(reqs, extensionVersions(ext))
         if (!is.list(ext)) ext <- setNames(list(), character())
     }
     entry <- c(requirement = req, version = as.character(version))
     if (present) {
-        # Update the existing entry in place, preserving its position.
         ext[[name]] <- entry
     } else {
-        # Prepend a new entry to keep the chain outermost-first.
         ext <- c(setNames(list(entry), name), ext)
     }
-    params@extensions <- ext
+    params$extensions <- ext
     params
 }
 
@@ -361,7 +330,7 @@ recordExtension <- function(params, name, version = NULL) {
 #' @return The recorded version string, or `NA_character_` if none.
 #' @keywords internal
 extensionVersion <- function(params, name) {
-    vers <- extensionVersions(params@extensions)
+    vers <- extensionVersions(params$extensions)
     if (name %in% names(vers)) vers[[name]] else NA_character_
 }
 
@@ -369,13 +338,13 @@ extensionVersion <- function(params, name) {
 #'
 #' Stops with an informative error if the object's extension chain is not a
 #' suffix of the session's registered maximal chain, or (when `check_class` is
-#' `TRUE`) if the object does not inherit from the expected S4 marker class.
+#' `TRUE`) if the object does not inherit from the expected class.
 #'
 #' @param object A `MizerParams` or `MizerSim` object.
 #' @param extensions Named character vector giving the object's extension chain.
 #'   Defaults to [objectExtensions()] applied to `object`.
 #' @param check_class Logical. If `TRUE` (default), also verify that `object`
-#'   inherits from the expected S4 marker class.
+#'   inherits from the expected class.
 #' @return Invisibly `TRUE`. Called for its side-effect of stopping on
 #'   incompatibility.
 #' @keywords internal
@@ -402,13 +371,13 @@ assertExtensionChain <- function(object, extensions = objectExtensions(object),
 
     dispatch_extensions <- dispatchExtensions(extensions)
 
-    if (is(object, "MizerParams")) {
+    if (inherits(object, "MizerParams")) {
         expected_class <- if (length(dispatch_extensions) == 0) {
             "MizerParams"
         } else {
             names(dispatch_extensions)[1]
         }
-    } else if (is(object, "MizerSim")) {
+    } else if (inherits(object, "MizerSim")) {
         expected_class <- if (length(dispatch_extensions) == 0) {
             "MizerSim"
         } else {
@@ -418,7 +387,7 @@ assertExtensionChain <- function(object, extensions = objectExtensions(object),
         stop("Can only check MizerParams or MizerSim objects.")
     }
 
-    if (isTRUE(check_class) && !is(object, expected_class)) {
+    if (isTRUE(check_class) && !inherits(object, expected_class)) {
         stop(
             "This object has extension chain ",
             formatExtensionChain(extensions),
@@ -441,8 +410,6 @@ validateExtensionsVector <- function(extensions) {
     if (is.null(extensions)) {
         extensions <- character()
     }
-    # Accept the versioned list form of an `@extensions` slot by reducing it to
-    # the requirement view that the registry and dispatch logic operate on.
     if (is.list(extensions)) {
         extensions <- extensionRequirements(extensions)
     }
@@ -464,7 +431,7 @@ validateExtensionsVector <- function(extensions) {
     valid_names <- make.names(names(extensions)) == names(extensions)
     if (!all(valid_names)) {
         stop(
-            "Extension names must be syntactically valid S4 class names: ",
+            "Extension names must be syntactically valid class names: ",
             paste(names(extensions)[!valid_names], collapse = ", ")
         )
     }
@@ -515,49 +482,9 @@ isSuffixChain <- function(candidate, chain) {
     identical(candidate, chain[start:length(chain)])
 }
 
-#' Define S4 marker classes for a set of dispatch extensions
-#'
-#' Creates a linear inheritance chain of S4 classes: the outermost extension
-#' extends the next, which extends the next, down to the base `MizerParams` /
-#' `MizerSim` class. Existing classes are checked for compatibility instead of
-#' being redefined.
-#'
-#' @param extensions Named character vector of extensions (full chain or
-#'   dispatch subset). Non-dispatch entries are silently ignored.
-#' @return Invisibly, the named character vector of dispatch extensions.
-#' @keywords internal
-defineExtensionClasses <- function(extensions) {
-    extensions <- validateExtensionsVector(extensions)
-    extensions <- dispatchExtensions(extensions)
-    parent_params <- "MizerParams"
-    parent_sim <- "MizerSim"
-
-    for (extension in rev(names(extensions))) {
-        defineOrCheckClass(extension, parent_params)
-        parent_params <- extension
-
-        sim_class <- simExtensionClass(extension)
-        defineOrCheckClass(sim_class, parent_sim)
-        parent_sim <- sim_class
-    }
-
-    invisible(extensions)
-}
-
 #' Does an installed extension register dispatch methods for its own class?
 #'
-#' An extension package participates in dispatch by registering S3 methods for
-#' mizer generics keyed on its marker class (e.g. `getEncounter.mizerMR`). This
-#' checks the package namespace's own S3 method registry for any method whose
-#' class is the extension name or its sim variant. Because S3 method
-#' registration does not require the S4 marker class to exist, this lets mizer
-#' recognise a dispatching extension *before* creating its class, so extension
-#' packages no longer have to define the marker class statically. Defining it
-#' statically as `contains = "MizerParams"` would in fact prevent the package
-#' from being chained with other extensions, since a sealed class cannot be
-#' re-parented into the chain (see [defineExtensionClasses()]).
-#'
-#' @param name The extension identifier (its marker class / package name).
+#' @param name The extension identifier (its class / package name).
 #' @return `TRUE` if the loaded namespace `name` registers S3 methods for class
 #'   `name` or `paste0(name, "Sim")`, otherwise `FALSE`.
 #' @keywords internal
@@ -574,14 +501,7 @@ providesDispatchMethods <- function(name) {
     name %in% classes || simExtensionClass(name) %in% classes
 }
 
-#' Filter an extension vector to those that participate in S3/S4 dispatch
-#'
-#' An extension participates in dispatch if its requirement is `NA_character_`
-#' (in-development), if an S4 class with its name already exists, or if its
-#' loaded package registers S3 dispatch methods for its marker class (see
-#' [providesDispatchMethods()]). The last case lets an installed extension
-#' package participate without defining its marker class statically; mizer
-#' creates the class dynamically in [defineExtensionClasses()].
+#' Filter an extension vector to those that participate in S3 dispatch
 #'
 #' @param extensions Named character vector of extensions.
 #' @return A named character vector containing only the dispatch extensions,
@@ -597,251 +517,25 @@ dispatchExtensions <- function(extensions) {
         extension <- names(extensions)[[i]]
         requirement <- unname(extensions[[i]])
 
-        is.na(requirement) || methods::isClass(extension) ||
-            providesDispatchMethods(extension)
+        is.na(requirement) || providesDispatchMethods(extension)
     }, logical(1))
 
     extensions[is_dispatch_extension]
 }
 
-#' Test whether a mizer object uses extension S4 dispatch
+#' Test whether a mizer object uses extension S3 dispatch
 #'
 #' @param object A `MizerParams` or `MizerSim` object.
 #' @return `TRUE` if the object's primary class is not the plain base class.
 #' @keywords internal
 usesExtensionDispatch <- function(object) {
-    if (is(object, "MizerParams")) {
+    if (inherits(object, "MizerParams")) {
         return(!identical(class(object)[[1]], "MizerParams"))
     }
-    if (is(object, "MizerSim")) {
+    if (inherits(object, "MizerSim")) {
         return(!identical(class(object)[[1]], "MizerSim"))
     }
     stop("Can only check dispatch for MizerParams or MizerSim objects.")
-}
-
-#' Get the environment holding mizer's dynamic marker classes
-#'
-#' The environment is attached to the search path, lazily, the first time a
-#' dispatching extension needs a dynamic marker class. A session using base
-#' mizer, or only metadata-only extensions, therefore never acquires the extra
-#' search path entry.
-#'
-#' The search path is where this metadata has to live. `.GlobalEnv` does not
-#' work, because `R CMD check` empties it with `cleanEx()` between examples and
-#' users clear it themselves (#587). An environment that mizer merely holds
-#' privately does not work either, however well it survives: a params object
-#' saved before mizer started creating marker classes dynamically carries a
-#' class attribute whose package slot names the extension package, and
-#' `methods` then resolves the class with an inheriting lookup that starts in
-#' that package's namespace and runs on through `.GlobalEnv` and the rest of
-#' the search path. It never passes through mizer's own namespace, so only the
-#' search path catches every case.
-#'
-#' `cleanEx()` also detaches whatever an example added to the search path, so
-#' the environment lasts a whole check run only when it was attached while the
-#' extension package was being loaded, before `R CMD check` recorded the search
-#' path. That is what happens when an extension registers itself from
-#' `.onLoad`. Losing it the other way is not fatal: [markerClassPresent()] then
-#' reports the classes as gone and the next registration rebuilds them.
-#'
-#' The environment is deliberately left mutable, because rebuilding an
-#' extension chain requires removing and re-parenting its classes. The S4
-#' package identity of the classes stays `.GlobalEnv`, which is what marks them
-#' as mutable dynamic classes rather than static classes owned by an extension
-#' namespace.
-#'
-#' @param create Logical. If `TRUE`, create and attach the environment when it
-#'   does not yet exist. If `FALSE`, return `NULL` instead.
-#' @return The attached environment, or `NULL` when it does not exist and
-#'   `create = FALSE`.
-#' @keywords internal
-extensionClassEnvironment <- function(create = TRUE) {
-    position <- match(.extensionClassEnvName, search())
-    if (!is.na(position)) {
-        return(as.environment(position))
-    }
-    if (!create) {
-        return(NULL)
-    }
-
-    attach(NULL, name = .extensionClassEnvName, warn.conflicts = FALSE)
-    class_environment <- as.environment(.extensionClassEnvName)
-    methods::setPackageName(".GlobalEnv", class_environment)
-    class_environment
-}
-
-#' Is a marker class definition backed by a live binding?
-#'
-#' `methods::isClass()` can keep returning `TRUE` after `rm()` has deleted the
-#' class metadata binding. Package-owned classes are not susceptible to that
-#' global-environment wipe. For a dynamically defined class, however, the
-#' binding must still exist either in mizer's persistent class environment or,
-#' for compatibility with classes created by earlier mizer versions, in
-#' `.GlobalEnv`.
-#'
-#' @param class Character string — the S4 class name to test.
-#' @return `TRUE` if the class can still be resolved.
-#' @keywords internal
-markerClassPresent <- function(class) {
-    if (!methods::isClass(class)) {
-        return(FALSE)
-    }
-    definition <- methods::getClassDef(class)
-    if (is.null(definition)) {
-        return(FALSE)
-    }
-    if (!identical(definition@package, ".GlobalEnv")) {
-        return(TRUE)
-    }
-
-    metadata_name <- methods::classMetaName(class)
-    class_environment <- extensionClassEnvironment(create = FALSE)
-    (!is.null(class_environment) &&
-         exists(metadata_name, envir = class_environment, inherits = FALSE)) ||
-        exists(metadata_name, envir = .GlobalEnv, inherits = FALSE)
-}
-
-#' Is a marker class one that mizer created dynamically?
-#'
-#' Marker classes that mizer creates in [defineExtensionClasses()] belong to
-#' `.GlobalEnv` in the S4 class registry, although their metadata bindings live
-#' in mizer's persistent class environment (see
-#' [extensionClassEnvironment()]). This means mizer is free to remove and
-#' rebuild them. A class of the same name that an extension package defines
-#' statically belongs to that package's namespace and must never be touched.
-#'
-#' @param class Character string — the S4 class name to test.
-#' @return `TRUE` if `class` exists and carries the `.GlobalEnv` package
-#'   identity that marks it as one of mizer's dynamic classes.
-#' @keywords internal
-isDynamicMarkerClass <- function(class) {
-    if (!methods::isClass(class)) {
-        return(FALSE)
-    }
-    definition <- methods::getClassDef(class)
-    !is.null(definition) && identical(definition@package, ".GlobalEnv")
-}
-
-#' Remove a dynamic marker class, including a stale cached definition
-#'
-#' @param class Character string — the S4 class name to remove.
-#' @return Invisibly, whether `methods` reported removing the class.
-#' @keywords internal
-removeDynamicMarkerClass <- function(class) {
-    metadata_name <- methods::classMetaName(class)
-    class_environment <- extensionClassEnvironment(create = FALSE)
-
-    if (!is.null(class_environment) &&
-            exists(metadata_name, envir = class_environment,
-                   inherits = FALSE)) {
-        return(invisible(methods::removeClass(
-            class, where = class_environment
-        )))
-    }
-
-    # `rm()` can delete the metadata binding while leaving the definition in
-    # methods:::.classTable. removeClass() still clears that cache, but warns
-    # that the already-missing binding could not be removed.
-    invisible(suppressWarnings(methods::removeClass(
-        class, where = .GlobalEnv
-    )))
-}
-
-#' Is the S4 marker class chain for a set of extensions intact?
-#'
-#' Checks that every dispatch extension has both its params and its sim marker
-#' class defined and that each one still extends the next class down the chain.
-#'
-#' @param extensions Named character vector of extensions (full chain or
-#'   dispatch subset).
-#' @return `TRUE` if nothing needs repairing.
-#' @keywords internal
-extensionClassesIntact <- function(extensions) {
-    extensions <- dispatchExtensions(extensions)
-    parent_params <- "MizerParams"
-    parent_sim <- "MizerSim"
-
-    for (extension in rev(names(extensions))) {
-        sim_class <- simExtensionClass(extension)
-        params_ok <- markerClassPresent(extension) &&
-            methods::extends(extension, parent_params)
-        sim_ok <- markerClassPresent(sim_class) &&
-            methods::extends(sim_class, parent_sim)
-        if (!params_ok || !sim_ok) {
-            return(FALSE)
-        }
-        parent_params <- extension
-        parent_sim <- sim_class
-    }
-
-    TRUE
-}
-
-#' Rebuild the marker classes of an extension chain if any went missing
-#'
-#' `devtools::load_all()` removes the S4 classes held by the namespace it
-#' reloads, which can take a marker class out of the chain. Recreating only the
-#' missing class is not enough: R prunes a removed superclass from the
-#' `contains` list of its subclasses, so a marker class that used to sit outside
-#' the missing one is left parented directly on `MizerParams` and would make
-#' [defineOrCheckClass()] stop. The whole dynamic chain is therefore removed and
-#' rebuilt, outermost first so that no class is removed while a subclass of it
-#' still exists.
-#'
-#' The chain is inspected first and left completely untouched when it is intact,
-#' which is the usual case on the repeated-registration path.
-#'
-#' @param extensions Named character vector of extensions (full chain or
-#'   dispatch subset).
-#' @return Invisibly, `TRUE` if a repair was carried out, `FALSE` otherwise.
-#' @keywords internal
-repairExtensionClasses <- function(extensions) {
-    extensions <- validateExtensionsVector(extensions)
-    if (extensionClassesIntact(extensions)) {
-        return(invisible(FALSE))
-    }
-
-    for (extension in names(dispatchExtensions(extensions))) {
-        for (class in c(extension, simExtensionClass(extension))) {
-            if (isDynamicMarkerClass(class)) {
-                removeDynamicMarkerClass(class)
-            }
-        }
-    }
-    defineExtensionClasses(extensions)
-
-    invisible(TRUE)
-}
-
-#' Define an S4 class or verify it extends the expected parent
-#'
-#' If `class` does not yet exist, defines it as a virtual-free S4 class that
-#' contains `parent`, registered in mizer's persistent class environment. If
-#' `class` already exists, stops with an error unless it already extends
-#' `parent`.
-#'
-#' @param class Character string — the S4 class name to define or check.
-#' @param parent Character string — the required parent class.
-#' @return Invisibly, `class`.
-#' @keywords internal
-defineOrCheckClass <- function(class, parent) {
-    if (!markerClassPresent(class)) {
-        if (isDynamicMarkerClass(class)) {
-            removeDynamicMarkerClass(class)
-        }
-        methods::setClass(class, contains = parent,
-                          where = extensionClassEnvironment())
-        return(invisible(class))
-    }
-
-    if (!methods::extends(class, parent)) {
-        stop(
-            "Class `", class, "` already exists but does not contain `",
-            parent, "`."
-        )
-    }
-
-    invisible(class)
 }
 
 #' Derive the MizerSim marker class name for a given extension
@@ -854,10 +548,6 @@ simExtensionClass <- function(extension) {
 }
 
 #' Load (and optionally install) namespaces for all non-NA extensions
-#'
-#' For each extension whose requirement is not `NA_character_`, checks that the
-#' package is installed and up-to-date, installs or upgrades via
-#' [pak::pkg_install()] if `install = TRUE`, then calls [loadNamespace()].
 #'
 #' @param extensions Named character vector of extensions.
 #' @param install Logical. If `TRUE`, install or upgrade missing/outdated
@@ -873,7 +563,6 @@ ensureExtensionNamespaces <- function(extensions, install = FALSE) {
     for (extension in names(extensions)) {
         requirement <- unname(extensions[[extension]])
 
-        # NA means "marker class only" for tests or in-development extensions.
         if (is.na(requirement)) {
             next
         }
@@ -904,9 +593,6 @@ ensureExtensionNamespaces <- function(extensions, install = FALSE) {
             }
         }
 
-        # Skip loadNamespace() when the namespace is already being loaded
-        # (e.g. when an extension package calls registerExtensions() from its
-        # own .onLoad hook), to avoid a cyclic namespace dependency error.
         if (!isNamespaceLoaded(extension)) {
             loadNamespace(extension)
         }
@@ -940,19 +626,22 @@ formatExtensionChain <- function(extensions) {
 #' Strip extension classes from a mizer object
 #'
 #' Coerces a `MizerParams` or `MizerSim` object back to its plain base class,
-#' removing any S4 extension marker classes. For `MizerSim`, also strips the
-#' extension class from the embedded `params` slot.
+#' removing any S3 extension classes. For `MizerSim`, also strips the
+#' extension class from the embedded `params` element.
 #'
 #' @param object A `MizerParams` or `MizerSim` object.
 #' @return The same object coerced to `MizerParams` or `MizerSim`.
 #' @keywords internal
 baseMizerClass <- function(object) {
-    if (is(object, "MizerParams")) {
-        methods::as(object, "MizerParams")
-    } else if (is(object, "MizerSim")) {
-        sim <- methods::as(object, "MizerSim")
-        sim@params <- methods::as(sim@params, "MizerParams")
-        sim
+    if (inherits(object, "MizerParams")) {
+        class(object) <- "MizerParams"
+        object
+    } else if (inherits(object, "MizerSim")) {
+        class(object) <- "MizerSim"
+        if (inherits(object$params, "MizerParams")) {
+            class(object$params) <- "MizerParams"
+        }
+        object
     } else {
         stop("Can only strip extension classes from MizerParams or MizerSim objects.")
     }
