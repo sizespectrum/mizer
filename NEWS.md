@@ -1,260 +1,194 @@
-# mizer 3.3.0.9000
+# mizer 3.3.1
+
+This patch release changes what `getSteadyResidual()` measures and takes
+components registered with `setComponent()` out of the criterion by which mizer
+decides whether a model is at steady state. It adds `getMeanLength()` and
+accessors for the extra contributions to the mortality and encounter rates, and
+it fixes bugs in the species parameter setters, in the defaults for `gamma` and
+`f0`, in the dynamic extension marker classes and in `summary()` of an array.
 
 ## Steady state and calibration
 
-- `getSteadyResidual()` gains an experimental `measure` argument and changes
-  what it reports by default. Each value is now the contribution of that size
-  class to the relative rate of change of its species' biomass, in 1/year, so
-  the values add up over sizes to the biomass drift:
-  `rowSums(getSteadyResidual(params))` is `(dB_i/dt) / B_i` per species, and the
-  largest of those is the number `isSteady()`, the `summary()` line and
-  `project(check_steady = TRUE)` all judge a model by. The array therefore says
-  *where* a model is unsteady in the same currency that mizer uses to decide
-  *whether* it is, and the help page no longer has to warn against reducing it
-  to its maximum. Pass `measure = "per_capita"` for the previous default,
-  `(dN/dt)/N`, which is the scale-free reading: it shows a size class whose
-  growth and mortality are out of balance even where it holds almost no biomass,
-  but its extremes belong to the fastest-relaxing cells, which are the ones
-  holding no mass.
+- `getSteadyResidual()` now reports, for each size class, its contribution to
+  the relative rate of change of its species' biomass, in 1/year, so that
+  `rowSums(getSteadyResidual(params))` is the drift `(dB_i/dt) / B_i` that
+  `isSteady()`, the `summary()` line and `project(check_steady = TRUE)` judge a
+  model by. The array therefore says *where* a model is unsteady in the same
+  currency that mizer uses to decide *whether* it is. Pass the experimental
+  `measure = "per_capita"` for the previous default, `(dN/dt)/N`.
 
 - `getSteadyResidual()` reports every size class, including the ones holding no
-  fish. `dN/dt` is well defined in an empty class — it can be filling up — and
-  under the new default measure its contribution to the drift is reported like
-  any other, so only a species with no biomass at all comes back as `NA`. With
-  `measure = "per_capita"` the `NA`s are where they always were. Weighting by
-  biomass is what makes a threshold unnecessary here: a class holding a trace
-  contributes a trace.
+  fish, so only a species with no biomass at all comes back as `NA`. Under the
+  new default measure a class holding a trace contributes a trace, which is what
+  makes a threshold unnecessary. With `measure = "per_capita"` the `NA`s are
+  where they always were.
 
 - Components registered with `setComponent()` are no longer folded into the
   biomass drift that `isSteady()`, the `summary()` line,
-  `project(check_steady = TRUE)`, the `residual` and `attractor` entries of the
-  `"convergence"` attribute and the guards in `getStability()` judge a model by.
-  A component's state can be any R object at all, so mizer knows neither what
-  currency its entries are in nor which of its dimensions is size, and had to
-  fall back on the largest per-cell relative rate — the reduction dominated by
-  the fastest-relaxing cells, which are the ones holding nothing. Worse, every
-  function that finds a steady state holds the components fixed, so a criterion
-  that included them was one those functions could not satisfy: a model whose
-  consumers had settled to 1e-11 could report a drift of 6/year with no way to
-  improve it. The criterion now measures exactly the subsystem those functions
-  act on, and the components are reported separately, through
+  `project(check_steady = TRUE)`, the `"convergence"` attribute and
+  `getStability()` judge a model by. Every function that finds a steady state
+  holds the components fixed, so a criterion that included them was one those
+  functions could not satisfy. Components are now reported separately, through
   `attr(getSteadyResidual(params), "other")` and on their own lines in
-  `summary()`. A model can therefore be `isSteady()` while a component of it is
-  drifting; mizer names any component that is moving whenever it reports on the
-  drift, and `projectUntilSettled()`, which advances components like every other
-  state variable, is what settles them (#589).
+  `summary()`; a model can therefore be `isSteady()` while a component of it is
+  drifting, and `projectUntilSettled()` is what settles it (#589).
 
-- Mizer now names the state variable responsible for a model's drift. The report
-  used to say that "a biomass" was changing and then send the user to look at
-  "which species are moving", which is misleading when the species have settled
-  and something else has not; it now names the species or the resource, and
-  names any component that is drifting alongside it (#589).
+- Mizer now names the species, resource or component responsible for a model's
+  drift, instead of reporting that "a biomass" is changing and sending the user
+  to look at which species are moving (#589).
 
-- `tuneSteadyState()` no longer reports that it could not rebalance the resource
-  capacity when the resource dynamics is `resource_constant()`. A constant
-  resource hands back the abundance it was given, so the abundance the search
-  preserved is a steady state of it whatever the capacity is, and there is
-  nothing to rebalance. The report was aimed at a custom resource dynamics with
-  no `balance_<dynamics>()` function, where the resource really can come back
-  off its own fixed point; it kept firing on every model that switches the
+- Fixed: a size class holding a negligible density could stop
+  `projectUntilSettled()` from ever converging (#570). Above the size where
+  growth stops, the density decays exponentially without ever reaching zero, and
+  `distanceSSLogN()` counted every class with a positive density, so a trace of
+  3e-92 g contributed almost the whole distance at every check. It gains a
+  `biomass_share_cutoff` argument, defaulting to `1e-8`: a size class counts
+  only if it holds at least that share of its species' biomass. Nothing changes
+  for a model without such a trace, so existing `distance_tol` values keep
+  their meaning, and what decides whether a state is a fixed point is unchanged
+  and still integrates over every size class.
+
+- Fixed: `projectUntilSettled()` now says so when a run that stopped at `t_max`
+  nonetheless reached a fixed point. `converged = FALSE` beside
+  `attractor = "fixed_point"` is correct — they answer different questions —
+  but read as a contradiction (#570).
+
+- Fixed: `tuneSteadyState()` no longer reports that it could not rebalance the
+  resource capacity when the resource dynamics is `resource_constant()`. A
+  constant resource hands back the abundance it was given, so there is nothing
+  to rebalance. The report is meant for a custom resource dynamics with no
+  `balance_<dynamics>()` function, but it fired on every model that switches the
   built-in resource off, which includes every model of an extension package that
   supplies its own resources.
 
-## Extensions
-
-- New accessors `other_mort()` and `other_encounter()`, with their replacement
-  forms, for the extra contributions to the mortality and encounter rates that
-  `getMort()` and `getEncounter()` sum into their results. An extension that
-  adds a term depending on the state of the model but carrying no state of its
-  own — a starvation or senescence mortality, say — can now register it with
-
-  ```r
-  other_mort(params)[["starvation"]] <- "starvMort"
-  ```
-
-  where previously the only route was to assign into `params@other_mort`
-  directly, since `setComponent()` requires a `dynamics_fun` and an
-  `initial_value` that such a term has nothing to supply. Like `other_params()`,
-  the new accessors hide the entries belonging to a component created with
-  `setComponent()`: those are reported by `getComponent()` and removed by
-  `removeComponent()`, and assigning a whole list through `other_mort()` can no
-  longer wipe them out or change their positions. Contribution names must be
-  unique. Encounter contributions now receive the current simulation time as
-  `t`, as mortality contributions already did. `setComponent()` now also
-  refuses a component name that a free-standing contribution is already
-  registered under, rather than silently taking it over (#579).
+- Fixed: the `residual` entry of the `"convergence"` attribute, and the
+  `residual` column of a `MizerScan` filled from it, were documented as the
+  largest per-capita rate of change. They hold the largest relative rate of
+  *biomass* change, which is the quantity `residual_tol` is a tolerance on and
+  the number `rowSums(getSteadyResidual(params))` gives (#572).
 
 ## Species parameters
 
 - Mizer now reports the length-weight defaults `a = 0.01` and `b = 3` when it
-  fills them in, alongside the other defaults it reports. They were applied
-  silently before, which mattered because a length-based selectivity function
-  (`sigmoid_length`, `double_sigmoid_length`, `knife_edge_length`) converts the
-  lengths in `gear_params()` to weights through `a` and `b`: a defaulted
-  relationship silently puts the selectivity curve at the wrong weights. The
-  defaults themselves are unchanged, and `info_level = 0` silences the report
-  as it does the rest.
+  fills them in, alongside the other defaults it reports. This matters because a
+  length-based selectivity function converts the lengths in `gear_params()` to
+  weights through `a` and `b`, so a defaulted relationship silently puts the
+  selectivity curve at the wrong weights. The defaults themselves are unchanged,
+  and `info_level = 0` silences the report as it does the rest.
 
-- `setFishing()` additionally reports a gear whose selectivity is set from a
-  length while the species' `a` or `b` was defaulted, naming those species and
-  the parameter that was missing. That is the case in which an invented
+- `setFishing()` additionally names any species whose gear selects on length
+  while its `a` or `b` was defaulted. That is the case in which an invented
   weight-length relationship changes the dynamics rather than just a diagnostic,
   so the report is at `info_level = 1` and is shown even when
   `calc_selectivity()` or `setFishing()` is called on its own. Whether a gear
   selects on length is decided from the selectivity function's formals, so a
   custom `sel_func` taking `species_params` is covered too.
 
-## Indicator functions
+- Fixed: an invalid `w_mat25` is now reported as a missing value for which the
+  default will be used, and any `l_mat25` is cleared with it. Previously the
+  rejected value was put straight back by the length-to-weight conversion,
+  landing within rounding error of `w_mat`, which passed the `w_mat25 < w_mat`
+  check and turned the maturity ogive into a step function (#580).
 
-- New `getMeanLength()` calculates the mean length of the community, the
-  counterpart of `getMeanWeight()`, with which it now shares a help page. It
-  divides the total length of all individuals in the selected species and size
-  range by their number, converting weight to length with the length-weight
-  parameters `a` and `b` of each species.
+- Fixed: assigning a likely misspelling of a species parameter now produces one
+  warning, when the column is introduced, rather than one per validation pass
+  (#581). The report also goes through the information-signal mechanism, so it
+  is collected with mizer's other reports and `info_level = 0` silences it along
+  with everything else mizer says.
 
-## Bug fixes
+- Fixed: the defaults for `gamma` and `f0` are no longer measured through the
+  extension chain (#577). `get_gamma_default()` measured the energy available to
+  a species with `getEncounter()`, so on an extension object any modification
+  the extension makes to the encounter rate was folded into mizer's own `gamma`
+  and re-applied on every rebuild: an extension that halves the search volume
+  doubled `gamma` each time the species parameters were touched, and one whose
+  factor is zero turned the calculation into an error. Both
+  `get_gamma_default()` and its inverse `get_f0_default()` now measure with
+  `mizerEncounter()`, so a rate function registered with `setRateFunction()` no
+  longer enters the calculation either. These defaults are a property of the
+  species parameters, not of the model's dynamics.
 
-- `plotYield(return_data = TRUE)` once again returns only the three documented
-  columns `Year`, `Yield` and `Species`. In mizer 3.3.0 it also returned the
-  internal `Legend` column after `plotYield()` was delegated to the shared array
-  plotting pipeline (#593).
+- Fixed: the defaults for `gamma` and `f0` now also exclude external encounter
+  and the functions registered through `other_encounter()`, including a
+  component's `encounter_fun` (#586). These additive contributions still affect
+  the realised encounter and feeding level, but the defaults describe feeding on
+  the reference power-law resource alone. Previously `get_gamma_default()`
+  measured them where they were negligible while `get_f0_default()` counted them
+  at full scale, so the two were not inverses. When no default `gamma` can be
+  calculated, the error now names the species concerned and reports the energy
+  measured for them.
 
-- Invalid `w_mat25` values are now reported as missing values for which the
-  default will be used, matching the value ultimately stored in the model
-  (#580). Where the model also carries `l_mat25`, that is cleared with it.
-  Previously the rejected value was put straight back by the length-to-weight
-  conversion, landing within rounding error of `w_mat`, which passed the
-  `w_mat25 < w_mat` check and turned the maturity ogive into a step function.
-
-- Assigning a likely misspelling of a species parameter now produces one
-  warning when the column is introduced. The warning is no longer repeated
-  during the internal rebuild or by later changes to unrelated parameters
-  (#581). `newMultispeciesParams()`, `emptyParams()` and `addSpecies()` each
-  report such a column once rather than once per validation pass.
-
-- The misspelling report now goes through the information-signal mechanism, so
-  it is collected with mizer's other reports and follows `info_level`. One
-  consequence is that `info_level = 0`, or `options(mizer_info_level = 0)`,
-  now silences it along with everything else mizer says.
-
-- The defaults for `gamma` and `f0` are no longer measured through the
-  extension chain (#577). `get_gamma_default()` gives every species a search
-  volume coefficient of 1 and measures the energy available to it in a power-law
-  prey spectrum. It used to do the measuring with `getEncounter()`, so on an
-  extension object the measurement went through the extension's
-  `projectEncounter()` method, and any modification the extension makes to the
-  encounter rate was folded into mizer's own `gamma`. Because `gamma` in turn
-  determines the search volume, the modification was re-applied on every
-  rebuild: an extension that halves the search volume doubled `gamma` each time
-  the species parameters were touched, and one whose factor is zero for some
-  species turned the calculation into the error `Could not calculate gamma.`
-  Both `get_gamma_default()` and its inverse `get_f0_default()` now measure with
-  `mizerEncounter()`, which also means a rate function registered with
-  `setRateFunction()` no longer enters the calculation. These defaults are a
-  property of the species parameters, not of the model's dynamics.
-
-- The defaults for `gamma` and `f0` now also exclude external encounter and
-  functions registered with `other_encounter()`, including a component's
-  `encounter_fun` (#586). These additive contributions still affect the realised
-  encounter and feeding level, but the defaults describe feeding on the
-  reference power-law resource alone. Previously `get_gamma_default()` measured
-  them alongside a unit search-volume coefficient, where they were negligible,
-  while `get_f0_default()` counted them at their full scale, so the two functions
-  were not inverses. When no default `gamma` can be calculated, the error now
-  names the species, reports the available energy measured for them and asks for
-  their `gamma` explicitly.
-
-- A species parameter column can be removed by dropping it from the table you
-  assign, with either setter (#578). A column that is missing from the assigned
-  table is one you no longer supply: mizer takes it out of
-  `given_species_params()`, calculates afresh the parameters it knows how to
-  calculate, and removes the ones it does not. Both
+- Fixed: a species parameter column can be removed by dropping it from the table
+  you assign, with either setter (#578). Mizer takes the column out of
+  `given_species_params()`, recalculates the parameters it knows how to
+  calculate and removes the ones it does not, so
   `species_params(params)$my_col <- NULL` and
-  `given_species_params(params)$my_col <- NULL` therefore now do what they look
-  like they do. Previously the first silently restored the column from the given
-  table, and the second left it in `species_params()` where
-  `calculated_species_params()` reported the user's own value as one mizer had
-  produced. This is what an extension package needs in order to withdraw a
-  species parameter it added when the user switches the extension off, without
-  writing to the `species_params` slot directly. The removal is reported at
-  `info_level` 3.
+  `given_species_params(params)$my_col <- NULL` now do what they look like they
+  do. Previously the first silently restored the column from the given table and
+  the second left it in `species_params()` reported as one mizer had calculated.
+  Removing a column from `given_species_params()` now also recalculates the
+  parameter it handed back, which makes it the same instruction as setting that
+  parameter to `NA`. This is what an extension package needs in order to
+  withdraw a species parameter it added when the user switches the extension
+  off. The removal is reported at `info_level` 3.
 
-- Removing a column from `given_species_params()` now recalculates the parameter
-  it handed back. `given_species_params(params)$gamma <- NULL` used to leave the
-  previously given value sitting in `species_params()` untouched, because a
-  removal on its own registered as no change at all; it is now the same
-  instruction as `given_species_params(params)$gamma <- NA`.
+## Extensions
 
-- Repeated `registerExtension()` and `registerExtensions()` calls now rebuild
-  the dynamic marker classes of the active extension chain when any of them
-  disappeared during an extension-package reload, while leaving the registered
-  chain unchanged. Recreating only the class that went missing is not enough,
-  because R prunes it from the `contains` list of the marker classes outside
-  it, so the whole chain is rebuilt (#569).
+- New accessors `other_mort()` and `other_encounter()`, with their replacement
+  forms, for the extra contributions to the mortality and encounter rates that
+  `getMort()` and `getEncounter()` sum into their results:
 
-- Dynamic extension marker classes now live in an environment that mizer
+  ```r
+  other_mort(params)[["starvation"]] <- "starvMort"
+  ```
+
+  An extension that adds a term depending on the state of the model but carrying
+  no state of its own can now register it this way, where previously the only
+  route was to assign into `params@other_mort` directly, since `setComponent()`
+  requires a `dynamics_fun` and an `initial_value` that such a term has nothing
+  to supply. Like `other_params()`, the new accessors hide the entries belonging
+  to a component created with `setComponent()`, so assigning a whole list can no
+  longer wipe them out. Encounter contributions now receive the current
+  simulation time as `t`, as mortality contributions already did, and
+  `setComponent()` refuses a component name that a free-standing contribution is
+  already registered under (#579).
+
+- Fixed: repeated `registerExtension()` and `registerExtensions()` calls now
+  rebuild the dynamic marker classes of the active extension chain when any of
+  them disappeared during an extension-package reload, while leaving the
+  registered chain unchanged. Recreating only the class that went missing is not
+  enough, because R prunes it from the `contains` list of the marker classes
+  outside it (#569).
+
+- Fixed: dynamic extension marker classes now live in an environment that mizer
   attaches, called `mizer:extension-classes`, instead of in `.GlobalEnv`. They
   therefore survive both a user clearing their workspace and the `cleanEx()`
   that `R CMD check` runs between package examples, which used to leave every
   example after the first failing with `"<extension>" is not a defined class`.
   The environment is attached only once a dispatching extension needs a marker
-  class, so a session using base mizer never acquires the extra search path
-  entry. Integrity checks also verify the actual class metadata binding rather
-  than trusting `methods::isClass()`'s stale cache, so a binding removed by
-  hand can be repaired (#587).
+  class (#587).
 
-- `summary()` of a species-by-size array now covers the same sizes as `plot()`
-  of the same array: each species' own size range, from its `w_min` to its
-  `w_max`. `plot()` has dropped the values outside that range since it gained
-  its `all.sizes` argument, and `summary()` reported them, so the table and the
-  figure described different arrays. The out-of-range values describe an animal
-  that does not exist — `summary(getEncounter(NS_params))` gave Sprat a maximum
-  encounter rate of 40000 g/year, which is the rate a 40 kg Sprat would have,
-  against 240 g/year over the sizes a Sprat reaches — and because a rate usually
-  grows with size they were also the extreme ones, so it was the `Min` and `Max`
-  columns that were affected most. Both `summary()` methods that have a size
-  dimension take `all.sizes = TRUE` for the old behaviour. The size range is now
-  applied from one definition shared with `plot()`, so the two cannot disagree
-  again.
+## Summaries and plots
 
-- `summary()` of an array now reports `NA` for a species with no values left,
-  rather than the `-Inf`/`Inf` and warning that `min()` and `max()` of an empty
-  selection give.
+- New `getMeanLength()` calculates the mean length of the community, the
+  counterpart of `getMeanWeight()`, with which it shares a help page.
 
-- A size class holding a negligible density no longer stops
-  `projectUntilSettled()` from ever converging (#570). Above a size where growth
-  stops, the density decays exponentially and `dN/dt` decays with it, so the
-  density falls through 1e-100 and beyond while never reaching zero.
-  `distanceSSLogN()` counted every class with a positive density, so one such
-  trace — in the reported example holding 3e-92 g of Herring — contributed 2.393
-  of a total distance of 2.3957 at every check, for ever, and the run stopped at
-  `t_max` reporting `converged = FALSE` while the biomass drift correctly
-  reported a fixed point.
+- Fixed: `summary()` of a species-by-size array now covers the same sizes as
+  `plot()` of the same array, namely each species' own range from `w_min` to
+  `w_max`. The two described different arrays:
+  `summary(getEncounter(NS_params))` gave Sprat a maximum encounter rate of
+  40000 g/year, the rate a 40 kg Sprat would have, against 240 g/year over the
+  sizes a Sprat reaches. Because a rate usually grows with size, the `Min` and
+  `Max` columns were affected most. Both `summary()` methods with a size
+  dimension take `all.sizes = TRUE` for the old behaviour.
 
-  `distanceSSLogN()` therefore gains a `biomass_share_cutoff` argument,
-  defaulting to `1e-8`: a size class counts only if it holds at least that share
-  of its species' biomass. Relevance is measured as a share of biomass rather
-  than of density, because density falls fifteen orders or more across a healthy
-  spectrum for entirely good reasons. Nothing changes for a model without such a
-  trace — every class the cutoff removes there is one that already had no
-  density at all — so existing `distance_tol` values keep their meaning. Pass
-  `biomass_share_cutoff = 0` for the old behaviour. What decides whether a state
-  is a fixed point is unchanged and still integrates over every size class, cut
-  off or not, so the cutoff cannot make a drifting model look settled.
+- Fixed: `summary()` of an array now reports `NA` for a species with no values
+  left, rather than the `-Inf`/`Inf` and warning that `min()` and `max()` of an
+  empty selection give.
 
-- `projectUntilSettled()` now says so when a run that stopped at `t_max`
-  nonetheless reached a fixed point. `converged = FALSE` beside
-  `attractor = "fixed_point"` is correct — they answer different questions —
-  but read as a contradiction until the message said which was which (#570).
-
-- The `residual` entry of the `"convergence"` attribute was documented as the
-  largest per-capita rate of change returned by `getSteadyResidual()`. It is
-  the largest relative rate of *biomass* change, `(dB_i/dt) / B_i` per consumer
-  species — a biomass-weighted aggregate, and the quantity `residual_tol` is a
-  tolerance on. The two descriptions disagreed with each other and with the
-  `getSteadyResidual()` help page. Corrected here and for the `residual` column
-  of a `MizerScan`, which is filled from the same attribute (#572). It is now
-  also the number `rowSums(getSteadyResidual(params))` gives, per species.
+- Fixed: `plotYield(return_data = TRUE)` once again returns only the three
+  documented columns `Year`, `Yield` and `Species`. In mizer 3.3.0 it also
+  returned the internal `Legend` column (#593).
 
 # mizer 3.3.0
 
@@ -270,6 +204,10 @@ a single preferred one. The topic articles and the AI-agent skills have become
 one set of documents, so that there is now one guide per stage of the modelling
 workflow. It also renames the steady-state finders after what each one keeps
 fixed, keeping the old names as silent aliases.
+
+For an overview see the 
+[release announcement](https://blog.mizer.sizespectrum.org/posts/2026-08-21-mizer-3-3-announcement/)
+on the mizer blog.
 
 ## Dynamic stability
 
