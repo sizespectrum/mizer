@@ -65,8 +65,7 @@ Besides the model parameters, a `MizerParams` object also holds an *initial
 state*: the initial abundances of the species and of the resource and the
 initial fishing effort. These are the values a simulation starts from. The
 values of the abundances and the effort at all the later times of a simulation
-are stored in the `MizerSim` class which we will come to later in 
-[the section on running a simulation.](running_a_simulation.html#sec:projection)
+are stored in the `MizerSim` class.
 
 Although the `MizerParams` class contains a lot of information, it is relatively
 straightforward to set up and use. Objects of class `MizerParams` are created
@@ -139,7 +138,7 @@ the details can be found on the help page for `setFishing()`.
 The MizerParams object stores only the *initial* fishing effort, which you can
 inspect and change with `initial_effort()`. The effort that is actually used
 during a simulation is set when the simulation is run and can vary through time
-(see [the section on running a simulation](running_a_simulation.html)).
+(see [Guide: Running a mizer simulation](guide-run-simulation.html)).
 
 
 ## Example of making `MizerParams` objects {#sec:params_example}
@@ -363,8 +362,8 @@ summary(params)
 
 In this example the same gear now catches multiple stocks. For example, the
 *Industrial* gear catches Sprat, Sandeel and Norway Pout. Why would we want to
-set up the gears like this? In the next section on 
-[running a multispecies model](running_a_simulation.html) we will see that to
+set up the gears like this? In the 
+[guide-run-simulation.html](guide-run-simulation.html) we will see that to
 project the model through time you can specify the fishing effort for each gear
 through time. By setting the gears up in this way you can run different
 management scenarios of changing the efforts of the fishing gears rather than on
@@ -405,8 +404,6 @@ convergence), and `summary()` reports how far the model is from steady state.
 Passing `solver = "newton"` solves for the steady state directly instead of by
 running the dynamics, which works even where the steady state is dynamically
 unstable. Its counterpart `findSteadyState()` changes no parameter at all and
-instead reports the steady state that the parameters you already have imply. Calibrating a model to observations is
+instead reports the steady state that the parameters you already have imply.
+Calibrating a model to observations is
 discussed in the [guide to calibrating a model](guide-calibrate-model.html).
-
-Now that we know how to create a multispecies model we shall discuss how to 
-[run a multispecies model.](running_a_simulation.html)

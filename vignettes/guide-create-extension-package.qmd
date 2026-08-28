@@ -190,7 +190,7 @@ setStarvation <- function(params, starv_coef = 10) {
 Do **not** reach into `params@species_params` to do this. The rule is the same
 for `given_species_params(params)$starv_coef <- NULL`: a column mizer knows how
 to calculate comes back as a calculated value, and a column of your own — which
-mizer has no way of recalculating — is gone. Before mizer 3.4 neither of these
+mizer has no way of recalculating — is gone. Before mizer 3.3.1 neither of these
 worked, so a package that needs the behaviour has to require that version.
 
 ---
