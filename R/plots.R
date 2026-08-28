@@ -1543,7 +1543,8 @@ plotlyBiomass <- function(object,
 #' @param ... Arguments passed to [getYield()].
 #'
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
-#'   frame with the three variables 'Year', 'Yield', 'Species' is returned.
+#'   frame with the three variables 'Year', 'Yield', 'Species' is returned. If
+#'   `sim2` is supplied, the data frame also has a 'Simulation' variable.
 #' @export
 #' @family plotting functions
 #' @seealso [plotting_functions],  [getYield()]
@@ -1590,11 +1591,13 @@ plotYield.MizerSim <- function(object, sim2 = NULL,
     if (is.null(sim2)) {
         y <- getYield(object, ...)
         attr(y, "value_name") <- "Yield"
-        return(plot(y, species = species,
+        ans <- plot(y, species = species,
                     tlim = tlim, ylim = ylim,
                     total = total, highlight = highlight,
                     log_x = log_axes$log_x, log_y = log_axes$log_y,
-                    return_data = return_data))
+                    return_data = return_data)
+        if (return_data) ans$Legend <- NULL
+        return(ans)
     }
     lifecycle::deprecate_warn("2.6.0", "plotYield(sim2)", "plot2()",
                               details = "Use plot2(getYield(sim1), getYield(sim2)) instead.")
@@ -1617,10 +1620,7 @@ plotYield.MizerSim <- function(object, sim2 = NULL,
     ym2$Simulation <- rep(2, nrow(ym2))
     ym <- rbind(ym, ym2)
 
-    if (return_data) {
-        ym$Legend <- NULL
-        return(ym)
-    }
+    if (return_data) return(ym)
 
     plotDataFrame(ym, params,
                   ylab = "Yield [g/year]",

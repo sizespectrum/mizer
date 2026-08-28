@@ -1641,7 +1641,7 @@ test_that("plotFeedingLevel and plotlyFeedingLevel with include_critical", {
     expect_s3_class(pl, "plotly")
 })
 
-test_that("plotYield delegates to plot(getYield()) and warns on sim2", {
+test_that("plotYield delegates and preserves its public return-data schemas", {
     sim <- NS_sim_small
 
     # Single sim plot
@@ -1650,8 +1650,13 @@ test_that("plotYield delegates to plot(getYield()) and warns on sim2", {
     expect_identical(p$scales$get_scales("x")$name, "Year")
     expect_identical(p$scales$get_scales("y")$name, "Yield [g/year]")
 
-    # sim2 deprecation warning
-    lifecycle::expect_deprecated(plotYield(sim, sim))
+    y <- plotYield(sim, return_data = TRUE)
+    expect_named(y, c("Year", "Yield", "Species"))
+
+    lifecycle::expect_deprecated(
+        y2 <- plotYield(sim, sim, return_data = TRUE)
+    )
+    expect_named(y2, c("Year", "Yield", "Species", "Simulation"))
 })
 
 

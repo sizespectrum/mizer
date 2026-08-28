@@ -114,6 +114,11 @@
 
 ## Bug fixes
 
+- `plotYield(return_data = TRUE)` once again returns only the three documented
+  columns `Year`, `Yield` and `Species`. In mizer 3.3.0 it also returned the
+  internal `Legend` column after `plotYield()` was delegated to the shared array
+  plotting pipeline (#593).
+
 - Invalid `w_mat25` values are now reported as missing values for which the
   default will be used, matching the value ultimately stored in the model
   (#580). Where the model also carries `l_mat25`, that is cleared with it.
