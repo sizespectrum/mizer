@@ -148,6 +148,17 @@
   `setRateFunction()` no longer enters the calculation. These defaults are a
   property of the species parameters, not of the model's dynamics.
 
+- The defaults for `gamma` and `f0` now also exclude external encounter and
+  functions registered with `other_encounter()`, including a component's
+  `encounter_fun` (#586). These additive contributions still affect the realised
+  encounter and feeding level, but the defaults describe feeding on the
+  reference power-law resource alone. Previously `get_gamma_default()` measured
+  them alongside a unit search-volume coefficient, where they were negligible,
+  while `get_f0_default()` counted them at their full scale, so the two functions
+  were not inverses. When no default `gamma` can be calculated, the error now
+  names the species, reports the available energy measured for them and asks for
+  their `gamma` explicitly.
+
 - A species parameter column can be removed by dropping it from the table you
   assign, with either setter (#578). A column that is missing from the assigned
   table is one you no longer supply: mizer takes it out of

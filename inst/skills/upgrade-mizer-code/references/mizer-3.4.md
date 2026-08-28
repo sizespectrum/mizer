@@ -452,7 +452,9 @@ species_params(params)$gamma
 Where an extension's factor is zero for some species — a therMizer species
 sitting exactly on its `temp_min`, evaluated at the arbitrary `t = 0` the
 default calculation uses — the available energy came out as zero and the
-calculation failed outright with `Could not calculate gamma.`
+calculation failed outright. That error now names the species it could not
+calculate a `gamma` for, reports the available energy it measured, and says
+that such a species needs its `gamma` supplied explicitly.
 
 The same now applies to an encounter function registered with
 `setRateFunction()`: it no longer enters these two defaults. If your model
@@ -472,6 +474,35 @@ volume, which is what a dynamic modulation such as a temperature scalar is
 meant to modulate. Models that carried a `gamma` inflated (or deflated) by the
 extension's factor will get different numbers from this release, and those
 numbers are the right ones.
+
+### `gamma` and `f0` defaults ignore additive encounter contributions
+
+`get_gamma_default()` and its inverse `get_f0_default()` describe feeding on
+the idealised reference resource spectrum, before external food sources are
+added. They now exclude the `ext_encounter` array and every function registered
+with `other_encounter()`, including a component's `encounter_fun`.
+
+Previously those contributions entered the call to `mizerEncounter()` used for
+the measurement. For `get_gamma_default()` they were combined with a search
+volume coefficient of 1, making them negligible beside the predation encounter;
+for `get_f0_default()` they were measured with the species' real `gamma` and
+counted at full strength. The two functions therefore stopped being inverses,
+and a model with extra food could report a substantially higher calculated
+`f0` than the target from which its `gamma` had been derived.
+
+The change affects only the default calculation. External, free-standing and
+component encounter contributions remain part of `getEncounter()` and the
+realised feeding level. A lower recalculated `f0` is the intended reference-state
+value; use `getFeedingLevel()` to inspect feeding with the extra sources present.
+
+One model that used to build now raises an error: a species with no predation
+encounter in the reference state at all — `interaction_resource = 0`, or a
+predation kernel that does not overlap the resource — but with an additive
+contribution to fall back on. The `gamma` it used to get was derived from that
+contribution alone and was many orders of magnitude away from a search volume
+coefficient, so the model it produced was not one to keep. Supply `gamma`
+explicitly for such a species; the error names it and reports the available
+energy that was measured for it.
 
 ### `other_mort()` and `other_encounter()` register contributions that have no component
 

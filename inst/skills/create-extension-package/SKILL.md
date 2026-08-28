@@ -486,12 +486,14 @@ inverse.
 
 Those measurements use `mizerEncounter()`, not `getEncounter()`, so they do not
 dispatch through your `projectEncounter` method and are unaffected by a
-`setRateFunction()` registration. The `gamma` mizer calculates therefore
-describes the species' *baseline* search volume — which is exactly what a
+`setRateFunction()` registration. They also exclude the `ext_encounter` array
+and functions registered with `other_encounter()`, including a component's
+`encounter_fun`. The `gamma` mizer calculates therefore describes the species'
+*baseline* search volume on the reference resource — which is exactly what a
 dynamic modulation such as a temperature scalar is meant to modulate. Do not
 declare `gamma` as a given species parameter merely to protect it from your own
-method; that is no longer necessary, and it costs the model the ability to let
-`gamma` follow `f0`.
+method or component; that is no longer necessary, and it costs the model the
+ability to let `gamma` follow `f0`.
 
 ### Creating objects: the two commands
 
