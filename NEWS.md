@@ -1,5 +1,16 @@
 # mizer 3.4.0
 
+- The functions that calculate species parameter defaults from the model —
+  `get_gamma_default()`, `get_f0_default()`, `get_h_default()` and
+  `get_ks_default()` — are now S3 generics, so an extension package can register
+  its own methods for them instead of reimplementing the calculation. The
+  measurement of the energy available in the power-law reference state, which is
+  where those defaults look at the prey in the model, is exported as the generic
+  `measure_avail_energy()`. An extension that replaces mizer's resource by a
+  resource system of its own only needs a method for that one function to have
+  the `gamma` and `f0` defaults derived against its resources. The guide to
+  creating an extension package explains when this is needed (#598).
+
 - Fixed: `validSim()` passed the resource spectrum where the rate functions
   expect the list of other components, so diagnosing a failed simulation of a
   model with components created by `setComponent()` failed with `$ operator is

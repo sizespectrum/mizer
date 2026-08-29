@@ -1074,6 +1074,9 @@ users building extensions or working with model objects directly.
   [`w2l()`](https://sizespectrum.org/mizer/reference/l2w.md) :
   Length-weight conversion
 
+- [`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md)
+  : Measure the available energy in a power-law prey spectrum
+
 - [`needs_upgrading()`](https://sizespectrum.org/mizer/reference/needs_upgrading.md)
   : Determine whether a MizerParams or MizerSim object needs to be
   upgraded
