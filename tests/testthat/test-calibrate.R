@@ -116,6 +116,28 @@ test_that("scaleModel renames deprecated r_max column", {
                  ignore_attr = TRUE)
 })
 
+test_that("scaleModel records the scaled parameters as given", {
+    factor <- 4
+    params <- NS_params_small
+
+    scaled <- scaleModel(params, factor)
+
+    # The scaled values are recorded as user input, ...
+    expect_equal(given_species_params(scaled)$R_max,
+                 given_species_params(params)$R_max * factor)
+    expect_equal(given_species_params(scaled)$gamma,
+                 given_species_params(params)$gamma / factor)
+    # ... so a later recalculation does not undo the rescaling.
+    recalculated <- scaled
+    species_params(recalculated) <- species_params(scaled)
+    expect_equal(species_params(recalculated)$R_max,
+                 species_params(scaled)$R_max)
+    expect_equal(species_params(recalculated)$gamma,
+                 species_params(scaled)$gamma)
+    expect_equal(recalculated@search_vol, scaled@search_vol,
+                 ignore_attr = TRUE)
+})
+
 test_that("scaleModel updates `time_modified`", {
     params <- scaleModel(NS_params_small, factor = 2)
     expect_false(identical(params@time_modified, NS_params_small@time_modified))
