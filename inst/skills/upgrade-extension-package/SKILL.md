@@ -40,7 +40,7 @@ acceptance test for a migrated package.
 
 | Symptom | Cause | Section |
 |---|---|---|
-| `is()` / `setClass()` / `expect_s4_class()` in the package, or `.onLoad()` calling `registerExtension()` | written against the S4 mizer | Part 1 |
+| `is()` / `setClass()` / `expect_s4_class()` in the package, or `.onLoad()` calling `registerExtension()` / `getRegisteredExtensions()` | written against the S4 mizer | Part 1 |
 | After `rm(list = ls())`, or in the second and later examples of `R CMD check`, mizer reports the extension's class is not a defined class | the dynamic S4 marker classes lived in `.GlobalEnv` | Part 1 — the mechanism is gone, migrate rather than repair |
 | After `devtools::load_all()`, `coerceToExtensionClass()` reports no method or default for coercing `MizerParams` | same obsolete marker-class machinery | Part 1 |
 | The package's results are unchanged when the model is switched to `second_order_w = TRUE`, or a diagnostic is out by a constant factor | the extension's own integrals ignore the `bin_average` flag | Working under both numerical schemes |
@@ -80,7 +80,7 @@ Starting with mizer 3.3.0.9000 / 3.4:
 
 #### 1. Clean up `R/<pkgname>-package.R`
 
-Remove `.onLoad()` entirely, or the `registerExtension()` and
+Remove `.onLoad()` entirely (and delete `R/zzz.R` if it held only `.onLoad()`), or the `registerExtension()` and
 `makeActiveBinding()` calls within it if it does anything else.
 
 - **Remove `registerExtension()`**: session registration is no longer used.
@@ -88,6 +88,7 @@ Remove `.onLoad()` entirely, or the `registerExtension()` and
   directly.
 - **Remove `@importFrom methods is`**: replace `is(x, "MizerParams")` in code
   with `inherits(x, "MizerParams")`.
+- **Remove deleted files from `Collate:`**: if `DESCRIPTION` has a manual `Collate:` field, remove `zzz.R` (or whichever file held `.onLoad()`) from it.
 
 ```r
 # BEFORE:
@@ -164,8 +165,9 @@ NULL
 
 Every constructor and setup function should
 
-1. call `recordExtension()` with the package name, `version` and `requirement`,
-   and
+1. call `recordExtension()` with the package name, `version` and explicit
+   `requirement = "<owner>/<repo>"` (now required since session registration
+   no longer supplies it), and
 2. call `coerceToExtensionClass(params)`, for a dispatching extension.
 
 ```r
@@ -221,13 +223,33 @@ and update the documentation in `R/data.R`:
 - In `tests/testthat/`, replace `expect_s4_class()` with `expect_s3_class()`
   throughout — for `MizerParams` and `MizerSim` as well as for your own
   `myExtension` and `myExtensionSim`.
+- Replace any assertions on `mizer::getRegisteredExtensions()` with assertions on
+  `mizer::getMetadata(params)$extensions` (e.g., checking
+  `getMetadata(params)$extensions$myExtension$version` and `$requirement`).
 
-#### 7. Update `DESCRIPTION`
+#### 7. Provide an `upgrade` method if layout has evolved
+
+If your extension's internal layout has changed across versions, register an
+idempotent S3 method for `utils::upgrade()` so that older saved objects are
+migrated automatically when validated. See "Upgrading objects across versions of
+your extension" in the `create-extension-package` skill:
+
+```r
+#' @exportS3Method utils::upgrade
+upgrade.myExtension <- function(object, ...) {
+    # Detect old layout and migrate idempotently
+    object
+}
+```
+
+#### 8. Update `DESCRIPTION`
 
 - Remove `methods` from `Imports:` if it was there only for the S4 checks.
 - Require `mizer (>= 3.3.0.9000)`, or `mizer (>= 3.4.0)` once that is released.
+- If `DESCRIPTION` has an explicit `Collate:` field, update it to remove deleted
+  files (such as `zzz.R`) and include any new ones (such as `upgrade.R`).
 
-#### 8. Update vignettes, narrative docs and `NEWS.md`
+#### 9. Update vignettes, narrative docs and `NEWS.md`
 
 - Wherever a vignette describes S4 marker classes, `.onLoad()` or
   `registerExtension()`, replace it with S3 extension classes,
@@ -242,7 +264,7 @@ and update the documentation in `R/data.R`:
     binding.
   ```
 
-#### 9. Document, test and check
+#### 10. Document, test and check
 
 ```r
 devtools::document()   # updates NAMESPACE and man/*.Rd
