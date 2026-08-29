@@ -67,6 +67,14 @@ not enter the power-law reference state used by `get_gamma_default()` and
 `other_encounter()`, including a component's `encounter_fun`: they describe
 feeding on the reference resource alone, before extra food sources are added.
 
+If instead of adding food you *replace* the resource — a package that installs a
+resource system of its own — then any `gamma` mizer auto-derived at construction
+time is calibrated against a resource that is no longer in the model, and it
+will not be re-derived on its own. Give your class a `measure_avail_energy()`
+method, which is the hook both defaults use to look at the prey in the model;
+see the section "But they do go through your `get_*_default()` method" in
+[Creating a mizer extension package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html).
+
 ## Replacing a rate function
 
 Use when the model still follows mizer's standard flow but one step should be

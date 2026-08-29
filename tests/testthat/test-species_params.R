@@ -262,6 +262,88 @@ test_that("gamma and f0 defaults ignore additive encounters (#586)", {
     }
 })
 
+test_that("gamma and f0 defaults use the measure_avail_energy method (#598)", {
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
+
+    ext <- paste0("mizerTestEnergyExt", Sys.getpid())
+    chain <- setNames(NA_character_, ext)
+    registerExtensions(chain)
+    # An extension that supplies more prey than mizer's single resource, the
+    # way mizerMR does with its several resource spectra.
+    registerS3method(
+        "measure_avail_energy", ext,
+        function(params, ...) 4 * NextMethod(),
+        envir = asNamespace("mizer")
+    )
+
+    params <- NS_params_small
+    ext_params <- params
+    ext_params@extensions <- chain
+    ext_params <- coerceToExtensionClass(ext_params)
+    no_sp <- nrow(species_params(params))
+
+    # Four times the available energy needs a quarter of the search volume
+    # to give the same feeding level.
+    no_gamma <- params
+    no_gamma@species_params$gamma[] <- NA
+    ext_no_gamma <- ext_params
+    ext_no_gamma@species_params$gamma[] <- NA
+    expect_equal(
+        unname(suppressMessages(get_gamma_default(ext_no_gamma)) /
+                   suppressMessages(get_gamma_default(no_gamma))),
+        rep(0.25, no_sp)
+    )
+
+    # `get_f0_default()` is the inverse and so also goes through the method.
+    f0 <- get_f0_default(params)
+    expect_equal(unname(get_f0_default(ext_params)),
+                 unname(1 / ((1 / f0 - 1) / 4 + 1)))
+})
+
+test_that("the default calculations are generics an extension can override (#598)", {
+    clearExtensionChain()
+    withr::defer(clearExtensionChain())
+
+    ext <- paste0("mizerTestDefaultsExt", Sys.getpid())
+    chain <- setNames(NA_character_, ext)
+    registerExtensions(chain)
+    for (generic in c("get_h_default", "get_gamma_default",
+                      "get_f0_default", "get_ks_default")) {
+        registerS3method(generic, ext,
+                         function(params, ...) 2 * NextMethod(),
+                         envir = asNamespace("mizer"))
+    }
+
+    params <- NS_params_small
+    ext_params <- params
+    ext_params@extensions <- chain
+    ext_params <- coerceToExtensionClass(ext_params)
+
+    expect_equal(get_h_default(ext_params), 2 * get_h_default(params))
+    expect_equal(get_ks_default(ext_params), 2 * get_ks_default(params))
+    expect_equal(get_f0_default(ext_params), 2 * get_f0_default(params))
+    no_gamma <- params
+    no_gamma@species_params$gamma[] <- NA
+    ext_no_gamma <- ext_params
+    ext_no_gamma@species_params$gamma[] <- NA
+    expect_equal(unname(suppressMessages(get_gamma_default(ext_no_gamma)) /
+                            suppressMessages(get_gamma_default(no_gamma))),
+                 rep(2, nrow(species_params(params))))
+
+    # The rate setters go through the generic, so a rebuild of an extension
+    # object picks the method up.
+    p <- NS_params_small
+    suppressMessages(given_species_params(p)$h <- NULL)
+    h_base <- species_params(p)$h
+    pe <- p
+    pe@extensions <- chain
+    pe <- coerceToExtensionClass(pe)
+    suppressMessages(species_params(pe)$my_extension_note <- 1)
+    expect_equal(unname(species_params(pe)$h / h_base),
+                 rep(2, length(h_base)))
+})
+
 test_that("a gamma that cannot be defaulted names the species (#586)", {
     withr::local_options(list(mizer_defaults_edition = 2))
     params <- NS_params_small

@@ -4,10 +4,12 @@
 \alias{get_ks_default}
 \title{Get default value for \code{ks}}
 \usage{
-get_ks_default(params)
+get_ks_default(params, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
+
+\item{...}{Unused.}
 }
 \value{
 A vector with the values of ks for all species
@@ -27,7 +29,8 @@ mathematical derivation.
 Other functions calculating defaults:
 \code{\link[=get_f0_default]{get_f0_default()}},
 \code{\link[=get_gamma_default]{get_gamma_default()}},
-\code{\link[=get_h_default]{get_h_default()}}
+\code{\link[=get_h_default]{get_h_default()}},
+\code{\link[=measure_avail_energy]{measure_avail_energy()}}
 }
 \concept{functions calculating defaults}
 \concept{helper}
