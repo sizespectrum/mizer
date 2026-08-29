@@ -131,7 +131,7 @@ Under the second-order time steppers your function is evaluated a second time
 within each step, at `t + dt` and on a predicted state, so write it as a
 function of the `t` it is given: one that assumes time advances once per call,
 or caches the last `t` it saw, gives a different trajectory under
-[`project(method = "tr_bdf2")`](../reference/project.html) than under the default.
+[`project(method = "second_order")`](../reference/project.html) than under the default.
 
 **Never let a rate jump as a function of abundance.** Depending on `t` or `w`
 discontinuously is fine; depending on `n`, `n_pp` or `n_other` discontinuously
@@ -302,13 +302,20 @@ up in [`getDiet()`](../reference/getDiet.html) without further work.
 
 ### Components and the time stepper
 
-Under the second-order time steppers — `project(method = "predictor_corrector")`
-and `method = "tr_bdf2"` — a `dynamics_fun` is called **twice per time step**:
+Under the second-order time steppers — `project(method = "second_order")`, and
+the superseded `"predictor_corrector"`, which behaves the same way here — a
+`dynamics_fun` is called **twice per time step**:
 once as the predictor with the start-of-step rates, and once as the corrector
 with the midpoint rates, so that the component reaches the same order of
 accuracy as the spectra. Both calls receive the same `t` and the same
 start-of-step state, and only the corrector's return value survives. The same
 holds for a custom `resource_dynamics` function.
+
+The repeated `t` is deliberate: you are handed the start of the step and its
+length and asked for the state at the end, so both calls are advancing the same
+interval and the second one is simply redoing it with better rates. The rate
+functions, which return an instantaneous rate rather than a step, are the other
+case and are evaluated at `t` and then at `t + dt`.
 
 That makes purity a requirement rather than a matter of taste:
 
@@ -322,9 +329,44 @@ That makes purity a requirement rather than a matter of taste:
   run back to first order rather than failing.
 
 `detritusDynamics()` above satisfies both: it reads the pool out of `n_other`
-and the predation rate out of `rates`, and returns the new pool size. Test any
-new component under `method = "tr_bdf2"` as well as the default; halving `dt`
-should then move the answer by roughly a quarter rather than a half.
+and the predation rate out of `rates`, and returns the new pool size.
+
+What the corrector buys you is part of the **coupling to the rest of the
+model**, and it is worth knowing exactly how much: five entries of the rate list
+are replaced by their midpoint values — `e_growth`, `mort`, `diffusion`, `rdd`
+and `resource_mort`, the ones the consumer and resource steppers consume. Every
+other entry, `encounter`, `feeding_level`, `pred_rate`, `pred_mort`, `f_mort`,
+`e` and `rdi` among them, is still the start-of-step value in the corrector
+call. A component coupling through one of those — `detritusDynamics()` above
+reads `rates$pred_rate` — is first order in that coupling however carefully it
+integrates, and on [`NS_params`](../reference/NS_params.html) a single `dt = 0.1` step moves `pred_rate` by
+nearly 30%. Prefer a coupling through the five averaged rates where the choice
+is yours.
+
+The rest of the step is yours,
+because the interface asks for the new state rather than for a rate of change —
+mizer never evaluates your right-hand side and so cannot integrate it for you. A
+component written as `state + dt * f(state, rates)` is therefore first order
+even under `"second_order"`, however good the rates are. Two ways to be second order,
+both using the rates frozen at the values you were given:
+
+- **Solve the step exactly.** For a relaxation towards a target — much the
+  commonest shape — this is the one-liner `detritusDynamics()` uses above, and
+  mizer's own [`resource_semichemostat()`](../reference/resource_semichemostat.html) is the same pattern. Exact for frozen
+  coefficients, so the only error left is the O(dt^2) in the rates themselves,
+  and it is unconditionally stable into the bargain.
+- **Take an RK2 step inside your function**: `y + dt * f(y + dt / 2 * f(y))`.
+  General, and enough for anything non-linear.
+
+Explicit time dependence of your own goes the same way, since `t` is the start
+of the step in both calls: integrate the forcing across the step or evaluate it
+at `t + dt / 2`. None of this gains anything under the default `"euler"`, where
+the rates are the start-of-step ones and the step is first order whatever you do
+inside, but neither does it cost anything there.
+
+Test any new component under `method = "second_order"` as well as the default;
+halving `dt` should then move the answer by roughly a quarter rather than a
+half.
 
 ### Components and the steady state
 

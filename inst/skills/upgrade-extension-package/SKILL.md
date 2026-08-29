@@ -44,7 +44,7 @@ acceptance test for a migrated package.
 | After `rm(list = ls())`, or in the second and later examples of `R CMD check`, mizer reports the extension's class is not a defined class | the dynamic S4 marker classes lived in `.GlobalEnv` | Part 1 — the mechanism is gone, migrate rather than repair |
 | After `devtools::load_all()`, `coerceToExtensionClass()` reports no method or default for coercing `MizerParams` | same obsolete marker-class machinery | Part 1 |
 | The package's results are unchanged when the model is switched to `second_order_w = TRUE`, or a diagnostic is out by a constant factor | the extension's own integrals ignore the `bin_average` flag | Working under both numerical schemes |
-| A component's state advances twice as far per step, or its `dynamics_fun` double-counts, under `method = "tr_bdf2"` or `"predictor_corrector"` | the second-order steppers call `dynamics_fun` twice per step, from the same start-of-step state | Working under both numerical schemes |
+| A component's state advances twice as far per step, or its `dynamics_fun` double-counts, under `method = "second_order"` (`"tr_bdf2"`) or `"predictor_corrector"` | the second-order steppers call `dynamics_fun` twice per step, from the same start-of-step state | Working under both numerical schemes |
 | A method the package defines is never called, and its name starts with `get` | the `get`-prefixed accessors are plain aliases now; dispatch happens on the bare name | Methods on the renamed rate-array accessors |
 | `steady.MyClass` runs but `tuneSteadyState()` ignores it | the new names are separate generics | Methods on the steady-state finders |
 | The package removes a species parameter column by writing into `params@species_params` | supported route exists since 3.3.1 | Withdrawing a species parameter column |
@@ -262,7 +262,8 @@ how the model is discretised in size — `flux` picks the advective reconstructi
 and `bin_average` decides whether a size-dependent factor is integrated over its
 bin or point-sampled at the left bin edge — and `project()`'s `method` argument
 selects the discretisation in time, `"euler"` or one of the second-order
-steppers `"predictor_corrector"` and `"tr_bdf2"`. Both default to the
+stepper `"second_order"`, an alias for `"tr_bdf2"`, or the superseded
+`"predictor_corrector"`. Both default to the
 first-order choice, which is why this is easy to miss: an extension that ignores
 them looks correct, passes its own tests, and is then silently wrong for the
 user who switches them on. Aim to work under all of them, and where you cannot,
@@ -289,7 +290,7 @@ that section:
   your package will not.
 
 **In time.** The rules are in the `extend-mizer` skill, under "Components and
-the time stepper": under `"predictor_corrector"` and `"tr_bdf2"` a component's
+the time stepper": under either second-order stepper a component's
 `dynamics_fun` — and a custom `resource_dynamics` function — is called **twice
 per time step**, once as the predictor with the start-of-step rates and once as
 the corrector with the midpoint rates, both times from the same `t` and the same
@@ -304,16 +305,22 @@ check in code that was written before those steppers existed:
 - **Use the `rates` argument; do not recompute rates from `n`.** Rebuilding them
   gives the corrector the start-of-step rates again, which silently drops the
   whole run back to first order rather than producing a visible error.
+- **Integrate your own step to second order.** The corrector hands you midpoint
+  values for `e_growth`, `mort`, `diffusion`, `rdd` and `resource_mort`, and
+  start-of-step values for every other entry of the rate list. The interface
+  asks for the new state, so your function is the integrator: `state + dt * f(state, rates)` stays first order under
+  `"second_order"`. Solve the step exactly with the rates frozen, as
+  `resource_semichemostat()` does, or take an RK2 step inside the function.
 - **Tolerate being called out of order.** The rate functions are evaluated a
   second time at `t + dt` on the *predicted* state, so a rate function must not
   assume that time advances once per call or cache "the last `t` I saw".
 - The existing rule about discontinuities still applies, and is the one thing a
   better stepper cannot fix: a rate that jumps as a function of abundance is not
-  rescued by `"tr_bdf2"`.
+  rescued by `"second_order"`.
 
 **Test all four corners.** A test on the default path proves nothing about the
 other three. Run the package's own fixture with `second_order_w(params) <- TRUE`
-and with `method = "tr_bdf2"`, and check that halving `dt` moves the answer by
+and with `method = "second_order"`, and check that halving `dt` moves the answer by
 roughly a quarter rather than a half.
 
 **If you cannot support one, warn.** The size scheme is a property of the object,
@@ -335,7 +342,8 @@ good hook. Name the limitation in the same setup-time report, and add a
 `project.myExtension` method that inspects `method` before `NextMethod()` if you
 want a per-call warning as well — remembering that it catches only the calls
 that go through `project()`. The steady-state finders run the dynamics through
-an internal stepper, so `tuneSteadyState(method = "tr_bdf2")` will not reach it.
+an internal stepper, so `tuneSteadyState(method = "second_order")` will not
+reach it.
 
 ### Methods on the renamed rate-array accessors
 
