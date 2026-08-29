@@ -263,6 +263,38 @@ so enlarging `w_inf` beyond the maximum grid size gives repeated warnings that
 To expand the size range, use [`adjustSizeGrid(params, new_max_w = ...)`](../reference/adjustSizeGrid.html) or
 rebuild the model.
 
+### Writing into the slot directly, and how to repair it
+
+Only what is in `given_species_params()` is protected. A value written straight
+into the slot,
+
+```{r eval=FALSE}
+params@species_params$h[1] <- 20   # not recorded as given
+```
+
+is not, and the next recalculation replaces it with no message. Set species
+parameters with `species_params<-()` instead; where you have already adjusted
+the rate arrays yourself and do not want them rebuilt, record the change with
+[`record_given_species_params()`](../reference/record_given_species_params.html).
+
+To repair a model that already holds such values, call
+
+```{r eval=FALSE}
+params <- reconcileSpeciesParams(params)
+```
+
+It records the entries that a recalculation would change, and repeats until
+the species parameters reproduce themselves, so that the parameters mizer
+derives from the hand-set ones are caught as well. The result is a fixed point:
+no recalculation moves the species parameters again. The model itself is
+untouched; only the record of where the values came from changes.
+[`readParams()`](../reference/saveParams.html) does this for every model it loads.
+
+The price is that a parameter mizer had calculated from a value you later
+changed by hand is frozen at the value the model is actually running on, and so
+stops responding to the parameters it was derived from. Clear its entry to `NA`
+in `given_species_params(params)` to hand it back to mizer's calculation.
+
 ### Chained derivations and the cancellation trap
 
 When parameters are not given, mizer calculates them along a dependency chain:

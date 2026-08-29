@@ -41,6 +41,11 @@
 #' - They **coerce the object back to its extension class** and revalidate it,
 #'   reversing the class-stripping done at save time so you get back an object
 #'   of the same class you saved.
+#' - `readParams()` **reconciles the species parameters**, see
+#'   [reconcileSpeciesParams()]. A model may hold species parameter values that
+#'   were written straight into the `species_params` slot and that mizer would
+#'   therefore undo at the next recalculation. Those values are recorded as
+#'   given species parameters instead, so that they survive.
 #'
 #' @param params A MizerParams object
 #' @param file The name of the file or a connection where the object is saved
@@ -93,6 +98,10 @@ readParams <- function(file, install_extensions = FALSE) {
 
     params <- coerceToExtensionClass(params)
     params <- validParams(params)
+    # A saved model may hold species parameters that were written straight into
+    # the `species_params` slot and so are not recorded as given. The next
+    # recalculation would silently undo them, so they are recorded now.
+    params <- reconcileSpeciesParams(params)
 
     # # Check for missing packages
     # packages <- names(params@extensions)
