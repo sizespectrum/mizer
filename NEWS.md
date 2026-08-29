@@ -1,36 +1,15 @@
 # mizer 3.4.0
 
-- New `reconcileSpeciesParams()` makes a model's `species_params()` a fixed
-  point of mizer's recalculation. Values written straight into the
-  `species_params` slot are not recorded as given, so mizer used to undo them
-  at the next recalculation without saying so. The function records every value
-  that a recalculation would change -- repeating until the parameters reproduce
-  themselves, so that the parameters mizer derives from the hand-set ones are
-  caught too -- and leaves the model itself untouched. `readParams()` now calls
-  it automatically, so a saved model whose species parameters had drifted out of
-  step with its given species parameters keeps the values it holds.
-
-- Fixed: `validSim()` passed the resource spectrum where the rate functions
-  expect the list of other components, so diagnosing a failed simulation of a
-  model with components created by `setComponent()` failed with `$ operator is
-  invalid for atomic vectors` instead of reporting which rates went non-finite.
-
-- Fixed: `scaleModel()` wrote the rescaled `R_max` and `gamma` straight into the
-  species parameter table, bypassing the record of the values the user has
-  supplied, so the next recalculation of the species parameters silently undid
-  the rescaling. They are now recorded as given species parameters, as
-  `matchGrowth()` already did. `calibrateBiomass()`, `calibrateNumber()`,
-  `matchBiomasses()` and `matchNumbers()` inherit the fix.
-
-
-# mizer 3.3.1
-
-This patch release changes what `getSteadyResidual()` measures and takes
-components registered with `setComponent()` out of the criterion by which mizer
-decides whether a model is at steady state. It adds `getMeanLength()` and
+The headline change is one you should not be able to feel: `MizerParams` and
+`MizerSim` are now ordinary S3 objects rather than S4 objects. Slot access with
+`@` still works and models saved by earlier versions still load, but extension
+packages need a version built for this release. The release also changes what
+`getSteadyResidual()` measures and takes components registered with
+`setComponent()` out of the criterion by which mizer decides whether a model is
+at steady state. It adds `getMeanLength()`, `reconcileSpeciesParams()` and
 accessors for the extra contributions to the mortality and encounter rates, and
 it fixes bugs in the species parameter setters, in the defaults for `gamma` and
-`f0`, in the dynamic extension marker classes and in `summary()` of an array.
+`f0`, in `scaleModel()`, in `validSim()` and in `summary()` of an array.
 
 ## Steady state and calibration
 
@@ -91,6 +70,13 @@ it fixes bugs in the species parameter setters, in the defaults for `gamma` and
   largest per-capita rate of change. They hold the largest relative rate of
   *biomass* change, which is the quantity `residual_tol` is a tolerance on and
   the number `rowSums(getSteadyResidual(params))` gives (#572).
+
+- Fixed: `scaleModel()` wrote the rescaled `R_max` and `gamma` straight into the
+  species parameter table, bypassing the record of the values the user has
+  supplied, so the next recalculation of the species parameters silently undid
+  the rescaling. They are now recorded as given species parameters, as
+  `matchGrowth()` already did. `calibrateBiomass()`, `calibrateNumber()`,
+  `matchBiomasses()` and `matchNumbers()` inherit the fix.
 
 ## Time stepping
 
@@ -170,6 +156,16 @@ it fixes bugs in the species parameter setters, in the defaults for `gamma` and
   withdraw a species parameter it added when the user switches the extension
   off. The removal is reported at `info_level` 3.
 
+- New `reconcileSpeciesParams()` makes a model's `species_params()` a fixed
+  point of mizer's recalculation. Values written straight into the
+  `species_params` slot are not recorded as given, so mizer used to undo them
+  at the next recalculation without saying so. The function records every value
+  that a recalculation would change -- repeating until the parameters reproduce
+  themselves, so that the parameters mizer derives from the hand-set ones are
+  caught too -- and leaves the model itself untouched. `readParams()` now calls
+  it automatically, so a saved model whose species parameters had drifted out of
+  step with its given species parameters keeps the values it holds.
+
 ## Extensions
 
 - New accessors `other_mort()` and `other_encounter()`, with their replacement
@@ -210,6 +206,11 @@ it fixes bugs in the species parameter setters, in the defaults for `gamma` and
 - The reference index now separates model-level extension functions from the
   `recordExtension()` and `coerceToExtensionClass()` infrastructure intended
   only for extension package authors.
+
+- Fixed: `validSim()` passed the resource spectrum where the rate functions
+  expect the list of other components, so diagnosing a failed simulation of a
+  model with components created by `setComponent()` failed with `$ operator is
+  invalid for atomic vectors` instead of reporting which rates went non-finite.
 
 ## Summaries and plots
 
