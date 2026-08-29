@@ -172,33 +172,29 @@ recordExtension <- function(params, name, version = NULL, requirement = NULL) {
     assert_that(inherits(params, "MizerParams"), is.string(name))
     ext <- params$extensions
     reqs <- extensionRequirements(ext)
+    vers <- extensionVersions(ext)
     present <- name %in% names(reqs)
 
     if (present) {
         req <- if (!is.null(requirement)) as.character(requirement) else unname(reqs[[name]])
+        ver <- if (!is.null(version)) as.character(version) else unname(vers[[name]])
     } else {
         req <- if (!is.null(requirement)) as.character(requirement) else NA_character_
+        ver <- if (!is.null(version)) as.character(version) else NA_character_
     }
 
-    if (is.null(version)) {
-        if (present && is.null(requirement)) return(params)
-        if (is.list(ext)) {
-            entry <- setNames(list(c(requirement = req, version = NA_character_)),
-                              name)
-            ext <- if (present) { ext[[name]] <- entry[[1]]; ext } else c(entry, ext)
-        } else {
-            entry <- setNames(req, name)
-            ext <- if (present) { ext[[name]] <- req; ext } else c(entry, ext)
-        }
+    if (is.null(version) && !is.list(ext)) {
+        entry <- setNames(req, name)
+        ext <- if (present) { ext[[name]] <- req; ext } else c(entry, ext)
         params$extensions <- ext
         return(params)
     }
 
     if (!is.list(ext)) {
-        ext <- makeExtensions(reqs, extensionVersions(ext))
+        ext <- makeExtensions(reqs, vers)
         if (!is.list(ext)) ext <- setNames(list(), character())
     }
-    entry <- c(requirement = req, version = as.character(version))
+    entry <- c(requirement = req, version = ver)
     if (present) {
         ext[[name]] <- entry
     } else {

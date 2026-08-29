@@ -259,6 +259,11 @@ test_that("recordExtension stamps without disturbing other entries", {
     p3 <- recordExtension(p, "extA", version = "2.0.0")
     expect_identical(p3@extensions$other, before$other)
     expect_identical(unname(p3@extensions$extA[["version"]]), "2.0.0")
+
+    # passing requirement with version = NULL preserves existing version stamp
+    p4 <- recordExtension(p3, "extA", requirement = "owner/repo2")
+    expect_identical(unname(p4@extensions$extA[["version"]]), "2.0.0")
+    expect_identical(unname(p4@extensions$extA[["requirement"]]), "owner/repo2")
 })
 
 test_that("recordExtension prepends genuinely new entries", {
