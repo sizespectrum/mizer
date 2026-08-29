@@ -6,9 +6,13 @@ description: >-
   MizerParams and the simplified extension mechanism; when its methods have
   stopped dispatching, its S4 marker classes or registerExtension() calls have
   to go, or its tests fail on mizer's new reports; or when a workaround it
-  carries is no longer needed. For writing a new extension package use the
-  create-extension-package skill; for the changes that affect ordinary user
-  code use the upgrade-mizer-code skill.
+  carries is no longer needed. Only for a genuine extension — one that declares
+  marker classes, registers methods on mizer's generics, installs a rate
+  function or registers a component — and only in addition to the
+  upgrade-mizer-code skill, which covers everything a package does as ordinary
+  user code, including the version floor, docs and test suite of any package
+  that merely calls mizer. For writing a new extension package use the
+  create-extension-package skill.
 ---
 
 # Upgrading your extension package
@@ -25,14 +29,34 @@ up to date with a newer mizer. It has two halves:
   dropped, tests that now fail. These are release-by-release and each one is
   independent of the S3 migration.
 
-It covers only what is specific to *being an extension*. Everything else in the
-package — its vignettes, its examples, the model-building and calibration code
-inside its own functions — is ordinary user code, so work through the
-`upgrade-mizer-code` skill for that, against whatever the package's
-`R CMD check` reports. For what the finished package should look like, rather
-than how to get there, read the `create-extension-package` skill: this article
-does not repeat its rules, and its checklist for package authors is the
-acceptance test for a migrated package.
+It covers only what is specific to *being an extension*.
+
+## Before you start: is this an extension?
+
+Not every package that depends on mizer is a mizer extension, and only an
+extension needs this article. Look for any of these:
+
+- `setClass()` declaring a marker class, or `.onLoad()` calling
+  `registerExtension()` / `registerExtensions()`
+- methods on mizer's own generics — `project.myClass`,
+  `setParams.myClass`, `steadySingleSpecies.myClass`
+- a rate function installed with `setRateFunction()`, or a component
+  registered with `setComponent()`
+
+A package with none of them — one that only *calls* mizer, however extensively,
+like `mizerExperimental` — is ordinary user code in a package wrapper. The
+`upgrade-mizer-code` skill covers it in full, including its "If your code is a
+package" section. Stop here and use that.
+
+**Everything in this article is in addition to that skill, not instead of it.**
+Work through the `upgrade-mizer-code` skill first — its code-pattern index for
+the asymptomatic changes, its symptom index for anything that broke, and its
+package section for the version floor, the changelog, the docs and the test
+suite. Then come back here for what only an extension has to do. For what the
+finished package should look like, rather than how to get there, read the
+`create-extension-package` skill: this article does not repeat its rules, and
+its checklist for package authors is the acceptance test for a migrated
+package.
 
 <!-- agent-only -->
 
@@ -340,10 +364,11 @@ check in code that was written before those steppers existed:
   better stepper cannot fix: a rate that jumps as a function of abundance is not
   rescued by `"second_order"`.
 
-**Test all four corners.** A test on the default path proves nothing about the
-other three. Run the package's own fixture with `second_order_w(params) <- TRUE`
-and with `method = "second_order"`, and check that halving `dt` moves the answer by
-roughly a quarter rather than a half.
+**Test all four corners.** Running the package's own fixture under both
+switches, rather than only on the default path, is covered in the
+`upgrade-mizer-code` skill under "If your code is a package". An extension has
+more to get wrong in time, so add the order check: halving `dt` should move the
+answer by roughly a quarter rather than a half.
 
 **If you cannot support one, warn.** The size scheme is a property of the object,
 so the setup function is the place to say so:
@@ -463,24 +488,18 @@ of deriving a nonsense value from the additive contribution.
 
 ### Tests that match messages or assert silence
 
-Two kinds of test failure that are about mizer's reporting rather than about
-your package:
+Rephrased messages and calls that used to be quiet break tests in any package,
+and the sweep for them is in the `upgrade-mizer-code` skill under "If your code
+is a package". Two of them land specifically on extension code:
 
-- **Wording.** `steady()` no longer ends with `Convergence was achieved in 12
-  years.` but with `Reached the convergence tolerance after 12 years. The
-  biomasses change at up to 3.2e-05 per year.` An `expect_message()` matching the
-  old string needs the new one — or better, check the `"convergence"` attribute,
-  which survives `info_level = 0`.
-- **Silence.** Calls that used to be silent now report: the resource setters
-  report rebalancing, and `tuneSteadyState()` warns when a custom
-  `resource_dynamics` has no matching `balance_<dynamics>()` function. A test
-  asserting silence will fail, and that is the point of the change. Either supply
-  the missing `balance_<dynamics>()` function, or set
-  `options(mizer_info_level = 0)` where the assumption is deliberate.
-
-While you are in the test suite, check that anything the package emits itself
-goes through `signal_info()` rather than `message()` or `warning()` — see the
-`create-extension-package` skill, "Telling the user what your package decided".
+- `tuneSteadyState()` warns when a custom `resource_dynamics` has no matching
+  `balance_<dynamics>()` function, so a test asserting silence on a package that
+  supplies its own resource dynamics will fail. That is the point of the change:
+  supply the missing `balance_<dynamics>()` function rather than silencing it.
+- Anything the package emits **itself** should go through `signal_info()` rather
+  than `message()` or `warning()`, so that it honours `info_level` and is
+  collected with mizer's own reports — see the `create-extension-package` skill,
+  "Telling the user what your package decided".
 
 ### Links to renamed articles and skills
 

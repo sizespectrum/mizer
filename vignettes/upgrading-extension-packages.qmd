@@ -27,14 +27,36 @@ up to date with a newer mizer. It has two halves:
   dropped, tests that now fail. These are release-by-release and each one is
   independent of the S3 migration.
 
-It covers only what is specific to *being an extension*. Everything else in the
-package — its vignettes, its examples, the model-building and calibration code
-inside its own functions — is ordinary user code, so work through the
-[Upgrading your mizer code article](upgrading.html) for that, against whatever the package's
-`R CMD check` reports. For what the finished package should look like, rather
-than how to get there, read the [guide to creating a mizer extension package](guide-create-extension-package.html): this article
-does not repeat its rules, and its checklist for package authors is the
-acceptance test for a migrated package.
+It covers only what is specific to *being an extension*.
+
+---
+
+## Before you start: is this an extension?
+
+Not every package that depends on mizer is a mizer extension, and only an
+extension needs this article. Look for any of these:
+
+- `setClass()` declaring a marker class, or `.onLoad()` calling
+  `registerExtension()` / `registerExtensions()`
+- methods on mizer's own generics — `project.myClass`,
+  `setParams.myClass`, `steadySingleSpecies.myClass`
+- a rate function installed with [`setRateFunction()`](../reference/setRateFunction.html), or a component
+  registered with [`setComponent()`](../reference/setComponent.html)
+
+A package with none of them — one that only *calls* mizer, however extensively,
+like `mizerExperimental` — is ordinary user code in a package wrapper. The
+[Upgrading your mizer code article](upgrading.html) covers it in full, including its "If your code is a
+package" section. Stop here and use that.
+
+**Everything in this article is in addition to that skill, not instead of it.**
+Work through the [Upgrading your mizer code article](upgrading.html) first — its code-pattern index for
+the asymptomatic changes, its symptom index for anything that broke, and its
+package section for the version floor, the changelog, the docs and the test
+suite. Then come back here for what only an extension has to do. For what the
+finished package should look like, rather than how to get there, read the
+[guide to creating a mizer extension package](guide-create-extension-package.html): this article does not repeat its rules, and
+its checklist for package authors is the acceptance test for a migrated
+package.
 
 
 ---
@@ -65,7 +87,7 @@ Starting with mizer 3.3.0.9000 / 3.4:
 
 #### 1. Clean up `R/<pkgname>-package.R`
 
-Remove `.onLoad()` entirely, or the `registerExtension()` and
+Remove `.onLoad()` entirely (and delete `R/zzz.R` if it held only `.onLoad()`), or the `registerExtension()` and
 `makeActiveBinding()` calls within it if it does anything else.
 
 - **Remove `registerExtension()`**: session registration is no longer used.
@@ -73,6 +95,7 @@ Remove `.onLoad()` entirely, or the `registerExtension()` and
   directly.
 - **Remove `@importFrom methods is`**: replace `is(x, "MizerParams")` in code
   with `inherits(x, "MizerParams")`.
+- **Remove deleted files from `Collate:`**: if `DESCRIPTION` has a manual `Collate:` field, remove `zzz.R` (or whichever file held `.onLoad()`) from it.
 
 ```{r eval=FALSE}
 # BEFORE:
@@ -149,8 +172,9 @@ NULL
 
 Every constructor and setup function should
 
-1. call `recordExtension()` with the package name, `version` and `requirement`,
-   and
+1. call `recordExtension()` with the package name, `version` and explicit
+   `requirement = "<owner>/<repo>"` (now required since session registration
+   no longer supplies it), and
 2. call `coerceToExtensionClass(params)`, for a dispatching extension.
 
 ```{r eval=FALSE}
@@ -206,13 +230,33 @@ and update the documentation in `R/data.R`:
 - In `tests/testthat/`, replace `expect_s4_class()` with `expect_s3_class()`
   throughout — for `MizerParams` and `MizerSim` as well as for your own
   `myExtension` and `myExtensionSim`.
+- Replace any assertions on `mizer::getRegisteredExtensions()` with assertions on
+  `mizer::getMetadata(params)$extensions` (e.g., checking
+  [`getMetadata(params)$extensions$myExtension$version`](../reference/setMetadata.html) and `$requirement`).
 
-#### 7. Update `DESCRIPTION`
+#### 7. Provide an `upgrade` method if layout has evolved
+
+If your extension's internal layout has changed across versions, register an
+idempotent S3 method for `utils::upgrade()` so that older saved objects are
+migrated automatically when validated. See "Upgrading objects across versions of
+your extension" in the [guide to creating a mizer extension package](guide-create-extension-package.html):
+
+```{r eval=FALSE}
+#' @exportS3Method utils::upgrade
+upgrade.myExtension <- function(object, ...) {
+    # Detect old layout and migrate idempotently
+    object
+}
+```
+
+#### 8. Update `DESCRIPTION`
 
 - Remove `methods` from `Imports:` if it was there only for the S4 checks.
 - Require `mizer (>= 3.3.0.9000)`, or `mizer (>= 3.4.0)` once that is released.
+- If `DESCRIPTION` has an explicit `Collate:` field, update it to remove deleted
+  files (such as `zzz.R`) and include any new ones (such as `upgrade.R`).
 
-#### 8. Update vignettes, narrative docs and `NEWS.md`
+#### 9. Update vignettes, narrative docs and `NEWS.md`
 
 - Wherever a vignette describes S4 marker classes, `.onLoad()` or
   `registerExtension()`, replace it with S3 extension classes,
@@ -227,7 +271,7 @@ and update the documentation in `R/data.R`:
     binding.
   ```
 
-#### 9. Document, test and check
+#### 10. Document, test and check
 
 ```{r eval=FALSE}
 devtools::document()   # updates NAMESPACE and man/*.Rd
@@ -305,10 +349,11 @@ check in code that was written before those steppers existed:
   better stepper cannot fix: a rate that jumps as a function of abundance is not
   rescued by `"second_order"`.
 
-**Test all four corners.** A test on the default path proves nothing about the
-other three. Run the package's own fixture with `second_order_w(params) <- TRUE`
-and with `method = "second_order"`, and check that halving `dt` moves the answer by
-roughly a quarter rather than a half.
+**Test all four corners.** Running the package's own fixture under both
+switches, rather than only on the default path, is covered in the
+[Upgrading your mizer code article](upgrading.html) under "If your code is a package". An extension has
+more to get wrong in time, so add the order check: halving `dt` should move the
+answer by roughly a quarter rather than a half.
 
 **If you cannot support one, warn.** The size scheme is a property of the object,
 so the setup function is the place to say so:
@@ -408,7 +453,7 @@ a species parameter column away again" in the [guide to creating a mizer extensi
 ### The `gamma`/`f0` workaround can go
 
 The defaults for `gamma` and `f0` are now measured on mizer's own reference
-state: a rate function registered with [`setRateFunction()`](../reference/setRateFunction.html), the `ext_encounter`
+state: a rate function registered with `setRateFunction()`, the `ext_encounter`
 array, and every [`other_encounter()`](../reference/other_mort.html) contribution — a component's
 `encounter_fun` included — are excluded from the measurement. Packages that add
 encounter, such as a temperature scalar or a second resource, used to see
@@ -428,24 +473,18 @@ of deriving a nonsense value from the additive contribution.
 
 ### Tests that match messages or assert silence
 
-Two kinds of test failure that are about mizer's reporting rather than about
-your package:
+Rephrased messages and calls that used to be quiet break tests in any package,
+and the sweep for them is in the [Upgrading your mizer code article](upgrading.html) under "If your code
+is a package". Two of them land specifically on extension code:
 
-- **Wording.** `steady()` no longer ends with `Convergence was achieved in 12
-  years.` but with `Reached the convergence tolerance after 12 years. The
-  biomasses change at up to 3.2e-05 per year.` An `expect_message()` matching the
-  old string needs the new one — or better, check the `"convergence"` attribute,
-  which survives `info_level = 0`.
-- **Silence.** Calls that used to be silent now report: the resource setters
-  report rebalancing, and `tuneSteadyState()` warns when a custom
-  `resource_dynamics` has no matching `balance_<dynamics>()` function. A test
-  asserting silence will fail, and that is the point of the change. Either supply
-  the missing `balance_<dynamics>()` function, or set
-  `options(mizer_info_level = 0)` where the assumption is deliberate.
-
-While you are in the test suite, check that anything the package emits itself
-goes through [`signal_info()`](../reference/signal_info.html) rather than `message()` or `warning()` — see the
-[guide to creating a mizer extension package](guide-create-extension-package.html), "Telling the user what your package decided".
+- `tuneSteadyState()` warns when a custom `resource_dynamics` has no matching
+  `balance_<dynamics>()` function, so a test asserting silence on a package that
+  supplies its own resource dynamics will fail. That is the point of the change:
+  supply the missing `balance_<dynamics>()` function rather than silencing it.
+- Anything the package emits **itself** should go through [`signal_info()`](../reference/signal_info.html) rather
+  than `message()` or `warning()`, so that it honours `info_level` and is
+  collected with mizer's own reports — see the [guide to creating a mizer extension package](guide-create-extension-package.html),
+  "Telling the user what your package decided".
 
 ### Links to renamed articles and skills
 

@@ -30,6 +30,70 @@ and are not repeated here.
 
 ---
 
+## If your code is a package
+
+If what you are upgrading is a package rather than a script — anything with a
+`DESCRIPTION`, a test suite and users — a few things are different, and the
+first of them is the most important.
+
+**Do not wait for a symptom.** A script announces its upgrade problems: it
+errors, or a number you were watching moves. A package usually does not. Its
+tests can pass in full against the new mizer while several of its functions
+still carry patterns mizer has already fixed in its own code — an integral over
+the size grid written out by hand, which is correct under the default
+quadrature and silently wrong under bin averaging; a species parameter written
+into the slot, which is right until something recalculates. Nothing reports any
+of that. So read the release sections below for the whole range you are
+crossing and check your own code against them, rather than running the tests
+and concluding there is nothing to do.
+
+**Set the version floor to what you actually call.** In `DESCRIPTION`, require
+the earliest mizer that has every function and argument the upgraded code now
+uses — not the newest release you happened to test against. These are rarely
+the same: a fix prompted by a change in the newest release is often written
+with an API that has been there for a release or two, and requiring more than
+you use shuts out users for no reason.
+
+**Then the usual mechanics.** Record the changes in `NEWS.md`, including the
+ones that move results, so that a user who sees different numbers can find out
+why. Re-run `devtools::document()` if any roxygen block changed, and update
+prose that names a renamed function — `@seealso` entries, vignettes and
+`README` included, not only code.
+
+**Read `R CMD check` against its own history.** Compare the NOTE and WARNING
+count with the previous run rather than with zero. Most packages carry some
+pre-existing noise, and the question that matters is whether the upgrade added
+to it.
+
+**Sweep the test suite as well as the code.** Two kinds of test fail for
+reasons that are about mizer's reporting rather than about your package:
+`expect_message()` matching wording that has been rephrased, and
+`expect_silent()`, or an assertion of silence, on a call that now reports
+something it used to do quietly. Both are the change working as intended. Fix
+the expectation, or set `info_level = 0` where the silence is deliberate.
+
+**Write the regression test before the fix, and check that it fails.** For each
+fix, add a test and confirm it fails against the pre-change sources. A test
+written after the fix can pass for reasons unconnected with it, and on this kind
+of upgrade — where the code was not visibly broken — that is easy to do without
+noticing.
+
+**Test the corners, not just the default.** The numerics have two switches, and
+both default to the first-order choice: [`second_order_w()`](../reference/second_order_w.html) selects the
+discretisation in size, and [`project()`](../reference/project.html)'s `method` argument the one in time. A
+test on the default path says nothing about the others, which is exactly how a
+hand-rolled integral survives a green test suite. Run the package's own fixture
+with `second_order_w(params) <- TRUE` and with `method = "tr_bdf2"` as well. If
+the package cannot support one of them, say so in its documentation rather than
+leaving the user to find out.
+
+If the package is a mizer **extension** — it registers methods on mizer's
+generics, declares marker classes, or calls `registerExtension()` — do all of
+the above, then see the [Upgrading your extension package article](upgrading-extension-packages.html) for the parts that
+are specific to being an extension.
+
+---
+
 ## Upgrading from mizer 3.3 to 3.4
 
 The headline change is one you should not be able to feel: [`MizerParams`](../reference/MizerParams.html) and
@@ -1294,7 +1358,7 @@ incidental re-tuning of the reproduction parameters should call
 ### Fixes under the second-order size scheme
 
 These all concern a model that has opted in to second-order bin-averaging or to
-the `van_leer` flux with [`second_order_w()`](../reference/second_order_w.html). **On the default first-order scheme
+the `van_leer` flux with `second_order_w()`. **On the default first-order scheme
 nothing in this section changes anything.** Under the second-order scheme,
 several functions were hand-rolling a first-order sum over the size grid instead
 of using the model's own quadrature, and are now consistent with it:

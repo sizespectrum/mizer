@@ -587,6 +587,9 @@ check_index_quotes <- function(skill, pkg_root = ".") {
 #'
 #' A group heading names its file, `### <anything> -- `references/<file>``, and
 #' every table row under it until the next heading is checked against that file.
+#' A group may carry several tables -- the symptom index and the code-pattern
+#' index both point into the same release sections -- and all of them are
+#' checked, since a row is matched on its last cell whatever its first one says.
 check_symptom_index <- function(skill, pkg_root = ".") {
     if (is.na(skill_references_dir(skill, pkg_root))) return(0L)
     skill_dir <- file.path(pkg_root, "inst", "skills", skill)
@@ -617,8 +620,12 @@ check_symptom_index <- function(skill, pkg_root = ".") {
         if (grepl("^\\s*\\|[-: |]+\\|\\s*$", ln)) next
         cells <- trimws(strsplit(sub("^\\s*\\|", "", sub("\\|\\s*$", "", ln)),
                                  "|", fixed = TRUE)[[1]])
-        if (length(cells) < 3L || identical(cells[1], "Symptom")) next
+        if (length(cells) < 3L) next
         section <- cells[length(cells)]
+        # The header row of an index table, whatever its first column is called:
+        # a group may carry more than one table -- symptoms and code patterns --
+        # and every one of them ends in a `Section` column.
+        if (identical(section, "Section")) next
         if (is.na(file)) {
             bad <- c(bad, paste0("row outside any group: ", section))
             next

@@ -10,8 +10,12 @@ description: >-
   (matchYields, calibrateYield), a parameter change warns that it cannot take
   effect, an identical() comparison against a saved rate array fails, `$` on a
   parameter table stopped matching partially, or an S4 idiom such as slot(),
-  isS4() or setMethod() stopped working on a model. Starts from a symptom index,
-  so search it by the message the user actually saw.
+  isS4() or setMethod() stopped working on a model. Use it equally to bring a
+  whole codebase up to date after a mizer release when nothing is visibly
+  broken — a script, or a package with a DESCRIPTION and a test suite that
+  passes and still needs fixes. Carries two indexes: a symptom index, searched
+  by the message the user actually saw, and a code-pattern index, searched by
+  what you grep for in the code.
 ---
 
 # Upgrading your mizer code
@@ -23,29 +27,64 @@ description: >-
 Existing model **objects** created with an earlier version are upgraded
 automatically when they are loaded, so a saved `MizerParams` or `MizerSim` is
 almost never the problem. What changes across releases is *behaviour* and the
-*functions the user calls*. Diagnose in this order:
+*functions the user calls*.
 
-1. **Establish the two versions.** `packageVersion("mizer")` gives the current
-   one. Ask the user which version the code last worked with, or infer it from
-   the project (a `renv.lock`, a `DESCRIPTION`, the date of the script). This
-   fixes the range of releases you have to consider; ignore the rest.
-2. **Match the symptom** in the index below rather than debugging from first
+**First, establish two things.**
+
+1. **The two versions.** `packageVersion("mizer")` gives the current one. Ask
+   the user which version the code last worked with, or infer it from the
+   project (a `renv.lock`, a `DESCRIPTION`, the date of the script). This fixes
+   the range of releases you have to consider; ignore the rest.
+2. **Which mode you are in**, because they use different indexes:
+
+   - **Diagnostic** — something broke, warned, or moved. Start from the
+     **symptom index**.
+   - **Audit** — mizer was upgraded and you are asked to bring code up to date,
+     with nothing visibly wrong. Start from the **code-pattern index**.
+
+   The audit mode is not a fallback for a failed diagnosis. It is the normal
+   mode when the task is "upgrade this codebase" rather than "fix this error",
+   and it is the mode that finds the changes that produce **no symptom at all**
+   — an integral that is silently wrong only under a non-default numerical
+   scheme, a parameter written somewhere mizer no longer reads. Code can pass
+   its whole test suite and still need every one of those fixes.
+
+**Then, in diagnostic mode:**
+
+3. **Match the symptom** in the index below rather than debugging from first
    principles. Most upgrade breakages are deliberate, documented changes, and
    reading the model's internals will not reveal that. The index is grouped by
    release: scan only the groups inside the range from step 1.
-3. **Read the one section the row names.** The prose for each release lives in
+4. **Read the one section the row names.** The prose for each release lives in
    its own file under `references/`, named in that group's heading. Open only
    the file for the release you matched, and find the `###` heading quoted
    verbatim in the row's Section column. Do not read the other release files.
-4. **Apply only the listed fix.** Do not "repair" a model whose numbers moved
+5. **Apply only the listed fix.** Do not "repair" a model whose numbers moved
    because of a corrected bug — the new numbers are the right ones. Say so, and
    let the user decide whether to recalibrate.
 
-If the symptom is not in the index, it is probably not an upgrade issue at all;
+**In audit mode**, work the code-pattern index instead: grep the codebase for
+each pattern in the groups inside your version range, and read the section a
+hit names. There is no symptom to match, so nothing is skipped for want of one.
+A hit is a candidate, not a verdict — read the section and decide whether the
+change actually bears on this code.
+
+If a **symptom** is not in the index, it is probably not an upgrade issue;
 fall back to ordinary debugging, and check `NEWS.md` for the intervening
-releases. This skill covers only changes that alter the behaviour of *existing*
-code. Purely additive features (new functions, new optional arguments, new
-plots) are in the changelog and are not repeated here.
+releases. That escape hatch belongs to diagnostic mode only: an audit that
+finds no matching pattern is not finished, because the pattern index is a
+starting point rather than a complete inventory — finish by reading the release
+sections in range. This skill covers only changes that alter the behaviour of
+*existing* code. Purely additive features (new functions, new optional
+arguments, new plots) are in the changelog and are not repeated here.
+
+**If the code is a package** — anything with a `DESCRIPTION`, a test suite and
+users — the version floor, the changelog, the docs and the test suite all need
+attention beyond the code fixes themselves. Read "If your code is a package"
+below. **If it is a mizer extension** — it registers methods on mizer's
+generics, declares marker classes, or calls `registerExtension()` — do that
+too, then go on to the `upgrade-extension-package` skill for what is specific
+to being an extension.
 
 ## Symptom index
 
@@ -236,6 +275,60 @@ function` — carry no such quote, so match those rows on the function name.
 For guidance on which accessor to reach for once the diagnosis is made, see the
 `change-parameters` skill.
 
+## Code-pattern index
+
+The other way into the same reference sections, for **audit mode**: keyed on
+what you grep for in the codebase rather than on what the user saw. Use it when
+mizer has been upgraded and you are asked to bring code up to date with nothing
+visibly wrong.
+
+Most of these produce no symptom whatever. A hand-rolled size-grid integral is
+correct under the default scheme and silently wrong under the other one; a
+species parameter written into the slot is right until something recalculates.
+Code carrying them passes its tests, which is exactly why the symptom index
+cannot find them.
+
+The Section column works as it does above — a heading, verbatim, in that
+group's reference file, checked by `build_guides()`. Scan only the groups
+inside your version range. **A hit is a candidate, not a verdict:** read the
+section and decide whether the change bears on this code. The index is a
+starting point rather than a complete inventory, so finish an audit by reading
+the release sections in range.
+
+### mizer 3.3 → 3.4 — `references/mizer-3.4.md`
+
+| Pattern in the code | Why it matters now | Section |
+|---|---|---|
+| `params@species_params$… <- ` in a function that has just scaled a rate array by hand | the value sits outside the given-parameter record, so the next recalculation silently undoes it | `scaleModel()` records the rescaled parameters as given |
+| `params@species_params[["…"]] <- NULL`, or any column removed through the slot | there is a supported route now, which also updates `given_species_params()` | A column dropped from an assigned species parameter table is removed |
+| `set_species_param_default(…, "a", …)` or `…, "b", …`, or any local weight-length default | mizer fills `a` and `b` during validation, so a local default is dead code and misleads about the value used | Mizer says when it defaults the weight-length parameters |
+| `given_species_params(params)$gamma <- ` pinning the value already in `species_params()` | the workaround for a `gamma` that drifted on rebuild; no longer needed | The defaults for `gamma` and `f0` are measured on mizer's own reference state |
+| `isS4()`, `slot()`, `slotNames()`, `getSlots()`, `validObject()`, `new("MizerParams")`, `setMethod(…, "MizerParams", …)`, `expect_s4_class()` | the S4 machinery is gone — note that `params@w` itself still works | `MizerParams` and `MizerSim` are ordinary lists |
+| `.onLoad()` calling `registerExtension()`, or `setClass(…, contains = "MizerParams")` | this is an extension: finish here, then go to the `upgrade-extension-package` skill | Extension packages need a version built for mizer 3.4 |
+| A `MizerParams` shipped in `data/`, or read back with `readParams()` | the species parameters are reconciled when it is loaded | `readParams()` reconciles the species parameters |
+| `expect_message()`, `expect_silent()`, or a snapshot taken over a model build | building a model now reports the weight-length defaults it fills in | Mizer says when it defaults the weight-length parameters |
+
+### mizer 3.2 → 3.3 — `references/mizer-3.3.md`
+
+| Pattern in the code | Why it matters now | Section |
+|---|---|---|
+| `sum(n * w * dw)`, `rowSums(sweep(…, params@dw, "*"))`, or any size-grid integral written out by hand | it is a first-order sum, silently wrong under `second_order_w` bin averaging; `sizeIntegral()`, `getBiomass()`, `getN()` and `getYield()` follow the model's own quadrature | Fixes under the second-order size scheme |
+| `expect_message()`, `expect_silent()`, or a test asserting that a mizer call is quiet | reports are warnings now, collected until the end of the call, and follow `info_level` | One report, one switch |
+| `steady()` or `projectToSteady()` — in code, in roxygen links, in `@seealso`, in prose | both superseded and renamed | The steady-state finders have new names |
+| `attr(…, "convergence")$settled` or `$type` | the attribute has a different shape | The convergence attribute has a new shape |
+| `$` on `species_params` or `gear_params` with an abbreviated column name | partial matching is gone, so the read is now `NULL` | `$` on a parameter table no longer partially matches |
+| `setParams(…, kappa = )`, `setParams(…, r_pp = )` or any resource argument to `setParams()` | silently ignored in every earlier version, an error now | `setParams()` rejects arguments it does not use |
+| `getCatchability()`, `getPredKernel()`, `getMetabolicRate()` or another `get`-prefixed array accessor | plain aliases now; the bare name is the one to use and the one methods dispatch on | One name for each stored rate array |
+| `yield_observed` read from the species parameters | it belongs to the gear parameters | `yield_observed` belongs to the gear parameters |
+| `vignette("cheatsheet-…")`, or links to `articles/extending-mizer.html` and its siblings | the articles were renamed to guides | The cheatsheet articles are now called guides |
+
+### mizer 3.1 → 3.2 — `references/mizer-3.2.md`
+
+| Pattern in the code | Why it matters now | Section |
+|---|---|---|
+| `resource_params(params)$kappa <- ` (or `r_pp`) followed by a `setResource()` call to apply it | the assignment already rebuilds `cc_pp` and `rr_pp`, so the call is redundant — and neither balances the resource | Setting resource parameters |
+| `class(species_params(params))` compared against `"data.frame"`, or a test asserting the exact class | it is an S3 subclass now | The `species_params` data frame is now an S3 subclass |
+
 <!-- /agent-only -->
 
 This article collects the changes that may require you to update your own code
@@ -249,3 +342,65 @@ Only changes that can alter the behaviour of *existing* code are listed. The
 many purely additive features (new functions, new optional arguments, new
 plots) are described in the [changelog](https://sizespectrum.org/mizer/news/index.html)
 and are not repeated here.
+
+## If your code is a package
+
+If what you are upgrading is a package rather than a script — anything with a
+`DESCRIPTION`, a test suite and users — a few things are different, and the
+first of them is the most important.
+
+**Do not wait for a symptom.** A script announces its upgrade problems: it
+errors, or a number you were watching moves. A package usually does not. Its
+tests can pass in full against the new mizer while several of its functions
+still carry patterns mizer has already fixed in its own code — an integral over
+the size grid written out by hand, which is correct under the default
+quadrature and silently wrong under bin averaging; a species parameter written
+into the slot, which is right until something recalculates. Nothing reports any
+of that. So read the release sections below for the whole range you are
+crossing and check your own code against them, rather than running the tests
+and concluding there is nothing to do.
+
+**Set the version floor to what you actually call.** In `DESCRIPTION`, require
+the earliest mizer that has every function and argument the upgraded code now
+uses — not the newest release you happened to test against. These are rarely
+the same: a fix prompted by a change in the newest release is often written
+with an API that has been there for a release or two, and requiring more than
+you use shuts out users for no reason.
+
+**Then the usual mechanics.** Record the changes in `NEWS.md`, including the
+ones that move results, so that a user who sees different numbers can find out
+why. Re-run `devtools::document()` if any roxygen block changed, and update
+prose that names a renamed function — `@seealso` entries, vignettes and
+`README` included, not only code.
+
+**Read `R CMD check` against its own history.** Compare the NOTE and WARNING
+count with the previous run rather than with zero. Most packages carry some
+pre-existing noise, and the question that matters is whether the upgrade added
+to it.
+
+**Sweep the test suite as well as the code.** Two kinds of test fail for
+reasons that are about mizer's reporting rather than about your package:
+`expect_message()` matching wording that has been rephrased, and
+`expect_silent()`, or an assertion of silence, on a call that now reports
+something it used to do quietly. Both are the change working as intended. Fix
+the expectation, or set `info_level = 0` where the silence is deliberate.
+
+**Write the regression test before the fix, and check that it fails.** For each
+fix, add a test and confirm it fails against the pre-change sources. A test
+written after the fix can pass for reasons unconnected with it, and on this kind
+of upgrade — where the code was not visibly broken — that is easy to do without
+noticing.
+
+**Test the corners, not just the default.** The numerics have two switches, and
+both default to the first-order choice: `second_order_w()` selects the
+discretisation in size, and `project()`'s `method` argument the one in time. A
+test on the default path says nothing about the others, which is exactly how a
+hand-rolled integral survives a green test suite. Run the package's own fixture
+with `second_order_w(params) <- TRUE` and with `method = "tr_bdf2"` as well. If
+the package cannot support one of them, say so in its documentation rather than
+leaving the user to find out.
+
+If the package is a mizer **extension** — it registers methods on mizer's
+generics, declares marker classes, or calls `registerExtension()` — do all of
+the above, then see the `upgrade-extension-package` skill for the parts that
+are specific to being an extension.
