@@ -69,6 +69,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -357,7 +358,7 @@ here — the approach to the cycle is the thing to look at.</p>
 <span><span class="co">#&gt; [1] "limit_cycle"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $distance</span></span>
-<span><span class="co">#&gt; [1] 6.144612</span></span>
+<span><span class="co">#&gt; [1] 6.131103</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $residual</span></span>
 <span><span class="co">#&gt; [1] 0.3030617</span></span>
@@ -369,7 +370,10 @@ here — the approach to the cycle is the thing to look at.</p>
 <span><span class="co">#&gt; [1] 5.4</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $amplitude</span></span>
-<span><span class="co">#&gt; [1] 0.6581569</span></span></code></pre>
+<span><span class="co">#&gt; [1] 0.6581569</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $extinct</span></span>
+<span><span class="co">#&gt; character(0)</span></span></code></pre>
 <p><code><a href="../reference/projectUntilSettled.html">projectUntilSettled()</a></code> correctly identifies the attractor
 as a limit cycle with a period of about 5.4 years and a peak-to-trough
 biomass amplitude of about 66% of the mean. Applied to a model with a
