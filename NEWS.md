@@ -1,3 +1,11 @@
+# mizer 3.4.0
+
+- Fixed: `validSim()` passed the resource spectrum where the rate functions
+  expect the list of other components, so diagnosing a failed simulation of a
+  model with components created by `setComponent()` failed with `$ operator is
+  invalid for atomic vectors` instead of reporting which rates went non-finite.
+  
+
 # mizer 3.3.1
 
 This patch release changes what `getSteadyResidual()` measures and takes
@@ -152,11 +160,6 @@ it fixes bugs in the species parameter setters, in the defaults for `gamma` and
   simulation time as `t`, as mortality contributions already did, and
   `setComponent()` refuses a component name that a free-standing contribution is
   already registered under (#579).
-
-- Fixed: `validSim()` passed the resource spectrum where the rate functions
-  expect the list of other components, so diagnosing a failed simulation of a
-  model with components created by `setComponent()` failed with `$ operator is
-  invalid for atomic vectors` instead of reporting which rates went non-finite.
 
 - Fixed: repeated `registerExtension()` and `registerExtensions()` calls now
   rebuild the dynamic marker classes of the active extension chain when any of
