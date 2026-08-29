@@ -130,14 +130,14 @@ factor** (supplied to the `weighting` argument of [`sizeIntegral()`](../referenc
 # Abundance between 10g and 5kg (default weighting factor weighting = 1)
 sizeIntegral(params, min_w = 10, max_w = 5000)
 
-# Biomass between 10g and 5kg (weighting factor is body weight: weighting = params@w)
-sizeIntegral(params, weighting = params@w, min_w = 10, max_w = 5000)
+# Biomass between 10g and 5kg (weighting factor is body weight)
+sizeIntegral(params, weighting = w(params), min_w = 10, max_w = 5000)
 
 # Biomass through time, wrapped ready to plot
-sizeIntegral(sim, weighting = params@w, value_name = "Biomass", units = "g")
+sizeIntegral(sim, weighting = w(params), value_name = "Biomass", units = "g")
 ```
 
-Give it the object and the weighting factor $K$ (e.g. body weight `params@w` for
+Give it the object and the weighting factor $K$ (e.g. body weight [`w(params)`](../reference/w.html) for
 biomass, or 1 for numbers); it selects the size range, uses the quadrature
 scheme the model is actually on and wraps the result in the appropriate mizer
 array class. Doing the sum by hand instead means getting all of that right
@@ -602,8 +602,8 @@ getMeanMaxWeight(sim)
 getCommunitySlope(sim)          # returns data.frame with slope, intercept, R²
 
 # ── Your own indicator: an integral over the size spectrum ────────────────────
-sizeIntegral(params, weighting = params@w, min_w = 10, max_w = 5000)  # = getBiomass()
-sizeIntegral(sim, weighting = sweep(params@maturity, 2, params@w, "*"),  # = getSSB()
+sizeIntegral(params, weighting = w(params), min_w = 10, max_w = 5000)  # = getBiomass()
+sizeIntegral(sim, weighting = sweep(maturity(params), 2, w(params), "*"),  # = getSSB()
              value_name = "SSB", units = "g")   # pass the whole product as weighting
 # no dw, no bin-averaging by hand, no size-grid subsetting: sizeIntegral does it
 ArraySpeciesBySize(x, params = params, representation = "average")  # size-resolved

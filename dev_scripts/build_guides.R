@@ -138,6 +138,19 @@ guide_topics <- list(
         # `library` is base R.
         nolink = c("extensions", "library")
     ),
+    # Named as an upgrading article rather than a guide, on the same reasoning
+    # as `upgrade-mizer-code` below: it is that article's counterpart for the
+    # extension author, saying what a newer mizer asks of an extension package
+    # rather than of a user's script. Its symptom index is agent-only for the
+    # same reason as `upgrade-mizer-code`'s.
+    `upgrade-extension-package` = list(
+        vignette  = "upgrading-extension-packages",
+        title     = "Upgrading your extension package",
+        link_text = "Upgrading your extension package article",
+        # `data` is the package directory here, `setClass` is from methods, and
+        # `extensions` is the params slot.
+        nolink    = c("data", "setClass", "extensions")
+    ),
     # Not a guide, so it overrides all three derived names: the upgrading
     # article is the release-by-release list of changes that break existing
     # code, and the skill an agent loads when a user's script stops working
@@ -148,8 +161,12 @@ guide_topics <- list(
         title     = "Upgrading your mizer code",
         link_text = "Upgrading your mizer code article",
         # Deliberately no `lead` and no `setup`: the skill body opens with its
-        # own introduction, and nothing in the article is evaluated.
-        nolink    = c("print", "summary", "plot", "as.data.frame")
+        # own introduction, and nothing in the article is evaluated. The S4
+        # names are mizer's internal compatibility shims: the article names
+        # them as the base-R idioms that no longer apply to a model, so a link
+        # to mizer's own help page would point the reader the wrong way.
+        nolink    = c("print", "summary", "plot", "as.data.frame",
+                      "slot", "slotNames", "validObject")
     )
 )
 

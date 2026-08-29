@@ -797,5 +797,10 @@ method and does not run the full chain — `validParams(params)` (or
 - the [guide to using mizer extension
   packages](guide-use-extension-packages.html), which explains how to use
   extension packages and save/load models.
+- the [Upgrading your extension package article](upgrading-extension-packages.html), for bringing an *existing* package to
+  the state described here — one written against the S4 mizer, or one that has
+  fallen behind a later release. It lists the changes to make in order and the
+  symptoms that point at each one; this page stays the description of the
+  finished package.
 - `?coerceToExtensionClass`
 - `?recordExtension`

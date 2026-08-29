@@ -2,15 +2,16 @@
 name: upgrade-mizer-code
 description: >-
   Diagnose and fix user code or models that broke, changed results, or started
-  warning after a mizer upgrade — every documented change from 2.5.4 through 3.3,
+  warning after a mizer upgrade — every documented change from 2.5.4 through 3.4,
   release by release, with the fix. Use whenever a script that "used to work" now
   errors, a deprecation warning appears, plots or numbers differ from a previous
   run, an argument is suddenly unused or rejected (power=, sim=, time_range=,
   setParams() rejecting an argument it does not use), a function has gone
   (matchYields, calibrateYield), a parameter change warns that it cannot take
-  effect, an identical() comparison against a saved rate array fails, or `$` on a
-  parameter table stopped matching partially. Starts from a symptom index, so
-  search it by the message the user actually saw.
+  effect, an identical() comparison against a saved rate array fails, `$` on a
+  parameter table stopped matching partially, or an S4 idiom such as slot(),
+  isS4() or setMethod() stopped working on a model. Starts from a symptom index,
+  so search it by the message the user actually saw.
 ---
 
 # Upgrading your mizer code
@@ -63,6 +64,34 @@ function` — carry no such quote, so match those rows on the function name.
 
 | Symptom | Cause | Section |
 |---|---|---|
+| `isS4()` on a model is now `FALSE`, or an `expect_s4_class()` on one fails | `MizerParams` and `MizerSim` are S3 classes now | `MizerParams` and `MizerSim` are ordinary lists |
+| `slot()`, `slotNames()`, `getSlots()`, `validObject()` or `new("MizerParams")` fails, saying that there is no such class or no such slot | there is no S4 class definition any more | `MizerParams` and `MizerSim` are ordinary lists |
+| A method the user defined with `setMethod()` on a mizer class is never called, and `setMethod()` warned that the class was undefined | S4 dispatch cannot reach an S3 object | `MizerParams` and `MizerSim` are ordinary lists |
+| `setClass()` for a class with a `MizerParams` slot warns that the slot class is undefined | same | `MizerParams` and `MizerSim` are ordinary lists |
+| R errors with `could not find function`, naming `registerExtension` or `registerExtensions` | session registration went with the S4 marker classes | Extension packages need a version built for mizer 3.4 |
+| An extension package fails to load or to build its model after mizer is upgraded, or its objects come back with only the base class | the package was written for the S4 extension mechanism | Extension packages need a version built for mizer 3.4 |
+| `readRDS()` of an extension object written by `saveParams()` or `saveSim()` has the extension class where it used to have only `MizerParams` or `MizerSim` | saving now preserves the full S3 class vector | Saved extension objects retain their class |
+| `setComponent()` errors `"already a rate contribution registered under the name"` | the name is already taken by a free-standing `other_mort()` or `other_encounter()` entry, which the component used to take over silently | `other_mort()` and `other_encounter()` register contributions that have no component |
+| A component's `encounter_fun` without `...` errors about an unused `t` argument | encounter contributions now receive the current simulation time, matching mortality contributions | `other_mort()` and `other_encounter()` register contributions that have no component |
+| On a model using an extension that changes the encounter rate, `species_params(params)$gamma` moves by the same factor every time the species parameters are touched | the `gamma` default used to be measured through the extension's `projectEncounter()` method | The defaults for `gamma` and `f0` are measured on mizer's own reference state |
+| `gamma` or `f0` changes on a model with an encounter function registered by `setRateFunction()` | that function no longer enters the calculation of these two defaults | The defaults for `gamma` and `f0` are measured on mizer's own reference state |
+| A recalculated `f0` is lower on a model with external encounter, `other_encounter()` or a component `encounter_fun`, or `f0` → `gamma` → `f0` now round-trips | additive encounter contributions are no longer part of the power-law reference state | The defaults for `gamma` and `f0` are measured on mizer's own reference state |
+| Error ``"Could not calculate a default `gamma` for the following species:"`` from `species_params<-()` or `upgradeParams()` on an extension model | the extension zeroed the encounter rate for a species while the `gamma` default was being measured through it | The defaults for `gamma` and `f0` are measured on mizer's own reference state |
+| The same error on a model that builds a species with `interaction_resource = 0` and an external, free-standing or component encounter | that additive contribution used to stand in for the missing predation encounter and yielded a `gamma` many orders of magnitude too large | The defaults for `gamma` and `f0` are measured on mizer's own reference state |
+| Message `"I have removed the species parameter column"` | a column missing from an assigned species parameter table is now withdrawn | A column dropped from an assigned species parameter table is removed |
+| Species parameters the code never touched have moved, or been dropped, after assigning a table built from a few columns | the columns left out of that table counted as withdrawn | A column dropped from an assigned species parameter table is removed |
+| `given_species_params(params)$gamma <- NULL` now changes `species_params(params)$gamma` | a removal hands the parameter back to mizer's calculation and rebuilds | A column dropped from an assigned species parameter table is removed |
+| A custom species parameter column disappears where it used to survive, or `calculated_species_params()` no longer reports it | mizer cannot recalculate a column of your own, so withdrawing it removes it | A column dropped from an assigned species parameter table is removed |
+| Warning `"marking it as missing so that its default will"` be used, where the message used to say the value was set to `NA` | the message now names the value that is actually stored | An invalid `w_mat25` is replaced by its default |
+| Maturity, or a rate derived from it, has changed in a model whose species parameters carry `l_mat25` | a rejected `w_mat25` is no longer restored from its length, so the default is used | An invalid `w_mat25` is replaced by its default |
+| New message `"is set by length, but"` from `setFishing()`, `calc_selectivity()` or a model build | a length-based gear is converting lengths with defaulted weight-length parameters | Mizer says when it defaults the weight-length parameters |
+| New message `"column so using a = 0.01 in w = a l^b"` or `"the isometric default b = 3"` when a model is built | mizer now reports the weight-length defaults it fills in | Mizer says when it defaults the weight-length parameters |
+| Warning `"very close to standard parameter names"` appears once where it used to appear many times, or a warning count in a test has changed | the misspelling check now runs once, where a column enters the model | The misspelled-column check runs once |
+| A misspelled species parameter column is no longer flagged at all | the report now follows `info_level`, and the model was built with `info_level = 0` | The misspelled-column check runs once |
+| `summary()` of a rate array gives a much smaller `Max` (or larger `Min`) than before | it now covers each species' own size range, as `plot()` always has | `summary()` of an array covers the same sizes as `plot()` |
+| `summary()` of an array reports `NA` where it used to report `Inf` or `-Inf` | an empty selection is now reported as missing rather than reduced | `summary()` of an array covers the same sizes as `plot()` |
+| `projectUntilSettled()` or `tuneSteadyState()` converges where it used to run to `t_max`, or `distanceSSLogN()` returns a smaller number | size classes holding a negligible share of a species' biomass are no longer counted | A size class holding no fish no longer blocks convergence |
+| Message `"reached is a fixed point: the biomasses change at only"` | a run stopped at `t_max` on a state that is a fixed point all the same | A size class holding no fish no longer blocks convergence |
 | `readParams()` says `"that a recalculation would not reproduce"` | the model's species parameters had been edited by writing into the slot directly | `readParams()` reconciles the species parameters |
 | A species parameter of a loaded model no longer reverts when the species parameters are recalculated | `readParams()` now records the hand-edited values as given | `readParams()` reconciles the species parameters |
 | A parameter of a loaded model has stopped responding to the parameters it is derived from, or `calculated_species_params()` is smaller than it was | reaching the fixed point records mizer's own calculated values too | `readParams()` reconciles the species parameters |
@@ -100,41 +129,24 @@ function` — carry no such quote, so match those rows on the function name.
 | `plot(<ArrayTimeBySpecies>, log_y = FALSE)` shows zero or negative values it used to drop | the `1e-20` floor belongs to a logarithmic axis only | Background species and non-positive values in time-series plots |
 | `animate(NResource(sim), size_axis = "l")` labels its y axis `1/cm` where it used to say `1/g` | the label now follows the size axis, as the values already did | Animations follow the array type and the size axis |
 | `animate(getFeedingLevel(sim))` has a linear y axis from 0 to 1 where it used to be logarithmic and fitted to the data | an animation of a proportion is scaled like a static plot of one | Animations follow the array type and the size axis |
-| `summary()` of a rate array gives a much smaller `Max` (or larger `Min`) than before | it now covers each species' own size range, as `plot()` always has | `summary()` of an array covers the same sizes as `plot()` |
-| `summary()` of an array reports `NA` where it used to report `Inf` or `-Inf` | an empty selection is now reported as missing rather than reduced | `summary()` of an array covers the same sizes as `plot()` |
 | `getProportionOfLargeFish(params)` gives a different value, or no longer differs from the `MizerSim` value | weights were recycled down the columns for all but the first species | `getProportionOfLargeFish()` on a `MizerParams` object was wrong |
 | `plotYieldObservedVsModel()` errors `"You have not provided values for the column 'yield_observed'"`, but `gear_params()` has the column | the plot used to read only the species parameters | `yield_observed` belongs to the gear parameters |
 | Setting a weight on a length-based model no longer gets undone | length/weight precedence: the one given last wins | Length and weight parameters follow the one you gave last |
 | `given_species_params<-()` now changes a weight when you change its length | both setters apply the same precedence rule | Length and weight parameters follow the one you gave last |
 | Repeated `"is not consistent with the value of"` warning has stopped | the given species parameters are brought into line | Length and weight parameters follow the one you gave last |
-| Warning `"marking it as missing so that its default will"` be used, where the message used to say the value was set to `NA` | the message now names the value that is actually stored | An invalid `w_mat25` is replaced by its default |
-| Maturity, or a rate derived from it, has changed in a model whose species parameters carry `l_mat25` | a rejected `w_mat25` is no longer restored from its length, so the default is used | An invalid `w_mat25` is replaced by its default |
-| New message `"is set by length, but"` from `setFishing()`, `calc_selectivity()` or a model build | a length-based gear is converting lengths with defaulted weight-length parameters | Mizer says when it defaults the weight-length parameters |
-| New message `"column so using a = 0.01 in w = a l^b"` or `"the isometric default b = 3"` when a model is built | mizer now reports the weight-length defaults it fills in | Mizer says when it defaults the weight-length parameters |
 | New warning `"has not taken effect because the"` after a species or resource parameter change | the rate it feeds was set by hand and is no longer calculated | Species parameter setters distinguish edits from declarations |
 | `given_species_params<-()` warning behaviour changed: warnings appear only there, clearing a given value can warn, and adding an all-`NA` column does not | it reports actual changes to the authoritative given-value table | Species parameter setters distinguish edits from declarations |
 | Marking a current calculated value as given, or changing an observation or custom column, no longer rebuilds all rate arrays | provenance-only and uncached changes need no rebuild | Species parameter setters distinguish edits from declarations |
 | `given_species_params()` loses defaults such as `a` and `b`, or a derived value starts moving again | validation-filled defaults are no longer mistaken for user input | Species parameter setters distinguish edits from declarations |
-| Message `"I have removed the species parameter column"` | a column missing from an assigned species parameter table is now withdrawn | A column dropped from an assigned species parameter table is removed |
-| Species parameters the code never touched have moved, or been dropped, after assigning a table built from a few columns | the columns left out of that table counted as withdrawn | A column dropped from an assigned species parameter table is removed |
-| `given_species_params(params)$gamma <- NULL` now changes `species_params(params)$gamma` | a removal hands the parameter back to mizer's calculation and rebuilds | A column dropped from an assigned species parameter table is removed |
-| A custom species parameter column disappears where it used to survive, or `calculated_species_params()` no longer reports it | mizer cannot recalculate a column of your own, so withdrawing it removes it | A column dropped from an assigned species parameter table is removed |
 | A column read with `$` is now `NULL`, warning `"Earlier versions of mizer partially matched the column name"` | `$` no longer partially matches column names | `$` on a parameter table no longer partially matches |
 | Length-weight conversion via `$a`/`$b` gave `alpha`/`beta` values | partial matching, now fixed | `$` on a parameter table no longer partially matches |
 | Size grid or results changed in a model built with a small `min_w` | `w_min` is no longer reset to 0.001 | `w_min` survives a rebuild of the species parameters |
-| A recalculated `gamma` or `f0` is wildly different, in a model whose `search_vol` was set by hand | the frozen array used to block mizer's own unit-gamma calculation | The defaults for `gamma` and `f0` are measured on mizer's own reference state |
-| On a model using an extension that changes the encounter rate, `species_params(params)$gamma` moves by the same factor every time the species parameters are touched | the `gamma` default used to be measured through the extension's `projectEncounter()` method | The defaults for `gamma` and `f0` are measured on mizer's own reference state |
-| `gamma` or `f0` changes on a model with an encounter function registered by `setRateFunction()` | that function no longer enters the calculation of these two defaults | The defaults for `gamma` and `f0` are measured on mizer's own reference state |
-| A recalculated `f0` is lower on a model with external encounter, `other_encounter()` or a component `encounter_fun`, or `f0` → `gamma` → `f0` now round-trips | additive encounter contributions are no longer part of the power-law reference state | The defaults for `gamma` and `f0` are measured on mizer's own reference state |
-| Error ``"Could not calculate a default `gamma` for the following species:"`` from `species_params<-()` or `upgradeParams()` on an extension model | the extension zeroed the encounter rate for a species while the `gamma` default was being measured through it | The defaults for `gamma` and `f0` are measured on mizer's own reference state |
-| The same error on a model that builds a species with `interaction_resource = 0` and an external, free-standing or component encounter | that additive contribution used to stand in for the missing predation encounter and yielded a `gamma` many orders of magnitude too large | The defaults for `gamma` and `f0` are measured on mizer's own reference state |
+| A recalculated `gamma` or `f0` is wildly different, in a model whose `search_vol` was set by hand | the frozen array used to block mizer's own unit-gamma calculation | Defaults for `gamma` and `f0` ignore a hand-set search volume |
 | Setting `f0 = 1` errors `"must be finite and in the interval [0, 1)"`, even though `gamma` is supplied | every supplied target feeding level is now validated | `f0` is always validated |
 | `gamma`, `q` or feeding levels change after setting resource `kappa` or `lambda` | calculated search-volume parameters now follow the resource power law | Resource scalars refresh calculated `gamma` and `q` |
 | `setExtMort(z0pre = ...)`, `setExtMort(z0exp = ...)` or the same arguments to `setParams()` now warn ``"`z0` is already present in `given_species_params` for every species"`` | `z0` was already present in `given_species_params()` for every species, so the arguments were ignored | `setExtMort()` warns when `z0pre` or `z0exp` is ignored |
 | A message that used to appear no longer does, with `info_level = 0` | `info_level = 0` now silences everything | One report, one switch |
 | `expect_message()` on a mizer call fails, or `options(warn = 2)` trips | reports are warnings where they were messages, and are collected until the end of the call | One report, one switch |
-| Warning `"very close to standard parameter names"` appears once where it used to appear many times, or a warning count in a test has changed | the misspelling check now runs once, where a column enters the model | One report, one switch |
-| A misspelled species parameter column is no longer flagged at all | the report now follows `info_level`, and the model was built with `info_level = 0` | One report, one switch |
 | R errors with `could not find function`, naming `steadyNewton` | it never shipped; the Newton solver is now the `solver = "newton"` argument of the two finders | The steady-state finders have new names |
 | A code review, a linter or the reference index calls `steady()` or `projectToSteady()` superseded | both were renamed for what they keep fixed | The steady-state finders have new names |
 | `projectToSteady(return_sim = TRUE)` has no equivalent on the new functions | the return type no longer depends on an argument | The steady-state finders have new names |
@@ -147,8 +159,6 @@ function` — carry no such quote, so match those rows on the function name.
 | `steady()` adds `"Reduce the tolerance on the distance function to converge further."` to its convergence message | the state reached is not a fixed point | `steady()` reports the tolerance it reached rather than announcing convergence |
 | `steady()` gives different results for a model with seasonal or otherwise time-dependent rates | every block used to restart the clock at zero | The steady-state run advances time like `project()` does |
 | `projectToSteady()` finds a limit cycle much earlier, or one it used to miss | ignores the first half of the simulation | `projectToSteady()` ignores initial transients |
-| `projectUntilSettled()` or `tuneSteadyState()` converges where it used to run to `t_max`, or `distanceSSLogN()` returns a smaller number | size classes holding a negligible share of a species' biomass are no longer counted | A size class holding no fish no longer blocks convergence |
-| Message `"reached is a fixed point: the biomasses change at only"` | a run stopped at `t_max` on a state that is a fixed point all the same | A size class holding no fish no longer blocks convergence |
 | New warning `"and stability machinery covers the consumers and the resource only"` | a component with its own dynamics is held fixed by these tools | The steady-state tools hold other components fixed |
 | New warning `"not be rebalanced and the preserved resource abundance need not be a steady"` from `steady()` | a custom `resource_dynamics` with no `balance_<dynamics>()` function | The steady-state tools hold other components fixed |
 | `summary(params)` has an extra `"Steady state:"` block | new steadiness verdict | `summary()` reports the steady state |
@@ -169,19 +179,12 @@ function` — carry no such quote, so match those rows on the function name.
 | Deprecation warning for `r_pp`/`kappa` now names `setResource()` instead of `setParams()` | the old recommendation pointed at a no-op | `setParams()` rejects arguments it does not use |
 | Old code calls `getCatchability()`, `getPredKernel()`, `getMetabolicRate()` or another `get`-prefixed array accessor, and the user asks whether it still works | it does, silently and permanently; the bare name is the one to use in new code | One name for each stored rate array |
 | `getInteraction()`, `getResourceRate()`, `getResourceLevel()`, `getResourceCapacity()` or `getResourceDynamics()` used to warn and now does not | each became a plain alias of its bare name along with the other `get`-prefixed accessors | One name for each stored rate array |
-| `getExtMort.MizerParams`, `getInteraction.MizerParams` and friends no longer found as S3 methods | the `get` names are aliases of the bare names now; dispatch happens on the bare name | One name for each stored rate array |
 | R errors with `could not find function`, naming `matchYields` or `calibrateYield` | both removed after deprecation in 2.6.0 | `matchYields()` and `calibrateYield()` have been removed |
 | `compareParams()` now reports differences it used to miss | relative tolerance for species parameters | `compareParams()` compares small parameters properly |
-| After `rm(list = ls())`, or in the second and later examples of an extension package's `R CMD check`, mizer reports that the extension's class is not a defined class | the dynamic marker classes lived in `.GlobalEnv` and were wiped along with it | Extension marker classes are created and repaired by mizer |
-| After `devtools::load_all()` on an extension package, `coerceToExtensionClass()` reports no method or default for coercing `MizerParams` to the extension class | repeated registration left the chain's dynamic marker classes unrepaired | Extension marker classes are created and repaired by mizer |
-| `readRDS()` of an extension object written by `saveParams()` or `saveSim()` has the extension class where it used to have only `MizerParams` or `MizerSim` | saving now preserves the full S3 class vector | Saved extension objects retain their class |
-| `setComponent()` errors `"already a rate contribution registered under the name"` | the name is already taken by a free-standing `other_mort()` or `other_encounter()` entry, which the component used to take over silently | `other_mort()` and `other_encounter()` register contributions that have no component |
-| A component's `encounter_fun` without `...` errors about an unused `t` argument | encounter contributions now receive the current simulation time, matching mortality contributions | `other_mort()` and `other_encounter()` register contributions that have no component |
 | `vignette("cheatsheet-fishing")` (or any other `cheatsheet-…`) finds nothing | the cheatsheet articles were renamed after the skills they come from | The cheatsheet articles are now called guides |
 | The `build-multispecies-model` skill is not found | renamed to **build-model** | The cheatsheet articles are now called guides |
 | A link to `articles/using-extension-packages.html` | renamed to **guide-use-extension-packages** when it became a generated guide; the old address redirects | The cheatsheet articles are now called guides |
 | A link to `articles/extending-mizer.html` | merged into **guide-extend-mizer**, which was previously a separate shorter guide; the old address redirects | The cheatsheet articles are now called guides |
-| A link to `articles/creating-extension-packages.html` | renamed to **guide-create-extension-package** when it became a generated guide; the old address redirects | The cheatsheet articles are now called guides |
 
 ### mizer 3.1 → 3.2 — `references/mizer-3.2.md`
 
@@ -193,7 +196,6 @@ function` — carry no such quote, so match those rows on the function name.
 | Resource steady state shifts after setting `kappa` or `r_pp` | assignment does not balance | Assigning to `resource_params()` does not balance the resource |
 | Warning `"has been set manually and so it was"` not rebalanced | frozen arrays are protected | Frozen arrays are protected from incidental balancing |
 | Setting one resource array silently rebalanced the other, and you wanted it left alone | balancing is now optional | The resource setters gained a `balance` argument |
-| An extension's `setClass("mizerFoo", contains = "MizerParams")` is no longer needed, or two extensions now chain in either load order | marker classes are created dynamically from the registered S3 methods | Extension packages: dynamic marker classes |
 | `class(species_params(params))` no longer returns just `data.frame` | it is an S3 subclass now | The `species_params` data frame is now an S3 subclass |
 | A column extracted with `$` is unexpectedly named | named by species | Accessing a column with `$` now returns a named vector |
 | `gear_params` has extra `NA` columns after setting `sel_func` | argument columns added automatically | Setting `sel_func` adds the required argument columns |

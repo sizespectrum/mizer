@@ -161,14 +161,3 @@ maximum size `w_max`. Without diffusion this happens automatically and results
 are unchanged. With diffusion switched on this change stops a small amount of
 density leaking to sizes above `w_max`, so results there change slightly. See
 `vignette("numerical_details")`.
-
-### Extension packages: dynamic marker classes
-
-If you develop a mizer extension, an installed extension package is now
-recognised as a dispatching extension from the S3 methods it registers for its
-marker class (for example `getEncounter.mizerMR`), rather than only from a
-statically defined S4 marker class. You can now omit the static
-`setClass("mizerFoo", contains = "MizerParams")` and let mizer create the marker
-class dynamically. This lets two independently developed extensions be chained
-in either load order. See the `create-extension-package` skill.
-

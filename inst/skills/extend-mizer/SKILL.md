@@ -115,6 +115,12 @@ seasonalMort <- function(params, t, ...) {
 params <- setRateFunction(params, "Mort", "seasonalMort")
 ```
 
+Under the second-order time steppers your function is evaluated a second time
+within each step, at `t + dt` and on a predicted state, so write it as a
+function of the `t` it is given: one that assumes time advances once per call,
+or caches the last `t` it saw, gives a different trajectory under
+`project(method = "tr_bdf2")` than under the default.
+
 **Never let a rate jump as a function of abundance.** Depending on `t` or `w`
 discontinuously is fine; depending on `n`, `n_pp` or `n_other` discontinuously
 is not. Mizer's time steppers freeze the rates during each density update, so
@@ -277,6 +283,32 @@ Passing the component's own abundance to `mizerEncounter()` as `n_pp`, as
 `detritusEncounter()` does, is the trick for making a component act as an extra
 prey spectrum: it is then eaten through the ordinary predation kernel and shows
 up in `getDiet()` without further work.
+
+### Components and the time stepper
+
+Under the second-order time steppers — `project(method = "predictor_corrector")`
+and `method = "tr_bdf2"` — a `dynamics_fun` is called **twice per time step**:
+once as the predictor with the start-of-step rates, and once as the corrector
+with the midpoint rates, so that the component reaches the same order of
+accuracy as the spectra. Both calls receive the same `t` and the same
+start-of-step state, and only the corrector's return value survives. The same
+holds for a custom `resource_dynamics` function.
+
+That makes purity a requirement rather than a matter of taste:
+
+- **Return the new state, computed from the state you were handed.** Anything
+  that instead accumulates into a store outside the function — `<<-`, writing
+  into `other_params(params)`, a running total, a log file — happens twice per
+  step and comes out wrong by a factor of two, while looking correct under the
+  default `"euler"`.
+- **Take the rates from the `rates` argument.** Recomputing them from `n` hands
+  the corrector the start-of-step rates a second time, which quietly drops the
+  run back to first order rather than failing.
+
+`detritusDynamics()` above satisfies both: it reads the pool out of `n_other`
+and the predation rate out of `rates`, and returns the new pool size. Test any
+new component under `method = "tr_bdf2"` as well as the default; halving `dt`
+should then move the answer by roughly a quarter rather than a half.
 
 ### Components and the steady state
 

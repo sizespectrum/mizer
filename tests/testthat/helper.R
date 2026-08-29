@@ -81,6 +81,24 @@ NS_params_small@given_species_params$h <- NS_params_small@species_params$h
 NS_params_small@given_species_params$ks <- NS_params_small@species_params$ks
 # Set non-zero initial effort (matches pattern in original NS_params)
 initial_effort(NS_params_small) <- c(Industrial = 0, Pelagic = 1, Otter = 0.5)
+# --- TEMPORARY: run the suite against the mizerSeasonal subclass -------------
+suppressMessages(library(mizerSeasonal))
+local({
+    p1 <- NS_params_small
+    sp <- mizer::species_params(p1)
+    sp$vonMises_r0 <- 10
+    sp$vonMises_kappa <- 2
+    sp$vonMises_mu <- 0.25
+    sp$rdd_vonMises_r0 <- 100
+    sp$rdd_vonMises_kappa <- 2
+    sp$rdd_vonMises_mu <- 0.25
+    mizer::species_params(p1) <- sp
+    NS_params_small <<- suppressMessages(
+        mizerSeasonal::setSeasonalReproduction(
+            p1, RDD = "seasonalVonMisesRDD"))
+})
+# --- END TEMPORARY ----------------------------------------------------------
+
 # Additional cached objects — shared across test files to avoid rebuilding.
 # R's copy-on-modify semantics ensure tests that mutate a local copy do not
 # affect the cached originals.

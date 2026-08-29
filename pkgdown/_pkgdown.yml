@@ -79,6 +79,7 @@ articles:
   navbar: Upgrading
   contents:
   - upgrading
+  - upgrading-extension-packages
 - title: Technical articles
   navbar: Technical articles
   contents:
