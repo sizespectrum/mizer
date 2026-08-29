@@ -185,6 +185,9 @@ it fixes bugs in the species parameter setters, in the defaults for `gamma` and
   Extension packages now chain using standard S3 class vectors (e.g.
   `c("mizerShelf", "MizerParams")`), completely replacing dynamic S4 marker
   class generation, runtime `setClass()` calls, and search-path attachment.
+  The `NS_params` and `NS_sim` objects shipped with mizer are now stored as S3
+  objects, so `isS4(NS_params)` is `FALSE` and they no longer go through the
+  legacy-object conversion on first use.
 
 - `saveParams()` and `saveSim()` now store the object's complete S3 class
   vector instead of stripping extension classes before serialisation.
