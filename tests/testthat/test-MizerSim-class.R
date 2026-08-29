@@ -62,6 +62,29 @@ test_that("validSim works", {
     expect_equal(dim(simt@n), c(1, nrow(NS_params_small@species_params), length(NS_params_small@w)))
 })
 
+test_that("validSim gives the rate functions the other components", {
+    # The rate functions receive `n_other` as a named list, also when the model
+    # has only a single component, where `[` would otherwise drop the names.
+    e <- globalenv()
+    e$gonads_dyn <- function(params, n_other, component, ...) {
+        n_other[[component]]
+    }
+    e$gonads_mort <- function(params, n_other, ...) {
+        e$seen_n_other <- n_other
+        n_other$gonads * 0
+    }
+    p <- setComponent(NS_params_small, "gonads", initial_value = 1,
+                      dynamics_fun = "gonads_dyn",
+                      mort_fun = "gonads_mort")
+    sim <- project(p, t_max = 0.2, t_save = 0.1)
+    sim@n[3, 1, 1] <- Inf
+    expect_warning(simt <- validSim(sim),
+                   "The simulation failed to work beyond time = 0.1")
+    expect_equal(dim(simt@n)[[1]], 2)
+    expect_identical(names(e$seen_n_other), "gonads")
+    expect_identical(e$seen_n_other$gonads, sim@n_other[[2, "gonads"]])
+})
+
 test_that("validSim also validates embedded params", {
     sim <- short_ns_sim
     sim@params@species_params$w_min[1] <- 1e-10

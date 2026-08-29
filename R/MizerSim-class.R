@@ -324,15 +324,13 @@ validSim.MizerSim <- function(sim) {
         max_t_idx <- min(inf_idx[, 1]) - 1
         max_t <- as.numeric(dimnames(sim@n)$time[max_t_idx])
         warning("The simulation failed to work beyond time = ", max_t)
-        # we can't use drop = FALSE because we do want to drop time dimension.
-        n <- sim@n[max_t_idx, , ]
-        dim(n) <- dim(sim@n)[2:3]
+        slice <- get_sim_rate_slice(sim, max_t_idx)
         rates <- getRates(sim@params,
-                          n = n,
-                          n_pp = sim@n_pp[max_t_idx, ],
-                          n_other = sim@n_pp[max_t_idx, ],
-                          effort = sim@effort[max_t_idx, ],
-                          t = max_t)
+                          n = slice$n,
+                          n_pp = slice$n_pp,
+                          n_other = slice$n_other,
+                          effort = slice$effort,
+                          t = slice$t)
         inf_rates <- sapply(rates, function(x) any(!is.finite(x)))
         if (any(inf_rates)) {
             warning("The following rates failed to be finite: ",
