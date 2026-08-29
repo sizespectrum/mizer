@@ -59,6 +59,14 @@ those first: they are what the user pasted. Messages mizer does not compose
 itself — the lifecycle deprecation sentences, base R's `could not find
 function` — carry no such quote, so match those rows on the function name.
 
+### mizer 3.3 → 3.4 — `references/mizer-3.4.md`
+
+| Symptom | Cause | Section |
+|---|---|---|
+| `R_max` or `gamma` no longer reverts to its pre-`scaleModel()` value when the species parameters are recalculated | the rescaled values are now recorded as given | `scaleModel()` records the rescaled parameters as given |
+| `given_species_params()` now shows the rescaled `R_max` and `gamma` after `scaleModel()`, `calibrateBiomass()`, `calibrateNumber()`, `matchBiomasses()` or `matchNumbers()` | the rescaling used to bypass the given-value tracking | `scaleModel()` records the rescaled parameters as given |
+| Reproduction, or a rate derived from `gamma`, has changed in a model that was rescaled and then had a species parameter edited | the model used to be left with an unscaled `R_max` and `gamma` in an otherwise scaled model | `scaleModel()` records the rescaled parameters as given |
+
 ### mizer 3.2 → 3.3 — `references/mizer-3.3.md`
 
 | Symptom | Cause | Section |

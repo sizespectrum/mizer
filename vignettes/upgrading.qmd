@@ -30,6 +30,55 @@ and are not repeated here.
 
 ---
 
+## Upgrading from mizer 3.3 to 3.4
+
+This release is a bug-fix release. Nothing moves unless your code calls
+[`scaleModel()`](../reference/scaleModel.html), or one of the calibration functions built on it, and then does
+something that makes mizer recalculate the species parameters.
+
+### `scaleModel()` records the rescaled parameters as given
+
+`scaleModel()` multiplies `R_max` by the scale factor and divides `gamma` by
+it, alongside the abundances, the resource carrying capacity and the search
+volume. It used to write those two values straight into the model's species
+parameter table, which left them outside the record of what the user has
+supplied. [`given_species_params()`](../reference/species_params.html) therefore still held the values from before
+the rescaling, and the next recalculation of the species parameters -- any
+change to a species parameter, and even a no-op
+[`species_params(params) <- species_params(params)`](../reference/species_params.html) -- silently put them back,
+undoing the rescaling with no message.
+
+`scaleModel()` now records the rescaled `R_max` and `gamma` as given species
+parameters, so they survive a later recalculation. This is the same fix
+[`matchGrowth()`](../reference/matchGrowth.html) had already received.
+
+For most code nothing changes: a model that is rescaled and then used is
+identical to before, because the values in `species_params()` were correct
+immediately after the call. What changes is a model that was rescaled and then
+had its species parameters recalculated. Such a model used to end up with an
+`R_max` (and `gamma`) belonging to the *unscaled* model while the rest of it
+was scaled, which was never what the call asked for. The new numbers are the
+right ones. If that model was calibrated afterwards, the calibration was made
+against the inconsistent model and is worth redoing.
+
+[`calibrateBiomass()`](../reference/calibrateBiomass.html), [`calibrateNumber()`](../reference/calibrateNumber.html), [`matchBiomasses()`](../reference/matchBiomasses.html) and
+[`matchNumbers()`](../reference/matchNumbers.html) all rescale through `scaleModel()` and inherit the fix.
+
+If you have written your own version of this rescaling -- an extension package
+with its own `scale...Model()` function is the likely case -- apply the same
+treatment there: change the species parameters in a copy of the table and
+assign it with
+
+```{r eval=FALSE}
+species_params(params, recalculate = FALSE) <- sp
+```
+
+rather than writing into `params@species_params`. The `recalculate = FALSE`
+records the values without rebuilding the rate arrays, which is what you want
+when you have just scaled those arrays by hand yourself.
+
+---
+
 ## Upgrading from mizer 3.2 to 3.3
 
 Most of the changes in this release are corrections, so for many models nothing
@@ -466,7 +515,7 @@ Finally, defaults added while validating a `species_params<-()` assignment are
 no longer mistaken for values the user supplied. In particular, an unrelated
 edit no longer freezes newly filled `a` and `b` values. Such values can now move
 again when their inputs change and appear in [`calculated_species_params()`](../reference/species_params.html)
-rather than [`given_species_params()`](../reference/species_params.html). Set a value explicitly if it should remain
+rather than `given_species_params()`. Set a value explicitly if it should remain
 fixed (#496).
 
 ### A column dropped from an assigned species parameter table is removed
@@ -490,7 +539,7 @@ Previously neither route removed anything. Dropping a column from the table
 assigned to `species_params<-()` did nothing at all: the column was restored
 from the given species parameters, still recorded as given. Dropping one from
 the table assigned to `given_species_params<-()` did take it out of the given
-table, but left its value standing in [`species_params()`](../reference/species_params.html), where
+table, but left its value standing in `species_params()`, where
 `calculated_species_params()` reported the user's own number as one mizer had
 calculated. Nor did the removal recalculate anything, so
 `given_species_params(params)$gamma <- NULL` left the previously given `gamma`
@@ -953,8 +1002,8 @@ has one: a run that used to reach `t_max` now converges.
 
 Pass `biomass_share_cutoff = 0`, to `distanceSSLogN()` directly or through
 `projectUntilSettled()`, for the old behaviour. Note that this is unrelated to
-the `biomass_cutoff` *species parameter* used by [`calibrateBiomass()`](../reference/calibrateBiomass.html) and
-[`matchBiomasses()`](../reference/matchBiomasses.html), which is a size in grams. What decides whether a state is a
+the `biomass_cutoff` *species parameter* used by `calibrateBiomass()` and
+`matchBiomasses()`, which is a size in grams. What decides whether a state is a
 fixed point is untouched: `residual_tol` is measured against a biomass drift
 that integrates over every size class, cut off or not, so the cutoff cannot make
 a drifting model look settled.
@@ -1032,13 +1081,13 @@ same number is available directly as `rowSums(getSteadyResidual(params))`.
 
 ### The `match…()` functions announce that they broke the steady state
 
-`matchBiomasses()`, [`matchNumbers()`](../reference/matchNumbers.html) and [`matchGrowth()`](../reference/matchGrowth.html) now
+`matchBiomasses()`, `matchNumbers()` and `matchGrowth()` now
 report that they have moved the model off its steady state. This is a message,
 so `info_level = 0` or `options(mizer_info_level = 0)` silences it, as does the
 `info_level` argument, which `matchGrowth()` gains and which `matchBiomasses()`
 and `matchNumbers()` previously accepted but ignored.
 
-The `calibrate…()` functions and [`scaleModel()`](../reference/scaleModel.html) say nothing, because they do not
+The `calibrate…()` functions and `scaleModel()` say nothing, because they do not
 break the steady state: they apply one overall scaling factor, which is an exact
 symmetry of the model. If your workflow re-ran `steady()` after every
 `calibrate…()` step, that step was never necessary.
@@ -1073,7 +1122,7 @@ of using the model's own quadrature, and are now consistent with it:
   bin straddling `min_w` or `max_w` contributes only partially — as
   [`getBiomass()`](../reference/getBiomass.html) already did. Numbers over a restricted size range therefore
   change slightly; over the full size range nothing changes (#494).
-- **`calibrateBiomass()`, [`calibrateNumber()`](../reference/calibrateNumber.html), `matchNumbers()`,
+- **`calibrateBiomass()`, `calibrateNumber()`, `matchNumbers()`,
   [`plotBiomassObservedVsModel()`](../reference/plotBiomassObservedVsModel.html) and `plotYieldObservedVsModel()`** each wrote
   out their own sum over the size grid and cut the size range at a bin boundary.
   The calibration functions therefore left the abundances at values that

@@ -4,7 +4,14 @@
   expect the list of other components, so diagnosing a failed simulation of a
   model with components created by `setComponent()` failed with `$ operator is
   invalid for atomic vectors` instead of reporting which rates went non-finite.
-  
+
+- Fixed: `scaleModel()` wrote the rescaled `R_max` and `gamma` straight into the
+  species parameter table, bypassing the record of the values the user has
+  supplied, so the next recalculation of the species parameters silently undid
+  the rescaling. They are now recorded as given species parameters, as
+  `matchGrowth()` already did. `calibrateBiomass()`, `calibrateNumber()`,
+  `matchBiomasses()` and `matchNumbers()` inherit the fix.
+
 
 # mizer 3.3.1
 

@@ -157,24 +157,29 @@ scaleModel.MizerParams <- function(params, factor, ...) {
     # Resource carrying capacity
     params@cc_pp <- params@cc_pp * factor
     
+    # Search volume
+    params@search_vol <- params@search_vol / factor
+    
+    sp <- params@species_params
     # Rmax
     # r_max is a deprecated spelling of R_max. Get rid of it.
-    if ("r_max" %in% names(params@species_params)) {
-        params@species_params$R_max <- params@species_params$r_max
-        params@species_params$r_max <- NULL
+    if ("r_max" %in% names(sp)) {
+        sp$R_max <- sp$r_max
+        sp$r_max <- NULL
         signal_info("R_max",
                     "The 'r_max' column has been renamed to 'R_max'.",
                     level = 1, unhandled = "show")
     }
-    if ("R_max" %in% names(params@species_params)) {
-        params@species_params$R_max <- params@species_params$R_max * factor
+    if ("R_max" %in% names(sp)) {
+        sp$R_max <- sp$R_max * factor
     }
-    
-    # Search volume
-    params@search_vol <- params@search_vol / factor
-    if ("gamma" %in% names(params@species_params)) {
-        params@species_params$gamma <- params@species_params$gamma / factor
+    if ("gamma" %in% names(sp)) {
+        sp$gamma <- sp$gamma / factor
     }
+    # `recalculate = FALSE` records the scaled parameters, so that a later
+    # recalculation does not undo the rescaling, without recalculating the
+    # rates: the search volume has already been scaled by hand above.
+    species_params(params, recalculate = FALSE) <- sp
     
     # Initial values
     initial_n_other <- params@initial_n_other
