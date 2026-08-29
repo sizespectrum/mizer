@@ -750,6 +750,232 @@ record_given_species_params <- function(given, value, old_sp) {
     given
 }
 
+#' Reconcile the species parameters with the given species parameters
+#'
+#' `r lifecycle::badge("experimental")`
+#' Records among the given species parameters every value in
+#' `species_params(params)` that mizer would otherwise change when it
+#' recalculates the species parameters, so that the model's species parameters
+#' become a fixed point: no recalculation, however often repeated, moves them
+#' again. Called automatically by [readParams()].
+#'
+#' @details
+#' Mizer distinguishes between the species parameters that were given
+#' explicitly and the ones it calculated itself, see [species_params()]. Only
+#' the given ones are protected: whenever the species parameters are
+#' recalculated -- which every use of `species_params<-()` triggers -- the
+#' calculated ones are derived afresh from the given ones.
+#'
+#' A value that was written straight into the `species_params` slot, with for
+#' example `params@species_params$h[1] <- 20`, is therefore not protected and
+#' the next parameter change undoes it without saying so. Models saved before
+#' mizer kept track of the given species parameters, and models built by code
+#' that changes the slot directly without also calling
+#' [record_given_species_params()], can hold many such values.
+#'
+#' This function repairs such a model. It works out what the species parameters
+#' would look like if they were recalculated from the given species parameters
+#' now, compares that against the species parameters the model actually holds,
+#' and records the entries that differ among the given species parameters. It
+#' then repeats that with the enlarged record, and keeps going until a
+#' recalculation reproduces the species parameters exactly.
+#'
+#' The repetition is what makes the result a fixed point. Recording one value
+#' generally changes what a recalculation gives for the parameters mizer
+#' derives from it, so a single pass is not enough. If you had set `h` by hand,
+#' for instance, the model's `gamma` was derived from the old `h`; the first
+#' pass records `h`, and only the second notices that `gamma` would now be
+#' derived afresh from your new `h` and records it too. Once the loop finishes,
+#' nothing in `species_params()` moves again, no matter how many times the
+#' species parameters are recalculated.
+#'
+#' The comparison is made entry by entry, so a parameter is recorded only for
+#' the species whose value differs, and only where the model actually holds a
+#' value: an `NA` in `species_params()` is not a value the user put there and is
+#' never recorded. A value that a recalculation already reproduces is left
+#' calculated and goes on responding to changes in the parameters it is derived
+#' from.
+#'
+#' The model is not changed by this function: no species parameter value, and no
+#' rate array, is touched. Only the record of where the values came from is.
+#'
+#' # The price of the fixed point
+#'
+#' Freezing the model as it stands means recording values that mizer calculated
+#' rather than values you supplied -- the `gamma` of the example is mizer's own,
+#' derived from an `h` that is no longer in the model. That is deliberate: it is
+#' the `gamma` the model's rate arrays were built from, and the alternative is
+#' to let a load or an unrelated parameter change silently alter the model.
+#'
+#' The cost is that such a parameter no longer responds to the parameters it was
+#' derived from. To hand one back to mizer's calculation, clear its entry to
+#' `NA` in `given_species_params(params)`, as for any other given species
+#' parameter.
+#'
+#' @param params A MizerParams object.
+#' @param info_level Controls the amount of information messages and warnings
+#'   that are shown. Higher levels lead to more messages, `info_level = 0`
+#'   gives silence. The default is taken from the `mizer_info_level` option,
+#'   see [default_info_level()].
+#'
+#' @return The MizerParams object with the additional given species parameters
+#'   recorded.
+#' @export
+#' @seealso [species_params()], [given_species_params()],
+#'   [record_given_species_params()]
+#' @concept helper
+#' @examples
+#' params <- NS_params
+#' # Write a value straight into the species parameter slot, bypassing the
+#' # record of the values the user has supplied.
+#' params@species_params$w_mat25[1] <- species_params(params)$w_mat25[1] / 2
+#' # Mizer does not know that this value was given, so a recalculation would
+#' # undo it.
+#' is.null(given_species_params(params)$w_mat25)
+#'
+#' params <- reconcileSpeciesParams(params)
+#' # Now it is recorded, for the one species whose value differs.
+#' given_species_params(params)$w_mat25
+reconcileSpeciesParams <- function(params, info_level = default_info_level()) {
+    with_info_level(info_level = info_level, {
+
+    assert_that(is(params, "MizerParams"))
+    # The target. It is never changed: the whole point is to make the species
+    # parameters the model already holds a fixed point of the recalculation.
+    sp <- params@species_params
+    recorded <- character()
+    converged <- FALSE
+    failed <- FALSE
+
+    for (i in seq_len(reconcile_max_iterations)) {
+        # What the species parameters would look like after a recalculation
+        # from the given species parameters as they now stand. This goes
+        # through the same rebuild that `species_params<-()` and
+        # `given_species_params<-()` use, so that it cannot disagree with them
+        # about what a recalculation produces. Quietly, because the report
+        # belongs to the rebuild that is thrown away again, not to this call.
+        recalculated <- tryCatch(
+            with_info_level(info_level = 0,
+                            rebuild_from_given(params, sp))@species_params,
+            error = function(e) e)
+        if (inherits(recalculated, "error")) {
+            signal_info("species_params", paste0(
+                "I could not work out which species parameters differ from ",
+                "what a recalculation would give, because the recalculation ",
+                "failed with: ", conditionMessage(recalculated)),
+                level = 1, severity = "warning", unhandled = "show")
+            failed <- TRUE
+            break
+        }
+        step <- record_unreproduced_species_params(
+            params@given_species_params, sp, recalculated)
+        if (length(step$recorded) == 0) {
+            # A recalculation now reproduces every value the model holds.
+            converged <- TRUE
+            break
+        }
+        recorded <- union(recorded, step$recorded)
+        # Normalised here rather than after the loop, so that the recalculation
+        # the next round tests against is the one the stored table really
+        # produces. Whatever the normalisation changes is therefore either
+        # recorded again or reported as a failure to converge, instead of
+        # quietly undoing the fixed point after the last check.
+        params@given_species_params <-
+            validGivenSpeciesParams(step$given, check_misspellings = FALSE)
+    }
+
+    if (length(recorded) == 0) {
+        return(params)
+    }
+
+    many <- length(recorded) > 1
+    signal_info("species_params", paste0(
+        "The species parameter", if (many) "s " else " ",
+        paste0("`", recorded, "`", collapse = ", "),
+        if (many) " hold values" else " holds a value",
+        " that a recalculation would not reproduce. I have recorded ",
+        if (many) "them" else "it",
+        " among the given species parameters so that ",
+        if (many) "they are" else "it is", " not overwritten."),
+        level = 1, class = "info_about_reconciliation")
+    if (!converged && !failed) {
+        signal_info("species_params", paste0(
+            "I could not make the species parameters reproduce themselves: ",
+            "after ", reconcile_max_iterations, " rounds a recalculation ",
+            "still changes some of them. The values recorded so far have been ",
+            "kept. Compare `species_params(params)` against the model you get ",
+            "from `species_params(params) <- species_params(params)` to see ",
+            "which parameters are still moving."),
+            level = 1, severity = "warning", unhandled = "show")
+    }
+
+    params
+    })
+}
+
+# How many rounds of recording and recalculating to allow before giving up.
+# Each round records at least one more entry and there are finitely many, so a
+# recalculation that simply reproduces what it is given always converges, and
+# in practice in two or three rounds: one for the values set by hand, one for
+# the parameters derived from them, one to confirm. The limit is there for the
+# case where a recalculation does not reproduce what it is given -- a
+# correction in `validSpeciesParams()` that keeps rejecting a recorded value --
+# where the rounds would otherwise chase each other indefinitely.
+reconcile_max_iterations <- 10
+
+# Record into `given` the entries of `sp` that `recalculated` does not
+# reproduce. Returns the updated table together with the names of the columns
+# that gained an entry, so that the caller can tell whether anything moved.
+#
+# Only entries that hold a value are recorded. An `NA` in the species
+# parameters is not a value the user put there, and recording it would take a
+# value out of the given species parameters rather than add one.
+record_unreproduced_species_params <- function(given, sp, recalculated) {
+    no_sp <- nrow(sp)
+    recorded <- character()
+    for (col in names(sp)) {
+        if (col == "species") {
+            next
+        }
+        values <- sp[[col]]
+        # A column the recalculation does not produce at all is compared
+        # against `NA`, so every entry holding a value counts as differing.
+        sel <- changed_entries(values, recalculated[[col]], no_sp) &
+            entry_has_value(values, no_sp)
+        if (!any(sel)) {
+            next
+        }
+        recorded <- c(recorded, col)
+        old <- given[[col]]
+        if (is.null(old) || column_length(old) != no_sp) {
+            old <- empty_species_param_column(values, no_sp)
+        }
+        if (!is.null(dim(values)) && length(dim(values)) >= 2) {
+            old[sel, ] <- values[sel, , drop = FALSE]
+        } else {
+            old[sel] <- values[sel]
+        }
+        given <- set_column(given, col, old)
+    }
+    list(given = given, recorded = recorded)
+}
+
+# An all-missing species parameter column of the same kind as `values`, to
+# record entries into where the given species parameters have no such column
+# yet. Only the entries that differ are then filled in, so that the calculated
+# values in the other entries do not become given values.
+empty_species_param_column <- function(values, n) {
+    if (!is.null(dim(values)) && length(dim(values)) >= 2) {
+        empty <- values
+        empty[] <- NA
+        return(empty)
+    }
+    if (is.list(values)) {
+        return(vector("list", n))
+    }
+    rep(NA, n)
+}
+
 #' @rdname species_params
 #' @return `is.species_params()` returns `TRUE` if `x` is a `species_params`
 #'   object, `FALSE` otherwise.

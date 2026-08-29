@@ -63,6 +63,10 @@ function` — carry no such quote, so match those rows on the function name.
 
 | Symptom | Cause | Section |
 |---|---|---|
+| `readParams()` says `"that a recalculation would not reproduce"` | the model's species parameters had been edited by writing into the slot directly | `readParams()` reconciles the species parameters |
+| A species parameter of a loaded model no longer reverts when the species parameters are recalculated | `readParams()` now records the hand-edited values as given | `readParams()` reconciles the species parameters |
+| A parameter of a loaded model has stopped responding to the parameters it is derived from, or `calculated_species_params()` is smaller than it was | reaching the fixed point records mizer's own calculated values too | `readParams()` reconciles the species parameters |
+| `given_species_params()` of a loaded model holds entries that were not there before | `readParams()` records the values a recalculation would not reproduce | `readParams()` reconciles the species parameters |
 | `R_max` or `gamma` no longer reverts to its pre-`scaleModel()` value when the species parameters are recalculated | the rescaled values are now recorded as given | `scaleModel()` records the rescaled parameters as given |
 | `given_species_params()` now shows the rescaled `R_max` and `gamma` after `scaleModel()`, `calibrateBiomass()`, `calibrateNumber()`, `matchBiomasses()` or `matchNumbers()` | the rescaling used to bypass the given-value tracking | `scaleModel()` records the rescaled parameters as given |
 | Reproduction, or a rate derived from `gamma`, has changed in a model that was rescaled and then had a species parameter edited | the model used to be left with an unscaled `R_max` and `gamma` in an otherwise scaled model | `scaleModel()` records the rescaled parameters as given |

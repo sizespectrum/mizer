@@ -178,3 +178,31 @@ drawn_linewidth <- function(plot, species, params, layer = 1) {
     built <- ggplot2::ggplot_build(plot)$data[[layer]]
     unique(built$linewidth[built$colour == params@linecolour[[species]]])
 }
+
+# Which species parameters a recalculation moves, by column name and species
+# index. Used by the tests of `reconcileSpeciesParams()`, whose whole point is
+# that this comes back empty. Compared by column name because a recalculation
+# may reorder the columns and add ones the model did not have, neither of which
+# changes a value the model holds.
+recalculation_moves <- function(params, times = 1) {
+    before <- species_params(params)
+    for (i in seq_len(times)) {
+        params <- suppressMessages(suppressWarnings({
+            species_params(params) <- species_params(params)
+            params
+        }))
+    }
+    after <- species_params(params)
+    moved <- character()
+    for (col in names(before)) {
+        if (!col %in% names(after)) {
+            moved <- c(moved, col)
+            next
+        }
+        if (any(mizer:::changed_entries(after[[col]], before[[col]],
+                                        nrow(before)))) {
+            moved <- c(moved, col)
+        }
+    }
+    moved
+}

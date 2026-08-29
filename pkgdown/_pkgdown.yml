@@ -150,6 +150,7 @@ reference:
   contents:
   - species_params
   - record_given_species_params
+  - reconcileSpeciesParams
   - gear_params
   - initialN
   - initialNResource

@@ -32,9 +32,58 @@ and are not repeated here.
 
 ## Upgrading from mizer 3.3 to 3.4
 
-This release is a bug-fix release. Nothing moves unless your code calls
-[`scaleModel()`](../reference/scaleModel.html), or one of the calibration functions built on it, and then does
-something that makes mizer recalculate the species parameters.
+Nothing moves unless your code calls [`scaleModel()`](../reference/scaleModel.html), or one of the calibration
+functions built on it, and then does something that makes mizer recalculate the
+species parameters, or unless you load a saved model whose species parameters
+had been edited by writing into the [`species_params`](../reference/species_params.html) slot directly.
+
+### `readParams()` reconciles the species parameters
+
+Mizer protects the species parameters you gave it against being recalculated,
+but only the ones it knows you gave, the ones in [`given_species_params()`](../reference/species_params.html). A
+value written straight into the slot with `params@species_params$h[1] <- 20` is
+not among them, and the next recalculation of the species parameters -- any
+change to a species parameter, and even a no-op
+`species_params(params) <- species_params(params)` -- silently replaces it.
+Models saved before mizer kept that record, and models built by code that
+changes the slot directly, can hold many such values.
+
+[`readParams()`](../reference/saveParams.html) now calls the new [`reconcileSpeciesParams()`](../reference/reconcileSpeciesParams.html), which records the
+values a recalculation would change among the given species parameters. It
+repeats that until the species parameters reproduce themselves, so a parameter
+mizer derives from a hand-set one is recorded too, and the loaded model's
+species parameters are a fixed point: no recalculation moves them again. It
+tells you what it recorded:
+
+```
+#> The species parameter `h` holds a value that a recalculation would not
+#> reproduce. I have recorded it among the given species parameters so that it
+#> is not overwritten.
+```
+
+Loading a model does not change the model: no species parameter value and no
+rate array is touched, only the record of where the values came from. What
+changes is what happens *afterwards*. Parameters that used to revert on the
+next recalculation now stay put. If you were relying on the old behaviour --
+and some scripts do, without knowing it, by editing the slot and then letting a
+later call undo the edit -- those parameters now keep the values the model was
+loaded with.
+
+Reaching the fixed point means recording values mizer calculated as well as
+values you supplied: the `gamma` that was derived from an `h` you later
+overwrote is recorded at the value the model's rate arrays were actually built
+from. [`calculated_species_params()`](../reference/species_params.html) of a loaded model can therefore be smaller
+than it was, and those parameters no longer respond to the parameters they were
+derived from.
+
+If you see the message on a model you did not expect to be inconsistent, the
+code that built it is writing into `params@species_params` directly. Change it
+to go through `species_params<-()`, or, where it has already updated the
+affected rate arrays itself, through [`record_given_species_params()`](../reference/record_given_species_params.html).
+
+To hand one of the recorded parameters back to mizer's calculation, clear its
+entry to `NA` in `given_species_params(params)`, as for any other given species
+parameter.
 
 ### `scaleModel()` records the rescaled parameters as given
 
@@ -42,10 +91,10 @@ something that makes mizer recalculate the species parameters.
 it, alongside the abundances, the resource carrying capacity and the search
 volume. It used to write those two values straight into the model's species
 parameter table, which left them outside the record of what the user has
-supplied. [`given_species_params()`](../reference/species_params.html) therefore still held the values from before
+supplied. `given_species_params()` therefore still held the values from before
 the rescaling, and the next recalculation of the species parameters -- any
 change to a species parameter, and even a no-op
-[`species_params(params) <- species_params(params)`](../reference/species_params.html) -- silently put them back,
+`species_params(params) <- species_params(params)` -- silently put them back,
 undoing the rescaling with no message.
 
 `scaleModel()` now records the rescaled `R_max` and `gamma` as given species
@@ -514,7 +563,7 @@ or use `options(mizer_info_level = 0)` when the warning is not wanted (#489).
 Finally, defaults added while validating a `species_params<-()` assignment are
 no longer mistaken for values the user supplied. In particular, an unrelated
 edit no longer freezes newly filled `a` and `b` values. Such values can now move
-again when their inputs change and appear in [`calculated_species_params()`](../reference/species_params.html)
+again when their inputs change and appear in `calculated_species_params()`
 rather than `given_species_params()`. Set a value explicitly if it should remain
 fixed (#496).
 

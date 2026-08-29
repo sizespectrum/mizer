@@ -1,5 +1,15 @@
 # mizer 3.4.0
 
+- New `reconcileSpeciesParams()` makes a model's `species_params()` a fixed
+  point of mizer's recalculation. Values written straight into the
+  `species_params` slot are not recorded as given, so mizer used to undo them
+  at the next recalculation without saying so. The function records every value
+  that a recalculation would change -- repeating until the parameters reproduce
+  themselves, so that the parameters mizer derives from the hand-set ones are
+  caught too -- and leaves the model itself untouched. `readParams()` now calls
+  it automatically, so a saved model whose species parameters had drifted out of
+  step with its given species parameters keeps the values it holds.
+
 - Fixed: `validSim()` passed the resource spectrum where the rate functions
   expect the list of other components, so diagnosing a failed simulation of a
   model with components created by `setComponent()` failed with `$ operator is

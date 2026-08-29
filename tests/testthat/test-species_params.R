@@ -1719,3 +1719,133 @@ test_that("record_given_species_params preserves the class of `given`", {
         expect_identical(names(given$w_mat), rownames(given))
     }
 })
+
+
+# reconcileSpeciesParams --------------------------------------------------
+
+test_that("reconcileSpeciesParams() leaves a consistent model alone", {
+    params <- NS_params_small
+    expect_identical(reconcileSpeciesParams(params), params)
+})
+
+test_that("reconcileSpeciesParams() records only the entries a recalculation would change", {
+    params <- NS_params_small
+    # `w_mat25` is calculated by `setReproduction()` and is not among the given
+    # species parameters of this model, so a value written straight into the
+    # slot would be undone by the next recalculation.
+    new_value <- unname(species_params(params)$w_mat25[2]) / 2
+    params@species_params$w_mat25[2] <- new_value
+
+    reconciled <- reconcileSpeciesParams(params, info_level = 0)
+
+    given <- given_species_params(reconciled)
+    expect_equal(unname(given$w_mat25[2]), new_value)
+    # The species whose value a recalculation reproduces stay calculated
+    expect_true(all(is.na(given$w_mat25[-2])))
+})
+
+test_that("reconcileSpeciesParams() changes neither the species parameters nor the rates", {
+    params <- NS_params_small
+    params@species_params$w_mat25[2] <- species_params(params)$w_mat25[2] / 2
+
+    reconciled <- reconcileSpeciesParams(params, info_level = 0)
+
+    expect_identical(species_params(reconciled), species_params(params))
+    expect_identical(reconciled@psi, params@psi)
+    expect_identical(reconciled@maturity, params@maturity)
+    expect_identical(reconciled@search_vol, params@search_vol)
+})
+
+test_that("reconcileSpeciesParams() protects the value against a recalculation", {
+    params <- NS_params_small
+    new_value <- unname(species_params(params)$w_mat25[2]) / 2
+    params@species_params$w_mat25[2] <- new_value
+
+    # Without the reconciliation the next recalculation undoes the change
+    unprotected <- params
+    species_params(unprotected)$w_mat <- species_params(unprotected)$w_mat
+    expect_false(isTRUE(all.equal(species_params(unprotected)$w_mat25[2],
+                                  new_value)))
+
+    protected <- reconcileSpeciesParams(params, info_level = 0)
+    species_params(protected)$w_mat <- species_params(protected)$w_mat
+    expect_equal(unname(species_params(protected)$w_mat25[2]), new_value)
+})
+
+test_that("reconcileSpeciesParams() reports what it recorded", {
+    params <- NS_params_small
+    params@species_params$w_mat25[2] <- species_params(params)$w_mat25[2] / 2
+
+    expect_message(reconcileSpeciesParams(params),
+                   "`w_mat25` holds a value that a recalculation would not reproduce")
+    expect_silent(reconcileSpeciesParams(params, info_level = 0))
+    # A consistent model gives no report at all
+    expect_silent(reconcileSpeciesParams(NS_params_small))
+})
+
+test_that("reconcileSpeciesParams() keeps the class of the given species parameters", {
+    params <- NS_params_small
+    params@species_params$w_mat25[2] <- species_params(params)$w_mat25[2] / 2
+
+    given <- given_species_params(reconcileSpeciesParams(params,
+                                                         info_level = 0))
+    expect_s3_class(given, "given_species_params")
+    expect_s3_class(given, "species_params")
+    expect_identical(rownames(given),
+                     rownames(given_species_params(params)))
+    # `a` and `b` are borrowed while the length/weight rules are applied and
+    # must not be left behind as given values.
+    expect_false(any(c("a", "b") %in% names(given)))
+})
+
+test_that("reconcileSpeciesParams() overwrites an out-of-date given value", {
+    params <- NS_params_small
+    # `gamma` is among the given species parameters of this model, so the entry
+    # is already there and only its value has to follow.
+    new_value <- unname(species_params(params)$gamma[1]) * 2
+    params@species_params$gamma[1] <- new_value
+
+    reconciled <- reconcileSpeciesParams(params, info_level = 0)
+
+    expect_equal(unname(given_species_params(reconciled)$gamma[1]), new_value)
+    expect_equal(unname(given_species_params(reconciled)$gamma[-1]),
+                 unname(given_species_params(params)$gamma[-1]))
+})
+
+test_that("reconcileSpeciesParams() makes the species parameters a fixed point", {
+    # `h` is not among the given species parameters of a model built this way,
+    # and mizer derives `gamma` and `ks` from it, so a single pass of recording
+    # would leave those two to move at the next recalculation.
+    plain <- suppressMessages(
+        newMultispeciesParams(NS_species_params_small, no_w = 20,
+                              info_level = 0))
+    edited <- plain
+    edited@species_params$h[2] <- 2 * species_params(plain)$h[2]
+
+    # Recalculating the unrepaired model moves `h` back
+    expect_true(length(recalculation_moves(edited)) > 0)
+
+    reconciled <- reconcileSpeciesParams(edited, info_level = 0)
+
+    # The species parameters are untouched ...
+    expect_identical(species_params(reconciled), species_params(edited))
+    # ... and no amount of recalculation moves them
+    expect_identical(recalculation_moves(reconciled, times = 3), character())
+    # The parameters derived from `h` had to be recorded as well to get there
+    given <- given_species_params(reconciled)
+    expect_false(is.na(given$h[2]))
+    expect_false(is.na(given$gamma[2]))
+    expect_false(is.na(given$ks[2]))
+})
+
+test_that("reconcileSpeciesParams() is idempotent", {
+    plain <- suppressMessages(
+        newMultispeciesParams(NS_species_params_small, no_w = 20,
+                              info_level = 0))
+    plain@species_params$h[2] <- 2 * species_params(plain)$h[2]
+
+    once <- reconcileSpeciesParams(plain, info_level = 0)
+    expect_identical(reconcileSpeciesParams(once, info_level = 0), once)
+    # A second call has nothing to report either
+    expect_silent(reconcileSpeciesParams(once))
+})

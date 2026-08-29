@@ -79,6 +79,11 @@ before restoring the object's extension class.
 \item They \strong{coerce the object back to its extension class} and revalidate it,
 reversing the class-stripping done at save time so you get back an object
 of the same class you saved.
+\item \code{readParams()} \strong{reconciles the species parameters}, see
+\code{\link[=reconcileSpeciesParams]{reconcileSpeciesParams()}}. A model may hold species parameter values that
+were written straight into the \code{species_params} slot and that mizer would
+therefore undo at the next recalculation. Those values are recorded as
+given species parameters instead, so that they survive.
 }
 }
 
