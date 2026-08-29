@@ -32,7 +32,7 @@ sim <- project(params, t_max = 20, effort = 1)
 | `dt` | integration time step (default 0.1); reduce if the run is unstable |
 | `t_save` | interval (years) at which output is stored (default 1) |
 | `t_start` | initial time / calendar year for the output (default 0) |
-| `method` | `"euler"` (default), `"predictor_corrector"`, or `"tr_bdf2"` |
+| `method` | `"euler"` (default) or `"second_order"` (an alias for `"tr_bdf2"`); the superseded `"predictor_corrector"` is also accepted |
 | `callback` | a function called at each saved step (e.g. to log or intervene) |
 | `progress_bar` | set `FALSE` to silence the progress bar |
 
@@ -120,11 +120,12 @@ growth-diffusion effects) switch to the second-order scheme:
   or on an existing model with `second_order_w(params) <- TRUE`. Because it
   changes the discrete steady state it lives in the params object, not in a
   `project()` argument.
-- **Time:** project with `method = "tr_bdf2"` (L-stable, second order in time).
+- **Time:** project with `method = "second_order"` (an alias for
+  `method = "tr_bdf2"`, the L-stable TR-BDF2 scheme).
 
 ```r
 params <- newMultispeciesParams(sp, second_order_w = TRUE)
-sim    <- project(params, t_max = 200, method = "tr_bdf2")
+sim    <- project(params, t_max = 200, method = "second_order")
 ```
 
 Symptom that you needed this: an oscillation that is present with
@@ -167,7 +168,7 @@ params <- setResource(params, resource_dynamics = "resource_constant")
 ## Tips
 
 - If a run blows up or oscillates unphysically, first reduce `dt` (e.g. `0.01`);
-  a stiff model may also do better with `method = "tr_bdf2"`.
+  a stiff model may also do better with `method = "second_order"`.
 - With growth diffusion switched on (`D_ext > 0`), diffusion spreads individuals
   past the asymptotic size and they pile up against the upper edge of the grid.
   Set `w_max` well above the sizes you actually analyse, so that abundance at the

@@ -67,13 +67,31 @@ the current time index, and any additional arguments passed to \code{project()}
 via \code{...}.}
 
 \item{method}{The numerical method to use for the consumer density update.
+
 \code{"euler"} uses the first-order semi-implicit Euler update.
-\code{"predictor_corrector"} uses a predictor-corrector Crank-Nicolson update
-with midpoint rates, which is second order in time but can oscillate at
-large time steps. \code{"tr_bdf2"} uses the L-stable, second-order TR-BDF2
-method, which retains second-order accuracy while damping those
-oscillations. \code{"predictor-corrector"} is accepted as an alias for
-\code{"predictor_corrector"}. When \code{object} is a \code{MizerSim}, defaults to the
+
+\code{"tr_bdf2"} uses the L-stable, second-order TR-BDF2 method and is the
+recommended second-order method. \code{"second_order"} is accepted as an
+easier-to-remember alias for it, matching the name of the spatial
+second-order option \code{\link[=second_order_w]{second_order_w()}}.
+
+\code{"predictor_corrector"} is superseded by \code{"tr_bdf2"}. It is also second
+order and costs the same, but its Crank-Nicolson corrector is only
+A-stable, so it rings at large time steps where TR-BDF2 does not. It is
+retained for backwards compatibility and for comparison.
+\code{"predictor-corrector"} is accepted as an alias for it.
+
+The two second-order methods treat the nonlinear rates identically. The
+Crank-Nicolson update in \code{"predictor_corrector"} is only the \emph{corrector},
+applied to the transport operator with those rates frozen, so the method
+does not inherit Crank-Nicolson's stability properties for the full
+nonlinear dynamics. The same holds for the L-stability of \code{"tr_bdf2"}; see
+the section "Custom rates must depend continuously on abundance" below.
+
+Aliases are resolved to the canonical name, so \code{\link[=getSimParams]{getSimParams()}} reports
+\code{"tr_bdf2"} even when \code{"second_order"} was supplied.
+
+When \code{object} is a \code{MizerSim}, defaults to the
 value used to produce that simulation. A warning is issued if
 \code{append = TRUE} and the supplied value differs from the stored one.}
 

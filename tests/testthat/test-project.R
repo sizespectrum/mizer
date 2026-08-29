@@ -708,3 +708,36 @@ test_that("project(check_steady) is silenced by info_level 0", {
     expect_silent(project(off_steady_small, t_max = 0.1, progress_bar = FALSE,
                           check_steady = TRUE))
 })
+
+# method aliases ----
+
+test_that("normalise_project_method resolves aliases to canonical names", {
+    expect_identical(normalise_project_method("second_order"), "tr_bdf2")
+    expect_identical(normalise_project_method("predictor-corrector"),
+                     "predictor_corrector")
+    # Canonical names pass through unchanged.
+    for (m in c("euler", "predictor_corrector", "tr_bdf2")) {
+        expect_identical(normalise_project_method(m), m)
+    }
+    # A vector of choices, as supplied by the default of the `method` argument,
+    # resolves to its first entry.
+    expect_identical(
+        normalise_project_method(c("euler", "predictor_corrector", "tr_bdf2")),
+        "euler")
+    expect_error(normalise_project_method("nonesuch"))
+})
+
+test_that("method = 'second_order' projects exactly as 'tr_bdf2' does", {
+    params <- NS_params_small
+    sim_alias <- project(params, t_max = 1, dt = 0.2, t_save = 1,
+                         method = "second_order", progress_bar = FALSE)
+    sim_canon <- project(params, t_max = 1, dt = 0.2, t_save = 1,
+                         method = "tr_bdf2", progress_bar = FALSE)
+    expect_equal(finalN(sim_alias), finalN(sim_canon))
+    expect_equal(finalNResource(sim_alias), finalNResource(sim_canon))
+    # The alias is resolved before being stored, so the sim reports the
+    # canonical name and continuing the run does not warn about a mismatch.
+    expect_identical(getSimParams(sim_alias)$method, "tr_bdf2")
+    expect_no_warning(project(sim_alias, t_max = 0.2, dt = 0.2,
+                              method = "second_order", progress_bar = FALSE))
+})

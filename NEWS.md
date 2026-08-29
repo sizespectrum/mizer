@@ -92,6 +92,19 @@ it fixes bugs in the species parameter setters, in the defaults for `gamma` and
   *biomass* change, which is the quantity `residual_tol` is a tolerance on and
   the number `rowSums(getSteadyResidual(params))` gives (#572).
 
+## Time stepping
+
+- `project()` and the other functions taking a `method` argument now accept
+  `"second_order"` as an alias for `method = "tr_bdf2"`, matching the name of
+  the spatial second-order option `second_order_w()`. Aliases are resolved to
+  the canonical name, so `getSimParams()` still reports `"tr_bdf2"`.
+
+- `method = "predictor_corrector"` is now documented as superseded by
+  `method = "tr_bdf2"`. The two are second order at the same cost and treat the
+  nonlinear rates identically, but the Crank-Nicolson corrector is only
+  A-stable and rings at large time steps, where TR-BDF2 does not. It remains
+  available for backwards compatibility and for comparison.
+
 ## Species parameters
 
 - Mizer now reports the length-weight defaults `a = 0.01` and `b = 3` when it
