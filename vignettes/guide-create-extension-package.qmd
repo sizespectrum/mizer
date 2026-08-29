@@ -520,6 +520,54 @@ sim <- project(NWMed_params, t_max = 3)
 for that class — such as `getBiomass.mizerShelfSim` — will be dispatched
 automatically.
 
+#### Rate methods on simulations come for free
+
+If your extension modifies rates during projection using `project*` methods (such as `projectMort.mizerStarvation` or `projectEncounter.mizerMyExtension`), you **do not need to write any methods for `MizerSim`**.
+
+Mizer's own simulation rate accessors — `getMort(sim)`, `getEncounter(sim)`, [`getRates(sim)`](../reference/getRates.html), and projection functions like `project()` — evaluate the rate step-by-step using the simulation's `params` object, which carries your extension class. At each time step, mizer dispatches through your `project*` method via S3, so your rate modifications automatically apply throughout the simulation without writing a `...Sim` method.
+
+#### When you do need a `MizerSim` method
+
+There are two situations where writing a method for your `...Sim` class is necessary:
+
+1. **Overriding non-rate mizer generics.** Functions like `getBiomass()` or [`getN()`](../reference/getN.html) are summary accessors rather than step-by-step projection rates. When an extension adds external dynamical components (e.g. `Detritus` and `Carrion` in `mizerShelf`), you define both `getBiomass.mizerShelf` (for `MizerParams`) and `getBiomass.mizerShelfSim` (for `MizerSim`) so that `getBiomass(sim)` and `plotBiomass(sim)` include the component biomasses across time.
+
+2. **Providing new extension-specific `get*` rate accessors.** If your package introduces its own rate diagnostic function (such as `getStarvMort()` in `mizerStarvation`), core mizer does not define that function. To let users evaluate the diagnostic on both parameters and simulations (e.g. `getStarvMort(params)` and `getStarvMort(sim)`), define your function as an S3 generic with methods for both `MizerParams` and `MizerSim`:
+
+```{r eval=FALSE}
+#' Starvation mortality rate
+#'
+#' Calculates the starvation mortality rate (1/year) by species and size.
+#'
+#' @param object A `MizerParams` or `MizerSim` object.
+#' @param ... Arguments passed on to methods.
+#' @return An array (species by size for `MizerParams`, or time by species by
+#'   size for `MizerSim`).
+#' @export
+getStarvMort <- function(object, ...) {
+    UseMethod("getStarvMort")
+}
+
+#' @rdname getStarvMort
+#' @export
+getStarvMort.MizerParams <- function(object, n = initialN(object),
+                                     n_pp = initialNResource(object),
+                                     n_other = initialNOther(object),
+                                     t = 0, ...) {
+    starvMort(object, n = n, n_pp = n_pp, n_other = n_other, t = t, ...)
+}
+
+#' @rdname getStarvMort
+#' @export
+getStarvMort.MizerSim <- function(object, time_range, drop = FALSE, ...) {
+    if (missing(time_range)) {
+        time_range <- dimnames(object@n)$time
+    }
+    time_elements <- get_time_elements(object, time_range)
+    # Loop over time_elements and compute rate matrix for each time step
+}
+```
+
 ---
 
 ## Telling the user what your package decided
