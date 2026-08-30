@@ -27,7 +27,10 @@ description: >-
 Existing model **objects** created with an earlier version are upgraded
 automatically when they are loaded, so a saved `MizerParams` or `MizerSim` is
 almost never the problem. What changes across releases is *behaviour* and the
-*functions the user calls*.
+*functions the user calls*. The exception is package data: an automatic upgrade
+changes only the object in memory, so a package maintainer must also refresh any
+`MizerParams` or `MizerSim` objects shipped in `data/`; see "If your code is a
+package" below.
 
 **First, establish two things.**
 
@@ -129,6 +132,7 @@ function` — carry no such quote, so match those rows on the function name.
 | A misspelled species parameter column is no longer flagged at all | the report now follows `info_level`, and the model was built with `info_level = 0` | The misspelled-column check runs once |
 | `summary()` of a rate array gives a much smaller `Max` (or larger `Min`) than before | it now covers each species' own size range, as `plot()` always has | `summary()` of an array covers the same sizes as `plot()` |
 | `summary()` of an array reports `NA` where it used to report `Inf` or `-Inf` | an empty selection is now reported as missing rather than reduced | `summary()` of an array covers the same sizes as `plot()` |
+| `plotSpectra(..., return_data = TRUE)$value` is `NULL`, or code selecting the `value` column fails | the numeric column now carries the plotted quantity's label, `Biomass density` under the defaults | `plotSpectra(return_data = TRUE)` calls the column `Biomass density` |
 | `projectUntilSettled()` or `tuneSteadyState()` converges where it used to run to `t_max`, or `distanceSSLogN()` returns a smaller number | size classes holding a negligible share of a species' biomass are no longer counted | A size class holding no fish no longer blocks convergence |
 | Message `"reached is a fixed point: the biomasses change at only"` | a run stopped at `t_max` on a state that is a fixed point all the same | A size class holding no fish no longer blocks convergence |
 | `readParams()` says `"that a recalculation would not reproduce"` | the model's species parameters had been edited by writing into the slot directly | `readParams()` reconciles the species parameters |
@@ -306,6 +310,7 @@ the release sections in range.
 | `isS4()`, `slot()`, `slotNames()`, `getSlots()`, `validObject()`, `new("MizerParams")`, `setMethod(…, "MizerParams", …)`, `expect_s4_class()` | the S4 machinery is gone — note that `params@w` itself still works | `MizerParams` and `MizerSim` are ordinary lists |
 | `.onLoad()` calling `registerExtension()`, or `setClass(…, contains = "MizerParams")` | this is an extension: finish here, then go to the `upgrade-extension-package` skill | Extension packages need a version built for mizer 3.4 |
 | A `MizerParams` shipped in `data/`, or read back with `readParams()` | the species parameters are reconciled when it is loaded | `readParams()` reconciles the species parameters |
+| `plotSpectra(…, return_data = TRUE)` followed by `$value`, `[["value"]]` or a formula using `value` | the returned numeric column is now called `Biomass density` under the defaults | `plotSpectra(return_data = TRUE)` calls the column `Biomass density` |
 | `expect_message()`, `expect_silent()`, or a snapshot taken over a model build | building a model now reports the weight-length defaults it fills in | Mizer says when it defaults the weight-length parameters |
 
 ### mizer 3.2 → 3.3 — `references/mizer-3.3.md`
@@ -372,6 +377,39 @@ ones that move results, so that a user who sees different numbers can find out
 why. Re-run `devtools::document()` if any roxygen block changed, and update
 prose that names a renamed function — `@seealso` entries, vignettes and
 `README` included, not only code.
+
+**Refresh bundled mizer objects.** If the package ships a `MizerParams` or
+`MizerSim` object in `data/`, upgrade and re-save it as part of the package
+upgrade. The automatic upgrade performed when the object is loaded changes the
+copy in memory, not the `.rda` file, so leaving that file untouched makes every
+clean install and `R CMD check` start from the old representation again.
+
+Load the current package code first, pass parameter objects through
+`validParams()` and simulations through `validSim()`, and save them back under
+the same object and file names:
+
+```r
+devtools::load_all()
+
+load("data/my_params.rda")
+load("data/my_sim.rda")
+
+my_params <- mizer::validParams(my_params)
+my_sim <- mizer::validSim(my_sim)
+
+save(my_params, file = "data/my_params.rda", compress = "xz")
+save(my_sim, file = "data/my_sim.rda", compress = "xz")
+```
+
+Use `validParams()` and `validSim()`, rather than calling `upgradeParams()`,
+`upgradeSim()` or `utils::upgrade()` directly: the validators run mizer's core
+upgrade, apply any installed extension-package upgrades, restore the S3 class
+vector and validate the result. `validSim()` also upgrades the `MizerParams`
+object stored inside the simulation while preserving its saved trajectory.
+Preserve the package's existing compression and file layout (or use the same
+`usethis::use_data()` call that originally created the data). Then restart or
+run `devtools::load_all()` again before testing, so the tests exercise the
+objects reloaded from disk rather than the upgraded copies still in memory.
 
 **Read `R CMD check` against its own history.** Compare the NOTE and WARNING
 count with the previous run rather than with zero. Most packages carry some

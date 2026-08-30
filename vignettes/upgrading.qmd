@@ -60,6 +60,39 @@ why. Re-run `devtools::document()` if any roxygen block changed, and update
 prose that names a renamed function — `@seealso` entries, vignettes and
 `README` included, not only code.
 
+**Refresh bundled mizer objects.** If the package ships a [`MizerParams`](../reference/MizerParams.html) or
+[`MizerSim`](../reference/MizerSim.html) object in `data/`, upgrade and re-save it as part of the package
+upgrade. The automatic upgrade performed when the object is loaded changes the
+copy in memory, not the `.rda` file, so leaving that file untouched makes every
+clean install and `R CMD check` start from the old representation again.
+
+Load the current package code first, pass parameter objects through
+[`validParams()`](../reference/validParams.html) and simulations through [`validSim()`](../reference/validSim.html), and save them back under
+the same object and file names:
+
+```{r eval=FALSE}
+devtools::load_all()
+
+load("data/my_params.rda")
+load("data/my_sim.rda")
+
+my_params <- mizer::validParams(my_params)
+my_sim <- mizer::validSim(my_sim)
+
+save(my_params, file = "data/my_params.rda", compress = "xz")
+save(my_sim, file = "data/my_sim.rda", compress = "xz")
+```
+
+Use `validParams()` and `validSim()`, rather than calling [`upgradeParams()`](../reference/upgradeParams.html),
+[`upgradeSim()`](../reference/upgradeSim.html) or `utils::upgrade()` directly: the validators run mizer's core
+upgrade, apply any installed extension-package upgrades, restore the S3 class
+vector and validate the result. `validSim()` also upgrades the `MizerParams`
+object stored inside the simulation while preserving its saved trajectory.
+Preserve the package's existing compression and file layout (or use the same
+`usethis::use_data()` call that originally created the data). Then restart or
+run `devtools::load_all()` again before testing, so the tests exercise the
+objects reloaded from disk rather than the upgraded copies still in memory.
+
 **Read `R CMD check` against its own history.** Compare the NOTE and WARNING
 count with the previous run rather than with zero. Most packages carry some
 pre-existing noise, and the question that matters is whether the upgrade added
@@ -96,8 +129,8 @@ are specific to being an extension.
 
 ## Upgrading from mizer 3.3 to 3.4
 
-The headline change is one you should not be able to feel: [`MizerParams`](../reference/MizerParams.html) and
-[`MizerSim`](../reference/MizerSim.html) are now ordinary S3 objects rather than S4 objects. Every model
+The headline change is one you should not be able to feel: `MizerParams` and
+`MizerSim` are now ordinary S3 objects rather than S4 objects. Every model
 result is unchanged and `params@w` still works, but code that treats a model as
 an S4 object needs editing, and every extension package needs a version built
 for this release. Results move for a model that lets mizer fill in a `gamma` or
@@ -110,8 +143,9 @@ different numbers, because it used to describe sizes the species never reaches.
 A model loaded with [`readParams()`](../reference/saveParams.html) now has its species parameters reconciled,
 which changes nothing about the model but stops values that were written
 straight into the [`species_params`](../reference/species_params.html) slot from reverting later.
-Everything else here is a new report or a new way of saying something, and
-`info_level = 0` silences the reports.
+Code that consumes the data returned by [`plotSpectra()`](../reference/plotSpectra.html) also needs the small
+column-name change described below. Everything else here is a new report or a
+new way of saying something, and `info_level = 0` silences the reports.
 
 ### `MizerParams` and `MizerSim` are ordinary lists
 
@@ -460,6 +494,28 @@ without interpreting it. Nothing about the arrays themselves changed, so any
 code that indexes them directly is unaffected.
 
 
+### `plotSpectra(return_data = TRUE)` calls the column `Biomass density`
+
+The numeric column in the data frame returned by
+`plotSpectra(..., return_data = TRUE)` now has the same descriptive name as the
+plot's y axis. With the default spectrum options that name is
+`Biomass density`, where it used to be `value`. Code that reads the returned
+data therefore needs a small change:
+
+```{r eval=FALSE}
+spectra <- plotSpectra(params, return_data = TRUE)
+
+spectra$value                 # before
+spectra[["Biomass density"]] # now
+```
+
+The exact name follows the quantity and size axis requested — for example,
+`Number density [1/g]` when `biomass = FALSE`, or
+`Biomass density [g/cm]` on a length axis. Code that deliberately works with
+any of those choices can select the second column, `spectra[[2]]`, instead.
+The rename lets returned plotting data and interactive tooltips say what the
+number represents rather than exposing the internal placeholder `value`.
+
 ### A size class holding no fish no longer blocks convergence
 
 Above a size where the growth rate vanishes, a species' density decays
@@ -606,7 +662,7 @@ attach. Everything else is a new report, and
 
 ### `biomass` and `per_log_size` replace `power`
 
-[`plotSpectra()`](../reference/plotSpectra.html), [`plotSpectra2()`](../reference/plotSpectra2.html), [`plotCDF()`](../reference/plotCDF.html), [`plotCDF2()`](../reference/plotCDF2.html) and [`animate()`](../reference/animate.html)
+`plotSpectra()`, [`plotSpectra2()`](../reference/plotSpectra2.html), [`plotCDF()`](../reference/plotCDF.html), [`plotCDF2()`](../reference/plotCDF2.html) and [`animate()`](../reference/animate.html)
 now describe the plotted quantity with two independent arguments: `biomass`
 chooses a biomass density rather than a number density, and the new
 `per_log_size` chooses a density with respect to logarithmic size rather than

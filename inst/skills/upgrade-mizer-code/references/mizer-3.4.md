@@ -14,8 +14,9 @@ different numbers, because it used to describe sizes the species never reaches.
 A model loaded with `readParams()` now has its species parameters reconciled,
 which changes nothing about the model but stops values that were written
 straight into the `species_params` slot from reverting later.
-Everything else here is a new report or a new way of saying something, and
-`info_level = 0` silences the reports.
+Code that consumes the data returned by `plotSpectra()` also needs the small
+column-name change described below. Everything else here is a new report or a
+new way of saying something, and `info_level = 0` silences the reports.
 
 ### `MizerParams` and `MizerSim` are ordinary lists
 
@@ -370,6 +371,28 @@ this is much the largest such change, and the new number is the right one.
 `summary(x, all.sizes = TRUE)` reproduces the old value exactly, which is the
 quickest way to confirm the diagnosis.
 <!-- /agent-only -->
+
+### `plotSpectra(return_data = TRUE)` calls the column `Biomass density`
+
+The numeric column in the data frame returned by
+`plotSpectra(..., return_data = TRUE)` now has the same descriptive name as the
+plot's y axis. With the default spectrum options that name is
+`Biomass density`, where it used to be `value`. Code that reads the returned
+data therefore needs a small change:
+
+```r
+spectra <- plotSpectra(params, return_data = TRUE)
+
+spectra$value                 # before
+spectra[["Biomass density"]] # now
+```
+
+The exact name follows the quantity and size axis requested — for example,
+`Number density [1/g]` when `biomass = FALSE`, or
+`Biomass density [g/cm]` on a length axis. Code that deliberately works with
+any of those choices can select the second column, `spectra[[2]]`, instead.
+The rename lets returned plotting data and interactive tooltips say what the
+number represents rather than exposing the internal placeholder `value`.
 
 ### A size class holding no fish no longer blocks convergence
 
