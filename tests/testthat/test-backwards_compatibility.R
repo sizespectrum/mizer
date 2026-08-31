@@ -356,14 +356,14 @@ test_that("the superseded finders keep their return_sim argument", {
                                    c(list(params), args, return_sim = TRUE)))
   sim2 <- suppressMessages(do.call(projectToSteady,
                                    c(list(params), args, return_sim = TRUE)))
-  expect_s4_class(sim1, "MizerSim")
-  expect_s4_class(sim2, "MizerSim")
+  expect_s3_class(sim1, "MizerSim")
+  expect_s3_class(sim2, "MizerSim")
   # ... and default to returning a MizerParams, as they always did, with the
   # same convergence diagnostic either way.
   p1 <- suppressMessages(do.call(steady, c(list(params), args)))
   p2 <- suppressMessages(do.call(projectToSteady, c(list(params), args)))
-  expect_s4_class(p1, "MizerParams")
-  expect_s4_class(p2, "MizerParams")
+  expect_s3_class(p1, "MizerParams")
+  expect_s3_class(p2, "MizerParams")
   expect_identical(attr(sim1, "convergence")$termination,
                    attr(p1, "convergence")$termination)
   expect_identical(attr(sim2, "convergence")$termination,

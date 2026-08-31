@@ -24,18 +24,17 @@ steady state, which also sets the initial values used by calibration and
 by [`project()`](https://sizespectrum.org/mizer/reference/project.md):
 
 ``` r
-
 params <- tuneSteadyState(params)
 ```
 
-| Function | Use |
-|----|----|
-| [`tuneSteadyState(params)`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md) | solve for the spectra **with births and the resource held fixed**, then adjust the parameters that generate them so those held values are steady too (the default choice while calibrating) |
+| Function                                                                                         | Use                                                                                                                                                                                                                                             |
+|--------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`tuneSteadyState(params)`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)         | solve for the spectra **with births and the resource held fixed**, then adjust the parameters that generate them so those held values are steady too (the default choice while calibrating)                                                     |
 | [`steadySingleSpecies(params)`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md) | set each species to its single-species steady form, births held fixed, without changing the resource — a fast way to get a sensible starting spectrum before [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md) |
-| [`findSteadyState(params)`](https://sizespectrum.org/mizer/reference/findSteadyState.md) | change **no parameter**: births, resource and spectra settle together wherever the parameters you already have put them |
-| [`projectUntilSettled(params)`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md) | the same run as [`findSteadyState(params)`](https://sizespectrum.org/mizer/reference/findSteadyState.md) but returning the [`MizerSim`](https://sizespectrum.org/mizer/reference/MizerSim.md), when you want to watch the approach |
-| [`isSteady(params)`](https://sizespectrum.org/mizer/reference/isSteady.md) | *(experimental)* ask whether a model **is** at its steady state (boolean) |
-| [`getSteadyResidual(params)`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md) | *(experimental)* each size class’s contribution to its species’ biomass drift, showing where it is not; [`rowSums()`](https://rdrr.io/r/base/colSums.html) gives the per-species drift |
+| [`findSteadyState(params)`](https://sizespectrum.org/mizer/reference/findSteadyState.md)         | change **no parameter**: births, resource and spectra settle together wherever the parameters you already have put them                                                                                                                         |
+| [`projectUntilSettled(params)`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md) | the same run as [`findSteadyState(params)`](https://sizespectrum.org/mizer/reference/findSteadyState.md) but returning the [`MizerSim`](https://sizespectrum.org/mizer/reference/MizerSim.md), when you want to watch the approach              |
+| [`isSteady(params)`](https://sizespectrum.org/mizer/reference/isSteady.md)                       | *(experimental)* ask whether a model **is** at its steady state (boolean)                                                                                                                                                                       |
+| [`getSteadyResidual(params)`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md)     | *(experimental)* each size class’s contribution to its species’ biomass drift, showing where it is not; [`rowSums()`](https://rdrr.io/r/base/colSums.html) gives the per-species drift                                                          |
 
 The two finders differ in **what they keep**.
 [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
@@ -72,7 +71,6 @@ going extinct, or simply at `t_max`. All four outcomes return a
 result](#verifying-the-result):
 
 ``` r
-
 params <- tuneSteadyState(params)
 attr(params, "convergence")$attractor    # "fixed_point", "limit_cycle" or NA
 attr(params, "convergence")$termination  # why the run stopped
@@ -122,7 +120,6 @@ counted. Observed yields live in the gear-parameter column
 pair. The usual order:
 
 ``` r
-
 params <- tuneSteadyState(params)    # 1. settle onto the steady state
 params <- calibrateBiomass(params)   # 2. scale kappa so total modelled biomass
                                      #    matches total observed
@@ -148,16 +145,15 @@ answers it, and
 shows the verdict:
 
 ``` r
-
 summary(params)                        # "biomass drift: 3.2e-05 /year (at steady state)"
 plot(getSteadyResidual(params))        # which species, and at which sizes
 ```
 
-| Function | Adjusts | To match | Breaks steady state |
-|----|----|----|----|
-| [`calibrateBiomass()`](https://sizespectrum.org/mizer/reference/calibrateBiomass.md) | `kappa` (resource level) | total community biomass | no |
-| [`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md) | per-species abundance | each `biomass_observed` | yes |
-| [`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md) | `h`, `gamma`, `ks`, `k` | von Bertalanffy growth to `w_mat`/`w_inf` | yes |
+| Function                                                                             | Adjusts                  | To match                                  | Breaks steady state |
+|--------------------------------------------------------------------------------------|--------------------------|-------------------------------------------|---------------------|
+| [`calibrateBiomass()`](https://sizespectrum.org/mizer/reference/calibrateBiomass.md) | `kappa` (resource level) | total community biomass                   | no                  |
+| [`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md)     | per-species abundance    | each `biomass_observed`                   | yes                 |
+| [`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md)           | `h`, `gamma`, `ks`, `k`  | von Bertalanffy growth to `w_mat`/`w_inf` | yes                 |
 
 [`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md)
 and
@@ -178,7 +174,6 @@ others on numbers — works, because each function ignores the species for
 which its own observation column is `NA`.
 
 ``` r
-
 species_params(params)$number_observed <- c(Cod = 1e6, Herring = 4e8, ...)
 params <- calibrateNumber(params)
 params <- matchNumbers(params)
@@ -216,7 +211,6 @@ is the fraction of maximum recruitment realised at steady state (0 =
 density independent, closer to 1 = strongly limited):
 
 ``` r
-
 reproduction_level(params) <- 0.25
 ```
 
@@ -233,7 +227,6 @@ before changing it.
 ## Verifying the result
 
 ``` r
-
 isSteady(params)                       # TRUE if settled within tolerance
 summary(params)                        # still at the steady state?
 attr(getSteadyResidual(params), "other")  # components, if the model has any
@@ -318,7 +311,6 @@ live. It is **not** part of core mizer — install and load
 ## Quick reference
 
 ``` r
-
 # ── Steady state ──────────────────────────────────────────────────────────────
 params <- tuneSteadyState(params)
 params <- steadySingleSpecies(params)   # fast starting spectrum

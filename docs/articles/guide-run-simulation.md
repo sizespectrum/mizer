@@ -16,7 +16,6 @@ the [guide to reaching steady state and
 calibrating](https://sizespectrum.org/mizer/articles/guide-calibrate-model.md).
 
 ``` r
-
 sim <- project(params, t_max = 20, effort = 1)
 ```
 
@@ -24,17 +23,17 @@ sim <- project(params, t_max = 20, effort = 1)
 
 ## Key `project()` arguments
 
-| Argument | Meaning |
-|----|----|
-| `object` | a [`MizerParams`](https://sizespectrum.org/mizer/reference/MizerParams.md) (fresh run) or a [`MizerSim`](https://sizespectrum.org/mizer/reference/MizerSim.md) (continue from its end) |
-| `effort` | fishing effort — see the four forms below |
-| `t_max` | number of years to simulate (default 100) |
-| `dt` | integration time step (default 0.1); reduce if the run is unstable |
-| `t_save` | interval (years) at which output is stored (default 1) |
-| `t_start` | initial time / calendar year for the output (default 0) |
-| `method` | `"euler"` (default), `"predictor_corrector"`, or `"tr_bdf2"` |
-| `callback` | a function called at each saved step (e.g. to log or intervene) |
-| `progress_bar` | set `FALSE` to silence the progress bar |
+| Argument       | Meaning                                                                                                                                                                                |
+|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `object`       | a [`MizerParams`](https://sizespectrum.org/mizer/reference/MizerParams.md) (fresh run) or a [`MizerSim`](https://sizespectrum.org/mizer/reference/MizerSim.md) (continue from its end) |
+| `effort`       | fishing effort — see the four forms below                                                                                                                                              |
+| `t_max`        | number of years to simulate (default 100)                                                                                                                                              |
+| `dt`           | integration time step (default 0.1); reduce if the run is unstable                                                                                                                     |
+| `t_save`       | interval (years) at which output is stored (default 1)                                                                                                                                 |
+| `t_start`      | initial time / calendar year for the output (default 0)                                                                                                                                |
+| `method`       | `"euler"` (default), `"predictor_corrector"`, or `"tr_bdf2"`                                                                                                                           |
+| `callback`     | a function called at each saved step (e.g. to log or intervene)                                                                                                                        |
+| `progress_bar` | set `FALSE` to silence the progress bar                                                                                                                                                |
 
 ------------------------------------------------------------------------
 
@@ -45,7 +44,6 @@ sim <- project(params, t_max = 20, effort = 1)
 is used.
 
 ``` r
-
 project(params, effort = 1)                          # 1. scalar: same for all gears, constant
 project(params, effort = c(Otter = 0.5, Beam = 1))   # 2. named vector: per-gear, constant
 project(params, effort = c(0.5, 1, 0))               # 3. vector in gear order, constant
@@ -56,7 +54,6 @@ For form 4, build a `time × gear` matrix with **numeric, increasing**
 row names (times) and column names matching the gear names:
 
 ``` r
-
 gears <- names(initial_effort(params))               # gear names (a named vector)
 years <- 2010:2030
 effort_array <- array(1, dim = c(length(years), length(gears)),
@@ -93,7 +90,6 @@ instead of a long
 resumes from the final state:
 
 ``` r
-
 sim2 <- project(sim, t_max = 10, effort = 2)
 ```
 
@@ -101,7 +97,6 @@ sim2 <- project(sim, t_max = 10, effort = 2)
 new run under different settings, or to analyse a particular time step:
 
 ``` r
-
 params_end <- finalParams(sim)      # state at the last time step
 params_0   <- initialParams(sim)    # state at the first time step
 params_t   <- getParams(sim, time_range = 2010:2015)  # averaged over a range
@@ -122,7 +117,6 @@ analysing and plotting mizer
 results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.md)):
 
 ``` r
-
 sim_low  <- project(params, t_max = 30, effort = 0.5)
 sim_high <- project(params, t_max = 30, effort = 1.5)
 plotSpectra2(sim_low, sim_high, "F = 0.5", "F = 1.5")
@@ -154,7 +148,6 @@ growth-diffusion effects) switch to the second-order scheme:
   time).
 
 ``` r
-
 params <- newMultispeciesParams(sp, second_order_w = TRUE)
 sim    <- project(params, t_max = 200, method = "tr_bdf2")
 ```
@@ -178,7 +171,6 @@ independently if you want the better flux scheme without moving your
 summary numbers:
 
 ``` r
-
 second_order_w(params) <- c(flux = "van_leer")   # leaves bin_average alone
 second_order_w(params)                           # inspect: flux and bin_average
 ```
@@ -199,7 +191,6 @@ to separate an internal instability from a boundary or reproduction one
 — freeze the resource before projecting:
 
 ``` r
-
 params <- setResource(params, resource_dynamics = "resource_constant")
 ```
 
@@ -226,7 +217,6 @@ params <- setResource(params, resource_dynamics = "resource_constant")
 ## Quick reference
 
 ``` r
-
 # ── Run ───────────────────────────────────────────────────────────────────────
 sim <- project(params, t_max = 20, effort = 1)
 sim <- project(params, t_max = 50, dt = 0.01, t_save = 0.5)

@@ -5,19 +5,13 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Record an extension and its version stamp on a mizer object — recordExtension"><meta name="description" content="Writes an entry for name into the object's @extensions slot, converting
-the slot to the versioned list form. Existing entries (and their version
-stamps) are preserved, keeping their position in the chain. A genuinely new
-entry is prepended to the front of the chain so that it stays ordered
-outermost-first, matching registerExtension(). The requirement is taken
-from the existing entry if present, otherwise from the registered extension
-chain."><meta property="og:description" content="Writes an entry for name into the object's @extensions slot, converting
-the slot to the versioned list form. Existing entries (and their version
-stamps) are preserved, keeping their position in the chain. A genuinely new
-entry is prepended to the front of the chain so that it stays ordered
-outermost-first, matching registerExtension(). The requirement is taken
-from the existing entry if present, otherwise from the registered extension
-chain."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Record an extension and its version stamp on a mizer object — recordExtension"><meta name="description" content="Writes an entry for name into the object's $extensions element, converting
+it to the versioned list form. Existing entries (and their version stamps)
+are preserved, keeping their position in the chain. A genuinely new entry is
+prepended to the front of the list."><meta property="og:description" content="Writes an entry for name into the object's $extensions element, converting
+it to the versioned list form. Existing entries (and their version stamps)
+are preserved, keeping their position in the chain. A genuinely new entry is
+prepended to the front of the list."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -99,18 +93,15 @@ chain."><meta property="og:image" content="https://sizespectrum.org/mizer/refere
     </div>
 
     <div class="ref-description section level2">
-    <p>Writes an entry for <code>name</code> into the object's <code>@extensions</code> slot, converting
-the slot to the versioned list form. Existing entries (and their version
-stamps) are preserved, keeping their position in the chain. A genuinely new
-entry is prepended to the front of the chain so that it stays ordered
-outermost-first, matching <code><a href="registerExtension.html">registerExtension()</a></code>. The requirement is taken
-from the existing entry if present, otherwise from the registered extension
-chain.</p>
+    <p>Writes an entry for <code>name</code> into the object's <code>$extensions</code> element, converting
+it to the versioned list form. Existing entries (and their version stamps)
+are preserved, keeping their position in the chain. A genuinely new entry is
+prepended to the front of the list.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">recordExtension</span><span class="op">(</span><span class="va">params</span>, <span class="va">name</span>, version <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">recordExtension</span><span class="op">(</span><span class="va">params</span>, <span class="va">name</span>, version <span class="op">=</span> <span class="cn">NULL</span>, requirement <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -122,24 +113,22 @@ chain.</p>
 
 
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
-<dd><p>The extension identifier (its S4 marker class name).</p></dd>
+<dd><p>The extension identifier (package/class name).</p></dd>
 
 
 <dt id="arg-version">version<a class="anchor" aria-label="anchor" href="#arg-version"></a></dt>
 <dd><p>Optional version string to stamp. If <code>NULL</code> (default) the
 existing stamp is preserved.</p></dd>
 
+
+<dt id="arg-requirement">requirement<a class="anchor" aria-label="anchor" href="#arg-requirement"></a></dt>
+<dd><p>Optional requirement string (e.g. <code>"sizespectrum/mizerMR"</code>
+or <code>"1.0.0"</code>).</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The <code>params</code> object with the updated <code>@extensions</code> slot.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Extension packages should call this instead of assigning to <code>@extensions</code>
-directly. Pass <code>version</code> (typically <code>packageVersion(name)</code>) only when the
-object has just been created or upgraded to conform to that version; leave it
-<code>NULL</code> for ordinary modifications so the existing stamp is preserved.</p>
+    <p>The <code>params</code> object with the updated <code>$extensions</code> element.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -147,13 +136,9 @@ object has just been created or upgraded to conform to that version; leave it
 <a href="https://sizespectrum.org/mizer/articles/guide-create-extension-package.html">Creating a mizer extension package</a></p>
 <p>Other extension tools:
 <code><a href="NOther.html">NOther()</a></code>,
-<code><a href="clearExtensionChain.html">clearExtensionChain()</a></code>,
 <code><a href="coerceToExtensionClass.html">coerceToExtensionClass()</a></code>,
-<code><a href="getRegisteredExtensions.html">getRegisteredExtensions()</a></code>,
 <code><a href="initialNOther-set.html">initialNOther&lt;-()</a></code>,
 <code><a href="other_mort.html">other_mort()</a></code>,
-<code><a href="registerExtension.html">registerExtension()</a></code>,
-<code><a href="registerExtensions.html">registerExtensions()</a></code>,
 <code><a href="setComponent.html">setComponent()</a></code>,
 <code><a href="setRateFunction.html">setRateFunction()</a></code></p></div>
     </div>

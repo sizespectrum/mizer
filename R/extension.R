@@ -402,26 +402,6 @@ other_encounter <- function(params) {
                          noun = "encounter", arg = "encounter_fun")
 }
 
-#' The entries of `other_mort` or `other_encounter` that belong to a component
-#'
-#' The `other_mort` and `other_encounter` slots are keyed by name, and an entry
-#' whose name is that of a component created with [setComponent()] belongs to
-#' that component. Those entries are owned by `setComponent()`,
-#' `removeComponent()` and `getComponent()`; the rest are owned by
-#' [other_mort()] and [other_encounter()], which is why the accessors have to
-#' split the list.
-#'
-#' @param params A MizerParams object.
-#' @param slot_name Either `"other_mort"` or `"other_encounter"`.
-#' @return The named list of function names, restricted to the entries that do
-#'   (`componentRateContributions()`) or do not (`freeRateContributions()`)
-#'   belong to a component.
-#' @noRd
-componentRateContributions <- function(params, slot_name) {
-    funs <- slot(params, slot_name)
-    funs[names(funs) %in% names(params@other_dynamics)]
-}
-
 #' @noRd
 freeRateContributions <- function(params, slot_name) {
     funs <- slot(params, slot_name)

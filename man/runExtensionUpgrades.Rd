@@ -13,7 +13,7 @@ runExtensionUpgrades(params)
 The object with extension migrations applied and stamps refreshed.
 }
 \description{
-For each extension recorded in the object's \verb{@extensions} slot (processed
+For each extension recorded on the object (processed
 innermost-first) whose installed package version is newer than the recorded
 stamp (or whose stamp is missing), calls the extension's \code{upgrade} method if
 one is registered, then records the installed version as the new stamp. The

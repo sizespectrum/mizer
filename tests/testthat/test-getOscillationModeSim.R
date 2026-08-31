@@ -25,7 +25,7 @@ test_that("getOscillationModeSim returns a MizerSim for a model with complex eig
             "Model has no complex eigenvalues; skipping limit cycle test.")
 
     lcs <- getOscillationModeSim(stab)
-    expect_s4_class(lcs, "MizerSim")
+    expect_s3_class(lcs, "MizerSim")
 })
 
 test_that("getOscillationModeSim time axis spans one period", {

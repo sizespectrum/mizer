@@ -27,13 +27,9 @@ components at the end of the simulation
 ## See also
 
 Other extension tools:
-[`clearExtensionChain()`](https://sizespectrum.org/mizer/reference/clearExtensionChain.md),
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md),
-[`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md),
 [`initialNOther<-()`](https://sizespectrum.org/mizer/reference/initialNOther-set.md),
 [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md),
 [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md),
-[`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md),
-[`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md),
 [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
 [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)

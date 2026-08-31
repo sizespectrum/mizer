@@ -66,7 +66,7 @@ getDiffusion.MizerParams <- function(object, n = initialN(object),
     params <- validParams(params)
     feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp,
                                      n_other = n_other, time_range = t)
-    if (usesExtensionDispatch(params)) {
+    if (params@rates_funcs$Diffusion == "mizerDiffusion") {
         d <- projectDiffusion(params, n = n, n_pp = n_pp, n_other = n_other,
                               t = t, feeding_level = feeding_level, ...)
     } else {

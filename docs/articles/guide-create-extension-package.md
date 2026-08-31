@@ -1,11 +1,11 @@
 # Guide: Creating a mizer extension package
 
 This guide covers turning a working mizer extension into a shareable R
-package and maintaining it: registration in `.onLoad`, marker classes
-and method dispatch, bundled data objects, reporting to the user,
-running mizer’s test suite against your subclass, and upgrading objects
-saved by an earlier version. For the extension mechanisms themselves,
-see the [guide to extending
+package and maintaining it: registration in `.onLoad`, S3 extension
+classes and method dispatch, bundled data objects, reporting to the
+user, running mizer’s test suite against your subclass, and upgrading
+objects saved by an earlier version. For the extension mechanisms
+themselves, see the [guide to extending
 mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.md).
 
 ------------------------------------------------------------------------
@@ -92,7 +92,6 @@ state of the model but carries no state of its own, and
 is how you register it:
 
 ``` r
-
 setStarvation <- function(params, starv_coef = 10) {
     # ... set up the species parameters the rate function needs ...
     other_mort(params)[["starvation"]] <- "starvMort"
@@ -129,34 +128,6 @@ versions of mizer left no alternative and mizerStarvation still does so.
 A bare slot assignment skips the check that the name really is a
 function and that it does not collide with a component’s.
 
-### Registering in `.onLoad`
-
-Every extension package, even a metadata-only one, should announce
-itself to mizer when it is loaded. Place a `.onLoad` function in a file
-such as `R/mizerMyExtension-package.R`:
-
-``` r
-
-.onLoad <- function(libname, pkgname) {
-  mizer::registerExtension(pkgname, requirement = "owner/mizerMyExtension")
-}
-```
-
-[`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md)
-adds the package name to the session’s extension chain. The
-`requirement` string is a `pak` installation spec that mizer uses if it
-needs to install the package automatically. For packages on CRAN you can
-use a minimum version string such as `"1.2.0"` instead; for GitHub-only
-packages use the `"owner/repo"` form
-(e.g. `"sizespectrum/mizerStarvation"`). You can also specify a specific
-branch or version of the package, using the same syntax that the
-[pak](https://pak.r-lib.org/) package uses. The call is safe to repeat:
-if the package is already registered (for example because the user
-called
-[`devtools::load_all()`](https://devtools.r-lib.org/reference/load_all.html)
-twice), it leaves the chain unchanged and rebuilds the chain’s dynamic
-marker classes if the reload removed any of them.
-
 ### Recording the extension in `params@extensions`
 
 When your package creates or modifies a `MizerParams` object, record
@@ -165,7 +136,6 @@ package version when the component is first created; on later
 modifications preserve the existing stamp:
 
 ``` r
-
 setStarvation <- function(params, starv_coef = 10) {
     # ... set up the rate function, species parameters, etc. ...
     version <- if ("mizerStarvation" %in% names(params@extensions)) {
@@ -173,21 +143,21 @@ setStarvation <- function(params, starv_coef = 10) {
     } else {
         as.character(utils::packageVersion("mizerStarvation"))
     }
-    params <- mizer::recordExtension(params, "mizerStarvation",
-                                     version = version)
+    params <- mizer::recordExtension(
+        params, "mizerStarvation",
+        version = version,
+        requirement = "sizespectrum/mizerStarvation"
+    )
     params
 }
 ```
 
 [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
-takes the installation requirement from the registered chain, preserves
-all existing entries and version stamps, and adds this extension in the
-correct dispatch position. Do not copy the entire active registry into
-the object: another extension can be loaded without having been applied
-to this particular model. As extension setup functions are applied,
-their individual
-[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
-calls build the object’s chain.
+records the installation requirement (which mizer can use to install
+missing packages automatically when opening saved models with
+[`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)),
+preserves all existing entries and version stamps, and adds this
+extension to the object.
 
 Storing this record serves two purposes:
 
@@ -199,7 +169,8 @@ Storing this record serves two purposes:
     installed or is too old.
 2.  **Class coercion.** For dispatching extensions (see below),
     [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
-    uses `@extensions` to restore the correct S4 class automatically.
+    uses `@extensions` to restore the correct S3 class vector
+    automatically.
 
 ### Taking a species parameter column away again
 
@@ -211,7 +182,6 @@ and
 [`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md):
 
 ``` r
-
 setStarvation <- function(params, starv_coef = 10) {
     if (all(starv_coef == 0)) {
         species_params(params)$starv_coef <- NULL   # withdraw the column
@@ -313,119 +283,79 @@ For this to work, **every method must call
 accidentally short-circuit the chain below it. The only exception is the
 base mizer method at the bottom of the chain.
 
-### Marker classes: do not define them yourself
+### S3 extension classes
 
-Your params objects carry a distinctive class label, an **S4 marker
-class** that extends `MizerParams` but adds no new data. All
+Your params objects carry an S3 class vector that prepends your class
+name to `"MizerParams"` (e.g. `c("mizerShelf", "MizerParams")`). All
 extension-specific data lives in
 [`other_params(params)`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
-or in component parameters; the class is only a label.
+or in component parameters; the class label is simply used for S3 method
+dispatch.
 
-**Do not create it with `setClass()`.** Mizer creates it for you when
-your package is loaded.
-[`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md)
-recognises your package as a dispatching extension from the S3 methods
-it registers for its marker class — `getBiomass.mizerShelf()` and the
-like — which it can see because registering an S3 method does not
-require the class to exist yet. It then defines the class at the right
-point in the hierarchy relative to whatever other extensions are loaded.
+Because `MizerParams` and
+[`MizerSim`](https://sizespectrum.org/mizer/reference/MizerSim.md) are
+S3 classes, you do not define classes with `setClass()`. R’s S3 dispatch
+mechanism works directly with class attribute vectors. When your
+constructor finishes configuring the object, it calls
+[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
+and
+[`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md):
 
-That last part is why the static definition is worse than merely
-redundant. `setClass("mizerShelf", contains = "MizerParams")` fixes your
-class as a direct child of `MizerParams`, a sibling of every other
-extension, and seals it; mizer cannot then re-parent it into the chain,
-so your package can no longer be combined with another. Leaving the
-class to mizer is what lets two independently developed extensions be
-loaded together in either order.
+``` r
+params <- mizer::recordExtension(
+    params, "mizerShelf",
+    version = as.character(utils::packageVersion("mizerShelf")),
+    requirement = "sizespectrum/mizerShelf"
+)
+params <- mizer::coerceToExtensionClass(params)
+```
 
 So `R/myextension-class.R` holds documentation and no code:
 
 ``` r
-
-#' mizerShelf marker classes
+#' mizerShelf extension classes
 #'
-#' S4 marker subclasses of MizerParams and MizerSim that enable S3 dispatch for
-#' the methods defined in this package. They add no slots and are created by
-#' mizer when the package is loaded, not by a setClass() call here.
+#' S3 extension classes for MizerParams and MizerSim that enable S3 dispatch for
+#' the methods defined in this package.
 #'
 #' @name mizerShelf-class
 #' @keywords internal
 NULL
 ```
 
-The class name is the name you pass to
-[`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md),
-and the sim class is that name with `"Sim"` appended.
-[`MizerSim`](https://sizespectrum.org/mizer/reference/MizerSim.md)
-objects are coerced to the sim class automatically by
-[`project()`](https://sizespectrum.org/mizer/reference/project.md) once
-you record the extension chain in `params@extensions` (see below).
-
-This also means there is nothing to do for an extension designed to
-stack on top of another: mizer works out the inheritance from the chain,
-so you never name the other extension’s class.
-
-### Registering in `.onLoad`
-
-The `.onLoad` hook for a dispatching extension is the same as for a
-metadata-only one:
-
-``` r
-
-.onLoad <- function(libname, pkgname) {
-  mizer::registerExtension(pkgname, requirement = "owner/myExtensionPackage")
-}
-```
-
-When
-[`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md)
-is called, mizer prepends the extension to the session’s chain, giving
-it the highest dispatch priority. Because R always loads dependency
-packages before the package that depends on them, the dependent package
-ends up outermost. For example, if `mizerOuter` depends on `mizerShelf`:
-
-1.  R loads `mizerShelf`, its `.onLoad` fires → chain:
-    `c(mizerShelf = "1.0.0")`
-2.  R loads `mizerOuter`, its `.onLoad` fires → chain:
-    `c(mizerOuter = "0.3.0", mizerShelf = "1.0.0")`
-
-The class hierarchy `c("mizerOuter", "mizerShelf", "MizerParams")`
-mirrors this chain, so dispatch proceeds in the right order
-automatically.
+The class name is your package/extension name, and the sim class is that
+name with `"Sim"` appended. `MizerSim` objects are coerced to the sim
+class automatically by
+[`project()`](https://sizespectrum.org/mizer/reference/project.md).
 
 ### Bundled data objects
 
 If your package ships a ready-made `MizerParams` or `MizerSim` object in
-its `data/` directory, you need one extra step in `.onLoad`. R’s
-lazy-loading mechanism delivers data objects exactly as they were
-serialised, without calling
-[`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md).
-If you do nothing, users get a plain `MizerParams` with the wrong S4
-class and method dispatch silently misfires.
+its `data/` directory, you need an `.onLoad` hook. R’s lazy-loading
+mechanism delivers data objects exactly as they were serialised on disk,
+without their extension class.
 
 The fix is to replace the lazy-loaded binding with an **active binding**
 that calls
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
-on every access. Because the coercion happens at the moment the user
-touches the object, it always reflects the full extension chain that is
-active at that point — including any other extension packages the user
-loaded after yours.
-
-Add this to your `.onLoad`, once per bundled params or sim object:
+on access:
 
 ``` r
-
 .onLoad <- function(libname, pkgname) {
-    mizer::registerExtension(pkgname, requirement = "owner/myExtensionPackage")
     if (exists("my_example_params", envir = asNamespace(pkgname), inherits = FALSE)) {
         ns  <- asNamespace(pkgname)
-        raw <- get("my_example_params", envir = ns)   # capture the raw object once
+        raw <- get("my_example_params", envir = ns)
         makeActiveBinding("my_example_params",
                           fun = function() mizer::coerceToExtensionClass(raw),
                           env = ns)
     }
 }
 ```
+
+After this, users can write `myPackage::my_example_params` (or simply
+`my_example_params` after
+[`library(myPackage)`](https://rdrr.io/r/base/library.html)) and always
+get a properly classed object.
 
 After this, users can write `myPackage::my_example_params` (or simply
 `my_example_params` after
@@ -446,7 +376,6 @@ Here is `getBiomass.mizerShelf` from mizerShelf. It calls
 standard mizer result, then appends the detritus and carrion biomasses:
 
 ``` r
-
 #' @method getBiomass mizerShelf
 #' @export
 getBiomass.mizerShelf <- function(object, ...) {
@@ -475,7 +404,6 @@ Always register S3 methods in your package’s `NAMESPACE` file. The
 roxygen2 `@method` tag does this for you automatically:
 
 ``` r
-
 #' @method getBiomass mizerShelf
 #' @export
 getBiomass.mizerShelf <- function(object, ...) { ... }
@@ -488,7 +416,6 @@ built-in rate functions with
 [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md):
 
 ``` r
-
 myEncounter <- function(params, n, n_pp, n_other, t = 0, ...) {
     enc <- mizerEncounter(params, n = n, n_pp = n_pp, n_other = n_other, t = t, ...)
     enc + extraEncounter(params, n, n_pp, n_other, t, ...)
@@ -502,7 +429,7 @@ if two extension packages both call
 silently overwrites the other. When you turn your extension into a
 package, **replace
 [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
-calls with `project*` methods** for your marker class. These methods
+calls with `project*` methods** for your extension class. These methods
 participate in the daisy-chain via
 [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html), so two packages
 can both modify the same rate without conflict.
@@ -514,32 +441,31 @@ extension-aware projections call during
 [`project()`](https://sizespectrum.org/mizer/reference/project.md).
 Define a method for whichever rate your extension modifies:
 
-| [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) key | S3 generic to override |
-|----|----|
-| `"Rates"` | [`projectRates()`](https://sizespectrum.org/mizer/reference/mizerRates.md) |
-| `"Encounter"` | [`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md) |
-| `"FeedingLevel"` | [`projectFeedingLevel()`](https://sizespectrum.org/mizer/reference/mizerFeedingLevel.md) |
-| `"EReproAndGrowth"` | [`projectEReproAndGrowth()`](https://sizespectrum.org/mizer/reference/mizerEReproAndGrowth.md) |
-| `"ERepro"` | [`projectERepro()`](https://sizespectrum.org/mizer/reference/mizerERepro.md) |
-| `"EGrowth"` | [`projectEGrowth()`](https://sizespectrum.org/mizer/reference/mizerEGrowth.md) |
-| `"Diffusion"` | [`projectDiffusion()`](https://sizespectrum.org/mizer/reference/mizerDiffusion.md) |
-| `"PredRate"` | [`projectPredRate()`](https://sizespectrum.org/mizer/reference/mizerPredRate.md) |
-| `"PredMort"` | [`projectPredMort()`](https://sizespectrum.org/mizer/reference/mizerPredMort.md) |
-| `"FMort"` | [`projectFMort()`](https://sizespectrum.org/mizer/reference/mizerFMort.md) |
-| `"Mort"` | [`projectMort()`](https://sizespectrum.org/mizer/reference/mizerMort.md) |
-| `"RDI"` | [`projectRDI()`](https://sizespectrum.org/mizer/reference/mizerRDI.md) |
-| `"RDD"` | [`projectRDD()`](https://sizespectrum.org/mizer/reference/projectRDD.md) |
-| `"ResourceMort"` | [`projectResourceMort()`](https://sizespectrum.org/mizer/reference/mizerResourceMort.md) |
+| [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) key | S3 generic to override                                                                         |
+|----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| `"Rates"`                                                                              | [`projectRates()`](https://sizespectrum.org/mizer/reference/mizerRates.md)                     |
+| `"Encounter"`                                                                          | [`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)             |
+| `"FeedingLevel"`                                                                       | [`projectFeedingLevel()`](https://sizespectrum.org/mizer/reference/mizerFeedingLevel.md)       |
+| `"EReproAndGrowth"`                                                                    | [`projectEReproAndGrowth()`](https://sizespectrum.org/mizer/reference/mizerEReproAndGrowth.md) |
+| `"ERepro"`                                                                             | [`projectERepro()`](https://sizespectrum.org/mizer/reference/mizerERepro.md)                   |
+| `"EGrowth"`                                                                            | [`projectEGrowth()`](https://sizespectrum.org/mizer/reference/mizerEGrowth.md)                 |
+| `"Diffusion"`                                                                          | [`projectDiffusion()`](https://sizespectrum.org/mizer/reference/mizerDiffusion.md)             |
+| `"PredRate"`                                                                           | [`projectPredRate()`](https://sizespectrum.org/mizer/reference/mizerPredRate.md)               |
+| `"PredMort"`                                                                           | [`projectPredMort()`](https://sizespectrum.org/mizer/reference/mizerPredMort.md)               |
+| `"FMort"`                                                                              | [`projectFMort()`](https://sizespectrum.org/mizer/reference/mizerFMort.md)                     |
+| `"Mort"`                                                                               | [`projectMort()`](https://sizespectrum.org/mizer/reference/mizerMort.md)                       |
+| `"RDI"`                                                                                | [`projectRDI()`](https://sizespectrum.org/mizer/reference/mizerRDI.md)                         |
+| `"RDD"`                                                                                | [`projectRDD()`](https://sizespectrum.org/mizer/reference/projectRDD.md)                       |
+| `"ResourceMort"`                                                                       | [`projectResourceMort()`](https://sizespectrum.org/mizer/reference/mizerResourceMort.md)       |
 
 #### Converting an existing custom rate function
 
 Remove the
 [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
-call from your constructor and define a method for your marker class
+call from your constructor and define a method for your extension class
 instead:
 
 ``` r
-
 #' @method projectEncounter mizerMyExtension
 #' @export
 projectEncounter.mizerMyExtension <- function(params, n, n_pp, n_other,
@@ -625,7 +551,6 @@ A constructor function that returns a `mizerShelf` object must end with
 these two lines:
 
 ``` r
-
 params <- mizer::recordExtension(
     params, "mizerShelf",
     version = as.character(utils::packageVersion("mizerShelf")))
@@ -635,7 +560,6 @@ params <- mizer::coerceToExtensionClass(params)
 Here is how `newDetritusCarrionParams()` uses them in mizerShelf:
 
 ``` r
-
 newDetritusCarrionParams <- function(species_params, ...) {
     params <- newMultispeciesParams(species_params, ...,
                                     resource_dynamics = "detritus_dynamics")
@@ -679,11 +603,10 @@ standard mizer `getBiomass.MizerParams` rather than
 `getBiomass.mizerShelf`.
 
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
-reads `params@extensions`, finds the outermost extension in the object’s
-own recorded chain that provides a dispatch class, and promotes the
-object to that S4 class. In our example, `params` becomes
-`c("mizerShelf", "MizerParams")` and R will dispatch to
-`getBiomass.mizerShelf` automatically.
+reads `params@extensions`, finds the registered dispatch extensions in
+the object’s own recorded chain, and sets the S3 class vector. In our
+example, `params` becomes `c("mizerShelf", "MizerParams")` and R will
+dispatch to `getBiomass.mizerShelf` automatically.
 [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
 calls this automatically when restoring an object from disk.
 
@@ -691,13 +614,6 @@ Note that coercion is driven by the object’s recorded chain, not by what
 extensions happen to be loaded in the current session. An object created
 with only `mizerShelf` registered will remain a `mizerShelf` object even
 if `mizerOuter` is also loaded.
-
-This step cannot be replaced with a simple
-`class(params) <- "mizerShelf"`: because `MizerParams` is a formal S4
-class, R enforces the class hierarchy strictly and the direct assignment
-would fail.
-[`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
-uses the appropriate S4 machinery internally.
 
 ### What about `MizerSim` objects?
 
@@ -716,7 +632,6 @@ automatically.
 This means that after:
 
 ``` r
-
 sim <- project(NWMed_params, t_max = 3)
 ```
 
@@ -737,18 +652,17 @@ report it through mizer’s own mechanism rather than with a plain
 is not collected with the other reports, and is swallowed on the
 `species_params<-()` path. Four functions are exported for this:
 
-| Call | For |
-|----|----|
-| [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.md) | Any report about a choice you made or an input you adjusted |
-| [`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.md) | Wrapping your entry point, so the reports raised inside it are collected and given together |
-| [`signal_not_recalculated()`](https://sizespectrum.org/mizer/reference/signal_not_recalculated.md) | Your setter left a hand-set array alone |
-| [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md) | The default for your own `info_level` argument |
+| Call                                                                                               | For                                                                                         |
+|----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.md)                         | Any report about a choice you made or an input you adjusted                                 |
+| [`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.md)                 | Wrapping your entry point, so the reports raised inside it are collected and given together |
+| [`signal_not_recalculated()`](https://sizespectrum.org/mizer/reference/signal_not_recalculated.md) | Your setter left a hand-set array alone                                                     |
+| [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md)           | The default for your own `info_level` argument                                              |
 
 Give every entry point that reports an `info_level` argument, forward
 it, and wrap the body:
 
 ``` r
-
 newFooParams <- function(species_params, ...,
                          info_level = default_info_level()) {
     with_info_level(info_level = info_level, {
@@ -804,80 +718,76 @@ those.
 
 When building a dispatching extension package, verify the following:
 
-Do **not** define the marker classes with `setClass()` — mizer creates
-`<myExtension>` and `<myExtension>Sim` when the package loads, and a
-statically defined class cannot be chained with other extensions. See
-[Marker classes: do not define them
-yourself](#marker-classes-do-not-define-them-yourself).
+- Do **not** call `setClass()` — mizer uses S3 class vectors
+  (`c("<myExtension>", "MizerParams")`), and
+  [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
+  manages the class order automatically. See [S3 extension
+  classes](#s3-extension-classes).
 
-Call `mizer::registerExtension(pkgname, requirement = ...)` in
-`.onLoad`.
+- For every `MizerParams` or `MizerSim` object bundled in `data/`, add a
+  [`makeActiveBinding()`](https://rdrr.io/r/base/bindenv.html) call in
+  `.onLoad` so the object is coerced to the correct extension class on
+  access. See [Bundled data objects](#bundled-data-objects).
 
-For every `MizerParams` or `MizerSim` object bundled in `data/`, add a
-[`makeActiveBinding()`](https://rdrr.io/r/base/bindenv.html) call in
-`.onLoad` so the object is coerced to the correct extension class on
-access. See [Bundled data objects](#bundled-data-objects).
+- End every constructor by calling
+  [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
+  with the installed package version and requirement, then
+  `coerceToExtensionClass(params)`.
 
-End every constructor by calling
-[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
-with the installed package version, then
-`coerceToExtensionClass(params)`.
+- Register every S3 method in `NAMESPACE` (via `@method` + `@export`).
 
-Register every S3 method in `NAMESPACE` (via `@method` + `@export`).
+- Call [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) in every
+  method override.
 
-Call [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) in every
-method override.
+- For each rate the package modifies during projection, define a
+  `project*` method (e.g. `projectEncounter.mizerMyExtension`) rather
+  than calling
+  [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md).
+  See [Replacing `setRateFunction()` with method
+  dispatch](#replacing-setratefunction-with-method-dispatch).
 
-For each rate the package modifies during projection, define a
-`project*` method (e.g. `projectEncounter.mizerMyExtension`) rather than
-calling
-[`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md).
-See [Replacing `setRateFunction()` with method
-dispatch](#replacing-setratefunction-with-method-dispatch).
+- Store all extension-specific state in `other_params(params)` or in new
+  components created with
+  [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
+  never as extra top-level list elements or new slots.
 
-Store all extension-specific state in `other_params(params)` or in new
-components created with
-[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
-never in new S4 slots.
+- Add and remove any species parameter column of your own through
+  `species_params(params)$my_col <- value` and
+  `species_params(params)$my_col <- NULL`, never by writing into the
+  `@species_params` slot. See [Taking a species parameter column away
+  again](#taking-a-species-parameter-column-away-again).
 
-Add and remove any species parameter column of your own through
-`species_params(params)$my_col <- value` and
-`species_params(params)$my_col <- NULL`, never by writing into the
-`@species_params` slot. See [Taking a species parameter column away
-again](#taking-a-species-parameter-column-away-again).
+- Register an extra mortality or encounter term that carries no state of
+  its own with
+  [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+  or
+  [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md),
+  never by assigning into `params@other_mort` or
+  `params@other_encounter` directly. See [Metadata-only extensions:
+  mizerStarvation](#metadata-only-extensions-mizerstarvation).
 
-Register an extra mortality or encounter term that carries no state of
-its own with
-[`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
-or
-[`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md),
-never by assigning into `params@other_mort` or `params@other_encounter`
-directly. See [Metadata-only extensions:
-mizerStarvation](#metadata-only-extensions-mizerstarvation).
+- Report anything you tell the user with
+  [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.md)
+  inside a
+  [`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.md),
+  never a bare [`message()`](https://rdrr.io/r/base/message.html) or
+  [`warning()`](https://rdrr.io/r/base/warning.html), and give every
+  entry point an `info_level = default_info_level()` argument that it
+  forwards. See [Telling the user what your package
+  decided](#telling-the-user-what-your-package-decided).
 
-Report anything you tell the user with
-[`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.md)
-inside a
-[`with_info_level()`](https://sizespectrum.org/mizer/reference/with_info_level.md),
-never a bare [`message()`](https://rdrr.io/r/base/message.html) or
-[`warning()`](https://rdrr.io/r/base/warning.html), and give every entry
-point an `info_level = default_info_level()` argument that it forwards.
-See [Telling the user what your package
-decided](#telling-the-user-what-your-package-decided).
+- Run mizer’s own test suite against an object of your subclass to check
+  that your overrides do not break core behaviour. See [Running mizer’s
+  test suite against your
+  subclass](#running-mizers-test-suite-against-your-subclass).
 
-Run mizer’s own test suite against an object of your subclass to check
-that your overrides do not break core behaviour. See [Running mizer’s
-test suite against your
-subclass](#running-mizers-test-suite-against-your-subclass).
-
-For metadata-only packages, only the
-[`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md)
-call, the bundled-data binding, the storage item and the reporting item
-apply, and
+For metadata-only packages, only the bundled-data binding, the storage
+item and the reporting item apply, and
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
 is not needed. Their setup functions should still call
 [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md),
-stamping the package version when their component is first created.
+stamping the package version and requirement when their component is
+first created.
 
 ------------------------------------------------------------------------
 
@@ -905,7 +815,6 @@ source and check out the tag or commit that matches your installed
 version:
 
 ``` r
-
 packageVersion("mizer")   # note this, then `git checkout` the matching tag
 ```
 
@@ -928,7 +837,6 @@ adds multiple resources) converts the single resource into two resources
 like this:
 
 ``` r
-
 suppressMessages(library(mizerMR))
 local({
     p1 <- NS_params_small
@@ -950,35 +858,10 @@ local({
 
 For your own extension, replace this block with a call to your
 constructor or conversion function, so that `NS_params_small` becomes an
-object of your S4 class. `NS_sim_small` is built from it on the next
-line and will then be of your `...Sim` class automatically.
+object of your S3 extension class. `NS_sim_small` is built from it on
+the next line and will then be of your `...Sim` class automatically.
 
-### Step 3: Skip the tests that manipulate the extension chain
-
-A few of mizer’s test files deliberately test the extension-chain
-machinery itself by calling
-[`clearExtensionChain()`](https://sizespectrum.org/mizer/reference/clearExtensionChain.md)
-and
-[`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md).
-The registered chain is **global session state**, and because testthat
-runs all files in one R session, once those tests clear or replace the
-chain the shared fixture is left orphaned: every later test that touches
-it then fails in
-[`validParams()`](https://sizespectrum.org/mizer/reference/validParams.md)
-with *“This object uses mizer extensions but no compatible extension
-chain is registered”*. This is an artefact of the shared session, not a
-problem with your extension, so exclude those files before running:
-
-``` r
-
-chain_tests <- c("test-registerExtensions.R",
-                 "test-saveParams.R")
-file.remove(file.path("tests/testthat", chain_tests))
-```
-
-(You will restore them in step 5.)
-
-### Step 4: Run the suite
+### Step 3: Run the suite
 
 Run the tests from the root of the mizer source tree. Use
 [`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
@@ -988,29 +871,26 @@ it calls `load_all()`, which is required because some mizer tests use
 mizer’s internal (unexported) functions.
 
 ``` r
-
 devtools::test()
 ```
 
-### Step 5: Restore the source
+### Step 4: Restore the source
 
 The edits above are only for this experiment. Undo them with:
 
 ``` r
-
 # from the mizer source root
 system("git checkout tests/testthat")
 ```
 
 ### Interpreting the results
 
-With the chain tests excluded, the only failures left are genuine
-differences between your subclass and a plain `MizerParams` object.
-Typical, expected ones include tests that assert the exact structure of
-a single-resource object, or that index a resource array as if it were
-one-dimensional. Any *other* failure — especially in a generic you
-override — is worth investigating, as it usually means your method does
-not faithfully extend the base behaviour.
+The only failures left are genuine differences between your subclass and
+a plain `MizerParams` object. Typical, expected ones include tests that
+assert the exact structure of a single-resource object, or that index a
+resource array as if it were one-dimensional. Any *other* failure —
+especially in a generic you override — is worth investigating, as it
+usually means your method does not faithfully extend the base behaviour.
 
 ------------------------------------------------------------------------
 
@@ -1037,7 +917,6 @@ object); for ordinary modifications call
 without a `version`, so the existing stamp is preserved:
 
 ``` r
-
 # in your setup function, when the component is first created:
 params <- recordExtension(params, "myExtension",
                           version = as.character(packageVersion("myExtension")))
@@ -1061,7 +940,6 @@ migration. It must be idempotent, must **not** call
 object after calling your method.
 
 ``` r
-
 #' @exportS3Method utils::upgrade
 upgrade.myExtension <- function(object, ...) {
     # Detect the old layout structurally and migrate it. Safe to run twice.
@@ -1108,10 +986,6 @@ is the entry point users should rely on.
   external encounter and mortality, components, and subclassing.
 - the [guide to using mizer extension
   packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.md),
-  which explains the extension chaining from the package user’s
-  perspective, and how to check or change which extensions are active in
-  a session or in a model object.
-- [`?registerExtension`](https://sizespectrum.org/mizer/reference/registerExtension.md)
-- [`?getRegisteredExtensions`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md)
+  which explains how to use extension packages and save/load models.
 - [`?coerceToExtensionClass`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
 - [`?recordExtension`](https://sizespectrum.org/mizer/reference/recordExtension.md)

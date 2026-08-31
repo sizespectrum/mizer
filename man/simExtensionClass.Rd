@@ -2,7 +2,7 @@
 % Please edit documentation in R/registerExtensions.R
 \name{simExtensionClass}
 \alias{simExtensionClass}
-\title{Derive the MizerSim marker class name for a given extension}
+\title{Derive the MizerSim extension class name for a given extension}
 \usage{
 simExtensionClass(extension)
 }
@@ -13,6 +13,6 @@ simExtensionClass(extension)
 A character string formed by appending \code{"Sim"} to \code{extension}.
 }
 \description{
-Derive the MizerSim marker class name for a given extension
+Derive the MizerSim extension class name for a given extension
 }
 \keyword{internal}

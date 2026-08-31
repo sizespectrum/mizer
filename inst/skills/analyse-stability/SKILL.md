@@ -119,7 +119,7 @@ damps oscillations artificially, so an unstable steady state can have a spectral
 radius below 1 at a large `dt` and a simulation will then settle onto a state the
 model does not hold. If `getStability()` says unstable but the simulation goes
 flat, check `getDiscreteStability()` at the `dt` you are projecting with, and
-reduce `dt` (or use `method = "tr_bdf2"`).
+reduce `dt` (or use `method = "second_order"`).
 
 The discrete eigenvalues cannot be converted into continuous ones by any exact
 algebraic relation, because mizer's step is not fully implicit: the rates are
@@ -199,4 +199,4 @@ plot(scan, style = "envelope")
 
 `getStability()` involves no time step, so the temporal numerical diffusion of the implicit solver does not enter its answer at all. But the *spatial* numerical diffusion from the default first-order upwind scheme does: it is part of the semi-discretised model that the eigenvalues describe. A real limit cycle can still be damped to a flat line by the spatial scheme alone!
 
-To accurately simulate the fully nonlinear oscillation and confirm a stable cycle, build the model with `second_order_w = TRUE` and project with `method = "tr_bdf2"`. See the `run-simulation` skill.
+To accurately simulate the fully nonlinear oscillation and confirm a stable cycle, build the model with `second_order_w = TRUE` and project with `method = "second_order"`. See the `run-simulation` skill.

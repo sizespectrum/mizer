@@ -122,8 +122,7 @@ to or read from.</p></dd>
 
 <dt id="arg-install-extensions">install_extensions<a class="anchor" aria-label="anchor" href="#arg-install-extensions"></a></dt>
 <dd><p>Logical. Should <code>readParams()</code> or <code>readSim()</code>
-attempt to install missing extension packages before registering the saved
-extension chain?</p></dd>
+attempt to install missing extension packages before loading them?</p></dd>
 
 
 <dt id="arg-sim">sim<a class="anchor" aria-label="anchor" href="#arg-sim"></a></dt>
@@ -172,7 +171,7 @@ Markdown file defining them.</p></li>
 <ul><li><p>They <strong>upgrade</strong> an object saved by an older version of mizer to the
 current structure (see <code><a href="upgradeParams.html">upgradeParams()</a></code>), so that models saved years ago
 still load correctly.</p></li>
-<li><p>They <strong>re-register the extension packages</strong> that the model needs and,
+<li><p>They <strong>load the extension packages</strong> that the model needs and,
 optionally, install any that are missing (see <code>install_extensions</code>),
 before restoring the object's extension class.</p></li>
 <li><p>They <strong>coerce the object back to its extension class</strong> and revalidate it,
@@ -200,7 +199,7 @@ of the same class you saved.</p></li>
 <span class="r-in"><span><span class="fu">saveSim</span><span class="op">(</span><span class="va">NS_sim</span>, file <span class="op">=</span> <span class="va">tmp2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu">readSim</span><span class="op">(</span><span class="va">tmp2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">sim</span>, <span class="va">NS_sim</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -1,6 +1,6 @@
-# Derive the MizerSim marker class name for a given extension
+# Derive the MizerSim extension class name for a given extension
 
-Derive the MizerSim marker class name for a given extension
+Derive the MizerSim extension class name for a given extension
 
 ## Usage
 

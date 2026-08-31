@@ -593,12 +593,8 @@ for more details.
 - [`NOther()`](https://sizespectrum.org/mizer/reference/NOther.md)
   [`finalNOther()`](https://sizespectrum.org/mizer/reference/NOther.md)
   : Time series of other components
-- [`clearExtensionChain()`](https://sizespectrum.org/mizer/reference/clearExtensionChain.md)
-  : Clear the registered extension chain
 - [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
-  : Coerce a mizer object to its registered extension class
-- [`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md)
-  : Get the registered mizer extension chain
+  : Coerce a mizer object to its extension class
 - [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
   [`` `other_mort<-`() ``](https://sizespectrum.org/mizer/reference/other_mort.md)
   [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md)
@@ -606,10 +602,6 @@ for more details.
   : Extra contributions to the mortality and encounter rates
 - [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
   : Record an extension and its version stamp on a mizer object
-- [`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md)
-  : Register a single mizer extension for this R session
-- [`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md)
-  : Register mizer extensions for this R session
 - [`customFunction()`](https://sizespectrum.org/mizer/reference/customFunction.md)
   **\[experimental\]** : Replace a mizer function with a custom version
 
@@ -907,7 +899,7 @@ users building extensions or working with model objects directly.
 The S4 and S3 classes used by mizer, together with functions for
 constructing, inspecting, comparing, and validating them.
 
-- [`MizerParams-class`](https://sizespectrum.org/mizer/reference/MizerParams-class.md)
+- [`` `@`( ``*`<MizerParams>`*`)`](https://sizespectrum.org/mizer/reference/MizerParams-class.md)
   : A class to hold the parameters for a size based model.
 
 - [`summary(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/summary.md)
@@ -930,7 +922,7 @@ constructing, inspecting, comparing, and validating them.
 - [`validParams()`](https://sizespectrum.org/mizer/reference/validParams.md)
   : Validate MizerParams object and upgrade if necessary
 
-- [`MizerSim-class`](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
+- [`` `@`( ``*`<MizerSim>`*`)`](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
   : A class to hold the results of a simulation
 
 - [`getSimParams()`](https://sizespectrum.org/mizer/reference/getSimParams.md)

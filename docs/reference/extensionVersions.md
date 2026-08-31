@@ -14,7 +14,7 @@ extensionVersions(ext)
 
 - ext:
 
-  The contents of an `@extensions` slot (character vector or list).
+  The contents of an `$extensions` element (character vector or list).
 
 ## Value
 

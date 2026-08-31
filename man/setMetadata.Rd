@@ -60,10 +60,11 @@ which is obtained with \code{packageVersion("mizer")}. The purpose of this field
 is that if the model is not working as expected in the current version of
 mizer, you can go back to the older version under which presumably it was
 working.
-\item \code{extensions} A named vector of strings where each name is the name of and
-extension package needed to run the model and each value is a string giving
-the information that the remotes package needs to install the correct version
-of the extension package. This field is set by the extension packages.
+\item \code{extensions} A named list with one entry for each extension package needed
+to run the model. Each entry records the installation \code{requirement} and the
+package \code{version} whose object layout is in use. This field is set by
+extension packages with \code{\link[=recordExtension]{recordExtension()}} and can be inspected with
+\code{getMetadata(params)$extensions}.
 \item \code{time_created} A POSIXct date-time object with the creation time.
 \item \code{time_modified} A POSIXct date-time object with the last modified time.
 }

@@ -39,7 +39,6 @@ while `species_params` is the *full* table that the model actually uses,
 with all the defaults and derived values filled in.
 
 ``` r
-
 given_species_params(params)       # only what was supplied explicitly
 calculated_species_params(params)  # only the values mizer filled in
 species_params(params)             # the complete table (given + calculated)
@@ -58,7 +57,6 @@ Here is a minimal model set up from nothing but a name and an asymptotic
 size:
 
 ``` r
-
 params <- newMultispeciesParams(
     data.frame(species = "Cod", w_inf = 5000)
 )
@@ -69,7 +67,6 @@ names(given_species_params(params))
     [1] "species" "w_inf"   "n"       "p"       "w_min"  
 
 ``` r
-
 # Everything else was calculated, for example:
 intersect(c("w_mat", "w_min", "h", "gamma", "ks"),
           names(calculated_species_params(params)))
@@ -211,36 +208,36 @@ calls every rate-setting function.
 Below is a reference of the default values and the functions responsible
 for calculating them:
 
-| Parameter | Description | Default Value / Formula | Function |
-|:---|:---|:---|:---|
-| `w_max` | Computational upper size boundary | `1.5 * w_inf` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `w_repro_max` | Size at which a typical mature fish invests all energy in reproduction | `w_inf` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `w_mat` | Size at maturity | `w_inf / 4` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `w_min` | Egg size / birth size | `0.001` g | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `alpha` | Assimilation efficiency | `0.6` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `n` | Allometric scaling exponent of intake | `3/4` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `a` | Length-weight conversion coefficient | `0.01` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `b` | Length-weight conversion exponent | `3` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `is_background` | Flag indicating background species | `FALSE` | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md) |
-| `h` | Maximum intake rate coefficient | Derived from growth/age at maturity (or `30`) | [`get_h_default()`](https://sizespectrum.org/mizer/reference/get_h_default.md) |
-| `gamma` | Search volume coefficient | Derived from target feeding level \\f_0\\ | [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md) |
-| `q` | Exponent of the search volume | `lambda - 2 + n` | [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md) |
-| `f0` | Target feeding level | `0.6` (or derived from `gamma` if given) | [`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md) |
-| `fc` | Critical feeding level | `0.2` | [`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md) |
-| `ks` | Standard metabolic rate coefficient | Derived from critical feeding level \\f_c\\ | [`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md) |
-| `p` | Allometric scaling exponent of metabolism | `n` | [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md) |
-| `k` | Activity/movement cost coefficient | `0` | [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md) |
-| `z0` | Constant external mortality rate | `z0pre * w_inf^z0exp` | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) |
-| `z_ext` | Size-dependent external mortality | `0` | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) |
-| `d` | Exponent of size-dependent external mortality | `n - 1` | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) |
-| `E_ext` | External encounter rate | `0` | [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md) |
-| `D_ext` | External diffusion rate | `0` | [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md) |
-| `interaction_resource` | Species interaction strength with resource | `1` | [`setInteraction()`](https://sizespectrum.org/mizer/reference/setInteraction.md) |
-| `erepro` | Reproduction efficiency | `1` | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md) |
-| `m` | Exponent of the investment into reproduction | `1` | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md) |
-| `w_mat25` | Size at which 25% of individuals are mature | `w_mat / 3^(1/10)` | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md) |
-| `beta` | Preferred predator/prey mass ratio | `30` | [`default_pred_kernel_params()`](https://sizespectrum.org/mizer/reference/default_pred_kernel_params.md) |
-| `sigma` | Width of predation kernel | `2` | [`default_pred_kernel_params()`](https://sizespectrum.org/mizer/reference/default_pred_kernel_params.md) |
+| Parameter              | Description                                                            | Default Value / Formula                       | Function                                                                                                 |
+|:-----------------------|:-----------------------------------------------------------------------|:----------------------------------------------|:---------------------------------------------------------------------------------------------------------|
+| `w_max`                | Computational upper size boundary                                      | `1.5 * w_inf`                                 | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)                 |
+| `w_repro_max`          | Size at which a typical mature fish invests all energy in reproduction | `w_inf`                                       | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)                 |
+| `w_mat`                | Size at maturity                                                       | `w_inf / 4`                                   | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)                 |
+| `w_min`                | Egg size / birth size                                                  | `0.001` g                                     | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)                 |
+| `alpha`                | Assimilation efficiency                                                | `0.6`                                         | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)                 |
+| `n`                    | Allometric scaling exponent of intake                                  | `3/4`                                         | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)                 |
+| `a`                    | Length-weight conversion coefficient                                   | `0.01`                                        | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)                 |
+| `b`                    | Length-weight conversion exponent                                      | `3`                                           | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)                 |
+| `is_background`        | Flag indicating background species                                     | `FALSE`                                       | [`validSpeciesParams()`](https://sizespectrum.org/mizer/reference/validSpeciesParams.md)                 |
+| `h`                    | Maximum intake rate coefficient                                        | Derived from growth/age at maturity (or `30`) | [`get_h_default()`](https://sizespectrum.org/mizer/reference/get_h_default.md)                           |
+| `gamma`                | Search volume coefficient                                              | Derived from target feeding level \\f_0\\     | [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)                   |
+| `q`                    | Exponent of the search volume                                          | `lambda - 2 + n`                              | [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md)                       |
+| `f0`                   | Target feeding level                                                   | `0.6` (or derived from `gamma` if given)      | [`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md)                         |
+| `fc`                   | Critical feeding level                                                 | `0.2`                                         | [`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md)                         |
+| `ks`                   | Standard metabolic rate coefficient                                    | Derived from critical feeding level \\f_c\\   | [`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md)                         |
+| `p`                    | Allometric scaling exponent of metabolism                              | `n`                                           | [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md)                     |
+| `k`                    | Activity/movement cost coefficient                                     | `0`                                           | [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md)                     |
+| `z0`                   | Constant external mortality rate                                       | `z0pre * w_inf^z0exp`                         | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)                                 |
+| `z_ext`                | Size-dependent external mortality                                      | `0`                                           | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)                                 |
+| `d`                    | Exponent of size-dependent external mortality                          | `n - 1`                                       | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)                                 |
+| `E_ext`                | External encounter rate                                                | `0`                                           | [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md)                       |
+| `D_ext`                | External diffusion rate                                                | `0`                                           | [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md)                       |
+| `interaction_resource` | Species interaction strength with resource                             | `1`                                           | [`setInteraction()`](https://sizespectrum.org/mizer/reference/setInteraction.md)                         |
+| `erepro`               | Reproduction efficiency                                                | `1`                                           | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md)                       |
+| `m`                    | Exponent of the investment into reproduction                           | `1`                                           | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md)                       |
+| `w_mat25`              | Size at which 25% of individuals are mature                            | `w_mat / 3^(1/10)`                            | [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md)                       |
+| `beta`                 | Preferred predator/prey mass ratio                                     | `30`                                          | [`default_pred_kernel_params()`](https://sizespectrum.org/mizer/reference/default_pred_kernel_params.md) |
+| `sigma`                | Width of predation kernel                                              | `2`                                           | [`default_pred_kernel_params()`](https://sizespectrum.org/mizer/reference/default_pred_kernel_params.md) |
 
 ------------------------------------------------------------------------
 
@@ -491,7 +488,6 @@ defaults when setting up a new model with only the species name and
 asymptotic size:
 
 ``` r
-
 # Create species parameter data frame with only w_inf specified
 simple_species <- data.frame(
   species = c("Species A", "Species B"),
@@ -513,7 +509,6 @@ params <- newMultispeciesParams(simple_species)
     ℹ Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
 
 ``` r
-
 # Inspect the automatically filled species parameters
 species_params(params)[, c("species", "w_mat", "w_min", "h", "gamma", "ks")]
 ```

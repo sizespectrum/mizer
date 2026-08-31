@@ -9,16 +9,14 @@
 #' should always prefer them over calling `saveRDS()`/`readRDS()` directly on a
 #' mizer object.
 #'
+#' The complete S3 class vector is stored with the object, including any
+#' extension classes.
+#'
 #' @section What `saveParams()` and `saveSim()` do beyond `saveRDS()`:
 #'
 #' - They **validate** the object before writing it, so a corrupted or
 #'   inconsistent object is caught at save time rather than when you next try
 #'   to use it.
-#' - They **strip any extension class** and save the object as a plain base
-#'   mizer object (recording which extension packages it needs in a slot).
-#'   This means the file can be read back even in an R session where the
-#'   extension packages that defined those S4 classes are not loaded, and it
-#'   protects the file against future changes to those extension classes.
 #' - They **check that the required extension packages are installed** and stop
 #'   with an informative error if they are not, so you do not save a file that
 #'   you would be unable to read back.
@@ -35,12 +33,9 @@
 #' - They **upgrade** an object saved by an older version of mizer to the
 #'   current structure (see [upgradeParams()]), so that models saved years ago
 #'   still load correctly.
-#' - They **re-register the extension packages** that the model needs and,
+#' - They **load the extension packages** that the model needs and,
 #'   optionally, install any that are missing (see `install_extensions`),
-#'   before restoring the object's extension class.
-#' - They **coerce the object back to its extension class** and revalidate it,
-#'   reversing the class-stripping done at save time so you get back an object
-#'   of the same class you saved.
+#'   before revalidating the object.
 #' - `readParams()` **reconciles the species parameters**, see
 #'   [reconcileSpeciesParams()]. A model may hold species parameter values that
 #'   were written straight into the `species_params` slot and that mizer would
@@ -51,8 +46,7 @@
 #' @param file The name of the file or a connection where the object is saved
 #'   to or read from.
 #' @param install_extensions Logical. Should [readParams()] or [readSim()]
-#'   attempt to install missing extension packages before registering the saved
-#'   extension chain?
+#'   attempt to install missing extension packages before loading them?
 #' @return `saveParams()` and `saveSim()` return NULL invisibly.
 #'   `readParams()` returns a MizerParams object. `readSim()` returns a MizerSim
 #'   object.
@@ -80,60 +74,30 @@ saveParams.MizerParams <- function(params, file) {
     checkRequiredExtensionPackages(params)
     checkCustomFunctions(params)
 
-    saveRDS(baseMizerClass(params), file = file)
+    saveRDS(params, file = file)
 }
 
 #' @rdname saveParams
 #' @export
 readParams <- function(file, install_extensions = FALSE) {
     params <- readRDS(file)
+    if (isS4(params)) {
+        params <- upgrade_s4_to_s3(params)
+    }
     if (needs_upgrading(params)) {
         params <- suppressWarnings(upgradeParams(params))
     }
 
-    if (length(params@extensions) > 0) {
-        registerExtensions(extensionRequirements(params@extensions),
-                           install = install_extensions)
+    if (length(params$extensions) > 0) {
+        ensureExtensionNamespaces(extensionRequirements(params$extensions),
+                                  install = install_extensions)
     }
 
-    params <- coerceToExtensionClass(params)
     params <- validParams(params)
     # A saved model may hold species parameters that were written straight into
     # the `species_params` slot and so are not recorded as given. The next
     # recalculation would silently undo them, so they are recorded now.
-    params <- reconcileSpeciesParams(params)
-
-    # # Check for missing packages
-    # packages <- names(params@extensions)
-    # missing <- !sapply(packages, require, quietly = TRUE)
-    # if (any(missing)) {
-    #     warning("Some required extension packages are not installed: ",
-    #             paste(missing, collapse = ", "),
-    #             ". Shall I install them now? Enter 1 for Yes, ",
-    #             " 0 for No.")
-    #     ans <- as.integer(readline())
-    #     if (ans != 1) return(FALSE)
-    #     sapply(packages[missing], remotes::install_github)
-    # }
-    #
-    # # Check for missing functions
-    # funs <- c(params@rates_funcs,
-    #           params@resource_dynamics,
-    #           params@other_dynamics,
-    #           params@other_encounter,
-    #           params@other_mort,
-    #           unique(params@gear_params$sel_func),
-    #           paste0(unique(params@species_params$pred_kernel_type),
-    #                  "_pred_kernel"))
-    # missing <- !sapply(funs, exists, mode = "function")
-    # if (any(missing)) {
-    #     warning("This model is using the functions ",
-    #             paste(funs[missing], collapse = ", "),
-    #             ". You need an R script or R Markdown file ",
-    #             "defining these functions.")
-    # }
-
-    params
+    reconcileSpeciesParams(params)
 }
 
 #' @rdname saveParams
@@ -146,30 +110,32 @@ saveSim <- function(sim, file) {
 #' @export
 saveSim.MizerSim <- function(sim, file) {
     sim <- validateSimForSaving(sim)
-    checkRequiredExtensionPackages(sim@params)
-    checkCustomFunctions(sim@params)
+    checkRequiredExtensionPackages(sim$params)
+    checkCustomFunctions(sim$params)
 
-    saveRDS(baseMizerClass(sim), file = file)
+    saveRDS(sim, file = file)
 }
 
 #' @rdname saveParams
 #' @export
 readSim <- function(file, install_extensions = FALSE) {
     sim <- readRDS(file)
+    if (isS4(sim)) {
+        sim <- upgrade_s4_to_s3(sim)
+        if (isS4(sim$params)) {
+            sim$params <- upgrade_s4_to_s3(sim$params)
+        }
+    }
     if (needs_upgrading(sim)) {
         sim <- suppressWarnings(upgradeSim(sim))
     }
 
-    if (length(sim@params@extensions) > 0) {
-        registerExtensions(extensionRequirements(sim@params@extensions),
-                           install = install_extensions)
+    if (length(sim$params$extensions) > 0) {
+        ensureExtensionNamespaces(extensionRequirements(sim$params$extensions),
+                                  install = install_extensions)
     }
 
-    sim@params <- coerceToExtensionClass(sim@params)
-    sim <- coerceToExtensionClass(sim)
-    sim <- validSim(sim)
-
-    sim
+    validSim(sim)
 }
 
 validateParamsForSaving <- function(params) {

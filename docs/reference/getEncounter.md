@@ -112,7 +112,7 @@ encounters of these components will be included in the returned value.
 
 [`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
 is the S3 generic used by extension-aware projections. Extension
-packages can add methods for their marker classes and call
+packages can add methods for their extension classes and call
 [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) to compose
 encounter-rate changes. The `MizerParams` method contains the standard
 mizer calculation and is also exported as

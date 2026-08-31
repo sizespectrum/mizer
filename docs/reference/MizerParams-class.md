@@ -7,6 +7,13 @@ simulations are performed using
 function on objects of this class. As a user you should never need to
 access the slots inside a `MizerParams` object directly.
 
+## Usage
+
+``` r
+# S3 method for class 'MizerParams'
+object@name
+```
+
 ## Details
 
 The MizerParams class is fairly complex with a large number of slots,
@@ -34,7 +41,7 @@ objects.
 - `extensions`:
 
   Describes the extension chain needed to run the model. The entries are
-  named by extension identifier (also the S4 marker class name) and
+  named by extension identifier (also the S3 extension class name) and
   ordered in S3 dispatch order, from outermost to innermost extension.
   It is either a named character vector whose values are requirement
   strings (version strings, installation specifications, or
@@ -45,8 +52,7 @@ objects.
   [`needs_upgrading()`](https://sizespectrum.org/mizer/reference/needs_upgrading.md).
   Use
   [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
-  to write entries rather than modifying the slot directly. Extension
-  subclasses are marker classes only and must not add slots.
+  to write entries rather than modifying the slot directly.
 
 - `time_created`:
 

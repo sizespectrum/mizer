@@ -1,8 +1,8 @@
 # Strip extension classes from a mizer object
 
 Coerces a `MizerParams` or `MizerSim` object back to its plain base
-class, removing any S4 extension marker classes. For `MizerSim`, also
-strips the extension class from the embedded `params` slot.
+class, removing any S3 extension classes. For `MizerSim`, also strips
+the extension class from the embedded `params` element.
 
 ## Usage
 

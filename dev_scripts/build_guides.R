@@ -117,11 +117,11 @@ guide_topics <- list(
     `create-extension-package` = list(
         lead   = paste("This guide covers turning a working mizer extension",
                        "into a shareable R package and maintaining it:",
-                       "registration in `.onLoad`, marker classes and method",
-                       "dispatch, bundled data objects, reporting to the user,",
-                       "running mizer's test suite against your subclass, and",
-                       "upgrading objects saved by an earlier version. For the",
-                       "extension mechanisms themselves, see the",
+                       "S3 extension classes and method dispatch, recording with",
+                       "`recordExtension()`, reporting to the user, running mizer's",
+                       "test suite against your subclass, and upgrading objects",
+                       "saved by an earlier version. For the extension mechanisms",
+                       "themselves, see the",
                        "[guide to extending mizer](guide-extend-mizer.html)."),
         # `data` is the package directory here, `library` and `setClass` are
         # base R and methods, `extensions` is the params slot.
@@ -138,6 +138,19 @@ guide_topics <- list(
         # `library` is base R.
         nolink = c("extensions", "library")
     ),
+    # Named as an upgrading article rather than a guide, on the same reasoning
+    # as `upgrade-mizer-code` below: it is that article's counterpart for the
+    # extension author, saying what a newer mizer asks of an extension package
+    # rather than of a user's script. Its symptom index is agent-only for the
+    # same reason as `upgrade-mizer-code`'s.
+    `upgrade-extension-package` = list(
+        vignette  = "upgrading-extension-packages",
+        title     = "Upgrading your extension package",
+        link_text = "Upgrading your extension package article",
+        # `data` is the package directory here, `setClass` is from methods, and
+        # `extensions` is the params slot.
+        nolink    = c("data", "setClass", "extensions")
+    ),
     # Not a guide, so it overrides all three derived names: the upgrading
     # article is the release-by-release list of changes that break existing
     # code, and the skill an agent loads when a user's script stops working
@@ -148,8 +161,12 @@ guide_topics <- list(
         title     = "Upgrading your mizer code",
         link_text = "Upgrading your mizer code article",
         # Deliberately no `lead` and no `setup`: the skill body opens with its
-        # own introduction, and nothing in the article is evaluated.
-        nolink    = c("print", "summary", "plot", "as.data.frame")
+        # own introduction, and nothing in the article is evaluated. The S4
+        # names are mizer's internal compatibility shims: the article names
+        # them as the base-R idioms that no longer apply to a model, so a link
+        # to mizer's own help page would point the reader the wrong way.
+        nolink    = c("print", "summary", "plot", "as.data.frame",
+                      "slot", "slotNames", "validObject")
     )
 )
 
@@ -570,6 +587,9 @@ check_index_quotes <- function(skill, pkg_root = ".") {
 #'
 #' A group heading names its file, `### <anything> -- `references/<file>``, and
 #' every table row under it until the next heading is checked against that file.
+#' A group may carry several tables -- the symptom index and the code-pattern
+#' index both point into the same release sections -- and all of them are
+#' checked, since a row is matched on its last cell whatever its first one says.
 check_symptom_index <- function(skill, pkg_root = ".") {
     if (is.na(skill_references_dir(skill, pkg_root))) return(0L)
     skill_dir <- file.path(pkg_root, "inst", "skills", skill)
@@ -600,8 +620,12 @@ check_symptom_index <- function(skill, pkg_root = ".") {
         if (grepl("^\\s*\\|[-: |]+\\|\\s*$", ln)) next
         cells <- trimws(strsplit(sub("^\\s*\\|", "", sub("\\|\\s*$", "", ln)),
                                  "|", fixed = TRUE)[[1]])
-        if (length(cells) < 3L || identical(cells[1], "Symptom")) next
+        if (length(cells) < 3L) next
         section <- cells[length(cells)]
+        # The header row of an index table, whatever its first column is called:
+        # a group may carry more than one table -- symptoms and code patterns --
+        # and every one of them ends in a `Section` column.
+        if (identical(section, "Section")) next
         if (is.na(file)) {
             bad <- c(bad, paste0("row outside any group: ", section))
             next

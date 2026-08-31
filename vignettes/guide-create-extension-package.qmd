@@ -16,8 +16,8 @@ library(mizer)
 ```
 
 This guide covers turning a working mizer extension into a shareable R
-package and maintaining it: registration in `.onLoad`, marker classes and
-method dispatch, bundled data objects, reporting to the user, running mizer's
+package and maintaining it: S3 extension classes and method dispatch,
+recording with `recordExtension()`, reporting to the user, running mizer's
 test suite against your subclass, and upgrading objects saved by an earlier
 version. For the extension mechanisms themselves, see the [guide to extending
 mizer](guide-extend-mizer.html).
@@ -33,8 +33,8 @@ your extension with others or use it across several projects.
 
 There are two kinds of extension package:
 
-- A **metadata-only** extension registers itself in `params@extensions` for
-  record-keeping, but does not change how any mizer generic function behaves.
+- A **metadata-only** extension records itself in the model metadata for
+  reproducibility, but does not change how any mizer generic function behaves.
   [mizerStarvation](https://sizespectrum.org/mizerStarvation/) is an
   example: it adds starvation mortality via the [`other_mort`](../reference/other_mort.html) pipeline, but it
   does not need to override any user-facing mizer functions.
@@ -67,8 +67,8 @@ worthwhile when you want:
   automatically (see [Daisy-chaining with `NextMethod()`] below).
 - **Testing and documentation**: a package gives you a natural home for
   `testthat` tests, roxygen2 documentation and a pkgdown website.
-- **Version tracking**: `params@extensions` records the version of each
-  extension package used to build a model. If a collaborator opens your saved
+- **Version tracking**: [`getMetadata(params)$extensions`](../reference/setMetadata.html) reports the version of
+  each extension package used to build a model. If a collaborator opens your saved
   [`MizerParams`](../reference/MizerParams.html) object in a different session, mizer can warn them if the
   required package is missing or outdated.
 
@@ -114,27 +114,7 @@ mizer left no alternative and mizerStarvation still does so. A bare slot
 assignment skips the check that the name really is a function and that it does
 not collide with a component's.
 
-### Registering in `.onLoad`
-
-Every extension package, even a metadata-only one, should announce itself to
-mizer when it is loaded. Place a `.onLoad` function in a file such as `R/mizerMyExtension-package.R`:
-
-```{r eval=FALSE}
-.onLoad <- function(libname, pkgname) {
-  mizer::registerExtension(pkgname, requirement = "owner/mizerMyExtension")
-}
-```
-
-[`registerExtension()`](../reference/registerExtension.html) adds the package name to the session's extension chain.
-The `requirement` string is a `pak` installation spec that mizer uses if it
-needs to install the package automatically. For packages on CRAN you can use a
-minimum version string such as `"1.2.0"` instead; for GitHub-only packages use
-the `"owner/repo"` form (e.g. `"sizespectrum/mizerStarvation"`). You can also specify a specific branch or version of the package, using the same syntax that the `{pak}` package uses. The call is safe to repeat: if the package is
-already registered (for example because the user called
-`devtools::load_all()` twice), it leaves the chain unchanged and rebuilds the
-chain's dynamic marker classes if the reload removed any of them.
-
-### Recording the extension in `params@extensions`
+### Recording the extension
 
 When your package creates or modifies a `MizerParams` object, record that your
 extension has actually been applied. Stamp the installed package version when
@@ -144,31 +124,34 @@ stamp:
 ```{r eval=FALSE}
 setStarvation <- function(params, starv_coef = 10) {
     # ... set up the rate function, species parameters, etc. ...
-    version <- if ("mizerStarvation" %in% names(params@extensions)) {
+    extensions <- getMetadata(params)$extensions
+    version <- if ("mizerStarvation" %in% names(extensions)) {
         NULL
     } else {
         as.character(utils::packageVersion("mizerStarvation"))
     }
-    params <- mizer::recordExtension(params, "mizerStarvation",
-                                     version = version)
+    params <- mizer::recordExtension(
+        params, "mizerStarvation",
+        version = version,
+        requirement = "sizespectrum/mizerStarvation"
+    )
     params
 }
 ```
 
-[`recordExtension()`](../reference/recordExtension.html) takes the installation requirement from the registered
-chain, preserves all existing entries and version stamps, and adds this
-extension in the correct dispatch position. Do not copy the entire active
-registry into the object: another extension can be loaded without having been
-applied to this particular model. As extension setup functions are applied,
-their individual `recordExtension()` calls build the object's chain.
+[`recordExtension()`](../reference/recordExtension.html) records the installation requirement (which mizer can use
+to install missing packages automatically when opening saved models with
+[`readParams()`](../reference/saveParams.html)), preserves all existing entries and version stamps, and adds
+this extension to the object.
 
 Storing this record serves two purposes:
 
 1. **Reproducibility record.** When the object is saved with [`saveParams()`](../reference/saveParams.html) and
-   later loaded with [`readParams()`](../reference/saveParams.html), mizer reads `@extensions` and warns if any
-   required package is not installed or is too old.
-2. **Class coercion.** For dispatching extensions (see below), `readParams()`
-   uses `@extensions` to restore the correct S4 class automatically.
+   later loaded with `readParams()`, mizer checks the recorded extensions and
+   warns if any required package is not installed or is too old.
+2. **Class coercion.** [`coerceToExtensionClass()`](../reference/coerceToExtensionClass.html) uses the extension record to
+   build the correct S3 class vector, and mizer validation uses it to repair a
+   stale vector or an old file saved without its extension classes.
 
 ### Taking a species parameter column away again
 
@@ -260,111 +243,53 @@ For this to work, **every method must call `NextMethod()`** so it does not
 accidentally short-circuit the chain below it. The only exception is the base
 mizer method at the bottom of the chain.
 
-### Marker classes: do not define them yourself
+### S3 extension classes
 
-Your params objects carry a distinctive class label, an **S4 marker class** that
-extends `MizerParams` but adds no new data. All extension-specific data lives in
-[`other_params(params)`](../reference/setRateFunction.html) or in component parameters; the class is only a label.
+Your params objects carry an S3 class vector that prepends your class name to
+`"MizerParams"` (e.g. `c("mizerShelf", "MizerParams")`). All extension-specific
+data lives in [`other_params(params)`](../reference/setRateFunction.html) or in component parameters; the class label
+is simply used for S3 method dispatch.
 
-**Do not create it with `setClass()`.** Mizer creates it for you when your
-package is loaded. `registerExtension()` recognises your package as a
-dispatching extension from the S3 methods it registers for its marker class —
-`getBiomass.mizerShelf()` and the like — which it can see because registering an
-S3 method does not require the class to exist yet. It then defines the class at
-the right point in the hierarchy relative to whatever other extensions are
-loaded.
+Because `MizerParams` and [`MizerSim`](../reference/MizerSim.html) are S3 classes, you do not define classes
+with `setClass()`. R's S3 dispatch mechanism works directly with class attribute
+vectors. When your constructor finishes configuring the object, it calls
+`recordExtension()` and `coerceToExtensionClass()`:
 
-That last part is why the static definition is worse than merely redundant.
-`setClass("mizerShelf", contains = "MizerParams")` fixes your class as a direct
-child of `MizerParams`, a sibling of every other extension, and seals it; mizer
-cannot then re-parent it into the chain, so your package can no longer be
-combined with another. Leaving the class to mizer is what lets two independently
-developed extensions be loaded together in either order.
+```{r eval=FALSE}
+params <- mizer::recordExtension(
+    params, "mizerShelf",
+    version = as.character(utils::packageVersion("mizerShelf")),
+    requirement = "sizespectrum/mizerShelf"
+)
+params <- mizer::coerceToExtensionClass(params)
+```
 
 So `R/myextension-class.R` holds documentation and no code:
 
 ```{r eval=FALSE}
-#' mizerShelf marker classes
+#' mizerShelf extension classes
 #'
-#' S4 marker subclasses of MizerParams and MizerSim that enable S3 dispatch for
-#' the methods defined in this package. They add no slots and are created by
-#' mizer when the package is loaded, not by a setClass() call here.
+#' S3 extension classes for MizerParams and MizerSim that enable S3 dispatch for
+#' the methods defined in this package.
 #'
 #' @name mizerShelf-class
 #' @keywords internal
 NULL
 ```
 
-The class name is the name you pass to `registerExtension()`, and the sim class
-is that name with `"Sim"` appended. [`MizerSim`](../reference/MizerSim.html) objects are coerced to the sim
-class automatically by [`project()`](../reference/project.html) once you record the extension chain in
-`params@extensions` (see below).
-
-This also means there is nothing to do for an extension designed to stack on top
-of another: mizer works out the inheritance from the chain, so you never name
-the other extension's class.
-
-### Registering in `.onLoad`
-
-The `.onLoad` hook for a dispatching extension is the same as for a
-metadata-only one:
-
-```{r eval=FALSE}
-.onLoad <- function(libname, pkgname) {
-  mizer::registerExtension(pkgname, requirement = "owner/myExtensionPackage")
-}
-```
-
-When `registerExtension()` is called, mizer prepends the extension to the
-session's chain, giving it the highest dispatch priority. Because R always
-loads dependency packages before the package that depends on them, the dependent
-package ends up outermost. For example, if `mizerOuter` depends on `mizerShelf`:
-
-1. R loads `mizerShelf`, its `.onLoad` fires → chain: `c(mizerShelf = "1.0.0")`
-2. R loads `mizerOuter`, its `.onLoad` fires → chain: `c(mizerOuter = "0.3.0", mizerShelf = "1.0.0")`
-
-The class hierarchy `c("mizerOuter", "mizerShelf", "MizerParams")` mirrors
-this chain, so dispatch proceeds in the right order automatically.
+The class name is your package/extension name, and the sim class is that name
+with `"Sim"` appended. `MizerSim` objects are coerced to the sim class
+automatically by [`project()`](../reference/project.html).
 
 ### Bundled data objects
 
 If your package ships a ready-made `MizerParams` or `MizerSim` object in its
-`data/` directory, you need one extra step in `.onLoad`. R's lazy-loading
-mechanism delivers data objects exactly as they were serialised, without
-calling [`coerceToExtensionClass()`](../reference/coerceToExtensionClass.html). If you do nothing, users get a plain
-`MizerParams` with the wrong S4 class and method dispatch silently misfires.
-
-The fix is to replace the lazy-loaded binding with an **active binding** that
-calls `coerceToExtensionClass()` on every access. Because the coercion happens
-at the moment the user touches the object, it always reflects the full
-extension chain that is active at that point — including any other extension
-packages the user loaded after yours.
-
-Add this to your `.onLoad`, once per bundled params or sim object:
-
-```{r eval=FALSE}
-.onLoad <- function(libname, pkgname) {
-    mizer::registerExtension(pkgname, requirement = "owner/myExtensionPackage")
-    if (exists("my_example_params", envir = asNamespace(pkgname), inherits = FALSE)) {
-        ns  <- asNamespace(pkgname)
-        raw <- get("my_example_params", envir = ns)   # capture the raw object once
-        makeActiveBinding("my_example_params",
-                          fun = function() mizer::coerceToExtensionClass(raw),
-                          env = ns)
-    }
-}
-```
-
-After this, users can write `myPackage::my_example_params` (or simply
-`my_example_params` after `library(myPackage)`) and always get a properly
-classed object, with no extra steps on their part.
-
-> **Why not just do `my_example_params <<- coerceToExtensionClass(...)` in
-> `.onLoad`?**  That coercion runs when *your* package loads, at which point
-> only your extension is in the chain. If the user then loads a second
-> extension package, the chain grows, but the already-promoted object is never
-> updated. `makeActiveBinding` avoids this by re-running the coercion on every
-> access.
+`data/` directory, create it using your package's setup function (which sets the
+S3 class and records the extension metadata) and save it using
+`usethis::use_data()`. Because `MizerParams` and `MizerSim` are S3 classes, R's
+standard data lazy-loading delivers the object with its extension S3 class
+intact, so users can use the bundled dataset immediately after loading your
+package.
 
 
 
@@ -421,7 +346,7 @@ This works well for a single user's workflow, but it is not composable: if two
 extension packages both call `setRateFunction(params, "Encounter", ...)`,
 whichever runs last silently overwrites the other. When you turn your extension
 into a package, **replace `setRateFunction()` calls with `project*` methods**
-for your marker class. These methods participate in the daisy-chain via
+for your extension class. These methods participate in the daisy-chain via
 `NextMethod()`, so two packages can both modify the same rate without conflict.
 
 #### The `project*` generics
@@ -450,7 +375,7 @@ rate your extension modifies:
 #### Converting an existing custom rate function
 
 Remove the `setRateFunction()` call from your constructor and define a method
-for your marker class instead:
+for your extension class instead:
 
 ```{r eval=FALSE}
 #' @method projectEncounter mizerMyExtension
@@ -556,8 +481,8 @@ extension setup functions are applied, their calls accumulate the full object
 chain.
 
 When the object is later loaded from disk with `readParams()`, mizer reads
-`@extensions` to check that all the recorded extensions are installed in the
-current session and warns the user if any are missing or outdated.
+the extension record to check that all the recorded extensions are installed in
+the current session and warns the user if any are missing or outdated.
 
 #### What `coerceToExtensionClass(params)` does
 
@@ -565,29 +490,24 @@ At this point `params` is still a plain `MizerParams` object as far as R is
 concerned. If you called `getBiomass(params)` now, R would call the standard
 mizer `getBiomass.MizerParams` rather than `getBiomass.mizerShelf`.
 
-`coerceToExtensionClass()` reads `params@extensions`, finds the outermost
-extension in the object's own recorded chain that provides a dispatch class,
-and promotes the object to that S4 class. In our example, `params` becomes
-`c("mizerShelf", "MizerParams")` and R will dispatch to
-`getBiomass.mizerShelf` automatically. `readParams()` calls this automatically
-when restoring an object from disk.
+`coerceToExtensionClass()` reads the object's extension record, finds the
+registered dispatch extensions in its recorded chain, and sets the S3 class
+vector. In our example, `params` becomes `c("mizerShelf", "MizerParams")` and
+R will dispatch to `getBiomass.mizerShelf` automatically. [`validParams()`](../reference/validParams.html) also
+normalises the vector as part of validation, which keeps old saved objects
+compatible.
 
 Note that coercion is driven by the object's recorded chain, not by what
 extensions happen to be loaded in the current session. An object created with
 only `mizerShelf` registered will remain a `mizerShelf` object even if
 `mizerOuter` is also loaded.
 
-This step cannot be replaced with a simple `class(params) <- "mizerShelf"`:
-because `MizerParams` is a formal S4 class, R enforces the class hierarchy
-strictly and the direct assignment would fail. `coerceToExtensionClass()` uses
-the appropriate S4 machinery internally.
-
 ### What about `MizerSim` objects?
 
 You do not need to call `coerceToExtensionClass()` yourself for `MizerSim`
 objects. When `project()` creates its output it calls `MizerSim()`, which
 in turn calls `coerceToExtensionClass()` on the new sim object. Because the
-`params` slot inside the sim already has `@extensions` set, mizer knows to
+params object inside the sim already has the extension metadata, mizer knows to
 promote the sim to `mizerShelfSim` automatically.
 
 This means that after:
@@ -599,6 +519,54 @@ sim <- project(NWMed_params, t_max = 3)
 `sim` is already of class `mizerShelfSim`, and any method you have defined
 for that class — such as `getBiomass.mizerShelfSim` — will be dispatched
 automatically.
+
+#### Rate methods on simulations come for free
+
+If your extension modifies rates during projection using `project*` methods (such as `projectMort.mizerStarvation` or `projectEncounter.mizerMyExtension`), you **do not need to write any methods for `MizerSim`**.
+
+Mizer's own simulation rate accessors — `getMort(sim)`, `getEncounter(sim)`, [`getRates(sim)`](../reference/getRates.html), and projection functions like `project()` — evaluate the rate step-by-step using the simulation's `params` object, which carries your extension class. At each time step, mizer dispatches through your `project*` method via S3, so your rate modifications automatically apply throughout the simulation without writing a `...Sim` method.
+
+#### When you do need a `MizerSim` method
+
+There are two situations where writing a method for your `...Sim` class is necessary:
+
+1. **Overriding non-rate mizer generics.** Functions like `getBiomass()` or [`getN()`](../reference/getN.html) are summary accessors rather than step-by-step projection rates. When an extension adds external dynamical components (e.g. `Detritus` and `Carrion` in `mizerShelf`), you define both `getBiomass.mizerShelf` (for `MizerParams`) and `getBiomass.mizerShelfSim` (for `MizerSim`) so that `getBiomass(sim)` and `plotBiomass(sim)` include the component biomasses across time.
+
+2. **Providing new extension-specific `get*` rate accessors.** If your package introduces its own rate diagnostic function (such as `getStarvMort()` in `mizerStarvation`), core mizer does not define that function. To let users evaluate the diagnostic on both parameters and simulations (e.g. `getStarvMort(params)` and `getStarvMort(sim)`), define your function as an S3 generic with methods for both `MizerParams` and `MizerSim`:
+
+```{r eval=FALSE}
+#' Starvation mortality rate
+#'
+#' Calculates the starvation mortality rate (1/year) by species and size.
+#'
+#' @param object A `MizerParams` or `MizerSim` object.
+#' @param ... Arguments passed on to methods.
+#' @return An array (species by size for `MizerParams`, or time by species by
+#'   size for `MizerSim`).
+#' @export
+getStarvMort <- function(object, ...) {
+    UseMethod("getStarvMort")
+}
+
+#' @rdname getStarvMort
+#' @export
+getStarvMort.MizerParams <- function(object, n = initialN(object),
+                                     n_pp = initialNResource(object),
+                                     n_other = initialNOther(object),
+                                     t = 0, ...) {
+    starvMort(object, n = n, n_pp = n_pp, n_other = n_other, t = t, ...)
+}
+
+#' @rdname getStarvMort
+#' @export
+getStarvMort.MizerSim <- function(object, time_range, drop = FALSE, ...) {
+    if (missing(time_range)) {
+        time_range <- dimnames(object@n)$time
+    }
+    time_elements <- get_time_elements(object, time_range)
+    # Loop over time_elements and compute rate matrix for each time step
+}
+```
 
 ---
 
@@ -670,25 +638,17 @@ work is happening, and collected reports are given at the end, so use a plain
 
 When building a dispatching extension package, verify the following:
 
-- [ ] Do **not** define the marker classes with `setClass()` — mizer creates
-  `<myExtension>` and `<myExtension>Sim` when the package loads, and a statically
-  defined class cannot be chained with other extensions. See
-  [Marker classes: do not define them yourself].
-- [ ] Call `mizer::registerExtension(pkgname, requirement = ...)` in
-  `.onLoad`.
-- [ ] For every `MizerParams` or `MizerSim` object bundled in `data/`, add a
-  `makeActiveBinding()` call in `.onLoad` so the object is coerced to the
-  correct extension class on access. See [Bundled data objects].
-
+- [ ] Do **not** call `setClass()` — mizer uses S3 class vectors (`c("<myExtension>", "MizerParams")`),
+  and `coerceToExtensionClass()` manages the class order automatically. See [S3 extension classes].
 - [ ] End every constructor by calling `recordExtension()` with the installed
-  package version, then `coerceToExtensionClass(params)`.
+  package version and requirement, then `coerceToExtensionClass(params)`.
 - [ ] Register every S3 method in `NAMESPACE` (via `@method` + `@export`).
 - [ ] Call `NextMethod()` in every method override.
 - [ ] For each rate the package modifies during projection, define a
   `project*` method (e.g. `projectEncounter.mizerMyExtension`) rather than
   calling `setRateFunction()`. See [Replacing `setRateFunction()` with method dispatch].
 - [ ] Store all extension-specific state in `other_params(params)` or in
-  new components created with `setComponent()`, never in new S4 slots.
+  new components created with `setComponent()`, never as extra top-level list elements or new slots.
 - [ ] Add and remove any species parameter column of your own through
   `species_params(params)$my_col <- value` and
   `species_params(params)$my_col <- NULL`, never by writing into the
@@ -706,11 +666,10 @@ When building a dispatching extension package, verify the following:
   that your overrides do not break core behaviour. See
   [Running mizer's test suite against your subclass].
 
-For metadata-only packages, only the `registerExtension()` call, the
-bundled-data binding, the storage item and the reporting item apply, and
-`coerceToExtensionClass()` is not needed. Their setup functions should still
-call `recordExtension()`, stamping the package version when their component is
-first created.
+For metadata-only packages, only the storage item and the reporting item apply,
+and `coerceToExtensionClass()` is not needed. Their setup functions should still
+call `recordExtension()`, stamping the package version and requirement when
+their component is first created.
 
 ---
 
@@ -747,8 +706,7 @@ replaces it with an object of your class. Because `devtools::load_all()` sources
 the helper inside mizer's own namespace, attached packages are not on the lookup
 path there, so:
 
-- call `library(yourPackage)` (this also fires your `.onLoad` and registers the
-  extension), and
+- call `library(yourPackage)`, and
 - qualify your own functions with `yourPackage::`.
 
 For example, [mizerMR](https://github.com/sizespectrum/mizerMR) (which adds
@@ -775,30 +733,11 @@ local({
 ```
 
 For your own extension, replace this block with a call to your constructor or
-conversion function, so that `NS_params_small` becomes an object of your S4
-class. `NS_sim_small` is built from it on the next line and will then be of your
+conversion function, so that `NS_params_small` becomes an object of your S3
+extension class. `NS_sim_small` is built from it on the next line and will then be of your
 `...Sim` class automatically.
 
-### Step 3: Skip the tests that manipulate the extension chain {#skip-chain-tests}
-
-A few of mizer's test files deliberately test the extension-chain machinery
-itself by calling [`clearExtensionChain()`](../reference/clearExtensionChain.html) and [`registerExtensions()`](../reference/registerExtensions.html). The
-registered chain is **global session state**, and because testthat runs all
-files in one R session, once those tests clear or replace the chain the shared
-fixture is left orphaned: every later test that touches it then fails in
-[`validParams()`](../reference/validParams.html) with *"This object uses mizer extensions but no compatible
-extension chain is registered"*. This is an artefact of the shared session, not
-a problem with your extension, so exclude those files before running:
-
-```{r eval=FALSE}
-chain_tests <- c("test-registerExtensions.R",
-                 "test-saveParams.R")
-file.remove(file.path("tests/testthat", chain_tests))
-```
-
-(You will restore them in step 5.)
-
-### Step 4: Run the suite
+### Step 3: Run the suite
 
 Run the tests from the root of the mizer source tree. Use `devtools::test()`
 rather than `testthat::test_dir()`: it calls `load_all()`, which is required
@@ -808,7 +747,7 @@ because some mizer tests use mizer's internal (unexported) functions.
 devtools::test()
 ```
 
-### Step 5: Restore the source
+### Step 4: Restore the source
 
 The edits above are only for this experiment. Undo them with:
 
@@ -819,12 +758,12 @@ system("git checkout tests/testthat")
 
 ### Interpreting the results
 
-With the chain tests excluded, the only failures left are genuine differences
-between your subclass and a plain `MizerParams` object. Typical, expected ones
-include tests that assert the exact structure of a single-resource object, or
-that index a resource array as if it were one-dimensional. Any *other* failure —
-especially in a generic you override — is worth investigating, as it usually
-means your method does not faithfully extend the base behaviour.
+The only failures left are genuine differences between your subclass and a
+plain `MizerParams` object. Typical, expected ones include tests that assert the
+exact structure of a single-resource object, or that index a resource array as
+if it were one-dimensional. Any *other* failure — especially in a generic you
+override — is worth investigating, as it usually means your method does not
+faithfully extend the base behaviour.
 
 ---
 
@@ -838,13 +777,13 @@ the same machinery so that your migration runs automatically.
 
 ### Record a version stamp on the object
 
-The `@extensions` slot records, for each extension in the chain, both the
-requirement string used for dispatch and the version of the extension package
-that the object conforms to. Write entries with `recordExtension()` rather than
-assigning to the slot directly. Stamp the installed version **only** when you
-create your component (or when you upgrade the object); for ordinary
-modifications call `recordExtension()` without a `version`, so the existing
-stamp is preserved:
+`getMetadata(params)$extensions` reports, for each extension in the chain, both
+the installation requirement and the version of the extension package that the
+object conforms to. Write entries with `recordExtension()`; do not modify the
+returned metadata directly. Stamp the installed version **only** when you create
+your component (or when you upgrade the object); for ordinary modifications
+call `recordExtension()` without a `version`, so the existing stamp is
+preserved:
 
 ```{r eval=FALSE}
 # in your setup function, when the component is first created:
@@ -904,10 +843,12 @@ method and does not run the full chain — `validParams(params)` (or
 - the [guide to extending mizer](guide-extend-mizer.html) for the full menu of extension mechanisms — custom
   rate functions, external encounter and mortality, components, and subclassing.
 - the [guide to using mizer extension
-  packages](guide-use-extension-packages.html), which explains the extension
-  chaining from the package user's perspective, and how to check or change
-  which extensions are active in a session or in a model object.
-- `?registerExtension`
-- `?getRegisteredExtensions`
+  packages](guide-use-extension-packages.html), which explains how to use
+  extension packages and save/load models.
+- the [Upgrading your extension package article](upgrading-extension-packages.html), for bringing an *existing* package to
+  the state described here — one written against the S4 mizer, or one that has
+  fallen behind a later release. It lists the changes to make in order and the
+  symptoms that point at each one; this page stays the description of the
+  finished package.
 - `?coerceToExtensionClass`
 - `?recordExtension`

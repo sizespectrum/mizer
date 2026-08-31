@@ -4,11 +4,10 @@ Most of the changes in this release are corrections, so for many models nothing
 moves at all. Results change for a model that had opted in to second-order
 bin-averaging or to the `van_leer` flux, that sets `min_w` below the default,
 that specifies sizes as lengths, that changes the resource power law after
-constructing the model, that lets mizer fill in a `gamma` or `f0` while carrying
-a hand-set search volume, an extension or extra food, or that assigns a species
-parameter table holding only some of the model's columns. Three interfaces
-change: the spectrum plots, the names of the steady-state finders, and the
-`"convergence"` attribute they attach. Everything else is a new report, and
+constructing the model, or that lets mizer fill in a `gamma` or `f0` while
+carrying a hand-set search volume. Three interfaces change: the spectrum plots,
+the names of the steady-state finders, and the `"convergence"` attribute they
+attach. Everything else is a new report, and
 `info_level = 0` silences the lot.
 
 ### `biomass` and `per_log_size` replace `power`
@@ -34,9 +33,9 @@ things change:
   call is honoured: `plotSpectra(sim, power = 1, biomass = FALSE)` used to plot
   the biomass density, and now plots the number density with respect to
   logarithmic size — the same numbers, but labelled correctly and, with
-  `size_axis = "l"`, converted to a length axis with the logarithmic Jacobian
-  rather than the density one. If you meant the biomass density, drop the
-  `biomass` argument. The same applies to `plotlySpectra()`, `plotlyCDF()`,
+  `size_axis = "l"`, converted to a length axis with the logarithmic Jacobian.
+  If you meant the biomass density, set `biomass = TRUE`.
+  The same applies to `plotlySpectra()`, `plotlyCDF()`,
   `plotlySpectra2()` and `plotlyCDF2()`, which passed `power` on internally and
   so ignored `biomass` even when you gave only `biomass`: those calls now plot
   what they were asked for.
@@ -78,7 +77,8 @@ consequences:
 - `plot(resource_level(params))` gets a linear y axis instead of a logarithmic
   one. Pass `log_y = TRUE` to get the old axis back; any explicit `log_y` or
   `log` you already pass is respected.
-- The range is only ever *widened* to include the data, never narrowed to the
+- The range is only ever *widened* to include the data, never narrowed to less
+  than the
   interval from 0 to 1. So `plotFeedingLevel(include_critical = TRUE)` now shows
   a critical feeding level above 1, which the old fixed window drew off the top
   of the plot. Nothing is ever hidden, and an explicit `ylim` still wins.
@@ -89,11 +89,11 @@ you do not pass it, the old string tests still run as a fallback, so existing
 code that named an array `"Number density"` or gave it units `"1/g"` keeps
 working, and arrays saved by earlier versions keep working when they are loaded.
 
-Extension packages that called the unexported plotting helpers directly should
-note that `plotComparisonDataFrame()` and the internal `animate_plotly()` take a
-single `density_wrt` argument in place of `spectrum_power` and
-`spectrum_per_log_size`, and that the internal `array_spectrum_power()` is gone.
-The `power`-based interface of `plotSpectra()` and friends is unchanged.
+If you called the unexported plotting helpers directly, note that
+`plotComparisonDataFrame()` and the internal `animate_plotly()` take a single
+`density_wrt` argument in place of `spectrum_power` and `spectrum_per_log_size`,
+and that the internal `array_spectrum_power()` is gone. The `power`-based
+interface of `plotSpectra()` and friends is unchanged.
 
 ### The total is summed on the axis it is plotted against
 
@@ -228,48 +228,6 @@ species that has gone from present to absent.
   interval from 0 to 1, as a static plot of one is. Pass `log_y = TRUE` or an
   explicit `ylim` to override it.
 
-### `summary()` of an array covers the same sizes as `plot()`
-
-`plot()` of a species-by-size array draws each species over its own size range,
-from its `w_min` to its `w_max`. `summary()` of the same array reduced the whole
-size grid, so the two described different arrays. The values outside a species'
-range describe an animal that does not exist, and because a rate usually grows
-with size they are also the extreme ones, so it was `Min` and `Max` that were
-reported wrongly:
-
-```r
-summary(getEncounter(NS_params))$per_species[1, ]
-#> before:  Species Sprat   Min 0.299   Mean 2929   Max 39573
-#> now:     Species Sprat   Min 0.299   Mean 37.9   Max 240
-```
-
-40000 g/year is the encounter rate a 40 kg Sprat would have. 240 g/year is the
-rate over the sizes a Sprat reaches.
-
-Both `summary()` methods with a size dimension — `ArraySpeciesBySize` and
-`ArrayTimeBySpeciesBySize` — now take `all.sizes`, defaulting to `FALSE` as
-`plot()` does. Pass `all.sizes = TRUE` for the whole grid:
-
-```r
-summary(getEncounter(NS_params), all.sizes = TRUE)   # as before
-```
-
-A species with no values left in range now comes back as `NA` rather than as
-the `-Inf`/`Inf` and warning that `min()` and `max()` of an empty selection
-give.
-
-`print()` and `as.data.frame()` are unchanged: they show the array as it is,
-without interpreting it. Nothing about the arrays themselves changed, so any
-code that indexes them directly is unaffected.
-
-<!-- agent-only -->
-If a user reports that a summary number "changed by orders of magnitude", check
-whether it came from `summary()` of a rate array before looking anywhere else —
-this is much the largest such change, and the new number is the right one.
-`summary(x, all.sizes = TRUE)` reproduces the old value exactly, which is the
-quickest way to confirm the diagnosis.
-<!-- /agent-only -->
-
 ### `getProportionOfLargeFish()` on a `MizerParams` object was wrong
 
 The `MizerParams` method multiplied the species x size abundance array by the
@@ -334,76 +292,6 @@ made mizer repeat the "not consistent" warning at every later parameter change.
 If you worked around this by setting the weight and the length together, you can
 now set either one on its own.
 
-### An invalid `w_mat25` is replaced by its default
-
-`validSpeciesParams()` rejects a `w_mat25` that is not smaller than `w_mat`. It
-used to say that it had corrected that *by setting it to NA*, which described a
-step the user never saw: `setReproduction()` fills the default in straight
-afterwards. It now says it is
-`"marking it as missing so that its default will"` be used.
-
-Where the species parameters also carry `l_mat25`, this is a change in results
-and not only in wording. The length used to survive the correction and the
-length-to-weight conversion put the rejected value straight back, a rounding
-error below `w_mat` — small enough to pass the `w_mat25 < w_mat` assertion in
-`setReproduction()`, and large enough to collapse the maturity ogive to a step
-function. Such a model now gets the intended default,
-`w_mat / 3^(1/10)`, and a smooth ogive. Maturity, and everything downstream of
-it, will differ (#580).
-
-### Mizer says when it defaults the weight-length parameters
-
-A species parameter data frame with no `a` or `b` column has always been given
-the defaults `a = 0.01` and `b = 3`, silently. Building a model from such a
-data frame now reports them among the other defaults it fills in:
-
-```
-i No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-i No `b` column so using the isometric default b = 3 in w = a l^b.
-```
-
-Nothing about the model changes; only the report is new, and it is at
-`info_level = 3`, so `info_level = 0` silences it as it does the rest of the
-chatter.
-
-It is worth reading rather than silencing. `a = 0.01` with weights in grams and
-lengths in cm is Fulton's condition factor K = 1, the textbook fusiform fish,
-and `b = 3` is isometry. The exponent is a good default — it varies little
-across species — but `a` follows body shape over roughly two orders of
-magnitude, from around 0.001 for eel-like species to a few hundredths for
-deep-bodied ones, so for a specific species it is a placeholder rather than an
-estimate. On the twelve North Sea species shipped with mizer, whose fitted
-values span `a` = 0.001 to 0.010, the default gives lengths that are 1% to 42%
-short of the fitted relationship at a weight of 1 g.
-
-That matters wherever a length reaches the model rather than a plot: the
-`sigmoid_length`, `double_sigmoid_length` and `knife_edge_length` selectivity
-functions convert `l50`, `l25` and `knife_edge_length` from `gear_params()`
-into weights through `a` and `b`, so a defaulted relationship puts the
-selectivity curve at the wrong weights and changes the dynamics. The same
-applies to `min_l` and `max_l` in the summary and indicator functions, to
-`getMeanLength()`, and to plots drawn with `size_axis = "l"`.
-
-Because that case is the one that changes results, `setFishing()` reports it a
-second time, where the conversion actually happens:
-
-```
-i The gear selectivity for Sprat, Cod is set by length, but `a` and `b` were
-  not supplied, so the conversion to weight used mizer's defaults (a = 0.01,
-  b = 3). The selectivity therefore sits at weights that are unlikely to be the
-  ones you intend. Supply the weight-length parameters in the species
-  parameters.
-```
-
-This one is at `info_level = 1`, so it survives the setting that silences the
-routine chatter, and it is shown even when `calc_selectivity()` or
-`setFishing()` is called on its own rather than through `setParams()`. It names
-only the species whose selectivity is set from a length and whose `a` or `b`
-mizer had to fill in, and only the parameter that was missing — supply `a` and
-`b` for those species and it goes away. A gear that selects on weight
-(`knife_edge`, `sigmoid_weight`) never triggers it, whatever the species
-parameters say.
-
 ### Species parameter setters distinguish edits from declarations
 
 The setters now express two different intentions:
@@ -444,54 +332,6 @@ again when their inputs change and appear in `calculated_species_params()`
 rather than `given_species_params()`. Set a value explicitly if it should remain
 fixed (#496).
 
-### A column dropped from an assigned species parameter table is removed
-
-The species parameter setters also read the *absence* of a column as an
-instruction. A column that the table you assign does not have is one you no
-longer supply, so it is taken out of `given_species_params()`. Mizer then
-calculates afresh the parameters it knows how to calculate, and the ones it
-does not know about leave the model:
-
-```r
-species_params(params)$gamma  <- NULL   # gamma is calculated again
-species_params(params)$my_col <- NULL   # my_col is gone
-```
-
-`given_species_params(params)$… <- NULL` follows the same rule. Removing a
-column is reported at `info_level` 3, with a message beginning `I have removed
-the species parameter column`.
-
-Previously neither route removed anything. Dropping a column from the table
-assigned to `species_params<-()` did nothing at all: the column was restored
-from the given species parameters, still recorded as given. Dropping one from
-the table assigned to `given_species_params<-()` did take it out of the given
-table, but left its value standing in `species_params()`, where
-`calculated_species_params()` reported the user's own number as one mizer had
-calculated. Nor did the removal recalculate anything, so
-`given_species_params(params)$gamma <- NULL` left the previously given `gamma`
-in place instead of handing it back to mizer; it is now the same instruction as
-setting that entry to `NA` (#578).
-
-Two things to watch for in existing code:
-
-- **Assigning a table with only some of the model's columns now withdraws the
-  rest.** This used to be a way of updating a few columns and leaving the others
-  alone. Edit the table you get from `species_params(params)` instead of
-  building a new one. The scope for surprise is limited, because
-  `species_params<-()` has always validated what it is given: a table without
-  `species` and one of `w_inf`, `w_max` or `w_repro_max` is an error, not a
-  partial update.
-- **A rebuild now happens where it did not before.** Removing a column from the
-  given species parameters goes through `setParams()`, so a parameter that was
-  derived from the withdrawn one moves to its calculated value. That is the
-  point of the change, but it means numbers can shift where previously nothing
-  did.
-
-For extension packages this is the supported way to withdraw a species
-parameter column when the user switches the extension off, replacing the
-`params@species_params[["my_col"]] <- NULL` slot manipulation that was the only
-thing that worked before.
-
 ### `$` on a parameter table no longer partially matches
 
 `$` on a `species_params` or `gear_params` table now matches column names
@@ -524,24 +364,23 @@ a spurious warning when it was larger (#460). Code that set a small `min_w` and
 worked around the reset — or that unknowingly ran on the reset grid — now gets
 the size grid it asked for, and results change accordingly.
 
-### The defaults for `gamma` and `f0` are measured on mizer's own reference state
+### Defaults for `gamma` and `f0` ignore a hand-set search volume
 
 `get_gamma_default()` works out the search volume coefficient `gamma` that gives
 a species the target feeding level `f0`. It does that by giving the species a
 search volume coefficient of 1, putting a power-law resource spectrum in front
 of it and measuring the energy that becomes available. `get_f0_default()` is its
-inverse. Three separate things used to leak into that measurement, and none of
-them does now. All three change the species parameters of the models they
+inverse. A search volume you had set by hand used to leak into that measurement,
+and no longer does. This changes the species parameters of the models it
 affected, and the new values are the right ones.
 
-**A search volume you set by hand.** The measurement used to build its unit
-search volume by calling `setSearchVolume()`, which refuses to recalculate a
-`search_vol` array you have frozen — so mizer's own internal call was blocked
-along with yours, and the available energy was measured with *your* array. The
-resulting `gamma` was wrong by whatever factor separated your array from the
-unit-gamma one, which in a realistic model is many orders of magnitude. Both
-functions now build the search volume they need directly from the species
-parameters (#488).
+The measurement used to build its unit search volume by calling
+`setSearchVolume()`, which refuses to recalculate a `search_vol` array you have
+frozen — so mizer's own internal call was blocked along with yours, and the
+available energy was measured with *your* array. The resulting `gamma` was wrong
+by whatever factor separated your array from the unit-gamma one, which in a
+realistic model is many orders of magnitude. Both functions now build the search
+volume they need directly from the species parameters (#488).
 
 ```r
 sv <- search_vol(params)
@@ -559,57 +398,6 @@ volume stays frozen — mizer warns about that separately, see *Species paramete
 setters distinguish edits from declarations* above. Call
 `setSearchVolume(params, reset = TRUE)` to put the search volume back under the
 control of the species parameters.
-
-**The extension chain.** The measurement used `getEncounter()`, which on an
-object carrying an extension marker class dispatches through the extension's
-`projectEncounter()` method. So an extension that changes the encounter rate had
-its change folded into mizer's own `gamma` — the one quantity the function goes
-out of its way to derive from the species parameters alone. Both functions now
-measure with `mizerEncounter()` (#577).
-
-The consequence was not a one-off offset. `gamma` is a calculated species
-parameter, so it is recomputed on every rebuild, and the recomputed `gamma` is
-what the search volume is then built from — so the extension's factor was
-re-applied each time: an extension that halves the search volume doubled `gamma`
-on every assignment to `species_params()`. Where an extension's factor is zero
-for some species — a therMizer species sitting exactly on its `temp_min`,
-evaluated at the arbitrary `t = 0` the default calculation uses — the available
-energy came out as zero and the calculation failed outright. An encounter
-function registered with `setRateFunction()` no longer enters these defaults
-either; if your model relied on that, supply `gamma` or `f0` explicitly.
-
-**Additive encounter contributions.** The `ext_encounter` array and every
-function registered with `other_encounter()`, including a component's
-`encounter_fun`, are now excluded too (#586). They used to enter the call to
-`mizerEncounter()` used for the measurement, combined with a search volume
-coefficient of 1 for `get_gamma_default()` — where they were negligible beside
-the predation encounter — but with the species' real `gamma` for
-`get_f0_default()`, where they counted at full strength. The two therefore
-stopped being inverses, and a model with extra food could report a substantially
-higher calculated `f0` than the target its `gamma` had been derived from. A
-lower recalculated `f0` is the intended reference-state value; use
-`getFeedingLevel()` to inspect feeding with the extra sources present.
-
-When no default `gamma` can be calculated the error now names the species
-concerned and reports the energy measured for them. One model that used to build
-now raises it: a species with no predation encounter in the reference state at
-all — `interaction_resource = 0`, or a predation kernel that does not overlap
-the resource — but with an additive contribution to fall back on. The `gamma` it
-used to get was derived from that contribution alone and was many orders of
-magnitude away from a search volume coefficient, so the model it produced was
-not one to keep. Supply `gamma` explicitly for such a species.
-
-**If you are an extension author** who worked around any of this by declaring
-the current `gamma` as a given species parameter, you can drop the workaround
-and let `gamma` follow `f0` again:
-
-```r
-given_species_params(params)$gamma <- NULL
-```
-
-The `gamma` that mizer then calculates describes the species' baseline search
-volume, which is what a dynamic modulation such as a temperature scalar is meant
-to modulate.
 
 ### `f0` is always validated
 
@@ -702,19 +490,6 @@ for existing code:
   individual report inside a longer call may need adjusting, and the text now
   arrives with any others in the same message.
 
-The check for a column name that looks like a typo of a standard species
-parameter moved onto this mechanism too, and at the same time stopped repeating
-itself (#581). It used to run inside every validation pass, so building a model
-reported the same column many times over — 31 warnings from one
-`newMultispeciesParams()` call — and every later edit of an unrelated parameter
-reported it again. It now runs once, where a column enters the model, and looks
-only at the columns the model does not already have. Two things follow: code
-that built models quietly with `info_level = 0` no longer sees the warning at
-all, and a test wrapping model construction in `expect_warning()` with a count,
-or in `suppressWarnings()` to swallow a known run of duplicates, is now looking
-at one warning rather than many. The message itself is unchanged: `"very close
-to standard parameter names"`.
-
 ### The steady-state finders have new names
 
 Neither `steady()` nor `projectToSteady()` said what distinguished them, and
@@ -783,12 +558,6 @@ code, plus the three arguments above.
 Because the wrappers do not warn, a user running old code sees no signal at all.
 **Do not tell them their code is about to break; it is not.** Suggest the new
 name when you are already editing the line.
-
-Both wrappers are still S3 generics with `MizerParams` methods, so an extension
-package that defines `steady.MyClass` or `projectToSteady.MyClass` keeps
-dispatching. A package that wants the new names should add
-`tuneSteadyState.MyClass` / `findSteadyState.MyClass` methods rather than move
-the old ones.
 <!-- /agent-only -->
 
 ### The convergence attribute has a new shape
@@ -887,10 +656,10 @@ message adds `Reduce the tolerance on the distance function to converge
 further.` It is a message, not a warning, because convergence at the `tol` you
 asked for did happen.
 
-Code that matched the old wording needs the new string: an `expect_message()` in
-an extension package's tests, or a script grepping the output. In a script the
-`"convergence"` attribute is the better check anyway, since `info_level = 0`
-suppresses the message entirely.
+Code that matched the old wording needs the new string: an `expect_message()`
+in a test, or a script grepping the output. In a script the `"convergence"`
+attribute is the better check anyway, since `info_level = 0` suppresses the
+message entirely.
 
 ### The steady-state run advances time like `project()` does
 
@@ -918,55 +687,6 @@ cycle that had settled more recently. The autocorrelation step now uses only the
 second half of the series (or the most recent 20 samples if the series is
 shorter). A cycle will be found earlier, and some cycles that were previously
 missed entirely will now be correctly reported.
-
-### A size class holding no fish no longer blocks convergence
-
-Above a size where the growth rate vanishes, a species' density decays
-exponentially and `dN/dt` decays with it, so the density in the class falls
-through 1e-100 and beyond while never reaching zero. `distanceSSLogN()` counted
-every class with a positive density, so `log(n)` in such a class fell by the
-same amount between every pair of states and its contribution to the distance
-never shrank. One trace holding 3e-92 g of fish could therefore hold the
-distance above any tolerance indefinitely, and the run stopped at `t_max`
-reporting `converged = FALSE` (#570).
-
-`distanceSSLogN()` now takes a `biomass_share_cutoff`, defaulting to `1e-8`: a
-size class counts only if it holds at least that share of its species' biomass.
-Relevance is measured as a share of biomass rather than of density, because
-density falls fifteen orders or more across a healthy spectrum for entirely good
-reasons, so no density threshold could tell a dying trace from real large fish.
-
-Nothing changes for a model without such a trace. There, every class the cutoff
-removes is one that already had no density at all and was already excluded, so
-the number `distanceSSLogN()` returns is unchanged to the last bit and any
-`distance_tol` you have tuned keeps its meaning. What changes is the model that
-has one: a run that used to reach `t_max` now converges.
-
-Pass `biomass_share_cutoff = 0`, to `distanceSSLogN()` directly or through
-`projectUntilSettled()`, for the old behaviour. Note that this is unrelated to
-the `biomass_cutoff` *species parameter* used by `calibrateBiomass()` and
-`matchBiomasses()`, which is a size in grams. What decides whether a state is a
-fixed point is untouched: `residual_tol` is measured against a biomass drift
-that integrates over every size class, cut off or not, so the cutoff cannot make
-a drifting model look settled.
-
-A run that stops at `t_max` on a state that is nonetheless a fixed point now
-says so, instead of reporting only the distance:
-
-```
-#> Simulation run did not converge after 100 years. The distance function
-#> returned 2.4, which is above the distance tolerance, but the state reached is
-#> a fixed point: the biomasses change at only 0.0003 per year.
-```
-
-<!-- agent-only -->
-If a user reports that `projectUntilSettled()` never converges on a model that
-`isSteady()` calls steady, this is the first thing to check, on any mizer
-version: `plot(getSteadyResidual(params, measure = "per_capita"))` and look for
-a flat line at minus the mortality rate above the size where growth stops. On
-3.3 and later the cutoff already handles it; before that, the remedy is to zero
-the trace with `initialN(params)[initialN(params) < 1e-30] <- 0`.
-<!-- /agent-only -->
 
 ### The steady-state tools hold other components fixed
 
@@ -1013,9 +733,9 @@ reported residual and decide whether the drift matters. `resource_constant()` is
 exempt: it hands back the abundance it was given, so there is nothing to
 rebalance.
 
-An extension package whose tests assert that these calls are silent will see
-them fail. That is the point of the change; suppress with
-`options(mizer_info_level = 0)` where the assumption is deliberate.
+Tests that assert that these calls are silent will see them fail. That is the
+point of the change; suppress with `options(mizer_info_level = 0)` where the
+assumption is deliberate.
 
 ### `summary()` reports the steady state
 
@@ -1190,13 +910,6 @@ stored in the object.
 
 <!-- agent-only -->
 
-The `get` forms are no longer S3 generics of their own; each is now bound to the
-same function object as the bare name (`getExtMort <- ext_mort`). Dispatch still
-works for a custom class, but on the bare name, so an extension that defined
-`getExtMort.MyClass` or `getInteraction.MizerParams` must rename its method to
-`ext_mort.MyClass` or `interaction_matrix.MizerParams`. A method on the bare
-name has always worked and keeps working through both names.
-
 Because the aliases no longer warn, a user running old code sees no signal at
 all. Do not tell them their code is about to break; it is not. Suggest the new
 name when you are already editing the line.
@@ -1236,73 +949,6 @@ small-magnitude parameters such as `gamma` (~1e-8) are no longer treated as equa
 when they differ by up to ~10%. Comparisons that previously reported two models
 as identical may now report differences — those differences were always there.
 
-### Extension marker classes are created and repaired by mizer
-
-Two fixes to the dynamic S4 marker classes that mizer 3.2 introduced, both for
-extension authors.
-
-They used to be defined in `.GlobalEnv`, so anything that empties the global
-environment destroyed them: your own `rm(list = ls())`, and the `cleanEx()` that
-`R CMD check` runs before every example. R's class cache went on reporting the
-class as present, so mizer's repair did not fire and there was no way back short
-of restarting R. The next mizer call that had to resolve the class failed with
-base R's error that the class is not defined — which for an extension package
-with examples that touch a params object meant a failing `R CMD check`. The
-marker classes now live in an environment that mizer attaches to the search
-path, `mizer:extension-classes`, which clearing the workspace does not reach
-(#587). If you have been working around the old behaviour by defining the marker
-classes by hand, as in
-
-```r
-setClass("mizerShelf", contains = "MizerParams", where = globalenv())
-```
-
-you can drop that.
-
-Separately, `registerExtension()` and `registerExtensions()` now rebuild the
-chain's dynamic marker classes when a class went missing during an
-extension-package reload — the case `devtools::load_all()` creates, where the
-reload removes the S4 classes the package's namespace held and the next
-`coerceToExtensionClass()` failed with base R's coercion error. The whole chain
-is rebuilt rather than just the missing class, because R prunes a removed class
-from the `contains` list of its subclasses (#569). An intact chain is inspected
-and left untouched, so the usual repeated registration does no work, and the
-repair never installs, version-checks or loads anything.
-
-### `other_mort()` and `other_encounter()` register contributions that have no component
-
-`getMort()` and `getEncounter()` add the result of every function listed in
-`params@other_mort` and `params@other_encounter`. Until now the only exported
-way to write into those lists was `setComponent()`, which needs a
-`dynamics_fun` and an `initial_value`, so an extension adding a term that
-depends on the model state but keeps no state of its own — a starvation or
-senescence mortality — had to assign into the slot directly. That still works,
-but the supported way is now
-
-```r
-other_mort(params)[["starvation"]] <- "starvMort"
-other_encounter(params)[["scavenging"]] <- "scavengingEncounter"
-```
-
-which checks that the name really is a function and that it does not collide
-with a component's. Names must be unique, and assigning `NULL` to an entry
-removes it. Like `other_params()`, the new accessors show only what does not
-belong to a component, so assigning a whole list through the accessor can no
-longer wipe a component's entry out (#579).
-
-Two things can break existing code:
-
-- **Encounter contributions are now passed the current simulation time as `t`**,
-  as mortality contributions already were. This makes a time-dependent extra
-  encounter possible, but an existing component `encounter_fun` whose exact
-  signature accepts neither `t` nor `...` will now error. Add one of those
-  arguments to the function.
-- **`setComponent()` refuses a component name that a free-standing contribution
-  is already registered under**, where it used to take the entry over silently,
-  leaving it live but invisible to the accessors. This can only affect code that
-  both writes into `@other_mort` (or `@other_encounter`) by hand and then
-  creates a component of the same name.
-
 ### The cheatsheet articles are now called guides
 
 The topic articles that used to be called cheatsheets are called guides. A
@@ -1322,7 +968,6 @@ agent skill it is generated from, and its title is that skill's own heading:
 | `cheatsheet-stability` | `guide-analyse-stability` | Guide: Analysing dynamic stability |
 | `cheatsheet-extending-mizer` | `guide-extend-mizer` | Guide: Extending mizer |
 | `using-extension-packages` | `guide-use-extension-packages` | Guide: Using mizer extension packages |
-| `creating-extension-packages` | `guide-create-extension-package` | Guide: Creating a mizer extension package |
 | `extending-mizer` | `guide-extend-mizer` | Guide: Extending mizer |
 
 On the website the old addresses redirect, so a bookmark or a link in your own
@@ -1336,18 +981,10 @@ vignette("cheatsheet-fishing")
 vignette("guide-set-up-fishing")
 ```
 
-Two of those rows are more than a rename. "Extending mizer" and "Guide:
+One of those rows is more than a rename. "Extending mizer" and "Guide:
 Extending mizer" were two articles on one topic; they are now the single
 **guide-extend-mizer**, holding both the article's worked examples and the
-guide's rules on quadrature schemes and discontinuous rates. Everything that
-only matters once you share an extension moved into
-**guide-create-extension-package**, so the two articles split along that line:
-the mechanisms for changing mizer's dynamics in one, and turning that into a
-package other people can install in the other. Its advice on marker classes was
-corrected at the same time — it still told you to define them with
-`setClass("myExtension", contains = "MizerParams")`, which mizer 3.2 made
-unnecessary and which actively prevents your package from being chained with
-another, because a sealed class cannot be re-parented into the chain.
+guide's rules on quadrature schemes and discontinuous rates.
 
 The `build-multispecies-model` skill was renamed to **build-model** in the same
 pass: it covers `newTraitParams()`, `newCommunityParams()` and

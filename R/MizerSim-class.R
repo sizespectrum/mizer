@@ -151,8 +151,9 @@ valid_MizerSim <- function(object) {
 #'
 #' @slot params An object of type \linkS4class{MizerParams}.
 #'   If this params object uses extensions, the `MizerSim` object uses the same
-#'   extension chain via `params@extensions`; `MizerSim` has no separate
-#'   extension slot.
+#'   extension chain, which can be inspected with
+#'   `getMetadata(params)$extensions`; `MizerSim` has no separate extension
+#'   record.
 #' @slot n Three-dimensional array (time x species x size) that stores the
 #'   projected community number densities.
 #' @slot n_pp An array (time x size) that stores the projected resource number
@@ -164,21 +165,26 @@ valid_MizerSim <- function(object) {
 #' @slot sim_params A named list of the parameters passed to [project()] or
 #'   [projectUntilSettled()] to produce this simulation, such as `method` and `dt`.
 #'
+#' @name MizerSim-class
+#' @rdname MizerSim-class
 #' @export
-setClass(
-    "MizerSim",
-    slots = c(
-        params = "MizerParams",
-        n = "array",
-        effort = "array",
-        n_pp = "array",
-        n_other = "array",
-        sim_params = "list"
-    )
-)
+`@.MizerSim` <- function(object, name) {
+    name_str <- as.character(substitute(name))
+    if (isS4(object)) {
+        object <- upgrade_s4_to_s3(object)
+    }
+    object[[name_str]]
+}
 
-setValidity("MizerSim", valid_MizerSim)
-remove(valid_MizerSim)
+#' @export
+`@<-.MizerSim` <- function(object, name, value) {
+    name_str <- as.character(substitute(name))
+    if (isS4(object)) {
+        object <- upgrade_s4_to_s3(object)
+    }
+    object[[name_str]] <- value
+    object
+}
 
 
 #' Constructor for the `MizerSim` class
@@ -237,13 +243,17 @@ MizerSim <- function(params, t_dimnames = NA, t_max = 100, t_save = 1) {
     dimnames(list_n_other) <- list(time = t_dimnames,
                                    component = component_names)
 
-    sim <- new("MizerSim",
-               params = params,
-               n = array_n,
-               n_pp = array_n_pp,
-               n_other = list_n_other,
-               effort = array_effort,
-               sim_params = list())
+    sim <- structure(
+        list(
+            params = params,
+            n = array_n,
+            n_pp = array_n_pp,
+            n_other = list_n_other,
+            effort = array_effort,
+            sim_params = list()
+        ),
+        class = "MizerSim"
+    )
     coerceToExtensionClass(sim)
 }
 
@@ -305,12 +315,24 @@ params_as_sim <- function(params, t = 0) {
 #' @return A valid MizerSim object
 #' @export
 validSim <- function(sim) {
+    if (isS4(sim)) {
+        sim <- upgrade_s4_to_s3(sim)
+        if (isS4(sim$params)) {
+            sim$params <- upgrade_s4_to_s3(sim$params)
+        }
+    }
     UseMethod("validSim")
 }
 
 #' @export
 validSim.MizerSim <- function(sim) {
-    assert_that(is(sim, "MizerSim"))
+    if (isS4(sim)) {
+        sim <- upgrade_s4_to_s3(sim)
+        if (isS4(sim$params)) {
+            sim$params <- upgrade_s4_to_s3(sim$params)
+        }
+    }
+    assert_that(inherits(sim, "MizerSim"))
     if (needs_upgrading(sim)) {
         sim <- suppressWarnings(upgradeSim(sim))
         warning("Your MizerSim object was created with an earlier version of mizer. You can upgrade it with `sim <- validSim(sim)` where you should replace `sim` by the name of the variable that holds your MizerSim object.")

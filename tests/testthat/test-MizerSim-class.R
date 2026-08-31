@@ -97,7 +97,7 @@ test_that("validSim also validates embedded params", {
 test_that("getParams() returns final time step by default", {
     sim <- short_ns_sim
     p <- getParams(sim)
-    expect_s4_class(p, "MizerParams")
+    expect_s3_class(p, "MizerParams")
     no_t <- dim(sim@n)[1]
     expect_equal(p@initial_n, sim@n[no_t, , ], ignore_attr = TRUE)
     expect_equal(p@initial_n_pp, sim@n_pp[no_t, ], ignore_attr = TRUE)

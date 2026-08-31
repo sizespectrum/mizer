@@ -98,12 +98,8 @@ test_that("gamma and f0 defaults ignore a frozen search volume (#488)", {
 })
 
 test_that("gamma and f0 defaults ignore extension dispatch (#577)", {
-    clearExtensionChain()
-    withr::defer(clearExtensionChain())
-
     ext <- paste0("mizerTestGammaExt", Sys.getpid())
     chain <- setNames(NA_character_, ext)
-    registerExtensions(chain)
     # An extension that scales the search volume, the way therMizer scales it
     # with its temperature scalar.
     registerS3method(
@@ -144,12 +140,8 @@ test_that("gamma and f0 defaults ignore extension dispatch (#577)", {
 })
 
 test_that("a rebuild on an extension object leaves gamma alone (#577)", {
-    clearExtensionChain()
-    withr::defer(clearExtensionChain())
-
     ext <- paste0("mizerTestGammaRebuild", Sys.getpid())
     chain <- setNames(NA_character_, ext)
-    registerExtensions(chain)
     registerS3method(
         "projectEncounter", ext,
         function(params, ...) {
@@ -1223,11 +1215,8 @@ test_that("custom predation-kernel arguments require recalculation", {
 })
 
 test_that("extension objects treat unknown species parameters conservatively", {
-    class_name <- "SpeciesParamsDependencyTestParams"
-    if (!methods::isClass(class_name)) {
-        methods::setClass(class_name, contains = "MizerParams")
-    }
-    params <- methods::as(NS_params_small, class_name)
+    params <- NS_params_small
+    class(params) <- c("SpeciesParamsDependencyTestParams", "MizerParams")
     sp <- species_params(params)
     sp$extension_parameter <- seq_len(nrow(sp))
 

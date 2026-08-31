@@ -100,13 +100,9 @@ a whole list.
 
 Other extension tools:
 [`NOther()`](https://sizespectrum.org/mizer/reference/NOther.md),
-[`clearExtensionChain()`](https://sizespectrum.org/mizer/reference/clearExtensionChain.md),
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md),
-[`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md),
 [`initialNOther<-()`](https://sizespectrum.org/mizer/reference/initialNOther-set.md),
 [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md),
-[`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md),
-[`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md),
 [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
 [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
 

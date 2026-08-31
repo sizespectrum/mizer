@@ -31,8 +31,8 @@ mizer_needs_upgrading <- function(params) {
 
 #' Whether any extension recorded on an object needs upgrading
 #'
-#' Returns TRUE if, for any extension recorded in the object's `@extensions`
-#' slot whose package is installed, the recorded version stamp is missing (`NA`)
+#' Returns TRUE if, for any extension recorded on the object whose package is
+#' installed, the recorded version stamp is missing (`NA`)
 #' or older than the installed version of that package. A missing stamp counts
 #' as needing an upgrade so that objects created before extension-version
 #' tracking are brought up to date (and stamped) on first use; this is safe
@@ -513,7 +513,7 @@ upgradeParams <- function(params) {
 
 #' Run the registered extension upgrade methods on an object
 #'
-#' For each extension recorded in the object's `@extensions` slot (processed
+#' For each extension recorded on the object (processed
 #' innermost-first) whose installed package version is newer than the recorded
 #' stamp (or whose stamp is missing), calls the extension's `upgrade` method if
 #' one is registered, then records the installed version as the new stamp. The
@@ -548,17 +548,19 @@ runExtensionUpgrades <- function(params) {
 }
 
 reinstateParamsClass <- function(params, original_params) {
-    original_class <- class(original_params)[[1]]
+    original_class <- class(original_params)
     if (identical(original_class, "MizerParams")) {
         return(params)
     }
 
-    params <- as(params, original_class)
-    extra_slots <- setdiff(slotNames(original_params), slotNames("MizerParams"))
+    if (isS4(params)) {
+        params <- as(params, original_class[[1]])
+    } else {
+        class(params) <- original_class
+    }
+    extra_slots <- setdiff(names(original_params), names(params))
     for (slot in extra_slots) {
-        if (.hasSlot(params, slot)) {
-            slot(params, slot) <- slot(original_params, slot)
-        }
+        params[[slot]] <- original_params[[slot]]
     }
     validObject(params)
     params

@@ -2,24 +2,29 @@
 % Please edit documentation in R/registerExtensions.R
 \name{coerceToExtensionClass}
 \alias{coerceToExtensionClass}
-\title{Coerce a mizer object to its registered extension class}
+\title{Coerce a mizer object to its extension class}
 \usage{
 coerceToExtensionClass(object, extensions = objectExtensions(object))
 }
 \arguments{
 \item{object}{A \code{MizerParams} or \code{MizerSim} object.}
 
-\item{extensions}{Optional extension chain. Defaults to the chain stored in
-\code{object}, or in \code{object@params} for \code{MizerSim}.}
+\item{extensions}{Optional extension list or vector. Defaults to the extensions stored in
+\code{object}, or in \code{object$params} for \code{MizerSim}.}
 }
 \value{
-The same object coerced to the appropriate marker class, or to the
-base class for an empty extension chain.
+The same object coerced to the appropriate S3 class vector, or to the
+base class for an empty extension list.
 }
 \description{
-Coerces a \code{MizerParams} or \code{MizerSim} object to the S4 marker class
-corresponding to the object's own extension chain. For \code{MizerSim}, the
-extension chain is read from \code{sim@params@extensions}.
+Coerces a \code{MizerParams} or \code{MizerSim} object to the S3 class hierarchy
+corresponding to the object's own extension list. For \code{MizerSim}, the
+extension names are read from the embedded \code{MizerParams} object.
+}
+\details{
+This is infrastructure for extension package authors. Ordinary users should
+load saved models with \code{\link[=readParams]{readParams()}} or \code{\link[=readSim]{readSim()}}; \code{\link[=validParams]{validParams()}} and
+\code{\link[=validSim]{validSim()}} repair the class vector of an object that is already in memory.
 }
 \seealso{
 "Creating a mizer extension package":
@@ -27,13 +32,9 @@ extension chain is read from \code{sim@params@extensions}.
 
 Other extension tools:
 \code{\link[=NOther]{NOther()}},
-\code{\link[=clearExtensionChain]{clearExtensionChain()}},
-\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=other_mort]{other_mort()}},
 \code{\link[=recordExtension]{recordExtension()}},
-\code{\link[=registerExtension]{registerExtension()}},
-\code{\link[=registerExtensions]{registerExtensions()}},
 \code{\link[=setComponent]{setComponent()}},
 \code{\link[=setRateFunction]{setRateFunction()}}
 }

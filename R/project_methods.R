@@ -205,31 +205,27 @@ projectEncounter <- function(params, n, n_pp, n_other, t = 0, ...) {
 # Resolve rate functions for projection.
 projectRateFunctions <- function(params) {
     rates_fns <- lapply(params@rates_funcs, get)
+    rf <- params@rates_funcs
 
-    if (usesExtensionDispatch(params)) {
-        # For rates still at their defaults, swap in the S3 generics so that
-        # projectRates.MizerParams (and any subclass override) can dispatch
-        # through the extension chain via NextMethod(). Rates overridden by the
-        # user via setRateFunction() keep their resolved custom function and are
-        # called directly, bypassing S3 dispatch for that rate.
-        rf <- params@rates_funcs
-        if (rf$Encounter       == "mizerEncounter")       rates_fns$Encounter       <- projectEncounter
-        if (rf$FeedingLevel    == "mizerFeedingLevel")    rates_fns$FeedingLevel    <- projectFeedingLevel
-        if (rf$EReproAndGrowth == "mizerEReproAndGrowth") rates_fns$EReproAndGrowth <- projectEReproAndGrowth
-        if (rf$ERepro          == "mizerERepro")          rates_fns$ERepro          <- projectERepro
-        if (rf$EGrowth         == "mizerEGrowth")         rates_fns$EGrowth         <- projectEGrowth
-        if (rf$Diffusion       == "mizerDiffusion")       rates_fns$Diffusion       <- projectDiffusion
-        if (rf$PredRate        == "mizerPredRate")        rates_fns$PredRate        <- projectPredRate
-        if (rf$PredMort        == "mizerPredMort")        rates_fns$PredMort        <- projectPredMort
-        if (rf$FMort           == "mizerFMort")           rates_fns$FMort           <- projectFMort
-        if (rf$Mort            == "mizerMort")            rates_fns$Mort            <- projectMort
-        if (rf$RDI             == "mizerRDI")             rates_fns$RDI             <- projectRDI
-        if (rf$ResourceMort    == "mizerResourceMort")    rates_fns$ResourceMort    <- projectResourceMort
-        # RDD is special: projectRDD.MizerParams already dispatches internally
-        # via params@rates_funcs$RDD, so always use the S3 generic here.
-        rates_fns$RDD   <- projectRDD
-        rates_fns$Rates <- projectRates
-    }
+    # For rates still at their defaults, swap in the S3 generics so that
+    # dispatch proceeds through S3 methods and NextMethod(). Rates overridden
+    # via setRateFunction() keep their resolved custom function.
+    if (rf$Encounter       == "mizerEncounter")       rates_fns$Encounter       <- projectEncounter
+    if (rf$FeedingLevel    == "mizerFeedingLevel")    rates_fns$FeedingLevel    <- projectFeedingLevel
+    if (rf$EReproAndGrowth == "mizerEReproAndGrowth") rates_fns$EReproAndGrowth <- projectEReproAndGrowth
+    if (rf$ERepro          == "mizerERepro")          rates_fns$ERepro          <- projectERepro
+    if (rf$EGrowth         == "mizerEGrowth")         rates_fns$EGrowth         <- projectEGrowth
+    if (rf$Diffusion       == "mizerDiffusion")       rates_fns$Diffusion       <- projectDiffusion
+    if (rf$PredRate        == "mizerPredRate")        rates_fns$PredRate        <- projectPredRate
+    if (rf$PredMort        == "mizerPredMort")        rates_fns$PredMort        <- projectPredMort
+    if (rf$FMort           == "mizerFMort")           rates_fns$FMort           <- projectFMort
+    if (rf$Mort            == "mizerMort")            rates_fns$Mort            <- projectMort
+    if (rf$RDI             == "mizerRDI")             rates_fns$RDI             <- projectRDI
+    if (rf$ResourceMort    == "mizerResourceMort")    rates_fns$ResourceMort    <- projectResourceMort
+    if (rf$Rates           == "mizerRates")           rates_fns$Rates           <- projectRates
+    # RDD is special: projectRDD.MizerParams already dispatches internally
+    # via params@rates_funcs$RDD, so always use the S3 generic here.
+    rates_fns$RDD   <- projectRDD
 
     rates_fns
 }
@@ -279,7 +275,7 @@ projectRateFunctions <- function(params) {
 #'
 #' @section Extension hook:
 #' `projectEncounter()` is the S3 generic used by extension-aware projections.
-#' Extension packages can add methods for their marker classes and call
+#' Extension packages can add methods for their extension classes and call
 #' `NextMethod()` to compose encounter-rate changes. The `MizerParams` method
 #' contains the standard mizer calculation and is also exported as
 #' `mizerEncounter()` for compatibility.

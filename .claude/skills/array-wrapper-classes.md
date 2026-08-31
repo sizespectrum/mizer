@@ -42,7 +42,7 @@ getEncounter <- function(object, ...) {
 }
 ```
 
-### 2. Assignment to S4 slots: always use `slot[] <- value`
+### 2. Assignment to slots: always use `slot[] <- value`
 
 When storing an array (whether wrapped or plain) into a `MizerParams` or `MizerSim` slot, **always assign using `slot[] <- value`** (with empty brackets), never `slot <- value`:
 
@@ -50,7 +50,7 @@ When storing an array (whether wrapped or plain) into a `MizerParams` or `MizerS
 # CORRECT: Strips the S3 wrapper class and preserves existing slot dimensions/dimnames
 params@metab[] <- value
 
-# WRONG: Attaches S3 classes and attributes to the S4 slot, which violates class validity
+# WRONG: Attaches S3 classes and attributes to the slot, which breaks array dimensions and type
 params@metab <- value
 ```
 

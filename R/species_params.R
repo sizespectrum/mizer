@@ -538,7 +538,7 @@ recalculation_species_params <- function(params, value) {
         }
     }
 
-    if (usesExtensionDispatch(params)) {
+    if (length(params@extensions) > 0 || !identical(class(params)[[1]], "MizerParams")) {
         required <- union(required, names(value))
     }
     required

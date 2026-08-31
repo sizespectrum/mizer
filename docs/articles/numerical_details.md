@@ -168,11 +168,11 @@ velocity would be evaluated in the wrong place.
 
 In summary:
 
-| Quantity | How it enters | Discrete representation |
-|----|----|----|
-| \\g\\ | growth velocity at the bin boundary | point value at \\w_j\\ |
-| \\d\\, \\\mu\\; fishing/reproductive investments; predation and encounter integrands | bin properties (a coefficient inside \\\partial(dN)/\partial w\\, or a rate integrated against \\N\\ over a bin) | bin average over \\\[w_j, w\_{j+1}\]\\ |
-| \\e\\ (energy income) | both: growth velocity *and* reproduction integrand | point value for growth; bin-averaged product \\\psi e\\ for reproduction |
+| Quantity                                                                             | How it enters                                                                                                    | Discrete representation                                                  |
+|--------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| \\g\\                                                                                | growth velocity at the bin boundary                                                                              | point value at \\w_j\\                                                   |
+| \\d\\, \\\mu\\; fishing/reproductive investments; predation and encounter integrands | bin properties (a coefficient inside \\\partial(dN)/\partial w\\, or a rate integrated against \\N\\ over a bin) | bin average over \\\[w_j, w\_{j+1}\]\\                                   |
+| \\e\\ (energy income)                                                                | both: growth velocity *and* reproduction integrand                                                               | point value for growth; bin-averaged product \\\psi e\\ for reproduction |
 
 ### Applying each bin integral exactly once
 
@@ -219,14 +219,14 @@ default `proportion = TRUE` normalisation.
 The table below records which factor of each integral is bin-integrated,
 and where:
 
-| Integral | Factor that is bin-integrated | Performed in |
-|----|----|----|
-| encounter, predation and predation-diffusion convolutions | the kernel weight, \\\tilde\phi\\w_p\\, \\\tilde\phi\\ and \\\tilde\phi\\w_p^2\\ respectively | [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md), into `ft_pred_kernel_e`/`_p`/`_d` |
-| fishing sink \\\int Q\\S(w)\\\text{effort}\\N\\dw\\ | the selectivity \\S\\ | [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md), into `selectivity` |
-| external mortality and external diffusion sinks | the power laws \\z\_{ext}w^{d}\\ and \\D\_{ext}w^{n+1}\\ | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md), [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md) |
-| resource semichemostat terms | the power laws \\r\_{pp}w^{n-1}\\ and \\\kappa w^{-\lambda}\\ | [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md), into `rr_pp` and `cc_pp` |
-| reproduction \\\int \psi(w)\\e(w)\\N(w)\\dw\\ | the product \\\psi e\\ | [`mizerRDI()`](https://sizespectrum.org/mizer/reference/mizerRDI.md) |
-| summary integrals \\\int K(w)\\N(w)\\dw\\ | the weight \\K\\: \\w\\ for biomass, \\\psi w\\ for SSB, \\F w\\ for yield, together with the size-range window | [`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md), and [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md), [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md), [`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md), … through it |
+| Integral                                                  | Factor that is bin-integrated                                                                                   | Performed in                                                                                                                                                                                                                                                                                                     |
+|-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| encounter, predation and predation-diffusion convolutions | the kernel weight, \\\tilde\phi\\w_p\\, \\\tilde\phi\\ and \\\tilde\phi\\w_p^2\\ respectively                   | [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md), into `ft_pred_kernel_e`/`_p`/`_d`                                                                                                                                                                                                |
+| fishing sink \\\int Q\\S(w)\\\text{effort}\\N\\dw\\       | the selectivity \\S\\                                                                                           | [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md), into `selectivity`                                                                                                                                                                                                                     |
+| external mortality and external diffusion sinks           | the power laws \\z\_{ext}w^{d}\\ and \\D\_{ext}w^{n+1}\\                                                        | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md), [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md)                                                                                                                                                     |
+| resource semichemostat terms                              | the power laws \\r\_{pp}w^{n-1}\\ and \\\kappa w^{-\lambda}\\                                                   | [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md), into `rr_pp` and `cc_pp`                                                                                                                                                                                                             |
+| reproduction \\\int \psi(w)\\e(w)\\N(w)\\dw\\             | the product \\\psi e\\                                                                                          | [`mizerRDI()`](https://sizespectrum.org/mizer/reference/mizerRDI.md)                                                                                                                                                                                                                                             |
+| summary integrals \\\int K(w)\\N(w)\\dw\\                 | the weight \\K\\: \\w\\ for biomass, \\\psi w\\ for SSB, \\F w\\ for yield, together with the size-range window | [`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md), and [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md), [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md), [`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md), … through it |
 
 Two corollaries are worth stating explicitly.
 
@@ -315,7 +315,6 @@ has two independent entries.
   bin boundary \\w_j\\ (`FALSE`, the default).
 
 ``` r
-
 second_order_w(params) <- TRUE                   # both: van_leer + bin averaging
 second_order_w(params) <- "centred"              # flux scheme only
 second_order_w(params) <- c(bin_average = TRUE)  # bin averaging only
@@ -350,16 +349,16 @@ reached from user code through the gated, exported
 Where the factor is a kernel the bin integral is done by composite
 quadrature at setup, [Equation 16](#eq-encounter-kernel-weight).
 
-| Quantity | `bin_average = FALSE` | `bin_average = TRUE` |
-|----|----|----|
-| kernel coefficients `ft_pred_kernel_e`, `_p`, `_d` | \\\tilde\phi_i(\beta^{m})\\, point-sampled | bin-integrated, [Equation 16](#eq-encounter-kernel-weight) |
-| gear selectivity | \\S(w_j)\\ | \\\frac{1}{\Delta w_j}\int S\\dw\\, by composite midpoint |
-| external mortality \\z\_{ext}w^{d}\\, external diffusion \\D\_{ext}w^{n+1}\\ | point value at \\w_j\\ | exact bin average, [Equation 19](#eq-power-law-bin-average) |
-| resource rate \\r\_{pp}w^{n-1}\\, capacity and initial spectrum \\\kappa w^{-\lambda}\\ | point value at \\w_j\\ | exact bin average, [Equation 19](#eq-power-law-bin-average) |
-| reproduction integrand \\\psi\\e\\ | point value at \\w_j\\ | trapezoidal bin average |
-| summary weights in [`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md), and so in [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md), [`getN()`](https://sizespectrum.org/mizer/reference/getN.md), [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md), [`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md), [`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md) | \\K(w_j)\\ | trapezoidal bin average of \\K\\ |
-| plotting position of a bin-averaged quantity | node \\w_j\\ | bin centre \\w_j\sqrt\beta\\ |
-| growth rate \\g\\, encounter rate \\E\\, feeding level \\f\\ | point value at \\w_j\\ | **unchanged** — point value at \\w_j\\ |
+| Quantity                                                                                                                                                                                                                                                                                                                                                                                                                                                                | `bin_average = FALSE`                      | `bin_average = TRUE`                                        |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|-------------------------------------------------------------|
+| kernel coefficients `ft_pred_kernel_e`, `_p`, `_d`                                                                                                                                                                                                                                                                                                                                                                                                                      | \\\tilde\phi_i(\beta^{m})\\, point-sampled | bin-integrated, [Equation 16](#eq-encounter-kernel-weight)  |
+| gear selectivity                                                                                                                                                                                                                                                                                                                                                                                                                                                        | \\S(w_j)\\                                 | \\\frac{1}{\Delta w_j}\int S\\dw\\, by composite midpoint   |
+| external mortality \\z\_{ext}w^{d}\\, external diffusion \\D\_{ext}w^{n+1}\\                                                                                                                                                                                                                                                                                                                                                                                            | point value at \\w_j\\                     | exact bin average, [Equation 19](#eq-power-law-bin-average) |
+| resource rate \\r\_{pp}w^{n-1}\\, capacity and initial spectrum \\\kappa w^{-\lambda}\\                                                                                                                                                                                                                                                                                                                                                                                 | point value at \\w_j\\                     | exact bin average, [Equation 19](#eq-power-law-bin-average) |
+| reproduction integrand \\\psi\\e\\                                                                                                                                                                                                                                                                                                                                                                                                                                      | point value at \\w_j\\                     | trapezoidal bin average                                     |
+| summary weights in [`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md), and so in [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md), [`getN()`](https://sizespectrum.org/mizer/reference/getN.md), [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md), [`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md), [`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md) | \\K(w_j)\\                                 | trapezoidal bin average of \\K\\                            |
+| plotting position of a bin-averaged quantity                                                                                                                                                                                                                                                                                                                                                                                                                            | node \\w_j\\                               | bin centre \\w_j\sqrt\beta\\                                |
+| growth rate \\g\\, encounter rate \\E\\, feeding level \\f\\                                                                                                                                                                                                                                                                                                                                                                                                            | point value at \\w_j\\                     | **unchanged** — point value at \\w_j\\                      |
 
 The last two rows are the ones that are easy to get wrong.
 [`getN()`](https://sizespectrum.org/mizer/reference/getN.md) over the
@@ -394,7 +393,6 @@ does exactly this, gated on the flag, so you should not write the sum
 yourself:
 
 ``` r
-
 # biomass above 10 g, say
 params <- NS_params
 sizeIntegral(params, weight = w(params), min_w = 10)
@@ -436,7 +434,6 @@ do — pair mizer’s own encounter kernel with the plain point prey weight
 a rate should reassemble into it. For a diet-like decomposition:
 
 ``` r
-
 params <- NS_params
 second_order_w(params) <- TRUE
 total <- rowSums(getDiet(params, proportion = FALSE), dims = 2)
@@ -812,7 +809,6 @@ error on the fixed `NS_params` weight grid.
 Code
 
 ``` r
-
 t_max <- 8
 dt_values <- c(1.6, 0.8,0.4, 0.2, 0.1, 0.05, 0.025)
 reference_dt <- 0.4 / 2^6
@@ -840,7 +836,6 @@ reference <- project(
 Code
 
 ``` r
-
 accuracy <- do.call(rbind, lapply(dt_values, function(dt) {
     euler <- project(params, dt = dt, t_max = t_max, t_save = t_max,
                      method = "euler")
@@ -904,7 +899,6 @@ accuracy <- do.call(rbind, lapply(dt_values, function(dt) {
 Code
 
 ``` r
-
 accuracy
 ```
 
@@ -920,7 +914,6 @@ accuracy
 Code
 
 ``` r
-
 plot(
     euler_error ~ dt,
     data = accuracy,
@@ -1106,7 +1099,6 @@ weight is handled as follows:
 The two types are selected with
 
 ``` r
-
 second_order_w(params)$flux <- "van_leer" # TVD, the default for TRUE
 second_order_w(params)$flux <- "centred"   # unlimited, true 2nd order
 ```

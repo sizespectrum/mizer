@@ -14,15 +14,15 @@ All setters return a new
 [`MizerParams`](https://sizespectrum.org/mizer/reference/MizerParams.md)
 — reassign the result.
 
-| Goal | Use |
-|----|----|
-| Add a fixed external food or mortality source (no new state variable) | [`ext_encounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md) / [`ext_mort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) |
-| Add an extra encounter or mortality that depends on the model state but has no state of its own | [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md) / [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md) |
-| Change how one built-in rate is calculated | [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) |
-| Add a new dynamical pool (detritus, carrion, oxygen, second resource…) | [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md) |
-| Store parameters for your custom code | [`other_params()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) (model-wide) or `component_params` (one component) |
-| Extend plots/summaries for a custom model type | S3 methods on an S4 subclass |
-| Replace arbitrary internal mizer code (last resort) | [`customFunction()`](https://sizespectrum.org/mizer/reference/customFunction.md) |
+| Goal                                                                                            | Use                                                                                                                                                       |
+|-------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Add a fixed external food or mortality source (no new state variable)                           | [`ext_encounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md) / [`ext_mort()`](https://sizespectrum.org/mizer/reference/setExtMort.md) |
+| Add an extra encounter or mortality that depends on the model state but has no state of its own | [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md) / [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)  |
+| Change how one built-in rate is calculated                                                      | [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)                                                                        |
+| Add a new dynamical pool (detritus, carrion, oxygen, second resource…)                          | [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)                                                                              |
+| Store parameters for your custom code                                                           | [`other_params()`](https://sizespectrum.org/mizer/reference/setRateFunction.md) (model-wide) or `component_params` (one component)                        |
+| Extend plots/summaries for a custom model type                                                  | S3 methods on an S3 extension class                                                                                                                       |
+| Replace arbitrary internal mizer code (last resort)                                             | [`customFunction()`](https://sizespectrum.org/mizer/reference/customFunction.md)                                                                          |
 
 If you only need to change one rate, prefer
 [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
@@ -44,7 +44,6 @@ added to
 and `ext_mort` (1/year, added to mortality).
 
 ``` r
-
 ext_mort(params) <- my_mort_array        # e.g. outside predators
 ext_encounter(params) <- my_food_array   # extra unmodelled food
 ```
@@ -55,7 +54,6 @@ what is already there rather than overwriting it. An extra food source
 scaling allometrically with body size:
 
 ``` r
-
 params_ext <- NS_params
 extra_food <- outer(rep(0.1, nrow(species_params(params_ext))),
                     w(params_ext)^(3/4))
@@ -88,7 +86,6 @@ global environment or an installed package; a function defined inside
 another function cannot be found.
 
 ``` r
-
 params <- setRateFunction(params, "Mort", "myMort")
 getRateFunction(params)      # list the current rate functions
 ```
@@ -109,7 +106,6 @@ current state (`n`, `n_pp`, `n_other`), `t`, and previously computed
 rates via `...` — accept `...` and pull what you need from it.
 
 ``` r
-
 # Add a size-independent extra mortality, its size stored in other_params
 myMort <- function(params, n, n_pp, n_other, t, f_mort, pred_mort, ...) {
     base <- mizerMort(params, n, n_pp, n_other, t, f_mort, pred_mort, ...)
@@ -128,7 +124,6 @@ management measure that switches on in a given year. Wrap the built-in
 and scale its result by `t`:
 
 ``` r
-
 seasonalMort <- function(params, t, ...) {
     mizerMort(params, t = t, ...) * (1 + 0.3 * sin(2 * pi * t))   # t in years
 }
@@ -148,7 +143,6 @@ Choosing `method = "tr_bdf2"` does not help. Give the switch a finite
 width instead:
 
 ``` r
-
 # Bad: jumps. Good: ramps linearly between two thresholds.
 frac <- (biomass - b_lim) / (b_trigger - b_lim)
 effort <- effort * min(1, max(0, frac))
@@ -169,22 +163,22 @@ calls your function with test inputs at registration and checks the
 dimensions, so a mistake here surfaces immediately rather than
 mid-projection.
 
-| Rate | Signature | Return value |
-|----|----|----|
-| `Encounter` | `function(params, n, n_pp, n_other, t, ...)` | numeric matrix, species × size |
-| `FeedingLevel` | `function(params, n, n_pp, n_other, t, encounter, ...)` | numeric matrix, species × size |
-| `EReproAndGrowth` | `function(params, n, n_pp, n_other, t, encounter, feeding_level, ...)` | numeric matrix, species × size |
-| `ERepro` | `function(params, n, n_pp, n_other, t, e, ...)` | numeric matrix, species × size |
-| `EGrowth` | `function(params, n, n_pp, n_other, t, e_repro, e, ...)` | numeric matrix, species × size |
-| `PredRate` | `function(params, n, n_pp, n_other, t, feeding_level, ...)` | numeric matrix, species × **full** size grid |
-| `PredMort` | `function(params, n, n_pp, n_other, t, pred_rate, ...)` | numeric matrix, species × size |
-| `FMort` | `function(params, n, n_pp, n_other, t, effort, e_growth, pred_mort, ...)` | numeric matrix, species × size |
-| `Mort` | `function(params, n, n_pp, n_other, t, f_mort, pred_mort, ...)` | numeric matrix, species × size |
-| `RDI` | `function(params, n, n_pp, n_other, t, e_growth, mort, e_repro, diffusion, ...)` | numeric vector, one value per species |
-| `RDD` | `function(rdi, species_params, params, t, ...)` | numeric vector, one value per species |
-| `ResourceMort` | `function(params, n, n_pp, n_other, t, pred_rate, ...)` | numeric vector, one value per full size bin |
-| `Diffusion` | `function(params, n, n_pp, n_other, t, feeding_level, ...)` | numeric matrix, species × size |
-| `Rates` | `function(params, n, n_pp, n_other, t, effort, rates_fns, ...)` | named list with all standard rate components |
+| Rate              | Signature                                                                        | Return value                                 |
+|-------------------|----------------------------------------------------------------------------------|----------------------------------------------|
+| `Encounter`       | `function(params, n, n_pp, n_other, t, ...)`                                     | numeric matrix, species × size               |
+| `FeedingLevel`    | `function(params, n, n_pp, n_other, t, encounter, ...)`                          | numeric matrix, species × size               |
+| `EReproAndGrowth` | `function(params, n, n_pp, n_other, t, encounter, feeding_level, ...)`           | numeric matrix, species × size               |
+| `ERepro`          | `function(params, n, n_pp, n_other, t, e, ...)`                                  | numeric matrix, species × size               |
+| `EGrowth`         | `function(params, n, n_pp, n_other, t, e_repro, e, ...)`                         | numeric matrix, species × size               |
+| `PredRate`        | `function(params, n, n_pp, n_other, t, feeding_level, ...)`                      | numeric matrix, species × **full** size grid |
+| `PredMort`        | `function(params, n, n_pp, n_other, t, pred_rate, ...)`                          | numeric matrix, species × size               |
+| `FMort`           | `function(params, n, n_pp, n_other, t, effort, e_growth, pred_mort, ...)`        | numeric matrix, species × size               |
+| `Mort`            | `function(params, n, n_pp, n_other, t, f_mort, pred_mort, ...)`                  | numeric matrix, species × size               |
+| `RDI`             | `function(params, n, n_pp, n_other, t, e_growth, mort, e_repro, diffusion, ...)` | numeric vector, one value per species        |
+| `RDD`             | `function(rdi, species_params, params, t, ...)`                                  | numeric vector, one value per species        |
+| `ResourceMort`    | `function(params, n, n_pp, n_other, t, pred_rate, ...)`                          | numeric vector, one value per full size bin  |
+| `Diffusion`       | `function(params, n, n_pp, n_other, t, feeding_level, ...)`                      | numeric matrix, species × size               |
+| `Rates`           | `function(params, n, n_pp, n_other, t, effort, rates_fns, ...)`                  | named list with all standard rate components |
 
 Three rules that follow from the table:
 
@@ -277,7 +271,6 @@ size grid, or a list. A component may contribute in up to three ways:
   [`getMort()`](https://sizespectrum.org/mizer/reference/getMort.md).
 
 ``` r
-
 params <- setComponent(
     params, "detritus",
     initial_value    = 1e5,
@@ -299,7 +292,6 @@ senescence mortality reads the state but keeps none of its own — do not
 invent a component for it. Register the function on its own instead:
 
 ``` r
-
 other_mort(params)[["starvation"]] <- "starvMort"
 other_encounter(params)[["scavenging"]] <- "scavengingEncounter"
 ```
@@ -331,7 +323,6 @@ so integrate the step yourself. This pair makes a detritus pool that
 fish eat and that relaxes back towards a capacity:
 
 ``` r
-
 detritusEncounter <- function(params, n, n_pp, n_other, component, ...) {
     params2 <- params
     # Drop this component before delegating, or mizerEncounter() calls back
@@ -403,7 +394,6 @@ to declare their own reduction and so re-enter the criterion.
 The `extra_food` built above adds straight to the total encounter rate:
 
 ``` r
-
 enc_base <- getEncounter(NS_params)
 ```
 
@@ -417,7 +407,6 @@ enc_base <- getEncounter(NS_params)
     ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 
 ``` r
-
 enc_ext <- getEncounter(params_ext)
 ```
 
@@ -431,7 +420,6 @@ enc_ext <- getEncounter(params_ext)
     ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 
 ``` r
-
 range(enc_ext - enc_base, na.rm = TRUE)
 ```
 
@@ -441,7 +429,6 @@ External mortality works the same way — note the negative exponent,
 since mortality falls with size where the extra food rose with it:
 
 ``` r
-
 params_mort <- NS_params
 extra_mort <- outer(rep(0.05, nrow(species_params(params_mort))),
                     w(params_mort)^(-1/4))
@@ -457,13 +444,11 @@ period of a seasonal cycle from
 [`other_params()`](https://sizespectrum.org/mizer/reference/setRateFunction.md):
 
 ``` r
-
 params <- NS_params
 other_params(params) <- list(season_amplitude = 0.2, season_period = 1)
 ```
 
 ``` r
-
 seasonalEncounter <- function(params, n, n_pp, n_other, t, ...) {
     p <- other_params(params)
     multiplier <- 1 + p$season_amplitude * sin(2 * pi * t / p$season_period)
@@ -475,7 +460,6 @@ seasonalEncounter <- function(params, n, n_pp, n_other, t, ...) {
 Registered by name, the rate now moves with `t`:
 
 ``` r
-
 params2 <- setRateFunction(params, "Encounter", "seasonalEncounter")
 ```
 
@@ -483,7 +467,6 @@ params2 <- setRateFunction(params, "Encounter", "seasonalEncounter")
     ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 
 ``` r
-
 enc0 <- getEncounter(params2, t = 0)
 enc_quarter <- getEncounter(params2, t = 0.25)
 range(enc_quarter / enc0, na.rm = TRUE)
@@ -495,7 +478,6 @@ At `t = 0.25` the multiplier is at its maximum, `1 + season_amplitude`,
 exactly as intended. The seasonality then carries through a projection:
 
 ``` r
-
 sim <- project(params2, t_max = 2, t_save = 0.1)
 plotBiomass(sim)
 ```
@@ -517,7 +499,6 @@ work. The component is stored on the full resource size grid, and starts
 at half the capacity it relaxes towards:
 
 ``` r
-
 detritus_params <- list(capacity = initialNResource(params),
                         rate = params@rr_pp)
 ```
@@ -526,7 +507,6 @@ detritus_params <- list(capacity = initialNResource(params),
     ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 
 ``` r
-
 params3 <- setComponent(
     params,
     component = "Detritus",
@@ -548,7 +528,6 @@ eaten through the ordinary predation kernel, it appears in the diet with
 no further work:
 
 ``` r
-
 plotDiet(params3, species = "Cod")
 ```
 
@@ -563,24 +542,22 @@ a `mort_fun` too.
 
 ------------------------------------------------------------------------
 
-## Extending plots and summaries: S3 methods on an S4 subclass
+## Extending plots and summaries: S3 methods on an S3 extension class
 
 This is the most flexible route that still works with mizer’s public
-generics. Although `MizerParams` and
+generics. `MizerParams` and
 [`MizerSim`](https://sizespectrum.org/mizer/reference/MizerSim.md) are
-S4 classes, mizer registers most of its user-facing methods as **S3**
-methods. So an extension defines a formal S4 subclass of these objects
-and provides S3 methods for it — `getBiomass.MyMizerSim()`,
-`plotBiomass.MyMizerSim()`, `summary.MyMizerParams()` — which is what
-makes a summary or plot account for components the extension added.
-Every such method must call
+S3 classes, and an extension package defines S3 methods for its own
+extension class — `getBiomass.MyMizerSim()`, `plotBiomass.MyMizerSim()`,
+`summary.MyMizerParams()` — which is what makes a summary or plot
+account for components the extension added. Every such method must call
 [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html), so that several
 extensions loaded at once compose instead of overwriting each other.
 
-This only really works inside a package, because the marker class is
-created by mizer when the package loads. Writing that package — the
-class, the `.onLoad` registration and the methods — is the subject of
-the [guide to creating a mizer extension
+Writing that package — the extension class, recording with
+[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
+and the methods — is the subject of the [guide to creating a mizer
+extension
 package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.md),
 and the order the methods then run in is the subject of the [guide to
 using mizer extension
@@ -639,11 +616,12 @@ breaks the package, and nothing checks that it is.
   give it to someone else, make it a package: a stable namespace mizer
   can resolve function names in, somewhere for tests and documentation
   to live, and a version that gets recorded in `params@extensions`.
-  Everything that only matters once you share — `.onLoad` registration,
-  marker classes, dispatch via
-  [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html), bundled data
-  objects, reporting through `info_level`, and upgrading objects saved
-  by an earlier version — is in the [guide to creating a mizer extension
+  Everything that only matters once you share — S3 extension classes,
+  [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md),
+  dispatch via [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html),
+  bundled data objects, reporting through `info_level`, and upgrading
+  objects saved by an earlier version — is in the [guide to creating a
+  mizer extension
   package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.md).
   For the other side of it, loading and saving a model that needs an
   extension package, see the [guide to using mizer extension

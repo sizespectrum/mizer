@@ -22,8 +22,7 @@ readSim(file, install_extensions = FALSE)
 to or read from.}
 
 \item{install_extensions}{Logical. Should \code{\link[=readParams]{readParams()}} or \code{\link[=readSim]{readSim()}}
-attempt to install missing extension packages before registering the saved
-extension chain?}
+attempt to install missing extension packages before loading them?}
 
 \item{sim}{A MizerSim object}
 }
@@ -42,6 +41,9 @@ While these functions ultimately use \code{\link[=saveRDS]{saveRDS()}} and \code
 extra work to make the saved file more robust and more portable, so you
 should always prefer them over calling \code{saveRDS()}/\code{readRDS()} directly on a
 mizer object.
+
+The complete S3 class vector is stored with the object, including any
+extension classes.
 }
 \section{What \code{saveParams()} and \code{saveSim()} do beyond \code{saveRDS()}}{
 
@@ -49,11 +51,6 @@ mizer object.
 \item They \strong{validate} the object before writing it, so a corrupted or
 inconsistent object is caught at save time rather than when you next try
 to use it.
-\item They \strong{strip any extension class} and save the object as a plain base
-mizer object (recording which extension packages it needs in a slot).
-This means the file can be read back even in an R session where the
-extension packages that defined those S4 classes are not loaded, and it
-protects the file against future changes to those extension classes.
 \item They \strong{check that the required extension packages are installed} and stop
 with an informative error if they are not, so you do not save a file that
 you would be unable to read back.
@@ -73,12 +70,9 @@ Before saving a model you may want to set its metadata with \code{\link[=setMeta
 \item They \strong{upgrade} an object saved by an older version of mizer to the
 current structure (see \code{\link[=upgradeParams]{upgradeParams()}}), so that models saved years ago
 still load correctly.
-\item They \strong{re-register the extension packages} that the model needs and,
+\item They \strong{load the extension packages} that the model needs and,
 optionally, install any that are missing (see \code{install_extensions}),
-before restoring the object's extension class.
-\item They \strong{coerce the object back to its extension class} and revalidate it,
-reversing the class-stripping done at save time so you get back an object
-of the same class you saved.
+before revalidating the object.
 \item \code{readParams()} \strong{reconciles the species parameters}, see
 \code{\link[=reconcileSpeciesParams]{reconcileSpeciesParams()}}. A model may hold species parameter values that
 were written straight into the \code{species_params} slot and that mizer would

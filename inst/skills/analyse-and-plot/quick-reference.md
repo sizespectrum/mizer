@@ -31,8 +31,8 @@ getMeanMaxWeight(sim)
 getCommunitySlope(sim)          # returns data.frame with slope, intercept, R²
 
 # ── Your own indicator: an integral over the size spectrum ────────────────────
-sizeIntegral(params, weighting = params@w, min_w = 10, max_w = 5000)  # = getBiomass()
-sizeIntegral(sim, weighting = sweep(params@maturity, 2, params@w, "*"),  # = getSSB()
+sizeIntegral(params, weighting = w(params), min_w = 10, max_w = 5000)  # = getBiomass()
+sizeIntegral(sim, weighting = sweep(maturity(params), 2, w(params), "*"),  # = getSSB()
              value_name = "SSB", units = "g")   # pass the whole product as weighting
 # no dw, no bin-averaging by hand, no size-grid subsetting: sizeIntegral does it
 ArraySpeciesBySize(x, params = params, representation = "average")  # size-resolved

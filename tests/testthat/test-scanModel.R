@@ -278,3 +278,15 @@ test_that("a limit cycle is averaged over exactly one period", {
     y <- as.vector(getYield(long)[, "Herring"])
     expect_equal(scan[[2]], mean(y[-length(y)]), tolerance = 0.02)
 })
+
+test_that("scanModel() accepts the 'second_order' method alias", {
+    # scanModel() validates `method` itself rather than leaving it to
+    # project(), so the alias has to be resolved here too.
+    scan_alias <- suppressMessages(suppressWarnings(
+        scan_fast(NS_params_small, scan_values = c(0, 0.5),
+                  set_func = scanEffort(), method = "second_order")))
+    scan_canon <- suppressMessages(suppressWarnings(
+        scan_fast(NS_params_small, scan_values = c(0, 0.5),
+                  set_func = scanEffort(), method = "tr_bdf2")))
+    expect_equal(scan_alias, scan_canon)
+})

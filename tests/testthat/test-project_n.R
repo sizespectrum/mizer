@@ -196,7 +196,7 @@ test_that("project_n with predation diffusion stays non-negative and finite", {
 test_that("tr_bdf2 runs and keeps densities finite and non-negative", {
     sim <- project(NS_params_small, t_max = 2, dt = 0.1,
                    progress_bar = FALSE, method = "tr_bdf2")
-    expect_s4_class(sim, "MizerSim")
+    expect_s3_class(sim, "MizerSim")
     expect_true(all(is.finite(sim@n)))
     expect_true(all(sim@n >= 0))
     expect_equal(getSimParams(sim)$method, "tr_bdf2")

@@ -267,16 +267,15 @@ test_that("addSpecies preserves slots recently added to upgradeParams", {
 })
 
 test_that("addSpecies preserves the class", {
-    if (!methods::isClass("AddSpeciesTestParams")) {
-        methods::setClass("AddSpeciesTestParams", contains = "MizerParams")
-    }
-    params <- as(small_trait_grid_manipulate_params, "AddSpeciesTestParams")
+    params <- small_trait_grid_manipulate_params
+    class(params) <- c("AddSpeciesTestParams", "MizerParams")
     sp <- data.frame(species = "new", w_max = 10, k_vb = 1)
     p <- suppressWarnings(suppressMessages(
         addSpecies(params, sp, info_level = 0)
     ))
 
-    expect_s4_class(p, "AddSpeciesTestParams")
+    expect_s3_class(p, "AddSpeciesTestParams")
+    expect_true(inherits(p, "MizerParams"))
     expect_true(validObject(p))
 })
 
@@ -484,13 +483,12 @@ test_that("expandSizeGrid preserves slots recently added to upgradeParams", {
 })
 
 test_that("expandSizeGrid preserves the class", {
-    if (!methods::isClass("ExpandGridTestParams")) {
-        methods::setClass("ExpandGridTestParams", contains = "MizerParams")
-    }
-    params <- as(small_trait_grid_manipulate_params, "ExpandGridTestParams")
+    params <- small_trait_grid_manipulate_params
+    class(params) <- c("ExpandGridTestParams", "MizerParams")
     p <- suppressWarnings(expandSizeGrid(params, new_max_w = max(params@w) * 10))
 
-    expect_s4_class(p, "ExpandGridTestParams")
+    expect_s3_class(p, "ExpandGridTestParams")
+    expect_true(inherits(p, "MizerParams"))
     expect_true(validObject(p))
 })
 

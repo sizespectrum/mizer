@@ -79,14 +79,10 @@ corresponding arguments are supplied. You can remove a component with
 
 Other extension tools:
 \code{\link[=NOther]{NOther()}},
-\code{\link[=clearExtensionChain]{clearExtensionChain()}},
 \code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
-\code{\link[=getRegisteredExtensions]{getRegisteredExtensions()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=other_mort]{other_mort()}},
 \code{\link[=recordExtension]{recordExtension()}},
-\code{\link[=registerExtension]{registerExtension()}},
-\code{\link[=registerExtensions]{registerExtensions()}},
 \code{\link[=setRateFunction]{setRateFunction()}}
 }
 \concept{extension tools}

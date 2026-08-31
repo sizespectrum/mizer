@@ -5,6 +5,13 @@ A class that holds the results of projecting a
 object through time using
 [`project()`](https://sizespectrum.org/mizer/reference/project.md).
 
+## Usage
+
+``` r
+# S3 method for class 'MizerSim'
+object@name
+```
+
 ## Details
 
 A new `MizerSim` object can be created with the

@@ -436,21 +436,18 @@ consumer_residual <- function(params, n, n_pp, n_other, effort, rdd = NULL,
 #' @return The per-species density-dependent reproduction rate.
 #' @noRd
 state_rdd <- function(params, n, n_pp, n_other, rates) {
-    if (usesExtensionDispatch(params)) {
-        rdi <- projectRDI(params, n = n, n_pp = n_pp, n_other = n_other, t = 0,
-                          e_repro = rates$e_repro, e_growth = rates$e_growth,
-                          mort = rates$mort, diffusion = rates$diffusion)
-        projectRDD(params, rdi = rdi, species_params = params@species_params,
-                   t = 0)
+    rdi <- if (params@rates_funcs$RDI == "mizerRDI") {
+        projectRDI(params, n = n, n_pp = n_pp, n_other = n_other, t = 0,
+                   e_repro = rates$e_repro, e_growth = rates$e_growth,
+                   mort = rates$mort, diffusion = rates$diffusion)
     } else {
         f_rdi <- get(params@rates_funcs$RDI)
-        rdi <- f_rdi(params, n = n, n_pp = n_pp, n_other = n_other, t = 0,
-                     e_repro = rates$e_repro, e_growth = rates$e_growth,
-                     mort = rates$mort, diffusion = rates$diffusion)
-        f_rdd <- get(params@rates_funcs$RDD)
-        f_rdd(rdi = rdi, species_params = params@species_params,
-              params = params, t = 0)
+        f_rdi(params, n = n, n_pp = n_pp, n_other = n_other, t = 0,
+              e_repro = rates$e_repro, e_growth = rates$e_growth,
+              mort = rates$mort, diffusion = rates$diffusion)
     }
+    projectRDD(params, rdi = rdi, species_params = params@species_params,
+               t = 0)
 }
 
 #' Residual of the discrete steady-state equation

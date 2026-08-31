@@ -27,7 +27,6 @@ To get the single value **at one time step** of a simulation, extract a
 (averaged over a range) and pass that in:
 
 ``` r
-
 getMeanMaxWeight(finalParams(sim))             # value at the last time step
 getSSB(getParams(sim, time_range = 1990:2000)) # averaged over a period
 ```
@@ -38,17 +37,16 @@ getSSB(getParams(sim, time_range = 1990:2000)) # averaged over a period
 
 These extract raw arrays from a `MizerSim` object.
 
-| Function | Returns | Dimensions |
-|----|----|----|
-| [`N(sim)`](https://sizespectrum.org/mizer/reference/N.md) | species abundance density | time × species × size |
-| [`NResource(sim)`](https://sizespectrum.org/mizer/reference/N.md) | resource abundance density | time × size |
-| [`finalN(sim)`](https://sizespectrum.org/mizer/reference/finalN.md) | species abundance at last time | species × size |
-| [`finalNResource(sim)`](https://sizespectrum.org/mizer/reference/finalN.md) | resource abundance at last time | size |
-| [`getEffort(sim)`](https://sizespectrum.org/mizer/reference/getEffort.md) | fishing effort | time × gear |
-| [`getTimes(sim)`](https://sizespectrum.org/mizer/reference/getTimes.md) | saved time steps | time |
+| Function                                                                    | Returns                         | Dimensions            |
+|-----------------------------------------------------------------------------|---------------------------------|-----------------------|
+| [`N(sim)`](https://sizespectrum.org/mizer/reference/N.md)                   | species abundance density       | time × species × size |
+| [`NResource(sim)`](https://sizespectrum.org/mizer/reference/N.md)           | resource abundance density      | time × size           |
+| [`finalN(sim)`](https://sizespectrum.org/mizer/reference/finalN.md)         | species abundance at last time  | species × size        |
+| [`finalNResource(sim)`](https://sizespectrum.org/mizer/reference/finalN.md) | resource abundance at last time | size                  |
+| [`getEffort(sim)`](https://sizespectrum.org/mizer/reference/getEffort.md)   | fishing effort                  | time × gear           |
+| [`getTimes(sim)`](https://sizespectrum.org/mizer/reference/getTimes.md)     | saved time steps                | time                  |
 
 ``` r
-
 N(sim)[, , 1]              # time × species in smallest size class
 N(sim)["2010", "Cod", ]    # size vector for Cod in year 2010
 finalN(sim)["Cod", ]       # size vector for Cod at the final time step
@@ -64,20 +62,20 @@ plotted directly with
 [`plot()`](https://sizespectrum.org/mizer/reference/plot.md) — see
 below.
 
-| Function | Returns | Dimensions |
-|----|----|----|
-| [`getBiomass(sim, min_w, max_w)`](https://sizespectrum.org/mizer/reference/getBiomass.md) | total biomass | time × species |
-| [`getSSB(sim)`](https://sizespectrum.org/mizer/reference/getSSB.md) | spawning stock biomass | time × species |
-| [`getN(sim, min_w, max_w)`](https://sizespectrum.org/mizer/reference/getN.md) | total abundance | time × species |
-| [`getYield(sim)`](https://sizespectrum.org/mizer/reference/getYield.md) | total yield across gears | time × species |
-| [`getYieldGear(sim)`](https://sizespectrum.org/mizer/reference/getYieldGear.md) | yield by gear | time × gear × species |
-| [`getFeedingLevel(sim)`](https://sizespectrum.org/mizer/reference/getFeedingLevel.md) | feeding level at size | time × species × size |
-| [`getPredMort(sim)`](https://sizespectrum.org/mizer/reference/getPredMort.md) | predation mortality at size | time × species × size |
-| [`getFMort(sim)`](https://sizespectrum.org/mizer/reference/getFMort.md) | fishing mortality at size | time × species × size |
-| [`getFMortGear(sim)`](https://sizespectrum.org/mizer/reference/getFMortGear.md) | fishing mortality by gear | time × gear × species × size |
-| [`getDiet(params)`](https://sizespectrum.org/mizer/reference/getDiet.md) | diet resolved by prey at size | predator × size × prey |
-| [`getTrophicLevel(params)`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md) | trophic level at size | species × size |
-| [`getTrophicLevelBySpecies(params)`](https://sizespectrum.org/mizer/reference/getTrophicLevelBySpecies.md) | mean trophic level per species | species |
+| Function                                                                                                   | Returns                        | Dimensions                   |
+|------------------------------------------------------------------------------------------------------------|--------------------------------|------------------------------|
+| [`getBiomass(sim, min_w, max_w)`](https://sizespectrum.org/mizer/reference/getBiomass.md)                  | total biomass                  | time × species               |
+| [`getSSB(sim)`](https://sizespectrum.org/mizer/reference/getSSB.md)                                        | spawning stock biomass         | time × species               |
+| [`getN(sim, min_w, max_w)`](https://sizespectrum.org/mizer/reference/getN.md)                              | total abundance                | time × species               |
+| [`getYield(sim)`](https://sizespectrum.org/mizer/reference/getYield.md)                                    | total yield across gears       | time × species               |
+| [`getYieldGear(sim)`](https://sizespectrum.org/mizer/reference/getYieldGear.md)                            | yield by gear                  | time × gear × species        |
+| [`getFeedingLevel(sim)`](https://sizespectrum.org/mizer/reference/getFeedingLevel.md)                      | feeding level at size          | time × species × size        |
+| [`getPredMort(sim)`](https://sizespectrum.org/mizer/reference/getPredMort.md)                              | predation mortality at size    | time × species × size        |
+| [`getFMort(sim)`](https://sizespectrum.org/mizer/reference/getFMort.md)                                    | fishing mortality at size      | time × species × size        |
+| [`getFMortGear(sim)`](https://sizespectrum.org/mizer/reference/getFMortGear.md)                            | fishing mortality by gear      | time × gear × species × size |
+| [`getDiet(params)`](https://sizespectrum.org/mizer/reference/getDiet.md)                                   | diet resolved by prey at size  | predator × size × prey       |
+| [`getTrophicLevel(params)`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)                   | trophic level at size          | species × size               |
+| [`getTrophicLevelBySpecies(params)`](https://sizespectrum.org/mizer/reference/getTrophicLevelBySpecies.md) | mean trophic level per species | species                      |
 
 **Size range:**
 [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md)
@@ -86,7 +84,6 @@ and [`getN()`](https://sizespectrum.org/mizer/reference/getN.md) accept
 range.
 
 ``` r
-
 getSSB(sim)                              # SSB of all species over time
 getBiomass(sim, min_w = 10, max_w = 1e4) # biomass of 10g–10kg fish
 getYield(sim)["2010", ]                  # yield in year 2010
@@ -100,16 +97,15 @@ These compute community-level indicators. All accept `MizerSim` (time
 series) or `MizerParams` (single value from the initial state). See
 [`?indicator_functions`](https://sizespectrum.org/mizer/reference/indicator_functions.md).
 
-| Function | Key arguments | Returns |
-|----|----|----|
+| Function                                                                                                | Key arguments                             | Returns                               |
+|---------------------------------------------------------------------------------------------------------|-------------------------------------------|---------------------------------------|
 | [`getProportionOfLargeFish(sim)`](https://sizespectrum.org/mizer/reference/getProportionOfLargeFish.md) | `threshold_w = 100`, `biomass_proportion` | proportion of large fish through time |
-| [`getMeanWeight(sim)`](https://sizespectrum.org/mizer/reference/getMeanWeight.md) | `min_w`, `max_w`, `species` | mean community weight through time |
-| [`getMeanLength(sim)`](https://sizespectrum.org/mizer/reference/getMeanWeight.md) | `min_w`, `max_w`, `species` | mean community length through time |
-| [`getMeanMaxWeight(sim)`](https://sizespectrum.org/mizer/reference/getMeanMaxWeight.md) | `measure = "both"/"numbers"/"biomass"` | mean asymptotic weight through time |
-| [`getCommunitySlope(sim)`](https://sizespectrum.org/mizer/reference/getCommunitySlope.md) | `min_w`, `max_w`, `species` | slope, intercept, R² through time |
+| [`getMeanWeight(sim)`](https://sizespectrum.org/mizer/reference/getMeanWeight.md)                       | `min_w`, `max_w`, `species`               | mean community weight through time    |
+| [`getMeanLength(sim)`](https://sizespectrum.org/mizer/reference/getMeanWeight.md)                       | `min_w`, `max_w`, `species`               | mean community length through time    |
+| [`getMeanMaxWeight(sim)`](https://sizespectrum.org/mizer/reference/getMeanMaxWeight.md)                 | `measure = "both"/"numbers"/"biomass"`    | mean asymptotic weight through time   |
+| [`getCommunitySlope(sim)`](https://sizespectrum.org/mizer/reference/getCommunitySlope.md)               | `min_w`, `max_w`, `species`               | slope, intercept, R² through time     |
 
 ``` r
-
 lfi <- getProportionOfLargeFish(sim, min_w = 10, max_w = 5000, threshold_w = 500)
 slope <- getCommunitySlope(sim, min_w = 10, max_w = 5000)
 ```
@@ -130,7 +126,6 @@ N_i(w)\\ K_i(w)\\ dw\\, where \\K_i(w)\\ is a **weighting factor**
 does that integral for you**:
 
 ``` r
-
 # Abundance between 10g and 5kg (default weighting factor weighting = 1)
 sizeIntegral(params, min_w = 10, max_w = 5000)
 
@@ -181,7 +176,6 @@ free. For a quantity that keeps the size dimension, and so is not an
 integral over sizes, wrap it yourself:
 
 ``` r
-
 ArraySpeciesBySize(my_size_resolved, value_name = "My index", params = params,
                    representation = "average")
 ```
@@ -216,16 +210,15 @@ their `params`, and have
 [`as.data.frame()`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
 methods.
 
-| Class | Typical source | [`plot()`](https://sizespectrum.org/mizer/reference/plot.md) shows |
-|----|----|----|
-| [`ArrayTimeBySpecies`](https://sizespectrum.org/mizer/reference/ArrayTimeBySpecies.md) | [`getBiomass(sim)`](https://sizespectrum.org/mizer/reference/getBiomass.md), [`getSSB(sim)`](https://sizespectrum.org/mizer/reference/getSSB.md), [`getYield(sim)`](https://sizespectrum.org/mizer/reference/getYield.md), [`getN(sim)`](https://sizespectrum.org/mizer/reference/getN.md) | value vs time, one line per species |
-| [`ArraySpeciesBySize`](https://sizespectrum.org/mizer/reference/ArraySpeciesBySize.md) | [`getFeedingLevel(params)`](https://sizespectrum.org/mizer/reference/getFeedingLevel.md), [`getPredMort(params)`](https://sizespectrum.org/mizer/reference/getPredMort.md), [`getEncounter(params)`](https://sizespectrum.org/mizer/reference/getEncounter.md) | value vs size, one line per species |
-| [`ArrayTimeBySpeciesBySize`](https://sizespectrum.org/mizer/reference/ArrayTimeBySpeciesBySize.md) | [`getFMort(sim)`](https://sizespectrum.org/mizer/reference/getFMort.md), [`getPredMort(sim)`](https://sizespectrum.org/mizer/reference/getPredMort.md) | one time slice vs size (set with `time`) |
-| [`ArrayResourceBySize`](https://sizespectrum.org/mizer/reference/ArrayResourceBySize.md) | [`NResource(params)`](https://sizespectrum.org/mizer/reference/N.md), [`finalNResource(sim)`](https://sizespectrum.org/mizer/reference/finalN.md), [`getResourceMort(params)`](https://sizespectrum.org/mizer/reference/getResourceMort.md), [`resource_rate(params)`](https://sizespectrum.org/mizer/reference/setResource.md), [`resource_capacity(params)`](https://sizespectrum.org/mizer/reference/setResource.md), [`resource_level(params)`](https://sizespectrum.org/mizer/reference/setResource.md) | resource quantity vs size |
-| [`ArrayTimeByResourceBySize`](https://sizespectrum.org/mizer/reference/ArrayTimeByResourceBySize.md) | [`NResource(sim)`](https://sizespectrum.org/mizer/reference/N.md) | one time slice vs size (set with `time`) |
+| Class                                                                                                | Typical source                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | [`plot()`](https://sizespectrum.org/mizer/reference/plot.md) shows |
+|------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+| [`ArrayTimeBySpecies`](https://sizespectrum.org/mizer/reference/ArrayTimeBySpecies.md)               | [`getBiomass(sim)`](https://sizespectrum.org/mizer/reference/getBiomass.md), [`getSSB(sim)`](https://sizespectrum.org/mizer/reference/getSSB.md), [`getYield(sim)`](https://sizespectrum.org/mizer/reference/getYield.md), [`getN(sim)`](https://sizespectrum.org/mizer/reference/getN.md)                                                                                                                                                                                                                   | value vs time, one line per species                                |
+| [`ArraySpeciesBySize`](https://sizespectrum.org/mizer/reference/ArraySpeciesBySize.md)               | [`getFeedingLevel(params)`](https://sizespectrum.org/mizer/reference/getFeedingLevel.md), [`getPredMort(params)`](https://sizespectrum.org/mizer/reference/getPredMort.md), [`getEncounter(params)`](https://sizespectrum.org/mizer/reference/getEncounter.md)                                                                                                                                                                                                                                               | value vs size, one line per species                                |
+| [`ArrayTimeBySpeciesBySize`](https://sizespectrum.org/mizer/reference/ArrayTimeBySpeciesBySize.md)   | [`getFMort(sim)`](https://sizespectrum.org/mizer/reference/getFMort.md), [`getPredMort(sim)`](https://sizespectrum.org/mizer/reference/getPredMort.md)                                                                                                                                                                                                                                                                                                                                                       | one time slice vs size (set with `time`)                           |
+| [`ArrayResourceBySize`](https://sizespectrum.org/mizer/reference/ArrayResourceBySize.md)             | [`NResource(params)`](https://sizespectrum.org/mizer/reference/N.md), [`finalNResource(sim)`](https://sizespectrum.org/mizer/reference/finalN.md), [`getResourceMort(params)`](https://sizespectrum.org/mizer/reference/getResourceMort.md), [`resource_rate(params)`](https://sizespectrum.org/mizer/reference/setResource.md), [`resource_capacity(params)`](https://sizespectrum.org/mizer/reference/setResource.md), [`resource_level(params)`](https://sizespectrum.org/mizer/reference/setResource.md) | resource quantity vs size                                          |
+| [`ArrayTimeByResourceBySize`](https://sizespectrum.org/mizer/reference/ArrayTimeByResourceBySize.md) | [`NResource(sim)`](https://sizespectrum.org/mizer/reference/N.md)                                                                                                                                                                                                                                                                                                                                                                                                                                            | one time slice vs size (set with `time`)                           |
 
 ``` r
-
 plot(getBiomass(sim))          # value vs time, one line per species
 plot(getFeedingLevel(params))  # value vs size, one line per species
 plot(getResourceMort(params))  # plankton resource mortality vs size
@@ -235,15 +228,14 @@ The array plots come with a small toolkit for combining and comparing
 them. Every one of these has a method for every array class in the table
 above:
 
-| Function | What it does |
-|----|----|
-| [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md) | adds a compatible array as extra lines on an existing plot |
-| [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md) | compares two compatible arrays (colour = species, linetype = which object) |
+| Function                                                                     | What it does                                                                      |
+|------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [`addPlot()`](https://sizespectrum.org/mizer/reference/addPlot.md)           | adds a compatible array as extra lines on an existing plot                        |
+| [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md)               | compares two compatible arrays (colour = species, linetype = which object)        |
 | [`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md) | shows the relative difference `2 (y - x) / (x + y)` between two compatible arrays |
-| [`plotHover()`](https://sizespectrum.org/mizer/reference/plotHover.md) | turns any of these ggplots into a hover-enabled plotly plot |
+| [`plotHover()`](https://sizespectrum.org/mizer/reference/plotHover.md)       | turns any of these ggplots into a hover-enabled plotly plot                       |
 
 ``` r
-
 # Add another compatible array as extra lines on an existing plot
 p <- plot(getBiomass(sim), species = "Cod")
 addPlot(p, getBiomass(sim), species = "Herring", linetype = "dashed")
@@ -280,18 +272,18 @@ Most analysis and plotting functions — including
 and the dedicated `plot…()` functions below — share these optional
 arguments:
 
-| Argument | Effect |
-|----|----|
-| `species` | character vector — restrict to a subset of species |
-| `time_range` | numeric vector — average over this time period (plots against size) |
-| `tlim` | numeric vector `c(min, max)` — restrict the time axis (plots against time) |
-| `wlim`/`llim` | numeric vector `c(min, max)` — restrict the size (x) axis |
-| `ylim` | numeric vector `c(min, max)` — restrict the value (y) axis |
-| `highlight` | character vector — draw named species with thicker lines |
-| `total` | logical — add a line for the community total. The total of *everything the object holds*, so it does not change when you select species or hide the resource; on a length axis it is summed at equal length |
-| `background` | logical — whether species marked with [`markBackground()`](https://sizespectrum.org/mizer/reference/markBackground.md) are drawn. They are drawn only when the selection asks for them, always under a single grey `"Background"` legend entry; `background = FALSE` removes them |
-| `log_x`, `log_y` | logical — log-scale the x or y axis |
-| `size_axis` | `"w"` (default) or `"l"` — plot against weight or against length |
+| Argument         | Effect                                                                                                                                                                                                                                                                            |
+|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `species`        | character vector — restrict to a subset of species                                                                                                                                                                                                                                |
+| `time_range`     | numeric vector — average over this time period (plots against size)                                                                                                                                                                                                               |
+| `tlim`           | numeric vector `c(min, max)` — restrict the time axis (plots against time)                                                                                                                                                                                                        |
+| `wlim`/`llim`    | numeric vector `c(min, max)` — restrict the size (x) axis                                                                                                                                                                                                                         |
+| `ylim`           | numeric vector `c(min, max)` — restrict the value (y) axis                                                                                                                                                                                                                        |
+| `highlight`      | character vector — draw named species with thicker lines                                                                                                                                                                                                                          |
+| `total`          | logical — add a line for the community total. The total of *everything the object holds*, so it does not change when you select species or hide the resource; on a length axis it is summed at equal length                                                                       |
+| `background`     | logical — whether species marked with [`markBackground()`](https://sizespectrum.org/mizer/reference/markBackground.md) are drawn. They are drawn only when the selection asks for them, always under a single grey `"Background"` legend entry; `background = FALSE` removes them |
+| `log_x`, `log_y` | logical — log-scale the x or y axis                                                                                                                                                                                                                                               |
+| `size_axis`      | `"w"` (default) or `"l"` — plot against weight or against length                                                                                                                                                                                                                  |
 
 `wlim`/`llim` (size axis) and `ylim` (value axis) only set the **visible
 window**: data outside the range is hidden but nothing is recomputed. To
@@ -329,18 +321,17 @@ Every mizer array declares what kind of quantity it holds, in its `type`
 attribute, because two kinds need handling that the numbers alone do not
 reveal:
 
-| `type` | Meaning | What the plots do with it |
-|----|----|----|
-| `"value"` | a rate, an amount — the default | nothing special |
-| `"density"` | an amount per gram of body weight | converts the values, not just the axis, when plotted against length |
-| `"proportion"` | a fraction | shows the whole of the interval from 0 to 1 on a linear y axis |
+| `type`         | Meaning                           | What the plots do with it                                           |
+|----------------|-----------------------------------|---------------------------------------------------------------------|
+| `"value"`      | a rate, an amount — the default   | nothing special                                                     |
+| `"density"`    | an amount per gram of body weight | converts the values, not just the axis, when plotted against length |
+| `"proportion"` | a fraction                        | shows the whole of the interval from 0 to 1 on a linear y axis      |
 
 Read it with
 [`array_type(x)`](https://sizespectrum.org/mizer/reference/array_type.md),
 and set it when you build an array of your own:
 
 ``` r
-
 ArraySpeciesBySize(x, value_name = "Number density", units = "1/g",
                    type = "density", params = params)
 ```
@@ -354,12 +345,12 @@ weight to length, or size to log size — therefore changes the plotted
 functions apply it for you, for the arrays that declare themselves
 densities:
 
-| Source | Density |
-|----|----|
-| [`initialN(params)`](https://sizespectrum.org/mizer/reference/initialN-set.md), [`finalN(sim)`](https://sizespectrum.org/mizer/reference/finalN.md), [`N(sim)`](https://sizespectrum.org/mizer/reference/N.md), [`get_initial_n(params)`](https://sizespectrum.org/mizer/reference/get_initial_n.md) | consumer number density, per gram |
-| [`initialNResource(params)`](https://sizespectrum.org/mizer/reference/initialNResource-set.md), [`finalNResource(sim)`](https://sizespectrum.org/mizer/reference/finalN.md), [`NResource(sim)`](https://sizespectrum.org/mizer/reference/N.md) | resource number density, per gram |
-| [`resource_capacity(params)`](https://sizespectrum.org/mizer/reference/setResource.md) | resource carrying capacity, per gram |
-| [`getFluxGradient(params)`](https://sizespectrum.org/mizer/reference/getFluxGradient.md) | rate of change of the flux, per gram per year |
+| Source                                                                                                                                                                                                                                                                                               | Density                                       |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|
+| [`initialN(params)`](https://sizespectrum.org/mizer/reference/initialN-set.md), [`finalN(sim)`](https://sizespectrum.org/mizer/reference/finalN.md), [`N(sim)`](https://sizespectrum.org/mizer/reference/N.md), [`get_initial_n(params)`](https://sizespectrum.org/mizer/reference/get_initial_n.md) | consumer number density, per gram             |
+| [`initialNResource(params)`](https://sizespectrum.org/mizer/reference/initialNResource-set.md), [`finalNResource(sim)`](https://sizespectrum.org/mizer/reference/finalN.md), [`NResource(sim)`](https://sizespectrum.org/mizer/reference/N.md)                                                       | resource number density, per gram             |
+| [`resource_capacity(params)`](https://sizespectrum.org/mizer/reference/setResource.md)                                                                                                                                                                                                               | resource carrying capacity, per gram          |
+| [`getFluxGradient(params)`](https://sizespectrum.org/mizer/reference/getFluxGradient.md)                                                                                                                                                                                                             | rate of change of the flux, per gram per year |
 
 Which density you get is set by two independent arguments: `size_axis`
 chooses the size variable and `per_log_size` chooses whether the values
@@ -381,7 +372,6 @@ Conflating the two is the usual reason a spectrum looks like it has the
 wrong slope.
 
 ``` r
-
 plot(initialN(params), per_log_size = TRUE)                 # per log weight
 plot(initialN(params), size_axis = "l", per_log_size = TRUE) # per log length
 plot(initialNResource(params), per_log_size = TRUE)          # resource too
@@ -406,7 +396,6 @@ to see the current state. The common arguments above all apply, and
 is the interactive twin.
 
 ``` r
-
 plotSpectra(params)                                   # spectra of the current state
 plotSpectra(sim, per_log_size = TRUE, time_range = 1990:2000)
 plotSpectra(sim, species = c("Cod", "Herring"), resource = FALSE)
@@ -449,21 +438,19 @@ proportion. The `per_log_size` argument is not used: a cumulative total
 does not depend on it.
 
 ``` r
-
 plotCDF(NS_params, species = c("Cod", "Herring"))
 plotCDF(NS_sim, biomass = FALSE, normalise = FALSE)
 ```
 
 ### Comparing two size distributions
 
-| Function | Shows |
-|----|----|
-| [`plotSpectra2(object1, object2, name1, name2)`](https://sizespectrum.org/mizer/reference/plotSpectra2.md) | two abundance spectra overlaid |
-| [`plotSpectraRelative(object1, object2)`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md) | relative difference of two spectra |
-| [`plotCDF2(object1, object2, name1, name2)`](https://sizespectrum.org/mizer/reference/plotCDF2.md) | two cumulative distributions overlaid |
+| Function                                                                                                   | Shows                                 |
+|------------------------------------------------------------------------------------------------------------|---------------------------------------|
+| [`plotSpectra2(object1, object2, name1, name2)`](https://sizespectrum.org/mizer/reference/plotSpectra2.md) | two abundance spectra overlaid        |
+| [`plotSpectraRelative(object1, object2)`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md) | relative difference of two spectra    |
+| [`plotCDF2(object1, object2, name1, name2)`](https://sizespectrum.org/mizer/reference/plotCDF2.md)         | two cumulative distributions overlaid |
 
 ``` r
-
 plotSpectra2(params, params2, "Before", "After")
 plotSpectraRelative(params, params2)         # 2 (N2 - N1) / (N1 + N2)
 plotCDF2(sim, sim2, "Unfished", "Fished")
@@ -479,7 +466,6 @@ a spectrum or array through the course of a simulation
 is a retained alias).
 
 ``` r
-
 animate(sim)                 # abundance spectra over time
 animate(getFMort(sim))       # an ArrayTimeBySpeciesBySize over time
 animate(NResource(sim))      # an ArrayTimeByResourceBySize over time
@@ -502,7 +488,6 @@ measures a quantity on the attractor it settled on. The result is a
 data frame that knows how to plot itself.
 
 ``` r
-
 scan <- scanModel(params,
                   scan_values = seq(0, 1.5, 0.1),
                   set_func    = scanFishingMortality("Cod"),  # what to vary
@@ -535,7 +520,6 @@ than a two-line setter, because
 the effort from the params object:
 
 ``` r
-
 plot(scanModel(params,
                scan_values = 10^seq(10, 12, length.out = 9),
                set_func = function(params, value) {
@@ -552,11 +536,11 @@ How the quantity is measured depends on what the model settled on, which
 [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
 reports:
 
-| Attractor | What is measured |
-|----|----|
-| fixed point | read off the settled state, no further projection; `ymin == ymax` |
-| limit cycle | averaged over **exactly one period**; `ymin`/`ymax` give the range |
-| neither | averaged over `t_sample` years, and the scan values are named in a message |
+| Attractor   | What is measured                                                           |
+|-------------|----------------------------------------------------------------------------|
+| fixed point | read off the settled state, no further projection; `ymin == ymax`          |
+| limit cycle | averaged over **exactly one period**; `ymin`/`ymax` give the range         |
+| neither     | averaged over `t_sample` years, and the scan values are named in a message |
 
 So the band on the plot is the range of the oscillation, and a Hopf
 bifurcation appears as the scan value at which it opens up. Averaging
@@ -590,7 +574,6 @@ drawn with the peak marked, so the fishing mortality at the peak is
 (F\_{MSY}):
 
 ``` r
-
 plotYieldVsF(NS_params, "Cod", F_max = 1.5)
 scan <- plotYieldVsF(NS_params, "Cod", F_max = 1.5, return_data = TRUE)
 attr(scan, "at_max")      # F_MSY for Cod
@@ -653,7 +636,6 @@ All plotting functions return a ggplot2 object, so you can customise
 them:
 
 ``` r
-
 library(ggplot2)
 p <- plotBiomass(sim, species = c("Cod", "Herring"))
 p + theme_bw() + labs(title = "Biomass through time")
@@ -665,7 +647,6 @@ slots of the `MizerParams`; change them there for consistent styling
 across every plot:
 
 ``` r
-
 params <- setColours(params, c("Cod" = "darkblue"))
 params <- setLinetypes(params, c("Cod" = "dashed"))
 ```
@@ -680,7 +661,6 @@ for the compositional array plots.
 ## Quick reference
 
 ``` r
-
 # ── Accessing raw arrays ───────────────────────────────────────────────────────
 N(sim)                  # time × species × size
 NResource(sim)          # time × size

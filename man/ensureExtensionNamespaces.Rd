@@ -16,8 +16,6 @@ packages via \code{\link[pak:pkg_install]{pak::pkg_install()}}.}
 Invisibly \code{TRUE}.
 }
 \description{
-For each extension whose requirement is not \code{NA_character_}, checks that the
-package is installed and up-to-date, installs or upgrades via
-\code{\link[pak:pkg_install]{pak::pkg_install()}} if \code{install = TRUE}, then calls \code{\link[=loadNamespace]{loadNamespace()}}.
+Load (and optionally install) namespaces for all non-NA extensions
 }
 \keyword{internal}

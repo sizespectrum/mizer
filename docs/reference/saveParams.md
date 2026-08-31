@@ -30,8 +30,7 @@ readSim(file, install_extensions = FALSE)
 - install_extensions:
 
   Logical. Should `readParams()` or `readSim()` attempt to install
-  missing extension packages before registering the saved extension
-  chain?
+  missing extension packages before loading them?
 
 - sim:
 
@@ -85,7 +84,7 @@ Before saving a model you may want to set its metadata with
   [`upgradeParams()`](https://sizespectrum.org/mizer/reference/upgradeParams.md)),
   so that models saved years ago still load correctly.
 
-- They **re-register the extension packages** that the model needs and,
+- They **load the extension packages** that the model needs and,
   optionally, install any that are missing (see `install_extensions`),
   before restoring the object's extension class.
 
@@ -115,5 +114,5 @@ tmp2 <- tempfile(fileext = ".rds")
 saveSim(NS_sim, file = tmp2)
 sim <- readSim(tmp2)
 identical(sim, NS_sim)
-#> [1] TRUE
+#> [1] FALSE
 ```

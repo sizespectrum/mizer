@@ -165,49 +165,29 @@
 <li>
 <strong><a href="https://github.com/gustavdelius/mizerStomach" class="external-link">mizerStomach</a></strong> — Helps determine predator size-selectivity functions by fitting them to stomach content data.</li>
 </ul>
-<hr></section><section class="level2"><h2 id="the-extension-chain">The extension chain<a class="anchor" aria-label="anchor" href="#the-extension-chain"></a>
+<hr></section><section class="level2"><h2 id="the-extension-list-and-s3-dispatch">The extension list and S3 dispatch<a class="anchor" aria-label="anchor" href="#the-extension-list-and-s3-dispatch"></a>
 </h2>
-<p>Every mizer extension package announces itself to mizer when it is loaded. Internally, mizer maintains a list of all the currently loaded extensions, in the order they registered themselves. This list is called the <strong>extension chain</strong>.</p>
+<p>When an extension package creates or modifies a model, it stamps itself on the model object’s <code>extensions</code> slot:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/getRegisteredExtensions.html">getRegisteredExtensions</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">params</span><span class="op">@</span><span class="va">extensions</span></span></code></pre></div>
 </div>
-<p>The result is a named character vector. The <strong>names</strong> are the extension identifiers (which double as S4 class names). The <strong>values</strong> are installation specifications — a version string such as <code>"1.2.0"</code> for packages on CRAN, or a GitHub path such as <code>"sizespectrum/mizerShelf"</code> for packages that are only on GitHub. The first element is the <em>outermost</em> extension (the one with the highest dispatch priority), the last is the innermost.</p>
-<p>If no extension packages are loaded, <a href="../reference/getRegisteredExtensions.html"><code>getRegisteredExtensions()</code></a> returns an empty, unnamed character vector.</p>
-<hr></section><section class="level2"><h2 id="why-loading-order-matters">Why loading order matters<a class="anchor" aria-label="anchor" href="#why-loading-order-matters"></a>
+<p>The entries record each attached extension, its installation specification, and its version stamp. The model’s S3 class vector (e.g. <code>c("mizerShelf", "MizerParams")</code>) determines how R dispatches method calls. When you call generic functions like <a href="../reference/getBiomass.html"><code>getBiomass(params)</code></a> or <a href="../reference/mizerRates.html"><code>projectRates(params)</code></a>, R executes the extension’s method first. Calling <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> in that method passes control down to the next extension in the class vector, and finally to base mizer.</p>
+<hr></section><section class="level2"><h2 id="combining-multiple-extensions">Combining multiple extensions<a class="anchor" aria-label="anchor" href="#combining-multiple-extensions"></a>
 </h2>
-<p>When two extensions both override the same mizer function — say <a href="../reference/getBiomass.html"><code>getBiomass()</code></a> — R decides which version to call first from the class of the <code>params</code> object, working through the class hierarchy from outermost to innermost. The outermost extension gets the first say, and each extension can modify the result of the extensions below it.</p>
-<p>So <strong>the package loaded last is outermost</strong>:</p>
+<p>When two extensions both override the same mizer function — say <code><a href="../reference/getBiomass.html">getBiomass()</a></code> — the order of classes in <code>class(params)</code> decides which version runs first. The outermost extension gets the first say, calls <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code>, and extends the result returned by the inner extensions.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span>   <span class="co"># innermost</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerFoo</span><span class="op">)</span>     <span class="co"># outermost: its getBiomass() runs first and wraps the rest</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://sizespectrum.org/mizerMR/reference/setMultipleResources.html">setMultipleResources</a></span><span class="op">(</span><span class="va">params</span>, <span class="va">...</span><span class="op">)</span> <span class="co"># adds mizerMR</span></span>
+<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">setShelf</span><span class="op">(</span><span class="va">params</span>, <span class="va">...</span><span class="op">)</span>             <span class="co"># adds mizerShelf on top</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
+<span><span class="co"># [1] "mizerShelf" "mizerMR" "MizerParams"</span></span></code></pre></div>
 </div>
-<p>Both extensions contribute either way, so in most cases the two orderings give the same answer, because the extensions touch different parts of the calculation. The order matters only when the extensions interact — when one extension’s contribution depends on what another computed. Check each package’s documentation for a required load order.</p>
-<hr></section><section class="level2"><h2 id="working-with-the-extension-chain">Working with the extension chain<a class="anchor" aria-label="anchor" href="#working-with-the-extension-chain"></a>
-</h2>
-<section class="level3"><h3 id="clearing-the-registry">Clearing the registry<a class="anchor" aria-label="anchor" href="#clearing-the-registry"></a>
-</h3>
-<p>To replace the chain explicitly without restarting R, first clear the session’s registry:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/clearExtensionChain.html">clearExtensionChain</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p><code><a href="../reference/getRegisteredExtensions.html">getRegisteredExtensions()</a></code> then returns an empty vector. Clearing the chain does <strong>not</strong> unload the packages themselves; it only removes their entries from mizer’s registry. Calling <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> for a package that is still loaded does not reliably rerun its <code>.onLoad()</code> hook, so either restart or unload and load the packages again, or restore the chain explicitly with <a href="../reference/registerExtensions.html"><code>registerExtensions()</code></a> before creating or using dependent params objects.</p>
-</section><section class="level3"><h3 id="setting-the-chain-manually">Setting the chain manually<a class="anchor" aria-label="anchor" href="#setting-the-chain-manually"></a>
-</h3>
-<p>To take full control — for example to reproduce the exact chain recorded in a collaborator’s params object — set it directly with <code><a href="../reference/registerExtensions.html">registerExtensions()</a></code>:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">chain</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>mizerFoo <span class="op">=</span> <span class="st">"owner/mizerFoo"</span>, mizerShelf <span class="op">=</span> <span class="st">"sizespectrum/mizerShelf"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/registerExtensions.html">registerExtensions</a></span><span class="op">(</span><span class="va">chain</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>The names must match the identifiers each package uses when it registers itself (normally the package name). The values are installation specifications, used when a missing package has to be installed automatically. This is an advanced manoeuvre: in normal use you call <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> for each extension and the chain builds itself.</p>
-<hr></section></section><section class="level2"><h2 id="params-objects-and-the-extension-chain">Params objects and the extension chain<a class="anchor" aria-label="anchor" href="#params-objects-and-the-extension-chain"></a>
+<hr></section><section class="level2"><h2 id="params-objects-and-the-extension-chain">Params objects and the extension chain<a class="anchor" aria-label="anchor" href="#params-objects-and-the-extension-chain"></a>
 </h2>
 <p>When an extension package creates a <a href="../reference/MizerParams.html"><code>MizerParams</code></a> object (for example <code>mizerShelf::newDetritusCarrionParams()</code>), it records the extension packages actually applied to that object in the <code>extensions</code> slot:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span><span class="op">@</span><span class="va">extensions</span></span></code></pre></div>
 </div>
 <p>That record serves two purposes:</p>
@@ -215,20 +195,20 @@
 <li>
 <strong>Reproducibility.</strong> It says which extension packages built the model, the installation requirement for each, and the package version whose object layout each component conforms to.</li>
 <li>
-<strong>Class restoration.</strong> On reload, mizer uses it to promote the object back to the correct S4 class, so that functions like <code><a href="../reference/getBiomass.html">getBiomass()</a></code> keep dispatching to the right extension methods.</li>
+<strong>Class restoration.</strong> On reload, mizer uses it to promote the object back to the correct S3 class, so that functions like <code><a href="../reference/getBiomass.html">getBiomass()</a></code> keep dispatching to the right extension methods.</li>
 </ol>
 <section class="level3"><h3 id="saving-and-loading">Saving and loading<a class="anchor" aria-label="anchor" href="#saving-and-loading"></a>
 </h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/saveParams.html">saveParams</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"my_model.rds"</span><span class="op">)</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/saveParams.html">readParams</a></span><span class="op">(</span><span class="st">"my_model.rds"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Before saving, <code><a href="../reference/saveParams.html">saveParams()</a></code> warns if the model relies on custom functions defined only in your R session — a custom rate function, selectivity function or predation kernel written in a script. Those functions are not stored in the file, so the script has to travel with the <code>.rds</code>.</p>
-<p><code><a href="../reference/saveParams.html">readParams()</a></code> upgrades the object if it was written by an older mizer, reads <code>params@extensions</code>, calls <code><a href="../reference/registerExtensions.html">registerExtensions()</a></code> so the session knows the saved chain, and promotes the object to the correct S4 class. As long as the required packages are installed, this is seamless; if one is missing, <code><a href="../reference/saveParams.html">readParams()</a></code> stops with an error naming it.</p>
-<p><a href="../reference/MizerSim.html"><code>MizerSim</code></a> objects carry their params object inside them, so the chain is embedded there too. Use <code><a href="../reference/saveParams.html">saveSim()</a></code> and <code><a href="../reference/saveParams.html">readSim()</a></code>, which do the same registration and coercion:</p>
+<p><code><a href="../reference/saveParams.html">readParams()</a></code> upgrades the object if it was written by an older mizer, loads the required extension packages, and promotes the object to the correct S3 class. As long as the required packages are installed, this is seamless; if one is missing, <code><a href="../reference/saveParams.html">readParams()</a></code> stops with an error naming it.</p>
+<p><a href="../reference/MizerSim.html"><code>MizerSim</code></a> objects carry their params object inside them, so the extensions are embedded there too. Use <code><a href="../reference/saveParams.html">saveSim()</a></code> and <code><a href="../reference/saveParams.html">readSim()</a></code>, which do the same loading and coercion:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/saveParams.html">saveSim</a></span><span class="op">(</span><span class="va">sim</span>, <span class="st">"my_simulation.rds"</span><span class="op">)</span></span>
 <span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/saveParams.html">readSim</a></span><span class="op">(</span><span class="st">"my_simulation.rds"</span><span class="op">)</span></span></code></pre></div>
@@ -238,7 +218,7 @@
 </h2>
 <p>A collaborator needs the same extension packages installed. <code><a href="../reference/saveParams.html">readParams()</a></code> and <code><a href="../reference/saveParams.html">readSim()</a></code> tell them which are missing. To install them automatically from the specifications stored in <code>params@extensions</code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/saveParams.html">readParams</a></span><span class="op">(</span><span class="st">"my_model.rds"</span>, install_extensions <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>This installs each package from the recorded requirement specification, such as a CRAN version requirement or a GitHub repository. The separate recorded version stamp describes the object layout for upgrade purposes; it does not necessarily pin installation to that exact package release.</p>
@@ -246,7 +226,7 @@
 </h2>
 <p>Extension packages often ship ready-made <code>MizerParams</code> or <code>MizerSim</code> objects as example models. As long as the package follows mizer’s conventions, these work as soon as the package is loaded:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span></span>
 <span><span class="va">NWMed_params</span>   <span class="co"># already has the correct extension class -- no extra steps needed</span></span></code></pre></div>
 </div>
@@ -261,25 +241,13 @@
 </section><section class="level3"><h3 id="checking-what-a-params-object-requires">Checking what a params object requires<a class="anchor" aria-label="anchor" href="#checking-what-a-params-object-requires"></a>
 </h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span><span class="op">@</span><span class="va">extensions</span></span></code></pre></div>
 </div>
 <p>The names are the extension identifiers. Current entries each contain a <code>requirement</code> (where or at what minimum version to install the package) and a <code>version</code> stamp (the package version whose object layout the component conforms to). Legacy objects may still show the older named-character-vector form; mizer accepts both.</p>
-</section><section class="level3"><h3 id="packages-were-loaded-in-the-wrong-order">Packages were loaded in the wrong order<a class="anchor" aria-label="anchor" href="#packages-were-loaded-in-the-wrong-order"></a>
-</h3>
-<p>Either restart R and load the packages in the desired order, or explicitly register the desired chain. Merely calling <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> again after <a href="../reference/clearExtensionChain.html"><code>clearExtensionChain()</code></a> is insufficient when those namespaces are still loaded. <code><a href="../reference/registerExtensions.html">registerExtensions()</a></code> takes the chain in outermost-first order:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/clearExtensionChain.html">clearExtensionChain</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/registerExtensions.html">registerExtensions</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    mizerFoo <span class="op">=</span> <span class="st">"owner/mizerFoo"</span>,                  <span class="co"># outermost</span></span>
-<span>    mizerShelf <span class="op">=</span> <span class="st">"sizespectrum/mizerShelf"</span>        <span class="co"># innermost</span></span>
-<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>Afterwards, create or re-read the params objects that use that chain. In a fresh session the equivalent loading order is <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(mizerShelf)</a></code> followed by <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(mizerFoo)</a></code>.</p>
 </section><section class="level3"><h3 id="making-a-script-reproducible">Making a script reproducible<a class="anchor" aria-label="anchor" href="#making-a-script-reproducible"></a>
 </h3>
-<p>Put the <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> calls at the top in a fixed order. Each package registers itself in <code>.onLoad</code>, so sourcing the script fresh always rebuilds the same chain.</p>
+<p>Put the <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> calls at the top in a fixed order, and use <code><a href="../reference/saveParams.html">saveParams()</a></code> and <code><a href="../reference/saveParams.html">readParams()</a></code> to persist and reload models.</p>
 <hr></section></section><section class="level2"><h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a>
 </h2>
 <ul>
@@ -287,7 +255,7 @@
 <li>
 <a href="guide-create-extension-package.html">Creating a mizer extension package</a> — how to package your own extension and make it composable with others.</li>
 <li>
-<code><a href="../reference/registerExtension.html">?registerExtension</a></code>, <code><a href="../reference/registerExtensions.html">?registerExtensions</a></code>, <code><a href="../reference/getRegisteredExtensions.html">?getRegisteredExtensions</a></code>, <code><a href="../reference/clearExtensionChain.html">?clearExtensionChain</a></code>, <code><a href="../reference/coerceToExtensionClass.html">?coerceToExtensionClass</a></code>
+<code><a href="../reference/coerceToExtensionClass.html">?coerceToExtensionClass</a></code>, <code><a href="../reference/recordExtension.html">?recordExtension</a></code>
 </li>
 <li>
 <code><a href="../reference/saveParams.html">?saveParams</a></code>, <code><a href="../reference/saveParams.html">?readParams</a></code>, <code><a href="../reference/saveParams.html">?saveSim</a></code>, <code><a href="../reference/saveParams.html">?readSim</a></code>

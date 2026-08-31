@@ -106,7 +106,7 @@ test_that("projectUntilSettled() works", {
                                               distance_tol = 1000, residual_tol = Inf,
                                               effort = effort),
                    "Reached the convergence tolerance")
-    expect_s4_class(sim, "MizerSim")
+    expect_s3_class(sim, "MizerSim")
     expect_identical(sim@params@initial_effort, effort)
     # shouldn't take long the second time we run to steady
     expect_message(projectUntilSettled(finalParams(sim), t_check = 1, dt = 1,
@@ -155,7 +155,7 @@ test_that("projectUntilSettled accepts consumer update method", {
     sim <- projectUntilSettled(params, t_check = 1, dt = 1,
                                t_max = 1, distance_tol = 1000,
                                method = "predictor_corrector", info_level = 0)
-    expect_s4_class(sim, "MizerSim")
+    expect_s3_class(sim, "MizerSim")
     expect_true(all(is.finite(finalN(sim))))
     expect_true(all(finalN(sim) >= 0))
 

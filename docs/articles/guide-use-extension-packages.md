@@ -70,97 +70,44 @@ Two rules cover almost everything:
 
 ------------------------------------------------------------------------
 
-## The extension chain
+## The extension list and S3 dispatch
 
-Every mizer extension package announces itself to mizer when it is
-loaded. Internally, mizer maintains a list of all the currently loaded
-extensions, in the order they registered themselves. This list is called
-the **extension chain**.
+When an extension package creates or modifies a model, it stamps itself
+on the model object’s `extensions` slot:
 
 ``` r
-
-getRegisteredExtensions()
+params@extensions
 ```
 
-The result is a named character vector. The **names** are the extension
-identifiers (which double as S4 class names). The **values** are
-installation specifications — a version string such as `"1.2.0"` for
-packages on CRAN, or a GitHub path such as `"sizespectrum/mizerShelf"`
-for packages that are only on GitHub. The first element is the
-*outermost* extension (the one with the highest dispatch priority), the
-last is the innermost.
-
-If no extension packages are loaded,
-[`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md)
-returns an empty, unnamed character vector.
+The entries record each attached extension, its installation
+specification, and its version stamp. The model’s S3 class vector (e.g.
+`c("mizerShelf", "MizerParams")`) determines how R dispatches method
+calls. When you call generic functions like
+[`getBiomass(params)`](https://sizespectrum.org/mizer/reference/getBiomass.md)
+or
+[`projectRates(params)`](https://sizespectrum.org/mizer/reference/mizerRates.md),
+R executes the extension’s method first. Calling
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) in that method
+passes control down to the next extension in the class vector, and
+finally to base mizer.
 
 ------------------------------------------------------------------------
 
-## Why loading order matters
+## Combining multiple extensions
 
 When two extensions both override the same mizer function — say
 [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md)
-— R decides which version to call first from the class of the `params`
-object, working through the class hierarchy from outermost to innermost.
-The outermost extension gets the first say, and each extension can
-modify the result of the extensions below it.
-
-So **the package loaded last is outermost**:
+— the order of classes in `class(params)` decides which version runs
+first. The outermost extension gets the first say, calls
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html), and extends the
+result returned by the inner extensions.
 
 ``` r
-
-library(mizerShelf)   # innermost
-library(mizerFoo)     # outermost: its getBiomass() runs first and wraps the rest
+params <- setMultipleResources(params, ...) # adds mizerMR
+params <- setShelf(params, ...)             # adds mizerShelf on top
+class(params)
+# [1] "mizerShelf" "mizerMR" "MizerParams"
 ```
-
-Both extensions contribute either way, so in most cases the two
-orderings give the same answer, because the extensions touch different
-parts of the calculation. The order matters only when the extensions
-interact — when one extension’s contribution depends on what another
-computed. Check each package’s documentation for a required load order.
-
-------------------------------------------------------------------------
-
-## Working with the extension chain
-
-### Clearing the registry
-
-To replace the chain explicitly without restarting R, first clear the
-session’s registry:
-
-``` r
-
-clearExtensionChain()
-```
-
-[`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md)
-then returns an empty vector. Clearing the chain does **not** unload the
-packages themselves; it only removes their entries from mizer’s
-registry. Calling [`library()`](https://rdrr.io/r/base/library.html) for
-a package that is still loaded does not reliably rerun its `.onLoad()`
-hook, so either restart or unload and load the packages again, or
-restore the chain explicitly with
-[`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md)
-before creating or using dependent params objects.
-
-### Setting the chain manually
-
-To take full control — for example to reproduce the exact chain recorded
-in a collaborator’s params object — set it directly with
-[`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md):
-
-``` r
-
-chain <- c(mizerFoo = "owner/mizerFoo", mizerShelf = "sizespectrum/mizerShelf")
-registerExtensions(chain)
-```
-
-The names must match the identifiers each package uses when it registers
-itself (normally the package name). The values are installation
-specifications, used when a missing package has to be installed
-automatically. This is an advanced manoeuvre: in normal use you call
-[`library()`](https://rdrr.io/r/base/library.html) for each extension
-and the chain builds itself.
 
 ------------------------------------------------------------------------
 
@@ -173,7 +120,6 @@ records the extension packages actually applied to that object in the
 `extensions` slot:
 
 ``` r
-
 params@extensions
 ```
 
@@ -183,14 +129,13 @@ That record serves two purposes:
     model, the installation requirement for each, and the package
     version whose object layout each component conforms to.
 2.  **Class restoration.** On reload, mizer uses it to promote the
-    object back to the correct S4 class, so that functions like
+    object back to the correct S3 class, so that functions like
     [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md)
     keep dispatching to the right extension methods.
 
 ### Saving and loading
 
 ``` r
-
 saveParams(params, "my_model.rds")
 params <- readParams("my_model.rds")
 ```
@@ -203,25 +148,22 @@ kernel written in a script. Those functions are not stored in the file,
 so the script has to travel with the `.rds`.
 
 [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
-upgrades the object if it was written by an older mizer, reads
-`params@extensions`, calls
-[`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md)
-so the session knows the saved chain, and promotes the object to the
-correct S4 class. As long as the required packages are installed, this
-is seamless; if one is missing,
+upgrades the object if it was written by an older mizer, loads the
+required extension packages, and promotes the object to the correct S3
+class. As long as the required packages are installed, this is seamless;
+if one is missing,
 [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
 stops with an error naming it.
 
 [`MizerSim`](https://sizespectrum.org/mizer/reference/MizerSim.md)
-objects carry their params object inside them, so the chain is embedded
-there too. Use
+objects carry their params object inside them, so the extensions are
+embedded there too. Use
 [`saveSim()`](https://sizespectrum.org/mizer/reference/saveParams.md)
 and
 [`readSim()`](https://sizespectrum.org/mizer/reference/saveParams.md),
-which do the same registration and coercion:
+which do the same loading and coercion:
 
 ``` r
-
 sim <- project(params, t_max = 10)
 saveSim(sim, "my_simulation.rds")
 sim <- readSim("my_simulation.rds")
@@ -244,7 +186,6 @@ tell them which are missing. To install them automatically from the
 specifications stored in `params@extensions`:
 
 ``` r
-
 params <- readParams("my_model.rds", install_extensions = TRUE)
 ```
 
@@ -262,7 +203,6 @@ objects as example models. As long as the package follows mizer’s
 conventions, these work as soon as the package is loaded:
 
 ``` r
-
 library(mizerShelf)
 NWMed_params   # already has the correct extension class -- no extra steps needed
 ```
@@ -286,7 +226,6 @@ reload with `readParams("my_model.rds", install_extensions = TRUE)`.
 ### Checking what a params object requires
 
 ``` r
-
 params@extensions
 ```
 
@@ -296,35 +235,14 @@ and a `version` stamp (the package version whose object layout the
 component conforms to). Legacy objects may still show the older
 named-character-vector form; mizer accepts both.
 
-### Packages were loaded in the wrong order
-
-Either restart R and load the packages in the desired order, or
-explicitly register the desired chain. Merely calling
-[`library()`](https://rdrr.io/r/base/library.html) again after
-[`clearExtensionChain()`](https://sizespectrum.org/mizer/reference/clearExtensionChain.md)
-is insufficient when those namespaces are still loaded.
-[`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md)
-takes the chain in outermost-first order:
-
-``` r
-
-clearExtensionChain()
-registerExtensions(c(
-    mizerFoo = "owner/mizerFoo",                  # outermost
-    mizerShelf = "sizespectrum/mizerShelf"        # innermost
-))
-```
-
-Afterwards, create or re-read the params objects that use that chain. In
-a fresh session the equivalent loading order is
-[`library(mizerShelf)`](https://rdrr.io/r/base/library.html) followed by
-[`library(mizerFoo)`](https://rdrr.io/r/base/library.html).
-
 ### Making a script reproducible
 
 Put the [`library()`](https://rdrr.io/r/base/library.html) calls at the
-top in a fixed order. Each package registers itself in `.onLoad`, so
-sourcing the script fresh always rebuilds the same chain.
+top in a fixed order, and use
+[`saveParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
+and
+[`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
+to persist and reload models.
 
 ------------------------------------------------------------------------
 
@@ -337,11 +255,8 @@ sourcing the script fresh always rebuilds the same chain.
   package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.md)
   — how to package your own extension and make it composable with
   others.
-- [`?registerExtension`](https://sizespectrum.org/mizer/reference/registerExtension.md),
-  [`?registerExtensions`](https://sizespectrum.org/mizer/reference/registerExtensions.md),
-  [`?getRegisteredExtensions`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md),
-  [`?clearExtensionChain`](https://sizespectrum.org/mizer/reference/clearExtensionChain.md),
-  [`?coerceToExtensionClass`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
+- [`?coerceToExtensionClass`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md),
+  [`?recordExtension`](https://sizespectrum.org/mizer/reference/recordExtension.md)
 - [`?saveParams`](https://sizespectrum.org/mizer/reference/saveParams.md),
   [`?readParams`](https://sizespectrum.org/mizer/reference/saveParams.md),
   [`?saveSim`](https://sizespectrum.org/mizer/reference/saveParams.md),

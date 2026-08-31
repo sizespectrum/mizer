@@ -214,7 +214,6 @@ array.
   sum into their results:
 
   ``` r
-
   other_mort(params)[["starvation"]] <- "starvMort"
   ```
 
@@ -237,25 +236,14 @@ array.
   registered under
   ([\#579](https://github.com/sizespectrum/mizer/issues/579)).
 
-- Fixed: repeated
-  [`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md)
-  and
-  [`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md)
-  calls now rebuild the dynamic marker classes of the active extension
-  chain when any of them disappeared during an extension-package reload,
-  while leaving the registered chain unchanged. Recreating only the
-  class that went missing is not enough, because R prunes it from the
-  `contains` list of the marker classes outside it
-  ([\#569](https://github.com/sizespectrum/mizer/issues/569)).
-
-- Fixed: dynamic extension marker classes now live in an environment
-  that mizer attaches, called `mizer:extension-classes`, instead of in
-  `.GlobalEnv`. They therefore survive both a user clearing their
-  workspace and the `cleanEx()` that `R CMD check` runs between package
-  examples, which used to leave every example after the first failing
-  with `"<extension>" is not a defined class`. The environment is
-  attached only once a dispatching extension needs a marker class
-  ([\#587](https://github.com/sizespectrum/mizer/issues/587)).
+- `MizerParams` and `MizerSim` have been converted from S4 classes to
+  pure S3 classes based on named lists. Backwards compatibility for `@`
+  and `@<-` slot access is fully preserved via S3 `@` operator methods,
+  and legacy S4 objects from earlier mizer versions are automatically
+  upgraded to S3 lists on access. Extension packages now chain using
+  standard S3 class vectors (e.g. `c("mizerShelf", "MizerParams")`),
+  completely replacing dynamic S4 marker class generation, runtime
+  `setClass()` calls, and search-path attachment.
 
 ### Summaries and plots
 
@@ -2151,8 +2139,7 @@ See the new
 - [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
   now prepends a genuinely new extension to the front of the object’s
   `@extensions` chain, keeping it ordered outermost-first to match
-  [`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md).
-  Existing entries stay in place.
+  `registerExtension()`. Existing entries stay in place.
 
 ### New functions
 
@@ -2905,17 +2892,14 @@ allowing individual variability in growth to be modelled.
   modify mizer behaviour
   ([\#330](https://github.com/sizespectrum/mizer/issues/330)).
 
-- New composable extension chain infrastructure:
-  [`registerExtensions()`](https://sizespectrum.org/mizer/reference/registerExtensions.md),
-  [`getRegisteredExtensions()`](https://sizespectrum.org/mizer/reference/getRegisteredExtensions.md),
+- New composable extension chain infrastructure: `registerExtensions()`,
+  `getRegisteredExtensions()`,
   [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md),
-  [`clearExtensionChain()`](https://sizespectrum.org/mizer/reference/clearExtensionChain.md),
-  and
-  [`registerExtension()`](https://sizespectrum.org/mizer/reference/registerExtension.md).
-  Extension classes are S3 marker classes; `MizerSim` derives its
-  extension chain from `sim@params@extensions`. Extensions that do not
-  provide a marker class remain metadata-only and do not trigger the S3
-  projection-rate dispatch path.
+  `clearExtensionChain()`, and `registerExtension()`. Extension classes
+  are S3 marker classes; `MizerSim` derives its extension chain from
+  `sim@params@extensions`. Extensions that do not provide a marker class
+  remain metadata-only and do not trigger the S3 projection-rate
+  dispatch path.
 
 - S3 projection hooks have been added for all standard mizer rate
   functions. Extension-aware projections dispatch through

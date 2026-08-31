@@ -14,10 +14,11 @@
 #' is that if the model is not working as expected in the current version of
 #' mizer, you can go back to the older version under which presumably it was
 #' working.
-#' * `extensions` A named vector of strings where each name is the name of and
-#' extension package needed to run the model and each value is a string giving
-#' the information that the remotes package needs to install the correct version
-#' of the extension package. This field is set by the extension packages.
+#' * `extensions` A named list with one entry for each extension package needed
+#' to run the model. Each entry records the installation `requirement` and the
+#' package `version` whose object layout is in use. This field is set by
+#' extension packages with [recordExtension()] and can be inspected with
+#' `getMetadata(params)$extensions`.
 #' * `time_created` A POSIXct date-time object with the creation time.
 #' * `time_modified` A POSIXct date-time object with the last modified time.
 #'

@@ -225,7 +225,7 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
                                   progress_bar = interactive(),
                                   info_level = 0, ...) {
     params <- validParams(params)
-    method <- match.arg(method)
+    method <- normalise_project_method(method)
     assert_that(is.numeric(scan_values),
                 is.function(set_func),
                 is.function(value_func),
