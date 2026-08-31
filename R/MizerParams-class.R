@@ -431,6 +431,8 @@ validMizerParams <- function(object) {
 #'   [newTraitParams()]
 #' @name MizerParams-class
 #' @rdname MizerParams-class
+NULL
+
 #' @export
 `@.MizerParams` <- function(object, name) {
     name_str <- as.character(substitute(name))

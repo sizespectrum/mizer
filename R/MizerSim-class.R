@@ -167,6 +167,8 @@ valid_MizerSim <- function(object) {
 #'
 #' @name MizerSim-class
 #' @rdname MizerSim-class
+NULL
+
 #' @export
 `@.MizerSim` <- function(object, name) {
     name_str <- as.character(substitute(name))

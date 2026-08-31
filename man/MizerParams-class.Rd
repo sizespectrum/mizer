@@ -2,11 +2,7 @@
 % Please edit documentation in R/MizerParams-class.R
 \name{MizerParams-class}
 \alias{MizerParams-class}
-\alias{@.MizerParams}
 \title{A class to hold the parameters for a size based model.}
-\usage{
-\method{@}{MizerParams}(object, name)
-}
 \description{
 Although it is possible to build a \code{MizerParams} object by hand it is
 not recommended and several constructors are available. Dynamic simulations

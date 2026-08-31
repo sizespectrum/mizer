@@ -2,11 +2,7 @@
 % Please edit documentation in R/MizerSim-class.R
 \name{MizerSim-class}
 \alias{MizerSim-class}
-\alias{@.MizerSim}
 \title{A class to hold the results of a simulation}
-\usage{
-\method{@}{MizerSim}(object, name)
-}
 \description{
 A class that holds the results of projecting a \linkS4class{MizerParams}
 object through time using \code{\link[=project]{project()}}.
