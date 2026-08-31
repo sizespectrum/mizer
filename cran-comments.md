@@ -1,16 +1,13 @@
 ## Test environments
 
-### devtools::check_win_devel()
+### devtools::check_win_release()
 
-  Status: 2 NOTEs
-  
-devtools::check_win_devel()
+  Status: OK
+
 
 ### local Ubuntu, R 4.6.1
 
-  0 errors ✔ | 0 warnings ✔ | 3 notes ✖
- 
-As above with one extra note:
+  0 errors ✔ | 0 warnings ✔ | 1 note ✖
 
 Compilation used the following non-portable flag(s):
      ‘-mno-omit-leaf-frame-pointer’
