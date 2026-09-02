@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -160,8 +160,8 @@ steady state <span class="math inline">\(N^*\)</span> is a state at
 which <span class="math inline">\(F(N^*) = 0\)</span>.</p>
 <p>Close to <span class="math inline">\(N^*\)</span> a small
 perturbation <span class="math inline">\(\delta N(t) = N(t) -
-N^*\)</span> obeys the linearised equation <span class="math inline">\(d\,\delta N/dt = J\,\delta N\)</span>, where <span class="math inline">\(J = \partial F / \partial N\)</span> evaluated at
-<span class="math inline">\(N^*\)</span> is the Jacobian matrix. Its
+N^*\)</span> obeys the linearised equation <span class="math inline">\(d\,\delta N/dt = J\,\delta N\)</span>, where <span class="math inline">\(J = \partial F /
+\partial N\)</span> evaluated at <span class="math inline">\(N^*\)</span> is the Jacobian matrix. Its
 eigenvalues <span class="math inline">\(\lambda_i\)</span> decide
 everything: each mode of the perturbation evolves as <span class="math inline">\(e^{\lambda_i t}\)</span>, so the steady state is
 <strong>stable</strong> when every eigenvalue has negative real part and
@@ -274,10 +274,9 @@ alone.</p>
 <span><span class="va">stab</span><span class="op">$</span><span class="va">stable</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; [1] 0.07095636</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span></code></pre>
-<p>The largest real part among the eigenvalues, <span class="math inline">\(\text{Re}(\lambda) = 0.071 &gt; 0\)</span>, so the
-steady state is unstable: a perturbation grows at that exponential rate,
-roughly a factor <span class="math inline">\(e\)</span> every 14
-years.</p>
+<p>The largest real part among the eigenvalues, <span class="math inline">\(\text{Re}(\lambda) =
+0.071 &gt; 0\)</span>, so the steady state is unstable: a perturbation
+grows at that exponential rate, roughly a factor <span class="math inline">\(e\)</span> every 14 years.</p>
 <div class="section level3">
 <h3 id="what-mizers-time-step-makes-of-it">What mizer’s time step makes of it<a class="anchor" aria-label="anchor" href="#what-mizers-time-step-makes-of-it"></a>
 </h3>

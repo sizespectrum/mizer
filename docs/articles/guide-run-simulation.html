@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,6 +76,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -173,8 +174,7 @@
 <tr class="odd">
 <td><code>method</code></td>
 <td>
-<code>"euler"</code> (default), <code>"predictor_corrector"</code>, or <code>"tr_bdf2"</code>
-</td>
+<code>"euler"</code> (default) or <code>"second_order"</code> (an alias for <code>"tr_bdf2"</code>); the superseded <code>"predictor_corrector"</code> is also accepted</td>
 </tr>
 <tr class="even">
 <td><code>callback</code></td>
@@ -239,12 +239,12 @@
 <li>
 <strong>Space:</strong> build the model with <code>second_order_w = TRUE</code> (the van Leer, flux-limited scheme) — set it in <a href="../reference/newMultispeciesParams.html"><code>newMultispeciesParams(..., second_order_w = TRUE)</code></a>, or on an existing model with <a href="../reference/second_order_w.html"><code>second_order_w(params) &lt;- TRUE</code></a>. Because it changes the discrete steady state it lives in the params object, not in a <code><a href="../reference/project.html">project()</a></code> argument.</li>
 <li>
-<strong>Time:</strong> project with <code>method = "tr_bdf2"</code> (L-stable, second order in time).</li>
+<strong>Time:</strong> project with <code>method = "second_order"</code> (an alias for <code>method = "tr_bdf2"</code>, the L-stable TR-BDF2 scheme).</li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">sp</span>, second_order_w <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">sim</span>    <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">200</span>, method <span class="op">=</span> <span class="st">"tr_bdf2"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">sim</span>    <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">200</span>, method <span class="op">=</span> <span class="st">"second_order"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Symptom that you needed this: an oscillation that is present with <code>second_order_w = TRUE</code> but disappears (settles to a flat steady state) under the default upwind scheme is being killed by numerical diffusion, not by real dynamics.</p>
 <p><strong>Expect the numbers to move, and don’t read that as a bug.</strong> A bare <code>second_order_w = TRUE</code> sets two things: the flux scheme above <em>and</em> <code>bin_average</code>, which switches every integral over the size grid from a left-edge Riemann sum to a proper bin average. Unnormalised quantities — biomass, yield, <a href="../reference/getDiet.html"><code>getDiet(proportion = FALSE)</code></a> — therefore shift by roughly <code>(1 + beta) / 2</code>, about 10% for a typical grid, where <code>beta</code> is the ratio between neighbouring grid points. That is the more accurate integral, not a regression. Proportions and ratios are largely unaffected because the factor cancels. Set the two independently if you want the better flux scheme without moving your summary numbers:</p>
@@ -262,7 +262,7 @@
 <hr></section><section class="level2"><h2 id="tips">Tips<a class="anchor" aria-label="anchor" href="#tips"></a>
 </h2>
 <ul>
-<li>If a run blows up or oscillates unphysically, first reduce <code>dt</code> (e.g. <code>0.01</code>); a stiff model may also do better with <code>method = "tr_bdf2"</code>.</li>
+<li>If a run blows up or oscillates unphysically, first reduce <code>dt</code> (e.g. <code>0.01</code>); a stiff model may also do better with <code>method = "second_order"</code>.</li>
 <li>With growth diffusion switched on (<code>D_ext &gt; 0</code>), diffusion spreads individuals past the asymptotic size and they pile up against the upper edge of the grid. Set <code>w_max</code> well above the sizes you actually analyse, so that abundance at the boundary stays negligible; the default <code>1.5 * w_inf</code> is usually enough, but raise it if <code>D_ext</code> is large.</li>
 <li>
 <code>t_save</code> controls output resolution, not accuracy — the model always steps at <code>dt</code> internally.</li>

@@ -95,8 +95,8 @@ summary(NS_params)
 #> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> An object of class "MizerParams" 
 #> mizer version: 3.0.0.9003
-#> Created: 2021-09-03 20:29:38
-#> Modified: 2026-06-24 13:50:03
+#> Created: 2021-09-03 21:29:38
+#> Modified: 2026-06-24 14:50:03
 #> Consumer size spectrum:
 #>  minimum size:   0.001
 #>  maximum size:   39851.3
@@ -135,8 +135,8 @@ summary(NS_sim)
 #> Parameters:
 #> An object of class "MizerParams" 
 #> mizer version: 3.0.0.9003
-#> Created: 2021-09-03 20:30:02
-#> Modified: 2026-06-24 13:50:03
+#> Created: 2021-09-03 21:30:02
+#> Modified: 2026-06-24 14:50:03
 #> Consumer size spectrum:
 #>  minimum size:   0.001
 #>  maximum size:   39851.3

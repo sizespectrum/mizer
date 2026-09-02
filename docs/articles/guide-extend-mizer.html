@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,6 +76,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -222,6 +223,7 @@
 <span><span class="op">}</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"Mort"</span>, <span class="st">"seasonalMort"</span><span class="op">)</span></span></code></pre></div>
 </div>
+<p>Under the second-order time steppers your function is evaluated a second time within each step, at <code>t + dt</code> and on a predicted state, so write it as a function of the <code>t</code> it is given: one that assumes time advances once per call, or caches the last <code>t</code> it saw, gives a different trajectory under <a href="../reference/project.html"><code>project(method = "second_order")</code></a> than under the default.</p>
 <p><strong>Never let a rate jump as a function of abundance.</strong> Depending on <code>t</code> or <code>w</code> discontinuously is fine; depending on <code>n</code>, <code>n_pp</code> or <code>n_other</code> discontinuously is not. Mizer’s time steppers freeze the rates during each density update, so they cannot see a threshold being crossed within a step. A rule like <code>if (biomass &lt; threshold) effort &lt;- 0</code> gives a trajectory that keeps changing as <code>dt</code> is refined, makes <code>solver = "newton"</code> stall, and makes <a href="../reference/getStability.html"><code>getStability()</code></a> return a confident but meaningless answer — with no warning from mizer. Choosing <code>method = "tr_bdf2"</code> does not help. Give the switch a finite width instead:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
@@ -333,7 +335,7 @@
 <li>
 <strong>Build derived quantities from the rate functions, don’t re-derive them.</strong> <code><a href="../reference/getEncounter.html">getEncounter()</a></code>, <a href="../reference/getFeedingLevel.html"><code>getFeedingLevel()</code></a>, <a href="../reference/getPredRate.html"><code>getPredRate()</code></a>, <a href="../reference/getEGrowth.html"><code>getEGrowth()</code></a> already carry the right quadrature for whichever scheme the model is on. Re-deriving a rate from the species parameters is how this goes wrong.</li>
 <li>
-<strong>To go inside the encounter convolution, use <a href="../reference/encounter_kernel.html"><code>encounter_kernel()</code></a>, not <a href="../reference/setPredKernel.html"><code>pred_kernel()</code></a>.</strong> <code><a href="../reference/setPredKernel.html">pred_kernel()</a></code> returns the kernel point-sampled on the grid — right for plotting, and the form in which you <em>supply</em> a custom kernel, but not the bin-integrated coefficients the convolution consumes. Pair <code><a href="../reference/encounter_kernel.html">encounter_kernel()</a></code> with the plain point prey weight <code>params@w_full * params@dw_full</code>, which is a normalisation the kernel is built to cancel, so it must not itself be bin-averaged.</li>
+<strong>To go inside the encounter convolution, use <a href="../reference/encounter_kernel.html"><code>encounter_kernel()</code></a>, not <a href="../reference/setPredKernel.html"><code>pred_kernel()</code></a>.</strong> <code><a href="../reference/setPredKernel.html">pred_kernel()</a></code> returns the kernel point-sampled on the grid — right for plotting, and the form in which you <em>supply</em> a custom kernel, but not the bin-integrated coefficients the convolution consumes. Pair <code><a href="../reference/encounter_kernel.html">encounter_kernel()</a></code> with the plain point prey weight <code>w_full(params) * dw_full(params)</code>, which is a normalisation the kernel is built to cancel, so it must not itself be bin-averaged.</li>
 <li>
 <strong>If your setter precomputes an array from a size-dependent parameter,</strong> gate it on <code>params@second_order_w[["bin_average"]]</code> the way <a href="../reference/setExtMort.html"><code>setExtMort()</code></a> and <a href="../reference/setResource.html"><code>setResource()</code></a> do, and do the integral once at setup so projection cost is unchanged.</li>
 </ul>
@@ -390,14 +392,36 @@
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <p>Passing the component’s own abundance to <code><a href="../reference/mizerEncounter.html">mizerEncounter()</a></code> as <code>n_pp</code>, as <code>detritusEncounter()</code> does, is the trick for making a component act as an extra prey spectrum: it is then eaten through the ordinary predation kernel and shows up in <a href="../reference/getDiet.html"><code>getDiet()</code></a> without further work.</p>
-<section class="level3"><h3 id="components-and-the-steady-state">Components and the steady state<a class="anchor" aria-label="anchor" href="#components-and-the-steady-state"></a>
+<section class="level3"><h3 id="components-and-the-time-stepper">Components and the time stepper<a class="anchor" aria-label="anchor" href="#components-and-the-time-stepper"></a>
+</h3>
+<p>Under the second-order time steppers — <code>project(method = "second_order")</code>, and the superseded <code>"predictor_corrector"</code>, which behaves the same way here — a <code>dynamics_fun</code> is called <strong>twice per time step</strong>: once as the predictor with the start-of-step rates, and once as the corrector with the midpoint rates, so that the component reaches the same order of accuracy as the spectra. Both calls receive the same <code>t</code> and the same start-of-step state, and only the corrector’s return value survives. The same holds for a custom <code>resource_dynamics</code> function.</p>
+<p>The repeated <code>t</code> is deliberate: you are handed the start of the step and its length and asked for the state at the end, so both calls are advancing the same interval and the second one is simply redoing it with better rates. The rate functions, which return an instantaneous rate rather than a step, are the other case and are evaluated at <code>t</code> and then at <code>t + dt</code>.</p>
+<p>That makes purity a requirement rather than a matter of taste:</p>
+<ul>
+<li>
+<strong>Return the new state, computed from the state you were handed.</strong> Anything that instead accumulates into a store outside the function — <code>&lt;&lt;-</code>, writing into <code>other_params(params)</code>, a running total, a log file — happens twice per step and comes out wrong by a factor of two, while looking correct under the default <code>"euler"</code>.</li>
+<li>
+<strong>Take the rates from the <code>rates</code> argument.</strong> Recomputing them from <code>n</code> hands the corrector the start-of-step rates a second time, which quietly drops the run back to first order rather than failing.</li>
+</ul>
+<p><code>detritusDynamics()</code> above satisfies both: it reads the pool out of <code>n_other</code> and the predation rate out of <code>rates</code>, and returns the new pool size.</p>
+<p>What the corrector buys you is part of the <strong>coupling to the rest of the model</strong>, and it is worth knowing exactly how much: five entries of the rate list are replaced by their midpoint values — <code>e_growth</code>, <code>mort</code>, <code>diffusion</code>, <code>rdd</code> and <code>resource_mort</code>, the ones the consumer and resource steppers consume. Every other entry, <code>encounter</code>, <code>feeding_level</code>, <code>pred_rate</code>, <code>pred_mort</code>, <code>f_mort</code>, <code>e</code> and <code>rdi</code> among them, is still the start-of-step value in the corrector call. A component coupling through one of those — <code>detritusDynamics()</code> above reads <code>rates$pred_rate</code> — is first order in that coupling however carefully it integrates, and on <a href="../reference/NS_params.html"><code>NS_params</code></a> a single <code>dt = 0.1</code> step moves <code>pred_rate</code> by nearly 30%. Prefer a coupling through the five averaged rates where the choice is yours.</p>
+<p>The rest of the step is yours, because the interface asks for the new state rather than for a rate of change — mizer never evaluates your right-hand side and so cannot integrate it for you. A component written as <code>state + dt * f(state, rates)</code> is therefore first order even under <code>"second_order"</code>, however good the rates are. Two ways to be second order, both using the rates frozen at the values you were given:</p>
+<ul>
+<li>
+<strong>Solve the step exactly.</strong> For a relaxation towards a target — much the commonest shape — this is the one-liner <code>detritusDynamics()</code> uses above, and mizer’s own <a href="../reference/resource_semichemostat.html"><code>resource_semichemostat()</code></a> is the same pattern. Exact for frozen coefficients, so the only error left is the O(dt^2) in the rates themselves, and it is unconditionally stable into the bargain.</li>
+<li>
+<strong>Take an RK2 step inside your function</strong>: <code>y + dt * f(y + dt / 2 * f(y))</code>. General, and enough for anything non-linear.</li>
+</ul>
+<p>Explicit time dependence of your own goes the same way, since <code>t</code> is the start of the step in both calls: integrate the forcing across the step or evaluate it at <code>t + dt / 2</code>. None of this gains anything under the default <code>"euler"</code>, where the rates are the start-of-step ones and the step is first order whatever you do inside, but neither does it cost anything there.</p>
+<p>Test any new component under <code>method = "second_order"</code> as well as the default; halving <code>dt</code> should then move the answer by roughly a quarter rather than a half.</p>
+</section><section class="level3"><h3 id="components-and-the-steady-state">Components and the steady state<a class="anchor" aria-label="anchor" href="#components-and-the-steady-state"></a>
 </h3>
 <p>A component you give a <code>dynamics_fun</code> is outside mizer’s steady-state machinery, in both directions, and a model with one needs checking accordingly:</p>
 <ul>
 <li>
 <a href="../reference/tuneSteadyState.html"><code>tuneSteadyState()</code></a>, <a href="../reference/findSteadyState.html"><code>findSteadyState(solver = "newton")</code></a> and <code><a href="../reference/getStability.html">getStability()</a></code> hold the component at its stored value and solve the consumer-resource subsystem around it. Mizer warns when it meets a component with dynamics of its own.</li>
 <li>
-<a href="../reference/isSteady.html"><code>isSteady()</code></a>, the <a href="../reference/summary.html"><code>summary()</code></a> drift line and <a href="../reference/project.html"><code>project(check_steady = TRUE)</code></a> judge that same subsystem. A component’s state can be any object at all, so mizer cannot form a biomass for it and does not fold its rate of change into the number. <strong>A model can be <code><a href="../reference/isSteady.html">isSteady()</a></code> while your component is moving.</strong>
+<a href="../reference/isSteady.html"><code>isSteady()</code></a>, the <a href="../reference/summary.html"><code>summary()</code></a> drift line and <code>project(check_steady = TRUE)</code> judge that same subsystem. A component’s state can be any object at all, so mizer cannot form a biomass for it and does not fold its rate of change into the number. <strong>A model can be <code><a href="../reference/isSteady.html">isSteady()</a></code> while your component is moving.</strong>
 </li>
 </ul>
 <p>Mizer names any component that is moving whenever it reports on the drift, and <code>attr(getSteadyResidual(params), "other")</code> holds the per-cell relative rates of change it measured, reduced by <code>max(abs(...))</code> for reporting — an overestimate whenever the component has fast cells holding almost nothing, which is why that number is reported rather than compared against a tolerance.</p>
@@ -555,7 +579,7 @@
 <li>Test <strong>both</strong> halves: that <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code> or <code><a href="../reference/setComponent.html">setComponent()</a></code> succeeds, and that the downstream function you actually care about — <code><a href="../reference/getEncounter.html">getEncounter()</a></code>, <code><a href="../reference/getDiet.html">getDiet()</a></code>, <code><a href="../reference/project.html">project()</a></code> — uses your extension as intended.</li>
 <li>After registering a custom rate, run <code><a href="../reference/project.html">project()</a></code> on a short horizon and check the affected <code>get…()</code> output looks right; write a <code>testthat</code> test that compares against a hand-computed value on a small model.</li>
 <li>If a custom rate depends on the abundances through a threshold, read <a href="discontinuous_rates.html">Discontinuous rate functions</a> before trusting any results.</li>
-<li>Once an extension is useful in more than one project, or you want to give it to someone else, make it a package: a stable namespace mizer can resolve function names in, somewhere for tests and documentation to live, and a version that gets recorded in <code>params@extensions</code>. Everything that only matters once you share — S3 extension classes, <code><a href="../reference/recordExtension.html">recordExtension()</a></code>, dispatch via <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code>, bundled data objects, reporting through <code>info_level</code>, and upgrading objects saved by an earlier version — is in the <a href="guide-create-extension-package.html">guide to creating a mizer extension package</a>. For the other side of it, loading and saving a model that needs an extension package, see the <a href="guide-use-extension-packages.html">guide to using mizer extension packages</a>.</li>
+<li>Once an extension is useful in more than one project, or you want to give it to someone else, make it a package: a stable namespace mizer can resolve function names in, somewhere for tests and documentation to live, and a version that gets recorded in the model metadata. Everything that only matters once you share — S3 extension classes, <code><a href="../reference/recordExtension.html">recordExtension()</a></code>, dispatch via <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code>, bundled data objects, reporting through <code>info_level</code>, and upgrading objects saved by an earlier version — is in the <a href="guide-create-extension-package.html">guide to creating a mizer extension package</a>. For the other side of it, loading and saving a model that needs an extension package, see the <a href="guide-use-extension-packages.html">guide to using mizer extension packages</a>.</li>
 <li>For a larger design, it is worth discussing the interface on the <a href="https://github.com/sizespectrum/mizer/issues" class="external-link">mizer issue tracker</a> before committing to it.</li>
 </ul></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {

@@ -37,7 +37,7 @@ str(N(NS_sim))
 #>  - attr(*, "units")= chr "1/g"
 #>  - attr(*, "type")= chr "density"
 #>  - attr(*, "representation")= chr "point"
-#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 0 slots
+#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
 str(NResource(NS_sim))
 #>  'ArrayTimeByResourceBySize' num [1:44, 1:218] 4.88e+35 4.88e+35 4.88e+35 4.88e+35 4.88e+35 ...
 #>  - attr(*, "dimnames")=List of 2
@@ -46,5 +46,5 @@ str(NResource(NS_sim))
 #>  - attr(*, "value_name")= chr "Number density"
 #>  - attr(*, "units")= chr "1/g"
 #>  - attr(*, "type")= chr "density"
-#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 0 slots
+#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
 ```

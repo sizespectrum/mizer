@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,6 +76,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -317,7 +318,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/saveParams.html">saveParams</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"cod_model.rds"</span><span class="op">)</span>    <span class="co"># write a MizerParams to disk</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/saveParams.html">readParams</a></span><span class="op">(</span><span class="st">"cod_model.rds"</span><span class="op">)</span>  <span class="co"># read it back</span></span></code></pre></div>
 </div>
-<p><a href="../reference/saveParams.html"><code>saveSim()</code></a> and <a href="../reference/saveParams.html"><code>readSim()</code></a> do the same for a <a href="../reference/MizerSim.html"><code>MizerSim</code></a> object. If the model needs an extension package, these are the only safe way to persist it — a bare <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS()</a></code> silently strips the extension class. See the <a href="guide-use-extension-packages.html">guide to using mizer extension packages</a>.</p>
+<p><a href="../reference/saveParams.html"><code>saveSim()</code></a> and <a href="../reference/saveParams.html"><code>readSim()</code></a> do the same for a <a href="../reference/MizerSim.html"><code>MizerSim</code></a> object. If the model needs an extension package, these helpers preserve its full S3 class while also checking and loading the packages it needs. Bare <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>/<code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS()</a></code> retain the class too, but skip those checks, upgrades and package loading. See the <a href="guide-use-extension-packages.html">guide to using mizer extension packages</a>.</p>
 <p>Before saving, record who made the model and what it is for with <a href="../reference/setMetadata.html"><code>setMetadata()</code></a>. This matters most when you share the model with others, because the metadata travels with the object:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">

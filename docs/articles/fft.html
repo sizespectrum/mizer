@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,6 +69,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -298,14 +299,17 @@ already carries <span class="math inline">\(dw =
 convolution output sits at the <strong>prey</strong> node <span class="math inline">\(w_p\)</span>, but predation mortality enters the
 finite-volume update as a sink integrated against the prey density over
 the prey bin, <span class="math inline">\(\tfrac{1}{\Delta
-w_p}\int_{\text{bin}}\mu_{\mathrm{pred}}(w_p)\, N(w_p)\,dw_p\)</span>.
-So, exactly as for external mortality and fishing, the rate that enters
-the mortality wants the <strong>prey-bin average</strong> of <span class="math inline">\(P_j(w_p)\)</span>, not its value at the prey node.
-Bin-averaging the convolution output over the prey bin is a trapezoid
-fold of the (reversed) kernel over adjacent offsets, <span class="math display">\[
+w_p}\int_{\text{bin}}\mu_{\mathrm{pred}}(w_p)\,
+N(w_p)\,dw_p\)</span>. So, exactly as for external mortality and
+fishing, the rate that enters the mortality wants the <strong>prey-bin
+average</strong> of <span class="math inline">\(P_j(w_p)\)</span>, not
+its value at the prey node. Bin-averaging the convolution output over
+the prey bin is a trapezoid fold of the (reversed) kernel over adjacent
+offsets, <span class="math display">\[
 \bar\Phi^{P}_i[m] = \tfrac12\bigl(\Phi^{P}_i[m] + \Phi^{P}_i[m-1]\bigr),
 \]</span> because <span class="math inline">\(\tfrac12\bigl(P_j[w_{p}] +
-P_j[\beta w_{p}]\bigr) = \sum_n \tfrac12\bigl(\Phi^P_i[n-j] +
+P_j[\beta w_{p}]\bigr)
+= \sum_n \tfrac12\bigl(\Phi^P_i[n-j] +
 \Phi^P_i[n-j-1]\bigr)\,Q_i[n]\)</span>. Storing <span class="math inline">\(\mathrm{fft}(\bar\Phi^{P})\)</span> as
 <code>ft_pred_kernel_p</code> makes <code><a href="../reference/getPredRate.html">getPredRate()</a></code> come out
 already prey-bin-averaged, so both <code><a href="../reference/mizerPredMort.html">mizerPredMort()</a></code> and

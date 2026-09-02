@@ -24,13 +24,13 @@ Source:
 [`DESCRIPTION`](https://github.com/sizespectrum/mizer/blob/HEAD/DESCRIPTION)
 
 Delius G, Scott F, Blanchard J, Andersen K (2026). *mizer: Dynamic
-Multi-Species Size Spectrum Modelling*. R package version 3.3.1,
+Multi-Species Size Spectrum Modelling*. R package version 3.4.0,
 <https://sizespectrum.org/mizer/>.
 
     @Manual{,
       title = {mizer: Dynamic Multi-Species Size Spectrum Modelling},
       author = {Gustav Delius and Finlay Scott and Julia Blanchard and Ken Andersen},
       year = {2026},
-      note = {R package version 3.3.1},
+      note = {R package version 3.4.0},
       url = {https://sizespectrum.org/mizer/},
     }

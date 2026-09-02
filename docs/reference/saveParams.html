@@ -17,7 +17,7 @@ lifecycle for MizerSim objects."><meta property="og:image" content="https://size
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,6 +52,7 @@ lifecycle for MizerSim objects."><meta property="og:image" content="https://size
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -141,6 +142,8 @@ object.</p>
 extra work to make the saved file more robust and more portable, so you
 should always prefer them over calling <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>/<code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS()</a></code> directly on a
 mizer object.</p>
+<p>The complete S3 class vector is stored with the object, including any
+extension classes.</p>
     </div>
     <div class="section level2">
     <h2 id="what-saveparams-and-savesim-do-beyond-saverds-">What <code>saveParams()</code> and <code>saveSim()</code> do beyond <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code><a class="anchor" aria-label="anchor" href="#what-saveparams-and-savesim-do-beyond-saverds-"></a></h2>
@@ -149,11 +152,6 @@ mizer object.</p>
 <ul><li><p>They <strong>validate</strong> the object before writing it, so a corrupted or
 inconsistent object is caught at save time rather than when you next try
 to use it.</p></li>
-<li><p>They <strong>strip any extension class</strong> and save the object as a plain base
-mizer object (recording which extension packages it needs in a slot).
-This means the file can be read back even in an R session where the
-extension packages that defined those S4 classes are not loaded, and it
-protects the file against future changes to those extension classes.</p></li>
 <li><p>They <strong>check that the required extension packages are installed</strong> and stop
 with an informative error if they are not, so you do not save a file that
 you would be unable to read back.</p></li>
@@ -173,10 +171,12 @@ current structure (see <code><a href="upgradeParams.html">upgradeParams()</a></c
 still load correctly.</p></li>
 <li><p>They <strong>load the extension packages</strong> that the model needs and,
 optionally, install any that are missing (see <code>install_extensions</code>),
-before restoring the object's extension class.</p></li>
-<li><p>They <strong>coerce the object back to its extension class</strong> and revalidate it,
-reversing the class-stripping done at save time so you get back an object
-of the same class you saved.</p></li>
+before revalidating the object.</p></li>
+<li><p><code>readParams()</code> <strong>reconciles the species parameters</strong>, see
+<code><a href="reconcileSpeciesParams.html">reconcileSpeciesParams()</a></code>. A model may hold species parameter values that
+were written straight into the <code>species_params</code> slot and that mizer would
+therefore undo at the next recalculation. Those values are recorded as
+given species parameters instead, so that they survive.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -199,7 +199,7 @@ of the same class you saved.</p></li>
 <span class="r-in"><span><span class="fu">saveSim</span><span class="op">(</span><span class="va">NS_sim</span>, file <span class="op">=</span> <span class="va">tmp2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu">readSim</span><span class="op">(</span><span class="va">tmp2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">sim</span>, <span class="va">NS_sim</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

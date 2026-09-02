@@ -158,6 +158,7 @@ parameters for a multispecies North Sea model. The location of the file
 can be found by running
 
 ``` r
+
 params_location <- system.file("extdata", "NS_species_params.csv",
                                package = "mizer")
 ```
@@ -166,6 +167,7 @@ This file can be opened with most spreadsheets or a text editor for you
 to inspect. This can be loaded into R with
 
 ``` r
+
 species_params <- read.csv(params_location)
 ```
 
@@ -173,6 +175,7 @@ This reads the .csv file into R in the form of a data.frame. You can
 check this with the `class`:
 
 ``` r
+
 class(species_params)
 ```
 
@@ -181,6 +184,7 @@ class(species_params)
 Let’s have a look at the data frame:
 
 ``` r
+
 species_params
 ```
 
@@ -239,6 +243,7 @@ data.frame into the
 constructor method:
 
 ``` r
+
 params <- newMultispeciesParams(species_params)
 ```
 
@@ -254,6 +259,7 @@ params <- newMultispeciesParams(species_params)
 We have just created a `MizerParams` object:
 
 ``` r
+
 class(params)
 ```
 
@@ -264,6 +270,7 @@ frame that we provided. We can look at it with
 [`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md):
 
 ``` r
+
 species_params(params)
 ```
 
@@ -297,6 +304,7 @@ did not provide a gear parameter data frame, the MizerParams object has
 one that we can access with
 
 ``` r
+
 gear_params(params)
 ```
 
@@ -331,13 +339,14 @@ method for `MizerParams` objects which prints a useful summary of the
 model parameters:
 
 ``` r
+
 summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.3.1
-    ## Created: 2026-08-28 14:50:37
-    ## Modified: 2026-08-28 14:50:38
+    ## mizer version: 3.4.0
+    ## Created: 2026-09-02 10:04:24
+    ## Modified: 2026-09-02 10:04:24
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066
@@ -377,6 +386,7 @@ controlled by the arguments `no_w`, `min_w` and `max_w` respectively.
 For example, if we wanted 200 size classes in the model we would use:
 
 ``` r
+
 params200 <- newMultispeciesParams(species_params, no_w = 200)
 summary(params200)
 ```
@@ -406,6 +416,7 @@ with each other, i.e. the species are spread homogeneously across the
 model area.
 
 ``` r
+
 interaction_matrix(params)
 ```
 
@@ -447,6 +458,7 @@ An example interaction matrix for the North Sea has been included in
 running:
 
 ``` r
+
 inter_location <- system.file("extdata", "NS_interaction.csv",
                               package = "mizer")
 ```
@@ -460,6 +472,7 @@ row names. We therefore use an additional argument to the
 `row.names`.
 
 ``` r
+
 inter <- read.csv(inter_location, row.names = 1)
 inter
 ```
@@ -496,6 +509,7 @@ We can set the interaction matrix in our existing MizerParams object
 [`interaction_matrix()`](https://sizespectrum.org/mizer/reference/setInteraction.md):
 
 ``` r
+
 interaction_matrix(params) <- inter
 ```
 
@@ -508,6 +522,7 @@ scratch with our interaction matrix by passing it to
 [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md):
 
 ``` r
+
 params_new <- newMultispeciesParams(species_params, interaction = inter)
 ```
 
@@ -535,6 +550,7 @@ In the above example, each species is caught by the same gear (named
 provided.
 
 ``` r
+
 gear_params(params)
 ```
 
@@ -560,6 +576,7 @@ combinations of species. We can achieve that by only changing the `gear`
 column in the `gear_params` data frame.
 
 ``` r
+
 gear_params(params)$gear <- c("Industrial", "Industrial", "Industrial",
                               "Pelagic", "Beam", "Otter",
                               "Beam", "Otter", "Beam",
@@ -571,13 +588,14 @@ You can see the result by calling
 the `params` object.
 
 ``` r
+
 summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.3.1
-    ## Created: 2026-08-28 14:50:37
-    ## Modified: 2026-08-28 14:50:39
+    ## mizer version: 3.4.0
+    ## Created: 2026-09-02 10:04:24
+    ## Modified: 2026-09-02 10:04:26
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066

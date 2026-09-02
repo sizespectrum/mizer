@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,6 +76,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -138,7 +139,7 @@
 <li>
 <strong>Load the extension packages with <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> before you build, read or use a model that needs them.</strong> The chain is rebuilt in load order every session.</li>
 <li>
-<strong>Persist models with <a href="../reference/saveParams.html"><code>saveParams()</code></a>/<a href="../reference/saveParams.html"><code>readParams()</code></a> (or <a href="../reference/saveParams.html"><code>saveSim()</code></a>/<a href="../reference/saveParams.html"><code>readSim()</code></a>), never with <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>/<code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS()</a></code>.</strong> The file on disk deliberately holds a <em>base-class</em> object; the extension class is restored on the way back in by <code><a href="../reference/saveParams.html">readParams()</a></code>. So a bare <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS()</a></code> of a perfectly good file returns an object whose extension methods are no longer called — the model quietly gives base-mizer answers instead of failing.</li>
+<strong>Persist models with <a href="../reference/saveParams.html"><code>saveParams()</code></a>/<a href="../reference/saveParams.html"><code>readParams()</code></a> (or <a href="../reference/saveParams.html"><code>saveSim()</code></a>/<a href="../reference/saveParams.html"><code>readSim()</code></a>) rather than bare <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>/<code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS()</a></code>.</strong> The S3 class is preserved either way, but mizer’s helpers also validate and upgrade the object, check its custom functions, and load any extension packages it needs. A bare <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS()</a></code> does none of that, so the class can be present while its extension methods are not registered in the session.</li>
 </ol>
 <hr>
 <section class="level2"><h2 id="available-extension-packages">Available extension packages<a class="anchor" aria-label="anchor" href="#available-extension-packages"></a>
@@ -165,12 +166,12 @@
 <li>
 <strong><a href="https://github.com/gustavdelius/mizerStomach" class="external-link">mizerStomach</a></strong> — Helps determine predator size-selectivity functions by fitting them to stomach content data.</li>
 </ul>
-<hr></section><section class="level2"><h2 id="the-extension-list-and-s3-dispatch">The extension list and S3 dispatch<a class="anchor" aria-label="anchor" href="#the-extension-list-and-s3-dispatch"></a>
+<hr></section><section class="level2"><h2 id="the-extension-record-and-s3-dispatch">The extension record and S3 dispatch<a class="anchor" aria-label="anchor" href="#the-extension-record-and-s3-dispatch"></a>
 </h2>
-<p>When an extension package creates or modifies a model, it stamps itself on the model object’s <code>extensions</code> slot:</p>
+<p>When an extension package creates or modifies a model, it stamps itself on the model’s metadata. Inspect that record through the public metadata accessor:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">params</span><span class="op">@</span><span class="va">extensions</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/setMetadata.html">getMetadata</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">extensions</span></span></code></pre></div>
 </div>
 <p>The entries record each attached extension, its installation specification, and its version stamp. The model’s S3 class vector (e.g. <code>c("mizerShelf", "MizerParams")</code>) determines how R dispatches method calls. When you call generic functions like <a href="../reference/getBiomass.html"><code>getBiomass(params)</code></a> or <a href="../reference/mizerRates.html"><code>projectRates(params)</code></a>, R executes the extension’s method first. Calling <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> in that method passes control down to the next extension in the class vector, and finally to base mizer.</p>
 <hr></section><section class="level2"><h2 id="combining-multiple-extensions">Combining multiple extensions<a class="anchor" aria-label="anchor" href="#combining-multiple-extensions"></a>
@@ -185,17 +186,17 @@
 </div>
 <hr></section><section class="level2"><h2 id="params-objects-and-the-extension-chain">Params objects and the extension chain<a class="anchor" aria-label="anchor" href="#params-objects-and-the-extension-chain"></a>
 </h2>
-<p>When an extension package creates a <a href="../reference/MizerParams.html"><code>MizerParams</code></a> object (for example <code>mizerShelf::newDetritusCarrionParams()</code>), it records the extension packages actually applied to that object in the <code>extensions</code> slot:</p>
+<p>When an extension package creates a <a href="../reference/MizerParams.html"><code>MizerParams</code></a> object (for example <code>mizerShelf::newDetritusCarrionParams()</code>), it records the extension packages actually applied to that object in its metadata:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">params</span><span class="op">@</span><span class="va">extensions</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/setMetadata.html">getMetadata</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">extensions</span></span></code></pre></div>
 </div>
 <p>That record serves two purposes:</p>
 <ol type="1">
 <li>
 <strong>Reproducibility.</strong> It says which extension packages built the model, the installation requirement for each, and the package version whose object layout each component conforms to.</li>
 <li>
-<strong>Class restoration.</strong> On reload, mizer uses it to promote the object back to the correct S3 class, so that functions like <code><a href="../reference/getBiomass.html">getBiomass()</a></code> keep dispatching to the right extension methods.</li>
+<strong>Class consistency.</strong> Mizer uses it to construct and validate the S3 class vector, so that functions like <code><a href="../reference/getBiomass.html">getBiomass()</a></code> dispatch to the right extension methods. This also repairs legacy files in which the extension classes were not stored.</li>
 </ol>
 <section class="level3"><h3 id="saving-and-loading">Saving and loading<a class="anchor" aria-label="anchor" href="#saving-and-loading"></a>
 </h3>
@@ -205,7 +206,7 @@
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/saveParams.html">readParams</a></span><span class="op">(</span><span class="st">"my_model.rds"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Before saving, <code><a href="../reference/saveParams.html">saveParams()</a></code> warns if the model relies on custom functions defined only in your R session — a custom rate function, selectivity function or predation kernel written in a script. Those functions are not stored in the file, so the script has to travel with the <code>.rds</code>.</p>
-<p><code><a href="../reference/saveParams.html">readParams()</a></code> upgrades the object if it was written by an older mizer, loads the required extension packages, and promotes the object to the correct S3 class. As long as the required packages are installed, this is seamless; if one is missing, <code><a href="../reference/saveParams.html">readParams()</a></code> stops with an error naming it.</p>
+<p><code><a href="../reference/saveParams.html">saveParams()</a></code> stores the object’s complete S3 class vector. <code><a href="../reference/saveParams.html">readParams()</a></code> upgrades the object if it was written by an older mizer, loads the required extension packages, and validates that class vector against the recorded extension chain. As long as the required packages are installed, this is seamless; if one is missing, <code><a href="../reference/saveParams.html">readParams()</a></code> stops with an error naming it.</p>
 <p><a href="../reference/MizerSim.html"><code>MizerSim</code></a> objects carry their params object inside them, so the extensions are embedded there too. Use <code><a href="../reference/saveParams.html">saveSim()</a></code> and <code><a href="../reference/saveParams.html">readSim()</a></code>, which do the same loading and coercion:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
@@ -216,7 +217,7 @@
 <p>For the metadata that should accompany a model you intend to share (<a href="../reference/setMetadata.html"><code>setMetadata()</code></a>), see the <a href="guide-build-model.html">guide to building a mizer model</a>.</p>
 <hr></section></section><section class="level2"><h2 id="sharing-models-with-collaborators">Sharing models with collaborators<a class="anchor" aria-label="anchor" href="#sharing-models-with-collaborators"></a>
 </h2>
-<p>A collaborator needs the same extension packages installed. <code><a href="../reference/saveParams.html">readParams()</a></code> and <code><a href="../reference/saveParams.html">readSim()</a></code> tell them which are missing. To install them automatically from the specifications stored in <code>params@extensions</code>:</p>
+<p>A collaborator needs the same extension packages installed. <code><a href="../reference/saveParams.html">readParams()</a></code> and <code><a href="../reference/saveParams.html">readSim()</a></code> tell them which are missing. To install them automatically from the specifications stored in the model’s extension metadata:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/saveParams.html">readParams</a></span><span class="op">(</span><span class="st">"my_model.rds"</span>, install_extensions <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -230,7 +231,7 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span></span>
 <span><span class="va">NWMed_params</span>   <span class="co"># already has the correct extension class -- no extra steps needed</span></span></code></pre></div>
 </div>
-<p>An object from an older package that does not behave as expected can be repaired with <a href="../reference/coerceToExtensionClass.html"><code>coerceToExtensionClass()</code></a>.</p>
+<p>If an object from an older package does not behave as expected, load that package and repair the object with <a href="../reference/validParams.html"><code>validParams()</code></a> (or <a href="../reference/validSim.html"><code>validSim()</code></a> for a simulation). Direct calls to <a href="../reference/coerceToExtensionClass.html"><code>coerceToExtensionClass()</code></a> and <a href="../reference/recordExtension.html"><code>recordExtension()</code></a> are for extension package authors, not model users.</p>
 <hr></section><section class="level2"><h2 id="common-scenarios">Common scenarios<a class="anchor" aria-label="anchor" href="#common-scenarios"></a>
 </h2>
 <section class="level3"><h3 id="a-model-fails-to-load-for-want-of-a-package">A model fails to load for want of a package<a class="anchor" aria-label="anchor" href="#a-model-fails-to-load-for-want-of-a-package"></a>
@@ -242,7 +243,7 @@
 </h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">params</span><span class="op">@</span><span class="va">extensions</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/setMetadata.html">getMetadata</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">extensions</span></span></code></pre></div>
 </div>
 <p>The names are the extension identifiers. Current entries each contain a <code>requirement</code> (where or at what minimum version to install the package) and a <code>version</code> stamp (the package version whose object layout the component conforms to). Legacy objects may still show the older named-character-vector form; mizer accepts both.</p>
 </section><section class="level3"><h3 id="making-a-script-reproducible">Making a script reproducible<a class="anchor" aria-label="anchor" href="#making-a-script-reproducible"></a>
@@ -254,9 +255,6 @@
 <li>The <a href="guide-extend-mizer.html">guide to extending mizer</a> — the mechanisms an extension is built from.</li>
 <li>
 <a href="guide-create-extension-package.html">Creating a mizer extension package</a> — how to package your own extension and make it composable with others.</li>
-<li>
-<code><a href="../reference/coerceToExtensionClass.html">?coerceToExtensionClass</a></code>, <code><a href="../reference/recordExtension.html">?recordExtension</a></code>
-</li>
 <li>
 <code><a href="../reference/saveParams.html">?saveParams</a></code>, <code><a href="../reference/saveParams.html">?readParams</a></code>, <code><a href="../reference/saveParams.html">?saveSim</a></code>, <code><a href="../reference/saveParams.html">?readSim</a></code>
 </li>

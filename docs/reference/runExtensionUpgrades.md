@@ -1,11 +1,10 @@
 # Run the registered extension upgrade methods on an object
 
-For each extension recorded in the object's `@extensions` slot
-(processed innermost-first) whose installed package version is newer
-than the recorded stamp (or whose stamp is missing), calls the
-extension's `upgrade` method if one is registered, then records the
-installed version as the new stamp. The core mizer upgrade is *not* run
-here; see
+For each extension recorded on the object (processed innermost-first)
+whose installed package version is newer than the recorded stamp (or
+whose stamp is missing), calls the extension's `upgrade` method if one
+is registered, then records the installed version as the new stamp. The
+core mizer upgrade is *not* run here; see
 [`upgrade.MizerParams()`](https://sizespectrum.org/mizer/reference/upgrade.MizerParams.md).
 
 ## Usage

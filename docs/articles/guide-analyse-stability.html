@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,6 +76,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -162,7 +163,7 @@
 <a class="anchor" aria-label="anchor" href="#is-mizers-time-step-stable-getdiscretestability"></a>
 </h2>
 <p>A different question, and the one to ask when a simulation disagrees with <code><a href="../reference/getStability.html">getStability()</a></code>. <code>getDiscreteStability(params, dt = 1)</code> linearises the one-step map that <a href="../reference/project.html"><code>project(method = "euler")</code></a> takes at that step size and returns its <code>discrete_eigenvalues</code> and <code>spectral_radius</code>. Below 1 means the <em>numerical scheme</em> does not amplify perturbations at that <code>dt</code>. It is that step and not an approximation to it: the same transport coefficients, the same Thomas solver and the model’s own <a href="../reference/setResource.html"><code>resource_dynamics</code></a>.</p>
-<p>The two verdicts can differ, and that is the point: the implicit transport solve damps oscillations artificially, so an unstable steady state can have a spectral radius below 1 at a large <code>dt</code> and a simulation will then settle onto a state the model does not hold. If <code><a href="../reference/getStability.html">getStability()</a></code> says unstable but the simulation goes flat, check <code><a href="../reference/getDiscreteStability.html">getDiscreteStability()</a></code> at the <code>dt</code> you are projecting with, and reduce <code>dt</code> (or use <code>method = "tr_bdf2"</code>).</p>
+<p>The two verdicts can differ, and that is the point: the implicit transport solve damps oscillations artificially, so an unstable steady state can have a spectral radius below 1 at a large <code>dt</code> and a simulation will then settle onto a state the model does not hold. If <code><a href="../reference/getStability.html">getStability()</a></code> says unstable but the simulation goes flat, check <code><a href="../reference/getDiscreteStability.html">getDiscreteStability()</a></code> at the <code>dt</code> you are projecting with, and reduce <code>dt</code> (or use <code>method = "second_order"</code>).</p>
 <p>The discrete eigenvalues cannot be converted into continuous ones by any exact algebraic relation, because mizer’s step is not fully implicit: the rates are evaluated at the state at the start of the step and only the transport solve is implicit. That is why <code><a href="../reference/getStability.html">getStability()</a></code> differentiates the rates of change directly instead of inverting the one-step map.</p>
 <hr></section><section class="level2"><h2 id="visualising-the-oscillation-getoscillationmodesim">Visualising the oscillation — <code>getOscillationModeSim()</code>
 <a class="anchor" aria-label="anchor" href="#visualising-the-oscillation-getoscillationmodesim"></a>
@@ -198,7 +199,7 @@
 <hr></section><section class="level2"><h2 id="numerical-caveat">Numerical caveat<a class="anchor" aria-label="anchor" href="#numerical-caveat"></a>
 </h2>
 <p><code><a href="../reference/getStability.html">getStability()</a></code> involves no time step, so the temporal numerical diffusion of the implicit solver does not enter its answer at all. But the <em>spatial</em> numerical diffusion from the default first-order upwind scheme does: it is part of the semi-discretised model that the eigenvalues describe. A real limit cycle can still be damped to a flat line by the spatial scheme alone!</p>
-<p>To accurately simulate the fully nonlinear oscillation and confirm a stable cycle, build the model with <code>second_order_w = TRUE</code> and project with <code>method = "tr_bdf2"</code>. See the <a href="guide-run-simulation.html">guide to running a mizer simulation</a>.</p>
+<p>To accurately simulate the fully nonlinear oscillation and confirm a stable cycle, build the model with <code>second_order_w = TRUE</code> and project with <code>method = "second_order"</code>. See the <a href="guide-run-simulation.html">guide to running a mizer simulation</a>.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);

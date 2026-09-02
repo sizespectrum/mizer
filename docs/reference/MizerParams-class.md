@@ -7,13 +7,6 @@ simulations are performed using
 function on objects of this class. As a user you should never need to
 access the slots inside a `MizerParams` object directly.
 
-## Usage
-
-``` r
-# S3 method for class 'MizerParams'
-object@name
-```
-
 ## Details
 
 The MizerParams class is fairly complex with a large number of slots,

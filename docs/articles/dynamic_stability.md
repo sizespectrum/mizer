@@ -129,6 +129,7 @@ differentiates \\F\\ directly instead.
 Let’s load mizer and start with the standard North Sea model.
 
 ``` r
+
 suppressMessages(devtools::load_all("..", quiet = TRUE))
 params <- NS_params
 ```
@@ -153,6 +154,7 @@ because we want the steady state of the model as it stands, with the
 reproduction parameters left alone.
 
 ``` r
+
 params_f15 <- findSteadyState(params, effort = 1.5, solver = "newton")
 ```
 
@@ -162,6 +164,7 @@ Is this steady state stable? We compute its stability metrics with
 [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md).
 
 ``` r
+
 stab <- getStability(params_f15, effort = 1.5)
 stab$max_real_part
 stab$stable
@@ -185,6 +188,7 @@ the one-step map; converting that into a growth rate per year,
 `max_real_part`:
 
 ``` r
+
 growth_rate <- function(dt) {
     rho <- getDiscreteStability(params_f15, effort = 1.5, dt = dt)$spectral_radius
     log(rho) / dt
@@ -214,6 +218,7 @@ To see *how* it is unstable, we look at the dominant eigenvalue (the one
 with the largest real part).
 
 ``` r
+
 stab$eigenvalues[1]
 #> [1] 0.07095636+1.273383i
 ```
@@ -229,6 +234,7 @@ of this oscillation is set by the imaginary part of the eigenvalue,
 which mizer reports as `dominant_period`:
 
 ``` r
+
 stab$dominant_period
 #> [1] 4.934245
 ```
@@ -251,6 +257,7 @@ full `MizerSim` object covering the run, which is what we want here —
 the approach to the cycle is the thing to look at.
 
 ``` r
+
 sim_cycle <- projectUntilSettled(params, effort = 1.5, t_max = 200,
                                  t_check = 0.2, t_save = 0.2,
                                  method = "tr_bdf2")
@@ -267,7 +274,7 @@ attr(sim_cycle, "convergence")
     #> [1] "limit_cycle"
     #> 
     #> $distance
-    #> [1] 6.144612
+    #> [1] 6.131103
     #> 
     #> $residual
     #> [1] 0.3030617
@@ -280,6 +287,9 @@ attr(sim_cycle, "convergence")
     #> 
     #> $amplitude
     #> [1] 0.6581569
+    #> 
+    #> $extinct
+    #> character(0)
 
 [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
 correctly identifies the attractor as a limit cycle with a period of
@@ -291,6 +301,7 @@ actually stopped drifting and not merely because the distance function
 went quiet:
 
 ``` r
+
 attr(projectUntilSettled(params, t_max = 100), "convergence")$attractor
 ```
 
@@ -300,6 +311,7 @@ Because it is a standard `MizerSim` object, we can plot the emergence of
 the limit cycle directly:
 
 ``` r
+
 plotBiomass(sim_cycle)
 ```
 
@@ -328,6 +340,7 @@ resource carries the phase the mode gives it: on this model it leads the
 total fish biomass by about 0.3 years of the 5.12-year period.
 
 ``` r
+
 lcs <- getOscillationModeSim(params_f15, amplitude = 0.1)
 ```
 
@@ -336,6 +349,7 @@ mizer plotting functions can be used to explore it. For example, the
 biomass over one period:
 
 ``` r
+
 plotBiomass(lcs)
 ```
 
@@ -358,6 +372,7 @@ of Saithe, the species with the largest response.
 supplies the function that applies each effort to the model.
 
 ``` r
+
 scan <- scanModel(params, scan_values = seq(1.0, 1.5, 0.05),
                   set_func = scanEffort(), value_func = getBiomass,
                   species = "Saithe", method = "tr_bdf2",
@@ -374,6 +389,7 @@ value reached on the attractor, so a fixed point appears as a single
 line and a limit cycle as the band between its extremes:
 
 ``` r
+
 plot(scan, style = "envelope", log_y = FALSE)
 ```
 
@@ -390,6 +406,7 @@ The attractor found at each effort is recorded in the scan, along with
 the period of the cycle where there is one:
 
 ``` r
+
 data.frame(effort = scan[[1]], attractor = scan$attractor,
            period = round(scan$period, 1))
 #>    effort   attractor period
@@ -417,6 +434,7 @@ its `ymin` and `ymax` columns, so the relative amplitude is one
 subtraction away:
 
 ``` r
+
 effort <- scan[[1]]
 amplitude <- (scan$ymax - scan$ymin) / scan[[2]]
 cycles <- scan$attractor == "limit_cycle"
@@ -442,6 +460,7 @@ which works on either side of the bifurcation, since it does not care
 about stability — and ask where the leading real part changes sign.
 
 ``` r
+
 efforts <- c(1.00, 1.05, 1.10, 1.15)
 max_real <- numeric(length(efforts))
 p_e <- params
@@ -478,6 +497,7 @@ Repeat the run of the previous section with the default step. The
 trajectory still settles on a limit cycle — but not on the model’s one:
 
 ``` r
+
 sim_euler <- projectUntilSettled(params, effort = 1.5, t_max = 200,
                                  t_check = 0.2, t_save = 0.2,
                                  method = "euler")
@@ -503,6 +523,7 @@ altogether. We nudge the fixed point by 5% and project twice, changing
 nothing but the method:
 
 ``` r
+
 params_nudged <- params_f15
 initialN(params_nudged) <- initialN(params_f15) * 1.05
 run <- function(method) {
@@ -534,6 +555,7 @@ run reports `attractor = "fixed_point"`, with a residual drift small
 enough that mizer’s own test calls the state settled:
 
 ``` r
+
 isSteady(finalParams(sim_nudged_euler))
 ```
 

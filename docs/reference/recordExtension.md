@@ -1,6 +1,6 @@
 # Record an extension and its version stamp on a mizer object
 
-Writes an entry for `name` into the object's `$extensions` element,
+Writes an entry for `name` into the object's extension metadata,
 converting it to the versioned list form. Existing entries (and their
 version stamps) are preserved, keeping their position in the chain. A
 genuinely new entry is prepended to the front of the list.
@@ -33,7 +33,14 @@ recordExtension(params, name, version = NULL, requirement = NULL)
 
 ## Value
 
-The `params` object with the updated `$extensions` element.
+The `params` object with updated extension metadata.
+
+## Details
+
+This is infrastructure for extension package authors. An extension
+constructor normally calls `recordExtension()` and then
+[`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md).
+Ordinary model users do not need either call.
 
 ## See also
 

@@ -109,6 +109,7 @@ deeper understanding of size spectrum modelling.
 First, load some required packages with the following commands:
 
 ``` r
+
 library(mizer)
 library(dplyr)
 library(ggplot2)
@@ -135,6 +136,7 @@ those arguments. We will only specify the power-law exponent of the
 background community
 
 ``` r
+
 params <- newSingleSpeciesParams(lambda = 2.05)
 ```
 
@@ -167,6 +169,7 @@ We can plot the size spectrum with the
 function.
 
 ``` r
+
 plotSpectra(params, biomass = FALSE)
 ```
 
@@ -211,6 +214,7 @@ to be fewer fish in larger size classes.
 Solution
 
 ``` r
+
 params2 <- newSingleSpeciesParams(lambda = 2.1)
 plotSpectra(params2, biomass = FALSE)
 ```
@@ -228,6 +232,7 @@ condition in the params object and we can access them with the
 function. Let us assign this to a variable `n`:
 
 ``` r
+
 n <- initialN(params)
 ```
 
@@ -240,6 +245,7 @@ array, i.e., each row and each column has names. These we can extract
 with the [`dimnames()`](https://rdrr.io/r/base/dimnames.html) function.
 
 ``` r
+
 dimnames(n)
 ```
 
@@ -271,6 +277,7 @@ the 61st size bracket starts at 1 gram. The number density in the size
 class between 1 gram and 1.12 grams is
 
 ``` r
+
 n[1, 61]
 ```
 
@@ -284,6 +291,7 @@ obtained with the
 number of fish in the 61st size class is
 
 ``` r
+
 (n * dw(params))[1, 61]
 ```
 
@@ -305,6 +313,7 @@ area, numbers per volume or numbers for the entire system see
 Solution
 
 ``` r
+
 sum((n * dw(params))[1, 81:86])
 ```
 
@@ -318,6 +327,7 @@ the
 function plots the biomass density as a function of size.
 
 ``` r
+
 plotSpectra(params)
 ```
 
@@ -339,6 +349,7 @@ argument `per_log_size = TRUE` to
 [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md).
 
 ``` r
+
 plotSpectra(params, per_log_size = TRUE)
 ```
 
@@ -367,6 +378,7 @@ size class have the same weight, but with the small size classes that we
 use in mizer, the error is not too important. So we calculate
 
 ``` r
+
 biomass_density <- n * w(params)
 ```
 
@@ -374,12 +386,14 @@ The total biomass in each size class we obtain by multiplying the
 biomass density in each size class by the width of each size class
 
 ``` r
+
 biomass <- biomass_density * dw(params)
 ```
 
 For example the biomass of fish between 1 gram and 1.12 grams is
 
 ``` r
+
 biomass[61]
 ```
 
@@ -425,6 +439,7 @@ laws, at least for the small sizes. We can get the growth rate with the
 function. We assign the result to a variable that we name `growth_rate`.
 
 ``` r
+
 growth_rate <- getEGrowth(params)
 ```
 
@@ -433,6 +448,7 @@ one row for the one species and 101 columns for the 101 size classes. So
 for example the growth rate at size 1 gram is
 
 ``` r
+
 growth_rate[1, 61]
 ```
 
@@ -450,6 +466,7 @@ call [`plot()`](https://sizespectrum.org/mizer/reference/plot.md) on it
 and ask for logarithmic axes:
 
 ``` r
+
 plot(growth_rate, log_x = TRUE, log_y = TRUE)
 ```
 
@@ -459,6 +476,7 @@ We see that at least up to a size of a few grams the line is straight.
 Let’s isolate the weights and the growth rate for those smaller sizes
 
 ``` r
+
 w_small_fish <- w(params)[w(params) <= 10]
 g_small_fish <- growth_rate[w(params) <= 10]
 ```
@@ -466,6 +484,7 @@ g_small_fish <- growth_rate[w(params) <= 10]
 and fit a linear model
 
 ``` r
+
 lm(log(g_small_fish) ~ log(w_small_fish))
 ```
 
@@ -496,6 +515,7 @@ food availability, for example.
 Solution
 
 ``` r
+
 mort_rate <- getMort(params)
 plot(mort_rate, log_x = TRUE, log_y = TRUE)
 ```
@@ -512,6 +532,7 @@ Solution
 The slope and intercept come from the linear model fit
 
 ``` r
+
 mm <- lm(log(mort_rate[1, ]) ~ log(w(params)))
 mm
 ```
@@ -528,6 +549,7 @@ and the coefficient \\\mu_0\\ is obtained by exponentiating the
 intercept
 
 ``` r
+
 m0 <- exp(mm$coefficients[[1]])
 m0
 ```
@@ -548,6 +570,7 @@ rate and the mortality rate, the number density `n` is an
 `ArraySpeciesBySize` object, so we can plot it on log-log axes with
 
 ``` r
+
 plot(n, log_x = TRUE, log_y = TRUE)
 ```
 
@@ -560,6 +583,7 @@ and the easiest way to do that is to fit a linear model to the log
 variables for the small fish:
 
 ``` r
+
 n_small_fish <- n[w(params) <= 10]
 lm(log(n_small_fish) ~ log(w_small_fish))
 ```
@@ -578,6 +602,7 @@ already observed that \\\mu_0 \approx 3.897\\ and \\g_0 \approx 4.2\\ so
 we get
 
 ``` r
+
 -m0 / g0 - 3 / 4
 ```
 
@@ -612,6 +637,7 @@ function, which we can pass straight to
 [`plot()`](https://sizespectrum.org/mizer/reference/plot.md):
 
 ``` r
+
 p <- plot(psi(params), log_x = FALSE)
 p
 ```
@@ -638,6 +664,7 @@ Such species parameters are contained in a data frame inside the
 function.
 
 ``` r
+
 species_params(params)
 ```
 
@@ -651,6 +678,7 @@ which we will talk about later. For now let’s just select the four
 parameters we are interested in.
 
 ``` r
+
 select(species_params(params), w_mat, w_mat25, w_repro_max, m)
 ```
 
@@ -666,6 +694,7 @@ of the individuals are mature is 30 grams. But first we make a copy of
 the params object so that we can keep the old version around unchanged.
 
 ``` r
+
 params_changed_maturity <- params
 ```
 
@@ -681,6 +710,7 @@ warnings if you try to change a parameter whose effect is overridden by
 another parameter.
 
 ``` r
+
 given_species_params(params_changed_maturity)$w_mat <- 40
 given_species_params(params_changed_maturity)$w_mat25 <- 30
 ```
@@ -688,6 +718,7 @@ given_species_params(params_changed_maturity)$w_mat25 <- 30
 Now the maturity curve has changed, which we can verify by plotting it
 
 ``` r
+
 plot(psi(params_changed_maturity), log_x = FALSE)
 ```
 
@@ -701,6 +732,7 @@ function lets us add a second curve to an existing plot, so we do not
 have to combine data frames by hand:
 
 ``` r
+
 addPlot(p, psi(params_changed_maturity))
 ```
 
@@ -721,6 +753,7 @@ function plots two `ArraySpeciesBySize` objects on the same graph, which
 is exactly what we need here:
 
 ``` r
+
 plot2(getEGrowth(params), getEGrowth(params_changed_maturity),
       name1 = "original", name2 = "changed", log_x = FALSE)
 ```
@@ -735,6 +768,7 @@ background, finds the abundance at each size that balances the growth
 and mortality rates, while keeping the egg influx fixed.
 
 ``` r
+
 params_changed_maturity <- steadySingleSpecies(params_changed_maturity)
 ```
 
@@ -745,6 +779,7 @@ other. We restrict the plot to weights above 10 grams so that we can see
 the difference in the adult spectrum clearly.
 
 ``` r
+
 plotSpectra2(params, name1 = "original",
              params_changed_maturity, name2 = "changed",
              per_log_size = TRUE, resource = FALSE, wlim = c(10, NA))
@@ -787,6 +822,7 @@ rate, so that the reproductive efficiency `erepro` alone has to do the
 job.
 
 ``` r
+
 reproduction_level(params) <- 0
 species_params(params)$erepro
 ```
@@ -807,6 +843,7 @@ left the reproduction parameters untouched, the value of `erepro` is at
 this point still the same as in the original model:
 
 ``` r
+
 species_params(params_changed_maturity)$erepro
 ```
 
@@ -817,6 +854,7 @@ Setting `reproduction_level` on the changed model retunes it to the
 value required for its own steady state:
 
 ``` r
+
 reproduction_level(params_changed_maturity) <- 0
 species_params(params_changed_maturity)$erepro
 ```
@@ -848,6 +886,7 @@ range from 1mg to 10mg. We again create a new parameter object to be
 able to keep the old one around
 
 ``` r
+
 params_starved <- params
 size_range <- w_full(params) > 10^-3 & w_full(params) < 10^-2
 initialNResource(params_starved)[size_range] <- 
@@ -860,6 +899,7 @@ species. We recalculate the steady-state shape with
 [`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
 
 ``` r
+
 params_starved <- steadySingleSpecies(params_starved)
 ```
 
@@ -867,6 +907,7 @@ and compare it to the original spectrum with
 [`plotSpectra2()`](https://sizespectrum.org/mizer/reference/plotSpectra2.md)
 
 ``` r
+
 plotSpectra2(params, name1 = "original",
              params_starved, name2 = "less prey",
              per_log_size = TRUE)
@@ -890,6 +931,7 @@ instead of decreased.
 Solution
 
 ``` r
+
 params_overfed <- params
 size_range <- w_full(params) > 10^-3 & w_full(params) < 10^-2
 initialNResource(params_overfed)[size_range] <-
@@ -942,6 +984,7 @@ kernel in our model. We can obtain it with the function
 [`pred_kernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md).
 
 ``` r
+
 pk <- pred_kernel(params)
 ```
 
@@ -950,6 +993,7 @@ size x prey size). We extract the kernel of a predator of size 10g
 (using that we remember that this is in size class 81)
 
 ``` r
+
 pred_kernel_10 <- pk[, 81, , drop = FALSE]
 ```
 
@@ -957,6 +1001,7 @@ The `drop = FALSE` option is there to prevent R from dropping any of the
 array dimensions. We can now plot this as usual
 
 ``` r
+
 ggplot(melt(pred_kernel_10)) +
   geom_line(aes(x = w_prey, y = value)) +
   scale_x_log10()
@@ -973,6 +1018,7 @@ determined by the species parameter `sigma`. In our model these have the
 values
 
 ``` r
+
 select(species_params(params), beta, sigma)
 ```
 
@@ -985,6 +1031,7 @@ As usual, we first create a copy of the parameter object, then we make
 the change in that copy.
 
 ``` r
+
 params_pk <- params
 given_species_params(params_pk)$beta <- 1000
 ```
@@ -992,6 +1039,7 @@ given_species_params(params_pk)$beta <- 1000
 Let’s make a plot to see that the predation kernel has indeed changed.
 
 ``` r
+
 pred_kernel(params_pk)[, 81, , drop = FALSE] %>% 
   melt() %>% 
   ggplot() +
@@ -1006,6 +1054,7 @@ before, we now expect this to produce a peak in the biomass spectrum
 somewhere between 1g and 10g. Let’s check.
 
 ``` r
+
 initialNResource(params_pk) <- initialNResource(params_starved)
 params_pk <- steadySingleSpecies(params_pk)
 plotSpectra2(params_starved, name1 = "beta = 100",
@@ -1043,6 +1092,7 @@ estimating the predation kernel from stomach data.
 Solution
 
 ``` r
+
 params3 <- params
 given_species_params(params3)$beta <- 50
 given_species_params(params3)$sigma <- 2
@@ -1063,6 +1113,7 @@ pred_kernel(params3)[, 61, , drop = FALSE] %>%
 Solution
 
 ``` r
+
 initialNResource(params3) <- initialNResource(params_starved)
 params3 <- steadySingleSpecies(params3)
 plotSpectra2(params, name1 = "original",
@@ -1103,6 +1154,7 @@ Let us see what effect changing the coefficient \\\gamma_0\\ in the
 search volume rate has. Its current value in our model is
 
 ``` r
+
 species_params(params)$gamma
 ```
 
@@ -1112,6 +1164,7 @@ species_params(params)$gamma
 We change that to 2000 and find the new steady state.
 
 ``` r
+
 params_new_gamma <- params
 given_species_params(params_new_gamma)$gamma <- 1000
 params_new_gamma <- steadySingleSpecies(params_new_gamma)
@@ -1121,6 +1174,7 @@ We can see the effect in the growth curve of our species. In the
 original model it looks as follows:
 
 ``` r
+
 plotGrowthCurves(params)
 ```
 
@@ -1129,6 +1183,7 @@ plotGrowthCurves(params)
 In the modified model it looks like
 
 ``` r
+
 plotGrowthCurves(params_new_gamma)
 ```
 
@@ -1147,6 +1202,7 @@ The juvenile spectrum will be steeper because the slope is
 will be more negative.
 
 ``` r
+
 plotSpectra2(params, name1 = "original",
              params_new_gamma, name2 = "changed",
              biomass = FALSE, resource = FALSE)
@@ -1166,6 +1222,7 @@ is actually taking in prey.
 In our simple model this feeding level is constant.
 
 ``` r
+
 plot2(getFeedingLevel(params), getFeedingLevel(params_new_gamma))
 ```
 
@@ -1178,6 +1235,7 @@ Our model is taking an allometric form for the maximum intake rate
 current value of the coefficient \\h\\ is
 
 ``` r
+
 species_params(params)$h
 ```
 
@@ -1217,6 +1275,7 @@ The parameters describing the fishing gears are stored in a
 one gear:
 
 ``` r
+
 gear_params(params)
 ```
 
@@ -1236,6 +1295,7 @@ Let us change the knife-edge size to 30 grams, so that fishing only
 affects fish above 30 grams.
 
 ``` r
+
 params_fishing <- params
 gear_params(params_fishing)$knife_edge_size <- 30
 ```
@@ -1247,6 +1307,7 @@ We set it to 1 with the
 function and can then plot the resulting fishing mortality.
 
 ``` r
+
 initial_effort(params) <- 1
 initial_effort(params_fishing) <- 1
 plot2(getFMort(params), getFMort(params_fishing), log_x = FALSE)

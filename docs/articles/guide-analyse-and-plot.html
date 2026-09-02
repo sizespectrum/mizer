@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,6 +76,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -326,13 +327,13 @@
 <code class="sourceCode R"><span><span class="co"># Abundance between 10g and 5kg (default weighting factor weighting = 1)</span></span>
 <span><span class="fu"><a href="../reference/sizeIntegral.html">sizeIntegral</a></span><span class="op">(</span><span class="va">params</span>, min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">5000</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Biomass between 10g and 5kg (weighting factor is body weight: weighting = params@w)</span></span>
-<span><span class="fu"><a href="../reference/sizeIntegral.html">sizeIntegral</a></span><span class="op">(</span><span class="va">params</span>, weighting <span class="op">=</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span>, min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">5000</span><span class="op">)</span></span>
+<span><span class="co"># Biomass between 10g and 5kg (weighting factor is body weight)</span></span>
+<span><span class="fu"><a href="../reference/sizeIntegral.html">sizeIntegral</a></span><span class="op">(</span><span class="va">params</span>, weighting <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">5000</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Biomass through time, wrapped ready to plot</span></span>
-<span><span class="fu"><a href="../reference/sizeIntegral.html">sizeIntegral</a></span><span class="op">(</span><span class="va">sim</span>, weighting <span class="op">=</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span>, value_name <span class="op">=</span> <span class="st">"Biomass"</span>, units <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/sizeIntegral.html">sizeIntegral</a></span><span class="op">(</span><span class="va">sim</span>, weighting <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, value_name <span class="op">=</span> <span class="st">"Biomass"</span>, units <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>Give it the object and the weighting factor <span class="math inline">\(K\)</span> (e.g. body weight <code>params@w</code> for biomass, or 1 for numbers); it selects the size range, uses the quadrature scheme the model is actually on and wraps the result in the appropriate mizer array class. Doing the sum by hand instead means getting all of that right yourself, silently and only for some users. Three things are worth knowing:</p>
+<p>Give it the object and the weighting factor <span class="math inline">\(K\)</span> (e.g. body weight <a href="../reference/w.html"><code>w(params)</code></a> for biomass, or 1 for numbers); it selects the size range, uses the quadrature scheme the model is actually on and wraps the result in the appropriate mizer array class. Doing the sum by hand instead means getting all of that right yourself, silently and only for some users. Three things are worth knowing:</p>
 <ul>
 <li>
 <strong>The size range is an argument, not a subsetting step.</strong> <code>min_w</code>/<code>max_w</code> or <code>min_l</code>/<code>max_l</code> are passed through to <a href="../reference/get_size_range_array.html"><code>get_size_range_array()</code></a>, which does the length-weight conversion per species and accepts either a single number or one value per species. Never subset the size grid by hand.</li>
@@ -852,8 +853,8 @@
 <span><span class="fu"><a href="../reference/getCommunitySlope.html">getCommunitySlope</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>          <span class="co"># returns data.frame with slope, intercept, R²</span></span>
 <span></span>
 <span><span class="co"># ── Your own indicator: an integral over the size spectrum ────────────────────</span></span>
-<span><span class="fu"><a href="../reference/sizeIntegral.html">sizeIntegral</a></span><span class="op">(</span><span class="va">params</span>, weighting <span class="op">=</span> <span class="va">params</span><span class="op">@</span><span class="va">w</span>, min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">5000</span><span class="op">)</span>  <span class="co"># = getBiomass()</span></span>
-<span><span class="fu"><a href="../reference/sizeIntegral.html">sizeIntegral</a></span><span class="op">(</span><span class="va">sim</span>, weighting <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sweep.html" class="external-link">sweep</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">maturity</span>, <span class="fl">2</span>, <span class="va">params</span><span class="op">@</span><span class="va">w</span>, <span class="st">"*"</span><span class="op">)</span>,  <span class="co"># = getSSB()</span></span>
+<span><span class="fu"><a href="../reference/sizeIntegral.html">sizeIntegral</a></span><span class="op">(</span><span class="va">params</span>, weighting <span class="op">=</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, min_w <span class="op">=</span> <span class="fl">10</span>, max_w <span class="op">=</span> <span class="fl">5000</span><span class="op">)</span>  <span class="co"># = getBiomass()</span></span>
+<span><span class="fu"><a href="../reference/sizeIntegral.html">sizeIntegral</a></span><span class="op">(</span><span class="va">sim</span>, weighting <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sweep.html" class="external-link">sweep</a></span><span class="op">(</span><span class="fu"><a href="../reference/setReproduction.html">maturity</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="fl">2</span>, <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="st">"*"</span><span class="op">)</span>,  <span class="co"># = getSSB()</span></span>
 <span>             value_name <span class="op">=</span> <span class="st">"SSB"</span>, units <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>   <span class="co"># pass the whole product as weighting</span></span>
 <span><span class="co"># no dw, no bin-averaging by hand, no size-grid subsetting: sizeIntegral does it</span></span>
 <span><span class="fu"><a href="../reference/ArraySpeciesBySize.html">ArraySpeciesBySize</a></span><span class="op">(</span><span class="va">x</span>, params <span class="op">=</span> <span class="va">params</span>, representation <span class="op">=</span> <span class="st">"average"</span><span class="op">)</span>  <span class="co"># size-resolved</span></span>

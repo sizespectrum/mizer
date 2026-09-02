@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,6 +76,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -386,6 +387,21 @@
 </table>
 <p>To let mizer re-calculate a parameter you previously supplied, clear it by setting it to <code>NA</code> in <code>given_species_params(params)</code>.</p>
 <p>Finally, <code>w_inf</code> is not a purely dynamic parameter. Changing it re-derives <code>w_mat</code>, <code>h</code>, <code>gamma</code> and <code>ks</code>, but the <strong>size grid is fixed at construction</strong>, so enlarging <code>w_inf</code> beyond the maximum grid size gives repeated warnings that “the maximum weight of a species is larger than the maximum weight of the model”. To expand the size range, use <a href="../reference/adjustSizeGrid.html"><code>adjustSizeGrid(params, new_max_w = ...)</code></a> or rebuild the model.</p>
+</section><section class="level3"><h3 id="writing-into-the-slot-directly-and-how-to-repair-it">Writing into the slot directly, and how to repair it<a class="anchor" aria-label="anchor" href="#writing-into-the-slot-directly-and-how-to-repair-it"></a>
+</h3>
+<p>Only what is in <code><a href="../reference/species_params.html">given_species_params()</a></code> is protected. A value written straight into the slot,</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">params</span><span class="op">@</span><span class="va">species_params</span><span class="op">$</span><span class="va">h</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">20</span>   <span class="co"># not recorded as given</span></span></code></pre></div>
+</div>
+<p>is not, and the next recalculation replaces it with no message. Set species parameters with <code>species_params&lt;-()</code> instead; where you have already adjusted the rate arrays yourself and do not want them rebuilt, record the change with <a href="../reference/record_given_species_params.html"><code>record_given_species_params()</code></a>.</p>
+<p>To repair a model that already holds such values, call</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reconcileSpeciesParams.html">reconcileSpeciesParams</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>It records the entries that a recalculation would change, and repeats until the species parameters reproduce themselves, so that the parameters mizer derives from the hand-set ones are caught as well. The result is a fixed point: no recalculation moves the species parameters again. The model itself is untouched; only the record of where the values came from changes. <a href="../reference/saveParams.html"><code>readParams()</code></a> does this for every model it loads.</p>
+<p>The price is that a parameter mizer had calculated from a value you later changed by hand is frozen at the value the model is actually running on, and so stops responding to the parameters it was derived from. Clear its entry to <code>NA</code> in <code>given_species_params(params)</code> to hand it back to mizer’s calculation.</p>
 </section><section class="level3"><h3 id="chained-derivations-and-the-cancellation-trap">Chained derivations and the cancellation trap<a class="anchor" aria-label="anchor" href="#chained-derivations-and-the-cancellation-trap"></a>
 </h3>
 <p>When parameters are not given, mizer calculates them along a dependency chain:</p>
@@ -464,13 +480,13 @@
 <li>The resource scalars that enter the calibration <strong>do</strong> trigger a re-derivation. Since mizer 3.3, changing <code>lambda</code> recalculates every <code>q</code> and <code>gamma</code> that mizer calculated, and changing <code>kappa</code> recalculates every calculated <code>gamma</code>; the condition <code>q = n + lambda - 2</code> that makes the feeding level size-independent is maintained for you. A value you <strong>gave</strong> is protected, as everywhere else — so on a model that supplies <code>gamma</code> in its species parameters (<code>NS_params</code> does) nothing moves, and the realised feeding level shifts with the new resource. To let mizer re-derive a given value, clear it first:</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/resource_params.html">resource_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">lambda</span> <span class="op">&lt;-</span> <span class="fl">2.2</span>       <span class="co"># calculated q and gamma follow</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span> <span class="op">&lt;-</span> <span class="cn">NA</span>    <span class="co"># hand a *given* gamma back to mizer</span></span></code></pre></div>
 </div>
 <p>Conversely, to hold calculated values against a resource change, record them as given before you make it:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">q</span></span>
 <span><span class="fu"><a href="../reference/resource_params.html">resource_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">lambda</span> <span class="op">&lt;-</span> <span class="fl">2.2</span>       <span class="co"># q now stays put</span></span></code></pre></div>
 </div>
@@ -478,7 +494,7 @@
 </h2>
 <p>Gears, selectivity, and catchability live in <code>gear_params(params)</code>, one row per gear–species pair (row names <code>"species, gear"</code>). Assigning to it recomputes the fishing arrays.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span><span class="va">gp</span><span class="op">[</span><span class="st">"Cod, Otter"</span>, <span class="st">"catchability"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0.8</span></span>
 <span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">gp</span>                  <span class="co"># rebuilds fishing mortality</span></span></code></pre></div>
@@ -488,7 +504,7 @@
 </h2>
 <p>The resource works just like the species parameters. <code>resource_params(params)</code> returns a named list of scalars (<code>kappa</code>, <code>lambda</code>, <code>r_pp</code>, <code>n</code>, <code>w_pp_cutoff</code>). These parameters set up the resource size-spectrum arrays, and — like <code>species_params&lt;-</code> — assigning to it <strong>rebuilds those arrays</strong> by calling <a href="../reference/setResource.html"><code>setResource()</code></a>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/resource_params.html">resource_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">kappa</span>  <span class="op">&lt;-</span> <span class="fl">1e11</span>     <span class="co"># rebuilds the carrying capacity (cc_pp)</span></span>
 <span><span class="fu"><a href="../reference/resource_params.html">resource_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">lambda</span> <span class="op">&lt;-</span> <span class="fl">2.05</span>     <span class="co"># rebuilds cc_pp (slope)</span></span>
 <span><span class="fu"><a href="../reference/resource_params.html">resource_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">r_pp</span>   <span class="op">&lt;-</span> <span class="fl">10</span>       <span class="co"># rebuilds the replenishment rate (rr_pp)</span></span></code></pre></div>
@@ -530,7 +546,7 @@
 </h2>
 <p>The species × species interaction matrix is read with <code><a href="../reference/setInteraction.html">interaction_matrix()</a></code> and set with <code>interaction_matrix&lt;-</code> or <a href="../reference/setInteraction.html"><code>setInteraction()</code></a>. The resource interaction is the <code>interaction_resource</code> species-parameter column instead.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setInteraction.html">interaction_matrix</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span><span class="va">inter</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="st">"Herring"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
 <span><span class="fu"><a href="../reference/setInteraction.html">interaction_matrix</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">inter</span>        <span class="co"># or params &lt;- setInteraction(params, inter)</span></span></code></pre></div>
@@ -540,7 +556,7 @@
 <p>Everything above changes level-1 parameters and lets mizer rebuild the level-2 arrays. This section is about reaching <em>into</em> level 2, when you need a size-dependence mizer does not produce by default.</p>
 <p>Each rate array has a <strong>direct setter/getter</strong> — <a href="../reference/setMetabolicRate.html"><code>metab(params)</code></a> to read it and <code>metab(params) &lt;-</code> to write it, <a href="../reference/setSearchVolume.html"><code>search_vol(params)</code></a>/<code>search_vol(params) &lt;-</code>, and so on. This is the way to impose an array of your own. It must have the same dimensions as the one it replaces (species × size, species in the model’s order), so the safest recipe is to read the current array, modify it, and write it back:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_metab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setMetabolicRate.html">metab</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>                    <span class="co"># species × size, right dims and names</span></span>
 <span><span class="va">my_metab</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">^</span><span class="fl">0.8</span>     <span class="co"># bespoke size dependence for one species</span></span>
 <span><span class="fu"><a href="../reference/setMetabolicRate.html">metab</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">my_metab</span></span></code></pre></div>
@@ -548,7 +564,7 @@
 <p>Note that the direct setter modifies <code>params</code> <strong>in place</strong> — no reassignment.</p>
 <p><strong>Trap:</strong> supplying an array <strong>freezes</strong> it. Mizer marks it “set manually” and will no longer update it from species parameters. After this, changing the feeding species parameter has <em>no effect</em> on that rate:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setSearchVolume.html">search_vol</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">my_array</span>                    <span class="co"># frozen</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">gamma</span>   <span class="co"># search volume UNCHANGED now</span></span>
 <span><span class="co">#&gt; Warning: Your change to the species parameter `gamma` has not taken effect</span></span>
@@ -557,7 +573,7 @@
 <p>Since mizer 3.3 that second line warns you that the change did not reach the model. The warning names the parameters that were ignored and the <code>set…(params, reset = TRUE)</code> call that hands the rate back to mizer. The species parameter table still records the new value, so the table and the model disagree until you do one or the other.</p>
 <p>To hand control back to mizer, call the rate’s <code>set…()</code> function with <strong><code>reset = TRUE</code></strong>. These functions recompute the array from the current species parameters — but a bare <code>set…(params)</code> will <strong>not</strong> touch a frozen array; it leaves the manual value in place and warns:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setSearchVolume.html">setSearchVolume</a></span><span class="op">(</span><span class="va">params</span>, reset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>   <span class="co"># drop the override, recompute</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setMetabolicRate.html">setMetabolicRate</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>                <span class="co"># recompute, unless frozen</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setParams.html">setParams</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>                       <span class="co"># rebuild ALL rate arrays at once</span></span>
@@ -565,10 +581,10 @@
 </div>
 <p>Note that <code><a href="../reference/setParams.html">setParams()</a></code> does not touch the resource: the resource rate, capacity, level and dynamics belong to <code><a href="../reference/setResource.html">setResource()</a></code>, and passing one of its arguments to <code><a href="../reference/setParams.html">setParams()</a></code> is an error.</p>
 <p>Unlike the direct setters, the <code>set…()</code> functions return a <strong>new</strong> object, so they must be reassigned. They also accept the array itself, as the argument named like the direct setter:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setMetabolicRate.html">setMetabolicRate</a></span><span class="op">(</span><span class="va">params</span>, metab <span class="op">=</span> <span class="va">my_metab</span><span class="op">)</span></span></code></pre></div>
 <p>is equivalent to</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setMetabolicRate.html">metab</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">my_metab</span></span></code></pre></div>
 <p>and offers no advantage over it.</p>
 <p>If a user reports “I changed <code>gamma</code>/<code>h</code>/<code>beta</code> but nothing happened,” suspect a manually-set (frozen) rate array — recompute it with <code>set…(params, reset = TRUE)</code>. The <code>reset</code> argument works the same way for every rate setter, including <code><a href="../reference/setFishing.html">setFishing()</a></code> and <code><a href="../reference/setResource.html">setResource()</a></code>.</p>
@@ -657,7 +673,7 @@
 </tbody>
 </table>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setResource.html">resource_capacity</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">my_capacity</span>     <span class="co"># array over size; now frozen</span></span>
 <span><span class="fu"><a href="../reference/resource_params.html">resource_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">kappa</span> <span class="op">&lt;-</span> <span class="fl">1e11</span>        <span class="co"># ignored while cc_pp is frozen</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setResource.html">setResource</a></span><span class="op">(</span><span class="va">params</span>, reset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># unfreeze: recompute from the scalars</span></span></code></pre></div>
@@ -676,7 +692,7 @@
 <pre><code>r_R(w) = μ_R(w) · ℓ(w) / (1 − ℓ(w))        c_R(w) = N_R(w) / ℓ(w)</code></pre>
 <p>Balancing is a feature of <code><a href="../reference/setResource.html">setResource()</a></code> alone. The array, level and dynamics setters call it and so balance <strong>by default</strong>; <code>resource_params(params) &lt;-</code> does <strong>not</strong> balance, so changing <code>kappa</code> or <code>r_pp</code> that way rebuilds the arrays but shifts the steady state. To change a resource coefficient and stay balanced, go through <code><a href="../reference/setResource.html">setResource()</a></code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setResource.html">setResource</a></span><span class="op">(</span><span class="va">params</span>, resource_capacity <span class="op">=</span> <span class="va">new_kappa</span><span class="op">)</span>  <span class="co"># rebalances the rate</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setResource.html">setResource</a></span><span class="op">(</span><span class="va">params</span>, resource_rate <span class="op">=</span> <span class="va">new_r_pp</span><span class="op">)</span>       <span class="co"># rebalances the capacity</span></span>
 <span><span class="fu"><a href="../reference/setResource.html">resource_level</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0.5</span>                                 <span class="co"># balances by default</span></span>
@@ -694,13 +710,13 @@
 </h2>
 <p>Levels 1 and 2 change the <em>numbers</em> mizer uses; level 3 changes the <em>code</em>. At every time step of a <code><a href="../reference/project.html">project()</a></code> run, mizer calls a set of functions to compute the instantaneous rates (encounter, feeding level, mortality, reproduction, …). <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code> swaps any one of these for a function of your own, without touching the species parameters or the rate arrays:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"Mort"</span>, <span class="st">"myMort"</span><span class="op">)</span>   <span class="co"># use myMort() for total mortality</span></span>
 <span><span class="fu"><a href="../reference/setRateFunction.html">getRateFunction</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>                               <span class="co"># list the current rate functions</span></span></code></pre></div>
 </div>
 <p>Reach for this when the change cannot be expressed as a number at all. The clearest case is <strong>time dependence</strong>: species parameters and rate arrays are fixed for the whole simulation, but a rate <em>function</em> receives the current time <code>t</code> and can therefore change as the run proceeds — seasonal forcing, a warming trend, a management measure that switches on in a given year.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seasonalMort</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">t</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="../reference/mizerMort.html">mizerMort</a></span><span class="op">(</span><span class="va">params</span>, t <span class="op">=</span> <span class="va">t</span>, <span class="va">...</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">t</span><span class="op">)</span><span class="op">)</span>   <span class="co"># t in years</span></span>
 <span><span class="op">}</span></span>
@@ -779,7 +795,7 @@
 <hr></section><section class="level2"><h2 id="quick-reference">Quick reference<a class="anchor" aria-label="anchor" href="#quick-reference"></a>
 </h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ── Species parameters (preferred: triggers recalculation) ────────────────────</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fl">150</span></span>
 <span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>                     <span class="co"># view all (given + calculated)</span></span>

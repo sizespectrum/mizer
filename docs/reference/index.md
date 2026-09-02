@@ -82,6 +82,9 @@ for how to do this.
   : Species parameters
 - [`record_given_species_params()`](https://sizespectrum.org/mizer/reference/record_given_species_params.md)
   **\[experimental\]** : Record the species parameters that have changed
+- [`reconcileSpeciesParams()`](https://sizespectrum.org/mizer/reference/reconcileSpeciesParams.md)
+  **\[experimental\]** : Reconcile the species parameters with the given
+  species parameters
 - [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
   [`` `gear_params<-`() ``](https://sizespectrum.org/mizer/reference/gear_params.md)
   [`is.gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
@@ -568,21 +571,22 @@ and gear parameters with your own rate arrays.
   [`` `selectivity<-`() ``](https://sizespectrum.org/mizer/reference/setFishing.md)
   : Set fishing parameters
 
-## Extending Mizer
+## Extending mizer
 
-See the [guide to extending
-mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html),
-[Using mizer extension
-packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
-and [Creating a mizer extension
-package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html)
-for more details.
+Functions for customising a model with new rate functions or ecosystem
+components. See the [guide to extending
+mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html).
 
 - [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
   [`getRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
   [`other_params()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
   [`` `other_params<-`() ``](https://sizespectrum.org/mizer/reference/setRateFunction.md)
   : Set own rate function to replace mizer rate function
+- [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+  [`` `other_mort<-`() ``](https://sizespectrum.org/mizer/reference/other_mort.md)
+  [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+  [`` `other_encounter<-`() ``](https://sizespectrum.org/mizer/reference/other_mort.md)
+  : Extra contributions to the mortality and encounter rates
 - [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
   [`removeComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
   [`getComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
@@ -593,17 +597,23 @@ for more details.
 - [`NOther()`](https://sizespectrum.org/mizer/reference/NOther.md)
   [`finalNOther()`](https://sizespectrum.org/mizer/reference/NOther.md)
   : Time series of other components
-- [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
-  : Coerce a mizer object to its extension class
-- [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
-  [`` `other_mort<-`() ``](https://sizespectrum.org/mizer/reference/other_mort.md)
-  [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md)
-  [`` `other_encounter<-`() ``](https://sizespectrum.org/mizer/reference/other_mort.md)
-  : Extra contributions to the mortality and encounter rates
-- [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
-  : Record an extension and its version stamp on a mizer object
 - [`customFunction()`](https://sizespectrum.org/mizer/reference/customFunction.md)
   **\[experimental\]** : Replace a mizer function with a custom version
+
+## Creating extension packages
+
+Infrastructure used by extension package constructors to record their
+package and apply its S3 class. Model users do not need to call these
+functions;
+[`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
+and validation manage existing objects. See the [guide to creating an
+extension
+package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html).
+
+- [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
+  : Record an extension and its version stamp on a mizer object
+- [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
+  : Coerce a mizer object to its extension class
 
 ## Predation kernels
 
@@ -869,6 +879,10 @@ users building extensions or working with model objects directly.
 - [`project_simple()`](https://sizespectrum.org/mizer/reference/project_simple.md)
   : Project abundances by a given number of time steps into the future
 
+- [`reconcileSpeciesParams()`](https://sizespectrum.org/mizer/reference/reconcileSpeciesParams.md)
+  **\[experimental\]** : Reconcile the species parameters with the given
+  species parameters
+
 - [`record_given_species_params()`](https://sizespectrum.org/mizer/reference/record_given_species_params.md)
   **\[experimental\]** : Record the species parameters that have changed
 
@@ -896,10 +910,10 @@ users building extensions or working with model objects directly.
 
 ## Classes
 
-The S4 and S3 classes used by mizer, together with functions for
-constructing, inspecting, comparing, and validating them.
+The S3 classes used by mizer, together with functions for constructing,
+inspecting, comparing, and validating them.
 
-- [`` `@`( ``*`<MizerParams>`*`)`](https://sizespectrum.org/mizer/reference/MizerParams-class.md)
+- [`MizerParams-class`](https://sizespectrum.org/mizer/reference/MizerParams-class.md)
   : A class to hold the parameters for a size based model.
 
 - [`summary(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/summary.md)
@@ -922,7 +936,7 @@ constructing, inspecting, comparing, and validating them.
 - [`validParams()`](https://sizespectrum.org/mizer/reference/validParams.md)
   : Validate MizerParams object and upgrade if necessary
 
-- [`` `@`( ``*`<MizerSim>`*`)`](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
+- [`MizerSim-class`](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
   : A class to hold the results of a simulation
 
 - [`getSimParams()`](https://sizespectrum.org/mizer/reference/getSimParams.md)

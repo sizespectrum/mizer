@@ -2,8 +2,7 @@
 
 Coerces a `MizerParams` or `MizerSim` object to the S3 class hierarchy
 corresponding to the object's own extension list. For `MizerSim`, the
-extension names are read from `sim$params$extensions` (or
-`sim@params@extensions`).
+extension names are read from the embedded `MizerParams` object.
 
 ## Usage
 
@@ -26,6 +25,17 @@ coerceToExtensionClass(object, extensions = objectExtensions(object))
 
 The same object coerced to the appropriate S3 class vector, or to the
 base class for an empty extension list.
+
+## Details
+
+This is infrastructure for extension package authors. Ordinary users
+should load saved models with
+[`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
+or
+[`readSim()`](https://sizespectrum.org/mizer/reference/saveParams.md);
+[`validParams()`](https://sizespectrum.org/mizer/reference/validParams.md)
+and [`validSim()`](https://sizespectrum.org/mizer/reference/validSim.md)
+repair the class vector of an object that is already in memory.
 
 ## See also
 

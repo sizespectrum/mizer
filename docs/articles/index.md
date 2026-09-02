@@ -42,6 +42,8 @@
 
 - [Upgrading your mizer
   code](https://sizespectrum.org/mizer/articles/upgrading.md):
+- [Upgrading your extension
+  package](https://sizespectrum.org/mizer/articles/upgrading-extension-packages.md):
 
 ### Technical articles
 

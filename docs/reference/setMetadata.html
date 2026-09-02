@@ -19,7 +19,7 @@ for a field that already existed, the old value will be overwritten."><meta prop
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +54,7 @@ for a field that already existed, the old value will be overwritten."><meta prop
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -167,10 +168,11 @@ which is obtained with <code>packageVersion("mizer")</code>. The purpose of this
 is that if the model is not working as expected in the current version of
 mizer, you can go back to the older version under which presumably it was
 working.</p></li>
-<li><p><code>extensions</code> A named vector of strings where each name is the name of and
-extension package needed to run the model and each value is a string giving
-the information that the remotes package needs to install the correct version
-of the extension package. This field is set by the extension packages.</p></li>
+<li><p><code>extensions</code> A named list with one entry for each extension package needed
+to run the model. Each entry records the installation <code>requirement</code> and the
+package <code>version</code> whose object layout is in use. This field is set by
+extension packages with <code><a href="recordExtension.html">recordExtension()</a></code> and can be inspected with
+<code>getMetadata(params)$extensions</code>.</p></li>
 <li><p><code>time_created</code> A POSIXct date-time object with the creation time.</p></li>
 <li><p><code>time_modified</code> A POSIXct date-time object with the last modified time.</p></li>
 </ul><p>Setting the metadata with this function does not count as a modification of

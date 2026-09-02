@@ -53,6 +53,7 @@ eigenvectors of the state space split into `$fish`, a complex array
 of the oscillation).
 
 ``` r
+
 params <- findSteadyState(params, solver = "newton")  # sit exactly on the (possibly unstable) fixed point
 stab   <- getStability(params)
 stab                                     # stable/unstable, growth rate, cycle period
@@ -149,7 +150,7 @@ simulation will then settle onto a state the model does not hold. If
 says unstable but the simulation goes flat, check
 [`getDiscreteStability()`](https://sizespectrum.org/mizer/reference/getDiscreteStability.md)
 at the `dt` you are projecting with, and reduce `dt` (or use
-`method = "tr_bdf2"`).
+`method = "second_order"`).
 
 The discrete eigenvalues cannot be converted into continuous ones by any
 exact algebraic relation, because mizer’s step is not fully implicit:
@@ -202,6 +203,7 @@ tools (see the [guide to analysing and plotting mizer
 results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.md)):
 
 ``` r
+
 params <- findSteadyState(params, solver = "newton")
 sim    <- getOscillationModeSim(params, amplitude = 0.1)
 plotBiomass(sim)                         # biomass oscillation over one period
@@ -226,6 +228,7 @@ limit cycle as a **band** between its minimum and maximum, so a Hopf
 bifurcation appears as the value at which the band opens up.
 
 ``` r
+
 scan <- scanModel(params, scan_values = seq(0, 1.5, 0.05),
                   set_func = scanEffort(), value_func = getYield)
 plot(scan, style = "envelope")
@@ -269,5 +272,5 @@ scheme alone!
 
 To accurately simulate the fully nonlinear oscillation and confirm a
 stable cycle, build the model with `second_order_w = TRUE` and project
-with `method = "tr_bdf2"`. See the [guide to running a mizer
+with `method = "second_order"`. See the [guide to running a mizer
 simulation](https://sizespectrum.org/mizer/articles/guide-run-simulation.md).

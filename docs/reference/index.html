@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -170,6 +171,13 @@
           <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
         <dd>Record the species parameters that have changed</dd>
+
+        <dt>
+
+          <code><a href="reconcileSpeciesParams.html">reconcileSpeciesParams()</a></code>
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
+        </dt>
+        <dd>Reconcile the species parameters with the given species parameters</dd>
 
         <dt>
 
@@ -1108,9 +1116,9 @@
         </dt>
         <dd>Set fishing parameters</dd>
       </dl></div><div class="section level2">
-      <h2 id="extending-mizer">Extending Mizer<a class="anchor" aria-label="anchor" href="#extending-mizer"></a></h2>
+      <h2 id="extending-mizer">Extending mizer<a class="anchor" aria-label="anchor" href="#extending-mizer"></a></h2>
 
-      <div class="section-desc"><p>See the <a href="https://sizespectrum.org/mizer/articles/guide-extend-mizer.html">guide to extending mizer</a>, <a href="https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html">Using mizer extension packages</a> and <a href="https://sizespectrum.org/mizer/articles/guide-create-extension-package.html">Creating a mizer extension package</a> for more details.</p></div>
+      <div class="section-desc"><p>Functions for customising a model with new rate functions or ecosystem components. See the <a href="https://sizespectrum.org/mizer/articles/guide-extend-mizer.html">guide to extending mizer</a>.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -1123,6 +1131,13 @@
 
         </dt>
         <dd>Set own rate function to replace mizer rate function</dd>
+
+        <dt>
+
+          <code><a href="other_mort.html">other_mort()</a></code> <code><a href="other_mort.html">`other_mort&lt;-`()</a></code> <code><a href="other_mort.html">other_encounter()</a></code> <code><a href="other_mort.html">`other_encounter&lt;-`()</a></code>
+
+        </dt>
+        <dd>Extra contributions to the mortality and encounter rates</dd>
 
         <dt>
 
@@ -1147,19 +1162,21 @@
 
         <dt>
 
-          <code><a href="coerceToExtensionClass.html">coerceToExtensionClass()</a></code>
-
+          <code><a href="customFunction.html">customFunction()</a></code>
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
-        <dd>Coerce a mizer object to its extension class</dd>
+        <dd>Replace a mizer function with a custom version</dd>
+      </dl></div><div class="section level2">
+      <h2 id="creating-extension-packages">Creating extension packages<a class="anchor" aria-label="anchor" href="#creating-extension-packages"></a></h2>
 
-        <dt>
+      <div class="section-desc"><p>Infrastructure used by extension package constructors to record their package and apply its S3 class. Model users do not need to call these functions; <code><a href="../reference/saveParams.html">readParams()</a></code> and validation manage existing objects. See the <a href="https://sizespectrum.org/mizer/articles/guide-create-extension-package.html">guide to creating an extension package</a>.</p></div>
 
-          <code><a href="other_mort.html">other_mort()</a></code> <code><a href="other_mort.html">`other_mort&lt;-`()</a></code> <code><a href="other_mort.html">other_encounter()</a></code> <code><a href="other_mort.html">`other_encounter&lt;-`()</a></code>
+      <dl></dl></div><div class="section level2">
 
-        </dt>
-        <dd>Extra contributions to the mortality and encounter rates</dd>
 
-        <dt>
+
+
+      <dl><dt>
 
           <code><a href="recordExtension.html">recordExtension()</a></code>
 
@@ -1168,10 +1185,10 @@
 
         <dt>
 
-          <code><a href="customFunction.html">customFunction()</a></code>
-          <span class="badge lifecycle lifecycle-experimental">experimental</span>
+          <code><a href="coerceToExtensionClass.html">coerceToExtensionClass()</a></code>
+
         </dt>
-        <dd>Replace a mizer function with a custom version</dd>
+        <dd>Coerce a mizer object to its extension class</dd>
       </dl></div><div class="section level2">
       <h2 id="predation-kernels">Predation kernels<a class="anchor" aria-label="anchor" href="#predation-kernels"></a></h2>
 
@@ -1742,6 +1759,13 @@
 
         <dt>
 
+          <code><a href="reconcileSpeciesParams.html">reconcileSpeciesParams()</a></code>
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
+        </dt>
+        <dd>Reconcile the species parameters with the given species parameters</dd>
+
+        <dt>
+
           <code><a href="record_given_species_params.html">record_given_species_params()</a></code>
           <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
@@ -1798,7 +1822,7 @@
       </dl></div><div class="section level2">
       <h2 id="classes">Classes<a class="anchor" aria-label="anchor" href="#classes"></a></h2>
 
-      <div class="section-desc"><p>The S4 and S3 classes used by mizer, together with functions for constructing, inspecting, comparing, and validating them.</p></div>
+      <div class="section-desc"><p>The S3 classes used by mizer, together with functions for constructing, inspecting, comparing, and validating them.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -1807,7 +1831,7 @@
 
       <dl><dt>
 
-          <code><a href="MizerParams-class.html">`@`(<i>&lt;MizerParams&gt;</i>)</a></code>
+          <code><a href="MizerParams-class.html">MizerParams-class</a></code>
 
         </dt>
         <dd>A class to hold the parameters for a size based model.</dd>
@@ -1842,7 +1866,7 @@
 
         <dt>
 
-          <code><a href="MizerSim-class.html">`@`(<i>&lt;MizerSim&gt;</i>)</a></code>
+          <code><a href="MizerSim-class.html">MizerSim-class</a></code>
 
         </dt>
         <dd>A class to hold the results of a simulation</dd>

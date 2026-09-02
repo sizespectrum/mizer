@@ -40,7 +40,7 @@ str(finalN(NS_sim))
 #>  - attr(*, "value_name")= chr "Number density"
 #>  - attr(*, "type")= chr "density"
 #>  - attr(*, "representation")= chr "point"
-#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 0 slots
+#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
 
 # This could also be obtained using `N()` and `idxFinalT()`
 identical(N(NS_sim)[idxFinalT(NS_sim), , ], finalN(NS_sim))
@@ -51,7 +51,7 @@ str(finalNResource(NS_sim))
 #>  - attr(*, "value_name")= chr "Number density"
 #>  - attr(*, "units")= chr "1/g"
 #>  - attr(*, "type")= chr "density"
-#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 0 slots
+#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
 idx <- idxFinalT(NS_sim)
 idx
 #> [1] 44

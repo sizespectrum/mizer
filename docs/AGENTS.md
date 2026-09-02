@@ -17,8 +17,9 @@ species × size), `n_pp`, `n_other`, `effort`, and the `MizerParams`
 used. Accessible via `@` / `$` / `[[]]`.
 
 **`ArraySpeciesBySize`** / **`ArrayTimeBySpecies`** /
-**`ArrayTimeBySpeciesBySize`** (S3) — wrap some arrays with metadata.
-Follow `.claude/skills/array-wrapper-classes.md`.
+**`ArrayTimeBySpeciesBySize`** / **`ArrayTimeByResourceBySize`** /
+**`ArrayResourceBySize`** (S3) — wrap some arrays with metadata. Follow
+`.claude/skills/array-wrapper-classes.md`.
 
 **`species_params`** / **`given_species_params`** / **`gear_params`**
 (S3) — parameter tables subclassing `data.frame` stored in `params`
@@ -34,17 +35,22 @@ validation, conversion or warning happens. The checks and conversions
 table is validated, which is what
 [`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)/[`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
 do to a plain data frame and what `species_params<-()`/`gear_params<-()`
-do to the table they are given. This is also what makes the
-length/weight precedence rule work: `species_params<-()` compares the
-incoming table against the model’s, so the value you changed wins; a
-table edited on its own carries no such history, so a length and a
-weight that both differ count as given at the same time and the weight
-wins. `given_species_params` holds what the user supplied **plus the
-defaults of any function argument that sets a species parameter**
-(e.g. `n` and `p` from
+do to the table they are given. The length/weight precedence rule is a
+consequence of this; see `inst/skills/change-parameters/SKILL.md`.
+
+`given_species_params` holds what the user supplied **plus the defaults
+of any function argument that sets a species parameter** (e.g. `n` and
+`p` from
 [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)),
 even when the user did not override the argument; defaults that are not
 function arguments stay out of it.
+
+**`resource_params`** — a plain named list (not a classed table) of the
+resource scalars `kappa`, `lambda`, `n`, `w_pp_cutoff`, and optionally
+`r_pp`, `a`, `b`. Assigning with `resource_params(params) <-` validates
+them and rebuilds `cc_pp`/`rr_pp` without balancing; editing
+`params@resource_params` directly leaves those arrays stale. See
+`inst/skills/change-parameters/SKILL.md`.
 
 **Customisable rate functions**: users replace rate functions by storing
 a custom function name in `params@rates_funcs`. Dispatch via
@@ -124,19 +130,19 @@ Before modifying, designing, or debugging core features, consult the
 design intent, mathematical formulations, and user-facing workflows
 documented in `inst/skills/`:
 
-| When working on…                                                                                                                                                                                                                          | Consult skill                                   |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
-| Modifying parameter accessors, downward propagation, rate setters, or freeze mechanisms                                                                                                                                                   | `inst/skills/change-parameters/SKILL.md`        |
-| Calibration functions (`tuneSteadyState`, `calibrateBiomass`, `matchGrowth`), steady states, or reproduction levels                                                                                                                       | `inst/skills/calibrate-model/SKILL.md`          |
-| Extension points (`setExtEncounter`, `setExtMort`, `setComponent`, `setRateFunction`)                                                                                                                                                     | `inst/skills/extend-mizer/SKILL.md`             |
+| When working on… | Consult skill |
+|----|----|
+| Modifying parameter accessors, downward propagation, rate setters, or freeze mechanisms | `inst/skills/change-parameters/SKILL.md` |
+| Calibration functions (`tuneSteadyState`, `calibrateBiomass`, `matchGrowth`), steady states, or reproduction levels | `inst/skills/calibrate-model/SKILL.md` |
+| Extension points (`setExtEncounter`, `setExtMort`, `setComponent`, `setRateFunction`) | `inst/skills/extend-mizer/SKILL.md` |
 | Packaging an extension: S3 extension classes, [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md), [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) dispatch, bundled data, upgrading saved objects | `inst/skills/create-extension-package/SKILL.md` |
-| Using extension packages, or saving/reading params and sim objects                                                                                                                                                                        | `inst/skills/use-extension-packages/SKILL.md`   |
-| Model constructors (`newMultispeciesParams`, etc.), size grids, or allometric defaults                                                                                                                                                    | `inst/skills/build-model/SKILL.md`              |
-| Fishing gears, selectivity functions, catchability, or `gear_params`                                                                                                                                                                      | `inst/skills/set-up-fishing/SKILL.md`           |
-| Simulation stepping, projection methods, or effort scenarios                                                                                                                                                                              | `inst/skills/run-simulation/SKILL.md`           |
-| Stability analysis, limit cycles, the `solver` argument, or `getStability`                                                                                                                                                                | `inst/skills/analyse-stability/SKILL.md`        |
-| Summary or plotting functions                                                                                                                                                                                                             | `inst/skills/analyse-and-plot/SKILL.md`         |
-| Renaming/deprecating arguments, changing defaults, or investigating breaking changes                                                                                                                                                      | `inst/skills/upgrade-mizer-code/SKILL.md`       |
+| Using extension packages, or saving/reading params and sim objects | `inst/skills/use-extension-packages/SKILL.md` |
+| Model constructors (`newMultispeciesParams`, etc.), size grids, or allometric defaults | `inst/skills/build-model/SKILL.md` |
+| Fishing gears, selectivity functions, catchability, or `gear_params` | `inst/skills/set-up-fishing/SKILL.md` |
+| Simulation stepping, projection methods, or effort scenarios | `inst/skills/run-simulation/SKILL.md` |
+| Stability analysis, limit cycles, the `solver` argument, or `getStability` | `inst/skills/analyse-stability/SKILL.md` |
+| Summary or plotting functions | `inst/skills/analyse-and-plot/SKILL.md` |
+| Renaming/deprecating arguments, changing defaults, or investigating breaking changes | `inst/skills/upgrade-mizer-code/SKILL.md` |
 
 ## Code Conventions
 
@@ -242,6 +248,13 @@ documented in `inst/skills/`:
   every heading has a row, and every quoted fragment is still a literal
   in `R/`, and updates `vignettes/upgrading.Rmd`. Do not edit that
   article directly.
+- The `upgrade-mizer-code` skill addresses users. If the change is one
+  only an extension author can act on — a method that stops dispatching,
+  a workaround that can now be dropped, a mechanism an extension package
+  has to adopt — put that guidance in
+  `inst/skills/upgrade-extension-package/SKILL.md` instead, which
+  generates the `upgrading-extension-packages` article, and keep the
+  user-facing wording in `upgrade-mizer-code` free of extension asides.
 - When creating a pull request, always include the summary of your
   changes in the PR body.
 - **Committing Changes**: When asking the user for permission to commit,

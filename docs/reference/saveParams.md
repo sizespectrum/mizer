@@ -51,18 +51,14 @@ always prefer them over calling
 [`saveRDS()`](https://rdrr.io/r/base/readRDS.html)/[`readRDS()`](https://rdrr.io/r/base/readRDS.html)
 directly on a mizer object.
 
+The complete S3 class vector is stored with the object, including any
+extension classes.
+
 ## What `saveParams()` and `saveSim()` do beyond [`saveRDS()`](https://rdrr.io/r/base/readRDS.html)
 
 - They **validate** the object before writing it, so a corrupted or
   inconsistent object is caught at save time rather than when you next
   try to use it.
-
-- They **strip any extension class** and save the object as a plain base
-  mizer object (recording which extension packages it needs in a slot).
-  This means the file can be read back even in an R session where the
-  extension packages that defined those S4 classes are not loaded, and
-  it protects the file against future changes to those extension
-  classes.
 
 - They **check that the required extension packages are installed** and
   stop with an informative error if they are not, so you do not save a
@@ -86,11 +82,14 @@ Before saving a model you may want to set its metadata with
 
 - They **load the extension packages** that the model needs and,
   optionally, install any that are missing (see `install_extensions`),
-  before restoring the object's extension class.
+  before revalidating the object.
 
-- They **coerce the object back to its extension class** and revalidate
-  it, reversing the class-stripping done at save time so you get back an
-  object of the same class you saved.
+- `readParams()` **reconciles the species parameters**, see
+  [`reconcileSpeciesParams()`](https://sizespectrum.org/mizer/reference/reconcileSpeciesParams.md).
+  A model may hold species parameter values that were written straight
+  into the `species_params` slot and that mizer would therefore undo at
+  the next recalculation. Those values are recorded as given species
+  parameters instead, so that they survive.
 
 ## See also
 
@@ -114,5 +113,5 @@ tmp2 <- tempfile(fileext = ".rds")
 saveSim(NS_sim, file = tmp2)
 sim <- readSim(tmp2)
 identical(sim, NS_sim)
-#> [1] FALSE
+#> [1] TRUE
 ```

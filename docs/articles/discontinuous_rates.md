@@ -47,6 +47,7 @@ whatever
 setting the model uses.
 
 ``` r
+
 ssb_of <- function(params, n, species) {
     initialN(params) <- n
     getSSB(params)[[species]]
@@ -82,6 +83,7 @@ rule’s parameters in
 [`other_params()`](https://sizespectrum.org/mizer/reference/setRateFunction.md).
 
 ``` r
+
 params <- NS_params
 initial_effort(params)["Otter"] <- 1.5
 ssb0 <- getSSB(params)[["Cod"]]
@@ -99,6 +101,7 @@ Now run each rule at two time steps that differ by a factor of eight,
 and track the cod SSB.
 
 ``` r
+
 ssb_series <- function(p, dt, t_max = 30, method = "tr_bdf2") {
     sim <- project(p, dt = dt, t_max = t_max, t_save = dt, method = method,
                    progress_bar = FALSE)
@@ -113,6 +116,7 @@ ramp_fine   <- ssb_series(params_ramp, dt = 0.0125)
 ```
 
 ``` r
+
 par(mfrow = c(1, 2), mar = c(4, 4, 3, 1))
 
 plot(ssb ~ t, data = hard_coarse, type = "l", col = 2, ylim = c(0.45, 1.02),
@@ -143,6 +147,7 @@ rather than on anything in the model.
 Zooming in on the last few years makes the sawtooth explicit.
 
 ``` r
+
 par(mar = c(4, 4, 3, 1))
 late <- function(d) d[d$t > 27, ]
 plot(ssb ~ t, data = late(hard_coarse), type = "l", col = 2,
@@ -160,6 +165,7 @@ This is **chattering**. To see it directly, instrument the rule so that
 it records every decision it takes, and count them.
 
 ``` r
+
 tally <- new.env()
 
 tallyHCR <- function(params, n, n_pp, n_other, t, effort, ...) {
@@ -251,6 +257,7 @@ The numbers bear this out. Measuring the amplitude of the sawtooth over
 the last third of each run:
 
 ``` r
+
 amplitude <- function(p, dt, method) {
     s <- ssb_series(p, dt, method = method)
     tail_s <- s$ssb[s$t > max(s$t) * 2 / 3]
@@ -308,6 +315,7 @@ root at all: neither branch is in equilibrium there. The solver has
 nothing to converge to.
 
 ``` r
+
 settle <- function(p) {
     sim <- project(p, dt = 0.01, t_max = 40, t_save = 40, progress_bar = FALSE)
     initialN(p) <- finalN(sim)
@@ -323,6 +331,7 @@ ramp_ss <- findSteadyState(ramp_settled, solver = "newton")
 The ramped model converges without complaint. The hard one does not:
 
 ``` r
+
 hard_ss <- findSteadyState(hard_settled, solver = "newton")
 ```
 
@@ -334,6 +343,7 @@ threshold — the sliding surface, where neither branch is in equilibrium
 and so no root exists:
 
 ``` r
+
 c(ramp = getSSB(ramp_ss)[["Cod"]] / other_params(params)$b_lim,
   hard = getSSB(hard_ss)[["Cod"]] / other_params(params)$b_lim)
 ```
@@ -357,6 +367,7 @@ perturbation). The reported growth rate of the dominant mode then
 depends on `h`:
 
 ``` r
+
 sapply(c(1e-3, 1e-4, 1e-5),
        function(h) getStability(hard_ss, h = h)$max_real_part)
 ```
@@ -374,6 +385,7 @@ Contrast the ramped model, where the answer is the same to five figures
 whatever `h` you choose:
 
 ``` r
+
 sapply(c(1e-3, 1e-4, 1e-5),
        function(h) getStability(ramp_ss, h = h)$max_real_part)
 ```
@@ -398,6 +410,7 @@ sitting on. The result is the stability of a smooth system that your
 model is not:
 
 ``` r
+
 st <- getStability(hard_settled)
 c(max_real_part = st$max_real_part, stable = st$stable)
 ```
@@ -427,6 +440,7 @@ Two shapes cover almost every case. A linear ramp between two
 thresholds, as in `rampHCR()` above:
 
 ``` r
+
 frac <- (x - x_lo) / (x_hi - x_lo)
 switch_value <- min(1, max(0, frac))
 ```
@@ -435,6 +449,7 @@ or a logistic transition of relative width `eps` around a single
 threshold, when you would rather not invent a second reference point:
 
 ``` r
+
 switch_value <- 1 / (1 + exp(-(x / x_0 - 1) / eps))
 ```
 

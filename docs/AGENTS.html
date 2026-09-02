@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -92,8 +93,10 @@
 <h2 id="architecture">Architecture<a class="anchor" aria-label="anchor" href="#architecture"></a></h2>
 <p><strong><code>MizerParams</code></strong> (S3) — central object passed to nearly all functions. Stored as a list with class <code>"MizerParams"</code> (or <code>c(extensions, "MizerParams")</code>). Slots/fields are accessible via <code>@</code> and <code>@&lt;-</code> for full backwards compatibility or via standard <code>$</code> and <code>[[]]</code>. Modified via setter functions that return new copies: <code>setFishing(params, ...)</code>, etc.</p>
 <p><strong><code>MizerSim</code></strong> (S3) — stores simulation output: arrays <code>n</code> (time × species × size), <code>n_pp</code>, <code>n_other</code>, <code>effort</code>, and the <code>MizerParams</code> used. Accessible via <code>@</code> / <code>$</code> / <code>[[]]</code>.</p>
-<p><strong><code>ArraySpeciesBySize</code></strong> / <strong><code>ArrayTimeBySpecies</code></strong> / <strong><code>ArrayTimeBySpeciesBySize</code></strong> (S3) — wrap some arrays with metadata. Follow <code>.claude/skills/array-wrapper-classes.md</code>.</p>
-<p><strong><code>species_params</code></strong> / <strong><code>given_species_params</code></strong> / <strong><code>gear_params</code></strong> (S3) — parameter tables subclassing <code>data.frame</code> stored in <code>params</code> elements. Users should access/modify these tables via S3 generics (e.g. <code>species_params(params)</code> or <code>gear_params(params)</code>), but package code and developers can modify elements directly (e.g. <code>params$species_params</code> or <code>params@species_params</code>) when appropriate. Editing one of these tables on its own does nothing but edit it: the subclass is preserved (by the base <code>data.frame</code> methods — there are deliberately no <code>[&lt;-</code>, <code>$&lt;-</code> or <code>[[&lt;-</code> methods), and no validation, conversion or warning happens. The checks and conversions (misspelled column names, length-to-weight, consistency) run when the table is validated, which is what <code><a href="reference/species_params.html">species_params()</a></code>/<code><a href="reference/gear_params.html">gear_params()</a></code> do to a plain data frame and what <code>species_params&lt;-()</code>/<code>gear_params&lt;-()</code> do to the table they are given. This is also what makes the length/weight precedence rule work: <code>species_params&lt;-()</code> compares the incoming table against the model’s, so the value you changed wins; a table edited on its own carries no such history, so a length and a weight that both differ count as given at the same time and the weight wins. <code>given_species_params</code> holds what the user supplied <strong>plus the defaults of any function argument that sets a species parameter</strong> (e.g. <code>n</code> and <code>p</code> from <code><a href="reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>), even when the user did not override the argument; defaults that are not function arguments stay out of it.</p>
+<p><strong><code>ArraySpeciesBySize</code></strong> / <strong><code>ArrayTimeBySpecies</code></strong> / <strong><code>ArrayTimeBySpeciesBySize</code></strong> / <strong><code>ArrayTimeByResourceBySize</code></strong> / <strong><code>ArrayResourceBySize</code></strong> (S3) — wrap some arrays with metadata. Follow <code>.claude/skills/array-wrapper-classes.md</code>.</p>
+<p><strong><code>species_params</code></strong> / <strong><code>given_species_params</code></strong> / <strong><code>gear_params</code></strong> (S3) — parameter tables subclassing <code>data.frame</code> stored in <code>params</code> elements. Users should access/modify these tables via S3 generics (e.g. <code>species_params(params)</code> or <code>gear_params(params)</code>), but package code and developers can modify elements directly (e.g. <code>params$species_params</code> or <code>params@species_params</code>) when appropriate. Editing one of these tables on its own does nothing but edit it: the subclass is preserved (by the base <code>data.frame</code> methods — there are deliberately no <code>[&lt;-</code>, <code>$&lt;-</code> or <code>[[&lt;-</code> methods), and no validation, conversion or warning happens. The checks and conversions (misspelled column names, length-to-weight, consistency) run when the table is validated, which is what <code><a href="reference/species_params.html">species_params()</a></code>/<code><a href="reference/gear_params.html">gear_params()</a></code> do to a plain data frame and what <code>species_params&lt;-()</code>/<code>gear_params&lt;-()</code> do to the table they are given. The length/weight precedence rule is a consequence of this; see <code>inst/skills/change-parameters/SKILL.md</code>.</p>
+<p><code>given_species_params</code> holds what the user supplied <strong>plus the defaults of any function argument that sets a species parameter</strong> (e.g. <code>n</code> and <code>p</code> from <code><a href="reference/newMultispeciesParams.html">newMultispeciesParams()</a></code>), even when the user did not override the argument; defaults that are not function arguments stay out of it.</p>
+<p><strong><code>resource_params</code></strong> — a plain named list (not a classed table) of the resource scalars <code>kappa</code>, <code>lambda</code>, <code>n</code>, <code>w_pp_cutoff</code>, and optionally <code>r_pp</code>, <code>a</code>, <code>b</code>. Assigning with <code>resource_params(params) &lt;-</code> validates them and rebuilds <code>cc_pp</code>/<code>rr_pp</code> without balancing; editing <code>params@resource_params</code> directly leaves those arrays stale. See <code>inst/skills/change-parameters/SKILL.md</code>.</p>
 <p><strong>Customisable rate functions</strong>: users replace rate functions by storing a custom function name in <code>params@rates_funcs</code>. Dispatch via <code>get(params@rates_funcs$FunctionName)(params, ...)</code>.</p>
 <p><strong>Two quadrature schemes</strong>: the <code>second_order_w</code> slot selects how the model is discretised on the size grid — <code>flux</code> picks the advective reconstruction, and <code>bin_average</code> decides whether size-dependent factors are integrated over their bin or point-sampled at the left bin boundary. Both default to the first-order scheme, so previous mizer versions reproduce byte-for-byte. This is invisible in the code you are likely to be reading: a function that ignores <code>bin_average</code> still looks correct and still passes its tests on the default path. Anything that integrates over the size grid must handle both schemes and be tested under both.</p>
 <p><strong>Gated validation</strong>: <code><a href="reference/validParams.html">validParams()</a></code> splits into three jobs — upgrade (gated on the version string), repair plus <code><a href="reference/validObject.html">validObject()</a></code> (gated on a fingerprint), and the unconditional <code><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.finite()</a></code> scans of the rate arrays. The fingerprint, <code><a href="reference/validation_key.html">validation_key()</a></code>, is a hash of every slot that <code><a href="reference/repair_params.html">repair_params()</a></code> reads or writes and every slot that <code>validMizerParams()</code> inspects, taking only the dimensions and dimension names of the big rate arrays, never their values. It is recalculated on every call and never stored on the object, so it cannot go stale. This gate stays sound only as long as that correspondence holds: <strong>if you make <code><a href="reference/repair_params.html">repair_params()</a></code> or <code>validMizerParams()</code> depend on a slot, add that slot to <code><a href="reference/validation_key.html">validation_key()</a></code></strong>, or the new logic will be silently skipped for objects mizer has already seen. Values inside the rate arrays are deliberately out of the fingerprint and are guarded by <code><a href="reference/check_finite.html">check_finite()</a></code> instead.</p>
@@ -103,31 +106,31 @@
 <div class="section level2">
 <h2 id="domain-architecture--workflows">Domain Architecture &amp; Workflows<a class="anchor" aria-label="anchor" href="#domain-architecture--workflows"></a></h2>
 <p>Before modifying, designing, or debugging core features, consult the design intent, mathematical formulations, and user-facing workflows documented in <code>inst/skills/</code>:</p>
-<table class="table"><colgroup><col width="50%"><col width="50%"></colgroup><thead><tr class="header"><th>When working on…</th>
+<table class="table"><colgroup><col width="50%"><col width="50%"></colgroup><thead><tr><th>When working on…</th>
 <th>Consult skill</th>
-</tr></thead><tbody><tr class="odd"><td>Modifying parameter accessors, downward propagation, rate setters, or freeze mechanisms</td>
+</tr></thead><tbody><tr><td>Modifying parameter accessors, downward propagation, rate setters, or freeze mechanisms</td>
 <td><code>inst/skills/change-parameters/SKILL.md</code></td>
-</tr><tr class="even"><td>Calibration functions (<code>tuneSteadyState</code>, <code>calibrateBiomass</code>, <code>matchGrowth</code>), steady states, or reproduction levels</td>
+</tr><tr><td>Calibration functions (<code>tuneSteadyState</code>, <code>calibrateBiomass</code>, <code>matchGrowth</code>), steady states, or reproduction levels</td>
 <td><code>inst/skills/calibrate-model/SKILL.md</code></td>
-</tr><tr class="odd"><td>Extension points (<code>setExtEncounter</code>, <code>setExtMort</code>, <code>setComponent</code>, <code>setRateFunction</code>)</td>
+</tr><tr><td>Extension points (<code>setExtEncounter</code>, <code>setExtMort</code>, <code>setComponent</code>, <code>setRateFunction</code>)</td>
 <td><code>inst/skills/extend-mizer/SKILL.md</code></td>
-</tr><tr class="even"><td>Packaging an extension: S3 extension classes, <code><a href="reference/recordExtension.html">recordExtension()</a></code>, <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> dispatch, bundled data, upgrading saved objects</td>
+</tr><tr><td>Packaging an extension: S3 extension classes, <code><a href="reference/recordExtension.html">recordExtension()</a></code>, <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> dispatch, bundled data, upgrading saved objects</td>
 <td><code>inst/skills/create-extension-package/SKILL.md</code></td>
-</tr><tr class="odd"><td>Using extension packages, or saving/reading params and sim objects</td>
+</tr><tr><td>Using extension packages, or saving/reading params and sim objects</td>
 <td><code>inst/skills/use-extension-packages/SKILL.md</code></td>
-</tr><tr class="even"><td>Model constructors (<code>newMultispeciesParams</code>, etc.), size grids, or allometric defaults</td>
+</tr><tr><td>Model constructors (<code>newMultispeciesParams</code>, etc.), size grids, or allometric defaults</td>
 <td><code>inst/skills/build-model/SKILL.md</code></td>
-</tr><tr class="odd"><td>Fishing gears, selectivity functions, catchability, or <code>gear_params</code>
+</tr><tr><td>Fishing gears, selectivity functions, catchability, or <code>gear_params</code>
 </td>
 <td><code>inst/skills/set-up-fishing/SKILL.md</code></td>
-</tr><tr class="even"><td>Simulation stepping, projection methods, or effort scenarios</td>
+</tr><tr><td>Simulation stepping, projection methods, or effort scenarios</td>
 <td><code>inst/skills/run-simulation/SKILL.md</code></td>
-</tr><tr class="odd"><td>Stability analysis, limit cycles, the <code>solver</code> argument, or <code>getStability</code>
+</tr><tr><td>Stability analysis, limit cycles, the <code>solver</code> argument, or <code>getStability</code>
 </td>
 <td><code>inst/skills/analyse-stability/SKILL.md</code></td>
-</tr><tr class="even"><td>Summary or plotting functions</td>
+</tr><tr><td>Summary or plotting functions</td>
 <td><code>inst/skills/analyse-and-plot/SKILL.md</code></td>
-</tr><tr class="odd"><td>Renaming/deprecating arguments, changing defaults, or investigating breaking changes</td>
+</tr><tr><td>Renaming/deprecating arguments, changing defaults, or investigating breaking changes</td>
 <td><code>inst/skills/upgrade-mizer-code/SKILL.md</code></td>
 </tr></tbody></table></div>
 <div class="section level2">
@@ -166,6 +169,7 @@
 <li>After adding or renaming exported functions, add them to the <code>appropriate</code> section in <code>pkgdown/_pkgdown.yml</code> so they appear on the reference page of the website.</li>
 <li>Update <code>NEWS.md</code> when adding features or fixing bugs.</li>
 <li>If the change can alter the behaviour of code users have already written — a renamed or removed argument, a changed default, a deprecation, a corrected bug that moves results — also record it in the <code>upgrade-mizer-code</code> skill, which is split in two: the prose goes in <code>inst/skills/upgrade-mizer-code/references/mizer-&lt;version&gt;.md</code> for the release being prepared (create the file for a new release; the generator orders them by version), and a row goes in the agent-only symptom index in its <code>SKILL.md</code>, giving the symptom a user would actually see and naming the section heading <strong>verbatim</strong>. If the change emits a message, quote a literal run of it in the row as <code>`"..."`</code> — that is the string the user will paste. <code>build_guides()</code> then checks that every row resolves to a heading, every heading has a row, and every quoted fragment is still a literal in <code>R/</code>, and updates <code>vignettes/upgrading.Rmd</code>. Do not edit that article directly.</li>
+<li>The <code>upgrade-mizer-code</code> skill addresses users. If the change is one only an extension author can act on — a method that stops dispatching, a workaround that can now be dropped, a mechanism an extension package has to adopt — put that guidance in <code>inst/skills/upgrade-extension-package/SKILL.md</code> instead, which generates the <code>upgrading-extension-packages</code> article, and keep the user-facing wording in <code>upgrade-mizer-code</code> free of extension asides.</li>
 <li>When creating a pull request, always include the summary of your changes in the PR body.</li>
 <li>
 <strong>Committing Changes</strong>: When asking the user for permission to commit, the agent must <em>first</em> provide a clear summary of all implemented changes. When executing the commit, the agent must <em>only</em> stage and commit the specific files it modified (using <code>git add &lt;file1&gt; &lt;file2&gt; ...</code>). The agent must <strong>never</strong> use <code>git commit -a</code> or <code>git add .</code>, to avoid committing unrelated unstaged changes in the user’s workspace.</li>

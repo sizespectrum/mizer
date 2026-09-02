@@ -21,16 +21,15 @@ Two rules cover almost everything:
 2.  **Persist models with
     [`saveParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)/[`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
     (or
-    [`saveSim()`](https://sizespectrum.org/mizer/reference/saveParams.md)/[`readSim()`](https://sizespectrum.org/mizer/reference/saveParams.md)),
-    never with
+    [`saveSim()`](https://sizespectrum.org/mizer/reference/saveParams.md)/[`readSim()`](https://sizespectrum.org/mizer/reference/saveParams.md))
+    rather than bare
     [`saveRDS()`](https://rdrr.io/r/base/readRDS.html)/[`readRDS()`](https://rdrr.io/r/base/readRDS.html).**
-    The file on disk deliberately holds a *base-class* object; the
-    extension class is restored on the way back in by
-    [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md).
-    So a bare [`readRDS()`](https://rdrr.io/r/base/readRDS.html) of a
-    perfectly good file returns an object whose extension methods are no
-    longer called — the model quietly gives base-mizer answers instead
-    of failing.
+    The S3 class is preserved either way, but mizer’s helpers also
+    validate and upgrade the object, check its custom functions, and
+    load any extension packages it needs. A bare
+    [`readRDS()`](https://rdrr.io/r/base/readRDS.html) does none of
+    that, so the class can be present while its extension methods are
+    not registered in the session.
 
 ------------------------------------------------------------------------
 
@@ -70,13 +69,15 @@ Two rules cover almost everything:
 
 ------------------------------------------------------------------------
 
-## The extension list and S3 dispatch
+## The extension record and S3 dispatch
 
 When an extension package creates or modifies a model, it stamps itself
-on the model object’s `extensions` slot:
+on the model’s metadata. Inspect that record through the public metadata
+accessor:
 
 ``` r
-params@extensions
+
+getMetadata(params)$extensions
 ```
 
 The entries record each attached extension, its installation
@@ -103,6 +104,7 @@ first. The outermost extension gets the first say, calls
 result returned by the inner extensions.
 
 ``` r
+
 params <- setMultipleResources(params, ...) # adds mizerMR
 params <- setShelf(params, ...)             # adds mizerShelf on top
 class(params)
@@ -116,11 +118,12 @@ class(params)
 When an extension package creates a
 [`MizerParams`](https://sizespectrum.org/mizer/reference/MizerParams.md)
 object (for example `mizerShelf::newDetritusCarrionParams()`), it
-records the extension packages actually applied to that object in the
-`extensions` slot:
+records the extension packages actually applied to that object in its
+metadata:
 
 ``` r
-params@extensions
+
+getMetadata(params)$extensions
 ```
 
 That record serves two purposes:
@@ -128,14 +131,16 @@ That record serves two purposes:
 1.  **Reproducibility.** It says which extension packages built the
     model, the installation requirement for each, and the package
     version whose object layout each component conforms to.
-2.  **Class restoration.** On reload, mizer uses it to promote the
-    object back to the correct S3 class, so that functions like
+2.  **Class consistency.** Mizer uses it to construct and validate the
+    S3 class vector, so that functions like
     [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md)
-    keep dispatching to the right extension methods.
+    dispatch to the right extension methods. This also repairs legacy
+    files in which the extension classes were not stored.
 
 ### Saving and loading
 
 ``` r
+
 saveParams(params, "my_model.rds")
 params <- readParams("my_model.rds")
 ```
@@ -147,11 +152,13 @@ session — a custom rate function, selectivity function or predation
 kernel written in a script. Those functions are not stored in the file,
 so the script has to travel with the `.rds`.
 
+[`saveParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
+stores the object’s complete S3 class vector.
 [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
 upgrades the object if it was written by an older mizer, loads the
-required extension packages, and promotes the object to the correct S3
-class. As long as the required packages are installed, this is seamless;
-if one is missing,
+required extension packages, and validates that class vector against the
+recorded extension chain. As long as the required packages are
+installed, this is seamless; if one is missing,
 [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
 stops with an error naming it.
 
@@ -164,6 +171,7 @@ and
 which do the same loading and coercion:
 
 ``` r
+
 sim <- project(params, t_max = 10)
 saveSim(sim, "my_simulation.rds")
 sim <- readSim("my_simulation.rds")
@@ -183,9 +191,10 @@ A collaborator needs the same extension packages installed.
 and
 [`readSim()`](https://sizespectrum.org/mizer/reference/saveParams.md)
 tell them which are missing. To install them automatically from the
-specifications stored in `params@extensions`:
+specifications stored in the model’s extension metadata:
 
 ``` r
+
 params <- readParams("my_model.rds", install_extensions = TRUE)
 ```
 
@@ -203,13 +212,20 @@ objects as example models. As long as the package follows mizer’s
 conventions, these work as soon as the package is loaded:
 
 ``` r
+
 library(mizerShelf)
 NWMed_params   # already has the correct extension class -- no extra steps needed
 ```
 
-An object from an older package that does not behave as expected can be
-repaired with
-[`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md).
+If an object from an older package does not behave as expected, load
+that package and repair the object with
+[`validParams()`](https://sizespectrum.org/mizer/reference/validParams.md)
+(or [`validSim()`](https://sizespectrum.org/mizer/reference/validSim.md)
+for a simulation). Direct calls to
+[`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
+and
+[`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
+are for extension package authors, not model users.
 
 ------------------------------------------------------------------------
 
@@ -226,7 +242,8 @@ reload with `readParams("my_model.rds", install_extensions = TRUE)`.
 ### Checking what a params object requires
 
 ``` r
-params@extensions
+
+getMetadata(params)$extensions
 ```
 
 The names are the extension identifiers. Current entries each contain a
@@ -255,8 +272,6 @@ to persist and reload models.
   package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.md)
   — how to package your own extension and make it composable with
   others.
-- [`?coerceToExtensionClass`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md),
-  [`?recordExtension`](https://sizespectrum.org/mizer/reference/recordExtension.md)
 - [`?saveParams`](https://sizespectrum.org/mizer/reference/saveParams.md),
   [`?readParams`](https://sizespectrum.org/mizer/reference/saveParams.md),
   [`?saveSim`](https://sizespectrum.org/mizer/reference/saveParams.md),

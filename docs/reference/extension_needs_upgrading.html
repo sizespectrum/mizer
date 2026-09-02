@@ -5,14 +5,14 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Whether any extension recorded on an object needs upgrading — extension_needs_upgrading"><meta name="description" content="Returns TRUE if, for any extension recorded in the object's @extensions
-slot whose package is installed, the recorded version stamp is missing (NA)
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Whether any extension recorded on an object needs upgrading — extension_needs_upgrading"><meta name="description" content="Returns TRUE if, for any extension recorded on the object whose package is
+installed, the recorded version stamp is missing (NA)
 or older than the installed version of that package. A missing stamp counts
 as needing an upgrade so that objects created before extension-version
 tracking are brought up to date (and stamped) on first use; this is safe
 because runExtensionUpgrades() only calls an upgrade method if one is registered and
-such methods are written to be idempotent."><meta property="og:description" content="Returns TRUE if, for any extension recorded in the object's @extensions
-slot whose package is installed, the recorded version stamp is missing (NA)
+such methods are written to be idempotent."><meta property="og:description" content="Returns TRUE if, for any extension recorded on the object whose package is
+installed, the recorded version stamp is missing (NA)
 or older than the installed version of that package. A missing stamp counts
 as needing an upgrade so that objects created before extension-version
 tracking are brought up to date (and stamped) on first use; this is safe
@@ -25,7 +25,7 @@ such methods are written to be idempotent."><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,6 +60,7 @@ such methods are written to be idempotent."><meta property="og:image" content="h
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Upgrading</h6></li>
     <li><a class="dropdown-item" href="../articles/upgrading.html">Upgrading your mizer code</a></li>
+    <li><a class="dropdown-item" href="../articles/upgrading-extension-packages.html">Upgrading your extension package</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Technical articles</h6></li>
     <li><a class="dropdown-item" href="../articles/cohort_dynamics_and_diffusion.html">Cohort dynamics and diffusion</a></li>
@@ -99,8 +100,8 @@ such methods are written to be idempotent."><meta property="og:image" content="h
     </div>
 
     <div class="ref-description section level2">
-    <p>Returns TRUE if, for any extension recorded in the object's <code>@extensions</code>
-slot whose package is installed, the recorded version stamp is missing (<code>NA</code>)
+    <p>Returns TRUE if, for any extension recorded on the object whose package is
+installed, the recorded version stamp is missing (<code>NA</code>)
 or older than the installed version of that package. A missing stamp counts
 as needing an upgrade so that objects created before extension-version
 tracking are brought up to date (and stamped) on first use; this is safe
