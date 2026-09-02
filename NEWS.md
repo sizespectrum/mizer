@@ -1,3 +1,5 @@
+# mizer (development version)
+
 # mizer 3.4.0
 
 The headline change is one you should not be able to feel: `MizerParams` and
