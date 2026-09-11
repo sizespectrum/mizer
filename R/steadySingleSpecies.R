@@ -70,6 +70,18 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
         }
 
         N0_vec[sp] <- params@initial_n[sp, w_min_idx]
+        # The solution is grown up from the egg size, so an empty egg size
+        # class would give an all-zero spectrum. That is the right answer only
+        # for a species that is absent altogether.
+        if (N0_vec[sp] == 0 && any(params@initial_n[sp, ] > 0)) {
+            stop("The abundance of ", sp, " is zero in the size class ",
+                 "containing its egg size w_min but non-zero at larger ",
+                 "sizes. Because the steady state is determined by growing ",
+                 "the egg abundance up through the size classes, this would ",
+                 "empty the species. Give ", sp, " a positive abundance in ",
+                 "size class ", w_min_idx, ", the class containing w_min = ",
+                 params@species_params[sp, "w_min"], ".")
+        }
         params@initial_n[sp, ] <- 0
     }
 

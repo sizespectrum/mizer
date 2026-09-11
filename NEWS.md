@@ -1,5 +1,18 @@
 # mizer (development version)
 
+## Bug fixes
+
+- A species whose egg size `w_min` does not sit exactly on a grid point is no
+  longer emptied by `steadySingleSpecies()`, and `addSpecies()` no longer fails
+  for such a species with "Candidate steady state holds non-numeric values."
+  (#610). Under defaults edition 1 the initial abundances were set to zero in
+  every size class below `w_min`, which included the class that *contains*
+  `w_min` — the class that `w_min_idx` points to and from which the steady state
+  is grown upwards. The cutoff is now the start of that class, so it keeps a
+  positive abundance. `steadySingleSpecies()` also now reports which species has
+  an empty egg size class instead of silently returning a spectrum that is zero
+  at every size.
+
 # mizer 3.4.0
 
 The headline change is one you should not be able to feel: `MizerParams` and

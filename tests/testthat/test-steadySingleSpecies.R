@@ -104,3 +104,34 @@ test_that("steadySingleSpecies errors when growth stops before maturity", {
     expect_error(steadySingleSpecies(params, species = 1),
                  "cannot grow to maturity")
 })
+
+test_that("steadySingleSpecies works when w_min is above the grid minimum", {
+    # Issue #610: species whose egg size did not sit on a grid point were
+    # emptied instead of being given a spectrum starting at their egg size.
+    params <- example_params()
+    # Egg sizes of species 2 and 3 lie strictly inside a size bin
+    expect_true(all(params@w[params@w_min_idx[2:3]] <
+                        params@species_params$w_min[2:3]))
+
+    p <- steadySingleSpecies(params)
+    for (i in seq_len(nrow(params@species_params))) {
+        idx <- params@w_min_idx[[i]]
+        expect_gt(p@initial_n[i, idx], 0)
+        # `keep = "egg"` leaves the egg density unchanged
+        expect_equal(p@initial_n[i, idx], params@initial_n[i, idx])
+        expect_true(all(p@initial_n[i, seq_len(idx - 1)] == 0))
+    }
+})
+
+test_that("steadySingleSpecies errors when the egg size class is empty", {
+    params <- NS_params_small
+    sp <- params@species_params$species[[3]]
+    params@initial_n[sp, params@w_min_idx[[sp]]] <- 0
+    expect_error(steadySingleSpecies(params, species = sp),
+                 "is zero in the size class containing its egg size")
+
+    # A species that is absent at all sizes is simply left empty
+    params@initial_n[sp, ] <- 0
+    p <- steadySingleSpecies(params, species = sp)
+    expect_true(all(p@initial_n[sp, ] == 0))
+})

@@ -167,6 +167,27 @@ test_that("addSpecies works when adding a species with a smaller w_min", {
                  intake_max(params), ignore_attr = TRUE)
 })
 
+test_that("addSpecies works when adding a species with a larger w_min", {
+    # Issue #610: the new species used to be emptied by steadySingleSpecies()
+    # and `addSpecies()` then failed with "non-numeric values".
+    sp <- data.frame(species = "Ray", w_max = 9000, w_mat = 2000, w_min = 10,
+                     k_vb = 0.2)
+    # On the coarse 20-bin fixture grid the Ray needs erepro > 1, which is
+    # beside the point here.
+    suppressWarnings(
+        (p <- addSpecies(NS_params_small, sp)) |>
+            expect_message()
+    )
+
+    i <- which(p@species_params$species == "Ray")
+    idx <- p@w_min_idx[[i]]
+    # The egg size lies strictly inside a size bin above the grid minimum
+    expect_gt(p@w[idx], min(p@w))
+    expect_lt(p@w[idx], 10)
+    expect_gt(p@initial_n[i, idx], 0)
+    expect_true(all(p@initial_n[i, seq_len(idx - 1)] == 0))
+})
+
 test_that("addSpecies has other documented properties", {
     sp <- data.frame(species = c("new1", "new2"),
                      w_max = c(10, 100),
