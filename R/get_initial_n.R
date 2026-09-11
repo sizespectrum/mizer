@@ -40,10 +40,14 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
             n0_mult = n0_mult, w_max = params@species_params$w_max, a=a, n=n, q=q))
         #set densities at w > w_max to 0
         initial_n[unlist(tapply(params@w,1:no_w,function(wx,w_max) w_max<wx, w_max=params@species_params$w_max))] <- 0
-        # Also any densities at w < w_min set to 0
+        # Also any densities below the egg size class set to 0. The cutoff is
+        # the start of the size bin holding `w_min`, not `w_min` itself,
+        # because that whole bin is the egg size class: emptying it would
+        # leave the species with no abundance at `w_min_idx`, which is where
+        # reproduction enters and where the steady state solvers start from.
         initial_n[unlist(tapply(params@w, 1:no_w,
                                 function(wx, w_min) w_min > wx,
-                                w_min = params@species_params$w_min)
+                                w_min = params@w[params@w_min_idx])
                          )
                   ] <- 0
         return(ArraySpeciesBySize(initial_n, value_name = "Number density",

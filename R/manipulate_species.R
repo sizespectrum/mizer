@@ -343,6 +343,14 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
             # We look at the maximum of abundance times w^lambda
             # because that is always an increasing function at small size.
             idx <- which.max(p@initial_n[i, ] * p@w^p@resource_params$lambda)
+            if (p@initial_n[i, idx] == 0) {
+                stop("The single-species steady state of ",
+                     p@species_params$species[[i]],
+                     " is zero at all sizes, so it can not be rescaled to a ",
+                     "low abundance. Check the species parameters, in ",
+                     "particular that the species can grow from w_min to ",
+                     "w_max.")
+            }
             p@initial_n[i, ] <- p@initial_n[i, ] *
                 p@resource_params$kappa * p@w[idx]^(-p@resource_params$lambda) /
                 p@initial_n[i, idx] / 100
