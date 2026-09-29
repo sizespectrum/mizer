@@ -145,7 +145,12 @@ setPredKernel.MizerParams <- function(params,
                     "calculated from the species parameters.")
             pred_kernel <- NULL
         }
-        comment(params@pred_kernel) <- NULL
+        # Discard any explicitly stored kernel, not just its comment. The
+        # rate functions decide whether to use the stored kernel by looking
+        # at its comment, while `pred_kernel()` and `encounter_kernel()` look
+        # at its dimensions, so leaving the array in place would have them
+        # report a kernel that the model no longer uses (issue #608).
+        params@pred_kernel <- array()
     }
 
     if (!is.null(pred_kernel)) {
