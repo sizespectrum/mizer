@@ -49,10 +49,25 @@ test_that("Comment works on pred_kernel", {
     # Can reset
     params@species_params$beta <- beta
     p <- setPredKernel(params, reset = TRUE)
-    expect_equal(p@pred_kernel, pred_kernel)
+    expect_equal(pred_kernel(p), pred_kernel)
     expect_warning(setPredKernel(params, pred_kernel = pred_kernel,
                                     reset = TRUE),
                    "Because you set `reset = TRUE`, the")
+})
+
+test_that("reset = TRUE discards an explicitly stored kernel (#608)", {
+    params <- NS_params_small
+    p <- setPredKernel(params, pred_kernel = 2 * pred_kernel(params))
+    p <- setPredKernel(p, reset = TRUE)
+    # The slot is back to its placeholder, so the dimension test and the
+    # comment test agree that no kernel is stored explicitly
+    expect_null(comment(p@pred_kernel))
+    expect_lte(length(dim(p@pred_kernel)), 1)
+    # The accessors report the kernel that the model uses
+    expect_equal(pred_kernel(p), pred_kernel(params))
+    expect_equal(encounter_kernel(p), encounter_kernel(params))
+    expect_equal(getEncounter(p), getEncounter(params))
+    expect_equal(getTrophicLevel(p), getTrophicLevel(params))
 })
 
 # pred_kernel ----

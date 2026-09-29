@@ -2,6 +2,13 @@
 
 ## Bug fixes
 
+- `setPredKernel(reset = TRUE)` now removes a predation kernel that had been
+  set by hand, rather than only removing the comment that protected it (#608).
+  The rate functions already used the recalculated kernel, but the discarded
+  array stayed in the model, so `pred_kernel()` went on returning it and
+  `getTrophicLevel()` paired it with the encounter rate from the new kernel,
+  reporting trophic levels that could be far off without any warning.
+
 - A species whose egg size `w_min` does not sit exactly on a grid point is no
   longer emptied by `steadySingleSpecies()`, and `addSpecies()` no longer fails
   for such a species with "Candidate steady state holds non-numeric values."
