@@ -2,6 +2,9 @@
 
 ## Bug fixes
 
+- `projectUntilSettled()` no longer reports a false-positive extinction for a
+  species that starts with zero abundance (#614).
+
 - `setPredKernel(reset = TRUE)` now removes a predation kernel that had been
   set by hand, rather than only removing the comment that protected it (#608).
   The rate functions already used the recalculated kernel, but the discarded

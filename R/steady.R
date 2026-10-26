@@ -627,7 +627,8 @@ project_until_settled <- function(params,
         # A species whose reproduction has collapsed to a tiny fraction of its
         # starting value is going extinct, so stop.
         extinct <- is.na(current$rates$rdd) |
-            current$rates$rdd <= extinction_threshold * rdd_start
+            (rdd_start > 0 &
+                 current$rates$rdd <= extinction_threshold * rdd_start)
         if (any(extinct)) {
             warning(paste(params@species_params$species[extinct], collapse = ", "),
                     " are going extinct.")
