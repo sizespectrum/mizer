@@ -2,6 +2,9 @@
 
 ## Bug fixes
 
+- `steadySingleSpecies()` with `keep = "biomass"` or `keep = "number"` now
+  rescales only the requested species and no longer fills absent species with
+  `NaN` (#615).
 - `setPredKernel(reset = TRUE)` now removes a predation kernel that had been
   set by hand, rather than only removing the comment that protected it (#608).
   The rate functions already used the recalculated kernel, but the discarded

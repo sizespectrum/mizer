@@ -135,3 +135,13 @@ test_that("steadySingleSpecies errors when the egg size class is empty", {
     p <- steadySingleSpecies(params, species = sp)
     expect_true(all(p@initial_n[sp, ] == 0))
 })
+
+test_that("steadySingleSpecies `keep` leaves absent species finite", {
+    params <- NS_params_small
+    initialN(params)[1, ] <- 0
+    for (keep in c("biomass", "number")) {
+        p2 <- steadySingleSpecies(params, species = 3, keep = keep)
+        expect_true(all(is.finite(p2@initial_n)))
+        expect_true(all(p2@initial_n[1, ] == 0))
+    }
+})

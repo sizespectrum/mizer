@@ -109,12 +109,14 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
     }
 
     if (keep == "biomass") {
-        factor <- biomass / getBiomass(params, use_cutoff = TRUE)
-        params@initial_n <- params@initial_n * factor
+        factor <- biomass[species] / getBiomass(params, use_cutoff = TRUE)[species]
+        factor[!is.finite(factor)] <- 0
+        params@initial_n[species, ] <- params@initial_n[species, ] * factor
     }
     if (keep == "number") {
-        factor <- number / getN(params)
-        params@initial_n <- params@initial_n * factor
+        factor <- number[species] / getN(params)[species]
+        factor[!is.finite(factor)] <- 0
+        params@initial_n[species, ] <- params@initial_n[species, ] * factor
     }
 
     params@time_modified <- lubridate::now()
