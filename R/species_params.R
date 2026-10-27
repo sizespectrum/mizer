@@ -1808,16 +1808,31 @@ set_species_param_default <- function(object, parname, default,
 #' mathematical derivation.
 #'
 #' @param params A MizerParams object or a species parameter data frame
+#' @param ... Unused.
 #' @return A vector with the values of h for all species
 #' @export
 #' @concept helper
 #' @family functions calculating defaults
-get_h_default <- function(params) {
-    if (is(params, "MizerParams")) {
-        species_params <- params@species_params
-    } else {
-        species_params <- validSpeciesParams(params)
-    }
+get_h_default <- function(params, ...) {
+    UseMethod("get_h_default")
+}
+
+#' @export
+get_h_default.MizerParams <- function(params, ...) {
+    h_from_species_params(params@species_params)
+}
+
+#' @export
+get_h_default.default <- function(params, ...) {
+    h_from_species_params(validSpeciesParams(params))
+}
+
+#' Calculate the default `h` from a species parameter data frame
+#'
+#' @param species_params A validated species parameter data frame
+#' @return A vector with the values of h for all species
+#' @noRd
+h_from_species_params <- function(species_params) {
     assert_that("n" %in% names(species_params))
     species_params <- set_species_param_default(species_params, "f0", 0.6)
     if (!("h" %in% colnames(species_params))) {
@@ -1866,11 +1881,11 @@ get_h_default <- function(params) {
 #' Measure the available energy in a power-law prey spectrum
 #'
 #' Puts the model into the reference state used for deriving the default
-#' `gamma` and `f0`: no fish, and a resource spectrum given by the power law
-#' \eqn{\kappa w^{-\lambda}}. It then measures the resulting encounter rate at
-#' the largest size and divides out its power-law dependence on size, so that
-#' the returned number for each species is the coefficient \eqn{A_i} in
-#' \eqn{E_i(w) = A_i\, w^{2 + q_i - \lambda}}.
+#' `gamma` and `f0`: no fish, and an untruncated resource spectrum given by the
+#' power law \eqn{\kappa w^{-\lambda}} across the full `w_full` grid. It then
+#' measures the resulting encounter rate at the largest size and divides out its
+#' power-law dependence on size, so that the returned number for each species is
+#' the coefficient \eqn{A_i} in \eqn{E_i(w) = A_i\, w^{2 + q_i - \lambda}}.
 #'
 #' The measurement uses [mizerEncounter()] rather than [getEncounter()]. What is
 #' wanted here is a property of the species parameters, not of the model's
@@ -1885,10 +1900,55 @@ get_h_default <- function(params) {
 #' The caller is responsible for having set the `q` and `gamma` species
 #' parameters and the `search_vol` slot that the measurement is to use.
 #'
+#' # For extension authors
+#'
+#' This function is the hook by which an extension package that changes the
+#' resource structure of the model keeps [get_gamma_default()] and
+#' [get_f0_default()] working. Mizer's own method measures the energy available
+#' from the single resource spectrum in the `initial_n_pp` slot, placed on an
+#' untruncated power law \eqn{\kappa w^{-\lambda}} across `w_full` (ignoring
+#' `w_pp_cutoff` so that evaluating at the largest fish size `w[length(w)]`
+#' recovers the scale-free coefficient \eqn{A_i} without upper-cutoff
+#' distortion). An extension that replaces that resource by a system of its own
+#' registers a method for its marker class, for example
+#'
+#' ```
+#' measure_avail_energy.mizerMR <- function(params, ...) {
+#'     # Put each of the extension's resources into the untruncated power-law
+#'     # reference state and return the coefficient A_i for each species.
+#' }
+#' ```
+#'
+#' and both defaults then measure against that system without the extension
+#' having to reimplement the rest of the calculation. A method must return the
+#' coefficient \eqn{A_i} described above (evaluated against untruncated
+#' power-law resource spectra so that it does not vanish at `w[length(w)]`), not
+#' the encounter rate itself. If your extension instead calibrates `gamma`
+#' against size-truncated resource spectra at a species-specific reference size
+#' (such as `w_inf` or `w_min`), register methods for [get_gamma_default()] and
+#' [get_f0_default()] directly.
+#'
+#' In either case, follow mizer in measuring a property of the species
+#' parameters: leave out any dynamic modulation of the search volume, and any
+#' additive encounter contribution, that your extension applies. Folding such a
+#' factor into the measurement folds it into `gamma`, which then determines the
+#' search volume, so the factor is re-applied on every rebuild (issues #577 and
+#' #586).
+#'
 #' @param params A MizerParams object
+#' @param ... Unused.
 #' @return A vector with one number for each species
-#' @noRd
-measure_avail_energy <- function(params) {
+#' @export
+#' @concept helper
+#' @family functions calculating defaults
+measure_avail_energy <- function(params, ...) {
+    UseMethod("measure_avail_energy")
+}
+
+#' @export
+measure_avail_energy.MizerParams <- function(params, ...) {
+    assert_that(is.number(params@resource_params$lambda),
+                is.number(params@resource_params$kappa))
     params@initial_n[] <- 0
     params@ext_encounter[] <- 0
     params@other_encounter <- list()
@@ -1926,13 +1986,23 @@ measure_avail_energy <- function(params) {
 #' deliberately does not go through the extension dispatch chain, nor through an
 #' encounter function registered with [setRateFunction()].
 #'
+#' This is an S3 generic. An extension package that replaces mizer's single
+#' resource by a resource system of its own directs the measurement at that
+#' system by registering a method for [measure_avail_energy()], which is where
+#' the energy available in the reference state is measured.
+#'
 #' @param params A MizerParams object
+#' @param ... Unused.
 #' @return A vector with the values of gamma for all species
 #' @export
 #' @concept helper
 #' @family functions calculating defaults
-get_gamma_default <- function(params) {
-    assert_that(is(params, "MizerParams"))
+get_gamma_default <- function(params, ...) {
+    UseMethod("get_gamma_default")
+}
+
+#' @export
+get_gamma_default.MizerParams <- function(params, ...) {
     species_params <- params@species_params %>%
         set_species_param_default("f0", 0.6)
     if (!("gamma" %in% colnames(species_params))) {
@@ -1941,9 +2011,7 @@ get_gamma_default <- function(params) {
     check_f0(species_params$f0, species_params$species)
     missing <- is.na(species_params$gamma)
     if (any(missing)) {
-        assert_that(is.number(params@resource_params$lambda),
-                    is.number(params@resource_params$kappa),
-                    is.numeric(species_params$f0))
+        assert_that(is.numeric(species_params$f0))
         signal_info("gamma", "Using f0, h, lambda, kappa and the predation kernel to calculate gamma.")
         if (!"h" %in% names(params@species_params) ||
             any(is.na(species_params[["h"]]))) {
@@ -2008,13 +2076,23 @@ get_gamma_default <- function(params) {
 #' deliberately does not go through the extension dispatch chain, nor through an
 #' encounter function registered with [setRateFunction()].
 #'
+#' This is an S3 generic. An extension package that replaces mizer's single
+#' resource by a resource system of its own directs the measurement at that
+#' system by registering a method for [measure_avail_energy()], which is where
+#' the energy available in the reference state is measured.
+#'
 #' @param params A MizerParams object
+#' @param ... Unused.
 #' @return A vector with the values of f0 for all species
 #' @export
 #' @concept helper
 #' @family functions calculating defaults
-get_f0_default <- function(params) {
-    assert_that(is(params, "MizerParams"))
+get_f0_default <- function(params, ...) {
+    UseMethod("get_f0_default")
+}
+
+#' @export
+get_f0_default.MizerParams <- function(params, ...) {
     species_params <- params@species_params %>%
         set_species_param_default("f0", 0.6)
     if (!("gamma" %in% colnames(species_params))) {
@@ -2022,9 +2100,7 @@ get_f0_default <- function(params) {
     }
     given <- !is.na(species_params$gamma)
     if (any(given)) {
-        assert_that(is.number(params@resource_params$lambda),
-                    is.number(params@resource_params$kappa),
-                    is.numeric(species_params$gamma))
+        assert_that(is.numeric(species_params$gamma))
         if (!"h" %in% names(params@species_params) ||
             any(is.na(species_params[["h"]]))) {
             species_params[["h"]] <- get_h_default(params)
@@ -2063,13 +2139,18 @@ get_f0_default <- function(params) {
 #' mathematical derivation.
 #'
 #' @param params A MizerParams object
+#' @param ... Unused.
 #' @return A vector with the values of ks for all species
 #' @export
 #' @concept helper
 #' @family functions calculating defaults
-get_ks_default <- function(params) {
-    assert_that(is(params, "MizerParams"),
-                "n" %in% names(params@species_params),
+get_ks_default <- function(params, ...) {
+    UseMethod("get_ks_default")
+}
+
+#' @export
+get_ks_default.MizerParams <- function(params, ...) {
+    assert_that("n" %in% names(params@species_params),
                 "p" %in% names(params@species_params))
     if (!"h" %in% names(params@species_params) ||
         any(is.na(params@species_params[["h"]]))) {
