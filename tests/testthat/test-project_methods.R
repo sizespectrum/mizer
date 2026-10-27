@@ -151,3 +151,21 @@ test_that("Test that fft based integrator gives similar result as old code", {
     skip_on_cran()
     expect_equal(prfft, pr, tolerance = 3e-14, ignore_attr = TRUE)
 })
+
+test_that("predation and resource mortality are second order (#619)", {
+    # The predation integral runs over predator size, so the predator's
+    # (1 - f(w)) * gamma(w) is part of the smooth weight multiplying the
+    # predator density and must be averaged over the predator bin. Measure the
+    # order under grid refinement with smooth prescribed densities.
+    mort <- function(no_w) {
+        p <- convergence_params(no_w)
+        # Resource mortality is taken below the fish predation size so that it
+        # is not the same number as the fish predation mortality.
+        c(pred = at_bin_centre(getPredMort(p)["Large", ], w(p), dw(p), 0.05),
+          resource = at_bin_centre(getResourceMort(p), w_full(p), dw_full(p),
+                                   2e-3))
+    }
+    v <- vapply(c(80, 160, 320), mort, numeric(2))
+    expect_gt(convergence_order(v["pred", ]), 1.8)
+    expect_gt(convergence_order(v["resource", ]), 1.8)
+})

@@ -173,6 +173,20 @@ test_that("predation diffusion default path mirrors the encounter kernel (#384)"
     expect_true(all(is.finite(getDiffusion(params, n, n_pp))))
 })
 
+test_that("predation diffusion is second order under bin_average (#619)", {
+    # The transport solver needs the diffusion coefficient averaged over the
+    # predator bin. The kernel averages the prey integral over it, but the
+    # factor (1 - f(w)) * gamma(w) in front must be averaged over it too.
+    # Measure the order under grid refinement with smooth prescribed densities.
+    diffusion <- function(no_w) {
+        p <- convergence_params(no_w)
+        use_predation_diffusion(p) <- TRUE
+        at_bin_centre(getDiffusion(p)["Large", ], w(p), dw(p), 5)
+    }
+    v <- vapply(c(80, 160, 320), diffusion, numeric(1))
+    expect_gt(convergence_order(v), 1.8)
+})
+
 # getDiffusion with predation diffusion ----
 # The snapshot below was recorded with defaults edition 1, so the params object
 # and the random abundances are reconstructed exactly as they were built in
