@@ -589,6 +589,10 @@ rebalance_resource <- function(params, resource_dynamics) {
 #' density dependence back so that it reproduces exactly that rate at the new
 #' spectra, keeping whichever of the reproduction parameters `preserve` names.
 #'
+#' A species with no egg production, such as one that is absent from the model,
+#' is left as it was: its reproduction is zero whatever its parameters, so there
+#' is no balance to restore, and [setBevertonHolt()] cannot solve for one.
+#'
 #' @param params A \linkS4class{MizerParams} object.
 #' @param preserve One of `"reproduction_level"`, `"R_max"` or `"erepro"`.
 #' @param old_reproduction_level,old_R_max,old_erepro The values recorded before
@@ -600,6 +604,11 @@ restore_reproduction <- function(params, preserve, old_reproduction_level,
     if (params@rates_funcs$RDD != "BevertonHoltRDD") {
         return(params)
     }
+    # setBevertonHolt() leaves alone a species whose value is `NA`.
+    skip <- which(getRDI(params) == 0)
+    old_reproduction_level[skip] <- NA
+    old_R_max[skip] <- NA
+    old_erepro[skip] <- NA
     if (preserve == "reproduction_level") {
         reproduction_level(params) <- old_reproduction_level
     } else if (preserve == "R_max") {

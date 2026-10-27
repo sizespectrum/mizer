@@ -88,9 +88,10 @@ A species is treated as going extinct, stopping the run, once its
 reproduction rate (RDD) falls below this fraction of its value at the start
 of the run. For example the default \code{1e-6} treats a species as extinct once
 its reproduction has collapsed to a millionth of its initial level. Because
-it is relative to the initial reproduction, a species that starts with zero
-reproduction is flagged immediately, and (in \code{\link[=tuneSteadyState]{tuneSteadyState()}}, where
-reproduction is held constant) a healthy species is never flagged.}
+it is relative to the initial reproduction, a species that is present but
+starts with zero reproduction is flagged immediately, and (in
+\code{\link[=tuneSteadyState]{tuneSteadyState()}}, where reproduction is held constant) a healthy species
+is never flagged. A species with no fish at the start is not tested.}
 
 \item{progress_bar}{A shiny progress object to implement a progress bar in a
 shiny app. Default FALSE.}
@@ -191,17 +192,20 @@ If the reproduction rate (RDD) of any species has fallen below
 \code{extinction_threshold} times its value at the start of the run, or has become
 \code{NA}, that species is deemed to be on its way to extinction. A warning naming
 the affected species is issued and the run stops with
-\code{type = "extinction"}. Because the criterion is relative to the initial
-reproduction, a species that starts with zero reproduction is flagged
-immediately, whereas in \code{\link[=tuneSteadyState]{tuneSteadyState()}}, where reproduction is held constant, a
-healthy species is never flagged.
+\code{termination = "extinction"}. Because the criterion is relative to the
+initial reproduction, a species that is present but starts with zero
+reproduction is flagged immediately, whereas in \code{\link[=tuneSteadyState]{tuneSteadyState()}}, where
+reproduction is held constant, a healthy species is never flagged. A species
+with no fish at the start of the run is not tested: it stays absent while the
+others settle, as it does with the Newton solver of \code{\link[=findSteadyState]{findSteadyState()}}.
 }
 
 \subsection{2. Limit cycle}{
 
 The recorded biomass series is examined to see whether the run has settled
-onto a limit cycle. If it has, the run stops with \code{type = "cycle"} and the
-period and amplitude of the cycle are reported.
+onto a limit cycle. If it has, the run stops with
+\code{termination = "cycle_detected"} and the period and amplitude of the cycle
+are reported.
 
 It is made at every check, whether or not the state looks converged
 by the measure below. A cycle whose period divides \code{t_check} puts the two
@@ -244,9 +248,9 @@ and its amplitude can sit below \code{amplitude_tol} where the cycle detection
 deliberately ignores it.
 
 If none of the three checks fires before \code{t_max} is reached, the run stops
-with \code{type = "not_converged"}. In every case the outcome is recorded in the
-\code{"convergence"} attribute of the returned object, described under \emph{Value}
-below.
+with \code{termination = "time_limit"}. In every case the outcome is recorded in
+the \code{"convergence"} attribute of the returned object, described under
+\emph{Value} below.
 }
 }
 
