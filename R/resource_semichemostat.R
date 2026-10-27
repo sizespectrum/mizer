@@ -44,7 +44,12 @@ resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt,
     # We use the exact solution under the assumption of constant mortality
     # during timestep
     mur <- resource_rate + rates$resource_mort
-    n_steady <- resource_rate * resource_capacity / mur
+    n_steady <- steady_resource_semichemostat(
+        params,
+        n = n, n_pp = n_pp, n_other = n_other, rates = rates, t = t,
+        resource_rate = resource_rate,
+        resource_capacity = resource_capacity
+    )
     n_pp_new <- n_steady + (n_pp - n_steady) * exp(-mur * dt)
 
     # Here is an alternative expression that looks as if it might be more
@@ -59,6 +64,29 @@ resource_semichemostat <- function(params, n, n_pp, n_other, rates, t, dt,
     n_pp_new[sel] <- n_pp[sel]
 
     n_pp_new
+}
+
+
+#' @rdname resource_semichemostat
+#' @details
+#' The [steady_resource_semichemostat()] function returns the resource
+#' abundance at equilibrium when all rates are held at the supplied values. It
+#' is the companion that direct steady-state solvers look up for
+#' `resource_semichemostat()`.
+#' @return `steady_resource_semichemostat()`: A vector containing the
+#'   equilibrium resource number density in each size class.
+#' @export
+steady_resource_semichemostat <- function(params, n, n_pp, n_other, rates, t,
+                                          resource_rate,
+                                          resource_capacity, ...) {
+    mur <- resource_rate + rates$resource_mort
+    n_steady <- resource_rate * resource_capacity / mur
+
+    # If both replenishment and mortality vanish, every abundance is steady.
+    # Keep the supplied abundance, as resource_semichemostat() has always done.
+    sel <- !is.finite(n_steady)
+    n_steady[sel] <- n_pp[sel]
+    n_steady
 }
 
 

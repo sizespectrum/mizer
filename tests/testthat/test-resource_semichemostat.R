@@ -1,5 +1,43 @@
 trait_resource_semichemostat_params <- trait_params_small
 
+test_that("steady_resource_semichemostat returns equilibrium", {
+    initial <- initialNResource(trait_resource_semichemostat_params)
+    params <- setResource(
+        trait_resource_semichemostat_params,
+        resource_dynamics = "resource_semichemostat",
+        resource_capacity = 2 * initial
+    )
+    rates <- getRates(params)
+    equilibrium <- steady_resource_semichemostat(
+        params,
+        n = params@initial_n,
+        n_pp = params@initial_n_pp,
+        n_other = params@initial_n_other,
+        rates = rates, t = 0,
+        resource_rate = params@rr_pp,
+        resource_capacity = params@cc_pp
+    )
+
+    expect_equal(equilibrium, params@initial_n_pp,
+                 tolerance = 1e-15, ignore_attr = TRUE)
+
+    # With neither replenishment nor mortality, every abundance is steady and
+    # the companion keeps the supplied one.
+    rate <- params@rr_pp
+    rate[1] <- 0
+    rates$resource_mort[1] <- 0
+    equilibrium <- steady_resource_semichemostat(
+        params,
+        n = params@initial_n,
+        n_pp = params@initial_n_pp,
+        n_other = params@initial_n_other,
+        rates = rates, t = 0,
+        resource_rate = rate,
+        resource_capacity = params@cc_pp
+    )
+    expect_equal(equilibrium[1], params@initial_n_pp[1], ignore_attr = TRUE)
+})
+
 test_that("resource_semichemostat preserves steady state", {
     # Set resource parameters so that we are at steady state
     params <- trait_resource_semichemostat_params

@@ -120,9 +120,9 @@ Everything is evaluated at the model's own stored state — \code{initialN()},
 \code{initialNResource()}, \code{initialNOther()} — using the model's own reproduction
 function and its own \code{resource_dynamics}. Nothing is substituted or held
 fixed. The number therefore answers exactly "if I called \code{\link[=project]{project()}} now,
-would anything move?", which is why it works for every model rather than only
-for the semichemostat resource that \code{findSteadyState(solver = "newton")}
-requires.
+would anything move?", which is why it works for every model without needing
+the \verb{steady_<resource_dynamics>()} companion that
+\code{findSteadyState(solver = "newton")} uses.
 }
 
 \subsection{Reading the result}{

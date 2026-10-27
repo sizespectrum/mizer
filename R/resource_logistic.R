@@ -44,7 +44,12 @@ resource_logistic <- function(params, n, n_pp, n_other, rates, t, dt,
     # We use the exact solution under the assumption of constant mortality
     # during timestep
     mur <- resource_rate - rates$resource_mort
-    n_steady <- mur * resource_capacity / resource_rate
+    n_steady <- steady_resource_logistic(
+        params,
+        n = n, n_pp = n_pp, n_other = n_other, rates = rates, t = t,
+        resource_rate = resource_rate,
+        resource_capacity = resource_capacity
+    )
     n_pp_new <- n_steady / ((n_steady - n_pp) / n_pp * exp(-mur * dt) + 1)
 
     # Here is an alternative expression that looks as if it might be more
@@ -59,6 +64,30 @@ resource_logistic <- function(params, n, n_pp, n_other, rates, t, dt,
     n_pp_new[sel] <- n_pp[sel]
 
     n_pp_new
+}
+
+
+#' @rdname resource_logistic
+#' @details
+#' The [steady_resource_logistic()] function returns the algebraic resource
+#' equilibrium when all rates are held at the supplied values. It is the
+#' companion that direct steady-state solvers look up for
+#' `resource_logistic()`. A non-positive value means that no positive logistic
+#' equilibrium exists at that size.
+#' @return `steady_resource_logistic()`: A vector containing the algebraic
+#'   equilibrium resource number density in each size class.
+#' @export
+steady_resource_logistic <- function(params, n, n_pp, n_other, rates, t,
+                                     resource_rate, resource_capacity, ...) {
+    mur <- resource_rate - rates$resource_mort
+    n_steady <- mur * resource_capacity / resource_rate
+
+    # If both replenishment and mortality vanish, every abundance is steady.
+    # Keep the supplied abundance. Other non-finite values deliberately remain:
+    # they say that no finite positive equilibrium exists.
+    undetermined <- resource_rate == 0 & rates$resource_mort == 0
+    n_steady[undetermined] <- n_pp[undetermined]
+    n_steady
 }
 
 

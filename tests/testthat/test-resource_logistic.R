@@ -1,5 +1,57 @@
 trait_resource_logistic_params <- trait_params_small
 
+test_that("steady_resource_logistic returns the frozen-rate equilibrium", {
+    params <- setResource(
+        trait_resource_logistic_params,
+        resource_dynamics = "resource_logistic",
+        resource_capacity = 2 * initialNResource(trait_resource_logistic_params)
+    )
+    rates <- getRates(params)
+    equilibrium <- steady_resource_logistic(
+        params,
+        n = params@initial_n,
+        n_pp = params@initial_n_pp,
+        n_other = params@initial_n_other,
+        rates = rates, t = 0,
+        resource_rate = params@rr_pp,
+        resource_capacity = params@cc_pp
+    )
+
+    expect_equal(equilibrium, params@initial_n_pp,
+                 tolerance = 1e-15, ignore_attr = TRUE)
+
+    # The algebraic equilibrium is non-positive when mortality is at least the
+    # replenishment rate, which tells the Newton solver that its positive branch
+    # is unavailable.
+    k <- which(params@cc_pp > 0 & rates$resource_mort > 0)[1]
+    rate <- params@rr_pp
+    rate[k] <- rates$resource_mort[k] / 2
+    unavailable <- steady_resource_logistic(
+        params,
+        n = params@initial_n,
+        n_pp = params@initial_n_pp,
+        n_other = params@initial_n_other,
+        rates = rates, t = 0,
+        resource_rate = rate,
+        resource_capacity = params@cc_pp
+    )
+    expect_lt(unavailable[k], 0)
+
+    # With neither replenishment nor mortality, every abundance is steady.
+    rate[k] <- 0
+    rates$resource_mort[k] <- 0
+    undetermined <- steady_resource_logistic(
+        params,
+        n = params@initial_n,
+        n_pp = params@initial_n_pp,
+        n_other = params@initial_n_other,
+        rates = rates, t = 0,
+        resource_rate = rate,
+        resource_capacity = params@cc_pp
+    )
+    expect_equal(undetermined[k], params@initial_n_pp[k], ignore_attr = TRUE)
+})
+
 test_that("resource_logistic preserves steady state", {
     # Set resource parameters so that we are at steady state
     params <- trait_resource_logistic_params
