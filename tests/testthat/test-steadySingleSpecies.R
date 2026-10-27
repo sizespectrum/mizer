@@ -135,3 +135,77 @@ test_that("steadySingleSpecies errors when the egg size class is empty", {
     p <- steadySingleSpecies(params, species = sp)
     expect_true(all(p@initial_n[sp, ] == 0))
 })
+
+test_that("steadySingleSpecies `keep` leaves absent species finite", {
+    # Issue #615: the 0 / 0 rescaling factor of an absent species filled its
+    # row with NaN.
+    params <- NS_params_small
+    initialN(params)[1, ] <- 0
+    quantity <- list(biomass = function(p) getBiomass(p, use_cutoff = TRUE),
+                     number = getN)
+    for (keep in names(quantity)) {
+        # The absent species both left alone and selected
+        for (species in list(3, c(1, 3))) {
+            p2 <- steadySingleSpecies(params, species = species, keep = keep)
+            expect_true(all(is.finite(p2@initial_n)))
+            expect_true(all(p2@initial_n[1, ] == 0))
+            expect_equal(quantity[[keep]](p2)[3], quantity[[keep]](params)[3])
+        }
+    }
+})
+
+test_that("steadySingleSpecies errors when `keep` cannot be honoured", {
+    # Mortality so high above 1g that the steady state has no biomass at all
+    # above the biomass cutoff, although the species had some before.
+    params <- NS_params_small
+    species_params(params)$biomass_cutoff <- 10
+    params@mu_b[3, params@w > 1] <- 1e300
+    expect_error(steadySingleSpecies(params, species = 3, keep = "biomass"),
+                 "cannot be rescaled to keep")
+})
+
+test_that("steadySingleSpecies `keep` leaves a species below the cutoff", {
+    # Issue #621: the cutoff lies above the w_max of Sprat, so Sprat has no
+    # biomass to keep although it is present. It used to be filled with NaN
+    # and then to be emptied.
+    params <- NS_params_small
+    species_params(params)$biomass_cutoff <- 100
+    expect_lt(params@species_params$w_max[[1]], 100)
+    expect_equal(getBiomass(params, use_cutoff = TRUE)[[1]], 0)
+    egg <- steadySingleSpecies(params, keep = "egg")
+
+    expect_no_warning(p2 <- steadySingleSpecies(params, keep = "biomass"))
+    expect_gt(getN(p2)[[1]], 0)
+    # Sprat keeps its steady state unscaled, the others keep their biomass
+    expect_equal(p2@initial_n[1, ], egg@initial_n[1, ])
+    expect_equal(getBiomass(p2, use_cutoff = TRUE)[2:3],
+                 getBiomass(params, use_cutoff = TRUE)[2:3])
+
+    # On this coarse grid the steady state reaches into the bin above w_max,
+    # which starts above a cutoff of 50g. Sprat then gains biomass above the
+    # cutoff that cannot be kept at zero without emptying it, which is said.
+    species_params(params)$biomass_cutoff <- 50
+    expect_equal(getBiomass(params, use_cutoff = TRUE)[[1]], 0)
+    expect_warning(p3 <- steadySingleSpecies(params, keep = "biomass"),
+                   "no biomass of Sprat to keep")
+    expect_equal(p3@initial_n[1, ], egg@initial_n[1, ])
+    expect_no_warning(steadySingleSpecies(params, keep = "biomass",
+                                          info_level = 0))
+})
+
+test_that("steadySingleSpecies checks the rescaled abundances", {
+    # Mortality high enough to leave the steady state a tiny but non-zero
+    # biomass above the cutoff. The rescaling factor is then still finite
+    # (about 4e305) but multiplying the abundances by it overflows.
+    params <- NS_params_small
+    species_params(params)$biomass_cutoff <- 10
+    params@mu_b[3, params@w > 1] <- 1e102
+    expect_error(steadySingleSpecies(params, species = 3, keep = "biomass"),
+                 "holds infinities")
+})
+
+test_that("steadySingleSpecies treats a repeated species as one", {
+    params <- NS_params_small
+    expect_equal(steadySingleSpecies(params, species = c(3, 3))@initial_n,
+                 steadySingleSpecies(params, species = 3)@initial_n)
+})

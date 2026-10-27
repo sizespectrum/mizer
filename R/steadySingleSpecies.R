@@ -14,7 +14,13 @@
 #'
 #' If the `keep` argument is supplied, the solution for the selected species
 #' are rescaled to keep the specified quantity at the value they had before
-#' calling this function.
+#' calling this function. The biomass is counted above the `biomass_cutoff`
+#' species parameter, if there is one. A species that had none of the
+#' quantity is not rescaled, because there is nothing to keep: it is absent,
+#' or it lies entirely below its biomass cutoff. If its solution does have
+#' some of the quantity, a warning says so. The function stops with an error
+#' if the solution for a species has none of a quantity that the species did
+#' have.
 #'
 #' @param params A MizerParams object
 #' @param species The species to be selected. Optional. By default all target
@@ -25,6 +31,10 @@
 #'   choices are "egg" which keeps the egg density constant, "biomass" which
 #'   keeps the total biomass of the species constant and "number" which keeps
 #'   the total number of individuals constant.
+#' @param info_level Controls the amount of information messages and warnings
+#'   that are shown. Higher levels lead to more messages, `info_level = 0`
+#'   gives silence. The default is taken from the `mizer_info_level` option,
+#'   see [default_info_level()].
 #' @return A MizerParams object in which the initial abundances of the selected
 #'   species are changed to their single-species steady state abundances.
 #' @export
@@ -32,17 +42,29 @@
 #' # Set initial abundance of Cod to its single-species steady state
 #' params <- steadySingleSpecies(NS_params, species = "Cod")
 steadySingleSpecies <- function(params, species = NULL,
-                                keep = c("egg", "biomass", "number")) {
+                                keep = c("egg", "biomass", "number"),
+                                info_level = default_info_level()) {
     UseMethod("steadySingleSpecies")
 }
 #' @export
 steadySingleSpecies.MizerParams <- function(params, species = NULL,
-                                keep = c("egg", "biomass", "number")) {
-    species <- valid_species_arg(params, species)
+                                keep = c("egg", "biomass", "number"),
+                                info_level = default_info_level()) {
+    with_info_level(info_level = info_level, {
+    # A species listed twice would on its second pass take its egg abundance
+    # from the row that its first pass has already emptied.
+    species <- unique(valid_species_arg(params, species))
     keep <- match.arg(keep)
 
-    biomass <- getBiomass(params, use_cutoff = TRUE)
-    number <- getN(params)
+    # The quantity that `keep` holds fixed, measured before `initial_n` changes
+    kept_quantity <- function(params) {
+        switch(keep,
+               biomass = getBiomass(params, use_cutoff = TRUE),
+               number = getN(params))[species]
+    }
+    if (keep != "egg") {
+        old <- kept_quantity(params)
+    }
 
     # Use rates from current abundances.
     growth_all <- getEGrowth(params)
@@ -101,6 +123,35 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
         }
     }
 
+    if (keep != "egg") {
+        new <- kept_quantity(params)
+        # `which()` drops the NA of a non-numeric candidate, which the checks
+        # below report
+        lost <- which(old > 0 & new == 0)
+        if (length(lost) > 0) {
+            stop("The steady state has zero ", keep, " for ",
+                 toString(species[lost]), ", so it cannot be rescaled to ",
+                 "keep the ", keep, " it had before.")
+        }
+        # A species that had none of the quantity is not rescaled, because
+        # there is nothing to keep. A factor of 0 would empty a species that
+        # lies entirely below its biomass cutoff, and 0 / 0 would fill an
+        # absent species with NaN. The steady state can still reach above the
+        # cutoff, because it extends a bin beyond `w_max`.
+        gained <- which(old == 0 & new > 0)
+        if (length(gained) > 0) {
+            signal_info("keep",
+                        paste0("There was no ", keep, " of ",
+                               toString(species[gained]), " to keep, so its ",
+                               "steady state has not been rescaled and now ",
+                               "has some ", keep, "."),
+                        level = 1, severity = "warning", unhandled = "show")
+        }
+        factor <- ifelse(old == 0, 1, old / new)
+        params@initial_n[species, ] <- params@initial_n[species, ] * factor
+    }
+
+    # Checked after the rescaling, which can itself overflow
     if (any(is.infinite(params@initial_n))) {
         stop("Candidate steady state holds infinities")
     }
@@ -108,15 +159,7 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
         stop("Candidate steady state holds non-numeric values")
     }
 
-    if (keep == "biomass") {
-        factor <- biomass / getBiomass(params, use_cutoff = TRUE)
-        params@initial_n <- params@initial_n * factor
-    }
-    if (keep == "number") {
-        factor <- number / getN(params)
-        params@initial_n <- params@initial_n * factor
-    }
-
     params@time_modified <- lubridate::now()
     params
+    })
 }

@@ -56,10 +56,7 @@ matchGrowth.MizerParams <- function(params, species = NULL,
     sp <- params@species_params
     keep <- match.arg(keep)
 
-    biomass <- getBiomass(params, usecutoff = TRUE)
-    number <- getN(params)
-
-    sp <- set_species_param_default(sp, "age_mat", NA)
+    sp <-set_species_param_default(sp, "age_mat", NA)
     # If age at maturity is not specified, calculate it from von Bertalanffy
     if (all(c("k_vb", "w_inf") %in% names(sp))) {
         sp <- set_species_param_default(sp, "age_mat", age_mat_vB(params))
@@ -88,16 +85,9 @@ matchGrowth.MizerParams <- function(params, species = NULL,
     # they have already been scaled by the same factor above.
     species_params(params, recalculate = FALSE) <- sp_new
 
-    params <- steadySingleSpecies(params, species = sel)
-
-    if (keep == "biomass") {
-        factor <- biomass / getBiomass(params, use_cutoff = TRUE)
-        params@initial_n <- params@initial_n * factor
-    }
-    if (keep == "number") {
-        factor <- number / getN(params)
-        params@initial_n <- params@initial_n * factor
-    }
+    # Nothing above has changed `initial_n`, so the quantity that
+    # `steadySingleSpecies()` keeps is the one the model had on entry.
+    params <- steadySingleSpecies(params, species = sel, keep = keep)
 
     signal_off_steady("matchGrowth")
     setBevertonHolt(params)

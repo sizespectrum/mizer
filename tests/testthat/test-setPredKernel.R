@@ -66,8 +66,12 @@ test_that("reset = TRUE discards an explicitly stored kernel (#608)", {
     # The accessors report the kernel that the model uses
     expect_equal(pred_kernel(p), pred_kernel(params))
     expect_equal(encounter_kernel(p), encounter_kernel(params))
-    expect_equal(getEncounter(p), getEncounter(params))
-    expect_equal(getTrophicLevel(p), getTrophicLevel(params))
+    # The rates carry the model in their `params` attribute, and `p` has a
+    # later `time_modified` than the fixture whenever the two are stamped in
+    # different seconds, so compare the rates without it (#623).
+    expect_equal(getEncounter(p), getEncounter(params), ignore_attr = "params")
+    expect_equal(getTrophicLevel(p), getTrophicLevel(params),
+                 ignore_attr = "params")
 })
 
 # pred_kernel ----
