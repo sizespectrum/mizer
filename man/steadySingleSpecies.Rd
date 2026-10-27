@@ -7,7 +7,8 @@
 steadySingleSpecies(
   params,
   species = NULL,
-  keep = c("egg", "biomass", "number")
+  keep = c("egg", "biomass", "number"),
+  info_level = default_info_level()
 )
 }
 \arguments{
@@ -22,6 +23,11 @@ whether it is to be selected (TRUE) or not.}
 choices are "egg" which keeps the egg density constant, "biomass" which
 keeps the total biomass of the species constant and "number" which keeps
 the total number of individuals constant.}
+
+\item{info_level}{Controls the amount of information messages and warnings
+that are shown. Higher levels lead to more messages, \code{info_level = 0}
+gives silence. The default is taken from the \code{mizer_info_level} option,
+see \code{\link[=default_info_level]{default_info_level()}}.}
 }
 \value{
 A MizerParams object in which the initial abundances of the selected
@@ -45,8 +51,11 @@ If the \code{keep} argument is supplied, the solution for the selected species
 are rescaled to keep the specified quantity at the value they had before
 calling this function. The biomass is counted above the \code{biomass_cutoff}
 species parameter, if there is one. A species that had none of the
-quantity is left with none, and the function stops with an error if the
-solution for a species has none of a quantity that the species did have.
+quantity is not rescaled, because there is nothing to keep: it is absent,
+or it lies entirely below its biomass cutoff. If its solution does have
+some of the quantity, a warning says so. The function stops with an error
+if the solution for a species has none of a quantity that the species did
+have.
 }
 \examples{
 # Set initial abundance of Cod to its single-species steady state
