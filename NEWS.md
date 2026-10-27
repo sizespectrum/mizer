@@ -20,6 +20,12 @@
   an empty egg size class instead of silently returning a spectrum that is zero
   at every size.
 
+## Documentation
+
+- The help page of `getDiffusion()` gave the predation-diffusion rate with a
+  factor $(\alpha_i(1-\psi_i(w)))^2$. The correct factor, and the one mizer
+  has always used, is $\alpha_i^2$, as in the model description (#624).
+
 # mizer 3.4.0
 
 The headline change is one you should not be able to feel: `MizerParams` and
