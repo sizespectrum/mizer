@@ -75,13 +75,20 @@ The discretized encounter rate (ignoring coefficients) is roughly
 $$ E[n] = \sum_k \tilde{\phi}[n-k] A[k] $$
 In `mizer`, we define `ft_pred_kernel_e` as the FFT of the predation kernel.
 The available energy is calculated, transformed via FFT, multiplied by
-`ft_pred_kernel_e`, and then inverse transformed.
+`ft_pred_kernel_e`, and then inverse transformed. Both the kernel and the
+available energy are first padded with zeros, for the reason explained in
+[Avoiding wrap-around](#avoiding-wrap-around-zero-padding) below.
 
-The code in `mizerEncounter()` implements this:
+`mizerEncounter()` hands this to `convolve_pred_kernel()`, which does the
+following, where `no_k` is the length of the padded grid and `idx_sp` picks
+out the fish sizes:
 ```r
-avail_energy <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) *
-                                     mvfft(base::t(prey)),
-                           inverse = TRUE))) / length(params@w_full)
+# prey is species x w_full; place it on the padded grid
+prey_padded <- matrix(0, nrow = no_k, ncol = no_sp)
+prey_padded[1:no_w_full, ] <- t(prey)
+avail_energy <- Re(mvfft(t(params@ft_pred_kernel_e) * mvfft(prey_padded),
+                         inverse = TRUE)) / no_k
+avail_energy <- t(avail_energy[idx_sp, ])
 ```
 
 ### Predation Rate
@@ -102,13 +109,13 @@ version of the kernel.
 
 ```r
 # R/setPredKernel.R
-ri <- min(max(which(phi > 0)), no_w_full - 1)  # index of largest ppmr
-phi_p <- rep(0, no_w_full)
-phi_p[(no_w_full - ri + 1):no_w_full] <- phi[(ri + 1):2]
+phi_p <- rep(0, no_k)
+phi_p[(no_k - no_w_full + 2):no_k] <- phi[no_w_full:2]
 ft_pred_kernel_p[i, ] <- fft(phi_p)
 ```
-The `phi_p` construction effectively reverses the kernel and wraps it around
-to suit the FFT definition of convolution.
+The `phi_p` construction reverses the kernel and places the negative offsets
+$-m$ at the end of the padded grid, at index `no_k - m + 1`, to suit the FFT
+definition of convolution.
 
 ## Higher-order quadrature: bin-integrated kernels
 
@@ -348,75 +355,72 @@ averages it trapezoidally as well (issue #619). As for predation, the product of
 the two averages differs from the average of the product only by an
 $O(\Delta x^2)$ covariance.
 
-## The Wrap-around Hack (`ft_mask`)
+## Avoiding wrap-around: zero padding
 
-FFT-based convolution is actually circular convolution. This means that effects
-from the largest sizes can "wrap around" and affect the smallest sizes, which
-is unphysical in our context (large predators don't eat orders of magnitude
-smaller than their prey preference, and certainly not "negative" sizes wrapping
-to positive).
+FFT-based convolution is circular convolution: the grid is treated as a ring,
+on which the point below the smallest size $w_1$ is the largest size $w_K$. A
+sum over the part of a kernel that falls off one end of the grid therefore
+picks up whatever lies at the other end.
 
-To avoid artifacts from this circularity, we pad the grid or careful masking.
-In `mizer`, we use `ft_mask` to zero out the predation rate at sizes that
-should not receive any predation from the largest predators (because they are
-larger than the maximum predator size or due to the kernel support).
+In the encounter rate this happens whenever the feeding kernel of the smallest
+predators reaches below the smallest resource size `min_w_pp`. With the default
+lognormal kernel, which is not truncated, that is always the case to some
+degree. The part of the kernel below `min_w_pp` should see no prey, but on the
+ring it sees the largest fish, as though they were prey just below `min_w_pp`.
+Larvae are then fed by the largest fish in the model. The predation rate
+contains the transpose of the same error: the larvae are recorded as eating the
+largest fish. The predation diffusion integrand carries a factor $w_p^2$, which
+amplifies exactly these large-prey contributions. The size of the error depends
+on the model. It is negligible when the resource extends far below the kernels
+of the smallest fish, but in a model with `min_w_pp` three orders of magnitude
+below the egg size and abundant large fish it made the encounter rate of the
+larvae 9% too high and their predation diffusion several orders of magnitude too
+large (issue #618).
 
-In `mizerPredRate()`:
+mizer avoids this by zero-padding. Let the full grid have $K$ points, of which
+the fish sizes are the last $K_w$. In the encounter rate the circular
+convolution wraps the term for a prey $k$ larger than the predator $n$ onto the
+kernel offset $L - (k - n)$, where $L$ is the length of the grid on which the
+FFT is taken. Because the predators are fish, $n \ge K - K_w + 1$, and so
+$k - n \le K_w - 1$. If $L \ge K + K_w - 1$, every such offset is at least $K$,
+where the padded kernel is zero, and the wrapped terms vanish. The same bound
+works for the predation rate, where the predators $n$ are again the fish and
+the wrapped terms are those with the prey $k$ larger than the predator. So
+`setPredKernel()` stores the kernels on a grid of length
+$L = $ `nextn(K + K_w - 1)`, rounded up to a length whose only prime factors are
+2, 3 and 5, for which the FFT is fast. `convolve_pred_kernel()` pads the prey or
+predator densities with zeros to the same length before transforming them.
+The convolutions are then linear and agree with the direct sums over the kernel
+to round-off.
+
+The padded transforms are up to about twice as long as the grid. How long an
+FFT takes depends as much on the prime factors of its length as on the length
+itself, so the cost is smaller than that suggests: a projection of `NS_params`
+takes about 15% longer than it did with the unpadded transforms.
+
+### The `ft_mask`
+
+Before mizer used zero-padding, the predation rate was protected from the
+wrap-around by `ft_mask`, a logical array that is 1 for prey sizes smaller than
+the maximum size of the predator species and 0 above it:
 ```r
 return(pred_rate * params@ft_mask)
 ```
-The `ft_mask` ensures that we don't get spurious predation mortality at sizes
-where it shouldn't exist due to the periodic nature of the DFT.
-`ft_mask` is a logical array (0 or 1) that is 1 strictly for sizes smaller than
-the maximum size of the species, preventing the "tail" of the convolution from
-wrapping around to the small sizes.
+Predation on prey larger than the largest predator of a species is impossible,
+so this removed the wrapped contribution there. It could not help with the
+wrapped contribution on prey smaller than that maximum size, and it could not be
+applied to the encounter or diffusion rates at all: there the wrapped
+contribution lands on the smallest predator sizes, whose true rates are not
+zero. With the zero-padding `ft_mask` is no longer needed to suppress
+wrap-around. It is still applied, so that the predation rate stays zero above
+the maximum size of each species even if a model holds abundances there.
 
-### Wrap-around in the encounter and diffusion convolutions
+### Kernels that are not a function of the size ratio alone
 
-It is worth being clear about what `ft_mask` does *not* cover. It is applied in
-exactly one place, `mizerPredRate()`. The encounter convolution in
-`mizerEncounter()` and the predation-diffusion convolution in
-`projectDiffusion()` carry no mask at all, so the same circular wrap-around is
-present there too. The difference is in the geometry and in how visible the
-artifact is.
-
-`mizerPredRate()` outputs a rate indexed by **prey** size, and predation on prey
-larger than a species' maximum size $w_{\max}$ is genuinely impossible, so a
-single per-species threshold $w_p < w_{\max}$ (exactly what `ft_mask` encodes)
-removes the spurious tail. The encounter and diffusion convolutions instead
-output a rate indexed by **predator** size, and there the wrap-around feeds
-*small* predators a spurious contribution from *large* prey. That is a
-per-predator-size truncation of the kernel ("for a predator at $w$, prey above
-$w$ is unphysical"), which a single threshold on the output axis cannot express
-and which the FFT — using one shared kernel $\tilde\phi[m]$ for all predator
-sizes — cannot represent. So `ft_mask` is the wrong shape of cut for these two
-rates and is not applied to them.
-
-In practice this is harmless for the encounter rate and almost always harmless
-for the diffusion rate. The aliased weight is small, and the prey it
-misattributes to small predators is either resource (whose spectrum is cut off
-at large sizes, so the contribution is multiplied by zero) or large fish.
-Weighted by the encounter integrand's $w_p\,dw_p$, the residual fish
-contribution is negligible, so `mizerEncounter()` agrees with the exact direct
-summation (used for custom kernels, see below) to roughly one part in $10^{7}$.
-
-The diffusion integrand carries an extra power of prey size, $w_p^2\,dw_p$,
-which amplifies precisely the large-prey contribution that the wrap-around
-misplaces. The artifact therefore becomes *relatively* large in the
-small-predator tail — but only where the diffusion itself is vanishingly small.
-On a standard grid the **absolute** error is about $10^{-5}\%$ of the peak
-diffusion, and over the bins that carry any appreciable diffusion the relative
-error is $\sim10^{-5}$, far below mizer's other discretization errors and with no
-effect on the dynamics. (The error does *not* shrink with grid resolution: it is
-set by the kernel's lower tail not having decayed before the periodic boundary
-folds, not by $\Delta x$.) For this reason mizer leaves the FFT path unmasked
-for diffusion rather than paying for a full zero-padded convolution.
-
-If an exact diffusion (or encounter) integral is needed, the way to get it is to
-supply a custom predation kernel with [setPredKernel()]. When a custom kernel is
-present, `mizerEncounter()` and `projectDiffusion()` fall back to direct
-summation over the full predation kernel returned by [pred_kernel()], which
-explicitly zeroes prey larger than the predator and so has no wrap-around at all.
-This direct path is what makes [getDiffusion()] correct for a general predation
-kernel that depends on predator and prey size separately rather than only on
-their ratio.
+A predation kernel that depends on predator and prey size separately, rather
+than only on their ratio, cannot be written as a convolution. When such a kernel
+is supplied with [setPredKernel()], `mizerEncounter()`, `mizerPredRate()` and
+`projectDiffusion()` fall back to direct summation over the full predation
+kernel returned by [pred_kernel()]. That costs $\mathcal{O}(K^2)$ operations per
+species rather than $\mathcal{O}(K \log K)$, but involves no Fourier transform
+and so no wrap-around.

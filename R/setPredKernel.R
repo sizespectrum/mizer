@@ -191,9 +191,12 @@ setPredKernel.MizerParams <- function(params,
     no_sp <- nrow(species_params)
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
+    # The kernels are stored on a zero-padded grid so that the convolutions
+    # are linear rather than circular, see pred_kernel_fft_length().
+    no_k <- pred_kernel_fft_length(no_w_full, no_w)
     ft_pred_kernel_e <-
-        array(NA, dim = c(no_sp, no_w_full),
-              dimnames = list(sp = species_params$species, k = 1:no_w_full))
+        array(NA, dim = c(no_sp, no_k),
+              dimnames = list(sp = species_params$species, k = 1:no_k))
     ft_pred_kernel_p <- ft_pred_kernel_e
     ft_pred_kernel_d <- ft_pred_kernel_e
     # The kernel weights phi_e[i, ], phi_p[i, ] and phi_d[i, ] give, for each
@@ -290,16 +293,19 @@ setPredKernel.MizerParams <- function(params,
                                           phi_d[, -1, drop = FALSE])
     }
 
+    # Offsets beyond the grid carry zero weight
+    padding <- rep(0, no_k - no_w_full)
     for (i in 1:no_sp) {
         # Fourier transform of feeding kernel for evaluating available energy
-        ft_pred_kernel_e[i, ] <- fft(phi_e[i, ])
+        ft_pred_kernel_e[i, ] <- fft(c(phi_e[i, ], padding))
         # Fourier transform of feeding kernel for evaluating the predation
         # diffusion integral (same convolution as encounter, extra power of w_p)
-        ft_pred_kernel_d[i, ] <- fft(phi_d[i, ])
-        # Fourier transform of feeding kernel for evaluating predation rate
-        ri <- min(max(which(phi_p[i, ] > 0)), no_w_full - 1)  # index of largest ppmr
-        phi_p_rev <- rep(0, no_w_full)
-        phi_p_rev[(no_w_full - ri + 1):no_w_full] <- phi_p[i, (ri + 1):2]
+        ft_pred_kernel_d[i, ] <- fft(c(phi_d[i, ], padding))
+        # Fourier transform of feeding kernel for evaluating predation rate.
+        # The predation rate sums over predators larger than the prey, so the
+        # kernel is reversed: offset m sits at index no_k - m + 1.
+        phi_p_rev <- rep(0, no_k)
+        phi_p_rev[(no_k - no_w_full + 2):no_k] <- phi_p[i, no_w_full:2]
         ft_pred_kernel_p[i, ] <- fft(phi_p_rev)
     }
 
@@ -314,9 +320,9 @@ setPredKernel.MizerParams <- function(params,
         }
         return(params)
     }
-    params@ft_pred_kernel_e[] <- ft_pred_kernel_e
-    params@ft_pred_kernel_p[] <- ft_pred_kernel_p
-    params@ft_pred_kernel_d[] <- ft_pred_kernel_d
+    params@ft_pred_kernel_e <- ft_pred_kernel_e
+    params@ft_pred_kernel_p <- ft_pred_kernel_p
+    params@ft_pred_kernel_d <- ft_pred_kernel_d
 
     params@time_modified <- lubridate::now()
     return(params)
@@ -431,12 +437,156 @@ encounter_kernel <- function(params) {
     if (!isTRUE(params@second_order_w[["bin_average"]])) {
         return(pred_kernel(params))
     }
-    no_w_full <- length(params@w_full)
-    # setPredKernel() stores ft_pred_kernel_e[i, ] = fft(phi_e[i, ]), so the
-    # real-space weights come back from the inverse transform.
+    # setPredKernel() stores ft_pred_kernel_e[i, ] = fft(phi_e[i, ]), with
+    # phi_e zero-padded, so the real-space weights come back from the inverse
+    # transform. Only the offsets within the grid are used.
     phis <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e),
-                             inverse = TRUE))) / no_w_full
+                             inverse = TRUE))) / ncol(params@ft_pred_kernel_e)
     expand_kernel_offsets(phis, params, params@species_params$species)
+}
+
+#' Sum over the predation kernel
+#'
+#' `r lifecycle::badge("experimental")`
+#' Evaluates the sums over the predation kernel that underlie the encounter
+#' rate, the predation rate and the predation diffusion, using the
+#' Fourier-transformed kernels that [setPredKernel()] stores in the MizerParams
+#' object. This is how [mizerEncounter()], [mizerPredRate()],
+#' [mizerDiffusion()] and [getDiet()] evaluate these sums. An extension package
+#' that needs such a sum for a density of its own should call this function
+#' rather than multiplying the Fourier-transformed kernels itself, so that it
+#' does not depend on how mizer stores them.
+#'
+#' With `kernel = "encounter"` the result is
+#' \deqn{\sum_{k} \phi_i(w_j, w_k)\, x_{ik}}
+#' for each species \eqn{i} and each predator size \eqn{w_j} in `w(params)`,
+#' where the sum runs over the prey sizes \eqn{w_k} in `w_full(params)`. With
+#' `kernel = "diffusion"` the same sum is evaluated with the kernel used for the
+#' predation diffusion, which differs from the encounter kernel only when
+#' bin averaging is switched on (see [second_order_w()]). With
+#' `kernel = "predation"` the result is
+#' \deqn{\sum_{j} \phi_i(w_j, w_k)\, x_{ij}}
+#' for each species \eqn{i} and each prey size \eqn{w_k} in `w_full(params)`,
+#' where the sum runs over the predator sizes \eqn{w_j} in `w(params)`.
+#'
+#' The entries of `x` are the summands without the kernel, so they include the
+#' size-bin widths: for the encounter rate, for example, `x` is the prey biomass
+#' density times `dw_full(params)`. Pair them with the plain point weights, not
+#' with bin-averaged ones, even when bin averaging is switched on; see
+#' [encounter_kernel()] for why.
+#'
+#' The sums only run over sizes on the grid: the part of a kernel that extends
+#' below the smallest size in `w_full(params)` contributes nothing. The
+#' convolutions are evaluated by fast Fourier transform on a zero-padded grid,
+#' so that the part of a kernel that falls off one end of the grid does not
+#' wrap around to pick up the densities at the other end.
+#'
+#' @param params A MizerParams object whose predation kernel depends only on
+#'   the predator/prey mass ratio, i.e., one without a custom predation kernel
+#'   set with [setPredKernel()].
+#' @param x For `kernel = "encounter"` or `"diffusion"`, a matrix (species x
+#'   size in `w_full(params)`) of prey densities, or a vector with one entry per
+#'   size in `w_full(params)` that is used for every species. For
+#'   `kernel = "predation"`, a matrix (species x size in `w(params)`) of
+#'   predator densities, or a vector with one entry per size in `w(params)`.
+#' @param kernel Which sum to evaluate: "encounter" (the default), "predation"
+#'   or "diffusion".
+#' @return A matrix (species x predator size in `w(params)`) for
+#'   `kernel = "encounter"` or `"diffusion"`, and a matrix (species x prey size
+#'   in `w_full(params)`) for `kernel = "predation"`.
+#' @seealso [encounter_kernel()], [pred_kernel()]
+#' @export
+#' @examples
+#' params <- NS_params
+#' # The rate at which each predator encounters resource biomass, per unit
+#' # search volume
+#' prey <- initialNResource(params) * w_full(params) * dw_full(params)
+#' avail <- convolve_pred_kernel(params, prey)
+#' # Add the interaction with the resource and the search volume to get the
+#' # resource part of the encounter rate
+#' encounter_resource <- avail * species_params(params)$interaction_resource *
+#'     search_vol(params)
+convolve_pred_kernel <- function(params, x,
+                                 kernel = c("encounter", "predation",
+                                            "diffusion")) {
+    kernel <- match.arg(kernel)
+    if (!is.null(comment(params@pred_kernel))) {
+        stop("The model has a custom predation kernel, which mizer uses ",
+             "directly rather than through its Fourier transform.")
+    }
+    ft <- switch(kernel,
+                 encounter = params@ft_pred_kernel_e,
+                 predation = params@ft_pred_kernel_p,
+                 diffusion = params@ft_pred_kernel_d)
+    no_sp <- nrow(ft)
+    no_k <- ncol(ft)
+    no_w <- length(params@w)
+    no_w_full <- length(params@w_full)
+    # idx_sp are the indices into w_full that correspond to the sizes in w
+    idx_sp <- (no_w_full - no_w + 1):no_w_full
+    if (kernel == "predation") {
+        sizes <- "w"
+        no_x <- no_w
+        idx_x <- idx_sp
+    } else {
+        sizes <- "w_full"
+        no_x <- no_w_full
+        idx_x <- seq_len(no_w_full)
+    }
+    # Place x on the zero-padded grid. A vector is transformed only once and
+    # then recycled over the species.
+    if (is.null(dim(x))) {
+        if (length(x) != no_x) {
+            stop("`x` must have one column per size in `", sizes, "`.")
+        }
+        x_padded <- rep(0, no_k)
+        x_padded[idx_x] <- x
+        ft_x <- fft(x_padded)
+    } else {
+        if (ncol(x) != no_x) {
+            stop("`x` must have one column per size in `", sizes, "`.")
+        }
+        if (nrow(x) != no_sp) {
+            stop("`x` must have one row per species.")
+        }
+        x_padded <- matrix(0, nrow = no_k, ncol = no_sp)
+        x_padded[idx_x, ] <- base::t(x)
+        ft_x <- mvfft(x_padded)
+    }
+    # mvfft() transforms each column, so we work with the transposed kernel
+    conv <- Re(mvfft(base::t(ft) * ft_x, inverse = TRUE)) / no_k
+    species <- params@species_params$species
+    if (kernel == "predation") {
+        out <- base::t(conv[seq_len(no_w_full), , drop = FALSE])
+        dimnames(out) <- list(sp = species, w_prey = signif(params@w_full, 3))
+    } else {
+        out <- base::t(conv[idx_sp, , drop = FALSE])
+        dimnames(out) <- list(sp = species, w = signif(params@w, 3))
+    }
+    out
+}
+
+#' Length of the zero-padded grid for the predation kernel convolutions
+#'
+#' A fast Fourier transform evaluates a circular convolution, in which the
+#' part of a kernel that falls off one end of the grid wraps around to the
+#' other end. [convolve_pred_kernel()] makes the convolution linear by padding
+#' the grid with zeros. The predators are on the last `no_w` points of the
+#' `no_w_full` points of the grid, so a predator and a prey larger than it are
+#' at most `no_w - 1` points apart. With at least `no_w_full + no_w - 1` points
+#' such a pair is therefore wrapped onto the zero weights that the kernels
+#' carry beyond the grid, both for the encounter (prey on the full grid,
+#' predators on the last `no_w` points) and for the predation rate (predators
+#' on the last `no_w` points, prey on the full grid). We round up to a length
+#' whose only prime factors are 2, 3 and 5, for which the FFT is fast.
+#'
+#' @param no_w_full The number of sizes in `w_full`.
+#' @param no_w The number of sizes in `w`.
+#' @return The length of the padded grid.
+#' @concept helper
+#' @keywords internal
+pred_kernel_fft_length <- function(no_w_full, no_w) {
+    nextn(no_w_full + no_w - 1)
 }
 
 #' @rdname setPredKernel

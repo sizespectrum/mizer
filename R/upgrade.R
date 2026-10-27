@@ -26,7 +26,7 @@ needs_upgrading <- function(object) {
 #' @keywords internal
 mizer_needs_upgrading <- function(params) {
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "3.0.0.9003"
+        params@mizer_version < "3.4.0.9001"
 }
 
 #' Whether any extension recorded on an object needs upgrading
@@ -491,11 +491,58 @@ upgrade.MizerParams <- function(object, ...) {
         params@ft_pred_kernel_d <- params@ft_pred_kernel_e
     }
 
+    # Zero-pad the Fourier-transformed kernels (changed in 3.4.0.9001), so that
+    # the convolutions are linear rather than circular (#618)
+    params <- pad_ft_pred_kernels(params)
+
     params@mizer_version <- packageVersion("mizer")
     params <- validParams(params, info_level = 0)
     params@time_modified <- lubridate::now()
     params@time_created <- time_created
     reinstateParamsClass(params, original_params)
+}
+
+#' Zero-pad the Fourier-transformed predation kernels of an old object
+#'
+#' Before version 3.4.0.9001 the `ft_pred_kernel_e`, `ft_pred_kernel_p` and
+#' `ft_pred_kernel_d` slots held one Fourier coefficient per size in `w_full`,
+#' so that the convolutions were circular (issue #618). This converts them to
+#' the zero-padded length given by [pred_kernel_fft_length()]. The real-space
+#' kernel weights are recovered by an inverse transform and moved to the
+#' padded grid, so whatever kernel the object held is preserved.
+#'
+#' @param params A MizerParams object.
+#' @return The MizerParams object with zero-padded kernels.
+#' @keywords internal
+pad_ft_pred_kernels <- function(params) {
+    ft_e <- params@ft_pred_kernel_e
+    if (length(dim(ft_e)) != 2) return(params)
+    no_w_full <- length(params@w_full)
+    no_k <- pred_kernel_fft_length(no_w_full, length(params@w))
+    if (ncol(ft_e) != no_w_full || no_k == no_w_full) return(params)
+
+    pad <- function(ft, reversed = FALSE) {
+        dn <- list(sp = dimnames(ft)[[1]], k = 1:no_k)
+        if (anyNA(ft)) {
+            return(array(NA, dim = c(nrow(ft), no_k), dimnames = dn))
+        }
+        phi <- Re(base::t(mvfft(base::t(ft), inverse = TRUE))) / no_w_full
+        phi_padded <- matrix(0, nrow = nrow(ft), ncol = no_k)
+        if (reversed) {
+            # The predation kernel is stored reversed: offset m moves from
+            # index no_w_full - m + 1 to index no_k - m + 1.
+            phi_padded[, 1] <- phi[, 1]
+            phi_padded[, (no_k - no_w_full + 2):no_k] <- phi[, 2:no_w_full]
+        } else {
+            phi_padded[, 1:no_w_full] <- phi
+        }
+        array(base::t(mvfft(base::t(phi_padded))),
+              dim = c(nrow(ft), no_k), dimnames = dn)
+    }
+    params@ft_pred_kernel_e <- pad(ft_e)
+    params@ft_pred_kernel_p <- pad(params@ft_pred_kernel_p, reversed = TRUE)
+    params@ft_pred_kernel_d <- pad(params@ft_pred_kernel_d)
+    params
 }
 
 #' Back-compatible wrapper for the core MizerParams upgrade

@@ -29,7 +29,7 @@
 #'
 #' @import ggplot2 methods assertthat dplyr
 #' @importFrom plotly ggplotly plotlyOutput renderPlotly
-#' @importFrom stats fft mvfft lm pnorm runif complete.cases setNames
+#' @importFrom stats fft mvfft nextn lm pnorm runif complete.cases setNames
 #' @importFrom grDevices col2rgb
 #' @importFrom utils modifyList packageVersion globalVariables getS3method adist
 #' @importFrom rlang signal inform cnd_muffle

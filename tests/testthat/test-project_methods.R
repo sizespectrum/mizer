@@ -169,3 +169,25 @@ test_that("predation and resource mortality are second order (#619)", {
     expect_gt(convergence_order(v["pred", ]), 1.8)
     expect_gt(convergence_order(v["resource", ]), 1.8)
 })
+
+test_that("fft rates have no wrap-around when the kernel extends below min_w_pp (#618)", {
+    # The larvae's kernels reach far below the smallest resource size and the
+    # largest fish are abundant, so a circular convolution would let the larvae
+    # feed on the largest fish. The direct summation used for a custom kernel
+    # has no wrap-around.
+    params <- kernel_below_grid_params()
+    params_direct <- setPredKernel(params, pred_kernel = pred_kernel(params))
+    expect_lt(max_rel_diff(getEncounter(params), getEncounter(params_direct)),
+              1e-8)
+    expect_lt(max_rel_diff(getPredRate(params), getPredRate(params_direct)),
+              1e-8)
+
+    # Under bin averaging the predation rate is checked against the direct sum
+    # with the bin-integrated kernel
+    params <- kernel_below_grid_params(bin_average = TRUE)
+    pred_weight <- bin_average_weight(
+        (1 - getFeedingLevel(params)) * params@search_vol, params)
+    Q <- sweep(pred_weight * params@initial_n, 2, params@dw, "*")
+    expected <- linear_kernel_sum(params, Q, "predation") * params@ft_mask
+    expect_lt(max_rel_diff(getPredRate(params), expected), 1e-8)
+})

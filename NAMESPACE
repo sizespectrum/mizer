@@ -354,6 +354,7 @@ export(completeSpeciesParams)
 export(constantEggRDI)
 export(constantRDD)
 export(constant_other)
+export(convolve_pred_kernel)
 export(customFunction)
 export(default_info_level)
 export(default_pred_kernel_params)
@@ -668,6 +669,7 @@ importFrom(stats,
   fft,
   lm,
   mvfft,
+  nextn,
   pnorm,
   runif,
   setNames
