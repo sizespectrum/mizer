@@ -110,6 +110,14 @@ issued and the value is increased to the smallest possible value. The values
 for \code{erepro} should also be smaller than 1 to be physiologically sensible,
 but this is not enforced by the function.
 
+A species that is absent from the initial state, with zero abundance at all
+sizes, has no reproduction whatever its parameters, so every Beverton-Holt
+curve keeps it at its steady state. For such a species a given \code{erepro} or
+\code{R_max} is used as it is and the other parameter is left unchanged. Its
+reproduction level is zero whatever its \code{R_max}, so a non-zero
+\code{reproduction_level} cannot be set for it: its parameters are then left
+unchanged and a warning is issued.
+
 As can be seen in the graph above, choosing a lower value for \code{R_max} or a
 higher value for \code{erepro} means that near the steady state the reproduction
 will be less sensitive to a change in the energy invested into reproduction

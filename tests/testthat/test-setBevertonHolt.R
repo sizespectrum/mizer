@@ -191,6 +191,58 @@ test_that("R_max is increased when needed", {
     expect_gt(p@species_params$R_max[2], 2)
 })
 
+# absent species ----
+test_that("setBevertonHolt leaves the parameters of an absent species alone", {
+    params <- NS_params_small
+    initialN(params)["Sprat", ] <- 0
+    p <- setBevertonHolt(params)
+    expect_identical(p@species_params$erepro, params@species_params$erepro)
+    expect_identical(p@species_params$R_max[1], params@species_params$R_max[1])
+    expect_equal(getRDD(p), getRequiredRDD(p))
+
+    expect_no_warning(p <- setBevertonHolt(params, reproduction_level = 0))
+    expect_identical(p@species_params$R_max[1], params@species_params$R_max[1])
+    expect_identical(p@species_params$R_max[2:3], c(Inf, Inf),
+                     ignore_attr = TRUE)
+})
+
+test_that("setBevertonHolt sets a given erepro or R_max on an absent species", {
+    params <- NS_params_small
+    initialN(params)["Sprat", ] <- 0
+    p <- setBevertonHolt(params, erepro = c(Sprat = 0.3, Herring = 0.5))
+    expect_identical(p@species_params$erepro[1:2], c(0.3, 0.5),
+                     ignore_attr = TRUE)
+    expect_identical(p@given_species_params$erepro[1], 0.3, ignore_attr = TRUE)
+    expect_identical(p@species_params$R_max[1], params@species_params$R_max[1])
+    expect_equal(getRDD(p)[1:2], getRequiredRDD(p)[1:2])
+
+    p <- setBevertonHolt(params, R_max = c(Sprat = 1e10))
+    expect_identical(p@species_params$R_max[1], 1e10, ignore_attr = TRUE)
+    expect_identical(p@given_species_params$R_max[1], 1e10, ignore_attr = TRUE)
+    expect_identical(p@species_params$erepro, params@species_params$erepro)
+})
+
+test_that("setBevertonHolt cannot give an absent species a reproduction level", {
+    params <- NS_params_small
+    initialN(params)["Sprat", ] <- 0
+    expect_warning(p <- setBevertonHolt(params,
+                                        reproduction_level = c(Sprat = 0.5)),
+                   "absent.*: Sprat")
+    expect_identical(p@species_params$erepro, params@species_params$erepro)
+    expect_identical(p@species_params$R_max, params@species_params$R_max)
+    expect_warning(setBevertonHolt(params, R_factor = c(Sprat = 2)),
+                   "absent.*: Sprat")
+    # Invalid values are rejected for an absent species too
+    expect_error(setBevertonHolt(params, reproduction_level = c(Sprat = 2)),
+                 "The reproduction level must be smaller than 1")
+})
+
+test_that("setBevertonHolt names a present species that has no reproduction", {
+    params <- NS_params_small
+    params@species_params$erepro[1] <- 0
+    expect_error(setBevertonHolt(params), "no reproduction.*: Sprat\\.")
+})
+
 # info_level ----
 test_that("info_level controls warnings in setBevertonHolt", {
     # info_level = 0 silences warnings
