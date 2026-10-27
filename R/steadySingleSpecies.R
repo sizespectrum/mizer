@@ -14,7 +14,10 @@
 #'
 #' If the `keep` argument is supplied, the solution for the selected species
 #' are rescaled to keep the specified quantity at the value they had before
-#' calling this function.
+#' calling this function. The biomass is counted above the `biomass_cutoff`
+#' species parameter, if there is one. A species that had none of the
+#' quantity is left with none, and the function stops with an error if the
+#' solution for a species has none of a quantity that the species did have.
 #'
 #' @param params A MizerParams object
 #' @param species The species to be selected. Optional. By default all target
@@ -38,11 +41,20 @@ steadySingleSpecies <- function(params, species = NULL,
 #' @export
 steadySingleSpecies.MizerParams <- function(params, species = NULL,
                                 keep = c("egg", "biomass", "number")) {
-    species <- valid_species_arg(params, species)
+    # A species listed twice would on its second pass take its egg abundance
+    # from the row that its first pass has already emptied.
+    species <- unique(valid_species_arg(params, species))
     keep <- match.arg(keep)
 
-    biomass <- getBiomass(params, use_cutoff = TRUE)
-    number <- getN(params)
+    # The quantity that `keep` holds fixed, measured before `initial_n` changes
+    kept_quantity <- function(params) {
+        switch(keep,
+               biomass = getBiomass(params, use_cutoff = TRUE),
+               number = getN(params))[species]
+    }
+    if (keep != "egg") {
+        old <- kept_quantity(params)
+    }
 
     # Use rates from current abundances.
     growth_all <- getEGrowth(params)
@@ -101,22 +113,29 @@ steadySingleSpecies.MizerParams <- function(params, species = NULL,
         }
     }
 
+    if (keep != "egg") {
+        new <- kept_quantity(params)
+        # `which()` drops the NA of a non-numeric candidate, which the checks
+        # below report
+        lost <- which(old > 0 & new == 0)
+        if (length(lost) > 0) {
+            stop("The steady state has zero ", keep, " for ",
+                 toString(species[lost]), ", so it cannot be rescaled to ",
+                 "keep the ", keep, " it had before.")
+        }
+        # A species that had none of the quantity is left with none. Testing
+        # `old` rather than the factor keeps an absent species from being
+        # filled with 0 / 0.
+        factor <- ifelse(old == 0, 0, old / new)
+        params@initial_n[species, ] <- params@initial_n[species, ] * factor
+    }
+
+    # Checked after the rescaling, which can itself overflow
     if (any(is.infinite(params@initial_n))) {
         stop("Candidate steady state holds infinities")
     }
     if (any(is.na(params@initial_n) | is.nan(params@initial_n))) {
         stop("Candidate steady state holds non-numeric values")
-    }
-
-    if (keep == "biomass") {
-        factor <- biomass[species] / getBiomass(params, use_cutoff = TRUE)[species]
-        factor[!is.finite(factor)] <- 0
-        params@initial_n[species, ] <- params@initial_n[species, ] * factor
-    }
-    if (keep == "number") {
-        factor <- number[species] / getN(params)[species]
-        factor[!is.finite(factor)] <- 0
-        params@initial_n[species, ] <- params@initial_n[species, ] * factor
     }
 
     params@time_modified <- lubridate::now()

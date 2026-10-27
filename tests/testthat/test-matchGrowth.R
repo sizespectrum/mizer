@@ -31,6 +31,17 @@ test_that("matchGrowth `keep` argument works", {
     expect_false(isTRUE(all.equal(getBiomass(params)[3], getBiomass(NS_params_small)[3])))
 })
 
+test_that("matchGrowth `keep = \"biomass\"` respects the biomass cutoff", {
+    # The biomass before the change used to be measured without the cutoff and
+    # the biomass after it with the cutoff, which rescaled every species.
+    params <- NS_params_small
+    species_params(params)$biomass_cutoff <- 10
+    p2 <- matchGrowth(params, species = 3, keep = "biomass")
+    expect_equal(p2@initial_n[1:2, ], params@initial_n[1:2, ])
+    expect_equal(getBiomass(p2, use_cutoff = TRUE)[3],
+                 getBiomass(params, use_cutoff = TRUE)[3])
+})
+
 test_that("matchGrowth does nothing when no info is given", {
     params <- NS_params_small
     params@species_params$k_vb <- NULL

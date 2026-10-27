@@ -137,11 +137,46 @@ test_that("steadySingleSpecies errors when the egg size class is empty", {
 })
 
 test_that("steadySingleSpecies `keep` leaves absent species finite", {
+    # Issue #615: the 0 / 0 rescaling factor of an absent species filled its
+    # row with NaN.
     params <- NS_params_small
     initialN(params)[1, ] <- 0
-    for (keep in c("biomass", "number")) {
-        p2 <- steadySingleSpecies(params, species = 3, keep = keep)
-        expect_true(all(is.finite(p2@initial_n)))
-        expect_true(all(p2@initial_n[1, ] == 0))
+    quantity <- list(biomass = function(p) getBiomass(p, use_cutoff = TRUE),
+                     number = getN)
+    for (keep in names(quantity)) {
+        # The absent species both left alone and selected
+        for (species in list(3, c(1, 3))) {
+            p2 <- steadySingleSpecies(params, species = species, keep = keep)
+            expect_true(all(is.finite(p2@initial_n)))
+            expect_true(all(p2@initial_n[1, ] == 0))
+            expect_equal(quantity[[keep]](p2)[3], quantity[[keep]](params)[3])
+        }
     }
+})
+
+test_that("steadySingleSpecies errors when `keep` cannot be honoured", {
+    # Mortality so high above 1g that the steady state has no biomass at all
+    # above the biomass cutoff, although the species had some before.
+    params <- NS_params_small
+    species_params(params)$biomass_cutoff <- 10
+    params@mu_b[3, params@w > 1] <- 1e300
+    expect_error(steadySingleSpecies(params, species = 3, keep = "biomass"),
+                 "cannot be rescaled to keep")
+})
+
+test_that("steadySingleSpecies checks the rescaled abundances", {
+    # Mortality high enough to leave the steady state a tiny but non-zero
+    # biomass above the cutoff. The rescaling factor is then still finite
+    # (about 4e305) but multiplying the abundances by it overflows.
+    params <- NS_params_small
+    species_params(params)$biomass_cutoff <- 10
+    params@mu_b[3, params@w > 1] <- 1e102
+    expect_error(steadySingleSpecies(params, species = 3, keep = "biomass"),
+                 "holds infinities")
+})
+
+test_that("steadySingleSpecies treats a repeated species as one", {
+    params <- NS_params_small
+    expect_equal(steadySingleSpecies(params, species = c(3, 3))@initial_n,
+                 steadySingleSpecies(params, species = 3)@initial_n)
 })

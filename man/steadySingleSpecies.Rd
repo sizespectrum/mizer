@@ -43,7 +43,10 @@ reproduction rates will have changed.
 
 If the \code{keep} argument is supplied, the solution for the selected species
 are rescaled to keep the specified quantity at the value they had before
-calling this function.
+calling this function. The biomass is counted above the \code{biomass_cutoff}
+species parameter, if there is one. A species that had none of the
+quantity is left with none, and the function stops with an error if the
+solution for a species has none of a quantity that the species did have.
 }
 \examples{
 # Set initial abundance of Cod to its single-species steady state

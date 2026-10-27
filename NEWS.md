@@ -2,9 +2,19 @@
 
 ## Bug fixes
 
-- `steadySingleSpecies()` with `keep = "biomass"` or `keep = "number"` now
-  rescales only the requested species and no longer fills absent species with
-  `NaN` (#615).
+- `steadySingleSpecies()` with `keep = "biomass"` or `keep = "number"` no
+  longer fills a species with zero abundance with `NaN`, which made the
+  returned model fail validation (#615). When the rescaling cannot be done —
+  the steady state of a selected species has none of the quantity that the
+  species had before, or rescaling it overflows — the function now stops with
+  an error instead of returning non-finite abundances. A species listed twice
+  in `species` is no longer emptied.
+- `matchGrowth()` with `keep = "biomass"` on a model with a `biomass_cutoff`
+  species parameter rescaled the abundances of every species, including those
+  not selected, because it measured the biomass before the change without the
+  cutoff and after it with the cutoff. It now leaves the rescaling to
+  `steadySingleSpecies()`, which also fixes the `NaN` of #615 for
+  `matchGrowth()`.
 - `setPredKernel(reset = TRUE)` now removes a predation kernel that had been
   set by hand, rather than only removing the comment that protected it (#608).
   The rate functions already used the recalculated kernel, but the discarded
