@@ -17,8 +17,10 @@ describing the previous state}
 }
 \value{
 The largest absolute relative change in rdi:
-\code{max(abs((current_rdi - previous_rdi) / previous_rdi))}. If any entry of
-\code{previous_rdi} is zero, the result can be infinite.
+\code{max(abs((current_rdi - previous_rdi) / previous_rdi))}. A species with
+zero rdi in both states, such as one that is absent from the model, has
+not changed and contributes zero. A species whose rdi has risen from zero
+makes the result infinite.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

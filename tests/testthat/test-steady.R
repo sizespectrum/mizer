@@ -135,6 +135,36 @@ test_that("projectUntilSettled() works", {
     expect_identical(conv_ext$extinct, c(sp1, sp2))
 })
 
+test_that("projectUntilSettled() leaves an initially absent species alone", {
+    params <- small_steady_params
+    initialN(params)[1, ] <- 0
+    # Its reproduction is zero throughout, and so at zero times its starting
+    # value, which the relative extinction test used to read as a collapse.
+    for (distance_func in list(distanceSSLogN, distanceMaxRelRDI)) {
+        expect_no_warning(
+            sim <- projectUntilSettled(params, distance_func = distance_func,
+                                       extinction_threshold = 0,
+                                       progress_bar = FALSE) |>
+                suppressMessages())
+        conv <- attr(sim, "convergence")
+        expect_identical(conv$termination, "residual_tolerance")
+        expect_identical(conv$extinct, character(0))
+        expect_true(all(finalN(sim)[1, ] == 0))
+    }
+
+    # A species that is present but cannot reproduce is still caught at the
+    # first check.
+    params@psi[2, ] <- 0
+    sp2 <- params@species_params$species[2]
+    expect_warning(
+        sim <- projectUntilSettled(params, progress_bar = FALSE) |>
+            suppressMessages(),
+        paste0(sp2, " are going extinct."))
+    conv <- attr(sim, "convergence")
+    expect_identical(conv$termination, "extinction")
+    expect_identical(conv$extinct, sp2)
+})
+
 test_that("projectUntilSettled accepts the documented effort forms", {
     params <- NS_params_small
     s1 <- projectUntilSettled(params, effort = 0.5, t_check = 0.1,
@@ -306,6 +336,28 @@ test_that("distance functions implement their documented formulas", {
         "`biomass_share_cutoff` must be",
         fixed = TRUE
     )
+})
+
+test_that("distanceMaxRelRDI() treats zero egg production as no change", {
+    params <- NS_params_small
+    previous <- list(n = initialN(params), n_pp = initialNResource(params),
+                     n_other = list())
+    previous$n[1, ] <- 0
+    current <- previous
+    current$n[2:3, ] <- current$n[2:3, ] * 1.2
+
+    current_rdi <- getRDI(params, n = current$n, n_pp = current$n_pp,
+                          n_other = current$n_other)
+    previous_rdi <- getRDI(params, n = previous$n, n_pp = previous$n_pp,
+                           n_other = previous$n_other)
+    expect_equal(unname(current_rdi[1]), 0)
+    expect_equal(distanceMaxRelRDI(params, current, previous),
+                 max(abs((current_rdi - previous_rdi) / previous_rdi)[2:3]))
+    expect_equal(distanceMaxRelRDI(params, previous, previous), 0)
+
+    # Egg production that has risen from zero has changed without bound.
+    current$n[1, ] <- initialN(params)[1, ]
+    expect_identical(distanceMaxRelRDI(params, current, previous), Inf)
 })
 
 test_that("distanceSSLogN() ignores a size class holding negligible biomass", {

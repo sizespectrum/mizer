@@ -78,9 +78,10 @@ A species is treated as going extinct, stopping the run, once its
 reproduction rate (RDD) falls below this fraction of its value at the start
 of the run. For example the default \code{1e-6} treats a species as extinct once
 its reproduction has collapsed to a millionth of its initial level. Because
-it is relative to the initial reproduction, a species that starts with zero
-reproduction is flagged immediately, and (in \code{\link[=tuneSteadyState]{tuneSteadyState()}}, where
-reproduction is held constant) a healthy species is never flagged.}
+it is relative to the initial reproduction, a species that is present but
+starts with zero reproduction is flagged immediately, and (in
+\code{\link[=tuneSteadyState]{tuneSteadyState()}}, where reproduction is held constant) a healthy species
+is never flagged. A species with no fish at the start is not tested.}
 
 \item{return_sim}{If TRUE, the function returns the MizerSim object holding
 the result of the simulation run, saved at intervals of \code{t_per}. If FALSE

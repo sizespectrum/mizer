@@ -139,6 +139,30 @@ test_that("tuneSteadyState() attaches a 'convergence' attribute", {
     expect_lt(conv$residual, steady_residual_tol())
 })
 
+test_that("tuneSteadyState() leaves an initially absent species alone", {
+    params <- tss_params
+    initialN(params)[1, ] <- 0
+    # The species has no egg production to balance, which setBevertonHolt()
+    # used to refuse with "Some species have no reproduction.", whichever
+    # parameter was being preserved.
+    for (preserve in c("reproduction_level", "erepro", "R_max")) {
+        expect_no_warning(
+            p <- tuneSteadyState(params, preserve = preserve,
+                                 progress_bar = FALSE) |>
+                suppressMessages())
+        expect_identical(attr(p, "convergence")$termination,
+                         "residual_tolerance")
+        expect_true(all(initialN(p)[1, ] == 0))
+        expect_equal(p@species_params$erepro[1],
+                     params@species_params$erepro[1])
+        expect_equal(p@species_params$R_max[1],
+                     params@species_params$R_max[1])
+        # The species that is present is still tuned to its steady state.
+        expect_equal(getRDD(p)[[2]], getRequiredRDD(p)[[2]],
+                     tolerance = 1e-6)
+    }
+})
+
 
 # findSteadyState(solver = "project") ----------------------------------------
 
@@ -270,6 +294,19 @@ test_that("tuneSteadyState(solver = 'newton') holds the resource and honours pre
                                                   preserve = "erepro"))
     expect_equal(pn_erepro@species_params$erepro,
                  p_steady@species_params$erepro, tolerance = 1e-5)
+})
+
+test_that("tuneSteadyState(solver = 'newton') leaves an absent species alone", {
+    skip_unless_experimental()
+    params <- tss_params
+    initialN(params)[1, ] <- 0
+    expect_warning(
+        pn <- tuneSteadyState(params, solver = "newton") |> suppressMessages(),
+        "already absent and were held at zero")
+    expect_identical(attr(pn, "convergence")$termination, "solver_converged")
+    expect_true(all(initialN(pn)[1, ] == 0))
+    expect_equal(pn@species_params$erepro[1], params@species_params$erepro[1])
+    expect_equal(pn@species_params$R_max[1], params@species_params$R_max[1])
 })
 
 test_that("findSteadyState(solver = 'newton') leaves the reproduction parameters alone", {
