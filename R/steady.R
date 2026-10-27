@@ -12,8 +12,10 @@
 #' @param previous A named list with entries `n`, `n_pp` and `n_other`
 #'   describing the previous state
 #' @return The largest absolute relative change in rdi:
-#'   `max(abs((current_rdi - previous_rdi) / previous_rdi))`. If any entry of
-#'   `previous_rdi` is zero, the result can be infinite.
+#'   `max(abs((current_rdi - previous_rdi) / previous_rdi))`. A species with
+#'   zero rdi in both states, such as one that is absent from the model, has
+#'   not changed and contributes zero. A species whose rdi has risen from zero
+#'   makes the result infinite.
 #' @family distance functions
 #' @concept helper
 #' @export
@@ -26,7 +28,12 @@ distanceMaxRelRDI.MizerParams <- function(params, current, previous) {
                           n_other = current$n_other)
     previous_rdi <- getRDI(params, n = previous$n, n_pp = previous$n_pp,
                            n_other = previous$n_other)
-    d <- max(abs((current_rdi - previous_rdi) / previous_rdi))
+    rel <- abs((current_rdi - previous_rdi) / previous_rdi)
+    # A species with no egg production in either state has not changed. Its
+    # 0/0 is no change rather than an infinite one, which would otherwise keep
+    # a model with an absent species from ever converging.
+    rel[which(current_rdi == 0 & previous_rdi == 0)] <- 0
+    d <- max(rel)
     d[is.nan(d)] <- Inf
     d
 }
@@ -133,16 +140,19 @@ distanceSSLogN.MizerParams <- function(params, current, previous,
 #' `extinction_threshold` times its value at the start of the run, or has become
 #' `NA`, that species is deemed to be on its way to extinction. A warning naming
 #' the affected species is issued and the run stops with
-#' `type = "extinction"`. Because the criterion is relative to the initial
-#' reproduction, a species that starts with zero reproduction is flagged
-#' immediately, whereas in [tuneSteadyState()], where reproduction is held constant, a
-#' healthy species is never flagged.
+#' `termination = "extinction"`. Because the criterion is relative to the
+#' initial reproduction, a species that is present but starts with zero
+#' reproduction is flagged immediately, whereas in [tuneSteadyState()], where
+#' reproduction is held constant, a healthy species is never flagged. A species
+#' with no fish at the start of the run is not tested: it stays absent while the
+#' others settle, as it does with the Newton solver of [findSteadyState()].
 #'
 #' ## 2. Limit cycle
 #'
 #' The recorded biomass series is examined to see whether the run has settled
-#' onto a limit cycle. If it has, the run stops with `type = "cycle"` and the
-#' period and amplitude of the cycle are reported.
+#' onto a limit cycle. If it has, the run stops with
+#' `termination = "cycle_detected"` and the period and amplitude of the cycle
+#' are reported.
 #'
 #' It is made at every check, whether or not the state looks converged
 #' by the measure below. A cycle whose period divides `t_check` puts the two
@@ -184,9 +194,9 @@ distanceSSLogN.MizerParams <- function(params, current, previous,
 #' deliberately ignores it.
 #'
 #' If none of the three checks fires before `t_max` is reached, the run stops
-#' with `type = "not_converged"`. In every case the outcome is recorded in the
-#' `"convergence"` attribute of the returned object, described under *Value*
-#' below.
+#' with `termination = "time_limit"`. In every case the outcome is recorded in
+#' the `"convergence"` attribute of the returned object, described under
+#' *Value* below.
 #'
 #' # How a limit cycle is detected
 #'
@@ -279,9 +289,10 @@ distanceSSLogN.MizerParams <- function(params, current, previous,
 #'   reproduction rate (RDD) falls below this fraction of its value at the start
 #'   of the run. For example the default `1e-6` treats a species as extinct once
 #'   its reproduction has collapsed to a millionth of its initial level. Because
-#'   it is relative to the initial reproduction, a species that starts with zero
-#'   reproduction is flagged immediately, and (in [tuneSteadyState()], where
-#'   reproduction is held constant) a healthy species is never flagged.
+#'   it is relative to the initial reproduction, a species that is present but
+#'   starts with zero reproduction is flagged immediately, and (in
+#'   [tuneSteadyState()], where reproduction is held constant) a healthy species
+#'   is never flagged. A species with no fish at the start is not tested.
 #' @param progress_bar A shiny progress object to implement a progress bar in a
 #'   shiny app. Default FALSE.
 #' @param info_level Controls the amount of information messages that are shown.
@@ -569,6 +580,12 @@ project_until_settled <- function(params,
 
     # Reference reproduction rate for the relative extinction test below.
     rdd_start <- r$rdd
+    # A species with no fish at the start stays absent, and its reproduction,
+    # zero throughout, would pass the relative test below at the first check.
+    # Presence is judged on abundance, as in the Newton solver, and not on
+    # reproduction: a species that is present but cannot reproduce is doomed,
+    # and is exactly what the test is there to catch.
+    present <- rowSums(params@initial_n > 0) > 0
 
     # Record a cheap scalar summary (per-species biomass) after every time step,
     # so that a limit cycle can be detected and characterised at the finest
@@ -626,9 +643,12 @@ project_until_settled <- function(params,
 
         # A species whose reproduction has collapsed to a tiny fraction of its
         # starting value is going extinct, so stop.
-        extinct <- is.na(current$rates$rdd) |
-            (rdd_start > 0 &
+        extinct <- present &
+            (is.na(current$rates$rdd) |
                  current$rates$rdd <= extinction_threshold * rdd_start)
+        # A starting value that was itself `NA` gives no reference to compare
+        # against, so no verdict, rather than an `NA` that `if ()` cannot take.
+        extinct[is.na(extinct)] <- FALSE
         if (any(extinct)) {
             warning(paste(params@species_params$species[extinct], collapse = ", "),
                     " are going extinct.")

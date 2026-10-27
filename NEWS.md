@@ -2,8 +2,19 @@
 
 ## Bug fixes
 
-- `projectUntilSettled()` no longer reports a false-positive extinction for a
-  species that starts with zero abundance (#614).
+- A species that is absent from the initial state, with
+  `initialN(params)[species, ] <- 0`, no longer breaks the steady-state
+  searches (#614). `projectUntilSettled()`, `findSteadyState()` and
+  `scanModel()` used to stop at the first check, reporting that the species
+  was going extinct, because its reproduction, zero throughout, had fallen to
+  zero times its starting value. They now leave it absent while the other
+  species settle, as the Newton solver already did. `tuneSteadyState()` failed
+  with "Some species have no reproduction." under either solver. It now leaves
+  that species' reproduction parameters alone. `distanceMaxRelRDI()` now counts
+  a species with no egg production in either state as unchanged, rather than
+  returning `Inf`, which would have kept such a run from ever converging. A
+  species that is present but has no reproduction is still reported as going
+  extinct immediately.
 
 - `setPredKernel(reset = TRUE)` now removes a predation kernel that had been
   set by hand, rather than only removing the comment that protected it (#608).
