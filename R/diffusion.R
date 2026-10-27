@@ -3,22 +3,25 @@
 #' @description
 #' Calculates the diffusion rate \eqn{D_i(w)} (grams^2/year) for each species.
 #' This diffusion rate has two components:
-#' 1. The diffusion due due to the variability in prey sizes. This is the
+#' 1. The diffusion due to the variability in prey sizes. This is the
 #'    diffusion term from the jump-growth equation.
 #' 2. Any externally specified diffusion, which is added via [setExtDiffusion()]
 #'
 #' @details
-#' The diffusion due due to the variability in prey sizes
+#' The diffusion due to the variability in prey sizes
 #' is determined by summing over all prey
 #' species and the resource spectrum and then integrating over all prey sizes
 #' \eqn{w_p}, weighted by predation kernel \eqn{\phi(w,w_p)}:
 #' \deqn{
-#' d_i(w) = (1-f_i(w))(\alpha_i(1-\psi_i(w)))^2\gamma_i(w) \int
+#' D_{pred.i}(w) = (1-f_i(w))\,\gamma_i(w) \int
 #' \left( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) \right)
-#' \phi_i(w,w_p) w_p^2 \, dw_p.
-#' }{(1-f_i(w))(\alpha_i(1-\psi_i(w)))^2\gamma_i(w) \int
+#' \phi_i(w,w_p) (\alpha_i w_p)^2 \, dw_p.
+#' }{D_pred.i(w) = (1-f_i(w)) \gamma_i(w) \int
 #' ( \theta_{ip} N_R(w_p) + \sum_{j} \theta_{ij} N_j(w_p) )
-#' \phi_i(w,w_p) w_p^2 dw_p.}
+#' \phi_i(w,w_p) (\alpha_i w_p)^2 dw_p.}
+#' This has the same form as the rate at which the predator absorbs prey
+#' biomass, except that the factor \eqn{\alpha_i w_p}, the increase in the
+#' predator's mass from eating a prey of mass \eqn{w_p}, is squared.
 #' Here \eqn{N_j(w)} is the abundance density of species \eqn{j} and
 #' \eqn{N_R(w)} is the abundance density of resource.
 #' The overall prefactor \eqn{\gamma_i(w)} determines the predation power of the
@@ -29,8 +32,12 @@
 #' and the resource interaction vector \eqn{\theta_{ip}} is taken from the
 #' `interaction_resource` column in [species_params()].
 #' \eqn{f(w)} is the feeding level calculated with
-#' [getFeedingLevel()]. \eqn{\psi(w)} is the proportion of the available energy
-#' that is invested in reproduction instead of growth, obtained with [psi()].
+#' [getFeedingLevel()], and \eqn{\alpha_i} is the proportion of the consumed
+#' food that is absorbed, taken from the `alpha` column in [species_params()].
+#' The total diffusion rate is
+#' \eqn{D_i(w) = D_{pred.i}(w) + D_{ext.i}(w)}{
+#' D_i(w) = D_pred.i(w) + D_ext.i(w)},
+#' where \eqn{D_{ext.i}(w)}{D_ext.i(w)} is the external diffusion.
 #'
 #' The diffusion integral is normally evaluated efficiently with a fast Fourier
 #' transform, which assumes that the predation kernel depends only on the ratio
