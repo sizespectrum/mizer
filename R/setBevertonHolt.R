@@ -107,6 +107,14 @@
 #' for `erepro` should also be smaller than 1 to be physiologically sensible,
 #' but this is not enforced by the function.
 #'
+#' A species that is absent from the initial state, with zero abundance at all
+#' sizes, has no reproduction whatever its parameters, so every Beverton-Holt
+#' curve keeps it at its steady state. For such a species a given `erepro` or
+#' `R_max` is used as it is and the other parameter is left unchanged. Its
+#' reproduction level is zero whatever its `R_max`, so a non-zero
+#' `reproduction_level` cannot be set for it: its parameters are then left
+#' unchanged and a warning is issued.
+#'
 #' As can be seen in the graph above, choosing a lower value for `R_max` or a
 #' higher value for `erepro` means that near the steady state the reproduction
 #' will be less sensitive to a change in the energy invested into reproduction
@@ -196,6 +204,12 @@ setBevertonHolt.MizerParams <- function(params, erepro,
     if (!all(is.numeric(values))) {
         stop("You provided invalid non-numeric values.")
     }
+    if (!missing(reproduction_level) && !all(values >= 0 & values < 1)) {
+        stop("The reproduction level must be smaller than 1 and non-negative.")
+    }
+    if (exists("R_factor") && !all(values > 1)) {
+        stop("The R_factor must be greater than 1.")
+    }
     # select the species that are affected
     species <- valid_species_arg(params, names(values))
     sp_idx <- match(species, params@species_params$species)
@@ -209,10 +223,53 @@ setBevertonHolt.MizerParams <- function(params, erepro,
     }
 
     rdi <- getRDI(params)[species]
-    if (any(rdi == 0)) { # This should never happen, but did happen in the past.
-        stop("Some species have no reproduction.")
-    }
     params@rates_funcs$RDD <- "BevertonHoltRDD"
+    # Every species needs an `R_max` under Beverton-Holt, including any that
+    # this call leaves alone. This is the default `setReproduction()` gives.
+    params <- set_species_param_default(params, "R_max", Inf)
+
+    # An absent species has neither spawners nor eggs, so its reproduction is
+    # zero whatever its Beverton-Holt parameters: every curve passes through
+    # its steady state. A given `erepro` or `R_max` is therefore used as it is
+    # and the other parameter is left alone, whereas a reproduction level other
+    # than zero cannot be had at all.
+    absent <- rowSums(params@initial_n[sp_idx, , drop = FALSE] > 0) == 0
+    if (any(absent)) {
+        if (!missing(erepro) || !missing(R_max)) {
+            par <- if (missing(R_max)) "erepro" else "R_max"
+            if (!par %in% names(params@given_species_params)) {
+                params@given_species_params[[par]] <- NA_real_
+            }
+            params@species_params[[par]][sp_idx[absent]] <- values[absent]
+            params@given_species_params[[par]][sp_idx[absent]] <- values[absent]
+        } else {
+            level <- if (missing(reproduction_level)) 1 / values else values
+            refused <- absent & level > 0
+            if (any(refused)) {
+                signal_info("reproduction_level", paste0(
+                    "The reproduction level of an absent species is zero ",
+                    "whatever its `R_max`, so the following absent species ",
+                    "have kept their `erepro` and `R_max`: ",
+                    paste(species[refused], collapse = ", ")),
+                    level = 1, severity = "warning", unhandled = "show")
+            }
+        }
+        values <- values[!absent]
+        species <- species[!absent]
+        sp_idx <- sp_idx[!absent]
+        rdi <- rdi[!absent]
+        if (length(species) == 0) {
+            params@time_modified <- lubridate::now()
+            return(params)
+        }
+    }
+    if (any(rdi == 0)) {
+        stop("The following species have no reproduction, so no ",
+             "Beverton-Holt parameters can sustain them: ",
+             paste(species[rdi == 0], collapse = ", "),
+             ". Check that they have mature individuals in ",
+             "`initialN(params)`.")
+    }
 
     rdd_new <- getRequiredRDD(params)[species]
 
@@ -253,15 +310,9 @@ setBevertonHolt.MizerParams <- function(params, erepro,
     # We now know that we are setting R_max, which however can have been
     # specified in different ways.
     if (!missing(reproduction_level)) {
-        if (!all(values >= 0 & values < 1)) {
-            stop("The reproduction level must be smaller than 1 and non-negative.")
-        }
         r_max_new <- rdd_new / values
     }
     if (exists("R_factor")) {
-        if (!all(values > 1)) {
-            stop("The R_factor must be greater than 1.")
-        }
         r_max_new <- rdd_new * values
     }
     if (!missing(R_max)) {

@@ -9,6 +9,21 @@
   `getTrophicLevel()` paired it with the encounter rate from the new kernel,
   reporting trophic levels that could be far off without any warning.
 
+- `setBevertonHolt()` no longer stops with "Some species have no
+  reproduction." on a model with a species that is absent, with
+  `initialN(params)[species, ] <- 0` (#620). `matchGrowth()`,
+  `matchBiomasses()` and `matchNumbers()` end with a call to it, so they failed
+  too, even when the absent species was not among those selected. An absent
+  species has no reproduction whatever its Beverton-Holt parameters, so they
+  are now left unchanged, except that an `erepro` or `R_max` given for it
+  explicitly is used as it is. A non-zero `reproduction_level` cannot be given
+  to an absent species, and asking for one now gives a warning. A species that
+  is present but has no reproduction still stops `setBevertonHolt()`, now with
+  an error that names it. When it switches a model to Beverton-Holt
+  reproduction, `setBevertonHolt()` also now gives a species without an `R_max`
+  the default `Inf`, where it used to leave it `NA` or, depending on which
+  species were named, stop with a "replacement has ... rows" error.
+
 - A species whose egg size `w_min` does not sit exactly on a grid point is no
   longer emptied by `steadySingleSpecies()`, and `addSpecies()` no longer fails
   for such a species with "Candidate steady state holds non-numeric values."

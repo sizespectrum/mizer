@@ -85,3 +85,14 @@ test_that("matchGrowth says that it moved the model off steady state", {
     expect_message(matchGrowth(NS_params_small), "moved it off its steady state")
     expect_no_message(matchGrowth(NS_params_small, info_level = 0))
 })
+
+test_that("matchGrowth works on a model with an absent species", {
+    # setBevertonHolt() used to stop with "Some species have no reproduction."
+    # because the absent species has no spawners (#620).
+    params <- NS_params_small
+    initialN(params)["Sprat", ] <- 0
+    p <- matchGrowth(params, species = "Cod")
+    expect_true(all(p@initial_n["Sprat", ] == 0))
+    expect_identical(p@species_params$erepro, params@species_params$erepro)
+    expect_identical(p@species_params$R_max[1], params@species_params$R_max[1])
+})
