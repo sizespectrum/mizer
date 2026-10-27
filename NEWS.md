@@ -1,5 +1,16 @@
 # mizer (development version)
 
+## New features
+
+- `findSteadyState(solver = "newton")` now obtains the resource steady-state
+  equation from a `steady_<resource_dynamics>()` companion instead of assuming
+  semichemostat resource dynamics (#568). Mizer exports the new
+  `steady_resource_semichemostat()` and `steady_resource_logistic()` companions,
+  so both built-in resource dynamics are supported (the logistic solve is
+  currently restricted to its positive-resource branch). Extension authors can
+  supply a `steady_<resource_dynamics>()` companion for custom resource
+  dynamics.
+
 ## Bug fixes
 
 - `steadySingleSpecies()` with `keep = "biomass"` or `keep = "number"` no

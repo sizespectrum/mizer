@@ -32,6 +32,7 @@ heavier one only when the lighter one cannot do the job. All setters return a ne
 | Add a fixed external food or mortality source (no new state variable) | [`ext_encounter()`](../reference/setExtEncounter.html) / [`ext_mort()`](../reference/setExtMort.html) |
 | Add an extra encounter or mortality that depends on the model state but has no state of its own | [`other_encounter()`](../reference/other_mort.html) / [`other_mort()`](../reference/other_mort.html) |
 | Change how one built-in rate is calculated | [`setRateFunction()`](../reference/setRateFunction.html) |
+| Replace the background resource dynamics | [`resource_dynamics()`](../reference/setResource.html) |
 | Add a new dynamical pool (detritus, carrion, oxygen, second resource…) | [`setComponent()`](../reference/setComponent.html) |
 | Store parameters for your custom code | [`other_params()`](../reference/setRateFunction.html) (model-wide) or `component_params` (one component) |
 | Extend plots/summaries for a custom model type | S3 methods on an S3 extension class |
@@ -96,7 +97,7 @@ Replaceable rates include `Rates`, `Encounter`, `FeedingLevel`, `PredRate`,
 `PredMort`, `Mort`, `ResourceMort`, `EReproAndGrowth`, `ERepro`, `EGrowth`,
 `Diffusion`, `FMort`, `RDI` (density-independent recruitment), and `RDD`
 (density-dependent recruitment). Resource dynamics is set separately via
-[`resource_dynamics()`](../reference/setResource.html).
+`resource_dynamics()`.
 
 **Write your function by starting from the built-in** ([`mizerMort()`](../reference/mizerMort.html),
 [`mizerEncounter()`](../reference/mizerEncounter.html), …): copy it, change what you need, and keep the same
@@ -188,6 +189,34 @@ Three rules that follow from the table:
 - **Build outputs from existing mizer arrays** so dimensions and dimnames are
   inherited. Most bugs in extension code are the right numbers in the wrong
   shape.
+
+---
+
+## Custom resource dynamics
+
+Set a custom resource update function with `resource_dynamics(params) <-
+"my_resource"`. It receives `params`, the state (`n`, `n_pp`, `n_other`), the
+complete `rates` list, `t`, `dt`, [`resource_rate`](../reference/setResource.html) and [`resource_capacity`](../reference/setResource.html), and
+returns the resource density at the end of the step.
+
+Two optional companion functions let the steady-state tools work with it:
+
+- `balance_my_resource(params, resource_rate, resource_capacity)` derives one
+  resource parameter from the other so that [`tuneSteadyState()`](../reference/tuneSteadyState.html) can preserve
+  the resource abundance.
+- `steady_my_resource(params, n, n_pp, n_other, rates, t, resource_rate,
+  resource_capacity, ...)` returns a plain numeric vector over `w_full` giving
+  the resource equilibrium implied by the supplied frozen rates. This lets
+  [`findSteadyState(solver = "newton")`](../reference/findSteadyState.html) carry the resource among its unknowns.
+
+The names are formed mechanically from the value stored in
+`resource_dynamics(params)`, so both companions must be defined in the global
+environment or exported by an installed package. Start from
+[`steady_resource_semichemostat()`](../reference/resource_semichemostat.html) or [`steady_resource_logistic()`](../reference/resource_logistic.html). The current
+Newton parameterisation uses log resource densities, so a companion used there
+must return finite, positive values on every size class with positive capacity;
+use the projecting solver for a dynamics whose steady state includes depleted
+resource classes.
 
 ---
 
@@ -373,7 +402,7 @@ half.
 A component you give a `dynamics_fun` is outside mizer's steady-state
 machinery, in both directions, and a model with one needs checking accordingly:
 
-- [`tuneSteadyState()`](../reference/tuneSteadyState.html), [`findSteadyState(solver = "newton")`](../reference/findSteadyState.html) and `getStability()`
+- `tuneSteadyState()`, `findSteadyState(solver = "newton")` and `getStability()`
   hold the component at its stored value and solve the consumer-resource
   subsystem around it. Mizer warns when it meets a component with dynamics of
   its own.

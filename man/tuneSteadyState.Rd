@@ -49,9 +49,9 @@ the residual reported in the result is measured again on the model that is
 actually returned.
 
 With \code{solver = "newton"}: \code{solver_tol} (default \code{1e-6}), a tolerance on
-the per-capita rate of change passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}}. It was called
-\code{residual_tol} before mizer 3.3, a name that now belongs to the biomass
-drift criterion above; \code{maxit}
+the scaled steady-state residual passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}}. It was
+called \code{residual_tol} before mizer 3.3, a name that now belongs to the
+biomass drift criterion above; \code{maxit}
 (default \code{200}); \code{jacobian}, either \code{"update"} (default, the Jacobian is
 computed once and then updated cheaply each iteration — \code{nleqslv}'s
 \code{"Broyden"}) or \code{"recompute"} (a numerical Jacobian at every iteration —
@@ -118,8 +118,8 @@ still matters — for example the spectra from a nearby stable
 parameterisation, or the (diverging) output of \code{solver = "project"}.
 
 Because the resource is held fixed either way, \code{solver = "newton"} here does
-not need the resource to be a semichemostat, unlike in \code{\link[=findSteadyState]{findSteadyState()}}
-where the resource is one of the unknowns.
+not need the \verb{steady_<resource_dynamics>()} companion that
+\code{\link[=findSteadyState]{findSteadyState()}} uses when the resource is one of the unknowns.
 }
 
 \section{What you get back may not be a steady state}{

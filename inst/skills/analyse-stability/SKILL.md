@@ -10,7 +10,7 @@ description: >-
   getOscillationModeSim() and scanModel(). This
   skill and calibrate-model share findSteadyState() and getSteadyResidual(): use
   calibrate-model to find a steady state, this skill to ask whether the state you
-  found is stable. Assumes the standard semichemostat resource dynamics.
+  found is stable.
 ---
 
 # Analysing dynamic stability
@@ -18,12 +18,12 @@ description: >-
 Tools for asking whether a mizer steady state is dynamically **stable** — and,
 when it is not, characterising the **limit cycle** that replaces it. These are
 **experimental**: their interface may still change. `findSteadyState(solver =
-"newton")` assumes the
-standard semichemostat resource dynamics and solves for the resource alongside
-the fish, so the resource density and the feeding levels it implies are
-self-consistent even where consumers are satiated. `getStability()` and
-`getDiscreteStability()` perturb the resource alongside the fish and so work
-with any resource dynamics.
+"newton")` solves for the resource alongside the fish, so the resource density
+and the feeding levels it implies are self-consistent even where consumers are
+satiated. It works with the built-in semichemostat and logistic dynamics; the
+logistic solve currently covers only the positive-resource branch.
+`getStability()` and `getDiscreteStability()` perturb the resource alongside the
+fish and so work with any resource dynamics.
 
 Distinct from calibration: the `calibrate-model` skill gets you *onto* a fixed
 point; what follows analyses the *dynamics around* it. The natural entry point

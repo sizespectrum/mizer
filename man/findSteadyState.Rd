@@ -79,11 +79,19 @@ diverges away from it. This is the natural entry point for a stability
 analysis with \code{\link[=getStability]{getStability()}}.
 
 The Newton solver treats the resource densities as unknowns alongside the
-fish and appends the resource steady-state equation to the system, so the
+fish and appends a resource steady-state equation to the system, so the
 resource density and the feeding levels it implies are self-consistent even
-where consumers are satiated. That equation is written for the default
-semichemostat resource dynamics, so \code{solver = "newton"} stops with an error
-for any other \code{resource_dynamics}; use \code{solver = "project"} there.
+where consumers are satiated. It obtains that equation from a function named
+\verb{steady_<resource_dynamics>()}, which returns the resource equilibrium
+implied by the rates at the current state. Mizer supplies companions for
+\code{\link[=resource_semichemostat]{resource_semichemostat()}} and \code{\link[=resource_logistic]{resource_logistic()}}. A custom resource
+dynamics function can support the Newton solver by supplying its own
+companion with the same naming and argument convention.
+
+Resource densities are solved for in log space and must therefore remain
+positive. For logistic resource dynamics this solver finds the positive
+branch only; use \code{solver = "project"} when a resource size class can be
+depleted to zero.
 
 The Newton iteration also needs the residual \eqn{F(N)} to be continuous. A
 custom rate function registered with \code{\link[=setRateFunction]{setRateFunction()}} that jumps as a
