@@ -419,6 +419,86 @@ declare `gamma` as a given species parameter merely to protect it from your own
 method or component; that is no longer necessary, and it costs the model the
 ability to let `gamma` follow `f0`.
 
+#### But they do go through your `get_*_default()` method
+
+That non-dispatching measurement is right for an extension that *modulates* a
+rate mizer already has. It is wrong for an extension that changes the model's
+structure — most of all one that replaces the single resource spectrum by a
+resource system of its own. The `gamma` values that
+`newMultispeciesParams()` auto-derived at construction time were calibrated
+against the resource that was there then. Swapping that resource out afterwards
+does not re-derive them, so every species that did not come with a `gamma` of
+its own is left calibrated against a resource the model no longer has.
+
+Nothing in core mizer can notice this for you, and re-calling
+`get_gamma_default()` will not fix it, both because its measurement deliberately
+does not see your resource system and because `species_params(params)$gamma` is
+already populated (only `NA` entries are filled by `get_gamma_default()`). The
+five functions involved are therefore S3 generics, so you can supply the part
+that mizer cannot know:
+
+| Generic | What a method should return |
+|---|---|
+| `measure_avail_energy()` | the coefficient $A_i$ in $E_i(w) = A_i w^{2 + q_i - \lambda}$, the energy the reference state makes available |
+| `get_gamma_default()` | search volume coefficient `gamma` for each species |
+| `get_f0_default()` | target feeding level `f0` for each species |
+| `get_h_default()` | maximum intake rate coefficient `h` |
+| `get_ks_default()` | standard metabolic rate coefficient `ks` |
+
+`measure_avail_energy()` is usually the only one you need. It is the single
+point at which `get_gamma_default()` and `get_f0_default()` look at the prey in
+the model, placing the reference resource on an untruncated power law across
+`w_full` so that evaluating at `w[length(w)]` recovers the scale-free
+coefficient $A_i$ without upper-cutoff distortion. A method for it redirects
+both defaults at your resource system without your having to reimplement either:
+
+```r
+#' @export
+measure_avail_energy.mizerShelf <- function(params, ...) {
+    # Put the extension's own resources into the untruncated power-law
+    # reference state and return the coefficient A_i for each species.
+}
+```
+
+If your extension instead calibrates `gamma` against size-truncated resource
+spectra at a species-specific reference size (such as `w_inf` or `w_min`),
+register methods for `get_gamma_default()` and `get_f0_default()` directly.
+
+Because the rate setters call the generics, an object of your class picks the
+method up on every rebuild — including when a user edits a species parameter or
+hands an explicitly given `gamma` back to mizer by removing it from
+`given_species_params()`. To re-derive the auto-calculated defaults at the
+moment your setup or resource-setting function swaps the resource out, trigger a
+rebuild from `given_species_params()` once the object carries your extension
+class:
+
+```r
+params <- mizer::recordExtension(
+    params, "mizerShelf",
+    version = as.character(utils::packageVersion("mizerShelf")))
+params <- mizer::coerceToExtensionClass(params)
+species_params(params) <- species_params(params)
+```
+
+That no-op assignment rebuilds `species_params(params)` from
+`given_species_params(params)` — dropping the single-resource `gamma` and `f0`
+that were not given by the user while keeping any explicitly supplied values —
+and re-runs `setParams(params)` through your method. Leaving this step out would
+leave the stale single-resource `gamma` in `species_params(params)`, where
+`reconcileSpeciesParams()` (and hence `readParams()`) would mistake it for a
+value set by hand and freeze it into `given_species_params(params)`.
+
+Two rules for a `measure_avail_energy()` or `get_*_default()` method:
+
+- Return a property of the *species parameters*, not of the model's dynamics.
+  Leave out any dynamic modulation of the search volume, and any additive
+  encounter contribution, that your extension applies. Folding such a factor in
+  folds it into `gamma`, and since `gamma` then determines the search volume,
+  the factor gets re-applied on every rebuild (issues #577 and #586).
+- Call `NextMethod()` if what you are doing is adding to mizer's reference
+  state rather than replacing it, so that another extension in the chain still
+  gets its turn.
+
 ### Creating objects: the two commands
 
 A constructor function that returns a `mizerShelf` object must end with these
@@ -636,6 +716,13 @@ When building a dispatching extension package, verify the following:
   own with `other_mort()` or `other_encounter()`, never by assigning into
   `params@other_mort` or `params@other_encounter` directly. See
   [Metadata-only extensions: mizerStarvation].
+- [ ] If your package changes the resource structure of the model, define a
+  `measure_avail_energy()` (or `get_gamma_default()` / `get_f0_default()`)
+  method and rebuild the species parameters with
+  `species_params(params) <- species_params(params)` after
+  `coerceToExtensionClass(params)` so that the `gamma` and `f0` defaults are
+  derived against your resources rather than against the one mizer replaced.
+  See [But they do go through your `get_*_default()` method].
 - [ ] Report anything you tell the user with `signal_info()` inside a
   `with_info_level()`, never a bare `message()` or `warning()`, and give every
   entry point an `info_level = default_info_level()` argument that it forwards.
