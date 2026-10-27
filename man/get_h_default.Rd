@@ -4,10 +4,12 @@
 \alias{get_h_default}
 \title{Get default value for h}
 \usage{
-get_h_default(params)
+get_h_default(params, ...)
 }
 \arguments{
 \item{params}{A MizerParams object or a species parameter data frame}
+
+\item{...}{Unused.}
 }
 \value{
 A vector with the values of h for all species
@@ -33,7 +35,8 @@ mathematical derivation.
 Other functions calculating defaults:
 \code{\link[=get_f0_default]{get_f0_default()}},
 \code{\link[=get_gamma_default]{get_gamma_default()}},
-\code{\link[=get_ks_default]{get_ks_default()}}
+\code{\link[=get_ks_default]{get_ks_default()}},
+\code{\link[=measure_avail_energy]{measure_avail_energy()}}
 }
 \concept{functions calculating defaults}
 \concept{helper}
