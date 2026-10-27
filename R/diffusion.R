@@ -160,21 +160,14 @@ projectDiffusion.MizerParams <- function(params, n, n_pp, n_other, t = 0,
             prey_sq[, idx_sp] <- prey_sq[, idx_sp] + params@interaction %*% n
             prey_sq <- sweep(prey_sq, 2, params@w_full^2 * params@dw_full, "*")
 
-            # Convolve with the predation kernel via FFT.
-            # mvfft() transforms each column, so we transpose to get row-wise
-            # FFTs, following the same pattern as mizerEncounter. We use the
-            # dedicated diffusion kernel `ft_pred_kernel_d`: the diffusion
-            # integrand carries w_p^2 dw_p (one more power of prey size than the
-            # encounter's w_p dw_p), so under `second_order_w` its bin-integral
-            # needs the e^{3t} Jacobian rather than the encounter's e^{2t}. In
-            # the default first-order scheme `ft_pred_kernel_d` equals
-            # `ft_pred_kernel_e`, so the result is byte-identical to before.
-            integral_d <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_d) *
-                                               mvfft(base::t(prey_sq)),
-                                           inverse = TRUE))) /
-                length(params@w_full)
-            # Keep only the consumer sizes
-            integral_d <- integral_d[, idx_sp, drop = FALSE]
+            # Convolve with the predation kernel via FFT, as in mizerEncounter.
+            # We use the dedicated diffusion kernel `ft_pred_kernel_d`: the
+            # diffusion integrand carries w_p^2 dw_p (one more power of prey
+            # size than the encounter's w_p dw_p), so under `second_order_w` its
+            # bin-integral needs the e^{3t} Jacobian rather than the encounter's
+            # e^{2t}. In the default first-order scheme `ft_pred_kernel_d`
+            # equals `ft_pred_kernel_e`.
+            integral_d <- convolve_pred_kernel(params, prey_sq, "diffusion")
             # Remove numerical noise
             integral_d[integral_d < 0] <- 0
         }

@@ -2,6 +2,32 @@
 
 ## Bug fixes
 
+- The encounter rate, the predation rate, the predation diffusion and
+  `getDiet()` no longer pick up contributions that wrap around the size grid
+  (#618). They are convolutions over the predation kernel, evaluated by fast
+  Fourier transform, and that convolution was circular: the part of a small
+  fish's feeding kernel that reached below the smallest resource size
+  `min_w_pp` wrapped around to the top of the grid, so that larvae were fed by
+  the largest fish and the predation rate recorded them as eating those fish.
+  The `ft_mask` removed this only from the predation rate on prey larger than
+  the predator species' maximum size. The error grows with the biomass of the
+  largest fish and with how far the larval kernels reach below `min_w_pp`. In
+  the model reported in #618, with `min_w_pp` three orders of magnitude below
+  the egg size, it made the encounter rate of 1 mg larvae 9% too high, and with
+  `use_predation_diffusion` switched on it made the predation diffusion of the
+  smallest fish several orders of magnitude too large. The convolutions are now
+  evaluated on a zero-padded grid, so they agree with the direct sums over the
+  kernel. Where the resource extends far below the kernels of the smallest
+  fish, as in `NS_params`, results change only at the level of round-off.
+  Models saved with an earlier version are upgraded automatically.
+
+- For extension packages: the new `convolve_pred_kernel()` evaluates these
+  convolutions for a prey or predator density of your own. Use it instead of
+  multiplying the `ft_pred_kernel_e`, `ft_pred_kernel_p` or `ft_pred_kernel_d`
+  slots by Fourier transforms of your own, which now fails with
+  "non-conformable arrays" because those slots are stored on the zero-padded
+  grid and are longer than `w_full`.
+
 - `setPredKernel(reset = TRUE)` now removes a predation kernel that had been
   set by hand, rather than only removing the comment that protected it (#608).
   The rate functions already used the recalculated kernel, but the discarded

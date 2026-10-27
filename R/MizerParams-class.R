@@ -344,17 +344,20 @@ validMizerParams <- function(object) {
 #'   [setPredKernel()].
 #' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
-#'   appropriate for evaluating the encounter rate integral. If this is NA
-#'   then the `pred_kernel` will be used to calculate the available
-#'   energy integral. Changed with [setPredKernel()].
+#'   appropriate for evaluating the encounter rate integral. The kernel is
+#'   zero-padded, so the second dimension is longer than `w_full`; use
+#'   [convolve_pred_kernel()] rather than this slot to evaluate the integral.
+#'   If this is NA then the `pred_kernel` will be used to calculate the
+#'   available energy integral. Changed with [setPredKernel()].
 #' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
-#'   appropriate for evaluating the predation mortality integral. If this is NA
+#'   appropriate for evaluating the predation mortality integral. Zero-padded
+#'   like `ft_pred_kernel_e`. If this is NA
 #'   then the `pred_kernel` will be used to calculate the integral.
 #'   Changed with [setPredKernel()].
 #' @slot ft_pred_kernel_d An array (species x log of predator/prey size ratio)
-#'   that holds the Fourier transform of the feeding kernel in a form
-#'   appropriate for evaluating the predation-diffusion integral (used when
+#'   that holds the zero-padded Fourier transform of the feeding kernel in a
+#'   form appropriate for evaluating the predation-diffusion integral (used when
 #'   `use_predation_diffusion` is `TRUE`). It differs from `ft_pred_kernel_e`
 #'   only when `second_order_w[["bin_average"]]` is `TRUE`, where it carries the
 #'   extra power of prey size that the diffusion integrand needs; otherwise it
@@ -413,8 +416,8 @@ validMizerParams <- function(object) {
 #' @slot linetype A named vector of linetypes, named by species.
 #'   Used to give consistent line types in plots.
 #' @slot ft_mask An array (species x w_full) with zeros for weights larger than
-#'   the maximum weight of each species. Used to efficiently minimize
-#'   wrap-around errors in Fourier transform calculations.
+#'   the maximum weight of each species. Used to set the predation rate by
+#'   each species to zero on prey larger than its maximum weight.
 #' @slot use_predation_diffusion A logical flag controlling whether predation-induced
 #'   diffusion is included when calculating rates with [mizerDiffusion()].
 #'   Defaults to `FALSE` to preserve the behaviour of previous mizer versions.
@@ -594,8 +597,9 @@ emptyParams <- function(species_params,
     gear_names <- unname(unique(gear_params$gear))
     mat1 <- array(0, dim = c(no_sp, no_w),
                   dimnames = list(sp = species_names, w = signif(w, 3)))
-    ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
-                            dimnames = list(sp = species_names, k = 1:no_w_full))
+    no_k <- pred_kernel_fft_length(no_w_full, no_w)
+    ft_pred_kernel <- array(NA, dim = c(no_sp, no_k),
+                            dimnames = list(sp = species_names, k = 1:no_k))
     ft_mask <- t(sapply(species_params$w_max, function(x) w_full < x))
 
     selectivity <- array(0, dim = c(length(gear_names), no_sp, no_w),

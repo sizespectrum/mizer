@@ -35,6 +35,36 @@ test_that("upgradeParams derives w_inf for objects that predate it", {
     expect_equal(up2@species_params$w_inf, up2@species_params$w_max)
 })
 
+test_that("upgradeParams zero-pads the circular FFT kernels of earlier versions (#618)", {
+    for (bin_average in c(FALSE, TRUE)) {
+        params <- kernel_below_grid_params(bin_average)
+        # Put the kernels back into the circular layout of earlier versions,
+        # one Fourier coefficient per size in w_full
+        no_w_full <- length(params@w_full)
+        L <- ncol(params@ft_pred_kernel_e)
+        expect_gt(L, no_w_full)
+        circular <- function(ft, reversed = FALSE) {
+            phi <- Re(t(mvfft(t(ft), inverse = TRUE))) / L
+            keep <- if (reversed) c(1, (L - no_w_full + 2):L) else 1:no_w_full
+            t(mvfft(t(phi[, keep, drop = FALSE])))
+        }
+        old <- params
+        old@ft_pred_kernel_e <- circular(params@ft_pred_kernel_e)
+        old@ft_pred_kernel_p <- circular(params@ft_pred_kernel_p,
+                                         reversed = TRUE)
+        old@ft_pred_kernel_d <- circular(params@ft_pred_kernel_d)
+        old@mizer_version <- "3.4.0"
+
+        up <- upgradeParams(old)
+        for (s in c("ft_pred_kernel_e", "ft_pred_kernel_p", "ft_pred_kernel_d")) {
+            expect_identical(dim(slot(up, s)), dim(slot(params, s)))
+            expect_equal(slot(up, s), slot(params, s), tolerance = 1e-12,
+                         ignore_attr = TRUE)
+        }
+        expect_lt(max_rel_diff(getEncounter(up), getEncounter(params)), 1e-8)
+    }
+})
+
 test_that("upgradeParams from pre-2.4 preserves all slot values", {
     params <- NS_params_small
     # Version "2.4.0" triggers the full newMultispeciesParams() rebuild path

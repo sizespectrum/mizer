@@ -337,18 +337,10 @@ projectEncounter.MizerParams <- function(params, n, n_pp, n_other,
         # The vector prey equals everything inside integral (3.4) except the feeding
         # kernel phi_i(w_p/w).
         prey <- sweep(prey, 2, params@w_full * params@dw_full, "*")
-        # Eq (3.4) is then a convolution integral in terms of prey[w_p] and phi[w_p/w].
-        # We approximate the integral by the trapezoidal method. Using the
-        # convolution theorem we can evaluate the resulting sum via fast fourier
-        # transform.
-        # mvfft() does a Fourier transform of each column of its argument, but
-        # we need the Fourier transforms of each row, so we need to apply mvfft()
-        # to the transposed matrices and then transpose again at the end.
-        avail_energy <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) *
-                                             mvfft(base::t(prey)),
-                                   inverse = TRUE))) / length(params@w_full)
-        # Only keep the bit for fish sizes
-        avail_energy <- avail_energy[, idx_sp, drop = FALSE]
+        # Eq (3.4) is then a convolution integral in terms of prey[w_p] and
+        # phi[w_p/w], which convolve_pred_kernel() evaluates by fast Fourier
+        # transform at the fish sizes.
+        avail_energy <- convolve_pred_kernel(params, prey)
         # Due to numerical errors we might get negative or very small entries that
         # should be 0
         avail_energy[avail_energy < 1e-18] <- 0
@@ -658,10 +650,6 @@ projectPredRate <- function(params, n, n_pp, n_other, t = 0,
 #' @family mizer rate functions
 projectPredRate.MizerParams <- function(params, n, n_pp, n_other, t = 0,
                                         feeding_level, ...) {
-    no_sp <- dim(params@interaction)[1]
-    no_w <- length(params@w)
-    no_w_full <- length(params@w_full)
-
     # If the the user has set a custom pred_kernel we can not use fft.
     # In this case we use the code from mizer version 0.3
     if (!is.null(comment(params@pred_kernel))) {
@@ -676,20 +664,12 @@ projectPredRate.MizerParams <- function(params, n, n_pp, n_other, t = 0,
         return(pred_rate)
     }
 
-    # Get indices of w_full that give w
-    idx_sp <- (no_w_full - no_w + 1):no_w_full
-    # We express the result as a a convolution  involving
-    # two objects: Q[i,] and ft_pred_kernel_p[i,].
-    # Here Q[i,] is all the integrand of (3.12) except the feeding kernel
+    # We express the result as a convolution of Q[i, ] with the predation
+    # kernel, which convolve_pred_kernel() evaluates by fast Fourier transform.
+    # Here Q[i, ] is all the integrand of (3.12) except the feeding kernel
     # and theta
-    Q <- matrix(0, nrow = no_sp, ncol = no_w_full)
-    # We fill the end of each row of Q with the proper values
-    Q[, idx_sp] <- sweep( (1 - feeding_level) * params@search_vol * n, 2,
-                         params@dw, "*")
-
-    # We do our spectral integration in parallel over the different species
-    pred_rate <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_p) *
-                                 mvfft(base::t(Q)), inverse = TRUE))) / no_w_full
+    Q <- sweep((1 - feeding_level) * params@search_vol * n, 2, params@dw, "*")
+    pred_rate <- convolve_pred_kernel(params, Q, "predation")
     # Due to numerical errors we might get negative or very small entries that
     # should be 0
     pred_rate[pred_rate < 1e-18] <- 0
