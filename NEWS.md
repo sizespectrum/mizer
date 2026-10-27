@@ -2,6 +2,24 @@
 
 ## Bug fixes
 
+- `steadySingleSpecies()` with `keep = "biomass"` or `keep = "number"` no
+  longer fills a species with zero abundance with `NaN`, which made the
+  returned model fail validation (#615). The same happened with
+  `keep = "biomass"` to a species that is present but has no biomass above its
+  `biomass_cutoff`, for example because the cutoff lies above its `w_max`
+  (#621). A species that had none of the quantity to keep is now not rescaled,
+  with a warning if its steady state has some. When the rescaling cannot be
+  done — the steady state of a selected species has none of the quantity that
+  the species had before, or rescaling it overflows — the function now stops
+  with an error instead of returning non-finite abundances. A species listed
+  twice in `species` is no longer emptied. `steadySingleSpecies()` gains an
+  `info_level` argument.
+- `matchGrowth()` with `keep = "biomass"` on a model with a `biomass_cutoff`
+  species parameter rescaled the abundances of every species, including those
+  not selected, because it measured the biomass before the change without the
+  cutoff and after it with the cutoff. It now leaves the rescaling to
+  `steadySingleSpecies()`, which also fixes the `NaN` of #615 for
+  `matchGrowth()`.
 - A species that is absent from the initial state, with
   `initialN(params)[species, ] <- 0`, no longer breaks the steady-state
   searches (#614). `projectUntilSettled()`, `findSteadyState()` and
