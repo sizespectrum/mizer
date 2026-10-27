@@ -662,14 +662,23 @@ projectPredRate.MizerParams <- function(params, n, n_pp, n_other, t = 0,
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
 
+    # The integral runs over predator size, so (1 - f(w)) gamma(w) is part of
+    # the smooth weight multiplying the predator density and, to be second
+    # order in the bin width, is bin-averaged (trapezoidally) over the predator
+    # bin when the `bin_average` entry of `second_order_w` is set (#619). Only
+    # predator-bin integrals average it, here and in mizerDiffusion(): the
+    # encounter and the growth need the feeding level and search volume as
+    # point values at the node.
+    pred_weight <- bin_average_weight((1 - feeding_level) * params@search_vol,
+                                      params)
+
     # If the the user has set a custom pred_kernel we can not use fft.
     # In this case we use the code from mizer version 0.3
     if (!is.null(comment(params@pred_kernel))) {
         n_total_in_size_bins <- sweep(n, 2, params@dw, '*', check.margin = FALSE)
         # The next line is a bottle neck
         pred_rate <- sweep(params@pred_kernel, c(1, 2),
-                           (1 - feeding_level) * params@search_vol *
-                               n_total_in_size_bins,
+                           pred_weight * n_total_in_size_bins,
                            "*", check.margin = FALSE)
         # integrate over all predator sizes
         pred_rate <- colSums(aperm(pred_rate, c(2, 1, 3)), dims = 1)
@@ -684,8 +693,7 @@ projectPredRate.MizerParams <- function(params, n, n_pp, n_other, t = 0,
     # and theta
     Q <- matrix(0, nrow = no_sp, ncol = no_w_full)
     # We fill the end of each row of Q with the proper values
-    Q[, idx_sp] <- sweep( (1 - feeding_level) * params@search_vol * n, 2,
-                         params@dw, "*")
+    Q[, idx_sp] <- sweep(pred_weight * n, 2, params@dw, "*")
 
     # We do our spectral integration in parallel over the different species
     pred_rate <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_p) *

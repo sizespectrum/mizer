@@ -240,8 +240,10 @@ setPredKernel.MizerParams <- function(params,
         # integrand carries w_p dw_p (two powers of w_p -> e^{2t}); the predator
         # integrand carries dw (one power of w -> e^{t}). Dividing by (beta - 1)
         # cancels the factor w * dw = (beta - 1) w^2 that mizerEncounter() and
-        # mizerPredRate() already fold into the prey and predator vectors, so
-        # those rate functions need no change.
+        # mizerPredRate() already fold into the prey and predator vectors. The
+        # predator integrand also carries (1 - f(w)) gamma(w), which depends on
+        # the feeding level and so cannot be precomputed here; mizerPredRate()
+        # averages it over the predator bin itself (#619).
         # The diffusion integrand is the encounter integrand with one more power
         # of prey size (w_p^2 dw_p instead of w_p dw_p), so it integrates over
         # the same prey bin (ppmr_e ratios) but with the e^{3t} Jacobian.
@@ -281,7 +283,9 @@ setPredKernel.MizerParams <- function(params,
         # with diffusion at predator node j using kernel offset m = j - (prey index),
         # the cell average 1/2 (integral_d[j] + integral_d[j+1]) replaces the
         # offset-m weight by 1/2 (phi_d(beta^m) + phi_d(beta^{m+1})). The largest
-        # offset is one-sided.
+        # offset is one-sided. This averages only the prey integral; the
+        # factor (1 - f) gamma in front of it is averaged over the same bin by
+        # mizerDiffusion() (#619).
         phi_d[, -no_w_full] <- 0.5 * (phi_d[, -no_w_full, drop = FALSE] +
                                           phi_d[, -1, drop = FALSE])
     }

@@ -52,6 +52,18 @@
   an empty egg size class instead of silently returning a spectrum that is zero
   at every size.
 
+- With the `bin_average` entry of `second_order_w()` switched on, predation
+  mortality, resource mortality and the predation-diffusion coefficient are now
+  second-order accurate in the bin width, as the encounter rate and feeding
+  level already were (#619). All three need the predator's
+  `(1 - feeding level) * search volume` averaged over the predator bin, since
+  predation integrates over predator size and the diffusion coefficient is a
+  bin average. But `mizerPredRate()` and `mizerDiffusion()` took its value at
+  the lower edge of the bin. This underestimated both: in `NS_params` the
+  predation rates go up by a median of 7.6% and by up to 9.7%, and the
+  predation-diffusion coefficient by a median of 7.7% and by up to 11%. The
+  error was first order, so it did not go away quickly on finer grids. Models
+  on the default scheme are unaffected.
 ## Documentation
 
 - The help page of `getDiffusion()` gave the predation-diffusion rate with a

@@ -76,6 +76,16 @@ integrated over the prey bin and divides by `beta - 1` precisely so that the
 not a first-order quadrature weight — bin-averaging it applies the prey-bin
 integral twice.
 
+The predation convolution is the transpose, and there the opposite holds for the
+predator-side factor. `ft_pred_kernel_p` cancels only the predator `dw`; the
+predator's `(1 - f) * search_vol` is a smooth weight of that integral, so the
+predator vector is
+`bin_average_weight((1 - feeding_level) * search_vol, params) * n * dw`, as in
+`mizerPredRate()` (#619). The kernel and that factor are averaged separately,
+unlike the single weight of Case 1, because the feeding level changes every
+step and cannot go into the precomputed kernel. The covariance this ignores is
+O(Δx²), so it keeps second order.
+
 ### Case 4 — a new rate setter with a size-dependent parameter
 
 Follow `setExtMort()` / `setExtDiffusion()` / `setResource()`: gate on the flag
@@ -102,17 +112,48 @@ form you supply a custom kernel in, but not the bin-integrated coefficients the
 convolution consumes. Pairing it with `getEncounter()` in a numerator/denominator
 is what made `getTrophicLevel()` wrong (#474).
 
-### Growth-type rates are never bin-averaged
+### Growth-type rates are stored as point values — but may be integrands elsewhere
 
-`g`, `e`, the encounter rate and the feeding level are point values at `w_j`
-under **both** settings — they are boundary velocities. What improves them when
-the flag is on is the encounter integral behind them, not any averaging of the
-rate itself. Bin-averaging them is an error, not an upgrade.
+`g`, `e`, the encounter rate, the feeding level and the search volume are
+stored as point values at `w_j` under **both** settings. `g` is a boundary
+velocity, and `E(w) = gamma(w) * ∫ ...` has `gamma` outside its integral. What
+improves them when the flag is on is the encounter integral behind them, not any
+averaging of the rate itself. Bin-averaging the stored rates is an error, not an
+upgrade.
+
+That does not make them point values in **every** integral they enter. A
+factor's role is set by the integral it appears in, relative to that
+integral's variable of integration:
+
+| Point value in | Integrand in | Averaged where |
+|---|---|---|
+| growth (`e`) | reproduction `∫ psi e N dw` | `mizerRDI()`, as the product `psi * e` |
+| encounter, growth (`f`, `search_vol`) | predation `∫ phi (1 - f) gamma N dw`, over **predator** size | `mizerPredRate()`, as the product `(1 - f) * search_vol` |
+| encounter, growth (`f`, `search_vol`) | predation-diffusion coefficient `(1 - f) gamma alpha^2 I_d`, a predator-bin average | `mizerDiffusion()`, as the product `(1 - f) * search_vol` |
+
+Average the product with `bin_average_weight()` at that use-site, and leave the
+stored rate alone. #619 was this trap: predation was derived "in the same way"
+as the encounter, `(1 - f) * gamma * N * dw` was treated as "the predator vector"
+by analogy with the prey vector, and only the kernel was integrated over the
+predator bin. Predation and resource mortality were first order for it. The
+diffusion coefficient had the same flaw from the other side: `setPredKernel()`
+folds the kernel so that `I_d` comes out averaged over the predator bin, but the
+factor in front of it was still point-sampled. Before deciding a factor is a
+point value, write the integral out and check whether the factor depends on the
+integration variable or sits in front of an integral that is being averaged.
 
 ### Testing only the default path proves nothing
 
 Both #474 bugs were invisible with `bin_average = FALSE`. Every new integral
 needs a test with the flag on.
+
+### Testing the parts against the derivation proves nothing about the order
+
+The bin-integrated kernel weights are tested against their analytic values,
+and those tests passed throughout #619, because the kernel was right and the
+error was in a factor outside it. A test written from the derivation can only
+confirm that the code matches the derivation. Only a grid-refinement test of the
+rate itself checks that the derivation is complete.
 
 ## Verifying a change
 
@@ -134,6 +175,14 @@ needs a test with the flag on.
 3. **Convergence.** The gap between the two schemes should shrink under grid
    refinement — see the "second-order biomass converges to default" test for the
    pattern.
+4. **Order.** For a rate, measure the order directly. Prescribe smooth
+   cell-averaged densities, evaluate the rate at a fixed size on grids an octave
+   apart (bin averages at the bin centre `sqrt(w * (w + dw))`, point values at
+   the node), and take `log2` of the ratio of successive differences: about 1 is
+   first order, about 2 second. `convergence_params()`, `at_bin_centre()` and
+   `convergence_order()` in `helper.R` do this. The #619 tests in
+   `test-project_methods.R` and `test-diffusion.R` are the pattern, and cost
+   about a second each on 80/160/320 bins.
 
 New tests go in `tests/testthat/test-second_order_summary.R`, using the
 `NS_params_small` fixture and toggling with

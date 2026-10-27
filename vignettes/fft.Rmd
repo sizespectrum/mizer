@@ -122,17 +122,27 @@ predation kernel is **point-sampled** at the grid node, i.e. the term for the
 pair of bins $(n,k)$ uses the single value $\tilde\phi_i(\beta^{n-k})$ together
 with the left-edge measure $w_k\,dw_k$.
 
-Two things make this only first-order accurate:
+Three things make this only first-order accurate:
 
 1.  The kernel is replaced by its value at one point of the bin instead of its
     average over the bin.
 2.  The size variable $w_p$ that multiplies the kernel in the encounter integral
     is frozen at the left edge $w_k$ of the bin, even though $w_p$ varies by a
     factor $\beta = 10^{\Delta x}$ across the bin.
+3.  The factor $(1-f_i(w))\,\gamma_i(w)$ that multiplies the kernel in the
+    predation integral is frozen at the left edge $w_n$ of the predator bin,
+    even though the search volume alone varies by a factor $\beta^{q_i}$ across
+    the bin.
 
-Both errors are $O(\Delta x)$ and both come entirely from how the *kernel* is
-sampled — not from the piecewise-constant representation of the densities, which
-is the genuinely finite-volume part of the scheme.
+All three errors are $O(\Delta x)$ and all three come from how the smooth factors
+of the integrand are sampled — not from the piecewise-constant representation of
+the densities, which is the genuinely finite-volume part of the scheme. The
+third is easy to overlook, because in the encounter integral the very same
+search volume $\gamma_i(w)$ is correctly a point value: there it depends only on
+the predator size $w$ at which the rate is evaluated and sits outside the
+integral. In the predation integral the roles are reversed, the integral runs
+over predator size, and $(1-f_i(w))\,\gamma_i(w)$ is a function of the
+integration variable.
 
 ### The fix: integrate the kernel over each log-bin
 
@@ -164,16 +174,32 @@ reproduces the exact bin contribution. **The rate function `mizerEncounter()` is
 unchanged**; only the stored `ft_pred_kernel_e` is built from $\Phi^E_i$ rather
 than from the point-sampled kernel.
 
-The predation integral runs over predator size, so its integrand carries one
-power of $w$ (from $dw$) rather than two. Integrating over the predator bin
-$w \in [w_n, \beta w_n]$ in the same way gives the bin-integrated predation
-kernel
+The predation integral runs over predator size. Its integrand
+$\tilde\phi_i(w/w_p)\,(1-f_i(w))\,\gamma_i(w)\,N_i(w)\,dw$ carries one power of
+$w$ (from $dw$) rather than two, but it also carries the predator's feeding
+level and search volume, which vary across the predator bin just as $w_p$ varies
+across the prey bin in the encounter. So two factors have to be integrated over
+the predator bin $w \in [w_n, \beta w_n]$.
+
+The kernel is integrated in the same way as for the encounter, giving the
+bin-integrated predation kernel
 $$
 \Phi^{P}_i[m] = \frac{\ln\beta}{\beta-1}\int_0^1 \tilde\phi_i(\beta^{\,m+s})\,\beta^{s}\,ds ,
 $$
 which replaces $\tilde\phi_i(\beta^{m})$ in the reversed-kernel construction of
-`ft_pred_kernel_p`. Again `mizerPredRate()` is unchanged because the predator
-vector already carries $dw = (\beta-1)\,w_n$.
+`ft_pred_kernel_p`. The predator vector already carries
+$dw = (\beta-1)\,w_n$, which the prefactor cancels.
+
+The factor $(1-f_i(w))\,\gamma_i(w)$ cannot be folded into the kernel: the
+feeding level changes at every time step, and a custom search volume need not
+be a power law. So `mizerPredRate()` replaces its value at the node by its
+trapezoidal average over the predator bin,
+$\tfrac12\bigl((1-f_i)\gamma_i\big|_{w_n} + (1-f_i)\gamma_i\big|_{\beta w_n}\bigr)$,
+when it builds the predator vector. The averaging is done only where a
+predator-bin integral uses the factor: here, and in the predation-diffusion
+coefficient below. The encounter and the growth rate use the feeding level and
+the search volume as point values at the node, so the stored rates are not
+averaged.
 
 There is a second integral hidden in the predation rate. Its convolution output
 sits at the **prey** node $w_p$, but predation mortality enters the
@@ -190,8 +216,8 @@ because $\tfrac12\bigl(P_j[w_{p}] + P_j[\beta w_{p}]\bigr)
 = \sum_n \tfrac12\bigl(\Phi^P_i[n-j] + \Phi^P_i[n-j-1]\bigr)\,Q_i[n]$. Storing
 $\mathrm{fft}(\bar\Phi^{P})$ as `ft_pred_kernel_p` makes `getPredRate()` come out
 already prey-bin-averaged, so both `mizerPredMort()` and `mizerResourceMort()`
-(the only consumers, both sinks) get the second-order mortality at no runtime
-cost and with no change to the rate functions. With this the two convolutions
+(the only consumers, both sinks) get the prey-bin average at no runtime cost
+and with no change to those two functions. With this the two convolutions
 are fully bin-consistent: encounter integrates the prey bins, and predation
 integrates **both** the predator bins and the prey bins. (Encounter is *not*
 prey-bin-averaged on its output, because it feeds the growth flux — a
@@ -210,8 +236,11 @@ which is exactly the bin average of $w_p/w_k$ over $[w_k,\beta w_k]$ — the
 correct finite-volume value — whereas the rectangle rule used $1$, the value at
 the left edge. The predation weight, in contrast, evaluates to
 $\Phi^{P}[m]=1$: the predation measure $dw$ is integrated exactly by the original
-scheme already, so only the variation of the kernel *shape* across the bin (not a
-frozen $w_p$ factor) is corrected there. As $\Delta x \to 0$ both
+scheme already, so the kernel correction there only accounts for the variation
+of the kernel *shape* across the bin. That does not mean the predation integral
+has no frozen factor. It has one, $(1-f_i(w))\,\gamma_i(w)$, but that factor
+lives in the predator vector rather than in the kernel, and is corrected there
+(item 3 above). As $\Delta x \to 0$ both
 $\ln\beta/(\beta-1)\to 1$ and the integrands tend to their node values, so the
 bin-integrated kernels reduce to the original point-sampled kernels and the
 schemes agree in the continuum limit.
@@ -228,8 +257,9 @@ $$
 $$
 The encounter rate is an integral $\int N(w_p)\,K(w_p)\,dw_p$ against the *smooth*
 weight $K(w_p) = \tilde\phi_i(w_n/w_p)\,w_p$ (and likewise the predation rate is an
-integral over predator size against $K(w)=\tilde\phi_i(w/w_p)$). The bin-integrated
-scheme replaces $N$ by its bin average and integrates $K$ over the bin *exactly*,
+integral over predator size against
+$K(w)=\tilde\phi_i(w/w_p)\,(1-f_i(w))\,\gamma_i(w)$). The bin-integrated
+scheme replaces $N$ by its bin average and integrates $K$ over the bin,
 so the error contributed by bin $j$ is
 $$
 \int_{w_j}^{w_{j+1}} \bigl(N(w_p) - N_j\bigr)\,K(w_p)\,dw_p
@@ -240,12 +270,27 @@ $\bar K_j$. Both factors vary by $O(\Delta x)$ across the bin, so the per-bin er
 is $O(\Delta x^3)$ and, summed over the $O(1/\Delta x)$ bins, the total error is
 $O(\Delta x^2)$ — second order.
 
+For predation the weight is integrated in two pieces: the kernel exactly at
+setup, and $(1-f_i)\gamma_i$ by the trapezoid rule at run time. The product of
+the two bin averages differs from the bin average of the product only by the
+covariance of the two factors across the bin, $\tfrac{1}{\Delta w_n}\int
+(\tilde\phi_i - \bar{\tilde\phi}_i)\bigl((1-f_i)\gamma_i -
+\overline{(1-f_i)\gamma_i}\bigr)\,dw$. Both factors in that integrand are
+$O(\Delta x)$, so the covariance is $O(\Delta x^2)$ and does not lower the
+order. The trapezoidal average is itself
+accurate to $O(\Delta x^2)$, so the predation rate is second order as well.
+
 The rectangle rule forfeits exactly this cancellation: by point-sampling the
-kernel at the node it does **not** integrate the smooth weight $K$ over the bin,
-which reintroduces an $O(\Delta x)$ error — the systematic $(\beta+1)/2$ bias seen
-above. So, given the finite-volume (bin-average) densities, it is the treatment of
-the kernel that determines whether the encounter and predation rate quadratures
-are first or second order, and the bin-integrated kernels make them second order.
+smooth factors at the node it does **not** integrate the smooth weight $K$ over
+the bin, which reintroduces an $O(\Delta x)$ error — the systematic
+$(\beta+1)/2$ bias seen above. So, given the finite-volume (bin-average)
+densities, it is the treatment of the whole smooth weight, not only of the
+kernel, that determines whether the encounter and predation rate quadratures are
+first or second order. Integrating only the kernel over the bin leaves the
+predation rate first order. That is the error mizer made until issue #619. A
+test of the kernel weights cannot detect it, because the kernel had exactly the
+bin-integrated values derived above all along; only a grid-refinement test of
+the rate itself can.
 
 For a general kernel the integrals $\Phi^E_i[m]$ and $\Phi^P_i[m]$ have no closed
 form, so mizer evaluates them once, when the kernels are built in
@@ -253,9 +298,10 @@ form, so mizer evaluates them once, when the kernels are built in
 lognormal kernel the integrand is smooth and the quadrature is effectively exact;
 for kernels with internal discontinuities (such as the box kernel) the bin
 integral correctly returns the fraction of the bin that overlaps the support.
-Because all of this happens at setup time, the higher-order scheme has **zero
+Because all of this happens at setup time, the kernel integrals have **zero
 runtime cost**: a projection performs exactly the same two FFTs per time step as
-before.
+before. The only run-time addition is the trapezoidal average of
+$(1-f_i)\gamma_i$, an elementwise operation on a species-by-size matrix.
 
 ### Enabling the higher-order scheme
 
@@ -289,6 +335,18 @@ $(w_p/w_k)^2$ — the diffusion analogue of the encounter's $(\beta+1)/2$.
 `projectDiffusion()` convolves with `ft_pred_kernel_d`, which in the default
 first-order scheme equals `ft_pred_kernel_e`, so the default behaviour is
 unchanged.
+
+The diffusion convolution outputs at the predator node, but the transport
+solver needs the diffusion coefficient averaged over the predator bin (see
+`vignette("numerical_details")`). Under `second_order_w`, `setPredKernel()`
+therefore also folds the diffusion kernel over adjacent offsets,
+$\tfrac12\bigl(\Phi^D_i[m] + \Phi^D_i[m+1]\bigr)$. This is the predator-side
+counterpart of the prey-bin fold of the predation kernel, and it averages the
+prey integral over the predator bin. The factor $(1-f_i(w))\,\gamma_i(w)$ in
+front of that integral varies across the same bin, so `projectDiffusion()`
+averages it trapezoidally as well (issue #619). As for predation, the product of
+the two averages differs from the average of the product only by an
+$O(\Delta x^2)$ covariance.
 
 ## The Wrap-around Hack (`ft_mask`)
 

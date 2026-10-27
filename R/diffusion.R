@@ -187,8 +187,14 @@ projectDiffusion.MizerParams <- function(params, n, n_pp, n_other, t = 0,
         }
 
         # D(w) = (1 - f(w)) * gamma(w) * alpha^2 * I_d(w)
+        # The transport solver needs D averaged over the predator bin. Under
+        # `second_order_w` the kernel already averages I_d over that bin, so
+        # (1 - f) * gamma is averaged over it here as well (#619); the product
+        # of the two averages is second order. With `bin_average` off this is
+        # the point value, as before.
         alpha <- params@species_params$alpha
-        D <- (1 - feeding_level) * params@search_vol * alpha^2 * integral_d
+        D <- bin_average_weight((1 - feeding_level) * params@search_vol,
+                                params) * alpha^2 * integral_d
         dimnames(D) <- dimnames(params@metab)
     } else {
         D <- matrix(0, nrow = nrow(feeding_level), ncol = ncol(feeding_level),

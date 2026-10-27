@@ -206,3 +206,44 @@ recalculation_moves <- function(params, times = 1) {
     }
     moved
 }
+
+# A two-species model on `no_w` size bins with bin averaging on and smooth
+# prescribed densities: a bump of large predators and a power-law resource,
+# both given as exact cell averages. Used to measure the order of convergence of
+# a rate under grid refinement, as in the second-order tests of mizerPredRate()
+# and mizerDiffusion() (#619).
+convergence_params <- function(no_w) {
+    sp <- data.frame(species = c("Small", "Large"), w_inf = c(20, 2000),
+                     w_max = c(60, 6000), w_mat = c(4, 250), w_min = 0.001,
+                     beta = c(200, 100), sigma = c(1.3, 1.5), k_vb = c(1, 0.5))
+    cell_average <- function(f, wl, wr, k = 32) {
+        vapply(seq_along(wl), function(j) {
+            x <- exp(seq(log(wl[j]), log(wr[j]), length.out = k + 1))
+            sum(f(sqrt(x[-1] * x[-(k + 1)])) * diff(x)) / (wr[j] - wl[j])
+        }, numeric(1))
+    }
+    p <- newMultispeciesParams(sp, no_w = no_w, min_w_pp = 1e-9,
+                               w_pp_cutoff = 1000,
+                               second_order_w = c(bin_average = TRUE),
+                               info_level = 0)
+    large <- function(x) 1e3 * x^-2 * exp(-(log(x / 300))^2 / 4)
+    initialN(p)["Small", ] <- 0
+    initialN(p)["Large", ] <- cell_average(large, w(p), w(p) + dw(p))
+    initialNResource(p) <- cell_average(function(x) 100 * x^-2.05,
+                                        w_full(p), w_full(p) + dw_full(p))
+    p
+}
+
+# The value at size `x` of a bin-averaged rate given on the bins with left edges
+# `w` and widths `dw`. A bin average lives at the bin centre, so interpolate
+# log-log between the centres.
+at_bin_centre <- function(rate, w, dw, x) {
+    exp(approx(log(sqrt(w * (w + dw))), log(rate), xout = log(x))$y)
+}
+
+# The order of convergence from the values of a quantity on three grids an
+# octave apart: successive differences shrink by 2^order when the bin width
+# halves.
+convergence_order <- function(v) {
+    log2(abs(v[2] - v[1]) / abs(v[3] - v[2]))
+}

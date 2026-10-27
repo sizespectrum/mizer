@@ -92,7 +92,11 @@ Because $N_j$ is the bin average, the consistent way to factor this is $\mu_j\,N
 $$ \mu_j = \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} \mu(w)\,dw, $$ {#eq-bin-averaged-mortality}
 since $\int_{w_j}^{w_{j+1}}(N-N_j)\,dw = 0$ makes the leading error cancel and leaves an $O(\Delta w_j^2)$ remainder. Using the point value $\mu(w_j)$ at the left bin boundary instead is the lower-order choice. The same applies to every rate that enters inside an integral weighted by the abundance: the fishing-mortality contribution $\int Q\,S(w)\,\text{effort}\,N\,dw$, the reproductive investment $\int \psi(w)\,E_r(w)\,N\,dw$, and the predation and encounter convolutions integrated against $N$ (see the [FFT vignette](fft.html)). Each size-dependent factor is replaced by its bin average.
 
-**The energy income $e(w)$ feeds both roles.** It is the one quantity that sits on both sides of the distinction. Through the somatic growth rate $g = e - e_r$ it supplies the growth **velocity**, wanted as a point value at the boundary $w_j$. Through the reproduction integral $\int \psi\,e\,N\,dw$ it is an **integrand**, wanted as a bin average (of the product $\psi e$). The same pointwise $e(w)$ is therefore used as a point value for growth and bin-averaged only at its reproduction use-site; it must **not** be pre-averaged, or the growth velocity would be evaluated in the wrong place.
+**The energy income $e(w)$ feeds both roles.** It sits on both sides of the distinction. Through the somatic growth rate $g = e - e_r$ it supplies the growth **velocity**, wanted as a point value at the boundary $w_j$. Through the reproduction integral $\int \psi\,e\,N\,dw$ it is an **integrand**, wanted as a bin average (of the product $\psi e$). The same pointwise $e(w)$ is therefore used as a point value for growth and bin-averaged only at its reproduction use-site; it must **not** be pre-averaged, or the growth velocity would be evaluated in the wrong place.
+
+**So do the feeding level $f(w)$ and the search volume $\gamma(w)$.** In the encounter rate $E_i(w)=\gamma_i(w)\int\tilde\phi_i(w/w_p)\,N^{\text{eff}}_i(w_p)\,w_p\,dw_p$ the search volume sits outside the integral, at the predator size where the rate is evaluated, and the feeding level computed from $E_i$ feeds the growth velocity. Both are therefore point values at $w_j$. But predation turns the roles around. The predation rate on prey of size $w_p$,
+$$ P_i(w_p) = \int \tilde\phi_i(w/w_p)\,(1-f_i(w))\,\gamma_i(w)\,N_i(w)\,dw, $$
+integrates over **predator** size, so $(1-f_i)\gamma_i$ is an integrand there and is wanted as a predator-bin average. The predation-diffusion coefficient $d_i(w)=(1-f_i(w))\,\gamma_i(w)\,\alpha_i^2\int\tilde\phi_i(w/w_p)\,N^{\text{eff}}_i(w_p)\,w_p^2\,dw_p$ needs the same factor averaged for a different reason. There $(1-f_i)\gamma_i$ sits outside the integral, but $d$ is itself a bin average (see above), so the whole coefficient, factor included, is averaged over the predator bin. As with $e$, the stored feeding level and search volume stay point values, and the product $(1-f_i)\gamma_i$ is bin-averaged only where the predation integral and the diffusion coefficient use it. Missing this left predation mortality and predation diffusion first order (issue #619). The mistake was easy to make: the same $\gamma_i(w)$ is correctly a point value one integral earlier.
 
 In summary:
 
@@ -101,6 +105,7 @@ In summary:
 | $g$ | growth velocity at the bin boundary | point value at $w_j$ |
 | $d$, $\mu$; fishing/reproductive investments; predation and encounter integrands | bin properties (a coefficient inside $\partial(dN)/\partial w$, or a rate integrated against $N$ over a bin) | bin average over $[w_j, w_{j+1}]$ |
 | $e$ (energy income) | both: growth velocity *and* reproduction integrand | point value for growth; bin-averaged product $\psi e$ for reproduction |
+| $f$, $\gamma$ (feeding level, search volume) | both: encounter and growth at the predator node *and* predation integrand over predator size and factor of the bin-averaged diffusion coefficient | point values for encounter and growth; predator-bin-averaged product $(1-f)\gamma$ for predation and predation diffusion |
 
 ### Applying each bin integral exactly once {#sec-one-quadrature}
 
@@ -131,6 +136,7 @@ The table below records which factor of each integral is bin-integrated, and whe
 | Integral | Factor that is bin-integrated | Performed in |
 |---|---|---|
 | encounter, predation and predation-diffusion convolutions | the kernel weight, $\tilde\phi\,w_p$, $\tilde\phi$ and $\tilde\phi\,w_p^2$ respectively | `setPredKernel()`, into `ft_pred_kernel_e`/`_p`/`_d` |
+| predation convolution, and predation-diffusion coefficient, over the predator bin | the predator's $(1-f)\gamma$ | `mizerPredRate()` and `mizerDiffusion()`, at run time, since it contains the feeding level |
 | fishing sink $\int Q\,S(w)\,\text{effort}\,N\,dw$ | the selectivity $S$ | `setFishing()`, into `selectivity` |
 | external mortality and external diffusion sinks | the power laws $z_{ext}w^{d}$ and $D_{ext}w^{n+1}$ | `setExtMort()`, `setExtDiffusion()` |
 | resource semichemostat terms | the power laws $r_{pp}w^{n-1}$ and $\kappa w^{-\lambda}$ | `setResource()`, into `rr_pp` and `cc_pp` |
@@ -139,7 +145,7 @@ The table below records which factor of each integral is bin-integrated, and whe
 
 Two corollaries are worth stating explicitly.
 
-**Never bin-average the density or the bin width.** $N_j$ is already a bin average (@eq-bin-average) and $\Delta w_j$ is already exact. It is only the smooth weight multiplying them that is being approximated, so it is the only thing that gets averaged.
+**Never bin-average the density or the bin width.** $N_j$ is already a bin average (@eq-bin-average) and $\Delta w_j$ is already exact. It is only the smooth weight multiplying them that is being approximated, so it is the only thing that gets averaged. Be careful about what counts as the density, though. The predation convolution takes the predator vector $(1-f_i)\gamma_i N_i\,\Delta w$ as its input, but only $N_i$ in it is a bin average. The factor $(1-f_i)\gamma_i$ belongs to the smooth weight and has to be averaged (issue #619).
 
 **A diagnostic that decomposes a rate must borrow that rate's quadrature rather than rebuild it.** `getDiet()` is `getEncounter()` resolved by prey species, so it uses the same kernel and the same point prey weight $w_p\,\Delta w_p$; summed over prey it then reproduces $(1-f_i(w))\,E_i(w)$ exactly, under both schemes. `getTrophicLevel()` is a *ratio* of a trophic-level-weighted encounter to the plain encounter, so its numerator and denominator must be built from the same kernel. The exported helper `encounter_kernel()` exists for this: it returns the kernel that `mizerEncounter()` is actually using — the point-sampled kernel by default, the bin-integrated one when `bin_average` is on, and the stored array when a custom kernel has been set.
 
@@ -184,11 +190,12 @@ which mizer computes with the internal helper `power_law_bin_average()` and uses
 | external mortality $z_{ext}w^{d}$, external diffusion $D_{ext}w^{n+1}$ | point value at $w_j$ | exact bin average, @eq-power-law-bin-average |
 | resource rate $r_{pp}w^{n-1}$, capacity and initial spectrum $\kappa w^{-\lambda}$ | point value at $w_j$ | exact bin average, @eq-power-law-bin-average |
 | reproduction integrand $\psi\,e$ | point value at $w_j$ | trapezoidal bin average |
+| predator factor $(1-f)\gamma$ in the predation integral and the predation-diffusion coefficient | point value at $w_j$ | trapezoidal bin average over the predator bin |
 | summary weights in `sizeIntegral()`, and so in `getBiomass()`, `getN()`, `getSSB()`, `getYield()`, `getYieldGear()` | $K(w_j)$ | trapezoidal bin average of $K$ |
 | plotting position of a bin-averaged quantity | node $w_j$ | bin centre $w_j\sqrt\beta$ |
 | growth rate $g$, encounter rate $E$, feeding level $f$ | point value at $w_j$ | **unchanged** — point value at $w_j$ |
 
-The last two rows are the ones that are easy to get wrong. `getN()` over the full size range is also unchanged, because its weight is $K\equiv 1$ and the bin average of a constant is the constant; over a restricted size range the window itself is part of the weight, so the bin straddling the boundary contributes only partially. And the growth-type rates stay point values under both settings: they are boundary velocities (@sec-point-values), so bin-averaging them would be an error, not an improvement — what improves them under `bin_average` is that the encounter integral feeding them is now second order, not any averaging of $g$ itself.
+The last two rows are the ones that are easy to get wrong. `getN()` over the full size range is also unchanged, because its weight is $K\equiv 1$ and the bin average of a constant is the constant; over a restricted size range the window itself is part of the weight, so the bin straddling the boundary contributes only partially. And the growth-type rates stay point values under both settings: they are boundary velocities (@sec-point-values), so bin-averaging them would be an error, not an improvement — what improves them under `bin_average` is that the encounter integral feeding them is now second order, not any averaging of $g$ itself. The feeding level is in that last row and also, as part of $(1-f)\gamma$, in the predator-factor row. This is not a contradiction: the stored rate stays a point value, and only the predation integral and the diffusion coefficient average the product, exactly as reproduction averages $\psi e$ without changing the stored $e$.
 
 Because one setting is first order and the other second, the difference between them is itself $O(\Delta x)$ and is a usable estimate of the discretisation error of the default scheme: if flipping the flag moves a result by more than you are willing to tolerate, the grid is too coarse for that result.
 
