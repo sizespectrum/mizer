@@ -130,6 +130,19 @@ test_that("mizerRDI bin-averages the investment when second_order_w is on", {
     expect_false(isTRUE(all.equal(got, left_edge)))
 })
 
+test_that("mizerRDI is second order", {
+    # The test above checks the quadrature against its derivation; this checks
+    # that the reproduction rate converges at second order under grid
+    # refinement with smooth prescribed densities. The integral runs over the
+    # whole grid, whose last bin [w_top, beta * w_top] shrinks as the grid is
+    # refined. Unless the density is negligible there that alone is a
+    # first-order error, so Large's w_max, and with it the top of the grid, is
+    # put far above the sizes where it lives.
+    ps <- lapply(nested_no_w, convergence_params, w_max = c(60, 1e5))
+    rdi <- vapply(ps, function(p) getRDI(p)[["Large"]], numeric(1))
+    expect_second_order(c(Large = convergence_order(rdi)))
+})
+
 test_that("BevertonHoltRDD works", {
     rdd <- BevertonHoltRDD(rdi, sp)
     expect_identical(rdd, rdi / (1 + rdi/sp$R_max))

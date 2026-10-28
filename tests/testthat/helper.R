@@ -210,12 +210,15 @@ recalculation_moves <- function(params, times = 1) {
 # A two-species model on `no_w` size bins with bin averaging on and smooth
 # prescribed densities: a bump of large predators and a power-law resource,
 # both given as exact cell averages. Used to measure the order of convergence of
-# a rate under grid refinement, as in the second-order tests of mizerPredRate()
-# and mizerDiffusion() (#619).
-convergence_params <- function(no_w) {
+# a rate under grid refinement on the grids `nested_no_w`, as in the
+# second-order tests of the rate functions (#619). There is no metabolism, so
+# that the growth rate is positive. `w_max` sets the largest sizes of the two
+# species, and with them the top of the grid.
+convergence_params <- function(no_w, w_max = c(60, 6000)) {
     sp <- data.frame(species = c("Small", "Large"), w_inf = c(20, 2000),
-                     w_max = c(60, 6000), w_mat = c(4, 250), w_min = 0.001,
-                     beta = c(200, 100), sigma = c(1.3, 1.5), k_vb = c(1, 0.5))
+                     w_max = w_max, w_mat = c(4, 250), w_min = 0.001,
+                     beta = c(200, 100), sigma = c(1.3, 1.5), k_vb = c(1, 0.5),
+                     ks = 0)
     cell_average <- function(f, wl, wr, k = 32) {
         vapply(seq_along(wl), function(j) {
             x <- exp(seq(log(wl[j]), log(wr[j]), length.out = k + 1))
@@ -234,11 +237,61 @@ convergence_params <- function(no_w) {
     p
 }
 
-# The value at size `x` of a bin-averaged rate given on the bins with left edges
-# `w` and widths `dw`. A bin average lives at the bin centre, so interpolate
-# log-log between the centres.
-at_bin_centre <- function(rate, w, dw, x) {
-    exp(approx(log(sqrt(w * (w + dw))), log(rate), xout = log(x))$y)
+# Grid sizes for measuring an order of convergence. `no_w` nodes make
+# `no_w - 1` bins, so these halve the bin width exactly: every node of a
+# coarser grid is a node of each finer one, and every coarser bin is a union of
+# finer bins. 80, 160 and 320 nodes are not nested.
+nested_no_w <- c(81, 161, 321)
+
+# The order of convergence at each size in `x` of a bin-averaged rate. `rates`
+# holds its values on the nested grids of the params objects in `ps`, coarsest
+# first; use `full = TRUE` for a rate on `w_full`. On every grid the rate is
+# restricted to the bin of the coarsest grid that contains `x`, by the
+# `dw`-weighted mean of the bins inside it. The values then approximate the same
+# bin average and differ only by the error of the scheme. Interpolating them to
+# a fixed size instead adds an interpolation error of the same order, which
+# makes the estimate wander by several tenths from one size or grid to the next.
+bin_average_order <- function(rates, ps, x, full = FALSE) {
+    grid <- function(p) {
+        if (full) list(w = w_full(p), dw = dw_full(p))
+        else list(w = w(p), dw = dw(p))
+    }
+    coarse <- grid(ps[[1]])
+    order <- vapply(x, function(x) {
+        j <- findInterval(x, coarse$w)
+        lo <- coarse$w[j]
+        hi <- lo + coarse$dw[j]
+        v <- mapply(function(rate, p) {
+            g <- grid(p)
+            inside <- g$w >= lo * (1 - 1e-10) & g$w + g$dw <= hi * (1 + 1e-10)
+            if (abs(sum(g$dw[inside]) / (hi - lo) - 1) > 1e-8) {
+                stop("The grids are not nested.")
+            }
+            sum(rate[inside] * g$dw[inside]) / sum(g$dw[inside])
+        }, rates, ps)
+        convergence_order(v)
+    }, numeric(1))
+    setNames(order, x)
+}
+
+# The order of convergence at each size in `x` of a rate stored as point values
+# at the nodes. `rates` and `ps` are as for bin_average_order(). The rate is
+# read at the node of the coarsest grid nearest to `x`, which is a node of
+# every grid.
+point_value_order <- function(rates, ps, x) {
+    coarse <- w(ps[[1]])
+    order <- vapply(x, function(x) {
+        node <- coarse[which.min(abs(log(coarse / x)))]
+        v <- mapply(function(rate, p) {
+            i <- which.min(abs(log(w(p) / node)))
+            if (abs(w(p)[i] / node - 1) > 1e-10) {
+                stop("The grids are not nested.")
+            }
+            rate[i]
+        }, rates, ps)
+        convergence_order(v)
+    }, numeric(1))
+    setNames(order, x)
 }
 
 # The order of convergence from the values of a quantity on three grids an
@@ -246,4 +299,17 @@ at_bin_centre <- function(rate, w, dw, x) {
 # halves.
 convergence_order <- function(v) {
     log2(abs(v[2] - v[1]) / abs(v[3] - v[2]))
+}
+
+# Expect every order of convergence in `order` to be close to 2. The band is
+# two-sided because an estimate well above 2 is no evidence of second order:
+# it means that successive differences do not shrink geometrically.
+expect_second_order <- function(order) {
+    act <- quasi_label(rlang::enquo(order), arg = "order")
+    ok <- !is.na(act$val) & act$val > 1.8 & act$val < 2.2
+    expect(all(ok),
+           sprintf("%s is not in (1.8, 2.2) at %s.", act$lab,
+                   paste0(names(act$val)[!ok], ": ", round(act$val[!ok], 2),
+                          collapse = ", ")))
+    invisible(act$val)
 }
