@@ -258,12 +258,13 @@ test_that("bin-integrated box kernel matches the analytic weights", {
     params@species_params$ppmr_max <- 1e8  # wide support: whole bins lie inside
     params@second_order_w[["bin_average"]] <- TRUE
     p_hi <- setPredKernel(params)
-    no_w_full <- length(params@w_full)
+    # Length of the zero-padded grid on which the kernels are stored
+    no_k <- ncol(p_hi@ft_pred_kernel_e)
     beta_grid <- params@w_full[2] / params@w_full[1]
     # Invert the FFT of the first species to recover the kernel weights
-    phi_e <- Re(fft(p_hi@ft_pred_kernel_e[1, ], inverse = TRUE)) / no_w_full
-    phi_p <- Re(fft(p_hi@ft_pred_kernel_p[1, ], inverse = TRUE)) / no_w_full
-    phi_d <- Re(fft(p_hi@ft_pred_kernel_d[1, ], inverse = TRUE)) / no_w_full
+    phi_e <- Re(fft(p_hi@ft_pred_kernel_e[1, ], inverse = TRUE)) / no_k
+    phi_p <- Re(fft(p_hi@ft_pred_kernel_p[1, ], inverse = TRUE)) / no_k
+    phi_d <- Re(fft(p_hi@ft_pred_kernel_d[1, ], inverse = TRUE)) / no_k
     # Offset m = 0 (own bin) carries no encounter; a mid-range offset lies fully
     # inside the box support
     expect_equal(unname(phi_e[1]), 0, tolerance = 1e-8)
@@ -272,7 +273,7 @@ test_that("bin-integrated box kernel matches the analytic weights", {
     # reversed kernel, so offset m = 1 sits in the last entry. The prey-bin fold
     # (issue #381) averages two fully-covered offsets, 1/2 (1 + 1) = 1, so this
     # value is unchanged.
-    expect_equal(unname(phi_p[no_w_full]), 1, tolerance = 1e-4)
+    expect_equal(unname(phi_p[no_k]), 1, tolerance = 1e-4)
     # The diffusion integrand carries one more power of prey size than the
     # encounter (w_p^2 dw_p), so a fully-covered bin gets the bin average of
     # (w_p/w_k)^2, which is (beta^3 - 1)/(3(beta - 1)) = (beta^2 + beta + 1)/3,
@@ -308,10 +309,10 @@ test_that("the predation kernel is prey-bin averaged under second_order_w", {
     params@species_params$ppmr_max <- beta_grid^M  # exactly on a grid point
     params@second_order_w[["bin_average"]] <- TRUE
     p_hi <- setPredKernel(params)
-    no_w_full <- length(params@w_full)
-    phi_p <- Re(fft(p_hi@ft_pred_kernel_p[1, ], inverse = TRUE)) / no_w_full
-    # Reversed layout: offset m sits at index no_w_full - m + 1.
-    idx <- function(m) no_w_full - m + 1L
+    no_k <- ncol(p_hi@ft_pred_kernel_p)
+    phi_p <- Re(fft(p_hi@ft_pred_kernel_p[1, ], inverse = TRUE)) / no_k
+    # Reversed layout: offset m sits at index no_k - m + 1.
+    idx <- function(m) no_k - m + 1L
     # Offsets below the edge are fully covered -> fold of two ones stays 1.
     expect_equal(unname(phi_p[idx(M - 1L)]), 1, tolerance = 1e-4)
     # The edge offset M: covered weight 0, previous offset 1 -> fold gives 1/2.
@@ -330,8 +331,8 @@ test_that("the diffusion kernel is predator-bin averaged under second_order_w", 
     params@species_params$ppmr_max <- beta_grid^M  # exactly on a grid point
     params@second_order_w[["bin_average"]] <- TRUE
     p_hi <- setPredKernel(params)
-    no_w_full <- length(params@w_full)
-    phi_d <- Re(fft(p_hi@ft_pred_kernel_d[1, ], inverse = TRUE)) / no_w_full
+    no_k <- ncol(p_hi@ft_pred_kernel_d)
+    phi_d <- Re(fft(p_hi@ft_pred_kernel_d[1, ], inverse = TRUE)) / no_k
     # Layout is non-reversed: offset m sits at index m + 1.
     # The edge offset M is at index M+1.
     # Offsets below the edge (offsets <= M-1, R indices <= M) are fully covered.
@@ -361,4 +362,117 @@ test_that("prey-bin-averaged predation mortality stays finite for all consumers"
     # point-sampled values.
     expect_false(isTRUE(all.equal(getPredMort(params),
                                   getPredMort(NS_params_small))))
+})
+
+## Linear convolution (#618) ----
+test_that("convolve_pred_kernel() is a linear, not a circular, convolution (#618)", {
+    # With random input on the whole grid, a circular convolution would feed
+    # every predator from the larger prey wrapped around from the top of the
+    # grid. Check against the direct sum under both quadrature schemes.
+    for (bin_average in c(FALSE, TRUE)) {
+        params <- kernel_below_grid_params(bin_average)
+        set.seed(1)
+        prey <- matrix(runif(2 * length(params@w_full)), nrow = 2)
+        for (kernel in c("encounter", "diffusion")) {
+            expect_lt(max_rel_diff(convolve_pred_kernel(params, prey, kernel),
+                                   linear_kernel_sum(params, prey, kernel)),
+                      1e-8)
+        }
+        pred <- matrix(runif(2 * length(params@w)), nrow = 2)
+        expect_lt(max_rel_diff(convolve_pred_kernel(params, pred, "predation"),
+                               linear_kernel_sum(params, pred, "predation")),
+                  1e-8)
+    }
+})
+
+test_that("convolve_pred_kernel() uses a vector for every species", {
+    params <- kernel_below_grid_params()
+    set.seed(1)
+    x <- runif(length(params@w_full))
+    expect_equal(convolve_pred_kernel(params, x),
+                 convolve_pred_kernel(params, rbind(x, x)))
+    expect_error(convolve_pred_kernel(params, x[-1]),
+                 "one column per size in `w_full`")
+    expect_error(convolve_pred_kernel(params, rbind(x, x, x)),
+                 "one row per species")
+    y <- runif(length(params@w))
+    expect_equal(convolve_pred_kernel(params, y, "predation"),
+                 convolve_pred_kernel(params, rbind(y, y), "predation"))
+    expect_error(convolve_pred_kernel(params, x, "predation"),
+                 "one column per size in `w`")
+})
+
+test_that("convolve_pred_kernel() refuses a model with a custom kernel", {
+    params <- setPredKernel(NS_params_small,
+                            pred_kernel = pred_kernel(NS_params_small))
+    expect_error(convolve_pred_kernel(params, params@initial_n_pp),
+                 "custom predation kernel")
+})
+
+test_that("encounter_kernel() reproduces getEncounter() (#618)", {
+    for (bin_average in c(FALSE, TRUE)) {
+        params <- kernel_below_grid_params(bin_average)
+        no_w_full <- length(params@w_full)
+        idx_sp <- (no_w_full - length(params@w) + 1):no_w_full
+        prey <- outer(params@species_params$interaction_resource,
+                      params@initial_n_pp)
+        prey[, idx_sp] <- prey[, idx_sp] + params@interaction %*% params@initial_n
+        prey <- sweep(prey, 2, params@w_full * params@dw_full, "*")
+        k <- encounter_kernel(params)
+        expected <- t(sapply(1:2, function(i) k[i, , ] %*% prey[i, ])) *
+            params@search_vol
+        expect_lt(max_rel_diff(getEncounter(params), expected), 1e-8)
+    }
+})
+
+test_that("setPredKernel() sizes FFT padding from support of phi (#618)", {
+    base_params <- NS_params_small
+    no_w_full <- length(base_params@w_full)
+    no_w <- length(base_params@w)
+    no_sp <- nrow(base_params@species_params)
+    beta_grid <- base_params@w_full[2] / base_params@w_full[1]
+    base_params@species_params$pred_kernel_type <- "box"
+    base_params@species_params$ppmr_min <- 1
+
+    set.seed(1)
+    prey <- matrix(runif(no_sp * no_w_full), nrow = no_sp)
+    pred <- matrix(runif(no_sp * no_w), nrow = no_sp)
+
+    # 1. Kernel support stays within resource grid (m_max <= no_w_full - no_w):
+    # no padding beyond no_w_full is needed.
+    base_params@species_params$ppmr_max <- beta_grid^10
+    for (bin_average in c(FALSE, TRUE)) {
+        p <- base_params
+        p@second_order_w[["bin_average"]] <- bin_average
+        p <- setPredKernel(p)
+        expect_equal(ncol(p@ft_pred_kernel_e), nextn(no_w_full))
+        for (kernel in c("encounter", "diffusion")) {
+            expect_lt(max_rel_diff(convolve_pred_kernel(p, prey, kernel),
+                                   linear_kernel_sum(p, prey, kernel)),
+                      1e-8)
+        }
+        expect_lt(max_rel_diff(convolve_pred_kernel(p, pred, "predation"),
+                               linear_kernel_sum(p, pred, "predation")),
+                  1e-8)
+    }
+
+    # 2. Kernel partially overhangs min_w_pp
+    # (no_w_full - no_w < m_max < no_w_full - 1):
+    # padded to nextn(no_w + m_max) < nextn(no_w_full + no_w - 1).
+    base_params@species_params$ppmr_max <- beta_grid^30
+    for (bin_average in c(FALSE, TRUE)) {
+        p <- base_params
+        p@second_order_w[["bin_average"]] <- bin_average
+        p <- setPredKernel(p)
+        expect_gt(ncol(p@ft_pred_kernel_e), nextn(no_w_full))
+        expect_lt(ncol(p@ft_pred_kernel_e), nextn(no_w_full + no_w - 1))
+        for (kernel in c("encounter", "diffusion")) {
+            expect_lt(max_rel_diff(convolve_pred_kernel(p, prey, kernel),
+                                   linear_kernel_sum(p, prey, kernel)),
+                      1e-8)
+        }
+        expect_lt(max_rel_diff(convolve_pred_kernel(p, pred, "predation"),
+                               linear_kernel_sum(p, pred, "predation")),
+                  1e-8)
+    }
 })

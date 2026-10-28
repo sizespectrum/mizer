@@ -183,14 +183,22 @@ A model may be on either of two quadrature schemes, selected by the
 `bin_average` entry of `second_order_w()` (see the `run-simulation` skill). Code
 that ignores this looks correct and passes its tests, because the default is the
 first-order scheme — and is then silently wrong by around 10% for anyone who has
-switched the second-order scheme on. Three rules:
+switched the second-order scheme on. Four rules:
 
 - **Build derived quantities from the rate functions, don't re-derive them.**
   `getEncounter()`, `getFeedingLevel()`, `getPredRate()`, `getEGrowth()` already
   carry the right quadrature for whichever scheme the model is on. Re-deriving a
   rate from the species parameters is how this goes wrong.
-- **To go inside the encounter convolution, use `encounter_kernel()`, not
-  `pred_kernel()`.** `pred_kernel()` returns the kernel point-sampled on the
+- **To evaluate the encounter of a prey density of your own, use
+  `convolve_pred_kernel()`.** It is the convolution `mizerEncounter()` itself
+  uses, with the kernel of whichever scheme the model is on, and it zero-pads
+  the grid so the part of a kernel that falls below `min_w_pp` does not wrap
+  around to the largest prey. Its `"predation"` and `"diffusion"` kernels do
+  the same for the predation rate and the predation diffusion. Never multiply
+  the `ft_pred_kernel_*` slots by Fourier transforms of your own: their length
+  is not the length of `w_full`.
+- **To write the encounter convolution out in full, use `encounter_kernel()`,
+  not `pred_kernel()`.** `pred_kernel()` returns the kernel point-sampled on the
   grid — right for plotting, and the form in which you *supply* a custom kernel,
   but not the bin-integrated coefficients the convolution consumes. Pair
   `encounter_kernel()` with the plain point prey weight

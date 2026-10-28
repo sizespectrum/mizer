@@ -96,19 +96,22 @@ this is NA then the following two slots will be used. Changed with
 
 \item{\code{ft_pred_kernel_e}}{An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
-appropriate for evaluating the encounter rate integral. If this is NA
-then the \code{pred_kernel} will be used to calculate the available
-energy integral. Changed with \code{\link[=setPredKernel]{setPredKernel()}}.}
+appropriate for evaluating the encounter rate integral. The kernel is
+zero-padded, so the second dimension is longer than \code{w_full}; use
+\code{\link[=convolve_pred_kernel]{convolve_pred_kernel()}} rather than this slot to evaluate the integral.
+If this is NA then the \code{pred_kernel} will be used to calculate the
+available energy integral. Changed with \code{\link[=setPredKernel]{setPredKernel()}}.}
 
 \item{\code{ft_pred_kernel_p}}{An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
-appropriate for evaluating the predation mortality integral. If this is NA
+appropriate for evaluating the predation mortality integral. Zero-padded
+like \code{ft_pred_kernel_e}. If this is NA
 then the \code{pred_kernel} will be used to calculate the integral.
 Changed with \code{\link[=setPredKernel]{setPredKernel()}}.}
 
 \item{\code{ft_pred_kernel_d}}{An array (species x log of predator/prey size ratio)
-that holds the Fourier transform of the feeding kernel in a form
-appropriate for evaluating the predation-diffusion integral (used when
+that holds the zero-padded Fourier transform of the feeding kernel in a
+form appropriate for evaluating the predation-diffusion integral (used when
 \code{use_predation_diffusion} is \code{TRUE}). It differs from \code{ft_pred_kernel_e}
 only when \code{second_order_w[["bin_average"]]} is \code{TRUE}, where it carries the
 extra power of prey size that the diffusion integrand needs; otherwise it
@@ -191,8 +194,8 @@ Used to give consistent colours in plots.}
 Used to give consistent line types in plots.}
 
 \item{\code{ft_mask}}{An array (species x w_full) with zeros for weights larger than
-the maximum weight of each species. Used to efficiently minimize
-wrap-around errors in Fourier transform calculations.}
+the maximum weight of each species. Used to set the predation rate by
+each species to zero on prey larger than its maximum weight.}
 
 \item{\code{use_predation_diffusion}}{A logical flag controlling whether predation-induced
 diffusion is included when calculating rates with \code{\link[=mizerDiffusion]{mizerDiffusion()}}.

@@ -123,6 +123,77 @@ delayedAssign("NS_params_steady_small", suppressMessages(
                     progress_bar = FALSE, info_level = 0)
 ))
 
+# A two-species model whose feeding kernels reach far below the smallest
+# resource size `min_w_pp`, with abundant large fish at the top of the grid. Any
+# circular wrap-around in the FFT convolutions lets the larvae feed on those
+# large fish (issue #618), so it shows up clearly here.
+kernel_below_grid_params <- function(bin_average = FALSE) {
+    sp <- data.frame(species = c("Small", "Large"), w_max = c(20, 2000),
+                     w_mat = c(4, 250), w_min = 1e-3, beta = c(200, 100),
+                     sigma = c(1.3, 1.5), k_vb = c(1, 0.5))
+    params <- newMultispeciesParams(sp, no_w = 40, min_w_pp = 1e-6,
+                                    info_level = 0) |>
+        suppressMessages()
+    if (bin_average) {
+        second_order_w(params) <- c(bin_average = TRUE)
+    }
+    big <- params@w > 500
+    params@initial_n["Large", big] <- params@initial_n["Large", big] * 100
+    params
+}
+
+# The sums that convolve_pred_kernel() evaluates by FFT, done directly. The
+# real-space kernel weights are recovered from the stored Fourier coefficients
+# and only offsets within the grid are summed over, so there is no wrap-around.
+# As for convolve_pred_kernel(), `x` is over w_full and the result over w for
+# the encounter and diffusion, and the other way round for the predation.
+linear_kernel_sum <- function(params, x, kernel = c("encounter", "predation",
+                                                   "diffusion")) {
+    kernel <- match.arg(kernel)
+    ft <- switch(kernel,
+                 encounter = params@ft_pred_kernel_e,
+                 predation = params@ft_pred_kernel_p,
+                 diffusion = params@ft_pred_kernel_d)
+    no_w <- length(params@w)
+    no_w_full <- length(params@w_full)
+    idx_sp <- (no_w_full - no_w + 1):no_w_full
+    no_k <- ncol(ft)
+    phi <- Re(t(mvfft(t(ft), inverse = TRUE))) / no_k
+    if (kernel == "predation") {
+        # The predation kernel is stored reversed: offset m sits at no_k - m + 1
+        phi <- cbind(phi[, 1], phi[, no_k:(no_k - no_w_full + 2), drop = FALSE])
+        out <- matrix(0, nrow = nrow(x), ncol = no_w_full)
+        for (i in seq_len(nrow(x))) {
+            for (j in seq_len(no_w_full)) {
+                # sum over predators k at or above the prey j
+                k <- idx_sp[idx_sp >= j]
+                out[i, j] <- sum(phi[i, k - j + 1] * x[i, k - idx_sp[1] + 1])
+            }
+        }
+    } else {
+        out <- matrix(0, nrow = nrow(x), ncol = no_w)
+        for (i in seq_len(nrow(x))) {
+            for (j in seq_len(no_w)) {
+                # sum over prey k at or below the predator idx_sp[j]
+                k <- 1:idx_sp[j]
+                out[i, j] <- sum(phi[i, idx_sp[j] - k + 1] * x[i, k])
+            }
+        }
+    }
+    out
+}
+
+# Largest elementwise relative difference between `object` and `expected`, over
+# the entries of `expected` that are not negligible compared to its largest.
+# Entries much smaller than the largest carry FFT round-off of relative size
+# about .Machine$double.eps / floor, hence the default floor.
+max_rel_diff <- function(object, expected, floor = 1e-6) {
+    object <- as.vector(object)
+    expected <- as.vector(expected)
+    keep <- abs(expected) > floor * max(abs(expected))
+    max(abs(object[keep] - expected[keep]) / abs(expected[keep]))
+}
+
 # Test that a MizerParams or MizerSim object has not changed except for the
 # time_modified and perhaps a reordering of the species_params columns.
 expect_unchanged <- function(object, expected) {

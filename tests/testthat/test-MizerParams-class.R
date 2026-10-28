@@ -36,7 +36,10 @@ test_that("basic constructor sets dimensions properly", {
     expect_equal(dim(test_params@intake_max), c(no_sp, no_w))
     expect_equal(dim(test_params@search_vol), c(no_sp, no_w))
     expect_equal(dim(test_params@metab), c(no_sp, no_w))
-    expect_equal(dim(test_params@ft_pred_kernel_e), c(no_sp, no_w_full))
+    # The Fourier-transformed kernels live on a zero-padded grid, long enough
+    # that the convolutions do not wrap around (#618)
+    expect_equal(dim(test_params@ft_pred_kernel_e),
+                 c(no_sp, nextn(no_w_full + no_w - 1)))
     expect_equal(dim(test_params@catchability), c(0, no_sp))
     expect_equal(dim(test_params@selectivity), c(0, no_sp, no_w))
     expect_equal(dim(test_params@interaction), c(no_sp, no_sp))
