@@ -191,14 +191,6 @@ setPredKernel.MizerParams <- function(params,
     no_sp <- nrow(species_params)
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
-    # The kernels are stored on a zero-padded grid so that the convolutions
-    # are linear rather than circular, see pred_kernel_fft_length().
-    no_k <- pred_kernel_fft_length(no_w_full, no_w)
-    ft_pred_kernel_e <-
-        array(NA, dim = c(no_sp, no_k),
-              dimnames = list(sp = species_params$species, k = 1:no_k))
-    ft_pred_kernel_p <- ft_pred_kernel_e
-    ft_pred_kernel_d <- ft_pred_kernel_e
     # The kernel weights phi_e[i, ], phi_p[i, ] and phi_d[i, ] give, for each
     # offset m = 0, ..., no_w_full - 1 between the predator and prey bins, the
     # value that enters the encounter, predation and predation-diffusion
@@ -289,6 +281,14 @@ setPredKernel.MizerParams <- function(params,
                                           phi_d[, -1, drop = FALSE])
     }
 
+    # The kernels are stored on a zero-padded grid so that the convolutions
+    # are linear rather than circular, see pred_kernel_fft_length().
+    no_k <- pred_kernel_fft_length(no_w_full, no_w, list(phi_e, phi_p, phi_d))
+    ft_pred_kernel_e <-
+        array(NA, dim = c(no_sp, no_k),
+              dimnames = list(sp = species_params$species, k = 1:no_k))
+    ft_pred_kernel_p <- ft_pred_kernel_e
+    ft_pred_kernel_d <- ft_pred_kernel_e
     # Offsets beyond the grid carry zero weight
     padding <- rep(0, no_k - no_w_full)
     for (i in 1:no_sp) {
@@ -569,20 +569,40 @@ convolve_pred_kernel <- function(params, x,
 #' other end. [convolve_pred_kernel()] makes the convolution linear by padding
 #' the grid with zeros. The predators are on the last `no_w` points of the
 #' `no_w_full` points of the grid, so a predator and a prey larger than it are
-#' at most `no_w - 1` points apart. With at least `no_w_full + no_w - 1` points
-#' such a pair is therefore wrapped onto the zero weights that the kernels
-#' carry beyond the grid, both for the encounter (prey on the full grid,
-#' predators on the last `no_w` points) and for the predation rate (predators
-#' on the last `no_w` points, prey on the full grid). We round up to a length
-#' whose only prime factors are 2, 3 and 5, for which the FFT is fast.
+#' at most `no_w - 1` points apart. In a circular convolution of length `no_k`
+#' such a pair is wrapped onto offset `no_k - (k - n) >= no_k - no_w + 1`. If
+#' `m_max` is the largest offset (from `0` to `no_w_full - 1`) at which the
+#' kernel weights are non-zero, choosing `no_k >= max(no_w_full, no_w + m_max)`
+#' places every wrapped pair beyond `m_max`, where the kernel weights are zero,
+#' both for the encounter and diffusion rates (prey on the full grid, predators
+#' on the last `no_w` points) and for the predation rate (predators on the last
+#' `no_w` points, prey on the full grid). When `m_max <= no_w_full - no_w` (the
+#' kernel of even the smallest predator does not reach below `min_w_pp`), no
+#' padding beyond `no_w_full` is needed. We round up to a length whose only
+#' prime factors are 2, 3 and 5, for which the FFT is fast.
 #'
 #' @param no_w_full The number of sizes in `w_full`.
 #' @param no_w The number of sizes in `w`.
+#' @param phis Optional matrix or list of matrices of kernel weights, each with
+#'   `no_w_full` columns corresponding to offsets `0` to `no_w_full - 1`. If
+#'   omitted, the kernel is assumed to be non-zero up to offset
+#'   `no_w_full - 1`.
 #' @return The length of the padded grid.
 #' @concept helper
 #' @keywords internal
-pred_kernel_fft_length <- function(no_w_full, no_w) {
-    nextn(no_w_full + no_w - 1)
+pred_kernel_fft_length <- function(no_w_full, no_w, phis = NULL) {
+    if (is.null(phis)) {
+        m_max <- no_w_full - 1L
+    } else {
+        if (!is.list(phis)) {
+            phis <- list(phis)
+        }
+        nz <- which(Reduce(`|`, lapply(phis, function(phi) {
+            colSums(phi != 0) > 0
+        })))
+        m_max <- if (length(nz) > 0) max(nz) - 1L else 0L
+    }
+    nextn(max(no_w_full, no_w + m_max))
 }
 
 #' @rdname setPredKernel
