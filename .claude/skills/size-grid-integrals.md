@@ -176,19 +176,50 @@ rate itself checks that the derivation is complete.
    refinement — see the "second-order biomass converges to default" test for the
    pattern.
 4. **Order.** For a rate, measure the order directly. Prescribe smooth
-   cell-averaged densities, evaluate the rate at a fixed size on grids an octave
-   apart (bin averages at the bin centre `sqrt(w * (w + dw))`, point values at
-   the node), and take `log2` of the ratio of successive differences: about 1 is
-   first order, about 2 second. `convergence_params()`, `at_bin_centre()` and
-   `convergence_order()` in `helper.R` do this. The #619 tests in
-   `test-project_methods.R` and `test-diffusion.R` are the pattern, and cost
-   about a second each on 80/160/320 bins.
+   cell-averaged densities, compute the rate on three nested grids an octave
+   apart, and take `log2` of the ratio of successive differences: about 1 is
+   first order, about 2 second. Check several sizes across the range of the
+   rate and assert a band, `(1.8, 2.2)`, not just a lower bound: an estimate
+   well above 2 means the differences are not shrinking geometrically, which is
+   no evidence of second order. In `helper.R`, `convergence_params()` builds the
+   model, `nested_no_w` gives the grids, `bin_average_order()` and
+   `point_value_order()` measure the order and `expect_second_order()` asserts
+   the band. The tests named "... second order" in `test-project_methods.R`,
+   `test-diffusion.R` and `test-reproduction.R` are the pattern, and take under
+   a second each.
 
-New tests go in `tests/testthat/test-second_order_summary.R`, using the
-`NS_params_small` fixture and toggling with
-`second_order_w(p) <- c(bin_average = TRUE)`. Tests of `sizeIntegral()` and its
-helpers themselves belong in `test-sizeIntegral.R`, per the ordinary rule that a
-test lives in the file named after the R file that defines the function.
+   - **Nest the grids.** `no_w` nodes make `no_w - 1` bins, so 81/161/321 halve
+     the bin width exactly and 80/160/320 do not. On nested grids every coarse
+     node is a fine node and every coarse bin is a union of fine bins.
+   - **Compare the same quantity on every grid, without interpolating.**
+     Restrict a bin-averaged rate to one bin of the coarsest grid, by the
+     `dw`-weighted mean of the finer bins inside it; read a point value at a
+     node of the coarsest grid. Interpolating to a fixed size instead adds an
+     interpolation error of the same order as the error being measured, and
+     its coefficient jumps with where that size falls within a bin of each
+     grid. On 80/160/320 bins that gave estimates from -0.09 to 2.74 for rates
+     that restriction shows to be second order at every size, and a
+     lower-bound test passed or failed by the luck of the size chosen.
+   - **Measure where the scheme has an error to measure.** `get_gamma_default()`
+     calibrates `gamma` with the encounter quadrature, on the same grid, against
+     a power-law resource with exponent `lambda`. The encounter of such a
+     resource alone is therefore essentially exact on every grid, even with the
+     prey-bin integral of the kernel removed. The encounter and the rates built
+     from it show their order only at sizes where fish prey contributes.
+   - **Keep the density negligible at the top of the grid** when the integral
+     runs over the whole size range, as the reproduction integral does. The
+     last bin, `[w_top, beta * w_top]`, shrinks as the grid is refined, which
+     is a first-order change of the integration domain.
+   - **Check that the test discriminates.** Remove the bin averaging the test is
+     meant to protect and confirm that it then fails with an order near 1.
+
+New tests of a summary integral go in `tests/testthat/test-second_order_summary.R`,
+using the `NS_params_small` fixture and toggling with
+`second_order_w(p) <- c(bin_average = TRUE)`. Order tests of a rate go in the
+test file of the R file that defines the rate function, like the ones above.
+Tests of `sizeIntegral()` and its helpers themselves belong in
+`test-sizeIntegral.R`, per the ordinary rule that a test lives in the file named
+after the R file that defines the function.
 
 ## Helpers
 
