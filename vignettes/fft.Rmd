@@ -378,20 +378,25 @@ larvae 9% too high and their predation diffusion several orders of magnitude too
 large (issue #618).
 
 mizer avoids this by zero-padding. Let the full grid have $K$ points, of which
-the fish sizes are the last $K_w$. In the encounter rate the circular
-convolution wraps the term for a prey $k$ larger than the predator $n$ onto the
-kernel offset $L - (k - n)$, where $L$ is the length of the grid on which the
-FFT is taken. Because the predators are fish, $n \ge K - K_w + 1$, and so
-$k - n \le K_w - 1$. If $L \ge K + K_w - 1$, every such offset is at least $K$,
-where the padded kernel is zero, and the wrapped terms vanish. The same bound
-works for the predation rate, where the predators $n$ are again the fish and
-the wrapped terms are those with the prey $k$ larger than the predator. So
-`setPredKernel()` stores the kernels on a grid of length
-$L = $ `nextn(K + K_w - 1)`, rounded up to a length whose only prime factors are
-2, 3 and 5, for which the FFT is fast. `convolve_pred_kernel()` pads the prey or
-predator densities with zeros to the same length before transforming them.
-The convolutions are then linear and agree with the direct sums over the kernel
-to round-off.
+the fish sizes are the last $K_w$, and let $m_{\max} \le K - 1$ be the largest
+grid offset at which the kernel weights are non-zero. In the encounter rate the
+circular convolution wraps the term for a prey $k$ larger than the predator $n$
+onto the kernel offset $L - (k - n)$, where $L$ is the length of the grid on
+which the FFT is taken. Because the predators are fish, $n \ge K - K_w + 1$, and
+so $k - n \le K_w - 1$. If $L \ge \max(K, K_w + m_{\max})$, every such offset is
+at least $m_{\max} + 1$, where the padded kernel is zero, and the wrapped terms
+vanish. The same bound works for the predation rate, where the predators $n$ are
+again the fish and the wrapped terms are those with the prey $k$ larger than the
+predator. When $m_{\max} \le K - K_w$ (the kernel of even the smallest fish does
+not reach below `min_w_pp`), no padding beyond $K$ is needed; for an untruncated
+kernel with $m_{\max} = K - 1$, $L \ge K + K_w - 1$ suffices regardless of the
+preferred predator/prey mass ratio, because the discrete kernel is only evaluated
+at the grid offsets $0 \le m \le K - 1$. `setPredKernel()` therefore stores the
+kernels on a grid of length $L = $ `nextn(max(K, K_w + m_max))`, rounded up to a
+length whose only prime factors are 2, 3 and 5, for which the FFT is fast.
+`convolve_pred_kernel()` pads the prey or predator densities with zeros to the
+same length before transforming them. The convolutions are then linear and agree
+with the direct sums over the kernel to round-off.
 
 The padded transforms are up to about twice as long as the grid. How long an
 FFT takes depends as much on the prime factors of its length as on the length

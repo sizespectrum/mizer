@@ -424,3 +424,55 @@ test_that("encounter_kernel() reproduces getEncounter() (#618)", {
         expect_lt(max_rel_diff(getEncounter(params), expected), 1e-8)
     }
 })
+
+test_that("setPredKernel() sizes FFT padding from support of phi (#618)", {
+    base_params <- NS_params_small
+    no_w_full <- length(base_params@w_full)
+    no_w <- length(base_params@w)
+    no_sp <- nrow(base_params@species_params)
+    beta_grid <- base_params@w_full[2] / base_params@w_full[1]
+    base_params@species_params$pred_kernel_type <- "box"
+    base_params@species_params$ppmr_min <- 1
+
+    set.seed(1)
+    prey <- matrix(runif(no_sp * no_w_full), nrow = no_sp)
+    pred <- matrix(runif(no_sp * no_w), nrow = no_sp)
+
+    # 1. Kernel support stays within resource grid (m_max <= no_w_full - no_w):
+    # no padding beyond no_w_full is needed.
+    base_params@species_params$ppmr_max <- beta_grid^10
+    for (bin_average in c(FALSE, TRUE)) {
+        p <- base_params
+        p@second_order_w[["bin_average"]] <- bin_average
+        p <- setPredKernel(p)
+        expect_equal(ncol(p@ft_pred_kernel_e), nextn(no_w_full))
+        for (kernel in c("encounter", "diffusion")) {
+            expect_lt(max_rel_diff(convolve_pred_kernel(p, prey, kernel),
+                                   linear_kernel_sum(p, prey, kernel)),
+                      1e-8)
+        }
+        expect_lt(max_rel_diff(convolve_pred_kernel(p, pred, "predation"),
+                               linear_kernel_sum(p, pred, "predation")),
+                  1e-8)
+    }
+
+    # 2. Kernel partially overhangs min_w_pp
+    # (no_w_full - no_w < m_max < no_w_full - 1):
+    # padded to nextn(no_w + m_max) < nextn(no_w_full + no_w - 1).
+    base_params@species_params$ppmr_max <- beta_grid^30
+    for (bin_average in c(FALSE, TRUE)) {
+        p <- base_params
+        p@second_order_w[["bin_average"]] <- bin_average
+        p <- setPredKernel(p)
+        expect_gt(ncol(p@ft_pred_kernel_e), nextn(no_w_full))
+        expect_lt(ncol(p@ft_pred_kernel_e), nextn(no_w_full + no_w - 1))
+        for (kernel in c("encounter", "diffusion")) {
+            expect_lt(max_rel_diff(convolve_pred_kernel(p, prey, kernel),
+                                   linear_kernel_sum(p, prey, kernel)),
+                      1e-8)
+        }
+        expect_lt(max_rel_diff(convolve_pred_kernel(p, pred, "predation"),
+                               linear_kernel_sum(p, pred, "predation")),
+                  1e-8)
+    }
+})
