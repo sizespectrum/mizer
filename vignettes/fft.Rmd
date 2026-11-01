@@ -75,13 +75,14 @@ The discretized encounter rate (ignoring coefficients) is roughly
 $$ E[n] = \sum_k \tilde{\phi}[n-k] A[k] $$
 In `mizer`, we define `ft_pred_kernel_e` as the FFT of the predation kernel.
 The available energy is calculated, transformed via FFT, multiplied by
-`ft_pred_kernel_e`, and then inverse transformed. Both the kernel and the
-available energy are first padded with zeros, for the reason explained in
+`ft_pred_kernel_e`, and then inverse transformed. In a model of defaults
+edition 3 or later, both the kernel and the available energy are first padded
+with zeros, for the reason explained in
 [Avoiding wrap-around](#avoiding-wrap-around-zero-padding) below.
 
 `mizerEncounter()` hands this to `convolve_pred_kernel()`, which does the
-following, where `no_k` is the length of the padded grid and `idx_sp` picks
-out the fish sizes:
+following, where `no_k` is the length of the padded grid (equal to `no_w_full`
+in a model of an earlier edition) and `idx_sp` picks out the fish sizes:
 ```r
 # prey is species x w_full; place it on the padded grid
 prey_padded <- matrix(0, nrow = no_k, ncol = no_sp)
@@ -377,7 +378,8 @@ below the egg size and abundant large fish it made the encounter rate of the
 larvae 9% too high and their predation diffusion several orders of magnitude too
 large (issue #618).
 
-mizer avoids this by zero-padding. Let the full grid have $K$ points, of which
+In a model of defaults edition 3 or later (see `defaults_edition()`), mizer
+avoids this by zero-padding. Let the full grid have $K$ points, of which
 the fish sizes are the last $K_w$, and let $m_{\max} \le K - 1$ be the largest
 grid offset at which the kernel weights are non-zero. In the encounter rate the
 circular convolution wraps the term for a prey $k$ larger than the predator $n$
@@ -401,22 +403,34 @@ with the direct sums over the kernel to round-off.
 The padded transforms are up to about twice as long as the grid. How long an
 FFT takes depends as much on the prime factors of its length as on the length
 itself, so the cost is smaller than that suggests: a projection of `NS_params`
-takes about 15% longer than it did with the unpadded transforms.
+with the padded transforms takes about 15% longer than with the unpadded ones.
+
+A model of defaults edition 1 or 2 keeps the unpadded transforms of length $K$
+that earlier versions of mizer used, so that its results do not change, wrapped
+terms included. This covers every model created with the default edition and
+every model saved with an earlier version of mizer, `NS_params` among them.
+`convolve_pred_kernel()` takes the length of the grid from the stored kernels,
+so the same code evaluates both kinds of model. To give an existing model the
+padded transforms, record edition 3 in it and recalculate its kernels:
+```r
+defaults_edition(params) <- 3
+params <- setPredKernel(params)
+```
 
 ### The `ft_mask`
 
-Before mizer used zero-padding, the predation rate was protected from the
-wrap-around by `ft_mask`, a logical array that is 1 for prey sizes smaller than
-the maximum size of the predator species and 0 above it:
+Without zero-padding, the predation rate is protected from the wrap-around only
+by `ft_mask`, a logical array that is 1 for prey sizes smaller than the maximum
+size of the predator species and 0 above it:
 ```r
 return(pred_rate * params@ft_mask)
 ```
 Predation on prey larger than the largest predator of a species is impossible,
-so this removed the wrapped contribution there. It could not help with the
-wrapped contribution on prey smaller than that maximum size, and it could not be
-applied to the encounter or diffusion rates at all: there the wrapped
-contribution lands on the smallest predator sizes, whose true rates are not
-zero. With the zero-padding `ft_mask` is no longer needed to suppress
+so this removes the wrapped contribution there. It cannot help with the wrapped
+contribution on prey smaller than that maximum size, and it cannot be applied to
+the encounter or diffusion rates at all: there the wrapped contribution lands on
+the smallest predator sizes, whose true rates are not zero. With the
+zero-padding of edition 3, `ft_mask` is no longer needed to suppress
 wrap-around. It is still applied, so that the predation rate stays zero above
 the maximum size of each species even if a model holds abundances there.
 

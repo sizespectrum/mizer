@@ -126,13 +126,16 @@ delayedAssign("NS_params_steady_small", suppressMessages(
 # A two-species model whose feeding kernels reach far below the smallest
 # resource size `min_w_pp`, with abundant large fish at the top of the grid. Any
 # circular wrap-around in the FFT convolutions lets the larvae feed on those
-# large fish (issue #618), so it shows up clearly here.
-kernel_below_grid_params <- function(bin_average = FALSE) {
+# large fish (issue #618), so it shows up clearly here. The convolutions are
+# zero-padded, and so free of wrap-around, only from defaults edition 3.
+kernel_below_grid_params <- function(bin_average = FALSE, edition = 3) {
     sp <- data.frame(species = c("Small", "Large"), w_max = c(20, 2000),
                      w_mat = c(4, 250), w_min = 1e-3, beta = c(200, 100),
                      sigma = c(1.3, 1.5), k_vb = c(1, 0.5))
-    params <- newMultispeciesParams(sp, no_w = 40, min_w_pp = 1e-6,
-                                    info_level = 0) |>
+    params <- withr::with_options(
+        list(mizer_defaults_edition = edition),
+        newMultispeciesParams(sp, no_w = 40, min_w_pp = 1e-6, info_level = 0)
+    ) |>
         suppressMessages()
     if (bin_average) {
         second_order_w(params) <- c(bin_average = TRUE)

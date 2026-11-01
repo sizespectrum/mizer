@@ -4,12 +4,14 @@
 \alias{pred_kernel_fft_length}
 \title{Length of the zero-padded grid for the predation kernel convolutions}
 \usage{
-pred_kernel_fft_length(no_w_full, no_w, phis = NULL)
+pred_kernel_fft_length(no_w_full, no_w, edition, phis = NULL)
 }
 \arguments{
 \item{no_w_full}{The number of sizes in \code{w_full}.}
 
 \item{no_w}{The number of sizes in \code{w}.}
+
+\item{edition}{The defaults edition of the model, see \code{\link[=defaults_edition]{defaults_edition()}}.}
 
 \item{phis}{Optional matrix or list of matrices of kernel weights, each with
 \code{no_w_full} columns corresponding to offsets \code{0} to \code{no_w_full - 1}. If
@@ -36,6 +38,11 @@ on the last \code{no_w} points) and for the predation rate (predators on the las
 kernel of even the smallest predator does not reach below \code{min_w_pp}), no
 padding beyond \code{no_w_full} is needed. We round up to a length whose only
 prime factors are 2, 3 and 5, for which the FFT is fast.
+}
+\details{
+The padding came with defaults edition 3. A model of an earlier edition is
+not padded: its length is \code{no_w_full}, so that its convolutions stay
+circular and it keeps the results it had with earlier versions of mizer.
 }
 \concept{helper}
 \keyword{internal}

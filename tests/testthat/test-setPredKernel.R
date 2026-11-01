@@ -427,6 +427,8 @@ test_that("encounter_kernel() reproduces getEncounter() (#618)", {
 
 test_that("setPredKernel() sizes FFT padding from support of phi (#618)", {
     base_params <- NS_params_small
+    # Only models of edition 3 or later are padded
+    defaults_edition(base_params) <- 3
     no_w_full <- length(base_params@w_full)
     no_w <- length(base_params@w)
     no_sp <- nrow(base_params@species_params)
@@ -475,4 +477,60 @@ test_that("setPredKernel() sizes FFT padding from support of phi (#618)", {
                                linear_kernel_sum(p, pred, "predation")),
                   1e-8)
     }
+})
+
+test_that("models of editions 1 and 2 keep the circular convolutions (#618)", {
+    for (edition in 1:2) {
+        params <- kernel_below_grid_params(edition = edition)
+        no_w_full <- length(params@w_full)
+        idx_sp <- (no_w_full - length(params@w) + 1):no_w_full
+        # The kernels are not padded
+        for (s in paste0("ft_pred_kernel_", c("e", "p", "d"))) {
+            expect_identical(ncol(slot(params, s)), no_w_full)
+        }
+        # so the sums are exactly the circular convolutions that earlier
+        # versions of mizer evaluated
+        set.seed(1)
+        prey <- matrix(runif(2 * no_w_full), nrow = 2)
+        circular <- Re(t(mvfft(t(params@ft_pred_kernel_e) * mvfft(t(prey)),
+                               inverse = TRUE))) / no_w_full
+        expect_identical(unname(convolve_pred_kernel(params, prey)),
+                         unname(circular[, idx_sp]))
+        pred <- matrix(runif(2 * length(params@w)), nrow = 2)
+        Q <- matrix(0, nrow = 2, ncol = no_w_full)
+        Q[, idx_sp] <- pred
+        circular <- Re(t(mvfft(t(params@ft_pred_kernel_p) * mvfft(t(Q)),
+                               inverse = TRUE))) / no_w_full
+        expect_identical(
+            unname(convolve_pred_kernel(params, pred, "predation")),
+            unname(circular))
+        # and in this model they pick up prey wrapped around from the top of
+        # the grid
+        expect_gt(max_rel_diff(convolve_pred_kernel(params, prey),
+                               linear_kernel_sum(params, prey)),
+                  1e-3)
+    }
+})
+
+test_that("setPredKernel() pads the kernels of a model switched to edition 3 (#618)", {
+    params <- NS_params_small
+    no_w_full <- length(params@w_full)
+    no_w <- length(params@w)
+    expect_identical(ncol(params@ft_pred_kernel_e), no_w_full)
+    # Changing the edition of a model recalculates nothing
+    defaults_edition(params) <- 3
+    expect_identical(ncol(params@ft_pred_kernel_e), no_w_full)
+    # but the next calculation of the kernel uses the padded grid. The
+    # lognormal kernel is non-zero at every offset, so it needs the most
+    # padding.
+    params <- setPredKernel(params)
+    for (s in c("ft_pred_kernel_e", "ft_pred_kernel_p", "ft_pred_kernel_d")) {
+        expect_equal(ncol(slot(params, s)), nextn(no_w_full + no_w - 1))
+    }
+    set.seed(1)
+    prey <- matrix(runif(nrow(params@species_params) * no_w_full),
+                   nrow = nrow(params@species_params))
+    expect_lt(max_rel_diff(convolve_pred_kernel(params, prey),
+                           linear_kernel_sum(params, prey)),
+              1e-8)
 })

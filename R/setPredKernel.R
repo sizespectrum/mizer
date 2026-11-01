@@ -285,9 +285,11 @@ setPredKernel.MizerParams <- function(params,
                                           phi_d[, -1, drop = FALSE])
     }
 
-    # The kernels are stored on a zero-padded grid so that the convolutions
-    # are linear rather than circular, see pred_kernel_fft_length().
-    no_k <- pred_kernel_fft_length(no_w_full, no_w, list(phi_e, phi_p, phi_d))
+    # From defaults edition 3 the kernels are stored on a zero-padded grid so
+    # that the convolutions are linear rather than circular, see
+    # pred_kernel_fft_length(). Earlier editions keep the circular ones.
+    no_k <- pred_kernel_fft_length(no_w_full, no_w, defaults_edition(params),
+                                   list(phi_e, phi_p, phi_d))
     ft_pred_kernel_e <-
         array(NA, dim = c(no_sp, no_k),
               dimnames = list(sp = species_params$species, k = 1:no_k))
@@ -475,11 +477,17 @@ encounter_kernel <- function(params) {
 #' with bin-averaged ones, even when bin averaging is switched on; see
 #' [encounter_kernel()] for why.
 #'
-#' The sums only run over sizes on the grid: the part of a kernel that extends
-#' below the smallest size in `w_full(params)` contributes nothing. The
-#' convolutions are evaluated by fast Fourier transform on a zero-padded grid,
-#' so that the part of a kernel that falls off one end of the grid does not
-#' wrap around to pick up the densities at the other end.
+#' The sums are evaluated as convolutions by fast Fourier transform. For a model
+#' of defaults edition 3 or later (see [defaults_edition()]) they only run over
+#' sizes on the grid: the part of a kernel that extends below the smallest size
+#' in `w_full(params)` contributes nothing. This is achieved by evaluating the
+#' convolutions on a zero-padded grid, so that the part of a kernel that falls
+#' off one end of the grid does not wrap around to pick up the densities at the
+#' other end. A model of an earlier edition keeps the circular convolutions of
+#' earlier versions of mizer, so that its results do not change. In such a
+#' model, the part of the kernel of a small predator that extends below the
+#' smallest size in `w_full(params)` wraps around to the largest sizes, so that
+#' the smallest predators are credited with eating the largest prey.
 #'
 #' @param params A MizerParams object whose predation kernel depends only on
 #'   the predator/prey mass ratio, i.e., one without a custom predation kernel
@@ -585,8 +593,13 @@ convolve_pred_kernel <- function(params, x,
 #' padding beyond `no_w_full` is needed. We round up to a length whose only
 #' prime factors are 2, 3 and 5, for which the FFT is fast.
 #'
+#' The padding came with defaults edition 3. A model of an earlier edition is
+#' not padded: its length is `no_w_full`, so that its convolutions stay
+#' circular and it keeps the results it had with earlier versions of mizer.
+#'
 #' @param no_w_full The number of sizes in `w_full`.
 #' @param no_w The number of sizes in `w`.
+#' @param edition The defaults edition of the model, see [defaults_edition()].
 #' @param phis Optional matrix or list of matrices of kernel weights, each with
 #'   `no_w_full` columns corresponding to offsets `0` to `no_w_full - 1`. If
 #'   omitted, the kernel is assumed to be non-zero up to offset
@@ -594,7 +607,10 @@ convolve_pred_kernel <- function(params, x,
 #' @return The length of the padded grid.
 #' @concept helper
 #' @keywords internal
-pred_kernel_fft_length <- function(no_w_full, no_w, phis = NULL) {
+pred_kernel_fft_length <- function(no_w_full, no_w, edition, phis = NULL) {
+    if (edition < 3) {
+        return(no_w_full)
+    }
     if (is.null(phis)) {
         m_max <- no_w_full - 1L
     } else {

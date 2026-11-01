@@ -191,12 +191,14 @@ switched the second-order scheme on. Four rules:
   rate from the species parameters is how this goes wrong.
 - **To evaluate the encounter of a prey density of your own, use
   `convolve_pred_kernel()`.** It is the convolution `mizerEncounter()` itself
-  uses, with the kernel of whichever scheme the model is on, and it zero-pads
-  the grid so the part of a kernel that falls below `min_w_pp` does not wrap
-  around to the largest prey. Its `"predation"` and `"diffusion"` kernels do
-  the same for the predation rate and the predation diffusion. Never multiply
-  the `ft_pred_kernel_*` slots by Fourier transforms of your own: their length
-  is not the length of `w_full`.
+  uses, with the kernel of whichever scheme the model is on. In a model of
+  defaults edition 3 or later it zero-pads the grid, so the part of a kernel
+  that falls below `min_w_pp` does not wrap around to the largest prey; in a
+  model of an earlier edition it reproduces the circular convolution that
+  mizer itself uses there. Its `"predation"` and `"diffusion"` kernels do the
+  same for the predation rate and the predation diffusion. Never multiply the
+  `ft_pred_kernel_*` slots by Fourier transforms of your own: in a model of
+  edition 3 their length is not the length of `w_full`.
 - **To write the encounter convolution out in full, use `encounter_kernel()`,
   not `pred_kernel()`.** `pred_kernel()` returns the kernel point-sampled on the
   grid — right for plotting, and the form in which you *supply* a custom kernel,

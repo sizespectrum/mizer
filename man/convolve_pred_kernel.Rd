@@ -59,11 +59,17 @@ density times \code{dw_full(params)}. Pair them with the plain point weights, no
 with bin-averaged ones, even when bin averaging is switched on; see
 \code{\link[=encounter_kernel]{encounter_kernel()}} for why.
 
-The sums only run over sizes on the grid: the part of a kernel that extends
-below the smallest size in \code{w_full(params)} contributes nothing. The
-convolutions are evaluated by fast Fourier transform on a zero-padded grid,
-so that the part of a kernel that falls off one end of the grid does not
-wrap around to pick up the densities at the other end.
+The sums are evaluated as convolutions by fast Fourier transform. For a model
+of defaults edition 3 or later (see \code{\link[=defaults_edition]{defaults_edition()}}) they only run over
+sizes on the grid: the part of a kernel that extends below the smallest size
+in \code{w_full(params)} contributes nothing. This is achieved by evaluating the
+convolutions on a zero-padded grid, so that the part of a kernel that falls
+off one end of the grid does not wrap around to pick up the densities at the
+other end. A model of an earlier edition keeps the circular convolutions of
+earlier versions of mizer, so that its results do not change. In such a
+model, the part of the kernel of a small predator that extends below the
+smallest size in \code{w_full(params)} wraps around to the largest sizes, so that
+the smallest predators are credited with eating the largest prey.
 }
 \examples{
 params <- NS_params
