@@ -17,3 +17,7 @@ A vector of reproduction rates for all species
 \description{
 Determine reproduction rate needed for initial egg abundance
 }
+\seealso{
+\code{\link[=getR0]{getR0()}} for the lifetime reproductive output, which is
+\code{getRDI(params) / getRequiredRDD(params)} at a steady state.
+}

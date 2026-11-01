@@ -9,7 +9,9 @@ description: >-
   matchNumbers, matchGrowth), supply those observations (the
   biomass_observed/biomass_cutoff or number_observed species-parameter columns,
   the yield_observed gear-parameter column), set the level of density-dependent
-  reproduction with the reproduction_level replacement accessor, check
+  reproduction with the reproduction_level replacement accessor, calculate
+  the lifetime reproductive output R0 or ask whether a species can invade
+  (getR0, getNPerRecruit), check
   convergence (isSteady, getSteadyResidual), or diagnose a model that collapses,
   explodes or will not settle. To ask whether the steady state you found is
   dynamically stable, see the analyse-stability skill.
@@ -185,6 +187,32 @@ named vector. This does not change the steady state itself — it sets how the
 model responds to perturbations away from it. Read the current values back with
 `reproduction_level(params)`, useful to check what a model was tuned to before
 changing it.
+
+### Lifetime reproductive output
+
+`getR0(params)` gives the lifetime reproductive output R0 of each species: the
+number of eggs that one recruit produces over its life, with growth, mortality,
+diffusion and the investment into reproduction held fixed. It ties the
+reproduction parameters to the steady state:
+
+- with density-independent reproduction (`R_max = Inf`) every steady state has
+  R0 = 1, and because R0 is proportional to `erepro`, dividing `erepro` by R0
+  makes the steady state for the current rates a steady state of the model;
+- with Beverton-Holt reproduction a steady state has
+  R0 = 1 / (1 - `reproduction_level(params)`), not 1.
+
+A rare species increases if and only if its R0 is above 1, so `getR0()` also
+answers whether a species that is absent from a state could invade it. There
+`getRDI(params) / getRequiredRDD(params)`, which equals R0 in a steady state,
+is 0/0. Each rate can be taken from another state, as in
+`getR0(params, mort = getMort(other_params))`, to separate the effect of food
+from that of predation. `getNPerRecruit(params)` returns the steady-state
+abundance per recruit that R0 is calculated from.
+
+Do not calculate R0 by hand from the upwind recursion for the abundance per
+recruit. That recursion is right only for the default first-order scheme
+without diffusion and is silently off by several per cent otherwise.
+`getR0()` solves the same discretised equation as `project()`.
 
 ## Verifying the result
 

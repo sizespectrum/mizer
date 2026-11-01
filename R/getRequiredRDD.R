@@ -3,6 +3,8 @@
 #' @param params A MizerParams object
 #' @param ... Unused.
 #' @return A vector of reproduction rates for all species
+#' @seealso [getR0()] for the lifetime reproductive output, which is
+#'   `getRDI(params) / getRequiredRDD(params)` at a steady state.
 #' @export
 getRequiredRDD <- function(params, ...) {
     UseMethod("getRequiredRDD")
@@ -38,46 +40,44 @@ getRequiredRDD.MizerParams <- function(params, ...) {
                                  recruitment_flux = numeric(no_sp),
                                  d = r$diffusion,
                                  flux_limiter = flux_limiter)
-
-    reproduction <- params@species_params$erepro # vector of correct length
-    names(reproduction) <- params@species_params$species
-
-    for (i in (1:no_sp)) {
-        w_min_idx <- params@w_min_idx[i]
-
-        # Get coefficients for this species at the boundary
-        # The equation for the first node is:
-        # (N_new - N_old)/dt = -(Flux_matrix * N) + R/dw
-        # In steady state N_new = N_old, so:
-        # Flux_matrix * N = R/dw
-        # The rows of coefs correspond to the linear system A*N_{j-1} + B*N_j + C*N_{j+1} = ...
-        # For the first node j=w_min_idx:
-        # A*N_{j-1} + (B-1)/dt * N_j + C/dt * N_{j+1} = R/dw / dt ?
-        # No, let's look at project_n again.
-        # It solves A N_{i-1} + B N_i + C N_{i+1} = N_old + RHS_source
-        # In steady state: A N_{i-1} + B N_i + C N_{i+1} = N_i + R * dt / dw
-        # So R = ( A N_{i-1} + (B-1) N_i + C N_{i+1} ) * dw / dt
-
-        # Extract coefficients
-        a <- coefs$a[i, w_min_idx]
-        b <- coefs$b[i, w_min_idx]
-        c <- coefs$c[i, w_min_idx]
-
-        # Boundary corrections for a and b are now handled in get_transport_coefs
-
-        n_current <- params@initial_n[i, w_min_idx]
-        n_next <- if (w_min_idx < length(params@w)) params@initial_n[i, w_min_idx + 1] else 0
-        n_prev <- if (w_min_idx > 1) params@initial_n[i, w_min_idx - 1] else 0 # Should be irrelevant if A=0 or boundary
-
-        # Calculate R
-        # R = ( A * n_prev + (B - 1) * n_current + C * n_next ) * dw / dt
-
-        total_rate <- a * n_prev + (b - 1) * n_current + c * n_next
-        reproduction[i] <- total_rate * params@dw[w_min_idx] / dt
-    }
     # The flux limiter is folded into the coefficients a, b, c above, so the
     # egg-cell balance already accounts for the high-order flux leaving the egg
     # size class. This keeps getRequiredRDD() consistent with a project() call
     # on the same params.
+    required_recruitment(params, params@initial_n, coefs, dt)
+}
+
+#' Recruitment that holds the abundance in the egg size class steady
+#'
+#' The time-stepper solves, at the egg size class \eqn{j} of each species,
+#' \deqn{A_j N_{j-1} + B_j N_j + C_j N_{j+1} = N^{old}_j + R\, dt / \Delta w_j.}
+#' In a steady state \eqn{N_j = N^{old}_j}, so the recruitment \eqn{R} that
+#' holds the abundance `n` steady there is
+#' \deqn{R = (A_j N_{j-1} + (B_j - 1) N_j + C_j N_{j+1})\, \Delta w_j / dt.}
+#' This is the one place that this balance is written, shared by
+#' [getRequiredRDD()] and [getNPerRecruit()].
+#'
+#' @param params A MizerParams object.
+#' @param n An array (species x size) with the abundance to hold steady.
+#' @param coefs The transport coefficients from `get_transport_coefs()`,
+#'   calculated at `n` with time step `dt` and zero recruitment flux, so that
+#'   the boundary corrections for the egg size class are applied.
+#' @param dt The time step that `coefs` were calculated with.
+#' @return A named vector with the required recruitment for each species.
+#' @noRd
+required_recruitment <- function(params, n, coefs, dt = 1) {
+    no_sp <- nrow(params@species_params)
+    no_w <- length(params@w)
+    j <- params@w_min_idx
+    idx <- cbind(seq_len(no_sp), j)
+    # A at the egg size class is zero, but keep the term so that this is the
+    # balance exactly as the time-stepper solves it.
+    n_prev <- ifelse(j > 1, n[cbind(seq_len(no_sp), pmax(j - 1, 1))], 0)
+    n_next <- ifelse(j < no_w, n[cbind(seq_len(no_sp), pmin(j + 1, no_w))], 0)
+
+    total_rate <- coefs$a[idx] * n_prev + (coefs$b[idx] - 1) * n[idx] +
+        coefs$c[idx] * n_next
+    reproduction <- total_rate * params@dw[j] / dt
+    names(reproduction) <- params@species_params$species
     reproduction
 }
