@@ -127,6 +127,64 @@ are specific to being an extension.
 
 ---
 
+## Upgrading from mizer 3.4 to 3.5
+
+A model now remembers the edition of default choices it was created with. This
+changes nothing for code that never calls [`defaults_edition()`](../reference/defaults_edition.html). Code that does
+switch editions finds that the switch now applies only to models created
+afterwards. Models saved with mizer 3.4 are upgraded once more when they are
+first used.
+
+### A model keeps the defaults edition it was created with
+
+`defaults_edition()` chooses the edition of the defaults that mizer fills in for
+parameters you do not supply. Until now the choice was global: whenever mizer
+filled in a default, for any model, it used the edition active at that moment.
+An existing model therefore picked up the new edition's defaults as soon as
+anything made mizer fill one in again, for example a change to a species
+parameter, which recalculates every species parameter that mizer calculated.
+
+Now the edition that is active when a model is created is recorded in the
+model, and mizer always uses the model's own edition for it. Results move only
+if your code activates one edition and then works with a model of another, most
+often a model created or loaded before the `defaults_edition()` call, or a
+model that comes with a package, such as [`NS_params`](../reference/NS_params.html), which is of edition 1.
+Such a model now gets the defaults of its own edition when
+
+- mizer recalculates a `gamma` that it calculated, where edition 2 takes
+  `interaction_resource` into account and edition 1 does not,
+- [`setReproduction()`](../reference/setReproduction.html) recalculates [`psi`](../reference/setReproduction.html), which edition 1 sets to 1 above
+  `w_repro_max`,
+- you assign gear parameters without a [`catchability`](../reference/setFishing.html),
+- you give `project()` or `initial_effort<-()` an effort that leaves out some
+  gears or contains `NA`,
+- [`addSpecies()`](../reference/addSpecies.html) adds species and gears to it,
+- [`get_initial_n()`](../reference/get_initial_n.html) calculates initial abundances for it.
+
+See the edition of a model with `defaults_edition(params)`. To give an existing
+model the defaults of a different edition, create it again with that edition
+active.
+
+A model saved with an earlier version of mizer does not record its edition, and
+mizer cannot tell from the model which edition was active when it was created.
+It treats every such model as edition 1, which was the default. If you created
+yours with edition 2 active, say so once after loading it:
+
+```{r eval=FALSE}
+defaults_edition(params) <- 2
+```
+
+This recalculates nothing; it only tells mizer which defaults to use for the
+model from now on.
+
+Recording the edition is a change to the structure of a model, so a model saved
+with mizer 3.4 is upgraded when it is first used, with the usual warning that it
+was created with an earlier version of mizer. [`readParams()`](../reference/saveParams.html) and [`readSim()`](../reference/saveParams.html) do
+the upgrade quietly. Reassign the result, `params <- validParams(params)`, to
+stop the warning, and save the model again to keep the upgraded version.
+
+---
+
 ## Upgrading from mizer 3.3 to 3.4
 
 The headline change is one you should not be able to feel: `MizerParams` and
@@ -140,7 +198,7 @@ reject, for a calibration run that a size class holding a trace of fish was
 holding up, and for a model that was rescaled with [`scaleModel()`](../reference/scaleModel.html) and then had
 its species parameters recalculated. `summary()` of a rate array now reports
 different numbers, because it used to describe sizes the species never reaches.
-A model loaded with [`readParams()`](../reference/saveParams.html) now has its species parameters reconciled,
+A model loaded with `readParams()` now has its species parameters reconciled,
 which changes nothing about the model but stops values that were written
 straight into the [`species_params`](../reference/species_params.html) slot from reverting later.
 Code that consumes the data returned by [`plotSpectra()`](../reference/plotSpectra.html) also needs the small
@@ -169,7 +227,7 @@ names(params)   # the slot names
 
 Models saved by an earlier version load and run as before; mizer converts them
 to the new representation when it meets them, and `readParams()` and
-[`readSim()`](../reference/saveParams.html) return converted objects.
+`readSim()` return converted objects.
 
 What no longer applies is R's S4 machinery. A model is not an S4 object, so:
 
@@ -375,7 +433,7 @@ manipulation that was the only thing that worked before.
 
 [`validSpeciesParams()`](../reference/validSpeciesParams.html) rejects a `w_mat25` that is not smaller than `w_mat`. It
 used to say that it had corrected that *by setting it to NA*, which described a
-step the user never saw: [`setReproduction()`](../reference/setReproduction.html) fills the default in straight
+step the user never saw: `setReproduction()` fills the default in straight
 afterwards. It now says it is
 `"marking it as missing so that its default will"` be used.
 
@@ -715,7 +773,7 @@ They are now converted with the `dw/dl = b w / l` Jacobian and labelled
 old one, they were per gram plotted against length.
 
 **Proportions.** `getFeedingLevel()`, [`getCriticalFeedingLevel()`](../reference/getCriticalFeedingLevel.html), [`maturity()`](../reference/setReproduction.html),
-[`repro_prop()`](../reference/setReproduction.html), [`psi()`](../reference/setReproduction.html) and [`resource_level()`](../reference/setResource.html) now declare themselves
+[`repro_prop()`](../reference/setReproduction.html), `psi()` and [`resource_level()`](../reference/setResource.html) now declare themselves
 proportions, and a plot of one shows the whole of the interval from 0 to 1 on a
 linear y axis, so the value can be read against the scale it belongs to. Three
 consequences:
@@ -1421,7 +1479,7 @@ of using the model's own quadrature, and are now consistent with it:
 
 - **[`getDiet(proportion = FALSE)`](../reference/getDiet.html)** was applying the prey-bin quadrature twice,
   making it uniformly too large by a factor `(1 + beta) / 2`, where `beta` is
-  the grid ratio — 9.7% for [`NS_params`](../reference/NS_params.html). Summing the diet over prey now
+  the grid ratio — 9.7% for `NS_params`. Summing the diet over prey now
   reproduces `getEncounter() * (1 - getFeedingLevel())` (#474).
   `getDiet(proportion = TRUE)`, the default, was unaffected: the factor was
   uniform and divided out.
@@ -1505,7 +1563,7 @@ among the setters that `setParams()` calls, which it always did.
 Seventeen accessors that read a parameter or rate array back out of a `MizerParams` object had
 two interchangeable names. The bare name is now the one to use — it is the one
 that also has a replacement function, so the pair reads the same way in both
-directions ([`catchability(params)`](../reference/setFishing.html) and `catchability(params) <- value`,
+directions (`catchability(params)` and `catchability(params) <- value`,
 [`reproduction_level(params)`](../reference/setBevertonHolt.html) and `reproduction_level(params) <- value`). The
 `get`-prefixed names are superseded:
 

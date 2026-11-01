@@ -75,7 +75,7 @@ test_that("addSpecies handles gear params correctly", {
     (pa <- addSpecies(p, sp, gp)) |>
         expect_message() |>
         expect_warning()
-    default_effort <- ifelse(defaults_edition() < 2, 0, 1)
+    default_effort <- ifelse(defaults_edition(p) < 2, 0, 1)
     expect_identical(pa@initial_effort,
                      c(knife_edge_gear = default_effort,
                        gear1 = default_effort, gear2 = default_effort))
@@ -513,7 +513,28 @@ test_that("expandSizeGrid preserves the class", {
     expect_true(validObject(p))
 })
 
+test_that("addSpecies gives new species the defaults of the model's edition", {
+    sp <- data.frame(species = "new", w_max = 100, k_vb = 1, n = 2 / 3,
+                     p = 2 / 3)
+    gp <- data.frame(gear = "new_gear", species = "new",
+                     sel_func = "knife_edge", knife_edge_size = 5)
+    withr::local_options(mizer_defaults_edition = 2)
+    pa <- suppressWarnings(addSpecies(NS_params_small, sp, gp, steady = FALSE,
+                                      info_level = 0))
+    expect_identical(defaults_edition(pa), 1)
+    expect_identical(pa@gear_params["new, new_gear", "catchability"], 1)
+    expect_identical(pa@initial_effort[["new_gear"]], 0)
+})
+
 # adjustSizeGrid ----
+test_that("adjustSizeGrid keeps the defaults edition of the model", {
+    params <- NS_params_small
+    defaults_edition(params) <- 2
+    withr::local_options(mizer_defaults_edition = 1)
+    p <- suppressWarnings(adjustSizeGrid(params, new_max_w = 50000))
+    expect_identical(defaults_edition(p), 2)
+})
+
 test_that("adjustSizeGrid works for expansion and truncation", {
     # 1. No-op
     p_noop <- adjustSizeGrid(NS_params_small, new_min_w = min(NS_params_small@w), new_max_w = max(NS_params_small@w))

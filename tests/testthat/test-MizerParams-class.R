@@ -62,6 +62,14 @@ test_that("basic constructor sets dimensions properly", {
     expect_equal(dimnames(test_params_gears@catchability)$gear, gear_names)
 })
 
+test_that("emptyParams records the active defaults edition", {
+    withr::local_options(mizer_defaults_edition = 2)
+    params <- emptyParams(NS_species_params_small)
+    expect_identical(params@defaults_edition, 2)
+    # and uses it for the initial effort
+    expect_true(all(params@initial_effort == 1))
+})
+
 test_that("emptyParams validates min_w_pp against min_w", {
     species_params <- NS_species_params_small[c(1, 2, 3), ]
     expect_error(emptyParams(species_params,
@@ -116,6 +124,17 @@ test_that("validParams works", {
     expect_true(validObject(p))
 })
 
+test_that("validParams checks the defaults edition", {
+    params <- NS_params_small
+    msg <- "defaults_edition must be a single number of at least 1"
+    params@defaults_edition <- 0
+    expect_error(validParams(params), msg)
+    params@defaults_edition <- "2"
+    expect_error(validParams(params), msg)
+    params@defaults_edition <- c(1, 2)
+    expect_error(validParams(params), msg)
+})
+
 test_that("validParams checks w_min and w_max", {
     # w_max
     params <- NS_params_small
@@ -160,6 +179,9 @@ test_that("validParams skips the repair only for an unchanged object", {
     expect_false(is_validated(validation_key(p)))
     p <- params
     p@mizer_version <- "99.0.0"
+    expect_false(is_validated(validation_key(p)))
+    p <- params
+    p@defaults_edition <- 2
     expect_false(is_validated(validation_key(p)))
 
     # Changing the shape of a rate array is caught, so that the structural

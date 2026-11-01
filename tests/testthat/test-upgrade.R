@@ -95,7 +95,7 @@ test_that("upgradeParams from pre-2.4 preserves all slot values", {
     # w_min_idx is legitimately recalculated by validParams() from species_params.
     set.seed(42)
     skip_randomise <- c("w", "dw", "w_full", "dw_full", "w_min_idx",
-                        "maturity", "psi")
+                        "maturity", "psi", "defaults_edition")
     for (s in slotNames(params)) {
         if (s %in% skip_randomise) next
         sl <- slot(params, s)
@@ -126,6 +126,30 @@ test_that("upgradeParams from pre-2.4 preserves all slot values", {
         expect_identical(slot(params_after, s), slot(params_before, s),
                          label = paste0("params@", s))
     }
+})
+
+test_that("upgradeParams marks an object without an edition as edition 1", {
+    params <- NS_params_small
+    # Simulate an object from before the edition was recorded
+    params@mizer_version <- "3.4.0.9000"
+    params$defaults_edition <- NULL
+    # The active edition plays no role
+    withr::local_options(mizer_defaults_edition = 2)
+    up <- suppressWarnings(upgradeParams(params))
+    expect_identical(up@defaults_edition, 1)
+    expect_warning(up <- validParams(params),
+                   "created with an earlier version of mizer")
+    expect_identical(up@defaults_edition, 1)
+})
+
+test_that("upgradeParams keeps the recorded edition", {
+    params <- NS_params_small
+    defaults_edition(params) <- 2
+    # Version "2.4.0" triggers the full newMultispeciesParams() rebuild path
+    params@mizer_version <- "2.4.0"
+    withr::local_options(mizer_defaults_edition = 1)
+    up <- suppressMessages(suppressWarnings(upgradeParams(params)))
+    expect_identical(up@defaults_edition, 2)
 })
 
 ## upgradeSim ----

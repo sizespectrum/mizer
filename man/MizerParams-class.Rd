@@ -207,6 +207,11 @@ Set to \code{TRUE} to enable the diffusion term from the jump-growth equation.}
 logical entry \code{bin_average} (controls whether bin-averaging is used for
 rates). Both default to the first-order setting to preserve the behaviour
 of previous mizer versions.}
+
+\item{\code{defaults_edition}}{The edition of default choices that was active when
+the model was created, see \code{\link[=defaults_edition]{defaults_edition()}}. Whenever mizer fills in a
+default for the model it uses this edition, so that the model keeps
+its defaults when a different edition becomes active.}
 }}
 
 \seealso{

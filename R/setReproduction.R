@@ -326,7 +326,7 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
     psi <- params@maturity * repro_prop
     # psi should never be larger than 1
     psi[psi > 1] <- 1
-    if (defaults_edition() < 2) {
+    if (defaults_edition(params) < 2) {
         # Set psi for all w > w_repro_max to 1
         psi[outer(species_params$w_repro_max, params@w, "<")] <- 1
     }

@@ -2,7 +2,7 @@
 name: upgrade-mizer-code
 description: >-
   Diagnose and fix user code or models that broke, changed results, or started
-  warning after a mizer upgrade — every documented change from 2.5.4 through 3.4,
+  warning after a mizer upgrade — every documented change from 2.5.4 through 3.5,
   release by release, with the fix. Use whenever a script that "used to work" now
   errors, a deprecation warning appears, plots or numbers differ from a previous
   run, an argument is suddenly unused or rejected (power=, sim=, time_range=,
@@ -101,6 +101,14 @@ of the message mizer emits, checked against `R/` by the same generator. Search
 those first: they are what the user pasted. Messages mizer does not compose
 itself — the lifecycle deprecation sentences, base R's `could not find
 function` — carry no such quote, so match those rows on the function name.
+
+### mizer 3.4 → 3.5 — `references/mizer-3.5.md`
+
+| Symptom | Cause | Section |
+|---|---|---|
+| After `defaults_edition(2)`, a model created earlier, loaded from a file, or taken from a package such as `NS_params` still gets edition-1 defaults: `catchability` 1, effort 0, `psi` of 1 above `w_repro_max`, or a recalculated `gamma` that ignores `interaction_resource` | a model now uses the edition it was created with, not the active one | A model keeps the defaults edition it was created with |
+| `gamma`, `psi`, a default `catchability` or a default effort differs between two runs of the same script, depending on whether `defaults_edition()` is called before or after the model is created | the same | A model keeps the defaults edition it was created with |
+| Warning `"was created with an earlier version of"` mizer for a model saved with mizer 3.4 | the model is upgraded to record its defaults edition | A model keeps the defaults edition it was created with |
 
 ### mizer 3.3 → 3.4 — `references/mizer-3.4.md`
 
@@ -298,6 +306,13 @@ inside your version range. **A hit is a candidate, not a verdict:** read the
 section and decide whether the change bears on this code. The index is a
 starting point rather than a complete inventory, so finish an audit by reading
 the release sections in range.
+
+### mizer 3.4 → 3.5 — `references/mizer-3.5.md`
+
+| Pattern in the code | Why it matters now | Section |
+|---|---|---|
+| `defaults_edition(2)` or `options(mizer_defaults_edition = …)` followed by code that changes a model created or loaded before it | the switch no longer reaches that model; it keeps its own edition | A model keeps the defaults edition it was created with |
+| A `MizerParams` or `MizerSim` shipped in `data/` | it is upgraded, with a warning, on every use until it is saved again | A model keeps the defaults edition it was created with |
 
 ### mizer 3.3 → 3.4 — `references/mizer-3.4.md`
 

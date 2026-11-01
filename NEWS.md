@@ -1,5 +1,25 @@
 # mizer (development version)
 
+## Defaults editions
+
+- A model now records the defaults edition that was active when it was
+  created, and whenever mizer later fills in a default for that model it uses
+  the model's own edition rather than the one that is active at the time
+  (#451). This covers the `gamma` that mizer recalculates after a species
+  parameter has changed, `psi` above `w_repro_max` in `setReproduction()`, a
+  missing `catchability` in `gear_params<-()`, missing or `NA` fishing effort in
+  `project()` and `initial_effort<-()`, the initial abundances from
+  `get_initial_n()`, and the new species and gears that `addSpecies()` adds.
+  Changing the active edition with `defaults_edition()` therefore affects only
+  models created afterwards, and an existing model keeps the defaults it was
+  created with. Models saved with an earlier version are of edition 1.
+- `defaults_edition(params)` returns the edition of a model, and
+  `defaults_edition(params) <- value` changes it without recalculating
+  anything. Saved legacy S4 models without a recorded edition also return
+  edition 1 before they are upgraded. `summary()` of a model reports its edition.
+- `validGearParams()` gains an `edition` argument, which defaults to the
+  active edition.
+
 ## Bug fixes
 
 - The encounter rate, the predation rate, the predation diffusion and
