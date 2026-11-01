@@ -390,6 +390,8 @@ reference:
   - has_concept("functions calculating density-dependent reproduction rate")
   - reproduction_level
   - getRequiredRDD
+  - getR0
+  - getNPerRecruit
 - title: Internal rate functions
   description: These functions are used by `project()` to calculate
     instantaneous rates at each time step. You should use the `get...()`

@@ -1,5 +1,22 @@
 # mizer (development version)
 
+## New features
+
+- New `getR0()` gives the lifetime reproductive output R0 of each species:
+  the number of eggs that one recruit produces over its life, with growth,
+  mortality, diffusion and reproductive investment held fixed (#632). A rare
+  species increases if and only if R0 > 1, so it answers whether an absent
+  species can invade, where `getRDI() / getRequiredRDD()` is 0/0. The rates
+  can be supplied, for example `mort = getMort(other_params)` to separate the
+  effect of food from that of predation. It solves the discretised transport
+  equation that `project()` solves, so unlike the usual hand-written upwind
+  recursion it is right with the second-order flux schemes and with size
+  diffusion. At a Beverton-Holt steady state it is 1 / (1 - reproduction
+  level), not 1.
+- New `getNPerRecruit()` gives the steady-state abundance per recruit that
+  `getR0()` is built on: the steady state that a recruitment of one
+  individual per year produces with the rates held fixed.
+
 ## Bug fixes
 
 - `steadySingleSpecies()` with `keep = "biomass"` or `keep = "number"` no
