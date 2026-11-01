@@ -35,6 +35,20 @@ test_that("a model that has not recorded an edition is of edition 1", {
     expect_identical(defaults_edition(params), 1)
 })
 
+test_that("saved S4 models without an edition are of edition 1", {
+    sim <- readRDS("assets/simc.1.0.rds")
+    params <- methods::slot(sim, "params")
+    expect_true(isS4(sim))
+    expect_true(isS4(params))
+    expect_false(methods::.hasSlot(params, "defaults_edition"))
+
+    # Read the legacy objects directly, before any validation or upgrade.
+    withr::local_options(mizer_defaults_edition = 2)
+    expect_identical(defaults_edition(params), 1)
+    expect_identical(defaults_edition(sim), 1)
+    expect_identical(defaults_edition(), 2)
+})
+
 test_that("defaults_edition<- changes the recorded edition and nothing else", {
     params <- NS_params_small
     defaults_edition(params) <- 2

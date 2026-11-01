@@ -104,6 +104,8 @@ defaults_edition <- function(edition = NULL) {
 # The defaults edition recorded in a model. A model created before mizer
 # recorded the edition, and not yet upgraded, has none and is of edition 1.
 model_defaults_edition <- function(params) {
+    # Unlike a missing list element, a missing S4 slot errors when read.
+    if (!.hasSlot(params, "defaults_edition")) return(1)
     edition <- params@defaults_edition
     if (is.null(edition)) 1 else edition
 }

@@ -15,7 +15,8 @@
   created with. Models saved with an earlier version are of edition 1.
 - `defaults_edition(params)` returns the edition of a model, and
   `defaults_edition(params) <- value` changes it without recalculating
-  anything. `summary()` of a model reports its edition.
+  anything. Saved legacy S4 models without a recorded edition also return
+  edition 1 before they are upgraded. `summary()` of a model reports its edition.
 - `validGearParams()` gains an `edition` argument, which defaults to the
   active edition.
 
