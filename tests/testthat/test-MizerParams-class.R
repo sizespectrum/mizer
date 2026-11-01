@@ -83,6 +83,17 @@ test_that("emptyParams records the active defaults edition", {
     expect_true(all(params@initial_effort == 1))
 })
 
+test_that("emptyParams gives the model the numerical scheme of its edition", {
+    withr::local_options(mizer_defaults_edition = 2)
+    params <- suppressMessages(emptyParams(NS_species_params_small))
+    expect_identical(params@second_order_w,
+                     list(flux = "upwind", bin_average = FALSE))
+    withr::local_options(mizer_defaults_edition = 3)
+    params <- suppressMessages(emptyParams(NS_species_params_small))
+    expect_identical(params@second_order_w,
+                     list(flux = "van_leer", bin_average = TRUE))
+})
+
 test_that("emptyParams validates min_w_pp against min_w", {
     species_params <- NS_species_params_small[c(1, 2, 3), ]
     expect_error(emptyParams(species_params,

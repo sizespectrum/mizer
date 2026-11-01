@@ -90,7 +90,7 @@ Useful optional arguments to `newMultispeciesParams()`:
 | `max_w` | largest consumer-grid size; by default the largest species `w_max`, and it cannot be smaller than any species' `w_max` |
 | `min_w_pp` | smallest target size for the resource grid; it must be below the consumer grid and resolves to `1e-12` g when omitted |
 | `gear_params` | fishing gear definitions (usually omitted and configured later — see the `set-up-fishing` skill; defaults to a knife-edge gear catching every species) |
-| `second_order_w` | use the second-order size-advection scheme; see the section "Numerical scheme: watch for numerical diffusion" in the `run-simulation` skill |
+| `second_order_w` | use the second-order scheme in size (`TRUE`) or the first-order one (`FALSE`); by default the scheme of the active defaults edition, second order from edition 3 on; see the section "Numerical scheme: watch for numerical diffusion" in the `run-simulation` skill |
 
 The `no_w` bins are equally spaced in log weight between the resulting
 consumer-grid minimum and `max_w`. The resource uses the same spacing and adds

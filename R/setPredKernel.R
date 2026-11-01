@@ -80,8 +80,9 @@
 #' themselves are unchanged. The predation kernel is additionally averaged over
 #' the prey bin (a trapezoid fold), so that the predation rate returned by
 #' [getPredRate()] is the prey-bin average that the predation-mortality sink
-#' needs to be second order. The default remains the first-order scheme so that
-#' existing models are unaffected. Enable it with `second_order_w(params) <-
+#' needs to be second order. This is the default for a model of defaults
+#' edition 3 or later. Models of earlier editions keep the first-order scheme,
+#' so that existing models are unaffected. Enable it with `second_order_w(params) <-
 #' TRUE` (see [second_order_w()]), which also turns on the other bin-averaged
 #' rate quadratures so the whole model stays consistent. See the
 #' `vignette("fft")` for the mathematical details.
@@ -407,7 +408,7 @@ expand_kernel_offsets <- function(phis, params, species) {
 #' kernel that any summary function must use if its result is to be consistent
 #' with [getEncounter()].
 #'
-#' On the default first-order path this is just the point-sampled kernel
+#' On the first-order path this is just the point-sampled kernel
 #' returned by [pred_kernel()]. When second-order bin-averaging is switched on
 #' (see [second_order_w()]) the two differ: `setPredKernel()` then builds the
 #' Fourier-transformed kernel from the kernel *integrated over the prey bin*,

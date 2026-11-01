@@ -297,8 +297,9 @@ stepper `"second_order"`, an alias for `"tr_bdf2"`, or the superseded
 `"predictor_corrector"`. Both default to the
 first-order choice, which is why this is easy to miss: an extension that ignores
 them looks correct, passes its own tests, and is then silently wrong for the
-user who switches them on. Aim to work under all of them, and where you cannot,
-say so out loud.
+user who switches them on. That user need not do it on purpose: a model created
+with defaults edition 3 or later is on the second-order scheme in size from the
+start. Aim to work under all of them, and where you cannot, say so out loud.
 
 **In size.** The rules are in the [guide to extending mizer](guide-extend-mizer.html), under "Respecting the
 model's quadrature scheme": build derived quantities from the rate functions

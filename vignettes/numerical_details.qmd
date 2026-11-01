@@ -159,16 +159,16 @@ For the `power`-weighted spectrum plots (`plotSpectra()` and friends) the $w^{\t
 
 ## The `second_order_w` switch {#sec-second-order-switch}
 
-Everything in @sec-point-values describes the second-order scheme, but mizer does not use it by default: the historical first-order behaviour is preserved so that existing models reproduce their published results exactly. The choice lives in the `second_order_w` slot, which has two independent entries.
+Everything in @sec-point-values describes the second-order scheme. Which scheme a model uses depends on the defaults edition it was created with (see `?defaults_edition`). A model of edition 3 or later uses the second-order scheme unless it is created with `second_order_w = FALSE`. Models of editions 1 and 2, which include every model created with the default edition, keep the historical first-order behaviour, so that existing models reproduce their published results exactly. The choice lives in the `second_order_w` slot, which has two independent entries.
 
-* **`flux`** selects the reconstruction of the density at the bin boundary in the advective flux: `"upwind"` (first order, the default), `"van_leer"` (second order, limited, keeps abundances non-negative) or `"centred"` (second order, unlimited). This affects only the transport step; see @sec-reducing-spatial-error.
-* **`bin_average`** is a logical flag selecting whether the size-dependent factors listed in @sec-one-quadrature are integrated over their bin (`TRUE`) or point-sampled at the left bin boundary $w_j$ (`FALSE`, the default).
+* **`flux`** selects the reconstruction of the density at the bin boundary in the advective flux: `"upwind"` (first order, the default before edition 3), `"van_leer"` (second order, limited, keeps abundances non-negative, the default from edition 3) or `"centred"` (second order, unlimited). This affects only the transport step; see @sec-reducing-spatial-error.
+* **`bin_average`** is a logical flag selecting whether the size-dependent factors listed in @sec-one-quadrature are integrated over their bin (`TRUE`) or point-sampled at the left bin boundary $w_j$ (`FALSE`, the default before edition 3).
 
 ```r
 second_order_w(params) <- TRUE                   # both: van_leer + bin averaging
 second_order_w(params) <- "centred"              # flux scheme only
 second_order_w(params) <- c(bin_average = TRUE)  # bin averaging only
-second_order_w(params) <- FALSE                  # back to the mizer defaults
+second_order_w(params) <- FALSE                  # both: upwind, left-edge sums
 ```
 
 The two are independent because they correct different errors: `flux` improves the time evolution of the spectrum, `bin_average` improves the rates that drive it, and either alone leaves the other at first order. Changing `bin_average` re-runs `setParams()`, because all the arrays in the first table of @sec-one-quadrature are precomputed and have to be rebuilt.
@@ -197,7 +197,7 @@ which mizer computes with the internal helper `power_law_bin_average()` and uses
 
 The last two rows are the ones that are easy to get wrong. `getN()` over the full size range is also unchanged, because its weight is $K\equiv 1$ and the bin average of a constant is the constant; over a restricted size range the window itself is part of the weight, so the bin straddling the boundary contributes only partially. And the growth-type rates stay point values under both settings: they are boundary velocities (@sec-point-values), so bin-averaging them would be an error, not an improvement — what improves them under `bin_average` is that the encounter integral feeding them is now second order, not any averaging of $g$ itself. The feeding level is in that last row and also, as part of $(1-f)\gamma$, in the predator-factor row. This is not a contradiction: the stored rate stays a point value, and only the predation integral and the diffusion coefficient average the product, exactly as reproduction averages $\psi e$ without changing the stored $e$.
 
-Because one setting is first order and the other second, the difference between them is itself $O(\Delta x)$ and is a usable estimate of the discretisation error of the default scheme: if flipping the flag moves a result by more than you are willing to tolerate, the grid is too coarse for that result.
+Because one setting is first order and the other second, the difference between them is itself $O(\Delta x)$ and is a usable estimate of the discretisation error of the first-order scheme: if flipping the flag moves a result by more than you are willing to tolerate, the grid is too coarse for that result.
 
 ### Making your own quantity second-order accurate {#sec-second-order-recipe}
 
@@ -303,7 +303,7 @@ The top retained class $j_{max}$ depends on the scheme, because the two schemes
 place the advective inflow differently. With $w_{max\_idx} = \max\{j : w_j \le
 w_{max}\}$:
 
-* the default first-order upwind scheme feeds class $j$ from the growth of the
+* the first-order upwind scheme feeds class $j$ from the growth of the
   class below, $g(w_{j-1})$, so the class just above the one containing $w_{max}$
   can still carry advected density; here $j_{max} = w_{max\_idx} + 1$. This
   reproduces the long-standing mizer behaviour exactly;
@@ -364,7 +364,7 @@ $$
 - \frac{\Delta w_{j-1}}{2}\frac{\partial^2(gN)}{\partial w^2}(w_j)
 + O(\Delta w_{j-1}^2),
 $$ {#eq-space-truncation}
-so the upwind advective reconstruction has an $O(\Delta w_j)$ spatial truncation error. The diffusive flux, being a central difference of the bin-averaged products between bin centres (@eq-diffusive-flux), is second order, and the bin-averaged sinks are second order too; so on the default scheme the spatial order is set entirely by the upwind advective reconstruction. Replacing it by a higher-order reconstruction (@sec-reducing-spatial-error) removes this last $O(\Delta w_j)$ error.
+so the upwind advective reconstruction has an $O(\Delta w_j)$ spatial truncation error. The diffusive flux, being a central difference of the bin-averaged products between bin centres (@eq-diffusive-flux), is second order, and the bin-averaged sinks are second order too; so on the upwind scheme the spatial order is set entirely by the upwind advective reconstruction. Replacing it by a higher-order reconstruction (@sec-reducing-spatial-error) removes this last $O(\Delta w_j)$ error.
 
 On the logarithmic grid, writing $\beta = w_{j+1}/w_j$, we have
 $$

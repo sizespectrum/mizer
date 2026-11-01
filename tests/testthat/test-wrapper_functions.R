@@ -156,12 +156,48 @@ test_that("Sets given_species_params", {
     expect_unchanged(p2, params)
 })
 
+test_that("newTraitParams uses the scheme of the defaults edition", {
+    withr::local_options(mizer_defaults_edition = 2)
+    expect_identical(second_order_w(newTraitParams(no_sp = 3, info_level = 0)),
+                     list(flux = "upwind", bin_average = FALSE))
+    withr::local_options(mizer_defaults_edition = 3)
+    params <- newTraitParams(no_sp = 3, info_level = 0)
+    expect_identical(second_order_w(params),
+                     list(flux = "van_leer", bin_average = TRUE))
+    p_true <- newTraitParams(no_sp = 3, second_order_w = TRUE, info_level = 0)
+    p_true@time_created <- params@time_created
+    p_true@time_modified <- params@time_modified
+    expect_equal(params, p_true)
+    expect_identical(
+        second_order_w(newTraitParams(no_sp = 3, second_order_w = FALSE,
+                                      info_level = 0)),
+        list(flux = "upwind", bin_average = FALSE))
+})
+
 # Community ----
 test_that("newCommunityParams works", {
     expect_message(newCommunityParams(z0 = 0.05, f0 = 0.5, info_level = 3),
                    "Using f0, h, lambda, kappa")
     expect_error(newCommunityParams(f0 = 1, gamma = 1, info_level = 0),
                  "`f0` must be finite and in the interval")
+})
+
+test_that("newCommunityParams uses the scheme of the defaults edition", {
+    withr::local_options(mizer_defaults_edition = 2)
+    expect_identical(second_order_w(newCommunityParams(info_level = 0)),
+                     list(flux = "upwind", bin_average = FALSE))
+    withr::local_options(mizer_defaults_edition = 3)
+    params <- newCommunityParams(info_level = 0)
+    expect_identical(second_order_w(params),
+                     list(flux = "van_leer", bin_average = TRUE))
+    p_true <- newCommunityParams(second_order_w = TRUE, info_level = 0)
+    p_true@time_created <- params@time_created
+    p_true@time_modified <- params@time_modified
+    expect_equal(params, p_true)
+    expect_identical(
+        second_order_w(newCommunityParams(second_order_w = FALSE,
+                                          info_level = 0)),
+        list(flux = "upwind", bin_average = FALSE))
 })
 
 test_that("newCommunityParams sets constant-reproduction community state", {

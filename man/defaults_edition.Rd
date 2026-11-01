@@ -84,7 +84,7 @@ arbitrary old choice.
 and the reproductive proportion.
 }
 
-Edition 3 keeps all the changes of edition 2 and makes one more:
+Edition 3 keeps all the changes of edition 2 and makes two more:
 \itemize{
 \item The sums over the predation kernel in the encounter rate, the predation
 rate, the predation diffusion and the diet are evaluated by fast Fourier
@@ -93,6 +93,15 @@ earlier editions the convolutions are circular: the part of the feeding
 kernel of a small fish that reaches below the smallest resource size wraps
 around to the largest sizes, so that larvae are fed by the largest fish and
 are counted as eating them.
+\item A new model uses the second-order numerical scheme in size, as with
+\code{second_order_w = TRUE}, instead of the first-order scheme of previous
+mizer versions (see \code{\link[=second_order_w]{second_order_w()}}). The van Leer flux limiter
+replaces the upwind flux, whose numerical diffusion smears out cohorts
+and can damp real oscillations away. Integrals over the size grid are
+bin averages instead of left-edge sums, which moves unnormalised
+quantities such as biomass and yield by around 10\% on a typical grid.
+You can still choose the first-order scheme with the \code{second_order_w}
+argument of the function that creates the model.
 }
 }
 

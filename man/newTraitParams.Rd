@@ -36,7 +36,7 @@ newTraitParams(
   egg_size_scaling = FALSE,
   resource_scaling = FALSE,
   perfect_scaling = FALSE,
-  second_order_w = FALSE,
+  second_order_w = NULL,
   min_w_inf = deprecated(),
   max_w_inf = deprecated(),
   info_level = default_info_level(2)
@@ -145,7 +145,9 @@ particular all other scaling corrections are turned on.}
 second-order numerical scheme for the new model, applied before the
 resource and abundance power laws are constructed so that they are built
 bin-averaged from the start. Accepts the same values as the
-\code{\link[=second_order_w]{second_order_w()}} setter. Defaults to \code{FALSE}. See
+\code{\link[=second_order_w]{second_order_w()}} setter. By default the model gets the scheme of the
+active \code{\link[=defaults_edition]{defaults_edition()}}: second order from edition 3 on, first order
+before. See
 \code{\link[=newMultispeciesParams]{newMultispeciesParams()}}.}
 
 \item{min_w_inf}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The argument has been
