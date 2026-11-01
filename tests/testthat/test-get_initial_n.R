@@ -62,3 +62,16 @@ test_that("get_initial_n keeps the egg size class populated in edition 1", {
         expect_true(all(n[i, params@w > params@species_params$w_max[i]] == 0))
     }
 })
+
+test_that("get_initial_n uses the defaults edition of the model", {
+    params <- NS_params_small
+    n1 <- withr::with_options(list(mizer_defaults_edition = 1),
+                              get_initial_n(params))
+    n2 <- withr::with_options(list(mizer_defaults_edition = 2),
+                              get_initial_n(params))
+    expect_identical(n2, n1)
+    defaults_edition(params) <- 2
+    n3 <- withr::with_options(list(mizer_defaults_edition = 1),
+                              get_initial_n(params))
+    expect_false(isTRUE(all.equal(n3, n1)))
+})

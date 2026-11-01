@@ -442,11 +442,23 @@ test_that("Named effort vectors fill missing gears with the default effort", {
 
   sim <- project(NS_params_small, effort = effort, t_max = 1, progress_bar = FALSE)
 
-  default_effort <- ifelse(defaults_edition() < 2, 0, 1)
+  default_effort <- ifelse(defaults_edition(NS_params_small) < 2, 0, 1)
   expect_equal(sim@effort[1, "Industrial"], 0.25)
   expect_equal(sim@effort[1, "Pelagic"], 0.4)
   expect_true(all(sim@effort[1, setdiff(gear_names, c("Industrial", "Pelagic"))] ==
                     default_effort))
+})
+
+test_that("NA in an effort array is replaced with the model's default", {
+  gear_names <- unique(gear_params(NS_params_small)$gear)
+  effort <- array(NA_real_, dim = c(2, length(gear_names)),
+                  dimnames = list(time = 0:1, gear = gear_names))
+  params <- NS_params_small
+  withr::local_options(mizer_defaults_edition = 2)
+  expect_true(all(validEffortArray(effort, params) == 0))
+  defaults_edition(params) <- 2
+  withr::local_options(mizer_defaults_edition = 1)
+  expect_true(all(validEffortArray(effort, params) == 1))
 })
 
 test_that("t_max less than effort array duration uses effort times", {

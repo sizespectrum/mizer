@@ -948,6 +948,7 @@ summary.MizerParams <- function(object, ...) {
     if (!is.null(md$url) && length(md$url) > 0)
         cat("URL: ", paste(md$url, collapse = ", "), "\n", sep = "")
     cat("mizer version: ", as.character(md$mizer_version), "\n", sep = "")
+    cat("Defaults edition: ", defaults_edition(params), "\n", sep = "")
     if (!is.null(md$time_created))
         cat("Created: ", format(md$time_created), "\n", sep = "")
     if (!is.null(md$time_modified))

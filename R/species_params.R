@@ -1892,7 +1892,7 @@ measure_avail_energy <- function(params) {
     params@initial_n[] <- 0
     params@ext_encounter[] <- 0
     params@other_encounter <- list()
-    if (defaults_edition() < 2) {
+    if (defaults_edition(params) < 2) {
         # See issue #238
         params@species_params$interaction_resource <- 1
     }

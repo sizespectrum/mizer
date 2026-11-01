@@ -798,7 +798,7 @@ validEffortArray <- function(effort, params) {
     }
 
     # Replace any NA's with default value
-    effort_default <- ifelse(defaults_edition() < 2, 0, 1)
+    effort_default <- ifelse(defaults_edition(params) < 2, 0, 1)
     effort[is.na(effort)] <- effort_default
 
     names(dimnames(effort)) <- c("time", "gear")

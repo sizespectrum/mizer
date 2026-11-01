@@ -4,12 +4,17 @@
 \alias{validGearParams}
 \title{Check validity of gear parameters and set defaults}
 \usage{
-validGearParams(gear_params, species_params)
+validGearParams(gear_params, species_params, edition = defaults_edition())
 }
 \arguments{
 \item{gear_params}{Gear parameter data frame}
 
 \item{species_params}{Species parameter data frame}
+
+\item{edition}{The defaults edition that determines the default
+\code{catchability}, see \code{\link[=defaults_edition]{defaults_edition()}}. When the gear parameters are
+for an existing model, this should be the edition of that model,
+\code{defaults_edition(params)}. Defaults to the currently active edition.}
 }
 \value{
 A valid gear parameter data frame
@@ -28,7 +33,7 @@ in the \code{species_params} data frame.
 \item There must be a \code{sel_func} column. If a selectivity function is not
 supplied, it will be set to "knife_edge".
 \item There must be a \code{catchability} column. If a catchability is not supplied,
-it will be set to 1.
+it will be set to 1, or to 0.3 under defaults edition 2 or later.
 \item All the parameters required by the selectivity functions must be provided.
 }
 
@@ -40,7 +45,8 @@ not be found in the species_params dataframe, as follows:
 \item If there is no \code{gear} column or it is NA then a new gear named after the
 species is introduced.
 \item If there is no \code{sel_func} column or it is NA then \code{knife_edge} is used.
-\item If there is no \code{catchability} column or it is NA then this is set to 1.
+\item If there is no \code{catchability} column or it is NA then this is set to 1,
+or to 0.3 under defaults edition 2 or later.
 \item If the selectivity function is \code{knife_edge} and no \code{knife_edge_size} is
 provided, it is set to \code{w_mat}.
 }
@@ -51,7 +57,8 @@ The row names of the returned data frame are of the form
 When \code{gear_params} is \code{NULL} and there is no gear information in
 \code{species_params}, then a gear called \code{knife_edge_gear} is set up with a
 \code{knife_edge} selectivity for each species and a \code{knive_edge_size} equal to
-\code{w_mat}. Catchability is set to 0.3 for all species.
+\code{w_mat}. Catchability is set to the default described above for all
+species.
 }
 \seealso{
 \code{\link[=gear_params]{gear_params()}}

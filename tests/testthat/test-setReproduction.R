@@ -112,6 +112,22 @@ test_that("Comment works on psi", {
                    "Because you set `reset = TRUE`, the")
 })
 
+test_that("setReproduction uses the defaults edition of the model", {
+    # A maturity of 1/2 everywhere makes psi = 1/2 above w_repro_max unless
+    # edition 1 forces it to 1 there
+    maturity <- array(0.5, dim = dim(params@maturity))
+    above <- outer(params@species_params$w_repro_max, params@w, "<")
+    expect_true(any(above))
+    withr::local_options(mizer_defaults_edition = 2)
+    p1 <- setReproduction(params, maturity = maturity)
+    expect_true(all(p1@psi[above] == 1))
+    p2 <- params
+    defaults_edition(p2) <- 2
+    withr::local_options(mizer_defaults_edition = 1)
+    p2 <- setReproduction(p2, maturity = maturity)
+    expect_true(all(p2@psi[above] == 0.5))
+})
+
 # maturity ----
 test_that("maturity works", {
     params <- setReproduction(NS_params_small)
