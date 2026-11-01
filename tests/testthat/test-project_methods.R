@@ -157,15 +157,33 @@ test_that("predation and resource mortality are second order (#619)", {
     # (1 - f(w)) * gamma(w) is part of the smooth weight multiplying the
     # predator density and must be averaged over the predator bin. Measure the
     # order under grid refinement with smooth prescribed densities.
-    mort <- function(no_w) {
-        p <- convergence_params(no_w)
-        # Resource mortality is taken below the fish predation size so that it
-        # is not the same number as the fish predation mortality.
-        c(pred = at_bin_centre(getPredMort(p)["Large", ], w(p), dw(p), 0.05),
-          resource = at_bin_centre(getResourceMort(p), w_full(p), dw_full(p),
-                                   2e-3))
-    }
-    v <- vapply(c(80, 160, 320), mort, numeric(2))
-    expect_gt(convergence_order(v["pred", ]), 1.8)
-    expect_gt(convergence_order(v["resource", ]), 1.8)
+    ps <- lapply(nested_no_w, convergence_params)
+    pred <- lapply(ps, function(p) getPredMort(p)["Large", ])
+    expect_second_order(bin_average_order(pred, ps, c(0.005, 0.05, 0.5)))
+    # Resource mortality is taken at smaller sizes, down to below the smallest
+    # fish, so that it is not the same numbers as the fish predation mortality.
+    resource <- lapply(ps, getResourceMort)
+    expect_second_order(bin_average_order(resource, ps, c(2e-4, 2e-3, 2e-2),
+                                          full = TRUE))
+})
+
+test_that("encounter, feeding level and growth rate are second order", {
+    # These are point values at the node. What makes them second order under
+    # bin_average is the encounter kernel integrated over the prey bin by
+    # setPredKernel(). The default gamma is calibrated with that same
+    # quadrature, on the same grid, against a power-law resource with the
+    # exponent of the one here, so the encounter of the resource alone is
+    # essentially exact on every grid and tests nothing. Measure at sizes
+    # where Large also eats Large.
+    ps <- lapply(nested_no_w, convergence_params)
+    x <- c(5, 50, 500)
+    encounter <- lapply(ps, function(p) getEncounter(p)["Large", ])
+    expect_second_order(point_value_order(encounter, ps, x))
+    feeding_level <- lapply(ps, function(p) getFeedingLevel(p)["Large", ])
+    expect_second_order(point_value_order(feeding_level, ps, x))
+    # Reading the value at the node would also expose a growth rate that had
+    # been averaged over the bin by mistake: that average converges to the
+    # value at the node only at first order.
+    e_growth <- lapply(ps, function(p) getEGrowth(p)["Large", ])
+    expect_second_order(point_value_order(e_growth, ps, x))
 })

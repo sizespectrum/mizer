@@ -178,13 +178,13 @@ test_that("predation diffusion is second order under bin_average (#619)", {
     # predator bin. The kernel averages the prey integral over it, but the
     # factor (1 - f(w)) * gamma(w) in front must be averaged over it too.
     # Measure the order under grid refinement with smooth prescribed densities.
-    diffusion <- function(no_w) {
+    ps <- lapply(nested_no_w, function(no_w) {
         p <- convergence_params(no_w)
         use_predation_diffusion(p) <- TRUE
-        at_bin_centre(getDiffusion(p)["Large", ], w(p), dw(p), 5)
-    }
-    v <- vapply(c(80, 160, 320), diffusion, numeric(1))
-    expect_gt(convergence_order(v), 1.8)
+        p
+    })
+    diffusion <- lapply(ps, function(p) getDiffusion(p)["Large", ])
+    expect_second_order(bin_average_order(diffusion, ps, c(0.5, 5, 50)))
 })
 
 # getDiffusion with predation diffusion ----
