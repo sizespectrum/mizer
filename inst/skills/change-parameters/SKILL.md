@@ -212,15 +212,18 @@ Any function `<name>_pred_kernel(ppmr, ...)` you define yourself can be named in
 `pred_kernel_type` too; its arguments become the required columns.
 
 Other species parameters are used **directly** and build no array (changing them
-just changes the model): `alpha` (assimilation), `w_min` (egg size), `erepro`
-and `R_max` (reproduction), `interaction_resource`, and the length–weight
-parameters `a`, `b`.
+just changes the model): `erepro` and `R_max` (reproduction),
+`interaction_resource`, and the length–weight parameters `a`, `b`. The
+assimilation efficiency `alpha` and the egg size `w_min` are used directly too,
+but they are also inputs to the default for `h`: while `h` is not given,
+changing either of them changes `h` and the parameters derived from it (see
+"Chained derivations" below).
 
 ## Gotchas from the way defaults are calculated
 
 Mizer fills in what you did not supply, and the derivations are chained:
-`age_mat` → `h` → `gamma` and `ks`. Changing one parameter therefore rarely
-changes just that one thing.
+`age_mat` and `w_min` → `h` → `gamma` and `ks`. Changing one parameter therefore
+rarely changes just that one thing.
 
 The three sections below cover the traps this creates; for the mathematical
 derivations themselves see
@@ -348,6 +351,29 @@ integrates the predation kernel.
 If a user is puzzled that "changing `w_mat` changed my growth curve everywhere",
 this is why. To pin a parameter against the chain, give it explicitly — a given
 value is never recalculated.
+
+The egg size `w_min` is in the formula for `h` too. Lowering it from 0.5 g to
+1 mg for a species with `w_mat = 500` and `age_mat = 4` raises `h` from 22.3 to
+24.5, and `ks` and any `gamma` that is not given rise in proportion. Extending a
+species down to its true egg size, for example to model its larvae explicitly,
+therefore changes its adult energetics as well. To change only the egg size,
+first pin `h` at its current value:
+
+```r
+given_species_params(params)$h <- species_params(params)$h
+```
+
+Pinning `h` is enough, because `w_min` reaches `gamma` and `ks` only through
+`h`. An egg size below the smallest weight of the model's size grid,
+`min(w(params))`, is not accepted: `species_params<-()` raises it back to that
+minimum with a warning. The grid normally starts at the smallest egg size in the
+model, so this happens whenever you lower that one. Extend the grid first, then
+set the egg size:
+
+```r
+params <- adjustSizeGrid(params, new_min_w = 0.001)
+species_params(params)["Cod", "w_min"] <- 0.001
+```
 
 ### `f0` and `fc` are calibration targets, not model outputs
 
