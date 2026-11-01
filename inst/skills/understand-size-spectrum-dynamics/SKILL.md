@@ -465,6 +465,7 @@ Check emergent properties before changing structural parameters.
 | **Species spectrum curves instead of running straight** | `lambda`, `q` and `n` no longer mutually consistent, so feeding level is size-dependent | [`plotFeedingLevel()`](../reference/plotFeedingLevel.html) — is it flat in size? |
 | **Community slope isn't `lambda`** | Expected only in the idealised scaling model; with few species the domes don't sum to a clean power law | [`getCommunitySlope()`](../reference/getCommunitySlope.html), [`plotSpectra()`](../reference/plotSpectra.html) — compare against species domes, not against `lambda` |
 | **Species won't stay at steady state** | Fixed point is dynamically unstable, not a numerical failure | `getSteadyResidual()`, `findSteadyState(solver = "newton")` |
+| **`tuneSteadyState()` warns that `erepro` must exceed 1** | The state asked for does not exist with births held at their current values — typical when it depends on a reproduction response, such as predation raising prey recruitment, an emergent Allee effect, or any alternative stable state | `species_params(params)$erepro`; then `findSteadyState()` or `projectUntilSettled()` with the parameters fixed (see the `calibrate-model` skill) |
 
 <!-- agent-only -->
 ### Diagnostic procedure

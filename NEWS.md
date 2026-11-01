@@ -111,7 +111,11 @@
   states found with it do not share parameters. Its section on checking the
   result now also tells you to check the re-derived `erepro`: a value greater
   than 1 means the state found cannot be sustained, even when the
-  `"convergence"` attribute reports a fixed point (#631).
+  `"convergence"` attribute reports a fixed point (#631). The
+  `calibrate-model` skill and its guide give the same advice and add the
+  `erepro` warning to their list of calibration problems, and the diagnostic
+  table of the `understand-size-spectrum-dynamics` skill and guide gains a row
+  for it (sizespectrum/mizerAgents#12).
 
 # mizer 3.4.0
 
