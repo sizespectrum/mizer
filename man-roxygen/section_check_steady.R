@@ -41,6 +41,22 @@
 #'   suppressed by `info_level = 0`, so in a script the `"convergence"`
 #'   attribute is the reliable check.
 #'
+<% if (exists("rederived", inherits = FALSE)) { -%>
+#'   Even a genuine fixed point can be one the model cannot sustain. `erepro`
+#'   is the proportion of the energy invested in reproduction that ends up as
+#'   egg biomass, so if a re-derived `erepro` is greater than 1, the
+#'   reproduction rate held during the search is inconsistent with the state
+#'   that was found. Usually this means that the state you asked for does not
+#'   exist with births held at their current values; try [findSteadyState()]
+#'   instead. mizer warns when this happens, but with the default `preserve`
+#'   the warning reads the same for an `erepro` of 1.01 as for one of 1e34,
+#'   and `info_level = 0` suppresses it, so look at the values:
+#'
+#'   ```r
+#'   species_params(params)$erepro          # greater than 1 is unrealistic
+#'   ```
+#'
+<% } -%>
 #'   Finally, a genuine fixed point need not be a *stable* one. Use
 #'   [getStability()] to find out, and `solver = "newton"` to converge onto a
 #'   fixed point that the dynamics themselves would run away from.
