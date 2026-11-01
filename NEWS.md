@@ -22,6 +22,13 @@
 
 ## Bug fixes
 
+- With `second_order_w(params) <- c(flux = "van_leer")` a projection could
+  suddenly turn all abundances of a species into `NaN` (#630). Above `w_max` a
+  spectrum can decay to subnormal numbers, and the ratio of successive density
+  jumps that the van Leer limiter takes then overflowed to `Inf`. The limiter
+  is now evaluated from the two jumps without forming their ratio, so it stays
+  between 0 and 2. Results of other van Leer projections change only by
+  rounding.
 - `steadySingleSpecies()` with `keep = "biomass"` or `keep = "number"` no
   longer fills a species with zero abundance with `NaN`, which made the
   returned model fail validation (#615). The same happened with
