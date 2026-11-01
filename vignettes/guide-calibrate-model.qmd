@@ -266,8 +266,8 @@ and analyse the results with the [guide to analysing and plotting mizer results]
   between them.
 - **`tuneSteadyState()` said it converged but the results still drift.** Check
   `attr(params, "convergence")$residual`, or `summary(params)`, for how far the
-  state actually is from a fixed point, and reduce `tuneSteadyState()`'s `tol`
-  if it is too large. It warns when the two disagree.
+  state actually is from a fixed point, and reduce `tuneSteadyState()`'s
+  `distance_tol` if it is too large. It warns when the two disagree.
 - **`tuneSteadyState()` warns that a species requires "an unrealistic value
   greater than 1 for `erepro`".** The recruitment held during the search needs
   more eggs than that species' spawners can produce in the state that was
