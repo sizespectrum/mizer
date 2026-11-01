@@ -254,9 +254,34 @@ test_that("gamma and f0 defaults ignore additive encounters (#586)", {
     }
 })
 
+test_that("a recalculated gamma follows the edition of the model (#451)", {
+    # Edition 1 calculates the gamma default as if interaction_resource were 1
+    sp <- NS_species_params_small
+    sp$interaction_resource <- 0.5
+    params <- withr::with_options(
+        list(mizer_defaults_edition = 1),
+        newMultispeciesParams(sp, no_w = 20, info_level = 0))
+    expect_false("gamma" %in% names(given_species_params(params)))
+    # Changing f0 recalculates gamma
+    new_gamma <- function(params) {
+        species_params(params)$f0 <- 0.5
+        species_params(params)$gamma
+    }
+    gamma1 <- withr::with_options(list(mizer_defaults_edition = 1),
+                                  new_gamma(params))
+    gamma2 <- withr::with_options(list(mizer_defaults_edition = 2),
+                                  new_gamma(params))
+    expect_identical(gamma2, gamma1)
+    # A model of edition 2 gets the default of edition 2
+    defaults_edition(params) <- 2
+    gamma3 <- withr::with_options(list(mizer_defaults_edition = 1),
+                                  new_gamma(params))
+    expect_equal(gamma3, gamma1 * 2)
+})
+
 test_that("a gamma that cannot be defaulted names the species (#586)", {
-    withr::local_options(list(mizer_defaults_edition = 2))
     params <- NS_params_small
+    defaults_edition(params) <- 2
     sp <- species_params(params)$species
     # A species that eats nothing in the reference state has no `gamma` that
     # can give it the target feeding level. Under edition 2 the zero
@@ -1284,10 +1309,9 @@ test_that("get_h_default, get_f0_default and get_ks_default follow documented de
 
     # get_f0_default under edition 2 matches get_gamma_default with interaction_resource != 1
     params_ed2 <- params
+    defaults_edition(params_ed2) <- 2
     species_params(params_ed2)$interaction_resource <- 0.5
     params_ed2@species_params$gamma[] <- NA
-    defaults_edition(2)
-    on.exit(defaults_edition(1), add = TRUE)
     gamma_ed2 <- get_gamma_default(params_ed2)
     params_ed2@species_params$gamma <- gamma_ed2
     f0_ed2 <- get_f0_default(params_ed2)

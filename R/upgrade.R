@@ -26,7 +26,7 @@ needs_upgrading <- function(object) {
 #' @keywords internal
 mizer_needs_upgrading <- function(params) {
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "3.0.0.9003"
+        params@mizer_version < "3.4.0.9001"
 }
 
 #' Whether any extension recorded on an object needs upgrading
@@ -96,6 +96,10 @@ upgrade.MizerParams <- function(object, ...) {
     } else {
         version <- params@mizer_version
     }
+    # Anything that the upgrade builds afresh is built with the defaults of the
+    # object's own edition, which is edition 1 for an object that predates the
+    # recording of the edition.
+    edition <- defaults_edition(params)
 
     # Before version 2.3 ----
     if (version < "2.4.1.9001") {
@@ -121,7 +125,8 @@ upgrade.MizerParams <- function(object, ...) {
         }
 
         if (!.hasSlot(params, "gear_params")) {
-            gear_params <- validGearParams(data.frame(), params@species_params)
+            gear_params <- validGearParams(data.frame(), params@species_params,
+                                           edition = edition)
         } else {
             gear_params <- params@gear_params
         }
@@ -246,7 +251,7 @@ upgrade.MizerParams <- function(object, ...) {
 
         params@species_params$species <- as.character(params@species_params$species)
 
-        pnew <- newMultispeciesParams(
+        pnew <- with_defaults_edition(edition, newMultispeciesParams(
             params@species_params,
             interaction = params@interaction,
             no_w = length(params@w),
@@ -266,7 +271,7 @@ upgrade.MizerParams <- function(object, ...) {
             repro_prop = repro_prop,
             RDD = RDD,
             gear_params = gear_params,
-            initial_effort = initial_effort)
+            initial_effort = initial_effort))
 
         pnew@psi <- params@psi
 
@@ -489,6 +494,13 @@ upgrade.MizerParams <- function(object, ...) {
         !identical(dim(params@ft_pred_kernel_d),
                    dim(params@ft_pred_kernel_e))) {
         params@ft_pred_kernel_d <- params@ft_pred_kernel_e
+    }
+
+    # Add defaults_edition slot if missing (added in 3.4.0.9001). Until then
+    # the edition was not recorded in the object, and every object was of
+    # edition 1 unless the user had activated another one when creating it.
+    if (!.hasSlot(params, "defaults_edition")) {
+        params@defaults_edition <- 1
     }
 
     params@mizer_version <- packageVersion("mizer")

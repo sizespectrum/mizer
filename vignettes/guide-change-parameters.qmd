@@ -363,8 +363,8 @@ value is never recalculated.
 
 `gamma` is calibrated against an **idealised reference world**, not against your
 model: a pure power-law resource `kappa * w^-lambda`, with all fish abundances
-set to zero, and — under [`defaults_edition() < 2`](../reference/defaults_edition.html) — with `interaction_resource`
-forced to 1. External encounter and functions registered with
+set to zero, and — for a model of [`defaults_edition(params) < 2`](../reference/defaults_edition.html) — with
+`interaction_resource` forced to 1. External encounter and functions registered with
 [`other_encounter()`](../reference/other_mort.html) — including a component's `encounter_fun` — are also left
 out. So `f0` is the feeding level a species *would* have on the power-law
 resource alone, before those realised-dynamics additions.
@@ -377,9 +377,10 @@ resource alone, before those realised-dynamics additions.
   levels.
 - Setting `interaction_resource` to anything other than 1 leaves `gamma`
   untouched under edition 1, so the reduction falls straight through to the
-  realised feeding level and can starve a species outright. Under
-  `defaults_edition() >= 2`, `interaction_resource` is included in the
-  calibration.
+  realised feeding level and can starve a species outright. For a model of
+  `defaults_edition(params) >= 2`, `interaction_resource` is included in the
+  calibration. The edition is that of the model, recorded when it was
+  created, not the one active when the recalculation happens.
 - The resource scalars that enter the calibration **do** trigger a
   re-derivation. Since mizer 3.3, changing
   `lambda` recalculates every `q` and `gamma` that mizer calculated, and

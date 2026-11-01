@@ -250,6 +250,14 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
 
+    # defaults_edition must be a single number of at least 1
+    edition <- params@defaults_edition
+    if (!is.numeric(edition) || length(edition) != 1 || is.na(edition) ||
+        edition < 1) {
+        msg <- "defaults_edition must be a single number of at least 1"
+        errors <- c(errors, msg)
+    }
+
     # Should not have legacy r_max column (has been renamed to R_max)
     if ("r_max" %in% names(params@species_params)) {
         msg <- "The 'r_max' column in species_params should be called 'R_max'. You can use 'validParams()' to upgrade your params object."
@@ -424,6 +432,10 @@ validMizerParams <- function(object) {
 #'   logical entry `bin_average` (controls whether bin-averaging is used for
 #'   rates). Both default to the first-order setting to preserve the behaviour
 #'   of previous mizer versions.
+#' @slot defaults_edition The edition of default choices that was active when
+#'   the model was created, see [defaults_edition()]. Whenever mizer fills in a
+#'   default for the model it uses this edition, so that the model keeps
+#'   its defaults when a different edition becomes active.
 #'
 #' @seealso [project()] [MizerSim()]
 #'   [emptyParams()] [newMultispeciesParams()]
@@ -603,7 +615,9 @@ emptyParams <- function(species_params,
                                          w = signif(w, 3)))
     catchability <- array(0, dim = c(length(gear_names), no_sp),
                           dimnames = list(gear = gear_names, sp = species_names))
-    default_effort <- ifelse(defaults_edition() < 2, 0, 1)
+    # The new model is of the edition that is active now and keeps it
+    edition <- defaults_edition()
+    default_effort <- ifelse(edition < 2, 0, 1)
     initial_effort <- rep(default_effort, length(gear_names))
     names(initial_effort) <- gear_names
 
@@ -748,7 +762,8 @@ emptyParams <- function(species_params,
             linetype = linetype,
             ft_mask = ft_mask,
             use_predation_diffusion = FALSE,
-            second_order_w = list(flux = "upwind", bin_average = FALSE)
+            second_order_w = list(flux = "upwind", bin_average = FALSE),
+            defaults_edition = edition
         ),
         class = "MizerParams"
     )
@@ -1049,6 +1064,7 @@ validation_key <- function(params) {
                      params@ft_mask,
                      params@use_predation_diffusion,
                      params@second_order_w,
+                     params@defaults_edition,
                      length(params@rr_pp), length(params@cc_pp),
                      array_shapes,
                      as.character(params@mizer_version),

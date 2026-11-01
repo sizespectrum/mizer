@@ -421,6 +421,13 @@ test_that("getGrowthCurves percentage rescales by maximum weight", {
 })
 
 # summary ----
+test_that("summary of MizerParams reports the defaults edition", {
+    params <- NS_params_small
+    expect_output(summary(params), "Defaults edition: 1")
+    defaults_edition(params) <- 2
+    expect_output(summary(params), "Defaults edition: 2")
+})
+
 test_that("summary works", {
     # Check that it works also with nonstandard kernel
     params@species_params$ppmr_min <- 100

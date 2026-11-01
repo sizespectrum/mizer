@@ -69,6 +69,34 @@ test_that("validGearParams works", {
                  "missing in the gear parameter dataframe: l50.")
 })
 
+test_that("validGearParams takes the default catchability from the edition", {
+    sp <- validSpeciesParams(
+        data.frame(species = c("species1", "species2"), w_max = c(100, 1000)))
+    gp <- data.frame(species = c("species1", "species2"), gear = "g",
+                     catchability = c(0.5, NA))
+    catchability <- function(...) unname(validGearParams(...)$catchability)
+    withr::local_options(mizer_defaults_edition = 2)
+    expect_identical(catchability(gp, sp), c(0.5, 0.3))
+    expect_identical(catchability(gp, sp, edition = 1), c(0.5, 1))
+    # Also when the gear is set up from the species parameters
+    expect_identical(catchability(NULL, sp, edition = 1), c(1, 1))
+    expect_identical(catchability(NULL, sp, edition = 2), c(0.3, 0.3))
+})
+
+test_that("gear_params<- uses the defaults edition of the model", {
+    gp <- NS_params_small@gear_params
+    gp$catchability <- NULL
+    withr::local_options(mizer_defaults_edition = 2)
+    params <- NS_params_small
+    gear_params(params) <- gp
+    expect_identical(unname(params@gear_params$catchability),
+                     rep(1, nrow(gp)))
+    defaults_edition(params) <- 2
+    gear_params(params) <- gp
+    expect_identical(unname(params@gear_params$catchability),
+                     rep(0.3, nrow(gp)))
+})
+
 # validEffortVector ----
 test_that("validEffort works", {
     params <- NS_params_small
@@ -79,7 +107,7 @@ test_that("validEffort works", {
     ies <- ie[c(2,3,1)]
     expect_identical(validEffortVector(ies, params), ie)
     # NA's are replaced by the edition-specific default
-    ie[2] <- ifelse(defaults_edition() < 2, 0, 1)
+    ie[2] <- ifelse(defaults_edition(params) < 2, 0, 1)
     iesn <- ie
     iesn[2] <- NA
     expect_identical(validEffortVector(iesn, params), ie)
@@ -88,12 +116,21 @@ test_that("validEffort works", {
     expect_identical(validEffortVector(2, params), ie)
     # A shortened vector is expanded with the edition-specific default
     expect_identical(validEffortVector(ie[c(1,2)], params)[[3]],
-                     ifelse(defaults_edition() < 2, 0, 1))
+                     ifelse(defaults_edition(params) < 2, 0, 1))
 
     # The names are checked
     names(ie)[[1]] <- "test"
     expect_error(validEffortVector(ie, params),
                  "it has names that are not among the gear names")
+})
+
+test_that("validEffortVector uses the defaults edition of the model", {
+    params <- NS_params_small
+    withr::local_options(mizer_defaults_edition = 2)
+    expect_identical(unname(validEffortVector(NA_real_, params)), c(0, 0, 0))
+    defaults_edition(params) <- 2
+    withr::local_options(mizer_defaults_edition = 1)
+    expect_identical(unname(validEffortVector(NA_real_, params)), c(1, 1, 1))
 })
 test_that("validEffortParams works when no gears are set up", {
     params <- newMultispeciesParams(NS_species_params_small,
@@ -262,7 +299,7 @@ test_that("Dimensions after number of gears has increased", {
     expect_identical(dimnames(params@selectivity)[[1]],
                      params@species_params$species)
     # The initial effort has also changed to the edition-specific default
-    effort <- rep(ifelse(defaults_edition() < 2, 0, 1), no_gears)
+    effort <- rep(ifelse(defaults_edition(params) < 2, 0, 1), no_gears)
     names(effort) <- params@species_params$species
     expect_identical(params@initial_effort, effort)
 })

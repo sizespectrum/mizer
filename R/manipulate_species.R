@@ -110,6 +110,7 @@ copyPreservedParamsSlots <- function(params, old_params) {
     params@rates_funcs <- old_params@rates_funcs
     params@use_predation_diffusion <- old_params@use_predation_diffusion
     params@second_order_w <- old_params@second_order_w
+    params@defaults_edition <- defaults_edition(old_params)
 
     params@metadata <- old_params@metadata
     params@time_created <- old_params@time_created
@@ -141,7 +142,10 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     target_class <- getPreservedParamsClass(original_params, params)
     given_species_params <- validGivenSpeciesParams(species_params)
     species_params <- validSpeciesParams(species_params)
-    gear_params <- validGearParams(gear_params, species_params)
+    # The new species get the defaults of the model they are added to
+    edition <- defaults_edition(params)
+    gear_params <- validGearParams(gear_params, species_params,
+                                   edition = edition)
     if (any(species_params$species %in% params@species_params$species)) {
         stop("You can not add species that are already there.")
     }
@@ -259,8 +263,8 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 
     # new params object ----
     # use dataframe and global settings from params to make a new MizerParams
-    # object.
-    p <- newMultispeciesParams(
+    # object. It is built with the defaults edition of params.
+    p <- with_defaults_edition(edition, newMultispeciesParams(
         combi_species_params,
         interaction = inter,
         max_w = new_max_w,
@@ -274,7 +278,7 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
         lambda = params@resource_params$lambda,
         w_pp_cutoff = params@resource_params$w_pp_cutoff,
         info_level = info_level
-    )
+    ))
     p@given_species_params <- combi_given_species_params
 
     # Set effort ----
@@ -457,7 +461,8 @@ removeSpecies.MizerParams <- function(params, species, ...) {
     p@A <- params@A[keep]
     p@gear_params <- p@gear_params[p@gear_params$species %in%
                                        p@species_params$species, ]
-    p@gear_params <- validGearParams(p@gear_params, p@species_params)
+    p@gear_params <- validGearParams(p@gear_params, p@species_params,
+                                     edition = defaults_edition(p))
 
     # Drop species parameters with all values NA
     keep <- colSums(is.na(p@species_params)) < nrow(p@species_params)
@@ -525,7 +530,8 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
         }
     }
     params@gear_params <- validGearParams(params@gear_params,
-                                          params@species_params)
+                                          params@species_params,
+                                          edition = defaults_edition(params))
     # rename line colours
     linenames <- names(params@linecolour)
     names(linenames) <- linenames
@@ -689,7 +695,8 @@ adjustSizeGrid.MizerParams <- function(params,
     idx_min <- which.min(sp_params_for_grid$w_min)
     sp_params_for_grid$w_min[idx_min] <- new_min_w
 
-    p <- newMultispeciesParams(
+    # Built with the defaults edition of params
+    p <- with_defaults_edition(defaults_edition(params), newMultispeciesParams(
         sp_params_for_grid,
         interaction = params@interaction,
         max_w = new_max_w,
@@ -702,7 +709,7 @@ adjustSizeGrid.MizerParams <- function(params,
         n = params@resource_params[["n"]],
         lambda = params@resource_params$lambda,
         w_pp_cutoff = params@resource_params$w_pp_cutoff
-    )
+    ))
 
     # Update species_params and given_species_params to align with the new grid boundaries
     new_sp_params <- params@species_params
@@ -951,7 +958,8 @@ renameGear.MizerParams <- function(params, replace, ...) {
         }
     }
     params@gear_params <- validGearParams(params@gear_params,
-                                          params@species_params)
+                                          params@species_params,
+                                          edition = defaults_edition(params))
 
     # Update dimension names in arrays
     dimnames(params@selectivity)$gear <- gears
