@@ -57,6 +57,28 @@ reliably onto *a* steady state. Use the `preserve` argument to choose whether
 [`reproduction_level`](../reference/setBevertonHolt.html) (default), `R_max`, or `erepro` is held fixed while
 `tuneSteadyState()` re-tunes the reproduction parameters.
 
+**When not to use `tuneSteadyState()`.** Holding births fixed is also its
+limit: every state it finds has the recruitment the model started with, and it
+gets there by changing `erepro`/`R_max` and `cc_pp`. So it is the wrong tool
+when
+
+- the question is where a model with *given* parameters settles, for instance
+  under a changed fishing effort;
+- you are looking for more than one steady state: two alternative stable states
+  found with it have different parameters, so they are not states of the same
+  model;
+- a change in reproduction is the mechanism you are studying, as when predation
+  thins a prey species and so raises its recruitment, or when a predator's
+  juveniles depend on the small prey that response produces (an emergent Allee
+  effect).
+
+Use `findSteadyState()`, or `projectUntilSettled()` to watch the approach, with
+the parameters fixed and starting from a suitable initial state, then
+`findSteadyState(solver = "newton")` to polish the result. A re-derived `erepro`
+greater than 1 is the sign that `tuneSteadyState()` was asked for a state that
+does not exist with births held where they were; see
+[Diagnosing calibration problems](#diagnosing-calibration-problems).
+
 Both take a `solver` argument. The default `solver = "project"` runs the
 dynamics until they settle. `solver = "newton"` *(experimental, needs the
 `nleqslv` package)* instead solves the steady-state equation directly, which
@@ -244,8 +266,22 @@ and analyse the results with the [guide to analysing and plotting mizer results]
   between them.
 - **`tuneSteadyState()` said it converged but the results still drift.** Check
   `attr(params, "convergence")$residual`, or `summary(params)`, for how far the
-  state actually is from a fixed point, and reduce `tuneSteadyState()`'s `tol`
-  if it is too large. It warns when the two disagree.
+  state actually is from a fixed point, and reduce `tuneSteadyState()`'s
+  `distance_tol` if it is too large. It warns when the two disagree.
+- **`tuneSteadyState()` warns that a species requires "an unrealistic value
+  greater than 1 for `erepro`".** The recruitment held during the search needs
+  more eggs than that species' spawners can produce in the state that was
+  found, and the `"convergence"` attribute will not tell you so: it can still
+  report a fixed point. Look at `species_params(params)$erepro`, because the
+  warning reads the same for 1.01 as for 1e34. A value far above 1 means the
+  state you asked for does not exist with births held at their current values,
+  which is what happens when `tuneSteadyState()` is used to look for an
+  alternative stable state or for a state that depends on a change in
+  reproduction; use `findSteadyState()` or `projectUntilSettled()` with the
+  parameters fixed instead (see [Finding the steady
+  state](#finding-the-steady-state)). A value just above 1 during calibration
+  says the spawners cannot fund the recruitment they have: look at the
+  species' feeding level and growth before anything else.
 - **Results move even though nothing was changed.** The model was not at its
   steady state to begin with. `plot(getSteadyResidual(params))` shows which
   species and which sizes are moving.

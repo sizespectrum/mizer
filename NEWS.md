@@ -111,6 +111,18 @@
 - The help page of `getDiffusion()` gave the predation-diffusion rate with a
   factor $(\alpha_i(1-\psi_i(w)))^2$. The correct factor, and the one mizer
   has always used, is $\alpha_i^2$, as in the model description (#624).
+- The help page of `tuneSteadyState()` now says when not to use it: because it
+  holds the reproduction rate at its current value and re-derives
+  `erepro`/`R_max` and `cc_pp`, it cannot find a steady state with a very
+  different reproduction rate, such as an alternative stable state, and two
+  states found with it do not share parameters. Its section on checking the
+  result now also tells you to check the re-derived `erepro`: a value greater
+  than 1 means the state found cannot be sustained, even when the
+  `"convergence"` attribute reports a fixed point (#631). The
+  `calibrate-model` skill and its guide give the same advice and add the
+  `erepro` warning to their list of calibration problems, and the diagnostic
+  table of the `understand-size-spectrum-dynamics` skill and guide gains a row
+  for it (sizespectrum/mizerAgents#12).
 - The "Community Model" and "Trait-Based Model" articles no longer explain a
   trophic cascade as moving down the spectrum one predator-prey mass ratio
   $\beta$ at a time, which would put its peaks and troughs a factor of $\beta$
