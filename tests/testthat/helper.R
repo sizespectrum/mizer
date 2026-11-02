@@ -128,13 +128,18 @@ delayedAssign("NS_params_steady_small", suppressMessages(
 # circular wrap-around in the FFT convolutions lets the larvae feed on those
 # large fish (issue #618), so it shows up clearly here. The convolutions are
 # zero-padded, and so free of wrap-around, only from defaults edition 3.
+# The first-order scheme is asked for explicitly, because edition 3 would
+# otherwise switch on bin-averaging (#503), and then the point-sampled
+# `pred_kernel()` that the tests store as a custom kernel is not the kernel the
+# rates use.
 kernel_below_grid_params <- function(bin_average = FALSE, edition = 3) {
     sp <- data.frame(species = c("Small", "Large"), w_max = c(20, 2000),
                      w_mat = c(4, 250), w_min = 1e-3, beta = c(200, 100),
                      sigma = c(1.3, 1.5), k_vb = c(1, 0.5))
     params <- withr::with_options(
         list(mizer_defaults_edition = edition),
-        newMultispeciesParams(sp, no_w = 40, min_w_pp = 1e-6, info_level = 0)
+        newMultispeciesParams(sp, no_w = 40, min_w_pp = 1e-6,
+                              second_order_w = FALSE, info_level = 0)
     ) |>
         suppressMessages()
     if (bin_average) {

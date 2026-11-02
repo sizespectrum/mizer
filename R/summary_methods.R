@@ -17,6 +17,7 @@
 #' \tabular{lll}{
 #'   Function \tab Returns \tab Description \cr
 #'   [getDiet()] \tab Three dimensional array (predator x size x prey) \tab Diet of predator at size, resolved by prey species \cr
+#'   [getEncounterByPrey()] \tab Three dimensional array (predator x size x prey) \tab Encounter rate of predator at size, resolved by prey species \cr
 #'   [getTrophicLevel()] \tab `ArraySpeciesBySize` (species x size) \tab Trophic level of individuals at size, accounting for ontogenetic diet shifts \cr
 #'   [getTrophicLevelBySpecies()] \tab Named vector (species) \tab Consumption-rate-weighted mean trophic level of each species \cr
 #'   [getSSB()] \tab Two dimensional array (time x species) \tab Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals. \cr
@@ -76,13 +77,28 @@ NULL
 #' rate function. These encounter rates are multiplied by \eqn{1-f_i(w)} to give
 #' the rate of consumption of biomass from these extra components.
 #'
-#' This function performs the same integration as [getEncounter()] but does not
+#' The rates resolved by food source, before the multiplication by
+#' \eqn{1-f_i(w)}, are those returned by [getEncounterByPrey()], so this
+#' function performs the same integration as [getEncounter()] but does not
 #' aggregate over prey species, and multiplies by \eqn{1-f_i(w)} to get the
 #' consumed biomass rather than the available biomass. Outside the range of
 #' sizes for a predator species the returned rate is zero. Summing the result
 #' of `getDiet(proportion = FALSE)` over prey therefore reproduces
 #' `getEncounter(params) * (1 - getFeedingLevel(params))`, whichever quadrature
 #' scheme the model uses (see [second_order_w()]).
+#'
+#' @section Changed encounter rates:
+#' The total consumption rate is always taken from the model's own encounter
+#' rate, as returned by [getEncounter()], and its own feeding level. If the
+#' encounter rate has been changed, by a function registered with
+#' [setRateFunction()] or by an extension package, then the split between food
+#' sources has to come from somewhere else. An extension that gives
+#' [getEncounterByPrey()] a method matching its change to the encounter rate
+#' supplies that split exactly. Otherwise `getDiet()` scales the contributions
+#' of all food sources in proportion, so that they still add up to the
+#' consumption rate, and tells you that it has done so. That split is exact
+#' when the change affects all food sources equally, as does for example a
+#' factor multiplying the whole encounter rate.
 #'
 #' @param object A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.
 #' @param proportion If TRUE (default) the function returns the diet as a
@@ -98,6 +114,10 @@ NULL
 #'       initial resource abundance stored in `object`.}
 #'     \item{`n_other`}{A named list of the abundances of other dynamical
 #'       components. Defaults to the initial values stored in `object`.}
+#'     \item{`t`}{The time at which to evaluate the rates. Defaults to 0. It
+#'       matters only in a model whose rates depend on time, for example
+#'       through an extension or through the encounter function of a
+#'       component.}
 #'   }
 #'
 #'   **For a \linkS4class{MizerSim} object:**
@@ -108,6 +128,8 @@ NULL
 #'     \item{`drop`}{If `TRUE` then any dimension of length 1 is removed from
 #'       the returned array.}
 #'   }
+#'   The diet at each saved time is calculated from the abundances saved at
+#'   that time and with the rates evaluated at that time.
 #'
 #' @return
 #' * `MizerParams`: An array (predator species x predator size x
@@ -139,9 +161,127 @@ getDiet.MizerParams <- function(object,
                     proportion = TRUE,
                     n = initialN(object),
                     n_pp = initialNResource(object),
-                    n_other = initialNOther(object), ...) {
-    # The code is based on that for getEncounter()
+                    n_other = initialNOther(object),
+                    t = 0, ...) {
+    with_info_level({
     params <- validParams(object)
+    encounter <- getEncounter(params, n = n, n_pp = n_pp, n_other = n_other,
+                              t = t)
+    diet <- matched_encounter_by_prey(params, n = n, n_pp = n_pp,
+                                      n_other = n_other, t = t,
+                                      encounter = encounter,
+                                      caller = "`getDiet()`")
+
+    # Correct for satiation and keep only entries corresponding to fish sizes
+    f <- getFeedingLevel(params, n = n, n_pp = n_pp, n_other = n_other,
+                         time_range = t)
+    fish_mask <- n > 0
+    diet <- sweep(diet, c(1, 2), (1 - f) * fish_mask, "*")
+    if (proportion) {
+        total <- rowSums(diet, dims = 2)
+        diet <- sweep(diet, c(1, 2), total, "/")
+        diet[is.nan(diet)] <- 0
+    }
+    diet
+    })
+}
+
+#' @export
+getDiet.MizerSim <- function(object, proportion = TRUE,
+                             time_range, drop = FALSE, ...) {
+    sim <- object
+    time_elements <- get_sim_rate_time_elements(sim, time_range)
+
+    # Compute the diet at each selected saved time step from that step's
+    # abundances and stack the results into a time x predator x size x prey
+    # array. This mirrors the other `MizerSim` rate getters, which evaluate the
+    # quantity per saved step (see `get_species_size_rate_from_sim()`); the
+    # plotting functions then average the computed quantity over a time range.
+    # Collecting the reports here makes a report that applies to every saved
+    # time step appear once rather than once per step.
+    diet_time <- with_info_level(
+        plyr::aaply(which(time_elements), 1, function(time_idx) {
+            slice <- get_sim_rate_slice(sim, time_idx)
+            getDiet(sim@params, n = slice$n, n_pp = slice$n_pp,
+                    n_other = slice$n_other, t = slice$t,
+                    proportion = proportion, ...)
+        }, .drop = FALSE))
+    names(dimnames(diet_time))[[1]] <- "time"
+
+    diet_time[, , , , drop = drop]
+}
+
+#' Get encounter rate of predator at size, resolved by food source
+#'
+#' Calculates the rate at which a predator of a particular species and size
+#' encounters biomass of each prey species, of the resource, and of the other
+#' food sources in the model. Summed over food sources this is the encounter
+#' rate returned by [getEncounter()]. Multiplied by \eqn{1-f_i(w)} it is the
+#' diet returned by `getDiet(proportion = FALSE)`, and that is what this
+#' function is mainly for: it is how [getDiet()] and [getTrophicLevel()] split
+#' the encounter rate between food sources.
+#'
+#' The rate \eqn{E_{ij}(w)} at which a predator of species \eqn{i} and size
+#' \eqn{w} encounters biomass of prey species \eqn{j} is
+#' \deqn{
+#' E_{ij}(w) = \gamma_i(w) \theta_{ij} \int N_j(w_p) \phi_i(w, w_p) w_p dw_p,
+#' }
+#' with the notation of [mizerEncounter()], and with \eqn{\theta_{ij}} replaced
+#' by the `interaction_resource` species parameter for the resource. Further
+#' food sources are the external encounter rate, set with [setExtEncounter()],
+#' and each extra ecosystem component for which you have defined an encounter
+#' rate function with [setComponent()].
+#'
+#' @section Extension hook:
+#' `getEncounterByPrey()` is an S3 generic. Its `MizerParams` method resolves
+#' the standard encounter rate of [mizerEncounter()]. An extension package that
+#' changes the encounter rate with a [projectEncounter()] method should give
+#' this generic a method that makes the same change and calls `NextMethod()`,
+#' so that [getDiet()] and [getTrophicLevel()] can split the changed encounter
+#' rate between the food sources correctly. Without such a method they find
+#' that the resolved rates no longer add up to the encounter rate, scale all of
+#' them in proportion, and say so.
+#'
+#' This function does not itself check that its result adds up to
+#' [getEncounter()]: the `MizerParams` method is reached through `NextMethod()`
+#' from extension methods that have already changed the parameters, and the
+#' encounter rate calculated from those would include the change twice.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @inheritParams getTrophicLevel
+#' @param t The time at which to evaluate the rates. Defaults to 0. It matters
+#'   only in a model whose rates depend on time.
+#' @param ... Passed on to the encounter functions of the components.
+#'
+#' @return An array (predator species x predator size x food source) with the
+#'   encounter rates in grams per year. Dimnames are "predator", "w" and
+#'   "prey". The food sources are the prey species, "Resource", "External" and
+#'   the components that have an encounter rate function, in that order. Unlike
+#'   [getDiet()], the values are not set to zero outside the size range of the
+#'   predator species.
+#' @export
+#' @family summary functions
+#' @concept summary_function
+#' @seealso [getDiet()], [getEncounter()]
+#' @examples
+#' by_prey <- getEncounterByPrey(NS_params)
+#' # Summed over food sources this is the encounter rate
+#' all.equal(rowSums(by_prey, dims = 2), unclass(getEncounter(NS_params)),
+#'           check.attributes = FALSE)
+getEncounterByPrey <- function(params, n = initialN(params),
+                               n_pp = initialNResource(params),
+                               n_other = initialNOther(params),
+                               t = 0, ...) {
+    UseMethod("getEncounterByPrey")
+}
+
+#' @export
+getEncounterByPrey.MizerParams <- function(params, n = initialN(params),
+                                           n_pp = initialNResource(params),
+                                           n_other = initialNOther(params),
+                                           t = 0, ...) {
+    # The code is based on that for getEncounter()
+    params <- validParams(params)
     species <- params@species_params$species
     no_sp <- length(species)
     no_w <- length(params@w)
@@ -149,15 +289,16 @@ getDiet.MizerParams <- function(object,
     no_other <- length(params@other_encounter)
     other_names <- names(params@other_encounter)
     assert_that(identical(dim(n), c(no_sp, no_w)),
-                length(n_pp) == no_w_full)
-    diet <- array(0, dim = c(no_sp, no_w, no_sp + 2 + no_other),
-                  dimnames = list("predator" = species,
-                                  "w" = dimnames(params@initial_n)$w,
-                                  "prey" = c(species,
-                                             "Resource", "External",
-                                             other_names)))
-    # idx_sp are the index values of object@w_full such that
-    # object@w_full[idx_sp] = object@w
+                length(n_pp) == no_w_full,
+                is.number(t))
+    encounter <- array(0, dim = c(no_sp, no_w, no_sp + 2 + no_other),
+                       dimnames = list("predator" = species,
+                                       "w" = dimnames(params@initial_n)$w,
+                                       "prey" = c(species,
+                                                  "Resource", "External",
+                                                  other_names)))
+    # idx_sp are the index values of params@w_full such that
+    # params@w_full[idx_sp] = params@w
     idx_sp <- (no_w_full - no_w + 1):no_w_full
 
     # The prey vectors below carry the plain point weight `w * dw`, exactly as
@@ -168,8 +309,7 @@ getDiet.MizerParams <- function(object,
     # out the `w * dw` that the prey vector supplies. Weighting the prey vector
     # by the bin-averaged `w` as well would apply that quadrature twice and
     # inflate the diet by (1 + beta) / 2 (issue #474). Summed over prey, the
-    # diet must reproduce `getEncounter() * (1 - getFeedingLevel())` under both
-    # schemes.
+    # result must reproduce `mizerEncounter()` under both schemes.
 
     # If the user has set a custom kernel we can not use fft.
     if (!is.null(comment(params@pred_kernel))) {
@@ -180,9 +320,9 @@ getDiet.MizerParams <- function(object,
         ae <- matrix(params@pred_kernel[, , idx_sp, drop = FALSE],
                      ncol = no_w) %*%
             t(sweep(n, 2, params@w * params@dw, "*"))
-        diet[, , 1:no_sp] <- ae
+        encounter[, , 1:no_sp] <- ae
         # Eating the resource
-        diet[, , no_sp + 1] <- rowSums(sweep(
+        encounter[, , no_sp + 1] <- rowSums(sweep(
             params@pred_kernel, 3, params@dw_full * params@w_full * n_pp, "*"),
             dims = 2)
     } else {
@@ -197,56 +337,76 @@ getDiet.MizerParams <- function(object,
         # Due to numerical errors we might get negative or very small entries that
         # should be 0
         ae[ae < 1e-18] <- 0
-        diet[, , 1:(no_sp + 1)] <- ae
+        encounter[, , 1:(no_sp + 1)] <- ae
     }
     # Multiply by interaction matrix, including resource, and then by
     # search volume
     inter <- cbind(params@interaction, params@species_params$interaction_resource)
-    diet[, , 1:(no_sp + 1)] <- sweep(sweep(diet[, , 1:(no_sp + 1), drop = FALSE],
-                                           c(1, 3), inter, "*"),
-                                     c(1, 2), params@search_vol, "*")
-    # Add diet from external sources
-    diet[, , no_sp + 2] <- params@ext_encounter
-    # Add diet from other components
+    encounter[, , 1:(no_sp + 1)] <-
+        sweep(sweep(encounter[, , 1:(no_sp + 1), drop = FALSE],
+                    c(1, 3), inter, "*"),
+              c(1, 2), params@search_vol, "*")
+    # Add encounter from external sources
+    encounter[, , no_sp + 2] <- params@ext_encounter
+    # Add encounter from other components, passing the same arguments as
+    # mizerEncounter() does
     for (i in seq_along(params@other_encounter)) {
-        diet[, , no_sp + 2 + i] <-
+        encounter[, , no_sp + 2 + i] <-
             do.call(params@other_encounter[[i]],
                     list(params = params,
-                         n = n, n_pp = n_pp, n_other = n_other,
-                         component = names(params@other_encounter)[[i]]))
+                         n = n, n_pp = n_pp, n_other = n_other, t = t,
+                         component = names(params@other_encounter)[[i]], ...))
     }
-
-    # Correct for satiation and keep only entries corresponding to fish sizes
-    f <- getFeedingLevel(params, n, n_pp)
-    fish_mask <- n > 0
-    diet <- sweep(diet, c(1, 2), (1 - f) * fish_mask, "*")
-    if (proportion) {
-        total <- rowSums(diet, dims = 2)
-        diet <- sweep(diet, c(1, 2), total, "/")
-        diet[is.nan(diet)] <- 0
-    }
-    return(diet)
+    encounter
 }
 
-#' @export
-getDiet.MizerSim <- function(object, proportion = TRUE,
-                             time_range, drop = FALSE, ...) {
-    sim <- object
-    time_elements <- get_sim_rate_time_elements(sim, time_range)
-
-    # Compute the diet at each selected saved time step from that step's
-    # abundances and stack the results into a time x predator x size x prey
-    # array. This mirrors the other `MizerSim` rate getters, which evaluate the
-    # quantity per saved step (see `get_species_size_rate_from_sim()`); the
-    # plotting functions then average the computed quantity over a time range.
-    diet_time <- plyr::aaply(which(time_elements), 1, function(time_idx) {
-        slice <- get_sim_rate_slice(sim, time_idx)
-        getDiet(sim@params, n = slice$n, n_pp = slice$n_pp,
-                n_other = slice$n_other, proportion = proportion, ...)
-    }, .drop = FALSE)
-    names(dimnames(diet_time))[[1]] <- "time"
-
-    diet_time[, , , , drop = drop]
+# Encounter rate by food source, made to add up to the encounter rate
+#
+# getDiet() and getTrophicLevel() split the encounter rate between food
+# sources with getEncounterByPrey(). Summed over food sources, that split must
+# reproduce the encounter rate that the model actually uses, `encounter`,
+# which comes from getEncounter() and so from a custom encounter rate function
+# or the extension chain, if there is one. The two disagree when the encounter
+# rate has been changed in a way that getEncounterByPrey() does not know about:
+# by a function registered with setRateFunction(), or by an extension that has
+# a projectEncounter() method but no matching getEncounterByPrey() method.
+# Nothing then says how the change is shared between the food sources, so the
+# contributions of all of them are scaled in proportion and the user is told.
+#
+# The check is made here rather than in getEncounterByPrey.MizerParams()
+# because an extension method reaches that through NextMethod() with
+# parameters it has already changed, and getEncounter() on those would apply
+# the change twice.
+matched_encounter_by_prey <- function(params, n, n_pp, n_other, t, encounter,
+                                      caller) {
+    by_prey <- getEncounterByPrey(params, n = n, n_pp = n_pp,
+                                  n_other = n_other, t = t)
+    total <- rowSums(by_prey, dims = 2)
+    encounter <- unclass_rate(encounter)
+    # Only the sizes at which there are fish matter. The resolved and the
+    # total encounter rate are evaluated by different convolutions, which agree
+    # to rounding error, so the tolerance only has to lie well above that and
+    # well below any deliberate change. The absolute part keeps rounding error
+    # in rates that are tiny compared with the largest from counting.
+    fish <- n > 0
+    tol <- 1e-8 * abs(encounter) + 1e-12 * max(abs(encounter[fish]), 0)
+    if (!any(abs(total - encounter)[fish] > tol[fish])) {
+        return(by_prey)
+    }
+    # Where no food source contributes there is nothing to scale, and the
+    # resolved rates stay zero.
+    factor <- ifelse(total > 0, encounter / total, 0)
+    signal_info(
+        "diet",
+        paste0("The encounter rate has been changed by a custom encounter ",
+               "rate function or by an extension, and `getEncounterByPrey()` ",
+               "does not say how the change is shared between the food ",
+               "sources. ", caller, " has therefore scaled the contributions ",
+               "of all food sources in proportion, so that they add up to ",
+               "the encounter rate. This is exact only if the change affects ",
+               "all food sources equally."),
+        unhandled = "show")
+    sweep(by_prey, c(1, 2), factor, "*")
 }
 
 
@@ -301,7 +461,18 @@ getDiet.MizerSim <- function(object, proportion = TRUE,
 #' the resource trophic level never drops below the primary-producer level.
 #' Both the numerator and the denominator (which equals the total biomass
 #' consumed over the predator's lifetime from egg size to current weight
-#' \eqn{w}) therefore include the resource.
+#' \eqn{w}) therefore include the resource. The denominator also includes the
+#' food from the external encounter rate and from extra ecosystem components
+#' added with [setComponent()], but these food sources contribute nothing to
+#' the numerator, so they count as having trophic level 0.
+#'
+#' The consumption rate in the denominator is the model's own, calculated from
+#' [getEncounter()] and [getFeedingLevel()], and the growth rate is that of
+#' [getEGrowth()]. If the encounter rate has been changed, by a function
+#' registered with [setRateFunction()] or by an extension package, then the
+#' contribution of each prey species and of the resource to the numerator is
+#' scaled by the same factor as its contribution to the encounter rate in
+#' [getDiet()]. See the "Changed encounter rates" section there.
 #'
 #' This equation can be viewed as a linear system
 #' \eqn{(I - D)\,\mathbf{T} = \mathbf{1}} in which the entries of
@@ -325,6 +496,9 @@ getDiet.MizerSim <- function(object, proportion = TRUE,
 #' @param beta_R An average predator/prey mass ratio for the resource spectrum,
 #'   used to set the size-dependent resource trophic level. Must be greater than
 #'   `1`. Defaults to `1000`.
+#' @param t The time at which to evaluate the rates. Defaults to 0. It matters
+#'   only in a model whose rates depend on time, for example through an
+#'   extension or through the encounter function of a component.
 #' @param ... Unused
 #'
 #' @return An `ArraySpeciesBySize` object (species x size) with the trophic
@@ -344,6 +518,7 @@ getTrophicLevel <- function(params,
                             n_other = initialNOther(params),
                             w_R = 1e-10,
                             beta_R = 1000,
+                            t = 0,
                             ...) {
     UseMethod("getTrophicLevel")
 }
@@ -355,21 +530,45 @@ getTrophicLevel.MizerParams <- function(params,
                                         n_other = initialNOther(params),
                                         w_R = 1e-10,
                                         beta_R = 1000,
+                                        t = 0,
                                         ...) {
+    with_info_level({
     params <- validParams(params)
     assert_that(is.number(w_R), w_R > 0,
-                is.number(beta_R), beta_R > 1)
+                is.number(beta_R), beta_R > 1,
+                is.number(t))
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
     no_w_full <- length(params@w_full)
     idx_sp <- (no_w_full - no_w + 1):no_w_full
 
     # Pre-compute rates
-    encounter <- getEncounter(params, n, n_pp, n_other)  # no_sp x no_w
-    feeding_level <- getFeedingLevel(params, n, n_pp, n_other)  # no_sp x no_w
-    growth <- getEGrowth(params, n, n_pp, n_other)  # no_sp x no_w
+    encounter <- getEncounter(params, n, n_pp, n_other, t = t)  # no_sp x no_w
+    feeding_level <- getFeedingLevel(params, n, n_pp, n_other,
+                                     time_range = t)  # no_sp x no_w
+    growth <- getEGrowth(params, n, n_pp, n_other, t = t)  # no_sp x no_w
     # Total consumption = (1 - f) * E, used for denominator accumulator
     consumption <- (1 - feeding_level) * encounter  # no_sp x no_w
+
+    # The numerator below is built from the standard encounter integral, while
+    # `consumption` comes from the model's own encounter rate, which a custom
+    # rate function or an extension may have changed. To keep the two
+    # consistent, the contribution of each prey species and of the resource to
+    # the numerator is scaled by `share`, the ratio of its contribution to the
+    # model's encounter rate, as split between food sources for getDiet(), to
+    # its contribution to the standard encounter rate (#613). The prey sizes
+    # within each food source keep the weights of the standard integral. For a
+    # model with the standard encounter rate `share` is exactly 1.
+    food <- seq_len(no_sp + 1)
+    by_prey <- matched_encounter_by_prey(params, n = n, n_pp = n_pp,
+                                         n_other = n_other, t = t,
+                                         encounter = encounter,
+                                         caller = "`getTrophicLevel()`")
+    standard <- getEncounterByPrey.MizerParams(params, n = n, n_pp = n_pp,
+                                               n_other = n_other, t = t)
+    share <- by_prey[, , food, drop = FALSE] / standard[, , food, drop = FALSE]
+    # Where the standard integral is zero, so is the numerator term it scales
+    share[!is.finite(share)] <- 1
 
     # Full predation kernel array (no_sp x no_w x no_w_full). The numerator
     # below is a trophic-level-weighted copy of the encounter integral, and its
@@ -402,7 +601,8 @@ getTrophicLevel.MizerParams <- function(params,
     #   ae_R[i, k] = sum_p kernel[i, k, p] * resource_mass_tl[p]
     ae_R <- rowSums(sweep(pred_kernel, 3, resource_mass_tl, "*"), dims = 2)
     E_tl_resource <- params@search_vol *
-        (params@species_params$interaction_resource * ae_R)  # no_sp x no_w
+        (params@species_params$interaction_resource * ae_R) *
+        share[, , no_sp + 1]  # no_sp x no_w
 
     # Cumulative numerator A_i and denominator B_i (integrals weighted by 1/g dw)
     cumA <- numeric(no_sp)
@@ -418,7 +618,9 @@ getTrophicLevel.MizerParams <- function(params,
         # E_tl[i] = gamma_i(w_k) * sum_j theta_ij * sum_p kernel[i,k,p] * N_tl[j,p] * w_p * dw_p
         pred_kernel_k <- matrix(pred_kernel[, k, idx_sp], nrow = no_sp)
         ae_k <- pred_kernel_k %*% t(prey_mass_tl)  # no_sp x no_sp
-        E_tl <- params@search_vol[, k] * rowSums(params@interaction * ae_k)
+        share_k <- matrix(share[, k, seq_len(no_sp)], nrow = no_sp)
+        E_tl <- params@search_vol[, k] *
+            rowSums(params@interaction * ae_k * share_k)
         # Add the TL-weighted resource contribution (resource trophic level is
         # given by the formula, so this term is precomputed).
         E_tl <- E_tl + E_tl_resource[, k]
@@ -446,7 +648,8 @@ getTrophicLevel.MizerParams <- function(params,
             n[active_k, k] * tl_k[active_k] * params@w[k] * params@dw[k]
     }
 
-    return(ArraySpeciesBySize(tl, value_name = "Trophic level", params = params))
+    ArraySpeciesBySize(tl, value_name = "Trophic level", params = params)
+    })
 }
 
 
@@ -481,6 +684,7 @@ getTrophicLevelBySpecies <- function(params,
                                      n_other = initialNOther(params),
                                      w_R = 1e-10,
                                      beta_R = 1000,
+                                     t = 0,
                                      ...) {
     UseMethod("getTrophicLevelBySpecies")
 }
@@ -492,13 +696,14 @@ getTrophicLevelBySpecies.MizerParams <- function(params,
                                                   n_other = initialNOther(params),
                                                   w_R = 1e-10,
                                                   beta_R = 1000,
+                                                  t = 0,
                                                   ...) {
     params <- validParams(params)
     tl <- getTrophicLevel(params, n = n, n_pp = n_pp, n_other = n_other,
-                          w_R = w_R, beta_R = beta_R)
+                          w_R = w_R, beta_R = beta_R, t = t)
     tl[is.na(tl)] <- 0
-    encounter <- getEncounter(params, n, n_pp, n_other)
-    feeding_level <- getFeedingLevel(params, n, n_pp, n_other)
+    encounter <- getEncounter(params, n, n_pp, n_other, t = t)
+    feeding_level <- getFeedingLevel(params, n, n_pp, n_other, time_range = t)
     # Consumption rate per individual times abundance density
     consumption_n <- (1 - feeding_level) * encounter * n  # no_sp x no_w
     # Weighted mean trophic level: integral of consumption_n * T * dw / integral of consumption_n * dw

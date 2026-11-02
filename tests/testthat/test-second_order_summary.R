@@ -186,12 +186,16 @@ test_that("encounter_kernel reproduces the encounter rate in both modes", {
 
 test_that("getDiet summed over prey equals the consumption rate in both modes", {
     check <- function(params) {
-        total <- rowSums(getDiet(params, proportion = FALSE), dims = 2)
+        # The diet is decomposed exactly, so getDiet() has nothing to report
+        expect_no_message(diet <- getDiet(params, proportion = FALSE))
+        total <- rowSums(diet, dims = 2)
         consumption <- getEncounter(params) * (1 - getFeedingLevel(params))
         # Outside a species' size range the diet is set to zero, so compare
         # only where the abundance is positive.
         mask <- initialN(params) > 0
         expect_equal(as.vector(total)[mask], as.vector(consumption)[mask])
+        expect_equal(rowSums(getEncounterByPrey(params), dims = 2),
+                     getEncounter(params), ignore_attr = TRUE)
     }
     p <- NS_params_small
     check(p)

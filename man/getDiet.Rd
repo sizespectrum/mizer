@@ -23,6 +23,10 @@ the initial abundances stored in \code{object}.}
 initial resource abundance stored in \code{object}.}
 \item{\code{n_other}}{A named list of the abundances of other dynamical
 components. Defaults to the initial values stored in \code{object}.}
+\item{\code{t}}{The time at which to evaluate the rates. Defaults to 0. It
+matters only in a model whose rates depend on time, for example
+through an extension or through the encounter function of a
+component.}
 }
 
 \strong{For a \linkS4class{MizerSim} object:}
@@ -32,7 +36,9 @@ a vector of values, a vector of min and max time, or a single value.
 Defaults to the whole time range of the simulation.}
 \item{\code{drop}}{If \code{TRUE} then any dimension of length 1 is removed from
 the returned array.}
-}}
+}
+The diet at each saved time is calculated from the abundances saved at
+that time and with the rates evaluated at that time.}
 }
 \value{
 \itemize{
@@ -68,7 +74,9 @@ ecosystem components in your model for which you have defined an encounter
 rate function. These encounter rates are multiplied by \eqn{1-f_i(w)} to give
 the rate of consumption of biomass from these extra components.
 
-This function performs the same integration as \code{\link[=getEncounter]{getEncounter()}} but does not
+The rates resolved by food source, before the multiplication by
+\eqn{1-f_i(w)}, are those returned by \code{\link[=getEncounterByPrey]{getEncounterByPrey()}}, so this
+function performs the same integration as \code{\link[=getEncounter]{getEncounter()}} but does not
 aggregate over prey species, and multiplies by \eqn{1-f_i(w)} to get the
 consumed biomass rather than the available biomass. Outside the range of
 sizes for a predator species the returned rate is zero. Summing the result
@@ -76,6 +84,21 @@ of \code{getDiet(proportion = FALSE)} over prey therefore reproduces
 \code{getEncounter(params) * (1 - getFeedingLevel(params))}, whichever quadrature
 scheme the model uses (see \code{\link[=second_order_w]{second_order_w()}}).
 }
+\section{Changed encounter rates}{
+
+The total consumption rate is always taken from the model's own encounter
+rate, as returned by \code{\link[=getEncounter]{getEncounter()}}, and its own feeding level. If the
+encounter rate has been changed, by a function registered with
+\code{\link[=setRateFunction]{setRateFunction()}} or by an extension package, then the split between food
+sources has to come from somewhere else. An extension that gives
+\code{\link[=getEncounterByPrey]{getEncounterByPrey()}} a method matching its change to the encounter rate
+supplies that split exactly. Otherwise \code{getDiet()} scales the contributions
+of all food sources in proportion, so that they still add up to the
+consumption rate, and tells you that it has done so. That split is exact
+when the change affects all food sources equally, as does for example a
+factor multiplying the whole encounter rate.
+}
+
 \examples{
 diet <- getDiet(NS_params)
 str(diet)
@@ -92,6 +115,7 @@ str(diet)
 
 Other summary functions:
 \code{\link[=getBiomass]{getBiomass()}},
+\code{\link[=getEncounterByPrey]{getEncounterByPrey()}},
 \code{\link[=getGrowthCurves]{getGrowthCurves()}},
 \code{\link[=getN]{getN()}},
 \code{\link[=getSSB]{getSSB()}},

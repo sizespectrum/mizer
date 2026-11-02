@@ -11,6 +11,7 @@ getTrophicLevel(
   n_other = initialNOther(params),
   w_R = 1e-10,
   beta_R = 1000,
+  t = 0,
   ...
 )
 }
@@ -33,6 +34,10 @@ to \code{1e-10}.}
 \item{beta_R}{An average predator/prey mass ratio for the resource spectrum,
 used to set the size-dependent resource trophic level. Must be greater than
 \code{1}. Defaults to \code{1000}.}
+
+\item{t}{The time at which to evaluate the rates. Defaults to 0. It matters
+only in a model whose rates depend on time, for example through an
+extension or through the encounter function of a component.}
 
 \item{...}{Unused}
 }
@@ -90,7 +95,18 @@ factor of \eqn{\beta_R} increase in resource size, with a floor at 1 so that
 the resource trophic level never drops below the primary-producer level.
 Both the numerator and the denominator (which equals the total biomass
 consumed over the predator's lifetime from egg size to current weight
-\eqn{w}) therefore include the resource.
+\eqn{w}) therefore include the resource. The denominator also includes the
+food from the external encounter rate and from extra ecosystem components
+added with \code{\link[=setComponent]{setComponent()}}, but these food sources contribute nothing to
+the numerator, so they count as having trophic level 0.
+
+The consumption rate in the denominator is the model's own, calculated from
+\code{\link[=getEncounter]{getEncounter()}} and \code{\link[=getFeedingLevel]{getFeedingLevel()}}, and the growth rate is that of
+\code{\link[=getEGrowth]{getEGrowth()}}. If the encounter rate has been changed, by a function
+registered with \code{\link[=setRateFunction]{setRateFunction()}} or by an extension package, then the
+contribution of each prey species and of the resource to the numerator is
+scaled by the same factor as its contribution to the encounter rate in
+\code{\link[=getDiet]{getDiet()}}. See the "Changed encounter rates" section there.
 
 This equation can be viewed as a linear system
 \eqn{(I - D)\,\mathbf{T} = \mathbf{1}} in which the entries of
@@ -111,6 +127,7 @@ plot(tl)
 Other summary functions:
 \code{\link[=getBiomass]{getBiomass()}},
 \code{\link[=getDiet]{getDiet()}},
+\code{\link[=getEncounterByPrey]{getEncounterByPrey()}},
 \code{\link[=getGrowthCurves]{getGrowthCurves()}},
 \code{\link[=getN]{getN()}},
 \code{\link[=getSSB]{getSSB()}},

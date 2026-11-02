@@ -416,6 +416,69 @@ for those models. It also uses the bin-integrated kernels when `bin_average` is
 on, without any code of its own. This needs `mizer (>= 3.4.0.9002)` in
 `DESCRIPTION`.
 
+### The diet of a changed encounter rate
+
+[`getDiet()`](../reference/getDiet.html) and [`getTrophicLevel()`](../reference/getTrophicLevel.html) split the encounter rate between the food
+sources with the S3 generic [`getEncounterByPrey()`](../reference/getEncounterByPrey.html), and take the total from the
+model's own encounter rate, [`getEncounter()`](../reference/getEncounter.html). If your package changes the
+encounter rate with a [`projectEncounter()`](../reference/mizerEncounter.html) method, `getEncounterByPrey()` does
+not know about the change, and the split no longer adds up to the total. Mizer
+then scales the contributions of all food sources in proportion and says so,
+with a message from `getDiet()`, [`plotDiet()`](../reference/plotDiet.html) or `getTrophicLevel()`. (Earlier
+versions ignored the change: the diet did not add up to what the predator
+consumed, and the trophic levels could be far too high.) The proportional split
+is exact only if your change affects all food sources equally. Even a change of
+the search volume does not, as soon as the model has an external encounter rate
+or a component with an encounter function.
+
+Give `getEncounterByPrey()` a method that makes the same change as your
+`projectEncounter()` method and calls `NextMethod()`:
+
+```{r eval=FALSE}
+#' @method projectEncounter myExtension
+#' @export
+projectEncounter.myExtension <- function(params, n, n_pp, n_other, t = 0, ...) {
+    params <- withMySearchVolume(params, t)
+    NextMethod()
+}
+
+#' @method getEncounterByPrey myExtension
+#' @export
+getEncounterByPrey.myExtension <- function(params, n, n_pp, n_other, t = 0,
+                                           ...) {
+    params <- withMySearchVolume(params, t)
+    NextMethod()
+}
+```
+
+If your change adds encounter of its own, a second resource for example, add it
+to the result of `NextMethod()` as a food source of its own, named in the
+`prey` dimension, rather than spreading it over the existing ones:
+
+```{r eval=FALSE}
+getEncounterByPrey.myExtension <- function(params, n, n_pp, n_other, t = 0,
+                                           ...) {
+    by_prey <- NextMethod()
+    extra <- myResourceEncounter(params, n_other, t)  # species x size
+    dn <- dimnames(by_prey)
+    dn$prey <- c(dn$prey, "My resource")
+    array(c(by_prey, extra), dim = dim(by_prey) + c(0, 0, 1), dimnames = dn)
+}
+```
+
+`getDiet()` then gives a column for it, and `getTrophicLevel()`, which only
+counts prey species and the resource in its numerator, treats it like the
+external encounter rate.
+
+A `getDiet()` method of your own that exists only to account for your change to
+the encounter rate is no longer needed: replace it with the
+`getEncounterByPrey()` method. If it calls `NextMethod()` and then computes the
+diet itself, that call now gives the message even though its result is thrown
+away. `getDiet()` also gained a `t` argument, and `getDiet()` on a simulation
+passes the time of each saved step, so a method you keep must accept `t`, at
+least through `...`, and pass it on. This needs `mizer (>= 3.4.0.9003)` in
+`DESCRIPTION`.
+
 ### Methods on the renamed rate-array accessors
 
 Seventeen accessors that read a stored parameter or rate array back out of a

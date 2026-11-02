@@ -68,6 +68,8 @@ package.
 | After `rm(list = ls())`, or in the second and later examples of `R CMD check`, mizer reports the extension's class is not a defined class | the dynamic S4 marker classes lived in `.GlobalEnv` | Part 1 — the mechanism is gone, migrate rather than repair |
 | After `devtools::load_all()`, `coerceToExtensionClass()` reports no method or default for coercing `MizerParams` | same obsolete marker-class machinery | Part 1 |
 | `non-conformable arrays` from a line that multiplies `params@ft_pred_kernel_e` (or `_p`, `_d`) by `mvfft()` of a prey or predator matrix, for a model of defaults edition 3 | the Fourier-transformed kernels of such a model are stored on a zero-padded grid longer than `w_full` | Your own FFT convolutions |
+| Message `"does not say how the change is shared between the food"` sources from `getDiet()`, `plotDiet()` or `getTrophicLevel()` on a model of the package | the package changes the encounter rate with a `projectEncounter()` method but has no `getEncounterByPrey()` method | The diet of a changed encounter rate |
+| The package has a `getDiet()` method, or one for `getTrophicLevel()`, only to make them follow its change to the encounter rate | `getEncounterByPrey()` is the hook for that | The diet of a changed encounter rate |
 | The package's results are unchanged when the model is switched to `second_order_w = TRUE`, or a diagnostic is out by a constant factor | the extension's own integrals ignore the `bin_average` flag | Working under both numerical schemes |
 | A component's state advances twice as far per step, or its `dynamics_fun` double-counts, under `method = "second_order"` (`"tr_bdf2"`) or `"predictor_corrector"` | the second-order steppers call `dynamics_fun` twice per step, from the same start-of-step state | Working under both numerical schemes |
 | A method the package defines is never called, and its name starts with `get` | the `get`-prefixed accessors are plain aliases now; dispatch happens on the bare name | Methods on the renamed rate-array accessors |
@@ -430,6 +432,69 @@ on `w_full`. For a model of edition 1 or 2 it gives the same circular
 convolution as the code it replaces, so your extension keeps the results it had
 for those models. It also uses the bin-integrated kernels when `bin_average` is
 on, without any code of its own. This needs `mizer (>= 3.4.0.9002)` in
+`DESCRIPTION`.
+
+### The diet of a changed encounter rate
+
+`getDiet()` and `getTrophicLevel()` split the encounter rate between the food
+sources with the S3 generic `getEncounterByPrey()`, and take the total from the
+model's own encounter rate, `getEncounter()`. If your package changes the
+encounter rate with a `projectEncounter()` method, `getEncounterByPrey()` does
+not know about the change, and the split no longer adds up to the total. Mizer
+then scales the contributions of all food sources in proportion and says so,
+with a message from `getDiet()`, `plotDiet()` or `getTrophicLevel()`. (Earlier
+versions ignored the change: the diet did not add up to what the predator
+consumed, and the trophic levels could be far too high.) The proportional split
+is exact only if your change affects all food sources equally. Even a change of
+the search volume does not, as soon as the model has an external encounter rate
+or a component with an encounter function.
+
+Give `getEncounterByPrey()` a method that makes the same change as your
+`projectEncounter()` method and calls `NextMethod()`:
+
+```r
+#' @method projectEncounter myExtension
+#' @export
+projectEncounter.myExtension <- function(params, n, n_pp, n_other, t = 0, ...) {
+    params <- withMySearchVolume(params, t)
+    NextMethod()
+}
+
+#' @method getEncounterByPrey myExtension
+#' @export
+getEncounterByPrey.myExtension <- function(params, n, n_pp, n_other, t = 0,
+                                           ...) {
+    params <- withMySearchVolume(params, t)
+    NextMethod()
+}
+```
+
+If your change adds encounter of its own, a second resource for example, add it
+to the result of `NextMethod()` as a food source of its own, named in the
+`prey` dimension, rather than spreading it over the existing ones:
+
+```r
+getEncounterByPrey.myExtension <- function(params, n, n_pp, n_other, t = 0,
+                                           ...) {
+    by_prey <- NextMethod()
+    extra <- myResourceEncounter(params, n_other, t)  # species x size
+    dn <- dimnames(by_prey)
+    dn$prey <- c(dn$prey, "My resource")
+    array(c(by_prey, extra), dim = dim(by_prey) + c(0, 0, 1), dimnames = dn)
+}
+```
+
+`getDiet()` then gives a column for it, and `getTrophicLevel()`, which only
+counts prey species and the resource in its numerator, treats it like the
+external encounter rate.
+
+A `getDiet()` method of your own that exists only to account for your change to
+the encounter rate is no longer needed: replace it with the
+`getEncounterByPrey()` method. If it calls `NextMethod()` and then computes the
+diet itself, that call now gives the message even though its result is thrown
+away. `getDiet()` also gained a `t` argument, and `getDiet()` on a simulation
+passes the time of each saved step, so a method you keep must accept `t`, at
+least through `...`, and pass it on. This needs `mizer (>= 3.4.0.9003)` in
 `DESCRIPTION`.
 
 ### Methods on the renamed rate-array accessors

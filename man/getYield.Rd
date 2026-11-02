@@ -59,6 +59,7 @@ sum(getYield(sim)[1:10, "Herring"] / 10)
 Other summary functions:
 \code{\link[=getBiomass]{getBiomass()}},
 \code{\link[=getDiet]{getDiet()}},
+\code{\link[=getEncounterByPrey]{getEncounterByPrey()}},
 \code{\link[=getGrowthCurves]{getGrowthCurves()}},
 \code{\link[=getN]{getN()}},
 \code{\link[=getSSB]{getSSB()}},

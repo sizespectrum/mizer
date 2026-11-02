@@ -245,6 +245,184 @@ test_that("getDiet works on a MizerSim", {
     expect_false(isTRUE(all.equal(diet_rate, diet_all)))
 })
 
+# Changed encounter, n_other and time (#613) ----
+
+# Rate functions and component functions are found by name, so the functions
+# that the models below name have to be visible from the global environment.
+local_encounter_functions <- function(env = parent.frame()) {
+    e <- globalenv()
+    e$test_half_encounter <- function(params, n, n_pp, n_other, t, ...) {
+        0.5 * mizerEncounter(params, n = n, n_pp = n_pp, n_other = n_other,
+                             t = t, ...)
+    }
+    e$test_extra_encounter <- function(params, n, n_pp, n_other, t = 0,
+                                       component, ...) {
+        outer(rep(1, nrow(params@species_params)),
+              10 * n_other[[component]] * params@w^0.75)
+    }
+    # No default for `t`, so that a caller that does not pass it fails
+    e$test_seasonal_encounter <- function(params, n, n_pp, n_other, t,
+                                          component, ...) {
+        (1 + 0.8 * sin(2 * pi * t)) *
+            outer(rep(1, nrow(params@species_params)),
+                  10 * n_other[[component]] * params@w^0.75)
+    }
+    e$test_extra_dynamics <- function(params, n_other, component, ...) {
+        n_other[[component]]
+    }
+    withr::defer(rm(list = c("test_half_encounter", "test_extra_encounter",
+                             "test_seasonal_encounter", "test_extra_dynamics"),
+                    envir = e),
+                 envir = env)
+}
+
+# A model with a component of extra prey whose encounter rate is proportional
+# to its abundance
+extra_prey_params <- function(encounter_fun = "test_extra_encounter") {
+    setComponent(NS_params_small, "extra_prey", initial_value = 1,
+                 dynamics_fun = "test_extra_dynamics",
+                 encounter_fun = encounter_fun)
+}
+
+# A model with an external encounter rate, so that scaling the contributions of
+# all food sources in proportion is not the same as scaling the predation alone
+ext_encounter_params <- function() {
+    params <- NS_params_small
+    params@ext_encounter[] <- 0.2 * getEncounter(params)
+    params
+}
+
+# A model whose extension scales the search volume, the way therMizer applies
+# its temperature effect. With `by_prey = TRUE` the extension gives
+# getEncounterByPrey() the same change as projectEncounter().
+search_vol_ext_params <- function(by_prey, factor = 0.7) {
+    ext <- paste0("mizerTestDiet", if (by_prey) "ByPrey", Sys.getpid())
+    scale_search_vol <- function(params, n, n_pp, n_other, t = 0, ...) {
+        params@search_vol <- params@search_vol * factor
+        NextMethod()
+    }
+    registerS3method("projectEncounter", ext, scale_search_vol,
+                     envir = asNamespace("mizer"))
+    if (by_prey) {
+        registerS3method("getEncounterByPrey", ext, scale_search_vol,
+                         envir = asNamespace("mizer"))
+    }
+    params <- ext_encounter_params()
+    params@extensions <- setNames(NA_character_, ext)
+    coerceToExtensionClass(params)
+}
+
+# The model that search_vol_ext_params() describes, written without an
+# extension
+search_vol_ref_params <- function(factor = 0.7) {
+    params <- ext_encounter_params()
+    params@search_vol <- params@search_vol * factor
+    params
+}
+
+# Summed over food sources, the diet must reproduce the consumption rate at
+# every size at which there are fish
+expect_diet_adds_up <- function(diet, encounter, feeding_level, n) {
+    total <- rowSums(diet, dims = 2)
+    consumption <- encounter * (1 - feeding_level)
+    mask <- n > 0
+    expect_equal(as.vector(total)[mask], as.vector(consumption)[mask])
+}
+
+test_that("getDiet does not report on a model with the standard encounter rate", {
+    expect_no_message(getDiet(params, n = n, n_pp = n_pp))
+    expect_no_message(getDiet(ext_encounter_params()))
+    p <- setPredKernel(params, pred_kernel = pred_kernel(params))
+    expect_no_message(getDiet(p, n = n, n_pp = n_pp))
+})
+
+test_that("getDiet follows an encounter rate set with setRateFunction() (#613)", {
+    local_encounter_functions()
+    params <- setRateFunction(NS_params_small, "Encounter",
+                              "test_half_encounter")
+    expect_message(diet <- getDiet(params, proportion = FALSE),
+                   "in proportion")
+    expect_diet_adds_up(diet, getEncounter(params), getFeedingLevel(params),
+                        initialN(params))
+    # Halving the encounter affects all food sources equally, so the
+    # proportions are those of the model without the change
+    expect_equal(suppressMessages(getDiet(params)), getDiet(NS_params_small))
+})
+
+test_that("getDiet follows an extension's projectEncounter() method (#613)", {
+    params <- search_vol_ext_params(by_prey = FALSE)
+    expect_message(diet <- getDiet(params, proportion = FALSE),
+                   "in proportion")
+    expect_diet_adds_up(diet, getEncounter(params), getFeedingLevel(params),
+                        initialN(params))
+})
+
+test_that("getDiet uses an extension's getEncounterByPrey() method (#613)", {
+    params <- search_vol_ext_params(by_prey = TRUE)
+    ref <- search_vol_ref_params()
+    expect_equal(getEncounter(params), getEncounter(ref), ignore_attr = TRUE)
+    expect_no_message(diet <- getDiet(params, proportion = FALSE))
+    expect_equal(diet, getDiet(ref, proportion = FALSE))
+    expect_equal(getDiet(params), getDiet(ref))
+})
+
+test_that("getDiet uses n_other in the feeding level (#613)", {
+    local_encounter_functions()
+    params <- extra_prey_params()
+    n_other <- list(extra_prey = 2)
+    diet <- getDiet(params, proportion = FALSE, n_other = n_other)
+    expect_diet_adds_up(diet, getEncounter(params, n_other = n_other),
+                        getFeedingLevel(params, n_other = n_other),
+                        initialN(params))
+})
+
+test_that("getDiet evaluates the model at the time t (#613)", {
+    local_encounter_functions()
+    params <- extra_prey_params("test_seasonal_encounter")
+    diet <- getDiet(params, proportion = FALSE, t = 0.25)
+    expect_diet_adds_up(diet, getEncounter(params, t = 0.25),
+                        getFeedingLevel(params, time_range = 0.25),
+                        initialN(params))
+    # At t = 0.25 the seasonal factor is 1.8
+    fixed <- extra_prey_params()
+    expect_equal(diet, getDiet(fixed, proportion = FALSE,
+                               n_other = list(extra_prey = 1.8)))
+    expect_no_error(getDiet(params))
+})
+
+test_that("getDiet on a MizerSim evaluates each saved time at that time (#613)", {
+    local_encounter_functions()
+    params <- extra_prey_params("test_seasonal_encounter")
+    sim <- project(params, t_max = 1, t_save = 0.25, dt = 0.05)
+    diet <- getDiet(sim, time_range = 0.75, drop = TRUE)
+    slice <- get_sim_rate_slice(sim, 4)
+    expect_equal(slice$t, 0.75)
+    expect_equal(diet, getDiet(params, n = slice$n, n_pp = slice$n_pp,
+                               n_other = slice$n_other, t = 0.75),
+                 ignore_attr = TRUE)
+})
+
+# getEncounterByPrey ----
+test_that("getEncounterByPrey resolves the encounter rate by food source", {
+    local_encounter_functions()
+    p <- extra_prey_params()
+    p@ext_encounter[] <- 0.2 * getEncounter(NS_params_small)
+    by_prey <- getEncounterByPrey(p)
+    species <- p@species_params$species
+    expect_identical(dimnames(by_prey),
+                     list(predator = species, w = dimnames(p@initial_n)$w,
+                          prey = c(species, "Resource", "External",
+                                   "extra_prey")))
+    expect_equal(rowSums(by_prey, dims = 2), getEncounter(p),
+                 ignore_attr = TRUE)
+    expect_equal(by_prey[, , "External"], p@ext_encounter, ignore_attr = TRUE)
+    # getDiet() is the encounter by prey times 1 - f
+    diet <- getDiet(p, proportion = FALSE)
+    f <- getFeedingLevel(p)
+    expect_equal(diet, sweep(by_prey, c(1, 2), (1 - f) * (initialN(p) > 0),
+                             "*"))
+})
+
 
 # getTrophicLevel ----
 test_that("getTrophicLevel returns matrix with correct structure", {
@@ -298,6 +476,42 @@ test_that("getTrophicLevelBySpecies forwards w_R and beta_R", {
     tl_default <- getTrophicLevelBySpecies(NS_params_small)
     tl_low <- getTrophicLevelBySpecies(NS_params_small, beta_R = 100)
     expect_false(isTRUE(all.equal(tl_default, tl_low)))
+})
+
+test_that("getTrophicLevel follows an encounter rate set with setRateFunction() (#613)", {
+    local_encounter_functions()
+    params <- setRateFunction(NS_params_small, "Encounter",
+                              "test_half_encounter")
+    # The same encounter rate written as a halved search volume
+    ref <- NS_params_small
+    ref@search_vol <- ref@search_vol / 2
+    expect_message(tl <- getTrophicLevel(params), "in proportion")
+    expect_equal(tl, getTrophicLevel(ref), ignore_attr = TRUE)
+})
+
+test_that("getTrophicLevel uses an extension's getEncounterByPrey() method (#613)", {
+    params <- search_vol_ext_params(by_prey = TRUE)
+    ref <- search_vol_ref_params()
+    expect_no_message(tl <- getTrophicLevel(params))
+    expect_equal(tl, getTrophicLevel(ref), ignore_attr = TRUE)
+    expect_equal(getTrophicLevelBySpecies(params),
+                 getTrophicLevelBySpecies(ref))
+})
+
+test_that("getTrophicLevel and getTrophicLevelBySpecies use n_other and t (#613)", {
+    local_encounter_functions()
+    params <- extra_prey_params("test_seasonal_encounter")
+    # At t = 0.25 the seasonal factor is 1.8
+    fixed <- extra_prey_params()
+    n_other <- list(extra_prey = 1.8)
+    expect_equal(getTrophicLevel(params, t = 0.25),
+                 getTrophicLevel(fixed, n_other = n_other),
+                 ignore_attr = TRUE)
+    expect_equal(getTrophicLevelBySpecies(params, t = 0.25),
+                 getTrophicLevelBySpecies(fixed, n_other = n_other))
+    expect_false(isTRUE(all.equal(getTrophicLevelBySpecies(fixed),
+                                  getTrophicLevelBySpecies(fixed,
+                                                           n_other = n_other))))
 })
 
 # getTrophicLevelBySpecies ----
