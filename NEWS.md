@@ -22,6 +22,10 @@
 
 ## Bug fixes
 
+- `plotYieldVsF()` accepts the `tol` argument it had in mizerExperimental
+  again, with a deprecation warning, and uses it as `distance_tol`. Since the
+  function moved to mizer in 3.3.0, a call that passed `tol` stopped with an
+  error. The upgrade notes for mizer 3.3 now describe the move (#640).
 - `steadySingleSpecies()` with `keep = "biomass"` or `keep = "number"` no
   longer fills a species with zero abundance with `NaN`, which made the
   returned model fail validation (#615). The same happened with

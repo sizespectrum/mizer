@@ -4,7 +4,8 @@ A model now remembers the edition of default choices it was created with. This
 changes nothing for code that never calls `defaults_edition()`. Code that does
 switch editions finds that the switch now applies only to models created
 afterwards. Models saved with mizer 3.4 are upgraded once more when they are
-first used.
+first used. `plotYieldVsF()` accepts the `tol` argument it had in
+mizerExperimental again, with a deprecation warning.
 
 ### A model keeps the defaults edition it was created with
 
@@ -53,3 +54,20 @@ with mizer 3.4 is upgraded when it is first used, with the usual warning that it
 was created with an earlier version of mizer. `readParams()` and `readSim()` do
 the upgrade quietly. Reassign the result, `params <- validParams(params)`, to
 stop the warning, and save the model again to keep the upgraded version.
+
+### `plotYieldVsF()` accepts `tol` again
+
+When `plotYieldVsF()` moved to mizer from mizerExperimental in mizer 3.3, its
+`tol` argument became `distance_tol`, and in mizer 3.3 and 3.4 a call that
+still passed `tol` stopped with an error. It now runs, with a deprecation
+warning, and uses the value as `distance_tol`, which is what it always meant.
+Rename the argument to stop the warning:
+
+```r
+# Old
+plotYieldVsF(params, "Cod", F_range = seq(0.2, 0.8, 0.02), tol = 1e-4)
+# New
+plotYieldVsF(params, "Cod", F_range = seq(0.2, 0.8, 0.02), distance_tol = 1e-4)
+```
+
+Giving both `tol` and `distance_tol` is an error.
