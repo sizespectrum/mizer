@@ -437,8 +437,10 @@ validMizerParams <- function(object) {
 #' @slot second_order_w A named list with entry `flux`
 #'   (the advective flux scheme: `"upwind"`, `"van_leer"`, or `"centred"`) and
 #'   logical entry `bin_average` (controls whether bin-averaging is used for
-#'   rates). Both default to the first-order setting to preserve the behaviour
-#'   of previous mizer versions.
+#'   rates). In a model of defaults edition 3 or later both default to the
+#'   second-order setting. In earlier editions they default to the first-order
+#'   setting, which preserves the behaviour of previous mizer versions. See
+#'   [second_order_w()].
 #' @slot defaults_edition The edition of default choices that was active when
 #'   the model was created, see [defaults_edition()]. Whenever mizer fills in a
 #'   default for the model it uses this edition, so that the model keeps
@@ -770,7 +772,7 @@ emptyParams <- function(species_params,
             linetype = linetype,
             ft_mask = ft_mask,
             use_predation_diffusion = FALSE,
-            second_order_w = list(flux = "upwind", bin_average = FALSE),
+            second_order_w = default_second_order_w(edition),
             defaults_edition = edition
         ),
         class = "MizerParams"

@@ -194,10 +194,13 @@ Three rules that follow from the table:
 ## Respecting the model's quadrature scheme
 
 A model may be on either of two quadrature schemes, selected by the
-`bin_average` entry of [`second_order_w()`](../reference/second_order_w.html) (see the [guide to running a mizer simulation](guide-run-simulation.html)). Code
-that ignores this looks correct and passes its tests, because the default is the
-first-order scheme — and is then silently wrong by around 10% for anyone who has
-switched the second-order scheme on. Four rules:
+`bin_average` entry of [`second_order_w()`](../reference/second_order_w.html) (see the [guide to running a mizer simulation](guide-run-simulation.html)). A
+model of defaults edition 3 or later is on the second-order scheme unless its
+creator chose otherwise; a model of an earlier edition, which includes
+[`NS_params`](../reference/NS_params.html) and every model built with the default edition, is on the
+first-order one. Code that ignores this looks correct and passes tests run on
+such a model — and is then silently wrong by around 10% for anyone whose model
+is on the second-order scheme. Four rules:
 
 - **Build derived quantities from the rate functions, don't re-derive them.**
   `getEncounter()`, [`getFeedingLevel()`](../reference/getFeedingLevel.html), [`getPredRate()`](../reference/getPredRate.html), [`getEGrowth()`](../reference/getEGrowth.html) already
@@ -349,7 +352,7 @@ other entry, `encounter`, `feeding_level`, `pred_rate`, `pred_mort`, `f_mort`,
 `e` and `rdi` among them, is still the start-of-step value in the corrector
 call. A component coupling through one of those — `detritusDynamics()` above
 reads `rates$pred_rate` — is first order in that coupling however carefully it
-integrates, and on [`NS_params`](../reference/NS_params.html) a single `dt = 0.1` step moves `pred_rate` by
+integrates, and on `NS_params` a single `dt = 0.1` step moves `pred_rate` by
 nearly 30%. Prefer a coupling through the five averaged rates where the choice
 is yours.
 

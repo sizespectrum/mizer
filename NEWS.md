@@ -48,9 +48,32 @@
   slots by Fourier transforms of your own. In a model of edition 3 those slots
   are stored on the zero-padded grid and can be longer than `w_full`, so such
   code fails with "non-conformable arrays".
+- The new defaults edition 3 makes the second-order numerical scheme in size
+  the default for new models (#503): a model created while edition 3 is active
+  gets `second_order_w = TRUE`, that is the van Leer flux limiter and
+  bin-averaged integrals over the size grid. The first-order upwind flux
+  carries enough numerical diffusion to smear out cohorts and damp real
+  oscillations, and code that integrates over the size grid without honouring
+  `bin_average` was only caught by tests that switched the second-order scheme
+  on. The `second_order_w` argument of `newMultispeciesParams()`,
+  `newSingleSpeciesParams()`, `newTraitParams()` and `newCommunityParams()`
+  now defaults to `NULL`, which means the scheme of the edition; set it to
+  `FALSE` to get the first-order scheme in edition 3, or to
+  `c(bin_average = FALSE)` to keep the left-edge integrals, and with them the
+  unnormalised summaries of edition 2, while using the van Leer flux. Models of
+  editions 1 and 2, which include every model created with the default edition
+  and every model saved with an earlier version of mizer, keep the first-order
+  scheme, so their results do not change.
 
 ## Bug fixes
 
+- `addSpecies()` and `adjustSizeGrid()` (and with it `expandSizeGrid()`) now
+  build the new model with the numerical scheme of the model they are given.
+  They used to build it with the first-order scheme and copy the
+  `second_order_w` setting across afterwards, so that on a model with
+  bin-averaging switched on the predation kernels and the fishing selectivity
+  they recalculated were point-sampled at the left bin edges although the
+  model reported `bin_average = TRUE`.
 - `plotYieldVsF()` accepts the `tol` argument it had in mizerExperimental
   again, with a deprecation warning, and uses it as `distance_tol`. Since the
   function moved to mizer in 3.3.0, a call that passed `tol` stopped with an

@@ -90,6 +90,43 @@ test_that("newMultispeciesParams sets initial resource spectrum and cutoff", {
     expect_true(all(initialNResource(params)[w_full(params) >= 1] == 0))
 })
 
+test_that("a new model gets the numerical scheme of its defaults edition", {
+    sp <- NS_species_params_small
+    withr::local_options(mizer_defaults_edition = 2)
+    p2 <- newMultispeciesParams(sp, inter_small, no_w = 20, info_level = 0)
+    expect_identical(second_order_w(p2),
+                     list(flux = "upwind", bin_average = FALSE))
+
+    withr::local_options(mizer_defaults_edition = 3)
+    p3 <- newMultispeciesParams(sp, inter_small, no_w = 20, info_level = 0)
+    expect_identical(second_order_w(p3),
+                     list(flux = "van_leer", bin_average = TRUE))
+    # The model is built bin-averaged from the start, exactly as when the
+    # second-order scheme is asked for explicitly.
+    p_true <- newMultispeciesParams(sp, inter_small, no_w = 20,
+                                    second_order_w = TRUE, info_level = 0)
+    p_true@time_created <- p3@time_created
+    p_true@time_modified <- p3@time_modified
+    expect_equal(p3, p_true)
+    expected <- p3@resource_params$kappa *
+        power_law_bin_average(p3@w_full, p3@dw_full, -p3@resource_params$lambda,
+                              w_max = p3@resource_params$w_pp_cutoff)
+    expect_equal(unname(p3@initial_n_pp), expected)
+
+    # The first-order scheme can still be chosen
+    p_false <- newMultispeciesParams(sp, inter_small, no_w = 20,
+                                     second_order_w = FALSE, info_level = 0)
+    expect_identical(second_order_w(p_false),
+                     list(flux = "upwind", bin_average = FALSE))
+    expect_equal(p_false@initial_n_pp, p2@initial_n_pp)
+    # A value that sets one entry leaves the other at the edition's default
+    p_flux <- newMultispeciesParams(sp, inter_small, no_w = 20,
+                                    second_order_w = c(bin_average = FALSE),
+                                    info_level = 0)
+    expect_identical(second_order_w(p_flux),
+                     list(flux = "van_leer", bin_average = FALSE))
+})
+
 # setParams ----
 test_that("setParams can leave params unchanged", {
     params <- setParams(NS_params_small, info_level = 0)

@@ -209,8 +209,10 @@ Set to \code{TRUE} to enable the diffusion term from the jump-growth equation.}
 \item{\code{second_order_w}}{A named list with entry \code{flux}
 (the advective flux scheme: \code{"upwind"}, \code{"van_leer"}, or \code{"centred"}) and
 logical entry \code{bin_average} (controls whether bin-averaging is used for
-rates). Both default to the first-order setting to preserve the behaviour
-of previous mizer versions.}
+rates). In a model of defaults edition 3 or later both default to the
+second-order setting. In earlier editions they default to the first-order
+setting, which preserves the behaviour of previous mizer versions. See
+\code{\link[=second_order_w]{second_order_w()}}.}
 
 \item{\code{defaults_edition}}{The edition of default choices that was active when
 the model was created, see \code{\link[=defaults_edition]{defaults_edition()}}. Whenever mizer fills in a

@@ -180,10 +180,13 @@ Three rules that follow from the table:
 ## Respecting the model's quadrature scheme
 
 A model may be on either of two quadrature schemes, selected by the
-`bin_average` entry of `second_order_w()` (see the `run-simulation` skill). Code
-that ignores this looks correct and passes its tests, because the default is the
-first-order scheme — and is then silently wrong by around 10% for anyone who has
-switched the second-order scheme on. Four rules:
+`bin_average` entry of `second_order_w()` (see the `run-simulation` skill). A
+model of defaults edition 3 or later is on the second-order scheme unless its
+creator chose otherwise; a model of an earlier edition, which includes
+`NS_params` and every model built with the default edition, is on the
+first-order one. Code that ignores this looks correct and passes tests run on
+such a model — and is then silently wrong by around 10% for anyone whose model
+is on the second-order scheme. Four rules:
 
 - **Build derived quantities from the rate functions, don't re-derive them.**
   `getEncounter()`, `getFeedingLevel()`, `getPredRate()`, `getEGrowth()` already
