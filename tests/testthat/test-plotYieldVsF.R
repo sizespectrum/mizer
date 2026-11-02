@@ -71,6 +71,26 @@ test_that("Current F and F_MSY species parameters are carried through as referen
     expect_identical(attr(d, "reference_lines"), c("Current F" = 0.5, F_MSY = 0.35))
 })
 
+test_that("the deprecated `tol` is used as `distance_tol`", {
+    # mizerExperimental's plotYieldVsF() called the distance tolerance `tol`,
+    # and scripts written for it still pass it. A tolerance loose enough to
+    # stop every projection at its first check shows that it arrived.
+    args <- c(list(NS_params_small, "Cod", F_range = c(0.2, 0.6),
+                   residual_tol = 10, return_data = TRUE), fast)
+    lifecycle::expect_deprecated(
+        old <- suppressMessages(do.call(plotYieldVsF, c(args, tol = 100)))
+    )
+    new <- suppressMessages(do.call(plotYieldVsF,
+                                    c(args, distance_tol = 100)))
+    expect_identical(old$termination, rep("residual_tolerance", 2))
+    expect_equal(old[[2]], new[[2]])
+
+    expect_error(
+        plotYieldVsF(NS_params_small, "Cod", tol = 1e-4, distance_tol = 1e-4),
+        "so give only `distance_tol`"
+    )
+})
+
 test_that("plotYieldVsF validates its arguments", {
     expect_error(
         plotYieldVsF(NS_params_small, c("Cod", "Herring")),

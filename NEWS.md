@@ -22,6 +22,10 @@
 
 ## Bug fixes
 
+- `plotYieldVsF()` accepts the `tol` argument it had in mizerExperimental
+  again, with a deprecation warning, and uses it as `distance_tol`. Since the
+  function moved to mizer in 3.3.0, a call that passed `tol` stopped with an
+  error. The upgrade notes for mizer 3.3 now describe the move (#640).
 - With `second_order_w(params) <- c(flux = "van_leer")` a projection could
   suddenly turn all abundances of a species into `NaN` (#630). Above `w_max` a
   spectrum can decay to subnormal numbers, and the ratio of successive density
