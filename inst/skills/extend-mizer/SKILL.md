@@ -273,12 +273,11 @@ a detritus pool that fish eat and that relaxes back towards a capacity:
 
 ```{r detritus-functions}
 detritusEncounter <- function(params, n, n_pp, n_other, component, ...) {
-    params2 <- params
-    # Drop this component before delegating, or mizerEncounter() calls back
-    # into this function and recurses.
-    params2@other_encounter[[component]] <- NULL
-    mizerEncounter(params2, n = n, n_pp = n_other[[component]],
-                   n_other = n_other, ...)
+    # The detritus is eaten through the same kernel and with the same
+    # interaction as the resource
+    prey <- n_other[[component]] * params@w_full * params@dw_full
+    params@species_params$interaction_resource * params@search_vol *
+        convolve_pred_kernel(params, prey)
 }
 
 detritusDynamics <- function(params, n_other, rates, dt, component, ...) {
@@ -292,10 +291,17 @@ detritusDynamics <- function(params, n_other, rates, dt, component, ...) {
 }
 ```
 
-Passing the component's own abundance to `mizerEncounter()` as `n_pp`, as
-`detritusEncounter()` does, is the trick for making a component act as an extra
-prey spectrum: it is then eaten through the ordinary predation kernel and shows
-up in `getDiet()` without further work.
+Convolving the component's own abundance with the predation kernel, as
+`detritusEncounter()` does, is how to make a component act as an extra prey
+spectrum: it is then eaten through the ordinary predation kernel, under
+whichever quadrature scheme the model is on, and shows up as a column of its
+own in `getDiet()` without further work. An `encounter_fun` returns only the
+component's own contribution, which `getEncounter()` adds to the rest. So do not
+delegate to `mizerEncounter()` with the component's abundance as `n_pp`:
+`mizerEncounter()` returns the whole encounter rate, and the component would
+count the encounter of the fish and `ext_encounter()` a second time.
+`convolve_pred_kernel()` refuses a model with a custom predation kernel; there,
+write the sum out in full with `encounter_kernel()`, as described above.
 
 ### Components and the time stepper
 
@@ -479,6 +485,16 @@ predation kernel, it appears in the diet with no further work:
 
 ```{r detritus-diet}
 plotDiet(params3, species = "Cod")
+```
+
+The pool holds half the resource's abundance at every size and is eaten with
+the resource's interaction, so at every predator size its share of the diet is
+exactly half the resource's — a quick check that an `encounter_fun` returns
+the component's own contribution and nothing more:
+
+```{r detritus-diet-check}
+diet <- getDiet(params3, proportion = FALSE)
+range(diet[, , "Detritus"] / diet[, , "Resource"], na.rm = TRUE)
 ```
 
 To let the component kill fish as well as feed them, give `setComponent()` a

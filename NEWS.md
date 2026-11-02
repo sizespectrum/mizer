@@ -202,6 +202,14 @@
   change in abundance, and the trait-based model one also looks at the change
   in feeding level and recruitment. The "Understanding size-spectrum dynamics"
   guide says the same.
+- The detritus example in the "Extending mizer" guide and the `extend-mizer`
+  skill counted the encounter of the fish prey and `ext_encounter()` a second
+  time. Its `encounter_fun` delegated to `mizerEncounter()` with the detritus as
+  `n_pp`, but `mizerEncounter()` returns the whole encounter rate, so an empty
+  detritus pool raised the encounter rate by up to a factor of 2 and the
+  detritus made up about half of the diet of cod. The example now evaluates the
+  encounter of the detritus alone with `convolve_pred_kernel()`, and the guide
+  explains that an `encounter_fun` returns only its component's contribution.
 
 # mizer 3.4.0
 
