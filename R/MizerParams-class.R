@@ -1112,6 +1112,15 @@ repair_params <- function(params) {
     wrong <- params@species_params$w_min < w_min * (1 - 1e-6) # The 1e-6 is to avoid rounding errors
     if (any(wrong)) {
         params@species_params$w_min[wrong] <- w_min
+        # The given value has to be raised too. Otherwise every rebuild of the
+        # species parameters from the given ones would bring it back and give
+        # this warning again, and once the grid had been widened with
+        # `adjustSizeGrid()` it would come back without any warning.
+        given_wrong <- which(params@given_species_params$w_min <
+                                 w_min * (1 - 1e-6))
+        if (length(given_wrong) > 0) {
+            params@given_species_params$w_min[given_wrong] <- w_min
+        }
         warning("The minimum weight of some species was smaller than the ",
                 "minimum weight of the weight grid in the model: ",
                 paste(params@species_params$species[wrong], collapse = ", "),

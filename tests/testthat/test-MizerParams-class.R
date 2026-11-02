@@ -161,6 +161,22 @@ test_that("validParams checks w_min and w_max", {
     expect_equal(params@w_min_idx[1:3], rep(1, 3), ignore_attr = TRUE)
 })
 
+test_that("raising w_min to the grid also raises the given value (#642)", {
+    params <- NS_params_small
+    min_w <- min(w(params))
+    expect_warning(species_params(params)$w_min[1] <- min_w / 10,
+                   "adjustSizeGrid")
+    expect_equal(species_params(params)$w_min[1], min_w, ignore_attr = TRUE)
+    expect_equal(given_species_params(params)$w_min[1], min_w,
+                 ignore_attr = TRUE)
+    # A later unrelated change does not give the warning again
+    expect_no_warning(species_params(params)$beta[2] <- 50)
+    # and after the grid is widened the rejected value does not come back
+    params <- adjustSizeGrid(params, new_min_w = min_w / 10)
+    species_params(params)$beta[2] <- 60
+    expect_equal(species_params(params)$w_min[1], min_w, ignore_attr = TRUE)
+})
+
 test_that("validParams skips the repair only for an unchanged object", {
     clear_validated_params()
     params <- NS_params_small

@@ -139,6 +139,16 @@
   predation-diffusion coefficient by a median of 7.7% and by up to 11%. The
   error was first order, so it did not go away quickly on finer grids. Models
   on the default scheme are unaffected.
+
+- When a species is given an egg size `w_min` below the size grid, mizer
+  raises it to the start of the grid with a warning. It now also raises the
+  value stored among the given species parameters (#642). Before, the rejected
+  value stayed there, so every later change of an unrelated species parameter
+  gave the same warning again. Once the grid had been widened with
+  `adjustSizeGrid()`, the next such change put the rejected `w_min` back
+  without any warning, and the default `h`, `ks` and `gamma` of that species
+  changed with it.
+
 ## Documentation
 
 - The help page of `getDiffusion()` gave the predation-diffusion rate with a
