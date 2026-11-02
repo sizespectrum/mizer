@@ -104,6 +104,21 @@
 - The help page of `getDiffusion()` gave the predation-diffusion rate with a
   factor $(\alpha_i(1-\psi_i(w)))^2$. The correct factor, and the one mizer
   has always used, is $\alpha_i^2$, as in the model description (#624).
+- The "Community Model" and "Trait-Based Model" articles no longer explain a
+  trophic cascade as moving down the spectrum one predator-prey mass ratio
+  $\beta$ at a time, which would put its peaks and troughs a factor of $\beta$
+  apart. They are not, and they do not move closer together when $\beta$ is
+  reduced (#3). The "Single-Species Model" article now gives the steady-state
+  spectrum in terms of the growth and mortality rates and shows, with new
+  experiments, that a change in mortality or growth changes the abundance at
+  all larger sizes, so that the abundance has its extremes where the change
+  switches sign, while a change in growth also piles fish up or thins them out
+  locally. Its prey-reduction example now explains that the slow-down in growth
+  costs far more fish than it piles up. The cascade sections build on this: the
+  community model one compares the change in predation mortality with the
+  change in abundance, and the trait-based model one also looks at the change
+  in feeding level and recruitment. The "Understanding size-spectrum dynamics"
+  guide says the same.
 
 # mizer 3.4.0
 
