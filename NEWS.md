@@ -167,6 +167,14 @@
 - The help page of `getDiffusion()` gave the predation-diffusion rate with a
   factor $(\alpha_i(1-\psi_i(w)))^2$. The correct factor, and the one mizer
   has always used, is $\alpha_i^2$, as in the model description (#624).
+- The guide to changing parameters listed the egg size `w_min` and the
+  assimilation efficiency `alpha` among the parameters that change only
+  themselves. Both feed the default for `h`: when `h` is derived from growth
+  information, lowering `w_min` raises `h` and any calculated `ks` and `gamma`.
+  Without usable growth information, the fallback `h = 30` stays unchanged.
+  The guide now says so, and shows how to change only the egg size:
+  pin `h` first, and extend the size grid with `adjustSizeGrid()` before
+  lowering `w_min` below it (sizespectrum/mizerAgents#13).
 - The help page of `tuneSteadyState()` now says when not to use it: because it
   holds the reproduction rate at its current value and re-derives
   `erepro`/`R_max` and `cc_pp`, it cannot find a steady state with a very
