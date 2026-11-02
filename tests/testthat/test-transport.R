@@ -110,6 +110,48 @@ test_that("flux limiter keeps abundances non-negative", {
     }
 })
 
+test_that("van Leer weights agree with the textbook limiter of the ratio", {
+    n <- unclass(initialN(NS_params_small))
+    no_w <- ncol(n)
+    chi <- flux_limiter_chi(NS_params_small, n, NULL, "van_leer")
+    delta <- unname(n[, 2:no_w] - n[, 1:(no_w - 1)])
+    num <- delta[, 1:(no_w - 2)]
+    den <- delta[, 2:(no_w - 1)]
+    # Upwind where the jump is 0, as above w_max where the density is 0.
+    r <- ifelse(den == 0, 0, num / den)
+    expected <- (r + abs(r)) / (1 + abs(r))
+    # Faces at and just above the recruitment boundary stay upwind.
+    jint <- (NS_params_small@w_min_idx[1] + 3):no_w
+    expect_gt(sum(expected[, jint - 2] > 0), 0)
+    expect_equal(unname(chi[, jint]), expected[, jint - 2], tolerance = 1e-14)
+})
+
+test_that("van Leer weights stay finite when a density jump is subnormal", {
+    # Above w_max a spectrum can decay to subnormal densities. A subnormal jump
+    # delta_j used to make the ratio delta_{j-1} / delta_j overflow to Inf, and
+    # the limiter then returned NaN (#630). A huge but finite ratio overflowed
+    # inside the limiter instead and returned Inf.
+    n <- unclass(initialN(NS_params_small))
+    no_w <- ncol(n)
+    tail <- (no_w - 3):no_w
+    n[1, tail] <- c(1e-10, 2e-323, 1e-323, 0)  # ratio overflows to Inf
+    n[2, tail] <- c(1e-15, 2e-323, 1e-323, 0)  # ratio is finite, about 1e308
+    chi <- flux_limiter_chi(NS_params_small, n, NULL, "van_leer")
+    expect_true(all(is.finite(chi)))
+    expect_true(all(chi >= 0 & chi <= 2))
+    # Successive jumps of the same sign with |delta_{j-1}| >> |delta_j| give
+    # the limit of the van Leer limiter for r -> Inf.
+    expect_equal(chi[1:2, no_w - 1], c(2, 2))
+    # Equal jumps give r = 1.
+    expect_equal(chi[1:2, no_w], c(1, 1))
+
+    p_vl <- NS_params_small
+    second_order_w(p_vl) <- c(flux = "van_leer")
+    initialN(p_vl) <- n
+    sim <- project(p_vl, t_max = 0.2, dt = 0.1, progress_bar = FALSE)
+    expect_true(all(is.finite(sim@n)))
+})
+
 test_that("flux limiter steady state is preserved by all methods", {
     # Build the limiter's own steady state and hold reproduction constant so the
     # only thing being tested is whether the projection scheme keeps that state
