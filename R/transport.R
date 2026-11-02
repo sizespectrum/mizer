@@ -302,11 +302,17 @@ get_transport_coefs_upwind <- function(params, n, g, mu, dt, recruitment_flux,
     list(a = a, b = b, c = c, S = S)
 }
 
-# Flux limiter functions chi(r) of the smoothness ratio r. To add another
-# limiter, give it a name here and offer that name in the `flux_limiter`
-# argument of `project()`.
+# Flux limiter functions chi(r) of the smoothness ratio r = a / b of the
+# successive jumps a = delta_{j-1} and b = delta_j, written as functions of
+# a and b (with b != 0) so that the ratio is never formed. Above w_max the
+# density can decay to subnormal numbers, and a / b then overflows to Inf,
+# which turns the limiter into Inf / Inf = NaN (#630). For van Leer,
+# chi(r) = (r + |r|) / (1 + |r|) becomes the expression below, which lies in
+# [0, 2] however small b is and is exactly 0 when a and b differ in sign. To add
+# another limiter, give it a name here and offer that name in the
+# `flux_limiter` argument of `project()`.
 flux_limiter_funcs <- list(
-    van_leer = function(r) (r + abs(r)) / (1 + abs(r))
+    van_leer = function(a, b) (a * sign(b) + abs(a)) / (abs(a) + abs(b))
 )
 
 #' Frozen reconstruction weights at the size-bin faces
@@ -356,8 +362,11 @@ flux_limiter_chi <- function(params, n, g, flux_limiter) {
         jint <- 3:no_w
         num <- delta[, jint - 1, drop = FALSE]   # delta_{j-1}
         den <- delta[, jint, drop = FALSE]       # delta_j
-        r <- ifelse(den == 0, 0, num / den)      # upwind where the jump is 0
-        chi[, jint] <- limiter(r)
+        # Upwind (chi = 0) where the jump is 0.
+        chi_int <- matrix(0, nrow = no_sp, ncol = length(jint))
+        nz <- den != 0
+        chi_int[nz] <- limiter(num[nz], den[nz])
+        chi[, jint] <- chi_int
     }
 
     # First-order upwind at and below the recruitment boundary, and at the first

@@ -297,8 +297,9 @@ stepper `"second_order"`, an alias for `"tr_bdf2"`, or the superseded
 `"predictor_corrector"`. Both default to the
 first-order choice, which is why this is easy to miss: an extension that ignores
 them looks correct, passes its own tests, and is then silently wrong for the
-user who switches them on. Aim to work under all of them, and where you cannot,
-say so out loud.
+user who switches them on. That user need not do it on purpose: a model created
+with defaults edition 3 or later is on the second-order scheme in size from the
+start. Aim to work under all of them, and where you cannot, say so out loud.
 
 **In size.** The rules are in the [guide to extending mizer](guide-extend-mizer.html), under "Respecting the
 model's quadrature scheme": build derived quantities from the rate functions
@@ -376,6 +377,44 @@ want a per-call warning as well — remembering that it catches only the calls
 that go through `project()`. The steady-state finders run the dynamics through
 an internal stepper, so [`tuneSteadyState(method = "second_order")`](../reference/tuneSteadyState.html) will not
 reach it.
+
+### Your own FFT convolutions
+
+Some extensions evaluate an encounter rate of their own — for a second
+resource, a size-structured prey component, a diet split by prey group — by
+copying the convolution from [`mizerEncounter()`](../reference/mizerEncounter.html):
+
+```{r eval=FALSE}
+avail_energy <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) *
+                                     mvfft(base::t(prey)),
+                                 inverse = TRUE))) / length(params@w_full)
+avail_energy <- avail_energy[, idx_sp, drop = FALSE]
+```
+
+That convolution is circular: the part of a small predator's kernel that
+reaches below the smallest size `min_w_pp` wraps around and picks up the
+largest fish at the top of the grid (mizer issue #618). From defaults edition 3,
+mizer stores the Fourier-transformed kernels `ft_pred_kernel_e`,
+`ft_pred_kernel_p` and `ft_pred_kernel_d` on a zero-padded grid that is
+longer than [`w_full`](../reference/w.html), so for a model of that edition the code above fails with
+"non-conformable arrays". For a model of edition 1 or 2 the kernels keep their
+old length and the code still runs, so the failure only shows up once a user
+works with an edition-3 model. Replace it with [`convolve_pred_kernel()`](../reference/convolve_pred_kernel.html), which
+reads the length of the grid from the kernels and pads the input to match:
+
+```{r eval=FALSE}
+avail_energy <- convolve_pred_kernel(params, prey)
+```
+
+It already returns only the predator sizes in `w`, so the `idx_sp` subsetting
+goes. A vector `prey` is used for every predator species, which is what a diet
+split by prey group needs: call it once per prey group. For a predation rate,
+pass the predator densities on `w` with `kernel = "predation"`; the result is
+on `w_full`. For a model of edition 1 or 2 it gives the same circular
+convolution as the code it replaces, so your extension keeps the results it had
+for those models. It also uses the bin-integrated kernels when `bin_average` is
+on, without any code of its own. This needs `mizer (>= 3.4.0.9002)` in
+`DESCRIPTION`.
 
 ### Methods on the renamed rate-array accessors
 

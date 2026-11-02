@@ -85,7 +85,7 @@ newSingleSpeciesParams <-
              gamma = NA,
              ext_mort_prop = 0,
              reproduction_level = 0,
-             second_order_w = FALSE,
+             second_order_w = NULL,
              info_level = default_info_level(),
              R_factor = deprecated(),
              w_inf = deprecated(),
@@ -190,7 +190,9 @@ newSingleSpeciesParams <-
     # Build with the requested bin-averaging but the robust upwind flux; the
     # chosen flux scheme is for projection only and is activated at the end,
     # after the construction-time steady-state solve below.
-    target_sow <- resolve_second_order_w(second_order_w)
+    # The model about to be built is of the active defaults edition.
+    target_sow <- resolve_second_order_w(second_order_w,
+                                         defaults_edition())
     params <-
         newMultispeciesParams(
             species_params,
@@ -203,7 +205,8 @@ newSingleSpeciesParams <-
             n = n,
             p = p,
             resource_dynamics = "resource_constant",
-            second_order_w = c(bin_average = target_sow[["bin_average"]]),
+            second_order_w = list(flux = "upwind",
+                                  bin_average = target_sow[["bin_average"]]),
             info_level = 0
         )
     # No cannibalism

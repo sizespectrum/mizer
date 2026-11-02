@@ -94,9 +94,10 @@ NULL
 #' @section Advective flux scheme:
 #' The spatial discretisation of the growth (advection) term is controlled by
 #' the `flux` entry of the `second_order_w` slot of the params object, not by
-#' an argument to `project()`. With the default (`"upwind"`) the first-order
-#' upwind flux is used. Setting it to `"van_leer"` (for example with
-#' `second_order_w(params) <- TRUE`) switches on a flux-limited (van Leer, TVD)
+#' an argument to `project()`. With `"upwind"`, the default for models of
+#' defaults editions 1 and 2, the first-order upwind flux is used.
+#' `"van_leer"`, the default from edition 3 and also set by
+#' `second_order_w(params) <- TRUE`, switches on a flux-limited (van Leer, TVD)
 #' deferred correction that removes the leading numerical diffusion
 #' \eqn{\approx g\,w\,\log\beta} of the upwind flux while keeping the density
 #' update a tridiagonal solve and preserving positivity. The correction is most

@@ -6,9 +6,10 @@ setter with a size-dependent parameter, or an extension that reaches inside the
 predation convolution.
 
 mizer has **two quadrature schemes**, selected by the `bin_average` entry of the
-`second_order_w` slot. `FALSE` is the default, so code that ignores the flag
+`second_order_w` slot. `FALSE` is the default in defaults editions 1 and 2,
+which include `NS_params` and the test fixtures, so code that ignores the flag
 looks correct, passes its tests, and is silently wrong by ~10% for every user
-who has switched second order on.
+whose model is second order — which every model of edition 3 is by default.
 
 ## The one rule
 

@@ -189,16 +189,11 @@ getDiet.MizerParams <- function(object,
         prey <- matrix(0, nrow = no_sp + 1, ncol = no_w_full)
         prey[1:no_sp, idx_sp] <- sweep(n, 2, params@w * params@dw, "*")
         prey[no_sp + 1, ] <- n_pp * params@w_full * params@dw_full
-        ft <- array(rep(params@ft_pred_kernel_e, times = no_sp + 1) *
-                        rep(mvfft(t(prey)), each = no_sp),
-                    dim = c(no_sp, no_w_full, no_sp + 1))
-        # We now have an array predator x wave number x prey
-        # To Fourier transform back we need a matrix of wave number x everything
-        ft <- matrix(aperm(ft, c(2, 1, 3)), nrow = no_w_full)
-        ae <- array(Re(mvfft(ft, inverse = TRUE) / no_w_full),
-                    dim = c(no_w_full, no_sp, no_sp + 1))
-        ae <- ae[idx_sp, , , drop = FALSE]
-        ae <- aperm(ae, c(2, 1, 3))
+        # ae is predator species x predator size x prey
+        ae <- array(0, dim = c(no_sp, no_w, no_sp + 1))
+        for (j in seq_len(no_sp + 1)) {
+            ae[, , j] <- convolve_pred_kernel(params, prey[j, ])
+        }
         # Due to numerical errors we might get negative or very small entries that
         # should be 0
         ae[ae < 1e-18] <- 0

@@ -526,7 +526,43 @@ test_that("addSpecies gives new species the defaults of the model's edition", {
     expect_identical(pa@initial_effort[["new_gear"]], 0)
 })
 
+test_that("addSpecies builds with the numerical scheme of the model", {
+    sp <- data.frame(species = "new", w_max = 100, k_vb = 1, n = 2 / 3,
+                     p = 2 / 3)
+    # A second-order model of an edition whose default is first order, and a
+    # first-order model of an edition whose default is second order.
+    p_second <- NS_params_small
+    second_order_w(p_second) <- TRUE
+    p_first <- NS_params_small
+    defaults_edition(p_first) <- 3
+    for (params in list(p_second, p_first)) {
+        pa <- suppressWarnings(addSpecies(params, sp, steady = FALSE,
+                                          info_level = 0))
+        expect_identical(second_order_w(pa), second_order_w(params))
+        # The recalculated arrays use the quadrature of the model
+        p_re <- setParams(pa)
+        expect_equal(pa@ft_pred_kernel_e, p_re@ft_pred_kernel_e)
+        expect_equal(pa@ft_pred_kernel_p, p_re@ft_pred_kernel_p)
+        expect_equal(pa@selectivity, p_re@selectivity)
+    }
+})
+
 # adjustSizeGrid ----
+test_that("adjustSizeGrid builds with the numerical scheme of the model", {
+    p_second <- NS_params_small
+    second_order_w(p_second) <- TRUE
+    p_first <- NS_params_small
+    defaults_edition(p_first) <- 3
+    for (params in list(p_second, p_first)) {
+        p <- suppressWarnings(adjustSizeGrid(params, new_max_w = 50000))
+        expect_identical(second_order_w(p), second_order_w(params))
+        p_re <- setParams(p)
+        expect_equal(p@ft_pred_kernel_e, p_re@ft_pred_kernel_e)
+        expect_equal(p@ft_pred_kernel_p, p_re@ft_pred_kernel_p)
+        expect_equal(p@selectivity, p_re@selectivity)
+    }
+})
+
 test_that("adjustSizeGrid keeps the defaults edition of the model", {
     params <- NS_params_small
     defaults_edition(params) <- 2

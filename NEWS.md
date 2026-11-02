@@ -19,9 +19,72 @@
   edition 1 before they are upgraded. `summary()` of a model reports its edition.
 - `validGearParams()` gains an `edition` argument, which defaults to the
   active edition.
+- The new defaults edition 3 removes contributions that wrap around the size
+  grid from the encounter rate, the predation rate, the predation diffusion
+  and `getDiet()` (#618). These are convolutions over the predation kernel,
+  evaluated by fast Fourier transform, and that convolution was circular: the
+  part of a small fish's feeding kernel that reached below the smallest
+  resource size `min_w_pp` wrapped around to the top of the grid, so that
+  larvae were fed by the largest fish and the predation rate recorded them as
+  eating those fish. The `ft_mask` removed this only from the predation rate on
+  prey larger than the predator species' maximum size. The error grows with the
+  biomass of the largest fish and with how far the larval kernels reach below
+  `min_w_pp`. In the model reported in #618, with `min_w_pp` three orders of
+  magnitude below the egg size, it made the encounter rate of 1 mg larvae 9%
+  too high, and with `use_predation_diffusion` switched on it made the
+  predation diffusion of the smallest fish several orders of magnitude too
+  large. In a model of edition 3 the convolutions are evaluated on a
+  zero-padded grid, so they agree with the direct sums over the kernel. Models
+  of editions 1 and 2, which include every model created with the default
+  edition and every model saved with an earlier version of mizer, keep the
+  circular convolutions, so their results do not change. To switch an
+  existing model to the zero-padded convolutions, record the new edition in it
+  with `defaults_edition(params) <- 3` and recalculate its kernel with
+  `params <- setPredKernel(params)`. Bear in mind that the model then also
+  gets the defaults of edition 2 whenever mizer next fills them in.
+- For extension packages: the new `convolve_pred_kernel()` evaluates these
+  convolutions for a prey or predator density of your own. Use it instead of
+  multiplying the `ft_pred_kernel_e`, `ft_pred_kernel_p` or `ft_pred_kernel_d`
+  slots by Fourier transforms of your own. In a model of edition 3 those slots
+  are stored on the zero-padded grid and can be longer than `w_full`, so such
+  code fails with "non-conformable arrays".
+- The new defaults edition 3 makes the second-order numerical scheme in size
+  the default for new models (#503): a model created while edition 3 is active
+  gets `second_order_w = TRUE`, that is the van Leer flux limiter and
+  bin-averaged integrals over the size grid. The first-order upwind flux
+  carries enough numerical diffusion to smear out cohorts and damp real
+  oscillations, and code that integrates over the size grid without honouring
+  `bin_average` was only caught by tests that switched the second-order scheme
+  on. The `second_order_w` argument of `newMultispeciesParams()`,
+  `newSingleSpeciesParams()`, `newTraitParams()` and `newCommunityParams()`
+  now defaults to `NULL`, which means the scheme of the edition; set it to
+  `FALSE` to get the first-order scheme in edition 3, or to
+  `c(bin_average = FALSE)` to keep the left-edge integrals, and with them the
+  unnormalised summaries of edition 2, while using the van Leer flux. Models of
+  editions 1 and 2, which include every model created with the default edition
+  and every model saved with an earlier version of mizer, keep the first-order
+  scheme, so their results do not change.
 
 ## Bug fixes
 
+- `addSpecies()` and `adjustSizeGrid()` (and with it `expandSizeGrid()`) now
+  build the new model with the numerical scheme of the model they are given.
+  They used to build it with the first-order scheme and copy the
+  `second_order_w` setting across afterwards, so that on a model with
+  bin-averaging switched on the predation kernels and the fishing selectivity
+  they recalculated were point-sampled at the left bin edges although the
+  model reported `bin_average = TRUE`.
+- `plotYieldVsF()` accepts the `tol` argument it had in mizerExperimental
+  again, with a deprecation warning, and uses it as `distance_tol`. Since the
+  function moved to mizer in 3.3.0, a call that passed `tol` stopped with an
+  error. The upgrade notes for mizer 3.3 now describe the move (#640).
+- With `second_order_w(params) <- c(flux = "van_leer")` a projection could
+  suddenly turn all abundances of a species into `NaN` (#630). Above `w_max` a
+  spectrum can decay to subnormal numbers, and the ratio of successive density
+  jumps that the van Leer limiter takes then overflowed to `Inf`. The limiter
+  is now evaluated from the two jumps without forming their ratio, so it stays
+  between 0 and 2. Results of other van Leer projections change only by
+  rounding.
 - `steadySingleSpecies()` with `keep = "biomass"` or `keep = "number"` no
   longer fills a species with zero abundance with `NaN`, which made the
   returned model fail validation (#615). The same happened with
@@ -112,6 +175,33 @@
   The guide now says so, and shows how to change only the egg size:
   pin `h` first, and extend the size grid with `adjustSizeGrid()` before
   lowering `w_min` below it (sizespectrum/mizerAgents#13).
+- The help page of `tuneSteadyState()` now says when not to use it: because it
+  holds the reproduction rate at its current value and re-derives
+  `erepro`/`R_max` and `cc_pp`, it cannot find a steady state with a very
+  different reproduction rate, such as an alternative stable state, and two
+  states found with it do not share parameters. Its section on checking the
+  result now also tells you to check the re-derived `erepro`: a value greater
+  than 1 means the state found cannot be sustained, even when the
+  `"convergence"` attribute reports a fixed point (#631). The
+  `calibrate-model` skill and its guide give the same advice and add the
+  `erepro` warning to their list of calibration problems, and the diagnostic
+  table of the `understand-size-spectrum-dynamics` skill and guide gains a row
+  for it (sizespectrum/mizerAgents#12).
+- The "Community Model" and "Trait-Based Model" articles no longer explain a
+  trophic cascade as moving down the spectrum one predator-prey mass ratio
+  $\beta$ at a time, which would put its peaks and troughs a factor of $\beta$
+  apart. They are not, and they do not move closer together when $\beta$ is
+  reduced (#3). The "Single-Species Model" article now gives the steady-state
+  spectrum in terms of the growth and mortality rates and shows, with new
+  experiments, that a change in mortality or growth changes the abundance at
+  all larger sizes, so that the abundance has its extremes where the change
+  switches sign, while a change in growth also piles fish up or thins them out
+  locally. Its prey-reduction example now explains that the slow-down in growth
+  costs far more fish than it piles up. The cascade sections build on this: the
+  community model one compares the change in predation mortality with the
+  change in abundance, and the trait-based model one also looks at the change
+  in feeding level and recruitment. The "Understanding size-spectrum dynamics"
+  guide says the same.
 
 # mizer 3.4.0
 

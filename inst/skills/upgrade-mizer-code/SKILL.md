@@ -6,7 +6,7 @@ description: >-
   release by release, with the fix. Use whenever a script that "used to work" now
   errors, a deprecation warning appears, plots or numbers differ from a previous
   run, an argument is suddenly unused or rejected (power=, sim=, time_range=,
-  setParams() rejecting an argument it does not use), a function has gone
+  tol=, setParams() rejecting an argument it does not use), a function has gone
   (matchYields, calibrateYield), a parameter change warns that it cannot take
   effect, an identical() comparison against a saved rate array fails, `$` on a
   parameter table stopped matching partially, or an S4 idiom such as slot(),
@@ -109,6 +109,7 @@ function` — carry no such quote, so match those rows on the function name.
 | After `defaults_edition(2)`, a model created earlier, loaded from a file, or taken from a package such as `NS_params` still gets edition-1 defaults: `catchability` 1, effort 0, `psi` of 1 above `w_repro_max`, or a recalculated `gamma` that ignores `interaction_resource` | a model now uses the edition it was created with, not the active one | A model keeps the defaults edition it was created with |
 | `gamma`, `psi`, a default `catchability` or a default effort differs between two runs of the same script, depending on whether `defaults_edition()` is called before or after the model is created | the same | A model keeps the defaults edition it was created with |
 | Warning `"was created with an earlier version of"` mizer for a model saved with mizer 3.4 | the model is upgraded to record its defaults edition | A model keeps the defaults edition it was created with |
+| `plotYieldVsF()` warns that its `tol` argument is deprecated | the name it had in mizerExperimental is accepted again, as the old name of `distance_tol` | `plotYieldVsF()` accepts `tol` again |
 
 ### mizer 3.3 → 3.4 — `references/mizer-3.4.md`
 
@@ -199,6 +200,10 @@ function` — carry no such quote, so match those rows on the function name.
 | A message that used to appear no longer does, with `info_level = 0` | `info_level = 0` now silences everything | One report, one switch |
 | `expect_message()` on a mizer call fails, or `options(warn = 2)` trips | reports are warnings where they were messages, and are collected until the end of the call | One report, one switch |
 | R errors with `could not find function`, naming `steadyNewton` | it never shipped; the Newton solver is now the `solver = "newton"` argument of the two finders | The steady-state finders have new names |
+| `projectUntilSettled()` or `findSteadyState()` errors ``"`tol` has been renamed to `distance_tol`"``, or `tuneSteadyState()` errors `unused argument (tol = …)` | the new functions call it `distance_tol`; only `steady()` and `projectToSteady()` keep `tol` | The steady-state finders have new names |
+| `plotYieldVsF()` errors ``"`tol` has been renamed to `distance_tol`"`` | it moved from mizerExperimental and is now built on `scanModel()`, which calls the argument `distance_tol` | `plotYieldVsF()` has moved from mizerExperimental |
+| R errors with `could not find function`, naming `getYieldVsF` or `yieldCalculator` | removed from mizerExperimental 3.3 rather than moved to mizer with `plotYieldVsF()` | `plotYieldVsF()` has moved from mizerExperimental |
+| `plotYieldVsF()` covers fishing mortalities up to 1.5 where it used to stop at 1, or marks points with a cross | the mizer version has new defaults and shows where the model did not settle | `plotYieldVsF()` has moved from mizerExperimental |
 | A code review, a linter or the reference index calls `steady()` or `projectToSteady()` superseded | both were renamed for what they keep fixed | The steady-state finders have new names |
 | `projectToSteady(return_sim = TRUE)` has no equivalent on the new functions | the return type no longer depends on an argument | The steady-state finders have new names |
 | `conv$type` or `conv$settled` on a `"convergence"` attribute is `NULL`, or an `expect_named()` on it fails | the attribute now has `termination`, `converged` and `attractor` | The convergence attribute has a new shape |
@@ -335,6 +340,8 @@ the release sections in range.
 | `sum(n * w * dw)`, `rowSums(sweep(…, params@dw, "*"))`, or any size-grid integral written out by hand | it is a first-order sum, silently wrong under `second_order_w` bin averaging; `sizeIntegral()`, `getBiomass()`, `getN()` and `getYield()` follow the model's own quadrature | Fixes under the second-order size scheme |
 | `expect_message()`, `expect_silent()`, or a test asserting that a mizer call is quiet | reports are warnings now, collected until the end of the call, and follow `info_level` | One report, one switch |
 | `steady()` or `projectToSteady()` — in code, in roxygen links, in `@seealso`, in prose | both superseded and renamed | The steady-state finders have new names |
+| `plotYieldVsF(…, tol = )` | the argument is `distance_tol` now: an error in mizer 3.3 and 3.4, a deprecation warning from 3.5 | `plotYieldVsF()` has moved from mizerExperimental |
+| `getYieldVsF()` or `yieldCalculator()` | gone from mizerExperimental and not moved to mizer | `plotYieldVsF()` has moved from mizerExperimental |
 | `attr(…, "convergence")$settled` or `$type` | the attribute has a different shape | The convergence attribute has a new shape |
 | `$` on `species_params` or `gear_params` with an abbreviated column name | partial matching is gone, so the read is now `NULL` | `$` on a parameter table no longer partially matches |
 | `setParams(…, kappa = )`, `setParams(…, r_pp = )` or any resource argument to `setParams()` | silently ignored in every earlier version, an error now | `setParams()` rejects arguments it does not use |
@@ -444,14 +451,15 @@ written after the fix can pass for reasons unconnected with it, and on this kind
 of upgrade — where the code was not visibly broken — that is easy to do without
 noticing.
 
-**Test the corners, not just the default.** The numerics have two switches, and
-both default to the first-order choice: `second_order_w()` selects the
-discretisation in size, and `project()`'s `method` argument the one in time. A
-test on the default path says nothing about the others, which is exactly how a
+**Test the corners, not just the default.** The numerics have two switches:
+`second_order_w()` selects the discretisation in size, and `project()`'s
+`method` argument the one in time. Both default to the first-order choice,
+except that a model created with defaults edition 3 or later is second order in
+size. A test on one path says nothing about the others, which is exactly how a
 hand-rolled integral survives a green test suite. Run the package's own fixture
-with `second_order_w(params) <- TRUE` and with `method = "tr_bdf2"` as well. If
-the package cannot support one of them, say so in its documentation rather than
-leaving the user to find out.
+with `second_order_w(params) <- TRUE`, with `second_order_w(params) <- FALSE`
+and with `method = "tr_bdf2"` as well. If the package cannot support one of
+them, say so in its documentation rather than leaving the user to find out.
 
 If the package is a mizer **extension** — it registers methods on mizer's
 generics, declares marker classes, or calls `registerExtension()` — do all of

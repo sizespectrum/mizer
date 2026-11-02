@@ -122,6 +122,27 @@ test_that("upgradeParams keeps the recorded edition", {
     expect_identical(up@defaults_edition, 2)
 })
 
+test_that("upgradeParams keeps the circular FFT kernels of earlier versions (#618)", {
+    # Objects from earlier versions are of edition 1, which is not zero-padded,
+    # so their kernels and rates must come through the upgrade unchanged even
+    # when edition 3 is active
+    params <- kernel_below_grid_params(edition = 1)
+    # The rates carry the model, whose time_modified the upgrade changes
+    drop_params <- function(x) { attr(x, "params") <- NULL; x }
+    encounter <- drop_params(getEncounter(params))
+    pred_rate <- drop_params(getPredRate(params))
+    params@mizer_version <- "3.4.0"
+    params$defaults_edition <- NULL
+    withr::local_options(mizer_defaults_edition = 3)
+    up <- suppressWarnings(upgradeParams(params))
+    expect_identical(up@defaults_edition, 1)
+    for (s in c("ft_pred_kernel_e", "ft_pred_kernel_p", "ft_pred_kernel_d")) {
+        expect_identical(dim(slot(up, s)), c(2L, length(params@w_full)))
+    }
+    expect_equal(drop_params(getEncounter(up)), encounter, tolerance = 0)
+    expect_equal(drop_params(getPredRate(up)), pred_rate, tolerance = 0)
+})
+
 ## upgradeSim ----
 test_that("upgradeSim leaves new sim unchanged", {
     expect_identical(upgradeSim(sim), sim)

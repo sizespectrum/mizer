@@ -177,6 +177,14 @@ test_that("getDiet works with proportion = FALSE", {
                  tolerance = 1e-5)
 })
 
+test_that("getDiet has no wrap-around when the kernel extends below min_w_pp (#618)", {
+    params <- kernel_below_grid_params()
+    params_direct <- setPredKernel(params, pred_kernel = pred_kernel(params))
+    expect_lt(max_rel_diff(getDiet(params, proportion = FALSE),
+                           getDiet(params_direct, proportion = FALSE)),
+              1e-8)
+})
+
 test_that("getDiet works with proportion = TRUE", {
     diet <- getDiet(params)
     total <- rowSums(diet, dims = 2)

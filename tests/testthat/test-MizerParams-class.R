@@ -36,6 +36,7 @@ test_that("basic constructor sets dimensions properly", {
     expect_equal(dim(test_params@intake_max), c(no_sp, no_w))
     expect_equal(dim(test_params@search_vol), c(no_sp, no_w))
     expect_equal(dim(test_params@metab), c(no_sp, no_w))
+    # Not zero-padded, because the model is of the default edition 1
     expect_equal(dim(test_params@ft_pred_kernel_e), c(no_sp, no_w_full))
     expect_equal(dim(test_params@catchability), c(0, no_sp))
     expect_equal(dim(test_params@selectivity), c(0, no_sp, no_w))
@@ -59,12 +60,38 @@ test_that("basic constructor sets dimensions properly", {
     expect_equal(dimnames(test_params_gears@catchability)$gear, gear_names)
 })
 
+test_that("emptyParams() zero-pads the Fourier kernels from edition 3 (#618)", {
+    species_params <- NS_species_params_small
+    p <- withr::with_options(list(mizer_defaults_edition = 2),
+                             emptyParams(species_params, no_w = 20))
+    expect_identical(ncol(p@ft_pred_kernel_e), length(p@w_full))
+    # Before setPredKernel() knows the support of the kernel, the template
+    # allows for a kernel that is non-zero at every offset
+    p <- withr::with_options(list(mizer_defaults_edition = 3),
+                             emptyParams(species_params, no_w = 20))
+    for (s in c("ft_pred_kernel_e", "ft_pred_kernel_p", "ft_pred_kernel_d")) {
+        expect_equal(ncol(slot(p, s)),
+                     nextn(length(p@w_full) + length(p@w) - 1))
+    }
+})
+
 test_that("emptyParams records the active defaults edition", {
     withr::local_options(mizer_defaults_edition = 2)
     params <- emptyParams(NS_species_params_small)
     expect_identical(params@defaults_edition, 2)
     # and uses it for the initial effort
     expect_true(all(params@initial_effort == 1))
+})
+
+test_that("emptyParams gives the model the numerical scheme of its edition", {
+    withr::local_options(mizer_defaults_edition = 2)
+    params <- suppressMessages(emptyParams(NS_species_params_small))
+    expect_identical(params@second_order_w,
+                     list(flux = "upwind", bin_average = FALSE))
+    withr::local_options(mizer_defaults_edition = 3)
+    params <- suppressMessages(emptyParams(NS_species_params_small))
+    expect_identical(params@second_order_w,
+                     list(flux = "van_leer", bin_average = TRUE))
 })
 
 test_that("emptyParams validates min_w_pp against min_w", {

@@ -107,17 +107,24 @@ plotSpectra2(sim_low, sim_high, "F = 0.5", "F = 1.5")
 
 ## Numerical scheme: watch for numerical diffusion
 
-For steady states and slow biomass or yield trends the defaults are fine. But
-the default flux scheme (first-order **upwind**) carries substantial *numerical
-diffusion*: it smears out cohorts and travelling waves and can **silently damp a
-real oscillation or limit cycle down to a flat line** — with no error to warn
-you. This is a correctness issue, not just an accuracy one, so for **any study
-of dynamics** (oscillations, cohort or wave structure, generation cycles, real
-growth-diffusion effects) switch to the second-order scheme:
+Which scheme in size a model uses depends on the defaults edition it was
+created with (see `?defaults_edition`). A model of edition 3 or later is built
+with the second-order scheme already. Models of editions 1 and 2 — every model
+built with the default edition, and every model saved with an earlier mizer —
+use the first-order **upwind** flux. Check with `second_order_w(params)`.
+
+For steady states and slow biomass or yield trends the first-order scheme is
+fine. But the upwind flux carries substantial *numerical diffusion*: it smears
+out cohorts and travelling waves and can **silently damp a real oscillation or
+limit cycle down to a flat line** — with no error to warn you. This is a
+correctness issue, not just an accuracy one, so for **any study of dynamics**
+(oscillations, cohort or wave structure, generation cycles, real
+growth-diffusion effects) use the second-order scheme:
 
 - **Space:** build the model with `second_order_w = TRUE` (the van Leer,
   flux-limited scheme) — set it in `newMultispeciesParams(..., second_order_w = TRUE)`,
-  or on an existing model with `second_order_w(params) <- TRUE`. Because it
+  or on an existing model with `second_order_w(params) <- TRUE`. It is the
+  default for a model created with `defaults_edition(3)` active. Because it
   changes the discrete steady state it lives in the params object, not in a
   `project()` argument.
 - **Time:** project with `method = "second_order"` (an alias for
@@ -130,7 +137,7 @@ sim    <- project(params, t_max = 200, method = "second_order")
 
 Symptom that you needed this: an oscillation that is present with
 `second_order_w = TRUE` but disappears (settles to a flat steady state) under the
-default upwind scheme is being killed by numerical diffusion, not by real
+upwind scheme is being killed by numerical diffusion, not by real
 dynamics.
 
 **Expect the numbers to move, and don't read that as a bug.** A bare
@@ -140,13 +147,16 @@ Riemann sum to a proper bin average. Unnormalised quantities — biomass, yield,
 `getDiet(proportion = FALSE)` — therefore shift by roughly `(1 + beta) / 2`,
 about 10% for a typical grid, where `beta` is the ratio between neighbouring
 grid points. That is the more accurate integral, not a regression. Proportions
-and ratios are largely unaffected because the factor cancels. Set the two
+and ratios are largely unaffected because the factor cancels. The same shift
+separates a model of edition 3 from the same model of edition 2. Set the two
 independently if you want the better flux scheme without moving your summary
 numbers:
 
 ```r
 second_order_w(params) <- c(flux = "van_leer")   # leaves bin_average alone
 second_order_w(params)                           # inspect: flux and bin_average
+# or, for a new model in edition 3, keep the left-edge integrals:
+params <- newMultispeciesParams(sp, second_order_w = c(bin_average = FALSE))
 ```
 
 The scheme lives in the `MizerParams`, so a `MizerSim` carries it: comparing a

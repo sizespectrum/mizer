@@ -37,9 +37,9 @@
 #' been marked as edition 1.
 #'
 #' @section The editions:
-#' The most recent edition is edition 2. It will become the default in the
-#' next release. The current default is edition 1. The following defaults
-#' are changed in edition 2:
+#' The most recent edition is edition 3. The current default is edition 1.
+#' Edition 2 will become the default in the next release. The following
+#' defaults are changed in edition 2:
 #'
 #' * `catchability` = 0.3 instead of 1
 #' * `initial effort` = 1 instead of 0
@@ -51,6 +51,26 @@
 #' * In [setReproduction()], `psi` is no longer forced to 1 above
 #'   `w_repro_max`; its value is determined entirely by the maturity ogive
 #'   and the reproductive proportion.
+#'
+#' Edition 3 keeps all the changes of edition 2 and makes two more:
+#'
+#' * The sums over the predation kernel in the encounter rate, the predation
+#'   rate, the predation diffusion and the diet are evaluated by fast Fourier
+#'   transforms on a zero-padded grid (see [convolve_pred_kernel()]). In
+#'   earlier editions the convolutions are circular: the part of the feeding
+#'   kernel of a small fish that reaches below the smallest resource size wraps
+#'   around to the largest sizes, so that larvae are fed by the largest fish and
+#'   are counted as eating them.
+#'
+#' * A new model uses the second-order numerical scheme in size, as with
+#'   `second_order_w = TRUE`, instead of the first-order scheme of previous
+#'   mizer versions (see [second_order_w()]). The van Leer flux limiter
+#'   replaces the upwind flux, whose numerical diffusion smears out cohorts
+#'   and can damp real oscillations away. Integrals over the size grid are
+#'   bin averages instead of left-edge sums, which moves unnormalised
+#'   quantities such as biomass and yield by around 10% on a typical grid.
+#'   You can still choose the first-order scheme with the `second_order_w`
+#'   argument of the function that creates the model.
 #'
 #' @param edition NULL, a number, or a MizerParams or MizerSim object.
 #' @return If `edition` is `NULL`, the currently active edition number. If

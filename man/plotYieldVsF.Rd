@@ -19,7 +19,8 @@ plotYieldVsF(
   log = NULL,
   return_data = FALSE,
   progress_bar = interactive(),
-  ...
+  ...,
+  tol = lifecycle::deprecated()
 )
 }
 \arguments{
@@ -60,7 +61,12 @@ returned instead of the plot. Default FALSE.}
 \item{progress_bar}{If TRUE a text progress bar is shown while the fishing
 mortalities are swept. Defaults to \code{interactive()}.}
 
-\item{...}{Further arguments are passed on to \code{\link[=scanModel]{scanModel()}}.}
+\item{...}{Further arguments are passed on to \code{\link[=scanModel]{scanModel()}}, for example
+\code{t_max} or \code{distance_tol}.}
+
+\item{tol}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{distance_tol} instead.
+This was the name of the argument when \code{plotYieldVsF()} was part of
+mizerExperimental.}
 }
 \value{
 A ggplot2 object, or, if \code{return_data = TRUE}, the \link{MizerScan} object

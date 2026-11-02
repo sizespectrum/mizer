@@ -20,9 +20,18 @@
 #'     When `FALSE`, point-sampling at the left bin edge is used.}
 #' }
 #'
-#' When `flux` is `"upwind"` and `bin_average` is `FALSE` (the defaults),
-#' mizer preserves the behaviour of previous mizer versions. Setting both to
-#' their second-order values gives a consistently second-order model.
+#' When `flux` is `"upwind"` and `bin_average` is `FALSE`, mizer preserves the
+#' behaviour of previous mizer versions. Setting both to their second-order
+#' values gives a consistently second-order model.
+#'
+#' The scheme a new model gets depends on the [defaults_edition()] that is
+#' active when it is created. From edition 3 on, a new model uses the
+#' second-order scheme, with `flux = "van_leer"` and `bin_average = TRUE`.
+#' Models of editions 1 and 2, which include every model created with the
+#' current default edition and every model saved with an earlier version of
+#' mizer, use the first-order scheme. Use the `second_order_w` argument of the
+#' function that creates the model, for example [newMultispeciesParams()], to
+#' choose another scheme for a new model.
 #'
 #' The setter accepts a single logical value (which sets both entries), a single
 #' scheme name (which sets only `flux`), or a named vector to set individual
@@ -121,19 +130,47 @@ validate_second_order_w <- function(current, value) {
     current
 }
 
+#' Default numerical scheme of a defaults edition
+#'
+#' Internal helper giving the `second_order_w` slot list that a new model of
+#' the given [defaults_edition()] gets when the user does not choose a scheme:
+#' the second-order scheme (`flux = "van_leer"`, `bin_average = TRUE`) from
+#' edition 3 on and the first-order scheme (`flux = "upwind"`,
+#' `bin_average = FALSE`) before.
+#'
+#' @param edition The defaults edition of the model.
+#' @return The default `second_order_w` list.
+#' @concept helper
+#' @keywords internal
+default_second_order_w <- function(edition) {
+    if (edition >= 3) {
+        list(flux = "van_leer", bin_average = TRUE)
+    } else {
+        list(flux = "upwind", bin_average = FALSE)
+    }
+}
+
 #' Resolve a `second_order_w` value against the default scheme
 #'
 #' Internal helper that validates a `second_order_w` `value` against the default
-#' first-order slot (`flux = "upwind"`, `bin_average = FALSE`) and returns the
-#' resulting named list. Used by the model constructors to work out the target
-#' `flux` and `bin_average` entries before the rest of the model is built.
+#' scheme of the defaults edition (see [default_second_order_w()]) and returns
+#' the resulting named list. A `NULL` value gives the default scheme, and a
+#' value that sets only one entry leaves the other at its default. Used by the
+#' model constructors to work out the target `flux` and `bin_average` entries
+#' before the rest of the model is built.
 #'
-#' @param value The value to resolve, as accepted by [`second_order_w<-`].
+#' @param value The value to resolve, as accepted by [`second_order_w<-`], or
+#'   `NULL`.
+#' @param edition The defaults edition of the model that is being built.
 #' @return The resolved `second_order_w` list.
 #' @concept helper
 #' @keywords internal
-resolve_second_order_w <- function(value) {
-    validate_second_order_w(list(flux = "upwind", bin_average = FALSE), value)
+resolve_second_order_w <- function(value, edition) {
+    default <- default_second_order_w(edition)
+    if (is.null(value)) {
+        return(default)
+    }
+    validate_second_order_w(default, value)
 }
 
 #' Trapezoidal bin-average of a per-bin weight
