@@ -106,9 +106,10 @@
   has always used, is $\alpha_i^2$, as in the model description (#624).
 - The guide to changing parameters listed the egg size `w_min` and the
   assimilation efficiency `alpha` among the parameters that change only
-  themselves. Both feed the default for `h`, so while `h` is not given,
-  lowering `w_min` raises `h`, and with it `ks` and any `gamma` that is not
-  given. The guide now says so, and shows how to change only the egg size:
+  themselves. Both feed the default for `h`: when `h` is derived from growth
+  information, lowering `w_min` raises `h` and any calculated `ks` and `gamma`.
+  Without usable growth information, the fallback `h = 30` stays unchanged.
+  The guide now says so, and shows how to change only the egg size:
   pin `h` first, and extend the size grid with `adjustSizeGrid()` before
   lowering `w_min` below it (sizespectrum/mizerAgents#13).
 

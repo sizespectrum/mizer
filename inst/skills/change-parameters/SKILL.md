@@ -215,9 +215,11 @@ Other species parameters are used **directly** and build no array (changing them
 just changes the model): `erepro` and `R_max` (reproduction),
 `interaction_resource`, and the length–weight parameters `a`, `b`. The
 assimilation efficiency `alpha` and the egg size `w_min` are used directly too,
-but they are also inputs to the default for `h`: while `h` is not given,
-changing either of them changes `h` and the parameters derived from it (see
-"Chained derivations" below).
+but they are also inputs to the default for `h`: when `h` is derived from
+`age_mat` (including estimates from von Bertalanffy parameters), changing either
+of them can change `h` and the parameters derived from it (see "Chained
+derivations" below). Without usable growth information, the fallback `h = 30`
+stays unchanged.
 
 ## Gotchas from the way defaults are calculated
 
