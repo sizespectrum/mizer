@@ -37,9 +37,9 @@
 #' been marked as edition 1.
 #'
 #' @section The editions:
-#' The most recent edition is edition 2. It will become the default in the
-#' next release. The current default is edition 1. The following defaults
-#' are changed in edition 2:
+#' The most recent edition is edition 3. The current default is edition 1.
+#' Edition 2 will become the default in the next release. The following
+#' defaults are changed in edition 2:
 #'
 #' * `catchability` = 0.3 instead of 1
 #' * `initial effort` = 1 instead of 0
@@ -51,6 +51,16 @@
 #' * In [setReproduction()], `psi` is no longer forced to 1 above
 #'   `w_repro_max`; its value is determined entirely by the maturity ogive
 #'   and the reproductive proportion.
+#'
+#' Edition 3 keeps all the changes of edition 2 and makes one more:
+#'
+#' * The sums over the predation kernel in the encounter rate, the predation
+#'   rate, the predation diffusion and the diet are evaluated by fast Fourier
+#'   transforms on a zero-padded grid (see [convolve_pred_kernel()]). In
+#'   earlier editions the convolutions are circular: the part of the feeding
+#'   kernel of a small fish that reaches below the smallest resource size wraps
+#'   around to the largest sizes, so that larvae are fed by the largest fish and
+#'   are counted as eating them.
 #'
 #' @param edition NULL, a number, or a MizerParams or MizerSim object.
 #' @return If `edition` is `NULL`, the currently active edition number. If

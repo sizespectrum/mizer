@@ -19,6 +19,35 @@
   edition 1 before they are upgraded. `summary()` of a model reports its edition.
 - `validGearParams()` gains an `edition` argument, which defaults to the
   active edition.
+- The new defaults edition 3 removes contributions that wrap around the size
+  grid from the encounter rate, the predation rate, the predation diffusion
+  and `getDiet()` (#618). These are convolutions over the predation kernel,
+  evaluated by fast Fourier transform, and that convolution was circular: the
+  part of a small fish's feeding kernel that reached below the smallest
+  resource size `min_w_pp` wrapped around to the top of the grid, so that
+  larvae were fed by the largest fish and the predation rate recorded them as
+  eating those fish. The `ft_mask` removed this only from the predation rate on
+  prey larger than the predator species' maximum size. The error grows with the
+  biomass of the largest fish and with how far the larval kernels reach below
+  `min_w_pp`. In the model reported in #618, with `min_w_pp` three orders of
+  magnitude below the egg size, it made the encounter rate of 1 mg larvae 9%
+  too high, and with `use_predation_diffusion` switched on it made the
+  predation diffusion of the smallest fish several orders of magnitude too
+  large. In a model of edition 3 the convolutions are evaluated on a
+  zero-padded grid, so they agree with the direct sums over the kernel. Models
+  of editions 1 and 2, which include every model created with the default
+  edition and every model saved with an earlier version of mizer, keep the
+  circular convolutions, so their results do not change. To switch an
+  existing model to the zero-padded convolutions, record the new edition in it
+  with `defaults_edition(params) <- 3` and recalculate its kernel with
+  `params <- setPredKernel(params)`. Bear in mind that the model then also
+  gets the defaults of edition 2 whenever mizer next fills them in.
+- For extension packages: the new `convolve_pred_kernel()` evaluates these
+  convolutions for a prey or predator density of your own. Use it instead of
+  multiplying the `ft_pred_kernel_e`, `ft_pred_kernel_p` or `ft_pred_kernel_d`
+  slots by Fourier transforms of your own. In a model of edition 3 those slots
+  are stored on the zero-padded grid and can be longer than `w_full`, so such
+  code fails with "non-conformable arrays".
 
 ## Bug fixes
 

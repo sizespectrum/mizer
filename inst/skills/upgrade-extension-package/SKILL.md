@@ -67,6 +67,7 @@ package.
 | `is()` / `setClass()` / `expect_s4_class()` in the package, or `.onLoad()` calling `registerExtension()` / `getRegisteredExtensions()` | written against the S4 mizer | Part 1 |
 | After `rm(list = ls())`, or in the second and later examples of `R CMD check`, mizer reports the extension's class is not a defined class | the dynamic S4 marker classes lived in `.GlobalEnv` | Part 1 — the mechanism is gone, migrate rather than repair |
 | After `devtools::load_all()`, `coerceToExtensionClass()` reports no method or default for coercing `MizerParams` | same obsolete marker-class machinery | Part 1 |
+| `non-conformable arrays` from a line that multiplies `params@ft_pred_kernel_e` (or `_p`, `_d`) by `mvfft()` of a prey or predator matrix, for a model of defaults edition 3 | the Fourier-transformed kernels of such a model are stored on a zero-padded grid longer than `w_full` | Your own FFT convolutions |
 | The package's results are unchanged when the model is switched to `second_order_w = TRUE`, or a diagnostic is out by a constant factor | the extension's own integrals ignore the `bin_average` flag | Working under both numerical schemes |
 | A component's state advances twice as far per step, or its `dynamics_fun` double-counts, under `method = "second_order"` (`"tr_bdf2"`) or `"predictor_corrector"` | the second-order steppers call `dynamics_fun` twice per step, from the same start-of-step state | Working under both numerical schemes |
 | A method the package defines is never called, and its name starts with `get` | the `get`-prefixed accessors are plain aliases now; dispatch happens on the bare name | Methods on the renamed rate-array accessors |
@@ -391,6 +392,44 @@ want a per-call warning as well — remembering that it catches only the calls
 that go through `project()`. The steady-state finders run the dynamics through
 an internal stepper, so `tuneSteadyState(method = "second_order")` will not
 reach it.
+
+### Your own FFT convolutions
+
+Some extensions evaluate an encounter rate of their own — for a second
+resource, a size-structured prey component, a diet split by prey group — by
+copying the convolution from `mizerEncounter()`:
+
+```r
+avail_energy <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) *
+                                     mvfft(base::t(prey)),
+                                 inverse = TRUE))) / length(params@w_full)
+avail_energy <- avail_energy[, idx_sp, drop = FALSE]
+```
+
+That convolution is circular: the part of a small predator's kernel that
+reaches below the smallest size `min_w_pp` wraps around and picks up the
+largest fish at the top of the grid (mizer issue #618). From defaults edition 3,
+mizer stores the Fourier-transformed kernels `ft_pred_kernel_e`,
+`ft_pred_kernel_p` and `ft_pred_kernel_d` on a zero-padded grid that is
+longer than `w_full`, so for a model of that edition the code above fails with
+"non-conformable arrays". For a model of edition 1 or 2 the kernels keep their
+old length and the code still runs, so the failure only shows up once a user
+works with an edition-3 model. Replace it with `convolve_pred_kernel()`, which
+reads the length of the grid from the kernels and pads the input to match:
+
+```r
+avail_energy <- convolve_pred_kernel(params, prey)
+```
+
+It already returns only the predator sizes in `w`, so the `idx_sp` subsetting
+goes. A vector `prey` is used for every predator species, which is what a diet
+split by prey group needs: call it once per prey group. For a predation rate,
+pass the predator densities on `w` with `kernel = "predation"`; the result is
+on `w_full`. For a model of edition 1 or 2 it gives the same circular
+convolution as the code it replaces, so your extension keeps the results it had
+for those models. It also uses the bin-integrated kernels when `bin_average` is
+on, without any code of its own. This needs `mizer (>= 3.4.0.9002)` in
+`DESCRIPTION`.
 
 ### Methods on the renamed rate-array accessors
 

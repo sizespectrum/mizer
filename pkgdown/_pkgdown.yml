@@ -353,6 +353,7 @@ reference:
   - setRateFunction
   - other_mort
   - setComponent
+  - convolve_pred_kernel
   - initialNOther<-
   - NOther
   - customFunction
