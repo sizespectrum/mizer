@@ -26,6 +26,13 @@
   again, with a deprecation warning, and uses it as `distance_tol`. Since the
   function moved to mizer in 3.3.0, a call that passed `tol` stopped with an
   error. The upgrade notes for mizer 3.3 now describe the move (#640).
+- With `second_order_w(params) <- c(flux = "van_leer")` a projection could
+  suddenly turn all abundances of a species into `NaN` (#630). Above `w_max` a
+  spectrum can decay to subnormal numbers, and the ratio of successive density
+  jumps that the van Leer limiter takes then overflowed to `Inf`. The limiter
+  is now evaluated from the two jumps without forming their ratio, so it stays
+  between 0 and 2. Results of other van Leer projections change only by
+  rounding.
 - `steadySingleSpecies()` with `keep = "biomass"` or `keep = "number"` no
   longer fills a species with zero abundance with `NaN`, which made the
   returned model fail validation (#615). The same happened with
@@ -108,6 +115,33 @@
 - The help page of `getDiffusion()` gave the predation-diffusion rate with a
   factor $(\alpha_i(1-\psi_i(w)))^2$. The correct factor, and the one mizer
   has always used, is $\alpha_i^2$, as in the model description (#624).
+- The help page of `tuneSteadyState()` now says when not to use it: because it
+  holds the reproduction rate at its current value and re-derives
+  `erepro`/`R_max` and `cc_pp`, it cannot find a steady state with a very
+  different reproduction rate, such as an alternative stable state, and two
+  states found with it do not share parameters. Its section on checking the
+  result now also tells you to check the re-derived `erepro`: a value greater
+  than 1 means the state found cannot be sustained, even when the
+  `"convergence"` attribute reports a fixed point (#631). The
+  `calibrate-model` skill and its guide give the same advice and add the
+  `erepro` warning to their list of calibration problems, and the diagnostic
+  table of the `understand-size-spectrum-dynamics` skill and guide gains a row
+  for it (sizespectrum/mizerAgents#12).
+- The "Community Model" and "Trait-Based Model" articles no longer explain a
+  trophic cascade as moving down the spectrum one predator-prey mass ratio
+  $\beta$ at a time, which would put its peaks and troughs a factor of $\beta$
+  apart. They are not, and they do not move closer together when $\beta$ is
+  reduced (#3). The "Single-Species Model" article now gives the steady-state
+  spectrum in terms of the growth and mortality rates and shows, with new
+  experiments, that a change in mortality or growth changes the abundance at
+  all larger sizes, so that the abundance has its extremes where the change
+  switches sign, while a change in growth also piles fish up or thins them out
+  locally. Its prey-reduction example now explains that the slow-down in growth
+  costs far more fish than it piles up. The cascade sections build on this: the
+  community model one compares the change in predation mortality with the
+  change in abundance, and the trait-based model one also looks at the change
+  in feeding level and recruitment. The "Understanding size-spectrum dynamics"
+  guide says the same.
 
 # mizer 3.4.0
 

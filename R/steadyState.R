@@ -30,6 +30,14 @@
 #' calibrating a model: holding the inputs to the fish dynamics fixed is what
 #' makes the search reliable.
 #'
+#' It is not the function for asking where a model with given parameters
+#' settles. Because the reproduction rate is held at its current value, it
+#' cannot reach a steady state in which a species' reproduction rate is very
+#' different, such as an alternative stable state or a state that exists
+#' because predation changes the reproduction of the prey. Because it
+#' re-derives `erepro`/`R_max` and `cc_pp`, two states found with it do not
+#' share parameters. Use [findSteadyState()] for those questions.
+#'
 #' @details
 #' Concretely, three things are held fixed during the search and two parameters
 #' are re-derived afterwards:
@@ -75,6 +83,7 @@
 #' not need the resource to be a semichemostat, unlike in [findSteadyState()]
 #' where the resource is one of the unknowns.
 #'
+#' @templateVar rederived TRUE
 #' @template section_check_steady
 #'
 #' @param params A \linkS4class{MizerParams} object

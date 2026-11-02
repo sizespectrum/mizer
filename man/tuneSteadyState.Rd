@@ -75,6 +75,14 @@ Solves for the consumer size spectra while holding the reproduction rate
 that they are steady too. This is the function to use while setting up and
 calibrating a model: holding the inputs to the fish dynamics fixed is what
 makes the search reliable.
+
+It is not the function for asking where a model with given parameters
+settles. Because the reproduction rate is held at its current value, it
+cannot reach a steady state in which a species' reproduction rate is very
+different, such as an alternative stable state or a state that exists
+because predation changes the reproduction of the prey. Because it
+re-derives \code{erepro}/\code{R_max} and \code{cc_pp}, two states found with it do not
+share parameters. Use \code{\link[=findSteadyState]{findSteadyState()}} for those questions.
 }
 \details{
 Concretely, three things are held fixed during the search and two parameters
@@ -165,6 +173,19 @@ whose biomasses are still moving reports the drift and adds "Reduce the
 tolerance on the distance function to converge further." — but they are
 suppressed by \code{info_level = 0}, so in a script the \code{"convergence"}
 attribute is the reliable check.
+
+Even a genuine fixed point can be one the model cannot sustain. \code{erepro}
+is the proportion of the energy invested in reproduction that ends up as
+egg biomass, so if a re-derived \code{erepro} is greater than 1, the
+reproduction rate held during the search is inconsistent with the state
+that was found. Usually this means that the state you asked for does not
+exist with births held at their current values; try \code{\link[=findSteadyState]{findSteadyState()}}
+instead. mizer warns when this happens, but with the default \code{preserve}
+the warning reads the same for an \code{erepro} of 1.01 as for one of 1e34,
+and \code{info_level = 0} suppresses it, so look at the values:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{species_params(params)$erepro          # greater than 1 is unrealistic
+}\if{html}{\out{</div>}}
 
 Finally, a genuine fixed point need not be a \emph{stable} one. Use
 \code{\link[=getStability]{getStability()}} to find out, and \code{solver = "newton"} to converge onto a
