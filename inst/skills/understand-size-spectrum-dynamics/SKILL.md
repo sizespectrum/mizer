@@ -166,7 +166,8 @@ growth slows → fish spend longer at small sizes where mortality is high →
 fewer consumers. Diagnose with `plotFeedingLevel()` and `resource_level()`.
 
 **The predation loop (top-down, and the source of cascades).** More predators →
-predation mortality $\mu_p$ on their prey sizes rises → prey abundance falls →
+predation mortality $\mu_p$ on their prey sizes rises → prey abundance falls,
+at those sizes and at all larger ones →
 which relieves predation on whatever the prey were eating. Diagnose with
 `plotPredMort()` and `plotDiet()`.
 
@@ -439,6 +440,26 @@ classical food-web models:
   resource, feeding levels collapse, and the growth of the predator's *own*
   larvae is stunted. The cascade comes back around and bites the species that
   started it.
+* **Cascade peaks are not $\beta$ apart**: predators at $w$ change the
+  mortality of prey at about $w/\beta$, and prey change the growth of
+  predators at about $\beta w$, but abundance follows neither size by size.
+  Integrating the species-slope equation above gives, at steady state,
+  $N(w) = \frac{R}{g(w)}\exp\left(-\int_{w_0}^{w}\mu/g\,dw'\right)$, so a
+  change in abundance has three parts. A change in recruitment $R$ shifts the
+  whole species spectrum. A change in $\mu/g$ (more mortality, or slower
+  growth and so longer exposure) changes the abundance at *every larger size*,
+  as a running total. A change in $g$ at $w$ itself piles fish up or thins
+  them out there (the traffic-jam effect). Where growth hardly changes, each
+  rise or dip therefore sits where the change in mortality switches sign, at
+  the upper end of a band, not where the change is largest. Fishing above 1 kg
+  in the default community model changes growth by under 2% and gives peaks
+  and troughs about a factor of 30 apart ($\beta = 100$, $\sigma = 2$), or 20
+  with $\beta = 10$, and the sizes that gain most are just below the fished
+  sizes. In the trait-based model fishing also changes feeding levels, and
+  faster growth through a band of doubled predation offsets much of it.
+  Compare `plotRelative()` of `getPredMort()` and of `getEGrowth()` with
+  `plotSpectraRelative()`, and check the species lines at the egg size for
+  recruitment changes, rather than counting factors of $\beta$.
 * **Cultivation–depensation**: large predators eat forage fish, but forage fish
   compete with — or prey on — the larvae of those same predators. Deplete the
   adults and the forage fish can suppress predator recruitment, holding the
