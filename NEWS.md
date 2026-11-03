@@ -67,6 +67,15 @@
 
 ## Bug fixes
 
+- `newTraitParams()` no longer marks the resource capacity it constructs as
+  set manually (#607). That capacity is exactly the one `setResource()`
+  balances to, so the mark protected nothing, but it stopped `setResource()`
+  from rebalancing the resource and `resource_params<-()` from recalculating
+  the capacity after a change of `kappa`, `lambda` or `w_pp_cutoff`. The
+  external mortality rate stays marked as set manually, because the species
+  parameters can not reproduce it. The help page of `newTraitParams()` now
+  explains how that rate is set, and so why changing `z0`, `z_ext` or `d`
+  afterwards has no effect.
 - `addSpecies()` and `adjustSizeGrid()` (and with it `expandSizeGrid()`) now
   build the new model with the numerical scheme of the model they are given.
   They used to build it with the first-order scheme and copy the

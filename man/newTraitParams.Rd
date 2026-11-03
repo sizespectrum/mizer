@@ -197,6 +197,17 @@ Otherwise all species have the same egg size.
 In addition to setting up the parameters, this function also sets up an
 initial condition that is close to steady state.
 
+The external mortality rate is not calculated from the species parameters
+\code{z0}, \code{z_ext} and \code{d}. Instead it is set so that, together with the
+predation mortality in the initial state, it gives a total mortality rate
+that is a power law in body size, of which a proportion \code{ext_mort_prop} is
+external mortality. Where the predation mortality alone already exceeds
+that power law, the external mortality rate is set to zero, unless
+\code{perfect_scaling = TRUE}. Because the species parameters can not reproduce
+it, this external mortality rate is marked as set manually, so changing
+\code{z0}, \code{z_ext} or \code{d} later has no effect unless you call
+\code{setExtMort(params, reset = TRUE)}, see \code{\link[=setExtMort]{setExtMort()}}.
+
 The search rate coefficient \code{gamma} is calculated using the expected
 feeding level, \code{f0}.
 
