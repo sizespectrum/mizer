@@ -128,6 +128,32 @@ test_that("reproduction_level is getRDD divided by R_max", {
                  NS_rdd / NS_params_small@species_params$R_max)
 })
 
+test_that("reproduction_level() works for any density dependence", {
+    params <- NS_params_small
+    params@rates_funcs$RDD <- "noRDD"
+    expect_equal(reproduction_level(params), rep(0, 3), ignore_attr = TRUE,
+                 tolerance = 1e-8)
+    params@rates_funcs$RDD <- "constantRDD"
+    params@species_params$constant_reproduction <- 1
+    expect_equal(reproduction_level(params), rep(1, 3), ignore_attr = TRUE)
+    # For Ricker the level is b * R_di
+    params <- balanceRDD(setReproduction(NS_params_small, RDD = "RickerRDD"))
+    expect_equal(reproduction_level(params),
+                 params@species_params$ricker_b * getRDI(params),
+                 ignore_attr = TRUE, tolerance = 1e-6)
+    expect_named(reproduction_level(params), params@species_params$species)
+})
+
+test_that("reproduction_level<- keeps the RDD function", {
+    params <- balanceRDD(setReproduction(NS_params_small, RDD = "RickerRDD"))
+    expect_error(reproduction_level(params) <- 0.5,
+                 "does not accept the argument `reproduction_level`")
+    # setBevertonHolt() does switch
+    p <- setBevertonHolt(params, reproduction_level = 0.5, info_level = 0)
+    expect_identical(p@rates_funcs$RDD, "BevertonHoltRDD")
+    expect_equal(reproduction_level(p), rep(0.5, 3), ignore_attr = TRUE)
+})
+
 # R_factor ----
 test_that("setBevertonHolt sets R_factor correctly", {
     sp_name <- NS_params_small@species_params$species[3]

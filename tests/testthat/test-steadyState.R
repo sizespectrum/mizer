@@ -81,6 +81,33 @@ test_that("tuneSteadyState() preserves parameters", {
     expect_false(identical(p_rmax@time_modified, params_erepro@time_modified))
 })
 
+test_that("tuneSteadyState() rebalances a custom RDD function", {
+    assign("test_scaledRDD", function(rdi, species_params, ...) {
+        0.9 * BevertonHoltRDD(rdi, species_params)
+    }, envir = globalenv())
+    params <- setRateFunction(tss_params, "RDD", "test_scaledRDD")
+    params <- balanceRDD(params, info_level = 0)
+    initialN(params) <- initialN(params) * 1.3
+    p <- tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1,
+                         info_level = 0)
+    expect_identical(p@rates_funcs$RDD, "test_scaledRDD")
+    expect_equal(getRDD(p), getRequiredRDD(p))
+    # It used to return the model unbalanced, and silently
+    expect_message(tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1),
+                   "adjusting `erepro` numerically")
+})
+
+test_that("tuneSteadyState() keeps the constant of constantRDD", {
+    params <- tss_params
+    params@rates_funcs$RDD <- "constantRDD"
+    params@species_params$constant_reproduction <-
+        unname(getRequiredRDD(params))
+    p <- tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1,
+                         info_level = 0)
+    expect_identical(p@rates_funcs$RDD, "constantRDD")
+    expect_equal(getRDD(p), getRequiredRDD(p))
+})
+
 test_that("tuneSteadyState() rebalances the resource to a genuine fixed point", {
     # For a normal (non-frozen) resource, tuneSteadyState() rebalances the
     # resource so that it is a genuine fixed point and issues no warning.

@@ -80,6 +80,7 @@ intake_max(params)["Cod", 1:5]
 }
 \seealso{
 Other functions for setting parameters:
+\code{\link[=balance_BevertonHoltRDD]{balance_BevertonHoltRDD()}},
 \code{\link[=gear_params]{gear_params()}},
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},

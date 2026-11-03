@@ -78,7 +78,59 @@
   the `gamma` and `f0` defaults derived against its resources. The guide to
   creating an extension package explains when this is needed (#598).
 
+## Balancing density-dependent reproduction
+
+- The new `balanceRDD()` changes the reproduction parameters so that the
+  density-dependent reproduction rate equals the rate required to keep the egg
+  abundance steady, whatever the density-dependence function is (#534). It
+  looks for a function `balance_<RDD>()` named after the density-dependence
+  function, in the way that `setResource()` looks for
+  `balance_<resource_dynamics>()`. Mizer provides `balance_BevertonHoltRDD()`,
+  `balance_RickerRDD()`, `balance_SheperdRDD()`, `balance_noRDD()` and
+  `balance_constantRDD()`, which keep `erepro` and change the parameter of the
+  density dependence where it has one. For density dependence without a
+  balancing function, `balanceRDD()` keeps its parameters, solves numerically
+  for the `erepro` that gives the required rate and says that it has done so.
+  Where no `erepro` gives it, or where the density dependence depends on time,
+  it leaves the parameters alone with a warning.
+- `matchBiomasses()`, `matchNumbers()`, `matchGrowth()`, `tuneSteadyState()`,
+  `addSpecies()` and `reproduction_level<-()` rebalance the reproduction with
+  `balanceRDD()`, so they keep the model's density-dependence function.
+  `setBevertonHolt()` still switches the model to Beverton-Holt.
+- `reproduction_level()` works for any density dependence. It is one minus the
+  elasticity of the reproduction rate with respect to the density-independent
+  rate, which for Beverton-Holt is the ratio `getRDD(params) / R_max` that it
+  always was. `reproduction_level<-()` sets the level of the model's own
+  density dependence. For density dependence whose balancing function does not
+  accept a level, such as Ricker, it gives an error where it used to switch
+  the model to Beverton-Holt.
+- For extension packages: an extension that changes the reproduction rate
+  through a `projectRDD()` method should also provide a `balanceRDD()` method,
+  which undoes its change to the target rate and passes it on with
+  `NextMethod()`. Without one, `rates_funcs$RDD` still names
+  `"BevertonHoltRDD"` but the Beverton-Holt balancing does not know about the
+  change, so mizer solves numerically for `erepro` instead.
+
 ## Bug fixes
+
+- `matchBiomasses()`, `matchNumbers()`, `matchGrowth()` and `addSpecies()` no
+  longer replace a custom density-dependence function by `BevertonHoltRDD()`
+  (#606). They called `setBevertonHolt()` to recalibrate the reproduction, which
+  also switches the function. `addSpecies()` did so even though it only meant
+  to set the reproduction level of the new species, and setting the
+  reproduction level of some species with `reproduction_level<-()` switched the
+  function for all of them.
+- `tuneSteadyState()` now rebalances density dependence other than
+  Beverton-Holt after its search. It used to put the density-dependence
+  function back without adjusting its parameters, so the model it returned was
+  not at steady state in its reproduction, although its `"convergence"`
+  attribute reported a fixed point and nothing was said. On a model with
+  `constantRDD()` it also removed the `constant_reproduction` column, so that
+  `getRDD()` and `project()` failed on the result.
+- On a model of an extension that changes the reproduction rate through a
+  `projectRDD()` method, `setBevertonHolt()` and the functions that call it
+  balanced only the Beverton-Holt part of the reproduction rate and so left the
+  model off its steady state without saying so.
 
 - `addSpecies()` and `adjustSizeGrid()` (and with it `expandSizeGrid()`) now
   build the new model with the numerical scheme of the model they are given.

@@ -105,3 +105,21 @@ test_that("the calibrate functions do not claim to break the steady state", {
     expect_equal(steady_biomass_drift(suppressMessages(scaleModel(p, 2))),
                  before, tolerance = 1e-6)
 })
+
+test_that("matchBiomasses and matchNumbers keep a custom RDD function (#606)", {
+    assign("test_scaledRDD", function(rdi, species_params, ...) {
+        0.9 * BevertonHoltRDD(rdi, species_params)
+    }, envir = globalenv())
+    params <- setBevertonHolt(NS_params_small, reproduction_level = 0.25)
+    params <- setRateFunction(params, "RDD", "test_scaledRDD")
+
+    species_params(params)$biomass_observed <- getBiomass(params) * 1.2
+    p <- matchBiomasses(params, info_level = 0)
+    expect_identical(p@rates_funcs$RDD, "test_scaledRDD")
+    expect_equal(getRDD(p), getRequiredRDD(p))
+
+    species_params(params)$number_observed <- getN(params) * 1.2
+    p <- matchNumbers(params, info_level = 0)
+    expect_identical(p@rates_funcs$RDD, "test_scaledRDD")
+    expect_equal(getRDD(p), getRequiredRDD(p))
+})

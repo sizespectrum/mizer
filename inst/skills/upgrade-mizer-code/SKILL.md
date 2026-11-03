@@ -111,6 +111,13 @@ function` — carry no such quote, so match those rows on the function name.
 | Warning `"was created with an earlier version of"` mizer for a model saved with mizer 3.4 | the model is upgraded to record its defaults edition | A model keeps the defaults edition it was created with |
 | `plotYieldVsF()` warns that its `tol` argument is deprecated | the name it had in mizerExperimental is accepted again, as the old name of `distance_tol` | `plotYieldVsF()` accepts `tol` again |
 | Message `"does not say how the change is shared between the food"` sources from `getDiet()`, `plotDiet()` or `getTrophicLevel()` | the model's encounter rate is changed by a function registered with `setRateFunction()` or by an extension, and the diet is now split to match it | `getDiet()` and `getTrophicLevel()` follow a changed encounter rate |
+| Error ``"does not accept the argument"`` `reproduction_level` from `reproduction_level<-()` on a model with Ricker, Shepherd or other density dependence that is not Beverton-Holt | `reproduction_level<-()` keeps the model's density-dependence function instead of switching it to Beverton-Holt | Rebalancing reproduction keeps the density-dependence function |
+| Error ``"mizer can only balance the reproduction by adjusting `erepro`"`` from `reproduction_level<-()` on a model with an RDD function of the user's own | the same | Rebalancing reproduction keeps the density-dependence function |
+| A model with Ricker or a custom RDD function is no longer Beverton-Holt after `reproduction_level<-()`, `matchBiomasses()`, `matchGrowth()` or `addSpecies()` | these functions rebalance the reproduction without replacing the function | Rebalancing reproduction keeps the density-dependence function |
+| Message ``"mizer has balanced the reproduction by adjusting `erepro` numerically"`` | the model's RDD function has no `balance_<RDD>()` function, so mizer solves for `erepro` | Rebalancing reproduction keeps the density-dependence function |
+| Warning ``"but no value of `erepro` gives the required reproduction rate"`` | that numerical balancing found no solution | Rebalancing reproduction keeps the density-dependence function |
+| Warning `"depends on time, so there is no steady state to balance it to"` | the model's RDD function depends on time, so mizer does not try to balance it | Rebalancing reproduction keeps the density-dependence function |
+| `reproduction_level()` gives a different value on a model with a custom RDD function, or a value where it used to error that there is no `R_max` | the level is now one minus the elasticity of the reproduction rate, for any density dependence | Rebalancing reproduction keeps the density-dependence function |
 
 ### mizer 3.3 → 3.4 — `references/mizer-3.4.md`
 

@@ -27,7 +27,7 @@ effort stored in \code{params}.}
 Specifies whether the \code{reproduction_level} should be preserved (default)
 or the maximum reproduction rate \code{R_max} or the reproductive
 efficiency \code{erepro}. See \code{\link[=setBevertonHolt]{setBevertonHolt()}} for an explanation
-of the \code{reproduction_level}.}
+of the \code{reproduction_level}. Only used with Beverton-Holt reproduction.}
 
 \item{info_level}{Controls the amount of information messages that are shown.
 Higher levels lead to more messages, \code{info_level = 0} gives silence. The
@@ -88,11 +88,13 @@ share parameters. Use \code{\link[=findSteadyState]{findSteadyState()}} for thos
 Concretely, three things are held fixed during the search and two parameters
 are re-derived afterwards:
 \itemize{
-\item The reproduction rate is pinned at \code{getRDD(params)}. Afterwards, if the
-model uses Beverton-Holt reproduction, \code{\link[=setBevertonHolt]{setBevertonHolt()}} restores the
-density dependence so that it reproduces exactly that rate at the new
-spectra. Use \code{preserve} to say which of the reproduction parameters should
-be kept as it was.
+\item The reproduction rate is pinned at \code{getRDD(params)}. Afterwards
+\code{\link[=balanceRDD]{balanceRDD()}} rebalances the density dependence so that it reproduces
+exactly that rate at the new spectra, keeping the model's
+density-dependence function. If the model uses Beverton-Holt
+reproduction, use \code{preserve} to say which of the reproduction parameters
+should be kept as it was. Other density dependence is balanced in its own
+way, see \code{\link[=balanceRDD]{balanceRDD()}}.
 \item The resource abundance is held at \code{initialNResource(params)}. Afterwards
 the resource capacity \code{cc_pp} is recomputed so that this abundance is a
 steady state of the resource under the new spectra. If the capacity had

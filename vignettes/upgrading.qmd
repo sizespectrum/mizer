@@ -137,7 +137,9 @@ afterwards. Models saved with mizer 3.4 are upgraded once more when they are
 first used. [`plotYieldVsF()`](../reference/plotYieldVsF.html) accepts the `tol` argument it had in
 mizerExperimental again, with a deprecation warning. On a model whose encounter
 rate has been changed, [`getDiet()`](../reference/getDiet.html) and [`getTrophicLevel()`](../reference/getTrophicLevel.html) now follow the
-change and say how they split it between the food sources.
+change and say how they split it between the food sources. Mizer now rebalances
+reproduction without replacing the model's density-dependence function, so
+`reproduction_level<-()` no longer switches a model to Beverton-Holt.
 
 ### A model keeps the defaults edition it was created with
 
@@ -232,6 +234,53 @@ supply the exact split.
 
 To silence the message, set `options(mizer_info_level = 0)` or wrap the call in
 `suppressMessages()`.
+
+### Rebalancing reproduction keeps the density-dependence function
+
+Whenever mizer had to rebalance the reproduction, in [`matchBiomasses()`](../reference/matchBiomasses.html),
+[`matchNumbers()`](../reference/matchNumbers.html), [`matchGrowth()`](../reference/matchGrowth.html), `addSpecies()` or `reproduction_level<-()`,
+it called [`setBevertonHolt()`](../reference/setBevertonHolt.html), which also switches the model to
+[`BevertonHoltRDD()`](../reference/BevertonHoltRDD.html). These functions now call the new [`balanceRDD()`](../reference/balanceRDD.html), which
+keeps the density-dependence function and changes only its parameters, and
+[`tuneSteadyState()`](../reference/tuneSteadyState.html) now rebalances density dependence other than Beverton-Holt
+too. Models with Beverton-Holt reproduction are not affected.
+
+[`reproduction_level(params) <- value`](../reference/setBevertonHolt.html) now sets the reproduction level of the
+model's own density dependence. With [`RickerRDD()`](../reference/RickerRDD.html), [`SheperdRDD()`](../reference/SheperdRDD.html) or a
+function of your own it stops with an error such as
+
+```
+`balance_RickerRDD()` does not accept the argument `reproduction_level`.
+```
+
+If you relied on it to switch the model to Beverton-Holt, say so:
+
+```{r eval=FALSE}
+# Old
+reproduction_level(params) <- 0.5
+# New
+params <- setBevertonHolt(params, reproduction_level = 0.5)
+```
+
+`reproduction_level(params)` now gives a value for any density dependence: one
+minus the elasticity of the reproduction rate with respect to the egg
+production, which for Beverton-Holt is [`getRDD(params) / R_max`](../reference/getRDD.html) as before. On
+a model with a density-dependence function of your own it used to divide by
+`R_max` all the same, so its value changes.
+
+For a density-dependence function of your own, mizer keeps its parameters and
+solves for the `erepro` that gives the required reproduction rate, with a
+message that starts
+
+```
+Because there is no `balance_myRDD()` function, mizer has balanced the
+reproduction by adjusting `erepro` numerically.
+```
+
+To have it balanced in another way, write a `balance_myRDD()` function; see
+`?balanceRDD`. Where no `erepro` gives the required rate, or where your
+function depends on time, mizer leaves the parameters alone with a warning, as
+it does when the resource can not be rebalanced.
 
 ---
 
@@ -650,7 +699,7 @@ has one: a run that used to reach `t_max` now converges.
 Pass `biomass_share_cutoff = 0`, to `distanceSSLogN()` directly or through
 [`projectUntilSettled()`](../reference/projectUntilSettled.html), for the old behaviour. Note that this is unrelated to
 the `biomass_cutoff` *species parameter* used by [`calibrateBiomass()`](../reference/calibrateBiomass.html) and
-[`matchBiomasses()`](../reference/matchBiomasses.html), which is a size in grams. What decides whether a state is a
+`matchBiomasses()`, which is a size in grams. What decides whether a state is a
 fixed point is untouched: `residual_tol` is measured against a biomass drift
 that integrates over every size class, cut off or not, so the cutoff cannot make
 a drifting model look settled.
@@ -728,7 +777,7 @@ undoing the rescaling with no message.
 
 `scaleModel()` now records the rescaled `R_max` and `gamma` as given species
 parameters, so they survive a later recalculation. This is the same fix
-[`matchGrowth()`](../reference/matchGrowth.html) had already received.
+`matchGrowth()` had already received.
 
 For most code nothing changes: a model that is rescaled and then used is
 identical to before, because the values in `species_params()` were correct
@@ -740,7 +789,7 @@ right ones. If that model was calibrated afterwards, the calibration was made
 against the inconsistent model and is worth redoing.
 
 `calibrateBiomass()`, [`calibrateNumber()`](../reference/calibrateNumber.html), `matchBiomasses()` and
-[`matchNumbers()`](../reference/matchNumbers.html) all rescale through `scaleModel()` and inherit the fix.
+`matchNumbers()` all rescale through `scaleModel()` and inherit the fix.
 
 If you have written your own version of this rescaling -- an extension package
 with its own `scale...Model()` function is the likely case -- apply the same
@@ -1514,7 +1563,7 @@ symmetry of the model. If your workflow re-ran `steady()` after every
 `matchNumbers()` also gains the empty-selection guard that `matchBiomasses()`
 already had. Its own guard could never fire, so when it had nothing to match —
 no `number_observed` values, or none for the species you asked for — it left the
-abundances alone but still called [`setBevertonHolt()`](../reference/setBevertonHolt.html), updated `time_modified`
+abundances alone but still called `setBevertonHolt()`, updated `time_modified`
 and announced that it had moved the model off its steady state. It now returns
 the model unchanged, as `matchBiomasses()` always did. Code that relied on the
 incidental re-tuning of the reproduction parameters should call
@@ -1615,7 +1664,7 @@ Seventeen accessors that read a parameter or rate array back out of a `MizerPara
 two interchangeable names. The bare name is now the one to use — it is the one
 that also has a replacement function, so the pair reads the same way in both
 directions (`catchability(params)` and `catchability(params) <- value`,
-[`reproduction_level(params)`](../reference/setBevertonHolt.html) and `reproduction_level(params) <- value`). The
+`reproduction_level(params)` and `reproduction_level(params) <- value`). The
 `get`-prefixed names are superseded:
 
 | Superseded | Use instead |
@@ -1987,7 +2036,7 @@ Several fixes correct earlier behaviour and so change output:
   instead of once per `dt` step. They are now integrated with the same `dt` as
   the consumer and resource spectra, so results for models with other components
   no longer depend on `t_save`.
-- **Time-varying effort in [`getRDI()`](../reference/getRDI.html), [`getRDD()`](../reference/getRDD.html), [`getFlux()`](../reference/getFlux.html).** On a
+- **Time-varying effort in [`getRDI()`](../reference/getRDI.html), `getRDD()`, [`getFlux()`](../reference/getFlux.html).** On a
   `MizerSim` object these now use the simulated time-varying effort rather than
   the initial effort, so they change for simulations with varying effort (#370).
 - **`plotCDF()` / `plotlyCDF()` bin placement.** Each cumulative value is now

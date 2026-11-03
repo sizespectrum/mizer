@@ -46,6 +46,10 @@ for each species.
 An alias provided for backward compatibility with mizer version <= 2.0.4
 }
 \details{
+\code{setBevertonHolt()} always switches the model to \code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}. To
+rebalance whatever density dependence the model has instead, use
+\code{\link[=balanceRDD]{balanceRDD()}}.
+
 With Beverton-Holt density dependence the relation between the energy
 invested into reproduction and the number of eggs hatched is determined
 by two parameters: the reproductive efficiency \code{erepro} and the maximum
@@ -125,6 +129,27 @@ and hence less sensitive to changes in the spawning stock biomass or its
 energy income. As a result the species will also be less sensitive to
 fishing, leading to a higher F_MSY.
 }
+\section{The reproduction level}{
+
+The reproduction level says how strongly density dependence limits the
+reproduction at the initial state. It is one minus the elasticity of the
+density-dependent reproduction rate \eqn{R_{dd}}{R_dd} with respect to the
+density-independent rate \eqn{R_{di}}{R_di}: at a reproduction level
+\eqn{r}, a small relative change in the egg production changes the
+reproduction rate by only \eqn{1 - r} times as much. For Beverton-Holt
+reproduction this equals \eqn{R_{dd}/R_{max}}{R_dd/R_max}.
+\code{reproduction_level()} calculates it in this way for any density
+dependence, including your own.
+
+\verb{reproduction_level<-()} changes the reproduction level without changing the
+steady state, keeping the model's density-dependence function. It passes the
+level to \code{\link[=balanceRDD]{balanceRDD()}}. With Beverton-Holt reproduction this is the same as
+\code{setBevertonHolt(params, reproduction_level = value)}. For a
+density-dependence function whose balancing function does not accept a
+reproduction level it gives an error: use \code{\link[=setBevertonHolt]{setBevertonHolt()}} to switch to
+Beverton-Holt reproduction instead.
+}
+
 \examples{
 params <- NS_params
 species_params(params)$erepro

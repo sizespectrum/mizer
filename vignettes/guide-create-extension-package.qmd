@@ -444,6 +444,33 @@ during the projection rather than storing it with [`setPredKernel()`](../referen
 `getTrophicLevel()` a method that stores the kernel in force at time `t` with
 `setPredKernel()` and calls `NextMethod()`.
 
+#### Balancing follows `balanceRDD()`
+
+Mizer rebalances the reproduction, for example after [`tuneSteadyState()`](../reference/tuneSteadyState.html) or
+[`matchBiomasses()`](../reference/matchBiomasses.html), with the S3 generic [`balanceRDD()`](../reference/balanceRDD.html). Its `MizerParams`
+method balances the density-dependence function named in `rates_funcs$RDD`,
+which knows nothing of a change your `projectRDD()` method makes. Give
+`balanceRDD()` a method that undoes your change to the target rate and calls
+`NextMethod()`:
+
+```{r eval=FALSE}
+#' @method balanceRDD mizerMyExtension
+#' @export
+balanceRDD.mizerMyExtension <- function(params, rdi = getRDI(params),
+                                        rdd_target = getRequiredRDD(params),
+                                        ...) {
+    # projectRDD.mizerMyExtension() adds immigration to NextMethod()
+    NextMethod(rdd_target = rdd_target - other_params(params)$immigration)
+}
+```
+
+Give it the same defaults as the generic, because an S3 method uses its own.
+A [`reproduction_level`](../reference/setBevertonHolt.html) passed to `balanceRDD()` refers to the whole
+reproduction rate, so if you want the Beverton-Holt level to be settable through
+your extension, convert it as shown on the help page of `balanceRDD()`.
+Without the method, mizer solves numerically for `erepro` through the whole of
+`projectRDD()`, says so, and refuses to set Beverton-Holt parameters.
+
 #### How `setRateFunction()` and `project*` methods interact
 
 A user who calls `setRateFunction(params, "Encounter", "myFn")` is asking for

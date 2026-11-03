@@ -227,6 +227,18 @@ test_that("Added species stay at low abundance", {
     expect_lt(finalN(sim)[no_sp, 1] / initialN(sim)[no_sp, 1], 1.05)
 })
 
+test_that("addSpecies keeps the RDD function and balances only the new species", {
+    params <- balanceRDD(setReproduction(trait_params_small, RDD = "RickerRDD"))
+    species_params <- data.frame(species = "mullet", w_max = 173, w_mat = 15,
+                                 beta = 283, sigma = 1.8, k_vb = 0.6)
+    p <- addSpecies(params, species_params, info_level = 0)
+    no_sp <- nrow(p@species_params)
+    expect_identical(p@rates_funcs$RDD, "RickerRDD")
+    expect_equal(p@species_params$ricker_b[-no_sp],
+                 params@species_params$ricker_b)
+    expect_equal(getRDD(p)[[no_sp]], getRequiredRDD(p)[[no_sp]])
+})
+
 test_that("addSpecies preserves both given and other species params", {
 
     params <- trait_params_small

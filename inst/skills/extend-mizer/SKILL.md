@@ -186,6 +186,15 @@ Three rules that follow from the table:
   inherited. Most bugs in extension code are the right numbers in the wrong
   shape.
 
+A replacement `RDD` function also needs balancing. Whenever mizer has to put
+the reproduction back in balance with the egg abundance, in `tuneSteadyState()`,
+`matchBiomasses()`, `matchGrowth()` or `addSpecies()`, it calls
+`balanceRDD()`, which looks for a function `balance_<RDD>()` named after yours.
+Without one, mizer keeps your function's parameters and solves numerically for
+`erepro`, and says so. Write `balance_myRDD(params, rdi, rdd_target, ...)` to
+choose the parameters yourself; see `?balanceRDD`. A function that depends on
+`t` is not balanced at all, because a model with it has no steady state.
+
 ## Respecting the model's quadrature scheme
 
 A model may be on either of two quadrature schemes, selected by the

@@ -93,6 +93,7 @@ gear_params(params)["Cod, gear1", "catchability"] <- 0.8
 }
 \seealso{
 Other functions for setting parameters:
+\code{\link[=balance_BevertonHoltRDD]{balance_BevertonHoltRDD()}},
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},
 \code{\link[=setExtMort]{setExtMort()}},
