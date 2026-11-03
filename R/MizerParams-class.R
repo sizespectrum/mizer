@@ -1121,6 +1121,18 @@ repair_params <- function(params) {
         if (length(given_wrong) > 0) {
             params@given_species_params$w_min[given_wrong] <- w_min
         }
+        # Keep any supplied egg lengths consistent with the clamp too, so a
+        # later validation or unrelated edit does not have to repair them.
+        # Use the model's a and b: they need not be given parameters.
+        if ("l_min" %in% names(params@species_params)) {
+            sel <- which(wrong & !is.na(params@species_params$l_min))
+            params@species_params$l_min[sel] <- w2l(w_min, params)[sel]
+        }
+        if ("l_min" %in% names(params@given_species_params)) {
+            given_lengths <- params@given_species_params$l_min
+            sel <- given_wrong[!is.na(given_lengths[given_wrong])]
+            params@given_species_params$l_min[sel] <- w2l(w_min, params)[sel]
+        }
         warning("The minimum weight of some species was smaller than the ",
                 "minimum weight of the weight grid in the model: ",
                 paste(params@species_params$species[wrong], collapse = ", "),

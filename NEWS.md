@@ -149,6 +149,11 @@
   without any warning, and the default `h`, `ks` and `gamma` of that species
   changed with it.
 
+- When an egg size below the size grid is raised to the grid minimum, its
+  supplied length `l_min` is now updated in both species parameter tables too.
+  Later validation or an unrelated parameter edit no longer warns that the
+  egg length and weight disagree.
+
 ## Documentation
 
 - The help page of `getDiffusion()` gave the predation-diffusion rate with a
