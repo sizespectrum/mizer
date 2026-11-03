@@ -20,8 +20,8 @@ numeric vector of species indices, or a logical vector indicating for
 each species whether it is to be removed (TRUE) or not.}
 
 \item{compensate}{If \code{TRUE}, the external rates of the remaining species
-and the resource capacity are adjusted so that the remaining species and
-the resource have the same rates as before the removal. See the section
+are adjusted so that the remaining species have the same rates as before
+the removal, and the resource is rebalanced. See the section
 "Compensating for the removed species". Default is \code{FALSE}.}
 
 \item{info_level}{Controls the amount of information messages that are
@@ -65,18 +65,30 @@ external diffusion rate, see \code{\link[=setExtDiffusion]{setExtDiffusion()}}. 
 \code{\link[=use_predation_diffusion]{use_predation_diffusion()}} is switched on.
 }
 
-The removed species also no longer eat the resource, so the resource
-capacity is rebalanced with \code{\link[=setResource]{setResource()}} so that the resource again
-replenishes at the rate at which it is now consumed. The resource rate is
-kept. This replaces a resource capacity that you had set manually.
-
 All of this is calculated at the initial state stored in \code{params}. At that
-state the remaining species and the resource then have exactly the rates
-they had before the removal, so if the model was at steady state, it stays
-at steady state. In effect the removed species are still present, held
-at their initial abundances, but they no longer respond to changes in the
-rest of the model. As the model moves away from its initial state, the
-compensation no longer matches what the removed species would have done.
+state the remaining species then have exactly the rates they had before the
+removal. In effect the removed species are still present, held at their
+initial abundances, but they no longer respond to changes in the rest of the
+model. As the model moves away from its initial state, the compensation no
+longer matches what the removed species would have done.
+
+The removed species also no longer eat the resource, so the resource
+capacity is rebalanced with \code{\link[=setResource]{setResource()}}: it is set so that at the
+initial state the resource replenishes at exactly the rate at which it is now
+consumed. The resource rate is kept. This replaces a resource capacity that
+you had set manually. Rebalancing puts the resource at steady state, so it
+keeps its rate of change only if that was zero. Thus if the model was at
+steady state, it stays at steady state. If the resource was not at steady
+state, it is put at steady state instead of keeping the rate at which it
+was changing.
+
+The compensation is added to the external rates on the assumption that
+they are added unchanged to the rates, as they are in mizer's own rate
+functions. If you have replaced a rate function with \code{\link[=setRateFunction]{setRateFunction()}},
+mizer checks that the rates are restored. Where they are not, it rescales
+the compensation by how much the rate responds to it, which restores a rate
+that your function calculates by multiplying mizer's rate by a factor. If a
+rate is still not restored, you are warned.
 
 Each external rate that is changed is marked as set manually. A later
 change to the species parameters that the rate is usually calculated from

@@ -369,6 +369,45 @@ test_that("removeSpecies(compensate = TRUE) keeps the rates of the remaining spe
     }
 })
 
+test_that("removeSpecies(compensate = TRUE) works with scaled rate functions", {
+    # setRateFunction() looks the functions up by name
+    e <- globalenv()
+    e$removal_scaled_encounter <- function(params, ...) {
+        2 * mizerEncounter(params, ...)
+    }
+    e$removal_scaled_mort <- function(params, ...) 3 * mizerMort(params, ...)
+    e$removal_scaled_diffusion <- function(params, ...) {
+        0.5 * mizerDiffusion(params, ...)
+    }
+    withr::defer(rm(list = c("removal_scaled_encounter", "removal_scaled_mort",
+                             "removal_scaled_diffusion"), envir = e))
+    params <- NS_params_small |>
+        setRateFunction("Encounter", "removal_scaled_encounter") |>
+        setRateFunction("Mort", "removal_scaled_mort") |>
+        setRateFunction("Diffusion", "removal_scaled_diffusion")
+    use_predation_diffusion(params) <- TRUE
+    keep <- c("Sprat", "Cod")
+    expect_no_warning(p <- removeSpecies(params, "Herring", compensate = TRUE))
+    for (rate in list(getEncounter, getMort, getDiffusion)) {
+        expect_equal(unclass(rate(p)),
+                     unclass(rate(params))[keep, , drop = FALSE],
+                     ignore_attr = TRUE, tolerance = 1e-12)
+    }
+})
+
+test_that("removeSpecies(compensate = TRUE) warns if it cannot restore a rate", {
+    # An encounter rate that ignores the external encounter rate
+    e <- globalenv()
+    e$removal_no_ext_encounter <- function(params, ...) {
+        mizerEncounter(params, ...) - params@ext_encounter
+    }
+    withr::defer(rm("removal_no_ext_encounter", envir = e))
+    params <- setRateFunction(NS_params_small, "Encounter",
+                              "removal_no_ext_encounter")
+    expect_warning(removeSpecies(params, "Herring", compensate = TRUE),
+                   "did not restore the encounter rate of Sprat, Cod")
+})
+
 test_that("removeSpecies(compensate = TRUE) keeps a model at steady state", {
     params <- NS_params_steady_small
     keep <- c("Sprat", "Cod")
@@ -402,6 +441,15 @@ test_that("removeSpecies(compensate = TRUE) rebalances the resource", {
     comment(params@cc_pp) <- "set manually"
     p2 <- removeSpecies(params, "Herring", compensate = TRUE)
     expect_equal(p2@cc_pp, p@cc_pp, ignore_attr = TRUE)
+    # A resource that was not at steady state is put at steady state, as
+    # documented, rather than keeping its rate of change
+    params <- NS_params_small
+    initialNResource(params) <- initialNResource(params) * 0.8
+    p3 <- removeSpecies(params, "Herring", compensate = TRUE)
+    expect_equal(p3@cc_pp,
+                 p3@initial_n_pp * (p3@rr_pp + c(getResourceMort(p3))) /
+                     p3@rr_pp,
+                 ignore_attr = TRUE, tolerance = 1e-12)
     # Constant resource needs no balancing
     params <- setResource(NS_params_small, resource_dynamics = "resource_constant")
     p <- removeSpecies(params, "Herring", compensate = TRUE)

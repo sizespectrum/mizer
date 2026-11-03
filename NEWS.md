@@ -73,10 +73,12 @@
   the external encounter rate, external mortality and external diffusion of
   the remaining species take over what the removed species contributed, and
   the resource capacity is rebalanced because the removed species no longer
-  eat the resource. At the initial state the remaining species and the
-  resource then have the rates they had before, so a steady state stays a
-  steady state. The default `compensate = FALSE` keeps the previous
-  behaviour. `removeSpecies()` also gains an `info_level` argument.
+  eat the resource. At the initial state the remaining species then have the
+  rates they had before and the resource is at steady state, so a steady state
+  stays a steady state. mizer checks that the rates are restored and warns if
+  a custom rate function prevents that. The default `compensate = FALSE` keeps
+  the previous behaviour. `removeSpecies()` also gains an `info_level`
+  argument.
 
 ## Bug fixes
 

@@ -418,18 +418,30 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 #'   external diffusion rate, see [setExtDiffusion()]. This only matters if
 #'   [use_predation_diffusion()] is switched on.
 #'
-#' The removed species also no longer eat the resource, so the resource
-#' capacity is rebalanced with [setResource()] so that the resource again
-#' replenishes at the rate at which it is now consumed. The resource rate is
-#' kept. This replaces a resource capacity that you had set manually.
-#'
 #' All of this is calculated at the initial state stored in `params`. At that
-#' state the remaining species and the resource then have exactly the rates
-#' they had before the removal, so if the model was at steady state, it stays
-#' at steady state. In effect the removed species are still present, held
-#' at their initial abundances, but they no longer respond to changes in the
-#' rest of the model. As the model moves away from its initial state, the
-#' compensation no longer matches what the removed species would have done.
+#' state the remaining species then have exactly the rates they had before the
+#' removal. In effect the removed species are still present, held at their
+#' initial abundances, but they no longer respond to changes in the rest of the
+#' model. As the model moves away from its initial state, the compensation no
+#' longer matches what the removed species would have done.
+#'
+#' The removed species also no longer eat the resource, so the resource
+#' capacity is rebalanced with [setResource()]: it is set so that at the
+#' initial state the resource replenishes at exactly the rate at which it is now
+#' consumed. The resource rate is kept. This replaces a resource capacity that
+#' you had set manually. Rebalancing puts the resource at steady state, so it
+#' keeps its rate of change only if that was zero. Thus if the model was at
+#' steady state, it stays at steady state. If the resource was not at steady
+#' state, it is put at steady state instead of keeping the rate at which it
+#' was changing.
+#'
+#' The compensation is added to the external rates on the assumption that
+#' they are added unchanged to the rates, as they are in mizer's own rate
+#' functions. If you have replaced a rate function with [setRateFunction()],
+#' mizer checks that the rates are restored. Where they are not, it rescales
+#' the compensation by how much the rate responds to it, which restores a rate
+#' that your function calculates by multiplying mizer's rate by a factor. If a
+#' rate is still not restored, you are warned.
 #'
 #' Each external rate that is changed is marked as set manually. A later
 #' change to the species parameters that the rate is usually calculated from
@@ -447,8 +459,8 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 #'   numeric vector of species indices, or a logical vector indicating for
 #'   each species whether it is to be removed (TRUE) or not.
 #' @param compensate If `TRUE`, the external rates of the remaining species
-#'   and the resource capacity are adjusted so that the remaining species and
-#'   the resource have the same rates as before the removal. See the section
+#'   are adjusted so that the remaining species have the same rates as before
+#'   the removal, and the resource is rebalanced. See the section
 #'   "Compensating for the removed species". Default is `FALSE`.
 #' @param info_level Controls the amount of information messages that are
 #'   shown. Higher levels lead to more messages. Set to 0 to suppress all such
@@ -572,6 +584,13 @@ removeSpecies.MizerParams <- function(params, species, compensate = FALSE,
 #' feed exactly as before and the only change left in those rates is what the
 #' removed species contributed.
 #'
+#' The resource is rebalanced rather than given back its rate of change, so a
+#' resource that was not at steady state is put at steady state. Keeping its
+#' rate of change would need a formula for each resource dynamics (for the
+#' semichemostat the capacity shifts by a fixed amount, for the logistic its
+#' inverse does), whereas balancing goes through the `balance_<dynamics>()`
+#' function that each resource dynamics provides anyway.
+#'
 #' @param params A \linkS4class{MizerParams} object.
 #' @param remove A logical vector saying for each species whether it is to be
 #'   removed.
@@ -587,12 +606,11 @@ compensate_removal <- function(params, remove) {
 
     params@initial_n[remove, ] <- 0
 
-    params <- add_compensation(params, "ext_encounter", remove,
-                               old_encounter - getEncounter(params))
-    params <- add_compensation(params, "mu_b", remove,
-                               old_mort - getMort(params))
-    params <- add_compensation(params, "ext_diffusion", remove,
-                               old_diffusion - getDiffusion(params))
+    params <- compensate_rate(params, "ext_encounter", remove, old_encounter,
+                              getEncounter)
+    params <- compensate_rate(params, "mu_b", remove, old_mort, getMort)
+    params <- compensate_rate(params, "ext_diffusion", remove, old_diffusion,
+                              getDiffusion)
 
     # The removed species no longer eat the resource. `resource_constant()`
     # needs no balancing because it keeps the resource where it is anyway.
@@ -630,28 +648,96 @@ compensate_removal <- function(params, remove) {
     params
 }
 
-#' Add the compensation for removed species to an external rate
+#' Restore a rate of the remaining species through its external rate
 #'
-#' Adds `compensation` to the rows of the remaining species in the external
-#' rate array `slot` and marks that array as set manually, so that a later
-#' recalculation from the species parameters does not overwrite it. An array
-#' to which the removed species contributed nothing is left alone, so that it
-#' is not marked needlessly. The comparison is exact: a species that
-#' contributes nothing changes neither the inputs of a rate nor, therefore,
-#' its numerical round-off.
+#' Adds to the external rate array `slot` the amount by which the rate that
+#' `get_rate()` calculates has fallen short of `target`, and checks that this
+#' restores the rate. An array to which the removed species contributed
+#' nothing is left alone, so that it is not marked as set manually needlessly.
+#' That comparison is exact: a species that contributes nothing changes
+#' neither the inputs of a rate nor, therefore, its numerical round-off.
+#'
+#' Adding the shortfall restores the rate whenever the external rate is added
+#' to it unchanged, as in all of mizer's own rate functions. A custom rate
+#' function need not do that; one that returns `2 * mizerEncounter(...)`
+#' doubles the compensation as well. So where the rate is not restored, the
+#' compensation is divided by the response of the rate to it. This is exact
+#' for any rate that at each size is an affine function of the external rate,
+#' which covers a rate function that scales mizer's rate. If the rate is still
+#' not restored, the user is warned.
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @param slot One of `"ext_encounter"`, `"mu_b"` or `"ext_diffusion"`.
 #' @param remove A logical vector saying for each species whether it is to be
 #'   removed.
-#' @param compensation An array (species x size) to add to the slot.
+#' @param target The rate (species x size) before the removal.
+#' @param get_rate The function calculating the rate from `params`.
+#' @param tol The tolerance for a restored rate, relative to the largest value
+#'   of the rate of that species.
 #' @return The `MizerParams` object with the slot updated.
 #' @noRd
-add_compensation <- function(params, slot, remove, compensation) {
+compensate_rate <- function(params, slot, remove, target, get_rate,
+                            tol = 1e-8) {
+    target <- unclass_rate(target)
+    reduced <- unclass_rate(get_rate(params))
+    compensation <- target - reduced
     compensation[remove, ] <- 0
     if (all(compensation == 0)) {
         return(params)
     }
+    # TRUE where the rate of a remaining species is not restored
+    not_restored <- function(rate) {
+        off <- abs(rate - target) > tol * apply(abs(target), 1, max)
+        off[remove, ] <- FALSE
+        off
+    }
+    compensated <- add_compensation(params, slot, compensation)
+    rate <- unclass_rate(get_rate(compensated))
+    off <- not_restored(rate)
+    if (any(off)) {
+        # Rescale everywhere, not only where the rate is off by more than the
+        # tolerance, which is relative to the largest value of the rate and so
+        # would leave small values off. The two evaluations of the rate differ
+        # only in the external rate, so the response is measured to the
+        # round-off in the rate, about eps * rate. Where the compensation is
+        # too small to measure it to 1e-4, it is left as it is, which leaves an
+        # error that is negligible compared to the rate.
+        response <- (rate - reduced) / compensation
+        fix <- abs(compensation) > 1e4 * .Machine$double.eps * abs(target) &
+            is.finite(response) & response != 0
+        compensation[fix] <- compensation[fix] / response[fix]
+        compensated <- add_compensation(params, slot, compensation)
+        rate <- unclass_rate(get_rate(compensated))
+        off <- not_restored(rate)
+    }
+    if (any(off)) {
+        quantity <- switch(slot, ext_encounter = "encounter rate",
+                           mu_b = "mortality rate",
+                           ext_diffusion = "diffusion rate")
+        species <- params@species_params$species[rowSums(off) > 0]
+        signal_info(slot, paste0(
+            "The compensation for the removed species did not restore the ",
+            quantity, " of ", paste(species, collapse = ", "), ". The ",
+            quantity, " is calculated by a function that does not respond ",
+            "to the external ", quantity, " in a way the compensation can ",
+            "match, so the remaining species do not keep their rates."),
+            level = 1, severity = "warning", unhandled = "show")
+    }
+    compensated
+}
+
+#' Add the compensation for removed species to an external rate
+#'
+#' Adds `compensation` to the external rate array `slot` and marks that array
+#' as set manually, so that a later recalculation from the species parameters
+#' does not overwrite it.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @param slot One of `"ext_encounter"`, `"mu_b"` or `"ext_diffusion"`.
+#' @param compensation An array (species x size) to add to the slot.
+#' @return The `MizerParams` object with the slot updated.
+#' @noRd
+add_compensation <- function(params, slot, compensation) {
     value <- slot(params, slot) + compensation
     comment(value) <- comment(slot(params, slot)) %||%
         "increased by removeSpecies() to compensate for the removed species"
