@@ -102,11 +102,19 @@ the numerator, so they count as having trophic level 0.
 
 The consumption rate in the denominator is the model's own, calculated from
 \code{\link[=getEncounter]{getEncounter()}} and \code{\link[=getFeedingLevel]{getFeedingLevel()}}, and the growth rate is that of
-\code{\link[=getEGrowth]{getEGrowth()}}. If the encounter rate has been changed, by a function
-registered with \code{\link[=setRateFunction]{setRateFunction()}} or by an extension package, then the
-contribution of each prey species and of the resource to the numerator is
-scaled by the same factor as its contribution to the encounter rate in
-\code{\link[=getDiet]{getDiet()}}. See the "Changed encounter rates" section there.
+\code{\link[=getEGrowth]{getEGrowth()}}. In the numerator, the consumption rate is split between the
+prey species and the resource as in \code{\link[=getDiet]{getDiet()}}, which follows the model's
+encounter rate even if it has been changed, by a function registered with
+\code{\link[=setRateFunction]{setRateFunction()}} or by an extension package. See the "Changed encounter
+rates" section there. The consumption from each of these food sources is
+multiplied by the mean trophic level of the food it provides, averaged over
+prey sizes with the weights of the predation kernel stored in the model (see
+\code{\link[=getPredKernel]{getPredKernel()}}). An extension that changes which prey sizes are eaten in
+some other way than by storing its kernel in the model with
+\code{\link[=setPredKernel]{setPredKernel()}} is therefore not followed here and needs a
+\code{getTrophicLevel()} method of its own. Food from a prey species or the
+resource to which the stored kernel gives no weight counts as having
+trophic level 0.
 
 This equation can be viewed as a linear system
 \eqn{(I - D)\,\mathbf{T} = \mathbf{1}} in which the entries of

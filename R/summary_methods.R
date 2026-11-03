@@ -98,7 +98,11 @@ NULL
 #' of all food sources in proportion, so that they still add up to the
 #' consumption rate, and tells you that it has done so. That split is exact
 #' when the change affects all food sources equally, as does for example a
-#' factor multiplying the whole encounter rate.
+#' factor multiplying the whole encounter rate. At a size at which the predator
+#' encounters food although none of the food sources contributes anything,
+#' there is nothing to scale, and `getDiet()` attributes all of that food to
+#' the "External" food source, which stands for food that the model does not
+#' resolve.
 #'
 #' @param object A \linkS4class{MizerParams} or \linkS4class{MizerSim} object.
 #' @param proportion If TRUE (default) the function returns the diet as a
@@ -240,7 +244,10 @@ getDiet.MizerSim <- function(object, proportion = TRUE,
 #' so that [getDiet()] and [getTrophicLevel()] can split the changed encounter
 #' rate between the food sources correctly. Without such a method they find
 #' that the resolved rates no longer add up to the encounter rate, scale all of
-#' them in proportion, and say so.
+#' them in proportion, and say so. [getTrophicLevel()] takes from this method
+#' only how much food each prey species and the resource provide. Which prey
+#' sizes that food comes from it takes from the predation kernel stored in the
+#' model.
 #'
 #' This function does not itself check that its result adds up to
 #' [getEncounter()]: the `MizerParams` method is reached through `NextMethod()`
@@ -372,6 +379,9 @@ getEncounterByPrey.MizerParams <- function(params, n = initialN(params),
 # a projectEncounter() method but no matching getEncounterByPrey() method.
 # Nothing then says how the change is shared between the food sources, so the
 # contributions of all of them are scaled in proportion and the user is told.
+# Where no food source contributes at all there is nothing to scale, and the
+# encounter rate there is attributed to the "External" food source, which
+# stands for food that the model does not resolve.
 #
 # The check is made here rather than in getEncounterByPrey.MizerParams()
 # because an extension method reaches that through NextMethod() with
@@ -390,23 +400,34 @@ matched_encounter_by_prey <- function(params, n, n_pp, n_other, t, encounter,
     # in rates that are tiny compared with the largest from counting.
     fish <- n > 0
     tol <- 1e-8 * abs(encounter) + 1e-12 * max(abs(encounter[fish]), 0)
-    if (!any(abs(total - encounter)[fish] > tol[fish])) {
+    mismatch <- fish & abs(total - encounter) > tol
+    if (!any(mismatch)) {
         return(by_prey)
     }
-    # Where no food source contributes there is nothing to scale, and the
-    # resolved rates stay zero.
-    factor <- ifelse(total > 0, encounter / total, 0)
-    signal_info(
-        "diet",
-        paste0("The encounter rate has been changed by a custom encounter ",
-               "rate function or by an extension, and `getEncounterByPrey()` ",
-               "does not say how the change is shared between the food ",
-               "sources. ", caller, " has therefore scaled the contributions ",
-               "of all food sources in proportion, so that they add up to ",
-               "the encounter rate. This is exact only if the change affects ",
-               "all food sources equally."),
-        unhandled = "show")
-    sweep(by_prey, c(1, 2), factor, "*")
+    resolved <- total > 0
+    message <- paste0(
+        "The encounter rate has been changed by a custom encounter ",
+        "rate function or by an extension, and `getEncounterByPrey()` ",
+        "does not say how the change is shared between the food ",
+        "sources.")
+    if (any(mismatch & resolved)) {
+        message <- paste0(
+            message, " ", caller, " has therefore scaled the contributions ",
+            "of all food sources in proportion, so that they add up to ",
+            "the encounter rate. This is exact only if the change affects ",
+            "all food sources equally.")
+    }
+    if (any(mismatch & !resolved)) {
+        message <- paste0(
+            message, " Where no food source contributes at all, ", caller,
+            " has attributed the whole encounter rate to the \"External\" ",
+            "food source.")
+    }
+    signal_info("diet", message, unhandled = "show")
+    by_prey <- sweep(by_prey, c(1, 2),
+                     ifelse(resolved, encounter / total, 0), "*")
+    by_prey[, , "External"] <- by_prey[, , "External"] + encounter * !resolved
+    by_prey
 }
 
 
@@ -468,11 +489,19 @@ matched_encounter_by_prey <- function(params, n, n_pp, n_other, t, encounter,
 #'
 #' The consumption rate in the denominator is the model's own, calculated from
 #' [getEncounter()] and [getFeedingLevel()], and the growth rate is that of
-#' [getEGrowth()]. If the encounter rate has been changed, by a function
-#' registered with [setRateFunction()] or by an extension package, then the
-#' contribution of each prey species and of the resource to the numerator is
-#' scaled by the same factor as its contribution to the encounter rate in
-#' [getDiet()]. See the "Changed encounter rates" section there.
+#' [getEGrowth()]. In the numerator, the consumption rate is split between the
+#' prey species and the resource as in [getDiet()], which follows the model's
+#' encounter rate even if it has been changed, by a function registered with
+#' [setRateFunction()] or by an extension package. See the "Changed encounter
+#' rates" section there. The consumption from each of these food sources is
+#' multiplied by the mean trophic level of the food it provides, averaged over
+#' prey sizes with the weights of the predation kernel stored in the model (see
+#' [getPredKernel()]). An extension that changes which prey sizes are eaten in
+#' some other way than by storing its kernel in the model with
+#' [setPredKernel()] is therefore not followed here and needs a
+#' `getTrophicLevel()` method of its own. Food from a prey species or the
+#' resource to which the stored kernel gives no weight counts as having
+#' trophic level 0.
 #'
 #' This equation can be viewed as a linear system
 #' \eqn{(I - D)\,\mathbf{T} = \mathbf{1}} in which the entries of
@@ -550,59 +579,57 @@ getTrophicLevel.MizerParams <- function(params,
     # Total consumption = (1 - f) * E, used for denominator accumulator
     consumption <- (1 - feeding_level) * encounter  # no_sp x no_w
 
-    # The numerator below is built from the standard encounter integral, while
-    # `consumption` comes from the model's own encounter rate, which a custom
-    # rate function or an extension may have changed. To keep the two
-    # consistent, the contribution of each prey species and of the resource to
-    # the numerator is scaled by `share`, the ratio of its contribution to the
-    # model's encounter rate, as split between food sources for getDiet(), to
-    # its contribution to the standard encounter rate (#613). The prey sizes
-    # within each food source keep the weights of the standard integral. For a
-    # model with the standard encounter rate `share` is exactly 1.
+    # The numerator below sums, over the prey species and the resource, the
+    # rate at which each is encountered times the mean trophic level of the
+    # food it provides. The rates are split between food sources as for
+    # getDiet(), so that they add up to the model's own encounter rate, which a
+    # custom rate function or an extension may have changed (#613). Only prey
+    # species and the resource have a trophic level; the other food sources
+    # contribute nothing to the numerator.
     food <- seq_len(no_sp + 1)
     by_prey <- matched_encounter_by_prey(params, n = n, n_pp = n_pp,
                                          n_other = n_other, t = t,
                                          encounter = encounter,
                                          caller = "`getTrophicLevel()`")
-    standard <- getEncounterByPrey.MizerParams(params, n = n, n_pp = n_pp,
-                                               n_other = n_other, t = t)
-    share <- by_prey[, , food, drop = FALSE] / standard[, , food, drop = FALSE]
-    # Where the standard integral is zero, so is the numerator term it scales
-    share[!is.finite(share)] <- 1
+    by_prey <- by_prey[, , food, drop = FALSE]
 
-    # Full predation kernel array (no_sp x no_w x no_w_full). The numerator
-    # below is a trophic-level-weighted copy of the encounter integral, and its
-    # ratio to `consumption` is only a trophic level if the two use the same
-    # quadrature. encounter_kernel() therefore returns the kernel that
-    # mizerEncounter() effectively uses: the point-sampled kernel on the default
-    # path, and the prey-bin-integrated kernel when second-order bin-averaging
-    # is on (issue #474).
+    # Full predation kernel array (no_sp x no_w x no_w_full). It supplies the
+    # weights with which the trophic levels of the prey sizes are averaged, so
+    # it has to weight them as the encounter rate does. encounter_kernel()
+    # therefore returns the kernel that mizerEncounter() effectively uses: the
+    # point-sampled kernel on the default path, and the prey-bin-integrated
+    # kernel when second-order bin-averaging is on (issue #474). An extension
+    # that changes which prey sizes are eaten without storing its kernel in
+    # `params` is not followed here.
     pred_kernel <- encounter_kernel(params)
 
+    # prey_mass[j, p] = N_j(w_p) * w_p * dw_p and
     # prey_mass_tl[j, p] = N_j(w_p) * T_j(w_p) * w_p * dw_p
     # The prey-biomass weight is the plain point weight `w * dw`, matching
     # mizerEncounter(). Under second-order the prey-bin integral lives in
     # `pred_kernel`, so bin-averaging this weight as well would apply it twice.
-    # Initialised with T_j = 1 everywhere; updated as trophic levels are computed
-    prey_mass_tl <- sweep(n, 2, params@w * params@dw, "*")  # no_sp x no_w
+    # prey_mass_tl is initialised with T_j = 1 everywhere and updated as trophic
+    # levels are computed.
+    prey_mass <- sweep(n, 2, params@w * params@dw, "*")  # no_sp x no_w
+    prey_mass_tl <- prey_mass
 
     # Size-dependent trophic level of the resource:
     #   T_R(w) = max(1, 1 + log(w / w_R) / log(beta_R))
     # where w_R is an average primary-producer size and beta_R an average
     # predator/prey mass ratio for the resource. Unlike the species trophic
-    # levels, this is fixed by the formula, so the resource's whole contribution
-    # to the numerator can be precomputed before the size loop. This mirrors the
-    # `phi_prey_background` term in mizerEncounter().
+    # levels, this is fixed by the formula, so the mean trophic level of the
+    # resource a predator encounters can be precomputed before the size loop.
+    # This mirrors the `phi_prey_background` term in mizerEncounter().
     tl_R <- pmax(1, 1 + log(params@w_full / w_R) / log(beta_R))  # no_w_full
-    # TL-weighted resource biomass per bin (length no_w_full), weighted exactly
-    # as the resource is weighted in mizerEncounter().
-    resource_mass_tl <- tl_R * n_pp * params@w_full * params@dw_full
-    # Resource contribution to the TL-weighted encounter for every predator/size:
-    #   ae_R[i, k] = sum_p kernel[i, k, p] * resource_mass_tl[p]
-    ae_R <- rowSums(sweep(pred_kernel, 3, resource_mass_tl, "*"), dims = 2)
-    E_tl_resource <- params@search_vol *
-        (params@species_params$interaction_resource * ae_R) *
-        share[, , no_sp + 1]  # no_sp x no_w
+    # Resource biomass per bin (length no_w_full), weighted exactly as the
+    # resource is weighted in mizerEncounter().
+    resource_mass <- n_pp * params@w_full * params@dw_full
+    # Mean trophic level of the resource encountered, for every predator/size:
+    #   tl_mean_R[i, k] = sum_p kernel[i, k, p] * T_R(w_p) * resource_mass[p] /
+    #                     sum_p kernel[i, k, p] * resource_mass[p]
+    tl_mean_R <-
+        rowSums(sweep(pred_kernel, 3, tl_R * resource_mass, "*"), dims = 2) /
+        rowSums(sweep(pred_kernel, 3, resource_mass, "*"), dims = 2)
 
     # Cumulative numerator A_i and denominator B_i (integrals weighted by 1/g dw)
     cumA <- numeric(no_sp)
@@ -614,16 +641,24 @@ getTrophicLevel.MizerParams <- function(params,
 
     # Iterate from smallest to largest size, building up trophic levels
     for (k in seq_len(no_w)) {
-        # Trophic-level-weighted encounter for all predator species at size w[k]:
-        # E_tl[i] = gamma_i(w_k) * sum_j theta_ij * sum_p kernel[i,k,p] * N_tl[j,p] * w_p * dw_p
+        # Mean trophic level of the prey species encountered by all predator
+        # species at size w[k], followed by that of the resource:
+        # tl_mean[i, j] = sum_p kernel[i,k,p] * N_tl[j,p] * w_p * dw_p /
+        #                 sum_p kernel[i,k,p] * N_j[p] * w_p * dw_p
         pred_kernel_k <- matrix(pred_kernel[, k, idx_sp], nrow = no_sp)
-        ae_k <- pred_kernel_k %*% t(prey_mass_tl)  # no_sp x no_sp
-        share_k <- matrix(share[, k, seq_len(no_sp)], nrow = no_sp)
-        E_tl <- params@search_vol[, k] *
-            rowSums(params@interaction * ae_k * share_k)
-        # Add the TL-weighted resource contribution (resource trophic level is
-        # given by the formula, so this term is precomputed).
-        E_tl <- E_tl + E_tl_resource[, k]
+        tl_mean <- cbind(pred_kernel_k %*% t(prey_mass_tl) /
+                             (pred_kernel_k %*% t(prey_mass)),
+                         tl_mean_R[, k])  # no_sp x (no_sp + 1)
+        # A food source to which the kernel gives no weight has no mean trophic
+        # level, so whatever is encountered of it counts as trophic level 0,
+        # like the other food sources. Apart from an extension that changes
+        # which prey sizes are eaten, this can only be encounter that the
+        # numerical convolution produces where the kernel has none: rounding
+        # error, or in a model of defaults edition 1 or 2 food that the
+        # circular convolution wraps round from the other end of the grid.
+        tl_mean[!is.finite(tl_mean)] <- 0
+        # Trophic-level-weighted encounter for all predator species at size w[k]
+        E_tl <- rowSums(matrix(by_prey[, k, ], nrow = no_sp) * tl_mean)
 
         # Update trophic level for each species active at this size
         for (i in seq_len(no_sp)) {

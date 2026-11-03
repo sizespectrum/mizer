@@ -470,6 +470,14 @@ getEncounterByPrey.myExtension <- function(params, n, n_pp, n_other, t = 0,
 counts prey species and the resource in its numerator, treats it like the
 external encounter rate.
 
+`getTrophicLevel()` takes from your method only how much food each prey species
+and the resource provide. It averages their trophic levels over prey sizes with
+the predation kernel stored in the model, so a change to which prey sizes are
+eaten reaches it only if the changed kernel is stored with [`setPredKernel()`](../reference/setPredKernel.html).
+If your package changes the kernel during the projection instead, for example
+with temperature, give `getTrophicLevel()` a method that stores the kernel in
+force at time `t` with `setPredKernel()` and calls `NextMethod()`.
+
 A `getDiet()` method of your own that exists only to account for your change to
 the encounter rate is no longer needed: replace it with the
 `getEncounterByPrey()` method. If it calls `NextMethod()` and then computes the

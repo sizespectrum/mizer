@@ -214,7 +214,9 @@ test_that("getTrophicLevel gives 2 for a predator whose prey all have level 1", 
     # denominator use the same quadrature.
     check <- function(params) {
         w_R <- max(params@w_full) * 10
-        tl <- getTrophicLevel(params, w_R = w_R)
+        # The split of the encounter rate between food sources is exact, so
+        # there is nothing to report
+        expect_no_message(tl <- getTrophicLevel(params, w_R = w_R))
         first <- which(params@w_min_idx == 1)
         expect_equal(as.vector(tl[first, 1]), rep(2, length(first)),
                      tolerance = 1e-4)

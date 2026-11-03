@@ -96,7 +96,11 @@ supplies that split exactly. Otherwise \code{getDiet()} scales the contributions
 of all food sources in proportion, so that they still add up to the
 consumption rate, and tells you that it has done so. That split is exact
 when the change affects all food sources equally, as does for example a
-factor multiplying the whole encounter rate.
+factor multiplying the whole encounter rate. At a size at which the predator
+encounters food although none of the food sources contributes anything,
+there is nothing to scale, and \code{getDiet()} attributes all of that food to
+the "External" food source, which stands for food that the model does not
+resolve.
 }
 
 \examples{

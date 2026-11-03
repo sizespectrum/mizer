@@ -224,7 +224,8 @@ sources, so they scale all of them in proportion. That is exact if your
 function multiplies the whole encounter rate by a factor, as a seasonal or
 temperature multiplier does, and the message is then nothing to act on. If your
 function adds food of its own, the extra food is spread over the existing food
-sources in the diet. Add it as a component with an `encounter_fun` instead, see
+sources in the diet, or shown as "External" at sizes at which they provide
+nothing. Add it as a component with an `encounter_fun` instead, see
 [`setComponent()`](../reference/setComponent.html), and `getDiet()` shows it as a food source of its own. If the
 message comes from an extension package, a newer version of that package can
 supply the exact split.

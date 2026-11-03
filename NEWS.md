@@ -174,8 +174,10 @@
     `getTrophicLevel()` divided a numerator built that way by the changed
     encounter rate. A model whose encounter rate was halved had twice the diet
     it consumed and a cod trophic level of 25.8 instead of 5.8. The diet is now
-    scaled to the model's encounter rate, and so is the numerator of the
-    trophic level, with a message saying so.
+    scaled to the model's encounter rate, with a message saying so, and the
+    numerator of the trophic level is built from the scaled diet. Where the
+    predator encounters food although none of the food sources contributes,
+    the diet shows that food as "External".
   - **`n_other` differs from the initial values.** The feeding level by which
     `getDiet()` multiplies the encounter rate was calculated with the initial
     abundances of the other components rather than the `n_other` passed in.
@@ -198,6 +200,13 @@
   food sources in proportion, which is exact only if the change affects them
   all equally, as a change of the search volume does in a model without
   external encounter or components with an encounter function.
+  `getTrophicLevel()` takes from `getEncounterByPrey()` how much food each prey
+  species and the resource provide, and averages their trophic levels over
+  prey sizes with the predation kernel stored in the model. A food source that
+  an extension switches on, for example by setting a zero interaction to a
+  positive value, therefore gets its proper trophic level. An extension that
+  changes which prey sizes are eaten without storing its kernel with
+  `setPredKernel()` needs a `getTrophicLevel()` method of its own.
 ## Documentation
 
 - The help page of `getDiffusion()` gave the predation-diffusion rate with a

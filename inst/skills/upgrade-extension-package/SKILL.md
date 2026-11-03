@@ -70,6 +70,7 @@ package.
 | `non-conformable arrays` from a line that multiplies `params@ft_pred_kernel_e` (or `_p`, `_d`) by `mvfft()` of a prey or predator matrix, for a model of defaults edition 3 | the Fourier-transformed kernels of such a model are stored on a zero-padded grid longer than `w_full` | Your own FFT convolutions |
 | Message `"does not say how the change is shared between the food"` sources from `getDiet()`, `plotDiet()` or `getTrophicLevel()` on a model of the package | the package changes the encounter rate with a `projectEncounter()` method but has no `getEncounterByPrey()` method | The diet of a changed encounter rate |
 | The package has a `getDiet()` method, or one for `getTrophicLevel()`, only to make them follow its change to the encounter rate | `getEncounterByPrey()` is the hook for that | The diet of a changed encounter rate |
+| `getTrophicLevel()` on a model of the package differs from the equivalent model without the extension, although `getDiet()` agrees | the package changes which prey sizes are eaten during the projection, and `getTrophicLevel()` weights prey sizes with the kernel stored in the model | The diet of a changed encounter rate |
 | The package's results are unchanged when the model is switched to `second_order_w = TRUE`, or a diagnostic is out by a constant factor | the extension's own integrals ignore the `bin_average` flag | Working under both numerical schemes |
 | A component's state advances twice as far per step, or its `dynamics_fun` double-counts, under `method = "second_order"` (`"tr_bdf2"`) or `"predictor_corrector"` | the second-order steppers call `dynamics_fun` twice per step, from the same start-of-step state | Working under both numerical schemes |
 | A method the package defines is never called, and its name starts with `get` | the `get`-prefixed accessors are plain aliases now; dispatch happens on the bare name | Methods on the renamed rate-array accessors |
@@ -487,6 +488,14 @@ getEncounterByPrey.myExtension <- function(params, n, n_pp, n_other, t = 0,
 `getDiet()` then gives a column for it, and `getTrophicLevel()`, which only
 counts prey species and the resource in its numerator, treats it like the
 external encounter rate.
+
+`getTrophicLevel()` takes from your method only how much food each prey species
+and the resource provide. It averages their trophic levels over prey sizes with
+the predation kernel stored in the model, so a change to which prey sizes are
+eaten reaches it only if the changed kernel is stored with `setPredKernel()`.
+If your package changes the kernel during the projection instead, for example
+with temperature, give `getTrophicLevel()` a method that stores the kernel in
+force at time `t` with `setPredKernel()` and calls `NextMethod()`.
 
 A `getDiet()` method of your own that exists only to account for your change to
 the encounter rate is no longer needed: replace it with the

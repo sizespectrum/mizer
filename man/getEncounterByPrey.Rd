@@ -68,7 +68,10 @@ this generic a method that makes the same change and calls \code{NextMethod()},
 so that \code{\link[=getDiet]{getDiet()}} and \code{\link[=getTrophicLevel]{getTrophicLevel()}} can split the changed encounter
 rate between the food sources correctly. Without such a method they find
 that the resolved rates no longer add up to the encounter rate, scale all of
-them in proportion, and say so.
+them in proportion, and say so. \code{\link[=getTrophicLevel]{getTrophicLevel()}} takes from this method
+only how much food each prey species and the resource provide. Which prey
+sizes that food comes from it takes from the predation kernel stored in the
+model.
 
 This function does not itself check that its result adds up to
 \code{\link[=getEncounter]{getEncounter()}}: the \code{MizerParams} method is reached through \code{NextMethod()}

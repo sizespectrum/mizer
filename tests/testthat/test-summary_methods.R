@@ -255,6 +255,11 @@ local_encounter_functions <- function(env = parent.frame()) {
         0.5 * mizerEncounter(params, n = n, n_pp = n_pp, n_other = n_other,
                              t = t, ...)
     }
+    e$test_added_encounter <- function(params, n, n_pp, n_other, t, ...) {
+        mizerEncounter(params, n = n, n_pp = n_pp, n_other = n_other,
+                       t = t, ...) +
+            outer(rep(1, nrow(params@species_params)), params@w^0.75)
+    }
     e$test_extra_encounter <- function(params, n, n_pp, n_other, t = 0,
                                        component, ...) {
         outer(rep(1, nrow(params@species_params)),
@@ -270,7 +275,8 @@ local_encounter_functions <- function(env = parent.frame()) {
     e$test_extra_dynamics <- function(params, n_other, component, ...) {
         n_other[[component]]
     }
-    withr::defer(rm(list = c("test_half_encounter", "test_extra_encounter",
+    withr::defer(rm(list = c("test_half_encounter", "test_added_encounter",
+                             "test_extra_encounter",
                              "test_seasonal_encounter", "test_extra_dynamics"),
                     envir = e),
                  envir = env)
@@ -320,6 +326,46 @@ search_vol_ref_params <- function(factor = 0.7) {
     params
 }
 
+# A model in which the first species does not feed on the resource, but whose
+# extension lets it, in both projectEncounter() and getEncounterByPrey()
+resource_ext_params <- function() {
+    ext <- paste0("mizerTestResource", Sys.getpid())
+    feed_on_resource <- function(params, n, n_pp, n_other, t = 0, ...) {
+        params@species_params$interaction_resource[1] <- 1
+        NextMethod()
+    }
+    registerS3method("projectEncounter", ext, feed_on_resource,
+                     envir = asNamespace("mizer"))
+    registerS3method("getEncounterByPrey", ext, feed_on_resource,
+                     envir = asNamespace("mizer"))
+    params <- NS_params_small
+    params@species_params$interaction_resource[1] <- 0
+    params@extensions <- setNames(NA_character_, ext)
+    coerceToExtensionClass(params)
+}
+
+# A model whose extension adds food for every predator, and whose
+# getEncounterByPrey() method attributes that food to the food source `prey`
+extra_food_ext_params <- function(prey) {
+    ext <- paste0("mizerTestExtraFood", prey, Sys.getpid())
+    extra <- 0.5 * unclass_rate(getEncounter(NS_params_small))
+    registerS3method("projectEncounter", ext,
+                     function(params, n, n_pp, n_other, t = 0, ...) {
+                         NextMethod() + extra
+                     },
+                     envir = asNamespace("mizer"))
+    registerS3method("getEncounterByPrey", ext,
+                     function(params, n, n_pp, n_other, t = 0, ...) {
+                         by_prey <- NextMethod()
+                         by_prey[, , prey] <- by_prey[, , prey] + extra
+                         by_prey
+                     },
+                     envir = asNamespace("mizer"))
+    params <- NS_params_small
+    params@extensions <- setNames(NA_character_, ext)
+    coerceToExtensionClass(params)
+}
+
 # Summed over food sources, the diet must reproduce the consumption rate at
 # every size at which there are fish
 expect_diet_adds_up <- function(diet, encounter, feeding_level, n) {
@@ -347,6 +393,22 @@ test_that("getDiet follows an encounter rate set with setRateFunction() (#613)",
     # Halving the encounter affects all food sources equally, so the
     # proportions are those of the model without the change
     expect_equal(suppressMessages(getDiet(params)), getDiet(NS_params_small))
+})
+
+test_that("getDiet attributes encounter that no food source gives to External (#613)", {
+    local_encounter_functions()
+    params <- NS_params_small
+    # The first species feeds on nothing that getEncounterByPrey() resolves
+    params@interaction[1, ] <- 0
+    params@species_params$interaction_resource[1] <- 0
+    params <- setRateFunction(params, "Encounter", "test_added_encounter")
+    expect_message(diet <- getDiet(params, proportion = FALSE),
+                   "attributed the whole encounter rate to the \"External\"")
+    expect_diet_adds_up(diet, getEncounter(params), getFeedingLevel(params),
+                        initialN(params))
+    resolved <- dimnames(diet)$prey != "External"
+    expect_equal(sum(diet[1, , resolved]), 0)
+    expect_gt(min(diet[1, initialN(params)[1, ] > 0, "External"]), 0)
 })
 
 test_that("getDiet follows an extension's projectEncounter() method (#613)", {
@@ -496,6 +558,32 @@ test_that("getTrophicLevel uses an extension's getEncounterByPrey() method (#613
     expect_equal(tl, getTrophicLevel(ref), ignore_attr = TRUE)
     expect_equal(getTrophicLevelBySpecies(params),
                  getTrophicLevelBySpecies(ref))
+})
+
+test_that("getTrophicLevel follows food that an extension switches on (#613)", {
+    params <- resource_ext_params()
+    # The same model written without the extension
+    ref <- NS_params_small
+    ref@species_params$interaction_resource[1] <- 1
+    expect_no_message(tl <- getTrophicLevel(params))
+    expect_equal(tl, getTrophicLevel(ref), ignore_attr = TRUE)
+})
+
+test_that("getTrophicLevel counts food the kernel gives no weight to as level 0 (#613)", {
+    # A prey species that is absent has no weight in the predation kernel, but
+    # the extension says that the predators encounter it
+    absent <- NS_params_small@species_params$species[3]
+    n <- initialN(NS_params_small)
+    n[absent, ] <- 0
+    params <- extra_food_ext_params(absent)
+    tl <- getTrophicLevel(params, n = n)
+    # The same extra food attributed to the external encounter, which counts
+    # as trophic level 0
+    external <- extra_food_ext_params("External")
+    expect_equal(tl, getTrophicLevel(external, n = n), ignore_attr = TRUE)
+    # but which is not the same as no extra food
+    expect_false(isTRUE(all.equal(tl, getTrophicLevel(NS_params_small, n = n),
+                                  check.attributes = FALSE)))
 })
 
 test_that("getTrophicLevel and getTrophicLevelBySpecies use n_other and t (#613)", {

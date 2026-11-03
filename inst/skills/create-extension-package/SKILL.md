@@ -419,6 +419,13 @@ Do not check the result against `getEncounter()` inside the method: the
 parameters it passes on have already been changed, so the encounter rate
 calculated from them would contain your change twice.
 
+`getTrophicLevel()` takes from your method only how much food each prey species
+and the resource provide. Which prey sizes that food comes from it takes from
+the predation kernel stored in the model. If your extension changes the kernel
+during the projection rather than storing it with `setPredKernel()`, also give
+`getTrophicLevel()` a method that stores the kernel in force at time `t` with
+`setPredKernel()` and calls `NextMethod()`.
+
 #### How `setRateFunction()` and `project*` methods interact
 
 A user who calls `setRateFunction(params, "Encounter", "myFn")` is asking for
