@@ -22,7 +22,7 @@ newCommunityParams(
   r_pp = 10,
   knife_edge_size = 1000,
   reproduction,
-  second_order_w = FALSE,
+  second_order_w = NULL,
   info_level = default_info_level(2)
 )
 }
@@ -86,7 +86,11 @@ bin-averaged from the start (unlike setting \code{\link[=second_order_w]{second_
 existing object). The \code{flux} scheme governs time projection only, so the
 robust first-order upwind scheme is used for the construction-time
 steady-state solve and the chosen scheme is then activated for the returned
-model. Defaults to \code{FALSE} (the first-order behaviour of previous mizer).}
+model. By default the model gets the scheme of the active
+\code{\link[=defaults_edition]{defaults_edition()}}: the second-order scheme, as with \code{TRUE}, from
+edition 3 on, and the first-order scheme of previous mizer versions, as
+with \code{FALSE}, in earlier editions. A value that sets only one of the two
+entries leaves the other at the default of the edition.}
 
 \item{info_level}{Controls the amount of information messages that are shown
 when the function sets default values for parameters. Higher levels lead

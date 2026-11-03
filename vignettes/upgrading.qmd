@@ -111,14 +111,15 @@ written after the fix can pass for reasons unconnected with it, and on this kind
 of upgrade — where the code was not visibly broken — that is easy to do without
 noticing.
 
-**Test the corners, not just the default.** The numerics have two switches, and
-both default to the first-order choice: [`second_order_w()`](../reference/second_order_w.html) selects the
-discretisation in size, and [`project()`](../reference/project.html)'s `method` argument the one in time. A
-test on the default path says nothing about the others, which is exactly how a
+**Test the corners, not just the default.** The numerics have two switches:
+[`second_order_w()`](../reference/second_order_w.html) selects the discretisation in size, and [`project()`](../reference/project.html)'s
+`method` argument the one in time. Both default to the first-order choice,
+except that a model created with defaults edition 3 or later is second order in
+size. A test on one path says nothing about the others, which is exactly how a
 hand-rolled integral survives a green test suite. Run the package's own fixture
-with `second_order_w(params) <- TRUE` and with `method = "tr_bdf2"` as well. If
-the package cannot support one of them, say so in its documentation rather than
-leaving the user to find out.
+with `second_order_w(params) <- TRUE`, with `second_order_w(params) <- FALSE`
+and with `method = "tr_bdf2"` as well. If the package cannot support one of
+them, say so in its documentation rather than leaving the user to find out.
 
 If the package is a mizer **extension** — it registers methods on mizer's
 generics, declares marker classes, or calls `registerExtension()` — do all of
@@ -134,7 +135,9 @@ changes nothing for code that never calls [`defaults_edition()`](../reference/de
 switch editions finds that the switch now applies only to models created
 afterwards. Models saved with mizer 3.4 are upgraded once more when they are
 first used. [`plotYieldVsF()`](../reference/plotYieldVsF.html) accepts the `tol` argument it had in
-mizerExperimental again, with a deprecation warning.
+mizerExperimental again, with a deprecation warning. On a model whose encounter
+rate has been changed, [`getDiet()`](../reference/getDiet.html) and [`getTrophicLevel()`](../reference/getTrophicLevel.html) now follow the
+change and say how they split it between the food sources.
 
 ### A model keeps the defaults edition it was created with
 
@@ -200,6 +203,35 @@ plotYieldVsF(params, "Cod", F_range = seq(0.2, 0.8, 0.02), distance_tol = 1e-4)
 ```
 
 Giving both `tol` and `distance_tol` is an error.
+
+### `getDiet()` and `getTrophicLevel()` follow a changed encounter rate
+
+On a model whose encounter rate has been changed, by a function you registered
+with [`setRateFunction("Encounter", ...)`](../reference/setRateFunction.html) or by an extension package,
+`getDiet()`, [`plotDiet()`](../reference/plotDiet.html) and `getTrophicLevel()` now give a message that starts
+
+```
+The encounter rate has been changed by a custom encounter rate function or by an
+extension, and `getEncounterByPrey()` does not say how the change is shared
+between the food sources.
+```
+
+These functions used to ignore the change, so the diet did not add up to what
+the predators consumed and the trophic levels could be far off. They now take
+the total from the model's own encounter rate. What they cannot know is how
+your change is shared between the prey species, the resource and the other food
+sources, so they scale all of them in proportion. That is exact if your
+function multiplies the whole encounter rate by a factor, as a seasonal or
+temperature multiplier does, and the message is then nothing to act on. If your
+function adds food of its own, the extra food is spread over the existing food
+sources in the diet, or shown as "External" at sizes at which they provide
+nothing. Add it as a component with an `encounter_fun` instead, see
+[`setComponent()`](../reference/setComponent.html), and `getDiet()` shows it as a food source of its own. If the
+message comes from an extension package, a newer version of that package can
+supply the exact split.
+
+To silence the message, set `options(mizer_info_level = 0)` or wrap the call in
+`suppressMessages()`.
 
 ---
 
@@ -307,7 +339,7 @@ base-class file, so existing saved models remain compatible.
 
 [`getMort()`](../reference/getMort.html) and [`getEncounter()`](../reference/getEncounter.html) add the result of every function listed in
 `params@other_mort` and `params@other_encounter`. Until now the only exported
-way to write into those lists was [`setComponent()`](../reference/setComponent.html), which needs a
+way to write into those lists was `setComponent()`, which needs a
 `dynamics_fun` and an `initial_value`, so an extension adding a term that
 depends on the model state but keeps no state of its own — a starvation or
 senescence mortality — had to assign into the slot directly. That still works,
@@ -364,7 +396,7 @@ on every assignment to `species_params()`. Where an extension's factor is zero
 for some species — a therMizer species sitting exactly on its `temp_min`,
 evaluated at the arbitrary `t = 0` the default calculation uses — the available
 energy came out as zero and the calculation failed outright. An encounter
-function registered with [`setRateFunction()`](../reference/setRateFunction.html) no longer enters these defaults
+function registered with `setRateFunction()` no longer enters these defaults
 either; if your model relied on that, supply `gamma` or `f0` explicitly.
 
 **Additive encounter contributions.** The [`ext_encounter`](../reference/setExtEncounter.html) array and every
@@ -1496,13 +1528,13 @@ nothing in this section changes anything.** Under the second-order scheme,
 several functions were hand-rolling a first-order sum over the size grid instead
 of using the model's own quadrature, and are now consistent with it:
 
-- **[`getDiet(proportion = FALSE)`](../reference/getDiet.html)** was applying the prey-bin quadrature twice,
+- **`getDiet(proportion = FALSE)`** was applying the prey-bin quadrature twice,
   making it uniformly too large by a factor `(1 + beta) / 2`, where `beta` is
   the grid ratio — 9.7% for `NS_params`. Summing the diet over prey now
   reproduces `getEncounter() * (1 - getFeedingLevel())` (#474).
   `getDiet(proportion = TRUE)`, the default, was unaffected: the factor was
   uniform and divided out.
-- **[`getTrophicLevel()`](../reference/getTrophicLevel.html)** built its numerator and denominator from different
+- **`getTrophicLevel()`** built its numerator and denominator from different
   quadratures, so reported trophic levels were off by up to 0.06. A predator
   whose prey all have trophic level 1 now comes out at exactly 2 (#474).
 - **[`getN(params, min_w = ...)`](../reference/getN.html)** now bin-averages the size-range window, so the
@@ -1945,7 +1977,7 @@ Several fixes correct earlier behaviour and so change output:
   effort varied over time show the mean, flagged with a note giving the range.
   The printed summary therefore differs for simulations run with time-varying
   effort.
-- **`MizerSim` method for [`plotDiet()`](../reference/plotDiet.html)** introduced in version 3.0 simply
+- **`MizerSim` method for `plotDiet()`** introduced in version 3.0 simply
   plotted the diet at the initial time of the simulation. Now `plotDiet()` for
   a `MizerSim` accepts a `time_range` argument. The diet is now computed from
   the *simulated* abundances at the requested times, defaulting to the final

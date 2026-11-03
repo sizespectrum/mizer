@@ -12,6 +12,12 @@ e$nt <- function(params, t, ...) {
 e$resource_encounter <- function(params, n, n_pp, n_other, ...) {
     mizerEncounter(params, n = n, n_pp = n_other$resource, ...)
 }
+# The `encounter_fun` of the detritus example in the extend-mizer skill
+e$detritus_encounter <- function(params, n, n_pp, n_other, component, ...) {
+    prey <- n_other[[component]] * params@w_full * params@dw_full
+    params@species_params$interaction_resource * params@search_vol *
+        convolve_pred_kernel(params, prey)
+}
 e$semichemostat <- function(params, n_other, rates, dt, component, ...) {
     c <- params@other_params[[component]]
     interaction <- params@species_params$interaction_resource
@@ -348,6 +354,31 @@ test_that("component can mimic resource", {
     expect_equal(finalNResource(sim), finalNResource(sim2),
                  ignore_attr = TRUE)
     expect_equal(finalN(sim), finalN(sim2), ignore_attr = "params")
+})
+
+test_that("component can be an extra prey spectrum", {
+    # An `encounter_fun` returns only the component's own contribution, which
+    # getEncounter() adds to the encounter of the fish and the resource
+    for (bin_average in c(FALSE, TRUE)) {
+        params <- NS_params_small
+        if (bin_average) {
+            second_order_w(params) <- c(bin_average = TRUE)
+        }
+        n_pp <- initialNResource(params)
+        add_pool <- function(value) {
+            setComponent(params, "detritus", initial_value = value,
+                         dynamics_fun = "test_dyn",
+                         encounter_fun = "detritus_encounter")
+        }
+        # An empty pool leaves the encounter rate unchanged
+        expect_equal(getEncounter(add_pool(0 * n_pp)), getEncounter(params),
+                     ignore_attr = "params")
+        # A pool equal to the resource, eaten with the resource's interaction,
+        # counts as a second copy of the resource
+        expect_equal(getEncounter(add_pool(n_pp)),
+                     getEncounter(params, n_pp = 2 * n_pp),
+                     ignore_attr = "params")
+    }
 })
 
 # time_modified ----

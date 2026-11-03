@@ -263,10 +263,13 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 
     # new params object ----
     # use dataframe and global settings from params to make a new MizerParams
-    # object. It is built with the defaults edition of params.
+    # object. It is built with the defaults edition and the numerical scheme of
+    # params, so that the arrays it computes afresh, such as the predation
+    # kernels, use the quadrature of params.
     p <- with_defaults_edition(edition, newMultispeciesParams(
         combi_species_params,
         interaction = inter,
+        second_order_w = params@second_order_w,
         max_w = new_max_w,
         # for min_w_pp we choose something that will then be rounded down
         # to the existing smallest size when emptyParams() creates the new grid
@@ -695,10 +698,11 @@ adjustSizeGrid.MizerParams <- function(params,
     idx_min <- which.min(sp_params_for_grid$w_min)
     sp_params_for_grid$w_min[idx_min] <- new_min_w
 
-    # Built with the defaults edition of params
+    # Built with the defaults edition and the numerical scheme of params
     p <- with_defaults_edition(defaults_edition(params), newMultispeciesParams(
         sp_params_for_grid,
         interaction = params@interaction,
+        second_order_w = params@second_order_w,
         max_w = new_max_w,
         min_w = new_min_w,
         min_w_pp = new_min_w_pp * 10^(0.5 * dx),

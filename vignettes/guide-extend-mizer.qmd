@@ -194,10 +194,13 @@ Three rules that follow from the table:
 ## Respecting the model's quadrature scheme
 
 A model may be on either of two quadrature schemes, selected by the
-`bin_average` entry of [`second_order_w()`](../reference/second_order_w.html) (see the [guide to running a mizer simulation](guide-run-simulation.html)). Code
-that ignores this looks correct and passes its tests, because the default is the
-first-order scheme — and is then silently wrong by around 10% for anyone who has
-switched the second-order scheme on. Four rules:
+`bin_average` entry of [`second_order_w()`](../reference/second_order_w.html) (see the [guide to running a mizer simulation](guide-run-simulation.html)). A
+model of defaults edition 3 or later is on the second-order scheme unless its
+creator chose otherwise; a model of an earlier edition, which includes
+[`NS_params`](../reference/NS_params.html) and every model built with the default edition, is on the
+first-order one. Code that ignores this looks correct and passes tests run on
+such a model — and is then silently wrong by around 10% for anyone whose model
+is on the second-order scheme. Four rules:
 
 - **Build derived quantities from the rate functions, don't re-derive them.**
   `getEncounter()`, [`getFeedingLevel()`](../reference/getFeedingLevel.html), [`getPredRate()`](../reference/getPredRate.html), [`getEGrowth()`](../reference/getEGrowth.html) already
@@ -286,12 +289,11 @@ a detritus pool that fish eat and that relaxes back towards a capacity:
 
 ```{r detritus-functions}
 detritusEncounter <- function(params, n, n_pp, n_other, component, ...) {
-    params2 <- params
-    # Drop this component before delegating, or mizerEncounter() calls back
-    # into this function and recurses.
-    params2@other_encounter[[component]] <- NULL
-    mizerEncounter(params2, n = n, n_pp = n_other[[component]],
-                   n_other = n_other, ...)
+    # The detritus is eaten through the same kernel and with the same
+    # interaction as the resource
+    prey <- n_other[[component]] * params@w_full * params@dw_full
+    params@species_params$interaction_resource * params@search_vol *
+        convolve_pred_kernel(params, prey)
 }
 
 detritusDynamics <- function(params, n_other, rates, dt, component, ...) {
@@ -305,10 +307,17 @@ detritusDynamics <- function(params, n_other, rates, dt, component, ...) {
 }
 ```
 
-Passing the component's own abundance to `mizerEncounter()` as `n_pp`, as
-`detritusEncounter()` does, is the trick for making a component act as an extra
-prey spectrum: it is then eaten through the ordinary predation kernel and shows
-up in [`getDiet()`](../reference/getDiet.html) without further work.
+Convolving the component's own abundance with the predation kernel, as
+`detritusEncounter()` does, is how to make a component act as an extra prey
+spectrum: it is then eaten through the ordinary predation kernel, under
+whichever quadrature scheme the model is on, and shows up as a column of its
+own in [`getDiet()`](../reference/getDiet.html) without further work. An `encounter_fun` returns only the
+component's own contribution, which `getEncounter()` adds to the rest. So do not
+delegate to `mizerEncounter()` with the component's abundance as `n_pp`:
+`mizerEncounter()` returns the whole encounter rate, and the component would
+count the encounter of the fish and `ext_encounter()` a second time.
+`convolve_pred_kernel()` refuses a model with a custom predation kernel; there,
+write the sum out in full with `encounter_kernel()`, as described above.
 
 ### Components and the time stepper
 
@@ -349,7 +358,7 @@ other entry, `encounter`, `feeding_level`, `pred_rate`, `pred_mort`, `f_mort`,
 `e` and `rdi` among them, is still the start-of-step value in the corrector
 call. A component coupling through one of those — `detritusDynamics()` above
 reads `rates$pred_rate` — is first order in that coupling however carefully it
-integrates, and on [`NS_params`](../reference/NS_params.html) a single `dt = 0.1` step moves `pred_rate` by
+integrates, and on `NS_params` a single `dt = 0.1` step moves `pred_rate` by
 nearly 30%. Prefer a coupling through the five averaged rates where the choice
 is yours.
 
@@ -499,6 +508,16 @@ predation kernel, it appears in the diet with no further work:
 plotDiet(params3, species = "Cod")
 ```
 
+The pool holds half the resource's abundance at every size and is eaten with
+the resource's interaction, so at every predator size its share of the diet is
+exactly half the resource's — a quick check that an `encounter_fun` returns
+the component's own contribution and nothing more:
+
+```{r detritus-diet-check}
+diet <- getDiet(params3, proportion = FALSE)
+range(diet[, , "Detritus"] / diet[, , "Resource"], na.rm = TRUE)
+```
+
 To let the component kill fish as well as feed them, give `setComponent()` a
 `mort_fun` too.
 
@@ -549,6 +568,15 @@ nothing checks that it is.
 - Test **both** halves: that `setRateFunction()` or `setComponent()` succeeds,
   and that the downstream function you actually care about — `getEncounter()`,
   `getDiet()`, `project()` — uses your extension as intended.
+- An encounter function registered with `setRateFunction()` reaches `getDiet()`
+  and [`getTrophicLevel()`](../reference/getTrophicLevel.html) only through its total: they cannot know how your
+  change is shared between the food sources, so they scale all of them in
+  proportion and say so. That is exact for a factor that multiplies the whole
+  encounter rate, like `seasonalEncounter()` above. For extra food, use a
+  component with an `encounter_fun` instead, which `getDiet()` shows as a food
+  source of its own. An extension package can give the exact split for any
+  change, with a [`getEncounterByPrey()`](../reference/getEncounterByPrey.html) method; see the
+  [guide to creating a mizer extension package](guide-create-extension-package.html).
 - After registering a custom rate, run `project()` on a short horizon and check
   the affected `get…()` output looks right; write a `testthat` test that compares
   against a hand-computed value on a small model.

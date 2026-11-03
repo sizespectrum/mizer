@@ -386,6 +386,46 @@ Three rules:
    separate and should not be mixed for the same rate within an extension
    package.
 
+#### The diet follows `getEncounterByPrey()`
+
+`getDiet()` and `getTrophicLevel()` need the encounter rate split by food
+source, and they get the split from the S3 generic `getEncounterByPrey()`, not
+from `projectEncounter()`. They check it against the total from
+`getEncounter()`. A `projectEncounter()` method of yours therefore needs a
+matching `getEncounterByPrey()` method, which makes the same change and calls
+`NextMethod()`:
+
+```r
+#' @method getEncounterByPrey mizerMyExtension
+#' @export
+getEncounterByPrey.mizerMyExtension <- function(params, n, n_pp, n_other,
+                                                t = 0, ...) {
+    by_prey <- NextMethod()
+    # Add your encounter as a food source of its own, named in the `prey`
+    # dimension
+    extra <- extraEncounter(params, n, n_pp, n_other, t, ...)
+    dn <- dimnames(by_prey)
+    dn$prey <- c(dn$prey, "My food")
+    array(c(by_prey, extra), dim = dim(by_prey) + c(0, 0, 1), dimnames = dn)
+}
+```
+
+A method that changes a parameter, such as the search volume, changes it in
+`params` before `NextMethod()`, exactly as its `projectEncounter()` method does.
+Without the method, `getDiet()` and `getTrophicLevel()` find that the split does
+not add up to the total, scale all food sources in proportion, and tell the user
+that the split is exact only if your change affects all of them equally.
+Do not check the result against `getEncounter()` inside the method: the
+parameters it passes on have already been changed, so the encounter rate
+calculated from them would contain your change twice.
+
+`getTrophicLevel()` takes from your method only how much food each prey species
+and the resource provide. Which prey sizes that food comes from it takes from
+the predation kernel stored in the model. If your extension changes the kernel
+during the projection rather than storing it with `setPredKernel()`, also give
+`getTrophicLevel()` a method that stores the kernel in force at time `t` with
+`setPredKernel()` and calls `NextMethod()`.
+
 #### How `setRateFunction()` and `project*` methods interact
 
 A user who calls `setRateFunction(params, "Encounter", "myFn")` is asking for
@@ -625,6 +665,9 @@ When building a dispatching extension package, verify the following:
 - [ ] For each rate the package modifies during projection, define a
   `project*` method (e.g. `projectEncounter.mizerMyExtension`) rather than
   calling `setRateFunction()`. See [Replacing `setRateFunction()` with method dispatch].
+- [ ] If the package has a `projectEncounter()` method, give
+  `getEncounterByPrey()` a method that makes the same change. See
+  [The diet follows `getEncounterByPrey()`].
 - [ ] Store all extension-specific state in `other_params(params)` or in
   new components created with `setComponent()`, never as extra top-level list elements or new slots.
 - [ ] Add and remove any species parameter column of your own through

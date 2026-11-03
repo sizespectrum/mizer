@@ -29,6 +29,7 @@ ssb[c("1972", "2010"), c("Herring", "Cod")]
 Other summary functions:
 \code{\link[=getBiomass]{getBiomass()}},
 \code{\link[=getDiet]{getDiet()}},
+\code{\link[=getEncounterByPrey]{getEncounterByPrey()}},
 \code{\link[=getGrowthCurves]{getGrowthCurves()}},
 \code{\link[=getN]{getN()}},
 \code{\link[=getSteadyResidual]{getSteadyResidual()}},

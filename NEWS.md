@@ -48,9 +48,32 @@
   slots by Fourier transforms of your own. In a model of edition 3 those slots
   are stored on the zero-padded grid and can be longer than `w_full`, so such
   code fails with "non-conformable arrays".
+- The new defaults edition 3 makes the second-order numerical scheme in size
+  the default for new models (#503): a model created while edition 3 is active
+  gets `second_order_w = TRUE`, that is the van Leer flux limiter and
+  bin-averaged integrals over the size grid. The first-order upwind flux
+  carries enough numerical diffusion to smear out cohorts and damp real
+  oscillations, and code that integrates over the size grid without honouring
+  `bin_average` was only caught by tests that switched the second-order scheme
+  on. The `second_order_w` argument of `newMultispeciesParams()`,
+  `newSingleSpeciesParams()`, `newTraitParams()` and `newCommunityParams()`
+  now defaults to `NULL`, which means the scheme of the edition; set it to
+  `FALSE` to get the first-order scheme in edition 3, or to
+  `c(bin_average = FALSE)` to keep the left-edge integrals, and with them the
+  unnormalised summaries of edition 2, while using the van Leer flux. Models of
+  editions 1 and 2, which include every model created with the default edition
+  and every model saved with an earlier version of mizer, keep the first-order
+  scheme, so their results do not change.
 
 ## Bug fixes
 
+- `addSpecies()` and `adjustSizeGrid()` (and with it `expandSizeGrid()`) now
+  build the new model with the numerical scheme of the model they are given.
+  They used to build it with the first-order scheme and copy the
+  `second_order_w` setting across afterwards, so that on a model with
+  bin-averaging switched on the predation kernels and the fishing selectivity
+  they recalculated were point-sampled at the left bin edges although the
+  model reported `bin_average = TRUE`.
 - `plotYieldVsF()` accepts the `tol` argument it had in mizerExperimental
   again, with a deprecation warning, and uses it as `distance_tol`. Since the
   function moved to mizer in 3.3.0, a call that passed `tol` stopped with an
@@ -159,11 +182,63 @@
   including with `options(mizer_info_level = 0)`. The adjustment still takes
   effect at every level.
 
+- `getDiet()`, `getTrophicLevel()` and `getTrophicLevelBySpecies()` now agree
+  with the model's own encounter rate, feeding level and growth rate in three
+  cases where they did not (#613). Summed over prey, `getDiet(proportion =
+  FALSE)` reproduces `getEncounter() * (1 - getFeedingLevel())` in all of them.
+  - **The encounter rate has been changed**, by a function registered with
+    `setRateFunction("Encounter", ...)` or by an extension package's
+    `projectEncounter()` method. The diet used to be rebuilt from the search
+    volume and the predation kernel and so ignored the change, and
+    `getTrophicLevel()` divided a numerator built that way by the changed
+    encounter rate. A model whose encounter rate was halved had twice the diet
+    it consumed and a cod trophic level of 25.8 instead of 5.8. The diet is now
+    scaled to the model's encounter rate, with a message saying so, and the
+    numerator of the trophic level is built from the scaled diet. Where the
+    predator encounters food although none of the food sources contributes,
+    the diet shows that food as "External".
+  - **`n_other` differs from the initial values.** The feeding level by which
+    `getDiet()` multiplies the encounter rate was calculated with the initial
+    abundances of the other components rather than the `n_other` passed in.
+  - **The rates depend on time.** `getDiet()`, `getTrophicLevel()` and
+    `getTrophicLevelBySpecies()` gain a `t` argument, defaulting to 0, and
+    pass it to the encounter rate, the feeding level, the growth rate and the
+    encounter functions of components. `getDiet()` on a `MizerSim` evaluates
+    the diet at each saved time with that time. Previously the encounter
+    functions of components were called without a time, so `getDiet()` failed
+    on a model whose component encounter function had no default for `t`,
+    and otherwise evaluated everything at `t = 0`.
+- The new `getEncounterByPrey()` returns the encounter rate resolved by food
+  source, which `getDiet()` multiplies by `1 - getFeedingLevel()`. It is an S3
+  generic, so that an extension package that changes the encounter rate can
+  say how the change is shared between food sources. For extension packages:
+  if your package has a `projectEncounter()` method, give
+  `getEncounterByPrey()` a method that makes the same change and calls
+  `NextMethod()`. `getDiet()` and `getTrophicLevel()` then split the encounter
+  rate between food sources exactly and say nothing. Without it they scale all
+  food sources in proportion, which is exact only if the change affects them
+  all equally, as a change of the search volume does in a model without
+  external encounter or components with an encounter function.
+  `getTrophicLevel()` takes from `getEncounterByPrey()` how much food each prey
+  species and the resource provide, and averages their trophic levels over
+  prey sizes with the predation kernel stored in the model. A food source that
+  an extension switches on, for example by setting a zero interaction to a
+  positive value, therefore gets its proper trophic level. An extension that
+  changes which prey sizes are eaten without storing its kernel with
+  `setPredKernel()` needs a `getTrophicLevel()` method of its own.
 ## Documentation
 
 - The help page of `getDiffusion()` gave the predation-diffusion rate with a
   factor $(\alpha_i(1-\psi_i(w)))^2$. The correct factor, and the one mizer
   has always used, is $\alpha_i^2$, as in the model description (#624).
+- The guide to changing parameters listed the egg size `w_min` and the
+  assimilation efficiency `alpha` among the parameters that change only
+  themselves. Both feed the default for `h`: when `h` is derived from growth
+  information, lowering `w_min` raises `h` and any calculated `ks` and `gamma`.
+  Without usable growth information, the fallback `h = 30` stays unchanged.
+  The guide now says so, and shows how to change only the egg size:
+  pin `h` first, and extend the size grid with `adjustSizeGrid()` before
+  lowering `w_min` below it (sizespectrum/mizerAgents#13).
 - The help page of `tuneSteadyState()` now says when not to use it: because it
   holds the reproduction rate at its current value and re-derives
   `erepro`/`R_max` and `cc_pp`, it cannot find a steady state with a very
@@ -191,6 +266,14 @@
   change in abundance, and the trait-based model one also looks at the change
   in feeding level and recruitment. The "Understanding size-spectrum dynamics"
   guide says the same.
+- The detritus example in the "Extending mizer" guide and the `extend-mizer`
+  skill counted the encounter of the fish prey and `ext_encounter()` a second
+  time. Its `encounter_fun` delegated to `mizerEncounter()` with the detritus as
+  `n_pp`, but `mizerEncounter()` returns the whole encounter rate, so an empty
+  detritus pool raised the encounter rate by up to a factor of 2 and the
+  detritus made up about half of the diet of cod. The example now evaluates the
+  encounter of the detritus alone with `convolve_pred_kernel()`, and the guide
+  explains that an `encounter_fun` returns only its component's contribution.
 
 # mizer 3.4.0
 
