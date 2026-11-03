@@ -487,6 +487,67 @@ passes the time of each saved step, so a method you keep must accept `t`, at
 least through `...`, and pass it on. This needs `mizer (>= 3.4.0.9003)` in
 `DESCRIPTION`.
 
+### Balancing a changed reproduction rate
+
+Mizer rebalances the reproduction with the S3 generic [`balanceRDD()`](../reference/balanceRDD.html) whenever
+it has changed a model in a way that needs it: in `tuneSteadyState()`,
+[`matchBiomasses()`](../reference/matchBiomasses.html), [`matchNumbers()`](../reference/matchNumbers.html), [`matchGrowth()`](../reference/matchGrowth.html), [`addSpecies()`](../reference/addSpecies.html),
+[`setBevertonHolt()`](../reference/setBevertonHolt.html) and `reproduction_level<-()`. Its `MizerParams` method
+balances the density-dependence function named in `rates_funcs$RDD`. If your
+package changes the reproduction rate with a [`projectRDD()`](../reference/projectRDD.html) method, that name
+still says `"BevertonHoltRDD"`, but the Beverton-Holt balancing does not know
+about your change. Mizer therefore solves numerically for the `erepro` that
+gives the required rate through the whole of `projectRDD()`, and says so with a
+message that the `projectRDD()` method for your class changes the reproduction
+rate. The Beverton-Holt parameters can then not be chosen:
+`reproduction_level<-()` and `setBevertonHolt(params, reproduction_level = )`
+stop with an error, and `tuneSteadyState()` ignores `preserve`. (Earlier
+versions balanced only the Beverton-Holt part, which left the model off its
+steady state without saying so.)
+
+Give `balanceRDD()` a method that undoes your change to the target rate and
+calls `NextMethod()`, in the same way as your `projectRDD()` method makes the
+change and calls `NextMethod()`:
+
+```{r eval=FALSE}
+#' @method projectRDD myExtension
+#' @export
+projectRDD.myExtension <- function(params, rdi, ...) {
+    NextMethod() + other_params(params)$immigration
+}
+
+#' @method balanceRDD myExtension
+#' @export
+balanceRDD.myExtension <- function(params, rdi = getRDI(params),
+                                   rdd_target = getRequiredRDD(params),
+                                   reproduction_level = NULL, ...) {
+    immigration <- other_params(params)$immigration
+    if (!is.null(reproduction_level)) {
+        reproduction_level <- 1 - (1 - reproduction_level) *
+            rdd_target / (rdd_target - immigration)
+    }
+    NextMethod(rdd_target = rdd_target - immigration,
+               reproduction_level = reproduction_level)
+}
+```
+
+Give the method the same defaults for `rdi` and `rdd_target` as the generic,
+because an S3 method uses its own defaults. A [`reproduction_level`](../reference/setBevertonHolt.html) refers to
+the whole reproduction rate, as `reproduction_level()` reports it, so convert it
+to the level of the part you pass on, as above, or reject it.
+`tuneSteadyState()` passes one by default, so leaving it unconverted changes the
+reproduction level on every call. Mizer passes `reproduction_level`, `erepro`
+and `R_max` with one value for each species, `NA` for species left alone, so the
+conversion can be done element by element. If you change
+`rdi` before passing it on in your `projectRDD()` method, change it in the same
+way here.
+
+If your package has its own copy of the steady-state search that holds the
+reproduction constant and then calls `setBevertonHolt()` to restore it, call
+`balanceRDD()` instead, so that models with other density dependence are
+balanced too and keep their density-dependence function. This needs
+`mizer (>= 3.4.0.9004)` in `DESCRIPTION`.
+
 ### Methods on the renamed rate-array accessors
 
 Seventeen accessors that read a stored parameter or rate array back out of a
@@ -502,7 +563,7 @@ method on them dispatches through both names:
 
 `catchability`, [`selectivity`](../reference/setFishing.html), `pred_kernel`, [`search_vol`](../reference/setSearchVolume.html), [`intake_max`](../reference/setMaxIntakeRate.html),
 [`metab`](../reference/setMetabolicRate.html), `ext_mort`, [`ext_encounter`](../reference/setExtEncounter.html), [`maturity`](../reference/setReproduction.html), [`repro_prop`](../reference/setReproduction.html),
-[`reproduction_level`](../reference/setBevertonHolt.html)
+`reproduction_level`
 
 ```{r eval=FALSE}
 # BEFORE                          # AFTER

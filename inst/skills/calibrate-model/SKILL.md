@@ -194,9 +194,10 @@ right first — see the `set-up-fishing` skill.
 
 ## Density-dependent reproduction
 
-Set how strongly reproduction is density-limited. `reproduction_level` is the
-fraction of maximum recruitment realised at steady state (0 = density
-independent, closer to 1 = strongly limited):
+Set how strongly reproduction is density-limited. With Beverton-Holt
+reproduction, `reproduction_level` is the fraction of maximum recruitment
+realised at steady state (0 = density independent, closer to 1 = strongly
+limited):
 
 ```r
 reproduction_level(params) <- 0.25
@@ -206,7 +207,15 @@ Alternatively use `setBevertonHolt()` to specify `R_max`, `erepro`, or a per-spe
 named vector. This does not change the steady state itself — it sets how the
 model responds to perturbations away from it. Read the current values back with
 `reproduction_level(params)`, useful to check what a model was tuned to before
-changing it.
+changing it. For any density dependence, `reproduction_level()` reports one
+minus the elasticity of recruitment with respect to egg production: only
+$1 - r$ of a relative change in egg production gets through to recruitment.
+
+`reproduction_level<-()` keeps the model's density-dependence function. For
+Ricker, Shepherd or a function of your own it stops with an error, because
+their balancing functions cannot set a level: use `setBevertonHolt()` to switch
+to Beverton-Holt, or `balanceRDD()` to rebalance the density dependence you
+have after changing the model.
 
 ## Verifying the result
 

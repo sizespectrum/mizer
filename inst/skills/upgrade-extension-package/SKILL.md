@@ -71,6 +71,9 @@ package.
 | Message `"does not say how the change is shared between the food"` sources from `getDiet()`, `plotDiet()` or `getTrophicLevel()` on a model of the package | the package changes the encounter rate with a `projectEncounter()` method but has no `getEncounterByPrey()` method | The diet of a changed encounter rate |
 | The package has a `getDiet()` method, or one for `getTrophicLevel()`, only to make them follow its change to the encounter rate | `getEncounterByPrey()` is the hook for that | The diet of a changed encounter rate |
 | `getTrophicLevel()` on a model of the package differs from the equivalent model without the extension, although `getDiet()` agrees | the package changes which prey sizes are eaten during the projection, and `getTrophicLevel()` weights prey sizes with the kernel stored in the model | The diet of a changed encounter rate |
+| Message ``"changes the reproduction rate and there is no `balanceRDD()` method for it"`` on a model of the package | the package changes the reproduction rate with a `projectRDD()` method but has no `balanceRDD()` method | Balancing a changed reproduction rate |
+| `reproduction_level<-()` or `setBevertonHolt(params, reproduction_level = )` stops with ``"mizer can only balance the reproduction by adjusting `erepro`"`` on a model of the package | the same | Balancing a changed reproduction rate |
+| The package's own steady-state search calls `setBevertonHolt()` to restore the reproduction | `balanceRDD()` restores any density dependence | Balancing a changed reproduction rate |
 | The package's results are unchanged when the model is switched to `second_order_w = TRUE`, or a diagnostic is out by a constant factor | the extension's own integrals ignore the `bin_average` flag | Working under both numerical schemes |
 | A component's state advances twice as far per step, or its `dynamics_fun` double-counts, under `method = "second_order"` (`"tr_bdf2"`) or `"predictor_corrector"` | the second-order steppers call `dynamics_fun` twice per step, from the same start-of-step state | Working under both numerical schemes |
 | A method the package defines is never called, and its name starts with `get` | the `get`-prefixed accessors are plain aliases now; dispatch happens on the bare name | Methods on the renamed rate-array accessors |
@@ -505,6 +508,67 @@ away. `getDiet()` also gained a `t` argument, and `getDiet()` on a simulation
 passes the time of each saved step, so a method you keep must accept `t`, at
 least through `...`, and pass it on. This needs `mizer (>= 3.4.0.9003)` in
 `DESCRIPTION`.
+
+### Balancing a changed reproduction rate
+
+Mizer rebalances the reproduction with the S3 generic `balanceRDD()` whenever
+it has changed a model in a way that needs it: in `tuneSteadyState()`,
+`matchBiomasses()`, `matchNumbers()`, `matchGrowth()`, `addSpecies()`,
+`setBevertonHolt()` and `reproduction_level<-()`. Its `MizerParams` method
+balances the density-dependence function named in `rates_funcs$RDD`. If your
+package changes the reproduction rate with a `projectRDD()` method, that name
+still says `"BevertonHoltRDD"`, but the Beverton-Holt balancing does not know
+about your change. Mizer therefore solves numerically for the `erepro` that
+gives the required rate through the whole of `projectRDD()`, and says so with a
+message that the `projectRDD()` method for your class changes the reproduction
+rate. The Beverton-Holt parameters can then not be chosen:
+`reproduction_level<-()` and `setBevertonHolt(params, reproduction_level = )`
+stop with an error, and `tuneSteadyState()` ignores `preserve`. (Earlier
+versions balanced only the Beverton-Holt part, which left the model off its
+steady state without saying so.)
+
+Give `balanceRDD()` a method that undoes your change to the target rate and
+calls `NextMethod()`, in the same way as your `projectRDD()` method makes the
+change and calls `NextMethod()`:
+
+```r
+#' @method projectRDD myExtension
+#' @export
+projectRDD.myExtension <- function(params, rdi, ...) {
+    NextMethod() + other_params(params)$immigration
+}
+
+#' @method balanceRDD myExtension
+#' @export
+balanceRDD.myExtension <- function(params, rdi = getRDI(params),
+                                   rdd_target = getRequiredRDD(params),
+                                   reproduction_level = NULL, ...) {
+    immigration <- other_params(params)$immigration
+    if (!is.null(reproduction_level)) {
+        reproduction_level <- 1 - (1 - reproduction_level) *
+            rdd_target / (rdd_target - immigration)
+    }
+    NextMethod(rdd_target = rdd_target - immigration,
+               reproduction_level = reproduction_level)
+}
+```
+
+Give the method the same defaults for `rdi` and `rdd_target` as the generic,
+because an S3 method uses its own defaults. A `reproduction_level` refers to
+the whole reproduction rate, as `reproduction_level()` reports it, so convert it
+to the level of the part you pass on, as above, or reject it.
+`tuneSteadyState()` passes one by default, so leaving it unconverted changes the
+reproduction level on every call. Mizer passes `reproduction_level`, `erepro`
+and `R_max` with one value for each species, `NA` for species left alone, so the
+conversion can be done element by element. If you change
+`rdi` before passing it on in your `projectRDD()` method, change it in the same
+way here.
+
+If your package has its own copy of the steady-state search that holds the
+reproduction constant and then calls `setBevertonHolt()` to restore it, call
+`balanceRDD()` instead, so that models with other density dependence are
+balanced too and keep their density-dependence function. This needs
+`mizer (>= 3.4.0.9004)` in `DESCRIPTION`.
 
 ### Methods on the renamed rate-array accessors
 

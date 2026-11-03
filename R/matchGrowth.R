@@ -90,6 +90,6 @@ matchGrowth.MizerParams <- function(params, species = NULL,
     params <- steadySingleSpecies(params, species = sel, keep = keep)
 
     signal_off_steady("matchGrowth")
-    setBevertonHolt(params)
+    balanceRDD(params)
     })
 }

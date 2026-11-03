@@ -203,6 +203,7 @@ ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
 }
 \seealso{
 Other functions for setting parameters:
+\code{\link[=balanceRDD]{balanceRDD()}},
 \code{\link[=gear_params]{gear_params()}},
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},

@@ -205,6 +205,15 @@ Three rules that follow from the table:
   inherited. Most bugs in extension code are the right numbers in the wrong
   shape.
 
+A replacement `RDD` function also needs balancing. Whenever mizer has to put
+the reproduction back in balance with the egg abundance, in [`tuneSteadyState()`](../reference/tuneSteadyState.html),
+[`matchBiomasses()`](../reference/matchBiomasses.html), [`matchGrowth()`](../reference/matchGrowth.html) or [`addSpecies()`](../reference/addSpecies.html), it calls
+[`balanceRDD()`](../reference/balanceRDD.html), which looks for a function `balance_<RDD>()` named after yours.
+Without one, mizer keeps your function's parameters and solves numerically for
+`erepro`, and says so. Write `balance_myRDD(params, rdi, rdd_target, ...)` to
+choose the parameters yourself; see `?balanceRDD`. A function that depends on
+`t` is not balanced at all, because a model with it has no steady state.
+
 ---
 
 ## Respecting the model's quadrature scheme
@@ -408,7 +417,7 @@ half.
 A component you give a `dynamics_fun` is outside mizer's steady-state
 machinery, in both directions, and a model with one needs checking accordingly:
 
-- [`tuneSteadyState()`](../reference/tuneSteadyState.html), [`findSteadyState(solver = "newton")`](../reference/findSteadyState.html) and `getStability()`
+- `tuneSteadyState()`, [`findSteadyState(solver = "newton")`](../reference/findSteadyState.html) and `getStability()`
   hold the component at its stored value and solve the consumer-resource
   subsystem around it. Mizer warns when it meets a component with dynamics of
   its own.

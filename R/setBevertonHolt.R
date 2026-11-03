@@ -12,6 +12,10 @@
 #' you pick the desired reproduction curve. More details of these parameters are
 #' provided below.
 #'
+#' `setBevertonHolt()` always switches the model to [BevertonHoltRDD()]. To
+#' rebalance whatever density dependence the model has instead, use
+#' [balanceRDD()].
+#'
 #' With Beverton-Holt density dependence the relation between the energy
 #' invested into reproduction and the number of eggs hatched is determined
 #' by two parameters: the reproductive efficiency `erepro` and the maximum
@@ -165,54 +169,67 @@ setBevertonHolt.MizerParams <- function(params, erepro,
                                         R_max, reproduction_level,
                                         info_level = default_info_level(), ...) {
     with_info_level(info_level = info_level, {
+    R_factor <- list(...)[["R_factor"]]
+    given <- list(if (!missing(erepro)) erepro,
+                  if (!missing(R_max)) R_max,
+                  if (!missing(reproduction_level)) reproduction_level,
+                  R_factor)
+    given <- given[!vapply(given, is.null, logical(1))]
+    # A call that affects no species leaves the model as it was, including
+    # its density-dependence function.
+    if (length(given) == 1 && length(given[[1]]) > 0 &&
+            all(is.na(given[[1]]))) {
+        return(params)
+    }
+    params@rates_funcs$RDD <- "BevertonHoltRDD"
+    # One value per species, so that `balanceRDD()` methods of extensions can
+    # combine them with `rdd_target`
+    balanceRDD(params,
+               erepro = species_vector(params, if (!missing(erepro)) erepro),
+               R_max = species_vector(params, if (!missing(R_max)) R_max),
+               reproduction_level = species_vector(
+                   params, if (!missing(reproduction_level)) reproduction_level),
+               R_factor = species_vector(params, R_factor))
+    })
+}
+
+#' @rdname balanceRDD
+#' @export
+balance_BevertonHoltRDD <- function(params, rdi, rdd_target, erepro = NULL,
+                                    R_max = NULL, reproduction_level = NULL,
+                                    R_factor = NULL) {
     no_sp <- nrow(params@species_params)
 
-    args <- list(...)
-    if ("R_factor" %in% names(args)) {
-        R_factor <- args[["R_factor"]]
-    }
-
     # check number of arguments
-    num_args <- hasArg("erepro") + hasArg("R_max") +
-        hasArg("reproduction_level") + exists("R_factor")
-    if (num_args > 1) {
+    given <- list(erepro, R_max, reproduction_level, R_factor)
+    given <- given[!vapply(given, is.null, logical(1))]
+    if (length(given) > 1) {
         stop("You should only provide `params` and one other argument.")
     }
-    if (num_args == 0) {
+    if (length(given) == 0) {
         # no values given, so use previous erepro
         erepro <- params@species_params$erepro
+        given <- list(erepro)
     }
 
     # No matter which argument is given, I want to manipulate the values
-    if (!missing("erepro")) values <- erepro
-    if (hasArg("R_max")) values <- R_max
-    if (hasArg("reproduction_level")) values <- reproduction_level
-    if (exists("R_factor")) values <- R_factor
-
-    if (length(values) == 1 && is.null(names(values))) {
-        values <- rep(values, no_sp)
-    }
-    if (length(values) != no_sp && is.null(names(values))) {
-        stop("You need to supply a vector of length ", no_sp,
-             " or a single number or a named vector.")
-    }
-    if (is.null(names(values))) {
-        names(values) <- params@species_params$species
-    }
-    values <- values[!is.na(values)]
+    values <- expand_species_values(params, given[[1]])
     if (length(values) == 0) return(params) # Nothing to do
-    if (!all(is.numeric(values))) {
-        stop("You provided invalid non-numeric values.")
-    }
-    if (!missing(reproduction_level) && !all(values >= 0 & values < 1)) {
+    if (!is.null(reproduction_level) && !all(values >= 0 & values < 1)) {
         stop("The reproduction level must be smaller than 1 and non-negative.")
     }
-    if (exists("R_factor") && !all(values > 1)) {
+    if (!is.null(R_factor) && !all(values > 1)) {
         stop("The R_factor must be greater than 1.")
     }
     # select the species that are affected
     species <- valid_species_arg(params, names(values))
     sp_idx <- match(species, params@species_params$species)
+    # Species without a target are left alone
+    keep <- !is.na(rdd_target[sp_idx])
+    values <- values[keep]
+    species <- species[keep]
+    sp_idx <- sp_idx[keep]
+    if (length(values) == 0) return(params)
 
     # Ensure given_species_params has erepro column before partial assignment.
     # Full-species updates work without this (R creates the column automatically),
@@ -222,8 +239,7 @@ setBevertonHolt.MizerParams <- function(params, erepro,
         params@given_species_params$erepro <- params@species_params$erepro
     }
 
-    rdi <- getRDI(params)[species]
-    params@rates_funcs$RDD <- "BevertonHoltRDD"
+    rdi <- rdi[sp_idx]
     # Every species needs an `R_max` under Beverton-Holt, including any that
     # this call leaves alone. This is the default `setReproduction()` gives.
     params <- set_species_param_default(params, "R_max", Inf)
@@ -235,15 +251,15 @@ setBevertonHolt.MizerParams <- function(params, erepro,
     # than zero cannot be had at all.
     absent <- rowSums(params@initial_n[sp_idx, , drop = FALSE] > 0) == 0
     if (any(absent)) {
-        if (!missing(erepro) || !missing(R_max)) {
-            par <- if (missing(R_max)) "erepro" else "R_max"
+        if (!is.null(erepro) || !is.null(R_max)) {
+            par <- if (is.null(R_max)) "erepro" else "R_max"
             if (!par %in% names(params@given_species_params)) {
                 params@given_species_params[[par]] <- NA_real_
             }
             params@species_params[[par]][sp_idx[absent]] <- values[absent]
             params@given_species_params[[par]][sp_idx[absent]] <- values[absent]
         } else {
-            level <- if (missing(reproduction_level)) 1 / values else values
+            level <- if (is.null(reproduction_level)) 1 / values else values
             refused <- absent & level > 0
             if (any(refused)) {
                 signal_info("reproduction_level", paste0(
@@ -263,17 +279,11 @@ setBevertonHolt.MizerParams <- function(params, erepro,
             return(params)
         }
     }
-    if (any(rdi == 0)) {
-        stop("The following species have no reproduction, so no ",
-             "Beverton-Holt parameters can sustain them: ",
-             paste(species[rdi == 0], collapse = ", "),
-             ". Check that they have mature individuals in ",
-             "`initialN(params)`.")
-    }
+    stop_if_no_eggs(species[rdi == 0], "Beverton-Holt parameters")
 
-    rdd_new <- getRequiredRDD(params)[species]
+    rdd_new <- rdd_target[sp_idx]
 
-    if (!missing(erepro)) {
+    if (!is.null(erepro)) {
         erepro_new <- values
         erepro_old <- params@species_params$erepro[sp_idx]
         rdi_new <- rdi * erepro_new / erepro_old
@@ -309,13 +319,13 @@ setBevertonHolt.MizerParams <- function(params, erepro,
 
     # We now know that we are setting R_max, which however can have been
     # specified in different ways.
-    if (!missing(reproduction_level)) {
+    if (!is.null(reproduction_level)) {
         r_max_new <- rdd_new / values
     }
-    if (exists("R_factor")) {
+    if (!is.null(R_factor)) {
         r_max_new <- rdd_new * values
     }
-    if (!missing(R_max)) {
+    if (!is.null(R_max)) {
         wrong <- values < rdd_new
         if (any(wrong)) {
             signal_info("R_max", paste0(
@@ -348,23 +358,35 @@ setBevertonHolt.MizerParams <- function(params, erepro,
         params@species_params$R_max[sp_idx]
 
     wrong <- params@species_params$erepro[sp_idx] > 1
-    if (any(wrong)) {
-        signal_info("erepro", paste0(
-            "The following species require an unrealistic value greater ",
-            "than 1 for `erepro`: ",
-            paste(species[wrong], collapse = ", ")),
-            level = 1, severity = "warning", unhandled = "show")
-    }
+    warn_erepro_above_one(species[wrong])
 
     params@time_modified <- lubridate::now()
     return(params)
-    })
 }
 
 
 #' @rdname setBevertonHolt
 #' @return `reproduction_level()`: A named vector with the reproduction level
 #'   for each species.
+#'
+#' @section The reproduction level:
+#' The reproduction level says how strongly density dependence limits the
+#' reproduction at the initial state. It is one minus the elasticity of the
+#' density-dependent reproduction rate \eqn{R_{dd}}{R_dd} with respect to the
+#' density-independent rate \eqn{R_{di}}{R_di}: at a reproduction level
+#' \eqn{r}, a small relative change in the egg production changes the
+#' reproduction rate by only \eqn{1 - r} times as much. For Beverton-Holt
+#' reproduction this equals \eqn{R_{dd}/R_{max}}{R_dd/R_max}.
+#' `reproduction_level()` calculates it in this way for any density
+#' dependence, including your own.
+#'
+#' `reproduction_level<-()` changes the reproduction level without changing the
+#' steady state, keeping the model's density-dependence function. It passes the
+#' level to [balanceRDD()]. With Beverton-Holt reproduction this is the same as
+#' `setBevertonHolt(params, reproduction_level = value)`. For a
+#' density-dependence function whose balancing function does not accept a
+#' reproduction level it gives an error: use [setBevertonHolt()] to switch to
+#' Beverton-Holt reproduction instead.
 #' @export
 #' @examples
 #'
@@ -379,10 +401,15 @@ reproduction_level <- function(params) {
 }
 #' @export
 reproduction_level.MizerParams <- function(params) {
-    if (!"R_max" %in% names(params@species_params)) {
-        stop("No `R_max` is included in the species parameters.")
+    if (identical(params@rates_funcs$RDD, "BevertonHoltRDD") &&
+            length(rdd_wrappers(params)$all) == 0) {
+        # The exact value for Beverton-Holt
+        if (!"R_max" %in% names(params@species_params)) {
+            stop("No `R_max` is included in the species parameters.")
+        }
+        return(getRDD(params) / params@species_params$R_max)
     }
-    getRDD(params) / params@species_params$R_max
+    rdd_elasticity_level(params)
 }
 
 
@@ -391,7 +418,7 @@ reproduction_level.MizerParams <- function(params) {
 #'   reproduction level for each species.
 #' @export
 `reproduction_level<-` <- function(params, value) {
-    setBevertonHolt(params, reproduction_level = value)
+    balanceRDD(params, reproduction_level = species_vector(params, value))
 }
 
 

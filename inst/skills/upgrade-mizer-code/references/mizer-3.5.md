@@ -7,7 +7,9 @@ afterwards. Models saved with mizer 3.4 are upgraded once more when they are
 first used. `plotYieldVsF()` accepts the `tol` argument it had in
 mizerExperimental again, with a deprecation warning. On a model whose encounter
 rate has been changed, `getDiet()` and `getTrophicLevel()` now follow the
-change and say how they split it between the food sources.
+change and say how they split it between the food sources. Mizer now rebalances
+reproduction without replacing the model's density-dependence function, so
+`reproduction_level<-()` no longer switches a model to Beverton-Holt.
 
 ### A model keeps the defaults edition it was created with
 
@@ -102,3 +104,50 @@ supply the exact split.
 
 To silence the message, set `options(mizer_info_level = 0)` or wrap the call in
 `suppressMessages()`.
+
+### Rebalancing reproduction keeps the density-dependence function
+
+Whenever mizer had to rebalance the reproduction, in `matchBiomasses()`,
+`matchNumbers()`, `matchGrowth()`, `addSpecies()` or `reproduction_level<-()`,
+it called `setBevertonHolt()`, which also switches the model to
+`BevertonHoltRDD()`. These functions now call the new `balanceRDD()`, which
+keeps the density-dependence function and changes only its parameters, and
+`tuneSteadyState()` now rebalances density dependence other than Beverton-Holt
+too. Models with Beverton-Holt reproduction are not affected.
+
+`reproduction_level(params) <- value` now sets the reproduction level of the
+model's own density dependence. With `RickerRDD()`, `SheperdRDD()` or a
+function of your own it stops with an error such as
+
+```
+`balance_RickerRDD()` does not accept the argument `reproduction_level`.
+```
+
+If you relied on it to switch the model to Beverton-Holt, say so:
+
+```r
+# Old
+reproduction_level(params) <- 0.5
+# New
+params <- setBevertonHolt(params, reproduction_level = 0.5)
+```
+
+`reproduction_level(params)` now gives a value for any density dependence: one
+minus the elasticity of the reproduction rate with respect to the egg
+production, which for Beverton-Holt is `getRDD(params) / R_max` as before. On
+a model with a density-dependence function of your own it used to divide by
+`R_max` all the same, so its value changes.
+
+For a density-dependence function of your own, mizer keeps its parameters and
+solves for the `erepro` that gives the required reproduction rate, with a
+message that starts
+
+```
+Because there is no `balance_myRDD()` function, mizer has balanced the
+reproduction by adjusting `erepro` numerically.
+```
+
+To have it balanced in another way, write a `balance_myRDD()` function; see
+`?balanceRDD`. Where no `erepro` gives the required rate, or where your
+function depends on time, mizer leaves the parameters alone with a warning, as
+it does when the resource can not be rebalanced.

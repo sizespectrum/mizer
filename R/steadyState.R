@@ -42,11 +42,13 @@
 #' Concretely, three things are held fixed during the search and two parameters
 #' are re-derived afterwards:
 #'
-#' * The reproduction rate is pinned at `getRDD(params)`. Afterwards, if the
-#'   model uses Beverton-Holt reproduction, [setBevertonHolt()] restores the
-#'   density dependence so that it reproduces exactly that rate at the new
-#'   spectra. Use `preserve` to say which of the reproduction parameters should
-#'   be kept as it was.
+#' * The reproduction rate is pinned at `getRDD(params)`. Afterwards
+#'   [balanceRDD()] rebalances the density dependence so that it reproduces
+#'   exactly that rate at the new spectra, keeping the model's
+#'   density-dependence function. If the model uses Beverton-Holt
+#'   reproduction, use `preserve` to say which of the reproduction parameters
+#'   should be kept as it was. Other density dependence is balanced in its own
+#'   way, see [balanceRDD()].
 #' * The resource abundance is held at `initialNResource(params)`. Afterwards
 #'   the resource capacity `cc_pp` is recomputed so that this abundance is a
 #'   steady state of the resource under the new spectra. If the capacity had
@@ -96,7 +98,7 @@
 #'   Specifies whether the `reproduction_level` should be preserved (default)
 #'   or the maximum reproduction rate `R_max` or the reproductive
 #'   efficiency `erepro`. See [setBevertonHolt()] for an explanation
-#'   of the `reproduction_level`.
+#'   of the `reproduction_level`. Only used with Beverton-Holt reproduction.
 #' @param info_level Controls the amount of information messages that are shown.
 #'   Higher levels lead to more messages, `info_level = 0` gives silence. The
 #'   default is taken from the `mizer_info_level` option, see
@@ -345,7 +347,7 @@ tune_steady_project <- function(params, effort, preserve,
     old_reproduction_level <- NULL
     old_R_max <- NULL
     old_erepro <- NULL
-    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
+    if (uses_beverton_holt_balancer(params)) {
         preserve <- match.arg(preserve, c("reproduction_level", "erepro",
                                           "R_max"))
         old_reproduction_level <- reproduction_level(params)
@@ -353,7 +355,10 @@ tune_steady_project <- function(params, effort, preserve,
         old_erepro <- params@species_params$erepro
     }
 
-    # Force the reproduction to stay at the current level
+    # Force the reproduction to stay at the current level. A model with
+    # constantRDD() has a constant_reproduction column of its own, which is
+    # put back afterwards.
+    old_constant <- params@species_params[["constant_reproduction"]]
     params@species_params$constant_reproduction <- getRDD(params)
     old_rdd_fun <- params@rates_funcs$RDD
     params@rates_funcs$RDD <- "constantRDD"
@@ -396,7 +401,7 @@ tune_steady_project <- function(params, effort, preserve,
     # Restore original RDD and dynamics
     params@rates_funcs$RDD <- old_rdd_fun
     params@other_dynamics <- old_other_dynamics
-    params@species_params$constant_reproduction <- NULL
+    params@species_params$constant_reproduction <- old_constant
 
     params <- rebalance_resource(params, old_resource_dynamics)
     params <- restore_reproduction(params, preserve, old_reproduction_level,
@@ -446,7 +451,7 @@ tune_steady_newton <- function(params, effort, preserve,
     old_reproduction_level <- NULL
     old_R_max <- NULL
     old_erepro <- NULL
-    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
+    if (uses_beverton_holt_balancer(params)) {
         preserve <- match.arg(preserve, c("reproduction_level", "erepro",
                                           "R_max"))
         old_reproduction_level <- reproduction_level(params)
@@ -594,38 +599,44 @@ rebalance_resource <- function(params, resource_dynamics) {
 
 #' Restore density-dependent reproduction after a constant-RDD search
 #'
-#' The search held the reproduction rate constant; this puts the Beverton-Holt
-#' density dependence back so that it reproduces exactly that rate at the new
-#' spectra, keeping whichever of the reproduction parameters `preserve` names.
+#' The search held the reproduction rate constant; this rebalances the model's
+#' density dependence with [balanceRDD()] so that it reproduces exactly that
+#' rate at the new spectra. With Beverton-Holt reproduction it keeps whichever
+#' of the reproduction parameters `preserve` names. Any other density
+#' dependence is balanced in its own way, and [balanceRDD()] warns if it can
+#' not be balanced.
 #'
 #' A species with no egg production, such as one that is absent from the model,
-#' is left as it was: its reproduction is zero whatever its parameters, so there
-#' is no balance to restore, and [setBevertonHolt()] cannot solve for one.
+#' is left as it was if its reproduction rate responds to egg production: its
+#' reproduction is then zero whatever its parameters, so there is no balance to
+#' restore. Reproduction that does not depend on egg production, as with
+#' [constantRDD()], is balanced all the same.
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @param preserve One of `"reproduction_level"`, `"R_max"` or `"erepro"`.
 #' @param old_reproduction_level,old_R_max,old_erepro The values recorded before
-#'   the search.
+#'   the search, or `NULL` if the reproduction is not balanced by
+#'   `balance_BevertonHoltRDD()`.
 #' @return The `MizerParams` object with reproduction restored.
 #' @noRd
 restore_reproduction <- function(params, preserve, old_reproduction_level,
                                  old_R_max, old_erepro) {
-    if (params@rates_funcs$RDD != "BevertonHoltRDD") {
-        return(params)
+    rdi <- getRDI(params)
+    rdd_target <- getRequiredRDD(params)
+    rdd_target[rdi == 0 & rdd_responds_to_eggs(params, rdi)] <- NA
+    if (is.null(old_erepro)) {
+        return(balanceRDD(params, rdi = rdi, rdd_target = rdd_target))
     }
-    # setBevertonHolt() leaves alone a species whose value is `NA`.
-    skip <- which(getRDI(params) == 0)
-    old_reproduction_level[skip] <- NA
-    old_R_max[skip] <- NA
-    old_erepro[skip] <- NA
     if (preserve == "reproduction_level") {
-        reproduction_level(params) <- old_reproduction_level
+        balanceRDD(params, rdi = rdi, rdd_target = rdd_target,
+                   reproduction_level = old_reproduction_level)
     } else if (preserve == "R_max") {
-        params <- setBevertonHolt(params, R_max = old_R_max)
+        balanceRDD(params, rdi = rdi, rdd_target = rdd_target,
+                   R_max = old_R_max)
     } else {
-        params <- setBevertonHolt(params, erepro = old_erepro)
+        balanceRDD(params, rdi = rdi, rdd_target = rdd_target,
+                   erepro = old_erepro)
     }
-    params
 }
 
 #' Report on a Newton solve and attach its convergence diagnostic

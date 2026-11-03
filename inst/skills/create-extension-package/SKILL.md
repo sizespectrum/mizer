@@ -426,6 +426,48 @@ during the projection rather than storing it with `setPredKernel()`, also give
 `getTrophicLevel()` a method that stores the kernel in force at time `t` with
 `setPredKernel()` and calls `NextMethod()`.
 
+#### Balancing follows `balanceRDD()`
+
+Mizer rebalances the reproduction, for example after `tuneSteadyState()` or
+`matchBiomasses()`, with the S3 generic `balanceRDD()`. Its `MizerParams`
+method balances the density-dependence function named in `rates_funcs$RDD`,
+which knows nothing of a change your `projectRDD()` method makes. Give
+`balanceRDD()` a method that undoes your change to the target rate and calls
+`NextMethod()`:
+
+```r
+#' @method balanceRDD mizerMyExtension
+#' @export
+balanceRDD.mizerMyExtension <- function(params, rdi = getRDI(params),
+                                        rdd_target = getRequiredRDD(params),
+                                        reproduction_level = NULL, ...) {
+    # projectRDD.mizerMyExtension() adds immigration to NextMethod()
+    immigration <- other_params(params)$immigration
+    if (!is.null(reproduction_level)) {
+        # The level of the whole rate, converted to the level of the part
+        # that NextMethod() balances
+        reproduction_level <- 1 - (1 - reproduction_level) *
+            rdd_target / (rdd_target - immigration)
+    }
+    NextMethod(rdd_target = rdd_target - immigration,
+               reproduction_level = reproduction_level)
+}
+```
+
+Give it the same defaults as the generic, because an S3 method uses its own.
+A `reproduction_level` passed to `balanceRDD()` refers to the whole
+reproduction rate, as `reproduction_level()` reports it, so convert it to the
+level of the part you pass on, as above. Do not leave this out: with its
+default `preserve = "reproduction_level"`, `tuneSteadyState()` passes the
+current level, and an unconverted level would change the reproduction level
+on every call. A change that multiplies the rate by a factor needs no
+conversion, because it does not change the level. Mizer passes
+`reproduction_level`, `erepro` and `R_max` with one value for each species,
+`NA` for species left alone, so the calculation can be done element by
+element. Without the method, mizer solves numerically for `erepro` through the
+whole of `projectRDD()`, says so, and refuses to set Beverton-Holt
+parameters.
+
 #### How `setRateFunction()` and `project*` methods interact
 
 A user who calls `setRateFunction(params, "Encounter", "myFn")` is asking for

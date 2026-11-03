@@ -92,7 +92,7 @@ slots set to the steady state.}
 Specifies whether the \code{reproduction_level} should be preserved (default)
 or the maximum reproduction rate \code{R_max} or the reproductive
 efficiency \code{erepro}. See \code{\link[=setBevertonHolt]{setBevertonHolt()}} for an explanation
-of the \code{reproduction_level}.}
+of the \code{reproduction_level}. Only used with Beverton-Holt reproduction.}
 
 \item{progress_bar}{A shiny progress object to implement a progress bar in a
 shiny app. Default FALSE.}

@@ -81,6 +81,77 @@ test_that("tuneSteadyState() preserves parameters", {
     expect_false(identical(p_rmax@time_modified, params_erepro@time_modified))
 })
 
+test_that("tuneSteadyState() rebalances a custom RDD function", {
+    assign("test_scaledRDD", function(rdi, species_params, ...) {
+        0.9 * BevertonHoltRDD(rdi, species_params)
+    }, envir = globalenv())
+    params <- setRateFunction(tss_params, "RDD", "test_scaledRDD")
+    params <- balanceRDD(params, info_level = 0)
+    initialN(params) <- initialN(params) * 1.3
+    p <- tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1,
+                         info_level = 0)
+    expect_identical(p@rates_funcs$RDD, "test_scaledRDD")
+    expect_equal(getRDD(p), getRequiredRDD(p))
+    # It used to return the model unbalanced, and silently
+    expect_message(tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1),
+                   "adjusting `erepro` numerically")
+})
+
+test_that("tuneSteadyState() balances constantRDD for an absent species", {
+    params <- NS_params_small
+    initialN(params)[1, ] <- 0
+    params@rates_funcs$RDD <- "constantRDD"
+    params@species_params$constant_reproduction <-
+        unname(getRequiredRDD(params))
+    p <- tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1,
+                         info_level = 0)
+    # It used to come back as `NA`
+    expect_equal(p@species_params$constant_reproduction[[1]], 0)
+    expect_equal(getRDD(p), getRequiredRDD(p))
+    expect_false(anyNA(finalN(project(p, t_max = 1, progress_bar = FALSE))))
+})
+
+test_that("tuneSteadyState() preserves the level through an extension", {
+    # The balanceRDD() method converts the level, as documented
+    ext <- paste0("mizerTestSteadyImmigration", Sys.getpid())
+    registerS3method("projectRDD", ext, function(params, rdi, ...) {
+        NextMethod() + other_params(params)$immigration
+    }, envir = asNamespace("mizer"))
+    registerS3method("balanceRDD", ext, function(
+        params, rdi = getRDI(params), rdd_target = getRequiredRDD(params),
+        reproduction_level = NULL, ...) {
+        imm <- other_params(params)$immigration
+        if (!is.null(reproduction_level)) {
+            reproduction_level <- 1 - (1 - reproduction_level) *
+                rdd_target / (rdd_target - imm)
+        }
+        NextMethod(rdd_target = rdd_target - imm,
+                   reproduction_level = reproduction_level)
+    }, envir = asNamespace("mizer"))
+    params <- tss_params
+    other_params(params)$immigration <- 0.2 * unname(getRequiredRDD(params))
+    params@extensions <- setNames(NA_character_, ext)
+    params <- balanceRDD(coerceToExtensionClass(params))
+    initialN(params) <- initialN(params) * 1.3
+    # The level of the model handed to tuneSteadyState() is preserved
+    level <- reproduction_level(params)
+    p <- tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1,
+                         info_level = 0)
+    expect_equal(reproduction_level(p), level, tolerance = 1e-6)
+    expect_equal(getRDD(p), getRequiredRDD(p))
+})
+
+test_that("tuneSteadyState() keeps the constant of constantRDD", {
+    params <- tss_params
+    params@rates_funcs$RDD <- "constantRDD"
+    params@species_params$constant_reproduction <-
+        unname(getRequiredRDD(params))
+    p <- tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1,
+                         info_level = 0)
+    expect_identical(p@rates_funcs$RDD, "constantRDD")
+    expect_equal(getRDD(p), getRequiredRDD(p))
+})
+
 test_that("tuneSteadyState() rebalances the resource to a genuine fixed point", {
     # For a normal (non-frozen) resource, tuneSteadyState() rebalances the
     # resource so that it is a genuine fixed point and issues no warning.

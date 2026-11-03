@@ -220,6 +220,7 @@ reference:
     functions allow you to change the model without destroying the steady state.
   contents:
   - setBevertonHolt
+  - balanceRDD
   - setResource
 - title: Sharing models
   description: Save a model together with its metadata so it can be archived or

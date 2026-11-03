@@ -160,5 +160,5 @@ match_to <- function(params, species = NULL, to = c("biomass", "number"),
         params@initial_n[selected, , drop = FALSE] * factors
 
     signal_off_steady(fname)
-    setBevertonHolt(params)
+    balanceRDD(params)
 }
