@@ -246,10 +246,18 @@ balance_rdd_numerically <- function(params, rdi, rdd_target, rdd_fun,
                                     reason) {
     species <- params@species_params$species
     sel <- !is.na(rdd_target)
-    stop_if_no_eggs(species[sel & rdi == 0 & rdd_target > 0],
-                    "value of `erepro`")
-    # A species without egg production, such as one that is absent, has zero
-    # reproduction whatever its parameters, so there is nothing to balance.
+    # A species without egg production gives `erepro` nothing to scale, so it
+    # is left alone. That matters only if it needs reproduction; an absent
+    # species needs none.
+    no_eggs <- sel & rdi == 0 & rdd_target > 0
+    if (any(no_eggs)) {
+        signal_info("erepro", paste0(
+            "Because ", reason, ", mizer can only balance the reproduction by ",
+            "adjusting `erepro`, but the following species produce no eggs ",
+            "for `erepro` to act on, so their reproduction has not been ",
+            "balanced: ", paste(species[no_eggs], collapse = ", "), "."),
+            level = 1, severity = "warning", unhandled = "show")
+    }
     sel <- sel & rdi > 0
     if (!any(sel)) {
         return(params)
@@ -457,6 +465,43 @@ rdd_depends_on_time <- function(params, rdi) {
     FALSE
 }
 
+#' Whether the reproduction rate of each species responds to egg production
+#'
+#' Gives the species without egg production a small egg production and checks
+#' whether their reproduction rate changes. It does with [BevertonHoltRDD()]
+#' and any other density dependence that passes on egg production, so that
+#' such a species has zero reproduction whatever its parameters. It does not
+#' with [constantRDD()], whose reproduction can be balanced without eggs.
+#' Species that do produce eggs are reported as responding.
+#'
+#' @param params A MizerParams object.
+#' @param rdi The density-independent reproduction rate.
+#' @return A logical vector with one value per species.
+#' @noRd
+rdd_responds_to_eggs <- function(params, rdi) {
+    no_eggs <- rdi == 0
+    responds <- rep(TRUE, length(rdi))
+    if (!any(no_eggs)) return(responds)
+    eggs <- rdi
+    eggs[no_eggs] <- if (any(!no_eggs)) 1e-3 * min(rdi[!no_eggs]) else 1
+    rdd_at <- function(x) {
+        tryCatch(unname(projectRDD(params, rdi = x,
+                                   species_params = params@species_params,
+                                   t = 0)),
+                 error = function(e) NULL)
+    }
+    without <- rdd_at(rdi)
+    with <- rdd_at(eggs)
+    # If the rate can not be evaluated, treat the species as needing eggs,
+    # which leaves it alone.
+    if (is.null(without) || is.null(with)) return(responds)
+    # A rate that is `NA` also counts as responding
+    same <- with == without
+    same[is.na(same)] <- FALSE
+    responds[no_eggs] <- !same[no_eggs]
+    responds
+}
+
 #' The reproduction level of any density dependence
 #'
 #' One minus the elasticity of the reproduction rate with respect to the
@@ -571,7 +616,9 @@ balance_overcompensating <- function(params, rdi, rdd_target, erepro,
     target <- rdd_target[sel]
     wrong <- rdi_new < target
     if (any(wrong)) {
-        erepro_new[sel][wrong] <- (erepro_new[sel] * target / rdi_new)[wrong]
+        # Calculated from the old values, which also works for a requested
+        # erepro of zero
+        erepro_new[sel][wrong] <- (sp$erepro[sel] * target / rdi[sel])[wrong]
         rdi_new[wrong] <- target[wrong]
         signal_info("erepro", paste0(
             "For the following species `erepro` has been increased to the ",

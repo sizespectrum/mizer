@@ -117,6 +117,20 @@ test_that("balance_RickerRDD() increases an erepro that is too small", {
     expect_equal(rdd_ratio(p), rep(1, 3))
 })
 
+test_that("balance_RickerRDD() and balance_SheperdRDD() accept erepro = 0", {
+    params <- setReproduction(NS_params_small, RDD = "RickerRDD")
+    expect_warning(p <- balanceRDD(params, erepro = 0),
+                   "`erepro` has been increased to the smallest possible")
+    expect_true(all(is.finite(p@species_params$erepro)))
+    expect_equal(rdd_ratio(p), rep(1, 3))
+
+    params <- setReproduction(NS_params_small, RDD = "SheperdRDD")
+    params@species_params$sheperd_c <- 2
+    expect_warning(p <- balanceRDD(params, erepro = 0),
+                   "`erepro` has been increased to the smallest possible")
+    expect_equal(rdd_ratio(p), rep(1, 3))
+})
+
 test_that("balance_SheperdRDD() keeps erepro and sheperd_c", {
     params <- setReproduction(NS_params_small, RDD = "SheperdRDD")
     params@species_params$sheperd_c <- 2
@@ -193,13 +207,24 @@ test_that("balanceRDD() refuses density dependence that depends on time", {
     expect_identical(p@species_params, params@species_params)
 })
 
-test_that("balanceRDD() stops for a present species without egg production", {
-    params <- NS_params_small
-    other_params(params)$immigration <- rep(0, 3)
+test_that("balanceRDD() leaves alone a species without egg production that needs some", {
+    params <- with_immigration()
     params <- setRateFunction(params, "RDD", "test_immigrationRDD")
     params@species_params$erepro[1] <- 0
-    expect_error(balanceRDD(params, info_level = 0),
-                 "no reproduction.*: Sprat\\.")
+    expect_warning(p <- balanceRDD(perturbed(params)),
+                   "produce no eggs for `erepro` to act on.*: Sprat\\.")
+    expect_identical(p@species_params$erepro[1], 0, ignore_attr = TRUE)
+    expect_equal(rdd_ratio(p)[2:3], c(1, 1))
+})
+
+test_that("rdd_responds_to_eggs() tells which species need eggs", {
+    params <- NS_params_small
+    rdi <- getRDI(params)
+    rdi[1] <- 0
+    expect_identical(rdd_responds_to_eggs(params, rdi), rep(TRUE, 3))
+    params@rates_funcs$RDD <- "constantRDD"
+    params@species_params$constant_reproduction <- 1
+    expect_identical(rdd_responds_to_eggs(params, rdi), c(FALSE, TRUE, TRUE))
 })
 
 # Extensions ----

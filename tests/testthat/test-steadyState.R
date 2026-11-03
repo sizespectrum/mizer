@@ -97,6 +97,20 @@ test_that("tuneSteadyState() rebalances a custom RDD function", {
                    "adjusting `erepro` numerically")
 })
 
+test_that("tuneSteadyState() balances constantRDD for an absent species", {
+    params <- NS_params_small
+    initialN(params)[1, ] <- 0
+    params@rates_funcs$RDD <- "constantRDD"
+    params@species_params$constant_reproduction <-
+        unname(getRequiredRDD(params))
+    p <- tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1,
+                         info_level = 0)
+    # It used to come back as `NA`
+    expect_equal(p@species_params$constant_reproduction[[1]], 0)
+    expect_equal(getRDD(p), getRequiredRDD(p))
+    expect_false(anyNA(finalN(project(p, t_max = 1, progress_bar = FALSE))))
+})
+
 test_that("tuneSteadyState() keeps the constant of constantRDD", {
     params <- tss_params
     params@rates_funcs$RDD <- "constantRDD"

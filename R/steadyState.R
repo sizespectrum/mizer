@@ -355,7 +355,10 @@ tune_steady_project <- function(params, effort, preserve,
         old_erepro <- params@species_params$erepro
     }
 
-    # Force the reproduction to stay at the current level
+    # Force the reproduction to stay at the current level. A model with
+    # constantRDD() has a constant_reproduction column of its own, which is
+    # put back afterwards.
+    old_constant <- params@species_params[["constant_reproduction"]]
     params@species_params$constant_reproduction <- getRDD(params)
     old_rdd_fun <- params@rates_funcs$RDD
     params@rates_funcs$RDD <- "constantRDD"
@@ -398,7 +401,7 @@ tune_steady_project <- function(params, effort, preserve,
     # Restore original RDD and dynamics
     params@rates_funcs$RDD <- old_rdd_fun
     params@other_dynamics <- old_other_dynamics
-    params@species_params$constant_reproduction <- NULL
+    params@species_params$constant_reproduction <- old_constant
 
     params <- rebalance_resource(params, old_resource_dynamics)
     params <- restore_reproduction(params, preserve, old_reproduction_level,
@@ -604,8 +607,10 @@ rebalance_resource <- function(params, resource_dynamics) {
 #' not be balanced.
 #'
 #' A species with no egg production, such as one that is absent from the model,
-#' is left as it was: its reproduction is zero whatever its parameters, so there
-#' is no balance to restore.
+#' is left as it was if its reproduction rate responds to egg production: its
+#' reproduction is then zero whatever its parameters, so there is no balance to
+#' restore. Reproduction that does not depend on egg production, as with
+#' [constantRDD()], is balanced all the same.
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @param preserve One of `"reproduction_level"`, `"R_max"` or `"erepro"`.
@@ -618,7 +623,7 @@ restore_reproduction <- function(params, preserve, old_reproduction_level,
                                  old_R_max, old_erepro) {
     rdi <- getRDI(params)
     rdd_target <- getRequiredRDD(params)
-    rdd_target[rdi == 0] <- NA
+    rdd_target[rdi == 0 & rdd_responds_to_eggs(params, rdi)] <- NA
     if (is.null(old_erepro)) {
         return(balanceRDD(params, rdi = rdi, rdd_target = rdd_target))
     }

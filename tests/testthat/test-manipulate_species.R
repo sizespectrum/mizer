@@ -239,6 +239,27 @@ test_that("addSpecies keeps the RDD function and balances only the new species",
     expect_equal(getRDD(p)[[no_sp]], getRequiredRDD(p)[[no_sp]])
 })
 
+test_that("addSpecies balances the new species through an extension", {
+    ext <- paste0("mizerTestAddSpeciesRDD", Sys.getpid())
+    registerS3method("projectRDD", ext, function(params, rdi, ...) {
+        0.8 * NextMethod()
+    }, envir = asNamespace("mizer"))
+    registerS3method("balanceRDD", ext, function(
+        params, rdi = getRDI(params), rdd_target = getRequiredRDD(params),
+        ...) {
+        NextMethod(rdd_target = rdd_target / 0.8)
+    }, envir = asNamespace("mizer"))
+    params <- trait_params_small
+    params@extensions <- setNames(NA_character_, ext)
+    params <- coerceToExtensionClass(params)
+    species_params <- data.frame(species = "mullet", w_max = 173, w_mat = 15,
+                                 beta = 283, sigma = 1.8, k_vb = 0.6)
+    p <- addSpecies(params, species_params, info_level = 0)
+    no_sp <- nrow(p@species_params)
+    expect_s3_class(p, ext)
+    expect_equal(getRDD(p)[[no_sp]], getRequiredRDD(p)[[no_sp]])
+})
+
 test_that("addSpecies preserves both given and other species params", {
 
     params <- trait_params_small

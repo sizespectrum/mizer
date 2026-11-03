@@ -380,7 +380,10 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 
         # Balance the reproduction of the new species. With Beverton-Holt
         # they get a reproduction level of 1/4. Other density dependence is
-        # balanced in its own way, and the old species are left alone.
+        # balanced in its own way, and the old species are left alone. The
+        # extension class is needed for this, because an extension may change
+        # the reproduction rate and take part in balancing it.
+        p <- restoreParamsClass(p, target_class)
         if (uses_beverton_holt_balancer(p)) {
             repro_level <- rep(1 / 4, length(new_sp))
             names(repro_level) <- p@species_params$species[new_sp]
