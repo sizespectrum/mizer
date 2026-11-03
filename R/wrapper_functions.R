@@ -198,6 +198,17 @@ newCommunityParams <- function(max_w = 1e6,
 #' In addition to setting up the parameters, this function also sets up an
 #' initial condition that is close to steady state.
 #'
+#' The external mortality rate is not calculated from the species parameters
+#' `z0`, `z_ext` and `d`. Instead it is set so that, together with the
+#' predation mortality in the initial state, it gives a total mortality rate
+#' that is a power law in body size, of which a proportion `ext_mort_prop` is
+#' external mortality. Where the predation mortality alone already exceeds
+#' that power law, the external mortality rate is set to zero, unless
+#' `perfect_scaling = TRUE`. Because the species parameters can not reproduce
+#' it, this external mortality rate is marked as set manually, so changing
+#' `z0`, `z_ext` or `d` later has no effect unless you call
+#' `setExtMort(params, reset = TRUE)`, see [setExtMort()].
+#'
 #' The search rate coefficient `gamma` is calculated using the expected
 #' feeding level, `f0`.
 #'
@@ -631,17 +642,19 @@ newTraitParams <- function(no_sp = 11,
     }
     if (!perfect_scaling) {
         params@cc_pp[w_full >= w_pp_cutoff] <- 0
+        # The model was built with `w_pp_cutoff = max_w`. Record the cutoff
+        # actually applied, so that recalculating the capacity from the
+        # resource parameters keeps the resource below it.
+        params@resource_params$w_pp_cutoff <- min(w_pp_cutoff, max_w)
     }
     params@initial_n_pp <- params@cc_pp
 
     # The cc_pp factor needs to be higher than the desired steady state in
-    # order to compensate for predation mortality
+    # order to compensate for predation mortality. This is the capacity that
+    # `setResource()` balances to, so it is not frozen with a comment.
     m2_background <- getResourceMort(params)
     params@cc_pp <- (params@rr_pp + m2_background ) *
         params@initial_n_pp / params@rr_pp
-    comment(params@cc_pp) <- paste("Carrying capacity set higher than the",
-                                   "desired steady state in order to",
-                                   "compensate for predation mortality.")
 
     ## Setup external death ----
     m2 <- getPredMort(params)
@@ -656,10 +669,12 @@ newTraitParams <- function(no_sp = 11,
         if (!perfect_scaling && any(params@mu_b[i,] < 0)) {
             params@mu_b[i, params@mu_b[i,] < 0] <- 0
         }
-        comment(params@mu_b) <- paste("Background mortality is set so that in",
-                                      "combination with predation mortality",
-                                      "it gives a power-law mortality.")
     }
+    # Unlike cc_pp, this is not what `setExtMort()` would calculate from the
+    # species parameters, so it has to be frozen.
+    comment(params@mu_b) <- paste("Background mortality is set so that in",
+                                  "combination with predation mortality",
+                                  "it gives a power-law mortality.")
 
 
     ## Set reproduction to meet boundary condition ----

@@ -376,6 +376,164 @@ test_that("removeSpecies accepts numeric and logical selectors", {
     expect_false(identical(by_name@time_modified, NS_params_small@time_modified))
 })
 
+test_that("removeSpecies(compensate = TRUE) keeps the rates of the remaining species", {
+    for (bin_average in c(FALSE, TRUE)) {
+        params <- NS_params_small
+        second_order_w(params) <- c(bin_average = bin_average)
+        use_predation_diffusion(params) <- TRUE
+        keep <- c("Sprat", "Cod")
+        p <- removeSpecies(params, "Herring", compensate = TRUE)
+        for (rate in list(getEncounter, getFeedingLevel, getEGrowth, getMort,
+                          getDiffusion)) {
+            expect_equal(unclass(rate(p)),
+                         unclass(rate(params))[keep, , drop = FALSE],
+                         ignore_attr = TRUE, tolerance = 1e-12)
+        }
+        expect_equal(unclass(getRDD(p)), unclass(getRDD(params))[keep],
+                     ignore_attr = TRUE, tolerance = 1e-12)
+        # The rates do change without the compensation, so the test above
+        # tests something.
+        p0 <- removeSpecies(params, "Herring")
+        expect_gt(max_rel_diff(getEncounter(p0), getEncounter(params)[keep, ]),
+                  1e-3)
+        expect_gt(max_rel_diff(getMort(p0), getMort(params)[keep, ]), 1e-3)
+        expect_gt(max_rel_diff(getDiffusion(p0), getDiffusion(params)[keep, ]),
+                  1e-3)
+    }
+})
+
+test_that("removeSpecies(compensate = TRUE) works with scaled rate functions", {
+    # setRateFunction() looks the functions up by name
+    e <- globalenv()
+    e$removal_scaled_encounter <- function(params, ...) {
+        2 * mizerEncounter(params, ...)
+    }
+    e$removal_scaled_mort <- function(params, ...) 3 * mizerMort(params, ...)
+    e$removal_scaled_diffusion <- function(params, ...) {
+        0.5 * mizerDiffusion(params, ...)
+    }
+    withr::defer(rm(list = c("removal_scaled_encounter", "removal_scaled_mort",
+                             "removal_scaled_diffusion"), envir = e))
+    params <- NS_params_small |>
+        setRateFunction("Encounter", "removal_scaled_encounter") |>
+        setRateFunction("Mort", "removal_scaled_mort") |>
+        setRateFunction("Diffusion", "removal_scaled_diffusion")
+    use_predation_diffusion(params) <- TRUE
+    keep <- c("Sprat", "Cod")
+    expect_no_warning(p <- removeSpecies(params, "Herring", compensate = TRUE))
+    for (rate in list(getEncounter, getMort, getDiffusion)) {
+        expect_equal(unclass(rate(p)),
+                     unclass(rate(params))[keep, , drop = FALSE],
+                     ignore_attr = TRUE, tolerance = 1e-12)
+    }
+})
+
+test_that("removeSpecies(compensate = TRUE) warns if it cannot restore a rate", {
+    # An encounter rate that ignores the external encounter rate
+    e <- globalenv()
+    e$removal_no_ext_encounter <- function(params, ...) {
+        mizerEncounter(params, ...) - params@ext_encounter
+    }
+    withr::defer(rm("removal_no_ext_encounter", envir = e))
+    params <- setRateFunction(NS_params_small, "Encounter",
+                              "removal_no_ext_encounter")
+    expect_warning(removeSpecies(params, "Herring", compensate = TRUE),
+                   "did not restore the encounter rate of Sprat, Cod")
+})
+
+test_that("removeSpecies(compensate = TRUE) keeps a model at steady state", {
+    params <- NS_params_steady_small
+    keep <- c("Sprat", "Cod")
+    residual <- getSteadyResidual(params)
+    p <- removeSpecies(params, "Herring", compensate = TRUE)
+    compensated <- getSteadyResidual(p)
+    expect_equal(rowSums(compensated), rowSums(residual)[keep],
+                 tolerance = 1e-8)
+    expect_lt(max(abs(attr(compensated, "resource"))), 1e-8)
+    # Without the compensation the remaining species drift away
+    drift <- rowSums(getSteadyResidual(removeSpecies(params, "Herring")))
+    expect_gt(max(abs(drift)), 1e-2)
+})
+
+test_that("removeSpecies(compensate = TRUE) rebalances the resource", {
+    params <- NS_params_small
+    keep <- c("Sprat", "Cod")
+    p <- removeSpecies(params, "Herring", compensate = TRUE)
+    # The resource is now eaten only by the remaining species, which feed as
+    # they did before
+    eaten <- colSums((species_params(params)$interaction_resource *
+                          unclass(getPredRate(params)))[keep, ])
+    expect_equal(c(getResourceMort(p)), eaten, ignore_attr = TRUE,
+                 tolerance = 1e-12)
+    # The resource rate is kept and the capacity is set so that the resource
+    # replenishes at the rate at which it is now eaten
+    expect_equal(p@rr_pp, params@rr_pp)
+    expect_equal(p@cc_pp, p@initial_n_pp * (p@rr_pp + eaten) / p@rr_pp,
+                 ignore_attr = TRUE, tolerance = 1e-12)
+    # A frozen capacity is replaced as well
+    comment(params@cc_pp) <- "set manually"
+    p2 <- removeSpecies(params, "Herring", compensate = TRUE)
+    expect_equal(p2@cc_pp, p@cc_pp, ignore_attr = TRUE)
+    # A resource that was not at steady state is put at steady state, as
+    # documented, rather than keeping its rate of change
+    params <- NS_params_small
+    initialNResource(params) <- initialNResource(params) * 0.8
+    p3 <- removeSpecies(params, "Herring", compensate = TRUE)
+    expect_equal(p3@cc_pp,
+                 p3@initial_n_pp * (p3@rr_pp + c(getResourceMort(p3))) /
+                     p3@rr_pp,
+                 ignore_attr = TRUE, tolerance = 1e-12)
+    # Constant resource needs no balancing
+    params <- setResource(NS_params_small, resource_dynamics = "resource_constant")
+    p <- removeSpecies(params, "Herring", compensate = TRUE)
+    expect_equal(p@cc_pp, params@cc_pp)
+})
+
+test_that("removeSpecies(compensate = TRUE) marks only the rates it changes", {
+    params <- NS_params_small
+    p <- removeSpecies(params, "Herring", compensate = TRUE)
+    expect_false(is.null(comment(p@ext_encounter)))
+    expect_false(is.null(comment(p@mu_b)))
+    # Predation diffusion is off, so there is nothing to compensate
+    expect_null(comment(p@ext_diffusion))
+    expect_equal(p@ext_diffusion, params@ext_diffusion[c("Sprat", "Cod"), ])
+    # A comment that is already there is kept
+    comment(params@ext_encounter) <- "my encounter"
+    p <- removeSpecies(params, "Herring", compensate = TRUE)
+    expect_identical(comment(p@ext_encounter), "my encounter")
+    # A species that is nobody's prey leaves the encounter rate alone
+    params <- NS_params_small
+    interaction_matrix(params)[, "Herring"] <- 0
+    p <- removeSpecies(params, "Herring", compensate = TRUE)
+    expect_null(comment(p@ext_encounter))
+    expect_false(is.null(comment(p@mu_b)))
+    # The compensation survives a change to the species parameters
+    expect_warning(given_species_params(p)$z0 <- 0.1, "has not taken effect")
+    expect_equal(unclass(getMort(p)),
+                 unclass(getMort(params))[c("Sprat", "Cod"), ],
+                 ignore_attr = TRUE, tolerance = 1e-12)
+})
+
+test_that("removeSpecies(compensate = TRUE) warns about dynamic components", {
+    params <- setComponent(NS_params_small, "component", 1,
+                           dynamics_fun = "constant_other")
+    expect_no_warning(removeSpecies(params, "Herring", compensate = TRUE))
+    # setComponent() looks the dynamics function up by name
+    assign("removal_test_dyn", function(params, ...) 1, envir = globalenv())
+    withr::defer(rm("removal_test_dyn", envir = globalenv()))
+    params <- setComponent(NS_params_small, "component", 1,
+                           dynamics_fun = "removal_test_dyn")
+    expect_warning(removeSpecies(params, "Herring", compensate = TRUE),
+                   "`component` has dynamics of its own")
+    # Without compensation there is nothing to warn about
+    expect_no_warning(removeSpecies(params, "Herring"))
+})
+
+test_that("removeSpecies checks the compensate argument", {
+    expect_error(removeSpecies(NS_params_small, "Herring", compensate = NA))
+    expect_error(removeSpecies(NS_params_small, "Herring", compensate = "yes"))
+})
+
 test_that("adding and then removing species leaves params unaltered", {
     params <- ns_manipulate_params
     # two arbitrary species

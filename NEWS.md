@@ -67,6 +67,18 @@
 
 ## New features
 
+- `removeSpecies()` gains a `compensate` argument (#547). Removing species
+  lowers the encounter rate of their predators and the predation mortality of
+  their prey, so a model at steady state leaves it. With `compensate = TRUE`
+  the external encounter rate, external mortality and external diffusion of
+  the remaining species take over what the removed species contributed, and
+  the resource capacity is rebalanced because the removed species no longer
+  eat the resource. At the initial state the remaining species then have the
+  rates they had before and the resource is at steady state, so a steady state
+  stays a steady state. mizer checks that the rates are restored and warns if
+  a custom rate function prevents that. The default `compensate = FALSE` keeps
+  the previous behaviour. `removeSpecies()` also gains an `info_level`
+  argument.
 - The functions that calculate species parameter defaults from the model —
   `get_gamma_default()`, `get_f0_default()`, `get_h_default()` and
   `get_ks_default()` — are now S3 generics, so an extension package can register
@@ -131,7 +143,17 @@
   `projectRDD()` method, `setBevertonHolt()` and the functions that call it
   balanced only the Beverton-Holt part of the reproduction rate and so left the
   model off its steady state without saying so.
-
+- `newTraitParams()` no longer marks the resource capacity it constructs as
+  set manually (#607). That capacity is exactly the one `setResource()`
+  balances to, so the mark protected nothing, but it stopped `setResource()`
+  from rebalancing the resource and `resource_params<-()` from recalculating
+  the capacity after a change of `kappa`, `lambda` or `w_pp_cutoff`. So that
+  such a recalculation keeps the resource below the cutoff the constructor
+  applied, that cutoff is now recorded in `resource_params()` instead of the
+  maximum size `max_w`. The external mortality rate stays marked as set
+  manually, because the species parameters can not reproduce it. The help
+  page of `newTraitParams()` now explains how that rate is set, and so why
+  changing `z0`, `z_ext` or `d` afterwards has no effect.
 - `addSpecies()` and `adjustSizeGrid()` (and with it `expandSizeGrid()`) now
   build the new model with the numerical scheme of the model they are given.
   They used to build it with the first-order scheme and copy the

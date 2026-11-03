@@ -272,7 +272,11 @@ test_that("findSteadyState() changes no parameter", {
     tuned <- suppressMessages(tuneSteadyState(p, t_check = 1, dt = 1, t_max = 1,
                                               distance_tol = 1000,
                                               residual_tol = Inf))
-    expect_false(isTRUE(all.equal(unclass(tuned@cc_pp), unclass(p@cc_pp))))
+    # Compare size by size: `all.equal()` takes the mean relative difference,
+    # which the capacity at the smallest sizes dominates by many orders of
+    # magnitude.
+    pos <- p@cc_pp > 0
+    expect_gt(max(abs(tuned@cc_pp[pos] / p@cc_pp[pos] - 1)), 0.01)
 })
 
 
