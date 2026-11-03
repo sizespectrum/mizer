@@ -67,6 +67,18 @@
 
 ## New features
 
+- `removeSpecies()` gains a `compensate` argument (#547). Removing species
+  lowers the encounter rate of their predators and the predation mortality of
+  their prey, so a model at steady state leaves it. With `compensate = TRUE`
+  the external encounter rate, external mortality and external diffusion of
+  the remaining species take over what the removed species contributed, and
+  the resource capacity is rebalanced because the removed species no longer
+  eat the resource. At the initial state the remaining species then have the
+  rates they had before and the resource is at steady state, so a steady state
+  stays a steady state. mizer checks that the rates are restored and warns if
+  a custom rate function prevents that. The default `compensate = FALSE` keeps
+  the previous behaviour. `removeSpecies()` also gains an `info_level`
+  argument.
 - The functions that calculate species parameter defaults from the model —
   `get_gamma_default()`, `get_f0_default()`, `get_h_default()` and
   `get_ks_default()` — are now S3 generics, so an extension package can register
