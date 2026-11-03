@@ -65,6 +65,19 @@
   and every model saved with an earlier version of mizer, keep the first-order
   scheme, so their results do not change.
 
+## New features
+
+- `removeSpecies()` gains a `compensate` argument (#547). Removing species
+  lowers the encounter rate of their predators and the predation mortality of
+  their prey, so a model at steady state leaves it. With `compensate = TRUE`
+  the external encounter rate, external mortality and external diffusion of
+  the remaining species take over what the removed species contributed, and
+  the resource capacity is rebalanced because the removed species no longer
+  eat the resource. At the initial state the remaining species and the
+  resource then have the rates they had before, so a steady state stays a
+  steady state. The default `compensate = FALSE` keeps the previous
+  behaviour. `removeSpecies()` also gains an `info_level` argument.
+
 ## Bug fixes
 
 - `addSpecies()` and `adjustSizeGrid()` (and with it `expandSizeGrid()`) now

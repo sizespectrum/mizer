@@ -391,18 +391,68 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 
 #' Remove species
 #'
-#' This function simply removes all entries from the MizerParams object that
+#' This function removes all entries from the MizerParams object that
 #' refer to the selected species. It does not recalculate the steady state for
 #' the remaining species or retune their reproductive efficiency.
+#'
+#' Removing species changes the rates of the species that remain: the
+#' predators of the removed species lose some of their food, so their encounter
+#' rate drops, and the prey of the removed species lose some of their
+#' predators, so their predation mortality drops. A model that was at steady
+#' state is therefore no longer at steady state after the removal. If you want
+#' the remaining species not to notice the removal, set `compensate = TRUE`, as
+#' described in the section "Compensating for the removed species" below.
 #'
 #' If a gear was targeting only the removed species, then this function will
 #' NOT remove that gear. If you want to also remove that gear then you can do
 #' that by calling [setFishing()].
 #'
+#' @section Compensating for the removed species:
+#' With `compensate = TRUE`, the external rates of the remaining species take
+#' over what the removed species contributed to their rates:
+#' * the food that the remaining species found in the removed species is added
+#'   to their external encounter rate, see [setExtEncounter()],
+#' * the predation mortality that the removed species imposed on the remaining
+#'   species is added to their external mortality rate, see [setExtMort()],
+#' * the diffusion that the removed prey species caused is added to the
+#'   external diffusion rate, see [setExtDiffusion()]. This only matters if
+#'   [use_predation_diffusion()] is switched on.
+#'
+#' The removed species also no longer eat the resource, so the resource
+#' capacity is rebalanced with [setResource()] so that the resource again
+#' replenishes at the rate at which it is now consumed. The resource rate is
+#' kept. This replaces a resource capacity that you had set manually.
+#'
+#' All of this is calculated at the initial state stored in `params`. At that
+#' state the remaining species and the resource then have exactly the rates
+#' they had before the removal, so if the model was at steady state, it stays
+#' at steady state. In effect the removed species are still present, held
+#' at their initial abundances, but they no longer respond to changes in the
+#' rest of the model. As the model moves away from its initial state, the
+#' compensation no longer matches what the removed species would have done.
+#'
+#' Each external rate that is changed is marked as set manually. A later
+#' change to the species parameters that the rate is usually calculated from
+#' (such as `E_ext`, `z0` or `D_ext`) therefore does not overwrite the
+#' compensation; mizer tells you when it ignores such a change. External rates
+#' to which the removed species contributed nothing are left unchanged and
+#' unmarked.
+#'
+#' The compensation covers the species and the resource. Other components
+#' added with [setComponent()] that have dynamics of their own are not
+#' compensated, and you are warned about them.
+#'
 #' @param params A mizer params object for the original system.
 #' @param species The species to be removed. A vector of species names, or a
 #'   numeric vector of species indices, or a logical vector indicating for
 #'   each species whether it is to be removed (TRUE) or not.
+#' @param compensate If `TRUE`, the external rates of the remaining species
+#'   and the resource capacity are adjusted so that the remaining species and
+#'   the resource have the same rates as before the removal. See the section
+#'   "Compensating for the removed species". Default is `FALSE`.
+#' @param info_level Controls the amount of information messages that are
+#'   shown. Higher levels lead to more messages. Set to 0 to suppress all such
+#'   messages.
 #' @param ... Currently unused.
 #'
 #' @return An object of type \linkS4class{MizerParams}
@@ -414,15 +464,28 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 #' species_params(params)$species
 #' params <- removeSpecies(params, c("Cod", "Haddock"))
 #' species_params(params)$species
-removeSpecies <- function(params, species, ...) {
+#'
+#' # Removing Cod and Haddock moves the model off its steady state, unless the
+#' # remaining species are compensated for their loss
+#' rowSums(getSteadyResidual(removeSpecies(NS_params, c("Cod", "Haddock"))))
+#' rowSums(getSteadyResidual(removeSpecies(NS_params, c("Cod", "Haddock"),
+#'                                         compensate = TRUE)))
+removeSpecies <- function(params, species, compensate = FALSE,
+                          info_level = default_info_level(), ...) {
     UseMethod("removeSpecies")
 }
 
 #' @export
-removeSpecies.MizerParams <- function(params, species, ...) {
+removeSpecies.MizerParams <- function(params, species, compensate = FALSE,
+                                      info_level = default_info_level(), ...) {
+    assert_that(is.flag(compensate), noNA(compensate))
+    with_info_level(info_level = info_level, {
     params <- validParams(params)
     species <- valid_species_arg(params, species,
                                  return.logical = TRUE)
+    if (compensate) {
+        params <- compensate_removal(params, species)
+    }
     keep <- !species
     p <- params
 
@@ -481,7 +544,121 @@ removeSpecies.MizerParams <- function(params, species, ...) {
     validObject(p)
 
     p@time_modified <- lubridate::now()
+    })
+
     return(p)
+}
+
+#' Let the external rates take over the contributions of removed species
+#'
+#' Called by [removeSpecies()] with `compensate = TRUE`, before it drops the
+#' species. Adds to the external encounter rate, external mortality and
+#' external diffusion of every species what the species to be removed
+#' contributed to its encounter rate, mortality and diffusion at the initial
+#' state, and rebalances the resource capacity, so that at that state the
+#' remaining species and the resource have the rates they had before.
+#'
+#' The contributions are calculated on the full model, with the abundances of
+#' the species to be removed set to zero, rather than on the model after the
+#' removal. The two give the same rates, but an extension that keeps data of
+#' its own for each species trims that data in its `removeSpecies()` method
+#' only after `NextMethod()` returns, so its rate functions are consistent only
+#' on the full model. The removed species keep their zero abundances, which
+#' [removeSpecies()] then drops together with the rest of their rows.
+#'
+#' The encounter rate is compensated first, because the feeding level depends
+#' on it and the mortality, the diffusion and the resource mortality depend on
+#' the feeding level. With the encounter rate restored, the remaining predators
+#' feed exactly as before and the only change left in those rates is what the
+#' removed species contributed.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @param remove A logical vector saying for each species whether it is to be
+#'   removed.
+#' @return The `MizerParams` object with the species still present, but with
+#'   zero abundance, and with the compensated external rates and resource
+#'   capacity.
+#' @noRd
+compensate_removal <- function(params, remove) {
+    old_encounter <- getEncounter(params)
+    old_mort <- getMort(params)
+    old_diffusion <- getDiffusion(params)
+    old_resource_mort <- getResourceMort(params)
+
+    params@initial_n[remove, ] <- 0
+
+    params <- add_compensation(params, "ext_encounter", remove,
+                               old_encounter - getEncounter(params))
+    params <- add_compensation(params, "mu_b", remove,
+                               old_mort - getMort(params))
+    params <- add_compensation(params, "ext_diffusion", remove,
+                               old_diffusion - getDiffusion(params))
+
+    # The removed species no longer eat the resource. `resource_constant()`
+    # needs no balancing because it keeps the resource where it is anyway.
+    if (any(old_resource_mort != getResourceMort(params)) &&
+        params@resource_dynamics != "resource_constant") {
+        if (is.function(get0(paste0("balance_", params@resource_dynamics)))) {
+            # A frozen capacity would block the balancing, as in `steady()`
+            comment(params@cc_pp) <- NULL
+            params <- setResource(params)
+        } else {
+            signal_info("cc_pp", paste0(
+                "There is no `balance_", params@resource_dynamics, "()` ",
+                "function, so the resource capacity could not be rebalanced ",
+                "after the removed species stopped eating the resource. The ",
+                "resource is therefore not compensated for their removal."),
+                level = 1, severity = "warning", unhandled = "show")
+        }
+    }
+
+    dynamic <- names(params@other_dynamics)[
+        !vapply(params@other_dynamics,
+                function(f) identical(f, "constant_other"), logical(1))]
+    if (length(dynamic) > 0) {
+        signal_info("other_components", paste0(
+            "The compensation for the removed species covers the remaining ",
+            "species and the resource only. The component",
+            if (length(dynamic) > 1) "s " else " ",
+            paste0("`", dynamic, "`", collapse = ", "),
+            if (length(dynamic) > 1) " have" else " has",
+            " dynamics of ", if (length(dynamic) > 1) "their" else "its",
+            " own and may still be affected by the removal."),
+            level = 1, severity = "warning", unhandled = "show")
+    }
+
+    params
+}
+
+#' Add the compensation for removed species to an external rate
+#'
+#' Adds `compensation` to the rows of the remaining species in the external
+#' rate array `slot` and marks that array as set manually, so that a later
+#' recalculation from the species parameters does not overwrite it. An array
+#' to which the removed species contributed nothing is left alone, so that it
+#' is not marked needlessly. The comparison is exact: a species that
+#' contributes nothing changes neither the inputs of a rate nor, therefore,
+#' its numerical round-off.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @param slot One of `"ext_encounter"`, `"mu_b"` or `"ext_diffusion"`.
+#' @param remove A logical vector saying for each species whether it is to be
+#'   removed.
+#' @param compensation An array (species x size) to add to the slot.
+#' @return The `MizerParams` object with the slot updated.
+#' @noRd
+add_compensation <- function(params, slot, remove, compensation) {
+    compensation[remove, ] <- 0
+    if (all(compensation == 0)) {
+        return(params)
+    }
+    value <- slot(params, slot) + compensation
+    comment(value) <- comment(slot(params, slot)) %||%
+        "increased by removeSpecies() to compensate for the removed species"
+    switch(slot,
+           ext_encounter = setExtEncounter(params, ext_encounter = value),
+           mu_b = setExtMort(params, ext_mort = value),
+           ext_diffusion = setExtDiffusion(params, ext_diffusion = value))
 }
 
 
