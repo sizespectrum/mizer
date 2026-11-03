@@ -29,6 +29,8 @@ numerical scheme is stable at this \code{dt}.}
 \item{\code{stable}}{Logical: \code{TRUE} when \code{spectral_radius < 1}.}
 \item{\code{dt}}{The step size the map was evaluated at.}
 \item{\code{n_active}}{Dimension of the Jacobian.}
+\item{\code{n_fixed}}{The number of state variables that the step leaves
+unchanged and that are therefore left out, as for \code{\link[=getStability]{getStability()}}.}
 \item{\code{leading_eigenvectors}}{The eigenvectors of the two
 largest-modulus eigenvalues, in the same shape as for
 \code{\link[=getStability]{getStability()}}.}
@@ -71,7 +73,11 @@ The resource is advanced by the model's own \code{resource_dynamics} function, t
 one \code{\link[=project]{project()}} calls. Nothing is substituted for it: the map that is
 differentiated here reproduces a single \code{project(method = "euler")} step
 exactly, which is what makes the spectral radius a statement about mizer's
-solver rather than about a nearby scheme.
+solver rather than about a nearby scheme. A state variable that the step
+leaves unchanged whatever the state, such as every resource cell under
+\code{\link[=resource_constant]{resource_constant()}}, is left out of the map as it is in \code{\link[=getStability]{getStability()}};
+each would otherwise contribute an eigenvalue of exactly 1 and pin the
+spectral radius there.
 }
 }
 \section{Requires smooth dynamics}{
