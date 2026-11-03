@@ -79,6 +79,16 @@
   a custom rate function prevents that. The default `compensate = FALSE` keeps
   the previous behaviour. `removeSpecies()` also gains an `info_level`
   argument.
+- The functions that calculate species parameter defaults from the model —
+  `get_gamma_default()`, `get_f0_default()`, `get_h_default()` and
+  `get_ks_default()` — are now S3 generics, so an extension package can register
+  its own methods for them instead of reimplementing the calculation. The
+  measurement of the energy available in the power-law reference state, which is
+  where those defaults look at the prey in the model, is exported as the generic
+  `measure_avail_energy()`. An extension that replaces mizer's resource by a
+  resource system of its own only needs a method for that one function to have
+  the `gamma` and `f0` defaults derived against its resources. The guide to
+  creating an extension package explains when this is needed (#598).
 
 ## Bug fixes
 
@@ -177,6 +187,70 @@
   predation-diffusion coefficient by a median of 7.7% and by up to 11%. The
   error was first order, so it did not go away quickly on finer grids. Models
   on the default scheme are unaffected.
+
+- When a species is given an egg size `w_min` below the size grid, mizer
+  raises it to the start of the grid with a warning. It now also raises the
+  value stored among the given species parameters (#642). Before, the rejected
+  value stayed there, so every later change of an unrelated species parameter
+  gave the same warning again. Once the grid had been widened with
+  `adjustSizeGrid()`, the next such change put the rejected `w_min` back
+  without any warning, and the default `h`, `ks` and `gamma` of that species
+  changed with it.
+
+- When an egg size below the size grid is raised to the grid minimum, its
+  supplied length `l_min` is now updated in both species parameter tables too.
+  Later validation or an unrelated parameter edit no longer warns that the
+  egg length and weight disagree.
+
+- The warning that an egg size `w_min` was raised to the size-grid minimum
+  now follows `info_level`: it is reported at level 1 and silenced at level 0,
+  including with `options(mizer_info_level = 0)`. The adjustment still takes
+  effect at every level.
+
+- `getDiet()`, `getTrophicLevel()` and `getTrophicLevelBySpecies()` now agree
+  with the model's own encounter rate, feeding level and growth rate in three
+  cases where they did not (#613). Summed over prey, `getDiet(proportion =
+  FALSE)` reproduces `getEncounter() * (1 - getFeedingLevel())` in all of them.
+  - **The encounter rate has been changed**, by a function registered with
+    `setRateFunction("Encounter", ...)` or by an extension package's
+    `projectEncounter()` method. The diet used to be rebuilt from the search
+    volume and the predation kernel and so ignored the change, and
+    `getTrophicLevel()` divided a numerator built that way by the changed
+    encounter rate. A model whose encounter rate was halved had twice the diet
+    it consumed and a cod trophic level of 25.8 instead of 5.8. The diet is now
+    scaled to the model's encounter rate, with a message saying so, and the
+    numerator of the trophic level is built from the scaled diet. Where the
+    predator encounters food although none of the food sources contributes,
+    the diet shows that food as "External".
+  - **`n_other` differs from the initial values.** The feeding level by which
+    `getDiet()` multiplies the encounter rate was calculated with the initial
+    abundances of the other components rather than the `n_other` passed in.
+  - **The rates depend on time.** `getDiet()`, `getTrophicLevel()` and
+    `getTrophicLevelBySpecies()` gain a `t` argument, defaulting to 0, and
+    pass it to the encounter rate, the feeding level, the growth rate and the
+    encounter functions of components. `getDiet()` on a `MizerSim` evaluates
+    the diet at each saved time with that time. Previously the encounter
+    functions of components were called without a time, so `getDiet()` failed
+    on a model whose component encounter function had no default for `t`,
+    and otherwise evaluated everything at `t = 0`.
+- The new `getEncounterByPrey()` returns the encounter rate resolved by food
+  source, which `getDiet()` multiplies by `1 - getFeedingLevel()`. It is an S3
+  generic, so that an extension package that changes the encounter rate can
+  say how the change is shared between food sources. For extension packages:
+  if your package has a `projectEncounter()` method, give
+  `getEncounterByPrey()` a method that makes the same change and calls
+  `NextMethod()`. `getDiet()` and `getTrophicLevel()` then split the encounter
+  rate between food sources exactly and say nothing. Without it they scale all
+  food sources in proportion, which is exact only if the change affects them
+  all equally, as a change of the search volume does in a model without
+  external encounter or components with an encounter function.
+  `getTrophicLevel()` takes from `getEncounterByPrey()` how much food each prey
+  species and the resource provide, and averages their trophic levels over
+  prey sizes with the predation kernel stored in the model. A food source that
+  an extension switches on, for example by setting a zero interaction to a
+  positive value, therefore gets its proper trophic level. An extension that
+  changes which prey sizes are eaten without storing its kernel with
+  `setPredKernel()` needs a `getTrophicLevel()` method of its own.
 ## Documentation
 
 - The help page of `getDiffusion()` gave the predation-diffusion rate with a

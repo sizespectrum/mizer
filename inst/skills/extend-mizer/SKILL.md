@@ -74,6 +74,15 @@ not enter the power-law reference state used by `get_gamma_default()` and
 `other_encounter()`, including a component's `encounter_fun`: they describe
 feeding on the reference resource alone, before extra food sources are added.
 
+If instead of adding food you *replace* the resource — a package that installs a
+resource system of its own — then any `gamma` mizer auto-derived at construction
+time is calibrated against a resource that is no longer in the model, and it
+will not be re-derived on its own. Give your class a `measure_avail_energy()`
+method, which is the hook both defaults use to look at the prey in the model,
+and rebuild the species parameters after installing your resources; see the
+section "But they do go through your `get_*_default()` method" in
+[Creating a mizer extension package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html).
+
 ## Replacing a rate function
 
 Use when the model still follows mizer's standard flow but one step should be
@@ -547,6 +556,15 @@ nothing checks that it is.
 - Test **both** halves: that `setRateFunction()` or `setComponent()` succeeds,
   and that the downstream function you actually care about — `getEncounter()`,
   `getDiet()`, `project()` — uses your extension as intended.
+- An encounter function registered with `setRateFunction()` reaches `getDiet()`
+  and `getTrophicLevel()` only through its total: they cannot know how your
+  change is shared between the food sources, so they scale all of them in
+  proportion and say so. That is exact for a factor that multiplies the whole
+  encounter rate, like `seasonalEncounter()` above. For extra food, use a
+  component with an `encounter_fun` instead, which `getDiet()` shows as a food
+  source of its own. An extension package can give the exact split for any
+  change, with a `getEncounterByPrey()` method; see the
+  `create-extension-package` skill.
 - After registering a custom rate, run `project()` on a short horizon and check
   the affected `get…()` output looks right; write a `testthat` test that compares
   against a hand-computed value on a small model.

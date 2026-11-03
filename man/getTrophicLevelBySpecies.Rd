@@ -11,6 +11,7 @@ getTrophicLevelBySpecies(
   n_other = initialNOther(params),
   w_R = 1e-10,
   beta_R = 1000,
+  t = 0,
   ...
 )
 }
@@ -33,6 +34,10 @@ to \code{1e-10}.}
 \item{beta_R}{An average predator/prey mass ratio for the resource spectrum,
 used to set the size-dependent resource trophic level. Must be greater than
 \code{1}. Defaults to \code{1000}.}
+
+\item{t}{The time at which to evaluate the rates. Defaults to 0. It matters
+only in a model whose rates depend on time, for example through an
+extension or through the encounter function of a component.}
 
 \item{...}{Unused}
 }
@@ -62,6 +67,7 @@ getTrophicLevelBySpecies(NS_params)
 Other summary functions:
 \code{\link[=getBiomass]{getBiomass()}},
 \code{\link[=getDiet]{getDiet()}},
+\code{\link[=getEncounterByPrey]{getEncounterByPrey()}},
 \code{\link[=getGrowthCurves]{getGrowthCurves()}},
 \code{\link[=getN]{getN()}},
 \code{\link[=getSSB]{getSSB()}},
