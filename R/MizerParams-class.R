@@ -1114,12 +1114,37 @@ repair_params <- function(params) {
     wrong <- params@species_params$w_min < w_min * (1 - 1e-6) # The 1e-6 is to avoid rounding errors
     if (any(wrong)) {
         params@species_params$w_min[wrong] <- w_min
-        warning("The minimum weight of some species was smaller than the ",
-                "minimum weight of the weight grid in the model: ",
-                paste(params@species_params$species[wrong], collapse = ", "),
-                ". I have increased it to ", w_min, ". Before you can decrease ",
-                "it further you will need to expand the weight grid with ",
-                "`adjustSizeGrid()`.")
+        # The given value has to be raised too. Otherwise every rebuild of the
+        # species parameters from the given ones would bring it back and give
+        # this warning again, and once the grid had been widened with
+        # `adjustSizeGrid()` it would come back without any warning.
+        given_wrong <- which(params@given_species_params$w_min <
+                                 w_min * (1 - 1e-6))
+        if (length(given_wrong) > 0) {
+            params@given_species_params$w_min[given_wrong] <- w_min
+        }
+        # Keep any supplied egg lengths consistent with the clamp too, so a
+        # later validation or unrelated edit does not have to repair them.
+        # Use the model's a and b: they need not be given parameters.
+        if ("l_min" %in% names(params@species_params)) {
+            sel <- which(wrong & !is.na(params@species_params$l_min))
+            params@species_params$l_min[sel] <- w2l(w_min, params)[sel]
+        }
+        if ("l_min" %in% names(params@given_species_params)) {
+            given_lengths <- params@given_species_params$l_min
+            sel <- given_wrong[!is.na(given_lengths[given_wrong])]
+            params@given_species_params$l_min[sel] <- w2l(w_min, params)[sel]
+        }
+        msg <- paste0(
+            "The minimum weight of some species was smaller than the ",
+            "minimum weight of the weight grid in the model: ",
+            paste(params@species_params$species[wrong], collapse = ", "),
+            ". I have increased it to ", w_min, ". Before you can decrease ",
+            "it further you will need to expand the weight grid with ",
+            "`adjustSizeGrid()`."
+        )
+        signal_info("w_min", msg, level = 1, severity = "warning",
+                    unhandled = "show")
     }
     params@w_min_idx <- get_w_min_idx(params@species_params, params@w)
     # w_max should not be larger than the maximum weight of the model

@@ -163,6 +163,25 @@
   error was first order, so it did not go away quickly on finer grids. Models
   on the default scheme are unaffected.
 
+- When a species is given an egg size `w_min` below the size grid, mizer
+  raises it to the start of the grid with a warning. It now also raises the
+  value stored among the given species parameters (#642). Before, the rejected
+  value stayed there, so every later change of an unrelated species parameter
+  gave the same warning again. Once the grid had been widened with
+  `adjustSizeGrid()`, the next such change put the rejected `w_min` back
+  without any warning, and the default `h`, `ks` and `gamma` of that species
+  changed with it.
+
+- When an egg size below the size grid is raised to the grid minimum, its
+  supplied length `l_min` is now updated in both species parameter tables too.
+  Later validation or an unrelated parameter edit no longer warns that the
+  egg length and weight disagree.
+
+- The warning that an egg size `w_min` was raised to the size-grid minimum
+  now follows `info_level`: it is reported at level 1 and silenced at level 0,
+  including with `options(mizer_info_level = 0)`. The adjustment still takes
+  effect at every level.
+
 - `getDiet()`, `getTrophicLevel()` and `getTrophicLevelBySpecies()` now agree
   with the model's own encounter rate, feeding level and growth rate in three
   cases where they did not (#613). Summed over prey, `getDiet(proportion =
