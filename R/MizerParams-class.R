@@ -1133,12 +1133,16 @@ repair_params <- function(params) {
             sel <- given_wrong[!is.na(given_lengths[given_wrong])]
             params@given_species_params$l_min[sel] <- w2l(w_min, params)[sel]
         }
-        warning("The minimum weight of some species was smaller than the ",
-                "minimum weight of the weight grid in the model: ",
-                paste(params@species_params$species[wrong], collapse = ", "),
-                ". I have increased it to ", w_min, ". Before you can decrease ",
-                "it further you will need to expand the weight grid with ",
-                "`adjustSizeGrid()`.")
+        msg <- paste0(
+            "The minimum weight of some species was smaller than the ",
+            "minimum weight of the weight grid in the model: ",
+            paste(params@species_params$species[wrong], collapse = ", "),
+            ". I have increased it to ", w_min, ". Before you can decrease ",
+            "it further you will need to expand the weight grid with ",
+            "`adjustSizeGrid()`."
+        )
+        signal_info("w_min", msg, level = 1, severity = "warning",
+                    unhandled = "show")
     }
     params@w_min_idx <- get_w_min_idx(params@species_params, params@w)
     # w_max should not be larger than the maximum weight of the model

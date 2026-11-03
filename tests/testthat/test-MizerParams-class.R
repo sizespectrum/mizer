@@ -162,6 +162,7 @@ test_that("validParams checks w_min and w_max", {
 })
 
 test_that("raising w_min to the grid also raises the given value (#642)", {
+    withr::local_options(mizer_info_level = 1)
     params <- NS_params_small
     min_w <- min(w(params))
     expect_warning(species_params(params)$w_min[1] <- min_w / 10,
@@ -175,6 +176,31 @@ test_that("raising w_min to the grid also raises the given value (#642)", {
     params <- adjustSizeGrid(params, new_min_w = min_w / 10)
     species_params(params)$beta[2] <- 60
     expect_equal(species_params(params)$w_min[1], min_w, ignore_attr = TRUE)
+})
+
+test_that("the egg-size clamp respects info_level", {
+    params <- NS_params_small
+    min_w <- min(w(params))
+    params@species_params$w_min[1] <- min_w / 10
+    expect_silent(quiet <- validParams(params, info_level = 0))
+    expect_warning(reported <- validParams(params, info_level = 1),
+                   "adjustSizeGrid")
+    expect_equal(quiet, reported)
+    expect_equal(species_params(quiet)$w_min[1], min_w, ignore_attr = TRUE)
+
+    # The replacement setters use the option and suppress routine messages.
+    withr::local_options(mizer_info_level = 0)
+    for (accessor in c("species_params", "given_species_params")) {
+        params <- NS_params_small
+        value <- get(accessor)(params)
+        value$w_min[1] <- min_w / 10
+        setter <- get(paste0(accessor, "<-"))
+        expect_silent(params <- setter(params, value = value))
+        expect_equal(species_params(params)$w_min[1], min_w,
+                     ignore_attr = TRUE)
+        expect_equal(given_species_params(params)$w_min[1], min_w,
+                     ignore_attr = TRUE)
+    }
 })
 
 test_that("raising egg weight also updates its supplied length", {

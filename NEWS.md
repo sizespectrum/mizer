@@ -154,6 +154,11 @@
   Later validation or an unrelated parameter edit no longer warns that the
   egg length and weight disagree.
 
+- The warning that an egg size `w_min` was raised to the size-grid minimum
+  now follows `info_level`: it is reported at level 1 and silenced at level 0,
+  including with `options(mizer_info_level = 0)`. The adjustment still takes
+  effect at every level.
+
 ## Documentation
 
 - The help page of `getDiffusion()` gave the predation-diffusion rate with a
