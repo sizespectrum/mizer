@@ -110,6 +110,7 @@ function` — carry no such quote, so match those rows on the function name.
 | `gamma`, `psi`, a default `catchability` or a default effort differs between two runs of the same script, depending on whether `defaults_edition()` is called before or after the model is created | the same | A model keeps the defaults edition it was created with |
 | Warning `"was created with an earlier version of"` mizer for a model saved with mizer 3.4 | the model is upgraded to record its defaults edition | A model keeps the defaults edition it was created with |
 | `plotYieldVsF()` warns that its `tol` argument is deprecated | the name it had in mizerExperimental is accepted again, as the old name of `distance_tol` | `plotYieldVsF()` accepts `tol` again |
+| Message `"does not say how the change is shared between the food"` sources from `getDiet()`, `plotDiet()` or `getTrophicLevel()` | the model's encounter rate is changed by a function registered with `setRateFunction()` or by an extension, and the diet is now split to match it | `getDiet()` and `getTrophicLevel()` follow a changed encounter rate |
 
 ### mizer 3.3 → 3.4 — `references/mizer-3.4.md`
 

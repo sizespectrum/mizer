@@ -5,7 +5,9 @@ changes nothing for code that never calls `defaults_edition()`. Code that does
 switch editions finds that the switch now applies only to models created
 afterwards. Models saved with mizer 3.4 are upgraded once more when they are
 first used. `plotYieldVsF()` accepts the `tol` argument it had in
-mizerExperimental again, with a deprecation warning.
+mizerExperimental again, with a deprecation warning. On a model whose encounter
+rate has been changed, `getDiet()` and `getTrophicLevel()` now follow the
+change and say how they split it between the food sources.
 
 ### A model keeps the defaults edition it was created with
 
@@ -71,3 +73,32 @@ plotYieldVsF(params, "Cod", F_range = seq(0.2, 0.8, 0.02), distance_tol = 1e-4)
 ```
 
 Giving both `tol` and `distance_tol` is an error.
+
+### `getDiet()` and `getTrophicLevel()` follow a changed encounter rate
+
+On a model whose encounter rate has been changed, by a function you registered
+with `setRateFunction("Encounter", ...)` or by an extension package,
+`getDiet()`, `plotDiet()` and `getTrophicLevel()` now give a message that starts
+
+```
+The encounter rate has been changed by a custom encounter rate function or by an
+extension, and `getEncounterByPrey()` does not say how the change is shared
+between the food sources.
+```
+
+These functions used to ignore the change, so the diet did not add up to what
+the predators consumed and the trophic levels could be far off. They now take
+the total from the model's own encounter rate. What they cannot know is how
+your change is shared between the prey species, the resource and the other food
+sources, so they scale all of them in proportion. That is exact if your
+function multiplies the whole encounter rate by a factor, as a seasonal or
+temperature multiplier does, and the message is then nothing to act on. If your
+function adds food of its own, the extra food is spread over the existing food
+sources in the diet, or shown as "External" at sizes at which they provide
+nothing. Add it as a component with an `encounter_fun` instead, see
+`setComponent()`, and `getDiet()` shows it as a food source of its own. If the
+message comes from an extension package, a newer version of that package can
+supply the exact split.
+
+To silence the message, set `options(mizer_info_level = 0)` or wrap the call in
+`suppressMessages()`.
