@@ -131,6 +131,28 @@ test_that("balance_RickerRDD() and balance_SheperdRDD() accept erepro = 0", {
     expect_equal(rdd_ratio(p), rep(1, 3))
 })
 
+test_that("erepro = 0 keeps the parameter when no reproduction is needed", {
+    params <- setReproduction(NS_params_small, RDD = "RickerRDD")
+    initialN(params)[, 1] <- 0
+    expect_equal(getRequiredRDD(params), rep(0, 3), ignore_attr = TRUE)
+    # Without a parameter, density dependence is switched off
+    p <- balanceRDD(params, erepro = 0)
+    expect_equal(p@species_params$ricker_b, rep(0, 3), ignore_attr = TRUE)
+    expect_equal(getRDD(p), rep(0, 3), ignore_attr = TRUE)
+    # An existing parameter is kept
+    params@species_params$ricker_b <- 1e-12
+    p <- balanceRDD(params, erepro = 0)
+    expect_equal(p@species_params$ricker_b, rep(1e-12, 3), ignore_attr = TRUE)
+    expect_equal(getRDD(p), rep(0, 3), ignore_attr = TRUE)
+
+    params <- setReproduction(NS_params_small, RDD = "SheperdRDD")
+    params@species_params$sheperd_c <- 2
+    initialN(params)[, 1] <- 0
+    p <- balanceRDD(params, erepro = 0)
+    expect_true(all(is.finite(p@species_params$sheperd_b)))
+    expect_equal(getRDD(p), rep(0, 3), ignore_attr = TRUE)
+})
+
 test_that("balance_SheperdRDD() keeps erepro and sheperd_c", {
     params <- setReproduction(NS_params_small, RDD = "SheperdRDD")
     params@species_params$sheperd_c <- 2

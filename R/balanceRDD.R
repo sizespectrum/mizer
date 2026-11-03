@@ -627,8 +627,17 @@ balance_overcompensating <- function(params, rdi, rdd_target, erepro,
                    signif(erepro_new[sel][wrong], 3), collapse = "; ")),
             level = 1, severity = "warning", unhandled = "show")
     }
+    b <- b_fun(rdi_new, target, sel)
+    # A species that produces no eggs and needs no reproduction has zero
+    # reproduction whatever the parameter, so the parameter is kept, or
+    # density dependence is switched off if there is none yet.
+    idle <- rdi_new == 0
+    if (any(idle)) {
+        old_b <- unname(sp[[par]][sel][idle])
+        b[idle] <- if (is.null(old_b)) 0 else ifelse(is.finite(old_b), old_b, 0)
+    }
     params <- set_erepro(params, sel, erepro_new[sel])
-    params <- set_rdd_param(params, par, sel, b_fun(rdi_new, target, sel))
+    params <- set_rdd_param(params, par, sel, b)
     params@time_modified <- lubridate::now()
     params
 }
