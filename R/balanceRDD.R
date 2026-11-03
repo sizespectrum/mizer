@@ -92,6 +92,13 @@
 #' A `reproduction_level` is the reproduction level of the whole reproduction
 #' rate, as given by [reproduction_level()], so a method that passes one on
 #' has to convert it to the level of the part it passes it to, as above.
+#' [tuneSteadyState()] passes one by default, to preserve the reproduction
+#' level. Arguments with a value for each species, such as
+#' `reproduction_level`, `erepro` or `R_max`, reach the methods as vectors with
+#' one value for each species, with `NA` for species that are left alone,
+#' whenever mizer makes the call. That is what makes the element-by-element
+#' calculation above work. Pass them in the same form when you call
+#' `balanceRDD()` yourself.
 #'
 #' Without a `balanceRDD()` method, the balancing function of the named
 #' density-dependence function would not know about the change, so mizer
@@ -163,6 +170,20 @@ balanceRDD.MizerParams <- function(params, rdi = getRDI(params),
     }
 
     rdd_name <- params@rates_funcs$RDD
+    # An extension that adds to the reproduction rate can leave less than
+    # nothing for the density-dependence function to give.
+    negative <- !is.na(rdd_target) & rdd_target < 0
+    if (any(negative)) {
+        signal_info("RDD", paste0(
+            "The following species would need a negative reproduction rate ",
+            "from `", rdd_name, "()` to hold their egg abundance steady, so ",
+            "their reproduction parameters have been left unchanged: ",
+            paste(params@species_params$species[negative], collapse = ", "),
+            "."),
+            level = 1, severity = "warning", unhandled = "show")
+        rdd_target[negative] <- NA
+        if (all(is.na(rdd_target))) return(params)
+    }
     wrappers <- rdd_wrappers(params)
     if (length(wrappers$unbalanced) > 0) {
         classes <- paste0("`", wrappers$unbalanced, "`", collapse = ", ")
@@ -186,7 +207,9 @@ balanceRDD.MizerParams <- function(params, rdi = getRDI(params),
     } else {
         balance_fn <- get0(paste0("balance_", rdd_name), mode = "function")
         if (!is.null(balance_fn)) {
-            unsupported <- setdiff(names(args), names(formals(balance_fn)))
+            accepted <- names(formals(balance_fn))
+            unsupported <- if ("..." %in% accepted) character() else
+                setdiff(names(args), accepted)
             if (length(unsupported) > 0) {
                 stop("`balance_", rdd_name, "()` does not accept the ",
                      "argument", if (length(unsupported) > 1) "s", " ",
@@ -367,28 +390,51 @@ stop_if_no_eggs <- function(species, what) {
          ". Check that they have mature individuals in `initialN(params)`.")
 }
 
-#' Expand values given for some or all species
+#' Give a value for every species
 #'
 #' A single unnamed value is used for all species, an unnamed vector must have
-#' one value per species and a named vector gives values for the named species.
-#' `NA` values are dropped.
+#' one value per species and a named vector gives values for the named species,
+#' with a warning about names that are not species. This is the form in which
+#' mizer passes arguments with a value per species to [balanceRDD()], so that a
+#' method can combine them with `rdd_target` element by element.
+#'
+#' @param params A MizerParams object.
+#' @param values The values, or `NULL`.
+#' @return A vector with one value for each species, named by species, with
+#'   `NA` for species without a value. `NULL` if `values` is `NULL`.
+#' @noRd
+species_vector <- function(params, values) {
+    if (is.null(values)) return(NULL)
+    species <- params@species_params$species
+    no_sp <- length(species)
+    if (length(values) == 1 && is.null(names(values))) {
+        values <- rep(values, no_sp)
+    }
+    if (is.null(names(values))) {
+        if (length(values) != no_sp) {
+            stop("You need to supply a vector of length ", no_sp,
+                 " or a single number or a named vector.")
+        }
+        names(values) <- species
+        return(values)
+    }
+    valid <- names(values) %in% valid_species_arg(params, names(values))
+    out <- rep(NA, no_sp)
+    out[match(names(values)[valid], species)] <- values[valid]
+    names(out) <- species
+    out
+}
+
+#' Expand values given for some or all species
+#'
+#' As `species_vector()`, but keeping only the values that are not `NA`.
 #'
 #' @param params A MizerParams object.
 #' @param values The values.
 #' @return A named vector holding the non-`NA` values, named by species.
 #' @noRd
 expand_species_values <- function(params, values) {
-    no_sp <- nrow(params@species_params)
-    if (length(values) == 1 && is.null(names(values))) {
-        values <- rep(values, no_sp)
-    }
-    if (length(values) != no_sp && is.null(names(values))) {
-        stop("You need to supply a vector of length ", no_sp,
-             " or a single number or a named vector.")
-    }
-    if (is.null(names(values))) {
-        names(values) <- params@species_params$species
-    }
+    values <- species_vector(params, values)
     values <- values[!is.na(values)]
     if (length(values) > 0 && !all(is.numeric(values))) {
         stop("You provided invalid non-numeric values.")
@@ -609,10 +655,13 @@ balance_overcompensating <- function(params, rdi, rdd_target, erepro,
     }
     stop_if_no_eggs(species[affected & rdi == 0 & rdd_target > 0],
                     "value of `erepro`")
-    sel <- which(affected & rdi > 0)
+    # A species without egg production that needs no reproduction, such as
+    # an absent one, is included so that it gets a valid parameter below.
+    sel <- which(affected)
     if (length(sel) == 0) return(params)
 
-    rdi_new <- rdi[sel] * erepro_new[sel] / sp$erepro[sel]
+    rdi_new <- ifelse(rdi[sel] == 0, 0,
+                      rdi[sel] * erepro_new[sel] / sp$erepro[sel])
     target <- rdd_target[sel]
     wrong <- rdi_new < target
     if (any(wrong)) {

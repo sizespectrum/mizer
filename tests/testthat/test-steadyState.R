@@ -111,6 +111,36 @@ test_that("tuneSteadyState() balances constantRDD for an absent species", {
     expect_false(anyNA(finalN(project(p, t_max = 1, progress_bar = FALSE))))
 })
 
+test_that("tuneSteadyState() preserves the level through an extension", {
+    # The balanceRDD() method converts the level, as documented
+    ext <- paste0("mizerTestSteadyImmigration", Sys.getpid())
+    registerS3method("projectRDD", ext, function(params, rdi, ...) {
+        NextMethod() + other_params(params)$immigration
+    }, envir = asNamespace("mizer"))
+    registerS3method("balanceRDD", ext, function(
+        params, rdi = getRDI(params), rdd_target = getRequiredRDD(params),
+        reproduction_level = NULL, ...) {
+        imm <- other_params(params)$immigration
+        if (!is.null(reproduction_level)) {
+            reproduction_level <- 1 - (1 - reproduction_level) *
+                rdd_target / (rdd_target - imm)
+        }
+        NextMethod(rdd_target = rdd_target - imm,
+                   reproduction_level = reproduction_level)
+    }, envir = asNamespace("mizer"))
+    params <- tss_params
+    other_params(params)$immigration <- 0.2 * unname(getRequiredRDD(params))
+    params@extensions <- setNames(NA_character_, ext)
+    params <- balanceRDD(coerceToExtensionClass(params))
+    initialN(params) <- initialN(params) * 1.3
+    # The level of the model handed to tuneSteadyState() is preserved
+    level <- reproduction_level(params)
+    p <- tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1,
+                         info_level = 0)
+    expect_equal(reproduction_level(p), level, tolerance = 1e-6)
+    expect_equal(getRDD(p), getRequiredRDD(p))
+})
+
 test_that("tuneSteadyState() keeps the constant of constantRDD", {
     params <- tss_params
     params@rates_funcs$RDD <- "constantRDD"

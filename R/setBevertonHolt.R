@@ -182,12 +182,14 @@ setBevertonHolt.MizerParams <- function(params, erepro,
         return(params)
     }
     params@rates_funcs$RDD <- "BevertonHoltRDD"
+    # One value per species, so that `balanceRDD()` methods of extensions can
+    # combine them with `rdd_target`
     balanceRDD(params,
-               erepro = if (!missing(erepro)) erepro,
-               R_max = if (!missing(R_max)) R_max,
-               reproduction_level =
-                   if (!missing(reproduction_level)) reproduction_level,
-               R_factor = R_factor)
+               erepro = species_vector(params, if (!missing(erepro)) erepro),
+               R_max = species_vector(params, if (!missing(R_max)) R_max),
+               reproduction_level = species_vector(
+                   params, if (!missing(reproduction_level)) reproduction_level),
+               R_factor = species_vector(params, R_factor))
     })
 }
 
@@ -416,7 +418,7 @@ reproduction_level.MizerParams <- function(params) {
 #'   reproduction level for each species.
 #' @export
 `reproduction_level<-` <- function(params, value) {
-    balanceRDD(params, reproduction_level = value)
+    balanceRDD(params, reproduction_level = species_vector(params, value))
 }
 
 

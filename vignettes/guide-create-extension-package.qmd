@@ -458,18 +458,33 @@ which knows nothing of a change your `projectRDD()` method makes. Give
 #' @export
 balanceRDD.mizerMyExtension <- function(params, rdi = getRDI(params),
                                         rdd_target = getRequiredRDD(params),
-                                        ...) {
+                                        reproduction_level = NULL, ...) {
     # projectRDD.mizerMyExtension() adds immigration to NextMethod()
-    NextMethod(rdd_target = rdd_target - other_params(params)$immigration)
+    immigration <- other_params(params)$immigration
+    if (!is.null(reproduction_level)) {
+        # The level of the whole rate, converted to the level of the part
+        # that NextMethod() balances
+        reproduction_level <- 1 - (1 - reproduction_level) *
+            rdd_target / (rdd_target - immigration)
+    }
+    NextMethod(rdd_target = rdd_target - immigration,
+               reproduction_level = reproduction_level)
 }
 ```
 
 Give it the same defaults as the generic, because an S3 method uses its own.
 A [`reproduction_level`](../reference/setBevertonHolt.html) passed to `balanceRDD()` refers to the whole
-reproduction rate, so if you want the Beverton-Holt level to be settable through
-your extension, convert it as shown on the help page of `balanceRDD()`.
-Without the method, mizer solves numerically for `erepro` through the whole of
-`projectRDD()`, says so, and refuses to set Beverton-Holt parameters.
+reproduction rate, as `reproduction_level()` reports it, so convert it to the
+level of the part you pass on, as above. Do not leave this out: with its
+default `preserve = "reproduction_level"`, `tuneSteadyState()` passes the
+current level, and an unconverted level would change the reproduction level
+on every call. A change that multiplies the rate by a factor needs no
+conversion, because it does not change the level. Mizer passes
+`reproduction_level`, `erepro` and `R_max` with one value for each species,
+`NA` for species left alone, so the calculation can be done element by
+element. Without the method, mizer solves numerically for `erepro` through the
+whole of `projectRDD()`, says so, and refuses to set Beverton-Holt
+parameters.
 
 #### How `setRateFunction()` and `project*` methods interact
 

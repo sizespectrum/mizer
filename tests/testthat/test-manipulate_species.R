@@ -260,6 +260,51 @@ test_that("addSpecies balances the new species through an extension", {
     expect_equal(getRDD(p)[[no_sp]], getRequiredRDD(p)[[no_sp]])
 })
 
+test_that("addSpecies leaves alone the old species of an extension", {
+    # An extension that adds immigration, given by species, and converts the
+    # reproduction level as the documentation of balanceRDD() shows
+    ext <- paste0("mizerTestAddSpeciesImmigration", Sys.getpid())
+    immigration <- function(params) {
+        imm <- other_params(params)$immigration[params@species_params$species]
+        imm[is.na(imm)] <- 0
+        unname(imm)
+    }
+    registerS3method("projectRDD", ext, function(params, rdi, ...) {
+        NextMethod() + immigration(params)
+    }, envir = asNamespace("mizer"))
+    registerS3method("balanceRDD", ext, function(
+        params, rdi = getRDI(params), rdd_target = getRequiredRDD(params),
+        reproduction_level = NULL, ...) {
+        imm <- immigration(params)
+        if (!is.null(reproduction_level)) {
+            reproduction_level <- 1 - (1 - reproduction_level) *
+                rdd_target / (rdd_target - imm)
+        }
+        NextMethod(rdd_target = rdd_target - imm,
+                   reproduction_level = reproduction_level)
+    }, envir = asNamespace("mizer"))
+    params <- setBevertonHolt(trait_params_small, reproduction_level = 0.25,
+                              info_level = 0)
+    other_params(params)$immigration <-
+        0.2 * getRequiredRDD(params)
+    params@extensions <- setNames(NA_character_, ext)
+    params <- balanceRDD(coerceToExtensionClass(params))
+
+    species_params <- data.frame(species = c("mullet", "bass"),
+                                 w_max = c(173, 500), w_mat = c(15, 50),
+                                 beta = 283, sigma = 1.8, k_vb = 0.6)
+    p <- addSpecies(params, species_params, info_level = 0)
+    old <- seq_len(nrow(params@species_params))
+    new <- nrow(p@species_params) - 1:0
+    expect_identical(p@species_params$R_max[old],
+                     params@species_params$R_max)
+    expect_identical(p@species_params$erepro[old],
+                     params@species_params$erepro)
+    expect_equal(reproduction_level(p)[new], c(0.25, 0.25),
+                 ignore_attr = TRUE, tolerance = 1e-6)
+    expect_equal(getRDD(p)[new], getRequiredRDD(p)[new])
+})
+
 test_that("addSpecies preserves both given and other species params", {
 
     params <- trait_params_small

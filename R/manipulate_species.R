@@ -384,13 +384,12 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
         # extension class is needed for this, because an extension may change
         # the reproduction rate and take part in balancing it.
         p <- restoreParamsClass(p, target_class)
+        rdd_target <- getRequiredRDD(p)
+        rdd_target[-new_sp] <- NA
         if (uses_beverton_holt_balancer(p)) {
-            repro_level <- rep(1 / 4, length(new_sp))
-            names(repro_level) <- p@species_params$species[new_sp]
-            reproduction_level(p) <- repro_level
+            p <- balanceRDD(p, rdd_target = rdd_target,
+                            reproduction_level = species_vector(p, 1 / 4))
         } else {
-            rdd_target <- getRequiredRDD(p)
-            rdd_target[-new_sp] <- NA
             p <- balanceRDD(p, rdd_target = rdd_target)
         }
     }

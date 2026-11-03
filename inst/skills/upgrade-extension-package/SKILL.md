@@ -556,7 +556,11 @@ balanceRDD.myExtension <- function(params, rdi = getRDI(params),
 Give the method the same defaults for `rdi` and `rdd_target` as the generic,
 because an S3 method uses its own defaults. A `reproduction_level` refers to
 the whole reproduction rate, as `reproduction_level()` reports it, so convert it
-to the level of the part you pass on, as above, or reject it. If you change
+to the level of the part you pass on, as above, or reject it.
+`tuneSteadyState()` passes one by default, so leaving it unconverted changes the
+reproduction level on every call. Mizer passes `reproduction_level`, `erepro`
+and `R_max` with one value for each species, `NA` for species left alone, so the
+conversion can be done element by element. If you change
 `rdi` before passing it on in your `projectRDD()` method, change it in the same
 way here.
 

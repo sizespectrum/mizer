@@ -13,6 +13,14 @@ assign("test_seasonalRDD", function(rdi, species_params, t, ...) {
 assign("test_fixedRDD", function(rdi, species_params, ...) {
     rep(1e10, length(rdi))
 }, envir = globalenv())
+# Beverton-Holt under another name, with a balancing function that accepts
+# any extra argument
+assign("test_flexibleRDD", function(rdi, species_params, ...) {
+    BevertonHoltRDD(rdi, species_params)
+}, envir = globalenv())
+assign("balance_test_flexibleRDD", function(params, rdi, rdd_target, ...) {
+    balance_BevertonHoltRDD(params, rdi, rdd_target)
+}, envir = globalenv())
 
 # The ratio of the reproduction rate to the rate required for steady state
 rdd_ratio <- function(params) {
@@ -153,6 +161,23 @@ test_that("erepro = 0 keeps the parameter when no reproduction is needed", {
     expect_equal(getRDD(p), rep(0, 3), ignore_attr = TRUE)
 })
 
+test_that("balance_RickerRDD() and balance_SheperdRDD() handle an absent species", {
+    params <- setReproduction(NS_params_small, RDD = "RickerRDD")
+    initialN(params)[1, ] <- 0
+    p <- balanceRDD(params)
+    expect_equal(p@species_params$ricker_b[[1]], 0)
+    expect_equal(getRDD(p)[[1]], 0)
+    expect_equal(rdd_ratio(p)[2:3], c(1, 1))
+
+    params <- setReproduction(NS_params_small, RDD = "SheperdRDD")
+    params@species_params$sheperd_c <- 2
+    initialN(params)[1, ] <- 0
+    p <- balanceRDD(params, erepro = c(Sprat = 0.5))
+    expect_equal(p@species_params$erepro[[1]], 0.5)
+    expect_equal(p@species_params$sheperd_b[[1]], 0)
+    expect_equal(getRDD(p)[[1]], 0)
+})
+
 test_that("balance_SheperdRDD() keeps erepro and sheperd_c", {
     params <- setReproduction(NS_params_small, RDD = "SheperdRDD")
     params@species_params$sheperd_c <- 2
@@ -188,6 +213,35 @@ test_that("a balancing function rejects arguments it does not accept", {
                  "`balance_RickerRDD\\(\\)` does not accept the argument `reproduction_level`")
     # A `NULL` argument has not been given
     expect_no_error(balanceRDD(params, reproduction_level = NULL))
+    # A balancing function with `...` accepts any argument
+    params <- setRateFunction(perturbed(balanced_params), "RDD",
+                              "test_flexibleRDD")
+    expect_no_error(p <- balanceRDD(params, something = 1))
+    expect_equal(rdd_ratio(p), rep(1, 3))
+})
+
+test_that("balanceRDD() refuses a negative target", {
+    params <- perturbed(NS_params_small)
+    target <- getRequiredRDD(params)
+    target[2] <- -1
+    expect_warning(p <- balanceRDD(params, rdd_target = target),
+                   "would need a negative reproduction rate.*: Herring\\.")
+    expect_identical(p@species_params$R_max[2],
+                     params@species_params$R_max[2])
+    expect_equal(rdd_ratio(p)[c(1, 3)], c(1, 1))
+})
+
+test_that("species_vector() gives a value for every species", {
+    params <- NS_params_small
+    expect_identical(species_vector(params, 0.5),
+                     c(Sprat = 0.5, Herring = 0.5, Cod = 0.5))
+    expect_identical(species_vector(params, c(Cod = 0.5, Sprat = 0.1)),
+                     c(Sprat = 0.1, Herring = NA, Cod = 0.5))
+    expect_null(species_vector(params, NULL))
+    expect_warning(v <- species_vector(params, c(Cod = 0.5, Tuna = 1)),
+                   "do not exist: Tuna")
+    expect_identical(v, c(Sprat = NA, Herring = NA, Cod = 0.5))
+    expect_error(species_vector(params, 1:2), "vector of length 3")
 })
 
 # Custom density dependence ----
@@ -273,6 +327,15 @@ test_that("a balanceRDD() method passes the target on with NextMethod()", {
     expect_equal(reproduction_level(p), rep(0.6, 3), ignore_attr = TRUE,
                  tolerance = 1e-6)
     expect_equal(rdd_ratio(p), rep(1, 3))
+
+    # A level for some species reaches the method for those species only
+    q <- p
+    reproduction_level(q) <- c(Cod = 0.3)
+    expect_equal(reproduction_level(q), c(0.6, 0.6, 0.3), ignore_attr = TRUE,
+                 tolerance = 1e-6)
+    expect_identical(q@species_params$R_max[1:2], p@species_params$R_max[1:2])
+    q <- setBevertonHolt(p, reproduction_level = c(Cod = 0.3))
+    expect_identical(q@species_params$R_max[1:2], p@species_params$R_max[1:2])
 })
 
 test_that("balanceRDD() gives up when only some extensions take part", {

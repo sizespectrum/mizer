@@ -167,7 +167,7 @@ str(selectivity(NS_params))
 \code{\link[=gear_params]{gear_params()}}
 
 Other functions for setting parameters:
-\code{\link[=balance_BevertonHoltRDD]{balance_BevertonHoltRDD()}},
+\code{\link[=balanceRDD]{balanceRDD()}},
 \code{\link[=gear_params]{gear_params()}},
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},
