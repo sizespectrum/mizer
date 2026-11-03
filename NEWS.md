@@ -92,6 +92,19 @@
 
 ## Bug fixes
 
+- `getStability()` no longer reports every model with
+  `resource_dynamics = "resource_constant"` as not stable (#609). The rate of
+  change of a constant resource is zero whatever the state, so each resource
+  size class contributed an eigenvalue of exactly zero, which set
+  `max_real_part` to 0 and `stable` to `FALSE` however stable the fish were.
+  This affected every model of an extension that switches off mizer's own
+  resource, mizerMR among them. State variables that the dynamics hold fixed
+  are now recognised from the Jacobian and left out of it, which is exact for
+  all the other eigenvalues, and the new `n_fixed` element of the result says
+  how many were left out. `getDiscreteStability()` had the same problem, with an
+  eigenvalue of exactly 1 that pinned the spectral radius at 1, and is fixed in
+  the same way. Results for models whose resource follows the default
+  semichemostat dynamics do not change.
 - `addSpecies()` and `adjustSizeGrid()` (and with it `expandSizeGrid()`) now
   build the new model with the numerical scheme of the model they are given.
   They used to build it with the first-order scheme and copy the

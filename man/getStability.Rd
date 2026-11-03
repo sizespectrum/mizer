@@ -44,7 +44,13 @@ draws, and it is not in general one of \code{leading_eigenvectors}: the
 dominant mode of the system can be real while the dominant
 \emph{oscillatory} mode is well down the spectrum.}
 \item{\code{n_active}}{Dimension of the Jacobian: the number of active fish
-cells plus all resource cells.}
+cells plus the resource cells, less the \code{n_fixed} variables that the
+dynamics hold fixed.}
+\item{\code{n_fixed}}{The number of state variables that the dynamics hold
+fixed and that are therefore left out of the Jacobian: every resource
+cell under \code{\link[=resource_constant]{resource_constant()}}, none under the default
+semichemostat. Each would otherwise contribute an eigenvalue of
+exactly zero.}
 \item{\code{leading_eigenvectors}}{The eigenvectors of the two eigenvalues
 with the largest real part, reshaped back into the state space: a list
 with \verb{$fish}, a complex array of shape \verb{(n_species, n_sizes, 2)} with
@@ -59,7 +65,8 @@ normalisation would be set entirely by the resource, whose densities
 dwarf the fish abundances. \code{Mod(fish[, , 1]) / initialN(params)} is
 therefore the relative amplitude pattern, peaking at 1 in whichever
 cell swings hardest. The real and imaginary parts of eigenvector 1
-span the two-dimensional oscillation plane of the dominant mode.}
+span the two-dimensional oscillation plane of the dominant mode.
+A variable that is held fixed is zero in every eigenvector.}
 \item{\code{params}}{The validated \code{params} object the analysis was made at.}
 }
 }
@@ -116,6 +123,18 @@ Its eigenvalues include both the slow fish modes and a cluster of fast
 resource-relaxation modes, at \eqn{\lambda \approx -(r_{pp} + \mu_R)}. Any
 resource dynamics function is supported: the semichemostat derivative is
 written down analytically, and anything else is differenced over a short step.
+
+A state variable that the dynamics hold fixed is left out. With
+\code{\link[=resource_constant]{resource_constant()}} the rate of change of the resource is zero whatever the
+state, so every resource row of the Jacobian is zero, and each such row
+would contribute an eigenvalue of exactly zero: not a mode that grows or
+decays, only the statement that a variable that is not dynamic stays where
+it is put. Leaving those variables out is exact for all the other
+eigenvalues, which then describe the fish under the fixed resource. The
+fixed variables are recognised from the Jacobian, not from the name of the
+resource dynamics, so the same holds for any resource dynamics that keep
+some or all of the size classes constant. \code{n_fixed} reports how many were
+left out.
 
 Components registered with \code{\link[=setComponent]{setComponent()}} are \emph{not} state variables here.
 They are held at their stored values while the fish and the resource are

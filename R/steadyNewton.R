@@ -659,7 +659,7 @@ stability_context <- function(params,
         }
     }
 
-    list(params = params, effort = effort,
+    list(params = params, effort = effort, fn_name = fn_name,
          n_other = n_other, active = active, active_idx = active_idx,
          n_fish_active = n_fish_active, n_npp = n_npp,
          rates_fns = rates_fns, flux_limiter = flux_limiter,
@@ -716,6 +716,42 @@ stability_jacobian <- function(ctx, f, h) {
         ctx$check(L[, k], ctx$describe(k))
     }
     L
+}
+
+#' The state variables that the dynamics move
+#'
+#' A state variable whose rate of change responds to no perturbation at all has
+#' an exactly zero row in the Jacobian: the dynamics hold it fixed. The common
+#' case is [resource_constant()], under which every resource class is fixed.
+#' Each such row contributes an eigenvalue of exactly zero, because expanding
+#' \eqn{\det(J - \lambda I)} along it leaves \eqn{-\lambda} times the minor
+#' without that row and its column. That eigenvalue is not a mode of the
+#' dynamics, only the statement that a variable which is not dynamic stays
+#' where it is put. Left in, it sets the largest real part to 0 and makes every
+#' such model not stable; and since `eigen()` recovers it only up to rounding,
+#' it can as well come back slightly positive and make the model unstable.
+#' Deleting the row and the column is exact for every other eigenvalue, so the
+#' analyses drop the fixed variables before the eigendecomposition rather than
+#' filter the eigenvalues after it.
+#'
+#' The test is for an exact zero, which is what a fixed variable gives: its
+#' rate of change is then computed from identical numbers at every perturbed
+#' state.
+#'
+#' @param ctx The context from `stability_context()`.
+#' @param J The Jacobian of the rates of change, or of the increment of a
+#'   one-step map.
+#' @return A logical vector, `TRUE` for the variables that move.
+#' @noRd
+stability_moving <- function(ctx, J) {
+    moving <- rowSums(J != 0) > 0
+    if (!any(moving)) {
+        stop(ctx$fn_name, "(): The model holds every state variable fixed, so ",
+             "there are no dynamics to analyse. This happens when every ",
+             "species is absent from `initialN(params)` and the resource ",
+             "dynamics keep the resource constant.", call. = FALSE)
+    }
+    moving
 }
 
 #' The continuous rates of change as a map on the packed state
@@ -826,13 +862,20 @@ stability_step <- function(ctx, dt) {
 
 #' Reshape the leading eigenvectors back into abundance space
 #'
+#' The fixed variables that `stability_moving()` left out of the Jacobian have
+#' no rows in `evecs`, and are zero in the result. That is exact for every mode
+#' with a nonzero eigenvalue: the row of the eigen-equation for a fixed variable
+#' reads \eqn{0 = \lambda v_k}.
+#'
 #' @param evecs The eigenvector matrix, columns already sorted.
 #' @param ctx The context from `stability_context()`.
+#' @param moving The `stability_moving()` result: which entries of the packed
+#'   state the rows of `evecs` belong to.
 #' @param cols The columns of `evecs` to reshape. Defaults to the first two.
 #' @return A list with `$fish`, a complex `(n_species, n_sizes, length(cols))`
 #'   array, and `$resource`, a complex `(n_w_full, length(cols))` matrix.
 #' @noRd
-stability_eigenvectors <- function(evecs, ctx,
+stability_eigenvectors <- function(evecs, ctx, moving,
                                    cols = seq_len(min(2L, ncol(evecs)))) {
     N_ss  <- ctx$N_ss
     no_sp <- nrow(N_ss)
@@ -858,7 +901,8 @@ stability_eigenvectors <- function(evecs, ctx,
         # are those of the mode. Normalising the two blocks separately would
         # rescale them by different factors and destroy exactly the
         # information that makes the resource component worth returning.
-        v <- evecs[, cols[k]]
+        v <- complex(length(x_ss))
+        v[moving] <- evecs[, cols[k]]
         max_rel <- if (any(pos)) max(Mod(v[pos]) / x_ss[pos]) else 0
         if (max_rel > 0) v <- v / max_rel
 
@@ -933,6 +977,18 @@ single_eigenvector <- function(ev) {
 #' resource-relaxation modes, at \eqn{\lambda \approx -(r_{pp} + \mu_R)}. Any
 #' resource dynamics function is supported: the semichemostat derivative is
 #' written down analytically, and anything else is differenced over a short step.
+#'
+#' A state variable that the dynamics hold fixed is left out. With
+#' [resource_constant()] the rate of change of the resource is zero whatever the
+#' state, so every resource row of the Jacobian is zero, and each such row
+#' would contribute an eigenvalue of exactly zero: not a mode that grows or
+#' decays, only the statement that a variable that is not dynamic stays where
+#' it is put. Leaving those variables out is exact for all the other
+#' eigenvalues, which then describe the fish under the fixed resource. The
+#' fixed variables are recognised from the Jacobian, not from the name of the
+#' resource dynamics, so the same holds for any resource dynamics that keep
+#' some or all of the size classes constant. `n_fixed` reports how many were
+#' left out.
 #'
 #' Components registered with [setComponent()] are *not* state variables here.
 #' They are held at their stored values while the fish and the resource are
@@ -1013,7 +1069,13 @@ single_eigenvector <- function(ev) {
 #'       dominant mode of the system can be real while the dominant
 #'       *oscillatory* mode is well down the spectrum.}
 #'     \item{`n_active`}{Dimension of the Jacobian: the number of active fish
-#'       cells plus all resource cells.}
+#'       cells plus the resource cells, less the `n_fixed` variables that the
+#'       dynamics hold fixed.}
+#'     \item{`n_fixed`}{The number of state variables that the dynamics hold
+#'       fixed and that are therefore left out of the Jacobian: every resource
+#'       cell under [resource_constant()], none under the default
+#'       semichemostat. Each would otherwise contribute an eigenvalue of
+#'       exactly zero.}
 #'     \item{`leading_eigenvectors`}{The eigenvectors of the two eigenvalues
 #'       with the largest real part, reshaped back into the state space: a list
 #'       with `$fish`, a complex array of shape `(n_species, n_sizes, 2)` with
@@ -1028,7 +1090,8 @@ single_eigenvector <- function(ev) {
 #'       dwarf the fish abundances. `Mod(fish[, , 1]) / initialN(params)` is
 #'       therefore the relative amplitude pattern, peaking at 1 in whichever
 #'       cell swings hardest. The real and imaginary parts of eigenvector 1
-#'       span the two-dimensional oscillation plane of the dominant mode.}
+#'       span the two-dimensional oscillation plane of the dominant mode.
+#'       A variable that is held fixed is zero in every eigenvector.}
 #'     \item{`params`}{The validated `params` object the analysis was made at.}
 #'   }
 #' @section Requires smooth dynamics:
@@ -1057,8 +1120,12 @@ getStability <- function(params,
                              fn_name = "getStability",
                              map_name = "the rates of change")
     J <- stability_jacobian(ctx, stability_rhs(ctx), h)
+    # A variable that the dynamics hold fixed, such as a resource under
+    # `resource_constant()`, contributes an eigenvalue of exactly zero that is
+    # not a mode of the dynamics. Leaving it out is exact for all the others.
+    moving <- stability_moving(ctx, J)
 
-    eig <- eigen(J)
+    eig <- eigen(J[moving, moving, drop = FALSE])
     # Sort by decreasing real part (most unstable first).
     ord   <- order(Re(eig$values), decreasing = TRUE)
     evals <- as.complex(eig$values[ord])
@@ -1083,7 +1150,7 @@ getStability <- function(params,
         leading_oscillatory_eigenvalue  <- evals[osc_idx]
         oscillation_period      <- 2 * pi / abs(Im(leading_oscillatory_eigenvalue))
         leading_oscillatory_eigenvector <- single_eigenvector(
-            stability_eigenvectors(evecs, ctx, cols = osc_idx))
+            stability_eigenvectors(evecs, ctx, moving, cols = osc_idx))
     } else {
         leading_oscillatory_eigenvalue  <- NULL
         oscillation_period      <- NULL
@@ -1098,8 +1165,9 @@ getStability <- function(params,
         oscillation_period          = oscillation_period,
         leading_oscillatory_eigenvalue      = leading_oscillatory_eigenvalue,
         leading_oscillatory_eigenvector     = leading_oscillatory_eigenvector,
-        n_active             = length(ctx$x0),
-        leading_eigenvectors = stability_eigenvectors(evecs, ctx),
+        n_active             = sum(moving),
+        n_fixed              = sum(!moving),
+        leading_eigenvectors = stability_eigenvectors(evecs, ctx, moving),
         params               = ctx$params
     )
 }
@@ -1141,7 +1209,11 @@ getStability <- function(params,
 #' one [project()] calls. Nothing is substituted for it: the map that is
 #' differentiated here reproduces a single `project(method = "euler")` step
 #' exactly, which is what makes the spectral radius a statement about mizer's
-#' solver rather than about a nearby scheme.
+#' solver rather than about a nearby scheme. A state variable that the step
+#' leaves unchanged whatever the state, such as every resource cell under
+#' [resource_constant()], is left out of the map as it is in [getStability()];
+#' each would otherwise contribute an eigenvalue of exactly 1 and pin the
+#' spectral radius there.
 #'
 #' @inheritParams getStability
 #' @param dt The time step size of the one-step map. Default `1`.
@@ -1154,6 +1226,8 @@ getStability <- function(params,
 #'     \item{`stable`}{Logical: `TRUE` when `spectral_radius < 1`.}
 #'     \item{`dt`}{The step size the map was evaluated at.}
 #'     \item{`n_active`}{Dimension of the Jacobian.}
+#'     \item{`n_fixed`}{The number of state variables that the step leaves
+#'       unchanged and that are therefore left out, as for [getStability()].}
 #'     \item{`leading_eigenvectors`}{The eigenvectors of the two
 #'       largest-modulus eigenvalues, in the same shape as for
 #'       [getStability()].}
@@ -1172,7 +1246,16 @@ getDiscreteStability <- function(params,
                              effort = effort,
                              fn_name = "getDiscreteStability",
                              map_name = "the one-step map")
-    L <- stability_jacobian(ctx, stability_step(ctx, dt), h)
+    step <- stability_step(ctx, dt)
+    # Difference the increment of the step rather than the step itself. The
+    # step copies a variable that the dynamics hold fixed, which gives its row
+    # a 1 on the diagonal, and a difference quotient need not come out as
+    # exactly 1. Its row of the increment is exactly zero, and that is what
+    # `stability_moving()` detects. Left in, each fixed variable contributes an
+    # eigenvalue at 1 and pins the spectral radius there.
+    D <- stability_jacobian(ctx, function(x) step(x) - x, h)
+    moving <- stability_moving(ctx, D)
+    L <- D[moving, moving, drop = FALSE] + diag(sum(moving))
 
     eig <- eigen(L)
     ord   <- order(Mod(eig$values), decreasing = TRUE)
@@ -1185,8 +1268,9 @@ getDiscreteStability <- function(params,
         spectral_radius      = spectral_radius,
         stable               = spectral_radius < 1,
         dt                   = dt,
-        n_active             = length(ctx$x0),
-        leading_eigenvectors = stability_eigenvectors(evecs, ctx),
+        n_active             = sum(moving),
+        n_fixed              = sum(!moving),
+        leading_eigenvectors = stability_eigenvectors(evecs, ctx, moving),
         params               = ctx$params
     )
 }

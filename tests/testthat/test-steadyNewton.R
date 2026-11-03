@@ -122,7 +122,7 @@ test_that("getStability returns a well-formed list for a stable model", {
     expect_named(stab, c("eigenvalues", "max_real_part", "stable",
                          "dominant_period", "oscillation_period", "leading_oscillatory_eigenvalue",
                          "leading_oscillatory_eigenvector", "n_active",
-                         "leading_eigenvectors", "params"))
+                         "n_fixed", "leading_eigenvectors", "params"))
     expect_true(is.complex(stab$eigenvalues))
     expect_type(stab$max_real_part, "double")
     expect_type(stab$stable, "logical")
@@ -197,7 +197,8 @@ test_that("getDiscreteStability returns a well-formed list and depends on dt", {
     disc01 <- getDiscreteStability(pn, dt = 0.1)
 
     expect_named(disc1, c("discrete_eigenvalues", "spectral_radius", "stable",
-                          "dt", "n_active", "leading_eigenvectors", "params"))
+                          "dt", "n_active", "n_fixed", "leading_eigenvectors",
+                          "params"))
     expect_true(is.complex(disc1$discrete_eigenvalues))
     expect_equal(disc1$spectral_radius, max(Mod(disc1$discrete_eigenvalues)))
     expect_equal(disc1$stable, disc1$spectral_radius < 1)
@@ -249,7 +250,7 @@ test_that("getStability returns a well-formed list including the resource", {
     expect_named(stab, c("eigenvalues", "max_real_part", "stable",
                          "dominant_period", "oscillation_period", "leading_oscillatory_eigenvalue",
                          "leading_oscillatory_eigenvector", "n_active",
-                         "leading_eigenvectors", "params"))
+                         "n_fixed", "leading_eigenvectors", "params"))
     # The resource is always part of the state, so the Jacobian is larger than
     # the number of active fish cells.
     expect_gt(stab$n_active, sum(initialN(pn) > 0))
@@ -257,14 +258,106 @@ test_that("getStability returns a well-formed list including the resource", {
     expect_equal(nrow(stab$leading_eigenvectors$resource), length(pn@w_full))
     expect_true(stab$stable)
 })
-test_that("getStability works with non-semichemostat resource dynamics", {
+test_that("getStability leaves out a resource that the dynamics hold constant", {
     skip_unless_experimental()
     pn <- findSteadyState(p_steady, solver = "newton")
-    pn@resource_dynamics <- "resource_constant"
-    # A constant resource contributes only zero rows, but the call must work:
-    # the quasi-static substitution used to restrict this to the semichemostat.
-    stab <- expect_no_error(getStability(pn))
+    pc <- pn
+    pc@resource_dynamics <- "resource_constant"
+    stab <- getStability(pc)
+
+    # Every resource row of the Jacobian is zero, and each one used to put an
+    # eigenvalue at exactly zero, so `max_real_part` came out as 0 and `stable`
+    # as FALSE for every model with a constant resource (#609). Those modes are
+    # not modes of the dynamics; the fish under a fixed resource are stable.
+    n_fish <- getStability(pn)$n_active - length(pn@w_full)
+    expect_equal(stab$n_fixed, length(pc@w_full))
+    expect_equal(stab$n_active, n_fish)
     expect_length(stab$eigenvalues, stab$n_active)
+    expect_false(any(Mod(stab$eigenvalues) < 1e-12))
+    expect_lt(stab$max_real_part, 0)
+    expect_true(stab$stable)
+
+    # Leaving the resource out is exact: the spectrum is that of the fish block
+    # of the full Jacobian.
+    ctx <- mizer:::stability_context(pc)
+    J <- mizer:::stability_jacobian(ctx, mizer:::stability_rhs(ctx), 1e-4)
+    fish <- seq_len(ctx$n_fish_active)
+    expect_true(all(J[-fish, ] == 0))
+    expect_equal(sort(Re(stab$eigenvalues)),
+                 sort(Re(eigen(J[fish, fish])$values)))
+
+    # The eigenvectors keep their shape, with the resource exactly unmoved: a
+    # mode with a nonzero eigenvalue cannot perturb a variable that is fixed.
+    lev <- stab$leading_eigenvectors
+    expect_equal(dim(lev$fish), c(dim(pc@initial_n), 2L))
+    expect_equal(dim(lev$resource), c(length(pc@w_full), 2L))
+    expect_true(all(lev$resource == 0))
+    expect_gt(max(Mod(lev$fish)), 0)
+})
+test_that("getStability leaves out any state variable the dynamics hold fixed", {
+    skip_unless_experimental()
+    pn <- findSteadyState(p_steady, solver = "newton")
+
+    # Fixed variables are found from the Jacobian, not from the name of the
+    # resource dynamics: a custom function that holds only the larger resource
+    # classes constant has only those left out.
+    w_split <- pn@w_full[length(pn@w_full) %/% 2]
+    resource_partly_constant <- function(params, n_pp, ...) {
+        n_pp_new <- resource_semichemostat(params, n_pp = n_pp, ...)
+        fixed <- params@w_full > w_split
+        n_pp_new[fixed] <- n_pp[fixed]
+        n_pp_new
+    }
+    assign("resource_partly_constant", resource_partly_constant,
+           envir = globalenv())
+    on.exit(rm("resource_partly_constant", envir = globalenv()), add = TRUE)
+    pp <- pn
+    pp@resource_dynamics <- "resource_partly_constant"
+
+    stab <- getStability(pp)
+    expect_equal(stab$n_fixed, sum(pp@w_full > w_split))
+    expect_equal(stab$n_active + stab$n_fixed, getStability(pn)$n_active)
+    expect_false(any(Mod(stab$eigenvalues) < 1e-12))
+    fixed <- pp@w_full > w_split
+    expect_true(all(stab$leading_eigenvectors$resource[fixed, ] == 0))
+
+    disc <- getDiscreteStability(pp, dt = 0.1)
+    expect_equal(disc$n_fixed, stab$n_fixed)
+    expect_equal(disc$n_active, stab$n_active)
+
+    # The semichemostat moves every resource class, so it has nothing fixed.
+    expect_equal(getStability(pn)$n_fixed, 0)
+})
+test_that("getStability errors when the dynamics hold every variable fixed", {
+    skip_unless_experimental()
+    p <- NS_params_small
+    p@resource_dynamics <- "resource_constant"
+    p@initial_n[] <- 0
+    expect_error(getStability(p), "holds every state variable fixed")
+    expect_error(getDiscreteStability(p), "holds every state variable fixed")
+})
+test_that("getDiscreteStability leaves out a resource the dynamics hold constant", {
+    skip_unless_experimental()
+    pn <- findSteadyState(p_steady, solver = "newton")
+    pc <- pn
+    pc@resource_dynamics <- "resource_constant"
+    disc <- getDiscreteStability(pc, dt = 0.1)
+
+    # The one-step map copies a constant resource, so each resource class used
+    # to contribute an eigenvalue of 1 and pinned the spectral radius at 1.
+    expect_equal(disc$n_fixed, length(pc@w_full))
+    expect_equal(disc$n_active, getStability(pc)$n_active)
+    expect_length(disc$discrete_eigenvalues, disc$n_active)
+    expect_lt(disc$spectral_radius, 1)
+    expect_true(disc$stable)
+    expect_true(all(disc$leading_eigenvectors$resource == 0))
+
+    # It is the fish block of the one-step map.
+    ctx <- mizer:::stability_context(pc)
+    L <- mizer:::stability_jacobian(ctx, mizer:::stability_step(ctx, 0.1), 1e-4)
+    fish <- seq_len(ctx$n_fish_active)
+    expect_equal(disc$spectral_radius,
+                 max(Mod(eigen(L[fish, fish])$values)))
 })
 test_that("fd_step_scale floors the step at the local scale of the spectrum", {
     x <- c(2, 0, -3, 0)

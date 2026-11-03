@@ -96,6 +96,17 @@ input and a good approximation when it is much faster or much slower than the
 fish. Mizer warns when it meets a component with dynamics of its own.
 `findSteadyState(solver = "project")` is the one that advances everything.
 
+A resource that its own dynamics hold constant, as `resource_constant()` does
+and as extensions that supply their own resources arrange, is left out of the
+Jacobian by `getStability()` and `getDiscreteStability()`. Its rate of change is
+zero whatever the state, so each size class would otherwise contribute an
+eigenvalue of exactly zero (exactly one for the one-step map), a mode that
+neither grows nor decays and that would make every such model read as not
+stable. Leaving it out is exact, and the verdict is then about the fish under
+the fixed resource. `n_fixed` in the result counts the variables left out; it is
+0 under the semichemostat, and when it is not, the resource part of every
+eigenvector is zero in those classes.
+
 The reported `residual` measures that same subsystem: a component's rate of
 change is not folded into it, because mizer does not know what a component's
 state is measured in and so cannot form a biomass for it. So `attractor ==
