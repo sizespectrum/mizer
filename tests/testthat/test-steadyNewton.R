@@ -280,9 +280,11 @@ test_that("getStability leaves out a resource that the dynamics hold constant", 
     # Leaving the resource out is exact: the spectrum is that of the fish block
     # of the full Jacobian.
     ctx <- mizer:::stability_context(pc)
-    J <- mizer:::stability_jacobian(ctx, mizer:::stability_rhs(ctx), 1e-4)
+    jac <- mizer:::stability_jacobian(ctx, mizer:::stability_rhs(ctx), 1e-4)
+    J <- jac$J
     fish <- seq_len(ctx$n_fish_active)
     expect_true(all(J[-fish, ] == 0))
+    expect_equal(jac$fixed, seq_along(ctx$x0) > ctx$n_fish_active)
     expect_equal(sort(Re(stab$eigenvalues)),
                  sort(Re(eigen(J[fish, fish])$values)))
 
@@ -298,8 +300,8 @@ test_that("getStability leaves out any state variable the dynamics hold fixed", 
     skip_unless_experimental()
     pn <- findSteadyState(p_steady, solver = "newton")
 
-    # Fixed variables are found from the Jacobian, not from the name of the
-    # resource dynamics: a custom function that holds only the larger resource
+    # Fixed variables are found from the rates of change, not from the name of
+    # the resource dynamics: a custom function that holds only the larger resource
     # classes constant has only those left out.
     w_split <- pn@w_full[length(pn@w_full) %/% 2]
     resource_partly_constant <- function(params, n_pp, ...) {
@@ -336,6 +338,39 @@ test_that("getStability errors when the dynamics hold every variable fixed", {
     expect_error(getStability(p), "holds every state variable fixed")
     expect_error(getDiscreteStability(p), "holds every state variable fixed")
 })
+test_that("a zero derivative alone does not make a variable fixed", {
+    skip_unless_experimental()
+    # The rate of change (x - 1.5)^2 of the first resource class has zero
+    # derivative at its fixed point, and centred differences of it cancel to an
+    # exactly zero row, yet a positive perturbation grows. Its zero eigenvalue
+    # is real and has to stay, whereas the second class, which the dynamics
+    # really hold constant, is still left out.
+    p <- NS_params_small
+    p@initial_n[] <- 0
+    p@initial_n_pp[] <- 1.5
+    resource_quadratic <- function(params, n_pp, dt, ...) {
+        rate <- 1.5 - n_pp
+        rate[1] <- (n_pp[1] - 1.5)^2
+        rate[2] <- 0
+        n_pp + dt * rate
+    }
+    assign("resource_quadratic", resource_quadratic, envir = globalenv())
+    on.exit(rm("resource_quadratic", envir = globalenv()), add = TRUE)
+    p@resource_dynamics <- "resource_quadratic"
+
+    stab <- getStability(p)
+    expect_equal(stab$n_fixed, 1)
+    expect_equal(stab$n_active, length(p@w_full) - 1)
+    # Leaving the first class out too used to report max_real_part = -1 and
+    # stable = TRUE.
+    expect_gt(stab$max_real_part, -1e-6)
+    expect_true(all(stab$leading_eigenvectors$resource[2, ] == 0))
+
+    disc <- getDiscreteStability(p, dt = 0.1)
+    expect_equal(disc$n_fixed, 1)
+    # It used to report a spectral radius of 0.9.
+    expect_gt(disc$spectral_radius, 1 - 1e-6)
+})
 test_that("getDiscreteStability leaves out a resource the dynamics hold constant", {
     skip_unless_experimental()
     pn <- findSteadyState(p_steady, solver = "newton")
@@ -354,7 +389,8 @@ test_that("getDiscreteStability leaves out a resource the dynamics hold constant
 
     # It is the fish block of the one-step map.
     ctx <- mizer:::stability_context(pc)
-    L <- mizer:::stability_jacobian(ctx, mizer:::stability_step(ctx, 0.1), 1e-4)
+    L <- mizer:::stability_jacobian(ctx, mizer:::stability_step(ctx, 0.1),
+                                    1e-4)$J
     fish <- seq_len(ctx$n_fish_active)
     expect_equal(disc$spectral_radius,
                  max(Mod(eigen(L[fish, fish])$values)))

@@ -130,11 +130,14 @@ state, so every resource row of the Jacobian is zero, and each such row
 would contribute an eigenvalue of exactly zero: not a mode that grows or
 decays, only the statement that a variable that is not dynamic stays where
 it is put. Leaving those variables out is exact for all the other
-eigenvalues, which then describe the fish under the fixed resource. The
-fixed variables are recognised from the Jacobian, not from the name of the
-resource dynamics, so the same holds for any resource dynamics that keep
-some or all of the size classes constant. \code{n_fixed} reports how many were
-left out.
+eigenvalues, which then describe the fish under the fixed resource. A
+variable counts as fixed when its rate of change is exactly zero at every
+state the finite differencing visits, not merely when its derivative is
+zero: a rate such as \eqn{(x - x^*)^2} has zero derivative at \eqn{x^*} but
+still moves the variable, and its zero eigenvalue is kept. Since the test
+looks at the rates and not at the name of the resource dynamics, the same
+holds for any resource dynamics that keep some or all of the size classes
+constant. \code{n_fixed} reports how many were left out.
 
 Components registered with \code{\link[=setComponent]{setComponent()}} are \emph{not} state variables here.
 They are held at their stored values while the fish and the resource are

@@ -98,10 +98,11 @@
   size class contributed an eigenvalue of exactly zero, which set
   `max_real_part` to 0 and `stable` to `FALSE` however stable the fish were.
   This affected every model of an extension that switches off mizer's own
-  resource, mizerMR among them. State variables that the dynamics hold fixed
-  are now recognised from the Jacobian and left out of it, which is exact for
-  all the other eigenvalues, and the new `n_fixed` element of the result says
-  how many were left out. `getDiscreteStability()` had the same problem, with an
+  resource, mizerMR among them. A state variable whose rate of change is
+  exactly zero at every state the analysis evaluates is now recognised as
+  held fixed and left out of the Jacobian, which is exact for all the other
+  eigenvalues, and the new `n_fixed` element of the result says how many were
+  left out. `getDiscreteStability()` had the same problem, with an
   eigenvalue of exactly 1 that pinned the spectral radius at 1, and is fixed in
   the same way. Results for models whose resource follows the default
   semichemostat dynamics do not change.
