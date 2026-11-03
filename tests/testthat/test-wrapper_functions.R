@@ -41,6 +41,21 @@ test_that("newTraitParams() does not freeze the resource capacity", {
     expect_true(all(rebalanced@cc_pp[!pos] == 0))
 })
 
+test_that("newTraitParams() records the resource cutoff it applied", {
+    for (sow in c(FALSE, TRUE)) {
+        p <- newTraitParams(no_sp = 3, w_pp_cutoff = 5, second_order_w = sow,
+                            info_level = 0)
+        expect_equal(resource_params(p)$w_pp_cutoff, 5)
+        # So a recalculation of the capacity after a change of a resource
+        # parameter gives no resource above the cutoff.
+        empty <- p@cc_pp == 0
+        q <- setResource(p, lambda = 2.1, balance = FALSE)
+        expect_true(all(q@cc_pp[empty] == 0))
+        resource_params(p)$kappa <- 0.01
+        expect_true(all(p@cc_pp[empty] == 0))
+    }
+})
+
 test_that("newTraitParams() freezes only an external mortality that the species parameters do not give", {
     p <- newTraitParams(no_sp = 3, info_level = 0)
     expect_true(different(setExtMort(p, reset = TRUE)@mu_b, p@mu_b))

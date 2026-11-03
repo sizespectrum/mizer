@@ -642,6 +642,10 @@ newTraitParams <- function(no_sp = 11,
     }
     if (!perfect_scaling) {
         params@cc_pp[w_full >= w_pp_cutoff] <- 0
+        # The model was built with `w_pp_cutoff = max_w`. Record the cutoff
+        # actually applied, so that recalculating the capacity from the
+        # resource parameters keeps the resource below it.
+        params@resource_params$w_pp_cutoff <- min(w_pp_cutoff, max_w)
     }
     params@initial_n_pp <- params@cc_pp
 
