@@ -39,3 +39,4 @@
 ^\.claude$
 ^CLAUDE\.md$
 ^\.codex$
+^paper$
