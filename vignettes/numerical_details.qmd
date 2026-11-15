@@ -717,7 +717,12 @@ $$
 \chi(r)=\frac{r+|r|}{1+|r|},\qquad
 r_j=\frac{N_{j-1}-N_{j-2}}{N_j-N_{j-1}},
 $$ {#eq-van-leer}
-the scheme is *total-variation diminishing* (TVD): $\chi\to1$ where the solution is smooth, and $\chi\to0$ (pure upwind) at extrema and at the non-smooth recruitment boundary. This keeps abundances non-negative and manufactures no new oscillations, at the price — a corollary of Godunov's theorem — of dropping to first order at smooth extrema.
+the reconstruction approaches the centred value in a smooth region and
+upwind at an extremum or the non-smooth recruitment boundary. This is the
+van Leer limiter used in total-variation-diminishing (TVD) schemes, with
+the associated loss of order near extrema. The properties of the complete
+update also depend on how the limiter and time integration are combined;
+its presence alone does not guarantee positivity or freedom from oscillations.
 
 At the left boundary of the grid where $N_{j-2}$ does not exist, the weight is handled as follows:
 
@@ -725,22 +730,106 @@ At the left boundary of the grid where $N_{j-2}$ does not exist, the weight is h
 
 The two types are selected with
 ```r
-second_order_w(params)$flux <- "van_leer" # TVD, the default for TRUE
+second_order_w(params)$flux <- "van_leer" # limited, the default for TRUE
 second_order_w(params)$flux <- "centred"   # unlimited, true 2nd order
 ```
-The default (`TRUE`) is van Leer, the safe choice for production runs; the centred reconstruction is most useful for smooth problems that carry some physical diffusion.
+The default (`TRUE`) is van Leer, the recommended reconstruction for production runs with timestep refinement; the centred reconstruction is most useful for smooth problems that carry some physical diffusion.
 
 ### Implicit treatment with a frozen weight
 
-The weight $\chi_j$ is evaluated from the densities at the start of the step (for the second-order methods, from the midpoint field), so it is a fixed number during the solve. With $\chi$ *frozen*, the flux @eq-so-face-flux is linear in the unknown densities $N^{t+1}$ and still couples only $N_{j-1},N_j,N_{j+1}$, so it folds directly into the same tridiagonal operator $\tt{get\_transport\_coefs()}$ builds — only the advective coefficients gain the $\chi$ terms. Keeping the high-order term *implicit* in this way is important: treating the extra (anti-diffusive) part explicitly on the right-hand side is only conditionally stable and breaks down for the lightly damped second-order time steppers, whereas the implicit form is stable for backward Euler and TR-BDF2 even with no physical diffusion.
+The weight $\chi_j$ is evaluated from the start-of-step density, or from the
+predicted midpoint density for a second-order time method. With that weight
+frozen, the flux @eq-so-face-flux is linear in the unknown density and still
+couples only three neighbouring cells. The high-order terms therefore fit
+into the same tridiagonal transport solve. TR-BDF2 uses that frozen operator
+in both of its stages.
 
-Furthermore, because the van Leer weight $\chi_j$ depends nonlinearly on the solution, naive time-stepping can fall into a limit cycle where $\chi_j$ flip-flops between neighboring cells, preventing the solution from settling into a steady state. To break such limit cycles, `mizer` evaluates $\chi_j$ with an *exponential moving average* (under-relaxation) across time steps: $\chi_j^{(t)} = 0.5 \chi_j(N) + 0.5 \chi_j^{(t-1)}$. This relaxation only affects the transient approach and ensures the time-stepping iteration can smoothly reach the true fixed point.
+The van Leer weight depends nonlinearly on the density. Where a previous
+weight is carried by the density array, mizer under-relaxes the new weight:
+$\chi_j^{(t)} = 0.5\chi_j(N) + 0.5\chi_j^{(t-1)}$. This moving average can
+reduce switching between neighbouring cells, but it does not guarantee
+convergence. At large timesteps, a spectrum near a stationary state can still
+develop alternating cell-scale residuals. They can be large even when the
+biomass-weighted drift is small.
 
-The price is that the high-order term can make the off-diagonal coefficient $C_j$ positive, so the operator is no longer an M-matrix and non-negativity is no longer guaranteed by construction. The van Leer reconstruction keeps any undershoot at the level of rounding, and the consumer update floors it to zero to preserve $N\ge 0$; the unlimited centred reconstruction gives up this guarantee in exchange for the extra order.
+The high-order term can make the upper off-diagonal coefficient positive,
+so the transport matrix need not be an M-matrix. Negative undershoots are
+floored to zero by the high-order consumer update; clipping alone does not
+establish accuracy or conservation. The unlimited centred reconstruction
+also lacks the van Leer limiter's local suppression of oscillations.
 
-Because the reconstruction weight is frozen at the beginning (or midpoint) of the step, the flux limiter is only conditionally *total-variation diminishing* (TVD). In simulations with highly dynamic, sharp features (such as pulsed reproduction starting from a zero initial abundance), the time step $\Delta t$ must satisfy the Courant-Friedrichs-Lewy (CFL) condition, which requires that the log-size Courant number
-$$ C = \frac{g(w) \Delta t}{w \log\beta} $$
-be at most $1$ across the grid. If the Courant number exceeds 1, the lagged limiter can no longer guarantee the TVD property, resulting in spurious oscillations (wiggles) and negative densities (which the update floors to zero, leading to a ragged/zero-interleaved distribution). To avoid wiggles in such cases, users should either reduce `dt` so that $C \le 1$, or use the first-order upwind scheme (by setting `second_order_w(params) <- FALSE` and using the L-stable `method = "tr_bdf2"`) which remains positive and monotonic for any `dt`.
+L-stability concerns damping of the frozen linear problem. It does not
+guarantee positivity, total-variation diminution, or control of nonlinear
+limiter switching. Even with pure upwind flux and zero growth, TR-BDF2 applied
+to $dN/dt=-\mu N$ gives $N^{t+1}/N^t\approx-0.1351$ when
+$\mu\Delta t=25$. Backward Euler gives the positive ratio $1/26$ in that
+example. Thus changing to upwind flux does not make every time integrator
+positive for an arbitrary step.
+
+### Growth Courant diagnostics and optional subcycling
+
+A growth Courant number measures how far advection travels relative to a
+size bin in one step. `getCourant(params, dt)` uses the actual finite-volume
+width $\Delta w_j$ and the positive growth velocities at the two faces used
+by the selected transport scheme:
+$$
+C_{i,j} = \frac{\Delta t}{\Delta w_j}
+          \max\left(0, g^{in}_{i,j}, g^{out}_{i,j}\right).
+$$ {#eq-growth-courant}
+The egg boundary has prescribed recruitment rather than growth inflow, so
+only its outgoing growth velocity enters this diagnostic. For the
+second-order scheme the face velocities are $g_j$ and $g_{j+1}$; the legacy
+upwind scheme uses $g_{j-1}$ and $g_j$. The terminal grid face follows the
+same convention as the transport operator. Values are zero outside each
+species' structural support, from its egg bin to its scheme-specific support
+top. Empty bins inside that support remain included: absence of fish now
+does not remove a bin from the evolution equations.
+
+These widths differ from the log-coordinate approximation $w_j\log\beta$.
+Interior bins use the larger of two face velocities instead of a single
+pointwise value; the egg bin uses only its outgoing face. The difference from
+$g_j\Delta t/\Delta w_j$ depends on the growth field and boundary convention.
+The diagnostic, warning and subcycling calculation share the same definition.
+
+A target such as $\max C_{i,j}\le1$ is practical guidance for the advective
+checkerboard problem. It is not a general TVD, positivity, stability or
+accuracy theorem. Mortality, diffusion, resource dynamics and custom
+components can impose other timestep requirements. The centred spatial
+scheme remains unlimited at small timesteps too. Always check timestep and
+grid refinement before interpreting an apparent oscillation as biological.
+
+By default, projection keeps the requested `dt` and reports a large growth
+Courant number when high-order flux is active. To reduce internal timesteps
+automatically, use
+
+```r
+sim <- project(params, t_max = 20, dt = 1 / 52, method = "tr_bdf2",
+               subcycle = TRUE, max_courant = 1)
+```
+
+Within each requested step, the solver recomputes the rates from the current
+coupled state and selects a smaller internal step if the Courant target
+requires it. It advances consumers, resources, other components and time
+together. Each accepted substep uses the selected time method and the
+unchanged spatial operator. This avoids making the discrete steady state
+depend on `dt` through a switch of flux scheme.
+
+The target is checked against the rates at the start of each internal step;
+it does not bound unforeseen growth changes inside that step. Subcycling
+does not change a custom component's integration formula or its order.
+It also increases calls to custom rates and component dynamics; functions
+with side effects or random draws per call need an explicit timestep
+interpretation and will not preserve the same sequence of per-call draws.
+Output times, callbacks and the fishing-effort schedule retain their outer
+schedule. The controls are recorded for continuation and also apply to
+projection-based settling. `max_substeps` bounds the number of internal
+steps per requested `dt`; exceeding it raises an error rather than silently
+relaxing the target.
+
+The cost scales with the number of internal steps and rate evaluations.
+For example, a Courant number around 13 requires roughly 13 steps if rates
+stay similar. Use `getCourant()` to inspect the current state, and compare
+results under a smaller `dt` or `max_courant` to assess temporal accuracy.
 
 ### Steady state and reproduction
 

@@ -392,6 +392,7 @@ test_that("only the resource-solving Newton branch needs a semichemostat", {
 })
 
 test_that("the Newton solver works with the second-order (van Leer) scheme", {
+    withr::local_options(mizer_info_level = 0)
     skip_unless_experimental()
     p <- NS_params_small
     sow <- second_order_w(p)
@@ -530,4 +531,13 @@ test_that("tuneSteadyState() does not complain about a constant resource", {
                                          distance_tol = 10,
                                          progress_bar = FALSE))
     )
+})
+
+test_that("projection calibration forwards Courant subcycling controls", {
+    # Fail after one step, before calibration can hide an ignored control.
+    expect_error(tuneSteadyState(NS_params_small, solver = "project",
+                                 dt = 0.1, t_check = 0.1, t_max = 0.1,
+                                 subcycle = TRUE, max_courant = 0.001,
+                                 max_substeps = 1, progress_bar = FALSE,
+                                 info_level = 0), "max_substeps")
 })

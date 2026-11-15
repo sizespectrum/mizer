@@ -80,6 +80,7 @@ test_that("flux_limiter_scheme reads the second_order_w slot", {
 })
 
 test_that("the flux limiter changes the projection when switched on", {
+    withr::local_options(mizer_info_level = 0)
     sim_none <- project(NS_params_small, t_max = 1, dt = 0.1,
                         progress_bar = FALSE)
     p_vl <- NS_params_small
@@ -91,6 +92,7 @@ test_that("the flux limiter changes the projection when switched on", {
 })
 
 test_that("the flux limiter scheme is recorded and carried over on append", {
+    withr::local_options(mizer_info_level = 0)
     p_vl <- NS_params_small
     second_order_w(p_vl) <- c(flux = TRUE)
     sim <- project(p_vl, t_max = 1, progress_bar = FALSE)
@@ -101,6 +103,7 @@ test_that("the flux limiter scheme is recorded and carried over on append", {
 })
 
 test_that("flux limiter keeps abundances non-negative", {
+    withr::local_options(mizer_info_level = 0)
     p_vl <- NS_params_small
     second_order_w(p_vl) <- c(flux = TRUE)
     for (m in c("euler", "predictor_corrector", "tr_bdf2")) {
@@ -137,6 +140,7 @@ test_that("non-finite limiter jumps do not become NA subscripts", {
 })
 
 test_that("van Leer weights stay finite when a density jump is subnormal", {
+    withr::local_options(mizer_info_level = 0)
     # Above w_max a spectrum can decay to subnormal densities. A subnormal jump
     # delta_j used to make the ratio delta_{j-1} / delta_j overflow to Inf, and
     # the limiter then returned NaN (#630). A huge but finite ratio overflowed
@@ -163,6 +167,7 @@ test_that("van Leer weights stay finite when a density jump is subnormal", {
 })
 
 test_that("flux limiter steady state is preserved by all methods", {
+    withr::local_options(mizer_info_level = 0)
     # Build the limiter's own steady state and hold reproduction constant so the
     # only thing being tested is whether the projection scheme keeps that state
     # steady. This mirrors the predictor-corrector test in
@@ -190,6 +195,7 @@ test_that("flux limiter steady state is preserved by all methods", {
 })
 
 test_that("the second-order scheme is second order in the size step", {
+    withr::local_options(mizer_info_level = 0)
     skip_on_cran()
     # Power-law transport problem with the exact Bessel-kernel solution from the
     # analytic-test vignette. The default upwind scheme is first order in the
@@ -264,4 +270,49 @@ test_that("steadySingleSpecies honours the slot", {
     # preservation test above.
     expect_false(isTRUE(all.equal(getRequiredRDD(single_sp_params),
                                   getRequiredRDD(p_vl))))
+})
+
+test_that("Courant diagnostics use the scheme's faces and exact bin widths", {
+    p <- example_params()
+    g <- p@initial_n * 0 + 1
+    for (scheme in c("upwind", "van_leer", "centred")) {
+        second_order_w(p) <- c(flux = scheme)
+        out <- getCourant(p, dt = 0.02, e_growth = g)
+        active <- col(g) >= p@w_min_idx & col(g) <= support_top_idx(p)
+        expected <- sweep(g, 2, p@dw, "/") * 0.02
+        expected[!active] <- 0
+        expect_s3_class(out, "ArraySpeciesBySize")
+        expect_equal(as.numeric(out), as.numeric(expected))
+        expect_identical(dimnames(out), dimnames(p@initial_n))
+        # An empty bin can receive fish, so occupancy must not mask the bound.
+        p@initial_n[] <- 0
+        expect_equal(as.numeric(getCourant(p, dt = 0.02, e_growth = g)),
+                     as.numeric(out))
+    }
+    g[] <- 0
+    g[1, p@w_min_idx[1] + 1] <- 2
+    second_order_w(p) <- c(flux = "van_leer")
+    out <- getCourant(p, dt = 0.1, e_growth = g)
+    expect_equal(out[1, p@w_min_idx[1]], 0.2 / p@dw[p@w_min_idx[1]])
+    second_order_w(p) <- c(flux = "upwind")
+    expect_equal(getCourant(p, dt = 0.1, e_growth = g)[1, p@w_min_idx[1]], 0)
+})
+
+test_that("Courant inputs are finite and matched to the consumer grid", {
+    p <- NS_params_small
+    g <- getEGrowth(p) * 0
+    expect_equal(max(getCourant(p, e_growth = g)), 0)
+    expect_equal(as.numeric(getCourant(p, dt = 0.1)),
+                 as.numeric(getCourant(p, dt = 0.1,
+                                       e_growth = getRates(p)$e_growth)))
+    for (dt in list(0, -1, Inf, NA_real_, c(1, 2))) {
+        expect_error(getCourant(p, dt = dt), "finite positive")
+    }
+    expect_error(getCourant(p, e_growth = g[, -1]), "finite matrix")
+    g[1, 1] <- Inf
+    expect_error(getCourant(p, e_growth = g), "finite matrix")
+    g[1, 1] <- 0
+    expect_error(getCourant(p, e_growth = g[3:1, ]), "grid order")
+    g[] <- -1
+    expect_equal(max(getCourant(p, e_growth = g)), 0)
 })

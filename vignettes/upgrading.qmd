@@ -137,7 +137,9 @@ afterwards. Models saved with mizer 3.4 are upgraded once more when they are
 first used. [`plotYieldVsF()`](../reference/plotYieldVsF.html) accepts the `tol` argument it had in
 mizerExperimental again, with a deprecation warning. On a model whose encounter
 rate has been changed, [`getDiet()`](../reference/getDiet.html) and [`getTrophicLevel()`](../reference/getTrophicLevel.html) now follow the
-change and say how they split it between the food sources.
+change and say how they split it between the food sources. Projections with
+high-order flux now report large growth Courant numbers; they retain the
+previous fixed-step calculation unless subcycling is requested.
 
 ### A model keeps the defaults edition it was created with
 
@@ -232,6 +234,32 @@ supply the exact split.
 
 To silence the message, set `options(mizer_info_level = 0)` or wrap the call in
 `suppressMessages()`.
+
+### Projection reports large growth Courant numbers
+
+With van Leer or centred flux, `project()` and projection-based settling can
+now warn that the growth Courant number exceeds the advisory target. Existing
+scripts may see this warning even if they previously ran without a report.
+The default timestep calculation has not changed. The warning identifies a
+risk of alternating cell-scale numerical residuals, which small changes in
+total biomass can conceal.
+
+Inspect the current state with [`getCourant(params, dt = dt)`](../reference/getCourant.html), reduce `dt`, or
+enable coupled subcycling:
+
+```{r eval=FALSE}
+sim <- project(params, t_max = 20, dt = 1 / 52, method = "tr_bdf2",
+               subcycle = TRUE, max_courant = 1)
+```
+
+Subcycling advances fish, resources and other components together with
+smaller internal steps. It can substantially increase runtime. The stored
+settings carry over when continuing the simulation with `project(sim)`.
+The target is growth-based guidance, not a guarantee of stability or
+positivity for all dynamics. Check results under timestep refinement.
+
+If the timestep has been checked and the report is unwanted, use
+`info_level = 0` for the call, or set `options(mizer_info_level = 0)`.
 
 ---
 

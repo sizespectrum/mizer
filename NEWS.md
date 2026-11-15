@@ -67,6 +67,14 @@
 
 ## New features
 
+- `getCourant()` reports the growth Courant numbers on the model's active
+  size support. Projections with high-order flux now report large Courant
+  numbers, and optional `subcycle = TRUE` advances consumers, resources and
+  other components together with smaller internal steps, recalculating rates
+  at each step (#571). The requested output times and the spatial scheme stay
+  the same. Fixed-step numerical behaviour remains the default. The Courant
+  target is an advection guideline, not a guarantee of stability, positivity
+  or accuracy for all rates and component dynamics.
 - `removeSpecies()` gains a `compensate` argument (#547). Removing species
   lowers the encounter rate of their predators and the predation mortality of
   their prey, so a model at steady state leaves it. With `compensate = TRUE`
