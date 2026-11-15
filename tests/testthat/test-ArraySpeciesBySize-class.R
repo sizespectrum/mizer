@@ -937,3 +937,46 @@ test_that("size array viewports preserve densities, totals and added data", {
         }
     }
 })
+
+test_that("a weight-axis comparison stays on the model's own grid", {
+    params <- plot_params_small
+    sim <- plot_sim_small
+    species <- c(1, 2)
+
+    enc <- getEncounter(NS_params_small)
+    doubled <- ArraySpeciesBySize(unclass_rate(enc) * 2,
+                                  value_name = attr(enc, "value_name"),
+                                  units = attr(enc, "units"),
+                                  params = NS_params_small)
+    p2 <- plot2(enc, doubled, all.sizes = TRUE)
+    expect_equal(sort(unique(p2$data$w)), sort(unname(NS_params_small@w)))
+
+    rel <- plotRelative(enc, doubled, all.sizes = TRUE)
+    expect_equal(sort(unique(rel$data$w)), sort(unname(NS_params_small@w)))
+    expect_equal(unique(round(rel$data$rel_diff, 12)), 2 / 3)
+})
+
+test_that("size-array plots retain length coordinates", {
+    params <- plot_params_small
+    sim <- plot_sim_small
+    species <- c(1, 2)
+    params_len <- params
+    params_len@species_params$a <- 0.01
+    params_len@species_params$b <- 3
+    sim_len <- sim
+    sim_len@params <- params_len
+    sp_rows <- rep(1:2, times = length(params_len@w))
+    lengths <- w2l(rep(params_len@w, each = 2),
+                   params_len@species_params[sp_rows, ])
+    llim <- stats::quantile(lengths, c(0.25, 0.75), names = FALSE)
+
+    expect_true("l" %in% names(plot(getPredMort(params_len),
+                                    species = species, size_axis = "l",
+                                    return_data = TRUE)))
+    rate_l_limited <- plot(getPredMort(params_len), species = species,
+                           size_axis = "l", llim = llim,
+                           return_data = TRUE)
+    expect_equal(rate_l_limited,
+                 plot(getPredMort(params_len), species = species,
+                      size_axis = "l", return_data = TRUE))
+})

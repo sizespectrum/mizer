@@ -67,6 +67,11 @@
 
 ## New features
 
+- The plotting refactor is complete (#564): helpers, renderers and dedicated
+  plot families now live in separate files with matching tests. Simulation
+  rate plots share their time-averaging preparation. Public signatures,
+  returned data and plot appearance are unchanged by this final stage.
+
 - Plot limits (`wlim`, `llim`, `tlim`, `ylim`) now control the visible window
   without filtering returned data or changing totals and comparisons (#564,
   second stage). `plotCDF()`, `plotCDF2()` and their interactive counterparts

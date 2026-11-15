@@ -460,3 +460,17 @@ test_that("duplicate size labels do not merge distinct time-array bins", {
     attr(sub, "size_grid") <- NULL
     expect_error(get_ArrayTimeBySpeciesBySize_w(sub), "ambiguous")
 })
+
+test_that("time-array plots retain length coordinates", {
+    params <- plot_params_small
+    sim <- plot_sim_small
+    species <- c(1, 2)
+    params_len <- params
+    params_len@species_params$a <- 0.01
+    params_len@species_params$b <- 3
+    sim_len <- sim
+    sim_len@params <- params_len
+
+    expect_true("l" %in% names(plot(getFMort(sim_len), species = species,
+                                    size_axis = "l", return_data = TRUE)))
+})
