@@ -827,7 +827,7 @@ project_simple.MizerParams <-
                         resource_rate = params@rr_pp,
                         resource_capacity = params@cc_pp, ...
                     )
-                    if (any(r$diffusion > 0) || flux_limiter != "none") {
+                    if (euler_uses_hard_boundary(r$diffusion, flux_limiter)) {
                         n <- project_n(params, r, n, dt, a, b, c, S, idx,
                                        w_min_idx_array_ref, no_sp, no_w,
                                        flux_limiter = flux_limiter)
