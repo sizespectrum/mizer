@@ -53,6 +53,9 @@ attributes:
 \item \code{units} – the units of the value (e.g. "1/g").
 \item \code{params} – the \code{MizerParams} object that the value was computed from.
 }
+
+Size selections and extracted time slices retain their original model
+coordinates, including reordered and repeated columns.
 }
 \examples{
 \donttest{

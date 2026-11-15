@@ -100,6 +100,12 @@
 
 ## Bug fixes
 
+- Size-resolved array wrappers now retain the exact original size-grid mapping
+  when subsetted (#650). Printing, summaries, data-frame conversion and plots
+  work for sparse selections, and reordered or repeated columns keep the
+  correct coordinates and bin centres. The mapping also survives time slicing
+  and resource-array subsetting; a resource-grid subset is no longer mistaken
+  for the consumer grid merely because their lengths match.
 - The stability-analysis guide now explains how to read `MizerScan` columns
   with dynamic names, subset scans while preserving metadata, and compare
   forward and backward continuation sweeps for hysteresis (#651). The
