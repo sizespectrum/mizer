@@ -100,6 +100,12 @@
 
 ## Bug fixes
 
+- Euler projection and steady-state drift diagnostics now share the rule for
+  selecting the upper size boundary. The rule uses the current evaluated
+  diffusion across all species, including custom rates, and the flux scheme.
+  This internal refactor preserves numerical behaviour and the legacy upwind
+  Euler path without positive diffusion.
+
 - Steady-state drift diagnostics no longer count transport into empty size
   classes above the retained support when projection holds those classes at
   zero (#658). Losses from the last retained class still contribute, as does

@@ -340,6 +340,17 @@ transport paths clear the excluded classes after each step. Thus a truncated
 steady state need not be a fixed point of the legacy path when custom growth
 carries fish beyond its support.
 
+Euler solver selection and the drift diagnostic share the same boundary rule.
+It uses the evaluated diffusion at the current state, including custom diffusion
+functions, across all species and sizes. Positive diffusion in one species
+therefore selects the boundary that holds excluded bins at zero for every
+species. Projection checks the rule at each Euler step, including each internal
+step when subcycling, so a changing diffusion rate can change the selected path.
+The quadrature setting does not directly enter this decision.
+Predictor-corrector and TR-BDF2 always clear the excluded tail. The drift
+diagnostic retains Euler's boundary convention even when projecting with those
+methods.
+
 ### Drift diagnostics at the upper boundary
 
 `getSteadyResidual()` and the drift checks used by `isSteady()`, `summary()` and
