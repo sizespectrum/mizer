@@ -210,6 +210,66 @@ test_that("newTraitParams uses the scheme of the defaults edition", {
         list(flux = "upwind", bin_average = FALSE))
 })
 
+test_that("newTraitParams includes diffusion in its initial spectra", {
+    for (sow in c(FALSE, TRUE)) {
+        for (egg_scaling in c(FALSE, TRUE)) {
+            params <- newTraitParams(no_sp = 3, D_ext = 0.1,
+                                     egg_size_scaling = egg_scaling,
+                                     second_order_w = sow, info_level = 0)
+            zero <- newTraitParams(no_sp = 3, egg_size_scaling = egg_scaling,
+                                   second_order_w = sow, info_level = 0)
+            expect_equal(unname(species_params(params)$D_ext), rep(0.1, 3))
+            expect_equal(unname(given_species_params(params)$D_ext),
+                         rep(0.1, 3))
+            expect_equal(unname(given_species_params(zero)$D_ext), rep(0, 3))
+            expect_true(all(zero@ext_diffusion == 0))
+            expect_equal(params@w, zero@w)
+            expect_true(all(is.finite(params@initial_n)))
+            expect_true(all(params@initial_n >= 0))
+            # Diffusion changes the shape, not just the normalisation.
+            for (i in seq_len(3)) {
+                idx <- which(zero@initial_n[i, ] > 0)
+                ratio <- params@initial_n[i, idx] / zero@initial_n[i, idx]
+                expect_gt(diff(range(ratio / ratio[1])), 0.01)
+            }
+            # Keep the populated upper bins from the diffusive solve, while
+            # respecting the support of the requested projection scheme.
+            top <- support_top_idx(params)
+            expect_true(all(params@initial_n[cbind(seq_len(3), top)] > 0))
+            expect_true(all(params@initial_n[col(params@initial_n) > top] == 0))
+            sim <- project(params, t_max = 0.01, dt = 0.001, t_save = 0.01,
+                           effort = 0, progress_bar = FALSE)
+            expect_true(all(is.finite(sim@n)))
+            expect_true(all(sim@n >= 0))
+        }
+    }
+})
+
+test_that("wrapper constructors set recalculable external diffusion", {
+    for (constructor in list(newTraitParams, newCommunityParams)) {
+        for (sow in c(FALSE, TRUE)) {
+            params <- constructor(D_ext = 0.1, second_order_w = sow,
+                                  info_level = 0)
+            exponent <- species_params(params)$n[[1]] + 1
+            expected <- if (sow) {
+                ((params@w + params@dw)^(exponent + 1) -
+                     params@w^(exponent + 1)) / ((exponent + 1) * params@dw)
+            } else {
+                params@w^exponent
+            }
+            expected <- matrix(0.1 * expected, nrow = nrow(params@initial_n),
+                               ncol = length(params@w), byrow = TRUE)
+            expect_equal(params@ext_diffusion, expected, ignore_attr = TRUE)
+            expect_null(comment(params@ext_diffusion))
+            species_params(params)$D_ext <- 0.2
+            expect_equal(params@ext_diffusion, 2 * expected, ignore_attr = TRUE)
+        }
+        for (D_ext in list(-1, NA_real_, Inf, NaN, c(0, 0.1), "0.1", NULL)) {
+            expect_error(constructor(D_ext = D_ext, info_level = 0), "D_ext")
+        }
+    }
+})
+
 # Community ----
 test_that("newCommunityParams works", {
     expect_message(newCommunityParams(z0 = 0.05, f0 = 0.5, info_level = 3),
@@ -251,4 +311,23 @@ test_that("Sets given_species_params", {
     p2 <- params
     given_species_params(p2) <- given_species_params(p2)
     expect_unchanged(p2, params)
+})
+
+test_that("newCommunityParams retains its power-law spectrum with diffusion", {
+    for (sow in c(FALSE, TRUE)) {
+        params <- newCommunityParams(D_ext = 0.1, second_order_w = sow,
+                                     info_level = 0)
+        zero <- newCommunityParams(second_order_w = sow, info_level = 0)
+        expect_equal(unname(given_species_params(params)$D_ext), 0.1)
+        expect_equal(params@initial_n, zero@initial_n)
+        expect_equal(params@w, zero@w)
+        expect_true(all(zero@ext_diffusion == 0))
+        expect_equal(unname(given_species_params(zero)$D_ext), 0)
+        expect_identical(params@rates_funcs$RDD, "constantRDD")
+        expect_true(all(params@psi == 0))
+        sim <- project(params, t_max = 0.01, dt = 0.001, t_save = 0.01,
+                       effort = 0, progress_bar = FALSE)
+        expect_true(all(is.finite(sim@n)))
+        expect_true(all(sim@n >= 0))
+    }
 })

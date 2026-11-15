@@ -29,7 +29,8 @@ newSingleSpeciesParams(
   info_level = default_info_level(),
   R_factor = deprecated(),
   w_inf = deprecated(),
-  k_vb = deprecated()
+  k_vb = deprecated(),
+  D_ext = 0
 )
 }
 \arguments{
@@ -110,6 +111,10 @@ renamed to \code{w_max}.}
 
 \item{k_vb}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The von Bertalanffy growth
 parameter.}
+
+\item{D_ext}{External diffusion coefficient. A single finite, non-negative
+number applied to all species. The external diffusion rate is
+\eqn{D_{ext} w^{n+1}}; see \code{\link[=setExtDiffusion]{setExtDiffusion()}}. Defaults to zero.}
 }
 \value{
 An object of type \code{MizerParams}
@@ -147,14 +152,10 @@ maximum abundance is half the background abundance at the corresponding
 size, and \code{erepro} is then adjusted so the initial state satisfies the egg
 boundary condition.
 
-The diffusion rate is set to \code{0}. Because growth is therefore deterministic,
-no individual grows beyond \code{w_repro_max}, the size at which all available
-energy is invested into reproduction. The upper boundary of the size grid is
-therefore placed at that size, so that \code{w_max = w_repro_max}, instead of the
-\code{1.5 * w_repro_max} headroom that \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} leaves to
-accommodate the stochastic growth produced by diffusion. This choice will be
-revisited once these constructors gain a diffusion parameter, see
-\url{https://github.com/sizespectrum/mizer/issues/339}.
+External diffusion is set from \code{D_ext} by \code{\link[=setExtDiffusion]{setExtDiffusion()}} and included
+in the calculation of the initial spectrum. It defaults to zero. The upper
+boundary of the size grid remains at \code{w_max = w_repro_max}, including when
+diffusion is positive; no extra size bins are added above this boundary.
 }
 \examples{
 params <- newSingleSpeciesParams()

@@ -25,12 +25,10 @@
 #' `knife_edge_size`, which determines the size at which species are
 #' selected.
 #'
-#' Because this constructor does not yet set up stochastic growth by diffusion,
-#' the size grid is not extended beyond the community's maximum size `max_w`
-#' (so that `w_max = w_repro_max`), rather than leaving the headroom that
-#' [newMultispeciesParams()] uses to accommodate stochastic growth. This will be
-#' revisited once these constructors gain a diffusion parameter, see
-#' \url{https://github.com/sizespectrum/mizer/issues/339}.
+#' External diffusion is set from `D_ext` by [setExtDiffusion()] and defaults
+#' to zero. The initial spectrum remains a power law, so with diffusion it
+#' need not be close to steady state. The size grid ends at `max_w`, including
+#' when diffusion is positive; no extra size bins are added above it.
 #'
 #' The resulting `MizerParams` object can be projected forward using
 #' \code{project()} like any other `MizerParams` object. When projecting
@@ -63,6 +61,7 @@
 #'   function.
 #' @param r_pp Growth rate parameter for the resource spectrum.
 #' @inheritParams newMultispeciesParams
+#' @inheritParams newTraitParams D_ext
 #' @export
 #' @return An object of type \code{\linkS4class{MizerParams}}
 #' @references K. H. Andersen,J. E. Beyer and P. Lundberg, 2009, Trophic and
@@ -98,10 +97,12 @@ newCommunityParams <- function(max_w = 1e6,
                                knife_edge_size = 1000,
                                reproduction,
                                second_order_w = NULL,
-                               info_level = default_info_level(2)) {
+                               info_level = default_info_level(2),
+                               D_ext = 0) {
     # Collect the information signals raised while the model is built and
     # report them together at the end.
     with_info_level(info_level = info_level, {
+    assert_that(is.number(D_ext), is.finite(D_ext), D_ext >= 0)
     w_max <- max_w
     w_pp_cutoff <- min_w
     ks <- 0 # Turn off standard metabolism
@@ -110,9 +111,7 @@ newCommunityParams <- function(max_w = 1e6,
     # Make the species data.frame
     species_params <- data.frame(
         species = "Community",
-        # Without diffusion nothing grows beyond the maximum size, so the
-        # computational grid boundary w_max is placed there too, with no
-        # headroom above it. To be revisited with diffusion (#339).
+        # Keep the requested maximum size as the computational boundary.
         w_inf = w_max,
         w_max = w_max,
         f0 = f0,
@@ -122,6 +121,7 @@ newCommunityParams <- function(max_w = 1e6,
         beta = beta,
         sigma = sigma,
         z0 = z0, # background mortality
+        D_ext = D_ext,
         alpha = alpha,
         erepro = 1, # not used
         interaction_resource = 1,
@@ -212,14 +212,12 @@ newCommunityParams <- function(max_w = 1e6,
 #' The search rate coefficient `gamma` is calculated using the expected
 #' feeding level, `f0`.
 #'
-#' The diffusion rate is set to `0`. Because growth is therefore deterministic,
-#' no individual grows beyond `w_repro_max`, the size at which all available
-#' energy is invested into reproduction. The upper boundary of the size grid is
-#' therefore placed at that size, so that `w_max = w_repro_max`, instead of the
-#' `1.5 * w_repro_max` headroom that [newMultispeciesParams()] leaves to
-#' accommodate the stochastic growth produced by diffusion. This choice will be
-#' revisited once these constructors gain a diffusion parameter, see
-#' \url{https://github.com/sizespectrum/mizer/issues/339}.
+#' External diffusion is set from `D_ext` by [setExtDiffusion()] and included
+#' in the calculation of the initial spectra. It defaults to zero. The
+#' subsequent normalisation uses power-law scaling, so the initial state is
+#' only approximately steady, particularly for large `D_ext`. Each species'
+#' upper size boundary remains at `w_max = w_repro_max`, including when
+#' diffusion is positive; no extra size bins are added above this boundary.
 #'
 #' The option of including fishing is given, but the steady state may loose its
 #' natural stability if too much fishing is included. In such a case the user
@@ -283,6 +281,9 @@ newCommunityParams <- function(max_w = 1e6,
 #' @param ext_mort_prop The proportion of the total mortality that comes from
 #'   external mortality, i.e., from sources not explicitly modelled. A number in
 #'   the interval [0, 1).
+#' @param D_ext External diffusion coefficient. A single finite, non-negative
+#'   number applied to all species. The external diffusion rate is
+#'   \eqn{D_{ext} w^{n+1}}; see [setExtDiffusion()]. Defaults to zero.
 #' @param reproduction_level A number between 0 and 1 that determines the
 #'   level of density dependence in reproduction, see [reproduction_level<-()].
 #' @param R_factor `r lifecycle::badge("deprecated")` Use
@@ -363,7 +364,8 @@ newTraitParams <- function(no_sp = 11,
                            second_order_w = NULL,
                            min_w_inf = deprecated(),
                            max_w_inf = deprecated(),
-                           info_level = default_info_level(2)) {
+                           info_level = default_info_level(2),
+                           D_ext = 0) {
     # Collect the information signals raised while the model is built and
     # report them together at the end.
     with_info_level(info_level = info_level, {
@@ -389,6 +391,7 @@ newTraitParams <- function(no_sp = 11,
     assert_that(is.flag(egg_size_scaling),
                 is.flag(resource_scaling),
                 is.flag(perfect_scaling))
+    assert_that(is.number(D_ext), is.finite(D_ext), D_ext >= 0)
     if (ext_mort_prop >= 1 || ext_mort_prop < 0) {
         stop("ext_mort_prop must be a number between 0 and 1",
              " because it should be the proportion of the total mortality",
@@ -503,9 +506,7 @@ newTraitParams <- function(no_sp = 11,
     species_params <- data.frame(
         species = as.factor(1:no_sp),
         w_min = w_min,
-        # Without diffusion nothing grows beyond w_repro_max (= w_inf here), so
-        # the computational grid boundary w_max is placed there too, with no
-        # headroom above the maximum size. To be revisited with diffusion (#339).
+        # Keep the requested maximum sizes as the computational boundaries.
         w_inf = w_max,
         w_max = w_max,
         w_mat = w_mat,
@@ -518,6 +519,7 @@ newTraitParams <- function(no_sp = 11,
         beta = beta,
         sigma = sigma,
         z0 = 0,
+        D_ext = D_ext,
         alpha = alpha,
         erepro = erepro,
         stringsAsFactors = FALSE
@@ -583,32 +585,46 @@ newTraitParams <- function(no_sp = 11,
     initial_n[, ] <- 0
     mumu <- mu0 * w^(n - 1)  # Death rate
     g_matrix <- matrix(0, nrow = no_sp, ncol = length(w))
-    D_matrix <- g_matrix
     mu_matrix <- matrix(mumu, nrow = no_sp, ncol = length(w), byrow = TRUE)
     for (i in 1:no_sp) {
         g_matrix[i, ] <- hbar * w^n * (1 - params@psi[i, ])
     }
     n_exact_matrix <- get_steady_state_n(params, g_matrix, mu_matrix,
-                                         D_matrix, rep(1, no_sp))
+                                         params@ext_diffusion, rep(1, no_sp))
+    if (D_ext > 0) {
+        # The projection scheme may retain fewer upper size classes than the
+        # upwind scheme used for construction. Keep its excluded tail empty.
+        projection_params <- params
+        projection_params@second_order_w <- target_sow
+        n_exact_matrix <- zero_above_support(n_exact_matrix,
+                                             support_top_idx(projection_params))
+    }
 
     i_inf <- min_i_inf  # index of maximum size
     i_min <- 1  # index of natural egg size
     for (i in 1:no_sp) {
-        # n_exact corresponding to size bins w_min_idx[i] to i_inf - 1
-        n_exact <- n_exact_matrix[i, w_min_idx[i]:(i_inf - 1)]
+        # With diffusion retain the entire solved spectrum, including the
+        # upper size classes that deterministic growth cannot populate.
+        idxs <- if (D_ext > 0) {
+            w_min_idx[i]:length(w)
+        } else {
+            w_min_idx[i]:(i_inf - 1)
+        }
+        n_exact <- n_exact_matrix[i, idxs]
 
         # Use the first species for normalisation
         if (i == 1) {
             dist_sp <- bins_per_sp * dx
+            norm_idxs <- 1:(min_i_inf - 1)
             mult <- kappa /
-                sum(n_exact * (w ^ (lambda - 1) * dw)[1:(min_i_inf - 1)]) *
+                sum(n_exact_matrix[1, norm_idxs] *
+                    (w ^ (lambda - 1) * dw)[norm_idxs]) *
                 (10 ^ (dist_sp * (1 - lambda) / 2) - 10^(-dist_sp * (1 - lambda) / 2)) /
                 (1 - lambda)
         }
         if (!egg_size_scaling) {
             n_exact <- n_exact / n_exact[i_min]
         }
-        idxs <- w_min_idx[i]:(i_inf - 1)
         initial_n[i, idxs] <- n_exact * mult *
             (w_max[1] / w_max[i]) ^ lambda
         i_inf <- i_inf + bins_per_sp
