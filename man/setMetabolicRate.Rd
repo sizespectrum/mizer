@@ -6,11 +6,18 @@
 \alias{metab<-}
 \title{Set metabolic rate}
 \usage{
-setMetabolicRate(object, metab = NULL, p = deprecated(), reset = FALSE, ...)
+setMetabolicRate(
+  object,
+  metab = NULL,
+  p = deprecated(),
+  reset = FALSE,
+  ...,
+  species = NULL
+)
 
 metab(params)
 
-metab(params) <- value
+metab(params, species = NULL) <- value
 }
 \arguments{
 \item{object}{A MizerParams object}
@@ -28,10 +35,15 @@ already, and the argument was only used to fill in a missing one.}
 \item{reset}{If set to TRUE, then the metabolic rate will be reset to the
 value calculated from the species parameters, even if it was previously
 overwritten with a custom value. If set to FALSE (default) then a
-recalculation from the species parameters will take place only if no
-custom value has been set.}
+recalculation takes place for species without a custom value.}
 
 \item{...}{Unused}
+
+\item{species}{Optional character vector of species to override or reset.
+Omit to override or reset the whole array. Values may be full arrays or
+arrays containing only the selected species; for one species a vector is
+also accepted. Other species keep their existing override status.
+See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.}
 
 \item{params}{A MizerParams object}
 
@@ -72,9 +84,9 @@ where \eqn{f_c} is the critical feeding level taken from the \code{fc} column
 in the species parameter data frame. If the critical feeding level is not
 specified, a default of \eqn{f_c = 0.2} is used.
 
-If the \code{metab} slot has a comment and \code{reset = FALSE}, then a recalculation
-from the species parameters is suppressed and a message is issued if the
-recalculated values would differ from the stored ones.
+With \code{reset = FALSE}, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.
 }
 
 \examples{
@@ -88,6 +100,7 @@ metab(params)["Cod", 1:5]
 \seealso{
 Other functions for setting parameters:
 \code{\link[=gear_params]{gear_params()}},
+\code{\link[=rate_overrides]{rate_overrides()}},
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},
 \code{\link[=setExtMort]{setExtMort()}},

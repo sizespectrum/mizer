@@ -19,12 +19,13 @@ setExtMort(
   z0exp = params@resource_params$n - 1,
   reset = FALSE,
   z0 = deprecated(),
-  ...
+  ...,
+  species = NULL
 )
 
 ext_mort(params)
 
-ext_mort(params) <- value
+ext_mort(params, species = NULL) <- value
 ```
 
 ## Arguments
@@ -66,6 +67,15 @@ ext_mort(params) <- value
 - ...:
 
   Unused
+
+- species:
+
+  Optional character vector of species to override or reset. Omit to
+  override or reset the whole array. Values may be full arrays or arrays
+  containing only the selected species; for one species a vector is also
+  accepted. Other species keep their existing override status. See
+  [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+  to inspect overrides.
 
 - value:
 
@@ -126,6 +136,7 @@ applied only to the auto-calculated power-law default; a user-supplied
 
 Other functions for setting parameters:
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
 [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md),
@@ -143,14 +154,6 @@ Other functions for setting parameters:
 
 ``` r
 params <- newMultispeciesParams(NS_species_params)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No h provided for some species, so using age at maturity to calculate it.
-#> ℹ Because you have n != p, the default value for `h` is not very good.
-#> ℹ Because the age at maturity is not known, I need to fall back to using
-#> von Bertalanffy parameters, where available.
-#> ℹ Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
-#> ℹ Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
 
 #### Setting allometric death rate #######################
 

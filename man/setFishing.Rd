@@ -14,16 +14,17 @@ setFishing(
   catchability = NULL,
   reset = FALSE,
   initial_effort = NULL,
-  ...
+  ...,
+  species = NULL
 )
 
 catchability(params)
 
-catchability(params) <- value
+catchability(params, species = NULL) <- value
 
 selectivity(params)
 
-selectivity(params) <- value
+selectivity(params, species = NULL) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -37,14 +38,19 @@ each species by each gear, \eqn{Q_{g,i}}.}
 \item{reset}{If set to TRUE, then both \code{catchability} and \code{selectivity} will
 be reset to the values calculated from the gear parameters, even if it was
 previously overwritten with a custom value. If set to FALSE (default) then
-a recalculation from the gear parameters will take place only if no custom
-value has been set.}
+recalculation takes place for species without a custom value.}
 
 \item{initial_effort}{Optional. A number or a named numeric vector specifying
 the fishing effort. If a number, the same effort is used for all gears. If
 a vector, must be named by gear.}
 
 \item{...}{Unused}
+
+\item{species}{Optional character vector of species to override or reset.
+Omit to override or reset the whole array. Values may be full arrays or
+arrays containing only the selected species; for one species a vector is
+also accepted. Other species keep their existing override status.
+See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.}
 
 \item{value}{The array to assign}
 }
@@ -168,6 +174,7 @@ str(selectivity(NS_params))
 
 Other functions for setting parameters:
 \code{\link[=gear_params]{gear_params()}},
+\code{\link[=rate_overrides]{rate_overrides()}},
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},
 \code{\link[=setExtMort]{setExtMort()}},

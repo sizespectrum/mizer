@@ -27,9 +27,9 @@
 #' in the species parameter data frame. If the critical feeding level is not
 #' specified, a default of \eqn{f_c = 0.2} is used.
 #'
-#' If the `metab` slot has a comment and `reset = FALSE`, then a recalculation
-#' from the species parameters is suppressed and a message is issued if the
-#' recalculated values would differ from the stored ones.
+#' With `reset = FALSE`, manually overridden species are preserved while the
+#' other species are recalculated. A message is issued if recalculation would
+#' change protected values. See [rate_overrides()] to inspect overrides.
 #'
 #' @param object A MizerParams object
 #' @param params A MizerParams object
@@ -45,8 +45,12 @@
 #'   If set to TRUE, then the metabolic rate will be reset to the
 #'   value calculated from the species parameters, even if it was previously
 #'   overwritten with a custom value. If set to FALSE (default) then a
-#'   recalculation from the species parameters will take place only if no
-#'   custom value has been set.
+#'   recalculation takes place for species without a custom value.
+#' @param species Optional character vector of species to override or reset.
+#'   Omit to override or reset the whole array. Values may be full arrays or
+#'   arrays containing only the selected species; for one species a vector is
+#'   also accepted. Other species keep their existing override status.
+#'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
 #' @return `setMetabolicRate()`: A MizerParams object with updated metabolic rate.
@@ -60,12 +64,12 @@
 #' params <- setMetabolicRate(NS_params, reset = TRUE)
 #' metab(params)["Cod", 1:5]
 setMetabolicRate <- function(object, metab = NULL, p = deprecated(),
-                             reset = FALSE, ...) {
+                             reset = FALSE, ..., species = NULL) {
     UseMethod("setMetabolicRate")
 }
 #' @export
 setMetabolicRate.MizerParams <- function(object, metab = NULL, p = deprecated(),
-                                         reset = FALSE, ...) {
+                                         reset = FALSE, ..., species = NULL) {
     assert_that(is.flag(reset))
     params <- object
     if (lifecycle::is_present(p)) {
@@ -90,8 +94,10 @@ setMetabolicRate.MizerParams <- function(object, metab = NULL, p = deprecated(),
                     "calculated from the species parameters.")
             metab <- NULL
         }
-        comment(params@metab) <- NULL
+        params <- reset_rate_override(params, "metab", species)
     }
+
+    metab <- prepare_rate_value(params, "metab", metab, species)
 
     if (!is.null(metab)) {
         if (is.null(comment(metab))) {
@@ -111,6 +117,8 @@ setMetabolicRate.MizerParams <- function(object, metab = NULL, p = deprecated(),
         assert_that(all(metab >= 0))
         params@metab[] <- metab
         comment(params@metab) <- comment(metab)
+        attr(params@metab, "mizer_override_species") <-
+            attr(metab, "mizer_override_species")
 
         params@time_modified <- lubridate::now()
         return(params)
@@ -124,15 +132,7 @@ setMetabolicRate.MizerParams <- function(object, metab = NULL, p = deprecated(),
               1, params@species_params$ks, "*") +
         outer(params@species_params[["k"]], params@w)
 
-    # Prevent overwriting slot if it has been commented
-    if (!is.null(comment(params@metab))) {
-        # Issue warning but only if a change was actually requested
-        if (different(metab, params@metab)) {
-            signal_not_recalculated("metab", "metabolic rate",
-                               "setMetabolicRate(params, reset = TRUE)")
-        }
-        return(params)
-    }
+    metab <- preserve_rate_overrides(params, "metab", metab)
     params@metab[] <- metab
 
     params@time_modified <- lubridate::now()
@@ -157,6 +157,11 @@ metab.MizerParams <- function(params) {
 #' @rdname setMetabolicRate
 #' @param value metab
 #' @export
-`metab<-` <- function(params, value) {
-    setMetabolicRate(params, metab = value)
+`metab<-` <- function(params, species = NULL, value) {
+    # Preserve direct two-argument calls to the replacement function.
+    if (missing(value)) {
+        value <- species
+        species <- NULL
+    }
+    setMetabolicRate(params, metab = value, species = species)
 }

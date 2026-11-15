@@ -12,11 +12,11 @@ for a full explanation of when to reach for which level of the model.
 ## Usage
 
 ``` r
-setSearchVolume(params, search_vol = NULL, reset = FALSE, ...)
+setSearchVolume(params, search_vol = NULL, reset = FALSE, ..., species = NULL)
 
 search_vol(params)
 
-search_vol(params) <- value
+search_vol(params, species = NULL) <- value
 ```
 
 ## Arguments
@@ -36,12 +36,20 @@ search_vol(params) <- value
   If set to TRUE, then the search volume will be reset to the value
   calculated from the species parameters, even if it was previously
   overwritten with a custom value. If set to FALSE (default) then a
-  recalculation from the species parameters will take place only if no
-  custom value has been set.
+  recalculation takes place for species without a custom value.
 
 - ...:
 
   Unused
+
+- species:
+
+  Optional character vector of species to override or reset. Omit to
+  override or reset the whole array. Values may be full arrays or arrays
+  containing only the selected species; for one species a vector is also
+  accepted. Other species keep their existing override status. See
+  [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+  to inspect overrides.
 
 - value:
 
@@ -83,14 +91,17 @@ function. If the `q` column is not supplied, a default of
 gram is the value of the species parameter \\\gamma_i\\ the same as the
 value of the search volume \\\gamma_i(w)\\.
 
-If the `search_vol` slot has a comment and `reset = FALSE`, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With `reset = FALSE`, manually overridden species are preserved while
+the other species are recalculated. A message is issued if recalculation
+would change protected values. See
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+to inspect overrides.
 
 ## See also
 
 Other functions for setting parameters:
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
 [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),
@@ -109,13 +120,9 @@ Other functions for setting parameters:
 ``` r
 # Inspect the current search volume
 search_vol(NS_params)["Cod", 1:5]
-#>        0.001      0.00119      0.00142       0.0017      0.00203 
-#> 6.365796e-13 7.332810e-13 8.446721e-13 9.729844e-13 1.120788e-12 
 
 # Double the search volume for all species
 sv <- search_vol(NS_params) * 2
 params <- setSearchVolume(NS_params, search_vol = sv)
 search_vol(params)["Cod", 1:5]
-#>        0.001      0.00119      0.00142       0.0017      0.00203 
-#> 1.273159e-12 1.466562e-12 1.689344e-12 1.945969e-12 2.241577e-12 
 ```

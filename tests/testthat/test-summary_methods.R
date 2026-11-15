@@ -800,3 +800,12 @@ test_that("summary of MizerParams reports the steady-state verdict", {
     expect_match(line, "not at steady state")
 })
 
+
+test_that("model summaries expose species-specific rate overrides", {
+    p <- NS_params_small
+    metab(p, species = "Cod") <- metab(p)["Cod", ]
+    output <- capture.output(summary(p))
+    expect_true(any(grepl("metab for Cod", output)))
+    expect_true(any(grepl("retained for reset", output)))
+    expect_true(any(grepl("rate_overrides(params)$reset", output, fixed = TRUE)))
+})

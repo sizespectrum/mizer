@@ -25,7 +25,7 @@ for a full explanation of when to reach for which level of the model.'><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,11 +111,17 @@ for a full explanation of when to reach for which level of the model.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setExtDiffusion</span><span class="op">(</span><span class="va">params</span>, ext_diffusion <span class="op">=</span> <span class="cn">NULL</span>, reset <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setExtDiffusion</span><span class="op">(</span></span>
+<span>  <span class="va">params</span>,</span>
+<span>  ext_diffusion <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  reset <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  species <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">ext_diffusion</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">ext_diffusion</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
+<span><span class="fu">ext_diffusion</span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -137,12 +143,19 @@ external diffusion rate".</p></dd>
 <dd><p>If set to TRUE, then the external diffusion rate will be reset to the
 value calculated from the species parameters, even if it was previously
 overwritten with a custom value. If set to FALSE (default) then a
-recalculation from the species parameters will take place only if no
-custom value has been set.</p></dd>
+recalculation takes place for species without a custom value.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Unused</p></dd>
+
+
+<dt id="arg-species">species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
+<dd><p>Optional character vector of species to override or reset.
+Omit to override or reset the whole array. Values may be full arrays or
+arrays containing only the selected species; for one species a vector is
+also accepted. Other species keep their existing override status.
+See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p></dd>
 
 
 <dt id="arg-value">value<a class="anchor" aria-label="anchor" href="#arg-value"></a></dt>
@@ -170,14 +183,15 @@ $$D_{ext.i}(w) = D_{ext.i}\, w^{n_i+1}.$$
 The coefficient \(D_{ext.i}\) is taken from the <code>D_ext</code> column of the
 species parameter data frame, which defaults to 0. The exponent
 \(n_i + 1\) uses the <code>n</code> column of the species parameter data frame.</p>
-<p>If the <code>ext_diffusion</code> slot has a comment and <code>reset = FALSE</code>, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.</p>
+<p>With <code>reset = FALSE</code>, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other functions for setting parameters:
 <code><a href="gear_params.html">gear_params()</a></code>,
+<code><a href="rate_overrides.html">rate_overrides()</a></code>,
 <code><a href="setExtEncounter.html">setExtEncounter()</a></code>,
 <code><a href="setExtMort.html">setExtMort()</a></code>,
 <code><a href="setFishing.html">setFishing()</a></code>,

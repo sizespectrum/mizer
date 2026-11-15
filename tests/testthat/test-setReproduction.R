@@ -175,3 +175,22 @@ test_that("Can get and set maturity", {
     expect_equal(maturity(params), new, ignore_attr = TRUE)
     expect_identical(comment(params@maturity), "test")
 })
+
+
+test_that("maturity and reproductive allocation preserve species overrides", {
+    withr::local_options(mizer_info_level = 0)
+    p <- NS_params_small
+    original <- p
+    maturity(p, species = "Cod") <- rep(0.4, length(w(p)))
+    repro_prop(p, species = "Cod") <- rep(0.6, length(w(p)))
+    expect_equal(p@psi[1:2, ], original@psi[1:2, ], ignore_attr = TRUE)
+    expect_equal(maturity(p)["Cod", ], rep(0.4, length(w(p))), ignore_attr = TRUE)
+    custom <- p@psi["Cod", ]
+    species_params(p)["Herring", "w_mat"] <- species_params(p)$w_mat[2] * 0.95
+    expect_equal(p@psi["Cod", ], custom, ignore_attr = TRUE)
+    expect_false(isTRUE(all.equal(maturity(p)["Herring", ],
+                                  maturity(original)["Herring", ])))
+    p <- setReproduction(p, species = "Cod", reset = TRUE)
+    expect_equal(p@psi["Cod", ], original@psi["Cod", ], ignore_attr = TRUE)
+    expect_equal(nrow(rate_overrides(p)), 0L)
+})

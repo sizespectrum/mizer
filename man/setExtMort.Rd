@@ -13,12 +13,13 @@ setExtMort(
   z0exp = params@resource_params$n - 1,
   reset = FALSE,
   z0 = deprecated(),
-  ...
+  ...,
+  species = NULL
 )
 
 ext_mort(params)
 
-ext_mort(params) <- value
+ext_mort(params, species = NULL) <- value
 }
 \arguments{
 \item{params}{MizerParams}
@@ -44,6 +45,12 @@ custom value has been set.}
 be confused with the species_parameter \code{z0}.}
 
 \item{...}{Unused}
+
+\item{species}{Optional character vector of species to override or reset.
+Omit to override or reset the whole array. Values may be full arrays or
+arrays containing only the selected species; for one species a vector is
+also accepted. Other species keep their existing override status.
+See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.}
 
 \item{value}{ext_mort}
 }
@@ -123,6 +130,7 @@ ext_mort(params) <- allo_mort
 \seealso{
 Other functions for setting parameters:
 \code{\link[=gear_params]{gear_params()}},
+\code{\link[=rate_overrides]{rate_overrides()}},
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},
 \code{\link[=setFishing]{setFishing()}},

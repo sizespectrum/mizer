@@ -65,6 +65,11 @@
 #'   Default value is `n - 1`.
 #' @param z0 `r lifecycle::badge("deprecated")` Use `ext_mort` instead. Not to
 #'   be confused with the species_parameter `z0`.
+#' @param species Optional character vector of species to override or reset.
+#'   Omit to override or reset the whole array. Values may be full arrays or
+#'   arrays containing only the selected species; for one species a vector is
+#'   also accepted. Other species keep their existing override status.
+#'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
 #' @return `setExtMort()`: A MizerParams object with updated external mortality
@@ -87,7 +92,7 @@
 #' ext_mort(params) <- allo_mort
 setExtMort <- function(params, ext_mort = NULL, z0pre = 0.6,
                        z0exp = params@resource_params$n - 1, reset = FALSE,
-                       z0 = deprecated(), ...) {
+                       z0 = deprecated(), ..., species = NULL) {
     UseMethod("setExtMort")
 }
 #' @export
@@ -95,7 +100,7 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
                                    z0pre = 0.6,
                                    z0exp = params@resource_params$n - 1,
                                    reset = FALSE,
-                                   z0 = deprecated(), ...) {
+                                   z0 = deprecated(), ..., species = NULL) {
     z0pre_given <- !missing(z0pre)
     z0exp_given <- !missing(z0exp)
     z0_args_given <- z0pre_given || z0exp_given
@@ -114,8 +119,10 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
                     "calculated from the species parameters.")
             ext_mort <- NULL
         }
-        comment(params@mu_b) <- NULL
+        params <- reset_rate_override(params, "mu_b", species)
     }
+
+    ext_mort <- prepare_rate_value(params, "mu_b", ext_mort, species)
 
     if (!is.null(ext_mort)) {
         if (z0_args_given) {
@@ -133,6 +140,8 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
                     identical(dim(ext_mort), dim(params@mu_b)))
         params@mu_b[] <- ext_mort
         comment(params@mu_b) <- comment(ext_mort)
+        attr(params@mu_b, "mizer_override_species") <-
+            attr(ext_mort, "mizer_override_species")
 
         params@time_modified <- lubridate::now()
         return(params)
@@ -195,15 +204,7 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
         }
     }
 
-    # Prevent overwriting slot if it has been commented
-    if (!is.null(comment(params@mu_b))) {
-        # Issue warning but only if a change was actually requested
-        if (different(mu_b, params@mu_b)) {
-            signal_not_recalculated("mu_b", "external mortality rate",
-                               "setExtMort(params, reset = TRUE)")
-        }
-        return(params)
-    }
+    mu_b <- preserve_rate_overrides(params, "mu_b", mu_b)
     params@mu_b[] <- mu_b
 
     params@time_modified <- lubridate::now()
@@ -271,6 +272,11 @@ ext_mort.MizerParams <- function(params) {
 #' @rdname setExtMort
 #' @param value ext_mort
 #' @export
-`ext_mort<-` <- function(params, value) {
-    setExtMort(params, ext_mort = value)
+`ext_mort<-` <- function(params, species = NULL, value) {
+    # Preserve direct two-argument calls to the replacement function.
+    if (missing(value)) {
+        value <- species
+        species <- NULL
+    }
+    setExtMort(params, ext_mort = value, species = species)
 }

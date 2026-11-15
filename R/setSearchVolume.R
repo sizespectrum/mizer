@@ -33,9 +33,9 @@
 #' for predators of size \eqn{w = 1} gram is the value of the species parameter
 #' \eqn{\gamma_i} the same as the value of the search volume \eqn{\gamma_i(w)}.
 #'
-#' If the `search_vol` slot has a comment and `reset = FALSE`, then a
-#' recalculation from the species parameters is suppressed and a message is
-#' issued if the recalculated values would differ from the stored ones.
+#' With `reset = FALSE`, manually overridden species are preserved while the
+#' other species are recalculated. A message is issued if recalculation would
+#' change protected values. See [rate_overrides()] to inspect overrides.
 #'
 #' @param params MizerParams
 #' @param search_vol Optional. An array (species x size) holding the search volume
@@ -45,8 +45,12 @@
 #'   If set to TRUE, then the search volume will be reset to the
 #'   value calculated from the species parameters, even if it was previously
 #'   overwritten with a custom value. If set to FALSE (default) then a
-#'   recalculation from the species parameters will take place only if no custom
-#'   value has been set.
+#'   recalculation takes place for species without a custom value.
+#' @param species Optional character vector of species to override or reset.
+#'   Omit to override or reset the whole array. Values may be full arrays or
+#'   arrays containing only the selected species; for one species a vector is
+#'   also accepted. Other species keep their existing override status.
+#'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
 #' @return `setSearchVolume()`: A MizerParams object with updated search volume.
@@ -60,11 +64,11 @@
 #' sv <- search_vol(NS_params) * 2
 #' params <- setSearchVolume(NS_params, search_vol = sv)
 #' search_vol(params)["Cod", 1:5]
-setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ...) {
+setSearchVolume <- function(params, search_vol = NULL, reset = FALSE, ..., species = NULL) {
     UseMethod("setSearchVolume")
 }
 #' @export
-setSearchVolume.MizerParams <- function(params, search_vol = NULL, reset = FALSE, ...) {
+setSearchVolume.MizerParams <- function(params, search_vol = NULL, reset = FALSE, ..., species = NULL) {
     assert_that(is.flag(reset))
     species_params <- params@species_params
 
@@ -75,10 +79,12 @@ setSearchVolume.MizerParams <- function(params, search_vol = NULL, reset = FALSE
                     "calculated from the species parameters.")
             search_vol <- NULL
         }
-        comment(params@search_vol) <- NULL
+        params <- reset_rate_override(params, "search_vol", species)
     }
 
     # If search_vol array is supplied, check it, store it and return
+    search_vol <- prepare_rate_value(params, "search_vol", search_vol, species)
+
     if (!is.null(search_vol)) {
         if (is.null(comment(search_vol))) {
             if (is.null(comment(params@search_vol))) {
@@ -98,6 +104,8 @@ setSearchVolume.MizerParams <- function(params, search_vol = NULL, reset = FALSE
         assert_that(all(search_vol >= 0))
         params@search_vol[] <- search_vol
         comment(params@search_vol) <- comment(search_vol)
+        attr(params@search_vol, "mizer_override_species") <-
+            attr(search_vol, "mizer_override_species")
 
         params@time_modified <- lubridate::now()
         return(params)
@@ -109,15 +117,7 @@ setSearchVolume.MizerParams <- function(params, search_vol = NULL, reset = FALSE
 
     search_vol <- compute_search_vol(params)
 
-    # Prevent overwriting slot if it has been commented
-    if (!is.null(comment(params@search_vol))) {
-        # Issue warning but only if a change was actually requested
-        if (different(search_vol, params@search_vol)) {
-            signal_not_recalculated("search_vol", "search volume",
-                               "setSearchVolume(params, reset = TRUE)")
-        }
-        return(params)
-    }
+    search_vol <- preserve_rate_overrides(params, "search_vol", search_vol)
     params@search_vol[] <- search_vol
 
     params@time_modified <- lubridate::now()
@@ -183,6 +183,11 @@ search_vol.MizerParams <- function(params) {
 #' @rdname setSearchVolume
 #' @param value search_vol
 #' @export
-`search_vol<-` <- function(params, value) {
-    setSearchVolume(params, search_vol = value)
+`search_vol<-` <- function(params, species = NULL, value) {
+    # Preserve direct two-argument calls to the replacement function.
+    if (missing(value)) {
+        value <- species
+        species <- NULL
+    }
+    setSearchVolume(params, search_vol = value, species = species)
 }

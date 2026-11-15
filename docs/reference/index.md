@@ -80,6 +80,8 @@ for how to do this.
   [`` `given_species_params<-`() ``](https://sizespectrum.org/mizer/reference/species_params.md)
   [`calculated_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
   : Species parameters
+- [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+  : Inspect manual rate overrides
 - [`record_given_species_params()`](https://sizespectrum.org/mizer/reference/record_given_species_params.md)
   **\[experimental\]** : Record the species parameters that have changed
 - [`reconcileSpeciesParams()`](https://sizespectrum.org/mizer/reference/reconcileSpeciesParams.md)
@@ -244,6 +246,8 @@ object containing the full time series of size spectra.
   Project size spectrum forward in time
 - [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
   **\[experimental\]** : Project the dynamics until they settle
+- [`getCourant()`](https://sizespectrum.org/mizer/reference/getCourant.md)
+  : Growth Courant numbers on the consumer size grid
 
 ## Accessing results
 
@@ -282,6 +286,8 @@ introduces these functions.
   each time step.
 - [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md) :
   Get diet of predator at size, resolved by prey species
+- [`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md)
+  : Get encounter rate of predator at size, resolved by food source
 - [`getGrowthCurves()`](https://sizespectrum.org/mizer/reference/getGrowthCurves.md)
   : Get growth curves giving weight as a function of age
 - [`getN()`](https://sizespectrum.org/mizer/reference/getN.md) :
@@ -591,6 +597,8 @@ mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html).
   [`removeComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
   [`getComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
   : Add a dynamical ecosystem component
+- [`convolve_pred_kernel()`](https://sizespectrum.org/mizer/reference/convolve_pred_kernel.md)
+  **\[experimental\]** : Sum over the predation kernel
 - [`` `initialNOther<-`() ``](https://sizespectrum.org/mizer/reference/initialNOther-set.md)
   [`initialNOther()`](https://sizespectrum.org/mizer/reference/initialNOther-set.md)
   : Initial values for other ecosystem components
@@ -862,6 +870,9 @@ users building extensions or working with model objects directly.
   [`w2l()`](https://sizespectrum.org/mizer/reference/l2w.md) :
   Length-weight conversion
 
+- [`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md)
+  : Measure the available energy in a power-law prey spectrum
+
 - [`needs_upgrading()`](https://sizespectrum.org/mizer/reference/needs_upgrading.md)
   : Determine whether a MizerParams or MizerSim object needs to be
   upgraded
@@ -906,6 +917,7 @@ users building extensions or working with model objects directly.
   : Helper function to assure validity of species argument
 
 - [`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md)
+  [`` `defaults_edition<-`() ``](https://sizespectrum.org/mizer/reference/defaults_edition.md)
   : Default editions
 
 ## Classes

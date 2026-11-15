@@ -486,7 +486,7 @@ size-dependence mizer does not produce by default.
 
 Each rate array has a **direct setter/getter** — `metab(params)` to read it and
 `metab(params) <-` to write it, `search_vol(params)`/`search_vol(params) <-`,
-and so on. This is the way to impose an array of your own. It must have the same
+and so on. This is the way to impose an array of your own. Without a `species` argument it must have the same
 dimensions as the one it replaces (species × size, species in the model's
 order), so the safest recipe is to read the current array, modify it, and write
 it back:
@@ -499,7 +499,7 @@ metab(params) <- my_metab
 
 Note that the direct setter modifies `params` **in place** — no reassignment.
 
-**Trap:** supplying an array **freezes** it. Mizer marks it "set manually" and
+**Trap:** supplying an array without `species` **freezes the whole array**. Mizer marks it "set manually" and
 will no longer update it from species parameters. After this, changing the
 feeding species parameter has *no effect* on that rate:
 
@@ -566,6 +566,50 @@ and the `set…()` function that recomputes it:
 
 The fishing arrays (selectivity, catchability) behave the same way; see the
 fishing section above and the `set-up-fishing` skill.
+
+### Override selected species only
+
+Supply `species` to protect only those species' rows or slices:
+
+```r
+metab(params, species = "Cod") <- 0.5 * w(params)^0.8
+# Equivalently:
+params <- setMetabolicRate(params, species = "Cod",
+                          metab = 0.5 * w(params)^0.8)
+```
+
+Herring's metabolic parameters still rebuild Herring's row. Cod's custom row
+survives `setMetabolicRate(params)` and `setParams(params)`. A value identical
+to the current calculated value still establishes an override when supplied
+explicitly. To restore calculation for Cod alone:
+
+```r
+params <- setMetabolicRate(params, species = "Cod", reset = TRUE)
+```
+
+The same `species` argument works for every species-indexed rate setter and
+assignment function, including `pred_kernel()`, `maturity()`, `repro_prop()`,
+`selectivity()` and `catchability()`. Supply a full array or an array with only
+the selected species in the order given by `species`, retaining the other
+dimensions (including the gear dimension for fishing). A vector is accepted
+for one species if it has exactly the number of entries in that species'
+slice. Omitting `species` retains the whole-array assignment/reset behaviour.
+`setReproduction()` resets both maturity and reproductive allocation for the
+selected species; `setFishing()` resets both fishing arrays for them.
+
+```r
+rate_overrides(params)
+summary(params)
+species_params(params)
+```
+
+`rate_overrides()` returns one row per overridden rate and species, with a
+list-column of parameter names and a `reset` call. Summaries and printed
+species parameters also show the overrides. These parameter values are
+**retained inputs for reset**, rather than the source of the overridden rate.
+They are not deleted or replaced by `NA`, and they may still contribute to
+other rates or derivations. Resource overrides are reported with `NA` in the
+species column and remain whole-array overrides.
 
 ### The resource arrays
 

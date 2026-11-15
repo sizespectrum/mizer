@@ -631,3 +631,27 @@ test_that("$ on gear_params does not partially match column names", {
     # Exact matches are unaffected
     expect_identical(unname(gp$catchability), gp[["catchability"]])
 })
+
+
+test_that("fishing overrides protect species slices across gears", {
+    withr::local_options(mizer_info_level = 0)
+    for (high in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- high
+        original <- p
+        sel <- selectivity(p)[, "Cod", , drop = FALSE] * 0.5
+        selectivity(p, species = "Cod") <- sel
+        catchability(p, species = "Cod") <- rep(0.03, nrow(catchability(p)))
+        gp <- gear_params(p)
+        gp[gp$species == "Herring", "catchability"] <- 0.07
+        gear_params(p) <- gp
+        expect_equal(catchability(p)[, "Cod"], rep(0.03, 3), ignore_attr = TRUE)
+        expect_true(any(catchability(p)[, "Herring"] == 0.07))
+        expect_equal(selectivity(p)[, "Cod", , drop = FALSE], sel, ignore_attr = TRUE)
+        p <- setFishing(p, species = "Cod", reset = TRUE)
+        expect_equal(selectivity(p), selectivity(original), ignore_attr = TRUE)
+        expect_equal(catchability(p)[, "Cod"], catchability(original)[, "Cod"],
+                     ignore_attr = TRUE)
+        expect_equal(nrow(rate_overrides(p)), 0L)
+    }
+})

@@ -21,16 +21,17 @@ setReproduction(
   repro_prop = NULL,
   reset = FALSE,
   RDD = NULL,
-  ...
+  ...,
+  species = NULL
 )
 
 maturity(params)
 
-maturity(params) <- value
+maturity(params, species = NULL) <- value
 
 repro_prop(params)
 
-repro_prop(params) <- value
+repro_prop(params, species = NULL) <- value
 
 psi(params)
 ```
@@ -71,6 +72,15 @@ psi(params)
 - ...:
 
   Unused
+
+- species:
+
+  Optional character vector of species to override or reset. Omit to
+  override or reset the whole array. Values may be full arrays or arrays
+  containing only the selected species; for one species a vector is also
+  accepted. Other species keep their existing override status. See
+  [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+  to inspect overrides.
 
 - value:
 
@@ -196,6 +206,7 @@ and you can easily use these as models for writing your own functions.
 
 Other functions for setting parameters:
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
 [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),
@@ -225,6 +236,5 @@ dff <- reshape2::melt(df, id.vars = "Size",
             value.name = "Proportion")
 library(ggplot2)
 ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
-
 # }
 ```

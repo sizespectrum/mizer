@@ -314,7 +314,10 @@ species_params <- function(object, ...) {
 #' @usage NULL
 #' @export
 species_params.MizerParams <- function(object, ...) {
-    object@species_params
+    sp <- object@species_params
+    overrides <- rate_overrides(object)
+    if (nrow(overrides)) attr(sp, "rate_overrides") <- overrides
+    sp
 }
 
 #' @rdname species_params
@@ -374,6 +377,7 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
 #' @usage NULL
 #' @export
 `species_params<-.MizerParams` <- function(object, recalculate = TRUE, value) {
+    attr(value, "rate_overrides") <- NULL
     # The columns the user actually handed us. `validSpeciesParams()` below
     # fills in defaults, and a default that the model does not already carry
     # would otherwise look like a column the user has just added and be
@@ -1386,6 +1390,7 @@ check_and_convert_species_params <- function(x) {
     out <- NextMethod("[")
     if (is.data.frame(out)) {
         class(out) <- class(x)
+        attr(out, "rate_overrides") <- attr(x, "rate_overrides", exact = TRUE)
     }
     out
 }
@@ -1407,6 +1412,15 @@ print.species_params <- function(x, ...) {
 
     if (length(extra_cols) > 0) {
         cat("With", length(extra_cols), "other parameters:", paste(extra_cols, collapse = ", "), "\n")
+    }
+    overrides <- attr(x, "rate_overrides", exact = TRUE)
+    if (!is.null(overrides)) {
+        overrides <- overrides[overrides$species %in% rownames(x) &
+                                   !overrides$rate %in%
+                                   c("selectivity", "catchability"), , drop = FALSE]
+        overrides$parameters <- lapply(overrides$parameters, intersect, names(x))
+        overrides <- overrides[lengths(overrides$parameters) > 0, , drop = FALSE]
+        print_rate_overrides(overrides)
     }
     invisible(x)
 }
@@ -1612,6 +1626,7 @@ is.given_species_params <- function(x) {
 #' @usage NULL
 #' @export
 `given_species_params<-.MizerParams` <- function(object, value) {
+    attr(value, "rate_overrides") <- NULL
     params <- object
     # Worked out here, before the length/weight rules below rewrite `value`.
     # Only the columns the model does not have yet, so that a likely
@@ -1677,7 +1692,11 @@ is.given_species_params <- function(x) {
         check_species_params_misspellings(new_cols)
         signal_ignored_changes(old_given, specified)
         signal_gear_params_changes(changed_names)
-        signal_frozen_changes(params, changed_names)
+        frozen_changes <- changed
+        for (col in withdrawn) {
+            frozen_changes[[col]] <- entry_has_value(old_given[[col]], no_sp)
+        }
+        signal_frozen_changes(params, frozen_changes)
     })
 
     params@given_species_params <- value

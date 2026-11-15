@@ -91,3 +91,32 @@ test_that("Can get and set slot", {
     expect_equal(ext_encounter(params), new, ignore_attr = TRUE)
     expect_identical(comment(params@ext_encounter), "test")
 })
+
+
+test_that("ext_encounter overrides and resets selected species only", {
+    withr::local_options(mizer_info_level = 0)
+    for (high_order in c(FALSE, TRUE)) {
+        original <- NS_params_small
+        second_order_w(original) <- high_order
+        params <- original
+        custom <- ext_encounter(params)["Cod", ] * 0.5 + 0.01
+        ext_encounter(params, species = "Cod") <- custom
+        species_params(params)["Herring", "E_ext"] <- 0.75
+        control <- original
+        species_params(control)["Herring", "E_ext"] <- 0.75
+        expect_equal(ext_encounter(params)["Herring", ],
+                     ext_encounter(control)["Herring", ], ignore_attr = TRUE)
+        expect_equal(ext_encounter(params)["Cod", ], custom, ignore_attr = TRUE)
+        params <- setParams(params)
+        expect_equal(ext_encounter(params)["Cod", ], custom, ignore_attr = TRUE)
+
+        # Equal-valued assignments also establish ownership.
+        ext_encounter(params, species = "Sprat") <- ext_encounter(params)["Sprat", ]
+        params <- setExtEncounter(params, reset = TRUE, species = "Cod")
+        expect_equal(ext_encounter(params)["Cod", ],
+                     ext_encounter(original)["Cod", ], ignore_attr = TRUE)
+        expect_equal(rate_overrides(params)$species, "Sprat")
+        params <- setExtEncounter(params, reset = TRUE)
+        expect_equal(nrow(rate_overrides(params)), 0L)
+    }
+})

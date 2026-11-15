@@ -67,6 +67,18 @@
 
 ## New features
 
+- Rate-array setters and assignment functions accept `species` to override or
+  reset selected species while leaving the others under parameter-driven
+  calculation (#666). This includes predation kernels, maturity, reproductive
+  allocation, selectivity and catchability. Existing whole-array overrides
+  retain their meaning. Mixed predation kernels preserve the model's FFT
+  quadrature for unoverridden species under both numerical schemes.
+- `rate_overrides()` reports the overridden rates and species, the retained
+  parameter inputs, and reset calls. Model summaries and printed species
+  parameters also show these overrides (#506). Parameter values and their
+  given/calculated provenance are retained; an input can still contribute to
+  other rates. Frozen-change diagnostics identify the affected species.
+
 - `getCourant()` reports the growth Courant numbers on the model's active
   size support. Projections with high-order flux now report large Courant
   numbers, and optional `subcycle = TRUE` advances consumers, resources and

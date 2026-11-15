@@ -25,7 +25,7 @@ for a full explanation of when to reach for which level of the model.'><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,11 +111,17 @@ for a full explanation of when to reach for which level of the model.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setExtEncounter</span><span class="op">(</span><span class="va">params</span>, ext_encounter <span class="op">=</span> <span class="cn">NULL</span>, reset <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setExtEncounter</span><span class="op">(</span></span>
+<span>  <span class="va">params</span>,</span>
+<span>  ext_encounter <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  reset <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  species <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">ext_encounter</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">ext_encounter</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
+<span><span class="fu">ext_encounter</span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -137,12 +143,19 @@ encounter rate".</p></dd>
 <dd><p>If set to TRUE, then the external encounter rate will be reset to the value
 calculated from the species parameters, even if it was previously
 overwritten with a custom value. If set to FALSE (default) then a
-recalculation from the species parameters will take place only if no
-custom value has been set.</p></dd>
+recalculation takes place for species without a custom value.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Unused</p></dd>
+
+
+<dt id="arg-species">species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
+<dd><p>Optional character vector of species to override or reset.
+Omit to override or reset the whole array. Values may be full arrays or
+arrays containing only the selected species; for one species a vector is
+also accepted. Other species keep their existing override status.
+See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p></dd>
 
 
 <dt id="arg-value">value<a class="anchor" aria-label="anchor" href="#arg-value"></a></dt>
@@ -171,14 +184,15 @@ $$E_{ext.i}(w) = E_{ext.i}\, w^{n_i}.$$
 The coefficient \(E_{ext.i}\) is taken from the <code>E_ext</code> column of the
 species parameter data frame, which defaults to 0. The exponent \(n_i\) is
 taken from the <code>n</code> column of the species parameter data frame.</p>
-<p>If the <code>ext_encounter</code> slot has a comment and <code>reset = FALSE</code>, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.</p>
+<p>With <code>reset = FALSE</code>, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other functions for setting parameters:
 <code><a href="gear_params.html">gear_params()</a></code>,
+<code><a href="rate_overrides.html">rate_overrides()</a></code>,
 <code><a href="setExtDiffusion.html">setExtDiffusion()</a></code>,
 <code><a href="setExtMort.html">setExtMort()</a></code>,
 <code><a href="setFishing.html">setFishing()</a></code>,
@@ -195,28 +209,19 @@ issued if the recalculated values would differ from the stored ones.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">NS_species_params</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No h provided for some species, so using age at maturity to calculate it.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Because you have n != p, the default value for `h` is not very good.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Because the age at maturity is not known, I need to fall back to using</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> von Bertalanffy parameters, where available.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">#### Setting allometric encounter rate #######################</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Set coefficient for each species. Here we choose 0.1 for each species</span></span></span>
-<span class="r-in"><span><span class="va">encounter_pre</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Multiply by power of size with exponent, here chosen to be 3/4</span></span></span>
-<span class="r-in"><span><span class="co"># The outer() function makes it an array species x size</span></span></span>
-<span class="r-in"><span><span class="va">allo_encounter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">encounter_pre</span>, <span class="fu"><a href="w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="fl">3</span><span class="op">/</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Change the external encounter rate in the params object</span></span></span>
-<span class="r-in"><span><span class="fu">ext_encounter</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">allo_encounter</span></span></span>
-</code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">NS_species_params</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#### Setting allometric encounter rate #######################</span></span>
+<span></span>
+<span><span class="co"># Set coefficient for each species. Here we choose 0.1 for each species</span></span>
+<span><span class="va">encounter_pre</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Multiply by power of size with exponent, here chosen to be 3/4</span></span>
+<span><span class="co"># The outer() function makes it an array species x size</span></span>
+<span><span class="va">allo_encounter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">encounter_pre</span>, <span class="fu"><a href="w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="fl">3</span><span class="op">/</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Change the external encounter rate in the params object</span></span>
+<span><span class="fu">ext_encounter</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">allo_encounter</span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

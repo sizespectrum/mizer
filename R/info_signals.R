@@ -369,6 +369,17 @@ frozen_rate_params <- function() {
             reset_call = "setReproduction(params, reset = TRUE)",
             params = c("w_mat", "w_mat25", "l_mat", "l_mat25", "m", "n",
                        "w_repro_max", "l_repro_max", "w_max", "l_max")),
+        selectivity = list(
+            quantity = "selectivity",
+            reset_call = "setFishing(params, reset = TRUE)",
+            params = c("sel_func", "l25", "l50", "l75", "lmax",
+                       "w25", "w50", "w75"),
+            derived_from = "gear parameters"),
+        catchability = list(
+            quantity = "catchability",
+            reset_call = "setFishing(params, reset = TRUE)",
+            params = "catchability",
+            derived_from = "gear parameters"),
         cc_pp = list(
             quantity = "resource capacity",
             reset_call = "setResource(params, reset = TRUE)",
@@ -393,8 +404,9 @@ frozen_rate_params <- function() {
 #'
 #' @param params A \linkS4class{MizerParams} object, holding the rate arrays as
 #'   they are, that is, before the change is applied.
-#' @param changed A character vector with the names of the species parameters
-#'   that the user changed.
+#' @param changed A named list of logical vectors identifying the changed
+#'   species in each parameter column, or a character vector of column names
+#'   when the change applies to all species.
 #'
 #' @return `NULL` invisibly. Called for its side effect of signalling.
 #' @concept info signalling functions
@@ -407,9 +419,33 @@ signal_frozen_changes <- function(params, changed) {
         if (is.null(comment(slot(params, var)))) {
             next
         }
-        affected <- intersect(changed, entry$params)
+        if (!is.null(entry$derived_from)) next
+        affected <- intersect(if (is.list(changed)) names(changed) else changed,
+                              entry$params)
+        selected <- rate_override_species(params, var)
+        if (is.list(changed)) {
+            affected <- affected[vapply(affected, function(col) {
+                any(changed[[col]][params@species_params$species %in% selected])
+            }, logical(1))]
+        }
         if (length(affected) == 0) {
             next
+        }
+        affected_species <- selected
+        if (is.list(changed)) {
+            mask <- Reduce(`|`, changed[affected])
+            affected_species <- intersect(
+                selected, params@species_params$species[mask])
+        }
+        species_text <- if (length(selected) < nrow(params@species_params))
+            paste0(" for ", toString(affected_species)) else ""
+        reset_call <- entry$reset_call
+        if (nzchar(species_text)) {
+            selection <- paste(encodeString(affected_species, quote = '"'),
+                               collapse = ", ")
+            reset_call <- sub("reset = TRUE", paste0(
+                "reset = TRUE, species = c(", selection, ")"),
+                reset_call, fixed = TRUE)
         }
         # "species parameters" -> "species parameter" for a single one
         plural <- if (is.null(entry$derived_from)) {
@@ -422,9 +458,9 @@ signal_frozen_changes <- function(params, changed) {
             "Your change to the ",
             ngettext(length(affected), singular, plural), " ",
             paste0("`", affected, "`", collapse = ", "),
-            " has not taken effect because the ", entry$quantity,
+            " has not taken effect because the ", entry$quantity, species_text,
             " has been set manually and so is no longer calculated from the ",
-            plural, ". Call `", entry$reset_call, "` if you want the ",
+            plural, ". Call `", reset_call, "` if you want the ",
             entry$quantity, " to be calculated from the ", plural, " again."))
     }
     invisible(NULL)

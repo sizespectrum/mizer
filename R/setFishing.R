@@ -103,8 +103,12 @@
 #'   If set to TRUE, then both `catchability` and `selectivity` will
 #'   be reset to the values calculated from the gear parameters, even if it was
 #'   previously overwritten with a custom value. If set to FALSE (default) then
-#'   a recalculation from the gear parameters will take place only if no custom
-#'   value has been set.
+#'   recalculation takes place for species without a custom value.
+#' @param species Optional character vector of species to override or reset.
+#'   Omit to override or reset the whole array. Values may be full arrays or
+#'   arrays containing only the selected species; for one species a vector is
+#'   also accepted. Other species keep their existing override status.
+#'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
 #' @return `setFishing()`: A MizerParams object with updated fishing
@@ -117,13 +121,13 @@
 #' params <- setFishing(NS_params, initial_effort = 0.5)
 #' initial_effort(params)
 setFishing <- function(params, selectivity = NULL, catchability = NULL,
-                       reset = FALSE, initial_effort = NULL, ...) {
+                       reset = FALSE, initial_effort = NULL, ..., species = NULL) {
     UseMethod("setFishing")
 }
 #' @export
 setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NULL,
                        reset = FALSE,
-                       initial_effort = NULL, ...) {
+                       initial_effort = NULL, ..., species = NULL) {
     assert_that(is.flag(reset))
     species_params <- params@species_params
     gear_params <- params@gear_params
@@ -141,15 +145,19 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
                     "calculated from the gear parameters.")
             selectivity <- NULL
         }
-        comment(params@selectivity) <- NULL
+        params <- reset_rate_override(params, "selectivity", species)
         if (!is.null(catchability)) {
             warning("Because you set `reset = TRUE`, the value you provided ",
                     "for `catchability` will be ignored and a value will be ",
                     "calculated from the gear parameters.")
             catchability <- NULL
         }
-        comment(params@catchability) <- NULL
+        params <- reset_rate_override(params, "catchability", species)
     }
+
+    selectivity <- prepare_rate_value(params, "selectivity", selectivity, species)
+
+    catchability <- prepare_rate_value(params, "catchability", catchability, species)
 
     if (!is.null(selectivity) && is.null(comment(selectivity))) {
         if (is.null(comment(params@selectivity))) {
@@ -211,14 +219,11 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
         params@selectivity <- selectivity
     } else {
         selectivity <- calc_selectivity(params)
-        if (!is.null(comment(params@selectivity)) &&
-            different(selectivity, params@selectivity)) {
-            signal_not_recalculated("selectivity", "selectivity",
-                               "setFishing(params, reset = TRUE)",
-                               derived_from = "gear parameters")
-        } else {
-            params@selectivity <- selectivity
-        }
+        selectivity <- preserve_rate_overrides(params, "selectivity", selectivity)
+        comment(selectivity) <- comment(params@selectivity)
+        attr(selectivity, "mizer_override_species") <-
+            attr(params@selectivity, "mizer_override_species")
+        params@selectivity <- selectivity
     }
 
     if (!is.null(catchability)) {
@@ -252,14 +257,11 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
                           gear_params$species[[g]]]] <-
                 gear_params$catchability[[g]]
         }
-        if (!is.null(comment(params@catchability)) &&
-            different(catchability, params@catchability)) {
-            signal_not_recalculated("catchability", "catchability",
-                               "setFishing(params, reset = TRUE)",
-                               derived_from = "gear parameters")
-        } else {
-            params@catchability <- catchability
-        }
+        catchability <- preserve_rate_overrides(params, "catchability", catchability)
+        comment(catchability) <- comment(params@catchability)
+        attr(catchability, "mizer_override_species") <-
+            attr(params@catchability, "mizer_override_species")
+        params@catchability <- catchability
     }
 
     if (!is.null(initial_effort)) {
@@ -550,12 +552,17 @@ catchability.MizerParams <- function(params) {
 #' @rdname setFishing
 #' @param value The array to assign
 #' @export
-`catchability<-` <- function(params, value) {
+`catchability<-` <- function(params, species = NULL, value) {
     UseMethod("catchability<-")
 }
 #' @export
-`catchability<-.MizerParams` <- function(params, value) {
-    setFishing(params, catchability = value)
+`catchability<-.MizerParams` <- function(params, species = NULL, value) {
+    # Preserve direct two-argument calls to the replacement function.
+    if (missing(value)) {
+        value <- species
+        species <- NULL
+    }
+    setFishing(params, catchability = value, species = species)
 }
 
 #' @rdname setFishing
@@ -575,12 +582,17 @@ selectivity.MizerParams <- function(params) {
 
 #' @rdname setFishing
 #' @export
-`selectivity<-` <- function(params, value) {
+`selectivity<-` <- function(params, species = NULL, value) {
     UseMethod("selectivity<-")
 }
 #' @export
-`selectivity<-.MizerParams` <- function(params, value) {
-    setFishing(params, selectivity = value)
+`selectivity<-.MizerParams` <- function(params, species = NULL, value) {
+    # Preserve direct two-argument calls to the replacement function.
+    if (missing(value)) {
+        value <- species
+        species <- NULL
+    }
+    setFishing(params, selectivity = value, species = species)
 }
 
 #' Initial fishing effort

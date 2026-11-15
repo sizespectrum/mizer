@@ -12,11 +12,17 @@ for a full explanation of when to reach for which level of the model.
 ## Usage
 
 ``` r
-setExtDiffusion(params, ext_diffusion = NULL, reset = FALSE, ...)
+setExtDiffusion(
+  params,
+  ext_diffusion = NULL,
+  reset = FALSE,
+  ...,
+  species = NULL
+)
 
 ext_diffusion(params)
 
-ext_diffusion(params) <- value
+ext_diffusion(params, species = NULL) <- value
 ```
 
 ## Arguments
@@ -37,12 +43,20 @@ ext_diffusion(params) <- value
   If set to TRUE, then the external diffusion rate will be reset to the
   value calculated from the species parameters, even if it was
   previously overwritten with a custom value. If set to FALSE (default)
-  then a recalculation from the species parameters will take place only
-  if no custom value has been set.
+  then a recalculation takes place for species without a custom value.
 
 - ...:
 
   Unused
+
+- species:
+
+  Optional character vector of species to override or reset. Omit to
+  override or reset the whole array. Values may be full arrays or arrays
+  containing only the selected species; for one species a vector is also
+  accepted. Other species keep their existing override status. See
+  [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+  to inspect overrides.
 
 - value:
 
@@ -72,14 +86,17 @@ the `D_ext` column of the species parameter data frame, which defaults
 to 0. The exponent \\n_i + 1\\ uses the `n` column of the species
 parameter data frame.
 
-If the `ext_diffusion` slot has a comment and `reset = FALSE`, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With `reset = FALSE`, manually overridden species are preserved while
+the other species are recalculated. A message is issued if recalculation
+would change protected values. See
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+to inspect overrides.
 
 ## See also
 
 Other functions for setting parameters:
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
 [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),
 [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md),

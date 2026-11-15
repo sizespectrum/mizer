@@ -1957,3 +1957,16 @@ test_that("reconcileSpeciesParams() is idempotent", {
     # A second call has nothing to report either
     expect_silent(reconcileSpeciesParams(once))
 })
+
+
+test_that("frozen-change diagnostics identify only overridden species", {
+    withr::local_options(mizer_info_level = 1)
+    p <- NS_params_small
+    metab(p, species = "Cod") <- metab(p)["Cod", ]
+    expect_no_warning(given_species_params(p)["Herring", "ks"] <- 2)
+    expect_warning(given_species_params(p)["Cod", "ks"] <- 2,
+                   "metabolic rate for Cod")
+    expect_null(attr(p@species_params, "rate_overrides"))
+    species_params(p)["Herring", "ks"] <- 3
+    expect_null(attr(p@species_params, "rate_overrides"))
+})

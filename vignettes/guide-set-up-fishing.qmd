@@ -156,12 +156,26 @@ leave your array untouched (you will see a message saying so). To discard the
 hand-set array and rebuild from `gear_params`, call
 `setFishing(params, reset = TRUE)`.
 
+To override just one species across the gears, supply `species`. The remaining
+species continue to follow `gear_params`:
+
+```{r eval=FALSE}
+sel <- selectivity(params)[, "Cod", , drop = FALSE]
+sel["Otter", "Cod", ] <- my_curve
+selectivity(params, species = "Cod") <- sel
+params <- setFishing(params, species = "Cod", reset = TRUE)
+```
+
+The reset restores both selectivity and catchability for Cod while retaining
+other species' overrides. [`rate_overrides(params)`](../reference/rate_overrides.html) lists the protected species,
+retained parameter inputs, and reset calls.
+
 ---
 
 ## setFishing()
 
 `setFishing(params, selectivity = NULL, catchability = NULL, reset = FALSE,
-initial_effort = NULL, ...)` recomputes the fishing setup after a change.
+initial_effort = NULL, ..., species = NULL)` recomputes the fishing setup after a change.
 Assigning `gear_params(params) <- ...` already triggers recalculation, so you
 usually only call `setFishing()` directly when supplying a `selectivity` or
 `catchability` **array**, setting a baseline effort, or rebuilding from scratch:

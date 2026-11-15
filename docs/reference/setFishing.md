@@ -11,16 +11,17 @@ setFishing(
   catchability = NULL,
   reset = FALSE,
   initial_effort = NULL,
-  ...
+  ...,
+  species = NULL
 )
 
 catchability(params)
 
-catchability(params) <- value
+catchability(params, species = NULL) <- value
 
 selectivity(params)
 
-selectivity(params) <- value
+selectivity(params, species = NULL) <- value
 ```
 
 ## Arguments
@@ -44,8 +45,8 @@ selectivity(params) <- value
   If set to TRUE, then both `catchability` and `selectivity` will be
   reset to the values calculated from the gear parameters, even if it
   was previously overwritten with a custom value. If set to FALSE
-  (default) then a recalculation from the gear parameters will take
-  place only if no custom value has been set.
+  (default) then recalculation takes place for species without a custom
+  value.
 
 - initial_effort:
 
@@ -56,6 +57,15 @@ selectivity(params) <- value
 - ...:
 
   Unused
+
+- species:
+
+  Optional character vector of species to override or reset. Omit to
+  override or reset the whole array. Values may be full arrays or arrays
+  containing only the selected species; for one species a vector is also
+  accepted. Other species keep their existing override status. See
+  [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+  to inspect overrides.
 
 - value:
 
@@ -183,6 +193,7 @@ where it is also possible to specify an effort that varies through time.
 
 Other functions for setting parameters:
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
 [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),
@@ -202,17 +213,6 @@ Other functions for setting parameters:
 # Halve the initial fishing effort for all gears
 params <- setFishing(NS_params, initial_effort = 0.5)
 initial_effort(params)
-#> Industrial    Pelagic       Beam      Otter 
-#>        0.5        0.5        0.5        0.5 
 str(catchability(NS_params))
-#>  num [1:4, 1:12] 1 0 0 0 1 0 0 0 1 0 ...
-#>  - attr(*, "dimnames")=List of 2
-#>   ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"
-#>   ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...
 str(selectivity(NS_params))
-#>  num [1:4, 1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...
-#>  - attr(*, "dimnames")=List of 3
-#>   ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"
-#>   ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...
-#>   ..$ w   : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...
 ```

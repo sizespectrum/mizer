@@ -12,11 +12,11 @@ for a full explanation of when to reach for which level of the model.
 ## Usage
 
 ``` r
-setPredKernel(params, pred_kernel = NULL, reset = FALSE, ...)
+setPredKernel(params, pred_kernel = NULL, reset = FALSE, ..., species = NULL)
 
 pred_kernel(params)
 
-pred_kernel(params) <- value
+pred_kernel(params, species = NULL) <- value
 ```
 
 ## Arguments
@@ -37,12 +37,20 @@ pred_kernel(params) <- value
   If set to TRUE, then the predation kernel will be reset to the value
   calculated from the species parameters, even if it was previously
   overwritten with a custom value. If set to FALSE (default) then a
-  recalculation from the species parameters will take place only if no
-  custom value has been set.
+  recalculation takes place for species without a custom value.
 
 - ...:
 
   Unused
+
+- species:
+
+  Optional character vector of species to override or reset. Omit to
+  override or reset the whole array. Values may be full arrays or arrays
+  containing only the selected species; for one species a vector is also
+  accepted. Other species keep their existing override status. See
+  [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+  to inspect overrides.
 
 - value:
 
@@ -142,7 +150,8 @@ additionally averaged over the prey bin (a trapezoid fold), so that the
 predation rate returned by
 [`getPredRate()`](https://sizespectrum.org/mizer/reference/getPredRate.md)
 is the prey-bin average that the predation-mortality sink needs to be
-second order. The default remains the first-order scheme so that
+second order. This is the default for a model of defaults edition 3 or
+later. Models of earlier editions keep the first-order scheme, so that
 existing models are unaffected. Enable it with
 `second_order_w(params) <- TRUE` (see
 [`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md)),
@@ -155,6 +164,7 @@ the mathematical details.
 
 Other functions for setting parameters:
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
 [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),
@@ -183,7 +193,6 @@ species_params(params)$ppmr_max <- 4000
 species_params(params)$ppmr_min <- 200
 species_params(params)$pred_kernel_type <- "box"
 plot(w_full(params), pred_kernel(params)["Cod", 100, ], type="l", log="x")
-
 
 ## If you need a kernel that depends also on prey size you need to define
 # it yourself.

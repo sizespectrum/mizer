@@ -10,8 +10,9 @@ signal_frozen_changes(params, changed)
 \item{params}{A \linkS4class{MizerParams} object, holding the rate arrays as
 they are, that is, before the change is applied.}
 
-\item{changed}{A character vector with the names of the species parameters
-that the user changed.}
+\item{changed}{A named list of logical vectors identifying the changed
+species in each parameter column, or a character vector of column names
+when the change applies to all species.}
 }
 \value{
 \code{NULL} invisibly. Called for its side effect of signalling.

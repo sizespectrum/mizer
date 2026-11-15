@@ -130,6 +130,11 @@
 #'   reproduction rate from the density-independent rate. Defaults to
 #'   "[BevertonHoltRDD()]".
 #' @param value The desired new value for the respective parameter.
+#' @param species Optional character vector of species to override or reset.
+#'   Omit to override or reset the whole array. Values may be full arrays or
+#'   arrays containing only the selected species; for one species a vector is
+#'   also accepted. Other species keep their existing override status.
+#'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
 #' @return `setReproduction()`: A MizerParams object with updated reproduction
@@ -152,13 +157,13 @@
 #' ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
 #' }
 setReproduction <- function(params, maturity = NULL, repro_prop = NULL,
-                           reset = FALSE, RDD = NULL, ...) {
+                           reset = FALSE, RDD = NULL, ..., species = NULL) {
     UseMethod("setReproduction")
 }
 #' @export
 setReproduction.MizerParams <- function(params, maturity = NULL,
                             repro_prop = NULL, reset = FALSE,
-                            RDD = NULL, ...) {
+                            RDD = NULL, ..., species = NULL) {
     # check arguments ----
     assert_that(is.flag(reset))
     if (is.null(RDD)) RDD <- params@rates_funcs[["RDD"]]
@@ -174,15 +179,19 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
                     "calculated from the species parameters.")
             maturity <- NULL
         }
-        comment(params@maturity) <- NULL
+        params <- reset_rate_override(params, "maturity", species)
         if (!is.null(repro_prop)) {
             warning("Because you set `reset = TRUE`, the value you provided ",
                     "for `repro_prop` will be ignored and a value will be ",
                     "calculated from the species parameters.")
             repro_prop <- NULL
         }
-        comment(params@psi) <- NULL
+        params <- reset_rate_override(params, "psi", species)
     }
+
+    maturity <- prepare_rate_value(params, "maturity", maturity, species)
+
+    repro_prop <- prepare_rate_value(params, "psi", repro_prop, species)
 
     # Check that the upper size-grid boundary w_max is set. This is the
     # computational boundary of the size grid, not the size at which
@@ -266,14 +275,7 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
         # For reasons of efficiency we next set all very small values to 0
         maturity[maturity < 1e-8] <- 0
 
-        # If maturity is protected by a comment, keep the old value
-        if (!is.null(comment(params@maturity))) {
-            if (different(params@maturity, maturity)) {
-                signal_not_recalculated("maturity", "maturity ogive",
-                                   "setReproduction(params, reset = TRUE)")
-            }
-            maturity <- params@maturity
-        }
+        maturity <- preserve_rate_overrides(params, "maturity", maturity)
     }
     assert_that(all(maturity >= 0 & maturity <= 1))
 
@@ -285,6 +287,8 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
 
     params@maturity[] <- maturity
     comment(params@maturity) <- comment(maturity)
+    attr(params@maturity, "mizer_override_species") <-
+        attr(maturity, "mizer_override_species")
 
     # set reproduction proportion ----
     if (!is.null(repro_prop)) {
@@ -332,18 +336,20 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
     }
     assert_that(all(psi >= 0 & psi <= 1))
 
-    # if the slot is protected and the user did not supply a new repro_prop
-    # then don't overwrite the slot with auto-generated values. We can
-    # detect whether repro_prop is user-supplied by checking whether it has
-    # a comment.
-    if (!is.null(comment(params@psi)) && is.null(comment(repro_prop))) {
-        if (different(params@psi, psi)) {
-            signal_not_recalculated("psi", "reproductive proportion",
-                               "setReproduction(params, reset = TRUE)")
-        }
+    if (!is.null(species) && !is.null(comment(repro_prop))) {
+        untouched <- setdiff(species_params$species, species)
+        psi <- replace_rate_slice(psi, "psi", untouched,
+                                   rate_slice(params@psi, "psi", untouched))
+    }
+
+    if (is.null(comment(repro_prop))) {
+        psi <- preserve_rate_overrides(params, "psi", psi)
+        params@psi[] <- psi
     } else {
         params@psi[] <- psi
         comment(params@psi) <- comment(repro_prop)
+        attr(params@psi, "mizer_override_species") <-
+            attr(repro_prop, "mizer_override_species")
     }
 
     # If no erepro (reproductive efficiency), then set to 1
@@ -392,12 +398,17 @@ maturity.MizerParams <- function(params) {
 
 #' @rdname setReproduction
 #' @export
-`maturity<-` <- function(params, value) {
+`maturity<-` <- function(params, species = NULL, value) {
     UseMethod("maturity<-")
 }
 #' @export
-`maturity<-.MizerParams` <- function(params, value) {
-    setReproduction(params, maturity = value)
+`maturity<-.MizerParams` <- function(params, species = NULL, value) {
+    # Preserve direct two-argument calls to the replacement function.
+    if (missing(value)) {
+        value <- species
+        species <- NULL
+    }
+    setReproduction(params, maturity = value, species = species)
 }
 
 #' @rdname setReproduction
@@ -422,8 +433,13 @@ repro_prop.MizerParams <- function(params) {
 
 #' @rdname setReproduction
 #' @export
-`repro_prop<-` <- function(params, value) {
-    setReproduction(params, repro_prop = value)
+`repro_prop<-` <- function(params, species = NULL, value) {
+    # Preserve direct two-argument calls to the replacement function.
+    if (missing(value)) {
+        value <- species
+        species <- NULL
+    }
+    setReproduction(params, repro_prop = value, species = species)
 }
 
 #' @rdname setReproduction

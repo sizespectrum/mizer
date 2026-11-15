@@ -801,3 +801,19 @@ test_that("adjustSizeGrid works for expansion and truncation", {
                  "new_min_w_pp must be smaller than new_min_w.")
 })
 
+
+test_that("rate override ownership follows renamed and removed species", {
+    withr::local_options(mizer_info_level = 0)
+    p <- NS_params_small
+    metab(p, species = "Cod") <- rep(0.2, length(w(p)))
+    p <- renameSpecies(p, c(Cod = "Atlantic cod"))
+    expect_equal(rate_overrides(p)$species, "Atlantic cod")
+    p <- setParams(p)
+    expect_equal(metab(p)["Atlantic cod", ], rep(0.2, length(w(p))),
+                 ignore_attr = TRUE)
+    q <- removeSpecies(p, species = "Herring")
+    expect_equal(rate_overrides(q)$species, "Atlantic cod")
+    q <- removeSpecies(p, species = "Atlantic cod")
+    expect_equal(nrow(rate_overrides(q)), 0L)
+    expect_null(comment(q@metab))
+})

@@ -15,16 +15,17 @@ setReproduction(
   repro_prop = NULL,
   reset = FALSE,
   RDD = NULL,
-  ...
+  ...,
+  species = NULL
 )
 
 maturity(params)
 
-maturity(params) <- value
+maturity(params, species = NULL) <- value
 
 repro_prop(params)
 
-repro_prop(params) <- value
+repro_prop(params, species = NULL) <- value
 
 psi(params)
 }
@@ -52,6 +53,12 @@ reproduction rate from the density-independent rate. Defaults to
 "\code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}".}
 
 \item{...}{Unused}
+
+\item{species}{Optional character vector of species to override or reset.
+Omit to override or reset the whole array. Values may be full arrays or
+arrays containing only the selected species; for one species a vector is
+also accepted. Other species keep their existing override status.
+See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.}
 
 \item{value}{The desired new value for the respective parameter.}
 }
@@ -204,6 +211,7 @@ ggplot(dff) + geom_line(aes(x = Size, y = Proportion, colour = Type))
 \seealso{
 Other functions for setting parameters:
 \code{\link[=gear_params]{gear_params()}},
+\code{\link[=rate_overrides]{rate_overrides()}},
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},
 \code{\link[=setExtMort]{setExtMort()}},
