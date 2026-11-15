@@ -190,6 +190,176 @@ test_that("getSteadyResidual() predicts the drift that project() produces", {
     expect_equal(err[[1]] / err[[2]], 10, tolerance = 0.5)
 })
 
+test_that("empty-tail drift agrees with short projected mass changes", {
+    for (flux in c("upwind", "van_leer")) {
+        for (bin_average in c(FALSE, TRUE)) {
+            p <- NS_params_small
+            second_order_w(p) <- c(flux = flux, bin_average = bin_average)
+            ext_diffusion(p) <- 0.1 * outer(p@species_params$n, p@w,
+                                            function(n, w) w^(n + 1))
+            outside <- col(p@initial_n) > support_top_idx(p)
+            p@initial_n[outside] <- 0
+            biomass <- as.numeric(getBiomass(p))
+            numbers <- as.numeric(getN(p))
+            predicted_b <- rowSums(getSteadyResidual(p))
+            predicted_n <- drop(steady_rates(p)$dNdt %*% p@dw) / numbers
+            error <- vapply(c(1e-6, 1e-7), function(dt) {
+                sim <- project(p, t_max = dt, dt = dt, t_save = dt,
+                               method = "euler", progress_bar = FALSE,
+                               info_level = 0)
+                next_p <- finalParams(sim)
+                observed_b <- (as.numeric(getBiomass(next_p)) - biomass) /
+                    (dt * biomass)
+                observed_n <- (as.numeric(getN(next_p)) - numbers) /
+                    (dt * numbers)
+                expect_true(all(initialN(next_p)[outside] == 0))
+                c(biomass = max(abs(observed_b - predicted_b)),
+                  numbers = max(abs(observed_n - predicted_n)))
+            }, numeric(2))
+            # Time-step error shrinks; spurious tail influx instead leaves a
+            # nonzero discrepancy as dt tends to zero.
+            expect_true(all(error[, 1] / error[, 2] > 8))
+            expect_true(all(error[, 1] / error[, 2] < 12))
+            expect_lt(error["biomass", 2], 2e-5)
+            expect_lt(error["numbers", 2], 1.5e-4)
+        }
+    }
+})
+
+test_that("tail correction preserves occupied and retained equations", {
+    for (flux in c("upwind", "van_leer", "centred")) {
+        p <- NS_params_small
+        second_order_w(p) <- c(flux = flux, bin_average = TRUE)
+        ext_diffusion(p) <- 0.1 * outer(p@species_params$n, p@w,
+                                        function(n, w) w^(n + 1))
+        outside <- col(p@initial_n) > support_top_idx(p)
+        p@initial_n[outside] <- 0
+        inside_empty <- support_top_idx(p)[1] - 1L
+        p@initial_n[1, inside_empty] <- 0
+        p@initial_n[1, ncol(p@initial_n)] <- 1e-100
+        n <- p@initial_n
+        raw <- -consumer_residual(p, n, p@initial_n_pp, p@initial_n_other,
+                                  p@initial_effort)
+        realised <- steady_rates(p)$dNdt
+        empty_tail <- outside & n == 0
+        expect_true(any(raw[empty_tail] > 0))
+        expect_true(all(realised[empty_tail] == 0))
+        expect_equal(realised[!empty_tail], raw[!empty_tail])
+        expect_gt(realised[1, inside_empty], 0)
+        expect_equal(realised[1, ncol(n)], raw[1, ncol(n)])
+        # Existing populated tails, however small, keep their per-capita rate.
+        pc <- getSteadyResidual(p, measure = "per_capita")
+        expect_equal(unname(pc[1, ncol(n)]),
+                     unname(raw[1, ncol(n)] / n[1, ncol(n)]))
+        expect_true(all(is.na(pc[empty_tail])))
+    }
+})
+
+test_that("tail correction uses global diffusion and keeps legacy flow", {
+    assign("steady_tail_test_growth", function(params, ...) {
+        params@other_params$tail_growth
+    }, envir = .GlobalEnv)
+    assign("steady_tail_test_diffusion", function(params, ...) {
+        params@other_params$tail_diffusion
+    }, envir = .GlobalEnv)
+    withr::defer(rm(list = c("steady_tail_test_growth",
+                             "steady_tail_test_diffusion"), envir = .GlobalEnv))
+    p <- NS_params_small
+    second_order_w(p) <- FALSE
+    top <- support_top_idx(p)[1]
+    p@initial_n[] <- 0
+    p@initial_n[1, top] <- 1
+    p@other_params$tail_growth <- p@initial_n
+    p@other_params$tail_diffusion <- p@initial_n * 0
+    p <- setRateFunction(p, "EGrowth", "steady_tail_test_growth")
+    p <- setRateFunction(p, "Diffusion", "steady_tail_test_diffusion")
+    expect_true(all(p@ext_diffusion == 0))
+
+    # With no diffusion, the legacy Euler step actually fills this empty tail.
+    no_diffusion <- steady_rates(p)$dNdt
+    expect_gt(no_diffusion[1, top + 1L], 0)
+    dt <- 1e-6
+    sim <- project(p, t_max = dt, dt = dt, t_save = dt, method = "euler",
+                   progress_bar = FALSE, info_level = 0)
+    expect_equal(finalN(sim)[1, top + 1L] / dt,
+                 no_diffusion[1, top + 1L],
+                 tolerance = 1e-5, ignore_attr = TRUE)
+
+    # Diffusion on Herring selects the hard-boundary solver for Sprat too.
+    # It comes entirely from the custom rate, not from a parameter slot.
+    p@other_params$tail_diffusion[2, top] <- 1
+    global_diffusion <- steady_rates(p)$dNdt
+    expect_equal(unname(global_diffusion[1, top + 1L]), 0)
+    expect_equal(global_diffusion[1, top], no_diffusion[1, top])
+    sim <- project(p, t_max = dt, dt = dt, t_save = dt, method = "euler",
+                   progress_bar = FALSE, info_level = 0)
+    expect_equal(finalN(sim)[1, top + 1L], 0)
+
+    # A non-upwind scheme enforces the same boundary even without diffusion.
+    for (flux in c("van_leer", "centred")) {
+        second_order_w(p) <- c(flux = flux)
+        top <- support_top_idx(p)[1]
+        p@initial_n[] <- 0
+        p@initial_n[1, top] <- 1
+        p@other_params$tail_growth[] <- 1
+        p@other_params$tail_diffusion[] <- 0
+        raw <- -consumer_residual(p, p@initial_n, p@initial_n_pp,
+                                  p@initial_n_other, p@initial_effort)
+        expect_gt(raw[1, top + 1L], 0)
+        expect_equal(unname(steady_rates(p)$dNdt[1, top + 1L]), 0)
+    }
+})
+
+test_that("tail correction keeps recruitment and outgoing number losses", {
+    assign("steady_tail_test_zero", function(params, ...) {
+        params@initial_n * 0
+    }, envir = .GlobalEnv)
+    assign("steady_tail_test_births", function(params, ...) {
+        rep(0.25, nrow(params@initial_n))
+    }, envir = .GlobalEnv)
+    withr::defer(rm(list = c("steady_tail_test_zero",
+                             "steady_tail_test_births"), envir = .GlobalEnv))
+    for (flux in c("upwind", "van_leer")) {
+        for (bin_average in c(FALSE, TRUE)) {
+            p <- NS_params_small
+            second_order_w(p) <- c(flux = flux, bin_average = bin_average)
+            top <- support_top_idx(p)
+            cells <- cbind(seq_len(nrow(p@initial_n)), top)
+            p@initial_n[] <- 0
+            p@initial_n[cells] <- 1 / p@dw[top]
+            ext_diffusion(p) <- outer(rep(0.1, nrow(p@initial_n)), p@w^2)
+            p <- setRateFunction(p, "EGrowth", "steady_tail_test_zero")
+            p <- setRateFunction(p, "Mort", "steady_tail_test_zero")
+            p <- setRateFunction(p, "RDD", "steady_tail_test_births")
+            diffusion <- getDiffusion(p)
+            # Integrating the PDE leaves births minus the outgoing upper-face
+            # flux. This includes Cod's native terminal bin, which has no next
+            # bin on the grid and must not be removed from the diagnostic.
+            face_width <- if (flux == "upwind") {
+                p@dw[top]
+            } else {
+                log(p@w[2] / p@w[1]) * p@w[top] * p@w[2] / p@w[1]
+            }
+            outflow <- diffusion[cells] * p@initial_n[cells] / (2 * face_width)
+            rates <- steady_rates(p)$dNdt
+            expect_equal(drop(rates %*% p@dw), 0.25 - outflow,
+                         ignore_attr = TRUE)
+            expect_true(all(outflow > 0))
+            expect_equal(top[3], ncol(p@initial_n), ignore_attr = TRUE)
+            eggs <- cbind(seq_len(nrow(rates)), p@w_min_idx)
+            expect_true(all(rates[eggs] > 0))
+            dt <- 1e-5
+            sim <- project(p, t_max = dt, dt = dt, t_save = dt,
+                           method = "euler", progress_bar = FALSE,
+                           info_level = 0)
+            observed <- (as.numeric(getN(finalParams(sim))) -
+                             as.numeric(getN(p))) / dt
+            expect_equal(observed, 0.25 - outflow,
+                         tolerance = 1e-5, ignore_attr = TRUE)
+        }
+    }
+})
+
 test_that("getSteadyResidual() honours the effort it is given", {
     # Needs a model that is actually fished; the trait fixture above is not.
     p <- NS_params_small

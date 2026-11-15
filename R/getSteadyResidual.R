@@ -66,10 +66,9 @@ steady_residual_tol <- function() {
 #' | the inaccessible 17-42 kg Saithe tail there | 1e-137 |
 #'
 #' `1e-8` therefore sits two orders below anything that holds fish and three or
-#' more above the traces it is meant to remove. Erring on the large side is the
-#' safe direction: whether a state is a fixed point is decided by
-#' `steady_biomass_drift()`, which integrates over *every* size class, cut off
-#' or not, so a generous cutoff here cannot make a drifting model look settled.
+#' more above the traces it is meant to remove. The overall convergence check
+#' uses `steady_biomass_drift()`, which integrates the drift without a
+#' biomass-share cutoff, so this cutoff cannot hide net biomass drift.
 #' All it can do is stop a class with no mass in it from blocking a convergence
 #' test. The residual diagnostic needs no cutoff at all: [getSteadyResidual()]
 #' weights each class by the biomass it holds, which gives a trace the weight it
@@ -206,13 +205,28 @@ negligible_cells <- function(params, n, cutoff = steady_share_cutoff()) {
 #' rates are obtained by taking one short step of length `dt`, accurate to
 #' \eqn{O(dt)}.
 #'
+#' Empty classes above a species' retained size support contribute zero when
+#' transport holds that tail at zero: with a higher-order flux, or when the
+#' evaluated diffusion is positive anywhere in the model. This removes inflow
+#' into excluded empty classes, while retaining outgoing losses from the last
+#' included class and recruitment into the egg class. Empty classes inside the
+#' support can still fill and contribute to the drift. With upwind transport
+#' and no diffusion, the legacy Euler step can fill an empty tail, so those
+#' contributions are retained.
+#'
+#' This correction applies only at exactly zero density. Populated classes
+#' above the support retain their algebraic rates, including mortality decay.
+#' A projection that clamps such a populated tail removes its abundance
+#' immediately; that discontinuous change is not represented by this finite
+#' instantaneous diagnostic.
+#'
 #' Everything is evaluated at the model's own stored state — `initialN()`,
 #' `initialNResource()`, `initialNOther()` — using the model's own reproduction
 #' function and its own `resource_dynamics`. Nothing is substituted or held
-#' fixed. The number therefore answers exactly "if I called [project()] now,
-#' would anything move?", which is why it works for every model rather than only
-#' for the semichemostat resource that `findSteadyState(solver = "newton")`
-#' requires.
+#' fixed. Subject to the tail behaviour above, the number answers "if I called
+#' [project()] now, would anything move?" for general resource dynamics,
+#' including those beyond the semichemostat resource required by
+#' `findSteadyState(solver = "newton")`.
 #'
 #' ## Reading the result
 #'
@@ -436,8 +450,25 @@ steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4,
     # be used, so that the residual reflects the dynamics the user would get.
     # `consumer_residual()` returns A N - S, which is -dt dN/dt at dt = 1, so
     # the sign is flipped to give the rate of change itself.
+    rates_fns <- projectRateFunctions(params)
+    consumer_rates <- mizer_rates_subset(params, n = n, n_pp = n_pp,
+                                         n_other = n_other, t = 0,
+                                         effort = effort,
+                                         rates_fns = rates_fns,
+                                         targets = c("EGrowth", "Mort",
+                                                     "Diffusion"))
     dNdt <- -consumer_residual(params, n = n, n_pp = n_pp, n_other = n_other,
-                               effort = effort, rdd = NULL)
+                               effort = effort, rdd = NULL,
+                               rates = consumer_rates)
+
+    # Match the hard-boundary path selected by Euler projection. The diffusion
+    # check is global and uses the evaluated rates, including custom functions.
+    # Preserve populated tails and every retained equation, including top loss.
+    if (flux_limiter_scheme(params) != "none" ||
+            any(consumer_rates$diffusion > 0)) {
+        empty_tail <- n == 0 & col(n) > support_top_idx(params)
+        dNdt[empty_tail] <- 0
+    }
 
     # Resource. Its dynamics function is a one-step map, so difference it.
     r <- mizer_rates_subset(params, n = n, n_pp = n_pp, n_other = n_other,

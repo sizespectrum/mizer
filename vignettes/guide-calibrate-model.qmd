@@ -240,6 +240,21 @@ Mizer names any component that is moving whenever it reports on the drift, and
 about them. `projectUntilSettled()` is what settles them along with everything
 else.
 
+When projection holds the size classes above a species' retained support at
+zero, the drift diagnostic excludes inflow into those classes if they are
+empty. It still includes losses from the last retained class and inflow into
+empty classes inside the support. A small biomass drift indicates little net
+biomass change in the truncated model; it does not rule out changes within the
+size spectrum or establish that `w_max` is large enough for boundary losses to
+be negligible.
+
+Populated classes above the support retain their algebraic drift, including
+mortality decay. If a projection clears that tail, the instantaneous removal is
+not represented by this finite diagnostic. The legacy upwind Euler path without
+diffusion can instead fill an empty tail; its diagnostic contributions are also
+retained. See the upper-boundary discussion in the numerical details for these
+limits.
+
 `project(params, check_steady = TRUE)` makes the same check at the point where it
 matters, warning if the run is about to start from a state that is not a fixed
 point. It is off by default, because projecting a model away from its steady state
