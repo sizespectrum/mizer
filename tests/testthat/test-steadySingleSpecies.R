@@ -209,3 +209,22 @@ test_that("steadySingleSpecies treats a repeated species as one", {
     expect_equal(steadySingleSpecies(params, species = c(3, 3))@initial_n,
                  steadySingleSpecies(params, species = 3)@initial_n)
 })
+
+test_that("steadySingleSpecies preserves a van Leer steady state without diffusion", {
+    skip_if_not_installed("nleqslv")
+    params <- single_sp_params
+    second_order_w(params) <- TRUE
+    # Find the reference independently of get_steady_state_n(). The former
+    # frozen-limiter iteration changed this already steady spectrum (#652).
+    params <- tuneSteadyState(params, solver = "newton", info_level = 0)
+    expect_true(isSteady(params))
+    egg <- steadySingleSpecies(params, keep = "egg")
+    expect_true(isSteady(egg))
+    expect_equal(getBiomass(egg), getBiomass(params), tolerance = 1e-7)
+    expect_equal(getRDI(egg), getRDI(params), tolerance = 1e-7)
+
+    params@species_params$biomass_cutoff <- 10
+    biomass <- steadySingleSpecies(params, keep = "biomass")
+    expect_equal(initialN(biomass)[1, params@w_min_idx[1]],
+                 initialN(params)[1, params@w_min_idx[1]], tolerance = 1e-7)
+})

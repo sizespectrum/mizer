@@ -92,6 +92,14 @@
 
 ## Bug fixes
 
+- `steadySingleSpecies()` and `matchGrowth()` now solve the van Leer
+  steady-state transport equation with upwind-preconditioned defect correction
+  (#652). The previous iteration could oscillate, introduce interior zeros and
+  change an already steady spectrum substantially. Convergence is checked for
+  every species, including the transport residual, and failure now stops with
+  an error naming the unconverged species instead of returning an inaccurate
+  spectrum silently. The first-order upwind calculation is unchanged.
+
 - `newTraitParams()` no longer marks the resource capacity it constructs as
   set manually (#607). That capacity is exactly the one `setResource()`
   balances to, so the mark protected nothing, but it stopped `setResource()`

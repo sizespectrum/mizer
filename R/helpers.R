@@ -235,102 +235,162 @@ w2l <- function(w, species_params) {
 
 #' Calculate steady state abundance
 #'
-#' This function calculates the steady state abundance by solving the
-#' transport equation with given growth and mortality rates. It sets up a
-#' tri-diagonal system and solves it.
+#' Solves the steady-state transport equation with growth, mortality and
+#' diffusion held fixed and the supplied abundance in each egg size class.
 #'
 #' @param params A MizerParams object
 #' @param g A matrix of growth rates (species x size)
 #' @param mu A matrix of mortality rates (species x size)
 #' @param D A matrix of diffusion rates (species x size)
 #' @param N0 A vector with the abundance at the smallest size for each species
-#' @param max_iterations Maximum number of Picard iterations used when a flux
-#'   limiter is active.
-#' @param tol Relative convergence tolerance for the Picard iteration.
-#' @param relax Under-relaxation factor in (0, 1] for the Picard iteration when a
-#'   flux limiter is active.
-#' @return A matrix with the steady state abundance
+#' @param max_iterations Maximum number of defect-correction updates for a
+#'   van Leer flux limiter.
+#' @param tol Relative tolerance for both the correction and the transport
+#'   residual, checked separately for every species.
+#' @param relax Under-relaxation factor in (0, 1] for defect correction.
+#' @return A matrix with the steady-state abundance. Stops with an error naming
+#'   the unconverged species if the iteration limit is reached.
 #'
 #' @details
-#' The spatial discretisation of the advective flux is read from the
-#' `flux` entry of the `second_order_w` slot of `params`. With a second-order
-#' flux scheme active the steady state must match the one that [project()] converges
-#' to. Because the limiter depends on the solution, the steady state is then
-#' found by an under-relaxed Picard iteration: the limiter is frozen at the
-#' current iterate, the resulting tridiagonal system is solved, and the iterate
-#' is updated towards that solution, repeating until it converges. (At `dt = 1`
-#' the limited operator is not diagonally dominant, so the plain fixed-point map
-#' only stalls; under-relaxation makes it converge.)
+#' The flux scheme is read from [second_order_w()]. The upwind and centred
+#' systems are linear and are solved directly. With a van Leer limiter, defect
+#' correction solves the nonlinear equation using an upwind preconditioner with
+#' the same face placement and diffusion as the second-order scheme. Only the
+#' preconditioner has its reconstruction weights set to zero: the residual
+#' retains the model's chosen flux limiter.
 #'
-#' The returned abundance is held at zero above each species' `w_max`, the same
-#' upper boundary condition that [project()] imposes (via `zero_above_support()`
-#' in `project_n()`) and that the Newton solver solves on. Without this the
-#' bottom-up solve would carry density above `w_max` whenever growth is still
-#' positive there or diffusion pushes density past it.
+#' Each present species is solved with unit egg abundance and then rescaled to
+#' `N0`, because the limiter is unchanged by multiplying a species' spectrum by
+#' a positive constant. This prevents species with large egg abundances from
+#' hiding non-convergence in other species. Convergence requires both a small
+#' correction and a small residual of the original transport equation, so
+#' clipping negative iterates cannot turn a stalled iteration into a solution.
+#'
+#' Abundance is held at zero below the egg size and above the support top given
+#' by `support_top_idx()`, matching the boundary conditions of [project()].
 #' @concept helper
 get_steady_state_n <- function(params, g, mu, D, N0,
                                max_iterations = 500, tol = 1e-10,
-                               relax = 0.3) {
-    # Advective-flux scheme read from the model's second_order_w slot.
+                               relax = 0.5) {
     flux_limiter <- flux_limiter_scheme(params)
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
-    n <- matrix(0, nrow = no_sp, ncol = no_w,
-                dimnames = list(params@species_params$species, dimnames(params@initial_n)[[2]]))
-
+    zero <- matrix(0, nrow = no_sp, ncol = no_w,
+                   dimnames = list(params@species_params$species,
+                                   dimnames(params@initial_n)[[2]]))
     j_start <- params@w_min_idx
-    idxs_start <- cbind(1:no_sp, j_start)
-
-    # Highest retained class per species; abundance is held at zero above it,
-    # matching the upper boundary condition imposed by the time-steppers.
+    idxs_start <- cbind(seq_len(no_sp), j_start)
     w_top <- support_top_idx(params)
 
-    for (iteration in seq_len(max_iterations)) {
-        # Coefficients with dt = 1 and no recruitment flux (the boundary is
-        # handled manually below). The flux limiter is frozen at the current
-        # iterate `n`; with flux_limiter = "none" this is the upwind operator and
-        # the loop exits after a single, exact solve.
-        coefs <- get_transport_coefs(params, n, g, mu, dt = 1,
+    # Set the egg density rather than a recruitment flux. The time-stepping
+    # diagonal contains the identity, which is absent from the steady equation.
+    steady_coefs <- function(coefs) {
+        coefs$b <- coefs$b - 1
+        coefs$a[idxs_start] <- 0
+        coefs$b[idxs_start] <- 1
+        coefs$c[idxs_start] <- 0
+        coefs
+    }
+    solve_coefs <- function(coefs, rhs) {
+        project_n_loop(zero, coefs$a, coefs$b, coefs$c, rhs, j_start)
+    }
+
+    if (flux_limiter == "none") {
+        # Preserve the legacy solve, including its unnormalised right-hand
+        # side, so existing first-order models keep exactly the same results.
+        coefs <- get_transport_coefs(params, zero, g, mu, dt = 1,
                                      recruitment_flux = rep(0, no_sp),
                                      d = D, flux_limiter = flux_limiter)
+        coefs <- steady_coefs(coefs)
+        rhs <- zero
+        rhs[idxs_start] <- N0
+        return(zero_above_support(solve_coefs(coefs, rhs), w_top))
+    }
 
-        a <- coefs$a
-        # For steady state, the diagonal term \tilde{B} is B - 1
-        b <- coefs$b - 1
-        c <- coefs$c
-        # Steady-state right-hand side: zero except the fixed egg density at the
-        # lower boundary. (We build this directly rather than reusing coefs$S,
-        # which equals the frozen iterate `n`.)
-        S <- matrix(0, nrow = no_sp, ncol = no_w, dimnames = dimnames(n))
-
-        # Boundary conditions at the start of the size spectrum:
-        # A_j = 0, B_j = 1, C_j = 0, S_j = N0
-        a[idxs_start] <- 0
-        b[idxs_start] <- 1
-        c[idxs_start] <- 0
-        S[idxs_start] <- N0
-
-        n_solve <- project_n_loop(matrix(0, nrow = no_sp, ncol = no_w,
-                                         dimnames = dimnames(n)),
-                                  a, b, c, S, j_start)
-
-        # Without a limiter the system is linear, so one solve is exact.
-        if (flux_limiter == "none") {
-            return(zero_above_support(n_solve, w_top))
-        }
-
-        # Under-relax the update and keep the iterate non-negative (the limited
-        # operator is not an M-matrix, so a bare solve can dip slightly below 0).
-        n_new <- (1 - relax) * n + relax * n_solve
-        n_new[n_new < 0] <- 0
-        change <- max(abs(n_new - n)) / max(abs(n_new))
-        n <- n_new
-        if (is.finite(change) && change < tol) {
-            break
+    if (all(N0 == 0)) {
+        return(zero)
+    }
+    present <- N0 > 0
+    active <- col(zero) >= j_start & col(zero) <= w_top & present
+    # Inactive cells have the equation n = 0, also preventing a singular or
+    # non-finite inactive tail from contaminating the tridiagonal solve.
+    active_coefs <- function(coefs) {
+        coefs <- steady_coefs(coefs)
+        coefs$a[!active] <- 0
+        coefs$b[!active] <- 1
+        coefs$c[!active] <- 0
+        coefs
+    }
+    fail <- function(species) {
+        species <- params@species_params$species[species]
+        text <- paste0("The steady-state calculation did not converge for: ",
+                       toString(species), ".")
+        condition <- list(message = text, call = NULL, species = species)
+        class(condition) <- c("mizer_steady_nonconvergence", "error",
+                              "condition")
+        stop(condition)
+    }
+    row_max <- function(x) apply(x, 1, max)
+    check_finite_rows <- function(x) {
+        bad <- rowSums(!is.finite(x)) > 0
+        if (any(bad)) {
+            fail(which(bad))
         }
     }
 
-    return(zero_above_support(n, w_top))
+    rhs <- zero
+    rhs[idxs_start] <- as.numeric(present)
+    # Centred reconstruction is linear, so solve it directly. For van Leer,
+    # do not use get_transport_coefs(..., flux_limiter = "none") here: that
+    # selects the legacy scheme, whose fluxes sit at different faces. The
+    # log-FV operator with chi = 0 is the appropriate upwind preconditioner.
+    preconditioner <- if (flux_limiter == "centred") "centred" else "none"
+    low <- get_transport_coefs_logfv(params, zero, g, mu, dt = 1,
+                                     recruitment_flux = rep(0, no_sp),
+                                     d = D, flux_limiter = preconditioner)
+    low <- active_coefs(apply_upper_cutoff(low, w_top))
+    n <- pmax(solve_coefs(low, rhs), 0)
+
+    # Check the initial solution and then at most max_iterations updates.
+    for (iteration in seq_len(max_iterations + 1L)) {
+        # Check before evaluating chi: non-finite differences would otherwise
+        # cause an unrelated NA-subscript error in the limiter.
+        check_finite_rows(n)
+        coefs <- get_transport_coefs(params, n, g, mu, dt = 1,
+                                     recruitment_flux = rep(0, no_sp),
+                                     d = D, flux_limiter = flux_limiter)
+        coefs <- active_coefs(coefs)
+        left <- coefs$a * cbind(0, n[, -no_w, drop = FALSE])
+        centre <- coefs$b * n
+        right <- coefs$c * cbind(n[, -1, drop = FALSE], 0)
+        residual <- left + centre + right - rhs
+        check_finite_rows(residual)
+        correction <- solve_coefs(low, residual)
+        check_finite_rows(correction)
+
+        change <- row_max(abs(correction)) / pmax(row_max(abs(n)), 1)
+        scale <- abs(left) + abs(centre) + abs(right) + abs(rhs)
+        # Scale each cell by the terms in its balance. A round-off floor per
+        # species avoids demanding relative accuracy in a numerically empty
+        # tail.
+        floor <- .Machine$double.eps * pmax(row_max(scale), 1)
+        error <- row_max(abs(residual) / pmax(scale, floor))
+        converged <- change < tol & error < tol
+        if (all(converged)) {
+            return(n * N0)
+        }
+        if (flux_limiter == "centred") {
+            # A clipped linear solution must also satisfy the original
+            # equation; repeating the same solve cannot repair a negative root.
+            break
+        }
+        if (iteration <= max_iterations) {
+            correction[converged, ] <- 0
+            n <- pmax(n - relax * correction, 0)
+            n[idxs_start] <- rhs[idxs_start]
+        }
+    }
+    fail(which(!converged))
 }
 
 #' Warn about column names that look like mis-spelled parameter names
