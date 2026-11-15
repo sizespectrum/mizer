@@ -23,7 +23,8 @@ newCommunityParams(
   knife_edge_size = 1000,
   reproduction,
   second_order_w = NULL,
-  info_level = default_info_level(2)
+  info_level = default_info_level(2),
+  D_ext = 0
 )
 }
 \arguments{
@@ -96,6 +97,10 @@ entries leaves the other at the default of the edition.}
 when the function sets default values for parameters. Higher levels lead
 to more messages, \code{info_level = 0} gives silence. The default is taken
 from the \code{mizer_info_level} option, see \code{\link[=default_info_level]{default_info_level()}}.}
+
+\item{D_ext}{External diffusion coefficient. A single finite, non-negative
+number applied to all species. The external diffusion rate is
+\eqn{D_{ext} w^{n+1}}; see \code{\link[=setExtDiffusion]{setExtDiffusion()}}. Defaults to zero.}
 }
 \value{
 An object of type \code{\linkS4class{MizerParams}}
@@ -123,12 +128,10 @@ Fishing selectivity is modelled as a knife-edge function with one parameter,
 \code{knife_edge_size}, which determines the size at which species are
 selected.
 
-Because this constructor does not yet set up stochastic growth by diffusion,
-the size grid is not extended beyond the community's maximum size \code{max_w}
-(so that \code{w_max = w_repro_max}), rather than leaving the headroom that
-\code{\link[=newMultispeciesParams]{newMultispeciesParams()}} uses to accommodate stochastic growth. This will be
-revisited once these constructors gain a diffusion parameter, see
-\url{https://github.com/sizespectrum/mizer/issues/339}.
+External diffusion is set from \code{D_ext} by \code{\link[=setExtDiffusion]{setExtDiffusion()}} and defaults
+to zero. The initial spectrum remains a power law, so with diffusion it
+need not be close to steady state. The size grid ends at \code{max_w}, including
+when diffusion is positive; no extra size bins are added above it.
 
 The resulting \code{MizerParams} object can be projected forward using
 \code{project()} like any other \code{MizerParams} object. When projecting

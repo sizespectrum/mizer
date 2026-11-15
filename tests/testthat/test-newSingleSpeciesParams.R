@@ -47,3 +47,57 @@ test_that("Sets given_species_params", {
     given_species_params(p2) <- given_species_params(p2)
     expect_unchanged(p2, params)
 })
+
+test_that("newSingleSpeciesParams includes external diffusion", {
+    for (sow in c(FALSE, TRUE)) {
+        params <- newSingleSpeciesParams(D_ext = 0.1, second_order_w = sow,
+                                         info_level = 0)
+        expect_equal(unname(species_params(params)$D_ext), 0.1)
+        expect_equal(unname(given_species_params(params)$D_ext), 0.1)
+        exponent <- species_params(params)$n[[1]] + 1
+        expected <- if (sow) {
+            ((params@w + params@dw)^(exponent + 1) -
+                 params@w^(exponent + 1)) / ((exponent + 1) * params@dw)
+        } else {
+            params@w^exponent
+        }
+        expect_equal(as.numeric(params@ext_diffusion), 0.1 * expected)
+        expect_null(comment(params@ext_diffusion))
+        sim <- project(params, t_max = 0.01, dt = 0.001, t_save = 0.01,
+                       effort = 0, progress_bar = FALSE)
+        expect_true(all(is.finite(sim@n)))
+        expect_true(all(sim@n >= 0))
+        if (!sow) {
+            # The first-order initial spectrum must balance diffusion as well
+            # as growth and mortality, including at the egg boundary.
+            expect_equal(sim@n[2, 1, ] / sim@n[1, 1, ],
+                         rep(1, length(params@w)), ignore_attr = TRUE,
+                         tolerance = 1e-10)
+        }
+    }
+})
+
+test_that("newSingleSpeciesParams defaults to zero external diffusion", {
+    params <- newSingleSpeciesParams(D_ext = 0, info_level = 0)
+    expect_true(all(params@ext_diffusion == 0))
+    expect_equal(unname(given_species_params(params)$D_ext), 0)
+    expect_equal(params@initial_n, single_sp_params@initial_n)
+    expect_equal(params@species_params, single_sp_params@species_params)
+})
+
+test_that("single-species diffusive equilibrium also uses bin-averaged rates", {
+    params <- newSingleSpeciesParams(D_ext = 0.1, info_level = 0,
+                                     second_order_w = list(flux = "upwind",
+                                                           bin_average = TRUE))
+    sim <- project(params, t_max = 0.01, dt = 0.001, t_save = 0.01,
+                   effort = 0, progress_bar = FALSE)
+    expect_equal(sim@n[2, 1, ] / sim@n[1, 1, ], rep(1, length(params@w)),
+                 ignore_attr = TRUE, tolerance = 1e-10)
+})
+
+test_that("newSingleSpeciesParams validates the diffusion coefficient", {
+    for (D_ext in list(-1, NA_real_, Inf, NaN, c(0, 0.1), "0.1", NULL)) {
+        expect_error(newSingleSpeciesParams(D_ext = D_ext, info_level = 0),
+                     "D_ext")
+    }
+})

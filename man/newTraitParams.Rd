@@ -39,7 +39,8 @@ newTraitParams(
   second_order_w = NULL,
   min_w_inf = deprecated(),
   max_w_inf = deprecated(),
-  info_level = default_info_level(2)
+  info_level = default_info_level(2),
+  D_ext = 0
 )
 }
 \arguments{
@@ -161,6 +162,10 @@ renamed to \code{max_w_max}.}
 Higher levels lead to more messages, \code{info_level = 0} gives silence. The
 default is taken from the \code{mizer_info_level} option, see
 \code{\link[=default_info_level]{default_info_level()}}.}
+
+\item{D_ext}{External diffusion coefficient. A single finite, non-negative
+number applied to all species. The external diffusion rate is
+\eqn{D_{ext} w^{n+1}}; see \code{\link[=setExtDiffusion]{setExtDiffusion()}}. Defaults to zero.}
 }
 \value{
 An object of type \code{MizerParams}
@@ -211,14 +216,12 @@ it, this external mortality rate is marked as set manually, so changing
 The search rate coefficient \code{gamma} is calculated using the expected
 feeding level, \code{f0}.
 
-The diffusion rate is set to \code{0}. Because growth is therefore deterministic,
-no individual grows beyond \code{w_repro_max}, the size at which all available
-energy is invested into reproduction. The upper boundary of the size grid is
-therefore placed at that size, so that \code{w_max = w_repro_max}, instead of the
-\code{1.5 * w_repro_max} headroom that \code{\link[=newMultispeciesParams]{newMultispeciesParams()}} leaves to
-accommodate the stochastic growth produced by diffusion. This choice will be
-revisited once these constructors gain a diffusion parameter, see
-\url{https://github.com/sizespectrum/mizer/issues/339}.
+External diffusion is set from \code{D_ext} by \code{\link[=setExtDiffusion]{setExtDiffusion()}} and included
+in the calculation of the initial spectra. It defaults to zero. The
+subsequent normalisation uses power-law scaling, so the initial state is
+only approximately steady, particularly for large \code{D_ext}. Each species'
+upper size boundary remains at \code{w_max = w_repro_max}, including when
+diffusion is positive; no extra size bins are added above this boundary.
 
 The option of including fishing is given, but the steady state may loose its
 natural stability if too much fishing is included. In such a case the user

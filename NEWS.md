@@ -67,6 +67,11 @@
 
 ## New features
 
+- `newSingleSpeciesParams()`, `newTraitParams()` and `newCommunityParams()`
+  gain a `D_ext` argument for external diffusion (#339). It defaults to zero.
+  The single-species and trait constructors include diffusion when calculating
+  their initial spectra; the community constructor retains its initial
+  power-law spectrum. The configured size-grid limits are unchanged.
 - `getCourant()` reports the growth Courant numbers on the model's active
   size support. Projections with high-order flux now report large Courant
   numbers, and optional `subcycle = TRUE` advances consumers, resources and

@@ -33,14 +33,10 @@
 #' size, and `erepro` is then adjusted so the initial state satisfies the egg
 #' boundary condition.
 #'
-#' The diffusion rate is set to `0`. Because growth is therefore deterministic,
-#' no individual grows beyond `w_repro_max`, the size at which all available
-#' energy is invested into reproduction. The upper boundary of the size grid is
-#' therefore placed at that size, so that `w_max = w_repro_max`, instead of the
-#' `1.5 * w_repro_max` headroom that [newMultispeciesParams()] leaves to
-#' accommodate the stochastic growth produced by diffusion. This choice will be
-#' revisited once these constructors gain a diffusion parameter, see
-#' \url{https://github.com/sizespectrum/mizer/issues/339}.
+#' External diffusion is set from `D_ext` by [setExtDiffusion()] and included
+#' in the calculation of the initial spectrum. It defaults to zero. The upper
+#' boundary of the size grid remains at `w_max = w_repro_max`, including when
+#' diffusion is positive; no extra size bins are added above this boundary.
 #'
 #' @param species_name A string with a name for the species. Will be used in
 #'   plot legends.
@@ -89,7 +85,8 @@ newSingleSpeciesParams <-
              info_level = default_info_level(),
              R_factor = deprecated(),
              w_inf = deprecated(),
-             k_vb = deprecated()) {
+             k_vb = deprecated(),
+             D_ext = 0) {
         with_info_level(info_level = info_level, {
         if (lifecycle::is_present(w_inf)) {
             lifecycle::deprecate_warn(
@@ -109,6 +106,7 @@ newSingleSpeciesParams <-
             )
         }
     assert_that(is.string(species_name), length(species_name) == 1)
+    assert_that(is.number(D_ext), is.finite(D_ext), D_ext >= 0)
 
     ## Much of the following code is copied from newTraitParams
 
@@ -168,9 +166,7 @@ newSingleSpeciesParams <-
     species_params <- data.frame(
         species = species_name,
         w_min = w_min,
-        # Without diffusion nothing grows beyond w_repro_max (= w_inf here), so
-        # the computational grid boundary w_max is placed there too, with no
-        # headroom above the maximum size. To be revisited with diffusion (#339).
+        # Keep the requested maximum size as the computational boundary.
         w_inf = w_max,
         w_max = w_max,
         w_mat = w_mat,
@@ -183,6 +179,7 @@ newSingleSpeciesParams <-
         beta = beta,
         sigma = sigma,
         z0 = 0,
+        D_ext = D_ext,
         alpha = alpha,
         erepro = erepro,
         stringsAsFactors = FALSE
@@ -248,10 +245,8 @@ newSingleSpeciesParams <-
     # Steady state solution of the upwind-difference scheme used in project
     growth_matrix <- matrix(gg, nrow = 1)
     mort_matrix <- params@mu_b
-    diffusion_matrix <- growth_matrix
-    diffusion_matrix[] <- 0
     n_exact <- get_steady_state_n(params, growth_matrix, mort_matrix,
-                                  diffusion_matrix, c(1))
+                                  params@ext_diffusion, c(1))
     initial_n[1, ] <- n_exact[1, ]
 
     # The resource was already set up by newMultispeciesParams()
