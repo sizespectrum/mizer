@@ -682,3 +682,58 @@ test_that("getStability says a dynamic component is not in its Jacobian", {
     expect_warning(suppressMessages(getStability(p)),
                    "covers the consumers and the resource only")
 })
+
+test_that("stability maps give custom resources the complete effective rates", {
+    calls <- 0L
+    rlang::local_bindings(
+        stability_complete_rates = function(params, ...) {
+            calls <<- calls + 1L
+            rates <- mizerRates(params, ...)
+            rates$rdd <- rates$rdd / 2
+            rates
+        },
+        stability_fishing_resource = function(n_pp, rates, dt, predicted_state,
+                                              endpoint_rates, ...) {
+            if (is.null(rates$f_mort)) stop("missing fishing mortality")
+            stopifnot(is.null(predicted_state), is.null(endpoint_rates))
+            n_pp * (1 + dt * sum(rates$f_mort))
+        }, .env = .GlobalEnv
+    )
+    p <- NS_params_small
+    p@resource_dynamics <- "stability_fishing_resource"
+    p@rates_funcs$Rates <- "stability_complete_rates"
+    ctx <- suppressMessages(suppressWarnings(stability_context(p)))
+    rates <- mizerRates(p, n = p@initial_n, n_pp = p@initial_n_pp,
+                        n_other = p@initial_n_other, effort = p@initial_effort,
+                        rates_fns = projectRateFunctions(p))
+    fishing <- sum(rates$f_mort)
+    expect_gt(fishing, 0)
+
+    calls <- 0L
+    rhs <- stability_rhs(ctx, dt_resource = 0.25)(ctx$x0)
+    expect_identical(calls, 1L)
+    expected <- -consumer_residual(p, n = p@initial_n,
+                                   n_pp = p@initial_n_pp,
+                                   n_other = p@initial_n_other,
+                                   effort = p@initial_effort,
+                                   rates = rates, rdd = rates$rdd / 2)
+    expect_equal(rhs[seq_len(ctx$n_fish_active)], expected[ctx$active$mask])
+    resource_idx <- ctx$n_fish_active + seq_len(ctx$n_npp)
+    present <- p@initial_n_pp > 0
+    expect_equal(rhs[resource_idx[present]] /
+                     as.numeric(p@initial_n_pp[present]),
+                 rep(fishing, sum(present)), tolerance = 1e-10)
+    expect_true(all(rhs[resource_idx[!present]] == 0))
+
+    calls <- 0L
+    dt <- 0.001
+    stepped <- stability_step(ctx, dt)(ctx$x0)
+    expect_identical(calls, 1L)
+    # Compare the map with the public Euler projection, including the custom
+    # provider's assembled recruitment and the same resource update.
+    sim <- project(p, t_max = dt, dt = dt, t_save = dt, method = "euler",
+                   progress_bar = FALSE, info_level = 0)
+    expect_equal(stepped[seq_len(ctx$n_fish_active)],
+                 finalN(sim)[ctx$active$mask])
+    expect_equal(stepped[resource_idx], as.numeric(finalNResource(sim)))
+})

@@ -423,7 +423,9 @@ project.MizerParams <- function(object, effort,
     sim@sim_params <- list(method = method, dt = dt,
                            flux_limiter = flux_limiter, subcycle = subcycle,
                            max_courant = max_courant,
-                           max_substeps = max_substeps)
+                           max_substeps = max_substeps,
+                           component_integration =
+                               component_integrators(params, method))
     # Set initial population and effort
     sim@n[1, , ] <- initial_n
     sim@n_pp[1, ] <- initial_n_pp
@@ -432,8 +434,8 @@ project.MizerParams <- function(object, effort,
 
     ## Initialise ----
     # get functions
-    resource_dynamics_fn <- get(params@resource_dynamics)
-    other_dynamics_fns <- lapply(params@other_dynamics, get)
+    resource_dynamics_fn <- resolve_model_callback(params@resource_dynamics)
+    other_dynamics_fns <- prepare_component_dynamics(params)
     rates_fns <- projectRateFunctions(params)
 
     # Set up progress bar
@@ -602,16 +604,12 @@ project.MizerSim <- function(object, effort,
 #' intermediate results but only returns the result at time `t + dt * steps`.
 #' During this time it uses the constant fishing effort `effort`.
 #'
-#' The functional arguments can be calculated from slots in the `params` object
-#' with
-#' ```
-#' resource_dynamics_fn <- get(params@resource_dynamics)
-#' other_dynamics_fns <- lapply(params@other_dynamics, get)
-#' rates_fns <- lapply(params@rates_funcs, get)
-#' ```
-#' The reason the function does not do that itself is to shave 20 microseconds
-#' of its running time, which pays when the function is called hundreds of
-#' times in a row.
+#' The default method prepares the functional arguments from the model,
+#' including the derivatives of components registered with `rate_fun`.
+#' Callers that repeatedly advance the same model can supply prepared functions
+#' to reuse their dispatch. Component functions must retain the derivative
+#' metadata added during preparation; looking up `other_dynamics` names alone
+#' does not prepare an equation-only component for second-order integration.
 #'
 #' This function is also used by the steady-state finders. In between calls to
 #' `project_simple()` the `steady()` function checks whether the values are
@@ -671,8 +669,9 @@ project_simple.MizerParams <-
              n_other = params@initial_n_other,
              effort = params@initial_effort,
              t = 0, dt = 0.1, steps,
-             resource_dynamics_fn = get(params@resource_dynamics),
-             other_dynamics_fns = lapply(params@other_dynamics, get),
+             resource_dynamics_fn =
+             resolve_model_callback(params@resource_dynamics),
+             other_dynamics_fns = prepare_component_dynamics(params),
              rates_fns = projectRateFunctions(params),
              method = c("euler", "predictor_corrector", "tr_bdf2"),
              subcycle = FALSE, max_courant = 1, max_substeps = 10000,
@@ -700,25 +699,71 @@ project_simple.MizerParams <-
         c <- matrix(0, nrow = no_sp, ncol = no_w)
         S <- matrix(0, nrow = no_sp, ncol = no_w)
 
-        # Advance the other components by one Euler step from the start-of-step
-        # state (`n`, `n_pp`, `n_other`) using the supplied rates. Used for the
-        # predictor (with the start-of-step rates `r`) and, for the
-        # second-order methods, the corrector (with the midpoint rates
-        # `r_mid`), so that the other components are integrated to the same
-        # order of accuracy as the resource and consumer spectra.
-        step_other_components <- function(rates) {
-            out <- list()
-            for (component in names(params@other_dynamics)) {
-                out[[component]] <-
-                    other_dynamics_fns[[component]](
-                        params,
-                        n = n, n_pp = n_pp, n_other = n_other,
-                        rates = rates, t = t, dt = dt,
-                        component = component, ...
-                    )
+            step_args <- function(rates) {
+                c(list(params = params, n = n, n_pp = n_pp, n_other = n_other,
+                       rates = rates, t = t, dt = dt), list(...))
             }
-            out
-        }
+            predict_components <- function(rates) {
+                out <- n_other
+                derivatives <- list()
+                for (component in names(params@other_dynamics)) {
+                    fun <- other_dynamics_fns[[component]]
+                    rate_fun <- attr(fun, "component_rate", exact = TRUE)
+                    if (!is.null(rate_fun)) {
+                        derivative <- checked_component_rate(
+                            rate_fun, params, n = n, n_pp = n_pp,
+                            n_other = n_other, rates = rates, t = t,
+                            component = component, ...
+                        )
+                        derivatives[component] <- list(derivative)
+                        value <- n_other[[component]] + dt * derivative
+                    } else {
+                        value <- invoke_model_step(
+                            fun,
+                            c(step_args(rates), list(component = component))
+                        )
+                    }
+                    out[component] <- list(value)
+                }
+                list(state = out, derivatives = derivatives)
+            }
+            correct_components <- function(rates, predicted, endpoint_rates,
+                                           derivatives) {
+                out <- n_other
+                for (component in names(params@other_dynamics)) {
+                    fun <- other_dynamics_fns[[component]]
+                    rate_fun <- attr(fun, "component_rate", exact = TRUE)
+                    if (!is.null(rate_fun)) {
+                        endpoint <- checked_component_rate(
+                            rate_fun, params, n = predicted$n,
+                            n_pp = predicted$n_pp, n_other = predicted$n_other,
+                            rates = endpoint_rates, t = predicted$t,
+                            component = component, ...
+                        )
+                        value <- n_other[[component]] + dt / 2 *
+                            (derivatives[[component]] + endpoint)
+                    } else {
+                        value <- invoke_model_step(
+                            fun,
+                            c(step_args(rates), list(component = component)),
+                            predicted_state = predicted,
+                            endpoint_rates = endpoint_rates
+                        )
+                    }
+                    out[component] <- list(value)
+                }
+                out
+            }
+            step_resource <- function(rates, predicted_state = NULL,
+                                      endpoint_rates = NULL) {
+                invoke_model_step(
+                    resource_dynamics_fn,
+                    c(step_args(rates), list(resource_rate = params@rr_pp,
+                                             resource_capacity = params@cc_pp)),
+                    predicted_state = predicted_state,
+                    endpoint_rates = endpoint_rates
+                )
+            }
 
         # Each requested step retains its endpoint and output/effort schedule.
         # Only the optional path splits it; dt is the actual coupled step below.
@@ -751,32 +796,19 @@ project_simple.MizerParams <-
                 }
 
                 # * Update other components (predictor) ----
-                # First-order Euler update using the start-of-step rates `r`.
-                # For
-                # the Euler method this is the final value for the step. The
-                # second-order methods use `n_other_hat` in the end-of-step
-                # rates
-                # (like the resource's `n_pp_hat`) and then overwrite
-                # `n_other_new`
-                # with a corrector below.
-                n_other_hat <- step_other_components(r)
+                # Equations take an Euler prediction; custom steps integrate
+                # with start-of-step rates. Under the Euler method this is the
+                # final state. Second-order methods use the prediction in the
+                # endpoint rate calculation and then apply a corrector.
+                component_prediction <- predict_components(r)
+                n_other_hat <- component_prediction$state
                 n_other_new <- n_other_hat
 
                 # * Update resource and species ----
                 if (method == "predictor_corrector" || method == "tr_bdf2") {
-                    # Second-order methods: compute midpoint rates once and use
-                    # them
-                    # for both the resource and the consumer update.
-                    # Predictor: advance resource and consumer with
-                    # start-of-step
-                    # rates r.
-                    n_pp_hat <- resource_dynamics_fn(params,
-                        n = n, n_pp = n_pp,
-                        n_other = n_other, rates = r,
-                        t = t, dt = dt,
-                        resource_rate = params@rr_pp,
-                        resource_capacity = params@cc_pp, ...
-                    )
+                    # Predict resource and consumer with start-of-step rates,
+                    # then evaluate all rates once at the predicted endpoint.
+                    n_pp_hat <- step_resource(r)
                     n_hat <- project_n(params, r, n, dt, a, b, c, S, idx,
                                        w_min_idx_array_ref, no_sp, no_w,
                                        flux_limiter = flux_limiter)
@@ -787,25 +819,22 @@ project_simple.MizerParams <-
                         t = t + dt, effort = effort, rates_fns = rates_fns, ...
                     )
                     r_mid <- average_rates(r, r_hat)
+                    r_component <- average_component_rates(r, r_hat)
+                    predicted <- list(n = n_hat, n_pp = n_pp_hat,
+                                      n_other = n_other_hat, t = t + dt)
 
-                    # Corrector: other components with the midpoint rates, so
-                    # they
-                    # reach the same second-order accuracy as the resource and
-                    # consumer. Computed from the start-of-step state before the
-                    # resource corrector below overwrites `n_pp`.
-                    n_other_new <- step_other_components(r_mid)
+                        # Equations use a Heun corrector. Custom steps receive
+                        # midpoint rates and predictions for their integration.
+                        # Both still start from the original state.
+                        n_other_new <- correct_components(
+                            r_component, predicted, r_hat,
+                            component_prediction$derivatives
+                        )
 
-                    # Corrector: resource with midpoint resource mortality
-                    n_pp <- resource_dynamics_fn(params,
-                        n = n, n_pp = n_pp,
-                        n_other = n_other, rates = r_mid,
-                        t = t, dt = dt,
-                        resource_rate = params@rr_pp,
-                        resource_capacity = params@cc_pp, ...
-                    )
-                    # Corrector: consumer with the same midpoint rates.
-                    # Supplying
-                    # r_mid makes the stepper skip its internal predictor.
+                        # Custom resources can also use any standard rate.
+                        n_pp <- step_resource(r_component, predicted, r_hat)
+                        # Consumers use their specialised midpoint rate view.
+                        # Supplying r_mid skips the internal predictor.
                     if (method == "predictor_corrector") {
                         n <- project_n_2(params, r, n, dt, a, b, c, S, idx,
                                          w_min_idx_array_ref, no_sp, no_w,
@@ -820,13 +849,7 @@ project_simple.MizerParams <-
                     }
                 } else {
                     # First-order Euler method.
-                    n_pp <- resource_dynamics_fn(params,
-                        n = n, n_pp = n_pp,
-                        n_other = n_other, rates = r,
-                        t = t, dt = dt,
-                        resource_rate = params@rr_pp,
-                        resource_capacity = params@cc_pp, ...
-                    )
+                    n_pp <- step_resource(r)
                     if (euler_uses_hard_boundary(r$diffusion, flux_limiter)) {
                         n <- project_n(params, r, n, dt, a, b, c, S, idx,
                                        w_min_idx_array_ref, no_sp, no_w,

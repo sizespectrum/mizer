@@ -16,7 +16,9 @@ setComponent(
   component_params,
   colour = "grey",
   linetype = "solid",
-  definition
+  definition,
+  rate_fun,
+  integration_order
 )
 
 removeComponent(params, component)
@@ -34,7 +36,7 @@ component; retained when omitted for an existing component. Must not be
 \code{NULL}; use \code{removeComponent()} to remove a component.}
 
 \item{dynamics_fun}{Name of function to calculate value at the next time
-step. Required in the assembled definition.}
+step. Required unless \code{rate_fun} is supplied.}
 
 \item{encounter_fun}{Name of function to calculate contribution to encounter
 rate. Optional.}
@@ -55,14 +57,20 @@ functions. This could for example be a named list of parameters. Optional.}
 plotting styles. Supplying a list replaces its previous definition before
 explicitly supplied arguments are applied. State and component parameters
 are supplied separately.}
+
+\item{rate_fun}{Name of function returning the component's derivative.
+Required unless \code{dynamics_fun} is supplied.}
+
+\item{integration_order}{Optional positive integer declaring the order of a
+custom \code{dynamics_fun}. \code{NULL} removes the declaration.}
 }
 \value{
 The updated MizerParams object
 
 For \code{getComponent}: A list with the entries \code{initial_value},
-\code{dynamics_fun}, \code{encounter_fun}, \code{mort_fun}, \code{component_params}, and
-\code{definition} for the requested component. If the requested component does
-not exist, \code{NULL} is returned.
+\code{dynamics_fun}, \code{rate_fun}, \code{encounter_fun}, \code{mort_fun},
+\code{component_params}, and \code{definition} for the requested component.
+If the requested component does not exist, \code{NULL} is returned.
 If no \code{component} argument is given, then a list of lists for all
 components is returned.
 }
@@ -77,14 +85,16 @@ The component can be a number, a vector, an array, a list, or any other
 data structure you like.
 
 A new component needs an \code{initial_value}, supplied separately from its
-definition. Its \code{dynamics_fun} can be supplied directly or through
-\code{definition}. For an existing component, omitted
-arguments retain their existing values. Explicit \code{NULL} removes an optional
-\code{encounter_fun} or \code{mort_fun}. You can remove a component with
-\code{removeComponent()}.
+definition. Supply at least one of \code{dynamics_fun} and \code{rate_fun}, directly
+or through \code{definition}. For an existing component, omitted arguments retain
+their existing values. Explicit \code{NULL} removes an optional callback, provided
+at least one of the two dynamics capabilities remains. Remove a component
+with \code{removeComponent()}.
 
 A \code{definition} is a reusable named list containing \code{dynamics_fun},
-\code{encounter_fun}, \code{mort_fun}, \code{colour} and/or \code{linetype}. Explicit arguments
+\code{rate_fun}, \code{encounter_fun}, \code{mort_fun}, \code{colour}, \code{linetype} and/or
+\code{integration_order}.
+Explicit arguments
 override its entries. Supplying a definition replaces the component's
 previous definition: omitted optional callbacks are removed and omitted
 styles default to \code{"grey"} and \code{"solid"}. Without \code{definition}, explicitly
@@ -98,6 +108,34 @@ again to apply an update. Callback function names are stored, rather than
 their implementations, so the functions still need to be available when
 the model is used.
 }
+\section{Equations and custom steps}{
+
+A \code{rate_fun} returns the component's derivative, with the numeric shape and
+names of its state preserved. It receives \code{params}, \code{n}, \code{n_pp}, \code{n_other},
+\code{rates}, \code{t}, \code{component} and \code{...}. Mizer applies Euler under first-order
+projection and Heun under the second-order methods. This is explicit
+integration, including when the fish use TR-BDF2.
+
+A \code{dynamics_fun} returns the new state and owns the integration. It is the
+appropriate capability for stiff or non-numeric states. When both callbacks
+are supplied, the custom step performs projection and the derivative remains
+available for diagnostics. Callback names may be unqualified or use
+\code{package::exported_function}.
+
+Custom steps may accept \code{predicted_state} and \code{endpoint_rates}. During a
+second-order corrector these contain the predicted endpoint state (a list
+with \code{n}, \code{n_pp}, \code{n_other} and \code{t}) and its rate list. They are \code{NULL} when
+no prediction is available. The ordinary state arguments still describe the
+start of the step. Prediction data do not by themselves establish the
+accuracy or stability of the custom integration.
+
+\code{integration_order} declares the order of a custom step; omission means
+unknown, not an assumed second order. Replacing \code{dynamics_fun} clears an
+inherited order unless an order is explicitly supplied with the replacement.
+Mizer chooses the integrator for equations-only components, so they must not
+declare a custom integration order.
+}
+
 \seealso{
 "Extending mizer":
 \href{https://sizespectrum.org/mizer/articles/guide-extend-mizer.html}{guide to extending mizer}

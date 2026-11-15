@@ -337,12 +337,13 @@ check in code that was written before those steppers existed:
 - **Use the `rates` argument; do not recompute rates from `n`.** Rebuilding them
   gives the corrector the start-of-step rates again, which silently drops the
   whole run back to first order rather than producing a visible error.
-- **Integrate your own step to second order.** The corrector hands you midpoint
-  values for `e_growth`, `mort`, `diffusion`, `rdd` and `resource_mort`, and
-  start-of-step values for every other entry of the rate list. The interface
-  asks for the new state, so your function is the integrator: `state + dt * f(state, rates)` stays first order under
-  `"second_order"`. Solve the step exactly with the rates frozen, as
-  [`resource_semichemostat()`](../reference/resource_semichemostat.html) does, or take an RK2 step inside the function.
+- **Integrate your own step to second order or supply an equation.** The
+  corrector hands you midpoint values for all standard numeric rates. A custom
+  step owns its integration: `state + dt * f(state, rates)` remains first order
+  when `f` depends on the component's start state. Solve the step exactly with
+  the rates frozen, as [`resource_semichemostat()`](../reference/resource_semichemostat.html) does, or use the optional
+  prediction context described below. An equation-only component gets Heun
+  integration from mizer.
 - **Tolerate being called out of order.** The rate functions are evaluated a
   second time at `t + dt` on the *predicted* state, so a rate function must not
   assume that time advances once per call or cache "the last `t` I saw".
@@ -641,6 +642,35 @@ The core upgrade creates snapshots for legacy components from their recorded
 callbacks and plotting styles. It does not invent support for future assessment,
 balancing or transformation capabilities. Keep using the version-stamp and
 idempotent-upgrade workflow in the [guide to creating a mizer extension package](guide-create-extension-package.html).
+
+---
+
+## Component equations and prediction context
+
+From mizer 3.4.0.9005, a component can register `rate_fun`, `dynamics_fun`, or
+both. `rate_fun` returns a finite numeric derivative with the state's dimensions
+and names. Without a custom step, mizer uses Euler or Heun; when both are
+registered, projection uses the custom step and diagnostics can use the equation.
+Do not expect a fish TR-BDF2 step to stabilise an explicit component equation.
+Keep a suitable custom step for stiff or non-numeric components.
+
+Custom component and resource steps can accept `predicted_state` (a list of
+`n`, `n_pp`, `n_other` and `t`) and `endpoint_rates`. In a corrector these are
+the predicted endpoint, while the ordinary state arguments and `t` still refer
+to the start. In a predictor, Euler step or standalone diagnostic these optional
+arguments are `NULL`. Strict legacy signatures remain supported. All standard
+numeric fields of the corrector's `rates` list are now midpoint values; extra
+extension metadata is not automatically averaged.
+
+Declare a custom step's `integration_order` only when its accuracy is known.
+`sim@sim_params$component_integration` records the actual per-component method,
+callback and order, with `NA` for an undeclared custom order. Test temporal
+refinement with coupled states as well as a component evolving on its own.
+
+Callbacks may use exported `package::function` identifiers. The core saved-model
+upgrade adds equation and method metadata without executing callbacks. Existing
+models do not acquire equations merely because a package's definition changed;
+update their stored definitions explicitly through the extension upgrade.
 
 ---
 

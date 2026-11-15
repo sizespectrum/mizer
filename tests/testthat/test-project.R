@@ -999,3 +999,212 @@ test_that("subcycling lands exactly on requested time boundaries", {
     expect_identical(observed$times[11], 0.1)
     expect_equal(out$n_other$clock, 0.1, tolerance = 1e-14)
 })
+
+# Component equations and complete numerical contexts ----
+test_that("component derivatives have Euler and Heun temporal order", {
+    assign("projection_decay_rate", function(params, n_other, component, ...) {
+        -2 * n_other[[component]]
+    }, envir = .GlobalEnv)
+    withr::defer(rm("projection_decay_rate", envir = .GlobalEnv))
+    initial <- c(first = 1, second = 2)
+    p <- setComponent(NS_params_small, "pool", initial_value = initial,
+                      rate_fun = "projection_decay_rate")
+    exact <- initial * exp(-0.8)
+    for (method in c("euler", "predictor_corrector", "tr_bdf2")) {
+        errors <- vapply(c(0.1, 0.05, 0.025), function(dt) {
+            out <- project_simple(p, dt = dt, steps = round(0.4 / dt),
+                                  method = method, info_level = 0)
+            expect_identical(names(out$n_other$pool), names(initial))
+            max(abs(out$n_other$pool - exact))
+        }, numeric(1))
+        order <- log2(errors[-3] / errors[-1])
+        target <- if (method == "euler") 1 else 2
+        expect_true(all(order > target - 0.15 & order < target + 0.2),
+                    info = paste(method,
+                                 paste(round(order, 3), collapse = ", ")))
+    }
+})
+
+test_that("Heun uses the prediction of every coupled component", {
+    oscillator_rate <- function(params, n_other, component, ...) {
+        if (component == "x") n_other$y else -n_other$x
+    }
+    assign("projection_oscillator_rate", oscillator_rate, envir = .GlobalEnv)
+    withr::defer(rm("projection_oscillator_rate", envir = .GlobalEnv))
+    p <- setComponent(NS_params_small, "x", initial_value = 1,
+                      rate_fun = "projection_oscillator_rate")
+    p <- setComponent(p, "y", initial_value = 0,
+                      rate_fun = "projection_oscillator_rate")
+    exact <- c(x = cos(0.4), y = -sin(0.4))
+    for (method in c("euler", "predictor_corrector", "tr_bdf2")) {
+        errors <- vapply(c(0.1, 0.05, 0.025), function(dt) {
+            out <- project_simple(p, dt = dt, steps = round(0.4 / dt),
+                                  method = method, info_level = 0)
+            max(abs(unlist(out$n_other) - exact))
+        }, numeric(1))
+        order <- log2(errors[-3] / errors[-1])
+        target <- if (method == "euler") 1 else 2
+        expect_true(all(order > target - 0.15 & order < target + 0.2),
+                    info = paste(method,
+                                 paste(round(order, 3), collapse = ", ")))
+    }
+})
+
+test_that("custom correctors receive all midpoint rates", {
+    p <- setComponent(NS_params_small, "tracked", initial_value = 0,
+                      dynamics_fun = "constant_other")
+    fns <- projectRateFunctions(p)
+    original_rates <- fns$Rates
+    fns$Rates <- function(params, t, ...) {
+        rates <- original_rates(params, t = t, ...)
+        rates$f_mort[] <- 1 + t
+        rates$pred_rate[] <- 2 + 2 * t
+        rates
+    }
+    components <- list(tracked = function(n_other, rates, dt, component, ...) {
+        n_other[[component]] + dt *
+            (mean(rates$f_mort) + mean(rates$pred_rate))
+    })
+    resource <- function(n_pp, rates, dt, ...) {
+        n_pp[] <- dt * (mean(rates$f_mort) + mean(rates$pred_rate))
+        n_pp
+    }
+    for (method in c("predictor_corrector", "tr_bdf2")) {
+        out <- project_simple(p, dt = 0.2, steps = 1, method = method,
+                              rates_fns = fns, other_dynamics_fns = components,
+                              resource_dynamics_fn = resource, info_level = 0)
+        # Integral of (1 + t) + (2 + 2*t) between 0 and 0.2.
+        expect_equal(out$n_other$tracked, 0.66)
+        expect_equal(unname(out$n_pp), rep(0.66, length(p$w_full)))
+    }
+})
+
+test_that("custom steps receive predictions without changing the start state", {
+    p <- setComponent(NS_params_small, "tracked", initial_value = 1,
+                      dynamics_fun = "constant_other")
+    observations <- list()
+    resource_observations <- list()
+    components <- list(tracked = function(params, n, n_pp, n_other, rates,
+                                          t, dt, component,
+                                          predicted_state = NULL,
+                                          endpoint_rates = NULL) {
+        observations[[length(observations) + 1L]] <<-
+            list(start = n_other[[component]], t = t, dt = dt,
+                 prediction = predicted_state, endpoint = endpoint_rates)
+        if (is.null(predicted_state)) {
+            n_other[[component]] + dt
+        } else {
+            predicted_state$n_other[[component]]
+        }
+    })
+    resource <- function(params, n, n_pp, n_other, rates, t, dt,
+                         resource_rate, resource_capacity,
+                         predicted_state = NULL, endpoint_rates = NULL) {
+        resource_observations[[length(resource_observations) + 1L]] <<-
+            list(prediction = predicted_state, endpoint = endpoint_rates)
+        n_pp
+    }
+    for (method in c("predictor_corrector", "tr_bdf2")) {
+        observations <- list()
+        resource_observations <- list()
+        out <- project_simple(p, dt = 0.2, steps = 1, method = method,
+                              other_dynamics_fns = components,
+                              resource_dynamics_fn = resource, info_level = 0)
+        expect_length(observations, 2L)
+        expect_null(observations[[1]]$prediction)
+        expect_null(observations[[1]]$endpoint)
+        expect_identical(observations[[2]]$start, 1)
+        expect_equal(observations[[2]]$prediction$n_other$tracked, 1.2)
+        expect_equal(observations[[2]]$prediction$t, 0.2)
+        expect_named(observations[[2]]$prediction,
+                     c("n", "n_pp", "n_other", "t"))
+        expect_true(all(c("f_mort", "pred_rate", "rdd") %in%
+                            names(observations[[2]]$endpoint)))
+        expect_length(resource_observations, 2L)
+        expect_null(resource_observations[[1]]$prediction)
+        expect_null(resource_observations[[1]]$endpoint)
+        expect_equal(resource_observations[[2]]$prediction,
+                     observations[[2]]$prediction)
+        expect_equal(resource_observations[[2]]$endpoint,
+                     observations[[2]]$endpoint)
+        expect_equal(out$n_other$tracked, 1.2)
+    }
+})
+
+test_that("legacy strict callbacks keep arbitrary component state", {
+    p <- setComponent(NS_params_small, "record", initial_value = list(time = 0),
+                      dynamics_fun = "constant_other")
+    # Every original argument, but no ellipsis or new optional arguments.
+    strict <- function(params, n, n_pp, n_other, rates, t, dt, component) {
+        list(time = t + dt, note = "retained")
+    }
+    for (method in c("euler", "tr_bdf2")) {
+        out <- project_simple(p, dt = 0.1, steps = 2, method = method,
+                              other_dynamics_fns = list(record = strict),
+                              info_level = 0)
+        expect_identical(names(out$n_other), "record")
+        expect_equal(out$n_other$record,
+                     list(time = 0.2, note = "retained"))
+    }
+})
+
+test_that("custom steps take precedence over a component equation", {
+    assign("projection_unused_rate", function(...) {
+        stop("the projection must use the custom step")
+    }, envir = .GlobalEnv)
+    withr::defer(rm("projection_unused_rate", envir = .GlobalEnv))
+    p <- setComponent(NS_params_small, "pool", initial_value = 42,
+                      dynamics_fun = "constant_other",
+                      rate_fun = "projection_unused_rate")
+    sim <- project(p, dt = 0.1, t_max = 0.2, t_save = 0.1,
+                   method = "tr_bdf2", progress_bar = FALSE, info_level = 0)
+    expect_equal(unname(unlist(sim$n_other[, "pool"])), rep(42, 3))
+    integration <- sim$sim_params$component_integration
+    expect_identical(integration$component, "pool")
+    expect_identical(integration$method, "custom")
+    expect_true(is.na(integration$order))
+})
+
+test_that("equation components use the actual substep length", {
+    subcycle_rate <- function(params, n_other, component, ...) {
+        -n_other[[component]]
+    }
+    assign("projection_subcycle_rate", subcycle_rate, envir = .GlobalEnv)
+    withr::defer(rm("projection_subcycle_rate", envir = .GlobalEnv))
+    p <- setComponent(NS_params_small, "pool", initial_value = 1,
+                      rate_fun = "projection_subcycle_rate")
+    second_order_w(p) <- c(flux = "van_leer")
+    fns <- projectRateFunctions(p)
+    original_rates <- fns$Rates
+    fns$Rates <- function(params, ...) {
+        rates <- original_rates(params, ...)
+        rates$e_growth[] <- 0
+        rates$e_growth[, 2] <- 20 * params$dw[1]
+        rates
+    }
+    for (method in c("euler", "tr_bdf2")) {
+        adaptive <- project_simple(p, dt = 0.2, steps = 2, method = method,
+                                   rates_fns = fns, subcycle = TRUE,
+                                   info_level = 0)
+        fine <- project_simple(p, dt = 0.05, steps = 8, method = method,
+                               rates_fns = fns, info_level = 0)
+        expect_equal(adaptive$n_other, fine$n_other, tolerance = 1e-14)
+    }
+})
+
+test_that("simulations record actual component integration methods", {
+    p <- setComponent(NS_params_small, "equation", initial_value = 1,
+                      rate_fun = "constant_other")
+    p <- setComponent(p, "custom", initial_value = 42,
+                      dynamics_fun = "constant_other", integration_order = 2)
+    for (method in c("euler", "tr_bdf2")) {
+        sim <- project(p, dt = 0.1, t_max = 0.1, t_save = 0.1,
+                       method = method, progress_bar = FALSE, info_level = 0)
+        integration <- sim$sim_params$component_integration
+        expect_identical(integration$component, c("equation", "custom"))
+        expected <- if (method == "euler") "euler" else "heun"
+        expect_identical(integration$method, c(expected, "custom"))
+        order <- c(if (method == "euler") 1L else 2L, 2L)
+        expect_equal(integration$order, order)
+    }
+})

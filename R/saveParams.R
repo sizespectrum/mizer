@@ -178,6 +178,10 @@ checkCustomFunctions <- function(params) {
               params@other_mort,
               unique(params@gear_params$sel_func),
               kernel_fns)
+    for (definition in params$capabilities$components) {
+        funs <- c(funs, definition$rate_fun)
+    }
+    funs <- unique(funs)
     custom <- sapply(funs, is_custom, packages = packages)
     if (any(custom)) {
         warning("Your model is using the functions ",
@@ -194,10 +198,14 @@ requiredExtensionPackages <- function(params) {
 }
 
 is_custom <- function(name, packages) {
+    if (grepl("::", name, fixed = TRUE)) {
+        resolve_model_callback(name, "Saved model callback")
+        return(FALSE)
+    }
     !any(sapply(packages,
                 function(x, fun) {
-                    exists(fun, where = paste0("package:", x),
-                           mode = "function")
+                    exists(fun, envir = asNamespace(x),
+                           mode = "function", inherits = FALSE)
                 },
                 fun = name)
          )

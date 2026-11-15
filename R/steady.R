@@ -571,7 +571,9 @@ project_until_settled <- function(params,
         sim <- MizerSim(params, t_dimnames = c(t_dimnames, t_max + t_save))
         sim@sim_params <- list(method = method, dt = dt,
                                subcycle = subcycle, max_courant = max_courant,
-                               max_substeps = max_substeps)
+                               max_substeps = max_substeps,
+                               component_integration =
+                                   component_integrators(params, method))
         sim@n[1, , ] <- params@initial_n
         sim@n_pp[1, ] <- params@initial_n_pp
         sim@n_other[1, ] <- params@initial_n_other
@@ -582,8 +584,8 @@ project_until_settled <- function(params,
     }
 
     # get functions
-    resource_dynamics_fn <- get(params@resource_dynamics)
-    other_dynamics_fns <- lapply(params@other_dynamics, get)
+    resource_dynamics_fn <- resolve_model_callback(params@resource_dynamics)
+    other_dynamics_fns <- prepare_component_dynamics(params)
     rates_fns <- projectRateFunctions(params)
     r <- rates_fns$Rates(
         params, n = params@initial_n,

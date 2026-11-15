@@ -446,56 +446,64 @@ steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4,
     effort <- validEffortVector(effort, params = params)
     assert_that(is.number(dt), dt > 0)
 
-    # Consumers. `rdd = NULL` asks for the model's own reproduction function to
-    # be used, so that the residual reflects the dynamics the user would get.
+    # Arbitrary resource/component callbacks can depend on any standard rate.
+    # Evaluate the effective full rate pipeline once and share its recruitment
+    # too, so custom Rates providers and S3 dispatch agree with projection.
+    rates_fns <- projectRateFunctions(params)
+    r <- rates_fns$Rates(params, n = n, n_pp = n_pp, n_other = n_other,
+                         t = 0, effort = effort, rates_fns = rates_fns)
+
     # `consumer_residual()` returns A N - S, which is -dt dN/dt at dt = 1, so
     # the sign is flipped to give the rate of change itself.
-    rates_fns <- projectRateFunctions(params)
-    consumer_rates <- mizer_rates_subset(params, n = n, n_pp = n_pp,
-                                         n_other = n_other, t = 0,
-                                         effort = effort,
-                                         rates_fns = rates_fns,
-                                         targets = c("EGrowth", "Mort",
-                                                     "Diffusion"))
     dNdt <- -consumer_residual(params, n = n, n_pp = n_pp, n_other = n_other,
-                               effort = effort, rdd = NULL,
-                               rates = consumer_rates)
+                               effort = effort, rdd = r$rdd, rates = r)
 
     # Share Euler's boundary policy, using the already evaluated custom rates.
     # Preserve populated tails and every retained equation, including top loss.
-    if (euler_uses_hard_boundary(consumer_rates$diffusion,
+    if (euler_uses_hard_boundary(r$diffusion,
                                  flux_limiter_scheme(params))) {
         empty_tail <- n == 0 & col(n) > support_top_idx(params)
         dNdt[empty_tail] <- 0
     }
 
     # Resource. Its dynamics function is a one-step map, so difference it.
-    r <- mizer_rates_subset(params, n = n, n_pp = n_pp, n_other = n_other,
-                            t = 0, effort = effort,
-                            rates_fns = projectRateFunctions(params),
-                            targets = "ResourceMort")
-    resource_dynamics_fn <- get(params@resource_dynamics)
-    n_pp_new <- resource_dynamics_fn(params, n = n, n_pp = n_pp,
-                                     n_other = n_other, rates = r,
-                                     t = 0, dt = dt,
-                                     resource_rate = params@rr_pp,
-                                     resource_capacity = params@cc_pp)
+    resource_dynamics_fn <- resolve_model_callback(params@resource_dynamics,
+                                                   "resource dynamics")
+    resource_args <- list(params = params, n = n, n_pp = n_pp,
+                          n_other = n_other, rates = r, t = 0, dt = dt,
+                          resource_rate = params@rr_pp,
+                          resource_capacity = params@cc_pp)
+    n_pp_new <- invoke_model_step(resource_dynamics_fn, resource_args)
     dn_pp_dt <- (n_pp_new - n_pp) / dt
 
-    # Other components, likewise. Their state can be any object at all, so only
-    # a numeric one can be differenced, and there is no size grid to integrate
-    # over, so these stay relative rates.
+    # Prefer declared equations to a finite difference of the custom step.
+    # Step-only non-numeric states remain unmeasurable by this legacy per-cell
+    # diagnostic; an extension-owned assessment is a separate capability.
+    component_rates <- prepare_component_rates(params)
     other <- list()
     for (component in names(params@other_dynamics)) {
         current <- n_other[[component]]
-        if (!is.numeric(current)) {
-            other[[component]] <- NA_real_
-            next
+        rate_fun <- component_rates[[component]]
+        if (!is.null(rate_fun)) {
+            derivative <- checked_component_rate(rate_fun, params,
+                                                 n = n, n_pp = n_pp,
+                                                 n_other = n_other, rates = r,
+                                                 t = 0, component = component)
+            rate <- derivative / current
+        } else {
+            if (!is.numeric(current)) {
+                other[[component]] <- NA_real_
+                next
+            }
+            step_name <- params@other_dynamics[[component]]
+            step_context <- paste0("Step for component '", component, "'")
+            step_fun <- resolve_model_callback(step_name, step_context)
+            step_args <- list(params = params, n = n, n_pp = n_pp,
+                              n_other = n_other, rates = r, t = 0, dt = dt,
+                              component = component)
+            new <- invoke_model_step(step_fun, step_args)
+            rate <- (new - current) / (dt * current)
         }
-        new <- get(params@other_dynamics[[component]])(
-            params, n = n, n_pp = n_pp, n_other = n_other, rates = r,
-            t = 0, dt = dt, component = component)
-        rate <- (new - current) / (dt * current)
         rate[current == 0] <- NA_real_
         other[[component]] <- rate
     }

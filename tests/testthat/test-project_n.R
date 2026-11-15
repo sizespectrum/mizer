@@ -345,3 +345,22 @@ test_that("tr_bdf2 damps stiff modes that make Crank-Nicolson oscillate", {
     # Crank-Nicolson barely decays: amplitude stays large (rings).
     expect_gt(min(abs(pc)) / abs(pc[1]), 0.3)
 })
+
+test_that("component midpoint rates cover every standard field", {
+    r <- getRates(NS_params_small)
+    standard <- c("encounter", "feeding_level", "pred_rate", "pred_mort",
+                  "f_mort", "mort", "resource_mort", "e", "e_repro",
+                  "e_growth", "diffusion", "rdi", "rdd")
+    endpoint <- r
+    for (field in standard) endpoint[[field]] <- 2 * r[[field]]
+    r$extension_metadata <- list(stage = "start", identifier = "custom")
+    endpoint$extension_metadata <- list(stage = "prediction")
+    midpoint <- average_component_rates(r, endpoint)
+    for (field in standard) {
+        expect_equal(midpoint[[field]], 1.5 * r[[field]],
+                     label = paste("midpoint", field))
+    }
+    expect_identical(midpoint$extension_metadata, r$extension_metadata)
+    # The consumer's specialised helper retains its existing contract.
+    expect_equal(average_rates(r, endpoint)$f_mort, r$f_mort)
+})

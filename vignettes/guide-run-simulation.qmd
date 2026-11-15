@@ -237,6 +237,23 @@ params <- setResource(params, resource_dynamics = "resource_constant")
 
 ---
 
+## Component integration
+
+A component can supply a derivative (`rate_fun`) or a custom stepping function
+(`dynamics_fun`). Mizer integrates derivatives with Euler under the first-order
+method and explicit Heun under either second-order method. A supplied custom
+step takes precedence if both are registered. Components with stiff or
+non-numeric states can keep their custom steps.
+
+Inspect `sim@sim_params$component_integration` for the component methods and
+orders. A custom step's order is the author's declaration and is unknown when
+none was supplied. Mixed order is allowed: selecting `"tr_bdf2"` for fish does
+not select a stiff component solver or guarantee second-order accuracy of every
+custom step. The [guide to extending mizer](guide-extend-mizer.html) describes the callback contract and the
+optional predicted endpoint information.
+
+---
+
 ## Tips
 
 - If a run blows up or oscillates unphysically, first reduce `dt` (e.g. `0.01`);

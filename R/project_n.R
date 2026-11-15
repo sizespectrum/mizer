@@ -73,6 +73,18 @@ average_rates <- function(r, r_hat) {
     r
 }
 
+# Arbitrary component/resource steps can use any standard rate. Give their
+# corrector a consistent midpoint view while retaining custom metadata intact.
+average_component_rates <- function(r, r_hat) {
+    fields <- c("encounter", "feeding_level", "pred_rate", "pred_mort",
+                "f_mort", "mort", "resource_mort", "e", "e_repro",
+                "e_growth", "diffusion", "rdi", "rdd")
+    for (field in fields) {
+        r[[field]] <- 0.5 * (r[[field]] + r_hat[[field]])
+    }
+    r
+}
+
 #' Project values with a predictor-corrector method
 #'
 #' This is an experimental second-order time stepping variant of [project_n()].

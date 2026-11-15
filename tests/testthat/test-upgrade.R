@@ -256,3 +256,22 @@ test_that("upgradeParams preserves subclass information", {
     expect_identical(p2$extra, "custom")
     expect_true(validObject(p2))
 })
+
+test_that("schema-one definitions upgrade without live resolution", {
+    p <- NS_params_small
+    old <- list(dynamics_fun = "unloaded_legacy_step",
+                encounter_fun = NULL, mort_fun = NULL,
+                colour = "orange", linetype = "solid")
+    p$capabilities <- list(schema_version = 1L, components = list(pool = old),
+                           processes = list())
+    p$other_dynamics <- list(pool = "unloaded_legacy_step")
+    p$initial_n_other <- list(pool = 1)
+    p$mizer_version <- "3.4.0.9004"
+    upgraded <- upgradeParams(p)
+    expect_identical(upgraded$capabilities$schema_version, 2L)
+    expect_identical(upgraded$capabilities$components$pool$dynamics_fun,
+                     "unloaded_legacy_step")
+    expect_null(upgraded$capabilities$components$pool$rate_fun)
+    expect_null(upgraded$capabilities$components$pool$integration_order)
+    expect_identical(upgradeParams(upgraded), upgraded)
+})

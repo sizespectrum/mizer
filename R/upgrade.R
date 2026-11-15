@@ -26,7 +26,7 @@ needs_upgrading <- function(object) {
 #' @keywords internal
 mizer_needs_upgrading <- function(params) {
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "3.4.0.9004"
+        params@mizer_version < "3.4.0.9005"
 }
 
 #' Whether any extension recorded on an object needs upgrading
@@ -510,7 +510,9 @@ upgrade.MizerParams <- function(object, ...) {
     # original object to distinguish legacy objects from stored definitions.
     # Upgrade known legacy callbacks without inventing additional support.
     if (.hasSlot(original_params, "capabilities")) {
-        params$capabilities <- original_params$capabilities
+        params$capabilities <- upgrade_capability_registry(
+            original_params$capabilities
+        )
     } else {
         params$capabilities <- legacy_capability_registry(params)
     }
