@@ -793,3 +793,124 @@ test_that("the array plots all share one preparation", {
     shown$Legend <- as.character(shown$Legend)
     expect_equal(shown, prepared, ignore_attr = TRUE)
 })
+
+# Exact size geometry survives matrix subsetting (#650).
+test_that("size subsets retain their original coordinates and bin geometry", {
+    for (average in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- c(bin_average = average)
+        x <- getPredMort(p)
+        positions <- setNames(seq_len(ncol(x)), colnames(x))
+        choices <- list(c(1, 5, ncol(x)), c(ncol(x), 2, ncol(x), 1),
+                        rev(seq_len(ncol(x))), seq_len(ncol(x)) %% 3 == 0,
+                        colnames(x)[c(5, 1, 5)], -c(1, 3), integer(0),
+                        c(2, NA_integer_, 2))
+        for (choice in choices) {
+            idx <- unname(positions[choice])
+            sub <- x[, choice, drop = FALSE]
+            expect_s3_class(sub, "ArraySpeciesBySize")
+            expect_equal(unclass_rate(sub), unclass_rate(x)[, choice,
+                                                            drop = FALSE])
+            expected <- get_ArraySpeciesBySize_w(x)[idx]
+            expect_equal(get_ArraySpeciesBySize_w(sub), expected)
+            expect_equal(as.data.frame(sub)$w,
+                         rep(expected, each = nrow(sub)))
+            geometry <- attr(sub, "size_grid")
+            expect_equal(p@dw[geometry$index], p@dw[idx])
+            expect_output(print(sub), "species x")
+            expect_s3_class(summary(sub), "summary.ArraySpeciesBySize")
+        }
+        reordered <- x[, c(ncol(x), 2, ncol(x), 1)]
+        expect_equal(get_ArraySpeciesBySize_w(reordered[, c(3, 2)]),
+                     get_ArraySpeciesBySize_w(x)[c(ncol(x), 2)])
+        expect_null(attr(reordered * 2, "size_grid"))
+        expect_false(is.ArraySpeciesBySize(x[, 1]))
+    }
+})
+
+test_that("named constructors keep the supplied grid and dimension order", {
+    p <- NS_params_small
+    second_order_w(p) <- c(bin_average = TRUE)
+    x <- getPredMort(p)
+    idx <- rev(seq_len(ncol(x)))
+    mat <- unclass_rate(x)[3:1, idx]
+    wrapped <- ArraySpeciesBySize(mat, params = p, representation = "average")
+    expect_identical(dimnames(wrapped), dimnames(mat))
+    expect_equal(get_ArraySpeciesBySize_w(wrapped), bin_midpoints(p)[idx])
+
+    # Its width happens to equal the consumer grid, but these are prey bins.
+    prey <- getPredRate(p)
+    idx <- seq_along(p@w)
+    sub <- prey[, idx]
+    raw <- ArraySpeciesBySize(unclass_rate(sub), params = p)
+    expect_equal(get_ArraySpeciesBySize_w(sub), p@w_full[idx])
+    expect_equal(get_ArraySpeciesBySize_w(raw), p@w_full[idx])
+    expect_equal(attr(sub, "size_grid")$grid, "w_full")
+})
+
+test_that("older unsliced arrays acquire exact metadata when subsetted", {
+    p <- NS_params_small
+    second_order_w(p) <- c(bin_average = TRUE)
+    x <- getPredMort(p)
+    attr(x, "size_grid") <- NULL
+    expect_equal(get_ArraySpeciesBySize_w(x), bin_midpoints(p))
+    expect_equal(get_ArraySpeciesBySize_w(x[, c(6, 1)]),
+                 bin_midpoints(p)[c(6, 1)])
+    colnames(x) <- NULL
+    expect_equal(get_ArraySpeciesBySize_w(x[, c(6, 1)]),
+                 bin_midpoints(p)[c(6, 1)])
+})
+
+test_that("rounded duplicate labels do not lose canonical grid positions", {
+    p <- NS_params_small
+    labels <- colnames(p@metab)
+    labels[2] <- labels[1]
+    colnames(p@metab) <- labels
+    mat <- p@metab
+    x <- ArraySpeciesBySize(mat, params = p)
+    expect_equal(get_ArraySpeciesBySize_w(x), p@w)
+    expect_equal(get_ArraySpeciesBySize_w(x[, c(2, 1, 2)]), p@w[c(2, 1, 2)])
+    expect_error(ArraySpeciesBySize(mat[, 1:2], params = p),
+                 "Size labels are ambiguous")
+})
+
+test_that("invalid size metadata fails instead of relabelling values", {
+    x <- enc_small
+    attr(x, "size_grid") <- list(grid = "w", index = 1)
+    expect_error(as.data.frame(x), "Invalid size-grid metadata")
+    attr(x, "size_grid") <- list(index = seq_len(ncol(x)))
+    expect_error(as.data.frame(x), "Invalid size-grid metadata")
+})
+
+test_that("plots retain original bin centres after sparse selection", {
+    p <- NS_params_small
+    second_order_w(p) <- c(bin_average = TRUE)
+    x <- getPredMort(p)[, c(3, 5, 7, 9), drop = FALSE]
+    dat <- plot(x, all.sizes = TRUE, return_data = TRUE)
+    expect_equal(sort(unique(dat$w)), unname(bin_midpoints(p)[c(3, 5, 7, 9)]))
+    vdiffr::expect_doppelganger("mortality at selected size bins",
+                                plot(x, all.sizes = TRUE))
+})
+
+test_that("constructors accept exact labels and legacy full-grid labels", {
+    p <- NS_params_small
+    second_order_w(p) <- c(bin_average = TRUE)
+    mat <- p@metab
+    idx <- rev(seq_along(p@w))
+    for (labels in list(as.character(p@w), sprintf("%.17g", p@w))) {
+        colnames(mat) <- labels
+        x <- ArraySpeciesBySize(mat[, idx], params = p,
+                                representation = "average")
+        expect_equal(get_ArraySpeciesBySize_w(x), bin_midpoints(p)[idx])
+    }
+    colnames(mat) <- paste0("bin", seq_len(ncol(mat)))
+    x <- ArraySpeciesBySize(mat, params = p, representation = "average")
+    expect_equal(get_ArraySpeciesBySize_w(x), bin_midpoints(p))
+})
+
+test_that("rewrapping without params discards the model mapping", {
+    x <- ArraySpeciesBySize(getMort(NS_params_small), units = "new")
+    expect_null(attr(x, "params"))
+    expect_null(attr(x, "size_grid"))
+    expect_equal(get_ArraySpeciesBySize_w(x), as.numeric(colnames(x)))
+})

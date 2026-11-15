@@ -59,6 +59,10 @@ arithmetic operations and subsetting. It carries these lightweight attributes:
 \item \code{type} – the kind of quantity the values are.
 \item \code{params} – the \code{MizerParams} object that the value was computed from.
 }
+
+Size selections keep the original model coordinates and bin widths, as for
+\code{\link[=ArraySpeciesBySize]{ArraySpeciesBySize()}}. This also holds when a time slice is extracted or
+plotted. Reordered and repeated size columns are not treated as a new grid.
 }
 \examples{
 \donttest{

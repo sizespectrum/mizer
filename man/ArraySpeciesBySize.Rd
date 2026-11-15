@@ -34,7 +34,7 @@ a \code{value_name} of \code{"Number density"} or units of \code{"1/g"} as a den
 way mizer recognised one before this attribute existed.}
 
 \item{params}{A \code{MizerParams} object. Used for species colours, linetypes,
-and size ranges in the \code{plot()} method.}
+size ranges, and the original size-grid geometry.}
 
 \item{representation}{Either \code{"point"} (the default) for a quantity sampled
 at the grid nodes, or \code{"average"} for a finite-volume bin average. A
@@ -64,6 +64,11 @@ attributes:
 \item \code{units} – the units of the rate (e.g. "g/year").
 \item \code{type} – the kind of quantity the values are.
 }
+
+Subsetting size columns preserves their original model coordinates and bins,
+including non-contiguous, reordered and repeated columns. It does not
+redefine the bins using the spacing of the selected columns. Use
+\code{drop = FALSE} to keep the wrapper when selecting a single row or column.
 }
 \examples{
 \donttest{

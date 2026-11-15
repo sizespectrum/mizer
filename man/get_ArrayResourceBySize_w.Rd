@@ -13,8 +13,7 @@ get_ArrayResourceBySize_w(x)
 A numeric vector giving the size represented by each element.
 }
 \description{
-Internal helper that returns the full prey/resource size grid
-\code{params@w_full}, or the numeric vector parsed from the names of \code{x} if no
-\code{params} is attached.
+Internal helper that follows the stored mapping to the full prey/resource
+size grid. Falls back to numeric names when no model grid is available.
 }
 \keyword{internal}

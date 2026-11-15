@@ -92,6 +92,13 @@
 
 ## Bug fixes
 
+- Size-resolved array wrappers now retain the exact original size-grid mapping
+  when subsetted (#650). Printing, summaries, data-frame conversion and plots
+  work for sparse selections, and reordered or repeated columns keep the
+  correct coordinates and bin centres. The mapping also survives time slicing
+  and resource-array subsetting; a resource-grid subset is no longer mistaken
+  for the consumer grid merely because their lengths match.
+
 - `newTraitParams()` no longer marks the resource capacity it constructs as
   set manually (#607). That capacity is exactly the one `setResource()`
   balances to, so the mark protected nothing, but it stopped `setResource()`

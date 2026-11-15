@@ -23,6 +23,10 @@
 #'   \item `params` – the `MizerParams` object that the value was computed from.
 #' }
 #'
+#' Subsetting preserves the original model sizes, including reordered and
+#' repeated selections. The same mapping is retained by time slices of
+#' [ArrayTimeByResourceBySize()] objects.
+#'
 #' @param x A numeric vector over the full size grid. For
 #'   `is.ArrayResourceBySize()`, any object to test.
 #' @param value_name A string giving the human-readable name for the value.
@@ -58,7 +62,8 @@ ArrayResourceBySize <- function(x, value_name = NULL, units = NULL,
         value_name = value_name,
         units = units,
         type = type,
-        params = params
+        params = params,
+        size_grid = array_size_grid(x, params, size_dim = 1, full = TRUE)
     )
 }
 
@@ -445,33 +450,25 @@ as.data.frame.ArrayResourceBySize <- function(x, row.names = NULL,
 
 #' Get the size grid for an ArrayResourceBySize object
 #'
-#' Internal helper that returns the full prey/resource size grid
-#' `params@w_full`, or the numeric vector parsed from the names of `x` if no
-#' `params` is attached.
+#' Internal helper that follows the stored mapping to the full prey/resource
+#' size grid. Falls back to numeric names when no model grid is available.
 #'
 #' @param x An `ArrayResourceBySize` object.
 #'
 #' @return A numeric vector giving the size represented by each element.
 #' @keywords internal
 get_ArrayResourceBySize_w <- function(x) {
-    params <- attr(x, "params")
-    if (!is.null(params) && length(x) == length(params@w_full)) {
-        return(params@w_full)
-    }
-    w <- as.numeric(names(x))
-    if (any(is.na(w))) {
-        w <- seq_along(x)
-    }
-    w
+    array_size_values(x, size_dim = 1, full = TRUE)
 }
 
 #' @export
-`[.ArrayResourceBySize` <- function(x, ...) {
+`[.ArrayResourceBySize` <- function(x, i, ...) {
     result <- NextMethod()
     attr(result, "value_name") <- attr(x, "value_name")
     attr(result, "units") <- attr(x, "units")
     attr(result, "type") <- attr(x, "type")
     attr(result, "params") <- attr(x, "params")
+    attr(result, "size_grid") <- subset_size_grid(x, 1, i, full = TRUE)
     class(result) <- c("ArrayResourceBySize", "numeric")
     result
 }
@@ -510,6 +507,7 @@ unclass_resource <- function(x) {
     attr(x, "units") <- NULL
     attr(x, "type") <- NULL
     attr(x, "params") <- NULL
+    attr(x, "size_grid") <- NULL
     x
 }
 
@@ -551,6 +549,9 @@ str.ArrayResourceBySize <- function(object, ...) {
 #'   \item `params` – the `MizerParams` object that the value was computed from.
 #' }
 #'
+#' Size selections and extracted time slices retain their original model
+#' coordinates, including reordered and repeated columns.
+#'
 #' @param x A matrix (time x size). For `is.ArrayTimeByResourceBySize()`, any
 #'   object to test.
 #' @param value_name A string giving the human-readable name for the value.
@@ -583,7 +584,8 @@ ArrayTimeByResourceBySize <- function(x, value_name = NULL, units = NULL,
         value_name = value_name,
         units = units,
         type = type,
-        params = params
+        params = params,
+        size_grid = array_size_grid(x, params, size_dim = 2, full = TRUE)
     )
 }
 
@@ -611,7 +613,7 @@ print.ArrayTimeByResourceBySize <- function(x, ...) {
     n_time <- nrow(mat)
     n_sizes <- ncol(mat)
     times <- parse_numeric_labels(rownames(mat), n_time)
-    w <- parse_numeric_labels(colnames(mat), n_sizes)
+    w <- array_size_values(x, size_dim = 2, full = TRUE)
 
     time_idx <- pick_log_spaced_indices(n_time, mizer_print_defaults$time_max,
                                         mizer_print_defaults$time_threshold)
@@ -708,6 +710,7 @@ ArrayTimeByResourceBySize_slice <- function(x, time = NULL) {
     }
 
     vec <- unclass(x)[tidx, ]
+    attr(vec, "size_grid") <- array_size_grid(x, size_dim = 2, full = TRUE)
     ArrayResourceBySize(vec, value_name = value_name,
                         units = units, type = attr(x, "type"),
                         params = params)
@@ -877,8 +880,7 @@ as.data.frame.ArrayTimeByResourceBySize <- function(x, row.names = NULL,
                                                     optional = FALSE, ...) {
     times <- as.numeric(dimnames(x)[[1]])
     if (any(is.na(times))) times <- seq_len(dim(x)[1])
-    w <- as.numeric(dimnames(x)[[2]])
-    if (any(is.na(w))) w <- seq_len(dim(x)[2])
+    w <- array_size_values(x, size_dim = 2, full = TRUE)
 
     data.frame(
         expand.grid(time = times, w = w, stringsAsFactors = FALSE),
@@ -896,10 +898,13 @@ as.data.frame.ArrayTimeByResourceBySize <- function(x, row.names = NULL,
         attr(result, "units") <- attr(x, "units")
         attr(result, "type") <- attr(x, "type")
         attr(result, "params") <- attr(x, "params")
+        attr(result, "size_grid") <- subset_size_grid(x, 2, j, full = TRUE)
         class(result) <- c("ArrayTimeByResourceBySize", "matrix", "array")
-    } else if (is.null(dim(result)) && !is.null(names(result)) &&
-                   identical(names(result), colnames(x))) {
+    } else if (is.null(dim(result)) &&
+                   length(array_size_positions(x, 1, i)) == 1L &&
+                   length(array_size_positions(x, 2, j)) == length(result)) {
         # A single time step was selected, leaving a resource size spectrum.
+        attr(result, "size_grid") <- subset_size_grid(x, 2, j, full = TRUE)
         result <- ArrayResourceBySize(result,
                                       value_name = attr(x, "value_name"),
                                       units = attr(x, "units"),
