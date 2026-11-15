@@ -1493,6 +1493,8 @@ test_that("plotDataFrame validates helper arguments", {
                  "legend_var")
     expect_error(plotDataFrame(df, params, wrap_var = "missing"),
                  "wrap_var")
+    expect_error(plotDataFrame(df, params, wrap_var = "Legend"),
+                 "wrap_var")
     expect_error(plotDataFrame(df, params, style = "bogus"),
                  "unknown style selected")
 })
@@ -1803,4 +1805,21 @@ test_that("plotSpectraRelative compares two models with different lengths", {
                                     resource = FALSE, size_axis = axis)
         expect_true(all(abs(same$data$rel_diff) < 1e-12))
     }
+})
+
+test_that("explicit tooltips and user ggplot edits survive hover conversion", {
+    frame <- data.frame(mass = c(1, 10, 100), response = c(1, 2, 4),
+                        fish = "Cod")
+    p <- plotDataFrame(frame, NS_params_small,
+                       xlab = "Mass", ylab = "Response") +
+        ggplot2::labs(title = "Custom title") +
+        ggplot2::geom_hline(yintercept = 3, colour = "red")
+    hover <- plotly::plotly_build(plotHover(p, tooltip = "response"))
+    expect_identical(hover$x$layout$title$text, "Custom title")
+    expect_true(any(vapply(hover$x$data, function(trace) {
+        length(trace$y) > 0 && all(trace$y == 3)
+    }, logical(1))))
+    text <- unlist(lapply(hover$x$data, `[[`, "text"))
+    expect_true(any(grepl("response", text)))
+    expect_false(any(grepl("fish:|mass:", text)))
 })

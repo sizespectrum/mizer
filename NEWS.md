@@ -67,6 +67,9 @@
 
 ## New features
 
+- Plotting uses a shared internal specification for ordinary, comparison,
+  relative and animated renderers (#564, first stage). Public plotting APIs,
+  returned data, limit semantics and CDF calculations are unchanged.
 - `getCourant()` reports the growth Courant numbers on the model's active
   size support. Projections with high-order flux now report large Courant
   numbers, and optional `subcycle = TRUE` advances consumers, resources and
