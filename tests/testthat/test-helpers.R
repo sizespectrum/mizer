@@ -293,3 +293,121 @@ test_that("get_steady_state_n holds abundance at zero above w_max (diffusion)", 
         }
     }
 })
+
+test_that("get_steady_state_n balances each species' transport equation", {
+    params <- NS_params_default_small
+    second_order_w(params) <- TRUE
+    growth <- getEGrowth(params)
+    mort <- getMort(params)
+    zero_D <- matrix(0, nrow(growth), ncol(growth))
+    diffusion <- 0.1 * outer(params@species_params$n, params@w,
+                             function(n, w) w^(n + 1))
+
+    for (scheme in c("upwind", "van_leer", "centred")) {
+        second_order_w(params) <- scheme
+        # Unlimited centred transport needs diffusion for a non-negative
+        # spectrum in this fixture; its negative-root case is tested below.
+        diffusions <- if (scheme == "centred") list(diffusion) else
+            list(zero_D, diffusion)
+        for (D in diffusions) {
+            n <- get_steady_state_n(params, growth, mort, D, rep(1, 3))
+            expect_true(all(is.finite(n) & n >= 0))
+            coefs <- get_transport_coefs(
+                params, n, growth, mort, dt = 1,
+                recruitment_flux = rep(0, 3), d = D,
+                flux_limiter = flux_limiter_scheme(params))
+            # This is the time-stepper's balance, evaluated at the returned
+            # spectrum. Away from the prescribed egg boundary it must be zero.
+            terms <- list(coefs$a * cbind(0, n[, -ncol(n)]),
+                          (coefs$b - 1) * n,
+                          coefs$c * cbind(n[, -1], 0))
+            residual <- Reduce(`+`, terms)
+            scale <- Reduce(`+`, lapply(terms, abs))
+            top <- support_top_idx(params)
+            for (sp in seq_len(nrow(n))) {
+                inside <- (params@w_min_idx[sp] + 1):top[sp]
+                expect_lt(max(abs(residual[sp, inside]) /
+                                  pmax(scale[sp, inside], 1e-12)), 1e-8)
+                expect_equal(n[sp, params@w_min_idx[sp]], 1)
+                expect_true(all(n[sp, seq_len(params@w_min_idx[sp] - 1)] == 0))
+                if (top[sp] < ncol(n)) {
+                    expect_true(all(n[sp, (top[sp] + 1):ncol(n)] == 0))
+                }
+            }
+        }
+    }
+})
+
+test_that("get_steady_state_n resolves species independently of egg abundance", {
+    # Different egg sizes also exercise the inactive cells below each boundary.
+    params <- example_params()
+    second_order_w(params) <- TRUE
+    growth <- getEGrowth(params)
+    mort <- getMort(params)
+    D <- getDiffusion(params)
+    unit <- get_steady_state_n(params, growth, mort, D, rep(1, 3))
+    N0 <- c(1e40, 1e-40, 0)
+    scaled <- get_steady_state_n(params, growth, mort, D, N0)
+    expect_equal(scaled[1:2, ] / N0[1:2], unit[1:2, ], tolerance = 1e-12)
+    expect_true(all(scaled[3, ] == 0))
+    empty <- get_steady_state_n(params, growth, mort, D, rep(0, 3),
+                               max_iterations = 0)
+    expect_true(all(empty == 0))
+})
+
+test_that("get_steady_state_n names unconverged species", {
+    params <- NS_params_small
+    second_order_w(params) <- TRUE
+    growth <- getEGrowth(params)
+    mort <- getMort(params)
+    D <- getDiffusion(params)
+    # An arbitrarily small species must still meet the convergence tolerance;
+    # an absent species has no equation left to solve.
+    failure <- expect_error(
+        get_steady_state_n(params, growth, mort, D,
+                           c(1e40, 1e-40, 0), max_iterations = 0),
+        "did not converge for: Sprat, Herring\\.",
+        class = "mizer_steady_nonconvergence")
+    expect_equal(failure$species, c("Sprat", "Herring"))
+    expect_error(get_steady_state_n(params, growth, mort, D,
+                                      c(0, 1e-40, 0), max_iterations = 1),
+                 "did not converge for: Herring\\.")
+
+    # A non-finite iterate must produce the same diagnostic before the limiter
+    # encounters an Inf - Inf or NA and fails with an unrelated subscript error.
+    growth[2, ] <- Inf
+    expect_error(get_steady_state_n(params, growth, mort, D, c(0, 1, 0)),
+                 "did not converge for: Herring\\.")
+})
+
+test_that("get_steady_state_n resolves high mortality without following round-off tails", {
+    params <- NS_params_default_small
+    second_order_w(params) <- TRUE
+    growth <- getEGrowth(params)
+    mort <- 10 * getMort(params)
+    D <- getDiffusion(params)
+    n <- get_steady_state_n(params, growth, mort, D, rep(1, 3))
+    expect_true(all(is.finite(n) & n >= 0))
+    expect_equal(n[cbind(seq_len(3), params@w_min_idx)], rep(1, 3))
+    # Use a tighter solve to check the mass in the returned tail,
+    # rather than requiring relative accuracy in bins below round-off.
+    reference <- get_steady_state_n(params, growth, mort, D, rep(1, 3),
+                                    tol = 1e-12)
+    biomass_weight <- rep(params@w * params@dw, each = nrow(n))
+    expect_equal(rowSums(n * biomass_weight) /
+                     rowSums(reference * biomass_weight),
+                 setNames(rep(1, 3), rownames(n)), tolerance = 1e-7)
+})
+
+test_that("get_steady_state_n rejects a clipped centred solution", {
+    params <- NS_params_small
+    second_order_w(params) <- TRUE
+    growth <- getEGrowth(params)
+    mort <- getMort(params)
+    D <- getDiffusion(params)
+    second_order_w(params) <- "centred"
+    # The unlimited centred scheme has a negative Sprat bin on this coarse
+    # grid. Clipping it is not a solution of the steady transport equation.
+    expect_error(get_steady_state_n(params, growth, mort, D, rep(1, 3)),
+                 "did not converge for: Sprat\\.")
+})

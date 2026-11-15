@@ -12,7 +12,7 @@ get_steady_state_n(
   N0,
   max_iterations = 500,
   tol = 1e-10,
-  relax = 0.3
+  relax = 0.5
 )
 }
 \arguments{
@@ -26,37 +26,38 @@ get_steady_state_n(
 
 \item{N0}{A vector with the abundance at the smallest size for each species}
 
-\item{max_iterations}{Maximum number of Picard iterations used when a flux
-limiter is active.}
+\item{max_iterations}{Maximum number of defect-correction updates for a
+van Leer flux limiter.}
 
-\item{tol}{Relative convergence tolerance for the Picard iteration.}
+\item{tol}{Relative tolerance for both the correction and the transport
+residual, checked separately for every species.}
 
-\item{relax}{Under-relaxation factor in (0, 1] for the Picard iteration when a
-flux limiter is active.}
+\item{relax}{Under-relaxation factor in (0, 1] for defect correction.}
 }
 \value{
-A matrix with the steady state abundance
+A matrix with the steady-state abundance. Stops with an error naming
+the unconverged species if the iteration limit is reached.
 }
 \description{
-This function calculates the steady state abundance by solving the
-transport equation with given growth and mortality rates. It sets up a
-tri-diagonal system and solves it.
+Solves the steady-state transport equation with growth, mortality and
+diffusion held fixed and the supplied abundance in each egg size class.
 }
 \details{
-The spatial discretisation of the advective flux is read from the
-\code{flux} entry of the \code{second_order_w} slot of \code{params}. With a second-order
-flux scheme active the steady state must match the one that \code{\link[=project]{project()}} converges
-to. Because the limiter depends on the solution, the steady state is then
-found by an under-relaxed Picard iteration: the limiter is frozen at the
-current iterate, the resulting tridiagonal system is solved, and the iterate
-is updated towards that solution, repeating until it converges. (At \code{dt = 1}
-the limited operator is not diagonally dominant, so the plain fixed-point map
-only stalls; under-relaxation makes it converge.)
+The flux scheme is read from \code{\link[=second_order_w]{second_order_w()}}. The upwind and centred
+systems are linear and are solved directly. With a van Leer limiter, defect
+correction solves the nonlinear equation using an upwind preconditioner with
+the same face placement and diffusion as the second-order scheme. Only the
+preconditioner has its reconstruction weights set to zero: the residual
+retains the model's chosen flux limiter.
 
-The returned abundance is held at zero above each species' \code{w_max}, the same
-upper boundary condition that \code{\link[=project]{project()}} imposes (via \code{zero_above_support()}
-in \code{project_n()}) and that the Newton solver solves on. Without this the
-bottom-up solve would carry density above \code{w_max} whenever growth is still
-positive there or diffusion pushes density past it.
+Each present species is solved with unit egg abundance and then rescaled to
+\code{N0}, because the limiter is unchanged by multiplying a species' spectrum by
+a positive constant. This prevents species with large egg abundances from
+hiding non-convergence in other species. Convergence requires both a small
+correction and a small residual of the original transport equation, so
+clipping negative iterates cannot turn a stalled iteration into a solution.
+
+Abundance is held at zero below the egg size and above the support top given
+by \code{support_top_idx()}, matching the boundary conditions of \code{\link[=project]{project()}}.
 }
 \concept{helper}

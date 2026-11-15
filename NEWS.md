@@ -67,6 +67,14 @@
 
 ## New features
 
+- `getCourant()` reports the growth Courant numbers on the model's active
+  size support. Projections with high-order flux now report large Courant
+  numbers, and optional `subcycle = TRUE` advances consumers, resources and
+  other components together with smaller internal steps, recalculating rates
+  at each step (#571). The requested output times and the spatial scheme stay
+  the same. Fixed-step numerical behaviour remains the default. The Courant
+  target is an advection guideline, not a guarantee of stability, positivity
+  or accuracy for all rates and component dynamics.
 - `removeSpecies()` gains a `compensate` argument (#547). Removing species
   lowers the encounter rate of their predators and the predation mortality of
   their prey, so a model at steady state leaves it. With `compensate = TRUE`
@@ -98,6 +106,21 @@
   `MizerScan` help also corrects its advice on data-frame operations: base
   `subset()` preserves row-subset metadata, while other operations may drop
   metadata or retain stale maxima.
+- The Newton steady-state solver now rejects overflowing or underflowing
+  trial densities before evaluating rates and bounds its log-density steps
+  (#653). If its residual tolerance is not met, it retries from a frozen-rate
+  steady spectrum within the remaining iteration budget and keeps the better
+  result. This fixes the reported NA-subscript error and nearly growth-free
+  tail failures while retaining the size support needed by diffusion and
+  custom growth functions.
+
+- `steadySingleSpecies()` and `matchGrowth()` now solve the van Leer
+  steady-state transport equation with upwind-preconditioned defect correction
+  (#652). The previous iteration could oscillate, introduce interior zeros and
+  change an already steady spectrum substantially. Convergence is checked for
+  every species, including the transport residual, and failure now stops with
+  an error naming the unconverged species instead of returning an inaccurate
+  spectrum silently. The first-order upwind calculation is unchanged.
 
 - `newTraitParams()` no longer marks the resource capacity it constructs as
   set manually (#607). That capacity is exactly the one `setResource()`

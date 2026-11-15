@@ -7,6 +7,170 @@
 delayedAssign("p_steady",
                tuneSteadyState(NS_params_small, t_max = 50,
                                progress_bar = FALSE))
+
+test_that("Newton residuals reject non-finite trials before evaluating rates", {
+    p <- NS_params_small
+    second_order_w(p) <- TRUE
+    for (resource in c("fixed", "solve")) {
+        active <- steady_active_set(p, resource = resource)
+        n0 <- positive_initial_guess(p@initial_n, p@w_min_idx, active$w_top)
+        f <- steady_state_residual(p, getRDD(p), p@initial_n_other,
+                                   p@initial_effort, active, N0 = n0)
+        x <- log(n0[active$mask])
+        if (resource == "solve") {
+            x <- c(x, log(p@initial_n_pp[active$mask_pp]))
+        }
+        expect_true(all(is.finite(f(x))))
+        for (bad in c(NA_real_, Inf, -Inf, 1000, -1000)) {
+            for (index in c(1L, length(x))) {
+                trial <- x
+                trial[index] <- bad
+                expect_equal(f(trial), rep(Inf, length(x)))
+            }
+        }
+    }
+})
+
+test_that("Newton safeguards do not swallow custom rate-function errors", {
+    p <- NS_params_small
+    rdd <- getRDD(p)
+    assign("newton_test_growth_error", function(...) {
+        stop("custom growth failed")
+    }, envir = .GlobalEnv)
+    withr::defer(rm("newton_test_growth_error", envir = .GlobalEnv))
+    # Register directly to exercise a runtime failure rather than the setter's
+    # own test call of the custom function.
+    p@rates_funcs$EGrowth <- "newton_test_growth_error"
+    active <- steady_active_set(p, resource = "fixed")
+    n0 <- positive_initial_guess(p@initial_n, p@w_min_idx, active$w_top)
+    f <- steady_state_residual(p, rdd, p@initial_n_other,
+                               p@initial_effort, active, N0 = n0)
+    expect_equal(f(rep(1000, active$n_fish_active)),
+                 rep(Inf, active$n_fish_active))
+    expect_error(f(log(n0[active$mask])), "custom growth failed")
+    expect_error(newton_frozen_guess(p, active, n0, p@initial_effort),
+                 "custom growth failed")
+})
+
+test_that("the frozen Newton guess keeps diffusion under custom growth", {
+    p <- NS_params_small
+    second_order_w(p) <- TRUE
+    assign("newton_test_zero_growth", function(params, ...) {
+        params@initial_n * 0
+    }, envir = .GlobalEnv)
+    withr::defer(rm("newton_test_zero_growth", envir = .GlobalEnv))
+    p <- setRateFunction(p, "EGrowth", "newton_test_zero_growth")
+    ext_diffusion(p) <- 0.1 * outer(p@species_params$n, p@w,
+                                    function(n, w) w^(n + 1))
+    active <- steady_active_set(p, resource = "fixed")
+    n0 <- positive_initial_guess(p@initial_n, p@w_min_idx, active$w_top)
+    seed <- newton_frozen_guess(p, active, n0, p@initial_effort)
+    expect_true(all(seed[active$mask] > 0))
+    expect_true(all(seed[!active$mask] == 0))
+    expect_equal(active$w_top, unname(support_top_idx(p)))
+    # Diffusion feeds cells even though the supplied growth is exactly zero.
+    next_cell <- cbind(seq_len(nrow(seed)), p@w_min_idx + 1L)
+    expect_true(all(seed[next_cell] > apply(n0, 1, max) * 1e-15))
+})
+
+test_that("bounded Newton steps solve the North Sea zero-growth tail", {
+    skip_unless_experimental()
+    # The full data are needed for the reported Cod cell at the final grid
+    # boundary; the smaller fixture does not reproduce its near-singular column.
+    p <- NS_params
+    second_order_w(p) <- TRUE
+    top <- support_top_idx(p)
+    sol <- newton_steady_state(p, p@initial_effort, getRDD(p),
+                               resource = "fixed")
+    expect_lt(sol$residual, 1e-6)
+    expect_true(all(is.finite(sol$n)))
+    cod <- match("Cod", p@species_params$species)
+    expect_equal(unname(sol$n[cod, top[cod]]), 0)
+    expect_equal(support_top_idx(p), top)
+})
+
+test_that("the Newton retry solves a model whose w_max exceeds w_inf", {
+    skip_unless_experimental()
+    sp <- data.frame(species = "test", w_inf = 1000, w_mat = 100)
+    p <- newMultispeciesParams(sp, no_w = 50, second_order_w = TRUE,
+                               info_level = 0)
+    expect_equal(unname(p@species_params$w_max), 1500)
+    top <- support_top_idx(p)
+    sol <- newton_steady_state(p, p@initial_effort, getRDD(p),
+                               resource = "fixed")
+    expect_lt(sol$residual, 1e-6)
+    expect_true(all(is.finite(sol$n)))
+    expect_equal(support_top_idx(p), top)
+})
+
+test_that("the Newton retry retains a diffusion-fed North Sea tail", {
+    skip_unless_experimental()
+    p <- NS_params
+    second_order_w(p) <- TRUE
+    ext_diffusion(p) <- 0.1 * outer(p@species_params$n, p@w,
+                                    function(n, w) w^(n + 1))
+    top <- support_top_idx(p)
+    sol <- newton_steady_state(p, p@initial_effort, getRDD(p),
+                               resource = "fixed")
+    expect_lt(sol$residual, 1e-6)
+    cod <- match("Cod", p@species_params$species)
+    expect_gt(sol$n[cod, top[cod]], max(p@initial_n[cod, ]) * 1e-15)
+    expect_true(all(is.finite(sol$n)))
+    expect_equal(support_top_idx(p), top)
+})
+
+test_that("Newton retries unmet residuals and retains the better result", {
+    skip_if_not(exists("local_mocked_bindings", asNamespace("testthat")),
+                "requires testthat::local_mocked_bindings()")
+    p <- NS_params_small
+    # Exercise the root finder's two distinct stopping criteria: a small step
+    # (termcd 2) does not establish that the residual tolerance has been met.
+    for (errors in list(c(1e-8), c(1, 0.1), c(0.1, 1))) {
+        calls <- 0L
+        seeds <- 0L
+        budgets <- numeric(0)
+        solver_stub <- function(x, fn, method, global, control) {
+            calls <<- calls + 1L
+            budgets <<- c(budgets, control$maxit)
+            list(x = x, fvec = rep(errors[calls], length(x)),
+                 iter = 3L, termcd = 2L, message = "small step")
+        }
+        local_mocked_bindings(nleqslv = solver_stub, .package = "nleqslv")
+        guess_stub <- function(params, active, n0, effort) {
+            seeds <<- seeds + 1L
+            n0
+        }
+        local_mocked_bindings(newton_frozen_guess = guess_stub)
+        sol <- newton_steady_state(p, p@initial_effort, getRDD(p),
+                                   resource = "fixed", maxit = 10)
+        expect_equal(calls, length(errors))
+        expect_equal(seeds, length(errors) - 1L)
+        expect_equal(sol$residual, min(errors))
+        expect_equal(budgets, if (length(errors) == 1L) 10 else c(10, 7))
+    }
+})
+
+test_that("a failed frozen-rate retry keeps the original Newton result", {
+    skip_if_not(exists("local_mocked_bindings", asNamespace("testthat")),
+                "requires testthat::local_mocked_bindings()")
+    p <- NS_params_small
+    solver_stub <- function(x, fn, method, global, control) {
+        list(x = x, fvec = rep(0.1, length(x)), iter = 1L,
+             termcd = 5L, message = "ill-conditioned Jacobian")
+    }
+    local_mocked_bindings(nleqslv = solver_stub, .package = "nleqslv")
+    local_mocked_bindings(newton_frozen_guess = function(...) {
+        stop(structure(list(message = "frozen solve did not converge",
+                            call = NULL),
+                       class = c("mizer_steady_nonconvergence", "error",
+                                 "condition")))
+    })
+    sol <- newton_steady_state(p, p@initial_effort, getRDD(p),
+                               resource = "fixed")
+    expect_equal(sol$residual, 0.1)
+    expect_equal(sol$termcd, 5L)
+})
+
 test_that("support_top_idx drops the pile-up bin for the second-order scheme", {
     skip_unless_experimental()
     # First-order upwind feeds a class from the growth of the class below, so the

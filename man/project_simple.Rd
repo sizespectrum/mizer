@@ -17,6 +17,10 @@ project_simple(
   other_dynamics_fns,
   rates_fns,
   method = c("euler", "predictor_corrector", "tr_bdf2"),
+  subcycle = FALSE,
+  max_courant = 1,
+  max_substeps = 10000,
+  info_level = default_info_level(),
   ...
 )
 }
@@ -52,6 +56,16 @@ the rates. See Details.}
 
 \item{method}{The numerical method to use for the consumer density update.
 See \code{\link[=project]{project()}}.}
+
+\item{subcycle}{Whether to split requested steps using the growth Courant
+target, as in \code{\link[=project]{project()}}. Default \code{FALSE}.}
+
+\item{max_courant}{Positive growth Courant target, as in \code{\link[=project]{project()}}.}
+
+\item{max_substeps}{Positive integer cap per requested step, as in
+\code{\link[=project]{project()}}.}
+
+\item{info_level}{Level of information reported; see \code{\link[=default_info_level]{default_info_level()}}.}
 
 \item{...}{Other arguments that are passed on to the rate functions.}
 }

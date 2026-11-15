@@ -349,6 +349,12 @@ distanceSSLogN.MizerParams <- function(params, current, previous,
 #' @seealso [findSteadyState()], [tuneSteadyState()], [isSteady()],
 #'   [getSteadyResidual()], [distanceSSLogN()], [distanceMaxRelRDI()],
 #'   [getStability()]
+#' @param subcycle Whether to use coupled growth-Courant substeps, as in
+#'   [project()]. Default `FALSE`.
+#' @param max_courant Positive growth Courant target, default 1; see
+#'   [project()].
+#' @param max_substeps Positive integer cap on substeps per requested `dt`,
+#'   default 10000; see [project()].
 #' @export
 projectUntilSettled <- function(params,
                                 effort = params@initial_effort,
@@ -365,7 +371,9 @@ projectUntilSettled <- function(params,
                                 progress_bar = TRUE,
                                 info_level = default_info_level(),
                                 method = c("euler", "predictor_corrector",
-                                           "tr_bdf2"), ...) {
+                                           "tr_bdf2"),
+                                subcycle = FALSE, max_courant = 1,
+                                max_substeps = 10000, ...) {
     UseMethod("projectUntilSettled")
 }
 
@@ -385,7 +393,9 @@ projectUntilSettled.MizerParams <- function(params,
                                 progress_bar = TRUE,
                                 info_level = default_info_level(),
                                 method = c("euler", "predictor_corrector",
-                                           "tr_bdf2"), ...) {
+                                           "tr_bdf2"),
+                                subcycle = FALSE, max_courant = 1,
+                                max_substeps = 10000, ...) {
     project_until_settled(params = params, effort = effort,
                           distance_func = distance_func,
                           t_check = t_check, t_max = t_max, dt = dt,
@@ -395,7 +405,10 @@ projectUntilSettled.MizerParams <- function(params,
                           amp_rel_tol = amp_rel_tol,
                           extinction_threshold = extinction_threshold,
                           progress_bar = progress_bar, info_level = info_level,
-                          method = method, ..., return_sim = TRUE)
+                          method = method, subcycle = subcycle,
+                          max_courant = max_courant,
+                          max_substeps = max_substeps,
+                          ..., return_sim = TRUE)
 }
 
 #' The `"convergence"` attribute, in one place
@@ -499,6 +512,8 @@ project_until_settled <- function(params,
                                 info_level = default_info_level(),
                                 method = c("euler", "predictor_corrector",
                                            "tr_bdf2"), ...,
+                                  subcycle = FALSE, max_courant = 1,
+                                  max_substeps = 10000,
                                   return_sim = FALSE,
                                   require_steady = TRUE) {
     with_info_level(info_level = info_level, {
@@ -511,6 +526,8 @@ project_until_settled <- function(params,
              "`residual_tol`. See `?projectUntilSettled`.", call. = FALSE)
     }
     params <- validParams(params)
+    check_courant_controls(subcycle, max_courant, max_substeps)
+    courant_context <- new.env(parent = emptyenv())
     method <- normalise_project_method(method)
     effort <- validEffortVector(effort, params = params)
     params@initial_effort <- effort
@@ -552,7 +569,9 @@ project_until_settled <- function(params,
         # state the run settled on; both the slot and any unused ones are
         # trimmed at the end.
         sim <- MizerSim(params, t_dimnames = c(t_dimnames, t_max + t_save))
-        sim@sim_params <- list(method = method, dt = dt)
+        sim@sim_params <- list(method = method, dt = dt,
+                               subcycle = subcycle, max_courant = max_courant,
+                               max_substeps = max_substeps)
         sim@n[1, , ] <- params@initial_n
         sim@n_pp[1, ] <- params@initial_n_pp
         sim@n_other[1, ] <- params@initial_n_other
@@ -621,7 +640,10 @@ project_until_settled <- function(params,
                                   resource_dynamics_fn = resource_dynamics_fn,
                                   other_dynamics_fns = other_dynamics_fns,
                                   rates_fns = rates_fns,
-                                  method = method)
+                                  method = method, subcycle = subcycle,
+                                  max_courant = max_courant,
+                                  max_substeps = max_substeps,
+                                  .courant_context = courant_context)
         bio_series[k + 1, ] <- as.numeric(current$n %*% wdw)
 
         if (return_sim && k %% save_steps == 0) {
