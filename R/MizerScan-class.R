@@ -79,11 +79,17 @@
 #'
 #' @section Limitations:
 #'
-#' Because the object is a data frame subclass, its attributes survive base R
-#' subsetting with `[` but are dropped by functions that rebuild the data frame,
-#' including `dplyr::filter()`, `dplyr::mutate()`, `subset()` and `transform()`.
-#' A scan that has lost its attributes can no longer be plotted. Subset with `[`,
-#' or rebuild the object with `MizerScan()`.
+#' Row subsetting with `[` preserves the plotting metadata and recomputes
+#' `at_max` and `max_value`. Base `subset()` also uses this method for row
+#' selection. If selecting columns, keep the first three in their original
+#' order to retain the scan class.
+#'
+#' Other data-frame operations can drop metadata or leave derived attributes
+#' stale. For example, `transform()` drops the scan wrapper, while
+#' `dplyr::filter()` can retain it without recomputing the maxima. Metadata
+#' preservation alone is therefore not enough to keep a scan consistent. Use
+#' `as.data.frame()` for ordinary data manipulation, or rebuild the result with
+#' `MizerScan()` and its original metadata before plotting it as a scan.
 #'
 #' @param x A data frame with at least three columns, laid out as described
 #'   above. For `is.MizerScan()`, any object to test.
@@ -554,8 +560,8 @@ scan_plot_params <- function(x, plot_dat) {
     params <- attr(x, "params")
     if (is.null(params)) {
         stop("This scan has lost its `params` attribute, so it cannot be ",
-             "plotted. Functions that rebuild a data frame, such as ",
-             "dplyr::filter() or subset(), drop it. Subset with `[` instead, ",
+             "plotted. Converting or rebuilding a data frame can drop its ",
+             "metadata. Subset with `[` instead, ",
              "or rebuild the object with MizerScan().")
     }
     series <- unique(as.character(plot_dat$Species))

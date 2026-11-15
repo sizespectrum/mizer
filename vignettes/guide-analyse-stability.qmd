@@ -209,6 +209,78 @@ plot(scan, style = "envelope")
 - The returned [`MizerScan`](../reference/MizerScan.html) object is a data frame, so the numbers behind the
   diagram are available without re-running the scan.
 
+### Reading and subsetting a scan
+
+The first two columns of a `MizerScan` have **dynamic names**: column 1 is named
+by `scan_name` (for example, `"Fishing effort"`), and column 2 by `value_name`
+(for example, `"Yield"`). Read them by position in reusable code, or obtain their
+names with `names(scan)[1:2]`:
+
+```{r eval=FALSE}
+scanned <- scan[[1]]
+measured <- scan[[2]]
+fixed <- scan[scan$attractor %in% "fixed_point", ]
+plot(fixed)
+```
+
+The other columns have fixed names: `Species` identifies the series; `ymin`
+and `ymax` give its range; `attractor` is `"fixed_point"`, `"limit_cycle"` or
+`NA`; `termination` and `converged` describe how the run stopped; and `period`
+and `residual` report the cycle period and remaining biomass drift. Use
+`attractor`, rather than `converged` alone, to identify equilibrium or cycle
+results.
+
+Use `[` for row subsetting. It preserves the plotting metadata and recomputes
+`at_max` and `max_value` from the remaining rows. Keep the first three columns
+in their original order if you also select columns and want the result to
+remain a `MizerScan`. Base `subset()` also preserves this metadata for row
+selection. Other data-frame operations can drop it or leave derived attributes
+stale: `transform()` drops the scan wrapper, while `dplyr::filter()` can retain
+it without refreshing the recorded maxima. For arbitrary data manipulation,
+use [`as.data.frame(scan)`](../reference/as.data.frame.html) and make your own plot, or rebuild with `MizerScan()`
+and the original metadata before using `plot()` on the scan again.
+
+### Comparing forward and backward sweeps
+
+With `continuation = TRUE` (the default), each value starts from the state
+reached at the preceding value. This can reveal **hysteresis** when a model has
+coexisting attractors: an increasing and a decreasing sweep can follow
+different stable branches at the same parameter values.
+
+Start from models settled near the two ends of the range, with initial states
+in the basins of the branches you want to follow. Set the endpoint's scanned
+parameter and settle it with `findSteadyState()`, which keeps model parameters
+fixed. `tuneSteadyState()` recalibrates reproduction and the resource, so
+independently tuned endpoints may no longer describe the same model. Here
+`params_low` and `params_high` have the same model parameters apart from fishing
+effort:
+
+```{r eval=FALSE}
+values <- seq(0, 1.5, 0.05)
+up <- scanModel(params_low, scan_values = values,
+                set_func = scanEffort(), value_func = getSSB,
+                continuation = TRUE, current_scan_value = NULL)
+down <- scanModel(params_high, scan_values = rev(values),
+                  set_func = scanEffort(), value_func = getSSB,
+                  continuation = TRUE, current_scan_value = NULL)
+plot(up, style = "envelope")
+plot(down, style = "envelope")
+```
+
+Leaving `current_scan_value = NULL` preserves the supplied scan order. Giving
+it a value, including `"auto"`, instead sweeps outwards from that value,
+restarting from the supplied model in each direction. `continuation = FALSE`
+restarts every point from the supplied initial
+model, so it does not follow the preceding branch.
+
+An abrupt jump between branches can indicate a saddle-node fold. Check
+`attractor`, `termination` and `residual` near the jump, allow enough time to
+settle, and refine `scan_values` there before interpreting it as a threshold.
+These are sweeps of the dynamics: they follow attracting states, not the
+unstable branch between them, and do not locate a fold exactly. The `params`
+attribute of a scan holds its **starting model**, not the final state of the
+sweep; it cannot be used as the settled starting state for a reverse sweep.
+
 ---
 
 ## Numerical caveat

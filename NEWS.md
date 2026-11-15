@@ -100,6 +100,12 @@
 
 ## Bug fixes
 
+- The stability-analysis guide now explains how to read `MizerScan` columns
+  with dynamic names, subset scans while preserving metadata, and compare
+  forward and backward continuation sweeps for hysteresis (#651). The
+  `MizerScan` help also corrects its advice on data-frame operations: base
+  `subset()` preserves row-subset metadata, while other operations may drop
+  metadata or retain stale maxima.
 - The Newton steady-state solver now rejects overflowing or underflowing
   trial densities before evaluating rates and bounds its log-density steps
   (#653). If its residual tolerance is not met, it retries from a frozen-rate
