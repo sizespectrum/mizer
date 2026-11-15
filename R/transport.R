@@ -362,9 +362,11 @@ flux_limiter_chi <- function(params, n, g, flux_limiter) {
         jint <- 3:no_w
         num <- delta[, jint - 1, drop = FALSE]   # delta_{j-1}
         den <- delta[, jint, drop = FALSE]       # delta_j
-        # Upwind (chi = 0) where the jump is 0.
+        # Upwind (chi = 0) where a jump is zero or non-finite. A rejected
+        # Newton trial can contain Inf - Inf: keep that from becoming an NA
+        # subscript, so the non-finite residual reaches the root finder.
         chi_int <- matrix(0, nrow = no_sp, ncol = length(jint))
-        nz <- den != 0
+        nz <- is.finite(num) & is.finite(den) & den != 0
         chi_int[nz] <- limiter(num[nz], den[nz])
         chi[, jint] <- chi_int
     }

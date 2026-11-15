@@ -92,6 +92,14 @@
 
 ## Bug fixes
 
+- The Newton steady-state solver now rejects overflowing or underflowing
+  trial densities before evaluating rates and bounds its log-density steps
+  (#653). If its residual tolerance is not met, it retries from a frozen-rate
+  steady spectrum within the remaining iteration budget and keeps the better
+  result. This fixes the reported NA-subscript error and nearly growth-free
+  tail failures while retaining the size support needed by diffusion and
+  custom growth functions.
+
 - `steadySingleSpecies()` and `matchGrowth()` now solve the van Leer
   steady-state transport equation with upwind-preconditioned defect correction
   (#652). The previous iteration could oscillate, introduce interior zeros and
