@@ -351,7 +351,8 @@ projectEncounter.MizerParams <- function(params, n, n_pp, n_other,
     # Add contributions from other components
     for (i in seq_along(params@other_encounter)) {
         encounter <- encounter +
-            do.call(params@other_encounter[[i]],
+            do.call(resolve_model_callback(params@other_encounter[[i]],
+                                           "Encounter contribution"),
                     list(params = params,
                          n = n, n_pp = n_pp, n_other = n_other, t = t,
                          component = names(params@other_encounter)[[i]], ...))
@@ -863,7 +864,8 @@ projectMort.MizerParams <- function(params, n, n_pp, n_other, t = 0,
     # Add contributions from other components
     for (i in seq_along(params@other_mort)) {
         mort <- mort +
-            do.call(params@other_mort[[i]],
+            do.call(resolve_model_callback(params@other_mort[[i]],
+                                           "Mortality contribution"),
                     list(params = params,
                          n = n, n_pp = n_pp, n_other = n_other, t = t,
                          component = names(params@other_mort)[[i]], ...))

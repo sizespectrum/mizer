@@ -714,3 +714,21 @@ test_that("settling keeps Courant and distance controls separate", {
                                      max_substeps = 1, progress_bar = FALSE,
                                      info_level = 0), "max_substeps")
 })
+
+test_that("settling projections prepare equation components and record Heun", {
+    p <- setComponent(NS_params_small, "equation", initial_value = 1,
+                      rate_fun = "constant_other")
+    # One short block is sufficient to compare the two projection paths;
+    # this test does not ask a growing component to reach a fixed point.
+    sim <- project_until_settled(p, t_max = 0.2, t_check = 0.2, t_save = 0.2,
+                                 dt = 0.1, method = "tr_bdf2",
+                                 return_sim = TRUE, require_steady = FALSE,
+                                 distance_tol = 1e10,
+                                 progress_bar = FALSE, info_level = 0)
+    ordinary <- project(p, t_max = 0.2, t_save = 0.2, dt = 0.1,
+                        method = "tr_bdf2", progress_bar = FALSE,
+                        info_level = 0)
+    expect_equal(sim$n_other, ordinary$n_other)
+    expect_identical(sim$sim_params$component_integration$method, "heun")
+    expect_identical(sim$sim_params$component_integration$order, 2L)
+})

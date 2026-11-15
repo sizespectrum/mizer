@@ -233,13 +233,16 @@ test_that("We can set, get and remove components", {
     expect_mapequal(comp, list(initial_value = 1,
                                encounter_fun = "test_dyn",
                                dynamics_fun = "test_dyn",
+                               rate_fun = NULL,
                                mort_fun = "test_dyn",
                                component_params = list(a = 2),
                                definition = list(dynamics_fun = "test_dyn",
+                                                 rate_fun = NULL,
                                                  encounter_fun = "test_dyn",
                                                  mort_fun = "test_dyn",
                                                  colour = "grey",
-                                                 linetype = "solid")))
+                                                 linetype = "solid",
+                                                 integration_order = NULL)))
     all <- getComponent(p)
     expect_type(all, "list")
     expect_identical(all$test, comp)
@@ -248,7 +251,7 @@ test_that("We can set, get and remove components", {
                       mort_fun = "test_dyn")
     all2 <- getComponent(p2)
     expect_length(all2, 2)
-    expect_length(all2$test2, 6)
+    expect_length(all2$test2, 7)
     expect_null(all2$test2$encounter_fun)
     p <- setComponent(p2, "test2", 1, "test_dyn", mort_fun = NULL)
     expect_null(getComponent(p, "test2")$mort_fun)
@@ -278,9 +281,10 @@ test_that("Component definitions are stored as assembled snapshots", {
                       component_params = list(coefficient = 7),
                       definition = definition, colour = "blue",
                       mort_fun = NULL)
-    expected <- definition
-    expected$colour <- "blue"
-    expected["mort_fun"] <- list(NULL)
+    expected <- list(dynamics_fun = "test_dyn", rate_fun = NULL,
+                     encounter_fun = "test_dyn", mort_fun = NULL,
+                     colour = "blue", linetype = "dashed",
+                     integration_order = NULL)
     expect_identical(p@capabilities$components$pool, expected)
     expect_identical(getComponent(p, "pool")$definition, expected)
     expect_null(p@other_mort$pool)
@@ -345,11 +349,11 @@ test_that("Component definitions reject unsupported inputs without changes", {
     expect_error(setComponent(p, "pool", definition = NULL), "definition")
     expect_error(setComponent(p, "pool", dynamics_fun = NULL), "dynamics_fun")
     missing_fun <- list(dynamics_fun = "not_a_function")
-    unsupported <- list(dynamics_fun = "test_dyn", rate_fun = "test_dyn")
+    unsupported <- list(dynamics_fun = "test_dyn", convergence_fun = "test_dyn")
     expect_error(setComponent(p, "pool", definition = missing_fun),
                  "not_a_function")
     expect_error(setComponent(p, "pool", definition = unsupported),
-                 "rate_fun")
+                 "convergence_fun")
     expect_error(setComponent(p, "new", dynamics_fun = "test_dyn"),
                  "initial_value")
     expect_identical(p, before)
@@ -386,6 +390,65 @@ test_that("Definition registration preserves legacy projection behaviour", {
     expect_equal(defined_sim@n, direct_sim@n)
     expect_equal(defined_sim@n_pp, direct_sim@n_pp)
     expect_identical(defined_sim@n_other, direct_sim@n_other)
+})
+
+test_that("Components can register equations, custom steps or both", {
+    e$registration_rate_test <- function(params, n_other, component, ...) {
+        -n_other[[component]]
+    }
+    equations <- setComponent(params, "pool", 3,
+                              rate_fun = "registration_rate_test")
+    comp <- getComponent(equations, "pool")
+    expect_null(comp$dynamics_fun)
+    expect_identical(comp$rate_fun, "registration_rate_test")
+    expect_identical(equations@other_dynamics$pool, "component_rate_dynamics")
+    expect_identical(initialNOther(equations)$pool, 3)
+    expect_null(comp$definition$integration_order)
+
+    both <- setComponent(equations, "pool", dynamics_fun = "constant_other",
+                         integration_order = 2L)
+    expect_identical(getComponent(both, "pool")$dynamics_fun, "constant_other")
+    expect_identical(getComponent(both, "pool")$rate_fun,
+                     "registration_rate_test")
+    expect_identical(both@other_dynamics$pool, "constant_other")
+    expect_identical(getComponent(both, "pool")$definition$integration_order,
+                     2L)
+
+    step_only <- setComponent(both, "pool", rate_fun = NULL)
+    expect_null(getComponent(step_only, "pool")$rate_fun)
+    expect_error(setComponent(step_only, "pool", dynamics_fun = NULL),
+                 "dynamics_fun.*rate_fun")
+    expect_error(setComponent(equations, "pool", rate_fun = NULL),
+                 "dynamics_fun.*rate_fun")
+    equations_again <- setComponent(both, "pool", dynamics_fun = NULL)
+    again <- getComponent(equations_again, "pool")
+    expect_null(again$dynamics_fun)
+    expect_null(again$definition$integration_order)
+    expect_identical(equations_again@other_dynamics$pool,
+                     "component_rate_dynamics")
+})
+
+test_that("Component definition updates do not preserve an unrelated order", {
+    p <- setComponent(params, "pool", 3,
+                      definition = list(dynamics_fun = "constant_other",
+                                        integration_order = 2L))
+    q <- setComponent(p, "pool", dynamics_fun = "test_dyn")
+    expect_null(getComponent(q, "pool")$definition$integration_order)
+    expect_identical(getComponent(p, "pool")$definition$integration_order, 2L)
+    explicit <- setComponent(p, "pool", dynamics_fun = "test_dyn",
+                             integration_order = 1L)
+    explicit_definition <- getComponent(explicit, "pool")$definition
+    expect_identical(explicit_definition$integration_order, 1L)
+    expect_error(setComponent(p, "pool", integration_order = 0.5),
+                 "positive whole number")
+})
+
+test_that("Component callbacks can be registered by exported package name", {
+    # This checks resolution only: median() is not a component step.
+    p <- setComponent(params, "pool", 3, rate_fun = "stats::median")
+    expect_identical(getComponent(p, "pool")$rate_fun, "stats::median")
+    expect_error(setComponent(p, "pool", rate_fun = "stats::not_exported_here"),
+                 "not_exported_here")
 })
 
 test_that("We can set component colours and linetypes", {

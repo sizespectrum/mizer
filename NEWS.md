@@ -67,14 +67,24 @@
 
 ## New features
 
+- Components can now supply `rate_fun` for Euler/Heun integration, either alone
+  or alongside a custom step (#670, #600). Custom steps take precedence when
+  both are supplied. Component methods and declared/inferred orders are recorded
+  in simulation metadata, and custom steps can receive optional predicted states
+  and endpoint rates. Correctors now average all standard rate fields for
+  component and resource callbacks.
+- Component callbacks support exported `package::function` identifiers. The
+  stored capability schema and saved models are upgraded without resolving
+  functions merely to validate their structure.
+
 - `setComponent()` accepts a reusable `definition` list containing its existing
   callbacks and plotting styles (#670). Explicit arguments override the list;
   supplying a new definition replaces the previous one, while calls without a
   definition patch only supplied fields. Initial state and component parameters
   remain separate. The assembled definition is stored in the model and returned
   by `getComponent()`, and survives model reconstruction and save/read upgrades.
-  This is the first capability-contract preview; equation-only components and
-  the new measurement, assessment and tuning capabilities are not yet enabled.
+  Equation-based stepping is available in this preview;
+  measurement, assessment and tuning capabilities remain under development.
 - Updating a component without specifying its colour or line type now retains
   its existing style. Separate calls to `setColours()` and `setLinetypes()` also
   update the stored definition.
@@ -111,6 +121,12 @@
   creating an extension package explains when this is needed (#598).
 
 ## Bug fixes
+
+- Steady-state and stability diagnostics now share a complete effective rate
+  evaluation with resource and component callbacks, including final recruitment
+  (#592, #670). Callbacks using rates such as fishing mortality no longer fail
+  because the diagnostic supplied only a subset. Declared component equations
+  are used directly where available.
 
 - Euler projection and steady-state drift diagnostics now share the rule for
   selecting the upper size boundary. The rule uses the current evaluated

@@ -107,6 +107,7 @@ function` — carry no such quote, so match those rows on the function name.
 | Symptom | Cause | Section |
 |---|---|---|
 | Updating a component no longer resets its colour or line type, or code expecting exactly five entries from `getComponent()` fails | omitted settings are retained and the getter includes the stored definition | Component updates retain omitted settings |
+| A projection with a custom component or resource changes under a second-order method, especially when it uses `pred_rate` or `f_mort` | every standard rate supplied to a custom corrector is now averaged over the step | Component correctors use complete midpoint rates |
 | Warning `"Growth Courant number"` during a projection with van Leer or centred flux | projection now reports large advective steps; numerical stepping changes only when subcycling is requested | Projection reports large growth Courant numbers |
 | After `defaults_edition(2)`, a model created earlier, loaded from a file, or taken from a package such as `NS_params` still gets edition-1 defaults: `catchability` 1, effort 0, `psi` of 1 above `w_repro_max`, or a recalculated `gamma` that ignores `interaction_resource` | a model now uses the edition it was created with, not the active one | A model keeps the defaults edition it was created with |
 | `gamma`, `psi`, a default `catchability` or a default effort differs between two runs of the same script, depending on whether `defaults_edition()` is called before or after the model is created | the same | A model keeps the defaults edition it was created with |

@@ -169,3 +169,36 @@ test_that("readParams leaves a consistent model unchanged", {
     expect_identical(given_species_params(params2),
                      given_species_params(params))
 })
+
+
+test_that("Equation callbacks survive saving with their stored identifiers", {
+    p <- setComponent(NS_params_small, "pool", initial_value = c(a = 1, b = 2),
+                      rate_fun = "base::identity",
+                      component_params = list(capacity = 80))
+    tmp <- tempfile(fileext = ".rds")
+    withr::defer(unlink(tmp))
+
+    # The internal stepping bridge and exported equation are package callbacks.
+    expect_false(is_custom("component_rate_dynamics", packages = "mizer"))
+    expect_silent(saveParams(p, tmp))
+    restored <- readParams(tmp)
+    expect_identical(restored$capabilities, p$capabilities)
+    expect_identical(restored$initial_n_other, p$initial_n_other)
+    expect_identical(restored$other_params, p$other_params)
+    expect_identical(getComponent(restored, "pool")$rate_fun, "base::identity")
+    expect_identical(prepare_component_rates(restored)$pool, base::identity)
+})
+
+test_that("Saving reports custom component equations", {
+    rlang::local_bindings(
+        saved_component_equation = function(params, n_other, component, ...) {
+            -n_other[[component]]
+        }, .env = .GlobalEnv
+    )
+    p <- setComponent(NS_params_small, "pool", initial_value = 2,
+                      rate_fun = "saved_component_equation")
+    tmp <- tempfile(fileext = ".rds")
+    withr::defer(unlink(tmp))
+    expect_warning(saveParams(p, tmp),
+                   "Your model is using the functions saved_component_equation")
+})

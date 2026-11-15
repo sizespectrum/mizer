@@ -483,14 +483,16 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
 #' data structure you like.
 #'
 #' A new component needs an `initial_value`, supplied separately from its
-#' definition. Its `dynamics_fun` can be supplied directly or through
-#' `definition`. For an existing component, omitted
-#' arguments retain their existing values. Explicit `NULL` removes an optional
-#' `encounter_fun` or `mort_fun`. You can remove a component with
-#' `removeComponent()`.
+#' definition. Supply at least one of `dynamics_fun` and `rate_fun`, directly
+#' or through `definition`. For an existing component, omitted arguments retain
+#' their existing values. Explicit `NULL` removes an optional callback, provided
+#' at least one of the two dynamics capabilities remains. Remove a component
+#' with `removeComponent()`.
 #'
 #' A `definition` is a reusable named list containing `dynamics_fun`,
-#' `encounter_fun`, `mort_fun`, `colour` and/or `linetype`. Explicit arguments
+#' `rate_fun`, `encounter_fun`, `mort_fun`, `colour`, `linetype` and/or
+#' `integration_order`.
+#' Explicit arguments
 #' override its entries. Supplying a definition replaces the component's
 #' previous definition: omitted optional callbacks are removed and omitted
 #' styles default to `"grey"` and `"solid"`. Without `definition`, explicitly
@@ -504,13 +506,43 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
 #' their implementations, so the functions still need to be available when
 #' the model is used.
 #'
+#' @section Equations and custom steps:
+#' A `rate_fun` returns the component's derivative, with the numeric shape and
+#' names of its state preserved. It receives `params`, `n`, `n_pp`, `n_other`,
+#' `rates`, `t`, `component` and `...`. Mizer applies Euler under first-order
+#' projection and Heun under the second-order methods. This is explicit
+#' integration, including when the fish use TR-BDF2.
+#'
+#' A `dynamics_fun` returns the new state and owns the integration. It is the
+#' appropriate capability for stiff or non-numeric states. When both callbacks
+#' are supplied, the custom step performs projection and the derivative remains
+#' available for diagnostics. Callback names may be unqualified or use
+#' `package::exported_function`.
+#'
+#' Custom steps may accept `predicted_state` and `endpoint_rates`. During a
+#' second-order corrector these contain the predicted endpoint state (a list
+#' with `n`, `n_pp`, `n_other` and `t`) and its rate list. They are `NULL` when
+#' no prediction is available. The ordinary state arguments still describe the
+#' start of the step. Prediction data do not by themselves establish the
+#' accuracy or stability of the custom integration.
+#'
+#' `integration_order` declares the order of a custom step; omission means
+#' unknown, not an assumed second order. Replacing `dynamics_fun` clears an
+#' inherited order unless an order is explicitly supplied with the replacement.
+#' Mizer chooses the integrator for equations-only components, so they must not
+#' declare a custom integration order.
+#'
 #' @param params A MizerParams object
 #' @param component Name of the component
 #' @param initial_value Initial value of the component. Required for a new
 #'   component; retained when omitted for an existing component. Must not be
 #'   `NULL`; use `removeComponent()` to remove a component.
 #' @param dynamics_fun Name of function to calculate value at the next time
-#'   step. Required in the assembled definition.
+#'   step. Required unless `rate_fun` is supplied.
+#' @param rate_fun Name of function returning the component's derivative.
+#'   Required unless `dynamics_fun` is supplied.
+#' @param integration_order Optional positive integer declaring the order of a
+#'   custom `dynamics_fun`. `NULL` removes the declaration.
 #' @param encounter_fun Name of function to calculate contribution to encounter
 #'   rate. Optional.
 #' @param mort_fun Name of function to calculate contribution to the
@@ -535,7 +567,7 @@ setComponent <- function(params, component, initial_value,
                          encounter_fun, mort_fun,
                          component_params,
                          colour = "grey", linetype = "solid",
-                         definition) {
+                         definition, rate_fun, integration_order) {
     params <- validParams(params)
     assert_that(is.string(component), nzchar(component))
     if (!missing(initial_value) && is.null(initial_value)) {
@@ -558,12 +590,16 @@ setComponent <- function(params, component, initial_value,
     }
     overrides <- list()
     if (!missing(dynamics_fun)) overrides["dynamics_fun"] <- list(dynamics_fun)
+    if (!missing(rate_fun)) overrides["rate_fun"] <- list(rate_fun)
     if (!missing(encounter_fun)) {
         overrides["encounter_fun"] <- list(encounter_fun)
     }
     if (!missing(mort_fun)) overrides["mort_fun"] <- list(mort_fun)
     if (!missing(colour)) overrides["colour"] <- list(colour)
     if (!missing(linetype)) overrides["linetype"] <- list(linetype)
+    if (!missing(integration_order)) {
+        overrides["integration_order"] <- list(integration_order)
+    }
     assembled <- assemble_component_definition(
         existing = existing,
         definition = if (missing(definition)) NULL else definition,
@@ -571,7 +607,11 @@ setComponent <- function(params, component, initial_value,
         replace = !missing(definition)
     )
 
-    params@other_dynamics[[component]] <- assembled$dynamics_fun
+    params@other_dynamics[[component]] <- if (is.null(assembled$dynamics_fun)) {
+        "component_rate_dynamics"
+    } else {
+        assembled$dynamics_fun
+    }
     params@other_mort[[component]] <- assembled$mort_fun
     params@other_encounter[[component]] <- assembled$encounter_fun
     if (!missing(initial_value)) {
@@ -622,9 +662,9 @@ removeComponent <- function(params, component) {
 #' @param component Name of the component of interest. If missing, a list of
 #'   all components will be returned.
 #' @return For `getComponent`: A list with the entries `initial_value`,
-#'   `dynamics_fun`, `encounter_fun`, `mort_fun`, `component_params`, and
-#'   `definition` for the requested component. If the requested component does
-#'   not exist, `NULL` is returned.
+#'   `dynamics_fun`, `rate_fun`, `encounter_fun`, `mort_fun`,
+#'   `component_params`, and `definition` for the requested component.
+#'   If the requested component does not exist, `NULL` is returned.
 #'   If no `component` argument is given, then a list of lists for all
 #'   components is returned.
 #' @export
@@ -640,13 +680,19 @@ getComponent <- function(params, component) {
     if (!component %in% names(params@other_dynamics)) {
         return(NULL)
     }
+    definition <- existing_component_definition(params, component)
+    dynamics_fun <- params@other_dynamics[[component]]
+    if (identical(dynamics_fun, "component_rate_dynamics")) {
+        dynamics_fun <- NULL
+    }
     list(
         initial_value = initialNOther(params)[[component]],
-        dynamics_fun = params@other_dynamics[[component]],
+        dynamics_fun = dynamics_fun,
+        rate_fun = definition$rate_fun,
         mort_fun = params@other_mort[[component]],
         encounter_fun = params@other_encounter[[component]],
         component_params = params@other_params[[component]],
-        definition = existing_component_definition(params, component)
+        definition = definition
     )
 }
 

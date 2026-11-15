@@ -260,7 +260,8 @@ Use `setComponent()` for a new dynamical quantity — any R object: a scalar, a
 vector on the size grid, or a list. A component may contribute in up to three
 ways:
 
-- `dynamics_fun` — updates the component's own state during projection,
+- `dynamics_fun` — integrates the component's state over a step, or
+  `rate_fun` — supplies its derivative for mizer to integrate,
 - `encounter_fun` — adds to `getEncounter()`,
 - `mort_fun` — adds to [`getMort()`](../reference/getMort.html).
 
@@ -295,11 +296,12 @@ params <- setComponent(params, "detritus", initial_value = 1e5,
 getComponent(params, "detritus")$definition
 ```
 
-The supported definition fields are `dynamics_fun`, `encounter_fun`, `mort_fun`,
-`colour` and `linetype`. The functions must already be available by name.
-Initial state and component parameters are supplied separately. This first
-development preview of the capability contract still requires a custom step;
-equation-only components and the new measurement, assessment and tuning hooks
+The supported definition fields are `dynamics_fun`, `rate_fun`, `encounter_fun`,
+`mort_fun`, `colour`, `linetype` and `integration_order`. Supply a step, an
+equation, or both; a supplied custom step takes precedence during projection.
+Callback identifiers may be ordinary function names or `package::exported_name`.
+Mizer resolves them when preparing an operation. Initial state and component
+parameters are supplied separately. Measurement, assessment and tuning hooks
 will be added with their runtime support.
 
 Explicit arguments override the definition. A supplied definition replaces the
@@ -381,71 +383,70 @@ write the sum out in full with `encounter_kernel()`, as described above.
 
 ### Components and the time stepper
 
-Under the second-order time steppers — `project(method = "second_order")`, and
-the superseded `"predictor_corrector"`, which behaves the same way here — a
-`dynamics_fun` is called **twice per time step**:
-once as the predictor with the start-of-step rates, and once as the corrector
-with the midpoint rates, so that the component reaches the same order of
-accuracy as the spectra. Both calls receive the same `t` and the same
-start-of-step state, and only the corrector's return value survives. The same
-holds for a custom `resource_dynamics` function.
+A `rate_fun` supplies the derivative of a finite numeric component state. Its
+return value must have the same length, dimensions and names as that state:
 
-The repeated `t` is deliberate: you are handed the start of the step and its
-length and asked for the state at the end, so both calls are advancing the same
-interval and the second one is simply redoing it with better rates. The rate
-functions, which return an instantaneous rate rather than a step, are the other
-case and are evaluated at `t` and then at `t + dt`.
+```{r eval=FALSE}
+poolRate <- function(params, n_other, component, ...) {
+    -params@other_params[[component]]$decay * n_other[[component]]
+}
+params <- setComponent(params, "pool", initial_value = 1,
+                       rate_fun = "poolRate",
+                       component_params = list(decay = 2))
+```
 
-That makes purity a requirement rather than a matter of taste:
+Mizer applies Euler under `method = "euler"` and Heun under the second-order
+methods (`"second_order"`, `"tr_bdf2"` and `"predictor_corrector"`). Heun evaluates
+the derivative at the start and at the full predicted endpoint, including the
+predicted states of other components and the endpoint rates. This handles both
+the component's dependence on itself and its coupling to the rest of the model.
 
-- **Return the new state, computed from the state you were handed.** Anything
-  that instead accumulates into a store outside the function — `<<-`, writing
-  into `other_params(params)`, a running total, a log file — happens twice per
-  step and comes out wrong by a factor of two, while looking correct under the
-  default `"euler"`.
-- **Take the rates from the `rates` argument.** Recomputing them from `n` hands
-  the corrector the start-of-step rates a second time, which quietly drops the
-  run back to first order rather than failing.
+Heun is explicit. Selecting TR-BDF2 for fish does not give components a stiff
+solver, and growth-Courant subcycling does not provide a universal component
+stability bound. Retain a custom `dynamics_fun` for stiff, exactly integrable or
+non-numeric states. Supplying both capabilities uses the custom step for
+projection and makes the derivative available to diagnostics; the author is
+responsible for their consistency.
 
-`detritusDynamics()` above satisfies both: it reads the pool out of `n_other`
-and the predation rate out of `rates`, and returns the new pool size.
+A custom `dynamics_fun` still receives the **start** state, start time `t` and
+step length `dt` and must return the updated state. Under a second-order method
+it is called twice, once for the predictor and once for the corrector. Only the
+corrector's result survives. Both calls advance the same interval, so callbacks
+must not accumulate changes in external mutable storage or assume one call per
+step. Custom resource dynamics follow the same convention.
 
-What the corrector buys you is part of the **coupling to the rest of the
-model**, and it is worth knowing exactly how much: five entries of the rate list
-are replaced by their midpoint values — `e_growth`, `mort`, `diffusion`, `rdd`
-and `resource_mort`, the ones the consumer and resource steppers consume. Every
-other entry, `encounter`, `feeding_level`, `pred_rate`, `pred_mort`, `f_mort`,
-`e` and `rdi` among them, is still the start-of-step value in the corrector
-call. A component coupling through one of those — `detritusDynamics()` above
-reads `rates$pred_rate` — is first order in that coupling however carefully it
-integrates, and on `NS_params` a single `dt = 0.1` step moves `pred_rate` by
-nearly 30%. Prefer a coupling through the five averaged rates where the choice
-is yours.
+The predictor receives the complete start rates. The corrector receives a
+complete effective midpoint list for **all standard numeric rates**, including
+`pred_rate` and `f_mort`. The consumer stepper keeps its specialised internal
+rate representation. Arbitrary extra fields in an extension's rate list are
+not automatically averaged. Dynamics and diagnostic callbacks receive complete
+standard rates; ordinary single-rate getters retain their selective evaluation.
 
-The rest of the step is yours,
-because the interface asks for the new state rather than for a rate of change —
-mizer never evaluates your right-hand side and so cannot integrate it for you. A
-component written as `state + dt * f(state, rates)` is therefore first order
-even under `"second_order"`, however good the rates are. Two ways to be second order,
-both using the rates frozen at the values you were given:
+Custom component and resource steps can optionally accept `predicted_state`
+and `endpoint_rates`. The former is a list containing `n`, `n_pp`, `n_other`
+and `t` at the predicted endpoint; the latter is the rates evaluated there.
+These are predictions, not the final corrected state. Both are `NULL` when no
+prediction is available, including Euler and predictor calls. Legacy callbacks
+without these arguments or `...` continue to receive their original arguments.
 
-- **Solve the step exactly.** For a relaxation towards a target — much the
-  commonest shape — this is the one-liner `detritusDynamics()` uses above, and
-  mizer's own [`resource_semichemostat()`](../reference/resource_semichemostat.html) is the same pattern. Exact for frozen
-  coefficients, so the only error left is the O(dt^2) in the rates themselves,
-  and it is unconditionally stable into the bargain.
-- **Take an RK2 step inside your function**: `y + dt * f(y + dt / 2 * f(y))`.
-  General, and enough for anything non-linear.
+Passing better rates does not integrate the component's self-dependence. A
+custom step written as `state + dt * f(state, rates)` remains first order.
+Integrate that dependence yourself, for example analytically for a relaxation
+process, or use `rate_fun`. A custom step that recomputes quantities from state
+can use `predicted_state` and `endpoint_rates` to form a consistent corrector.
 
-Explicit time dependence of your own goes the same way, since `t` is the start
-of the step in both calls: integrate the forcing across the step or evaluate it
-at `t + dt / 2`. None of this gains anything under the default `"euler"`, where
-the rates are the start-of-step ones and the step is first order whatever you do
-inside, but neither does it cost anything there.
+The simulation's `sim_params$component_integration` records the method and
+order used for each component: Euler/Heun for equations, or `custom` with an
+author-declared `integration_order` (unknown when omitted). This records the
+custom author's declaration, not a numerical proof or a whole-model accuracy
+guarantee. Mixed order is permitted. If you replace a custom step, declare its
+order again rather than inheriting the previous function's claim.
 
-Test any new component under `method = "second_order"` as well as the default;
-halving `dt` should then move the answer by roughly a quarter rather than a
-half.
+Test new dynamics by refining `dt` against an analytical solution or a suitably
+fine reference, including a genuinely coupled example. A second-order error
+should shrink by about a factor of four when `dt` is halved. Check stiffness
+separately. With subcycling enabled, callbacks receive the actual internal
+substep size and are called for each substep.
 
 ### Components and the steady state
 

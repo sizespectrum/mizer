@@ -359,7 +359,8 @@ getEncounterByPrey.MizerParams <- function(params, n = initialN(params),
     # mizerEncounter() does
     for (i in seq_along(params@other_encounter)) {
         encounter[, , no_sp + 2 + i] <-
-            do.call(params@other_encounter[[i]],
+            do.call(resolve_model_callback(params@other_encounter[[i]],
+                                           "Encounter contribution"),
                     list(params = params,
                          n = n, n_pp = n_pp, n_other = n_other, t = t,
                          component = names(params@other_encounter)[[i]], ...))

@@ -26,11 +26,26 @@ and omitted styles take the defaults; state and component parameters remain
 unchanged unless supplied separately. Explicit `NULL` removes an optional
 encounter or mortality callback.
 
-`getComponent()` now returns an additional `definition` entry alongside its
+`getComponent()` now returns `definition` and `rate_fun` entries alongside its
 original five entries. Code that selects entries by name continues to work;
 code that relies on an exact five-element result should select the entries it
 needs. The assembled definition is saved in the model, so changing the original
 list does not silently update models that already used it.
+
+### Component correctors use complete midpoint rates
+
+Under `method = "predictor_corrector"` or `"tr_bdf2"` (also called
+`"second_order"`), custom resource and component steps now receive midpoint
+values for every standard numeric rate. Previously only growth, mortality,
+diffusion, recruitment and resource mortality were averaged; other entries such
+as `pred_rate` and `f_mort` retained their start values. Results may therefore
+change for models whose custom dynamics use those entries. Euler stepping is
+unchanged.
+
+Components can also supply equations for mizer to integrate with Euler or Heun.
+The fish solver does not determine a custom component's numerical order or
+stability. Inspect `sim@sim_params$component_integration` for the recorded method
+and declared order of each component; an unknown custom order is shown as `NA`.
 
 ### A model keeps the defaults edition it was created with
 

@@ -450,9 +450,10 @@ resource_steady_semichemostat <- function(params, N, n_other) {
 #'   so that a caller evaluating the residual many times need only look them up
 #'   once.
 #' @param flux_limiter The flux limiter scheme, from `flux_limiter_scheme()`.
-#' @param rates The rates at this state, as returned by `mizer_rates_subset()`
-#'   with targets `EGrowth`, `Mort` and `Diffusion`. Pass them in when the
-#'   caller has computed them already; otherwise they are computed here.
+#' @param rates The rates at this state, either a full rate evaluation or the
+#'   `mizer_rates_subset()` with targets `EGrowth`, `Mort` and `Diffusion`. Pass
+#'   them in when the caller has computed them already; otherwise they are
+#'   computed here.
 #' @return The unscaled residual matrix (species x size).
 #' @noRd
 consumer_residual <- function(params, n, n_pp, n_other, effort, rdd = NULL,
@@ -810,22 +811,24 @@ stability_jacobian <- function(ctx, f, h) {
 #' @noRd
 stability_rhs <- function(ctx, dt_resource = 1e-4) {
     params  <- ctx$params
-    targets <- c("EGrowth", "Mort", "Diffusion", "ResourceMort")
     semichemostat <- params@resource_dynamics == "resource_semichemostat"
-    resource_dyn  <- if (semichemostat) NULL else get(params@resource_dynamics)
+    resource_dyn <- NULL
+    if (!semichemostat) {
+        resource_dyn <- resolve_model_callback(params@resource_dynamics,
+                                               "resource dynamics")
+    }
 
     function(x) {
         st <- ctx$unpack(x)
-        r <- mizer_rates_subset(params, n = st$N, n_pp = st$n_pp,
-                                n_other = ctx$n_other, t = 0,
-                                effort = ctx$effort,
-                                rates_fns = ctx$rates_fns, targets = targets)
-        # `rdd = NULL` makes `consumer_residual()` evaluate the model's own
-        # reproduction function at the perturbed state, so the reproduction
-        # feedback is part of the Jacobian just as it is part of `project()`.
+        r <- ctx$rates_fns$Rates(params, n = st$N, n_pp = st$n_pp,
+                                 n_other = ctx$n_other, t = 0,
+                                 effort = ctx$effort,
+                                 rates_fns = ctx$rates_fns)
+        # Use the same effective recruitment as projection, including a
+        # custom full-rate provider, without evaluating that process again.
         dNdt <- -consumer_residual(params, n = st$N, n_pp = st$n_pp,
                                    n_other = ctx$n_other, effort = ctx$effort,
-                                   rdd = NULL,
+                                   rdd = r$rdd,
                                    rates_fns = ctx$rates_fns,
                                    flux_limiter = ctx$flux_limiter,
                                    rates = r)
@@ -837,11 +840,12 @@ stability_rhs <- function(ctx, dt_resource = 1e-4) {
             dnpp <- params@rr_pp * params@cc_pp -
                 (params@rr_pp + r$resource_mort) * st$n_pp
         } else {
-            npp_new <- resource_dyn(params, n = st$N, n_pp = st$n_pp,
-                                    n_other = ctx$n_other, rates = r,
-                                    t = 0, dt = dt_resource,
-                                    resource_rate = params@rr_pp,
-                                    resource_capacity = params@cc_pp)
+            args <- list(params = params, n = st$N, n_pp = st$n_pp,
+                         n_other = ctx$n_other, rates = r,
+                         t = 0, dt = dt_resource,
+                         resource_rate = params@rr_pp,
+                         resource_capacity = params@cc_pp)
+            npp_new <- invoke_model_step(resource_dyn, args)
             dnpp <- (npp_new - st$n_pp) / dt_resource
         }
         c(dNdt[ctx$active$mask], as.numeric(dnpp))
@@ -871,29 +875,27 @@ stability_rhs <- function(ctx, dt_resource = 1e-4) {
 stability_step <- function(ctx, dt) {
     params  <- ctx$params
     w_top   <- support_top_idx(params)
-    targets <- c("EGrowth", "Mort", "Diffusion", "ResourceMort")
-    resource_dyn <- get(params@resource_dynamics)
+    resource_dyn <- resolve_model_callback(params@resource_dynamics,
+                                           "resource dynamics")
 
     function(x) {
         st <- ctx$unpack(x)
-        r <- mizer_rates_subset(params, n = st$N, n_pp = st$n_pp,
-                                n_other = ctx$n_other, t = 0,
-                                effort = ctx$effort,
-                                rates_fns = ctx$rates_fns, targets = targets)
-        rdd <- state_rdd(params, n = st$N, n_pp = st$n_pp,
-                         n_other = ctx$n_other, rates = r)
+        r <- ctx$rates_fns$Rates(params, n = st$N, n_pp = st$n_pp,
+                                 n_other = ctx$n_other, t = 0,
+                                 effort = ctx$effort,
+                                 rates_fns = ctx$rates_fns)
         coefs <- get_transport_coefs(params, n = st$N, g = r$e_growth,
                                      mu = r$mort, dt = dt,
-                                     recruitment_flux = rdd,
+                                     recruitment_flux = r$rdd,
                                      d = r$diffusion,
                                      flux_limiter = ctx$flux_limiter)
         N_out <- project_n_loop(st$N, coefs$a, coefs$b, coefs$c, coefs$S,
                                 params@w_min_idx)
-        npp_out <- resource_dyn(params, n = st$N, n_pp = st$n_pp,
-                                n_other = ctx$n_other, rates = r,
-                                t = 0, dt = dt,
-                                resource_rate = params@rr_pp,
-                                resource_capacity = params@cc_pp)
+        args <- list(params = params, n = st$N, n_pp = st$n_pp,
+                     n_other = ctx$n_other, rates = r, t = 0, dt = dt,
+                     resource_rate = params@rr_pp,
+                     resource_capacity = params@cc_pp)
+        npp_out <- invoke_model_step(resource_dyn, args)
         c(zero_above_support(N_out, w_top)[ctx$active$mask],
           as.numeric(npp_out))
     }

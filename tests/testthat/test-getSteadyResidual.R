@@ -669,3 +669,94 @@ test_that("isSteady() dispatches via S3", {
     isSteady.DummyModel <- function(params, ...) TRUE  # nolint: object_name_linter.
     expect_true(isSteady(dummy))
 })
+
+test_that("steady diagnostics share one complete effective rate evaluation", {
+    calls <- 0L
+    rlang::local_bindings(
+        diagnostic_full_rates = function(params, ...) {
+            calls <<- calls + 1L
+            rates <- mizerRates(params, ...)
+            rates$rdd <- rates$rdd / 2
+            rates
+        },
+        diagnostic_fishing_pool = function(n_other, component, rates, dt,
+                                           predicted_state, endpoint_rates,
+                                           ...) {
+            if (is.null(rates$f_mort)) stop("missing fishing mortality")
+            stopifnot(is.null(predicted_state), is.null(endpoint_rates))
+            n_other[[component]] + dt * sum(rates$f_mort)
+        },
+        diagnostic_fishing_resource = function(n_pp, rates, dt, predicted_state,
+                                               endpoint_rates, ...) {
+            if (is.null(rates$f_mort)) stop("missing fishing mortality")
+            stopifnot(is.null(predicted_state), is.null(endpoint_rates))
+            n_pp * (1 + dt * sum(rates$f_mort))
+        }, .env = .GlobalEnv
+    )
+    p <- setComponent(NS_params_small, "pool", initial_value = 2,
+                      dynamics_fun = "diagnostic_fishing_pool")
+    p@resource_dynamics <- "diagnostic_fishing_resource"
+    p@rates_funcs$Rates <- "diagnostic_full_rates"
+    dt <- 0.25
+    measured <- steady_rates(p, dt = dt)
+    expect_identical(calls, 1L)
+
+    rates <- mizerRates(p, n = p@initial_n, n_pp = p@initial_n_pp,
+                        n_other = p@initial_n_other, effort = p@initial_effort,
+                        rates_fns = projectRateFunctions(p))
+    fishing <- sum(rates$f_mort)
+    expect_gt(fishing, 0)
+    expect_equal(measured$other$pool, fishing / 2)
+    present <- p@initial_n_pp > 0
+    expect_equal(unname(measured$dn_pp_dt[present] / p@initial_n_pp[present]),
+                 rep(fishing, sum(present)), tolerance = 1e-10)
+    expect_true(all(measured$dn_pp_dt[!present] == 0))
+
+    # The full-rate provider changes final recruitment. The consumer equation
+    # must use that value instead of recomputing the unmodified RDD separately.
+    expected <- -consumer_residual(p, n = p@initial_n,
+                                   n_pp = p@initial_n_pp,
+                                   n_other = p@initial_n_other,
+                                   effort = p@initial_effort,
+                                   rates = rates, rdd = rates$rdd / 2)
+    populated <- p@initial_n > 0
+    expect_equal(measured$dNdt[populated], expected[populated])
+})
+
+test_that("steady diagnostics use equations without an artificial step", {
+    rlang::local_bindings(
+        diagnostic_component_rate = function(n_other, component, ...) {
+            2 * n_other[[component]]
+        },
+        diagnostic_unused_step = function(...) stop("step should not be used"),
+        .env = .GlobalEnv
+    )
+    p <- setComponent(NS_params_small, "pool", initial_value = c(stock = 2,
+                                                                 empty = 0),
+                      dynamics_fun = "diagnostic_unused_step",
+                      rate_fun = "diagnostic_component_rate")
+    expected <- c(stock = 2, empty = NA_real_)
+    # The equation is sufficient even if the unused custom step is unavailable
+    # in a session that only needs this diagnostic.
+    rm("diagnostic_unused_step", envir = .GlobalEnv)
+    expect_equal(steady_rates(p, dt = 1)$other$pool, expected)
+    expect_equal(steady_rates(p, dt = 1e-8)$other$pool, expected)
+
+    # Tuning temporarily replaces the active step. Its frozen state must not
+    # be diagnosed using the original unfrozen derivative from the snapshot.
+    p@other_dynamics$pool <- "constant_other"
+    expect_equal(steady_rates(p)$other$pool, c(stock = 0, empty = NA_real_))
+})
+
+test_that("steady diagnostics reject bad derivatives and propagate errors", {
+    rlang::local_bindings(
+        diagnostic_bad_rate = function(...) stop("component derivative failed"),
+        diagnostic_wrong_shape = function(...) 1,
+        .env = .GlobalEnv
+    )
+    p <- setComponent(NS_params_small, "pool", initial_value = c(a = 1, b = 2),
+                      rate_fun = "diagnostic_bad_rate")
+    expect_error(steady_rates(p), "component derivative failed")
+    p <- setComponent(p, "pool", rate_fun = "diagnostic_wrong_shape")
+    expect_error(steady_rates(p), "pool")
+})
