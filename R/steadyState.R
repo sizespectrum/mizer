@@ -105,7 +105,8 @@
 #'
 #'   With `solver = "project"`: `t_max`, `t_check`, `dt`,
 #'   `distance_tol`, `residual_tol`, `amplitude_tol`, `amp_rel_tol`,
-#'   `extinction_threshold`, `progress_bar` and `method`, all as described in
+#'   `extinction_threshold`, `progress_bar`, `method`, `subcycle`,
+#'   `max_courant` and `max_substeps`, all as described in
 #'   [projectUntilSettled()]. There is no `t_save`, because no trajectory is
 #'   returned.
 #'   Note that `distance_tol` here defaults to `0.1 * dt` and measures the
@@ -248,7 +249,8 @@ tuneSteadyState.MizerParams <- function(params,
 #'
 #'   With `solver = "project"`: `distance_func`, `t_max`, `t_check`, `dt`,
 #'   `distance_tol`, `residual_tol`, `amplitude_tol`, `amp_rel_tol`,
-#'   `extinction_threshold`, `progress_bar` and `method`, all as described in
+#'   `extinction_threshold`, `progress_bar`, `method`, `subcycle`,
+#'   `max_courant` and `max_substeps`, all as described in
 #'   [projectUntilSettled()]. There is no `t_save`, because no trajectory is
 #'   returned.
 #'
@@ -339,7 +341,9 @@ tune_steady_project <- function(params, effort, preserve,
                                 progress_bar = TRUE,
                                 info_level = default_info_level(),
                                 method = c("euler", "predictor_corrector",
-                                           "tr_bdf2")) {
+                                           "tr_bdf2"),
+                                subcycle = FALSE, max_courant = 1,
+                                max_substeps = 10000) {
     method <- normalise_project_method(method)
 
     old_reproduction_level <- NULL
@@ -384,7 +388,9 @@ tune_steady_project <- function(params, effort, preserve,
                                     require_steady = require_steady,
                                     progress_bar = progress_bar,
                                     info_level = info_level,
-                                    method = method)
+                                    method = method, subcycle = subcycle,
+                                    max_courant = max_courant,
+                                    max_substeps = max_substeps)
     # Capture the convergence diagnostic before the setter functions below
     # return fresh objects that drop attributes; it is re-attached at the end.
     conv <- attr(object, "convergence")
