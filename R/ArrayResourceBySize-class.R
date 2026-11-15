@@ -225,9 +225,9 @@ plot.ArrayResourceBySize <- function(x, return_data = FALSE,
 #' background and no total to form.
 #'
 #' @param x An `ArrayResourceBySize` object.
-#' @param wlim Numeric vector of length two giving the weight limits.
-#' @param llim Numeric vector of length two giving the length limits, applied
-#'   only on a length axis.
+#' @param wlim Weight-axis viewport limits; retained for compatibility here
+#'   and applied only by the renderer.
+#' @param llim Length-axis viewport limits; applied only by the renderer.
 #' @param size_axis Either `"w"` (weight) or `"l"` (length).
 #' @param per_log_size Whether to express a density per logarithmic size.
 #' @return A data frame with the size coordinate in its first column, the values
@@ -243,9 +243,6 @@ ArrayResourceBySize_plot_data <- function(x, wlim = c(NA, NA),
     plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
                                           density_wrt = array_density_wrt(x),
                                           per_log_size = per_log_size)
-    if (identical(size_axis, "l")) {
-        plot_dat <- filter_plot_length_limits(plot_dat, llim)
-    }
     plot_dat
 }
 
@@ -260,7 +257,6 @@ prepare_ArrayResourceBySize_plot_data <- function(x, wlim = c(NA, NA)) {
         Legend = "Resource",
         stringsAsFactors = FALSE
     )
-    plot_dat <- apply_wlim(plot_dat, wlim)
     names(plot_dat)[2] <- value_name
     plot_dat
 }
@@ -388,6 +384,8 @@ addPlot.ArrayResourceBySize <- function(plot, x, species = NULL,
     y_var <- names(plot_dat)[2]
     check_addPlot_compatible(plot, x_var = x_var, y_var = y_var,
                              units = array_units(x, size_axis, per_log_size))
+    plot <- set_plot_viewport(plot,
+                              xlim = plot_size_xlim(wlim, size_axis, llim))
 
     # A resource array is a single line, so there is nothing to distinguish by
     # colour. Mapping colour to the "Resource" legend level would rely on the

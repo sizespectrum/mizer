@@ -61,7 +61,8 @@ test_that("plot2.ArrayResourceBySize compares compatible arrays", {
     expect_s3_class(p, "ggplot")
     expect_identical(levels(p$data$Model), c("Original", "Changed"))
     expect_identical(unique(as.character(p$data$Legend)), "Resource")
-    expect_true(all(p$data$w >= 1))
+    expect_equal(p$coordinates$limits$x, c(1, NA))
+    expect_true(any(p$data$w < 1))
     expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
     expect_identical(p$scales$get_scales("y")$trans$name, "log-10")
 
@@ -77,7 +78,8 @@ test_that("plot2.ArrayResourceBySize compares compatible arrays", {
 test_that("plotRelative.ArrayResourceBySize plots symmetric relative difference", {
     p <- plotRelative(mort_small, mort_small2, wlim = c(1, NA))
     expect_s3_class(p, "ggplot")
-    expect_true(all(p$data$w >= 1))
+    expect_equal(p$coordinates$limits$x, c(1, NA))
+    expect_true(any(p$data$w < 1))
     expect_true(all(abs(p$data$rel_diff - 2 / 3) < 1e-12))
     expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
 
@@ -269,8 +271,8 @@ test_that("the resource can be plotted against length", {
     expect_identical(p$scales$get_scales("x")$name, "Length [cm]")
     expect_identical(p$scales$get_scales("y")$name, "Number density [1/cm]")
 
-    # llim trims the length axis
-    expect_lt(nrow(plot(resource, size_axis = "l", llim = c(0.1, 1),
+    # llim only changes the viewport
+    expect_equal(nrow(plot(resource, size_axis = "l", llim = c(0.1, 1),
                         return_data = TRUE)),
               nrow(by_length))
 
@@ -451,4 +453,18 @@ test_that("resource time slices retain sparse and empty size selections", {
     sub <- x[, c(8, 3), drop = FALSE]
     expect_equal(as.data.frame(sub)$w,
                  rep(unname(w[c(8, 3)]), each = nrow(x)))
+})
+
+test_that("added resource curves zoom without removing vertices", {
+    x <- initialNResource(NS_params_small)
+    for (axis in c("w", "l")) {
+        base <- plot(x, size_axis = axis)
+        added <- addPlot(base, x, size_axis = axis,
+                         wlim = c(1, 100), llim = c(5, 20))
+        expect_equal(added$layers[[2]]$data,
+                     plot(x, size_axis = axis, return_data = TRUE))
+        expect_equal(added$coordinates$limits$x,
+                     if (axis == "w") c(1, 100) else c(5, 20))
+        expect_true(all(is.na(base$coordinates$limits$x)))
+    }
 })

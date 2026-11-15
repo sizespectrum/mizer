@@ -9,7 +9,8 @@ total_contributors(x, wlim = c(NA, NA))
 \arguments{
 \item{x}{An \code{ArraySpeciesBySize} object.}
 
-\item{wlim}{Numeric vector of length two giving the weight limits.}
+\item{wlim}{Weight-axis viewport limits; retained for compatibility here
+and applied only by the renderer.}
 }
 \value{
 A data frame of plotting data holding every value in the array.

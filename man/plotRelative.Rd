@@ -103,6 +103,10 @@ objects relative to their average. If the values in the first object are
 \eqn{N_1} and the values in the second are \eqn{N_2}, it plots
 \deqn{2 (N_2 - N_1) / (N_1 + N_2).}
 }
+\details{
+Size, time and value limits only change the visible window. The relative
+differences and totals are calculated from the complete data.
+}
 \examples{
 \donttest{
 params <- NS_params

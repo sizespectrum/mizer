@@ -89,8 +89,8 @@ density.}
 \strong{For \code{ArrayTimeBySpecies} methods:}
 \describe{
 \item{\code{tlim}}{A numeric vector of length two providing lower and upper
-limits for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to apply no
-limit at that end. Default is \code{c(NA, NA)}.}
+limits for the time axis, e.g. \code{c(1980, 2000)}. Use \code{NA} to retain
+the existing limit at that end. Default is \code{c(NA, NA)}.}
 \item{\code{ylim}}{A numeric vector of length two providing lower and upper
 limits for the value (y) axis.}
 }
@@ -112,6 +112,10 @@ compare the same rate before and after a model change. There are methods for
 all the mizer array classes. Each checks whether the existing plot uses a
 compatible x variable, and warns if the y variable or y-axis units appear to
 differ.
+}
+\details{
+Limits change the shared viewport without filtering the added data. Each
+\code{NA} endpoint retains the existing viewport limit.
 }
 \examples{
 \donttest{

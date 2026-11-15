@@ -26,6 +26,10 @@ plotCDF(
   log = NULL,
   size_axis = c("w", "l"),
   return_data = FALSE,
+  min_w = 0,
+  max_w = Inf,
+  min_l = NULL,
+  max_l = NULL,
   ...
 )
 }
@@ -38,22 +42,16 @@ species are selected. A vector of species names, or a numeric vector with
 the species indices, or a logical vector indicating for each species
 whether it is to be selected (TRUE) or not.}
 
-\item{wlim}{A numeric vector of length two providing lower and upper limits
-for the w axis. Use NA for the default: the lower default is
-\code{min(params@w) / 100} when \code{resource = TRUE} (to show some resource below
-the fish grid) or \code{min(params@w)} when \code{resource = FALSE}; the upper
-default is \code{max(params@w_full)}. Data is filtered to this range and the
-axis limits are set accordingly.}
+\item{wlim}{A numeric vector of length two giving the visible weight-axis
+limits. Use \code{NA} to auto-scale. Does not select the integration range.}
 
 \item{llim}{A numeric vector of length two providing lower and upper limits
 for the length axis when \code{size_axis = "l"}. Use \code{NA} to auto-scale to the
-data range. Data is filtered to this range and the axis limits are set
-accordingly.}
+data range. These limits only set the visible window.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
-for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
-are always filtered out from the data regardless of \code{ylim[1]}. Data above
-\code{ylim[2]} is filtered and the upper axis limit is set accordingly.}
+for the y axis. Use \code{NA} to auto-scale to the data range. These limits
+only set the visible window, without filtering the returned data.}
 
 \item{power}{The number density is multiplied by the weight raised to
 \code{power} before being integrated. An alternative to the \code{biomass}
@@ -82,7 +80,8 @@ being plotted with thicker lines.}
 
 \item{normalise}{If \code{TRUE} (default), plot the cumulative proportion. If
 \code{FALSE}, plot the cumulative abundance, biomass, or other unnormalised
-integral.}
+integral. A curve with zero mass in the integration range has \code{NA}
+normalised values (and zero unnormalised values).}
 
 \item{log_x}{If \code{TRUE} (default), use a log10 x-axis.}
 
@@ -97,6 +96,18 @@ in the same form as the base \code{\link[=plot]{plot()}} argument. If supplied, 
 
 \item{return_data}{A boolean value that determines whether the formatted data
 used for the plot is returned instead of the plot itself. Default is FALSE.}
+
+\item{min_w, max_w}{Single non-negative numbers giving the weight range in
+grams to integrate over. Defaults are 0 and \code{Inf}, covering the complete
+grid.
+A boundary inside a bin includes only the overlapping fraction of its
+width. Density is weighted at the left bin boundary in first-order models
+and at the geometric midpoint when bin averaging is enabled.}
+
+\item{min_l, max_l}{Optional single non-negative numbers giving the length
+range in centimetres to integrate over. Each overrides the corresponding
+weight bound, using each species' own length-weight relationship, including
+the resource's equivalent-sphere convention. Independent of \code{size_axis}.}
 
 \item{...}{Further arguments used by only some of the methods:
 
@@ -117,8 +128,10 @@ frame with the four variables 'w' (or 'l' if \code{size_axis = "l"}), 'value',
 }
 \description{
 \code{plotCDF()} plots the cumulative distribution over body size from small to
-large sizes. It uses the same spectra data preparation as \code{\link[=plotSpectra]{plotSpectra()}}:
-the number density is multiplied by \code{w^power} and then integrated over size.
+large sizes. The complete number density is multiplied by \code{w^power} and
+integrated over the range chosen by \code{min_w}, \code{max_w}, \code{min_l} and \code{max_l}.
+Plot limits only change the visible window; they do not change the
+cumulative values, normalisation, totals or \code{return_data}.
 With \code{normalise = TRUE}, each curve is divided by its final value so that it
 ends at 1.
 }

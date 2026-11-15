@@ -27,6 +27,9 @@ relative difference between two arrays, use \code{\link[=plotRelative]{plotRelat
 to an existing plot, use \code{\link[=addPlot]{addPlot()}}. All three, and \code{\link[=animate]{animate()}}, have
 methods for every mizer array class.
 
+\code{wlim}, \code{llim}, \code{tlim} and \code{ylim} only change the visible window. They do
+not change the calculations, totals or data returned by \code{return_data}.
+
 All methods return a ggplot2 object, unless \code{return_data = TRUE}, in
 which case they return the underlying data frame instead. \code{\link[=plotHover]{plotHover()}}
 returns a plotly object.

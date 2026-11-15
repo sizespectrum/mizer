@@ -211,8 +211,8 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
     plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label,
                   xtrans = if (log_x) "log10" else "identity",
                   ytrans = if (log_y) "log10" else "identity",
-                  ylim = ylim, y_ticks = y_ticks, highlight = highlight,
-                  legend_var = "Legend")
+                  xlim = tlim, ylim = ylim, y_ticks = y_ticks,
+                  highlight = highlight, legend_var = "Legend")
 }
 
 #' @rdname addPlot
@@ -237,7 +237,7 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
                 alpha <= 1)
 
     plot <- deep_copy(plot)
-    # Filter the added values the way the plot they are joining was filtered.
+    # Prepare all added values; limits apply to the shared viewport below.
     plot_dat <- prepare_ArrayTimeBySpecies_plot_data(
         x, species = species, tlim = tlim,
         ylim = ylim, total = total, background = background,
@@ -245,6 +245,7 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
     y_var <- names(plot_dat)[[2]]
     check_addPlot_compatible(plot, x_var = "Year", y_var = y_var,
                              units = attr(x, "units"))
+    plot <- set_plot_viewport(plot, xlim = tlim, ylim = ylim)
 
     mapping <- aes(x = .data[["Year"]], y = .data[[y_var]],
                    group = .data[["Species"]])
@@ -306,7 +307,7 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
                             xlab = "Year", ylab = y_label,
                             xtrans = if (log_x) "log10" else "identity",
                             ytrans = if (log_y) "log10" else "identity",
-                            ylim = ylim, y_ticks = y_ticks,
+                            xlim = tlim, ylim = ylim, y_ticks = y_ticks,
                             highlight = highlight, legend_var = "Legend")
 }
 
@@ -336,7 +337,7 @@ plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
     plotRelativeDataFrame(plot_dat1, plot_dat2, params,
                           xlab = "Year",
                           xtrans = if (log_x) "log10" else "identity",
-                          ylim = ylim, highlight = highlight,
+                          xlim = tlim, ylim = ylim, highlight = highlight,
                           legend_var = "Legend")
 }
 
@@ -350,9 +351,9 @@ plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
 #'
 #' @param x An `ArrayTimeBySpecies` object.
 #' @param species Character vector of species to include, or `NULL` for all.
-#' @param tlim Numeric vector of length two giving the time limits.
-#' @param ylim Numeric vector of length two giving the value limits. Values
-#'   outside them are dropped, as they cannot be seen anyway.
+#' @param tlim Time-axis viewport limits, validated here.
+#' @param ylim Value-axis viewport limits; retained for compatibility here
+#'   and applied only by the renderer, without filtering the data.
 #' @param total Whether to append the total, which is the total over every
 #'   species the array holds, whatever is drawn.
 #' @param background Whether background species are included.
@@ -372,18 +373,8 @@ prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
     value_name <- attr(x, "value_name") %||% "Value"
     params <- attr(x, "params")
 
-    # Filter to time range
-    t <- as.numeric(rownames(x))
-    if (any(is.na(t))) t <- seq_len(nrow(x))
     if (!is.na(tlim[1]) && !is.na(tlim[2]) && tlim[1] >= tlim[2]) {
         stop("tlim[1] must be less than tlim[2]")
-    }
-    if (!is.na(tlim[1])) {
-        x <- x[t >= tlim[1], , drop = FALSE]
-        t <- t[t >= tlim[1]]
-    }
-    if (!is.na(tlim[2])) {
-        x <- x[t <= tlim[2], , drop = FALSE]
     }
 
     all_species <- colnames(x)
@@ -406,9 +397,8 @@ prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
 
     bm <- reshape2::melt(bm)
 
-    # Implement ylim; bring columns in desired order
-    keep <- (is.na(ylim[1]) | bm$value >= ylim[1]) &
-        (is.na(ylim[2]) | bm$value <= ylim[2])
+    # Keep the log floor independent of viewport limits.
+    keep <- rep(TRUE, nrow(bm))
     if (isTRUE(log_y)) {
         # A hard floor rather than a plain `> 0`, so that a species that has
         # died out does not drag a logarithmic axis down by twenty decades.

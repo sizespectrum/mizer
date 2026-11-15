@@ -69,8 +69,8 @@ A \code{mizer_plot} (ggplot2) object, or the plotting data frame if
 }
 \description{
 Internal worker shared by the \code{\link[=plotSpectra]{plotSpectra()}} methods. It assembles the
-plotting data frame from the species and resource abundances, applies the
-size and abundance limits, optionally converts to a length axis, and either
+plotting data frame from the species and resource abundances, optionally
+converts to a length axis, and either
 returns the data or draws the plot via \code{\link[=plotDataFrame]{plotDataFrame()}}.
 }
 \keyword{internal}

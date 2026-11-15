@@ -67,6 +67,13 @@
 
 ## New features
 
+- Plot limits (`wlim`, `llim`, `tlim`, `ylim`) now control the visible window
+  without filtering returned data or changing totals and comparisons (#564,
+  second stage). `plotCDF()`, `plotCDF2()` and their interactive counterparts
+  accept explicit `min_w`, `max_w`, `min_l` and `max_l` integration bounds,
+  including partial boundary bins under both quadrature schemes. CDFs use
+  the complete abundance data and retain completed contributions in totals.
+
 - Plotting uses a shared internal specification for ordinary, comparison,
   relative and animated renderers (#564, first stage). Public plotting APIs,
   returned data, limit semantics and CDF calculations are unchanged.

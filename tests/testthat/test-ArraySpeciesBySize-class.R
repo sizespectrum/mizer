@@ -376,7 +376,7 @@ test_that("the total on a length axis interpolates onto a common grid", {
 test_that("a proportion is plotted against the whole of [0, 1]", {
     feeding_level <- getFeedingLevel(NS_params_small)
     expect_identical(array_type(feeding_level), "proportion")
-    expect_identical(plot(feeding_level)$scales$get_scales("y")$limits,
+    expect_identical(plot(feeding_level)$coordinates$limits$y,
                      c(0, 1))
 
     # A value above 1 is a real feature of the model and stays visible
@@ -384,24 +384,22 @@ test_that("a proportion is plotted against the whole of [0, 1]", {
                                     value_name = "Test proportion",
                                     type = "proportion",
                                     params = NS_params_small)
-    limits <- plot(above_one)$scales$get_scales("y")$limits
+    limits <- plot(above_one)$coordinates$limits$y
     expect_identical(limits[[1]], 0)
     # The sizes outside a species' size range are not plotted, so compare
     # against the values that are
     expect_gte(limits[[2]], max(plot(above_one, return_data = TRUE)[[2]]))
 
     # An explicit limit always wins, and a log axis is left alone
-    expect_identical(plot(feeding_level, ylim = c(0.1, 0.5))$scales$
-                         get_scales("y")$limits,
+    expect_identical(plot(feeding_level, ylim = c(0.1, 0.5))$coordinates$limits$y,
                      c(0.1, 0.5))
-    expect_identical(plot(feeding_level, ylim = c(NA, 0.5))$scales$
-                         get_scales("y")$limits,
+    expect_identical(plot(feeding_level, ylim = c(NA, 0.5))$coordinates$limits$y,
                      c(0, 0.5))
-    expect_equal(plot(feeding_level, log_y = TRUE)$scales$get_scales("y")$limits,
-                 c(NA_real_, NA_real_))
+    expect_equal(plot(feeding_level, log_y = TRUE)$coordinates$limits$y,
+                 c(NA, NA))
 
     # Values that are not a proportion are unaffected
-    expect_true(all(is.na(plot(enc_small)$scales$get_scales("y")$limits)))
+    expect_true(all(is.na(plot(enc_small)$coordinates$limits$y)))
 })
 
 test_that("comparisons reject two arrays that hold different types of value", {
@@ -448,7 +446,8 @@ test_that("plot2.ArraySpeciesBySize compares compatible arrays", {
     expect_s3_class(p, "ggplot")
     expect_identical(levels(p$data$Model), c("Original", "Changed"))
     expect_true(all(p$data$Species %in% c("Cod", "Total")))
-    expect_true(all(p$data$w >= 1))
+    expect_equal(p$coordinates$limits$x, c(1, NA))
+    expect_true(any(p$data$w < 1))
     expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
     expect_identical(p$scales$get_scales("y")$trans$name, "log-10")
 
@@ -468,7 +467,8 @@ test_that("plotRelative.ArraySpeciesBySize plots symmetric relative difference",
                       background = FALSE, wlim = c(1, NA))
     expect_s3_class(p, "ggplot")
     expect_true(all(p$data$Species %in% c("Cod", "Total")))
-    expect_true(all(p$data$w >= 1))
+    expect_equal(p$coordinates$limits$x, c(1, NA))
+    expect_true(any(p$data$w < 1))
     expect_true(all(abs(p$data$rel_diff - 2 / 3) < 1e-12))
     expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
 
@@ -913,4 +913,27 @@ test_that("rewrapping without params discards the model mapping", {
     expect_null(attr(x, "params"))
     expect_null(attr(x, "size_grid"))
     expect_equal(get_ArraySpeciesBySize_w(x), as.numeric(colnames(x)))
+})
+
+test_that("size array viewports preserve densities, totals and added data", {
+    for (second in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- c(bin_average = second)
+        x <- initialN(p)
+        for (axis in c("w", "l")) {
+            full <- plot(x, total = TRUE, size_axis = axis, return_data = TRUE)
+            zoom <- plot(x, total = TRUE, size_axis = axis,
+                         wlim = c(1, 100), llim = c(5, 20), ylim = c(1, 10),
+                         return_data = TRUE)
+            expect_equal(zoom, full)
+            base <- plot(x, size_axis = axis)
+            added <- addPlot(base, x, size_axis = axis,
+                             wlim = c(1, 100), llim = c(5, 20))
+            expect_equal(added$layers[[2]]$data,
+                         plot(x, size_axis = axis, return_data = TRUE))
+            expect_equal(added$coordinates$limits$x,
+                         if (axis == "w") c(1, 100) else c(5, 20))
+            expect_true(all(is.na(base$coordinates$limits$x)))
+        }
+    }
 })

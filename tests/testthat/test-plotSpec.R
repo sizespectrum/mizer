@@ -76,14 +76,14 @@ test_that("the legacy adapter preserves data columns and log filtering", {
     p <- render_plot_spec(spec)
     expect_named(p$data, c("w", "value", "Species", "Legend"))
     expect_equal(p$data$value, 2)
-    expect_equal(p$scales$get_scales("y")$limits, c(NA, log10(4)))
+    expect_equal(p$coordinates$limits$y, c(NA, 4))
     # Rendering does not mutate the producer's data or introduce a viewport
     # policy into preparation. Linear plots retain signed values as before.
     expect_equal(spec$data$value, frame$value)
     spec$scales$y <- "identity"
     p <- render_plot_spec(spec)
     expect_equal(p$data$value, frame$value)
-    expect_equal(p$scales$get_scales("y")$limits, c(0, 4))
+    expect_equal(p$coordinates$limits$y, c(0, 4))
 })
 
 test_that("animation specifications use named fields and preserve frame data", {
@@ -117,4 +117,25 @@ test_that("animation specifications use named fields and preserve frame data", {
     reordered$data <- reordered$data[, rev(names(reordered$data))]
     expect_equal(plotly::plotly_build(render_plotly_spec(reordered))$x$frames,
                  built$x$frames)
+})
+
+test_that("viewport limits preserve vertices and agree with hover ranges", {
+    data <- data.frame(x = c(1, 10, 100), y = c(1, 10, 100), fish = "Cod")
+    spec <- new_plot_spec(data, NS_params_small, x_var = "x", y_var = "y",
+                          group_var = "fish", xtrans = "log10",
+                          ytrans = "log10", xlim = c(2, 50), ylim = c(3, 60))
+    p <- render_plot_spec(spec)
+    expect_null(p$scales$get_scales("x")$limits)
+    expect_null(p$scales$get_scales("y")$limits)
+    expect_equal(p$data$x, data$x)
+    built <- ggplot2::ggplot_build(p)
+    expect_equal(built$data[[1]]$x, log10(data$x))
+    expect_equal(built$data[[1]]$y, log10(data$y))
+    hover <- plotly::plotly_build(plotHover(p))
+    panel <- built$layout$panel_params[[1]]
+    expect_equal(hover$x$layout$xaxis$range, panel$x.range)
+    expect_equal(hover$x$layout$yaxis$range, panel$y.range)
+    expect_equal(as.numeric(hover$x$data[[1]]$x), log10(data$x))
+    skip_if_not_installed("vdiffr")
+    vdiffr::expect_doppelganger("Viewport keeps crossing lines", p)
 })
