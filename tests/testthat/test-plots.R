@@ -721,6 +721,29 @@ test_that("add_total_line interpolates series that do not share a grid", {
     expect_equal(total$value[[3]], 4 + b_at_4)
 })
 
+test_that("add_total_line averages repeated samples at a single size", {
+    plot_dat <- data.frame(w = c(2, 2, 4), value = c(1, 3, 10),
+                           Species = c("a", "a", "b"))
+    expect_no_warning(out <- add_total_line(plot_dat))
+    total <- out[out$Species == "Total", ]
+    expect_equal(total$w, c(2, 4))
+    expect_equal(total$value, c(2, 10))
+    expect_equal(out[out$Species != "Total", ], plot_dat)
+})
+
+test_that("add_total_line averages ties before interpolating distinct sizes", {
+    plot_dat <- data.frame(w = c(4, 1, 1, 2, 8),
+                           value = c(8, 1, 3, 10, 40),
+                           Species = c("a", "a", "a", "b", "b"))
+    expect_no_warning(out <- add_total_line(plot_dat))
+    total <- out[out$Species == "Total", ]
+    expect_equal(total$w, c(1, 2, 4, 8))
+    # At w = 1, a's tied samples average to 2. At w = 2, a contributes
+    # (2 + 8) / 2 = 5; at w = 4, b contributes (10 + 40) / 2 = 25.
+    expect_equal(total$value, c(2, 15, 33, 40))
+    expect_equal(out[out$Species != "Total", ], plot_dat)
+})
+
 test_that("add_total_line groups by the columns it is told to", {
     plot_dat <- data.frame(w = rep(c(1, 2), 4), value = 1:8,
                            Species = rep(c("a", "b"), each = 2),

@@ -100,6 +100,10 @@
 
 ## Bug fixes
 
+- Plotting size-resolved arrays with `total = TRUE` now works when columns
+  repeat a single size coordinate (#659). Repeated samples contribute only
+  once to the community total, with differing values at the same size averaged
+  within each species. The individual species' plotted values are preserved.
 - Size-resolved array wrappers now retain the exact original size-grid mapping
   when subsetted (#650). Printing, summaries, data-frame conversion and plots
   work for sparse selections, and reordered or repeated columns keep the
