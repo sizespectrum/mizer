@@ -67,6 +67,18 @@
 
 ## New features
 
+- `setComponent()` accepts a reusable `definition` list containing its existing
+  callbacks and plotting styles (#670). Explicit arguments override the list;
+  supplying a new definition replaces the previous one, while calls without a
+  definition patch only supplied fields. Initial state and component parameters
+  remain separate. The assembled definition is stored in the model and returned
+  by `getComponent()`, and survives model reconstruction and save/read upgrades.
+  This is the first capability-contract preview; equation-only components and
+  the new measurement, assessment and tuning capabilities are not yet enabled.
+- Updating a component without specifying its colour or line type now retains
+  its existing style. Separate calls to `setColours()` and `setLinetypes()` also
+  update the stored definition.
+
 - `getCourant()` reports the growth Courant numbers on the model's active
   size support. Projections with high-order flux now report large Courant
   numbers, and optional `subcycle = TRUE` advances consumers, resources and

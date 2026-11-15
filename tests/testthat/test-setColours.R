@@ -80,3 +80,26 @@ test_that("setLinetypes updates species_params and given_species_params", {
     params <- setBevertonHolt(params, erepro = 0.5)
     expect_identical(species_params(params)["Cod", "linetype"], "dashed")
 })
+
+test_that("Plot style updates survive later component patches", {
+    p <- setComponent(NS_params_small, "pool", initial_value = 1,
+                      dynamics_fun = "constant_other", colour = "orange")
+    p <- setColours(p, list(pool = "blue"))
+    p <- setLinetypes(p, list(pool = "dashed"))
+    expect_identical(getComponent(p, "pool")$definition$colour, "blue")
+    expect_identical(getComponent(p, "pool")$definition$linetype, "dashed")
+
+    updated <- setComponent(p, "pool", initial_value = 2)
+    expect_identical(getColours(updated)[["pool"]], "blue")
+    expect_identical(getLinetypes(updated)[["pool"]], "dashed")
+    expect_identical(updated$capabilities$components, p$capabilities$components)
+})
+
+test_that("Style setters still accept saved S4 models before upgrading", {
+    legacy <- readRDS(test_path("assets", "simc.1.0.rds"))@params
+    expect_true(isS4(legacy))
+    coloured <- setColours(legacy, list(Resource = "blue"))
+    styled <- setLinetypes(legacy, list(Resource = "dashed"))
+    expect_identical(getColours(coloured)[["Resource"]], "blue")
+    expect_identical(getLinetypes(styled)[["Resource"]], "dashed")
+})

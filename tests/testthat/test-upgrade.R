@@ -5,6 +5,47 @@ sim <- project(params, t_max = 0.1, t_save = 0.1)
 test_that("upgradeParams leaves new params unchanged", {
     expect_identical(upgradeParams(params), params)
 })
+
+test_that("legacy component registrations become stored specifications", {
+    p <- setComponent(NS_params_small, "pool", initial_value = 42,
+                      dynamics_fun = "constant_other",
+                      component_params = list(capacity = 80),
+                      colour = "red", linetype = "dashed")
+    p$capabilities <- NULL
+    expected <- legacy_capability_registry(p)
+    for (version in c("3.4.0.9003", "2.4.0")) {
+        old <- p
+        old$mizer_version <- version
+        up <- suppressMessages(upgradeParams(old))
+        expect_identical(up$capabilities, expected)
+        expect_identical(up$other_dynamics, p$other_dynamics)
+        expect_identical(up$initial_n_other, p$initial_n_other)
+        expect_identical(up$other_params, p$other_params)
+        expect_identical(upgradeParams(up), up)
+        expect_length(up$capabilities$processes, 0L)
+    }
+})
+
+test_that("old-model reconstruction preserves an assembled specification", {
+    p <- setComponent(NS_params_small, "pool", initial_value = 42,
+                      dynamics_fun = "constant_other", colour = "red")
+    stored <- p$capabilities
+    expect_identical(stored$components$pool$dynamics_fun, "constant_other")
+    p$mizer_version <- "2.4.0"
+    up <- suppressMessages(upgradeParams(p))
+    expect_identical(up$capabilities, stored)
+})
+
+test_that("validSim upgrades its embedded capability registry", {
+    old <- NS_sim_small
+    old$params$capabilities <- NULL
+    old$params$mizer_version <- "3.4.0.9003"
+    up <- suppressWarnings(validSim(old))
+    expect_identical(up$params$capabilities, new_capability_registry())
+    expect_equal(up$n, old$n)
+    expect_equal(up$n_pp, old$n_pp)
+    expect_identical(upgradeSim(up), up)
+})
 test_that("upgradeParams preserves comments", {
     comment(params) <- "test"
     for (slot in (slotNames(params))) {

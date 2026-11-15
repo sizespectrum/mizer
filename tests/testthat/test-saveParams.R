@@ -10,6 +10,31 @@ test_that("saveParams/readParams round-trip", {
     expect_identical(params2@species_params$species, params@species_params$species)
 })
 
+test_that("stored component definitions survive params and sim round trips", {
+    definition <- list(dynamics_fun = "constant_other", colour = "red",
+                       linetype = "dashed")
+    p <- setComponent(NS_params_small, "pool", initial_value = 42,
+                      definition = definition,
+                      component_params = list(capacity = 80))
+    stored <- p$capabilities
+    definition$colour <- "blue"
+    tmp <- tempfile(fileext = ".rds")
+    withr::defer(unlink(tmp))
+
+    saveParams(p, tmp)
+    restored <- readParams(tmp)
+    expect_identical(restored$capabilities, stored)
+    expect_identical(restored$initial_n_other, p$initial_n_other)
+    expect_identical(restored$other_params, p$other_params)
+
+    sim <- project(restored, t_max = 0.1, t_save = 0.1,
+                   progress_bar = FALSE)
+    saveSim(sim, tmp)
+    restored_sim <- readSim(tmp)
+    expect_identical(restored_sim$params$capabilities, stored)
+    expect_identical(restored_sim$n_other, sim$n_other)
+})
+
 test_that("saveParams preserves extension classes", {
     ext_a <- paste0("mizerTestParamsSaveA", Sys.getpid())
     chain <- setNames(NA_character_, ext_a)

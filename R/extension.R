@@ -482,17 +482,35 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
 #' The component can be a number, a vector, an array, a list, or any other
 #' data structure you like.
 #'
-#' If you set a component with a new name, the new component will be added
-#' to the existing components. If you set a component with an existing name,
-#' the `initial_value` and `dynamics_fun` are overwritten, while the optional
-#' `encounter_fun`, `mort_fun` and `component_params` are only changed if the
-#' corresponding arguments are supplied. You can remove a component with
+#' A new component needs an `initial_value`, supplied separately from its
+#' definition. Its `dynamics_fun` can be supplied directly or through
+#' `definition`. For an existing component, omitted
+#' arguments retain their existing values. Explicit `NULL` removes an optional
+#' `encounter_fun` or `mort_fun`. You can remove a component with
 #' `removeComponent()`.
+#'
+#' A `definition` is a reusable named list containing `dynamics_fun`,
+#' `encounter_fun`, `mort_fun`, `colour` and/or `linetype`. Explicit arguments
+#' override its entries. Supplying a definition replaces the component's
+#' previous definition: omitted optional callbacks are removed and omitted
+#' styles default to `"grey"` and `"solid"`. Without `definition`, explicitly
+#' supplied arguments patch the existing definition instead. Initial state and
+#' `component_params` belong to the component instance and are retained when
+#' omitted, including when its definition is replaced.
+#'
+#' The assembled definition is stored in the model. Subsequent changes to the
+#' list used as `definition` do not change that model; call `setComponent()`
+#' again to apply an update. Callback function names are stored, rather than
+#' their implementations, so the functions still need to be available when
+#' the model is used.
 #'
 #' @param params A MizerParams object
 #' @param component Name of the component
-#' @param initial_value Initial value of the component
-#' @param dynamics_fun Name of function to calculate value at the next time step
+#' @param initial_value Initial value of the component. Required for a new
+#'   component; retained when omitted for an existing component. Must not be
+#'   `NULL`; use `removeComponent()` to remove a component.
+#' @param dynamics_fun Name of function to calculate value at the next time
+#'   step. Required in the assembled definition.
 #' @param encounter_fun Name of function to calculate contribution to encounter
 #'   rate. Optional.
 #' @param mort_fun Name of function to calculate contribution to the
@@ -503,6 +521,10 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
 #'   `"grey"`.
 #' @param linetype Line type to use for the component in plots. Defaults to
 #'   `"solid"`.
+#' @param definition A named list specifying the component's callbacks and
+#'   plotting styles. Supplying a list replaces its previous definition before
+#'   explicitly supplied arguments are applied. State and component parameters
+#'   are supplied separately.
 #' @return The updated MizerParams object
 #' @seealso "Extending mizer":
 #'   [guide to extending mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html)
@@ -512,11 +534,14 @@ setComponent <- function(params, component, initial_value,
                          dynamics_fun,
                          encounter_fun, mort_fun,
                          component_params,
-                         colour = "grey", linetype = "solid") {
-    assert_that(is(params, "MizerParams"),
-                is.string(component),
-                is.string(dynamics_fun),
-                is.function(get0(dynamics_fun)))
+                         colour = "grey", linetype = "solid",
+                         definition) {
+    params <- validParams(params)
+    assert_that(is.string(component), nzchar(component))
+    if (!missing(initial_value) && is.null(initial_value)) {
+        stop("`initial_value` must not be NULL. Use `removeComponent()` ",
+             "to remove a component.")
+    }
     # A rate contribution registered with `other_mort()` or `other_encounter()`
     # under this name would be taken over by the component and thereby become
     # invisible to those accessors, so refuse the name instead.
@@ -527,27 +552,48 @@ setComponent <- function(params, component, initial_value,
              component, "'. Remove it with `other_mort()` or ",
              "`other_encounter()` first, or choose a different component name.")
     }
-    params@other_dynamics[[component]] <- dynamics_fun
-    params@initial_n_other[[component]] <- initial_value
-    # TODO: Add checks that the functions have the right arguments and
-    # return values
-    if (!missing(mort_fun)) {
-        if (!is.null(mort_fun) && !is.function(get0(mort_fun))) {
-            stop("`mort_fun` needs to be NULL or a function.")
-        }
-        params@other_mort[[component]] <- mort_fun
+    existing <- existing_component_definition(params, component)
+    if (is.null(existing) && missing(initial_value)) {
+        stop("`initial_value` is required for a new component.")
     }
+    overrides <- list()
+    if (!missing(dynamics_fun)) overrides["dynamics_fun"] <- list(dynamics_fun)
     if (!missing(encounter_fun)) {
-        if (!is.null(encounter_fun) && !is.function(get0(encounter_fun))) {
-            stop("`encounter_fun` needs to be NULL or a function.")
-        }
-        params@other_encounter[[component]] <- encounter_fun
+        overrides["encounter_fun"] <- list(encounter_fun)
+    }
+    if (!missing(mort_fun)) overrides["mort_fun"] <- list(mort_fun)
+    if (!missing(colour)) overrides["colour"] <- list(colour)
+    if (!missing(linetype)) overrides["linetype"] <- list(linetype)
+    assembled <- assemble_component_definition(
+        existing = existing,
+        definition = if (missing(definition)) NULL else definition,
+        overrides = overrides,
+        replace = !missing(definition)
+    )
+
+    params@other_dynamics[[component]] <- assembled$dynamics_fun
+    params@other_mort[[component]] <- assembled$mort_fun
+    params@other_encounter[[component]] <- assembled$encounter_fun
+    if (!missing(initial_value)) {
+        params@initial_n_other[component] <- list(initial_value)
     }
     if (!missing(component_params)) {
         params@other_params[[component]] <- component_params
     }
-    params <- setColours(params, stats::setNames(list(colour), component))
-    params <- setLinetypes(params, stats::setNames(list(linetype), component))
+    if (!is.null(assembled$colour)) {
+        params <- setColours(params,
+                             stats::setNames(list(assembled$colour), component))
+    }
+    if (!is.null(assembled$linetype)) {
+        params <- setLinetypes(
+            params, stats::setNames(list(assembled$linetype), component)
+        )
+    }
+    # The plot setters ignore invalid styles with a warning. Record their
+    # accepted values, including absent styles, rather than rejected inputs.
+    accepted <- legacy_component_definition(params, component)
+    assembled[c("colour", "linetype")] <- accepted[c("colour", "linetype")]
+    params@capabilities$components[[component]] <- assembled
 
     params@time_modified <- lubridate::now()
     params
@@ -556,6 +602,7 @@ setComponent <- function(params, component, initial_value,
 #' @rdname setComponent
 #' @export
 removeComponent <- function(params, component) {
+    params <- validParams(params)
     if (!component %in% names(params@other_dynamics)) {
         stop("There is no component named ", component)
     }
@@ -564,6 +611,7 @@ removeComponent <- function(params, component) {
     params@other_mort[[component]] <- NULL
     params@other_params[[component]] <- NULL
     params@initial_n_other[[component]] <- NULL
+    params@capabilities$components[[component]] <- NULL
 
     params@time_modified <- lubridate::now()
     params
@@ -573,15 +621,16 @@ removeComponent <- function(params, component) {
 #' @param params A MizerParams object
 #' @param component Name of the component of interest. If missing, a list of
 #'   all components will be returned.
-#' @return For `getComponent`: A list with the entries `initial_value`, `dynamics_fun`,
-#'   `encounter_fun`, `mort_fun`, `component_params` for the requested
-#'   component. If the requested component does not exist, `NULL` is returned.
+#' @return For `getComponent`: A list with the entries `initial_value`,
+#'   `dynamics_fun`, `encounter_fun`, `mort_fun`, `component_params`, and
+#'   `definition` for the requested component. If the requested component does
+#'   not exist, `NULL` is returned.
 #'   If no `component` argument is given, then a list of lists for all
 #'   components is returned.
 #' @export
 #' @rdname setComponent
 getComponent <- function(params, component) {
-    assert_that(is(params, "MizerParams"))
+    params <- validParams(params)
     if (missing(component)) {
         l <- lapply(names(params@other_dynamics),
                     function(x) getComponent(params, x))
@@ -591,11 +640,13 @@ getComponent <- function(params, component) {
     if (!component %in% names(params@other_dynamics)) {
         return(NULL)
     }
-    list(initial_value = initialNOther(params)[[component]],
-         dynamics_fun = params@other_dynamics[[component]],
-         mort_fun = params@other_mort[[component]],
-         encounter_fun = params@other_encounter[[component]],
-         component_params = params@other_params[[component]]
+    list(
+        initial_value = initialNOther(params)[[component]],
+        dynamics_fun = params@other_dynamics[[component]],
+        mort_fun = params@other_mort[[component]],
+        encounter_fun = params@other_encounter[[component]],
+        component_params = params@other_params[[component]],
+        definition = existing_component_definition(params, component)
     )
 }
 

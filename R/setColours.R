@@ -42,6 +42,7 @@ setColours <- function(params, colours) {
 #' @export
 setColours.MizerParams <- function(params, colours) {
     colours <- validColours(colours)
+    params <- update_component_styles(params, colours, "colour")
     if (identical(colours, as.list(params@linecolour))) {
         return(params)
     }
@@ -118,6 +119,7 @@ setLinetypes <- function(params, linetypes) {
 #' @export
 setLinetypes.MizerParams <- function(params, linetypes) {
     linetypes <- validLinetypes(linetypes)
+    params <- update_component_styles(params, linetypes, "linetype")
     if (identical(linetypes, as.list(params@linetype))) {
         return(params)
     }

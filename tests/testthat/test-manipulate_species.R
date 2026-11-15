@@ -27,6 +27,24 @@ lower_ns_manipulate_params <- newMultispeciesParams(lower_ns_species_params,
                                                     info_level = 0)
 
 # addSpecies ----
+test_that("model reconstruction preserves stored component specifications", {
+    p <- setComponent(NS_params_small, "pool", initial_value = 42,
+                      dynamics_fun = "constant_other",
+                      component_params = list(capacity = 80),
+                      colour = "red", linetype = "dashed")
+    stored <- p$capabilities
+    extra <- species_params(p)[1, ]
+    extra$species <- "extra"
+    added <- addSpecies(p, extra, steady = FALSE, info_level = 0)
+    expect_identical(added$capabilities, stored)
+    expect_identical(added$initial_n_other, p$initial_n_other)
+
+    resized <- adjustSizeGrid(p, new_max_w = 50000)
+    expect_identical(resized$capabilities, stored)
+    expect_identical(resized$initial_n_other, p$initial_n_other)
+    expect_identical(p$capabilities, stored)
+})
+
 test_that("addSpecies works when adding a second identical species", {
     p <- trait_params_small
     no_sp <- nrow(p@species_params)
