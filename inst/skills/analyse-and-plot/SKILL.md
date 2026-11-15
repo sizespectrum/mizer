@@ -268,8 +268,11 @@ dedicated `plot…()` functions below — share these optional arguments:
 | `log_x`, `log_y` | logical — log-scale the x or y axis |
 | `size_axis` | `"w"` (default) or `"l"` — plot against weight or against length |
 
-`wlim`/`llim` (size axis) and `ylim` (value axis) only set the **visible
-window**: data outside the range is hidden but nothing is recomputed. To change
+`wlim`/`llim` (size axis), `tlim` (time axis) and `ylim` (value axis) only set the **visible
+window**: data outside the range is hidden but nothing is recomputed or
+removed from `return_data`. Limits also leave comparison and relative values
+and community totals unchanged. For animations, `tlim` chooses the displayed
+frames; it does not change the values calculated at those times. To change
 the underlying numbers — for example the size range that a biomass is summed
 over — pass `min_w`/`max_w` (or `min_l`/`max_l`) to the `get…()` function
 instead, e.g. `plot(getBiomass(sim, min_w = 10))`.
@@ -378,6 +381,31 @@ spherical diameter of an organism with the density of water (`a = pi/6`,
 measured differently from the fish: a fish of a given weight is about 3.7 times
 longer than a sphere of that weight. That gap at the resource-consumer boundary
 is real biology, not an artefact.
+
+### Cumulative distributions and their integration range
+
+`plotCDF()` integrates abundance or biomass over size; `plotCDF2()` compares
+two such distributions. By default each curve is normalised to end at 1;
+`normalise = FALSE` shows the cumulative amount. Their `plotly…()` counterparts
+accept the same integration bounds.
+
+Use `min_w`/`max_w` (grams) or `min_l`/`max_l` (centimetres) to choose the
+integration range. These are scalar bounds; a length bound overrides the
+corresponding weight bound and is converted separately for every species and
+for the resource. The range is independent of whether the plot uses weight
+or length on its x axis. Bounds inside a bin include only the overlapping
+fraction of its width, under both numerical schemes. A normalised curve with
+no mass in the selected interval has `NA` values.
+
+```r
+plotCDF(params, biomass = TRUE, min_w = 10, max_w = 1000)
+plotCDF(params, min_l = 5, max_l = 30, size_axis = "l")
+plotCDF(params, wlim = c(10, 1000)) # zoom into the full distribution
+```
+
+`wlim`, `llim` and `ylim` never select the integration range. A community total
+always includes every species and the resource over that range, independently
+of which curves are displayed; on a length axis it is summed at equal length.
 
 ### Which density a spectrum plot shows
 

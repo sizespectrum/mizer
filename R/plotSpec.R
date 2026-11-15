@@ -134,8 +134,8 @@ plot_spec_tooltip <- function(spec) {
     mizer_tooltip_vars(spec$data, vars$group, vars$x, vars$value, vars$legend)
 }
 
-# Keep scale limits (and the relative renderer's historical treatment of
-# non-positive coordinates) here. Viewport-only limits are a separate change.
+# Axis transforms belong to scales; limits belong to the viewport so that
+# clipping cannot remove vertices or change a statistic calculated by a geom.
 plot_spec_scales <- function(spec) {
     xbreaks <- if (spec$scales$x == "log10") log_breaks() else waiver()
     ybreaks <- if (spec$scales$y == "log10") {
@@ -145,10 +145,28 @@ plot_spec_scales <- function(spec) {
     }
     ylabels <- if (spec$options$mode == "relative") waiver() else prettyNum
     list(scale_y_continuous(trans = spec$scales$y, breaks = ybreaks,
-                            labels = ylabels, name = spec$labels$y,
-                            limits = spec$limits$y),
+                            labels = ylabels, name = spec$labels$y),
          scale_x_continuous(trans = spec$scales$x, breaks = xbreaks,
-                            name = spec$labels$x, limits = spec$limits$x))
+                            name = spec$labels$x),
+         coord_cartesian(xlim = spec$limits$x, ylim = spec$limits$y))
+}
+
+# Added layers share the existing viewport. Only supplied endpoints change it;
+# all vertices remain available to ggplot and Plotly for clipping.
+set_plot_viewport <- function(plot, xlim = c(NA, NA), ylim = c(NA, NA)) {
+    for (axis in c("x", "y")) {
+        limits <- if (axis == "x") xlim else ylim
+        assert_that(length(limits) == 2)
+        if (all(is.na(limits))) next
+        existing <- plot$coordinates$limits[[axis]] %||% c(NA, NA)
+        existing[!is.na(limits)] <- limits[!is.na(limits)]
+        scale <- plot$scales$get_scales(axis)
+        if (!is.null(scale) && identical(scale$trans$name, "log-10")) {
+            existing <- drop_nonpositive_limits(existing, "log10")
+        }
+        plot$coordinates$limits[[axis]] <- existing
+    }
+    plot
 }
 
 render_plot_spec <- function(spec) {
@@ -165,9 +183,9 @@ render_plot_spec <- function(spec) {
         warning("missing legend in params@linecolour, ",
                 "some groups won't be displayed")
     }
+    spec$limits$x <- drop_nonpositive_limits(spec$limits$x, spec$scales$x)
+    spec$limits$y <- drop_nonpositive_limits(spec$limits$y, spec$scales$y)
     if (mode != "relative") {
-        spec$limits$x <- drop_nonpositive_limits(spec$limits$x, spec$scales$x)
-        spec$limits$y <- drop_nonpositive_limits(spec$limits$y, spec$scales$y)
         frame <- drop_nonpositive_values(frame, vars$x, spec$scales$x)
         frame <- drop_nonpositive_values(frame, vars$value, spec$scales$y)
     }

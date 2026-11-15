@@ -122,6 +122,10 @@ A ggplot2 object.
 Colours identify species or groups, and linetype identifies which object
 the values came from.
 }
+\details{
+Size, time and value limits only change the visible window; both objects
+are prepared and their totals calculated from the complete data.
+}
 \examples{
 \donttest{
 plot2(getEncounter(NS_params), getEncounter(NS_params))

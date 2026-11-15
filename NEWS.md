@@ -88,6 +88,20 @@
 
 ## New features
 
+- Plot limits now only set the visible window (#564). `wlim`, `llim`, `tlim`
+  and `ylim` no longer remove data before it is plotted, so `return_data =
+  TRUE`, community totals, comparisons, relative differences and cumulative
+  distributions are the same whatever window is shown, and a line that leaves
+  the window is drawn up to its edge. An end of `ylim` that is left as `NA` is
+  fitted to the part of the data inside the window. Code that used the limits
+  to subset returned data needs updating; see the upgrade guide. Animations
+  still use `tlim` to choose their frames.
+- `plotCDF()`, `plotCDF2()` and their `plotly…()` counterparts gain `min_w`,
+  `max_w`, `min_l` and `max_l` to choose the size range a distribution is
+  integrated over (#564). A bound that falls inside a size bin includes
+  exactly the part of the bin below or above it, in both numerical schemes.
+  Without bounds a distribution covers the whole size grid, and a community
+  total includes every species and the resource whichever curves are drawn.
 - New `getR0()` gives the lifetime reproductive output R0 of each species:
   the number of eggs that one recruit produces over its life, with growth,
   mortality, diffusion and reproductive investment held fixed (#632). It is

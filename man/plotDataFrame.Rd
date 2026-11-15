@@ -50,10 +50,12 @@ instead of the default of "identity".}
 \item{ytrans}{Transformation for the y-axis.}
 
 \item{xlim}{A numeric vector of length two providing lower and upper limits
-for the x axis. Use NA to refer to the existing minimum or maximum.}
+for the x-axis viewport. Use \code{NA} for the existing minimum or maximum.
+The limits do not filter data.}
 
 \item{ylim}{A numeric vector of length two providing lower and upper limits
-for the y axis. Use NA to refer to the existing minimum or maximum.}
+for the y-axis viewport. Use \code{NA} for the existing minimum or maximum.
+The limits do not filter data.}
 
 \item{y_ticks}{The approximate number of ticks desired on the y axis}
 

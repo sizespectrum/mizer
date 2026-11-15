@@ -133,6 +133,40 @@ positivity for all dynamics. Check results under timestep refinement.
 If the timestep has been checked and the report is unwanted, use
 `info_level = 0` for the call, or set `options(mizer_info_level = 0)`.
 
+
+### Plot limits only change the visible window
+
+`wlim`, `llim`, `tlim` and `ylim` now zoom the plot without filtering its data.
+This applies to array plots, named plots, comparisons and relative plots.
+`return_data = TRUE` returns the same data with or without these limits, and
+community totals and cumulative distributions no longer depend on the window.
+Lines and areas can cross a window boundary without losing their neighbouring
+vertices. Animations still use `tlim` to choose their displayed frames.
+
+Code that used plot limits to extract a subset of the returned data should
+subset that data explicitly. For biomass or abundance integrated over a size
+range, continue to use the getter's `min_w`/`max_w` or `min_l`/`max_l` arguments.
+
+For `plotCDF()`, `plotCDF2()` and their `plotly…()` counterparts, select the
+integration range with the new scalar `min_w`, `max_w`, `min_l` and `max_l`
+arguments. Length bounds override the corresponding weight bounds and are
+converted with each species' own length-weight parameters, including the
+resource's equivalent-sphere convention. Partial boundary bins contribute only
+the part inside the interval, under both quadrature schemes.
+
+```r
+# Previously used the visible size range to select a distribution:
+plotCDF(params, wlim = c(10, 1000))
+# Select the distribution explicitly, and optionally zoom to the same range:
+plotCDF(params, min_w = 10, max_w = 1000, wlim = c(10, 1000))
+```
+
+Without integration bounds the CDF covers the complete model grid, including
+resource sizes previously hidden by the spectrum plot's default window.
+Totals include all species and the resource regardless of which are displayed.
+A completed cumulative contribution stays constant beyond its last bin, so a
+community CDF on a length axis does not fall when one species' grid ends.
+
 ### Summary functions count the ends of a size range exactly in edition 3
 
 When you give `getBiomass()`, `getN()` or another summary function a size

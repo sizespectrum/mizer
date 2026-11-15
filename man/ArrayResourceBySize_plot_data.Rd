@@ -15,10 +15,10 @@ ArrayResourceBySize_plot_data(
 \arguments{
 \item{x}{An \code{ArrayResourceBySize} object.}
 
-\item{wlim}{Numeric vector of length two giving the weight limits.}
+\item{wlim}{Weight-axis viewport limits; retained for compatibility here
+and applied only by the renderer.}
 
-\item{llim}{Numeric vector of length two giving the length limits, applied
-only on a length axis.}
+\item{llim}{Length-axis viewport limits; applied only by the renderer.}
 
 \item{size_axis}{Either \code{"w"} (weight) or \code{"l"} (length).}
 

@@ -106,6 +106,7 @@ function` — carry no such quote, so match those rows on the function name.
 
 | Symptom | Cause | Section |
 |---|---|---|
+| `return_data = TRUE` contains sizes, times or values outside plot limits, or a zoomed `plotCDF()` no longer ends at 1 | plot limits now only change the viewport; CDF integration uses explicit `min_w`/`max_w` or `min_l`/`max_l` bounds | Plot limits only change the visible window |
 | Warning `"Growth Courant number"` during a projection with van Leer or centred flux | projection now reports large advective steps; numerical stepping changes only when subcycling is requested | Projection reports large growth Courant numbers |
 | After `defaults_edition(2)`, a model created earlier, loaded from a file, or taken from a package such as `NS_params` still gets edition-1 defaults: `catchability` 1, effort 0, `psi` of 1 above `w_repro_max`, or a recalculated `gamma` that ignores `interaction_resource` | a model now uses the edition it was created with, not the active one | A model keeps the defaults edition it was created with |
 | `gamma`, `psi`, a default `catchability` or a default effort differs between two runs of the same script, depending on whether `defaults_edition()` is called before or after the model is created | the same | A model keeps the defaults edition it was created with |
