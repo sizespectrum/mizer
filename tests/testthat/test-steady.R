@@ -682,3 +682,35 @@ test_that("a converged distance function does not mask a limit cycle", {
     expect_gt(conv$period, 0)
     expect_gt(conv$amplitude, 0.1)
 })
+
+test_that("settling keeps Courant and distance controls separate", {
+    withr::local_options(mizer_info_level = 0)
+    name <- "courant_strict_component"
+    assign(name, function(params, n, n_pp, n_other, rates, t, dt, component) {
+        n_other[[component]] + dt
+    }, envir = globalenv())
+    withr::defer(rm(list = name, envir = globalenv()))
+    p <- setComponent(NS_params_small, "tracked", initial_value = 1,
+                      dynamics_fun = name)
+    second_order_w(p) <- c(flux = "van_leer")
+    received <- NULL
+    distance <- function(params, current, previous, distance_only) {
+        received <<- distance_only
+        0
+    }
+    sim <- projectUntilSettled(p, dt = 0.1, t_check = 0.1, t_max = 0.1,
+                               t_save = 0.1, distance_func = distance,
+                               distance_only = 7, residual_tol = Inf,
+                               subcycle = TRUE, max_courant = 0.5,
+                               max_substeps = 100, progress_bar = FALSE,
+                               info_level = 0)
+    expect_equal(received, 7)
+    expect_equal(finalNOther(sim)$tracked, 1.1)
+    expect_true(getSimParams(sim)$subcycle)
+    expect_equal(getSimParams(sim)$max_courant, 0.5)
+    expect_equal(getSimParams(sim)$max_substeps, 100)
+    expect_error(projectUntilSettled(p, dt = 0.1, t_check = 0.1, t_max = 0.1,
+                                     subcycle = TRUE, max_courant = 0.001,
+                                     max_substeps = 1, progress_bar = FALSE,
+                                     info_level = 0), "max_substeps")
+})

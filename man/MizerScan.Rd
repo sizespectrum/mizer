@@ -125,11 +125,17 @@ recomputes both attributes from the rows that remain, so they never go stale.
 \section{Limitations}{
 
 
-Because the object is a data frame subclass, its attributes survive base R
-subsetting with \code{[} but are dropped by functions that rebuild the data frame,
-including \code{dplyr::filter()}, \code{dplyr::mutate()}, \code{subset()} and \code{transform()}.
-A scan that has lost its attributes can no longer be plotted. Subset with \code{[},
-or rebuild the object with \code{MizerScan()}.
+Row subsetting with \code{[} preserves the plotting metadata and recomputes
+\code{at_max} and \code{max_value}. Base \code{subset()} also uses this method for row
+selection. If selecting columns, keep the first three in their original
+order to retain the scan class.
+
+Other data-frame operations can drop metadata or leave derived attributes
+stale. For example, \code{transform()} drops the scan wrapper, while
+\code{dplyr::filter()} can retain it without recomputing the maxima. Metadata
+preservation alone is therefore not enough to keep a scan consistent. Use
+\code{as.data.frame()} for ordinary data manipulation, or rebuild the result with
+\code{MizerScan()} and its original metadata before plotting it as a scan.
 }
 
 \examples{

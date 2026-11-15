@@ -233,6 +233,7 @@ reference:
   contents:
   - project
   - projectUntilSettled
+  - getCourant
 - title: Accessing results
   description: Extract the raw arrays stored in a `MizerSim` object, such as
     species and resource size spectra and fishing effort at each saved time step,
