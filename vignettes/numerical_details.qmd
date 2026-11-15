@@ -744,7 +744,14 @@ be at most $1$ across the grid. If the Courant number exceeds 1, the lagged limi
 
 ### Steady state and reproduction
 
-Because the reconstruction lives entirely in the coefficients $A,B,C$, the steady-state machinery stays consistent automatically: `getRequiredRDD()` reads the same boundary coefficients and `get_steady_state_n()` solves the same system. The exponential moving average under-relaxation in the van Leer weight $\chi$ allows both the single-species steady state solver and the full multispecies `solver = "project"` time-stepping iteration to converge to the true discrete fixed point without falling into a limit cycle. Both `getRequiredRDD()` and `steadySingleSpecies()` read the same `second_order_w` slot, so a model is automatically set up at the steady state of exactly the scheme that `project()` will use, and that state is preserved to machine precision by all three time-stepping methods.
+`getRequiredRDD()` reads the same egg-boundary coefficients as `project()`,
+and `steadySingleSpecies()` solves the corresponding transport equation with
+its rates held fixed. Both read the model's `second_order_w` slot. With a van
+Leer limiter, the fixed-rate solve uses upwind-preconditioned defect correction,
+explained below; freezing the limiter and repeatedly solving its high-order
+matrix can be unstable even with under-relaxation. The moving average of the
+limiter used during time stepping is a separate mechanism and is not used by
+this fixed-rate solver.
 
 The direct solver reads its set of unknowns from where the supplied abundances are non-zero, rather than from $w_{max}$. This keeps it robust when $w_{max}$ is set far above the largest fish (a common choice, so that the grid need not change when a parameter update produces larger fish): the structurally-zero classes below such a $w_{max}$ are simply excluded. The growth rate alone could not be used to find the support, because the main reason fish grow past $w_{repro\_max}$ is diffusion, whose rate only grows with $w$ and never vanishes; the abundance is the only reliable indicator of where the (possibly diffusion-fed) tail has died away. With the van Leer limiter the residual is only Lipschitz, so the Newton iteration converges to a fixed point of the dynamics but not to machine precision; the unlimited centred reconstruction — which admits an undamped odd-even mode at a steady state with no physical diffusion — gives an ill-conditioned steady-state Jacobian for which the direct solver is not expected to converge.
 
@@ -788,11 +795,58 @@ $$
 $$ {#eq-ss-lower-bc-Stilde}
 For all other $j > j_{min}$, $\tilde{S}_j = 0$.
 
-The boundary condition modifications at the edges of the grid remain the same conceptually: $\tilde{A}_{j_{min}} = 0$, the upward diffusion term is omitted from $\tilde{B}_{j_{min}}$, and $\tilde{C}_{j_{max}} = 0$, where $j_{max}$ is the support top of the previous section (the first class above $w_{max}$). The density is held at zero for any $j < j_{min}$ or $j > j_{max}$.
+The boundary condition modifications at the edges of the grid remain the same conceptually: $\tilde{A}_{j_{min}} = 0$, the lower-face diffusion term is omitted from $\tilde{B}_{j_{min}}$, and $\tilde{C}_{j_{max}} = 0$, where $j_{max}$ is the scheme-dependent support top defined above. The density is held at zero for any $j < j_{min}$ or $j > j_{max}$.
 
 In code, this means that the steady-state coefficients for the matrix multiplication ($\tilde{A}, \tilde{B}, \tilde{C}$) and the constant vector ($\tilde{S}$) can be calculated by calling the standard coefficient function but simply setting $\Delta t = 1$, and dropping the $+1$ and $+N_j^t$ from the resulting $B$ and $S$ variables respectively.
 
-With these modified matrices, the steady-state densities can be calculated directly by solving the linear system avoiding the need to iterate step by step over time.
+For a fixed upwind or centred reconstruction, these matrices are independent
+of the unknown spectrum, so one tridiagonal solve gives the steady state with
+the rates held fixed. The van Leer reconstruction depends on the spectrum and
+requires a nonlinear solve.
+
+### Fixed-rate solve with a van Leer limiter
+
+`get_steady_state_n()`, used by `steadySingleSpecies()`, prescribes the egg
+abundance rather than the recruitment flux. It replaces the egg row by
+$N_{j_{min}} = N_0$ and solves the interior steady-state equations. Write this
+system as
+$$
+F(N) = M(\chi(N))N - S = 0,
+$$ {#eq-ss-limited-residual}
+where $M$ contains the steady transport coefficients and the prescribed egg
+boundary. A frozen-limiter Picard iteration would solve
+$M(\chi(N^{(k)}))N^{(k+1)} = S$. Its high-order matrix need not be an M-matrix,
+and this iteration can amplify alternating-bin perturbations instead of
+converging.
+
+Mizer instead uses *defect correction*:
+$$
+N^{(k+1)} = N^{(k)} - \omega M_0^{-1}F(N^{(k)}), \qquad \omega = 0.5,
+$$ {#eq-ss-defect-correction}
+with negative intermediate abundances floored to zero. Here $M_0$ is the
+upwind operator obtained by setting $\chi = 0$ in the **same log-size
+finite-volume discretisation**. It retains the chosen diffusion, egg boundary
+and upper support boundary. It is not the legacy first-order operator, which
+places its fluxes differently. Only the preconditioner is upwind: the residual
+$F$ always uses the requested van Leer reconstruction, so the fixed point is
+that of the original second-order scheme.
+
+Each present species is solved with unit egg abundance and the result is
+multiplied by its supplied $N_0$. This is valid because the limiter is invariant
+under positive rescaling of a species' spectrum. Absent species remain zero.
+Convergence is checked separately for each species, requiring both a small
+relative correction and a small residual of the original equation. Each
+cell's residual is scaled by the absolute terms in its balance, with a
+machine-precision floor relative to the largest balance in that species so
+numerically empty tails do not require relative accuracy. Clipping negative
+iterates therefore cannot make a stalled calculation appear converged. If the
+iteration limit is reached, the function stops with an error naming the
+unconverged species.
+
+The centred reconstruction is solved directly because its coefficients are
+fixed. Its result must also be non-negative and satisfy the transport equation;
+if clipping a negative centred solution breaks that equation, the solver stops
+with the same diagnostic. The legacy upwind solve is unchanged.
 
 ## Steady-State Solution for the Predictor-Corrector Method
 
