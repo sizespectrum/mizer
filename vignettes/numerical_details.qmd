@@ -281,7 +281,9 @@ Comparing this to the general discretised equation translates to modifying the f
 (Additionally, for any size classes below the recruitment size $j < j_{min}$, we set all coefficients in the matrices $A$, $B$, $C$ and vector $S$ to $0$ to avoid any dynamics in that range).
 
 **At the largest size ($j=j_{max}$):**
-The size grid is truncated at $w_{max}$, and the density above it is held at zero:
+The transport solvers impose an absorbing boundary at the top retained size
+class, with the legacy Euler exception described below. The density above this
+support is held at zero:
 $$ N_{j}^{t+1} = 0 \quad\text{for } j > j_{max}. $$ {#eq-upper-bc-zero}
 Any flux that reaches the upper boundary $w_{j_{max}+1}$ is simply lost — the
 boundary absorbs it rather than reflecting it back. One could interpret this as an
@@ -319,15 +321,56 @@ coefficients $A_{j_{max}}$ and $B_{j_{max}}$ use the standard formulas; in
 particular $B_{j_{max}}$ keeps its advective outflow term, which carries whatever
 (possibly non-zero) growth flux leaves the grid at the truncation boundary.
 
-Without diffusion the truncation reproduces the untruncated mizer behaviour: the
-classes above $j_{max}$ receive no advective inflow once $w_{max}$ is past the
+Without diffusion the truncation reproduces the untruncated mizer behaviour when
+the classes above $j_{max}$ receive no advective inflow once $w_{max}$ is past the
 size where growth has died away, so they are already zero and imposing
 @eq-upper-bc-zero changes nothing. With diffusion, density would otherwise leak
 to sizes above $w_{max}$; the boundary condition holds it at zero there instead.
 Because the location of $j_{max}$ is fixed by $w_{max}$ and the scheme — not by
-the densities — it is the same at every time step and at the steady state, so the
-steady-state solver (`solver = "newton"`) solves on exactly this support and its
-solution is a fixed point of the dynamics.
+the densities — it is the same at every time step and at the steady state. The
+steady-state solver (`solver = "newton"`) solves on this support.
+
+The legacy upwind Euler step without diffusion is an exception: it does not
+explicitly clear the classes above $j_{max}$. They stay empty if they have no
+inflow, as in the usual case where growth has died away before the boundary.
+Custom growth rates can instead fill them, and an initially populated tail can
+decay there. Euler uses this legacy path only when the flux scheme is upwind and
+the evaluated diffusion is nowhere positive across all species. The other
+transport paths clear the excluded classes after each step. Thus a truncated
+steady state need not be a fixed point of the legacy path when custom growth
+carries fish beyond its support.
+
+### Drift diagnostics at the upper boundary
+
+`getSteadyResidual()` and the drift checks used by `isSteady()`, `summary()` and
+settling routines use the consumer equations on the retained support. With a
+higher-order flux, or when the evaluated diffusion is positive anywhere in the
+model, an empty excluded class contributes zero: projection holds its density
+at zero, so transport into it must not be counted as an increase in abundance.
+Only classes with exactly zero density above $j_{max}$ are excluded from the
+diagnostic. Empty retained classes can still fill and contribute to the drift.
+
+This correction preserves the outgoing loss from the last retained class:
+$$
+\frac{dN_{j_{max}}}{dt} =
+\frac{J_{j_{max}} - J_{j_{max}+1}}{\Delta w_{j_{max}}}
+- \mu_{j_{max}} N_{j_{max}}.
+$$ {#eq-upper-boundary-drift}
+In particular, removing the contribution from an excluded receiving class
+does not remove the term $-J_{j_{max}+1}/\Delta w_{j_{max}}$ from this equation.
+Species biomass drift uses the same size-integration weights as biomass, under
+either quadrature scheme. A small biomass drift indicates little net biomass
+change in the truncated model; it does not establish that loss at the truncation
+boundary is negligible, or rule out changes within its size spectrum.
+
+Two limitations are retained for compatibility. First, with upwind flux and no
+positive diffusion, inflow into empty excluded classes remains in the diagnostic
+because the legacy Euler path can fill them. Second, populated excluded classes
+retain their algebraic rates, including mortality decay. A transport step that
+clears such a populated tail removes a finite abundance immediately, so that
+change has no finite instantaneous derivative and is not represented by this
+diagnostic. The correction changes neither projection nor the algebraic
+equations used by the Newton solver.
 
 ## Numerical Diffusion
 

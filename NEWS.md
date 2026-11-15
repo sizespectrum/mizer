@@ -100,6 +100,13 @@
 
 ## Bug fixes
 
+- Steady-state drift diagnostics no longer count transport into empty size
+  classes above the retained support when projection holds those classes at
+  zero (#658). Losses from the last retained class still contribute, as does
+  inflow into empty classes inside the support. Populated tails and the legacy
+  upwind Euler path without diffusion retain their previous diagnostic
+  behaviour; the numerical details explain these limits.
+
 - Size-resolved array wrappers now retain the exact original size-grid mapping
   when subsetted (#650). Printing, summaries, data-frame conversion and plots
   work for sparse selections, and reordered or repeated columns keep the

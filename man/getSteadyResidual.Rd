@@ -116,13 +116,28 @@ other components have arbitrary user-supplied dynamics functions, so their
 rates are obtained by taking one short step of length \code{dt}, accurate to
 \eqn{O(dt)}.
 
+Empty classes above a species' retained size support contribute zero when
+transport holds that tail at zero: with a higher-order flux, or when the
+evaluated diffusion is positive anywhere in the model. This removes inflow
+into excluded empty classes, while retaining outgoing losses from the last
+included class and recruitment into the egg class. Empty classes inside the
+support can still fill and contribute to the drift. With upwind transport
+and no diffusion, the legacy Euler step can fill an empty tail, so those
+contributions are retained.
+
+This correction applies only at exactly zero density. Populated classes
+above the support retain their algebraic rates, including mortality decay.
+A projection that clamps such a populated tail removes its abundance
+immediately; that discontinuous change is not represented by this finite
+instantaneous diagnostic.
+
 Everything is evaluated at the model's own stored state — \code{initialN()},
 \code{initialNResource()}, \code{initialNOther()} — using the model's own reproduction
 function and its own \code{resource_dynamics}. Nothing is substituted or held
-fixed. The number therefore answers exactly "if I called \code{\link[=project]{project()}} now,
-would anything move?", which is why it works for every model rather than only
-for the semichemostat resource that \code{findSteadyState(solver = "newton")}
-requires.
+fixed. Subject to the tail behaviour above, the number answers "if I called
+\code{\link[=project]{project()}} now, would anything move?" for general resource dynamics,
+including those beyond the semichemostat resource required by
+\code{findSteadyState(solver = "newton")}.
 }
 
 \subsection{Reading the result}{
