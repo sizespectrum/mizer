@@ -126,6 +126,16 @@ test_that("van Leer weights agree with the textbook limiter of the ratio", {
     expect_equal(unname(chi[, jint]), expected[, jint - 2], tolerance = 1e-14)
 })
 
+test_that("non-finite limiter jumps do not become NA subscripts", {
+    n <- unclass(initialN(NS_params_small))
+    tail <- (ncol(n) - 3):ncol(n)
+    n[1, tail] <- c(1, Inf, Inf, 0)
+    n[2, tail] <- c(1, NA_real_, 0, 0)
+    chi <- flux_limiter_chi(NS_params_small, n, NULL, "van_leer")
+    expect_true(all(is.finite(chi)))
+    expect_equal(unname(chi[1:2, tail[-1]]), matrix(0, 2, 3))
+})
+
 test_that("van Leer weights stay finite when a density jump is subnormal", {
     # Above w_max a spectrum can decay to subnormal densities. A subnormal jump
     # delta_j used to make the ratio delta_{j-1} / delta_j overflow to Inf, and

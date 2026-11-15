@@ -52,7 +52,11 @@
 #' whether they carry non-zero density in the supplied initial spectra. A
 #' smoothed log-abundance penalty floor is applied to all size classes, which
 #' automatically handles zero-density and tail classes smoothly and prevents
-#' singular Jacobians. After convergence, size classes that remain at or near
+#' singular Jacobians near that floor. Log-density steps are bounded, and if
+#' the residual tolerance is not met the solver retries from a frozen-rate
+#' steady spectrum, within the remaining iteration budget. This changes only
+#' the starting guess: the active support and nonlinear residual stay the same.
+#' After convergence, size classes that remain at or near
 #' the floor are set to zero. This allows the solver to automatically discover
 #' the support of the steady state. Newton's method converges from any starting
 #' point in the *root's* basin of attraction (which is unrelated to the dynamic
@@ -73,7 +77,8 @@
 #' @param verbose Whether to trace the solver iterations to the console.
 #' @param solver_tol Tolerance on the residual, passed to
 #'   [nleqslv::nleqslv()] as both `ftol` and `xtol`.
-#' @param maxit Maximum number of iterations for [nleqslv::nleqslv()].
+#' @param maxit Maximum total number of iterations for [nleqslv::nleqslv()],
+#'   including a retry if needed.
 #' @param jacobian Either `"update"` (the Jacobian is computed once and then
 #'   updated cheaply on each iteration) or `"recompute"` (a numerical Jacobian
 #'   is computed afresh at every iteration).
@@ -137,11 +142,40 @@ newton_steady_state <- function(params, effort, rdd_const,
         x0 <- c(x0, log(x0_n_pp))
     }
 
+    # An almost empty tail with negligible inflow has a nearly constant
+    # per-capita residual. Its Newton step can otherwise span millions of log
+    # units before the structural floor gives that column a useful derivative.
     control <- list(maxit = maxit, ftol = solver_tol, xtol = solver_tol,
+                    stepmax = 10,
                     trace = if (isTRUE(verbose)) 1 else 0)
 
     sol <- nleqslv::nleqslv(x0, residual_fn, method = nleqslv_method,
                             global = global, control = control)
+
+    residual_size <- function(sol) {
+        if (all(is.finite(sol$fvec))) max(abs(sol$fvec)) else Inf
+    }
+    error <- residual_size(sol)
+    remaining <- maxit - sol$iter
+    # Small-step termination (code 2) need not satisfy the residual tolerance.
+    # Keep an already successful starting guess, and never replace a result
+    # with a worse one merely because the retry has a different stopping code.
+    if (error > solver_tol && remaining > 0) {
+        seed <- tryCatch(newton_frozen_guess(params, active, N0, effort),
+                         mizer_steady_nonconvergence = function(e) NULL)
+        if (!is.null(seed)) {
+            retry_x0 <- x0
+            retry_x0[seq_len(active$n_fish_active)] <- log(seed[active$mask])
+            control$maxit <- remaining
+            retry <- nleqslv::nleqslv(retry_x0, residual_fn,
+                                      method = nleqslv_method,
+                                      global = global, control = control)
+            if (residual_size(retry) < error) {
+                sol <- retry
+                error <- residual_size(sol)
+            }
+        }
+    }
 
     unpacked <- active$unpack(sol$x)
     N <- unpacked$N
@@ -178,7 +212,38 @@ newton_steady_state <- function(params, effort, rdd_const,
     }
 
     list(n = N, n_pp = n_pp, extinct = is_extinct, absent = active$absent,
-         termcd = sol$termcd, message = sol$message)
+         termcd = sol$termcd, message = sol$message, residual = error)
+}
+
+#' A frozen-rate starting spectrum for a stalled Newton solve
+#'
+#' Retains the model's transport scheme, diffusion and computational support.
+#' In particular, zero growth does not remove a cell from the active set:
+#' diffusion or growth at a later iterate may still populate it. Numerically
+#' empty cells start just below the existing structural floor, where the
+#' log-abundance penalty has a nonzero derivative, instead of extrapolating a
+#' substantial density into a tail with almost no inflow.
+#'
+#' @param params The model at the original starting state.
+#' @param active The active-set list from `steady_active_set()`.
+#' @param n0 The positive original starting spectrum.
+#' @param effort The fishing effort vector.
+#' @return A density matrix, strictly positive on the active set.
+#' @noRd
+newton_frozen_guess <- function(params, active, n0, effort) {
+    rates <- mizer_rates_subset(params, n = params@initial_n,
+                                n_pp = params@initial_n_pp,
+                                n_other = params@initial_n_other,
+                                t = 0, effort = effort,
+                                rates_fns = projectRateFunctions(params),
+                                targets = c("EGrowth", "Mort", "Diffusion"))
+    eggs <- n0[cbind(seq_len(nrow(n0)), params@w_min_idx)]
+    seed <- get_steady_state_n(params, rates$e_growth, rates$mort,
+                               rates$diffusion, eggs)
+    floor <- apply(n0, 1, max) * 1e-15
+    seed <- pmax(seed, floor * exp(-0.5))
+    seed[!active$mask] <- 0
+    seed
 }
 
 #' The set of size classes solved for by the Newton solver
@@ -505,9 +570,19 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
     }
 
     function(x) {
+        # Let nleqslv reject an invalid trial and backtrack before it reaches
+        # rate functions or the limiter. Do not catch rate-function errors:
+        # those may describe a genuine error in a user's custom dynamics.
+        if (any(!is.finite(x))) {
+            return(rep(Inf, length(x)))
+        }
         unpacked <- active$unpack(x)
         N <- unpacked$N
         n_pp <- unpacked$n_pp
+        if (any(!is.finite(N)) || any(N[mask] <= 0) ||
+                any(!is.finite(n_pp)) || any(n_pp[mask_pp] <= 0)) {
+            return(rep(Inf, length(x)))
+        }
 
         res <- consumer_residual(params, n = N, n_pp = n_pp, n_other = n_other,
                                  effort = effort, rdd = rdd_const,

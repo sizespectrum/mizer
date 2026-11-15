@@ -753,7 +753,14 @@ matrix can be unstable even with under-relaxation. The moving average of the
 limiter used during time stepping is a separate mechanism and is not used by
 this fixed-rate solver.
 
-The direct solver reads its set of unknowns from where the supplied abundances are non-zero, rather than from $w_{max}$. This keeps it robust when $w_{max}$ is set far above the largest fish (a common choice, so that the grid need not change when a parameter update produces larger fish): the structurally-zero classes below such a $w_{max}$ are simply excluded. The growth rate alone could not be used to find the support, because the main reason fish grow past $w_{repro\_max}$ is diffusion, whose rate only grows with $w$ and never vanishes; the abundance is the only reliable indicator of where the (possibly diffusion-fed) tail has died away. With the van Leer limiter the residual is only Lipschitz, so the Newton iteration converges to a fixed point of the dynamics but not to machine precision; the unlimited centred reconstruction — which admits an undamped odd-even mode at a steady state with no physical diffusion — gives an ill-conditioned steady-state Jacobian for which the direct solver is not expected to converge.
+The direct solver keeps every size class from the egg size to the computational
+support top set by `w_max` and the spatial scheme, even if a class starts with
+zero density. It must retain this potential support: diffusion can populate a
+tail with negligible growth, and custom growth rates can change as the state
+changes. A smooth log-abundance floor handles numerically empty cells, which
+are set to zero after the solve. Bounded steps and a frozen-rate starting
+spectrum help when an overpopulated, nearly growth-free tail otherwise makes
+the Newton Jacobian ill-conditioned; see the direct-solver section below.
 
 
 ## Steady-State Solution
@@ -874,11 +881,49 @@ With `solver = "newton"`, `tuneSteadyState()` and `findSteadyState()` find the s
 
 To make the nonlinear algebraic system well-behaved for the root finder, the solver employs several numerical strategies:
 
-1. **Log-space solve:** The consumer densities are solved for in logarithmic space ($x = \log N$). This enforces strict positivity of the densities during the iteration and natively conditions the Jacobian by turning absolute density perturbations—which span dozens of orders of magnitude—into well-scaled $O(1)$ relative (multiplicative) perturbations. The residual of the equation is correspondingly scaled by $1/N$, turning it into a per-capita rate of change that is also $O(1)$ across all size classes.
+1. **Log-space solve:** The unknown densities are represented by $x = \log N$,
+   which keeps them positive and turns absolute density changes across many
+   orders of magnitude into relative changes. `tuneSteadyState()` scales the
+   consumer residual by $1/N$; `findSteadyState()` uses the fixed starting
+   density as its scale. The resource unknowns, when present, are also in log
+   space.
 
-2. **Active support and structural zeros:** The solver defines the "active" size classes for each species as running from the egg size up to the overall grid truncation limit, regardless of whether they initially carry non-zero density. Because the logarithm of zero is $-\infty$, the solver applies a smooth, continuous penalty floor to the log-abundances. This automatically bounds the unknowns, gracefully handling structurally zero-density classes and preventing singular Jacobians. After convergence, densities that remain trapped at or near this penalty floor are explicitly set to exactly zero. This allows the solver to automatically discover the true support (the highest non-zero size class) of the steady state.
+2. **Active support and structural zeros:** All consumer classes from the egg
+   size to the computational support top remain active, including initially
+   empty cells. A smooth penalty acts below a log-abundance floor, and cells
+   left near that floor are set to zero after the solve. The floor is
+   $10^{-15}$ times each species' maximum initial density; `findSteadyState()`
+   can impose the larger extinction floor as well. A species that is absent
+   throughout its initial spectrum is held at zero and has no unknowns.
 
-3. **Interaction with high-order spatial schemes:** The solver strictly respects the spatial transport scheme configured in the parameters (e.g., via `second_order_w()`). The nonlinear flux limiter weight is recalculated at every residual evaluation, ensuring the returned steady state is an exact fixed point of the chosen dynamics. However, because the TVD "van Leer" flux limiter is only Lipschitz-continuous (its derivative is discontinuous where the smoothness indicator equals 1), the Newton iteration converges to the fixed point but typically not to machine precision. Conversely, the unlimited "centred" reconstruction is perfectly smooth, but at a steady state with no physical diffusion it admits an undamped odd-even mode, leading to a structurally ill-conditioned Jacobian for which the Newton solver is unlikely to converge.
+3. **Bounded steps and invalid trials:** A cell with negligible inflow can have
+   an almost constant per-capita mortality residual while its density remains
+   above the floor. Its Jacobian column is then nearly singular, and an
+   unrestricted Newton step can span millions of log-density units. The solver
+   bounds the log-density step length at 10. It also rejects trials whose
+   densities overflow or underflow to zero before evaluating rate functions,
+   allowing the root finder to backtrack. Errors raised by custom rate functions
+   still propagate.
+
+4. **Retry from a frozen-rate spectrum:** If the largest absolute residual
+   exceeds `solver_tol` and iterations remain, the solver obtains a starting
+   spectrum from `get_steady_state_n()` using the original state's growth,
+   mortality, diffusion and egg densities. Numerically empty active cells start
+   just below the existing structural floor, where the penalty has a useful
+   derivative. The retry uses the same nonlinear residual and active support;
+   it does not replace the model by the frozen-rate system. It shares the
+   `maxit` budget with the first attempt, and only replaces that attempt's
+   result if its residual is smaller. A small-step stopping code alone is not
+   sufficient to skip the retry. If the frozen-rate calculation itself does
+   not converge, the original Newton result is retained.
+
+5. **Interaction with high-order spatial schemes:** Every residual evaluation
+   recomputes the model's chosen flux-limiter weights. Van Leer reconstruction
+   is only piecewise smooth, so Newton convergence need not reach machine
+   precision. The unlimited centred reconstruction can instead admit an
+   undamped odd-even mode without diffusion, making its steady-state Jacobian
+   ill-conditioned. The reported biomass drift remains the check on how close
+   the returned state is to a fixed point.
 
 ## Linear Stability Analysis
 
