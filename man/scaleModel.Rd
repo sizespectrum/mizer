@@ -29,11 +29,11 @@ changing the abundances and rates accordingly.
 If you rescale the model by a factor \eqn{c} then this function makes the
 following rescalings in the params object:
 \itemize{
-\item The initial abundances are rescaled by \eqn{c}.
+\item The initial consumer and resource abundances are rescaled by \eqn{c}.
 \item The search volume is rescaled by \eqn{1/c}.
 \item The resource carrying capacity is rescaled by \eqn{c}
-\item The maximum reproduction rate \eqn{R_{max}} is rescaled by
-\eqn{c}.
+\item Reproduction rate parameters \code{R_max} and \code{constant_reproduction}
+are multiplied by \eqn{c}; \code{ricker_b} and \code{sheperd_b} are divided by it.
 }
 The effect of this is that the dynamics of the rescaled model are identical
 to those of the unscaled model, in the sense that it does not matter whether
@@ -41,8 +41,11 @@ one first calls \code{\link[=scaleModel]{scaleModel()}} and then runs a simulati
 \code{\link[=project]{project()}} or whether one first runs a simulation and then rescales the
 resulting abundances.
 
-Note that if you use non-standard resource dynamics or other components then
-you may need to rescale additional parameters that appear in those dynamics.
+Components and custom providers must declare transformation support. Their
+hooks run after the core fields are scaled and before final validation, with
+the original model available for reference. A component can scale a stock
+while leaving intensive quantities, such as temperature, unchanged. Mizer
+does not infer how to transform an arbitrary component state.
 
 In practice you will need to use some observations to set the scale for your
 model. If you have biomass observations you can use \code{\link[=calibrateBiomass]{calibrateBiomass()}},

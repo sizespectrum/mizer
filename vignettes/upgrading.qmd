@@ -252,6 +252,37 @@ positive recruitment cannot be produced by an absent spawning population, and a
 positive reproduction level cannot describe a species with zero recruitment.
 Choose a feasible control or change the underlying model state deliberately.
 
+### Model transformations require extension support
+
+Adding, removing, renaming or reordering species, changing the size grid, and
+scaling a model now require transformation support for its active processes.
+Projection support alone is insufficient. An unsupported operation stops before
+changing the model; update the relevant extension package to obtain support.
+Explicitly declaring that a transformation needs no action is different from
+having no declaration.
+
+[`scaleModel()`](../reference/scaleModel.html) no longer assumes every component state is a biomass that should
+be multiplied by the scale factor. Component hooks decide which stocks and
+parameters scale and which intensive or non-numeric quantities stay unchanged.
+The same contract applies to [`scaleRates()`](../reference/scaleRates.html), where a factor changes the speed
+of the dynamics.
+
+Use [`reorderSpecies(params, species)`](../reference/reorderSpecies.html) to supply the complete desired species
+order. Reordering the species-parameter table directly remains unsupported;
+the model's arrays and extension-owned data must be reordered together.
+
+Structural reconstruction prepares any required initial guesses after extension
+data have been transformed. It does not separately match observations or
+rebalance reproduction just to reconstruct existing species on a grid.
+[`addSpecies(steady = TRUE)`](../reference/addSpecies.html) still performs its requested new-species steady-state
+calculation and balancing; `steady = FALSE` omits those calculations.
+
+With [`removeSpecies(compensate = TRUE)`](../reference/removeSpecies.html), mizer checks the remaining species'
+effective growth, diffusion, total mortality and recruitment after the removal.
+If these cannot be preserved, the operation stops instead of returning an
+unverified compensated model. Supported built-in resource dynamics are balanced
+at that state; this does not establish that every other component is steady.
+
 ### A model keeps the defaults edition it was created with
 
 `defaults_edition()` chooses the edition of the defaults that mizer fills in for
@@ -275,7 +306,7 @@ Such a model now gets the defaults of its own edition when
 - you assign gear parameters without a [`catchability`](../reference/setFishing.html),
 - you give `project()` or `initial_effort<-()` an effort that leaves out some
   gears or contains `NA`,
-- [`addSpecies()`](../reference/addSpecies.html) adds species and gears to it,
+- `addSpecies()` adds species and gears to it,
 - [`get_initial_n()`](../reference/get_initial_n.html) calculates initial abundances for it.
 
 See the edition of a model with `defaults_edition(params)`. To give an existing
@@ -384,7 +415,7 @@ for this release. Results move for a model that lets mizer fill in a `gamma` or
 `f0` while an extension, external encounter or a component adds to the encounter
 rate, for one whose species parameters carry an `l_mat25` that mizer had to
 reject, for a calibration run that a size class holding a trace of fish was
-holding up, and for a model that was rescaled with [`scaleModel()`](../reference/scaleModel.html) and then had
+holding up, and for a model that was rescaled with `scaleModel()` and then had
 its species parameters recalculated. `summary()` of a rate array now reports
 different numbers, because it used to describe sizes the species never reaches.
 A model loaded with `readParams()` now has its species parameters reconciled,

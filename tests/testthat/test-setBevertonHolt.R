@@ -163,3 +163,21 @@ test_that("Law switching preserves existing equation arrays", {
     expect_equal(after$diffusion, before$diffusion)
     expect_equal(tuning_state(q), tuning_state(p))
 })
+
+test_that("Adopting a level callback does not adopt balancing support", {
+    rlang::local_bindings(
+        level_test_custom_rdd = function(params, rdi, ...) {
+            rdi * 0.9
+        },
+        level_test_custom_level = function(params, ...) {
+            setNames(rep(0.4, nrow(params$species_params)),
+                     params$species_params$species)
+        },
+        .env = globalenv()
+    )
+    p <- setRateFunction(NS_params_small, "RDD", "level_test_custom_rdd")
+    expect_error(reproduction_level(p), "Missing current")
+    p <- setProcess(p, "reproduction", level_fun = "level_test_custom_level")
+    expect_equal(unname(reproduction_level(p)), rep(0.4, 3))
+    expect_error(balanceRDD(p), "Missing|missing|stale")
+})

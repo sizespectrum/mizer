@@ -10,10 +10,11 @@ test_that("calibrateBiomass works", {
     species_params(params)$biomass_cutoff <- 1e-4
     species_params(params)$biomass_observed <-
         rowSums(sweep(params@initial_n, 2, params@w * params@dw, "*"))
-    expect_unchanged(calibrateBiomass(params), params)
+    expect_identical(calibrateBiomass(params), params)
     # Even if only partially observed
     species_params(params)$biomass_observed[1:2] <- NA
-    expect_unchanged(calibrateBiomass(params), params)
+    # A subset sum can round the scale factor away from exactly one.
+    expect_equal(calibrateBiomass(params)@initial_n, params@initial_n)
     # If we double the observations, we get twice the abundance
     species_params(params)$biomass_observed <-
         species_params(params)$biomass_observed * 2
@@ -141,4 +142,134 @@ test_that("scaleModel records the scaled parameters as given", {
 test_that("scaleModel updates `time_modified`", {
     params <- scaleModel(NS_params_small, factor = 2)
     expect_false(identical(params@time_modified, NS_params_small@time_modified))
+})
+
+test_that("Abundance scaling respects every built-in reproduction law", {
+    withr::local_options(mizer_info_level = 0)
+    for (average in c(FALSE, TRUE)) {
+        for (law in c("BevertonHoltRDD", "RickerRDD", "SheperdRDD",
+                      "constantRDD", "noRDD")) {
+            p <- NS_params_small
+            second_order_w(p) <- c(bin_average = average)
+            p <- setReproduction(p, RDD = law)
+            if (law == "constantRDD") {
+                p <- balanceRDD(p, rdd_target = c(1, 2, 3))
+            } else if (law != "noRDD") {
+                p <- balanceRDD(p, reproduction_level = 0.4)
+            }
+            before <- tuning_rate_context(p)
+            q <- scaleModel(p, 3)
+            after <- tuning_rate_context(q)
+            expect_equal(after$rdi, before$rdi * 3)
+            expect_equal(after$rdd, before$rdd * 3)
+            for (field in c("e_growth", "mort", "diffusion", "resource_mort")) {
+                expect_equal(after[[field]], before[[field]],
+                             label = paste(law, average, field))
+            }
+            expect_equal(reproduction_level(q), reproduction_level(p))
+            expect_identical(q$capabilities, p$capabilities)
+            expect_identical(q$rates_funcs, p$rates_funcs)
+            original <- project(p, t_max = 0.2, dt = 0.1, t_save = 0.2)
+            scaled <- project(q, t_max = 0.2, dt = 0.1, t_save = 0.2)
+            expect_equal(scaled$n[2, , ], original$n[2, , ] * 3,
+                         tolerance = 1e-10)
+            expect_equal(scaled$n_pp[2, ], original$n_pp[2, ] * 3,
+                         tolerance = 1e-10)
+        }
+    }
+})
+
+test_that("Abundance scaling preserves arrays across later rebuilding", {
+    withr::local_options(mizer_info_level = 0)
+    for (average in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- c(bin_average = average)
+        p <- setResource(p, reset = TRUE, balance = FALSE)
+        p$given_species_params$gamma <- NULL
+        p <- setParams(p)
+        q <- scaleModel(p, 3)
+        rebuilt <- setResource(q, balance = FALSE, reset = TRUE)
+        expect_equal(rebuilt$cc_pp, q$cc_pp)
+        rebuilt <- setParams(q)
+        expect_equal(rebuilt$search_vol, q$search_vol)
+        expect_equal(rebuilt$species_params$gamma, q$species_params$gamma)
+        expect_equal(scaleModel(q, 1 / 3)$initial_n, p$initial_n)
+    }
+    p <- NS_params_small
+    comment(p$cc_pp) <- "manual capacity"
+    comment(p$search_vol) <- "manual search"
+    q <- scaleModel(p, 2)
+    expect_identical(comment(q$cc_pp), comment(p$cc_pp))
+    expect_identical(comment(q$search_vol), comment(p$search_vol))
+    for (factor in c(Inf, -Inf, NaN, NA_real_)) {
+        expect_error(scaleModel(p, factor))
+    }
+})
+
+test_that("Abundance hooks choose how structured component states transform", {
+    rlang::local_bindings(
+        scaling_structured_stock = function(params, before, details, component,
+                                            operation, ...) {
+            stopifnot(operation == "scale_abundance")
+            stopifnot(isTRUE(all.equal(params$initial_n,
+                                       before$initial_n * details$factor)))
+            stopifnot(isTRUE(all.equal(params$species_params$gamma,
+                                       before$species_params$gamma /
+                                           details$factor)))
+            params$initial_n_other[[component]]$stock <-
+                before$initial_n_other[[component]]$stock * details$factor
+            params
+        }, .env = globalenv()
+    )
+    p <- setComponent(NS_params_small, "environment",
+        list(stock = c(2, 3), temperature = 12, label = "coastal"),
+        dynamics_fun = "constant_other",
+        transformations = list(scale_abundance = list(
+            action = "update", transform_fun = "scaling_structured_stock"
+        ))
+    )
+    q <- scaleModel(p, 4)
+    expect_equal(q$initial_n_other$environment$stock, c(8, 12))
+    expect_identical(q$initial_n_other$environment$temperature, 12)
+    expect_identical(q$initial_n_other$environment$label, "coastal")
+    expect_equal(p$initial_n_other$environment$stock, c(2, 3))
+    expect_identical(q$capabilities, p$capabilities)
+})
+
+test_that("Abundance transformation preflight precedes every mutation hook", {
+    calls <- 0L
+    rlang::local_bindings(
+        scaling_counted_hook = function(params, ...) {
+            calls <<- calls + 1L
+            params
+        },
+        scaling_failing_hook = function(params, ...) {
+            params$initial_n_other$first <- 99
+            stop("deliberate scaling failure")
+        }, .env = globalenv()
+    )
+    p <- setComponent(NS_params_small, "first", 1,
+        dynamics_fun = "constant_other",
+        transformations = list(scale_abundance = list(
+            action = "update", transform_fun = "scaling_counted_hook"
+        ))
+    )
+    p <- setComponent(p, "unsupported", "intensive",
+                      dynamics_fun = "constant_other")
+    before <- p
+    expect_error(scaleModel(p, 2), "unsupported|support|transformation")
+    expect_identical(calls, 0L)
+    expect_identical(p, before)
+    expect_identical(scaleModel(p, 1), p)
+    p <- setComponent(p, "unsupported",
+        transformations = list(scale_abundance = list(action = "none"))
+    )
+    p <- setComponent(p, "first",
+        transformations = list(scale_abundance = list(
+            action = "update", transform_fun = "scaling_failing_hook"
+        ))
+    )
+    before <- p
+    expect_error(scaleModel(p, 2), "deliberate scaling failure")
+    expect_identical(p, before)
 })

@@ -75,3 +75,17 @@ test_that("get_initial_n uses the defaults edition of the model", {
                               get_initial_n(params))
     expect_false(isTRUE(all.equal(n3, n1)))
 })
+
+test_that("structural initial guesses do not require observation matching", {
+    p <- with_defaults_edition(2, newTraitParams(no_sp = 2, no_w = 20,
+                                                 info_level = 0))
+    local_mocked_bindings(matchBiomasses = function(...) {
+        stop("Observation matching is unavailable")
+    })
+    expect_error(get_initial_n(p), "Observation matching is unavailable")
+    n <- initial_n_guess(p, match_observations = FALSE)
+    expect_equal(dim(n), dim(p$initial_n))
+    expect_identical(dimnames(n), dimnames(p$initial_n))
+    expect_true(all(is.finite(n)))
+    expect_true(all(n >= 0))
+})

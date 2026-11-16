@@ -159,6 +159,7 @@ reference:
   - addSpecies
   - removeSpecies
   - renameSpecies
+  - reorderSpecies
   - renameGear
   - adjustSizeGrid
   - markBackground
@@ -358,6 +359,7 @@ reference:
   - setProcess
   - getProcess
   - setTuningStrategy
+  - setTransformation
   - convolve_pred_kernel
   - initialNOther<-
   - NOther

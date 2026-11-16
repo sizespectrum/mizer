@@ -14,7 +14,8 @@ setProcess(
   stationary,
   equation_rates_fun,
   tuning,
-  level_fun
+  level_fun,
+  transformations
 )
 
 getProcess(params, process)
@@ -39,6 +40,12 @@ as \code{package::exported_function}, or \code{NULL}.}
 \item{tuning}{Named strategies and their default, or NULL to remove support.}
 
 \item{level_fun}{Law-specific reproduction-level callback, or NULL.}
+
+\item{transformations}{Named operation declarations for structural and scale
+changes. Each declares action = 'none' or a named transform_fun with
+action = 'update', explicit paths and optional settings. Supply this
+argument or a new definition to adopt support for a changed provider;
+an assessment-only update retains the previous transformation binding.}
 }
 \value{
 \code{setProcess()} returns the updated model. \code{getProcess()} returns
@@ -52,8 +59,12 @@ together with the identity of its current dynamics provider. Replacing that
 provider or changing the projection dispatch chain invalidates the
 declaration until support is explicitly adopted again. Changing parameters
 or consumer rate functions leaves the identity of the fish equations intact.
-Calling \code{setProcess()} explicitly adopts the current provider, including when
-omitted arguments retain the previous callback and role.
+Calling \code{setProcess(params, process)} with no capability arguments explicitly
+adopts the current provider for all retained capability families. A partial
+patch adopts only the families explicitly supplied: convergence/role,
+stationary/equation rates/tuning, reproduction level, or transformations.
+Omitted families keep their previous provider bindings, including staleness.
+A replacement definition adopts all its supplied capabilities.
 }
 \details{
 A convergence callback returns a data frame with the columns \code{measure},

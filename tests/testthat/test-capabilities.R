@@ -4,7 +4,7 @@ test_that("Stored capability schemas reject ambiguous or executable data", {
 
     registry$schema_version <- 99L
     expect_match(capability_registry_errors(registry), "Unsupported")
-    registry$schema_version <- 4L
+    registry$schema_version <- 5L
     registry$components <- list(pool = list(dynamics_fun = function() 1))
     expect_match(capability_registry_errors(registry), "function name")
     registry$components <- list(pool = list(dynamics_fun = "unloaded_callback"))
@@ -175,14 +175,15 @@ test_that("Schema one upgrades keep stored choices without resolving code", {
         processes = list()
     )
     upgraded <- upgrade_capability_registry(legacy)
-    expect_identical(upgraded$schema_version, 4L)
+    expect_identical(upgraded$schema_version, 5L)
     expect_identical(legacy$schema_version, 1L)
     expect_named(upgraded$components$pool,
                  c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun",
                    "colour", "linetype", "integration_order",
                    "convergence_fun", "role", "stationary",
                    "equation_rates_fun",
-                   "tuning", "tuning_binding"))
+                   "tuning", "tuning_binding", "transformations",
+                   "transformation_binding"))
     expect_identical(upgraded$components$pool$dynamics_fun, "unloaded_step")
     expect_identical(upgraded$components$pool$mort_fun, "unloaded_mortality")
     expect_identical(upgraded$components$pool$colour, "orange")
@@ -203,6 +204,7 @@ test_that("Schema upgrades retain malformed and unknown data for validation", {
     invalid <- new_capability_registry()
     invalid$schema_version <- 1L
     invalid$tuning <- NULL
+    invalid$transformations <- NULL
     invalid$components <- "not a list"
     upgraded <- upgrade_capability_registry(invalid)
     expect_match(capability_registry_errors(upgraded), "uniquely named list")
@@ -211,4 +213,32 @@ test_that("Schema upgrades retain malformed and unknown data for validation", {
     upgraded <- upgrade_capability_registry(invalid)
     expect_identical(upgraded$components$pool$unknown_field, "do not discard")
     expect_match(capability_registry_errors(upgraded), "Unknown")
+})
+
+test_that("Schema four upgrades add transformation support without inference", {
+    p <- setComponent(NS_params_small, "pool", 1,
+                      dynamics_fun = "constant_other")
+    old <- p$capabilities
+    old$schema_version <- 4L
+    old$transformations <- NULL
+    fields <- c("transformations", "transformation_binding", "level_binding")
+    old$components <- lapply(old$components, function(definition) {
+        definition[setdiff(names(definition), fields)]
+    })
+    old$processes <- lapply(old$processes, function(definition) {
+        definition[setdiff(names(definition), fields)]
+    })
+    upgraded <- upgrade_capability_registry(old, params = p)
+    expect_identical(upgraded$schema_version, 5L)
+    expect_identical(upgraded$tuning, old$tuning)
+    expect_identical(upgraded$components$pool[names(old$components$pool)],
+                     old$components$pool)
+    expect_null(upgraded$components$pool$transformations)
+    expect_named(upgraded$processes$consumers$transformations,
+                 transformation_operations())
+    expect_true(capability_registry_errors(upgraded))
+    p$capabilities <- upgraded
+    changed <- setReproduction(p, RDD = "RickerRDD")
+    expect_identical(changed$capabilities$processes$reproduction$level_fun,
+                     "reproduction_level_RickerRDD")
 })

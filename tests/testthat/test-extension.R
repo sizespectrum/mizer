@@ -248,7 +248,10 @@ test_that("We can set, get and remove components", {
                                    convergence_fun = NULL, role = "dynamic",
                                    stationary = NULL,
                                    equation_rates_fun = NULL, tuning = NULL,
-                                   tuning_binding = tuning_provider_binding(p)
+                                   tuning_binding = tuning_provider_binding(p),
+                                   transformations = NULL,
+                                   transformation_binding =
+                                       transformation_provider_binding(p)
                                )))
     all <- getComponent(p)
     expect_type(all, "list")
@@ -320,7 +323,9 @@ test_that("Component definitions are stored as assembled snapshots", {
                      integration_order = NULL, convergence_fun = NULL,
                      role = "dynamic", stationary = NULL,
                      equation_rates_fun = NULL, tuning = NULL,
-                     tuning_binding = tuning_provider_binding(p))
+                     tuning_binding = tuning_provider_binding(p),
+                     transformations = NULL, transformation_binding =
+                         transformation_provider_binding(p))
     expect_identical(p@capabilities$components$pool, expected)
     expect_identical(getComponent(p, "pool")$definition, expected)
     expect_null(p@other_mort$pool)
@@ -737,4 +742,26 @@ test_that("Other components get a corrector step under second-order methods", {
         # smaller, but we only need to confirm the corrector is taking effect.
         expect_lt(abs(accum(method, 0.1) - ref), euler_err / 2)
     }
+})
+
+test_that("Instance-only component patches retain stale capability bindings", {
+    p <- setComponent(NS_params_small, "pool", 1,
+                      dynamics_fun = "constant_other", role = "prescribed",
+                      stationary = TRUE,
+                      transformations = list(
+                          scale_abundance = list(action = "none")
+                      ))
+    before <- p$capabilities$components$pool
+    processes <- p$capabilities$processes
+    p$rates_funcs$RDD <- "noRDD"
+    patched <- setComponent(p, "pool", initial_value = 2,
+                            component_params = list(amount = 3))
+    after <- patched$capabilities$components$pool
+    expect_identical(patched$capabilities$processes, processes)
+    expect_identical(after$tuning_binding, before$tuning_binding)
+    expect_identical(after$transformation_binding,
+                     before$transformation_binding)
+    expect_false(tuning_binding_current(patched, after, "component:pool"))
+    expect_false(transformation_binding_current(patched, after,
+                                                "component:pool"))
 })

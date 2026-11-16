@@ -3,8 +3,8 @@
 # support and distinguish dynamic state from prescribed inputs.
 
 new_capability_registry <- function() {
-    list(schema_version = 4L, components = list(), processes = list(),
-         tuning = list())
+    list(schema_version = 5L, components = list(), processes = list(),
+         tuning = list(), transformations = list())
 }
 
 # Upgrade data only: extension callbacks may not be available until the model's
@@ -13,14 +13,16 @@ new_capability_registry <- function() {
 upgrade_capability_registry <- function(registry, params = NULL) {
     if (!is.list(registry) || is.object(registry) ||
             !capability_names_valid(registry) ||
-            !setequal(names(registry), c("schema_version", "components",
-                                         "processes")) ||
             !is.numeric(registry$schema_version) ||
             length(registry$schema_version) != 1L ||
             is.na(registry$schema_version) ||
-            !registry$schema_version %in% 1:3) return(registry)
-    registry$schema_version <- 4L
-    registry$tuning <- list()
+            !registry$schema_version %in% 1:4) return(registry)
+    fields <- c("schema_version", "components", "processes")
+    if (registry$schema_version == 4L) fields <- c(fields, "tuning")
+    if (!setequal(names(registry), fields)) return(registry)
+    if (registry$schema_version < 4L) registry$tuning <- list()
+    registry$schema_version <- 5L
+    registry$transformations <- list()
     if (!is.list(registry$components) ||
             !capability_names_valid(registry$components)) return(registry)
     for (component in names(registry$components)) {
@@ -38,6 +40,19 @@ upgrade_capability_registry <- function(registry, params = NULL) {
             if (is.null(old)) {
                 registry$processes[[owner]] <- defaults[[owner]]
             } else {
+                # Previously level support shared the tuning binding. Keep
+                # its old provider claim, including any existing staleness.
+                if (!"level_binding" %in% names(old) &&
+                        "level_fun" %in% names(old)) {
+                    binding <- old$tuning_binding
+                    if (!is.null(old$level_fun) &&
+                            identical(old$level_fun,
+                                      defaults[[owner]]$level_fun) &&
+                            tuning_binding_current(params, old, owner)) {
+                        binding$automatic <- TRUE
+                    }
+                    old["level_binding"] <- list(binding)
+                }
                 missing <- setdiff(names(defaults[[owner]]), names(old))
                 old[missing] <- defaults[[owner]][missing]
                 registry$processes[[owner]] <- old
@@ -52,7 +67,8 @@ component_definition_defaults <- function() {
          mort_fun = NULL, colour = "grey", linetype = "solid",
          integration_order = NULL, convergence_fun = NULL, role = "dynamic",
          stationary = NULL, equation_rates_fun = NULL, tuning = NULL,
-         tuning_binding = NULL)
+         tuning_binding = NULL, transformations = NULL,
+         transformation_binding = NULL)
 }
 
 component_definition_fields <- function() {
@@ -115,6 +131,11 @@ component_definition_errors <- function(definition, required = TRUE) {
     if (!tuning_data_valid(definition$tuning_binding)) {
         errors <- c(errors, "Invalid stored tuning binding.")
     }
+    transform_errors <- transformation_map_errors(definition$transformations)
+    if (!isTRUE(transform_errors)) errors <- c(errors, transform_errors)
+    if (!tuning_data_valid(definition$transformation_binding)) {
+        errors <- c(errors, "Invalid stored transformation binding.")
+    }
     for (field in intersect(fields, c("colour", "linetype"))) {
         value <- definition[[field]]
         valid_style <- (is.character(value) || is.numeric(value)) &&
@@ -143,7 +164,8 @@ component_definition_errors <- function(definition, required = TRUE) {
 }
 
 capability_registry_errors <- function(registry) {
-    fields <- c("schema_version", "components", "processes", "tuning")
+    fields <- c("schema_version", "components", "processes", "tuning",
+                "transformations")
     if (!is.list(registry) || is.object(registry) ||
             length(registry) != length(fields) ||
             !setequal(names(registry), fields)) {
@@ -152,7 +174,7 @@ capability_registry_errors <- function(registry) {
     }
     version <- registry$schema_version
     if (!is.numeric(version) || length(version) != 1L ||
-            is.na(version) || version != 4L) {
+            is.na(version) || version != 5L) {
         return("Unsupported capabilities schema_version; update mizer.")
     }
     components <- registry$components
@@ -164,6 +186,8 @@ capability_registry_errors <- function(registry) {
     errors <- if (isTRUE(process_errors)) character() else process_errors
     joint_errors <- joint_tuning_errors(registry$tuning)
     if (!isTRUE(joint_errors)) errors <- c(errors, joint_errors)
+    transform_errors <- joint_transformation_errors(registry$transformations)
+    if (!isTRUE(transform_errors)) errors <- c(errors, transform_errors)
     for (component in names(components)) {
         result <- component_definition_errors(components[[component]])
         if (!isTRUE(result)) {
@@ -191,7 +215,8 @@ legacy_component_definition <- function(params, component) {
          linetype = style(params$linetype),
          integration_order = NULL, convergence_fun = NULL, role = "dynamic",
          stationary = NULL, equation_rates_fun = NULL, tuning = NULL,
-         tuning_binding = NULL)
+         tuning_binding = NULL, transformations = NULL,
+         transformation_binding = NULL)
 }
 
 legacy_capability_registry <- function(params) {
@@ -248,7 +273,8 @@ assemble_component_definition <- function(existing = NULL, definition = NULL,
         result["convergence_fun"] <- list(NULL)
     }
     for (field in c("stationary", "equation_rates_fun", "tuning",
-                    "tuning_binding")) {
+                    "tuning_binding", "transformations",
+                    "transformation_binding")) {
         if (provider_changed && !field %in% names(overrides)) result[field] <-
             list(NULL)
     }

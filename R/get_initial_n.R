@@ -18,6 +18,13 @@
 #' @examples
 #' init_n <- get_initial_n(NS_params)
 get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
+    initial_n_guess(params, n0_mult, a)
+}
+
+# Structural changes need an initial guess without calibrating observations or
+# adjusting reproduction before the optional single-species steady-state step.
+initial_n_guess <- function(params, n0_mult = NULL, a = 0.35,
+                            match_observations = TRUE) {
     if (!is(params,"MizerParams"))
         stop("params argument must of type MizerParams")
     no_sp <- nrow(params@species_params)
@@ -86,7 +93,7 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
         # Steady state solution of the upwind-difference scheme used in project
         p@initial_n[i, idxs] <- n_exact_matrix[i, idxs]
     }
-    p <- matchBiomasses(p)
+    if (match_observations) p <- matchBiomasses(p)
     return(ArraySpeciesBySize(p@initial_n, value_name = "Number density",
                               type = "density", params = p))
 }

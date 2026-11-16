@@ -208,41 +208,41 @@ tuning_provider_binding <- function(params) {
     )
 }
 
+relevant_provider_binding <- function(binding, owner) {
+    components <- names(binding$other_dynamics)
+    if (owner %in% c("consumers", "reproduction")) {
+        binding$resource_dynamics <- NULL
+    }
+    own <- if (startsWith(owner, "component:")) {
+        substring(owner, 11L)
+    } else {
+        character()
+    }
+    binding$other_dynamics <- binding$other_dynamics[
+        intersect(own, components)
+    ]
+    binding$component_equations <-
+        binding$component_equations[intersect(
+            own,
+            names(binding$component_equations)
+        )]
+    for (slot in c("other_encounter", "other_mort")) {
+        keep <- setdiff(names(binding[[slot]]), setdiff(components, own))
+        binding[[slot]] <- binding[[slot]][keep]
+    }
+    for (field in c("other_dynamics", "component_equations",
+                    "other_encounter", "other_mort")) {
+        if (!length(binding[[field]])) binding[[field]] <- list()
+    }
+    binding
+}
+
 tuning_binding_current <- function(params, definition, owner) {
     stored <- definition$tuning_binding
+    if (is.null(stored)) return(FALSE)
     current <- tuning_provider_binding(params)
-    if (is.null(stored)) {
-        return(FALSE)
-    }
-    relevant <- function(binding) {
-        components <- names(binding$other_dynamics)
-        if (owner %in% c("consumers", "reproduction")) {
-            binding$resource_dynamics <- NULL
-        }
-        own <- if (startsWith(owner, "component:")) {
-            substring(owner, 11L)
-        } else {
-            character()
-        }
-        binding$other_dynamics <- binding$other_dynamics[
-            intersect(own, components)
-        ]
-        binding$component_equations <-
-            binding$component_equations[intersect(
-                own,
-                names(binding$component_equations)
-            )]
-        for (slot in c("other_encounter", "other_mort")) {
-            keep <- setdiff(names(binding[[slot]]), setdiff(components, own))
-            binding[[slot]] <- binding[[slot]][keep]
-        }
-        for (field in c("other_dynamics", "component_equations",
-                        "other_encounter", "other_mort")) {
-            if (!length(binding[[field]])) binding[[field]] <- list()
-        }
-        binding
-    }
-    identical(relevant(stored), relevant(current))
+    identical(relevant_provider_binding(stored, owner),
+              relevant_provider_binding(current, owner))
 }
 
 builtin_tuning_rates <- function(params, reproduction = FALSE) {
@@ -276,7 +276,9 @@ builtin_no_action_tuning <- function(owner, prescribed = FALSE) {
 default_provider_tuning <- function(params, owner) {
     result <- list(
         stationary = NULL, equation_rates_fun = NULL, tuning = NULL,
-        tuning_binding = tuning_provider_binding(params), level_fun = NULL
+        tuning_binding = tuning_provider_binding(params), level_fun = NULL,
+        level_binding = c(tuning_provider_binding(params),
+                          list(automatic = TRUE))
     )
     known <- builtin_tuning_rates(params,
         reproduction = owner == "reproduction"
@@ -335,7 +337,7 @@ automatic_tuning_definition <- function(params, definition, owner) {
     previous$other_mort <- binding$other_mort
     class(previous) <- binding$dispatch$classes
     defaults <- default_provider_tuning(previous, owner)
-    fields <- c("stationary", "equation_rates_fun", "tuning", "level_fun")
+    fields <- c("stationary", "equation_rates_fun", "tuning")
     !is.null(defaults$tuning) && identical(definition[fields], defaults[fields])
 }
 
@@ -349,11 +351,14 @@ refresh_builtin_tuning <- function(params) {
         # A stale explicit declaration remains stale unless this is a known
         # built-in route with a matching built-in adapter.
         if (!is.null(defaults$tuning)) {
-            old[names(defaults)] <- defaults
+            fields <- c("stationary", "equation_rates_fun", "tuning",
+                        "tuning_binding")
+            old[fields] <- defaults[fields]
             params$capabilities$processes[[owner]] <- old
         }
     }
-    params
+    params <- refresh_builtin_levels(params)
+    refresh_builtin_transformations(params)
 }
 
 invoke_tuning_callback <- function(fun, params, args = list(), context) {
@@ -1277,6 +1282,8 @@ capability_callback_names <- function(params) {
                 "encounter_fun", "mort_fun", "convergence_fun",
                 "equation_rates_fun", "level_fun"
             ))], use.names = FALSE),
+            unlist(lapply(definition$transformations, `[[`, "transform_fun"),
+                   use.names = FALSE),
             unlist(lapply(definition$tuning$strategies, strategy_callbacks),
                 use.names = FALSE
             )
@@ -1287,6 +1294,9 @@ capability_callback_names <- function(params) {
             params$capabilities$components,
             params$capabilities$processes
         ), provider_callbacks), use.names = FALSE),
+        unlist(lapply(params$capabilities$transformations, function(entry) {
+            entry$definition$transform_fun
+        }), use.names = FALSE),
         unlist(lapply(params$capabilities$tuning, function(entry) {
             c(entry$equation_rates_fun, strategy_callbacks(entry$strategy))
         }), use.names = FALSE)

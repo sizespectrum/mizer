@@ -478,6 +478,31 @@ inter["Cod", "Herring"] <- 0.5
 interaction_matrix(params) <- inter        # or params <- setInteraction(params, inter)
 ```
 
+## Changing model structure and scale
+
+Use the model-level operations when a change affects more than a parameter
+column: `addSpecies()`, `removeSpecies()`, `renameSpecies()`, `reorderSpecies()`
+and `adjustSizeGrid()`. For a reorder, supply every species exactly once in its
+desired order. Reordering a species-parameter table alone leaves the model's
+arrays inconsistent and is rejected by its replacement accessor.
+
+These operations preserve the model's defaults edition. Extension-owned arrays
+and state need declared transformation support, which runs after the core
+structure is prepared and before dependent rates or steady-state calculations.
+If an operation reports missing support, update the extension package; projection
+support alone does not define how its data should be resized. Mizer does not
+infer species or size dimensions from an arbitrary extension array's shape.
+
+`scaleModel(params, factor)` changes the abundance scale; `scaleRates(params,
+factor)` changes the speed of the dynamics. Both transform the corresponding
+built-in parameters as well as their arrays, so a later setter recalculation
+retains the scaling. Scaled scalar coefficients are recorded among the supplied
+species parameters; set one to `NA` in `given_species_params()` if you later want
+it derived afresh from the other parameters. Components use their own declared
+hooks: a stock may
+scale, while a temperature, proportion or text label stays unchanged. For
+extension-author details see the `extend-mizer` skill.
+
 ## Level 2: setting a rate array directly — and the freeze trap
 
 Everything above changes level-1 parameters and lets mizer rebuild the level-2

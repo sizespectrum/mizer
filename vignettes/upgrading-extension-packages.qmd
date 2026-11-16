@@ -754,6 +754,67 @@ reserve [`setBevertonHolt()`](../reference/setBevertonHolt.html) for an intentio
 
 ---
 
+## Registering structural and scaling transformations
+
+The transformation preview (3.4.0.9008) adds a `transformations` map to component
+and process definitions. Legacy extensions do not acquire support by having
+arrays whose dimensions happen to match species or size grids. Declare an
+updating hook or explicit no-action support for each operation the package
+supports; missing support stops the operation before changes.
+
+Hooks receive a candidate with the core structural bookkeeping completed, plus
+the original model, operation details and ownership context. They run before
+dependent rate construction, initialisation and steady-state calculations. Move
+repairs such as a species-by-size spatial-overlap array into these hooks, so
+[`addSpecies()`](../reference/addSpecies.html) does not evaluate rates while that array still has old dimensions.
+Do not keep the same repair both in a hook and after `NextMethod()` returns.
+
+The public transformation functions retain their S3 generics. A delegating method
+should let the coordinated hooks perform its data updates, rather than doing
+the same update before or after `NextMethod()`. A complete overriding method
+remains responsible for implementing the operation's contract itself.
+
+Use explicit species and grid mappings from `details`; choose how new cells
+are initialised. For scaling, distinguish extensive stocks from intensive
+quantities and non-numeric state. [`scaleModel()`](../reference/scaleModel.html) no longer multiplies arbitrary
+component state, and [`scaleRates()`](../reference/scaleRates.html) needs the component's time constants and
+other rate parameters to transform consistently too. Update species coefficients
+and their recorded supplied values together where appropriate, and preserve
+the intended freeze status of manually supplied arrays.
+
+Declare permitted update paths. A component's own state and parameter subtree
+are its default paths; other extension-owned fields need explicit paths. Shared
+data require joint ownership through [`setTransformation()`](../reference/setTransformation.html). Callback errors and
+undeclared changes are errors; an explicit no-action declaration must really
+mean the component's existing data remain valid after the operation.
+
+Support remains bound to the providers it was registered against. Updating an
+assessment, a biomass measurement or instance data does not re-adopt an old
+transformation or balancing declaration after a provider change. Explicitly
+register the affected capability family, or replace the complete definition,
+after checking that it supports the new provider. A bare
+`setProcess(params, process)` deliberately re-adopts the stored process contract
+as a whole. Reproduction-level measurement has its own binding and cannot
+re-enable a stale balancing strategy.
+
+For [`removeSpecies(compensate = TRUE)`](../reference/removeSpecies.html), the core adds each effective external-rate
+shortfall once and checks the remaining species' growth, diffusion, total
+mortality and recruitment after all hooks. If your rate callback changes how
+those arrays enter the equations, supply the corresponding correction in a
+removal hook with explicit permission to update them. There is no numerical
+probe that guesses your callback's response. Custom resource dynamics and other
+components own their compensation through the same hooks.
+
+See "Transforming extension data with the model" in the [guide to extending mizer](guide-extend-mizer.html) for field
+names, callback context and a selective scaling example. Test add/remove/rename/
+reorder/grid changes and both scaling operations. Include a dependent callback
+that checks dimensions when it is first invoked, missing support, hook failure,
+unchanged input on failure, and a saved-model round trip. Keep the public
+`species_params<-()` rule that table rows alone cannot reorder the model; use
+[`reorderSpecies()`](../reference/reorderSpecies.html) for a coordinated reorder.
+
+---
+
 ## Finishing
 
 Run the checklist for package authors in the [guide to creating a mizer extension package](guide-create-extension-package.html)
